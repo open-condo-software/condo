@@ -4,7 +4,12 @@ import get from 'lodash/get'
 import { getTextFilterDropdown, getFilterIcon, getFilterValue } from './Filters'
 import { debounce } from 'lodash'
 import { useRouter } from 'next/router'
-import { getPageIndexFromOffset, parseQuery, QueryMeta } from '@condo/domains/common/utils/tables.utils'
+import {
+    getPageIndexFromOffset,
+    parseQuery,
+    QueryMeta,
+    FULL_TO_SHORT_ORDERS_MAP,
+} from '@condo/domains/common/utils/tables.utils'
 import qs from 'qs'
 
 interface ITableProps {
@@ -29,6 +34,7 @@ export type ColumnInfo = {
     dataIndex: string | Array<string>
     ellipsis?: boolean
     filter?: StringFilter
+    sortable?: boolean
     visible?: boolean
 }
 
@@ -42,7 +48,8 @@ const preciseFloor = (x: number, precision?: number) => {
 
 const convertColumns = (
     columns: Array<ColumnInfo>,
-    filters: { [x: string]: QueryMeta }
+    filters: { [x: string]: QueryMeta },
+    sorters: { [x: string]: 'ascend' | 'descend' }
 ) => {
     const totalWidth = columns
         .filter((column) => get(column, 'visible', true))
@@ -64,6 +71,8 @@ const convertColumns = (
             filterIcon: undefined,
             filterDropdown: undefined,
             responsive,
+            sorter: false,
+            sortOrder: get(sorters, column.key),
         }
         if (column.filter) {
             const filter = column.filter
@@ -72,6 +81,9 @@ const convertColumns = (
                 const placeHolder = filter.placeholder || column.title
                 baseColumnInfo.filterDropdown = getTextFilterDropdown(placeHolder)
             }
+        }
+        if (column.sortable) {
+            baseColumnInfo.sorter = true
         }
         return baseColumnInfo
     })
@@ -90,15 +102,17 @@ export const Table: React.FC<ITableProps> = ({
     const rowKey = keyPath || 'id'
 
     const router = useRouter()
-    const { filters, offset } = parseQuery(router.query)
+    const { filters, offset, sorters } = parseQuery(router.query)
+    const sorterMap = Object.assign({}, ...sorters.map((sorter) => ({ [sorter.columnKey]: sorter.order })))
     const currentPageIndex = getPageIndexFromOffset(offset, rowsPerPage)
 
-    const expandedColumns = convertColumns(columns, filters)
+    const expandedColumns = convertColumns(columns, filters, sorterMap)
 
     const handleChange = debounce((...tableChangeArguments) => {
         const [
             nextPagination,
             nextFilters,
+            nextSorters,
         ] = tableChangeArguments
         const { current } = nextPagination
         let shouldResetOffset = false
@@ -118,11 +132,18 @@ export const Table: React.FC<ITableProps> = ({
             }
         }
 
+        let newSorters  = null
+        if (nextSorters && nextSorters.order) {
+            shouldResetOffset = true
+            newSorters = `${nextSorters.field}_${FULL_TO_SHORT_ORDERS_MAP[nextSorters.order]}`
+        }
+
         const newOffset = shouldResetOffset ? 0 : (current - 1) * rowsPerPage
 
         const queryParams = {
             filters: JSON.stringify(newFilters),
             offset: newOffset,
+            sort: newSorters,
         }
 
         const newQuery = qs.stringify({ ...queryParams }, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })

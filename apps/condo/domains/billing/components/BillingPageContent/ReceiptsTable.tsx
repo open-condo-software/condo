@@ -68,18 +68,24 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
             width: 50,
             dataIndex: ['property', 'address'],
             filter: { type: 'string' },
+            ellipsis: true,
         },
         {
             title: AccountTitle,
             key: 'account',
             width: 30,
             dataIndex: ['account', 'number'],
+            filter: { type: 'string' },
+            ellipsis: true,
         },
         {
             title: ToPayTitle,
             key: 'toPay',
             width: 20,
             dataIndex: 'toPay',
+            sortable: true,
+            filter: { type: 'string' },
+            ellipsis: true,
         },
     ]
 
