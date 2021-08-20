@@ -2,9 +2,9 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 /** @jsx jsx */
-import React, { Dispatch, SetStateAction, useCallback, useMemo, useState } from 'react'
+import React, { Dispatch, SetStateAction, useCallback, useState } from 'react'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { Typography, Space, Radio, Row, Col, Input, Table, Tabs } from 'antd'
+import { Typography, Space, Radio, Row, Col, Input, Table, Tabs, Tooltip } from 'antd'
 import { DatabaseFilled, DiffOutlined } from '@ant-design/icons'
 import Head from 'next/head'
 import { css, jsx } from '@emotion/core'
@@ -25,9 +25,12 @@ import {
     getPageIndexFromQuery,
     getSortStringFromQuery,
     sorterToQuery,
-    filtersToQuery,
+    filtersToQuery as propertyFiltersToQuery,
     PROPERTY_PAGE_SIZE,
 } from '@condo/domains/property/utils/helpers'
+import {
+    filtersToQuery as divisionFiltersToQuery,
+} from '@condo/domains/division/utils/helpers'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 
 import { useTableColumns as usePropertyTableColumns } from '@condo/domains/property/hooks/useTableColumns'
@@ -35,6 +38,8 @@ import { useTableColumns as useDivisionTableColumns } from '@condo/domains/divis
 import { generateExcelData } from '@condo/domains/property/utils/helpers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { Property } from '@condo/domains/property/utils/clientSchema'
+import { Division } from '@condo/domains/division/utils/clientSchema'
+
 import debounce from 'lodash/debounce'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { useImporterFunctions } from '@condo/domains/property/hooks/useImporterFunctions'
@@ -43,7 +48,8 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { useOrganization } from '@core/next/organization'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { Division } from '../../domains/division/utils/clientSchema'
+import { FeatureFlagRequired } from '../../domains/common/components/containers/FeatureFlag'
+import { colors } from '../../domains/common/constants/style'
 
 export const PropertyPageViewMap = ({ searchPropertyQuery }): React.FC => {
     const {
@@ -81,6 +87,7 @@ const DivisionPageViewTable = () => {
 
     const intl = useIntl()
 
+    const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
     // EXCEL TABLE FIELDS
     const ExcelAddressLabel = intl.formatMessage({ id: 'field.Address' })
     const ExcelOrganizationLabel = intl.formatMessage({ id: 'pages.condo.property.field.Organization' })
@@ -97,17 +104,15 @@ const DivisionPageViewTable = () => {
     const offsetFromQuery = getPageIndexFromQuery(router.query)
 
     const tableColumns = useDivisionTableColumns(sortFromQuery, filtersFromQuery, filtersState[1])
-    const searchPropertyQuery = { ...filtersToQuery(filtersFromQuery), organization: { id: organization.id } }
-
+    const searchDivisionQuery = { ...divisionFiltersToQuery(filtersFromQuery), organization: { id: organization.id } }
     const objects = Division.useObjects({
         sortBy: sortFromQuery,
-        where: searchPropertyQuery,
+        where: searchDivisionQuery,
         skip: (offsetFromQuery * PROPERTY_PAGE_SIZE) - PROPERTY_PAGE_SIZE,
         first: PROPERTY_PAGE_SIZE,
     }, {
         fetchPolicy: 'network-only',
     })
-    console.log(objects.objs)
     const dataCols = [
         'address',
         'organization',
@@ -122,7 +127,17 @@ const DivisionPageViewTable = () => {
             ExcelTicketsInWorkLabel,
         ],
     ]
+
     const generateExcelData = useCallback(() => generateExcelData(Property, headers, dataCols, objects.objs), [objects.objs])
+
+    const handleRowAction = (record) => {
+        return {
+            onClick: () => {
+                router.push(`/division/${record.id}/`)
+            },
+        }
+    }
+
     return <BasePageViewTable
         tableColumns={tableColumns}
         role={role}
@@ -130,6 +145,7 @@ const DivisionPageViewTable = () => {
         createRoute="/division/create"
         objects={objects}
         generateExcelData={generateExcelData}
+        handleRowAction={handleRowAction}
     />
 }
 
@@ -154,7 +170,7 @@ const BuildingsPageViewTable = () => {
     const offsetFromQuery = getPageIndexFromQuery(router.query)
 
     const tableColumns = usePropertyTableColumns(sortFromQuery, filtersFromQuery, filtersState[1])
-    const searchPropertyQuery = { ...filtersToQuery(filtersFromQuery), organization: { id: organization.id } }
+    const searchPropertyQuery = { ...propertyFiltersToQuery(filtersFromQuery), organization: { id: organization.id } }
 
     const objects = Property.useObjects({
         sortBy: sortFromQuery,
@@ -164,6 +180,15 @@ const BuildingsPageViewTable = () => {
     }, {
         fetchPolicy: 'network-only',
     })
+
+
+    const handleRowAction = (record) => {
+        return {
+            onClick: () => {
+                router.push(`/property/${record.id}/`)
+            },
+        }
+    }
 
     const dataCols = [
         'address',
@@ -179,14 +204,15 @@ const BuildingsPageViewTable = () => {
             ExcelTicketsInWorkLabel,
         ],
     ]
-    const generateExcelData = useCallback(() => generateExcelData(Property, headers, dataCols, objects.objs), [objects.objs])
+    const generateExcelDataCallback = useCallback(() => generateExcelData(Property, headers, dataCols, objects.objs), [objects.objs])
     return <BasePageViewTable
         tableColumns={tableColumns}
         role={role}
         filtersState={filtersState}
         createRoute="/property/create"
         objects={objects}
-        generateExcelData={generateExcelData}
+        generateExcelData={generateExcelDataCallback}
+        handleRowAction={handleRowAction}
     />
 }
 
@@ -206,6 +232,7 @@ export const BasePageViewTable = ({
     createRoute,
     generateExcelData,
     objects,
+    handleRowAction,
 }): React.FC<BasePageViewTableProps> => {
     const intl = useIntl()
 
@@ -249,14 +276,6 @@ export const BasePageViewTable = ({
     }, 400), [loading])
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
-
-    const handleRowAction = (record) => {
-        return {
-            onClick: () => {
-                router.push(`/property/${record.id}/`)
-            },
-        }
-    }
 
     const [columns, propertyNormalizer, propertyValidator, propertyCreator] = useImporterFunctions()
 
@@ -334,11 +353,13 @@ export const PropertiesPage = () => {
     const ShowTable = intl.formatMessage({ id: 'pages.condo.property.index.ViewModeTable' })
     const BuildingsTabTitle = intl.formatMessage({ id: 'pages.condo.property.index.Buildings.Tab.Title' })
     const DivisionsTabTitle = intl.formatMessage({ id: 'pages.condo.property.index.Divisions.Tab.Title' })
+    const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
 
     const [propertiesType, setPropertiesType] = useState<'buildings' | 'divisions'>('buildings')
 
 
     const [viewMode, changeViewMode] = useState('list')
+
 
     return (
         <>
@@ -352,10 +373,29 @@ export const PropertiesPage = () => {
                             <PageHeader style={{ background: 'transparent' }} title={<Typography.Title>
                                 {PageTitleMessage}
                             </Typography.Title>} />
-                            {viewMode !== 'map' && <Tabs defaultActiveKey="0" onChange={(key: number) => setPropertiesType(['buildings', 'divisions'][key])}>
-                                <Tabs.TabPane tab={BuildingsTabTitle} key="0" />
-                                <Tabs.TabPane tab={DivisionsTabTitle} key="1" />
-                            </Tabs>}
+                            {viewMode !== 'map' && 
+                                <FeatureFlagRequired name="divisions.list" fallback={
+                                    <Tabs defaultActiveKey="0" activeKey="0">
+                                        <Tabs.TabPane tab={BuildingsTabTitle} key="0" />
+                                        <Tabs.TabPane 
+                                            key="1" 
+                                            tab={<Tooltip title={NotImplementedYetMessage} >
+                                                <Typography.Text 
+                                                    style={{
+                                                        opacity: 70,
+                                                        color: colors.sberGrey[4],
+                                                    }}
+                                                >{DivisionsTabTitle}</Typography.Text>
+                                            </Tooltip>} 
+                                        />
+                                    </Tabs>
+                                }>
+                                    <Tabs defaultActiveKey="0" onChange={(key: number) => setPropertiesType(['buildings', 'divisions'][key])}>
+                                        <Tabs.TabPane tab={BuildingsTabTitle} key="0" />
+                                        <Tabs.TabPane tab={DivisionsTabTitle} key="1" />
+                                    </Tabs>
+                                </FeatureFlagRequired>
+                            }
                         </Col>
                         <Col span={6} push={12} align={'right'} style={{ top: 10 }}>
                             <Radio.Group className={'sberRadioGroup'} value={viewMode} buttonStyle="outline" onChange={e => changeViewMode(e.target.value)}>
@@ -365,7 +405,9 @@ export const PropertiesPage = () => {
                         </Col>
                         {viewMode !== 'map' &&
                             <Col span={24}>
-                                {propertiesType === 'buildings' ? <BuildingsPageViewTable /> : <DivisionPageViewTable />}
+                                {
+                                    propertiesType === 'buildings' ? <BuildingsPageViewTable />  : <DivisionPageViewTable />
+                                }
                             </Col>
                         }
                     </Row>

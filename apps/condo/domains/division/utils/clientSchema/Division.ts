@@ -16,7 +16,7 @@ import {
     QueryAllDivisionsArgs,
 } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'name', 'organization', 'properties', 'responsible', 'executors']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'name', 'organization', 'responsible', 'executors', 'properties']
 const RELATIONS = ['organization', 'properties', 'responsible', 'executors']
 
 export interface IDivisionUIState extends Division {
