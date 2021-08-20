@@ -5,14 +5,12 @@
 const { GQLCustomSchema, getByCondition } = require('@core/keystone/schema')
 const access = require('@condo/domains/ticket/access/TicketAnalyticsReportService')
 const moment = require('moment')
-const { sortStatusesByType } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
-const { TicketGqlToKnexAdapter } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
-const { DATE_DISPLAY_FORMAT, TICKET_REPORT_DAY_GROUP_STEPS } = require('@condo/domains/ticket/constants/common')
+const { sortStatusesByType, TicketGqlToKnexAdapter, aggregateData, ticketAnalyticsExcelExportDataMapper } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
+const { DATE_DISPLAY_FORMAT } = require('@condo/domains/ticket/constants/common')
 const { Property: PropertyServerUtils } = require('@condo/domains/property/utils/serverSchema')
 const { TicketStatus: TicketStatusServerUtils, Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 const isEmpty = require('lodash/isEmpty')
 const get = require('lodash/get')
-const groupObjectBy = require('lodash/groupBy')
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
 
 const createPropertyRange = async (context, organizationWhereInput) => {
@@ -80,36 +78,6 @@ const getTicketCounts = async (context, where, groupBy, extraLabels = {}) => {
             }
         }).sort((a, b) =>
             moment(a.dayGroup, DATE_DISPLAY_FORMAT).format('X') - moment(b.dayGroup, DATE_DISPLAY_FORMAT).format('X'))
-}
-
-const aggregateData = (data, groupByFilter) => {
-    const [axisGroupKey] = groupByFilter
-    const labelsGroupKey = TICKET_REPORT_DAY_GROUP_STEPS.includes(groupByFilter[1]) ? 'dayGroup' : groupByFilter[1]
-    const groupedResult = groupObjectBy(data, axisGroupKey)
-    const result = {}
-    Object.entries(groupedResult).forEach(([filter, dataObject]) => {
-        result[filter] = Object.fromEntries(
-            Object.entries(
-                groupObjectBy(dataObject, labelsGroupKey)
-            ).map(([labelsGroupTitle, resultObject]) => [labelsGroupTitle, resultObject[0].count])
-        )
-    })
-    return { result, groupKeys: [axisGroupKey, labelsGroupKey] }
-}
-
-const ticketAnalyticsExcelExportDataMapper = (data, where = {}, groupBy = [], translates = {}) => {
-    const uniqueDates = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
-    const result = []
-    const address = get(translates, 'property')
-
-    uniqueDates.forEach((date, key) => {
-        const restTableColumns = {}
-        Object.keys(data).forEach(ticketType => {
-            restTableColumns[ticketType] = data[ticketType][date]
-        })
-        result.push({ key, address, date, ...restTableColumns })
-    })
-    return result
 }
 
 const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportService', {

@@ -448,7 +448,9 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
             const { AND, groupBy } = filterToQuery(filtersRef.current, viewMode, ticketType)
             const where = { organization: { id: userOrganizationId }, AND }
             const translates = {
-                property: filtersRef.current.addressList.length ? filtersRef.current.addressList.map(({ value }) => value).join(', ') : AllAddressTitle,
+                property: filtersRef.current.addressList.length ?
+                    filtersRef.current.addressList.map(({ value }) => value).join('@')
+                    : AllAddressTitle,
             }
 
             exportTicketAnalyticsToExcel({ variables: { data: { groupBy, where, translates } } })
@@ -464,6 +466,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     if (selectedAddresses.length > 1) {
         addressFilterTitle = ManyAddresses
     }
+    const isControlsDisabled = loading || isXSLXLoading || filtersRef.current === null
     return <>
         <Head>
             <title>{PageTitle}</title>
@@ -559,10 +562,10 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         ), [analyticsData, loading, viewMode])}
                     </Col>
                     <ActionBar fullscreen>
-                        <Button onClick={printPdf} icon={<FilePdfFilled />} type='sberPrimary' secondary>
+                        <Button disabled={isControlsDisabled} onClick={printPdf} icon={<FilePdfFilled />} type='sberPrimary' secondary>
                             {PrintTitle}
                         </Button>
-                        <Button onClick={downloadExcel} loading={isXSLXLoading} icon={<EditFilled />} type='sberPrimary' secondary>{ExcelTitle}</Button>
+                        <Button disabled={isControlsDisabled} onClick={downloadExcel} loading={isXSLXLoading} icon={<EditFilled />} type='sberPrimary' secondary>{ExcelTitle}</Button>
                     </ActionBar>
                 </Row>
             </PageContent>
