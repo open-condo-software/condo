@@ -1,7 +1,13 @@
 import { SortOrder } from 'antd/es/table/interface'
 import get from 'lodash/get'
 import { ParsedUrlQuery } from 'querystring'
-import { Property, PropertyWhereInput } from '../../../schema'
+import { Property } from '../../../schema'
+import { Property as PropertyClientSchema } from '@condo/domains/property/utils/clientSchema'
+import { Division as DivisionClientSchema } from '@condo/domains/division/utils/clientSchema'
+import { PropertyWhereInput } from '../../../schema'
+import XLSX from 'xlsx'
+import { IDivisionUIState } from '../../division/utils/clientSchema/Division'
+import { IPropertyUIState } from './clientSchema/Property'
 
 
 export const PROPERTY_PAGE_SIZE = 10
@@ -98,3 +104,19 @@ export const filtersToQuery = (filters: IFilters): PropertyWhereInput => {
     }
 }
 
+export const generateExcelData =  (
+    PropertySchema: typeof PropertyClientSchema | typeof DivisionClientSchema,
+    headers: string[][],
+    dataCols: string[],
+    properties: (IPropertyUIState | IDivisionUIState)[]
+) => {
+    const wb = XLSX.utils.book_new()
+    const ws = XLSX.utils.json_to_sheet(
+        properties.map((property) => PropertySchema.extractAttributes(property, dataCols)),
+        { skipHeader: true, origin: 'A2' }
+    )
+    XLSX.utils.sheet_add_aoa(ws, headers)
+    XLSX.utils.book_append_sheet(wb, ws, 'table')
+    XLSX.writeFile(wb, 'export_properties.xlsx')
+    
+}

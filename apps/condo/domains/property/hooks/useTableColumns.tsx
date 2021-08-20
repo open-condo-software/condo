@@ -45,7 +45,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                         text={String(text)}
                         search={String(search)}
                         renderPart={(part) => (
-                            <Typography.Text style={{ backgroundColor: colors.markColor }}>
+                            <Typography.Text style={{ backgroundColor: colors.markColor }} key={text}>
                                 {part}
                             </Typography.Text>
                         )}
