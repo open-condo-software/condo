@@ -1,10 +1,12 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import React, { useCallback, useState } from 'react'
+/** @jsx jsx */
+import React, { useCallback, useMemo, useState } from 'react'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { Typography, Space, Radio, Row, Col, Input, Table, notification } from 'antd'
+import { Typography, Space, Radio, Row, Col, Input, Table, Tabs } from 'antd'
 import { DatabaseFilled, DiffOutlined } from '@ant-design/icons'
 import Head from 'next/head'
+import { css, jsx } from '@emotion/core'
 import { MapGL } from '@condo/domains/common/components/MapGL'
 import { Button } from '@condo/domains/common/components/Button'
 import { IFilters } from '@condo/domains/property/utils/helpers'
@@ -27,7 +29,8 @@ import {
 } from '@condo/domains/property/utils/helpers'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 
-import { useTableColumns } from '@condo/domains/property/hooks/useTableColumns'
+import { useTableColumns as usePropertyTableColumns } from '@condo/domains/property/hooks/useTableColumns'
+import { useTableColumns as useDivisionTableColumns } from '@condo/domains/division/hooks/useTableColumns'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import debounce from 'lodash/debounce'
@@ -36,7 +39,7 @@ import { useImporterFunctions } from '@condo/domains/property/hooks/useImporterF
 
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
-import { useOrganization  } from '@core/next/organization'
+import { useOrganization } from '@core/next/organization'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
 export const PropertyPageViewMap = ({ searchPropertyQuery }): React.FC => {
@@ -47,9 +50,15 @@ export const PropertyPageViewMap = ({ searchPropertyQuery }): React.FC => {
     }, {
         fetchPolicy: 'network-only',
     })
-
+    const mapCss = css`
+        position: absolute;
+        top: 280px;
+        bottom: 0;
+        right: 0;
+        left: 0;
+    `
     const points = properties
-        .filter(property => has(property, ['addressMeta', 'data'] ))
+        .filter(property => has(property, ['addressMeta', 'data']))
         .map(property => {
             const { geo_lat, geo_lon } = property.addressMeta.data
             return {
@@ -61,7 +70,7 @@ export const PropertyPageViewMap = ({ searchPropertyQuery }): React.FC => {
         })
 
     return (
-        <MapGL points={points} />
+        <MapGL points={points} containerCss={mapCss} />
     )
 }
 
@@ -81,8 +90,11 @@ export const PropertyPageViewTable = ({
     const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.id.PageTitle' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const PropertiesMessage = intl.formatMessage({ id: 'menu.Property' })
-    const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.property.id.DownloadExcelLabel' })
-
+    // EXCEL TABLE FIELDS
+    const ExcelAddressLabel = intl.formatMessage({ id: 'field.Address' })
+    const ExcelOrganizationLabel = intl.formatMessage({ id: 'pages.condo.property.field.Organization' })
+    const ExcelUnitsCountLabel = intl.formatMessage({ id: 'pages.condo.property.id.UnitsCount' })
+    const ExcelTicketsInWorkLabel = intl.formatMessage({ id: 'pages.condo.property.id.TicketsInWork' })
 
     const createRoute = '/property/create'
 
@@ -161,7 +173,7 @@ export const PropertyPageViewTable = ({
     const [columns, propertyNormalizer, propertyValidator, propertyCreator] = useImporterFunctions()
 
     if (error) {
-        return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null}/>
+        return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null} />
     }
 
     const canManageProperties = get(role, 'canManageProperties', false)
@@ -171,7 +183,7 @@ export const PropertyPageViewTable = ({
             <Col span={6}>
                 <Input
                     placeholder={SearchPlaceholder}
-                    onChange={(e)=>{handleSearchChange(e.target.value)}}
+                    onChange={(e) => { handleSearchChange(e.target.value) }}
                     value={search}
                 />
             </Col>
@@ -247,18 +259,28 @@ export const PropertyPageViewTable = ({
     )
 }
 
-export const PropertiesPageContent = ({
-    filtersToQuery,
-    searchPropertyQuery,
-    tableColumns,
-    role,
-    filtersApplied,
-    setFiltersApplied,
-}) => {
+export const PropertiesPage = () => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.PageTitle' })
     const ShowMap = intl.formatMessage({ id: 'pages.condo.property.index.ViewModeMap' })
     const ShowTable = intl.formatMessage({ id: 'pages.condo.property.index.ViewModeTable' })
+    const BuildingsTabTitle = intl.formatMessage({ id: 'pages.condo.property.index.Buildings.Tab.Title' })
+    const DivisionsTabTitle = intl.formatMessage({ id: 'pages.condo.property.index.Divisions.Tab.Title' })
+
+    const router = useRouter()
+    const { organization, link: { role } } = useOrganization()
+
+    const [filtersApplied, setFiltersApplied] = useState(false)
+    const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
+    const sortFromQuery = getSortStringFromQuery(router.query)
+    const [propertiesType, setPropertiesType] = useState<'buildings' | 'divisions'>('buildings')
+
+    const useTableColumns = useMemo(() => 
+        propertiesType === 'divisions' ? useDivisionTableColumns : usePropertyTableColumns
+    , [propertiesType] )
+    const tableColumns = useTableColumns(sortFromQuery, filtersFromQuery, setFiltersApplied)
+    const searchPropertyQuery = { ...filtersToQuery(filtersFromQuery), organization: { id: organization.id } }
+
     const [viewMode, changeViewMode] = useState('list')
 
     return (
@@ -273,6 +295,10 @@ export const PropertiesPageContent = ({
                             <PageHeader style={{ background: 'transparent' }} title={<Typography.Title>
                                 {PageTitleMessage}
                             </Typography.Title>} />
+                            <Tabs defaultActiveKey="1" onChange={(key) => setPropertiesType(['buildings', 'divisions'][key])}>
+                                <Tabs.TabPane tab={BuildingsTabTitle} key="0" />
+                                <Tabs.TabPane tab={DivisionsTabTitle} key="1" />
+                            </Tabs>
                         </Col>
                         <Col span={6} push={12} align={'right'} style={{ top: 10 }}>
                             <Radio.Group className={'sberRadioGroup'} value={viewMode} buttonStyle="outline" onChange={e => changeViewMode(e.target.value)}>
@@ -281,9 +307,10 @@ export const PropertiesPageContent = ({
                             </Radio.Group>
                         </Col>
                         <Col span={24}>
-                            {
-                                viewMode !== 'map' ? (
-                                    <PropertyPageViewTable
+                            {(() => {
+                                if (viewMode === 'map') return null
+                                if (propertiesType === 'buildings')
+                                    return <PropertyPageViewTable
                                         filtersToQuery={filtersToQuery}
                                         filtersApplied={filtersApplied}
                                         setFiltersApplied={setFiltersApplied}
@@ -291,8 +318,16 @@ export const PropertiesPageContent = ({
                                         searchPropertyQuery={searchPropertyQuery}
                                         role={role}
                                     />
-                                ) : null
-                            }
+                                else if (propertiesType === 'divisions')
+                                    return <PropertyPageViewTable
+                                        filtersToQuery={filtersToQuery}
+                                        filtersApplied={filtersApplied}
+                                        setFiltersApplied={setFiltersApplied}
+                                        tableColumns={tableColumns}
+                                        searchPropertyQuery={searchPropertyQuery}
+                                        role={role}
+                                    />
+                            })()}
                         </Col>
                     </Row>
                     <>
@@ -310,30 +345,8 @@ export const PropertiesPageContent = ({
     )
 }
 
-const PropertiesPage = (): React.FC => {
-    const router = useRouter()
-    const { organization, link } = useOrganization()
 
-    const [filtersApplied, setFiltersApplied] = useState(false)
-    const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
-    const sortFromQuery = getSortStringFromQuery(router.query)
-    const tableColumns = useTableColumns(sortFromQuery, filtersFromQuery, setFiltersApplied)
-
-    const searchPropertyQuery = {  ...filtersToQuery(filtersFromQuery), organization: { id: organization.id } }
-
-    return (
-        <PropertiesPageContent
-            tableColumns={tableColumns}
-            filtersToQuery={filtersToQuery}
-            filtersApplied={filtersApplied}
-            setFiltersApplied={setFiltersApplied}
-            searchPropertyQuery={searchPropertyQuery}
-            role={link.role}
-        />
-    )
-}
-
-PropertiesPage.headerAction = <TitleHeaderAction descriptor={{ id: 'menu.Property' }}/>
+PropertiesPage.headerAction = <TitleHeaderAction descriptor={{ id: 'menu.Property' }} />
 PropertiesPage.requiredAccess = OrganizationRequired
 
 export default PropertiesPage
