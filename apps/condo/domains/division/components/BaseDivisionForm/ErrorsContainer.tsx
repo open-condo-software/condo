@@ -20,7 +20,7 @@ export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ properties, r
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
     const PropertiesLabel = intl.formatMessage({ id: 'division.field.properties' })
     const ResponsibleLabel = intl.formatMessage({ id: 'division.field.responsible' })
-    const disableUserInteraction = !properties || !responsible
+    const disableUserInteraction = !properties || properties.length === 0 || !responsible
 
     const errors = []
     if (properties && properties.length === 0)

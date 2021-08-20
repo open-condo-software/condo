@@ -1,5 +1,4 @@
 import { Typography, Row, Col } from 'antd'
-import Error from 'next/error'
 import Head from 'next/head'
 import React from 'react'
 import { DivisionForm } from '@condo/domains/division/components/DivisionForm'
@@ -7,18 +6,19 @@ import { useIntl } from '@core/next/intl'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
-import { FeatureFlagRequired } from '@condo/domains/common/components/containers/FeatureFlag'
+import { useRouter } from 'next/router'
 
-interface ICreateDivisionPage extends React.FC {
+interface IUpdateDivisionPage extends React.FC {
     headerAction?: JSX.Element
     requiredAccess?: React.FC
 }
 
-const CreateDivisionPage: ICreateDivisionPage = () => {
+const UpdateDivisionPage: IUpdateDivisionPage = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id:'pages.condo.division.create.CreateDivisionTitle' })
+    const PageTitleMsg = intl.formatMessage({ id:'pages.condo.division.create.UpdateDivisionTitle' })
+    const { query: { id } } = useRouter()
     return (
-        <FeatureFlagRequired name={'division'} fallback={<Error statusCode={404}/>}>
+        <>
             <Head>
                 <title>{PageTitleMsg}</title>
             </Head>
@@ -29,16 +29,21 @@ const CreateDivisionPage: ICreateDivisionPage = () => {
                             <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
                         </Col>
                         <Col span={24}>
-                            <DivisionForm/>
+                            <DivisionForm id={id as string}/>
                         </Col>
                     </Row>
                 </PageContent>
             </PageWrapper>
-        </FeatureFlagRequired>
+        </>
     )
 }
 
-CreateDivisionPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllDivisions' }} path={'/division/'}/>
-CreateDivisionPage.requiredAccess = OrganizationRequired
+UpdateDivisionPage.headerAction = (
+    <ReturnBackHeaderAction
+        descriptor={{ id: 'menu.AllDivisions' }}
+        path={'/division/'}
+    />
+)
+UpdateDivisionPage.requiredAccess = OrganizationRequired
 
-export default CreateDivisionPage
+export default UpdateDivisionPage
