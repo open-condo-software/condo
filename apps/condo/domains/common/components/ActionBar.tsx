@@ -6,6 +6,7 @@ import { css, jsx } from '@emotion/core'
 
 
 const actionBar = css`
+    position: relative;
     padding: 24px 24px 32px 24px;
     margin: 0 -24px;
     transition: box-shadow 0.6s ease-out;
