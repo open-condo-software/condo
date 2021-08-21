@@ -106,7 +106,7 @@ export class BotController {
         const taskNumbers = await getDoneTasksFromRange(lastCommitSha, firstCommitSha)
         const formattedTasks = await getFormattedTasks(taskNumbers, this.jiraApi)
 
-        this.bot.sendMessage(message.chat.id, formattedTasks.join('\n'))
+        this.bot.sendMessage(message.chat.id, formattedTasks.join('\n'), { parse_mode: 'Markdown' })
             .catch((e) => {
                 const errorMessage = e.message.split(': ')[2]
                 if (errorMessage === 'message is too long') {

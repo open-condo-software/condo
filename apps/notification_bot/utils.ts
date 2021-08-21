@@ -104,19 +104,20 @@ export const getDoneTasksFromRange = async (lastCommitSha: string, firstCommitSh
 }
 
 /**
- * Formats jira task numbers like SBERDOMA-1 to [taskTitle](taskHref)
+ * Formats jira task numbers like SBERDOMA-1 to markdown
  */
-export const getFormattedTasks = async (taskNumbers: Array<string>, jiraApi: JiraApi) => {
-    const formattedTasks = taskNumbers
-        .map(async (task) => {
+export const getFormattedTasks = async (taskIds: Array<string>, jiraApi: JiraApi) => {
+    const formattedTasks = taskIds
+        .map(async (taskId) => {
             try {
-                const [_, taskNumber] = task.split('-') // SBERDOMA-1 -> [SBERDOMA, 1]
-                const taskMeta = await jiraApi.findIssue(taskNumber)
-                console.log(taskMeta)
-                return taskMeta
+                const taskMeta = await jiraApi.findIssue(taskId)
+                return `[${taskId}](https://doma.atlassian.net/browse/${taskId}): ${taskMeta.fields.summary}. ${taskMeta.fields.labels.map(x => `\`${x}\``).join(', ')}`
             } catch (e) {
-                console.log(e.error.errorMessage)
-                return `Не смог распарсить: ${task}, Потому что: ${e.error.errorMessage}`
+                let msg = e.error
+                if (msg.errorMessages) {
+                    msg = msg.errorMessages.join(', ')
+                }
+                return `Не смог получить: ${taskId}, Потому что: ${(msg)}`
             }
         })
 

@@ -9,12 +9,13 @@ import { getPullRequestMessage } from './utils'
 
 const app = express()
 
+const jiraConfig = JSON.parse(process.env.NOTIFICATION_BOT_JIRA_CONFIG)
 import JiraApi from 'jira-client'
 const jiraApi = new JiraApi({
     protocol: 'https',
-    host: 'jira.atlassian.net',
-    username: 'username',
-    password: 'password',
+    host: jiraConfig.host,
+    username: jiraConfig.username,
+    password: jiraConfig.password,
     apiVersion: '2',
     strictSSL: true,
 })
