@@ -1,8 +1,10 @@
 import TelegramBot from 'node-telegram-bot-api'
-import { getCommitsFromRange } from './utils'
+
+import { getFormattedTasks, getDoneTasksFromRange } from './utils'
+import JiraApi from 'jira-client'
 
 export class BotController {
-    constructor (private token?: string) {
+    constructor (private jiraApi: JiraApi, private token?: string) {
         const initialUsers = process.env.NOTIFICATION_BOT_CONFIG && JSON.parse(process.env.NOTIFICATION_BOT_CONFIG)?.intitial_listeners
 
         if (initialUsers) {
@@ -101,9 +103,10 @@ export class BotController {
 
         const lastCommitSha = formattedMessage[1]
         const firstCommitSha = formattedMessage[2]
-        const commitsList = await getCommitsFromRange(lastCommitSha, firstCommitSha)
+        const taskNumbers = await getDoneTasksFromRange(lastCommitSha, firstCommitSha)
+        const formattedTasks = await getFormattedTasks(taskNumbers, this.jiraApi)
 
-        this.bot.sendMessage(message.chat.id, commitsList.join('\n'))
+        this.bot.sendMessage(message.chat.id, formattedTasks.join('\n'))
             .catch((e) => {
                 const errorMessage = e.message.split(': ')[2]
                 if (errorMessage === 'message is too long') {

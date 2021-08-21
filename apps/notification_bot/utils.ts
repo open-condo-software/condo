@@ -12,8 +12,8 @@ ${users.map(([userName]) => `@${userName}`).join(', ')}
 ---------------------------------
 `)
 
-export const getFormattedCommits = (commits) => {
-    const formattedCommit = commits
+const extractTasksFromCommits = (commits) => {
+    const relevantCommits = commits
         .map(({ message }) => {
             const [task_number] = message.split(' ')
             return task_number
@@ -24,14 +24,16 @@ export const getFormattedCommits = (commits) => {
             return AVAILABLE_TASK_TYPES.includes(taskType)
         })
 
-    return Array.from(new Set<string>(formattedCommit))
+    const uniqueCommits = Array.from(new Set<string>(relevantCommits))
+
+    return uniqueCommits
         .sort((leftCommit, rightCommit) => {
             const [, leftCommitNumber] = leftCommit.split('-')
             const [, rightCommitNumber] = rightCommit.split('-')
 
             return Number(leftCommitNumber) > Number(rightCommitNumber) ? 1 : -1
-        }).map((commit) => {
-            return `https://doma.atlassian.net/browse/${commit}`
+        }).map((task) => {
+            return task
         })
 }
 
@@ -44,7 +46,7 @@ const fetchCommitsList = async (page: number, per_page = 100) => {
     })
 }
 
-export const getCommitsFromRange = async (lastCommitSha: string, firstCommitSha?: string) => {
+export const getDoneTasksFromRange = async (lastCommitSha: string, firstCommitSha?: string) => {
     const commitsList = []
 
     let isLastCommitFound = false
@@ -98,5 +100,25 @@ export const getCommitsFromRange = async (lastCommitSha: string, firstCommitSha?
         }
     }
 
-    return getFormattedCommits(commitsList)
+    return extractTasksFromCommits(commitsList)
+}
+
+/**
+ * Formats jira task numbers like SBERDOMA-1 to [taskTitle](taskHref)
+ */
+export const getFormattedTasks = async (taskNumbers: Array<string>, jiraApi: JiraApi) => {
+    const formattedTasks = taskNumbers
+        .map(async (task) => {
+            try {
+                const [_, taskNumber] = task.split('-') // SBERDOMA-1 -> [SBERDOMA, 1]
+                const taskMeta = await jiraApi.findIssue(taskNumber)
+                console.log(taskMeta)
+                return taskMeta
+            } catch (e) {
+                console.log(e.error.errorMessage)
+                return `Не смог распарсить: ${task}, Потому что: ${e.error.errorMessage}`
+            }
+        })
+
+    return await Promise.all(formattedTasks)
 }

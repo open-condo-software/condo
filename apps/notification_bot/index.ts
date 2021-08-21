@@ -8,7 +8,18 @@ import { BotController } from './botController'
 import { getPullRequestMessage } from './utils'
 
 const app = express()
-const bot = new BotController()
+
+import JiraApi from 'jira-client'
+const jiraApi = new JiraApi({
+    protocol: 'https',
+    host: 'jira.atlassian.net',
+    username: 'username',
+    password: 'password',
+    apiVersion: '2',
+    strictSSL: true,
+})
+
+const bot = new BotController(jiraApi)
 bot.init()
 
 app.use(express.json())
