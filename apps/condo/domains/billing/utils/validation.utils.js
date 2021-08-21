@@ -1,4 +1,3 @@
-const { JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/errors')
 const Ajv = require('ajv')
 const addFormats = require('ajv-formats')
 const ajv = new Ajv()
@@ -20,11 +19,11 @@ const PAYMENT_SCHEMA = {
     additionalProperties: false,
 }
 
-const _jsonPaymentObjectSchemaValidator = ajv.compile(PAYMENT_SCHEMA)
+const jsonPaymentObjectSchemaValidator = ajv.compile(PAYMENT_SCHEMA)
 
 function validatePaymentDetails ({ resolvedData, fieldPath, addFieldValidationError }) {
-    if (!_jsonPaymentObjectSchemaValidator(resolvedData[fieldPath])) {
-        return _jsonPaymentObjectSchemaValidator.errors.forEach(error => {
+    if (!jsonPaymentObjectSchemaValidator(resolvedData[fieldPath])) {
+        return jsonPaymentObjectSchemaValidator.errors.forEach(error => {
             addFieldValidationError(`${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`)
         })
     }
@@ -46,11 +45,11 @@ const SERVICES_WITH_PAYMENT_SCHEMA = {
     },
 }
 
-const _jsonServicesSchemaValidator = ajv.compile(SERVICES_WITH_PAYMENT_SCHEMA)
+const jsonServicesSchemaValidator = ajv.compile(SERVICES_WITH_PAYMENT_SCHEMA)
 
 function validateServices ({ resolvedData, fieldPath, addFieldValidationError }) {
-    if (!_jsonServicesSchemaValidator(resolvedData[fieldPath])) {
-        return _jsonServicesSchemaValidator.errors.forEach(error => {
+    if (!jsonServicesSchemaValidator(resolvedData[fieldPath])) {
+        return jsonServicesSchemaValidator.errors.forEach(error => {
             addFieldValidationError(`${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`)
         })
     }
@@ -68,11 +67,11 @@ const PAYMENT_RECIPIENT_SCHEMA = {
     additionalProperties: true,
 }
 
-const _jsonPaymentRecipientSchemaValidator = ajv.compile(PAYMENT_RECIPIENT_SCHEMA)
+const jsonPaymentRecipientSchemaValidator = ajv.compile(PAYMENT_RECIPIENT_SCHEMA)
 
 function validateRecipient ({ resolvedData, fieldPath, addFieldValidationError }) {
-    if (!_jsonPaymentRecipientSchemaValidator(resolvedData[fieldPath])) {
-        return _jsonPaymentRecipientSchemaValidator.errors.forEach(error => {
+    if (!jsonPaymentRecipientSchemaValidator(resolvedData[fieldPath])) {
+        return jsonPaymentRecipientSchemaValidator.errors.forEach(error => {
             addFieldValidationError(`${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`)
         })
     }
@@ -101,11 +100,11 @@ const REPORT_SCHEMA = {
     additionalProperties: false,
 }
 
-const _jsonReportValidator = ajv.compile(REPORT_SCHEMA)
+const jsonReportValidator = ajv.compile(REPORT_SCHEMA)
 
 function validateReport ({ resolvedData, fieldPath, addFieldValidationError }) {
-    if (!_jsonReportValidator(resolvedData[fieldPath])) {
-        return _jsonReportValidator.errors.forEach((error) => {
+    if (!jsonReportValidator(resolvedData[fieldPath])) {
+        return jsonReportValidator.errors.forEach((error) => {
             addFieldValidationError(`${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`)
         })
     }
@@ -114,19 +113,19 @@ function validateReport ({ resolvedData, fieldPath, addFieldValidationError }) {
 const DATA_FORMAT_SCHEMA = {
     type: 'object',
     properties: {
-        hasToPayDetail: { type: 'boolean' },
-        hasServices: { type: 'boolean' },
-        hasServicesDetail: { type: 'boolean' },
+        hasToPayDetail: { type: 'boolean' },    // True if billingReceipt has toPay detailization: e.g debt, recalculation fields
+        hasServices: { type: 'boolean' },       // True if billingReceipt has services object: e.g cold water service
+        hasServicesDetail: { type: 'boolean' }, // True if billingReceipt's services has detail: e.g debt and recalculation for cold water service
     },
     required: ['hasToPayDetail', 'hasServices', 'hasServicesDetail'],
     additionalProperties: false,
 }
 
-const _jsonDataFormatValidator = ajv.compile(DATA_FORMAT_SCHEMA)
+const jsonDataFormatValidator = ajv.compile(DATA_FORMAT_SCHEMA)
 
 function validateDataFormat ({ resolvedData, fieldPath, addFieldValidationError }) {
-    if (!_jsonDataFormatValidator(resolvedData[fieldPath])) {
-        return _jsonDataFormatValidator.errors.forEach((error) => {
+    if (!jsonDataFormatValidator(resolvedData[fieldPath])) {
+        return jsonDataFormatValidator.errors.forEach((error) => {
             addFieldValidationError(`${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`)
         })
     }
