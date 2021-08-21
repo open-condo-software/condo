@@ -13,10 +13,10 @@ ALTER TABLE "BillingIntegration" ADD COLUMN "dataFormat" jsonb NULL;
 --
 ALTER TABLE "BillingIntegrationHistoryRecord" ADD COLUMN "dataFormat" jsonb NULL;
 --
--- Alter field importId on billingreceipt
+-- Alter field importId on billingreceipt and set UNIQUE as combination of contextId and importId (made intentionally by @toplenboren)
 --
 ALTER TABLE "BillingReceipt" ALTER COLUMN "importId" SET NOT NULL;
-ALTER TABLE "BillingReceipt" ADD CONSTRAINT "BillingReceipt_importId_9da6acbf_uniq" UNIQUE ("importId");
+ALTER TABLE "BillingReceipt" ADD CONSTRAINT "BillingReceipt_importId_9da6acbf_uniq" UNIQUE ("context", "importId");
 CREATE INDEX "BillingReceipt_importId_9da6acbf_like" ON "BillingReceipt" ("importId" text_pattern_ops);
 COMMIT;
 
@@ -27,7 +27,7 @@ exports.down = async (knex) => {
     await knex.raw(`
     BEGIN;
 --
--- Truncate all rows on billingReceipts (made intentionally by toplenboren)
+-- Truncate all rows on billingReceipts (made intentionally by @toplenboren)
 --
 TRUNCATE TABLE "BillingReceipts";
 --
