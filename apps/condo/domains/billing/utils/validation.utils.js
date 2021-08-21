@@ -23,7 +23,7 @@ const jsonPaymentObjectSchemaValidator = ajv.compile(PAYMENT_SCHEMA)
 
 function validatePaymentDetails ({ resolvedData, fieldPath, addFieldValidationError }) {
     if (!jsonPaymentObjectSchemaValidator(resolvedData[fieldPath])) {
-        return jsonPaymentObjectSchemaValidator.errors.forEach(error => {
+        jsonPaymentObjectSchemaValidator.errors.forEach(error => {
             addFieldValidationError(`${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`)
         })
     }
@@ -49,7 +49,7 @@ const jsonServicesSchemaValidator = ajv.compile(SERVICES_WITH_PAYMENT_SCHEMA)
 
 function validateServices ({ resolvedData, fieldPath, addFieldValidationError }) {
     if (!jsonServicesSchemaValidator(resolvedData[fieldPath])) {
-        return jsonServicesSchemaValidator.errors.forEach(error => {
+        jsonServicesSchemaValidator.errors.forEach(error => {
             addFieldValidationError(`${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`)
         })
     }
@@ -71,7 +71,7 @@ const jsonPaymentRecipientSchemaValidator = ajv.compile(PAYMENT_RECIPIENT_SCHEMA
 
 function validateRecipient ({ resolvedData, fieldPath, addFieldValidationError }) {
     if (!jsonPaymentRecipientSchemaValidator(resolvedData[fieldPath])) {
-        return jsonPaymentRecipientSchemaValidator.errors.forEach(error => {
+        jsonPaymentRecipientSchemaValidator.errors.forEach(error => {
             addFieldValidationError(`${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`)
         })
     }
@@ -104,7 +104,7 @@ const jsonReportValidator = ajv.compile(REPORT_SCHEMA)
 
 function validateReport ({ resolvedData, fieldPath, addFieldValidationError }) {
     if (!jsonReportValidator(resolvedData[fieldPath])) {
-        return jsonReportValidator.errors.forEach((error) => {
+        jsonReportValidator.errors.forEach((error) => {
             addFieldValidationError(`${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`)
         })
     }
