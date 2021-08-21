@@ -210,7 +210,7 @@ describe('BillingReceipt', () => {
 
         const TEST_IMPORT_ID = 'bedrock_220v'
 
-        test('can create billing receipt with import id, and it is appended with context', async () => {
+        test('can create billing receipt with import id', async () => {
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property] = await createTestBillingProperty(admin, context)
@@ -222,22 +222,7 @@ describe('BillingReceipt', () => {
             expect(obj.context.id).toEqual(context.id)
             expect(obj.property.id).toEqual(property.id)
 
-            expect(obj.importId).toEqual(context.id + '__' + TEST_IMPORT_ID)
-        })
-
-        test('can create billing receipt with pre-formatted import id, and it is not appended with context', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
-            const [property] = await createTestBillingProperty(admin, context)
-            const [billingAccount] = await createTestBillingAccount(admin, context, property)
-
-            const [obj] = await createTestBillingReceipt(admin, context, property, billingAccount, { importId: context.id + '__' + TEST_IMPORT_ID })
-
-            expect(obj.account.id).toEqual(billingAccount.id)
-            expect(obj.context.id).toEqual(context.id)
-            expect(obj.property.id).toEqual(property.id)
-
-            expect(obj.importId).toEqual(context.id + '__' + TEST_IMPORT_ID)
+            expect(obj.importId).toEqual(TEST_IMPORT_ID)
         })
 
         test('can create billing receipt with same import id but in different billing contexts', async () => {
@@ -255,7 +240,8 @@ describe('BillingReceipt', () => {
             const [receipt2] = await createTestBillingReceipt(admin, context2, property2, billingAccount2, { importId: TEST_IMPORT_ID })
 
             expect(receipt.id).not.toEqual(receipt2.id)
-            expect(receipt.importId.split('__')[1]).toEqual(receipt.importId.split('__')[1])
+            expect(receipt.importId).toEqual(receipt.importId)
+            expect(receipt.context).not.toEqual(receipt2.context)
         })
 
         test('can update receipt with other fields and it does not break importId', async () => {
@@ -268,7 +254,7 @@ describe('BillingReceipt', () => {
             const [updatedObj] = await updateTestBillingReceipt(admin, obj.id, { toPay: '221' })
 
             expect(obj.importId).toEqual(updatedObj.importId)
-            expect(obj.importId).toEqual(context.id + '__' + TEST_IMPORT_ID)
+            expect(obj.importId).toEqual(updatedObj.importId)
         })
 
         test('can update receipt import id', async () => {
@@ -281,7 +267,7 @@ describe('BillingReceipt', () => {
             const [updatedObj] = await updateTestBillingReceipt(admin, obj.id, { importId: TEST_IMPORT_ID + '2' })
 
             expect(obj.id).toEqual(updatedObj.id)
-            expect(updatedObj.importId).toEqual(context.id + '__' + TEST_IMPORT_ID + '2')
+            expect(updatedObj.importId).toEqual(TEST_IMPORT_ID + '2')
         })
 
         test('can update importId to same importId', async () => {
@@ -294,10 +280,29 @@ describe('BillingReceipt', () => {
             const [updatedObj] = await updateTestBillingReceipt(admin, obj.id, { importId: TEST_IMPORT_ID })
 
             expect(obj.importId).toEqual(updatedObj.importId)
-            expect(obj.importId).toEqual(context.id + '__' + TEST_IMPORT_ID)
+            expect(obj.importId).toEqual(updatedObj.importId)
         })
 
-        test('cant create billing receipt with same import id', async () => {
+        test('can create -> delete -> restore billingReceipt -> change importId', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const [property] = await createTestBillingProperty(admin, context)
+            const [billingAccount] = await createTestBillingAccount(admin, context, property)
+
+            const [obj] = await createTestBillingReceipt(admin, context, property, billingAccount, { importId: TEST_IMPORT_ID })
+            const [deletedObj] = await updateTestBillingReceipt(admin, obj.id, { deletedAt: 'true' })
+            const [foundObj] = await BillingReceipt.getAll(admin, { deletedAt_not: null, importId: TEST_IMPORT_ID })
+            const [restoredObj] = await updateTestBillingReceipt(admin, deletedObj.id, { deletedAt: null })
+            const [changedObj] = await updateTestBillingReceipt(admin, restoredObj.id, { importId: TEST_IMPORT_ID + '22' })
+
+            expect(obj.importId).toEqual(TEST_IMPORT_ID)
+            expect(deletedObj.deletedAt).not.toBeNull()
+            expect(foundObj.id).toEqual(obj.id)
+            expect(restoredObj.deletedAt).toBeNull()
+            expect(changedObj.importId).toEqual( TEST_IMPORT_ID + '22' )
+        })
+
+        test('cant create billing receipt with same import id in one context', async () => {
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property] = await createTestBillingProperty(admin, context)
@@ -306,10 +311,10 @@ describe('BillingReceipt', () => {
             await createTestBillingReceipt(admin, context, property, billingAccount, { importId: TEST_IMPORT_ID })
 
             await catchErrorFrom(async () => {
-                await createTestBillingReceipt(admin, context, property,
-                    billingAccount, { importId: TEST_IMPORT_ID })
+                await createTestBillingReceipt(admin, context, property, billingAccount, { importId: TEST_IMPORT_ID })
             }, (err) => {
                 expect(err).toBeDefined()
+                expect(err.errors[0].developerMessage).toContain('duplicate key value violates unique constraint')
             })
         })
 
@@ -351,6 +356,8 @@ describe('BillingReceipt', () => {
                 expect(err).toBeDefined()
             })
         })
+
+
     })
 
     describe('Create', async () => {

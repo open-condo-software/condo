@@ -12,8 +12,7 @@ const { validatePaymentDetails, validateServices, validateRecipient } = require(
 const { hasRequestFields } = require('@condo/domains/common/utils/validation.utils')
 const { DV_UNKNOWN_VERSION_ERROR, WRONG_TEXT_FORMAT } = require('@condo/domains/common/constants/errors')
 const { INTEGRATION_CONTEXT_FIELD, RAW_DATA_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD, PERIOD_FIELD } = require('./fields')
-const _ = require('lodash')
-const { generateImportId } = require('../utils/fields.utils')
+const { get } = require('lodash')
 
 const BillingReceipt = new GQLListSchema('BillingReceipt', {
     schemaDoc: 'Account monthly invoice document',
@@ -29,45 +28,17 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
         importId: {
             schemaDoc: '`billing receipt` local object ID. Unique up to billing context.' +
-                ' It is made using template: <context_id>__<importId>',
+                ' It is unique up to the context',
             type: Text,
             isRequired: true,
             kmigratorOptions: { unique: true, null: false },
             hooks: {
-                /**
-                 * We make sure that you can not create two receipts with same importId in same billing integration organization context
-                 */
-                resolveInput: async ({ resolvedData, operation, existingItem }) => {
-                    const resolvedImportId = _.get(resolvedData, ['importId'])
-                    const existingImportId = _.get(existingItem, ['importId'])
+                validateInput: async ({ resolvedData, addValidationError }) => {
+                    const resolvedImportId = get(resolvedData, ['importId'])
 
-                    if (operation === 'create') {
-                        if (!resolvedImportId || resolvedImportId.length === 0) {
-                            throw `${WRONG_TEXT_FORMAT}importId] - Cant modify billing receipt without correct importId! Found ${resolvedImportId}`
-                        }
-
-                        const contextId = resolvedData.context
-
-                        // If user already pre-formatted hist importId
-                        return generateImportId(contextId, resolvedImportId)
-                    }
-
-                    if (operation === 'update') {
-                        // Handle specific case: If user updates other fields
-                        if (!resolvedImportId) {
-                            return undefined
-                        }
-
-                        const contextId = existingItem.context
-
-                        const newImportId = generateImportId(contextId,
-                            resolvedImportId)
-
-                        // Handle specific case: If user updates import id with the same import id
-                        if (newImportId === existingImportId) {
-                            return undefined
-                        }
-                        return newImportId
+                    if (!resolvedImportId || typeof resolvedImportId !== 'string' || resolvedImportId.length === 0) {
+                        addValidationError(
+                            `${WRONG_TEXT_FORMAT}importId] Cant mutate billing receipt with empty or null importId, found ${resolvedImportId}`)
                     }
                 },
             },
