@@ -1,7 +1,11 @@
 import TelegramBot from 'node-telegram-bot-api'
 
-import { getFormattedTasks, getDoneTasksFromRange } from './utils'
+import { getFormattedTasks, getDoneTasksFromRange, getJiraFormattedTasks } from './utils'
 import JiraApi from 'jira-client'
+
+type HandleReleaseReportOptions = {
+    simple: boolean,
+}
 
 export class BotController {
     constructor (private jiraApi: JiraApi, private token?: string) {
@@ -44,7 +48,10 @@ export class BotController {
                     await this.handleJoin(message)
                     break
                 case '/create_release_report':
-                    await this.handleCreateReleaseReport(message)
+                    await this.handleCreateReleaseReport(message, { simple: false })
+                    break
+                case '/create_simple_release_report':
+                    await this.handleCreateReleaseReport(message, { simple: true })
                     break
                 case '/list_active_listeners':
                     await this.listActiveListeners(message)
@@ -92,19 +99,23 @@ export class BotController {
         await this.bot.sendMessage(message.chat.id, `@${message.from.username} successfully joined as ${userName}.`)
     }
 
-    private async handleCreateReleaseReport (message) {
+    private async handleCreateReleaseReport (message, options: HandleReleaseReportOptions) {
         const { text } = message
-        const formattedMessage = text.split(' ')
+        const { simple } = options
 
-        if (formattedMessage.length < 2) {
-            await this.bot.sendMessage(message.chat.id, '/create_release_report sha was not provided')
+        const args = text.split(' ')
+
+        if (args.length < 2) {
+            await this.bot.sendMessage(message.chat.id, 'sha was not provided')
             return
         }
 
-        const lastCommitSha = formattedMessage[1]
-        const firstCommitSha = formattedMessage[2]
-        const taskNumbers = await getDoneTasksFromRange(lastCommitSha, firstCommitSha)
-        const formattedTasks = await getFormattedTasks(taskNumbers, this.jiraApi)
+        const lastCommitSha = args[1]
+        const firstCommitSha = args[2]
+
+        const taskIds = await getDoneTasksFromRange(lastCommitSha, firstCommitSha)
+
+        const formattedTasks = simple ? getFormattedTasks(taskIds) : await getJiraFormattedTasks(taskIds, this.jiraApi)
 
         this.bot.sendMessage(message.chat.id, formattedTasks.join('\n'), { parse_mode: 'Markdown' })
             .catch((e) => {

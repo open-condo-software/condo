@@ -1,4 +1,5 @@
 import { Octokit } from '@octokit/core'
+import JiraApi from 'jira-client'
 const octokit = new Octokit({
     auth: process.env.NOTIFICATION_BOT_CONFIG && JSON.parse(process.env.NOTIFICATION_BOT_CONFIG)?.github_auth_key,
 })
@@ -104,9 +105,19 @@ export const getDoneTasksFromRange = async (lastCommitSha: string, firstCommitSh
 }
 
 /**
- * Formats jira task numbers like SBERDOMA-1 to markdown
+ * Formats jira task like SBERDOMA-1 to markdown without meta
  */
-export const getFormattedTasks = async (taskIds: Array<string>, jiraApi: JiraApi) => {
+export const getFormattedTasks = (taskIds: Array<string>) => {
+    return taskIds
+        .map((taskId) => {
+            return `[${taskId}](https://doma.atlassian.net/browse/${taskId})`
+        })
+}
+
+/**
+ * Formats jira tasks like SBERDOMA-1 to markdown with meta from Jira api
+ */
+export const getJiraFormattedTasks = async (taskIds: Array<string>, jiraApi: JiraApi) => {
     const formattedTasks = taskIds
         .map(async (taskId) => {
             try {
