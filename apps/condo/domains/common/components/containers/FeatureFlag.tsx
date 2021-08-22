@@ -73,7 +73,7 @@ export const hasFeature = (featureName: string): boolean => {
 
 interface IFeature {
     name: string
-    fallback: ReactNode
+    fallback?: ReactNode
 }
 
 /**
@@ -90,9 +90,13 @@ export const FeatureFlagRequired: React.FC<IFeature> = (props) => {
         return <>{ children }</>
     }
 
-    return (
-        <>{fallback}</>
-    )
+    if (fallback) {
+        return (
+            <>{fallback}</>
+        )
+    }
+
+    return null
 }
 
 /**
