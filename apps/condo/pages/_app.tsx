@@ -28,7 +28,7 @@ import { FocusElement } from '@condo/domains/common/components/Focus/FocusElemen
 import { BarChartIcon } from '@condo/domains/common/components/icons/BarChart'
 import { OnBoardingProgress } from '@condo/domains/common/components/icons/OnBoardingProgress'
 import { OnBoardingProvider } from '../domains/onboarding/components/OnBoardingContext'
-import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
+import { FeatureFlagRequired } from '@condo/domains/common/components/containers/FeatureFlag'
 import { FocusContextProvider } from '../domains/common/components/Focus/FocusContextProvider'
 import { OnBoardingProgressIconContainer } from '@condo/domains/onboarding/components/OnBoardingProgressIconContainer'
 
@@ -81,24 +81,18 @@ const MenuItems: React.FC = () => (
             icon={UserIcon}
             label={'menu.Employees'}
         />
-        {
-            hasFeature('billing')
-                ? (
-                    <>
-                    <MenuItem
-                        path={'/billing'}
-                        icon={ApiFilled}
-                        label={'menu.Billing'}
-                    />
-                    <MenuItem
-                        path={'/settings'}
-                        icon={SettingFilled}
-                        label={'menu.Settings'}
-                    />
-                    </>
-                )
-                : null
-        }
+        <FeatureFlagRequired name={'billing'}>
+            <MenuItem
+                path={'/billing'}
+                icon={ApiFilled}
+                label={'menu.Billing'}
+            />
+            <MenuItem
+                path={'/settings'}
+                icon={SettingFilled}
+                label={'menu.Settings'}
+            />
+        </FeatureFlagRequired>
     </>
 )
 
