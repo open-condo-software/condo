@@ -5,8 +5,8 @@
 async function canReadOnBoardings ({ authentication: { item: user } }) {
     if (!user) return false
     if (user.isAdmin) return {}
+
     return {
-        // TODO(codegen): write canReadOnBoardings logic!
     }
 }
 
@@ -14,10 +14,8 @@ async function canManageOnBoardings ({ authentication: { item: user }, originalI
     if (!user) return false
     if (user.isAdmin) return true
     if (operation === 'create') {
-        // TODO(codegen): write canManageOnBoardings create logic!
         return true
     } else if (operation === 'update') {
-        // TODO(codegen): write canManageOnBoardings update logic!
         return true
     }
     return false

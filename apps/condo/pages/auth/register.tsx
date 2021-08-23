@@ -10,7 +10,7 @@ import { useIntl } from '@core/next/intl'
 import { Col, Row, Typography } from 'antd'
 import Router from 'next/router'
 import React, { useContext, useEffect, useState } from 'react'
-import { ButtonHeaderAction } from '../../domains/common/components/HeaderActions'
+import { ButtonHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
 const RegisterPage: AuthPage = () => {
     const intl = useIntl()
