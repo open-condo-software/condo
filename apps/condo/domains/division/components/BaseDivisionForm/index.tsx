@@ -61,12 +61,13 @@ const BaseDivisionForm: React.FC<IBaseDivisionFormProps> = (props) => {
     const organizationId = get(props.organization, 'id')
 
 
-    const action = async (variables) => {
-        const result = await props.action(variables)
-        if (props.afterActionCompleted) {
-            return props.afterActionCompleted(result)
-        }
-        return result
+    const action = (variables) => {
+        props.action(variables)
+            .then(result => {
+                if (props.afterActionCompleted) {
+                    props.afterActionCompleted(result)
+                }
+            })
     }
 
     return (
