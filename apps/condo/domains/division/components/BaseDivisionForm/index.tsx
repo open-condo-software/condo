@@ -11,7 +11,7 @@ import {
     searchEmployee,
     searchOrganizationProperty,
 } from '@condo/domains/ticket/utils/clientSchema/search'
-import { FormWithAction, IFormWithActionChildren } from '../../../common/components/containers/FormList'
+import { FormWithAction, IFormWithActionChildren } from '@condo/domains/common/components/containers/FormList'
 import { Organization } from '../../../../schema'
 
 const LAYOUT = {
@@ -60,10 +60,9 @@ const BaseDivisionForm: React.FC<IBaseDivisionFormProps> = (props) => {
 
     const organizationId = get(props.organization, 'id')
 
-    const { action: _action } = props
 
     const action = async (variables) => {
-        const result = await _action(variables)
+        const result = await props.action(variables)
         if (props.afterActionCompleted) {
             return props.afterActionCompleted(result)
         }
