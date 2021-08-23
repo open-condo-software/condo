@@ -13,7 +13,6 @@ const { buildFakeAddressAndMeta } = require('@condo/domains/common/utils/testSch
 const { Property: PropertyGQL } = require('@condo/domains/property/gql')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { EXPORT_PROPERTIES_TO_EXCEL } = require('@condo/domains/property/gql')
-const {  } = require('@condo/domains/common/utils/testSchema/factories')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Property = generateGQLTestUtils(PropertyGQL)
