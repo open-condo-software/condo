@@ -37,7 +37,12 @@ export const EmployeeProfileForm = () => {
     const { query, push } = useRouter()
 
     const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject({ where: { id: String(get(query, 'id', '')) } })
-    const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => {
+
+    const initialValues = OrganizationEmployee.convertToUIFormState(employee)
+    initialValues.role = get(employee, ['role', 'id'])
+    initialValues.position = get(employee, 'position')
+
+    const updateEmployeeAction = OrganizationEmployee.useUpdate(initialValues, () => {
         refetch().then(() => {
             push(`/employee/${get(query, 'id')}/`)
         })
@@ -52,11 +57,6 @@ export const EmployeeProfileForm = () => {
 
     const formAction = (formValues) => {
         return updateEmployeeAction(formValues, employee)
-    }
-
-    const initialValues = {
-        role: get(employee, ['role', 'id']),
-        position: get(employee, 'position'),
     }
 
     return (
