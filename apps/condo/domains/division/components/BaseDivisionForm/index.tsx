@@ -20,13 +20,13 @@ const LAYOUT = {
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
-        span: 6,
+        sm: 8,
+        lg: 6,
     },
     wrapperCol: {
-        span: 10,
-    },
-    style: {
-        paddingBottom: '24px',
+        sm: 14,
+        lg: 12,
+        xl: 8,
     },
 }
 
