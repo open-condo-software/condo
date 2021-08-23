@@ -46,8 +46,6 @@ export const getStepType = (
         }
 
         return OnBoardingStepType.DEFAULT
-    } else {
-        return OnBoardingStepType.DISABLED
     }
 }
 

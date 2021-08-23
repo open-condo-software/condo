@@ -4,9 +4,9 @@ import { colors } from '@condo/domains/common/constants/style'
 import { ActivateStepIcon, IconContainer, StepContainer } from './components'
 
 export enum OnBoardingStepType {
-    DEFAULT,
-    COMPLETED,
-    DISABLED,
+    DEFAULT = 'Default',
+    COMPLETED = 'Completed',
+    DISABLED = 'Disabled',
 }
 
 interface IOnBoardingStep {
