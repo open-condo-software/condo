@@ -40,7 +40,7 @@ const OnBoardingPage: IPageInterface = () => {
                                 </Space>
                             </Col>
                             <Col span={24}>
-                                {onBoardingSteps.length > 0
+                                {onBoardingSteps.length > 0 && !get(onBoarding, 'completed')
                                     ? (
                                         <Row gutter={[0, 0]}>
                                             {onBoardingSteps.sort((leftStep, rightStep) => leftStep.order > rightStep.order ? 1 : -1)
