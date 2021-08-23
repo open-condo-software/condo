@@ -21,9 +21,9 @@ export const getTextFilterDropdown = (placeholder: string) => {
             <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
                 <Input
                     placeholder={placeholder}
-                    value={selectedKeys[0]}
+                    value={selectedKeys}
                     onChange={e => {
-                        setSelectedKeys([e.target.value])
+                        setSelectedKeys(e.target.value)
                         confirm({ closeDropdown: false })
                     }}
                 />
