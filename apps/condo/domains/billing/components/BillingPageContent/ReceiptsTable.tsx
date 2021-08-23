@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { IContextProps } from './index'
 import {
     ColumnInfo,
@@ -95,7 +95,9 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
             ellipsis: true,
         },
     ]
-    const antdColumns = convertColumns(columns, filters, sorterMap)
+    const antdColumns = useMemo(() => {
+        return convertColumns(columns, filters, sorterMap)
+    }, [filters, sorterMap])
 
     return (
         <Row gutter={[0, 40]}>
@@ -110,7 +112,8 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
                     {options.length > 0 && (
                         <Select
                             style={{ minWidth: 220 }}
-                            defaultValue={period}
+                            defaultValue={contextPeriod}
+                            value={period}
                             onChange={(newValue) => handlePeriodChange(newValue)}
                         >
                             {
