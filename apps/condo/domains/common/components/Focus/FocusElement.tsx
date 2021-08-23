@@ -38,7 +38,7 @@ const FocusWrapper = styled.div`
       0% {
         opacity: 0;
       }
-     
+
       50% {
         opacity: 50%;
       }
@@ -56,7 +56,12 @@ export const FocusElement: React.FC = ({ children }) => {
         isFocusVisible
             ? (
                 <FocusWrapper>
-                    <Tooltip title={'Теперь вы можете перейти к следующему шагу'} visible placement={'right'}>
+                    <Tooltip
+                        title={'Теперь вы можете перейти к следующему шагу'}
+                        visible
+                        placement={'right'}
+                        overlayStyle={{ opacity: '0.8' }}
+                    >
                         {children}
                     </Tooltip>
                 </FocusWrapper>
