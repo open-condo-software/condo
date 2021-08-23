@@ -79,11 +79,10 @@ const AuthProvider = ({ children, initialUserValue }) => {
             if (DEBUG_RERENDERS) console.log('AuthProvider() signin()')
 
             if (item) {
+                await client.clearStore()
+
                 setUser(item)
             }
-
-            // Ensure there's no old unauthenticated data hanging around
-            await client.resetStore()
         },
     })
 
@@ -97,7 +96,7 @@ const AuthProvider = ({ children, initialUserValue }) => {
             }
 
             // Ensure there's no old authenticated data hanging around
-            await client.resetStore()
+            await client.clearStore()
         },
     })
 
