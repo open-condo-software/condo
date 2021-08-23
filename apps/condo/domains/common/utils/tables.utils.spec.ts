@@ -1,5 +1,6 @@
 import {
     SorterColumn,
+    ColumnInfo,
     getFilter,
     getStringContainsFilter,
     getNumberFilter,
@@ -11,6 +12,8 @@ import {
     convertSortersToSortBy,
     getFiltersFromQuery,
     getPageIndexFromOffset,
+    getSorterMap,
+    convertColumns,
 } from './tables.utils'
 
 import moment from 'moment'
@@ -346,19 +349,120 @@ describe('Table utils', () => {
         })
     })
     describe('getPageIndexFromOffset', () => {
-        const attemps = 10
+        const attempts = 10
         const pageSize = 10
         it('rounded value test', () => {
-            for (let i = 0; i < attemps; i++) {
+            for (let i = 0; i < attempts; i++) {
                 const page = randInt(1000)
                 expect(getPageIndexFromOffset(page * pageSize, pageSize)).toStrictEqual(page + 1)
             }
         })
         it('not-rounded value test', () => {
-            for (let i = 0; i < attemps; i++) {
+            for (let i = 0; i < attempts; i++) {
                 const offset  = i * pageSize + randInt(pageSize)
                 expect(getPageIndexFromOffset(offset, pageSize)).toStrictEqual(i + 1)
             }
+        })
+    })
+    describe('getSorterMap', () => {
+        it('should convert array of sorters to single object', () => {
+            const sorters: Array<SorterColumn> = [
+                { columnKey: 'a', order: 'ascend' },
+                { columnKey: 'b', order: 'descend' },
+                { columnKey: 'c', order: 'descend' },
+                { columnKey: 'd', order: 'ascend' },
+            ]
+            const sorterMap = getSorterMap(sorters)
+            sorters.forEach((sorter) => {
+                expect(sorterMap).toHaveProperty(sorter.columnKey, sorter.order)
+            })
+        })
+    })
+    describe('convertColumns', () => {
+        const column: ColumnInfo = {
+            title: 'title',
+            key: 'key',
+            width: 100,
+            dataIndex: ['field', 'subfield'],
+        }
+        it('should create basic antd column', () => {
+            const antdColumns = convertColumns([column], {}, {})
+            expect(antdColumns).toHaveLength(1)
+            const antdColumn = antdColumns[0]
+            expect(antdColumn).toHaveProperty('title', column.title)
+            expect(antdColumn).toHaveProperty('key', column.key)
+            expect(antdColumn).toHaveProperty('dataIndex', column.dataIndex)
+            expect(antdColumn).toHaveProperty('width', '100%')
+        })
+        it('should set responsive for depending on visibility', () => {
+            const col1 = { ...column }
+            const col2 = { ...column, key: 'key2', visible: false }
+            const antdColumns = convertColumns([col1, col2], {}, {})
+            expect(antdColumns).toHaveLength(2)
+            expect(antdColumns[0].responsive).toBeUndefined()
+            expect(antdColumns[1].responsive).toStrictEqual([])
+        })
+        it('should recalculate sizes proportionately for visible columns', () => {
+            const col1 = { ...column }
+            const col2 = { ...column, key: 'key2', visible: false }
+            const col3 = { ...column, key: 'key3' }
+            const antdColumns = convertColumns([col1, col2, col3], {}, {})
+            expect(antdColumns).toHaveLength(3)
+            expect(antdColumns[0].width).toStrictEqual('50%')
+            expect(antdColumns[2].width).toStrictEqual('50%')
+        })
+        it('should be sortable, if it\'s specified', () => {
+            const col1 = { ...column }
+            const col2 = { ...column, key: 'key2', sortable: true }
+            const col3 = { ...column, key: 'key3', sortable: true }
+            const col4 = { ...column, key: 'key4', sortable: true }
+            const antdColumns = convertColumns([col1, col2, col3, col4], {}, { 'key3': 'ascend', 'key2': 'descend' })
+            expect(antdColumns).toHaveLength(4)
+            expect(antdColumns[0]).toHaveProperty('sorter', false)
+            expect(antdColumns[1]).toHaveProperty('sorter', true)
+            expect(antdColumns[1]).toHaveProperty('sortOrder', 'descend')
+            expect(antdColumns[2]).toHaveProperty('sorter', true)
+            expect(antdColumns[2]).toHaveProperty('sortOrder', 'ascend')
+            expect(antdColumns[3]).toHaveProperty('sorter', true)
+            expect(antdColumns[3]).toHaveProperty('sortOrder', undefined)
+        })
+        it('should work with custom render', () => {
+            const customRender = (text) => `${text}_${text}`
+            const customColumn = { ...column, render: customRender }
+            const antdColumns = convertColumns([customColumn], {}, {})
+            expect(antdColumns).toHaveLength(1)
+            expect(antdColumns[0]).toHaveProperty('render', customRender)
+        })
+        it('should detect filter value', () => {
+            const col1 = column
+            const col2 = { ...column, key: 'key2' }
+            const antdColumns = convertColumns([col1, col2], { key: 'value' }, {})
+            expect(antdColumns).toHaveLength(2)
+            expect(antdColumns[0]).toHaveProperty('filteredValue', 'value')
+            expect(antdColumns[1]).toHaveProperty('filteredValue', null)
+        })
+        it('should create filterDropdowns for typed filters', () => {
+            const col1: ColumnInfo = { ...column, filter: { type: 'string' } }
+            const col2: ColumnInfo = { ...column, key: 'key2', filter: { type: 'stringOption', options: [{ label: 'label', value: '0' }] } }
+            const col3: ColumnInfo = { ...column, key: 'key2', filter: { type: 'date' } }
+            const antdColumns = convertColumns([col1, col2, col3], {}, {})
+            expect(antdColumns).toHaveLength(3)
+            expect(antdColumns[0]).toHaveProperty('filterDropdown')
+            expect(antdColumns[0].filterDropdown).toBeDefined()
+            expect(antdColumns[1]).toHaveProperty('filterDropdown')
+            expect(antdColumns[1].filterDropdown).toBeDefined()
+            expect(antdColumns[2]).toHaveProperty('filterDropdown')
+            expect(antdColumns[2].filterDropdown).toBeDefined()
+        })
+        it('should create default render for string-filtered columns', () => {
+            const col1: ColumnInfo = { ...column }
+            const col2: ColumnInfo = { ...column, key: 'key2', filter: { type: 'string' } }
+            const antdColumns = convertColumns([col1, col2], {}, {})
+            expect(antdColumns).toHaveLength(2)
+            expect(antdColumns[0]).toHaveProperty('render')
+            expect(antdColumns[0].render).toBeUndefined()
+            expect(antdColumns[1]).toHaveProperty('render')
+            expect(antdColumns[1].render).toBeDefined()
         })
     })
 })
