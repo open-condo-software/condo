@@ -22,7 +22,7 @@ import { OnBoardingStepType } from './OnBoardingStepItem'
 interface IDecoratedOnBoardingStepType extends Omit<IOnBoardingStep, 'action'> {
     stepAction: () => void,
     iconView: React.FC,
-    type: OnBoardingStepType,
+    type: OnBoardingStepType | null,
 }
 
 interface OnBoardingContext {

@@ -23,7 +23,6 @@ const OnBoardingPage: IPageInterface = () => {
         }
     }, [onBoarding])
 
-
     return (
         <>
             <Head>
@@ -46,6 +45,10 @@ const OnBoardingPage: IPageInterface = () => {
                                             {onBoardingSteps.sort((leftStep, rightStep) => leftStep.order > rightStep.order ? 1 : -1)
                                                 .map((step) => {
                                                     const { title, description, iconView, stepAction, type, id } = step
+
+                                                    if (!type) {
+                                                        return null
+                                                    }
 
                                                     return (
                                                         <Col lg={16} md={24} key={id}>
