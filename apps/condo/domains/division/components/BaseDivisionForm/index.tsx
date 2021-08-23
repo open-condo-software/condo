@@ -1,6 +1,6 @@
 import React from 'react'
 import { IDivisionFormState, IDivisionUIState } from '@condo/domains/division/utils/clientSchema/Division'
-import { Form, Input } from 'antd'
+import { Col, Form, Input, Row } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { Rule } from 'rc-field-form/lib/interface'
@@ -77,64 +77,76 @@ const BaseDivisionForm: React.FC<IBaseDivisionFormProps> = (props) => {
             validateTrigger={['onBlur', 'onSubmit']}
         >
             {({ handleSave, isLoading, form }) => (
-                <>
-                    <Form.Item
-                        name={'name'}
-                        label={NameLabel}
-                        labelAlign={'left'}
-                        {...INPUT_LAYOUT_PROPS}
-                    >
-                        <Input/>
-                    </Form.Item>
-                    <Form.Item
-                        name={'properties'}
-                        label={PropertiesLabel}
-                        labelAlign={'left'}
-                        {...INPUT_LAYOUT_PROPS}
-                        validateFirst
-                        rules={validations.properties}
-                        required
-                    >
-                        <GraphQlSearchInput
-                            search={searchOrganizationProperty(organizationId)}
-                            showArrow={false}
-                            mode="multiple"
+                <Row gutter={[0, 24]}>
+                    <Col span={24}>
+                        <Form.Item
+                            name={'name'}
+                            label={NameLabel}
+                            labelAlign={'left'}
+                            {...INPUT_LAYOUT_PROPS}
+                        >
+                            <Input/>
+                        </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                        <Form.Item
+                            name={'properties'}
+                            label={PropertiesLabel}
+                            labelAlign={'left'}
+                            {...INPUT_LAYOUT_PROPS}
+                            validateFirst
+                            rules={validations.properties}
+                            required
+                        >
+                            <GraphQlSearchInput
+                                search={searchOrganizationProperty(organizationId)}
+                                showArrow={false}
+                                mode="multiple"
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                        <FormSubheader
+                            title={ResponsibleHintTitleMessage}
+                            hint={ResponsibleHintDescriptionMessage}
                         />
-                    </Form.Item>
-                    <FormSubheader
-                        title={ResponsibleHintTitleMessage}
-                        hint={ResponsibleHintDescriptionMessage}
-                    />
-                    <Form.Item
-                        name={'responsible'}
-                        label={ResponsibleLabel}
-                        labelAlign={'left'}
-                        {...INPUT_LAYOUT_PROPS}
-                        required
-                    >
-                        <GraphQlSearchInput
-                            search={searchEmployee(organizationId)}
-                            showArrow={false}
+                    </Col>
+                    <Col span={24}>
+                        <Form.Item
+                            name={'responsible'}
+                            label={ResponsibleLabel}
+                            labelAlign={'left'}
+                            {...INPUT_LAYOUT_PROPS}
+                            required
+                        >
+                            <GraphQlSearchInput
+                                search={searchEmployee(organizationId)}
+                                showArrow={false}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                        <FormSubheader
+                            title={ExecutorsHintTitleMessage}
+                            hint={ExecutorsHintDescriptionMessage}
                         />
-                    </Form.Item>
-                    <FormSubheader
-                        title={ExecutorsHintTitleMessage}
-                        hint={ExecutorsHintDescriptionMessage}
-                    />
-                    <Form.Item
-                        name={'executors'}
-                        label={ExecutorsLabel}
-                        labelAlign={'left'}
-                        {...INPUT_LAYOUT_PROPS}
-                    >
-                        <GraphQlSearchInput
-                            search={searchEmployee(organizationId)}
-                            showArrow={false}
-                            mode="multiple"
-                        />
-                    </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                        <Form.Item
+                            name={'executors'}
+                            label={ExecutorsLabel}
+                            labelAlign={'left'}
+                            {...INPUT_LAYOUT_PROPS}
+                        >
+                            <GraphQlSearchInput
+                                search={searchEmployee(organizationId)}
+                                showArrow={false}
+                                mode="multiple"
+                            />
+                        </Form.Item>
+                    </Col>
                     {props.children({ handleSave, isLoading, form })}
-                </>
+                </Row>
             )}
         </FormWithAction>
     )

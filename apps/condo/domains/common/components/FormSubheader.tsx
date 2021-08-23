@@ -13,7 +13,7 @@ interface IFormSubheaderProps {
  */
 const FormSubheader: React.FC<IFormSubheaderProps> = ({ title, hint }) => {
     return (
-        <Typography.Title level={2} style={{ fontSize: '16px', marginBottom: '24px' }}>
+        <Typography.Title level={2} style={{ fontSize: '16px' }}>
             {title}
             {hint && (
                 <>
