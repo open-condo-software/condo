@@ -18,9 +18,11 @@ const OnBoardingStep = generateGqlQueries('OnBoardingStep', ON_BOARDING_STEP_FIE
 
 // TODO(codegen): write return type result!
 
-const CREATE_ON_BOARDING_MUTATION = gql`
+const CREATE_ONBOARDING_MUTATION = gql`
     mutation createOnBoardingByType ($data: CreateOnBoardingInput!) {
-        result: createOnBoardingByType(data: $data) { id }
+        result: createOnBoardingByType(data: $data) {
+            id
+        }
     }
 `
 
@@ -29,6 +31,6 @@ const CREATE_ON_BOARDING_MUTATION = gql`
 module.exports = {
     OnBoarding,
     OnBoardingStep,
-    CREATE_ON_BOARDING_MUTATION,
+    CREATE_ONBOARDING_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
