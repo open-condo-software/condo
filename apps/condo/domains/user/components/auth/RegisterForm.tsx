@@ -15,7 +15,7 @@ import {
     PHONE_ALREADY_REGISTERED_ERROR,
 } from '@condo/domains/user/constants/errors'
 import { REGISTER_NEW_USER_MUTATION } from '@condo/domains/user/gql'
-import { CREATE_ON_BOARDING_MUTATION } from '@condo/domains/onboarding/gql'
+import { CREATE_ONBOARDING_MUTATION } from '@condo/domains/onboarding/gql'
 import { AuthLayoutContext } from '../containers/AuthLayoutContext'
 import { useRegisterFormValidators } from './hooks'
 import { RegisterContext } from './RegisterContextProvider'
@@ -29,7 +29,7 @@ interface IRegisterFormProps {
     onFinish: () => void
 }
 
-export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
+export const RegisterForm: React.FC<IRegisterFormProps> = () => {
     const intl = useIntl()
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
@@ -73,9 +73,9 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
     const { phone, token } = useContext(RegisterContext)
     const { signInByPhone } = useContext(AuthLayoutContext)
     const [registerMutation] = useMutation(REGISTER_NEW_USER_MUTATION)
-    const [createOnBoarding] = useMutation(CREATE_ON_BOARDING_MUTATION)
+    const [createOnBoarding] = useMutation(CREATE_ONBOARDING_MUTATION)
 
-    const initOnBoarding = useCallback(async (userId: string) => {
+    const initOnBoarding = (userId: string) => {
         const onBoardingExtraData = {
             dv: 1,
             sender: getClientSideSenderInfo(),
@@ -86,11 +86,14 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
         return runMutation({
             mutation: createOnBoarding,
             variables: { data },
+            onCompleted: () => {
+                Router.push('/onboarding')
+            },
             intl,
             form,
             ErrorToFormFieldMsgMapping,
         })
-    }, [])
+    }
 
     const registerComplete = useCallback(async () => {
         const registerExtraData = {
@@ -107,17 +110,11 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
             mutation: registerMutation,
             variables: { data },
             onCompleted: ({ data }) => {
-                const userId = get(data, ['user', 'id'])
+                signInByPhone(form.getFieldsValue(['phone', 'password']), () => {
+                    const userId = get(data, ['user', 'id'])
 
-                signInByPhone(form.getFieldsValue(['phone', 'password']))
-                    .then(() => initOnBoarding(userId))
-                    .then(() => {
-                        Router.push('/onboarding')
-                    })
-                    .catch(console.error)
-            },
-            onFinally: () => {
-                setIsLoading(false)
+                    return initOnBoarding(userId)
+                })
             },
             intl,
             form,
@@ -204,19 +201,16 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                     </Row>
                 </Col>
                 <Col span={24}>
-                    <Col span={24}>
-                        <Form.Item>
-                            <Button
-                                key='submit'
-                                onClick={onFinish}
-                                type='sberPrimary'
-                                htmlType='submit'
-                                loading={isLoading}
-                            >
-                                {RegisterMsg}
-                            </Button>
-                        </Form.Item>
-                    </Col>
+                    <Form.Item>
+                        <Button
+                            key='submit'
+                            type='sberPrimary'
+                            htmlType='submit'
+                            loading={isLoading}
+                        >
+                            {RegisterMsg}
+                        </Button>
+                    </Form.Item>
                 </Col>
             </Row>
         </Form>
