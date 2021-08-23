@@ -13,6 +13,10 @@ ALTER TABLE "BillingIntegration" ADD COLUMN "dataFormat" jsonb NULL;
 --
 ALTER TABLE "BillingIntegrationHistoryRecord" ADD COLUMN "dataFormat" jsonb NULL;
 --
+-- Truncate all rows on billingReceipts (made intentionally by @toplenboren)
+--
+TRUNCATE TABLE "BillingReceipt";
+--
 -- Alter field importId on billingreceipt and set UNIQUE as combination of contextId and importId (made intentionally by @toplenboren)
 --
 ALTER TABLE "BillingReceipt" ALTER COLUMN "importId" SET NOT NULL;
@@ -26,10 +30,6 @@ COMMIT;
 exports.down = async (knex) => {
     await knex.raw(`
     BEGIN;
---
--- Truncate all rows on billingReceipts (made intentionally by @toplenboren)
---
-TRUNCATE TABLE "BillingReceipts";
 --
 -- Alter field importId on billingreceipt
 --
