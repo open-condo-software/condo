@@ -357,7 +357,7 @@ const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
     )
 }
 
-interface IBaseModalFormProps extends IFormWithAction {
+interface IBaseModalFormProps<TRecordFormState, TRecordUIState> extends IFormWithAction<TRecordFormState, TRecordUIState> {
     visible: boolean
     cancelModal: () => void
     ModalTitleMsg: string | JSX.Element
