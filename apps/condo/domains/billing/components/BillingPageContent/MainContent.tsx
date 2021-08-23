@@ -2,7 +2,6 @@ import React from 'react'
 import { Col, Tabs, Tooltip } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { IContextProps } from './index'
-import { DemoReceiptsTable } from './DemoReceiptsTable'
 import { ReceiptsTable } from './ReceiptsTable'
 
 export const MainContent: React.FC<IContextProps> = ({ context }) => {
@@ -19,7 +18,6 @@ export const MainContent: React.FC<IContextProps> = ({ context }) => {
                 style={{ overflow: 'visible' }}
             >
                 <Tabs.TabPane key={'Accruals'} tab={AccrualsTitle}>
-                    <DemoReceiptsTable context={context}/>
                     <ReceiptsTable context={context}/>
                 </Tabs.TabPane>
                 <Tabs.TabPane

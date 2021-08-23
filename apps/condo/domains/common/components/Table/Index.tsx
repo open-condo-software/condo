@@ -6,8 +6,8 @@ import { useRouter } from 'next/router'
 import {
     getPageIndexFromOffset,
     parseQuery,
-    QueryMeta,
     FULL_TO_SHORT_ORDERS_MAP,
+    QueryArgType,
 } from '@condo/domains/common/utils/tables.utils'
 import qs from 'qs'
 
@@ -46,7 +46,7 @@ export const Table: React.FC<ITableProps> = ({
         const { current } = nextPagination
         let shouldResetOffset = false
 
-        const newFilters: { [x: string]: QueryMeta } = { ...filters }
+        const newFilters: { [x: string]: QueryArgType } = { ...filters }
         for (const [key, value] of Object.entries(nextFilters)) {
             const oldFilter = get(filters, key)
             if (!value && oldFilter) {

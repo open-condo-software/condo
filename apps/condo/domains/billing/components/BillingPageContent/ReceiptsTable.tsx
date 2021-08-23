@@ -4,24 +4,27 @@ import {
     ColumnInfo,
     QueryMeta,
     getStringContainsFilter,
-    getStringOptionFilter,
     getPageIndexFromOffset,
     parseQuery,
     convertColumns,
     getSorterMap,
+    getFilter,
 } from '@condo/domains/common/utils/tables.utils'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
 import { Table, DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
-const { getPeriodMessage, getPreviousPeriods } = require('../../utils/period')
 import { BillingReceipt } from '@condo/domains/billing/utils/clientSchema'
 import { SortBillingReceiptsBy } from '../../../../schema'
+import get from 'lodash/get'
+import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { usePeriodSelector } from '../../hooks/usePeriodSelector'
+import { Row, Col, Space, Input, Select } from 'antd'
 
 const addressFilter = getStringContainsFilter(['property', 'address'])
 const accountFilter = getStringContainsFilter(['account', 'number'])
 const toPayFilter = getStringContainsFilter('toPay')
-const periodFilter = getStringOptionFilter('period')
+const periodFilter = getFilter('period', 'single', 'string')
 const queryMetas: Array<QueryMeta> = [
     { keyword: 'address', filters: [addressFilter] },
     { keyword: 'account', filters: [accountFilter] },
@@ -31,13 +34,6 @@ const queryMetas: Array<QueryMeta> = [
 ]
 
 const sortableProperties = ['toPay']
-
-const PERIODS_AMOUNT = 3
-const generatePeriods = (currentPeriod: string, amount: number, locale: string) => {
-    return getPreviousPeriods(currentPeriod, PERIODS_AMOUNT).map((period) => {
-        return { period: period, title: getPeriodMessage(period, locale) }
-    })
-}
 
 export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const intl = useIntl()
@@ -54,6 +50,10 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const sorterMap = getSorterMap(sorters)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
+    const contextPeriod = get(context, ['lastReport', 'period'], null)
+    const [period, options,  handlePeriodChange] = usePeriodSelector(contextPeriod)
+    filters['period'] = period
+
     const {
         loading,
         count: total,
@@ -64,6 +64,9 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
         first: DEFAULT_PAGE_SIZE,
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
     })
+
+    const [search, handleSearchChange] = useSearch(loading)
+
 
     const columns: Array<ColumnInfo> = [
         {
@@ -95,13 +98,42 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const antdColumns = convertColumns(columns, filters, sorterMap)
 
     return (
-        <>
-            <Table
-                loading={loading}
-                totalRows={total}
-                dataSource={receipts}
-                columns={antdColumns}
-            />
-        </>
+        <Row gutter={[0, 40]}>
+            <Col span={24}>
+                <Space size={40} style={{ width: '100%', flexWrap: 'wrap' }}>
+                    <Input
+                        style={{ minWidth: 280 }}
+                        placeholder={SearchPlaceholder}
+                        onChange={(e) => {handleSearchChange(e.target.value)}}
+                        value={search}
+                    />
+                    {options.length > 0 && (
+                        <Select
+                            style={{ minWidth: 220 }}
+                            defaultValue={period}
+                            onChange={(newValue) => handlePeriodChange(newValue)}
+                        >
+                            {
+                                options.map((option, index) => {
+                                    return (
+                                        <Select.Option value={option.period} key={index}>
+                                            {`${DataForTitle} ${option.title}`}
+                                        </Select.Option>
+                                    )
+                                })
+                            }
+                        </Select>
+                    )}
+                </Space>
+            </Col>
+            <Col span={24}>
+                <Table
+                    loading={loading}
+                    totalRows={total}
+                    dataSource={receipts}
+                    columns={antdColumns}
+                />
+            </Col>
+        </Row>
     )
 }

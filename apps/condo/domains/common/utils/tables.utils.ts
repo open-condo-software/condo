@@ -22,6 +22,11 @@ export type FilterType = (search: QueryArgType) => WhereType
 export type ArgumentType = 'single' | 'array'
 export type ArgumentDataType = 'string' | 'number' | 'dateTime' | 'boolean'
 export type FiltersApplyMode = 'AND' | 'OR'
+type ParsedQueryType = {
+    offset: number
+    filters: { [key: string]: QueryArgType }
+    sorters: SorterColumn[]
+}
 
 type StringFilter = {
     type: 'string'
@@ -88,7 +93,7 @@ export const getFilter: (
     dataIndex: DataIndexType,
     argType: ArgumentType,
     argData: ArgumentDataType,
-    suffix: string
+    suffix?: string
 ) => FilterType = (
     dataIndex, argType, argData, suffix
 ) => {
@@ -205,7 +210,7 @@ export const convertSortersToSortBy = (sorters?: SorterColumn | Array<SorterColu
         .filter(Boolean)
 }
 
-export const getFiltersFromQuery = (query: ParsedUrlQuery): { [x: string]: QueryMeta } => {
+export const getFiltersFromQuery = (query: ParsedUrlQuery): { [x: string]: QueryArgType } => {
     const { filters } = query
     if (!filters || typeof filters !== 'string') {
         return {}
@@ -231,7 +236,7 @@ export const getPageIndexFromOffset = (offset: number, pageSize: number): number
     return Math.floor(offset / pageSize) + 1
 }
 
-export const parseQuery = (query: ParsedUrlQuery) => {
+export const parseQuery = (query: ParsedUrlQuery): ParsedQueryType => {
     const filters = getFiltersFromQuery(query)
     const sorters = getSortersFromQuery(query)
     const queryOffset = get(query, 'offset', '0')
@@ -241,7 +246,7 @@ export const parseQuery = (query: ParsedUrlQuery) => {
 
 export const convertColumns = (
     columns: Array<ColumnInfo>,
-    filters: { [x: string]: QueryMeta },
+    filters: { [x: string]: QueryArgType },
     sorters: { [x: string]: 'ascend' | 'descend' }
 ) => {
     const totalWidth = columns
@@ -290,7 +295,7 @@ export const convertColumns = (
             baseColumnInfo.render = column.render
         } else if (column.filter && column.filter.type === 'string') {
             const search = get(filters, 'search')
-            if (search && !Array.isArray(search)) baseColumnInfo.render = getTextRender(String(search))
+            if (!Array.isArray(search)) baseColumnInfo.render = getTextRender(search)
         }
         return baseColumnInfo
     })
