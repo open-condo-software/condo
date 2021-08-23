@@ -66,7 +66,7 @@ export const OnBoardingProvider: React.FC = (props) => {
     const { setIsVisible: showOnBoardingCompleteModal, OnBoardingCompleteModal, isVisible: isOnBoardingCompleteVisible } = useOnBoardingCompleteModal()
 
     const { obj: onBoarding, refetch: refetchOnBoarding } = OnBoardingHooks
-        .useObject({ where: { user: { id: get(user, 'id') } } })
+        .useObject({ where: { user: { id: get(user, 'id') }, completed: false } })
 
     const { loading: stepsLoading, objs: onBoardingSteps = [], refetch: refetchSteps } = OnBoardingStepHooks
         .useObjects(
@@ -115,7 +115,7 @@ export const OnBoardingProvider: React.FC = (props) => {
                 client.watchQuery({ query }).refetch().then((res) => {
                     const resolver = onBoardingStepResolvers[stepKey]
 
-                    if (resolver(res.data)) {
+                    if (resolver(res.data) && !get(onBoarding, 'completed')) {
                         updateStep({ completed: true }, step).then(() => {
                             refetchSteps().then(() => {
                                 if (router.pathname !== '/onboarding' && progressRef.current < 100) {
@@ -135,7 +135,7 @@ export const OnBoardingProvider: React.FC = (props) => {
                 showOnBoardingCompleteModal(true)
             })
         }
-    }, [progress, router, onBoarding])
+    }, [progress, router, onBoarding, isOnBoardingCompleteVisible])
 
     return (
         <OnBoardingContext.Provider value={{
