@@ -1,5 +1,5 @@
 import React, { createContext, useCallback } from 'react'
-import { useMutation } from '@core/next/apollo'
+import { useApolloClient, useMutation } from '@core/next/apollo'
 import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
 import { useAntdMediaQuery } from '@condo/domains/common/utils/mediaQuery.utils'
@@ -8,14 +8,14 @@ import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, SIGNIN_MUTATION } from '@condo/d
 
 interface IAuthLayoutContext {
     isMobile: boolean
-    signInByEmail: ({ email, password }) => Promise<unknown>,
-    signInByPhone: ({ phone, password }) => Promise<unknown>,
+    signInByEmail: ({ email, password }, onCompleted?: () => void) => Promise<unknown>,
+    signInByPhone: ({ phone, password }, onCompleted?: () => void) => Promise<unknown>,
 }
 
 export const AuthLayoutContext = createContext<IAuthLayoutContext>({
     isMobile: false,
-    signInByEmail: ({ email, password }) => null,
-    signInByPhone: ({ phone, password }) => null,
+    signInByEmail: () => null,
+    signInByPhone: () => null,
 })
 
 export const AuthLayoutContextProvider: React.FC = (props) => {
@@ -27,13 +27,14 @@ export const AuthLayoutContextProvider: React.FC = (props) => {
 
     const colSize = useAntdMediaQuery()
 
-    const signInByPhone = useCallback(({ phone, password }) => {
+    const signInByPhone = useCallback((variables, onCompleted) => {
         // @ts-ignore TODO(Dimitreee): remove after runMutation typo
         return runMutation({
             mutation: signinByPhoneMutation,
-            variables: { phone, password },
+            variables,
             onCompleted: () => {
                 refetch()
+                onCompleted()
             },
             intl,
         }).catch(error => {
@@ -41,13 +42,14 @@ export const AuthLayoutContextProvider: React.FC = (props) => {
         })
     }, [intl])
 
-    const signInByEmail = useCallback(({ email, password }) => {
+    const signInByEmail = useCallback((variables, onCompleted) => {
         // @ts-ignore TODO(Dimitreee): remove after runMutation typo
         return runMutation({
             mutation: signinByEmailMutation,
-            variables: { email, password },
+            variables,
             onCompleted: () => {
                 refetch()
+                onCompleted()
             },
             intl,
         }).catch(error => {
