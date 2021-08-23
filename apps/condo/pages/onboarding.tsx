@@ -15,7 +15,7 @@ const OnBoardingPage: IPageInterface = () => {
     const router = useRouter()
     const Title = intl.formatMessage({ id: 'onboarding.title' })
     const SubTitle = intl.formatMessage({ id: 'onboarding.subtitle' })
-    const { onBoardingSteps, onBoarding } = useOnBoardingContext()
+    const { onBoardingSteps = [], onBoarding } = useOnBoardingContext()
 
     useEffect(() => {
         if (get(onBoarding, 'completed', false)) {
@@ -23,22 +23,6 @@ const OnBoardingPage: IPageInterface = () => {
         }
     }, [onBoarding])
 
-    const steps = [...onBoardingSteps]
-        .sort((leftStep, rightStep) => leftStep.order > rightStep.order ? 1 : -1)
-        .map((step) => {
-            const { title, description, iconView, stepAction, type } = step
-
-            return (
-                <OnBoardingStepItem
-                    action={stepAction}
-                    icon={iconView}
-                    type={type}
-                    key={title}
-                    title={title}
-                    description={description}
-                />
-            )
-        })
 
     return (
         <>
@@ -59,8 +43,22 @@ const OnBoardingPage: IPageInterface = () => {
                                 {onBoardingSteps.length > 0
                                     ? (
                                         <Row gutter={[0, 0]}>
-                                            {true}
-                                            {steps}
+                                            {onBoardingSteps.sort((leftStep, rightStep) => leftStep.order > rightStep.order ? 1 : -1)
+                                                .map((step) => {
+                                                    const { title, description, iconView, stepAction, type, id } = step
+
+                                                    return (
+                                                        <Col span={24} key={id}>
+                                                            <OnBoardingStepItem
+                                                                action={stepAction}
+                                                                icon={iconView}
+                                                                type={type}
+                                                                title={title}
+                                                                description={description}
+                                                            />
+                                                        </Col>
+                                                    )
+                                                })}
                                         </Row>
                                     )
                                     : (
