@@ -19,6 +19,7 @@ import ScrollContainer from 'react-indiana-drag-scroll'
 import Link from 'next/link'
 import { Button } from '@condo/domains/common/components/Button'
 import { FullscreenWrapper, FullscreenHeader } from './Fullscreen'
+import get from 'lodash/get'
 
 interface IBuildingPanelViewProps {
     map: BuildingMap
@@ -58,9 +59,9 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
         <FullscreenWrapper mode={'view'} className={isFullscreen ? 'fullscreen' : '' }>
             <FullscreenHeader edit={false}>
                 <Row>
-                    <Col flex={0} style={{ marginTop: '10px' }}><b>{property.address}</b></Col>
+                    <Col flex={0} style={{ marginTop: '10px' }}><b>{get(property, 'address')}</b></Col>
                     <Col style={{ marginLeft: 'auto',  marginRight: '36px' }}>
-                        <Link href={`/property/${property.id}/update`}>
+                        <Link href={`/property/${get(property, 'id')}/update`}>
                             <span>
                                 <Button
                                     color={'green'}
