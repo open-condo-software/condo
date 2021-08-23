@@ -66,6 +66,8 @@ export type SorterColumn = {
     order: 'ascend' | 'descend'
 }
 
+type SorterMapType = (sorters: Array<SorterColumn>) => { [x: string]: 'ascend' | 'descend' }
+
 export enum FULL_TO_SHORT_ORDERS_MAP {
     ascend = 'ASC',
     descend = 'DESC',
@@ -284,4 +286,8 @@ export const convertColumns = (
         }
         return baseColumnInfo
     })
+}
+
+export const getSorterMap: SorterMapType = (sorters) => {
+    return Object.assign({}, ...sorters.map((sorter) => ({ [sorter.columnKey]: sorter.order })))
 }
