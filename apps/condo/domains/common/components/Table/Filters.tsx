@@ -3,13 +3,13 @@ import { colors } from '@condo/domains/common/constants/style'
 import React from 'react'
 import { Checkbox, DatePicker, Input } from 'antd'
 import { FilterContainer } from '../TableFilter'
-import { QueryMeta, OptionType } from '../../utils/tables.utils'
+import { OptionType, QueryArgType } from '../../utils/tables.utils'
 import { FilterValue } from 'antd/es/table/interface'
 import get from 'lodash/get'
 import moment from 'moment'
 
 type FilterIconType = (filtered?: boolean) => React.ReactNode
-type FilterValueType = (path: string | Array<string>, filters: { [x: string]: QueryMeta }) => FilterValue
+type FilterValueType = (path: string | Array<string>, filters: { [x: string]: QueryArgType }) => FilterValue
 
 
 export const getFilterIcon: FilterIconType = (filtered) => <FilterFilled style={{ color: filtered ? colors.sberPrimary[5] : undefined }} />
@@ -21,9 +21,9 @@ export const getTextFilterDropdown = (placeholder: string) => {
             <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
                 <Input
                     placeholder={placeholder}
-                    value={selectedKeys}
+                    value={selectedKeys[0]}
                     onChange={e => {
-                        setSelectedKeys(e.target.value)
+                        setSelectedKeys([e.target.value])
                         confirm({ closeDropdown: false })
                     }}
                 />
