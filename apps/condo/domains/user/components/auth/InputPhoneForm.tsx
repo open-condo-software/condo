@@ -145,7 +145,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
                                 {RegisterMsg}
                             </Button>
                         </Col>
-                        <Col lg={24} xl={13}>
+                        <Col lg={24} xl={11}>
                             <Tooltip title={NotImplementedYetMessage}>
                                 <Button
                                     secondary

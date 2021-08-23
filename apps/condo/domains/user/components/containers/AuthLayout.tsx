@@ -31,9 +31,11 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
     const { isAuthenticated } = useAuth()
 
     const handleLogoClick = useCallback(() => {
-        if (isAuthenticated)
+        if (isAuthenticated) {
             Router.push('/')
-        else Router.push('/auth/signin')
+        } else {
+            Router.push('/auth/signin')
+        }
     }, [isAuthenticated])
 
     return (
@@ -53,33 +55,38 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
                         title={<Logo fillColor={'white'} onClick={handleLogoClick} />}
                         extra={headerAction}
                     />
-                    <PageContent>
-                        <Row>
-                            <Col lg={11} md={24}>
-                                <PosterWrapper>
-                                    <Poster src={'/auth_poster.png'}/>
-                                </PosterWrapper>
-                            </Col>
-                            <Col lg={8} push={2} md={24}>
+                    <Row align={'stretch'}>
+                        <Col lg={11} md={24}>
+                            <PosterWrapper>
+                                <Poster src={'/auth_poster.png'}/>
+                            </PosterWrapper>
+                        </Col>
+                        <Col lg={13} md={24}>
+                            <PageContent>
                                 <ChildrenWrapper>
-                                    {children}
+                                    <Row>
+                                        <Col lg={14} push={4} md={24} pull={6}>
+                                            {children}
+                                        </Col>
+                                    </Row>
+                                    <Footer>
+                                        <Row>
+                                            <Col lg={14} push={4} md={24} pull={6}>
+                                                <FormattedMessage
+                                                    id='pages.auth.FooterText'
+                                                    values={{
+                                                        email: <Button size={'small'} type={'inlineLink'} href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</Button>,
+                                                        phone: <Button size={'small'} type={'inlineLink'} href={`tel:${SUPPORT_PHONE}`}>{SUPPORT_PHONE}</Button>,
+                                                    }}
+                                                />
+                                            </Col>
+                                        </Row>
+                                    </Footer>
                                 </ChildrenWrapper>
-                            </Col>
-                        </Row>
-                    </PageContent>
-                    <Footer>
-                        <Row>
-                            <Col push={13} lg={8} md={24}>
-                                <FormattedMessage
-                                    id='pages.auth.FooterText'
-                                    values={{
-                                        email: <Button size={'small'} type={'inlineLink'} href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</Button>,
-                                        phone: <Button size={'small'} type={'inlineLink'} href={`tel:${SUPPORT_PHONE}`}>{SUPPORT_PHONE}</Button>,
-                                    }}
-                                />
-                            </Col>
-                        </Row>
-                    </Footer>
+                            </PageContent>
+                        </Col>
+                    </Row>
+
                 </Layout>
             </AuthLayoutContextProvider>
         </GoogleReCaptchaProvider>

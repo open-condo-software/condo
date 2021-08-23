@@ -1,6 +1,7 @@
 // @ts-nocheck
 import Document, { Html, Head, Main, NextScript } from 'next/document'
 import { extractCritical } from 'emotion-server'
+import React from 'react'
 
 export default class MyDocument extends Document {
     static getInitialProps ({ renderPage }) {
@@ -13,7 +14,10 @@ export default class MyDocument extends Document {
         const innerHtml = { __html: this.props.css }
         return (
             <Html>
-                <Head/>
+                <Head>
+                    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+                    <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+                </Head>
                 <body>
                     <Main/>
                     <NextScript/>
