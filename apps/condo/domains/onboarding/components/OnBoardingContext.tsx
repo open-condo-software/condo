@@ -14,9 +14,9 @@ import {
 } from '../../../schema'
 import { OrganizationEmployee as OrganizationEmployeeGql } from '@condo/domains/organization/gql'
 import { Property as PropertyGql } from '@condo/domains/property/gql'
-import { useFocusContext } from '../../common/components/Focus/FocusContextProvider'
-import { useOnBoardingCompleteModal } from '../hooks/useOnBoardingCompleeteModal'
-import { getStepKey, getStepType } from '../utils/stepUtils'
+import { useFocusContext } from '@condo/domains/common/components/Focus/FocusContextProvider'
+import { useOnBoardingCompleteModal } from '@condo/domains/onboarding/hooks/useOnBoardingCompleeteModal'
+import { getStepKey, getStepType } from '@condo/domains/onboarding/utils/stepUtils'
 import { OnBoardingStepType } from './OnBoardingStepItem'
 
 interface IDecoratedOnBoardingStepType extends Omit<IOnBoardingStep, 'action'> {
@@ -68,7 +68,7 @@ export const OnBoardingProvider: React.FC = (props) => {
     const { obj: onBoarding, refetch: refetchOnBoarding } = OnBoardingHooks
         .useObject({ where: { user: { id: get(user, 'id') } } })
 
-    const { loading: stepsLoading, objs: onBoardingSteps = [], refetch } = OnBoardingStepHooks
+    const { loading: stepsLoading, objs: onBoardingSteps = [], refetch: refetchSteps } = OnBoardingStepHooks
         .useObjects(
             { where: { onBoarding: { id: get(onBoarding, 'id') } } },
             { fetchPolicy: 'network-only' }
@@ -94,7 +94,7 @@ export const OnBoardingProvider: React.FC = (props) => {
             }
         })
     }, [onBoardingSteps])
-    // TODO(Dimitreee): think about better sollution for progress state sync at hooks
+    // TODO(Dimitreee): think about better solution for progress state sync at hooks
     const progressRef = useRef(0)
 
     const progress = useMemo(() => {
@@ -112,12 +112,12 @@ export const OnBoardingProvider: React.FC = (props) => {
             const query = onBoardingQueriesMap[stepKey]
 
             if (!step.completed && query) {
-                client.watchQuery({ query }).result().then((res) => {
+                client.watchQuery({ query }).refetch().then((res) => {
                     const resolver = onBoardingStepResolvers[stepKey]
 
                     if (resolver(res.data)) {
                         updateStep({ completed: true }, step).then(() => {
-                            refetch().then(() => {
+                            refetchSteps().then(() => {
                                 if (router.pathname !== '/onboarding' && progressRef.current < 100) {
                                     showFocusTooltip()
                                 }
