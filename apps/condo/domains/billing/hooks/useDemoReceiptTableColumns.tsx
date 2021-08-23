@@ -7,7 +7,7 @@ import { isEmpty } from 'lodash'
 import { Highliter } from '@condo/domains/common/components/Highliter'
 import { Typography } from 'antd'
 import { colors } from '@condo/domains/common/constants/style'
-import { EmptyTableCell } from '@condo/domains/common/components/EmptyTableCell'
+import { EmptyTableCell } from '@condo/domains/common/components/Table/EmptyTableCell'
 import { getFilterIcon, getTextFilterDropdown } from '@condo/domains/common/components/TableFilter'
 
 const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)

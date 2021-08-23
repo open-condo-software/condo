@@ -1,6 +1,7 @@
 import React from 'react'
 import { IContextProps } from './index'
 import {
+    ColumnInfo,
     QueryMeta,
     getStringContainsFilter,
     getStringOptionFilter,
@@ -10,7 +11,7 @@ import {
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
-import { Table, ColumnInfo, DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
+import { Table, DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
 const { getPeriodMessage, getPreviousPeriods } = require('../../utils/period')
 import { BillingReceipt } from '@condo/domains/billing/utils/clientSchema'
 import { SortBillingReceiptsBy } from '../../../../schema'

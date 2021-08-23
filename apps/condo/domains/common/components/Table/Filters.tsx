@@ -1,12 +1,12 @@
 import { FilterFilled } from '@ant-design/icons'
 import { colors } from '@condo/domains/common/constants/style'
 import React from 'react'
-import { Checkbox, Input } from 'antd'
+import { Checkbox, DatePicker, Input } from 'antd'
 import { FilterContainer } from '../TableFilter'
-import { QueryMeta } from '../../utils/tables.utils'
+import { QueryMeta, OptionType } from '../../utils/tables.utils'
 import { FilterValue } from 'antd/es/table/interface'
-import { OptionType } from './Index'
 import get from 'lodash/get'
+import moment from 'moment'
 
 type FilterIconType = (filtered?: boolean) => React.ReactNode
 type FilterValueType = (path: string | Array<string>, filters: { [x: string]: QueryMeta }) => FilterValue
@@ -49,6 +49,30 @@ export const getOptionFilterDropdown = (options: Array<OptionType>, loading: boo
                         confirm({ closeDropdown: false })
                     }}
                 />
+            </FilterContainer>
+        )
+    }
+}
+
+export const getDateFilterDropdown = () => {
+    return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+        const pickerProps = {
+            value: undefined,
+            onChange: e => {
+                setSelectedKeys(e.toISOString())
+                confirm({ closeDropdown: false })
+            },
+            allowClear: false,
+        }
+
+        if (selectedKeys && selectedKeys.length > 0) {
+            pickerProps.value = moment(selectedKeys)
+        }
+
+        return (
+            <FilterContainer clearFilters={clearFilters}
+                showClearButton={selectedKeys && selectedKeys.length > 0}>
+                <DatePicker {...pickerProps}/>
             </FilterContainer>
         )
     }

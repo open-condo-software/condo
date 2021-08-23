@@ -11,7 +11,7 @@ import { Typography } from 'antd'
 import { isEmpty } from 'lodash'
 import { Highliter } from '@condo/domains/common/components/Highliter'
 import { getTextFilterDropdown, getFilterIcon } from '@condo/domains/common/components/TableFilter'
-import { EmptyTableCell } from '@condo/domains/common/components/EmptyTableCell'
+import { EmptyTableCell } from '@condo/domains/common/components/Table/EmptyTableCell'
 
 export interface ITableColumn {
     title: string,
