@@ -11,6 +11,7 @@ import {
 } from '../components/Table/Filters'
 import { getTextRender } from '../components/Table/Renders'
 import { preciseFloor } from './helpers'
+import { FilterDropdownProps } from 'antd/es/table/interface'
 
 export type DataIndexType = string | Array<string>
 export type QueryArgType = string | Array<string>
@@ -42,13 +43,18 @@ type DateFilter = {
     type: 'date',
 }
 
+type CustomFilter = {
+    type: 'custom',
+    filterDropdown: (props: FilterDropdownProps) => React.ReactNode
+}
+
 export type ColumnInfo = {
     title: string
     key: string
     width: number
     dataIndex: string | Array<string>
     ellipsis?: boolean
-    filter?: StringFilter | StringOptionFilter | DateFilter
+    filter?: StringFilter | StringOptionFilter | DateFilter | CustomFilter
     sortable?: boolean
     visible?: boolean
     render?: (text: string, record: any, index: number) => Record<string, unknown> | React.ReactNode
@@ -273,6 +279,8 @@ export const convertColumns = (
                 baseColumnInfo.filterDropdown = getOptionFilterDropdown(filter.options, loading)
             } else if (filter.type === 'date') {
                 baseColumnInfo.filterDropdown = getDateFilterDropdown()
+            } else if (filter.type === 'custom') {
+                baseColumnInfo.filterDropdown = filter.filterDropdown
             }
         }
         if (column.sortable) {
