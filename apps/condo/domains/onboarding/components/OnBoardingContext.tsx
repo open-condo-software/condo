@@ -66,7 +66,7 @@ export const OnBoardingProvider: React.FC = (props) => {
     const { setIsVisible: showOnBoardingCompleteModal, OnBoardingCompleteModal, isVisible: isOnBoardingCompleteVisible } = useOnBoardingCompleteModal()
 
     const { obj: onBoarding, refetch: refetchOnBoarding } = OnBoardingHooks
-        .useObject({ where: { user: { id: get(user, 'id') }, completed: false } })
+        .useObject({ where: { user: { id: get(user, 'id') } } })
 
     const { loading: stepsLoading, objs: onBoardingSteps = [], refetch: refetchSteps } = OnBoardingStepHooks
         .useObjects(
