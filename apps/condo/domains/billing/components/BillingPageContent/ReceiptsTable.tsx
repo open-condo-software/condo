@@ -7,6 +7,8 @@ import {
     getStringOptionFilter,
     getPageIndexFromOffset,
     parseQuery,
+    convertColumns,
+    getSorterMap,
 } from '@condo/domains/common/utils/tables.utils'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useRouter } from 'next/router'
@@ -49,6 +51,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const router = useRouter()
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, sortableProperties)
     const { filters, sorters, offset } = parseQuery(router.query)
+    const sorterMap = getSorterMap(sorters)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
     const {
@@ -89,6 +92,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
             ellipsis: true,
         },
     ]
+    const antdColumns = convertColumns(columns, filters, sorterMap)
 
     return (
         <>
@@ -96,7 +100,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
                 loading={loading}
                 totalRows={total}
                 dataSource={receipts}
-                columns={columns}
+                columns={antdColumns}
             />
         </>
     )

@@ -46,16 +46,18 @@ export const Table: React.FC<ITableProps> = ({
         const { current } = nextPagination
         let shouldResetOffset = false
 
-        // TODO (savelevMatthew): proper delete nulls
-        const newFilters: { [x: string]: QueryMeta } = {  }
+        const newFilters: { [x: string]: QueryMeta } = { ...filters }
         for (const [key, value] of Object.entries(nextFilters)) {
+            const oldFilter = get(filters, key)
+            if (!value && oldFilter) {
+                delete newFilters[key]
+            }
             let typedValue = null
             if (Array.isArray(value)) {
                 typedValue = value.filter(Boolean).map(String)
             } else if (typeof value === 'string') {
                 typedValue = value
             }
-            const oldFilter = get(filters, key)
             if (typedValue && (!oldFilter || oldFilter !== value)) {
                 shouldResetOffset = true
                 newFilters[key] = typedValue
