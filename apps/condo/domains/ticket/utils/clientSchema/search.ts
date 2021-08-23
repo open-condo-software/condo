@@ -99,7 +99,7 @@ export function searchOrganizationProperty (organizationId) {
         const orderBy = 'address_ASC'
         const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_BY_VALUE_QUERY, { where, orderBy })
         if (error) console.warn(error)
-        return data.objs.map(x => ({ text: x.address, value: x.id }))
+        return data.objs.map(({ address, id }) => ({ text: address, value: id }))
     }
 }
 
