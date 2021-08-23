@@ -48,7 +48,7 @@ const OnBoardingPage: IPageInterface = () => {
                                                     const { title, description, iconView, stepAction, type, id } = step
 
                                                     return (
-                                                        <Col span={24} key={id}>
+                                                        <Col lg={16} md={24} key={id}>
                                                             <OnBoardingStepItem
                                                                 action={stepAction}
                                                                 icon={iconView}
