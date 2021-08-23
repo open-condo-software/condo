@@ -44,7 +44,10 @@ const Progress = styled.div`
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
     background-color: ${colors.sberGrey[1]};
 `
 
