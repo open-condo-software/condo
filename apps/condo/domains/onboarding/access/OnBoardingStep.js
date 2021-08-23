@@ -5,8 +5,8 @@
 async function canReadOnBoardingSteps ({ authentication: { item: user } }) {
     if (!user) return false
     if (user.isAdmin) return {}
+
     return {
-        // TODO(codegen): write canReadOnBoardingSteps logic!
     }
 }
 
@@ -14,12 +14,11 @@ async function canManageOnBoardingSteps ({ authentication: { item: user }, origi
     if (!user) return false
     if (user.isAdmin) return true
     if (operation === 'create') {
-        // TODO(codegen): write canManageOnBoardingSteps create logic!
         return true
     } else if (operation === 'update') {
-        // TODO(codegen): write canManageOnBoardingSteps update logic!
         return true
     }
+
     return false
 }
 
