@@ -52,8 +52,7 @@ export const usePeriodSelector = (lastPeriod: string, amount: number = PERIODS_A
             }
         }
     }
-
-    if (filterPeriod && filterPeriod !== period) {
+    if (filterPeriod !== period.current) {
         handleChange(filterPeriod)
     }
 
