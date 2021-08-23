@@ -58,10 +58,13 @@ const RegisterPage: AuthPage = () => {
 
     const steps = {
         inputPhone: <InputPhoneForm onFinish={() => setState('validatePhone')} />,
-        validatePhone: <ValidatePhoneForm onFinish={() => setState('register')} onReset={() => {
-            setState('inputPhone')
-            Router.push('/auth/register')
-        }} />,
+        validatePhone: <ValidatePhoneForm
+            onFinish={() => setState('register')}
+            onReset={() => {
+                setState('inputPhone')
+                Router.push('/auth/register')
+            }}
+        />,
         register: <RegisterForm onFinish={() => null} />,
     }
 

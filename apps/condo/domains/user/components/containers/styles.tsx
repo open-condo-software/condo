@@ -8,6 +8,9 @@ export const Layout = styled(AntLayout)`
 `
 
 export const Footer = styled(AntLayout.Footer)`
+  position: absolute;
+  bottom: 0;
+  width: 100%;
   white-space: pre;
   color: ${colors.lightGrey[7]}; 
   background-color: ${colors.white}; 
@@ -25,18 +28,23 @@ export const Header = styled<typeof PageHeader>(PageHeader)`
   z-index: 1;
 `
 
-export const PageContent = styled(AntLayout.Content)`
-`
-
 export const PosterWrapper = styled.div`
   height: 100vh;
 `
 
+export const PageContent = styled(AntLayout.Content)`
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+  overflow-y: scroll;
+`
+
 export const ChildrenWrapper = styled.div`
-  width: 100%;
-  height: 100%;
+  margin: auto;
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  min-height: 900px;
 `
