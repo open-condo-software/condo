@@ -1,4 +1,5 @@
 import { ParsedUrlQuery } from 'querystring'
+const DEFAULT_WIDTH_PRECISION = 2
 
 /**
  * Formats a phone, convert it from number string to string with dividers
@@ -22,4 +23,9 @@ export const getFiltersFromQuery = <T>(query: ParsedUrlQuery): T | Record<string
     } catch (e) {
         return {}
     }
+}
+
+export const preciseFloor = (x: number, precision?: number) => {
+    precision = precision === undefined ? DEFAULT_WIDTH_PRECISION : precision
+    return Math.floor(x * Math.pow(10, precision)) / 100
 }

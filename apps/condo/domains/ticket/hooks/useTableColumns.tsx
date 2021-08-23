@@ -13,7 +13,7 @@ import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketSta
 import { createSorterMap, IFilters } from '../utils/helpers'
 import { TicketStatus } from '../utils/clientSchema'
 import { Highliter } from '@condo/domains/common/components/Highliter'
-import { EmptyTableCell } from '@condo/domains/common/components/EmptyTableCell'
+import { EmptyTableCell } from '@condo/domains/common/components/Table/EmptyTableCell'
 import { getTextFilterDropdown, getFilterIcon, FilterContainer } from '@condo/domains/common/components/TableFilter'
 
 

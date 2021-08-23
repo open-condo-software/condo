@@ -1,6 +1,16 @@
+import React from 'react'
 import moment from 'moment'
 import get from 'lodash/get'
 import { ParsedUrlQuery } from 'querystring'
+import {
+    getDateFilterDropdown,
+    getFilterIcon,
+    getFilterValue,
+    getOptionFilterDropdown,
+    getTextFilterDropdown,
+} from '../components/Table/Filters'
+import { getTextRender } from '../components/Table/Renders'
+import { preciseFloor } from './helpers'
 
 export type DataIndexType = string | Array<string>
 export type QueryArgType = string | Array<string>
@@ -11,6 +21,38 @@ export type FilterType = (search: QueryArgType) => WhereType
 export type ArgumentType = 'single' | 'array'
 export type ArgumentDataType = 'string' | 'number' | 'dateTime' | 'boolean'
 export type FiltersApplyMode = 'AND' | 'OR'
+
+type StringFilter = {
+    type: 'string'
+    placeholder?: string
+}
+
+export type OptionType = {
+    label: string,
+    value: string,
+}
+
+type StringOptionFilter = {
+    type: 'stringOption'
+    options: Array<OptionType>
+    loading?: boolean
+}
+
+type DateFilter = {
+    type: 'date',
+}
+
+export type ColumnInfo = {
+    title: string
+    key: string
+    width: number
+    dataIndex: string | Array<string>
+    ellipsis?: boolean
+    filter?: StringFilter | StringOptionFilter | DateFilter
+    sortable?: boolean
+    visible?: boolean
+    render?: (text: string, record: any, index: number) => Record<string, unknown> | React.ReactNode
+}
 
 export type QueryMeta = {
     keyword: string
@@ -187,4 +229,59 @@ export const parseQuery = (query: ParsedUrlQuery) => {
     const queryOffset = get(query, 'offset', '0')
     const offset = Number(queryOffset) ? Number(queryOffset) : 0
     return { filters, sorters, offset }
+}
+
+export const convertColumns = (
+    columns: Array<ColumnInfo>,
+    filters: { [x: string]: QueryMeta },
+    sorters: { [x: string]: 'ascend' | 'descend' }
+) => {
+    const totalWidth = columns
+        .filter((column) => get(column, 'visible', true))
+        .reduce((acc, current) => acc + current.width, 0)
+
+    return columns.map((column) => {
+        const proportionalWidth = column.width * 100 / totalWidth
+        const percentageWidth = `${preciseFloor(proportionalWidth)}%`
+        const isColumnVisible = get(column, 'visible', true)
+        const responsive = isColumnVisible ? undefined : []
+
+        const baseColumnInfo = {
+            filteredValue: getFilterValue(column.key, filters),
+            title: column.title,
+            key: column.key,
+            dataIndex: column.dataIndex,
+            width: percentageWidth,
+            ellipsis: column.ellipsis,
+            filterIcon: undefined,
+            filterDropdown: undefined,
+            responsive,
+            sorter: false,
+            sortOrder: get(sorters, column.key),
+            render: undefined,
+        }
+        if (column.filter) {
+            const filter = column.filter
+            baseColumnInfo.filterIcon = getFilterIcon
+            if (filter.type === 'string') {
+                const placeHolder = filter.placeholder || column.title
+                baseColumnInfo.filterDropdown = getTextFilterDropdown(placeHolder)
+            } else if (filter.type === 'stringOption' && filter.options.length > 0) {
+                const loading = get(filter, 'loading', false)
+                baseColumnInfo.filterDropdown = getOptionFilterDropdown(filter.options, loading)
+            } else if (filter.type === 'date') {
+                baseColumnInfo.filterDropdown = getDateFilterDropdown()
+            }
+        }
+        if (column.sortable) {
+            baseColumnInfo.sorter = true
+        }
+        if (column.render) {
+            baseColumnInfo.render = column.render
+        } else if (column.filter && column.filter.type === 'string') {
+            const search = get(filters, 'search')
+            if (search && !Array.isArray(search)) baseColumnInfo.render = getTextRender(String(search))
+        }
+        return baseColumnInfo
+    })
 }

@@ -1,12 +1,6 @@
 import React from 'react'
 import { Table as DefaultTable } from 'antd'
 import get from 'lodash/get'
-import {
-    getTextFilterDropdown,
-    getFilterIcon,
-    getFilterValue,
-    getOptionFilterDropdown,
-} from './Filters'
 import { debounce } from 'lodash'
 import { useRouter } from 'next/router'
 import {
@@ -23,92 +17,10 @@ interface ITableProps {
     dataSource: any[]
     pageSize?: number
     keyPath?: Array<string> | string
-    columns: Array<ColumnInfo>
-}
-
-type StringFilter = {
-    type: 'string'
-    placeholder?: string
-}
-
-export type OptionType = {
-    label: string,
-    value: string,
-}
-
-type StringOptionFilter = {
-    type: 'stringOption'
-    options: Array<OptionType>
-    loading?: boolean
-}
-
-
-export type ColumnInfo = {
-    title: string
-    key: string
-    width: number
-    dataIndex: string | Array<string>
-    ellipsis?: boolean
-    filter?: StringFilter | StringOptionFilter
-    sortable?: boolean
-    visible?: boolean
+    columns: Array<Record<string, unknown>>
 }
 
 export const DEFAULT_PAGE_SIZE = 10
-const DEFAULT_WIDTH_PRECISION = 2
-
-const preciseFloor = (x: number, precision?: number) => {
-    precision = precision === undefined ? DEFAULT_WIDTH_PRECISION : precision
-    return Math.floor(x * Math.pow(10, precision)) / 100
-}
-
-const convertColumns = (
-    columns: Array<ColumnInfo>,
-    filters: { [x: string]: QueryMeta },
-    sorters: { [x: string]: 'ascend' | 'descend' }
-) => {
-    const totalWidth = columns
-        .filter((column) => get(column, 'visible', true))
-        .reduce((acc, current) => acc + current.width, 0)
-
-    return columns.map((column) => {
-        const proportionalWidth = column.width * 100 / totalWidth
-        const percentageWidth = `${preciseFloor(proportionalWidth)}%`
-        const isColumnVisible = get(column, 'visible', true)
-        const responsive = isColumnVisible ? undefined : []
-
-        const baseColumnInfo = {
-            filteredValue: getFilterValue(column.key, filters),
-            title: column.title,
-            key: column.key,
-            dataIndex: column.dataIndex,
-            width: percentageWidth,
-            ellipsis: column.ellipsis,
-            filterIcon: undefined,
-            filterDropdown: undefined,
-            responsive,
-            sorter: false,
-            sortOrder: get(sorters, column.key),
-        }
-        if (column.filter) {
-            const filter = column.filter
-            if (filter.type === 'string') {
-                const placeHolder = filter.placeholder || column.title
-                baseColumnInfo.filterIcon = getFilterIcon
-                baseColumnInfo.filterDropdown = getTextFilterDropdown(placeHolder)
-            } else if (filter.type === 'stringOption' && filter.options.length > 0) {
-                const loading = get(filter, 'loading', false)
-                baseColumnInfo.filterIcon = getFilterIcon
-                baseColumnInfo.filterDropdown = getOptionFilterDropdown(filter.options, loading)
-            }
-        }
-        if (column.sortable) {
-            baseColumnInfo.sorter = true
-        }
-        return baseColumnInfo
-    })
-}
-
 
 export const Table: React.FC<ITableProps> = ({
     keyPath,
@@ -122,11 +34,8 @@ export const Table: React.FC<ITableProps> = ({
     const rowKey = keyPath || 'id'
 
     const router = useRouter()
-    const { filters, offset, sorters } = parseQuery(router.query)
-    const sorterMap = Object.assign({}, ...sorters.map((sorter) => ({ [sorter.columnKey]: sorter.order })))
+    const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, rowsPerPage)
-
-    const expandedColumns = convertColumns(columns, filters, sorterMap)
 
     const handleChange = debounce((...tableChangeArguments) => {
         const [
@@ -137,7 +46,8 @@ export const Table: React.FC<ITableProps> = ({
         const { current } = nextPagination
         let shouldResetOffset = false
 
-        const newFilters: { [x: string]: QueryMeta } = {}
+        // TODO (savelevMatthew): proper delete nulls
+        const newFilters: { [x: string]: QueryMeta } = {  }
         for (const [key, value] of Object.entries(nextFilters)) {
             let typedValue = null
             if (Array.isArray(value)) {
@@ -167,7 +77,7 @@ export const Table: React.FC<ITableProps> = ({
         }
 
         const newQuery = qs.stringify({ ...queryParams }, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })
-        router.push(router.route + newQuery)
+        return router.push(router.route + newQuery)
     }, 400)
 
     return (
@@ -178,7 +88,7 @@ export const Table: React.FC<ITableProps> = ({
                 loading={loading}
                 rowKey={(record) => get(record, rowKey)}
                 dataSource={dataSource}
-                columns={expandedColumns}
+                columns={columns}
                 onChange={handleChange}
                 pagination={{
                     showSizeChanger: false,

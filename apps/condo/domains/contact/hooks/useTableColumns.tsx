@@ -8,7 +8,7 @@ import { createSorterMap, IFilters } from '../utils/helpers'
 import { getTextFilterDropdown, getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { Highliter } from '@condo/domains/common/components/Highliter'
 import { colors } from '@condo/domains/common/constants/style'
-import { EmptyTableCell } from '@condo/domains/common/components/EmptyTableCell'
+import { EmptyTableCell } from '@condo/domains/common/components/Table/EmptyTableCell'
 
 const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
 
