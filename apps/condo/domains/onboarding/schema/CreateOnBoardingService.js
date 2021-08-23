@@ -6,7 +6,7 @@ const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/onboarding/access/CreateOnBoardingService')
 const { OnBoarding } = require('@condo/domains/onboarding/utils/serverSchema')
 const { OnBoardingStep } = require('@condo/domains/onboarding/utils/serverSchema')
-const { ONBOARDING_TYPES, ONBOARDING_STEPS } = require('../constants')
+const { ONBOARDING_TYPES, ONBOARDING_STEPS } = require('@condo/domains/onboarding/constants')
 
 const CreateOnBoardingService = new GQLCustomSchema('CreateOnBoardingService', {
     types: [
@@ -60,9 +60,7 @@ const CreateOnBoardingService = new GQLCustomSchema('CreateOnBoardingService', {
                     })
                 }
 
-                return {
-                    id: onBoarding.id,
-                }
+                return onBoarding
             },
         },
     ],
