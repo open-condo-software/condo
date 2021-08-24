@@ -11,6 +11,10 @@ import { Col, Row, Typography } from 'antd'
 import Router from 'next/router'
 import React, { useContext, useEffect, useState } from 'react'
 import { ButtonHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { useMutation } from '@core/next/apollo'
+import { runMutation } from '@condo/domains/common/utils/mutations.utils'
+import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
+import { CREATE_ONBOARDING_MUTATION } from '@condo/domains/onboarding/gql'
 
 const RegisterPage: AuthPage = () => {
     const intl = useIntl()
@@ -21,6 +25,28 @@ const RegisterPage: AuthPage = () => {
 
     const { token, isConfirmed, tokenError, setToken, setTokenError } = useContext(RegisterContext)
     const [state, setState] = useState('inputPhone')
+
+    const [createOnBoarding] = useMutation(CREATE_ONBOARDING_MUTATION, {
+        onCompleted: () => {
+            Router.push('/onboarding')
+        },
+    })
+
+    const initOnBoarding = (userId: string) => {
+        const onBoardingExtraData = {
+            dv: 1,
+            sender: getClientSideSenderInfo(),
+        }
+
+        const data = { ...onBoardingExtraData, type: 'ADMINISTRATOR', userId }
+
+        return runMutation({
+            mutation: createOnBoarding,
+            variables: { data },
+            intl,
+        })
+    }
+
     useEffect(() => {
         if (token && isConfirmed) {
             setState('register')
@@ -65,7 +91,7 @@ const RegisterPage: AuthPage = () => {
                 Router.push('/auth/register')
             }}
         />,
-        register: <RegisterForm onFinish={() => null} />,
+        register: <RegisterForm onFinish={initOnBoarding} />,
     }
 
     return (

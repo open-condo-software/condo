@@ -1,7 +1,6 @@
 import { Col, Form, Input, Row, Typography } from 'antd'
-import get from 'lodash/get'
-import Router from 'next/router'
 import React, { useCallback, useContext, useMemo, useState } from 'react'
+import get from 'lodash/get'
 import { useMutation } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
@@ -15,7 +14,6 @@ import {
     PHONE_ALREADY_REGISTERED_ERROR,
 } from '@condo/domains/user/constants/errors'
 import { REGISTER_NEW_USER_MUTATION } from '@condo/domains/user/gql'
-import { CREATE_ONBOARDING_MUTATION } from '@condo/domains/onboarding/gql'
 import { AuthLayoutContext } from '../containers/AuthLayoutContext'
 import { useRegisterFormValidators } from './hooks'
 import { RegisterContext } from './RegisterContextProvider'
@@ -26,10 +24,10 @@ const FORM_LAYOUT = {
 }
 
 interface IRegisterFormProps {
-    onFinish: () => void
+    onFinish: (userId: string) => void
 }
 
-export const RegisterForm: React.FC<IRegisterFormProps> = () => {
+export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
     const intl = useIntl()
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
@@ -73,28 +71,6 @@ export const RegisterForm: React.FC<IRegisterFormProps> = () => {
     const { phone, token } = useContext(RegisterContext)
     const { signInByPhone } = useContext(AuthLayoutContext)
     const [registerMutation] = useMutation(REGISTER_NEW_USER_MUTATION)
-    const [createOnBoarding] = useMutation(CREATE_ONBOARDING_MUTATION, {
-        onCompleted: () => {
-            Router.push('/onboarding')
-        },
-    })
-
-    const initOnBoarding = (userId: string) => {
-        const onBoardingExtraData = {
-            dv: 1,
-            sender: getClientSideSenderInfo(),
-        }
-
-        const data = { ...onBoardingExtraData, type: 'ADMINISTRATOR', userId }
-
-        return runMutation({
-            mutation: createOnBoarding,
-            variables: { data },
-            intl,
-            form,
-            ErrorToFormFieldMsgMapping,
-        })
-    }
 
     const registerComplete = useCallback(async () => {
         const registerExtraData = {
@@ -106,7 +82,6 @@ export const RegisterForm: React.FC<IRegisterFormProps> = () => {
         const data = { name, email, password, ...registerExtraData, confirmPhoneActionToken: token }
         setIsLoading(true)
 
-        // @ts-ignore TODO(Dimitreee): remove after runMutation typo
         return runMutation({
             mutation: registerMutation,
             variables: { data },
@@ -114,7 +89,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = () => {
                 signInByPhone(form.getFieldsValue(['phone', 'password']), () => {
                     const userId = get(data, ['user', 'id'])
 
-                    initOnBoarding(userId)
+                    onFinish(userId)
                 })
             },
             intl,
