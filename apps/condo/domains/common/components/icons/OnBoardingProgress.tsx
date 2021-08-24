@@ -18,13 +18,14 @@ const CanvasSegment: React.FC<{ progress: number }> = (props) => {
 
         if (canvasRef) {
             const canvasContext = canvasRef.current.getContext('2d')
+
             canvasContext.fillStyle = colors.sberGrey[1]
             canvasContext.fillRect(0, 0, 20, 20)
 
             const gradient = canvasContext.createLinearGradient(15, 0, 5, 20)
 
-            gradient.addColorStop(0.1, '#5473C3')
-            gradient.addColorStop(1, '#6BEAC7')
+            gradient.addColorStop(0.1, colors.indigo)
+            gradient.addColorStop(1, colors.turquoiseBlue)
             canvasContext.fillStyle = gradient
 
             canvasContext.beginPath()
@@ -33,7 +34,6 @@ const CanvasSegment: React.FC<{ progress: number }> = (props) => {
             canvasContext.fill()
         }
     }, [canvasRef, props.progress])
-
 
     return (
         <Canvas ref={canvasRef} width='20' height='20'/>
