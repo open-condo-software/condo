@@ -11,10 +11,12 @@ const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/ut
 
 const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
 const { Meter: MeterGQL } = require('@condo/domains/meter/gql')
+const { MeterSource: MeterSourceGQL } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateGQLTestUtils(MeterResourceGQL)
 const Meter = generateGQLTestUtils(MeterGQL)
+const MeterSource = generateGQLTestUtils(MeterSourceGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestMeterResource (client, extraAttrs = {}) {
@@ -83,10 +85,42 @@ async function updateTestMeter (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestMeterSource (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestMeterSource logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await MeterSource.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestMeterSource (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestMeterSource logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await MeterSource.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     MeterResource, createTestMeterResource, updateTestMeterResource,
     Meter, createTestMeter, updateTestMeter,
+    MeterSource, createTestMeterSource, updateTestMeterSource,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
