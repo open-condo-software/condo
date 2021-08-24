@@ -1541,7 +1541,6 @@ export type BillingIntegrationAccessRight = {
    *  4. As an alias to the 'id' field on the BillingIntegrationAccessRight List.
    */
   _label_?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
@@ -1550,6 +1549,7 @@ export type BillingIntegrationAccessRight = {
   integration?: Maybe<BillingIntegration>;
   /**  User  */
   user?: Maybe<User>;
+  id: Scalars['ID'];
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<User>;
@@ -1582,11 +1582,11 @@ export type BillingIntegrationAccessRightHistoryRecord = {
   sender?: Maybe<Scalars['JSON']>;
   integration?: Maybe<Scalars['String']>;
   user?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<Scalars['String']>;
   updatedBy?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<BillingIntegrationAccessRightHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -1649,6 +1649,10 @@ export type BillingIntegrationAccessRightHistoryRecordWhereInput = {
   user_not?: Maybe<Scalars['String']>;
   user_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   user_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
   createdAt?: Maybe<Scalars['String']>;
   createdAt_not?: Maybe<Scalars['String']>;
   createdAt_lt?: Maybe<Scalars['String']>;
@@ -1673,10 +1677,6 @@ export type BillingIntegrationAccessRightHistoryRecordWhereInput = {
   updatedBy_not?: Maybe<Scalars['String']>;
   updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  id?: Maybe<Scalars['ID']>;
-  id_not?: Maybe<Scalars['ID']>;
-  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
   history_date?: Maybe<Scalars['String']>;
   history_date_not?: Maybe<Scalars['String']>;
   history_date_lt?: Maybe<Scalars['String']>;
@@ -1729,14 +1729,6 @@ export type BillingIntegrationAccessRightUpdateInput = {
 export type BillingIntegrationAccessRightWhereInput = {
   AND?: Maybe<Array<Maybe<BillingIntegrationAccessRightWhereInput>>>;
   OR?: Maybe<Array<Maybe<BillingIntegrationAccessRightWhereInput>>>;
-  id?: Maybe<Scalars['ID']>;
-  id_not?: Maybe<Scalars['ID']>;
-  id_lt?: Maybe<Scalars['ID']>;
-  id_lte?: Maybe<Scalars['ID']>;
-  id_gt?: Maybe<Scalars['ID']>;
-  id_gte?: Maybe<Scalars['ID']>;
-  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
   dv?: Maybe<Scalars['Int']>;
   dv_not?: Maybe<Scalars['Int']>;
   dv_lt?: Maybe<Scalars['Int']>;
@@ -1753,6 +1745,10 @@ export type BillingIntegrationAccessRightWhereInput = {
   integration_is_null?: Maybe<Scalars['Boolean']>;
   user?: Maybe<UserWhereInput>;
   user_is_null?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
   createdAt?: Maybe<Scalars['String']>;
   createdAt_not?: Maybe<Scalars['String']>;
   createdAt_lt?: Maybe<Scalars['String']>;
@@ -3761,7 +3757,7 @@ export type BillingReceipt = {
   account?: Maybe<BillingAccount>;
   /**  Period date: Generated on template <year>-<month>-01  */
   period?: Maybe<Scalars['String']>;
-  /**  `billing receipt` local object ID. Unique up to billing context. It is made using template: <context_id>__<importId>  */
+  /**  `billing receipt` local object ID. Unique up to billing context. It is unique up to the context. The constrain is a combination of contextId and importId. Please check migration: 20210823172647-0047_auto_20210823_1226.js  */
   importId?: Maybe<Scalars['String']>;
   /**  A number to print on the payment document.  */
   printableNumber?: Maybe<Scalars['String']>;
@@ -15613,12 +15609,12 @@ export enum SortBillingAccountsBy {
 export enum SortBillingIntegrationAccessRightHistoryRecordsBy {
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
   CreatedAtAsc = 'createdAt_ASC',
   CreatedAtDesc = 'createdAt_DESC',
   UpdatedAtAsc = 'updatedAt_ASC',
   UpdatedAtDesc = 'updatedAt_DESC',
-  IdAsc = 'id_ASC',
-  IdDesc = 'id_DESC',
   HistoryDateAsc = 'history_date_ASC',
   HistoryDateDesc = 'history_date_DESC',
   HistoryActionAsc = 'history_action_ASC',
@@ -15626,14 +15622,14 @@ export enum SortBillingIntegrationAccessRightHistoryRecordsBy {
 }
 
 export enum SortBillingIntegrationAccessRightsBy {
-  IdAsc = 'id_ASC',
-  IdDesc = 'id_DESC',
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
   IntegrationAsc = 'integration_ASC',
   IntegrationDesc = 'integration_DESC',
   UserAsc = 'user_ASC',
   UserDesc = 'user_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
   CreatedAtAsc = 'createdAt_ASC',
   CreatedAtDesc = 'createdAt_DESC',
   UpdatedAtAsc = 'updatedAt_ASC',
