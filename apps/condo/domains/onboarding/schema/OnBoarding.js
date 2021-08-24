@@ -9,40 +9,39 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/onboarding/access/OnBoarding')
 
-
 const OnBoarding = new GQLListSchema('OnBoarding', {
-    // TODO(codegen): write doc for the OnBoarding domain model!
-    schemaDoc: 'TODO DOC!',
+    schemaDoc: 'User action guide. It should be used to build complex hierarchical systems of user actions.',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
         completed: {
-            // TODO(codegen): write doc for OnBoarding.completed field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: `Primary Attribute of user guide what we need to watch for. 
+                Indicates the status and detect the full completeness of guide.`,
             type: Checkbox,
             defaultValue: false,
         },
 
         stepsTransitions: {
-            // TODO(codegen): write doc for OnBoarding.stepsTransitions field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: `Graph of possible transitions for steps. If there is no transition in this graph, 
+                it is impossible to move forward or backward of guide.`,
             type: Json,
             isRequired: true,
         },
 
         user: {
-            // TODO(codegen): write doc for OnBoardingStep.onBoarding field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'User onBoarding relates to.',
             type: Relationship,
             ref: 'User',
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
+
         type: {
+            schemaDoc: 'Type of onBoarding. Used for guid classification',
             type: Select,
-            options: 'ADMINISTRATOR', // TODO: add select onBoarding type options
+            options: 'ADMINISTRATOR',
             defaultValue: 'member',
             isRequired: true,
         },
