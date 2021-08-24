@@ -33,25 +33,15 @@ interface OnBoardingContext {
     refetchOnBoarding?: () => Promise<IOnBoarding>
 }
 
-const onBoardingIconsMap = {
+const ONBOARDING_COMPLETED_PROGRESS = 100
+
+const onBoardingIcons = {
     organization: BankOutlined,
     house: HouseIcon,
     user: UserIcon,
     chat: WechatFilled,
     billing: ProfileFilled,
     creditCard: CreditCardFilled,
-}
-
-const onBoardingQueriesMap = {
-    'create.Organization': OrganizationEmployeeGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
-    'create.Property': PropertyGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
-    'create.OrganizationEmployee': OrganizationEmployeeGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
-}
-
-const onBoardingStepResolvers = {
-    'create.Organization': (data) => get(data, 'objs', []).length > 0,
-    'create.Property': (data) => get(data, 'objs', []).length > 0,
-    'create.OrganizationEmployee': (data) => get(data, 'objs', []).length > 1,
 }
 
 const OnBoardingContext = createContext<OnBoardingContext>({})
@@ -77,14 +67,30 @@ export const OnBoardingProvider: React.FC = (props) => {
             { where: { onBoarding: { id: get(onBoarding, 'id') } } },
             { fetchPolicy: 'network-only' }
         )
+
     const updateOnBoarding = OnBoardingHooks.useUpdate({}, () => refetchOnBoarding())
     const updateStep = OnBoardingStepHooks.useUpdate({})
 
-    const onBoardingActionMap = {
-        'create.Organization': () => showCreateOrganizationModal(true),
-        'create.Property': () => Router.push('property/create'),
-        'create.OrganizationEmployee': () => Router.push('employee/create'),
-    }
+    const onBoardingStepsConfig = useMemo(() => {
+        return {
+            'create.Organization': {
+                query: OrganizationEmployeeGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
+                resolver: (data) => get(data, 'objs', []).length > 0,
+                action: () => showCreateOrganizationModal(true),
+
+            },
+            'create.Property': {
+                query: PropertyGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
+                resolver: (data) => get(data, 'objs', []).length > 0,
+                action: () => Router.push('property/create'),
+            },
+            'create.OrganizationEmployee': {
+                query: OrganizationEmployeeGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
+                resolver: (data) => get(data, 'objs', []).length > 1,
+                action: () => Router.push('employee/create'),
+            },
+        }
+    }, [showCreateOrganizationModal])
 
     const decoratedSteps = useMemo(() => {
         return onBoardingSteps.map((step) => {
@@ -92,8 +98,8 @@ export const OnBoardingProvider: React.FC = (props) => {
 
             return {
                 ...step,
-                stepAction: step.completed ? null : onBoardingActionMap[stepKey],
-                iconView: step.completed ? CheckOutlined : onBoardingIconsMap[step.icon],
+                stepAction: step.completed ? null : get(onBoardingStepsConfig, [stepKey, 'action'], () => { void 0 }),
+                iconView: step.completed ? CheckOutlined : onBoardingIcons[step.icon],
                 type: getStepType(step, get(onBoarding, 'stepsTransitions', {}), onBoardingSteps),
             }
         })
@@ -105,7 +111,7 @@ export const OnBoardingProvider: React.FC = (props) => {
         const totalSteps = decoratedSteps.filter((obj) => obj.type !== undefined && obj.type !== OnBoardingStepType.DISABLED).length
         const completedSteps = decoratedSteps.filter((obj) => obj.type === OnBoardingStepType.COMPLETED).length
 
-        progressRef.current = (completedSteps / totalSteps) * 100
+        progressRef.current = (completedSteps / totalSteps) * ONBOARDING_COMPLETED_PROGRESS
 
         return progressRef.current
     }, [decoratedSteps])
@@ -113,16 +119,16 @@ export const OnBoardingProvider: React.FC = (props) => {
     useEffect(() => {
         decoratedSteps.forEach(async (step) => {
             const stepKey = getStepKey(step)
-            const query = onBoardingQueriesMap[stepKey]
+            const query = get(onBoardingStepsConfig, [stepKey, 'query'], null)
 
             if (!step.completed && query) {
                 client.watchQuery({ query }).refetch().then((res) => {
-                    const resolver = onBoardingStepResolvers[stepKey]
+                    const resolver = get(onBoardingStepsConfig, [stepKey, 'resolver'], () => { void 0 })
 
                     if (resolver(res.data) && !get(onBoarding, 'completed')) {
                         updateStep({ completed: true }, step).then(() => {
                             refetchSteps().then(() => {
-                                if (router.pathname !== '/onboarding' && progressRef.current < 100) {
+                                if (router.pathname !== '/onboarding' && progressRef.current < ONBOARDING_COMPLETED_PROGRESS) {
                                     showFocusTooltip()
                                 }
                             })
@@ -134,7 +140,11 @@ export const OnBoardingProvider: React.FC = (props) => {
     }, [decoratedSteps, progress, onBoarding])
 
     useEffect(() => {
-        if (progress === 100 && !isOnBoardingCompleteVisible && !get(onBoarding, 'completed', false)) {
+        if (
+            progress === ONBOARDING_COMPLETED_PROGRESS &&
+            !isOnBoardingCompleteVisible &&
+            !get(onBoarding, 'completed', false)
+        ) {
             updateOnBoarding({ completed: true }, onBoarding).then(() => {
                 showOnBoardingCompleteModal(true)
             })
