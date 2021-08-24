@@ -9,7 +9,8 @@ import {
     getOptionFilterDropdown,
     getTextFilterDropdown,
 } from '../components/Table/Filters'
-import { getTextRender } from '../components/Table/Renders'
+import { getTextRender } from '@condo/domains/common/components/Table/Renders'
+import { TableRecord } from '@condo/domains/common/components/Table/Index'
 import { preciseFloor } from './helpers'
 import { FilterDropdownProps } from 'antd/es/table/interface'
 
@@ -63,7 +64,7 @@ export type ColumnInfo = {
     sortable?: boolean
     visible?: boolean
     grow?: number
-    render?: (text: string, record: any, index: number) => Record<string, unknown> | React.ReactNode
+    render?: (text: string, record: TableRecord, index: number) => Record<string, unknown> | React.ReactNode
 }
 
 export type QueryMeta = {
