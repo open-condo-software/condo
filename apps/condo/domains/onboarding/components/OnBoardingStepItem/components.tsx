@@ -1,12 +1,16 @@
 import { RightOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import React from 'react'
-import { shadows, transitions, colors } from '@condo/domains/common/constants/style'
+import { shadows, transitions, colors, DEFAULT_BORDER_WIDTH } from '@condo/domains/common/constants/style'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { OnBoardingStepType } from './index'
 
 export const ActivateStepIcon = styled(RightOutlined)`
   transition: ${transitions.easeInOut};
+  font-size: 14px;
+  margin-left: auto;
+  color: ${colors.black};
+  opacity: 0;
 `
 
 export const IconContainer = styled.div<{ type: OnBoardingStepType }>`
@@ -24,7 +28,7 @@ export const IconContainer = styled.div<{ type: OnBoardingStepType }>`
   ${({ type }) => {
         if (type === OnBoardingStepType.COMPLETED) {
             return (`
-                border: 2px solid ${colors.sberPrimary[5]};
+                border: ${DEFAULT_BORDER_WIDTH} solid ${colors.sberPrimary[5]};
                 background-color: ${colors.sberPrimary[5]};
                 color: ${colors.white};
           `)
@@ -44,38 +48,30 @@ export const StepContainer = styled(FocusContainer)<{ type: OnBoardingStepType }
   transition: ${transitions.easeInOut};
   position: relative;
   
-  ${ActivateStepIcon} {
-    font-size: 14px;
-    margin-left: auto;
-    color: ${colors.black};
-    opacity: 0;
-  }
-
   ${({ type }) => {
         if (type === OnBoardingStepType.COMPLETED) {
-            return `
-                pointer-events: none;
-            `    
+            return 'pointer-events: none;'
         }
+        
         if (type === OnBoardingStepType.DISABLED) {
             return `
                 pointer-events: none;
-                opacity: 0.3;            
+                opacity: 0.3;
             `
-        } 
-        
+        }
+
         return `
             &:hover {
                 box-shadow: ${shadows.hover};
                 ${ActivateStepIcon} {
-                        opacity: 1;
+                    opacity: 1;
                 }
                 
                 ${IconContainer} {
-                        background-color: ${colors.sberPrimary[5]};
-                        border-color: ${colors.sberPrimary[5]};
-                        color: ${colors.white};
-                    }
+                    background-color: ${colors.sberPrimary[5]};
+                    border-color: ${colors.sberPrimary[5]};
+                    color: ${colors.white};
+                }
             }      
       `
     }}
