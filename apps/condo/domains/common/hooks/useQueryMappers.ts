@@ -2,6 +2,8 @@ import { QueryMeta, SorterColumn, convertSortersToSortBy } from '../utils/tables
 import { useMemo } from 'react'
 import get from 'lodash/get'
 
+const DEFAULT_SORT_BY = ['createdAt_DESC']
+
 export const useQueryMappers = (queryMetas: Array<QueryMeta>, sortableColumns: Array<string>) => {
     return useMemo(() => {
         const validSorts = sortableColumns.reduce((acc, cur) => {
@@ -15,14 +17,16 @@ export const useQueryMappers = (queryMetas: Array<QueryMeta>, sortableColumns: A
 
         const filtersToWhere = (queryFilters) => {
             const whereQueries = []
-            for (const [key, value] of Object.entries(queryFilters)) {
-                if (!filtersMap[key]) continue
-                const queryFilters = filtersMap[key].filters
-                    .map((filter) => filter(value || filtersMap[key].defaultValue))
-                    .filter(Boolean)
-                if (queryFilters.length) {
-                    const combineType = get(filtersMap, [key, 'combineType'], 'AND')
-                    whereQueries.push({ [combineType]: queryFilters })
+            for (const [filterName, filterValue] of Object.entries(queryFilters)) {
+                const responsibleFilters = get(filtersMap, filterName)
+                if (responsibleFilters) {
+                    const whereSubQueries = responsibleFilters.filters
+                        .map((filter) => filter(filterValue || responsibleFilters.defaultValue))
+                        .filter(Boolean)
+                    if (whereSubQueries.length) {
+                        const combineType = get(responsibleFilters, 'combineType', 'AND')
+                        whereQueries.push({ [combineType]: whereSubQueries })
+                    }
                 }
             }
 
@@ -34,7 +38,7 @@ export const useQueryMappers = (queryMetas: Array<QueryMeta>, sortableColumns: A
         const sortersToSortBy = (querySorts: SorterColumn | Array<SorterColumn>) => {
             const sorters = convertSortersToSortBy(querySorts)
                 .filter((sortLine) => validSorts.includes(sortLine))
-            return sorters.length ? sorters : ['createdAt_DESC']
+            return sorters.length ? sorters : DEFAULT_SORT_BY
         }
 
         return {

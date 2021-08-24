@@ -18,7 +18,7 @@ import { BillingReceipt } from '@condo/domains/billing/utils/clientSchema'
 import { SortBillingReceiptsBy } from '../../../../schema'
 import get from 'lodash/get'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { usePeriodSelector } from '../../hooks/usePeriodSelector'
+import { usePeriodSelector } from '@condo/domains/billing/hooks/usePeriodSelector'
 import { Row, Col, Space, Input, Select } from 'antd'
 
 const addressFilter = getStringContainsFilter(['property', 'address'])
