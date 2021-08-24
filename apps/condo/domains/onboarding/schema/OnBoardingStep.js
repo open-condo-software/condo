@@ -9,70 +9,59 @@ const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields'
 const access = require('@condo/domains/onboarding/access/OnBoardingStep')
 
 const OnBoardingStep = new GQLListSchema('OnBoardingStep', {
-    // TODO(codegen): write doc for the OnBoardingStep domain model!
-    schemaDoc: 'TODO DOC!',
+    schemaDoc: 'Logic part of user app guide.',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
         icon: {
-            // TODO(codegen): write doc for OnBoardingStep.icon field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Icon string definition of step.',
             type: Text,
             isRequired: true,
         },
 
         order: {
-            // TODO(codegen): write doc for OnBoardingStep.icon field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Step order in view maps, should be used as priority indicator.',
             type: Integer,
         },
 
         title: {
-            // TODO(codegen): write doc for OnBoardingStep.title field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Shows the main point of a step.',
             type: Text,
             isRequired: true,
         },
 
         description: {
-            // TODO(codegen): write doc for OnBoardingStep.description field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Shows additional point of a step',
             type: Text,
             isRequired: true,
         },
 
         required: {
-            // TODO(codegen): write doc for OnBoardingStep.description field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Used for step transition logic calculation, if the value of this flag is true movement towards graph will be blocked.',
             type: Checkbox,
         },
 
         completed: {
-            // TODO(codegen): write doc for OnBoardingStep.description field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Detect completness of the current step. If all steps in onBoarding will be completed, onBoarding completed state should be set to true.',
             type: Checkbox,
             defaultValue: false,
         },
 
         action: {
-            // TODO(codegen): write doc for OnBoardingStep.action field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Detect step target action. Action should be used for validation step completness.',
             type: Select,
             options: 'create,read,update,delete',
             isRequired: true,
         },
 
         entity: {
-            // TODO(codegen): write doc for OnBoardingStep.entity field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Domain entity on which is performed to',
             type: Text,
             isRequired: true,
         },
 
         onBoarding: {
-            // TODO(codegen): write doc for OnBoardingStep.onBoarding field!
-            schemaDoc: 'TODO DOC!',
             type: Relationship,
             ref: 'OnBoarding',
             isRequired: true,
