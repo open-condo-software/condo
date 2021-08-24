@@ -11,14 +11,12 @@ const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/ut
 
 const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
 const { Meter: MeterGQL } = require('@condo/domains/meter/gql')
-const { MeterStatus: MeterStatusGQL } = require('@condo/domains/meter/gql')
 const { MeterSource: MeterSourceGQL } = require('@condo/domains/meter/gql')
 const { MeterReading: MeterReadingGQL } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateGQLTestUtils(MeterResourceGQL)
 const Meter = generateGQLTestUtils(MeterGQL)
-const MeterStatus = generateGQLTestUtils(MeterStatusGQL)
 const MeterSource = generateGQLTestUtils(MeterSourceGQL)
 const MeterReading = generateGQLTestUtils(MeterReadingGQL)
 /* AUTOGENERATE MARKER <CONST> */
@@ -86,39 +84,6 @@ async function updateTestMeter (client, id, extraAttrs = {}) {
         ...extraAttrs,
     }
     const obj = await Meter.update(client, id, attrs)
-    return [obj, attrs]
-}
-
-async function createTestMeterStatus (client, organization, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!organization || !organization.id) throw new Error('no organization.id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestMeterStatus logic for generate fields
-
-    const attrs = {
-        dv: 1,
-        sender,
-        organization: { connect: { id: organization.id } },
-        ...extraAttrs,
-    }
-    const obj = await MeterStatus.create(client, attrs)
-    return [obj, attrs]
-}
-
-async function updateTestMeterStatus (client, id, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!id) throw new Error('no id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestMeterStatus logic for generate fields
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const obj = await MeterStatus.update(client, id, attrs)
     return [obj, attrs]
 }
 
@@ -203,7 +168,6 @@ async function updateTestMeterReading (client, id, extraAttrs = {}) {
 module.exports = {
     MeterResource, createTestMeterResource, updateTestMeterResource,
     Meter, createTestMeter, updateTestMeter,
-    MeterStatus, createTestMeterStatus, updateTestMeterStatus,
     MeterSource, createTestMeterSource, updateTestMeterSource,
     MeterReading, createTestMeterReading, updateTestMeterReading,
 /* AUTOGENERATE MARKER <EXPORTS> */
