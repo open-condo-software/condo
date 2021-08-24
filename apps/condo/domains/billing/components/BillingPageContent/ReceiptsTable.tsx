@@ -25,11 +25,10 @@ const addressFilter = getStringContainsFilter(['property', 'address'])
 const accountFilter = getStringContainsFilter(['account', 'number'])
 const toPayFilter = getStringContainsFilter('toPay')
 const periodFilter = getFilter('period', 'single', 'string')
-const queryMetas: Array<QueryMeta> = [
+const staticQueryMetas: Array<QueryMeta> = [
     { keyword: 'address', filters: [addressFilter] },
     { keyword: 'account', filters: [accountFilter] },
     { keyword: 'toPay', filters: [toPayFilter] },
-    { keyword: 'period', filters: [periodFilter] },
     { keyword: 'search', filters: [addressFilter, accountFilter, toPayFilter], combineType: 'OR' },
 ]
 
@@ -40,20 +39,19 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const AddressTitle = intl.formatMessage({ id: 'field.Address' })
     const AccountTitle = intl.formatMessage({ id: 'field.AccountNumberShort' })
     const ToPayTitle = intl.formatMessage({ id: 'field.TotalPayment' })
-
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const DataForTitle = intl.formatMessage({ id: 'DataFor' })
 
     const router = useRouter()
-    const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, sortableProperties)
     const { filters, sorters, offset } = parseQuery(router.query)
     const sorterMap = getSorterMap(sorters)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
     const contextPeriod = get(context, ['lastReport', 'period'], null)
-    const [period, options,  handlePeriodChange] = usePeriodSelector(contextPeriod)
-    filters['period'] = period
-
+    const queryMetas: Array<QueryMeta> = [
+        ...staticQueryMetas, { keyword: 'period', filters: [periodFilter], defaultValue: contextPeriod },
+    ]
+    const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, sortableProperties)
     const {
         loading,
         count: total,
@@ -66,6 +64,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     })
 
     const [search, handleSearchChange] = useSearch(loading)
+    const [period, options,  handlePeriodChange] = usePeriodSelector(contextPeriod)
 
 
     const columns: Array<ColumnInfo> = [
