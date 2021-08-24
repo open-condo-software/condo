@@ -11,13 +11,16 @@ import {
 } from '@condo/domains/common/utils/tables.utils'
 import qs from 'qs'
 
+export type TableRecord = any
+
 interface ITableProps {
     loading: boolean
     totalRows: number
-    dataSource: any[]
+    dataSource: TableRecord[]
     pageSize?: number
     keyPath?: Array<string> | string
     columns: Array<Record<string, unknown>>
+    onRow?: (record: TableRecord, index?: number) => React.HTMLAttributes<HTMLElement>
 }
 
 export const DEFAULT_PAGE_SIZE = 10
@@ -29,6 +32,7 @@ export const Table: React.FC<ITableProps> = ({
     dataSource,
     totalRows,
     pageSize,
+    onRow,
 }) => {
     const rowsPerPage = pageSize || DEFAULT_PAGE_SIZE
     const rowKey = keyPath || 'id'
@@ -92,6 +96,7 @@ export const Table: React.FC<ITableProps> = ({
                 dataSource={dataSource}
                 columns={columns}
                 onChange={handleChange}
+                onRow={onRow}
                 pagination={{
                     showSizeChanger: false,
                     total: totalRows,
