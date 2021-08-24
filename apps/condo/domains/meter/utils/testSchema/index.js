@@ -13,12 +13,14 @@ const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
 const { Meter: MeterGQL } = require('@condo/domains/meter/gql')
 const { MeterSource: MeterSourceGQL } = require('@condo/domains/meter/gql')
 const { MeterReading: MeterReadingGQL } = require('@condo/domains/meter/gql')
+const { MeterReadingChange: MeterReadingChangeGQL } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateGQLTestUtils(MeterResourceGQL)
 const Meter = generateGQLTestUtils(MeterGQL)
 const MeterSource = generateGQLTestUtils(MeterSourceGQL)
 const MeterReading = generateGQLTestUtils(MeterReadingGQL)
+const MeterReadingChange = generateGQLTestUtils(MeterReadingChangeGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestMeterResource (client, extraAttrs = {}) {
@@ -163,6 +165,39 @@ async function updateTestMeterReading (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestMeterReadingChange (client, meterReading, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!meterReading || !meterReading.id) throw new Error('no meterReading.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestMeterReadingChange logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        meterReading: { connect: { id: meterReading.id } },
+        ...extraAttrs,
+    }
+    const obj = await MeterReadingChange.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestMeterReadingChange (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestMeterReadingChange logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await MeterReadingChange.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -170,5 +205,6 @@ module.exports = {
     Meter, createTestMeter, updateTestMeter,
     MeterSource, createTestMeterSource, updateTestMeterSource,
     MeterReading, createTestMeterReading, updateTestMeterReading,
+    MeterReadingChange, createTestMeterReadingChange, updateTestMeterReadingChange,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
