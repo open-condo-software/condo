@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import { parseQuery } from '../../common/utils/tables.utils'
+import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useRef } from 'react'
 import { useIntl } from '@core/next/intl'
 const { getPeriodMessage, getPreviousPeriods } = require('@condo/domains/billing/utils/period')
