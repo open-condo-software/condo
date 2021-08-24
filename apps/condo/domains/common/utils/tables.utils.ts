@@ -16,6 +16,7 @@ import { FilterDropdownProps } from 'antd/es/table/interface'
 
 export type DataIndexType = string | Array<string>
 export type QueryArgType = string | Array<string>
+export type FiltersFromQueryType = { [key: string]: QueryArgType }
 type OptionWhereArgumentType = Array<string> | Array<number>
 type WhereArgumentType = string | number | boolean | OptionWhereArgumentType
 export type WhereType = { [key: string]: WhereArgumentType | WhereType }
@@ -25,7 +26,7 @@ export type ArgumentDataType = 'string' | 'number' | 'dateTime' | 'boolean'
 export type FiltersApplyMode = 'AND' | 'OR'
 type ParsedQueryType = {
     offset: number
-    filters: { [key: string]: QueryArgType }
+    filters: FiltersFromQueryType
     sorters: SorterColumn[]
 }
 
@@ -79,8 +80,8 @@ export type SorterColumn = {
     columnKey: string,
     order: 'ascend' | 'descend'
 }
-
-type SorterMapType = (sorters: Array<SorterColumn>) => { [x: string]: 'ascend' | 'descend' }
+type Sorters = { [column: string]: 'ascend' | 'descend' }
+type SorterMapType = (sorters: Array<SorterColumn>) => Sorters
 
 export enum FULL_TO_SHORT_ORDERS_MAP {
     ascend = 'ASC',
@@ -106,7 +107,7 @@ export const getFilter: (
     } else if (typeof dataIndex === 'string' && dataIndex) {
         wrappedDataIndex = [dataIndex]
     }
-    return function (search) {
+    return function getWhereQuery (search) {
         if (!search) return
         if (wrappedDataIndex.length < 1) return
         let args = undefined
@@ -162,7 +163,7 @@ export const getStringOptionFilter: (dataIndex: DataIndexType) => FilterType = (
 
 export const getDayGteFilter: (dataIndex: DataIndexType) => FilterType = (dataIndex) => {
     const filter = getFilter(dataIndex, 'single', 'dateTime', 'gte')
-    return function (search) {
+    return function searchDayGte (search) {
         if (!search) return
         const date = moment(search)
         if (!date.isValid()) return
@@ -172,7 +173,7 @@ export const getDayGteFilter: (dataIndex: DataIndexType) => FilterType = (dataIn
 
 export const getDayLteFilter: (dataIndex: DataIndexType) => FilterType = (dataIndex) => {
     const filter = getFilter(dataIndex, 'single', 'dateTime', 'lte')
-    return function (search) {
+    return function searchDayLte (search) {
         if (!search) return
         const date = moment(search)
         if (!date.isValid()) return
@@ -225,7 +226,7 @@ export const getFiltersFromQuery = (query: ParsedUrlQuery): { [x: string]: Query
         Object.keys(json).forEach((key) => {
             const value = json[key]
             if (Array.isArray(value)) {
-                result[key] = value.filter((v) => typeof v === 'string' && !!v)
+                result[key] = value.filter((v) => typeof v === 'string' && Boolean(v))
             } else {
                 if (typeof value === 'string' && !!value) result[key] = value
             }
@@ -250,8 +251,8 @@ export const parseQuery = (query: ParsedUrlQuery): ParsedQueryType => {
 
 export const convertColumns = (
     columns: Array<ColumnInfo>,
-    filters: { [x: string]: QueryArgType },
-    sorters: { [x: string]: 'ascend' | 'descend' }
+    filters: FiltersFromQueryType,
+    sorters: Sorters
 ) => {
     const visibleWidth = columns
         .filter((column) => get(column, 'visible', true))
