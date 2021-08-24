@@ -121,7 +121,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
             },
         },
         {
-            access: access.canReadTicketAnalyticsReport,
+            access: access.canReadExportTicketAnalyticsToExcel,
             schema: 'exportTicketAnalyticsToExcel(data: ExportTicketAnalyticsToExcelInput): ExportTicketAnalyticsToExcelOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data: { where = {}, groupBy = [], translates = {} } } = args

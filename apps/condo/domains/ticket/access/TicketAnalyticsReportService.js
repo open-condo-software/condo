@@ -15,10 +15,21 @@ async function canReadTicketAnalyticsReport ({ authentication: { item: user }, a
     return await checkUserBelongsToOrganization(user.id, organizationId)
 }
 
+async function canReadExportTicketAnalyticsToExcel ({ authentication: { item: user }, args }) {
+    if (!user) return throwAuthenticationError()
+    if (user.isAdmin) return true
+    const organizationId = get(args, 'data.where.organization.id', false)
+    if (!organizationId) {
+        return false
+    }
+    return await checkUserBelongsToOrganization(user.id, organizationId)
+}
+
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
   all or no items are available) or a set of filters that limit the available items.
 */
 module.exports = {
     canReadTicketAnalyticsReport,
+    canReadExportTicketAnalyticsToExcel,
 }
