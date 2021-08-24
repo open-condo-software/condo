@@ -16,10 +16,14 @@ const MeterResource = generateGqlQueries('MeterResource', METER_RESOURCE_FIELDS)
 const METER_FIELDS = `{ number billingAccountMeter { id } account { id } property { id } unitName place resource { id } ${COMMON_FIELDS} }`
 const Meter = generateGqlQueries('Meter', METER_FIELDS)
 
+const METER_SOURCE_FIELDS = `{ type name ${COMMON_FIELDS} }`
+const MeterSource = generateGqlQueries('MeterSource', METER_SOURCE_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     MeterResource,
     Meter,
+    MeterSource,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
