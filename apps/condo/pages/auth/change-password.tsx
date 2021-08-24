@@ -74,9 +74,11 @@ const ChangePasswordPage: AuthPage = () => {
                     await authLayoutContext.signInByEmail({
                         email: result.email,
                         password: form.getFieldValue('password'),
+                    }, () => {
+                        auth.refetch().then(() => {
+                            Router.push( '/')
+                        })
                     })
-                    await auth.refetch()
-                    Router.push( '/')
                 }
                 finally {
                     setIsSaving(false)
