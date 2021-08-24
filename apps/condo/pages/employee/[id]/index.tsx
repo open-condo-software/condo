@@ -30,19 +30,14 @@ const ReInviteActionAlert = ({ employee }) => {
 
     if (isEmployeeRejected) {
         return (
-            <Alert showIcon type='warning' message={
-                <>
-                    {EmployeeRejectedMessage}.
-                </>
-            }/>
+            <Alert showIcon type='warning' message={EmployeeRejectedMessage}/>
         )
     }
 
     return (
         <Alert showIcon type='warning' message={
             <>
-                {EmployeeDidntEnteredMessage}
-                    .&nbsp;
+                {EmployeeDidntEnteredMessage}&nbsp;
                 <EmployeeInviteRetryButton employee={employee}/>
             </>
         }/>
