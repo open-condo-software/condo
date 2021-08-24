@@ -8,6 +8,13 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/meter/access/MeterReading')
+const { meterReadingChangeDisplayNameResolversForSingleRelations } = require('../utils/serverSchema/MeterReadingChange')
+const { createMeterReadingChange } = require('../utils/serverSchema/MeterReadingChange')
+const { storeChangesIfUpdated } = require('@condo/domains/common/utils/serverSchema/changeTrackable')
+const { buildSetOfFieldsToTrackFrom } = require('@condo/domains/common/utils/serverSchema/changeTrackable')
+const { OMIT_METER_READING_CHANGE_TRACKABLE_FIELDS } = require('../utils/serverSchema/MeterReadingChange')
+const { hasRequestFields } = require('@condo/domains/common/utils/validation.utils')
+const { hasDbFields } = require('@condo/domains/common/utils/validation.utils')
 const { PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
@@ -137,7 +144,15 @@ const MeterReading = new GQLListSchema('MeterReading', {
             schemaDoc: 'In the case of remote system sync, you can store some extra analytics.',
             type: Json,
         },
-
+    },
+    hooks: {
+        afterChange: async (...args) => {
+            await storeChangesIfUpdated(
+                buildSetOfFieldsToTrackFrom(MeterReading.schema, { except: OMIT_METER_READING_CHANGE_TRACKABLE_FIELDS }),
+                createMeterReadingChange,
+                meterReadingChangeDisplayNameResolversForSingleRelations,
+            )(...args)
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
