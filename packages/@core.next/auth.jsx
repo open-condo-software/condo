@@ -100,12 +100,12 @@ const AuthProvider = ({ children, initialUserValue }) => {
         },
     })
 
-    function onError (error) {
+    const onError = (error) => {
         console.warn('auth.onError(..)', error)
         if (user) setUser(null)
     }
 
-    function onData (data) {
+    const onData = (data) => {
         if (data && data.error) { return onError(data.error) }
         if (!data || !data.authenticatedUser) {
             console.warn('Unexpected auth.onData(..) call', data)
@@ -116,6 +116,10 @@ const AuthProvider = ({ children, initialUserValue }) => {
         setUser(data.authenticatedUser)
     }
 
+    const refetchUserData = () => refetch().then(({ data }) => {
+        onData(data)
+    })
+
     if (DEBUG_RERENDERS) console.log('AuthProvider()', user)
 
     return (
@@ -123,7 +127,7 @@ const AuthProvider = ({ children, initialUserValue }) => {
             value={{
                 isAuthenticated: !!user,
                 isLoading: userLoading || signinLoading || signoutLoading,
-                refetch,
+                refetch: refetchUserData,
                 signin,
                 signout,
                 user,

@@ -49,13 +49,13 @@ export const SignInForm = (): React.ReactElement => {
     const onFormSubmit = useCallback((values) => {
         setIsLoading(true)
 
-        // @ts-ignore TODO(Dimitreee): remove after runMutation typo
         return runMutation({
             mutation: signinByPhoneAndPassword,
             variables: values,
             onCompleted: () => {
-                refetch()
-                Router.push(next ? next : '/')
+                refetch().then(() => {
+                    Router.push(next ? next : '/')
+                })
             },
             onFinally: () => {
                 setIsLoading(false)
