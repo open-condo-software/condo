@@ -1,6 +1,6 @@
 import get from 'lodash/get'
 import { OnBoardingStep as OnBoardingStepInterface } from '../../../schema'
-import { OnBoardingStepType } from '../components/OnBoardingStepItem'
+import { OnBoardingStepType } from '@condo/domains/onboarding/components/OnBoardingStepItem'
 
 export const getStepKey = (step: OnBoardingStepInterface) => `${step.action}.${step.entity}`
 
