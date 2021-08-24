@@ -402,14 +402,33 @@ describe('Table utils', () => {
             expect(antdColumns[0].responsive).toBeUndefined()
             expect(antdColumns[1].responsive).toStrictEqual([])
         })
-        it('should recalculate sizes proportionately for visible columns', () => {
+        describe('should recalculate sizes proportionately for visible columns', () => {
             const col1 = { ...column }
             const col2 = { ...column, key: 'key2', visible: false }
             const col3 = { ...column, key: 'key3' }
-            const antdColumns = convertColumns([col1, col2, col3], {}, {})
-            expect(antdColumns).toHaveLength(3)
-            expect(antdColumns[0].width).toStrictEqual('50%')
-            expect(antdColumns[2].width).toStrictEqual('50%')
+            const col4 = { ...column, key: 'key4', grow: 0 }
+            it('if no grow specified', () => {
+                const antdColumns = convertColumns([col1, col2, col3], {}, {})
+                expect(antdColumns).toHaveLength(3)
+                expect(antdColumns[0].width).toStrictEqual('50%')
+                expect(antdColumns[2].width).toStrictEqual('50%')
+            })
+            it('if some column has grow = 0', () => {
+                const antdColumns = convertColumns([col1, col2, col3, col4], {}, {})
+                expect(antdColumns).toHaveLength(4)
+                expect(antdColumns[0].width).toStrictEqual('37.5%')
+                expect(antdColumns[2].width).toStrictEqual('37.5%')
+                expect(antdColumns[3].width).toStrictEqual('25%')
+            })
+            it('if columns have custom grow', () => {
+                const newCol1 = { ...col1, grow: 4 }
+                const antdColumns = convertColumns([newCol1, col2, col3, col4], {}, {})
+                expect(antdColumns).toHaveLength(4)
+                expect(antdColumns[0].width).toStrictEqual('45%')
+                expect(antdColumns[2].width).toStrictEqual('30%')
+                expect(antdColumns[3].width).toStrictEqual('25%')
+            })
+
         })
         it('should be sortable, if it\'s specified', () => {
             const col1 = { ...column }

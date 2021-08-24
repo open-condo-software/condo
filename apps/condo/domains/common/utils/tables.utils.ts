@@ -62,6 +62,7 @@ export type ColumnInfo = {
     filter?: StringFilter | StringOptionFilter | DateFilter | CustomFilter
     sortable?: boolean
     visible?: boolean
+    grow?: number
     render?: (text: string, record: any, index: number) => Record<string, unknown> | React.ReactNode
 }
 
@@ -251,12 +252,22 @@ export const convertColumns = (
     filters: { [x: string]: QueryArgType },
     sorters: { [x: string]: 'ascend' | 'descend' }
 ) => {
-    const totalWidth = columns
+    const visibleWidth = columns
         .filter((column) => get(column, 'visible', true))
         .reduce((acc, current) => acc + current.width, 0)
+    const totalWidth = columns.reduce((acc, current) => acc + current.width, 0)
+    const freeSpace = totalWidth - visibleWidth
+    const growSum = columns
+        .filter((column) => get(column, 'visible', true))
+        .reduce((acc, current) => {
+            if (!current.hasOwnProperty('grow') || current.grow === undefined) return acc + 1
+            return acc + current.grow
+        }, 0)
 
     return columns.map((column) => {
-        const proportionalWidth = column.width * 100 / totalWidth
+        const columnGrow = get(column, 'grow', 1)
+        const grownWidth = growSum === 0 ? 0 : (freeSpace) * columnGrow / growSum
+        const proportionalWidth = (column.width + grownWidth) * 100 / totalWidth
         const percentageWidth = `${preciseFloor(proportionalWidth)}%`
         const isColumnVisible = get(column, 'visible', true)
         const responsive = isColumnVisible ? undefined : []
