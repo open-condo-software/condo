@@ -7,7 +7,7 @@ import {
     getPageIndexFromOffset,
     parseQuery,
     FULL_TO_SHORT_ORDERS_MAP,
-    QueryArgType,
+    FiltersFromQueryType,
 } from '@condo/domains/common/utils/tables.utils'
 import qs from 'qs'
 
@@ -41,6 +41,8 @@ export const Table: React.FC<ITableProps> = ({
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, rowsPerPage)
 
+    // Triggered, when table pagination/filters/sorting changes
+    // Modifies the query to match the state of the table
     const handleChange = debounce((...tableChangeArguments) => {
         const [
             nextPagination,
@@ -50,21 +52,24 @@ export const Table: React.FC<ITableProps> = ({
         const { current } = nextPagination
         let shouldResetOffset = false
 
-        const newFilters: { [x: string]: QueryArgType } = { ...filters }
-        for (const [key, value] of Object.entries(nextFilters)) {
-            const oldFilter = get(filters, key)
-            if (!value && oldFilter) {
-                delete newFilters[key]
+        const newFilters: FiltersFromQueryType = { ...filters }
+        for (const [tableFilterName, tableFilterValue] of Object.entries(nextFilters)) {
+            const oldFilterValue = get(filters, tableFilterName)
+
+            if (!tableFilterValue && oldFilterValue) {
+                delete newFilters[tableFilterName]
             }
+
             let typedValue = null
-            if (Array.isArray(value)) {
-                typedValue = value.filter(Boolean).map(String)
-            } else if (typeof value === 'string') {
-                typedValue = value
+            if (Array.isArray(tableFilterValue)) {
+                typedValue = tableFilterValue.filter(Boolean).map(String)
+            } else if (typeof tableFilterValue === 'string') {
+                typedValue = tableFilterValue
             }
-            if (typedValue && (!oldFilter || oldFilter !== value)) {
+
+            if (typedValue && (!oldFilterValue || oldFilterValue !== tableFilterValue)) {
                 shouldResetOffset = true
-                newFilters[key] = typedValue
+                newFilters[tableFilterName] = typedValue
             }
         }
 
