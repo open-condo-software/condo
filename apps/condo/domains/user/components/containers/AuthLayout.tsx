@@ -12,6 +12,7 @@ import { useAuth } from '@core/next/auth'
 import getConfig from 'next/config'
 import { Poster } from '@condo/domains/common/components/Poster'
 import { Button } from '@condo/domains/common/components/Button'
+import { colors } from '@condo/domains/common/constants/style'
 import { AuthLayoutContextProvider } from './AuthLayoutContext'
 import { ChildrenWrapper, Footer, Header, Layout, PageContent, PosterWrapper } from './styles'
 
@@ -52,7 +53,7 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
                 <Global styles={formInputFixCss}/>
                 <Layout>
                     <Header
-                        title={<Logo fillColor={'white'} onClick={handleLogoClick} />}
+                        title={<Logo fillColor={colors.white} onClick={handleLogoClick} />}
                         extra={headerAction}
                     />
                     <Row align={'stretch'}>
