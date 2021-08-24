@@ -16,13 +16,10 @@ const MeterResource = generateGqlQueries('MeterResource', METER_RESOURCE_FIELDS)
 const METER_FIELDS = `{ number billingAccountMeter { id } property { id } unitName place resource { id } ${COMMON_FIELDS} }`
 const Meter = generateGqlQueries('Meter', METER_FIELDS)
 
-const METER_STATUS_FIELDS = `{ organization { id } type name ${COMMON_FIELDS} }`
-const MeterStatus = generateGqlQueries('MeterStatus', METER_STATUS_FIELDS)
-
 const METER_SOURCE_FIELDS = `{ organization { id } type name ${COMMON_FIELDS} }`
 const MeterSource = generateGqlQueries('MeterSource', METER_SOURCE_FIELDS)
 
-const METER_READING_FIELDS = `{ number account { id } date meter { id } property { id } organization { id } sectionName floorName unitName value client { id } clientName clientEmail clientPhone contact { id } source { id } sourceMeta statusReopenedCounter statusUpdatedAt statusReason status { id } ${COMMON_FIELDS} }`
+const METER_READING_FIELDS = `{ number account { id } date meter { id } property { id } organization { id } sectionName floorName unitName value client { id } clientName clientEmail clientPhone contact { id } source { id } sourceMeta ${COMMON_FIELDS} }`
 const MeterReading = generateGqlQueries('MeterReading', METER_READING_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
@@ -30,7 +27,6 @@ const MeterReading = generateGqlQueries('MeterReading', METER_READING_FIELDS)
 module.exports = {
     MeterResource,
     Meter,
-    MeterStatus,
     MeterSource,
     MeterReading,
 /* AUTOGENERATE MARKER <EXPORTS> */
