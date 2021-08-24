@@ -1,12 +1,18 @@
 const xlsx = require('xlsx')
 const mkdirp = require('mkdirp')
-
+/**
+ * Required process arguments:
+ * 1) Domain directory name <string> (Example: ticket) - this locates generated template to domain related path
+ * 2) Template name <string> (Example: TicketDefaultExcelExportTemplate) - filename only
+ * 3) Data mapper path <string> (Example: ../apps/condo/domains/ticket/serverSchema/xlsxDataMapper.js)
+ * @returns {Promise<void>}
+ */
 const createXlsxTemplate = async () => {
     if (process.argv.length !== 5) {
         await Promise.reject('3 positional args required - domainDir, templateName, dataMapperPath')
     }
     const [domainDir, templateName, dataMapperPath] = process.argv.slice(2)
-    const { header, rows } = require(dataMapperPath)({ domainName: domainDir, rows: [] })
+    const { header, rows } = require(dataMapperPath)({})
     const rowKeys = Object.keys(rows)
 
     for (const headerItem of Object.entries(header)) {
