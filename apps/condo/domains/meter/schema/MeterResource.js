@@ -11,7 +11,7 @@ const access = require('@condo/domains/meter/access/MeterResource')
 
 
 const MeterResource = new GQLListSchema('MeterResource', {
-    schemaDoc: 'TODO DOC!',
+    schemaDoc: 'Resource for Meter',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
