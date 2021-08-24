@@ -98,7 +98,7 @@ export const OnBoardingProvider: React.FC = (props) => {
     const progressRef = useRef(0)
 
     const progress = useMemo(() => {
-        const totalSteps = decoratedSteps.filter((obj) => obj.type !== OnBoardingStepType.DISABLED).length
+        const totalSteps = decoratedSteps.filter((obj) => obj.type !== undefined && obj.type !== OnBoardingStepType.DISABLED).length
         const completedSteps = decoratedSteps.filter((obj) => obj.type === OnBoardingStepType.COMPLETED).length
 
         progressRef.current = (completedSteps / totalSteps) * 100
