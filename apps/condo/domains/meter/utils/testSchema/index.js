@@ -13,12 +13,14 @@ const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
 const { Meter: MeterGQL } = require('@condo/domains/meter/gql')
 const { MeterStatus: MeterStatusGQL } = require('@condo/domains/meter/gql')
 const { MeterSource: MeterSourceGQL } = require('@condo/domains/meter/gql')
+const { MeterReading: MeterReadingGQL } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateGQLTestUtils(MeterResourceGQL)
 const Meter = generateGQLTestUtils(MeterGQL)
 const MeterStatus = generateGQLTestUtils(MeterStatusGQL)
 const MeterSource = generateGQLTestUtils(MeterSourceGQL)
+const MeterReading = generateGQLTestUtils(MeterReadingGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestMeterResource (client, extraAttrs = {}) {
@@ -153,6 +155,49 @@ async function updateTestMeterSource (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestMeterReading (client, account, meter, property, organization, source, status, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!account || !account.id) throw new Error('no account.id')
+    if (!meter || !meter.id) throw new Error('no meter.id')
+    if (!property || !property.id) throw new Error('no property.id')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    if (!source || !source.id) throw new Error('no source.id')
+    if (!status || !status.id) throw new Error('no status.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestMeterReading logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        account: { connect: { id: account.id } },
+        meter: { connect: { id: meter.id } },
+        property: { connect: { id: property.id } },
+        organization: { connect: { id: organization.id } },
+        source: { connect: { id: source.id } },
+        status: { connect: { id: status.id } },
+        ...extraAttrs,
+    }
+    const obj = await MeterReading.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestMeterReading (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestMeterReading logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await MeterReading.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -160,5 +205,6 @@ module.exports = {
     Meter, createTestMeter, updateTestMeter,
     MeterStatus, createTestMeterStatus, updateTestMeterStatus,
     MeterSource, createTestMeterSource, updateTestMeterSource,
+    MeterReading, createTestMeterReading, updateTestMeterReading,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

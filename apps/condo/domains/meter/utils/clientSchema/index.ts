@@ -8,4 +8,5 @@ export * as Meter from './Meter'
 export * as MeterSource from './MeterSource'
 export * as MeterStatus from './MeterStatus'
 export * as MeterSource from './MeterSource'
+export * as MeterReading from './MeterReading'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
