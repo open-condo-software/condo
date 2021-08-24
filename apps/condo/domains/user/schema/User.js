@@ -13,7 +13,6 @@ const { normalizePhone } = require('@condo/domains/common/utils/phone')
 
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { updateEmployeesRelatedToUser } = require('@condo/domains/user/utils/serverSchema')
-const { triggersManager } = require('@core/triggers')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const AVATAR_FILE_ADAPTER = new FileAdapter('avatars')
 
@@ -142,11 +141,6 @@ const User = new GQLListSchema('User', {
             ) {
                 await updateEmployeesRelatedToUser(context, updatedItem)
             }
-        },
-        resolveInput: async ({ operation, listKey, context, resolvedData, existingItem }) => {
-            await triggersManager.executeTrigger({ operation, data: { resolvedData, existingItem }, listKey }, context)
-
-            return resolvedData
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],

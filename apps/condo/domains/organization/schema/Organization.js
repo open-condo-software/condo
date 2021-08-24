@@ -20,7 +20,6 @@ const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { Virtual } = require('@keystonejs/fields')
 const AVATAR_FILE_ADAPTER = new FileAdapter('orgavatars')
 const get = require('lodash/get')
-const {triggersManager} = require("@core/triggers");
 
 const Organization = new GQLListSchema('Organization', {
     schemaDoc: 'B2B customer of the service, a legal entity or an association of legal entities (holding/group)',
@@ -110,13 +109,6 @@ const Organization = new GQLListSchema('Organization', {
         update: access.canManageOrganizations,
         delete: false,
         auth: true,
-    },
-    hooks: {
-        resolveInput: async ({ operation, listKey, context, resolvedData, existingItem }) => {
-            await triggersManager.executeTrigger({ operation, data: { resolvedData, existingItem }, listKey }, context)
-
-            return resolvedData
-        },
     },
 })
 
