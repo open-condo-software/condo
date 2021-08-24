@@ -8,14 +8,12 @@ const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/co
 
 const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
 const { Meter: MeterGQL } = require('@condo/domains/meter/gql')
-const { MeterStatus: MeterStatusGQL } = require('@condo/domains/meter/gql')
 const { MeterSource: MeterSourceGQL } = require('@condo/domains/meter/gql')
 const { MeterReading: MeterReadingGQL } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateServerUtils(MeterResourceGQL)
 const Meter = generateServerUtils(MeterGQL)
-const MeterStatus = generateServerUtils(MeterStatusGQL)
 const MeterSource = generateServerUtils(MeterSourceGQL)
 const MeterReading = generateServerUtils(MeterReadingGQL)
 /* AUTOGENERATE MARKER <CONST> */
@@ -23,7 +21,6 @@ const MeterReading = generateServerUtils(MeterReadingGQL)
 module.exports = {
     MeterResource,
     Meter,
-    MeterStatus,
     MeterSource,
     MeterReading,
 /* AUTOGENERATE MARKER <EXPORTS> */
