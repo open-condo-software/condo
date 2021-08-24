@@ -30,6 +30,7 @@ interface OnBoardingContext {
     isLoading?: boolean
     onBoarding?: IOnBoarding
     onBoardingSteps?: Array<IDecoratedOnBoardingStepType>
+    refetchOnBoarding?: () => Promise<IOnBoarding>
 }
 
 const onBoardingIconsMap = {
@@ -66,9 +67,12 @@ export const OnBoardingProvider: React.FC = (props) => {
     const { setIsVisible: showOnBoardingCompleteModal, OnBoardingCompleteModal, isVisible: isOnBoardingCompleteVisible } = useOnBoardingCompleteModal()
 
     const { obj: onBoarding, refetch: refetchOnBoarding } = OnBoardingHooks
-        .useObject({ where: { user: { id: get(user, 'id') } } })
+        .useObject(
+            { where: { user: { id: get(user, 'id') } } },
+            { fetchPolicy: 'network-only' },
+        )
 
-    const { loading: stepsLoading, objs: onBoardingSteps = [], refetch: refetchSteps } = OnBoardingStepHooks
+    const { objs: onBoardingSteps = [], refetch: refetchSteps, loading: stepsLoading } = OnBoardingStepHooks
         .useObjects(
             { where: { onBoarding: { id: get(onBoarding, 'id') } } },
             { fetchPolicy: 'network-only' }
@@ -143,6 +147,7 @@ export const OnBoardingProvider: React.FC = (props) => {
             onBoarding,
             isLoading: stepsLoading,
             onBoardingSteps: decoratedSteps,
+            refetchOnBoarding,
         }}>
             {props.children}
             <ModalForm/>

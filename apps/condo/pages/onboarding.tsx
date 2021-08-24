@@ -15,7 +15,11 @@ const OnBoardingPage: IPageInterface = () => {
     const router = useRouter()
     const Title = intl.formatMessage({ id: 'onboarding.title' })
     const SubTitle = intl.formatMessage({ id: 'onboarding.subtitle' })
-    const { onBoardingSteps = [], onBoarding } = useOnBoardingContext()
+    const { onBoardingSteps = [], onBoarding, refetchOnBoarding } = useOnBoardingContext()
+
+    useEffect(() => {
+        refetchOnBoarding()
+    }, [])
 
     useEffect(() => {
         if (get(onBoarding, 'completed', false)) {
