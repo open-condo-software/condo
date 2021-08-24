@@ -70,6 +70,7 @@ export type QueryMeta = {
     filters: FilterType[]
     // by default === 'AND'
     combineType?: FiltersApplyMode
+    defaultValue?: QueryArgType
 }
 
 export type SorterColumn = {
@@ -104,6 +105,7 @@ export const getFilter: (
         wrappedDataIndex = [dataIndex]
     }
     return function (search) {
+        if (!search) return
         if (wrappedDataIndex.length < 1) return
         let args = undefined
         if (argType === 'single' && Array.isArray(search)) return

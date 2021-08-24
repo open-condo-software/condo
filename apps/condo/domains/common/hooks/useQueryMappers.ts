@@ -18,7 +18,7 @@ export const useQueryMappers = (queryMetas: Array<QueryMeta>, sortableColumns: A
             for (const [key, value] of Object.entries(queryFilters)) {
                 if (!filtersMap[key]) continue
                 const queryFilters = filtersMap[key].filters
-                    .map((filter) => filter(value))
+                    .map((filter) => filter(value || filtersMap[key].defaultValue))
                     .filter(Boolean)
                 if (queryFilters.length) {
                     const combineType = get(filtersMap, [key, 'combineType'], 'AND')
