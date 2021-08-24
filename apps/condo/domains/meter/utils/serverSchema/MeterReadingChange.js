@@ -1,5 +1,4 @@
-import { MeterReadingChange } from '@condo/domains/meter/utils/serverSchema'
-
+const { MeterReadingChange } = '@condo/domains/meter/utils/serverSchema'
 const { get } = require('lodash')
 const { getById } = require('@core/keystone/schema')
 
