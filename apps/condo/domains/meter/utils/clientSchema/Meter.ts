@@ -10,7 +10,7 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { Meter as MeterGQL } from '@condo/domains/meter/gql'
 import { Meter, MeterUpdateInput, QueryAllMetersArgs } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'number', 'billingAccountMeter', 'account', 'property', 'unitName', 'place', 'resource']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'number', 'billingAccountMeter', 'property', 'unitName', 'place', 'resource']
 const RELATIONS = ['billingAccountMeter', 'account', 'property', 'resource']
 
 export interface IMeterUIState extends Meter {
