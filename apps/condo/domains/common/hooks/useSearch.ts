@@ -18,7 +18,7 @@ export const useSearch = <F>(loading): [string, (search: string) => void] => {
         )
 
         router.push(router.route + query)
-    }, 400), [loading])
+    }, 400), [loading, filtersFromQuery])
 
     const handleSearchChange = (value: string): void => {
         setSearch(value)
