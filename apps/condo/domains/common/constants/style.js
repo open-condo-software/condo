@@ -28,6 +28,8 @@ const markColor = '#B5CCFF'
 const lightRed = '#FFF1F0'
 const brightRed = '#F5222D'
 const whiteTranslucent = 'rgba(255, 255, 255, 0.9)'
+const indigo = '#5473C3'
+const turquoiseBlue = '#6BEAC7'
 
 const CHART_COLOR_SET = [blue[5], green[5], red[4], gold[5], volcano[5], purple[5],
     lime[7], sberGrey[7], magenta[5], blue[4], gold[6], cyan[6],
@@ -64,6 +66,8 @@ const colors = {
     lightRed,
     brightRed,
     orange,
+    indigo,
+    turquoiseBlue,
 }
 
 const shadows = {
@@ -76,6 +80,8 @@ const transitions = {
     elevateTransition: 'box-shadow 0.2s ease-in-out, border 0.2s ease-in-out',
     easeInOut: 'all .2s ease-in-out',
 }
+
+const DEFAULT_BORDER_WIDTH = '2px'
 
 // Possible customizations can be found at https://github.com/ant-design/ant-design/blob/master/components/style/themes/default.less
 const antGlobalVariables = {
@@ -95,7 +101,7 @@ const antGlobalVariables = {
     '@outline-width': '1px',
     '@checkbox-color': sberGreen,
     '@checkbox-check-bg': ultraLightGrey,
-    '@checkbox-border-width': '2px',
+    '@checkbox-border-width': DEFAULT_BORDER_WIDTH,
     '@form-item-margin-bottom': '0',
     '@success-color': green[6],
     '@table-border-color': colors.lightGrey[5],
@@ -122,4 +128,5 @@ module.exports = {
     shadows,
     transitions,
     CHART_COLOR_SET,
+    DEFAULT_BORDER_WIDTH,
 }
