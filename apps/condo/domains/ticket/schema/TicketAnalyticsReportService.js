@@ -5,13 +5,16 @@
 const { GQLCustomSchema, getByCondition } = require('@core/keystone/schema')
 const access = require('@condo/domains/ticket/access/TicketAnalyticsReportService')
 const moment = require('moment')
-const { sortStatusesByType, TicketGqlToKnexAdapter, aggregateData, ticketAnalyticsExcelExportDataMapper } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
+const { sortStatusesByType, TicketGqlToKnexAdapter, aggregateData } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
 const { DATE_DISPLAY_FORMAT } = require('@condo/domains/ticket/constants/common')
 const { Property: PropertyServerUtils } = require('@condo/domains/property/utils/serverSchema')
 const { TicketStatus: TicketStatusServerUtils, Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 const isEmpty = require('lodash/isEmpty')
 const get = require('lodash/get')
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
+const propertySummaryDataMapper = require('@condo/domains/ticket/utils/serverSchema/propertySummaryDataMapper')
+const propertySingleDataMapper = require('@condo/domains/ticket/utils/serverSchema/propertySingleDataMapper')
+const dayGroupDataMapper = require('@condo/domains/ticket/utils/serverSchema/dayGroupDataMapper')
 
 const createPropertyRange = async (context, organizationWhereInput) => {
     const properties = await PropertyServerUtils.getAll(context, { organization:  organizationWhereInput  })
@@ -126,14 +129,76 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                 const { result, groupKeys } = aggregateData(ticketCounts, groupBy)
                 const ticketAccessCheck = await Ticket.getAll(context, where, { first: 1 })
                 const [groupBy1, groupBy2] = groupKeys
-                const excelRows = ticketAnalyticsExcelExportDataMapper(result, where, groupBy, translates)
+
+                // TODO(sitozzz): find way to collect organization locale without additional request
                 const organization = await getByCondition('Organization', {
                     id: where.organization.id,
                 })
+
+                let rowColumns = []
+                const groupByToken = groupBy.join('-')
+                let address = get(translates, 'property')
+
+                switch (groupByToken) {
+                    case 'status-day':
+                    case 'status-week':
+                        rowColumns = [...new Set(Object.values(result).flatMap(e => Object.keys(e)))]
+                        break
+                    case 'status-property':
+                        rowColumns = address.includes('@') ? address.split('@') : []
+                        break
+                    default:
+                        throw new Error('unsupported filter')
+                }
+
+                const tickets = []
+                if (rowColumns.length === 0) {
+                    const tableColumns = {}
+                    Object.entries(result).forEach(([ticketType, dataObject]) => {
+                        const { rows } = propertySummaryDataMapper({ row: dataObject, constants: { address } })
+                        tableColumns[ticketType] = rows[ticketType]()
+                        tableColumns.address = rows.address()
+                    })
+                    tickets.push(tableColumns)
+                } else {
+                    switch (groupBy[1]) {
+                        case 'property':
+                            rowColumns.forEach((rowAddress) => {
+                                const tableRow = {}
+                                Object.entries(result).forEach(([ticketType, dataObject]) => {
+                                    const { rows } = propertySingleDataMapper(
+                                        { row: dataObject, constants: { address: rowAddress } }
+                                    )
+                                    tableRow[ticketType] = rows[ticketType]()
+                                    tableRow.address = rows.address()
+                                })
+                                tickets.push(tableRow)
+                            })
+                            break
+                        case 'day':
+                        case 'week':
+                            rowColumns.forEach((date) => {
+                                const tableColumns = {}
+                                let addressRow = ''
+                                let dateRow = ''
+                                Object.keys(result).forEach(ticketType => {
+                                    const { rows } = dayGroupDataMapper({ row: result, constants: { date, address } })
+                                    tableColumns[ticketType] = rows[ticketType]()
+                                    addressRow = rows.address()
+                                    dateRow = rows.date()
+                                })
+                                tickets.push({ address: addressRow, date: dateRow, ...tableColumns })
+                            })
+                            break
+                        default:
+                            throw new Error('unsupported filter')
+                    }
+                }
+
                 const link = await createExportFile({
                     fileName: `ticket_analytics_${moment().format('DD_MM')}.xlsx`,
                     templatePath: `./domains/ticket/templates/${organization.country}/TicketAnalyticsExportTemplate[${groupBy1}_${groupBy2}].xlsx`,
-                    replaces: { tickets: excelRows },
+                    replaces: { tickets },
                     meta: {
                         listkey: 'Ticket',
                         id: ticketAccessCheck[0].id,

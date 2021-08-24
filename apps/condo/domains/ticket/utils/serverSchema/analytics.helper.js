@@ -98,69 +98,9 @@ const aggregateData = (data, groupByFilter) => {
     return { result, groupKeys: [axisGroupKey, labelsGroupKey] }
 }
 
-const ticketAnalyticsExcelExportDataMapper = (data, where = {}, groupBy = [], translates = {}) => {
-    const result = []
-    let rowColumns = []
-    const groupByToken = groupBy.join('-')
-    let address = get(translates, 'property')
-
-    switch (groupByToken) {
-        case 'status-day':
-        case 'status-week':
-            rowColumns = [...new Set(Object.values(data).flatMap(e => Object.keys(e)))]
-            break
-        case 'status-property':
-            rowColumns = address.includes('@') ? address.split('@') : []
-            break
-        default:
-            throw new Error('unsupported filter')
-    }
-    if (rowColumns.length === 0) {
-        const restTableColumns = {}
-        address = address.replaceAll('@', '')
-        Object.entries(data).forEach(([ticketType, dataObject]) => {
-            const counts = Object.values(dataObject)
-            restTableColumns[ticketType] = sum(counts)
-        })
-        result.push({
-            address,
-            ...restTableColumns,
-        })
-    } else {
-        switch (groupBy[1]) {
-            case 'property':
-                rowColumns.forEach((rowAddress) => {
-                    const tableRow = { address: rowAddress }
-                    Object.entries(data).forEach(([ticketType, dataObject]) => {
-                        const counts = Object.entries(dataObject)
-                            .filter(obj => obj[0] === rowAddress).map(value => value[1])
-                        tableRow[ticketType] = sum(counts)
-                    })
-                    result.push(tableRow)
-                })
-                break
-            case 'day':
-            case 'week':
-                rowColumns.forEach((date) => {
-                    address = address.replaceAll('@', '')
-                    const restTableColumns = {}
-                    Object.keys(data).forEach(ticketType => {
-                        restTableColumns[ticketType] = data[ticketType][date]
-                    })
-                    result.push({ address, date, ...restTableColumns })
-                })
-                break
-            default:
-                throw new Error('unsupported filter')
-        }
-    }
-    return result
-}
-
 module.exports = {
     DATE_FORMATS,
     TicketGqlToKnexAdapter,
     sortStatusesByType,
     aggregateData,
-    ticketAnalyticsExcelExportDataMapper,
 }
