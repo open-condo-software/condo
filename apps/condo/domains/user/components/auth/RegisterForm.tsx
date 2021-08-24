@@ -73,7 +73,11 @@ export const RegisterForm: React.FC<IRegisterFormProps> = () => {
     const { phone, token } = useContext(RegisterContext)
     const { signInByPhone } = useContext(AuthLayoutContext)
     const [registerMutation] = useMutation(REGISTER_NEW_USER_MUTATION)
-    const [createOnBoarding] = useMutation(CREATE_ONBOARDING_MUTATION)
+    const [createOnBoarding] = useMutation(CREATE_ONBOARDING_MUTATION, {
+        onCompleted: () => {
+            Router.push('/onboarding')
+        },
+    })
 
     const initOnBoarding = (userId: string) => {
         const onBoardingExtraData = {
@@ -86,9 +90,6 @@ export const RegisterForm: React.FC<IRegisterFormProps> = () => {
         return runMutation({
             mutation: createOnBoarding,
             variables: { data },
-            onCompleted: () => {
-                Router.push('/onboarding')
-            },
             intl,
             form,
             ErrorToFormFieldMsgMapping,
@@ -113,7 +114,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = () => {
                 signInByPhone(form.getFieldsValue(['phone', 'password']), () => {
                     const userId = get(data, ['user', 'id'])
 
-                    return initOnBoarding(userId)
+                    initOnBoarding(userId)
                 })
             },
             intl,

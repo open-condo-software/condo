@@ -1,5 +1,5 @@
 import React, { createContext, useCallback } from 'react'
-import { useApolloClient, useMutation } from '@core/next/apollo'
+import { useMutation } from '@core/next/apollo'
 import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
 import { useAntdMediaQuery } from '@condo/domains/common/utils/mediaQuery.utils'
@@ -20,40 +20,42 @@ export const AuthLayoutContext = createContext<IAuthLayoutContext>({
 
 export const AuthLayoutContextProvider: React.FC = (props) => {
     const intl = useIntl()
+    const colSize = useAntdMediaQuery()
+
     const { refetch } = useAuth()
 
     const [signinByPhoneMutation] = useMutation(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION)
     const [signinByEmailMutation] = useMutation(SIGNIN_MUTATION)
 
-    const colSize = useAntdMediaQuery()
-
     const signInByPhone = useCallback((variables, onCompleted) => {
-        // @ts-ignore TODO(Dimitreee): remove after runMutation typo
         return runMutation({
             mutation: signinByPhoneMutation,
             variables,
             onCompleted: () => {
-                refetch()
-                onCompleted()
+                refetch().then(() => {
+                    onCompleted()
+                })
+            },
+            onError: (error) => {
+                console.error(error)
             },
             intl,
-        }).catch(error => {
-            console.error(error)
         })
     }, [intl])
 
     const signInByEmail = useCallback((variables, onCompleted) => {
-        // @ts-ignore TODO(Dimitreee): remove after runMutation typo
         return runMutation({
             mutation: signinByEmailMutation,
             variables,
             onCompleted: () => {
-                refetch()
-                onCompleted()
+                refetch().then(() => {
+                    onCompleted()
+                })
+            },
+            onError: (error) => {
+                console.error(error)
             },
             intl,
-        }).catch(error => {
-            console.error(error)
         })
     }, [intl])
 
