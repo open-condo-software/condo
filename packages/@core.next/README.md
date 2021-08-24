@@ -106,5 +106,5 @@ let USER_QUERY = gql`
 const MyApp = (...) => {...
 }
 
-export default withApollo({ssr: true})(withOnBoardingSteps({ssr: false, USER_QUERY})(MyApp))
+export default withApollo({ssr: true})(withAuth({ssr: false, USER_QUERY})(MyApp))
 ```

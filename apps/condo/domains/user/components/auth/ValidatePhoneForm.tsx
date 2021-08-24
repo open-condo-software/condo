@@ -1,4 +1,4 @@
-import { Col, Form, Input, Row, Space, Typography } from 'antd'
+import { Col, Form, Row, Space, Typography } from 'antd'
 import MaskedInput from 'antd-mask-input'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { FormattedMessage } from 'react-intl'
@@ -81,7 +81,6 @@ export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IVa
         const sender = getClientSideSenderInfo()
         const captcha = await handleReCaptchaVerify('resend_sms')
         const variables = { data: { token, sender, captcha } }
-        // @ts-ignore TODO(Dimitreee): remove after runMutation typo
         return runMutation({
             mutation: resendSmsMutation,
             variables,
@@ -100,7 +99,6 @@ export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IVa
         }
         const captcha = await handleReCaptchaVerify('complete_verify_phone')
         const variables = { data: { token, smsCode, captcha } }
-        // @ts-ignore TODO(Dimitreee): remove after runMutation typo
         return runMutation({
             mutation: completeConfirmPhoneMutation,
             variables,
