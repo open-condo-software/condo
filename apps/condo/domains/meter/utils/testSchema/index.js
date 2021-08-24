@@ -10,9 +10,11 @@ const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/co
 const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
 const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
+const { Meter: MeterGQL } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateGQLTestUtils(MeterResourceGQL)
+const Meter = generateGQLTestUtils(MeterGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestMeterResource (client, extraAttrs = {}) {
@@ -46,9 +48,45 @@ async function updateTestMeterResource (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestMeter (client, property, resource, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!property || !property.id) throw new Error('no property.id')
+    if (!resource || !resource.id) throw new Error('no resource.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestMeter logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        property: { connect: { id: property.id } },
+        resource: { connect: { id: resource.id } },
+        ...extraAttrs,
+    }
+    const obj = await Meter.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestMeter (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestMeter logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await Meter.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     MeterResource, createTestMeterResource, updateTestMeterResource,
+    Meter, createTestMeter, updateTestMeter,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

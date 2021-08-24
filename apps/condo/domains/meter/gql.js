@@ -13,9 +13,13 @@ const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy { id name } upda
 const METER_RESOURCE_FIELDS = `{ name ${COMMON_FIELDS} }`
 const MeterResource = generateGqlQueries('MeterResource', METER_RESOURCE_FIELDS)
 
+const METER_FIELDS = `{ number billingAccountMeter { id } account { id } property { id } unitName place resource { id } ${COMMON_FIELDS} }`
+const Meter = generateGqlQueries('Meter', METER_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     MeterResource,
+    Meter,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

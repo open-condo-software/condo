@@ -4,4 +4,5 @@
  */
 
 export * as MeterResource from './MeterResource'
+export * as Meter from './Meter'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
