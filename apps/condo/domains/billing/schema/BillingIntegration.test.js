@@ -21,6 +21,13 @@ describe('BillingIntegration', () => {
                     hasToPayDetail: true,
                     hasServices: true,
                     hasServicesDetail: true,
+                    currency: {
+                        code: 'RUB',
+                        symbolNative: '₽.',
+                        decimalDigits: 2,
+                        rounding: 0,
+                        delimiterNative: ',',
+                    },
                 },
             }
 

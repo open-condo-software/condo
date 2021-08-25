@@ -25,8 +25,8 @@ describe('BillingReceipt', () => {
             const payload = {
                 toPayDetails: {
                     formula: 'charge+penalty',
-                    charge: 12341,
-                    penalty: -200,
+                    charge: '12341.21',
+                    penalty: '200.12',
                 },
             }
             const [objUpdated] = await updateTestBillingReceipt(managerUserClient, obj.id, payload)
@@ -46,31 +46,31 @@ describe('BillingReceipt', () => {
                     {
                         id: 'COLD-WATER',
                         name: 'Cold water',
-                        toPay: 1000,
+                        toPay: '3000.00',
                         toPayDetails: {
                             formula: 'charge+penalty',
-                            charge: 1000,
-                            penalty: 0,
+                            charge: '6000.00',
+                            penalty: '3000.12',
                         },
                     },
                     {
                         id: 'HOT-WATER',
                         name: 'Hot water',
-                        toPay: 1800,
+                        toPay: '3000.00',
                         toPayDetails: {
                             formula: 'charge+penalty',
-                            charge: 2000,
-                            penalty: 200,
+                            charge: '6000.00',
+                            penalty: '3000.12',
                         },
                     },
                     {
                         id: 'ELECTRICITY',
                         name: 'Electricity to power your toxicity!',
-                        toPay: 3000,
+                        toPay: '3000.00',
                         toPayDetails: {
                             formula: 'charge+penalty',
-                            charge: 6000,
-                            penalty: -3000,
+                            charge: '6000.00',
+                            penalty: '3000.12',
                         },
                     },
                 ],
@@ -91,8 +91,8 @@ describe('BillingReceipt', () => {
             // No formula in payload
             const payload = {
                 toPayDetails: {
-                    charge: 12341,
-                    penalty: -200,
+                    charge: '12341.21',
+                    penalty: '200.12',
                 },
             }
 
@@ -138,12 +138,12 @@ describe('BillingReceipt', () => {
                 services: [
                     {
                         id: '1',
-                        toPay: '1200',
+                        toPay: '1200.00',
                         name: 'Water',
                         // No formula
                         toPayDetails: {
-                            charge: 12341,
-                            penalty: -200,
+                            charge: '12341.21',
+                            penalty: '200.12',
                         },
                     },
                 ],
@@ -169,11 +169,11 @@ describe('BillingReceipt', () => {
             const payload = {
                 services: [
                     {
-                        toPay: '1200',
+                        toPay: '1200.22',
                         toPayDetails: {
                             formula: 'charge+penalty',
-                            charge: 12341,
-                            penalty: -200,
+                            charge: '12341.21',
+                            penalty: '200.12',
                         },
                     },
                 ],

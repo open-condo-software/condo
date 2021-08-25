@@ -116,7 +116,7 @@ const DATA_FORMAT_SCHEMA = {
         hasToPayDetail: { type: 'boolean' },    // True if billingReceipt has toPay detailization: e.g debt, recalculation fields
         hasServices: { type: 'boolean' },       // True if billingReceipt has services object: e.g cold water service
         hasServicesDetail: { type: 'boolean' }, // True if billingReceipt's services has detail: e.g debt and recalculation for cold water service
-        currencyFormat: {                       // Refs https://gist.github.com/Fluidbyte/2973986 Native delimiter refs https://www.texastech.edu/offices/treasury/currency-conversion.php
+        currency: {                             // Refs https://gist.github.com/Fluidbyte/2973986 Native delimiter refs https://www.texastech.edu/offices/treasury/currency-conversion.php
             type: 'object',
             properties: {
                 code: { type: 'string' },            // RUB
@@ -128,7 +128,7 @@ const DATA_FORMAT_SCHEMA = {
             required: ['code', 'symbolNative', 'decimalDigits', 'rounding', 'delimiterNative'],
         },
     },
-    required: ['hasToPayDetail', 'hasServices', 'hasServicesDetail', 'currencyFormat'],
+    required: ['hasToPayDetail', 'hasServices', 'hasServicesDetail', 'currency'],
     additionalProperties: false,
 }
 
