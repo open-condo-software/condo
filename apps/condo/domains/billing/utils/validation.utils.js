@@ -124,7 +124,7 @@ const DATA_FORMAT_SCHEMA = {
                 decimalDigits: { type: 'number' },   // 2
                 symbol: { type: 'string' },          // RUB
                 rounding: { type: 'number' },        // 0
-                delimiterNative: { type: 'string' }, // ,
+                delimiterNative: { type: 'string' }, // ,    Native delimiter. Usually (.) but for some cultures (like RUB) the (,) is used
             },
             required: ['code', 'symbolNative', 'decimalDigits'],
         },
