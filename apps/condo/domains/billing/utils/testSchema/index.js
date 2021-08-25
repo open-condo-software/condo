@@ -42,6 +42,43 @@ const ResidentBillingReceipt = generateGQLTestUtils(ResidentBillingReceiptGQL)
 const BillingCurrency = generateGQLTestUtils(BillingCurrencyGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
+async function createTestBillingCurrency (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const code = faker.finance.currencyCode()
+    const displayInfo = {
+        symbolNative: faker.finance.currencySymbol(),
+        decimalDigits: 2,
+        rounding: 0,
+        delimiterNative: '.',
+    }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        code,
+        displayInfo,
+        ...extraAttrs,
+    }
+    const obj = await BillingCurrency.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestBillingCurrency (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await BillingCurrency.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 async function createTestBillingIntegration (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
