@@ -1,13 +1,10 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 import { IContextProps } from './index'
 import {
-    ColumnInfo,
     QueryMeta,
     getStringContainsFilter,
     getPageIndexFromOffset,
     parseQuery,
-    convertColumns,
-    getSorterMap,
     getFilter,
 } from '@condo/domains/common/utils/tables.utils'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
@@ -19,7 +16,9 @@ import { SortBillingReceiptsBy } from '../../../../schema'
 import get from 'lodash/get'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { usePeriodSelector } from '@condo/domains/billing/hooks/usePeriodSelector'
-import { Row, Col, Space, Input, Select } from 'antd'
+import { Row, Col, Space, Input, Select, Typography } from 'antd'
+import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { useReceiptTableColumns } from '../../hooks/useReceiptTableColumns'
 
 const addressFilter = getStringContainsFilter(['property', 'address'])
 const accountFilter = getStringContainsFilter(['account', 'number'])
@@ -36,15 +35,12 @@ const sortableProperties = ['toPay']
 
 export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const intl = useIntl()
-    const AddressTitle = intl.formatMessage({ id: 'field.Address' })
-    const AccountTitle = intl.formatMessage({ id: 'field.AccountNumberShort' })
-    const ToPayTitle = intl.formatMessage({ id: 'field.TotalPayment' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const DataForTitle = intl.formatMessage({ id: 'DataFor' })
+    const LoadingErrorMessage = intl.formatMessage({ id: 'errors.PdfGenerationError' })
 
     const router = useRouter()
     const { filters, sorters, offset } = parseQuery(router.query)
-    const sorterMap = getSorterMap(sorters)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
     const contextPeriod = get(context, ['lastReport', 'period'], null)
@@ -56,6 +52,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
         loading,
         count: total,
         objs: receipts,
+        error,
     } = BillingReceipt.useObjects({
         where: { ...filtersToWhere(filters), context: { id: context.id } },
         sortBy: sortersToSortBy(sorters) as SortBillingReceiptsBy[],
@@ -67,36 +64,17 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const [period, options,  handlePeriodChange] = usePeriodSelector(contextPeriod)
 
 
-    const columns: Array<ColumnInfo> = [
-        {
-            title: AddressTitle,
-            key: 'address',
-            width: 50,
-            dataIndex: ['property', 'address'],
-            filter: { type: 'string' },
-            ellipsis: true,
-        },
-        {
-            title: AccountTitle,
-            key: 'account',
-            width: 30,
-            dataIndex: ['account', 'number'],
-            filter: { type: 'string' },
-            ellipsis: true,
-        },
-        {
-            title: ToPayTitle,
-            key: 'toPay',
-            width: 20,
-            dataIndex: 'toPay',
-            sortable: true,
-            filter: { type: 'string' },
-            ellipsis: true,
-        },
-    ]
-    const antdColumns = useMemo(() => {
-        return convertColumns(columns, filters, sorterMap)
-    }, [filters, sorterMap])
+    const columns = useReceiptTableColumns()
+
+    if (error) {
+        return (
+            <BasicEmptyListView>
+                <Typography.Title level={4}>
+                    {LoadingErrorMessage}
+                </Typography.Title>
+            </BasicEmptyListView>
+        )
+    }
 
     return (
         <Row gutter={[0, 40]}>
@@ -133,7 +111,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
                     loading={loading}
                     totalRows={total}
                     dataSource={receipts}
-                    columns={antdColumns}
+                    columns={columns}
                 />
             </Col>
         </Row>
