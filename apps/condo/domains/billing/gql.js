@@ -8,13 +8,13 @@ const { generateGqlQueries } = require('@condo/domains/common/utils/codegenerati
 
 const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const BILLING_INTEGRATION_FIELDS = `{ name shortDescription detailsTitle detailsText detailsConfirmButtonText detailsInstructionButtonText detailsInstructionButtonLink contextDefaultStatus dataFormat ${COMMON_FIELDS} }`
+const BILLING_INTEGRATION_FIELDS = `{ name shortDescription detailsTitle detailsText detailsConfirmButtonText detailsInstructionButtonText detailsInstructionButtonLink contextDefaultStatus dataFormat currency { id } ${COMMON_FIELDS} }`
 const BillingIntegration = generateGqlQueries('BillingIntegration', BILLING_INTEGRATION_FIELDS)
 
 const BILLING_INTEGRATION_ACCESS_RIGHT_FIELDS = '{ integration { id name } user { id name } id dv createdBy { id name } updatedBy { id name } createdAt updatedAt }'
 const BillingIntegrationAccessRight = generateGqlQueries('BillingIntegrationAccessRight', BILLING_INTEGRATION_ACCESS_RIGHT_FIELDS)
 
-const BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS = `{ integration { id name } organization { id name } settings state status lastReport currency ${COMMON_FIELDS} }`
+const BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS = `{ integration { id name } organization { id name } settings state status lastReport ${COMMON_FIELDS} }`
 const BillingIntegrationOrganizationContext = generateGqlQueries('BillingIntegrationOrganizationContext', BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS)
 
 const BILLING_INTEGRATION_LOG_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} type message meta ${COMMON_FIELDS} }`
