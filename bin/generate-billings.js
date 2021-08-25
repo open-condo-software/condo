@@ -14,7 +14,7 @@ const SENDER = { dv: DV, fingerprint: faker.random.alphaNumeric(8) }
 const InProgressBilling = {
     dv: DV,
     sender: SENDER,
-    name: 'ГИС ЖКХ',
+    name: 'In progress',
     shortDescription: 'Государственная информационная система ЖКХ',
     detailsTitle: 'Подключение ГИС ЖКХ',
     detailsText: 'Вам нужно подать заявку на интеграцию через ваш личный кабинет в ГИС ЖКХ. Дальше, мы сделаем всё сами.\n' +
@@ -23,12 +23,13 @@ const InProgressBilling = {
     detailsInstructionButtonText: 'Инструкция на сайте биллинга',
     detailsInstructionButtonLink: 'https://dom.gosuslugi.ru',
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IN_PROGRESS_STATUS,
+    billingPageTitle: 'Биллинг ГИС ЖКХ',
 }
 
 const SuccessfulBilling = {
     dv: DV,
     sender: SENDER,
-    name: 'Загрузка собственного реестра',
+    name: 'Success',
     shortDescription: 'Шаблон СБ Бизнес Онлайн 8_2',
     detailsTitle: 'Подключение реестрового обмена',
     detailsText: 'Выбрав данный вариант интеграции, вам будет необходимо загрузить ваши реестры к нам самостоятельно',
@@ -36,12 +37,13 @@ const SuccessfulBilling = {
     detailsInstructionButtonText: 'Подробнее про шаблон',
     detailsInstructionButtonLink: 'https://www.sberbank.ru/ru/s_m_business/new_sbbol',
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
+    billingPageTitle: 'Биллинг, реестровый обмен',
 }
 
 const ErrorBilling = {
     dv: DV,
     sender: SENDER,
-    name: 'Загрузка собственного реестра',
+    name: 'Error',
     shortDescription: 'Шаблон СБ Бизнес Онлайн 9_1',
     detailsTitle: 'Подключение реестрового обмена',
     detailsText: 'Выбрав данный вариант интеграции, вам будет необходимо загрузить ваши реестры к нам самостоятельно',
@@ -49,7 +51,54 @@ const ErrorBilling = {
     detailsInstructionButtonText: 'Подробнее про шаблон',
     detailsInstructionButtonLink: 'https://www.sberbank.ru/ru/s_m_business/new_sbbol',
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_ERROR_STATUS,
+    billingPageTitle: 'Биллинг, реестровый обмен',
 }
+
+const NoDetailsBilling = {
+    dv: DV,
+    sender: SENDER,
+    name: 'Lvl 1',
+    detailsTitle: 'Подключение биллинга с детализацией 1',
+    contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
+    billingPageTitle: 'Биллинг, уровень 1',
+}
+
+const ToPayDetailsBilling = {
+    dv: DV,
+    sender: SENDER,
+    name: 'Lvl 1+',
+    detailsTitle: 'Подключение биллинга с детализацией 1+',
+    contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
+    billingPageTitle: 'Биллинг, уровень 1+',
+}
+
+const WithServicesBilling = {
+    dv: DV,
+    sender: SENDER,
+    name: 'Lvl 2',
+    detailsTitle: 'Подключение биллинга с детализацией 2',
+    contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
+    billingPageTitle: 'Биллинг, уровень 2',
+}
+
+const WithServicesDetailsBilling = {
+    dv: DV,
+    sender: SENDER,
+    name: 'Lvl 3',
+    detailsTitle: 'Подключение биллинга с детализацией 3',
+    contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
+    billingPageTitle: 'Биллинг, уровень 3',
+}
+
+const BILLINGS_TO_CREATE = [
+    InProgressBilling,
+    SuccessfulBilling,
+    ErrorBilling,
+    NoDetailsBilling,
+    ToPayDetailsBilling,
+    WithServicesBilling,
+    WithServicesDetailsBilling,
+]
 
 class BillingsGenerator {
     context = null
@@ -66,9 +115,9 @@ class BillingsGenerator {
 
     async generateBillings () {
         console.info('[INFO] Generating billings...')
-        await BillingIntegration.create(this.context, InProgressBilling)
-        await BillingIntegration.create(this.context, SuccessfulBilling)
-        await BillingIntegration.create(this.context, ErrorBilling)
+        for (const billing of BILLINGS_TO_CREATE) {
+            await BillingIntegration.create(this.context, billing)
+        }
     }
 
 

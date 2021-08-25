@@ -141,7 +141,7 @@ class ReceiptsGenerator {
                             property: { connect: { id: this.billingAccounts[i].property.id } },
                             account: { connect: { id: this.billingAccounts[i].id } },
                             importId: faker.datatype.uuid(),
-                            toPay: (Math.floor(this.toPay.min + _gaussianRand() * (this.toPay.max - this.toPay.min + 1))).toString(),
+                            toPay: `${Math.floor(this.toPay.min + _gaussianRand() * (this.toPay.max - this.toPay.min + 1))}.00`,
                             period: this.periods[p],
                             recipient: PAYMENT_ORGANIZATION,
                             raw: BASE_JSON,

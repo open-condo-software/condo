@@ -12,6 +12,7 @@ const { validateDataFormat } = require('../utils/validation.utils')
 const {
     BILLING_INTEGRATION_ORGANIZATION_CONTEXT_STATUSES,
     BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IN_PROGRESS_STATUS,
+    BILLING_INTEGRATION_DEFAULT_PAGE_TITLE,
 } = require('../constants')
 
 
@@ -61,6 +62,13 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
             schemaDoc: 'Link to external resource, on which you will go by clicking on "Instruction" button',
             type: Text,
             isRequired: false,
+        },
+
+        billingPageTitle: {
+            schemaDoc: 'This title is shown on /billing page, usually contains word "Billing"',
+            type: Text,
+            isRequired: true,
+            defaultValue: BILLING_INTEGRATION_DEFAULT_PAGE_TITLE,
         },
 
         contextDefaultStatus: {
