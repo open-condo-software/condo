@@ -6034,6 +6034,17 @@ export type ExportPropertiesToExcelOutput = {
   linkToFile: Scalars['String'];
 };
 
+export type ExportTicketAnalyticsToExcelInput = {
+  where: TicketWhereInput;
+  groupBy?: Maybe<Array<TicketAnalyticsGroupBy>>;
+  translates?: Maybe<Scalars['JSON']>;
+};
+
+export type ExportTicketAnalyticsToExcelOutput = {
+  __typename?: 'ExportTicketAnalyticsToExcelOutput';
+  link: Scalars['String'];
+};
+
 export type ExportTicketsToExcelInput = {
   where: TicketWhereInput;
   sortBy?: Maybe<Array<SortTicketsBy>>;
@@ -13021,6 +13032,7 @@ export type Query = {
   ticketReportWidgetData?: Maybe<TicketReportWidgetOutput>;
   exportTicketsToExcel?: Maybe<ExportTicketsToExcelOutput>;
   ticketAnalyticsReport?: Maybe<TicketAnalyticsReportOutput>;
+  exportTicketAnalyticsToExcel?: Maybe<ExportTicketAnalyticsToExcelOutput>;
   allResidentTickets?: Maybe<Array<Maybe<ResidentTicketOutput>>>;
   /** The version of the Keystone application serving this API. */
   appVersion?: Maybe<Scalars['String']>;
@@ -14773,6 +14785,11 @@ export type QueryExportTicketsToExcelArgs = {
 
 export type QueryTicketAnalyticsReportArgs = {
   data?: Maybe<TicketAnalyticsReportInput>;
+};
+
+
+export type QueryExportTicketAnalyticsToExcelArgs = {
+  data?: Maybe<ExportTicketAnalyticsToExcelInput>;
 };
 
 

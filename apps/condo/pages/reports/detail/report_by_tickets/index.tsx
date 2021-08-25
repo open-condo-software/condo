@@ -194,7 +194,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                         </Select>
                     </Form.Item>
                 </Col>
-                <Col flex={1}>
+                <Col flex={1} style={{ maxWidth: 746 }}>
                     <Form.Item label={AddressTitle} {...FORM_ITEM_STYLE}>
                         <GraphQlSearchInput
                             allowClear

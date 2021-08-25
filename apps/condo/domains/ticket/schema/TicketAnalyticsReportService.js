@@ -57,7 +57,7 @@ const getTicketCounts = async (context, where, groupBy, extraLabels = {}) => {
                 break
         }
     }
-    return  ticketGqlToKnexAdapter
+    return ticketGqlToKnexAdapter
         .getResult(({ count, dayGroup, ...searchResult }) =>
         {
             if (!isEmpty(translates)) {
@@ -95,7 +95,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
         },
         {
             access: true,
-            type: 'type TicketAnalyticsReportOutput { result: [TicketGroupedCounter!] }',
+            type: 'type TicketAnalyticsReportOutput { groups: [TicketGroupedCounter!] }',
         },
         {
             access: true,
@@ -116,8 +116,8 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
             schema: 'ticketAnalyticsReport(data: TicketAnalyticsReportInput): TicketAnalyticsReportOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data: { where = {}, groupBy = [] } } = args
-                const result = await getTicketCounts(context, where, groupBy)
-                return { result }
+                const groups = await getTicketCounts(context, where, groupBy)
+                return { groups }
             },
         },
         {
