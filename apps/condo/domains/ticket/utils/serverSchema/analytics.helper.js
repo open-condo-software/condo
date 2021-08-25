@@ -1,4 +1,4 @@
-const { AnalyticsQueryBuilder } = require('@condo/domains/common/utils/serverSchema/AnalyticsQueryBuilder')
+const { GqlToKnexBaseAdapter } = require('@condo/domains/common/utils/serverSchema/GqlToKnexBaseAdapter')
 const { getSchemaCtx } = require('@core/keystone/schema')
 const has = require('lodash/get')
 const get = require('lodash/get')
@@ -26,7 +26,7 @@ const sortStatusesByType = (statuses) => {
     })
 }
 
-class TicketAnalyticsQueryBuilder extends AnalyticsQueryBuilder {
+class TicketGqlToKnexAdapter extends GqlToKnexBaseAdapter {
     aggregateBy = []
     constructor (where, groupBy) {
         super('Ticket', where, groupBy)
@@ -34,6 +34,10 @@ class TicketAnalyticsQueryBuilder extends AnalyticsQueryBuilder {
             .some(e => TICKET_REPORT_DAY_GROUP_STEPS.includes(e)) ? ['dayGroup', ...this.groups] : [...this.groups]
     }
 
+    /**
+     * Execute query based for domainName table with where & groupBy expressions
+     * @returns {Promise<void>}
+     */
     async loadData () {
         this.result = null
         const { keystone } = await getSchemaCtx(this.domainName)
@@ -80,6 +84,6 @@ class TicketAnalyticsQueryBuilder extends AnalyticsQueryBuilder {
 
 module.exports = {
     DATE_FORMATS,
-    TicketAnalyticsQueryBuilder,
+    TicketGqlToKnexAdapter,
     sortStatusesByType,
 }
