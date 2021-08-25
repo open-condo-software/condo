@@ -12,6 +12,7 @@ describe('TicketAnalyticsReportService', () => {
     describe('User', () => {
         it('can read TicketAnalyticsReportService grouped counts [day, status]', async () => {
             const client = await makeClientWithTicket()
+            await createTestTicket(client, client.organization, client.property)
             const dateStart = moment().startOf('week')
             const dateEnd = moment().endOf('week')
             const { data: { result: { result } } } = await client.query(TICKET_ANALYTICS_REPORT_QUERY, {
@@ -30,7 +31,7 @@ describe('TicketAnalyticsReportService', () => {
             })
             expect(result).toBeDefined()
             expect(result).toHaveLength(1)
-            expect(result[0].count).toEqual(1)
+            expect(result[0].count).toEqual(2)
         })
 
         it('can read TicketAnalyticsReportService grouped counts [status, day]', async () => {

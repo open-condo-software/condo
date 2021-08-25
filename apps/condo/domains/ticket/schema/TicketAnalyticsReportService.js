@@ -6,7 +6,7 @@ const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/ticket/access/TicketAnalyticsReportService')
 const moment = require('moment')
 const { sortStatusesByType } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
-const { TicketAnalyticsQueryBuilder } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
+const { TicketGqlToKnexAdapter } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
 const { DATE_DISPLAY_FORMAT } = require('@condo/domains/ticket/constants/common')
 const { Property: PropertyServerUtils } = require('@condo/domains/property/utils/serverSchema')
 const { TicketStatus: TicketStatusServerUtils } = require('@condo/domains/ticket/utils/serverSchema')
@@ -61,8 +61,8 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data: { where = {}, groupBy = [] } } = args
 
-                const analyticsQueryBuilder = new TicketAnalyticsQueryBuilder(where, groupBy)
-                await analyticsQueryBuilder.loadData()
+                const ticketGqlToKnexAdapter = new TicketGqlToKnexAdapter(where, groupBy)
+                await ticketGqlToKnexAdapter.loadData()
 
                 const translates = {}
                 for (const group of groupBy) {
@@ -78,7 +78,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                     }
                 }
 
-                const result = analyticsQueryBuilder
+                const result = ticketGqlToKnexAdapter
                     .getResult(({ count, dayGroup, ...searchResult }) =>
                     {
                         if (!isEmpty(translates)) {
