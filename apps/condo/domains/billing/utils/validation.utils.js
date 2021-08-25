@@ -116,8 +116,20 @@ const DATA_FORMAT_SCHEMA = {
         hasToPayDetail: { type: 'boolean' },    // True if billingReceipt has toPay detailization: e.g debt, recalculation fields
         hasServices: { type: 'boolean' },       // True if billingReceipt has services object: e.g cold water service
         hasServicesDetail: { type: 'boolean' }, // True if billingReceipt's services has detail: e.g debt and recalculation for cold water service
+        currencyFormat: {                       // Refs https://gist.github.com/Fluidbyte/2973986 Native delimiter refs https://www.texastech.edu/offices/treasury/currency-conversion.php
+            type: 'object',
+            properties: {
+                code: { type: 'string' },            // RUB
+                symbolNative: { type: 'string' },    // ₽.
+                decimalDigits: { type: 'number' },   // 2
+                symbol: { type: 'string' },          // RUB
+                rounding: { type: 'number' },        // 0
+                delimiterNative: { type: 'string' }, // ,
+            },
+            required: ['code', 'symbolNative', 'decimalDigits'],
+        },
     },
-    required: ['hasToPayDetail', 'hasServices', 'hasServicesDetail'],
+    required: ['hasToPayDetail', 'hasServices', 'hasServicesDetail', 'currencyFormat'],
     additionalProperties: false,
 }
 
