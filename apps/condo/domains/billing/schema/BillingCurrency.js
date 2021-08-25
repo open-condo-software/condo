@@ -8,11 +8,12 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingCurrency')
+const { validateCurrencyDisplayInfo } = require('@condo/domains/billing/utils/validation.utils')
 
 
 const BillingCurrency = new GQLListSchema('BillingCurrency', {
 
-    schemaDoc: 'TODO DOC!',
+    schemaDoc: 'Billing Currency model',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
@@ -28,6 +29,9 @@ const BillingCurrency = new GQLListSchema('BillingCurrency', {
             schemaDoc: 'Meta information that is required of user to properly display this currency in UI',
             type: Json,
             isRequired: false,
+            hooks: {
+                validateInput: validateCurrencyDisplayInfo,
+            },
         },
 
     },
