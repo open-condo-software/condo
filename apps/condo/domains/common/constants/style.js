@@ -120,6 +120,7 @@ const antGlobalVariables = {
     '@alert-warning-border-color': '@gold-2',
     '@alert-warning-bg-color': '@gold-2',
     '@typography-title-margin-bottom': 0,
+    '@tooltip-bg': 'rgba(0, 0, 0)',
 }
 
 module.exports = {

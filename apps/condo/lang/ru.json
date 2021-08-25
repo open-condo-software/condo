@@ -497,6 +497,7 @@
   "employee.EmptyList.title": "Добавьте первого, это просто",
   "contact.EmptyList.header": "Список жителей пока пуст",
   "contact.EmptyList.title": "Добавьте первого, это просто",
+  "focus.tooltipText": "Теперь вы можете перейти к следующему шагу",
   "onboarding.title": "С чего начать",
   "onboarding.subtitle": "Данные подсказки помогут вам быстрее познакомиться с продуктом",
   "onboarding.complete.title": "Все шаги мастера пройдены",

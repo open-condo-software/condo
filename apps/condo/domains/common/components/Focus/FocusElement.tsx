@@ -1,6 +1,7 @@
 import styled from '@emotion/styled'
 import { Tooltip } from 'antd'
 import React from 'react'
+import { useIntl } from '@core/next/intl'
 import { useFocusContext } from './FocusContextProvider'
 
 const FocusWrapper = styled.div`
@@ -50,6 +51,9 @@ const FocusWrapper = styled.div`
 `
 
 export const FocusElement: React.FC = ({ children }) => {
+    const intl = useIntl()
+    const Title = intl.formatMessage({ id: 'focus.tooltipText' })
+
     const { isFocusVisible } = useFocusContext()
 
     return (
@@ -57,10 +61,9 @@ export const FocusElement: React.FC = ({ children }) => {
             ? (
                 <FocusWrapper>
                     <Tooltip
-                        title={'Теперь вы можете перейти к следующему шагу'}
+                        title={Title}
                         visible
                         placement={'right'}
-                        overlayStyle={{ opacity: '0.8' }}
                     >
                         {children}
                     </Tooltip>

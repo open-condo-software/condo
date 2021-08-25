@@ -8,9 +8,13 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import { OnBoardingStepItem } from '@condo/domains/onboarding/components/OnBoardingStepItem'
 import { useIntl } from '@core/next/intl'
 import { useOnBoardingContext } from '@condo/domains/onboarding/components/OnBoardingContext'
-import { IPageInterface } from '../next-env'
 
-const OnBoardingPage: IPageInterface = () => {
+interface IOnBoardingIndexPage extends React.FC {
+    headerAction?: JSX.Element
+    requiredAccess?: React.FC
+}
+
+const OnBoardingPage: IOnBoardingIndexPage = () => {
     const intl = useIntl()
     const router = useRouter()
     const Title = intl.formatMessage({ id: 'onboarding.title' })
@@ -38,7 +42,7 @@ const OnBoardingPage: IPageInterface = () => {
                         <Row gutter={[0, 40]}>
                             <Col span={24}>
                                 <Space direction={'vertical'} size={24}>
-                                    <Typography.Title level={1} style={{ margin: 0 }}>С чего начать?</Typography.Title>
+                                    <Typography.Title level={1}>{Title}</Typography.Title>
                                     <Typography.Paragraph>{SubTitle}</Typography.Paragraph>
                                 </Space>
                             </Col>
