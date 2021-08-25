@@ -17630,7 +17630,7 @@ export type TicketAnalyticsReportInput = {
 
 export type TicketAnalyticsReportOutput = {
   __typename?: 'TicketAnalyticsReportOutput';
-  result?: Maybe<Array<TicketGroupedCounter>>;
+  groups?: Maybe<Array<TicketGroupedCounter>>;
 };
 
 /**  Describes what type of work needs to be done to fix incident  */

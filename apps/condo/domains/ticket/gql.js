@@ -129,7 +129,7 @@ const TICKET_COMMENT_FIELDS = `{ ticket { id } user { id name } content ${COMMON
 const TicketComment = generateGqlQueries('TicketComment', TICKET_COMMENT_FIELDS)
 const TICKET_ANALYTICS_REPORT_QUERY = gql`
     query ticketAnalyticsReport ($data: TicketAnalyticsReportInput!) {
-        result: ticketAnalyticsReport(data: $data) { result { count status property dayGroup } }
+        result: ticketAnalyticsReport(data: $data) { groups { count status property dayGroup } }
     }
 `
 

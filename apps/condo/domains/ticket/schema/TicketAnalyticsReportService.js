@@ -47,7 +47,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
         },
         {
             access: true,
-            type: 'type TicketAnalyticsReportOutput { result: [TicketGroupedCounter!] }',
+            type: 'type TicketAnalyticsReportOutput { groups: [TicketGroupedCounter!] }',
         },
         {
             access: true,
@@ -101,7 +101,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                         }
                     }).sort((a, b) =>
                         moment(a.dayGroup, DATE_DISPLAY_FORMAT).format('X') - moment(b.dayGroup, DATE_DISPLAY_FORMAT).format('X'))
-                return { result }
+                return { groups: result }
             },
         },
     ],
