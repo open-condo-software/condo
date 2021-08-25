@@ -52,8 +52,30 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
         raw: RAW_DATA_FIELD,
 
+        /**
+         * A note on toPay:
+         *
+         * We store all payment data as a string, with (.) as delimiter:
+         * We store currency in BillingIntegration in this format. This information helps client to distinguish the partial part:
+         *
+         * refs: https://gist.github.com/Fluidbyte/2973986
+         *
+         * "RUB": {
+         *		"symbol": "RUB",
+         *		"name": "Russian Ruble",
+         *		"symbol_native": "₽.",
+         *		"decimal_digits": 2,
+         * 		"rounding": 0,
+         *		"code": "RUB",
+         *		"name_plural": "Russian rubles"
+         *	},
+         *
+         * 123.30 (for 123 Ruble and 30 Kopeck)
+         * 6.20 (for 6$ and 20 Cents)
+         *
+         */
         toPay: {
-            schemaDoc: 'Total sum to pay. Usually counts as the sum of all services. Detail level 1.',
+            schemaDoc: 'Total sum to pay. Usually counts as the sum of all services. Stored like this: "123.30" Detail level 1.',
             type: Text,
             isRequired: true,
         },
