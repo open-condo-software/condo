@@ -12,19 +12,13 @@ const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/ut
 const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
 const { Meter: MeterGQL } = require('@condo/domains/meter/gql')
 const { MeterReading: MeterReadingGQL } = require('@condo/domains/meter/gql')
-const { MeterReadingTicket: MeterReadingTicketGQL } = require('@condo/domains/meter/gql')
-const { MeterReadingTicketChange: MeterReadingTicketChangeGQL } = require('@condo/domains/meter/gql')
-const { MeterReadingTicketComment: MeterReadingTicketCommentGQL } = require('@condo/domains/meter/gql')
-const { MeterReadingTicketSource: MeterReadingTicketSourceGQL } = require('@condo/domains/meter/gql')
+const { MeterReadingSource: MeterReadingSourceGQL } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateGQLTestUtils(MeterResourceGQL)
 const Meter = generateGQLTestUtils(MeterGQL)
 const MeterReading = generateGQLTestUtils(MeterReadingGQL)
-const MeterReadingTicket = generateGQLTestUtils(MeterReadingTicketGQL)
-const MeterReadingTicketChange = generateGQLTestUtils(MeterReadingTicketChangeGQL)
-const MeterReadingTicketComment = generateGQLTestUtils(MeterReadingTicketCommentGQL)
-const MeterReadingTicketSource = generateGQLTestUtils(MeterReadingTicketSourceGQL)
+const MeterReadingSource = generateGQLTestUtils(MeterReadingSourceGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestMeterResource (client, extraAttrs = {}) {
@@ -130,117 +124,13 @@ async function updateTestMeterReading (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestMeterReadingTicket (client, property, organization, source, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!property || !property.id) throw new Error('no property.id')
-    if (!organization || !organization.id) throw new Error('no organization.id')
-    if (!source || !source.id) throw new Error('no source.id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestMeterReadingTicket logic for generate fields
-
-    const attrs = {
-        dv: 1,
-        sender,
-        property: { connect: { id: property.id } },
-        organization: { connect: { id: organization.id } },
-        source: { connect: { id: source.id } },
-        ...extraAttrs,
-    }
-    const obj = await MeterReadingTicket.create(client, attrs)
-    return [obj, attrs]
-}
-
-async function updateTestMeterReadingTicket (client, id, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!id) throw new Error('no id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestMeterReadingTicket logic for generate fields
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const obj = await MeterReadingTicket.update(client, id, attrs)
-    return [obj, attrs]
-}
-
-async function createTestMeterReadingTicketChange (client, meterReadingTicket, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!meterReadingTicket || !meterReadingTicket.id) throw new Error('no meterReadingTicket.id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestMeterReadingTicketChange logic for generate fields
-
-    const attrs = {
-        dv: 1,
-        sender,
-        meterReadingTicket: { connect: { id: meterReadingTicket.id } },
-        ...extraAttrs,
-    }
-    const obj = await MeterReadingTicketChange.create(client, attrs)
-    return [obj, attrs]
-}
-
-async function updateTestMeterReadingTicketChange (client, id, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!id) throw new Error('no id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestMeterReadingTicketChange logic for generate fields
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const obj = await MeterReadingTicketChange.update(client, id, attrs)
-    return [obj, attrs]
-}
-
-async function createTestMeterReadingTicketComment (client, meterReadingTicket, user, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!meterReadingTicket || !meterReadingTicket.id) throw new Error('no meterReadingTicket.id')
-    if (!user || !user.id) throw new Error('no user.id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestMeterReadingTicketComment logic for generate fields
-
-    const attrs = {
-        dv: 1,
-        sender,
-        meterReadingTicket: { connect: { id: meterReadingTicket.id } },
-        user: { connect: { id: user.id } },
-        ...extraAttrs,
-    }
-    const obj = await MeterReadingTicketComment.create(client, attrs)
-    return [obj, attrs]
-}
-
-async function updateTestMeterReadingTicketComment (client, id, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!id) throw new Error('no id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestMeterReadingTicketComment logic for generate fields
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const obj = await MeterReadingTicketComment.update(client, id, attrs)
-    return [obj, attrs]
-}
-
-async function createTestMeterReadingTicketSource (client, organization, extraAttrs = {}) {
+async function createTestMeterReadingSource (client, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestMeterReadingTicketSource logic for generate fields
+    // TODO(codegen): write createTestMeterReadingSource logic for generate fields
 
     const attrs = {
         dv: 1,
@@ -248,23 +138,23 @@ async function createTestMeterReadingTicketSource (client, organization, extraAt
         organization: { connect: { id: organization.id } },
         ...extraAttrs,
     }
-    const obj = await MeterReadingTicketSource.create(client, attrs)
+    const obj = await MeterReadingSource.create(client, attrs)
     return [obj, attrs]
 }
 
-async function updateTestMeterReadingTicketSource (client, id, extraAttrs = {}) {
+async function updateTestMeterReadingSource (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestMeterReadingTicketSource logic for generate fields
+    // TODO(codegen): check the updateTestMeterReadingSource logic for generate fields
 
     const attrs = {
         dv: 1,
         sender,
         ...extraAttrs,
     }
-    const obj = await MeterReadingTicketSource.update(client, id, attrs)
+    const obj = await MeterReadingSource.update(client, id, attrs)
     return [obj, attrs]
 }
 
@@ -274,9 +164,6 @@ module.exports = {
     MeterResource, createTestMeterResource, updateTestMeterResource,
     Meter, createTestMeter, updateTestMeter,
     MeterReading, createTestMeterReading, updateTestMeterReading,
-    MeterReadingTicket, createTestMeterReadingTicket, updateTestMeterReadingTicket,
-    MeterReadingTicketChange, createTestMeterReadingTicketChange, updateTestMeterReadingTicketChange,
-    MeterReadingTicketComment, createTestMeterReadingTicketComment, updateTestMeterReadingTicketComment,
-    MeterReadingTicketSource, createTestMeterReadingTicketSource, updateTestMeterReadingTicketSource,
+    MeterReadingSource, createTestMeterReadingSource, updateTestMeterReadingSource,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
