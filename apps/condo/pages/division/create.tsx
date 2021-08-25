@@ -5,7 +5,7 @@ import { useIntl } from '@core/next/intl'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
-import { CreateDivisionForm } from '../../domains/division/components/DivisionForm/CreateDivisionForm'
+import { CreateDivisionForm } from '@condo/domains/division/components/DivisionForm/CreateDivisionForm'
 
 interface ICreateDivisionPage extends React.FC {
     headerAction?: JSX.Element
