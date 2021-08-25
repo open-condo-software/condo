@@ -117,7 +117,7 @@ const DATA_FORMAT_SCHEMA = {
         hasServices: { type: 'boolean' },       // True if billingReceipt has services object: e.g cold water service
         hasServicesDetail: { type: 'boolean' }, // True if billingReceipt's services has detail: e.g debt and recalculation for cold water service
     },
-    required: ['hasToPayDetail', 'hasServices', 'hasServicesDetail', 'currency'],
+    required: ['hasToPayDetail', 'hasServices', 'hasServicesDetail'],
     additionalProperties: false,
 }
 
