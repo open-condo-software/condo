@@ -10,4 +10,5 @@ export * as MeterReading from './MeterReading'
 export * as MeterReadingChange from './MeterReadingChange'
 export * as MeterReading from './MeterReading'
 export * as MeterReadingTicket from './MeterReadingTicket'
+export * as MeterReadingTicketChange from './MeterReadingTicketChange'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

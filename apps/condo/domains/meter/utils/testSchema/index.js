@@ -14,6 +14,7 @@ const { Meter: MeterGQL } = require('@condo/domains/meter/gql')
 const { MeterSource: MeterSourceGQL } = require('@condo/domains/meter/gql')
 const { MeterReading: MeterReadingGQL } = require('@condo/domains/meter/gql')
 const { MeterReadingTicket: MeterReadingTicketGQL } = require('@condo/domains/meter/gql')
+const { MeterReadingTicketChange: MeterReadingTicketChangeGQL } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateGQLTestUtils(MeterResourceGQL)
@@ -21,6 +22,7 @@ const Meter = generateGQLTestUtils(MeterGQL)
 const MeterSource = generateGQLTestUtils(MeterSourceGQL)
 const MeterReading = generateGQLTestUtils(MeterReadingGQL)
 const MeterReadingTicket = generateGQLTestUtils(MeterReadingTicketGQL)
+const MeterReadingTicketChange = generateGQLTestUtils(MeterReadingTicketChangeGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestMeterResource (client, extraAttrs = {}) {
@@ -196,6 +198,39 @@ async function updateTestMeterReadingTicket (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestMeterReadingTicketChange (client, meterReadingTicket, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!meterReadingTicket || !meterReadingTicket.id) throw new Error('no meterReadingTicket.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestMeterReadingTicketChange logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        meterReadingTicket: { connect: { id: meterReadingTicket.id } },
+        ...extraAttrs,
+    }
+    const obj = await MeterReadingTicketChange.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestMeterReadingTicketChange (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestMeterReadingTicketChange logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await MeterReadingTicketChange.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -204,5 +239,6 @@ module.exports = {
     MeterSource, createTestMeterSource, updateTestMeterSource,
     MeterReading, createTestMeterReading, updateTestMeterReading,
     MeterReadingTicket, createTestMeterReadingTicket, updateTestMeterReadingTicket,
+    MeterReadingTicketChange, createTestMeterReadingTicketChange, updateTestMeterReadingTicketChange,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
