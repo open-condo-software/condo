@@ -66,13 +66,16 @@ const PdfView = () => {
         const specification = get(queryParams, 'specification', 'day')
         const viewMode = get(queryParams, 'viewMode', 'line')
         const ticketType = get(queryParams, 'ticketType', 'all')
-        const { AND, groupBy } = filterToQuery(
-            {
+        const { AND, groupBy } = filterToQuery({
+            viewMode,
+            ticketType,
+            filter: {
                 range: [moment(dateFrom), moment(dateTo)],
                 addressList,
                 specification,
-            }, viewMode, ticketType
-        )
+            },
+            mainGroup: 'status',
+        })
         groupByRef.current = groupBy
         const where = { organization: { id: userOrganizationId }, AND }
 
