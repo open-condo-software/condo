@@ -28,6 +28,9 @@ const MeterReadingTicket = generateGqlQueries('MeterReadingTicket', METER_READIN
 const METER_READING_TICKET_CHANGE_FIELDS = `{ meterReadingTicket { id } ${COMMON_FIELDS} }`
 const MeterReadingTicketChange = generateGqlQueries('MeterReadingTicketChange', METER_READING_TICKET_CHANGE_FIELDS)
 
+const METER_READING_TICKET_COMMENT_FIELDS = `{ meterReadingTicket { id } user { id } content ${COMMON_FIELDS} }`
+const MeterReadingTicketComment = generateGqlQueries('MeterReadingTicketComment', METER_READING_TICKET_COMMENT_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -37,6 +40,7 @@ module.exports = {
     MeterReading,
     MeterReadingTicket,
     MeterReadingTicketChange,
+    MeterReadingTicketComment,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
