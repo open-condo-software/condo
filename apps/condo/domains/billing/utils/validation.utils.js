@@ -116,17 +116,6 @@ const DATA_FORMAT_SCHEMA = {
         hasToPayDetail: { type: 'boolean' },    // True if billingReceipt has toPay detailization: e.g debt, recalculation fields
         hasServices: { type: 'boolean' },       // True if billingReceipt has services object: e.g cold water service
         hasServicesDetail: { type: 'boolean' }, // True if billingReceipt's services has detail: e.g debt and recalculation for cold water service
-        currency: {                             // Refs https://gist.github.com/Fluidbyte/2973986 Native delimiter refs https://www.texastech.edu/offices/treasury/currency-conversion.php
-            type: 'object',
-            properties: {
-                code: { type: 'string' },            // RUB
-                symbolNative: { type: 'string' },    // ₽.
-                decimalDigits: { type: 'number' },   // 2
-                rounding: { type: 'number' },        // 0
-                delimiterNative: { type: 'string' }, // ,    Native delimiter. Usually (.) but for some cultures (like RUB) the (,) is used
-            },
-            required: ['code', 'symbolNative', 'decimalDigits', 'rounding', 'delimiterNative'],
-        },
     },
     required: ['hasToPayDetail', 'hasServices', 'hasServicesDetail', 'currency'],
     additionalProperties: false,
@@ -142,6 +131,28 @@ function validateDataFormat ({ resolvedData, fieldPath, addFieldValidationError 
     }
 }
 
+// Refs https://gist.github.com/Fluidbyte/2973986 Native delimiter refs https://www.texastech.edu/offices/treasury/currency-conversion.php
+const CURRENCY_DISPLAY_INFO_SCHEMA = {
+    type: 'object',
+    properties: {
+        symbolNative: { type: 'string' },    // ₽
+        decimalDigits: { type: 'number' },   // 2
+        rounding: { type: 'number' },        // 0
+        delimiterNative: { type: 'string' }, // ,    Native delimiter. Usually (.) but for some cultures (like RUB) the (,) is used
+    },
+    required: ['symbolNative', 'decimalDigits', 'rounding', 'delimiterNative'],
+}
+
+const jsonCurrencyDisplayInfoValidator = ajv.compile(CURRENCY_DISPLAY_INFO_SCHEMA)
+
+function validateCurrencyDisplayInfo ({ resolvedData, fieldPath, addFieldValidationError }) {
+    if (!jsonCurrencyDisplayInfoValidator(resolvedData[fieldPath])) {
+        return jsonCurrencyDisplayInfoValidator.errors.forEach((error) => {
+            addFieldValidationError(`${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`)
+        })
+    }
+}
+
 module.exports = {
     validatePaymentDetails: validatePaymentDetails,
     validateServices: validateServices,
@@ -149,4 +160,5 @@ module.exports = {
     validatePeriod: validatePeriod,
     validateReport: validateReport,
     validateDataFormat: validateDataFormat,
+    validateCurrencyDisplayInfo: validateCurrencyDisplayInfo,
 }
