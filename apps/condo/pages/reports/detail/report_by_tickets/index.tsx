@@ -51,6 +51,7 @@ interface ITicketAnalyticsPage extends React.FC {
 }
 
 interface ITicketAnalyticsPageFilterProps {
+    viewMode: ViewModeTypes
     onChange?: ({ range, specification, addressList }: ticketAnalyticsPageFilters) => void
 }
 const FORM_ITEM_STYLE = {
@@ -81,7 +82,7 @@ const tabsCss = css`
   }
 `
 
-const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ onChange }) => {
+const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ viewMode, onChange }) => {
     const router = useRouter()
     const intl = useIntl()
     const PeriodTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.PeriodTitle' })
@@ -111,8 +112,9 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
             createdAt_gte: endDate.toISOString(),
             specification,
             addressList: JSON.stringify(addressListRef.current),
+            viewMode,
         }))
-    }, [dateRange, specification, addressList])
+    }, [dateRange, specification, addressList, viewMode])
 
     useEffect(() => {
         const queryParams = getQueryParams()
@@ -135,10 +137,15 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
         dateRangePreset !== null && setDateRange(DATE_RANGE_PRESETS[dateRangePreset])
     }, [dateRangePreset])
 
+    useEffect(() => {
+        updateUrlFilters()
+    }, [viewMode])
+
+
     const applyFilters = useCallback(() => {
         updateUrlFilters()
         onChange({ range: dateRange, specification, addressList: addressListRef.current })
-    }, [dateRange, specification, addressList])
+    }, [dateRange, specification, addressList, viewMode])
 
     const searchAddress = useCallback(
         (client, query) => {
@@ -159,7 +166,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
 
     return (
         <Form>
-            <Row gutter={[44, 12]} wrap>
+            <Row gutter={[44, 12]}>
                 <Col flex={0}>
                     <Form.Item label={PeriodTitle} {...FORM_ITEM_STYLE} style={{ width: 240 }}>
                         <DateRangePicker
@@ -384,6 +391,11 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     }
 
     useEffect(() => {
+        const queryParams = getQueryParams()
+        setViewMode(get(queryParams, 'viewMode', 'line'))
+    }, [])
+
+    useEffect(() => {
         getAnalyticsData()
     }, [groupTicketsBy, userOrganizationId, ticketType, viewMode])
 
@@ -445,7 +457,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         </Tabs>
                     </Col>
                     <Col span={24}>
-                        <TicketAnalyticsPageFilter onChange={onFilterChange} />
+                        <TicketAnalyticsPageFilter onChange={onFilterChange} viewMode={viewMode} />
                         <Divider style={{ padding: 0, marginTop: 40, marginBottom: 16 }} />
                     </Col>
                     <Col span={16}>

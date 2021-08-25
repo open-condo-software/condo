@@ -58,7 +58,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
         },
         grid: {
             left: 0,
-            right: 0,
+            right: 10,
             bottom: 0,
             containLabel: true,
             borderWidth: 1,
