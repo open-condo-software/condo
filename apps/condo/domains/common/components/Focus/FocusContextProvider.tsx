@@ -10,6 +10,8 @@ const FocusContext = React.createContext<IFocusContext>({})
 
 export const useFocusContext = () => useContext<IFocusContext>(FocusContext)
 
+const DEFAULT_FOCUS_TIMEOUT = 8000
+
 export const FocusContextProvider: React.FC = (props) => {
     const router = useRouter()
     const [isFocusVisible, setIsFocusVisible] = useState(false)
@@ -32,7 +34,7 @@ export const FocusContextProvider: React.FC = (props) => {
                 timeoutId.current = setTimeout(() => {
                     setIsFocusVisible(false)
                     timeoutId.current = null
-                }, 8000)
+                }, DEFAULT_FOCUS_TIMEOUT)
             }
         }
     }, [])
