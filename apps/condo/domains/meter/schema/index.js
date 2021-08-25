@@ -9,6 +9,7 @@ const { MeterSource } = require('./MeterSource')
 const { MeterReading } = require('./MeterReading')
 const { MeterReadingChange } = require('./MeterReadingChange')
 const { MeterReading } = require('./MeterReading')
+const { MeterReadingTicket } = require('./MeterReadingTicket')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -18,5 +19,6 @@ module.exports = {
     MeterReading,
     MeterReadingChange,
     MeterReading,
+    MeterReadingTicket,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
