@@ -56,7 +56,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         /**
          * A note on toPay:
          *
-         * We store all payment data as a string, with (.) as delimiter:
+         * We store money in all currencies as a string, with (.) as delimiter:
          * We store currency in BillingIntegration in this format. This information helps client to distinguish the partial part:
          *
          * refs: https://gist.github.com/Fluidbyte/2973986
