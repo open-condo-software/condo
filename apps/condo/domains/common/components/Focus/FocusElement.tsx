@@ -39,7 +39,6 @@ const FocusWrapper = styled.div`
       0% {
         opacity: 0;
       }
-
       50% {
         opacity: 50%;
       }
