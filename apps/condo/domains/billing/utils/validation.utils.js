@@ -7,13 +7,13 @@ const PAYMENT_SCHEMA = {
     type: 'object',
     properties: {
         formula: { type: 'string' },
-        charge: { type: 'number' },
+        charge: { type: 'string' },
         measure: { type: 'string' },
-        tariff: { type: 'number' },
-        balance: { type: 'number' },
-        recalculation: { type: 'number' },
-        privilege: { type: 'number' },
-        penalty: { type: 'number' },
+        tariff: { type: 'string' },
+        balance: { type: 'string' },
+        recalculation: { type: 'string' },
+        privilege: { type: 'string' },
+        penalty: { type: 'string' },
     },
     required: ['formula'],
     additionalProperties: false,
@@ -36,7 +36,7 @@ const SERVICES_WITH_PAYMENT_SCHEMA = {
         properties: {
             id: { type: 'string' },
             name: { type: 'string' },
-            toPay: { type: 'number' },
+            toPay: { type: 'string' },
             toPayDetails: PAYMENT_SCHEMA,
         },
         // todo(toplenboren) discuss the analytics and standartization service for services
