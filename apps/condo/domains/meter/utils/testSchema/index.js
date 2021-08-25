@@ -11,20 +11,20 @@ const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/ut
 
 const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
 const { Meter: MeterGQL } = require('@condo/domains/meter/gql')
-const { MeterSource: MeterSourceGQL } = require('@condo/domains/meter/gql')
 const { MeterReading: MeterReadingGQL } = require('@condo/domains/meter/gql')
 const { MeterReadingTicket: MeterReadingTicketGQL } = require('@condo/domains/meter/gql')
 const { MeterReadingTicketChange: MeterReadingTicketChangeGQL } = require('@condo/domains/meter/gql')
 const { MeterReadingTicketComment: MeterReadingTicketCommentGQL } = require('@condo/domains/meter/gql')
+const { MeterReadingTicketSource: MeterReadingTicketSourceGQL } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateGQLTestUtils(MeterResourceGQL)
 const Meter = generateGQLTestUtils(MeterGQL)
-const MeterSource = generateGQLTestUtils(MeterSourceGQL)
 const MeterReading = generateGQLTestUtils(MeterReadingGQL)
 const MeterReadingTicket = generateGQLTestUtils(MeterReadingTicketGQL)
 const MeterReadingTicketChange = generateGQLTestUtils(MeterReadingTicketChangeGQL)
 const MeterReadingTicketComment = generateGQLTestUtils(MeterReadingTicketCommentGQL)
+const MeterReadingTicketSource = generateGQLTestUtils(MeterReadingTicketSourceGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestMeterResource (client, extraAttrs = {}) {
@@ -90,39 +90,6 @@ async function updateTestMeter (client, id, extraAttrs = {}) {
         ...extraAttrs,
     }
     const obj = await Meter.update(client, id, attrs)
-    return [obj, attrs]
-}
-
-async function createTestMeterSource (client, organization, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!organization || !organization.id) throw new Error('no organization.id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestMeterSource logic for generate fields
-
-    const attrs = {
-        dv: 1,
-        sender,
-        organization: { connect: { id: organization.id } },
-        ...extraAttrs,
-    }
-    const obj = await MeterSource.create(client, attrs)
-    return [obj, attrs]
-}
-
-async function updateTestMeterSource (client, id, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!id) throw new Error('no id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestMeterSource logic for generate fields
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const obj = await MeterSource.update(client, id, attrs)
     return [obj, attrs]
 }
 
@@ -268,15 +235,48 @@ async function updateTestMeterReadingTicketComment (client, id, extraAttrs = {})
     return [obj, attrs]
 }
 
+async function createTestMeterReadingTicketSource (client, organization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestMeterReadingTicketSource logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        organization: { connect: { id: organization.id } },
+        ...extraAttrs,
+    }
+    const obj = await MeterReadingTicketSource.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestMeterReadingTicketSource (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestMeterReadingTicketSource logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await MeterReadingTicketSource.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     MeterResource, createTestMeterResource, updateTestMeterResource,
     Meter, createTestMeter, updateTestMeter,
-    MeterSource, createTestMeterSource, updateTestMeterSource,
     MeterReading, createTestMeterReading, updateTestMeterReading,
     MeterReadingTicket, createTestMeterReadingTicket, updateTestMeterReadingTicket,
     MeterReadingTicketChange, createTestMeterReadingTicketChange, updateTestMeterReadingTicketChange,
     MeterReadingTicketComment, createTestMeterReadingTicketComment, updateTestMeterReadingTicketComment,
+    MeterReadingTicketSource, createTestMeterReadingTicketSource, updateTestMeterReadingTicketSource,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
