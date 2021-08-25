@@ -24,6 +24,7 @@ const { BillingAccountMeterReading: BillingAccountMeterReadingGQL } = require('@
 const { BillingReceipt: BillingReceiptGQL } = require('@condo/domains/billing/gql')
 const { BillingOrganization: BillingOrganizationGQL } = require('@condo/domains/billing/gql')
 const { ResidentBillingReceipt: ResidentBillingReceiptGQL } = require('@condo/domains/billing/gql')
+const { BillingCurrency: BillingCurrencyGQL } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateGQLTestUtils(BillingIntegrationGQL)
@@ -38,6 +39,7 @@ const BillingAccountMeterReading = generateGQLTestUtils(BillingAccountMeterReadi
 const BillingReceipt = generateGQLTestUtils(BillingReceiptGQL)
 const BillingOrganization = generateGQLTestUtils(BillingOrganizationGQL)
 const ResidentBillingReceipt = generateGQLTestUtils(ResidentBillingReceiptGQL)
+const BillingCurrency = generateGQLTestUtils(BillingCurrencyGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestBillingIntegration (client, extraAttrs = {}) {
@@ -507,6 +509,7 @@ module.exports = {
     makeOrganizationIntegrationManager: createOrganizationIntegrationManager,
     BillingOrganization, createTestBillingOrganization, updateTestBillingOrganization,
     ResidentBillingReceipt,
+    BillingCurrency, createTestBillingCurrency, updateTestBillingCurrency,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
