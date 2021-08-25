@@ -11,36 +11,31 @@ const access = require('@condo/domains/meter/access/MeterReading')
 
 
 const MeterReading = new GQLListSchema('MeterReading', {
-    // TODO(codegen): write doc for the MeterReading domain model!
-    schemaDoc: 'TODO DOC!',
+    schemaDoc: 'Meter reading taken from a client',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
         account: {
-            // TODO(codegen): write doc for MeterReading.account field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Client\'s billing account',
             type: Relationship,
             ref: 'BillingAccount',
         },
 
         billingAccountMeter: {
-            // TODO(codegen): write doc for MeterReading.billingAccountMeter field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Link to BillingAccountMeter if it exist in billing context',
             type: Relationship,
             ref: 'BillingAccountMeter',
         },
 
         date: {
-            // TODO(codegen): write doc for MeterReading.date field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Date when the readings were taken',
             type: DateTimeUtc,
             isRequired: true,
         },
 
         meter: {
-            // TODO(codegen): write doc for MeterReading.meter field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Meter from which readings were taken',
             type: Relationship,
             ref: 'Meter',
             isRequired: true,
@@ -49,8 +44,7 @@ const MeterReading = new GQLListSchema('MeterReading', {
         },
 
         value: {
-            // TODO(codegen): write doc for MeterReading.value field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Numerical value on the meter at the time of taking readings',
             type: Integer,
             isRequired: true,
         },

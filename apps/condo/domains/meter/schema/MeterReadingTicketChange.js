@@ -16,15 +16,13 @@ const { generateChangeTrackableFieldsFrom } = require('../../common/utils/server
 
 
 const MeterReadingTicketChange = new GQLListSchema('MeterReadingTicketChange', {
-    // TODO(codegen): write doc for the MeterReadingTicketChange domain model!
-    schemaDoc: 'TODO DOC!',
+    schemaDoc: 'Incremental changes of MeterReadingTicket',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
         meterReadingTicket: {
-            // TODO(codegen): write doc for MeterReadingTicketChange.meterReadingTicket field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Related meters reading ticket, whose change is logged in this entity',
             type: Relationship,
             ref: 'MeterReadingTicket',
             isRequired: true,
