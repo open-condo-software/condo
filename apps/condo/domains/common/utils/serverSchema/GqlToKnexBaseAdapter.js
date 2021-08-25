@@ -11,8 +11,8 @@ class GqlToKnexBaseAdapter {
 
     /**
      * Formatting GQL expressions to Knex data structure
-     * Converts Keystone GraphQL `…WhereInput` conditions to shape.
-     * That will be used by working with Knex methods, described at https://knexjs.org/#Builder-where
+     * Converts Keystone GraphQL `…WhereInput` conditions to shape, that will be used
+     * for working with Knex methods, described at https://knexjs.org/#Builder-where
      * @param domainName {string} the table for which the query will be executed
      * @param where {Object} GQL where condition
      * @param groupBy {Array} fields in domainName table that should be applied to result
