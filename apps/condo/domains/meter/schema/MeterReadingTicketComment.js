@@ -11,15 +11,13 @@ const access = require('@condo/domains/meter/access/MeterReadingTicketComment')
 
 
 const MeterReadingTicketComment = new GQLListSchema('MeterReadingTicketComment', {
-    // TODO(codegen): write doc for the MeterReadingTicketComment domain model!
-    schemaDoc: 'TODO DOC!',
+    schemaDoc: 'Textual comment for meters reading tickets',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
         meterReadingTicket: {
-            // TODO(codegen): write doc for MeterReadingTicketComment.meterReadingTicket field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Related meter reading ticket of the comment',
             type: Relationship,
             ref: 'MeterReadingTicket',
             isRequired: true,
@@ -28,8 +26,7 @@ const MeterReadingTicketComment = new GQLListSchema('MeterReadingTicketComment',
         },
 
         user: {
-            // TODO(codegen): write doc for MeterReadingTicketComment.user field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'User, who created the comment',
             type: Relationship,
             ref: 'User',
             isRequired: true,
@@ -38,8 +35,7 @@ const MeterReadingTicketComment = new GQLListSchema('MeterReadingTicketComment',
         },
 
         content: {
-            // TODO(codegen): write doc for MeterReadingTicketComment.content field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Plain text content',
             type: Text,
             isRequired: true,
         },
