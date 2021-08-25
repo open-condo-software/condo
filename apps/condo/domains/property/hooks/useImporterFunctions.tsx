@@ -66,7 +66,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         const address = get(row.addons, ['suggestion', 'value'])
         if (!address) return Promise.resolve(false)
         const where = {
-            address_contains_i: address,
+            address: address,
             organization: { id: userOrganizationId },
         }
         return searchProperty(client, where, undefined)
