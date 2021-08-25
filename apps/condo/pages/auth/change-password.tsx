@@ -1,7 +1,7 @@
 import Router from 'next/router'
 
 import { useIntl } from '@core/next/intl'
-import { Form, Input, Typography } from 'antd'
+import { Col, Form, Input, Row, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import AuthLayout, { AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
 import React, { useState, useEffect, useContext } from 'react'
@@ -17,7 +17,10 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayoutContext'
 
-const INPUT_STYLE = { width: '20em' }
+const FORM_LAYOUT = {
+    labelCol: { span: 10 },
+    wrapperCol: { span: 14 },
+}
 
 const ChangePasswordPage: AuthPage = () => {
     const [form] = Form.useForm()
@@ -61,7 +64,7 @@ const ChangePasswordPage: AuthPage = () => {
             }),
         ],
     }
-    const authLayoutContext = useContext(AuthLayoutContext)
+    const { signInByEmail } = useContext(AuthLayoutContext)
 
     const onFinish = (values: typeof initialValues) => {
         setIsSaving(true)
@@ -70,19 +73,16 @@ const ChangePasswordPage: AuthPage = () => {
             mutation: changePassword,
             variables: { data: { token, password } },
             onCompleted: async ({ data: { result } }) => {
-                try {
-                    await authLayoutContext.signInByEmail({
-                        email: result.email,
-                        password: form.getFieldValue('password'),
-                    }, () => {
-                        auth.refetch().then(() => {
-                            Router.push( '/')
-                        })
+                console.log(result)
+                await signInByEmail({
+                    email: result.email,
+                    password: form.getFieldValue('password'),
+                }, () => {
+                    auth.refetch().then(() => {
+                        setIsSaving(false)
+                        Router.push( '/')
                     })
-                }
-                finally {
-                    setIsSaving(false)
-                }
+                })
             },
             intl,
             form,
@@ -128,59 +128,70 @@ const ChangePasswordPage: AuthPage = () => {
     }
 
     return (
-        <div >
-            <Typography.Title style={{ textAlign: 'left' }}>{ResetTitle}</Typography.Title>
-            <Typography.Paragraph style={{ textAlign: 'left' }} >{CreateNewPasswordMsg}</Typography.Paragraph>
+        <Row gutter={[0, 40]}>
+            <Col span={24}>
+                <Typography.Title style={{ textAlign: 'left' }}>{ResetTitle}</Typography.Title>
+                <Typography.Paragraph style={{ textAlign: 'left' }} >{CreateNewPasswordMsg}</Typography.Paragraph>
+            </Col>
 
-            <Form
-                form={form}
-                name="change-password"
-                onFinish={onFinish}
-                initialValues={initialValues}
-                colon={false}
-                style={{ marginTop: '40px' }}
-                requiredMark={false}
-            >
-                <Form.Item name="token" style={{ display: 'none' }}>
-                    <Input type="hidden" />
-                </Form.Item>
-                <Form.Item
-                    name="password"
-                    label={PasswordMsg}
-                    labelAlign='left'
-                    labelCol={{ flex: 1 }}
-                    rules={validations.password}
+            <Col span={24}>
+                <Form
+                    {...FORM_LAYOUT}
+                    form={form}
+                    name="change-password"
+                    onFinish={onFinish}
+                    initialValues={initialValues}
+                    colon={false}
+                    requiredMark={false}
                 >
-                    <Input.Password style={INPUT_STYLE}/>
-                </Form.Item>
-                <Form.Item
-                    name="confirm"
-                    label={ConfirmPasswordMsg}
-                    labelAlign='left'
-                    labelCol={{ flex: 1 }}
-                    style={{ marginTop: '40px' }}
-                    dependencies={['password']}
-                    rules={validations.confirmPassword}
-                >
-                    <Input.Password  style={INPUT_STYLE}/>
-                </Form.Item>
-                <div style={{ marginTop: '60px', display: 'flex', justifyContent: 'flex-start' }}>
-                    <Form.Item >
-                        <Button
-                            key='submit'
-                            type='sberPrimary'
-                            loading={isSaving}
-                            htmlType="submit"
-                        >
-                            {SaveMsg}
-                        </Button>
-                        <Typography.Text type='secondary' style={{ marginLeft: '20px' }}>
-                            {AndSignInMsg}
-                        </Typography.Text>
-                    </Form.Item>
-                </div>
-            </Form>
-        </div>
+                    <Row gutter={[0, 60]}>
+                        <Form.Item name="token" style={{ display: 'none' }}>
+                            <Input type="hidden" />
+                        </Form.Item>
+                        <Col span={24}>
+                            <Row gutter={[0, 24]}>
+                                <Col span={24}>
+                                    <Form.Item
+                                        name="password"
+                                        label={PasswordMsg}
+                                        labelAlign='left'
+                                        rules={validations.password}
+                                    >
+                                        <Input.Password />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={24}>
+                                    <Form.Item
+                                        name="confirm"
+                                        label={ConfirmPasswordMsg}
+                                        labelAlign='left'
+                                        dependencies={['password']}
+                                        rules={validations.confirmPassword}
+                                    >
+                                        <Input.Password />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                        </Col>
+                        <Col span={24}>
+                            <Form.Item >
+                                <Button
+                                    key='submit'
+                                    type='sberPrimary'
+                                    loading={isSaving}
+                                    htmlType="submit"
+                                >
+                                    {SaveMsg}
+                                </Button>
+                                <Typography.Text type='secondary' style={{ marginLeft: '20px' }}>
+                                    {AndSignInMsg}
+                                </Typography.Text>
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                </Form>
+            </Col>
+        </Row>
     )
 }
 
