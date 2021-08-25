@@ -1,18 +1,18 @@
-const { MeterReadingChange } = '@condo/domains/meter/utils/serverSchema'
+const { MeterReadingChange: MeterReadingTicketChange } = '@condo/domains/meter/utils/serverSchema'
 const { get } = require('lodash')
 const { getById } = require('@core/keystone/schema')
 
 
-const OMIT_METER_READING_CHANGE_TRACKABLE_FIELDS = ['v', 'dv', 'sender', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy']
+const OMIT_METER_READING_TICKET_CHANGE_TRACKABLE_FIELDS = ['v', 'dv', 'sender', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy']
 
-const createMeterReadingChange = async (fieldsChanges, { existingItem, updatedItem, context }) => {
+const createMeterReadingTicketChange = async (fieldsChanges, { existingItem, updatedItem, context }) => {
     const payload = {
         dv: 1,
         sender: updatedItem.sender,
         meterReading: { connect: { id: existingItem.id } },
         ...fieldsChanges,
     }
-    await MeterReadingChange.create(
+    await MeterReadingTicketChange.create(
         context.createContext({ skipAccessControl: true }),
         payload,
     )
@@ -23,15 +23,7 @@ const createMeterReadingChange = async (fieldsChanges, { existingItem, updatedIt
  * Will be displayed in UI in changes history block.
  * 👉 When a new single relation field will be added to Ticket, new resolver should be implemented here
  */
-const meterReadingChangeDisplayNameResolversForSingleRelations = {
-    'account': async (itemId) => {
-        const item = await getById('BillingAccount', itemId)
-        return get(item, 'number')
-    },
-    'meter': async (itemId) => {
-        const item = await getById('Meter', itemId)
-        return get(item, 'number')
-    },
+const meterReadingTicketChangeDisplayNameResolversForSingleRelations = {
     'organization': async (itemId) => {
         const item = await getById('Organization', itemId)
         return get(item, 'name')
@@ -54,9 +46,11 @@ const meterReadingChangeDisplayNameResolversForSingleRelations = {
     },
 }
 
+// TODO(nomerdvadcatpyat): write relatedManyToManyResolvers for meterReadings field
+
 
 module.exports = {
-    createMeterReadingChange,
-    meterReadingChangeDisplayNameResolversForSingleRelations,
-    OMIT_METER_READING_CHANGE_TRACKABLE_FIELDS,
+    createMeterReadingTicketChange,
+    meterReadingTicketChangeDisplayNameResolversForSingleRelations,
+    OMIT_METER_READING_TICKET_CHANGE_TRACKABLE_FIELDS,
 }

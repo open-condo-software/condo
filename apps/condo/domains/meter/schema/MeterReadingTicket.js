@@ -8,6 +8,11 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/meter/access/MeterReadingTicket')
+const { OMIT_METER_READING_TICKET_CHANGE_TRACKABLE_FIELDS } = require('@condo/domains/meter/utils/serverSchema/MeterReadingTicketChange')
+const { createMeterReadingTicketChange } = require('@condo/domains/meter/utils/serverSchema/MeterReadingTicketChange')
+const { meterReadingTicketChangeDisplayNameResolversForSingleRelations } = require('@condo/domains/meter/utils/serverSchema/MeterReadingTicketChange')
+const { buildSetOfFieldsToTrackFrom } = require('@condo/domains/common/utils/serverSchema/changeTrackable')
+const { storeChangesIfUpdated } = require('@condo/domains/common/utils/serverSchema/changeTrackable')
 
 
 const MeterReadingTicket = new GQLListSchema('MeterReadingTicket', {
@@ -111,7 +116,15 @@ const MeterReadingTicket = new GQLListSchema('MeterReadingTicket', {
             schemaDoc: 'TODO DOC!',
             type: Json,
         },
-
+    },
+    hooks: {
+        afterChange: async (...args) => {
+            await storeChangesIfUpdated(
+                buildSetOfFieldsToTrackFrom(MeterReadingTicket.schema, { except: OMIT_METER_READING_TICKET_CHANGE_TRACKABLE_FIELDS }),
+                createMeterReadingTicketChange,
+                meterReadingTicketChangeDisplayNameResolversForSingleRelations,
+            )(...args)
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
