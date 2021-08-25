@@ -431,9 +431,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                         }
                                     }
                                 </Form.Item>
-                                <Form.Item name={'source'} hidden>
-                                    <Input/>
-                                </Form.Item>
                             </Row>
                         </Col>
                         {props.children({ handleSave, isLoading, form })}
