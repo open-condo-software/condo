@@ -35,6 +35,8 @@ const BillingPage = () => {
         fetchPolicy: 'network-only',
     })
 
+    const PageTitle = get(currentContext, ['integration', 'billingPageTitle'], BillingTitle)
+
     return (
         <FeatureFlagRequired name={'billing'} fallback={<Error statusCode={404}/>}>
             <Head>
@@ -43,7 +45,7 @@ const BillingPage = () => {
                 </title>
             </Head>
             <PageWrapper>
-                <PageHeader title={<Typography.Title style={{ margin: 0 }}>{BillingTitle}</Typography.Title>}/>
+                <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitle}</Typography.Title>}/>
                 <PageContent>
                     <BillingPageContent
                         access={canManageIntegrations}
