@@ -574,5 +574,9 @@
   "Meters": "Meters",
   "DataFor": "Data for",
   "FeatureFlags.Modal.Title": "Feature Flags menu",
-  "FeatureFlags.Modal.Description": "Any changes made here would apply only after reload"
+  "FeatureFlags.Modal.Description": "Any changes made here would apply only after reload",
+  "RecordsLoaded": "{count, plural, =0 {# records} one {# record} other {# records}}",
+  "ThousandsRecordsLoaded": "{count, plural, one {# thousand} other {# thousands}} records",
+  "DataWasUploadedOnPrefix": "The data was uploaded on",
+  "DataWasUploadedOnSuffix": " at"
 }

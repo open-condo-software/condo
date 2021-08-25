@@ -575,5 +575,9 @@
   "Meters": "ИПУ",
   "DataFor": "Данные за",
   "FeatureFlags.Modal.Title": "Флаги функций",
-  "FeatureFlags.Modal.Description": "Все изменения будут применены только после перезагрузки страницы"
+  "FeatureFlags.Modal.Description": "Все изменения будут применены только после перезагрузки страницы",
+  "RecordsLoaded": "{count, plural, =0 {# записей} one {# запись} few {# записи} many {# записей}}",
+  "ThousandsRecordsLoaded": "{count, plural, one {# тясяча} few {# тысячи} many {# тысяч}} записей",
+  "DataWasUploadedOnPrefix": "Данные загружены",
+  "DataWasUploadedOnSuffix": ", в"
 }
