@@ -206,7 +206,7 @@ describe('Resident', () => {
                 expect(obj.residentOrganization).toBeDefined()
                 expect(obj.residentOrganization.id).toEqual(userClient.organization.id)
                 expect(obj.residentOrganization.name).toEqual(userClient.organization.name)
-                expect(Object.keys(obj.residentOrganization).length).toEqual(2)
+                expect(Object.keys(obj.residentOrganization)).toHaveLength(2)
             })
 
             it('returns null if no related organization', async () => {
@@ -232,7 +232,7 @@ describe('Resident', () => {
                 expect(obj.residentProperty.id).toEqual(userClient.property.id)
                 expect(obj.residentProperty.name).toEqual(userClient.property.name)
                 expect(obj.residentProperty.address).toEqual(userClient.property.address)
-                expect(Object.keys(obj.residentProperty).length).toEqual(3)
+                expect(Object.keys(obj.residentProperty)).toHaveLength(3)
             })
 
             it('returns null if no related property', async () => {

@@ -19,17 +19,8 @@ const Meter = generateGqlQueries('Meter', METER_FIELDS)
 const METER_READING_FIELDS = `{ account { id } billingAccountMeter { id } date meter { id } value ${COMMON_FIELDS} }`
 const MeterReading = generateGqlQueries('MeterReading', METER_READING_FIELDS)
 
-const METER_READING_TICKET_FIELDS = `{ number property { id } organization { id } sectionName floorName unitName client { id } clientName clientEmail clientPhone contact { id } source { id } sourceMeta ${COMMON_FIELDS} }`
-const MeterReadingTicket = generateGqlQueries('MeterReadingTicket', METER_READING_TICKET_FIELDS)
-
-const METER_READING_TICKET_CHANGE_FIELDS = `{ meterReadingTicket { id } ${COMMON_FIELDS} }`
-const MeterReadingTicketChange = generateGqlQueries('MeterReadingTicketChange', METER_READING_TICKET_CHANGE_FIELDS)
-
-const METER_READING_TICKET_COMMENT_FIELDS = `{ meterReadingTicket { id } user { id } content ${COMMON_FIELDS} }`
-const MeterReadingTicketComment = generateGqlQueries('MeterReadingTicketComment', METER_READING_TICKET_COMMENT_FIELDS)
-
-const METER_READING_TICKET_SOURCE_FIELDS = `{ organization { id } type name ${COMMON_FIELDS} }`
-const MeterReadingTicketSource = generateGqlQueries('MeterReadingTicketSource', METER_READING_TICKET_SOURCE_FIELDS)
+const METER_READING_SOURCE_FIELDS = `{ organization { id } type name ${COMMON_FIELDS} }`
+const MeterReadingSource = generateGqlQueries('MeterReadingSource', METER_READING_SOURCE_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -37,10 +28,7 @@ module.exports = {
     MeterResource,
     Meter,
     MeterReading,
-    MeterReadingTicket,
-    MeterReadingTicketChange,
-    MeterReadingTicketComment,
-    MeterReadingTicketSource,
+    MeterReadingSource,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
