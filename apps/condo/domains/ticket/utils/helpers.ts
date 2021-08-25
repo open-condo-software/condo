@@ -375,6 +375,8 @@ export const formatDate = (intl, dateStr?: string): string => {
 
 export type specificationTypes = 'day' | 'week' | 'month'
 export type addressPickerType = { id: string; value: string; }
+export type GroupTicketsByTypes = 'status' | 'property' | 'category' | 'user' | 'responsible'
+
 export type ticketAnalyticsPageFilters = {
     range: [Moment, Moment];
     specification: specificationTypes;
@@ -383,20 +385,29 @@ export type ticketAnalyticsPageFilters = {
 
 interface IFilterToQuery {
     (
-        filter: ticketAnalyticsPageFilters,
-        viewMode: ViewModeTypes,
-        ticketType: TicketSelectTypes
+        { filter, viewMode, ticketType, mainGroup }:
+        {
+            filter: ticketAnalyticsPageFilters,
+            viewMode: ViewModeTypes,
+            ticketType: TicketSelectTypes,
+            mainGroup: GroupTicketsByTypes
+        }
     ): { AND: TicketWhereInput['AND'], groupBy: TicketAnalyticsGroupBy[] }
 }
 
-export const filterToQuery: IFilterToQuery = (filter, viewMode, ticketType) => {
+export const filterToQuery: IFilterToQuery = ({ filter, viewMode, ticketType, mainGroup }) => {
     const [dateFrom, dateTo] = filter.range
-    const groupBy = []
-
-    if (viewMode === 'line') {
-        groupBy.push(...['status', filter.specification])
-    } else {
-        groupBy.push(...['status', 'property'])
+    let groupBy = []
+    switch (mainGroup) {
+        case 'status':
+            groupBy = viewMode === 'line' ? [mainGroup, filter.specification] : [mainGroup, 'property']
+            break
+        case 'property':
+        case 'category':
+        case 'responsible':
+        case 'user':
+        default:
+            throw new Error('unknown or not implemented filter')
     }
 
     const AND: TicketWhereInput['AND'] = [

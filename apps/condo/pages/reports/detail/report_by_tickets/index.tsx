@@ -34,7 +34,7 @@ import DateRangePicker from '@condo/domains/common/components/DateRangePicker'
 import TicketChart, { ViewModeTypes, TicketSelectTypes } from '@condo/domains/ticket/components/TicketChart'
 import {
     filterToQuery,
-    getAggregatedData,
+    getAggregatedData, GroupTicketsByTypes,
     specificationTypes,
     ticketAnalyticsPageFilters,
 } from '@condo/domains/ticket/utils/helpers'
@@ -68,7 +68,6 @@ const DATE_RANGE_PRESETS = {
     quarter: [moment().subtract(1, 'quarter'), moment()],
     year: [moment().subtract(1, 'year'), moment()],
 }
-type groupTicketsByTypes = 'status' | 'property' | 'category' | 'user' | 'responsible'
 
 const tabsCss = css`
   & .ant-tabs-tab.ant-tabs-tab-active {
@@ -246,7 +245,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
 
     const filtersRef = useRef(null)
     const mapperInstanceRef = useRef(null)
-    const [groupTicketsBy, setGroupTicketsBy] = useState<groupTicketsByTypes>('status')
+    const [groupTicketsBy, setGroupTicketsBy] = useState<GroupTicketsByTypes>('status')
     const [viewMode, setViewMode] = useState<ViewModeTypes>('line')
     const [analyticsData, setAnalyticsData] = useState(null)
     const [loading, setLoading] = useState<boolean>(false)
@@ -266,7 +265,9 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
         fetchPolicy: 'network-only',
         onCompleted: response => {
             const { result: { groups } } = response
-            const { groupBy } = filterToQuery(filtersRef.current, viewMode, ticketType)
+            const { groupBy } = filterToQuery(
+                { filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy }
+            )
 
             setAnalyticsData(getAggregatedData(groups, groupBy))
             setLoading(false)
@@ -287,7 +288,9 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     const getAnalyticsData = () => {
         if (filtersRef.current !== null) {
             setLoading(true)
-            const { AND, groupBy } = filterToQuery(filtersRef.current, viewMode, ticketType)
+            const { AND, groupBy } = filterToQuery(
+                { filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy }
+            )
             mapperInstanceRef.current = new TicketChart({
                 line: {
                     chart: (viewMode, data) => {
@@ -445,7 +448,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
 
     const downloadExcel = useCallback(
         () => {
-            const { AND, groupBy } = filterToQuery(filtersRef.current, viewMode, ticketType)
+            const { AND, groupBy } = filterToQuery({ filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy })
             const where = { organization: { id: userOrganizationId }, AND }
             const translates = {
                 property: filtersRef.current.addressList.length ?
@@ -491,7 +494,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                             css={tabsCss}
                             defaultActiveKey='status'
                             activeKey={groupTicketsBy}
-                            onChange={(key) => setGroupTicketsBy(key as groupTicketsByTypes)}
+                            onChange={(key) => setGroupTicketsBy(key as GroupTicketsByTypes)}
                         >
                             <Tabs.TabPane key='status' tab={StatusFilterLabel} />
                             <Tabs.TabPane disabled key='property' tab={PropertyFilterLabel} />
