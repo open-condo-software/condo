@@ -11,6 +11,7 @@ const MAX_SMS_FOR_PHONE_BY_DAY = 20
 
 // Value of `User.type`, that indicates, that this user is a resident (from mobile client).
 const RESIDENT = 'resident'
+const STAFF = 'staff'
 
 module.exports = {
     MIN_PASSWORD_LENGTH,
@@ -24,4 +25,5 @@ module.exports = {
     MAX_SMS_FOR_IP_BY_DAY,
     MAX_SMS_FOR_PHONE_BY_DAY,
     RESIDENT,
+    STAFF,
 }
