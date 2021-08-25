@@ -263,10 +263,10 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
         },
         fetchPolicy: 'network-only',
         onCompleted: response => {
-            const { result: { result } } = response
+            const { result: { groups } } = response
             const { groupBy } = filterToQuery(filtersRef.current, viewMode, ticketType)
 
-            setAnalyticsData(getAggregatedData(result, groupBy))
+            setAnalyticsData(getAggregatedData(groups, groupBy))
             setLoading(false)
         },
     })

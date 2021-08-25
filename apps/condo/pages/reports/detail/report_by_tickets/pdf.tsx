@@ -52,9 +52,9 @@ const PdfView = () => {
         fetchPolicy: 'network-only',
         onCompleted: response => {
             setLoading(false)
-            const { result: { result } } = response
+            const { result: { groups } } = response
 
-            setData(getAggregatedData(result, groupByRef.current))
+            setData(getAggregatedData(groups, groupByRef.current))
         },
     })
     useEffect(() => {

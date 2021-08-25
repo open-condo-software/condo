@@ -15,7 +15,7 @@ describe('TicketAnalyticsReportService', () => {
             await createTestTicket(client, client.organization, client.property)
             const dateStart = moment().startOf('week')
             const dateEnd = moment().endOf('week')
-            const { data: { result: { result } } } = await client.query(TICKET_ANALYTICS_REPORT_QUERY, {
+            const { data: { result: { groups } } } = await client.query(TICKET_ANALYTICS_REPORT_QUERY, {
                 dv: 1,
                 sender: { dv: 1, fingerprint: 'tests' },
                 data: {
@@ -29,9 +29,9 @@ describe('TicketAnalyticsReportService', () => {
                     groupBy: [ 'day', 'status' ],
                 },
             })
-            expect(result).toBeDefined()
-            expect(result).toHaveLength(1)
-            expect(result[0].count).toEqual(2)
+            expect(groups).toBeDefined()
+            expect(groups).toHaveLength(1)
+            expect(groups[0].count).toEqual(2)
         })
 
         it('can read TicketAnalyticsReportService grouped counts [status, day]', async () => {
@@ -41,7 +41,7 @@ describe('TicketAnalyticsReportService', () => {
             await createTestTicket(client, client.organization, client.property, { isEmergency: true })
             const dateStart = moment().startOf('week')
             const dateEnd = moment().endOf('week')
-            const { data: { result: { result } } } = await client.query(TICKET_ANALYTICS_REPORT_QUERY, {
+            const { data: { result: { groups } } } = await client.query(TICKET_ANALYTICS_REPORT_QUERY, {
                 dv: 1,
                 sender: { dv: 1, fingerprint: 'tests' },
                 data: {
@@ -56,9 +56,9 @@ describe('TicketAnalyticsReportService', () => {
                     groupBy: [ 'status', 'day' ],
                 },
             })
-            expect(result).toBeDefined()
-            expect(result).toHaveLength(1)
-            expect(result[0].count).toEqual(1)
+            expect(groups).toBeDefined()
+            expect(groups).toHaveLength(1)
+            expect(groups[0].count).toEqual(1)
         })
 
         it('can read TicketAnalyticsReportService groupped with property filter', async () => {
@@ -69,7 +69,7 @@ describe('TicketAnalyticsReportService', () => {
 
             const dateStart = moment().startOf('week')
             const dateEnd = moment().endOf('week')
-            const { data: { result: { result } } } = await client.query(TICKET_ANALYTICS_REPORT_QUERY, {
+            const { data: { result: { groups } } } = await client.query(TICKET_ANALYTICS_REPORT_QUERY, {
                 dv: 1,
                 sender: { dv: 1, fingerprint: 'tests' },
                 data: {
@@ -86,10 +86,10 @@ describe('TicketAnalyticsReportService', () => {
                     groupBy: [ 'property', 'status' ],
                 },
             })
-            expect(result).toBeDefined()
-            expect(result).toHaveLength(1)
-            expect(result[0].count).toEqual(1)
-            expect(result[0].property).toEqual(client.property.address)
+            expect(groups).toBeDefined()
+            expect(groups).toHaveLength(1)
+            expect(groups[0].count).toEqual(1)
+            expect(groups[0].property).toEqual(client.property.address)
         })
 
         it('can not read TicketAnalyticsReportService from another organization', async () => {
@@ -98,7 +98,7 @@ describe('TicketAnalyticsReportService', () => {
             const wrongClient = await makeClientWithProperty()
             const dateStart = moment().startOf('week')
             const dateEnd = moment().endOf('week')
-            const { data: { result: { result: emptyResult } } } = await wrongClient.query(TICKET_ANALYTICS_REPORT_QUERY, {
+            const { data: { result: { groups: emptyGroups } } } = await wrongClient.query(TICKET_ANALYTICS_REPORT_QUERY, {
                 dv: 1,
                 sender: { dv:1, fingerprint: 'tests' },
                 data: {
@@ -113,7 +113,7 @@ describe('TicketAnalyticsReportService', () => {
                 },
             })
 
-            const { data: { result: { result } } } = await client.query(TICKET_ANALYTICS_REPORT_QUERY, {
+            const { data: { result: { groups } } } = await client.query(TICKET_ANALYTICS_REPORT_QUERY, {
                 dv: 1,
                 sender: { dv:1, fingerprint: 'tests' },
                 data: {
@@ -128,10 +128,10 @@ describe('TicketAnalyticsReportService', () => {
                 },
             })
 
-            expect(emptyResult).toMatchObject({})
-            expect(result).toBeDefined()
-            expect(result).toHaveLength(1)
-            expect(result[0].count).toEqual(1)
+            expect(emptyGroups).toMatchObject({})
+            expect(groups).toBeDefined()
+            expect(groups).toHaveLength(1)
+            expect(groups[0].count).toEqual(1)
         })
     })
 
