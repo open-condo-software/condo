@@ -9,10 +9,11 @@ import { searchProperty, searchContacts } from '@condo/domains/ticket/utils/clie
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 
-const SPLIT_PATTERN = /[, ;.]+/
+const SPLIT_PATTERN = /[,;.]+/g
 
 const parsePhones = (phones: string) => {
-    const splitPhones = phones.split(SPLIT_PATTERN)
+    const clearedPhones = phones.replace(/[^0-9+,;.]/g, '')
+    const splitPhones = clearedPhones.split(SPLIT_PATTERN)
     return splitPhones.map(phone => {
         if (phone.startsWith('8')) {
             phone = '+7' + phone.substring(1)
