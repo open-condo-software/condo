@@ -51,7 +51,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             if (suggestion) {
                 addons.address = suggestion.value
                 const where = {
-                    address_contains_i: suggestion.value,
+                    address: suggestion.value,
                     organization: { id: userOrganizationId },
                 }
                 // TODO (savelevMatthew): better way to detect building
