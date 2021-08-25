@@ -122,11 +122,10 @@ const DATA_FORMAT_SCHEMA = {
                 code: { type: 'string' },            // RUB
                 symbolNative: { type: 'string' },    // ₽.
                 decimalDigits: { type: 'number' },   // 2
-                symbol: { type: 'string' },          // RUB
                 rounding: { type: 'number' },        // 0
                 delimiterNative: { type: 'string' }, // ,    Native delimiter. Usually (.) but for some cultures (like RUB) the (,) is used
             },
-            required: ['code', 'symbolNative', 'decimalDigits'],
+            required: ['code', 'symbolNative', 'decimalDigits', 'rounding', 'delimiterNative'],
         },
     },
     required: ['hasToPayDetail', 'hasServices', 'hasServicesDetail', 'currencyFormat'],
