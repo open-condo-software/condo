@@ -1,5 +1,4 @@
 /** @jsx jsx */
-
 import { Select } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
@@ -83,18 +82,6 @@ export const OrganizationSelect: React.FC = () => {
             }
         }
     }, [userOrganizations, organizationLinksLoading, user, link])
-    // User without invites and organizations will be forced to create one
-
-    useEffect(() => {
-        if (!organizationLinksLoading && user){
-            if (!userOrganizations.length) {
-                // TODO(Dimitreee): think about better solution
-                if (router.pathname !== '/onboarding') {
-                    showCreateOrganizationModal(true)
-                }
-            }
-        }
-    }, [userOrganizations, organizationLinksLoading, showCreateOrganizationModal, user, router])
 
     const chooseOrganizationByLinkId = React.useCallback((value) => {
         selectLink({ id: value })
