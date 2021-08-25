@@ -9,4 +9,5 @@ export * as MeterSource from './MeterSource'
 export * as MeterReading from './MeterReading'
 export * as MeterReadingChange from './MeterReadingChange'
 export * as MeterReading from './MeterReading'
+export * as MeterReadingTicket from './MeterReadingTicket'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
