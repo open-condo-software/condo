@@ -97,6 +97,11 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
         [],
     )
 
+    const handleChange = (value, options) => {
+        setSearchValue(value) 
+        onChange(value, options)
+    }
+    
     useEffect(
         () => {
             setSearchValue(restSelectProps.value)
@@ -135,7 +140,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
             onSearch={debouncedSearch}
             onSelect={handleSelect}
             onBlur={onBlur}
-            onChange={onChange}
+            onChange={handleChange}
             onClear={handleClear}
             ref={setSelectRef}
             placeholder={placeholder}
