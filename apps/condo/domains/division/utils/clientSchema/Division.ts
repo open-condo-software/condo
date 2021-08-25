@@ -35,7 +35,7 @@ export interface IDivisionFormState {
     id?: undefined
     organization?: string
     properties?: string[]
-    responsible: string[]
+    responsible?: string[]
     executors?: string[]
 }
 

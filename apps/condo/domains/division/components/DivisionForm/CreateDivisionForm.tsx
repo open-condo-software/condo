@@ -18,23 +18,19 @@ export const CreateDivisionForm: React.FC = () => {
     const router = useRouter()
     const { organization } = useOrganization()
 
-    const initialValues = {
+    const attrs = {
         organization: get(organization, 'id'),
-        responsible: null,
-        properties: [],
-        executors: [],
     }
 
     const handleComplete = () => {
         router.push('/property/')
     }
 
-    const action = Division.useCreate(initialValues, handleComplete)
+    const action = Division.useCreate(attrs, handleComplete)
 
     return (
         <BaseDivisionForm
             action={action}
-            initialValues={initialValues}
             organization={organization}
         >
             {({ handleSave, isLoading }) => {
@@ -52,7 +48,7 @@ export const CreateDivisionForm: React.FC = () => {
                                                 onClick={handleSave}
                                                 type='sberPrimary'
                                                 loading={isLoading}
-                                                disabled={properties.length === 0 || !responsible}
+                                                disabled={properties && properties.length === 0 || !responsible}
                                             >
                                                 {CreateDivisionMessage}
                                             </Button>

@@ -23,7 +23,7 @@ export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ properties, r
     const disableUserInteraction = !properties || !responsible
 
     const errors = []
-    if (properties.length === 0)
+    if (properties && properties.length === 0)
         errors.push(PropertiesLabel)
     if (!responsible)
         errors.push(ResponsibleLabel)
