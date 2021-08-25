@@ -26,9 +26,10 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
         period: PERIOD_FIELD,
 
+        // Refs migration: 20210823172647-0047_auto_20210823_1226.js
         importId: {
             schemaDoc: '`billing receipt` local object ID. Unique up to billing context. It is unique up to the context. ' +
-                'The constrain is a combination of contextId and importId. Please check migration: 20210823172647-0047_auto_20210823_1226.js',
+                'The constrain is a combination of contextId and importId.',
             type: Text,
             isRequired: true,
             kmigratorOptions: { unique: true, null: false },
