@@ -7,6 +7,8 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { useRouter } from 'next/router'
+import Error from 'next/error'
+import { FeatureFlagRequired } from '@condo/domains/common/components/containers/FeatureFlag'
 
 interface IUpdateDivisionPage extends React.FC {
     headerAction?: JSX.Element
@@ -18,7 +20,7 @@ const UpdateDivisionPage: IUpdateDivisionPage = () => {
     const PageTitleMsg = intl.formatMessage({ id:'pages.condo.division.update.UpdateDivisionTitle' })
     const { query: { id } } = useRouter()
     return (
-        <>
+        <FeatureFlagRequired name={'division'} fallback={<Error statusCode={404}/>}>
             <Head>
                 <title>{PageTitleMsg}</title>
             </Head>
@@ -34,7 +36,7 @@ const UpdateDivisionPage: IUpdateDivisionPage = () => {
                     </Row>
                 </PageContent>
             </PageWrapper>
-        </>
+        </FeatureFlagRequired>
     )
 }
 
