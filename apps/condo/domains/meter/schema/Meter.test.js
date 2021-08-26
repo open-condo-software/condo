@@ -17,9 +17,7 @@ describe('Meter', () => {
         const client = await makeEmployeeUserClientWithAbilities({
             canManageMeters: true,
         })
-
         const [resource] = await MeterResource.getAll(client, { id: METER_RESOURCE_ID })
-
         const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
 
         expect(meter.id).toMatch(UUID_RE)

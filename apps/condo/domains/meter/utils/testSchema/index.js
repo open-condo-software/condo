@@ -100,6 +100,8 @@ async function createTestMeterReading (client, organization, property, meter, so
         property: { connect: { id: property.id } },
         meter: { connect: { id: meter.id } },
         source: { connect: { id: source.id } },
+        date: faker.date.recent(),
+        value: faker.random.number(),
         ...extraAttrs,
     }
     const obj = await MeterReading.create(client, attrs)
