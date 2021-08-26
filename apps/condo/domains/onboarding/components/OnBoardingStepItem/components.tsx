@@ -23,7 +23,7 @@ export const IconContainer = styled.div<{ type: OnBoardingStepType }>`
   flex-direction: row;
   transition: ${transitions.easeInOut};
   color: ${colors.black};
-  font-size: 18px;
+  font-size: 16px;
 
   ${({ type }) => {
         if (type === OnBoardingStepType.COMPLETED) {

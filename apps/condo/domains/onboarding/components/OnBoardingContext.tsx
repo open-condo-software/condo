@@ -77,7 +77,6 @@ export const OnBoardingProvider: React.FC = (props) => {
                 query: OrganizationEmployeeGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
                 resolver: (data) => get(data, 'objs', []).length > 0,
                 action: () => showCreateOrganizationModal(true),
-
             },
             'create.Property': {
                 query: PropertyGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
