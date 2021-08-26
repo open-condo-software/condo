@@ -18,7 +18,6 @@ const { MeterResource, MeterReadingSource } = require('@condo/domains/meter/util
 const { makeEmployeeUserClientWithAbilities } = require('@condo/domains/organization/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 const { MeterReading, createTestMeterReading, updateTestMeterReading } = require('@condo/domains/meter/utils/testSchema')
-const moment = require('moment')
 
 const COLD_WATER_METER_RESOURCE_ID = 'e2bd70ac-0630-11ec-9a03-0242ac130003'
 const CALL_METER_READING_SOURCE_ID = '61764f14-0630-11ec-9a03-0242ac130003'
