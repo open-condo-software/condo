@@ -4,6 +4,7 @@ import { useIntl } from '@core/next/intl'
 import { Button } from './Button'
 import { FilterFilled } from '@ant-design/icons'
 import { colors } from '../constants/style'
+import { FilterDropdownProps } from 'antd/lib/table/interface'
 
 interface IFilterContainerProps {
     clearFilters: () => void
@@ -39,7 +40,7 @@ export const getFilterIcon = filtered => <FilterFilled style={{ color: filtered 
 export const getTextFilterDropdown = (columnName: string,
     setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>) => {
 
-    return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+    return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: FilterDropdownProps) => {
         return (
             <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
                 <Input

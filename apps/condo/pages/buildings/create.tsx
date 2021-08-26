@@ -7,14 +7,9 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
-interface ICreatePropertyPage extends React.FC {
-    headerAction?: JSX.Element
-    requiredAccess?: React.FC
-}
-
-const CreatePropertyPage: ICreatePropertyPage = () => {
+export default function CreatePropertyPage () {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id:'pages.condo.property.index.CreatePropertyTitle' })
+    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyTitle' })
     return (
         <>
             <Head>
@@ -27,7 +22,7 @@ const CreatePropertyPage: ICreatePropertyPage = () => {
                             <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
                         </Col>
                         <Col span={24}>
-                            <PropertyForm/>
+                            <PropertyForm />
                         </Col>
                     </Row>
                 </PageContent>
@@ -36,7 +31,6 @@ const CreatePropertyPage: ICreatePropertyPage = () => {
     )
 }
 
-CreatePropertyPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllProperties' }} path={'/property/'}/>
+CreatePropertyPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllProperties' }} path={'/property/'} />
 CreatePropertyPage.requiredAccess = OrganizationRequired
 
-export default CreatePropertyPage
