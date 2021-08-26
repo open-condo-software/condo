@@ -68,7 +68,7 @@ type RelateToManyInput = {
  * @param state - form values
  * @param obj - existing object from `useObjects`, that will be passed in case of update operation by `useUpdate` and `useSoftDelete` hooks
  */
-export function convertToGQLInput (state: IDivisionFormState, obj: IDivisionUIState): DivisionUpdateInput {
+export function convertToGQLInput (state: IDivisionFormState, obj?: IDivisionUIState): DivisionUpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
     for (const attr of Object.keys(state)) {
@@ -90,8 +90,10 @@ export function convertToGQLInput (state: IDivisionFormState, obj: IDivisionUISt
                         result[attr] = changes
                     }
                 } else { // create operation
-                    result[attr] = {
-                        connect: map(newIds, id => ({ id })),
+                    if (newIds.length > 0) {
+                        result[attr] = {
+                            connect: map(newIds, id => ({ id })),
+                        }
                     }
                 }
             } else {
