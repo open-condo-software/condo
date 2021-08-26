@@ -18,7 +18,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
     types: [
         {
             access: true,
-            type: 'input InviteNewOrganizationEmployeeInput { dv: Int!, sender: JSON!, organization: OrganizationWhereUniqueInput!, email: String!, phone: String, name: String, role: OrganizationEmployeeWhereUniqueInput, position: String, specializations: [TicketClassifierWhereInput!]!}',
+            type: 'input InviteNewOrganizationEmployeeInput { dv: Int!, sender: JSON!, organization: OrganizationWhereUniqueInput!, email: String!, phone: String, name: String, role: OrganizationEmployeeWhereUniqueInput, position: String, specializations: [TicketClassifierWhereInput!]}',
         },
         {
             access: true,
@@ -82,7 +82,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     name,
                     phone,
                     specializations: {
-                        connect: specializations,
+                        connect: specializations || [],
                     },
                     ...restData,
                 })
