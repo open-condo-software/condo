@@ -12,7 +12,7 @@ import whyDidYouRender from '@welldone-software/why-did-you-render'
 import { withApollo } from '@core/next/apollo'
 import { withAuth } from '@core/next/auth'
 import { useIntl, withIntl } from '@core/next/intl'
-import { withOrganization } from '@core/next/organization'
+import { useOrganization, withOrganization } from '@core/next/organization'
 
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
 import GoogleAnalytics from '@condo/domains/common/components/containers/GoogleAnalytics'
@@ -44,56 +44,67 @@ const ANT_LOCALES = {
 
 const ANT_DEFAULT_LOCALE = enUS
 
-const MenuItems: React.FC = () => (
-    <>
-        <FocusElement>
-            <OnBoardingProgressIconContainer>
+const MenuItems: React.FC = () => {
+    const { link } = useOrganization()
+
+    return (
+        <>
+            <FocusElement>
+                <OnBoardingProgressIconContainer>
+                    <MenuItem
+                        path={'/onboarding'}
+                        icon={OnBoardingProgress}
+                        label={'menu.OnBoarding'}
+                    />
+                </OnBoardingProgressIconContainer>
+            </FocusElement>
+            <MenuItem
+                path={'/reports'}
+                icon={BarChartIcon}
+                label={'menu.Analytics'}
+                disabled={!link}
+            />
+            <MenuItem
+                path={'/ticket'}
+                icon={ThunderboltFilled}
+                label={'menu.ControlRoom'}
+                disabled={!link}
+            />
+            <MenuItem
+                path={'/property'}
+                icon={HomeFilled}
+                label={'menu.Property'}
+                disabled={!link}
+            />
+            <MenuItem
+                path={'/contact'}
+                icon={UserIcon}
+                label={'menu.Contacts'}
+                disabled={!link}
+            />
+            <MenuItem
+                path={'/employee'}
+                icon={UserIcon}
+                label={'menu.Employees'}
+                disabled={!link}
+            />
+            <FeatureFlagRequired name={'billing'}>
                 <MenuItem
-                    path={'/onboarding'}
-                    icon={OnBoardingProgress}
-                    label={'menu.OnBoarding'}
+                    path={'/billing'}
+                    icon={ApiFilled}
+                    label={'menu.Billing'}
+                    disabled={!link}
                 />
-            </OnBoardingProgressIconContainer>
-        </FocusElement>
-        <MenuItem
-            path={'/reports'}
-            icon={BarChartIcon}
-            label={'menu.Analytics'}
-        />
-        <MenuItem
-            path={'/ticket'}
-            icon={ThunderboltFilled}
-            label={'menu.ControlRoom'}
-        />
-        <MenuItem
-            path={'/property'}
-            icon={HomeFilled}
-            label={'menu.Property'}
-        />
-        <MenuItem
-            path={'/contact'}
-            icon={UserIcon}
-            label={'menu.Contacts'}
-        />
-        <MenuItem
-            path={'/employee'}
-            icon={UserIcon}
-            label={'menu.Employees'}
-        />
-        <FeatureFlagRequired name={'billing'}>
-            <MenuItem
-                path={'/billing'}
-                icon={ApiFilled}
-                label={'menu.Billing'}
-            />
-            <MenuItem
-                path={'/settings'}
-                icon={SettingFilled}
-                label={'menu.Settings'}
-            />
-        </FeatureFlagRequired>
-    </>
-)
+                <MenuItem
+                    path={'/settings'}
+                    icon={SettingFilled}
+                    label={'menu.Settings'}
+                    disabled={!link}
+                />
+            </FeatureFlagRequired>
+        </>
+    )
+}
 
 const MyApp = ({ Component, pageProps }) => {
     const intl = useIntl()

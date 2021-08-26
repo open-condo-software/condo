@@ -25,13 +25,17 @@ interface ISideMenuProps {
     menuData?: React.ElementType
 }
 
-const TicketCreateButton = () => {
+interface ITicketCreateButton {
+    disabled: boolean
+}
+
+const TicketCreateButton: React.FC<ITicketCreateButton> = ({ disabled }) => {
     const intl = useIntl()
 
     return (
         <Link href={'/ticket/create'} >
             <a>
-                <Button type='sberDefault' >
+                <Button type='sberDefault' disabled={disabled}>
                     <PlusCircleFilled />
                     {intl.formatMessage({ id: 'CreateTicket' })}
                 </Button>
@@ -42,8 +46,9 @@ const TicketCreateButton = () => {
 
 export const SideMenu: React.FC<ISideMenuProps> = (props) => {
     const { onLogoClick, menuData, isMobile, isSideMenuCollapsed, toggleSideMenuCollapsed } = props
-    const organization = useOrganization()
-    const isEmployeeBlocked = get(organization, ['link', 'isBlocked'], false)
+    const { link } = useOrganization()
+    const isEmployeeBlocked = get(link, 'isBlocked', false)
+
     if (isEmployeeBlocked) {
         return null
     }
@@ -73,7 +78,7 @@ export const SideMenu: React.FC<ISideMenuProps> = (props) => {
                     <MenuItemsContainer>
                         {menuData}
                     </MenuItemsContainer>
-                    <TicketCreateButton />
+                    <TicketCreateButton disabled={!link}/>
                 </Space>
             </Layout.Sider>
         </Drawer>
@@ -93,7 +98,7 @@ export const SideMenu: React.FC<ISideMenuProps> = (props) => {
                     <MenuItemsContainer>
                         {menuData}
                     </MenuItemsContainer>
-                    <TicketCreateButton />
+                    <TicketCreateButton disabled={!link}/>
                 </Space>
             </Layout.Sider>
             {menuData && <div css={substrateDesktopCss} className='side-menu-substrate' />}

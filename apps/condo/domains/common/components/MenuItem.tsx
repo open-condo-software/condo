@@ -18,7 +18,7 @@ const MenuItemWrapper = styled.span`
   align-items: center;
   justify-content: flex-start;
   vertical-align: center;
-
+  
   .label {
     font-size: 16px;
     transition: all 0.3s;
@@ -46,17 +46,23 @@ const MenuItemWrapper = styled.span`
       color: ${colors.black};
     }
   }
+  
+  &.disabled {
+    opacity: 0.4;
+    pointer-events: none;
+  }
 `
 
 interface IMenuItemProps {
     path: string
     icon: React.ElementType
     label: string
+    disabled?: boolean
     hideInMenu?: boolean
 }
 
 export const MenuItem: React.FC<IMenuItemProps> = (props) => {
-    const { path, icon: Icon, label, hideInMenu } = props
+    const { path, icon: Icon, label, hideInMenu, disabled } = props
     const { route } = useRouter()
     const intl = useIntl()
 
@@ -66,6 +72,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
 
     const menuItemClassNames = classnames({
         'active': path === '/' ? route === path : route.includes(path),
+        'disabled': disabled,
     })
 
     return (
