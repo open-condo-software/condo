@@ -2,7 +2,6 @@
 import { Select } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
-import { useRouter } from 'next/router'
 import React, { useRef } from 'react'
 import { useOrganization } from '@core/next/organization'
 import { useAuth } from '@core/next/auth'
