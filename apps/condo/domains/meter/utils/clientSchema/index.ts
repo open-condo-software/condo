@@ -5,6 +5,6 @@
 
 export * as MeterResource from './MeterResource'
 export * as Meter from './Meter'
-export * as MeterReading from './MeterReading'
 export * as MeterReadingSource from './MeterReadingSource'
+export * as MeterReading from './MeterReading'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

@@ -7,8 +7,6 @@ const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
-const access = require('@condo/domains/meter/access/MeterReadingSource')
-const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 
 
 const MeterReadingSource = new GQLListSchema('MeterReadingSource', {
@@ -16,8 +14,6 @@ const MeterReadingSource = new GQLListSchema('MeterReadingSource', {
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
-
-        organization: COMMON_AND_ORGANIZATION_OWNED_FIELD,
 
         type: {
             type: Select,
@@ -33,11 +29,11 @@ const MeterReadingSource = new GQLListSchema('MeterReadingSource', {
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
-        read: access.canReadMeterReadingSources,
-        create: access.canManageMeterReadingSources,
-        update: access.canManageMeterReadingSources,
+        read: true,
+        create: false,
+        update: false,
         delete: false,
-        auth: true,
+        auth: false,
     },
 })
 
