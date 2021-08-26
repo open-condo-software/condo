@@ -280,7 +280,7 @@
   "pages.condo.division.index.CreateDivisionButtonLabel": "Create division",
   "pages.condo.division.index.UpdateDivisionButtonLabel": "Create division",
   "pages.condo.division.create.CreateDivisionTitle": "Create division",
-  "pages.condo.division.create.UpdateDivisionTitle": "Create division",
+  "pages.condo.division.update.UpdateDivisionTitle": "Update division",
   "pages.condo.warning.modal.SaveLabel": "Save",
   "pages.condo.warning.modal.LeaveLabel": "Leave",
   "pages.condo.residents.PageTitle": "Residents",

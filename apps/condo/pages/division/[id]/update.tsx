@@ -15,7 +15,7 @@ interface IUpdateDivisionPage extends React.FC {
 
 const UpdateDivisionPage: IUpdateDivisionPage = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id:'pages.condo.division.create.UpdateDivisionTitle' })
+    const PageTitleMsg = intl.formatMessage({ id:'pages.condo.division.update.UpdateDivisionTitle' })
     const { query: { id } } = useRouter()
     return (
         <>

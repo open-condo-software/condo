@@ -280,7 +280,7 @@
   "pages.condo.division.index.CreateDivisionButtonLabel": "Создать участок",
   "pages.condo.division.index.UpdateDivisionButtonLabel": "Сохранить",
   "pages.condo.division.create.CreateDivisionTitle": "Создание участка",
-  "pages.condo.division.create.UpdateDivisionTitle": "Редактирование участка",
+  "pages.condo.division.update.UpdateDivisionTitle": "Редактирование участка",
   "pages.condo.warning.modal.SaveLabel": "Сохранить",
   "pages.condo.warning.modal.LeaveLabel": "Не сохранять",
   "pages.condo.residents.PageTitle": "Жители",
