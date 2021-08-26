@@ -17,6 +17,9 @@ import { BuildingMap } from '@condo/domains/property/components/panels/Builder/M
 export interface IPropertyUIState extends Property {
     id: string
     address: string
+    addressMeta: {
+        data: any
+    }
     name?: string
     ticketsInWork: string
     ticketsClosed: string
