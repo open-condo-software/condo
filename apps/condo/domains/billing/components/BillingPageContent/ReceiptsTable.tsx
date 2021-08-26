@@ -19,16 +19,14 @@ import { usePeriodSelector } from '@condo/domains/billing/hooks/usePeriodSelecto
 import { Row, Col, Space, Input, Select, Typography } from 'antd'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useReceiptTableColumns } from '../../hooks/useReceiptTableColumns'
+import { getMoneyFilter } from '../../utils/helpers'
 
 const addressFilter = getStringContainsFilter(['property', 'address'])
 const accountFilter = getStringContainsFilter(['account', 'number'])
-const toPayFilter = getStringContainsFilter('toPay')
 const periodFilter = getFilter('period', 'single', 'string')
 const staticQueryMetas: Array<QueryMeta> = [
     { keyword: 'address', filters: [addressFilter] },
     { keyword: 'account', filters: [accountFilter] },
-    { keyword: 'toPay', filters: [toPayFilter] },
-    { keyword: 'search', filters: [addressFilter, accountFilter, toPayFilter], combineType: 'OR' },
 ]
 
 const sortableProperties = ['toPay']
@@ -44,8 +42,14 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
     const contextPeriod = get(context, ['lastReport', 'period'], null)
+    const separator = get(context, ['integration', 'currency', 'displayInfo', 'delimiterNative'], '.')
+    const currencySign = get(context, ['integration', 'currency', 'displayInfo', 'symbolNative'], '₽')
+    const toPayFilter = getMoneyFilter('toPay', separator)
     const queryMetas: Array<QueryMeta> = [
-        ...staticQueryMetas, { keyword: 'period', filters: [periodFilter], defaultValue: contextPeriod },
+        ...staticQueryMetas,
+        { keyword: 'period', filters: [periodFilter], defaultValue: contextPeriod },
+        { keyword: 'toPay', filters: [toPayFilter], defaultValue: contextPeriod },
+        { keyword: 'search', filters: [addressFilter, accountFilter, toPayFilter], combineType: 'OR' },
     ]
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, sortableProperties)
     const {
@@ -61,10 +65,9 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     })
 
     const [search, handleSearchChange] = useSearch(loading)
-    const [period, options,  handlePeriodChange] = usePeriodSelector(contextPeriod)
+    const [period, options, handlePeriodChange] = usePeriodSelector(contextPeriod)
 
-
-    const columns = useReceiptTableColumns()
+    const columns = useReceiptTableColumns(false, currencySign, separator)
 
     if (error) {
         return (

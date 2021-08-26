@@ -6,7 +6,7 @@ import { getMoneyRender, getTextRender } from '@condo/domains/common/components/
 import { useIntl } from '@core/next/intl'
 import get from 'lodash/get'
 
-export const useReceiptTableColumns = (detailed = false) => {
+export const useReceiptTableColumns = (detailed: boolean, currencySign: string, separator: string) => {
     const intl = useIntl()
     const AddressTitle = intl.formatMessage({ id: 'field.Address' })
     const AccountTitle = intl.formatMessage({ id: 'field.AccountNumberShort' })
@@ -52,9 +52,8 @@ export const useReceiptTableColumns = (detailed = false) => {
                 width: detailed ? '10%' : '20%',
                 filterIcon: getFilterIcon,
                 filterDropdown: getTextFilterDropdown(ToPayTitle),
-                // TODO (savelevMatthew): More complex logic when will be able to support other currency, separators
-                render: getMoneyRender(search),
+                render: getMoneyRender(search, currencySign, separator),
             },
         ]
-    }, [AddressTitle, AccountTitle, ToPayTitle, filters, sorterMap, detailed])
+    }, [AddressTitle, AccountTitle, ToPayTitle, filters, sorterMap, detailed, currencySign, separator])
 }

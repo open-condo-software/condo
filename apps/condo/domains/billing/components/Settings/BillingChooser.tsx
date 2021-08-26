@@ -25,7 +25,7 @@ export const BillingChooser: React.FC = () => {
         objs: integrations,
         loading: integrationsLoading,
         error: integrationsError,
-    } = BillingIntegration.useObjects({})
+    } = BillingIntegration.useObjects({}, {})
 
     const {
         obj: currentContext,
@@ -66,7 +66,6 @@ export const BillingChooser: React.FC = () => {
             </BasicEmptyListView>
         )
     }
-
     return (
         <>
             <Space direction={'vertical'} size={40} style={{ width: '100%' }}>

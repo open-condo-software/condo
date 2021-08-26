@@ -76,6 +76,7 @@ const recolorMoney = (
 export const getMoneyRender = (search: string, currencyMark = '₽', partSeparator = DEFAULT_CURRENCY_SEPARATOR) => {
     return function render (text: string): RenderReturnType {
         if (!text) return <EmptyTableCell/>
+        text = text.replace('.', partSeparator)
         const separatorIndex = text.indexOf(partSeparator)
         const lastSymbol = text.startsWith('-') ? 2 : 1
         const spaces = []
