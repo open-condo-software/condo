@@ -51,10 +51,13 @@ const CreateOnBoardingService = new GQLCustomSchema('CreateOnBoardingService', {
 
                 for (let i = 0; i < onBoardingStepData.steps.length; i++) {
                     const currentStep = onBoardingStepData.steps[i]
+                    const key = `${currentStep.action}.${currentStep.entity}`
 
                     await OnBoardingStep.create(context, {
                         dv,
                         sender,
+                        title: `onboarding.step.title.${key}`,
+                        description: `onboarding.step.description.${key}`,
                         ...currentStep,
                         onBoarding: { connect: { id: onBoarding.id } },
                     })

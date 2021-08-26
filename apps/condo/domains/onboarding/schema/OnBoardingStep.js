@@ -6,6 +6,7 @@ const { Text, Relationship, Select, Checkbox, Integer } = require('@keystonejs/f
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
+const { LocalizedText } = require('@core/keystone/fields')
 const access = require('@condo/domains/onboarding/access/OnBoardingStep')
 
 const OnBoardingStep = new GQLListSchema('OnBoardingStep', {
@@ -27,13 +28,15 @@ const OnBoardingStep = new GQLListSchema('OnBoardingStep', {
 
         title: {
             schemaDoc: 'Shows the main point of a step.',
-            type: Text,
+            type: LocalizedText,
+            template: 'onboarding.step.title.*',
             isRequired: true,
         },
 
         description: {
             schemaDoc: 'Shows additional point of a step',
-            type: Text,
+            type: LocalizedText,
+            template: 'onboarding.step.description.*',
             isRequired: true,
         },
 
