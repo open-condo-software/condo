@@ -16,8 +16,9 @@ import ActionBar from '@condo/domains/common/components/ActionBar'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
-import { useObject } from '@condo/domains/division/utils/clientSchema/Division'
+import { useObject, useSoftDelete } from '@condo/domains/division/utils/clientSchema/Division'
 import { Division } from '../../../schema'
+import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 
 interface IDivisionPageContentProps {
     division: Division
@@ -139,9 +140,21 @@ const DivisionPage: IDivisionPageProps = () => {
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const UpdateTitle = intl.formatMessage({ id: 'Edit' })
     const DivisionNotFoundMessage = intl.formatMessage({ id: 'pages.condo.division.id.PageTitleNotFound' })
+    const ConfirmDeleteTitle = intl.formatMessage({ id: 'division.action.delete.confirm.title' })
+    const ConfirmDeleteMessage = intl.formatMessage({ id: 'division.action.delete.confirm.message' })
+    const DeleteDivisionLabel = intl.formatMessage({ id: 'division.action.delete.confirm.ok' })
 
-    const { query: { id } } = useRouter()
+    const router = useRouter()
+    const { query: { id } } = router
     const { loading, obj: division, error } = useObject({ where: { id: id as string } })
+
+    const handleCompleteSoftDelete = () => {
+        router.push('/property/')
+    }
+
+    // TODO: Add separate type for `useSoftDelete` in SBERDOMA-1048
+    // @ts-ignore
+    const softDeleteAction = useSoftDelete({}, handleCompleteSoftDelete)
 
     if (error || loading) {
         return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null}/>
@@ -174,6 +187,12 @@ const DivisionPage: IDivisionPageProps = () => {
                                 </Button>
                             </span>
                         </Link>
+                        <DeleteButtonWithConfirmModal
+                            title={ConfirmDeleteTitle}
+                            message={ConfirmDeleteMessage}
+                            okButtonLabel={DeleteDivisionLabel}
+                            action={() => softDeleteAction({}, division)}
+                        />
                     </ActionBar>
                 </PageContent>
             </PageWrapper>
