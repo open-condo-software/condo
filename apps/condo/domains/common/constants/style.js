@@ -79,6 +79,11 @@ const shadows = {
 const transitions = {
     elevateTransition: 'box-shadow 0.2s ease-in-out, border 0.2s ease-in-out',
     easeInOut: 'all .2s ease-in-out',
+    allDefault: 'all 0.3s',
+}
+
+const gradients = {
+    onboardingIconGradient: 'linear-gradient(120deg, #00F260, #0575E6, #00F260)',
 }
 
 const DEFAULT_BORDER_WIDTH = '2px'
@@ -125,6 +130,7 @@ const antGlobalVariables = {
 
 module.exports = {
     colors,
+    gradients,
     antGlobalVariables,
     shadows,
     transitions,

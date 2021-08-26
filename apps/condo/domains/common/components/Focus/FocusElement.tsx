@@ -3,6 +3,7 @@ import { Tooltip } from 'antd'
 import React from 'react'
 import { useIntl } from '@core/next/intl'
 import { useFocusContext } from './FocusContextProvider'
+import { gradients } from '@condo/domains/common/constants/style'
 
 const FocusWrapper = styled.div`
   position: relative;
@@ -18,7 +19,7 @@ const FocusWrapper = styled.div`
     right: 0;
     bottom: 0;
     border-radius: 4px;
-    background: linear-gradient(120deg, #00F260, #0575E6, #00F260);
+    background: ${gradients.onboardingIconGradient};
     background-size: 300% 300%;
     clip-path: polygon(0% 100%, 3px 100%, 3px 3px, calc(100% - 3px) 3px, calc(100% - 3px) calc(100% - 3px), 3px calc(100% - 3px), 3px 100%, 100% 100%, 100% 0%, 0% 0%);
     animation: frame-enter 1s forwards ease-in-out, gradient-animation 4s ease-in-out infinite;

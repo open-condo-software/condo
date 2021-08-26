@@ -6,6 +6,7 @@ import { useRouter } from 'next/router'
 import React  from 'react'
 import { useIntl } from '@core/next/intl'
 import { colors } from '../constants/style'
+import { transitions } from '@condo/domains/common/constants/style'
 
 const IconWrapper = styled.div``
 
@@ -21,14 +22,14 @@ const MenuItemWrapper = styled.span`
   
   .label {
     font-size: 16px;
-    transition: all 0.3s;
+    transition: ${transitions.allDefault};
   }
 
   .icon {
     color: ${colors.lightGrey[5]};
     font-size: 20px;
     margin-right: 20px;
-    transition: all 0.3s;
+    transition: ${transitions.allDefault};
   }
 
   &:hover {
