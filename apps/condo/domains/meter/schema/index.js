@@ -5,14 +5,14 @@
 
 const { MeterResource } = require('./MeterResource')
 const { Meter } = require('./Meter')
-const { MeterReading } = require('./MeterReading')
 const { MeterReadingSource } = require('./MeterReadingSource')
+const { MeterReading } = require('./MeterReading')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     MeterResource,
     Meter,
-    MeterReading,
     MeterReadingSource,
+    MeterReading,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

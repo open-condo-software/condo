@@ -7,8 +7,6 @@ const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
-const access = require('@condo/domains/meter/access/MeterResource')
-
 
 const MeterResource = new GQLListSchema('MeterResource', {
     schemaDoc: 'Resource for Meter',
@@ -21,15 +19,14 @@ const MeterResource = new GQLListSchema('MeterResource', {
             type: Text,
             isRequired: true,
         },
-
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
-        read: access.canReadMeterResources,
-        create: access.canManageMeterResources,
-        update: access.canManageMeterResources,
+        read: true,
+        create: false,
+        update: false,
         delete: false,
-        auth: true,
+        auth: false,
     },
 })
 
