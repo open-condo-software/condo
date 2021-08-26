@@ -1,21 +1,23 @@
 /** @jsx jsx */
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { Typography, Radio, Row, Col, Tabs } from 'antd'
 import Head from 'next/head'
 import { jsx } from '@emotion/core'
 import { useIntl } from '@core/next/intl'
+import { useRouter } from 'next/router'
+
 
 import { GetServerSideProps } from 'next'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
-import Link from 'next/link'
 import DivisionTable from '@condo/domains/division/components/DivisionsTable'
 import BuildingsTable from '@condo/domains/property/components/BuildingsTable'
 
 import PropertiesMap from '@condo/domains/common/components/PropertiesMap'
 import { Property } from '../../domains/property/utils/clientSchema'
+import { useEffect } from 'react'
 
 type PropertiesType = 'buildings' | 'divisions'
 const propertiesTypes: PropertiesType[] = ['buildings', 'divisions']
@@ -39,6 +41,7 @@ type PropertiesPageProps = {
 
 export default function PropertiesPage (props: PropertiesPageProps) {
     const intl = useIntl()
+    const router = useRouter()
 
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.PageTitle' })
     const ShowMap = intl.formatMessage({ id: 'pages.condo.property.index.ViewModeMap' })
@@ -49,12 +52,15 @@ export default function PropertiesPage (props: PropertiesPageProps) {
     const [propertiesType, setPropertiesType] = useState<PropertiesType>('buildings')
     const [viewMode, changeViewMode] = useState('list')
 
-    let initialTab = props.tab
+    const initialTab = useRef(props.tab)
+    useEffect(() => {
+        if (!initialTab.current) {
+            const queryParams = getQueryParams()
+            initialTab.current = propertiesTypes.includes(queryParams.tab) ? queryParams.tab : propertiesTypes[0]
+            router.push(`/property?tab=${initialTab.current}`)
+        }
+    })
 
-    if (!initialTab) {
-        const queryParams = getQueryParams()
-        initialTab = propertiesTypes.includes(queryParams.tab) ? queryParams.tab : propertiesTypes[0]
-    }
 
     const [properties, setShownProperties] = useState<Property.IPropertyUIState[]>([])
 
@@ -71,22 +77,19 @@ export default function PropertiesPage (props: PropertiesPageProps) {
                                 {PageTitleMessage}
                             </Typography.Title>} />
                             {viewMode !== 'map' &&
-                                <Tabs defaultActiveKey={initialTab} onChange={(key: PropertiesType) => setPropertiesType(key)}>
+                                <Tabs
+                                    defaultActiveKey={initialTab.current}
+                                    onChange={(key: PropertiesType) => {
+                                        setPropertiesType(key)
+                                        router.push(`/property?tab=${key}`)
+                                    }}>
                                     <Tabs.TabPane
                                         key="buildings"
-                                        tab={
-                                            <Link href="/property?tab=buildings">
-                                                {BuildingsTabTitle}
-                                            </Link>
-                                        }
+                                        tab={BuildingsTabTitle}
                                     />
                                     <Tabs.TabPane
                                         key="divisions"
-                                        tab={
-                                            <Link href="/property?tab=divisions">
-                                                {DivisionsTabTitle}
-                                            </Link>
-                                        }
+                                        tab={DivisionsTabTitle}
                                     />
                                 </Tabs>
                             }
