@@ -41,7 +41,7 @@ const OnBoarding = new GQLListSchema('OnBoarding', {
         type: {
             schemaDoc: 'Type of onBoarding. Used for guid classification',
             type: Select,
-            options: 'ADMINISTRATOR',
+            options: 'ADMINISTRATOR', // Add more types
             defaultValue: 'member',
             isRequired: true,
         },

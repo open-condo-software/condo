@@ -7,8 +7,6 @@ const ONBOARDING_TYPES = [ADMINISTRATOR]
 const DEFAULT_ADMINISTRATOR_ONBOADRING_STEPS = [
     {
         icon: 'organization',
-        title: 'Создание организации',
-        description: 'Добавляйте свою организацию, чтобы получить доступ ко всем функциям.',
         required: true,
         action: 'create',
         entity: 'Organization',
@@ -16,40 +14,30 @@ const DEFAULT_ADMINISTRATOR_ONBOADRING_STEPS = [
     },
     {
         icon: 'house',
-        title: 'Добавление дома',
-        description: 'Это позволит легко находить нужную информацию по объектам и работать с шахматкой квартир.',
         action: 'create',
         entity: 'Property',
         order: 2,
     },
     {
         icon: 'user',
-        title: 'Добавление сотрудника',
-        description: 'Назначайте роли сотрудникам, чтобы они получили доступ к своим функциям.',
         action: 'create',
         entity: 'OrganizationEmployee',
         order: 3,
     },
     {
         icon: 'chat',
-        title: 'Формирование команды',
-        description: 'Собирайте сотрудников в группы, отправляйте заявки и следите за их работой.',
         action: 'create',
         entity: 'Squad', // should be renamed
         order: 4,
     },
     {
         icon: 'billing',
-        title: 'Подключение биллинга',
-        description: 'Это нужно, чтобы присваивать лицевые счета, формировать квитанции на оплату и отслеживать задолженности.',
         action: 'create',
         entity: 'BillingAccount',
         order: 5,
     },
     {
         icon: 'creditCard',
-        title: 'Подключение эквайринга',
-        description: 'А это позволит получать оплату от жителей за обслуживание и услуги ЖКХ.',
         action: 'create',
         entity: 'Acquiring',
         order: 6,
