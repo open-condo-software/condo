@@ -9,7 +9,7 @@ const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/ut
 
 const { OnBoarding: OnBoardingGQL } = require('@condo/domains/onboarding/gql')
 const { OnBoardingStep: OnBoardingStepGQL } = require('@condo/domains/onboarding/gql')
-const { CREATE_ON_BOARDING_MUTATION } = require('@condo/domains/onboarding/gql')
+const { CREATE_ONBOARDING_MUTATION } = require('@condo/domains/onboarding/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OnBoarding = generateGQLTestUtils(OnBoardingGQL)
@@ -87,7 +87,7 @@ async function createOnBoardingByTestClient(client, extraAttrs = {}) {
         sender,
         ...extraAttrs,
     }
-    const { data, errors } = await client.mutate(CREATE_ON_BOARDING_MUTATION, { data: attrs })
+    const { data, errors } = await client.mutate(CREATE_ONBOARDING_MUTATION, { data: attrs })
     throwIfError(data, errors)
     return [data.result, attrs]
 }
