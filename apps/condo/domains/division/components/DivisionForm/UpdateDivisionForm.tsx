@@ -35,7 +35,7 @@ export const UpdateDivisionForm: React.FC<IUpdateDivisionForm> = ({ id }) => {
     }
 
     const handleCompleteSoftDelete = () => {
-        router.push('/division/')
+        router.push('/property/')
     }
 
     const action = Division.useUpdate({}, handleCompleteUpdate)
@@ -46,10 +46,12 @@ export const UpdateDivisionForm: React.FC<IUpdateDivisionForm> = ({ id }) => {
     const softDeleteAction = Division.useSoftDelete({}, handleCompleteSoftDelete)
 
     const [isConfirmVisible, setIsConfirmVisible] = useState(false)
+    const [isDeleting, setIsDeleting] = useState(false)
     const showConfirm = () => setIsConfirmVisible(true)
 
     const handleSoftDelete = () => {
         setIsConfirmVisible(false)
+        setIsDeleting(true)
         return runMutation(
             {
                 action: () => {
@@ -61,6 +63,9 @@ export const UpdateDivisionForm: React.FC<IUpdateDivisionForm> = ({ id }) => {
                     console.log(e)
                     console.log(e.friendlyDescription)
                     throw e
+                },
+                onCompleted: () => {
+                    setIsDeleting(false)
                 },
                 intl,
             },
@@ -144,7 +149,7 @@ export const UpdateDivisionForm: React.FC<IUpdateDivisionForm> = ({ id }) => {
                                                 key='submit'
                                                 onClick={showConfirm}
                                                 type='sberDanger'
-                                                loading={isLoading}
+                                                loading={isDeleting}
                                                 secondary
                                                 style={{ position: 'absolute', right: '0px', top: '24px' }}
                                             >
