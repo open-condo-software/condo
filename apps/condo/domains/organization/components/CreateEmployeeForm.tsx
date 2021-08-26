@@ -1,10 +1,11 @@
 /** @jsx jsx */
 import { Card, Col, Form, Input, Row } from 'antd'
 import { Rule } from 'rc-field-form/lib/interface'
-import React from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useOrganization } from '@core/next/organization'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
+import { useApolloClient } from '@core/next/apollo'
 import get from 'lodash/get'
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 import { Button } from '@condo/domains/common/components/Button'
@@ -17,9 +18,11 @@ import { FormWithAction } from '@condo/domains/common/components/containers/Form
 import { ErrorsContainer } from '@condo/domains/organization/components/ErrorsContainer'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { EmployeeRoleSelect } from './EmployeeRoleSelect'
+import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { colors, shadows } from '@condo/domains/common/constants/style'
 import { css, jsx } from '@emotion/core'
+import { ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -41,22 +44,25 @@ const CardCss = css`
 
 export const CreateEmployeeForm: React.FC = () => {
     const intl = useIntl()
+
     const InviteEmployeeLabel = intl.formatMessage({ id: 'employee.InviteEmployee' })
-
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const { organization } = useOrganization()
-    const router = useRouter()
-
     const FullNameLabel = intl.formatMessage({ id: 'pages.auth.register.field.Name' })
     const FullNamePlaceholder = intl.formatMessage({ id: 'field.FullName' })
     const PositionLabel = intl.formatMessage({ id: 'employee.Position' })
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
     const EmailLabel = intl.formatMessage({ id: 'Email' })
+    const SpecializationsLabel = intl.formatMessage({ id: 'employee.Specializations' })
     const RoleLabel = intl.formatMessage({ id: 'employee.Role' })
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
     const PhoneIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
     const UserAlreadyInListMsg = intl.formatMessage({ id: 'pages.users.UserIsAlreadyInList' })
+
+    
+    const classifiersLoader = new ClassifiersQueryRemote(useApolloClient())
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const { organization } = useOrganization()
+    const router = useRouter()
 
     const { objs: employee } = OrganizationEmployee.useObjects(
         { where: { organization: { id: organization.id } } },
@@ -96,6 +102,18 @@ export const CreateEmployeeForm: React.FC = () => {
         role: get(employeeRoles, [0, 'id'], ''),
     }
 
+    const [selectedRoleId, setSelectedRoleId] = useState(initialValues.role)
+    const selectedRole = useMemo(() => employeeRoles.find(x=> x.id === selectedRoleId), [selectedRoleId])
+
+    const searchClassifers = (_, input) => 
+        classifiersLoader.search(input, TicketClassifierTypes.category)
+            .then(result=>result.map((classifier)=> ({ text: classifier.name, value: classifier.id })))
+
+    useEffect(()=> {
+        classifiersLoader.init()
+        return () => classifiersLoader.clear()
+    })
+
     return (
         <FormWithAction
             action={action}
@@ -106,11 +124,14 @@ export const CreateEmployeeForm: React.FC = () => {
             formValuesToMutationDataPreprocessor={(values) => {
                 // TODO(Dimitree): delete after useInviteNewOrganizationEmployee move to OrganizationEmployee
                 const role = get(values, 'role')
+                const specializations = get(values, 'specializations')
 
                 if (role) {
                     values.role = { id: String(role) }
                 }
-
+                if (specializations) {
+                    values.specializations = specializations.map(id => ({ id }))
+                }
                 return values
             }}
         >
@@ -164,12 +185,25 @@ export const CreateEmployeeForm: React.FC = () => {
                                                     <Input />
                                                 </Form.Item>
                                             </Col>
+                                            {selectedRole?.canBeAssignedAsResponsible && <Col span={24}>
+                                                <Form.Item
+                                                    name={'specializations'}
+                                                    label={SpecializationsLabel}
+                                                    labelAlign={'left'}
+                                                    required
+                                                    validateFirst
+                                                    {...INPUT_LAYOUT_PROPS}
+                                                >
+                                                    <GraphQlSearchInput mode="multiple" search={searchClassifers} />
+                                                </Form.Item>
+                                            </Col>}
                                             <Col span={24}>
                                                 <Form.Item name={'role'} label={RoleLabel} {...INPUT_LAYOUT_PROPS} labelAlign={'left'} >
                                                     <EmployeeRoleSelect
                                                         loading={loading}
                                                         error={Boolean(error)}
                                                         employeeRoles={employeeRoles}
+                                                        onSelect={(roleId)=> setSelectedRoleId(roleId)}
                                                     />
                                                 </Form.Item>
                                             </Col>

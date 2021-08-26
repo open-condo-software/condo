@@ -6779,6 +6779,7 @@ export type InviteNewOrganizationEmployeeInput = {
   name?: Maybe<Scalars['String']>;
   role?: Maybe<OrganizationEmployeeWhereUniqueInput>;
   position?: Maybe<Scalars['String']>;
+  specializations: Array<TicketClassifierWhereInput>;
 };
 
 

@@ -10,7 +10,7 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { OrganizationEmployeeRole as OrganizationEmployeeRoleGQL } from '@condo/domains/organization/gql'
 import { OrganizationEmployeeRole, OrganizationEmployeeRoleUpdateInput, QueryAllOrganizationEmployeeRolesArgs } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'name', 'description', 'statusTransitions', 'canManageOrganization', 'canManageEmployees', 'canManageRoles', 'canManageIntegrations', 'canManageProperties', 'canManageTickets', 'canManageTicketComments', 'canShareTickets']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'name', 'description', 'statusTransitions', 'canManageOrganization', 'canManageEmployees', 'canManageRoles', 'canManageIntegrations', 'canManageProperties', 'canManageTickets', 'canManageTicketComments', 'canShareTickets', 'canBeAssignedAsResponsible']
 const RELATIONS = ['organization']
 
 export interface IOrganizationEmployeeRoleUIState extends OrganizationEmployeeRole {
