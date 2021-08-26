@@ -1,4 +1,4 @@
-const { BillingIntegration } = require('@condo/domains/billing/utils/serverSchema')
+const { BillingIntegration, BillingCurrency } = require('@condo/domains/billing/utils/serverSchema')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const faker = require('faker')
 const path = require('path')
@@ -10,6 +10,30 @@ const {
 
 const DV = 1
 const SENDER = { dv: DV, fingerprint: faker.random.alphaNumeric(8) }
+
+const RubleCurrency = {
+    dv: DV,
+    sender: SENDER,
+    code: 'RUB',
+    displayInfo: {
+        symbolNative: '₽',
+        decimalDigits: 2,
+        rounding: 0,
+        delimiterNative: ',',
+    },
+}
+
+const DollarCurrency = {
+    dv: DV,
+    sender: SENDER,
+    code: 'USD',
+    displayInfo: {
+        symbolNative: '$',
+        decimalDigits: 2,
+        rounding: 0,
+        delimiterNative: '.',
+    },
+}
 
 const InProgressBilling = {
     dv: DV,
@@ -63,6 +87,15 @@ const NoDetailsBilling = {
     billingPageTitle: 'Биллинг, уровень 1',
 }
 
+const NoDetailsDollarBilling = {
+    dv: DV,
+    sender: SENDER,
+    name: 'Lvl 1',
+    detailsTitle: 'Подключение биллинга с детализацией 1 и долларами',
+    contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
+    billingPageTitle: 'Биллинг "Доллар", уровень 1',
+}
+
 const ToPayDetailsBilling = {
     dv: DV,
     sender: SENDER,
@@ -90,7 +123,7 @@ const WithServicesDetailsBilling = {
     billingPageTitle: 'Биллинг, уровень 3',
 }
 
-const BILLINGS_TO_CREATE = [
+const RUBLE_BILLINGS_TO_CREATE = [
     InProgressBilling,
     SuccessfulBilling,
     ErrorBilling,
@@ -98,6 +131,10 @@ const BILLINGS_TO_CREATE = [
     ToPayDetailsBilling,
     WithServicesBilling,
     WithServicesDetailsBilling,
+]
+
+const DOLLAR_BILLINGS_TO_CREATE = [
+    NoDetailsDollarBilling,
 ]
 
 class BillingsGenerator {
@@ -113,10 +150,28 @@ class BillingsGenerator {
         this.context = await keystone.createContext({ skipAccessControl: true })
     }
 
+    async generateCurrencies () {
+        console.info('[INFO] Generating currencies...')
+        const rub = await BillingCurrency.create(this.context, RubleCurrency)
+        const usd = await BillingCurrency.create(this.context, DollarCurrency)
+        return { rub, usd }
+    }
+
     async generateBillings () {
         console.info('[INFO] Generating billings...')
-        for (const billing of BILLINGS_TO_CREATE) {
-            await BillingIntegration.create(this.context, billing)
+        const { rub, usd } = await this.generateCurrencies()
+        console.log(rub)
+        for (const billing of RUBLE_BILLINGS_TO_CREATE) {
+            await BillingIntegration.create(this.context, {
+                ...billing,
+                currency: { connect: { id: rub.id } },
+            })
+        }
+        for (const billing of DOLLAR_BILLINGS_TO_CREATE) {
+            await BillingIntegration.create(this.context, {
+                ...billing,
+                currency: { connect: { id: usd.id } },
+            })
         }
     }
 

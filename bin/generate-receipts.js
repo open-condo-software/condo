@@ -13,6 +13,12 @@ const { getPreviousPeriods } = require('@condo/domains/billing/utils/period')
 const { DateTime } = require('luxon')
 
 const PROPERTY_QUANTITY = 10
+const AVAILABLE_LEVELS = {
+    base: 'base',
+    toPayDetails: 'detailed',
+    withServices: 'withServices',
+    withServiceDetails: 'withServiceDetails',
+}
 const ACCOUNTS_PER_PROPERTY_DISTRIBUTION = { min: 30, max: 70 }
 const PERIODS_AMOUNT = 3
 
@@ -107,6 +113,12 @@ class ReceiptsGenerator {
             }
             return rand / 6
         }
+
+        function _gaussianInt (min, max) {
+            min = Math.ceil(min)
+            max = Math.floor(max)
+            return Math.floor(_gaussianRand() * (max - min + 1) + min)
+        }
         
         console.info('[INFO] Generating receipts...')
         if (!this.billingAccounts) {
@@ -132,21 +144,30 @@ class ReceiptsGenerator {
         }, 50)
         for (let p = 0; p < this.periods.length; p++) {
             for (let i = 0; i < toBeGenerated; ++i) {
+                const receipt = {
+                    dv: DV,
+                    sender: SENDER,
+                    context: { connect: { id: this.billingContextId } },
+                    property: { connect: { id: this.billingAccounts[i].property.id } },
+                    account: { connect: { id: this.billingAccounts[i].id } },
+                    importId: faker.datatype.uuid(),
+                    period: this.periods[p],
+                    recipient: PAYMENT_ORGANIZATION,
+                    raw: BASE_JSON,
+                }
+                const toPay = _gaussianInt(this.toPay.min, this.toPay.max)
                 switch (this.detailLevel) {
-                    case 1:
+                    case AVAILABLE_LEVELS.base:
                         await BillingReceipt.create(this.context, {
-                            dv: DV,
-                            sender: SENDER,
-                            context: { connect: { id: this.billingContextId } },
-                            property: { connect: { id: this.billingAccounts[i].property.id } },
-                            account: { connect: { id: this.billingAccounts[i].id } },
-                            importId: faker.datatype.uuid(),
-                            toPay: `${Math.floor(this.toPay.min + _gaussianRand() * (this.toPay.max - this.toPay.min + 1))}.00`,
-                            period: this.periods[p],
-                            recipient: PAYMENT_ORGANIZATION,
-                            raw: BASE_JSON,
+                            ...receipt, toPay: `${toPay}.00`,
                         })
                         break
+                    // case AVAILABLE_LEVELS.toPayDetails: {
+                    //     if _gaussianRand()
+                    //     const charge = _gaussianInt(0, toPay)
+                    //     const
+                    //     break
+                    // }
                     default:
                         throw new Error(`Cant generate receipts! Detail level is wrong. Should be 1. Got ${this.detailLevel}`)
                 }
@@ -199,7 +220,7 @@ const createReceipts = async ([billingContextId]) => {
 
     const ReceiptsManager = new ReceiptsGenerator({
         billingContextId: billingContextId,
-        detailLevel: 1,
+        detailLevel: AVAILABLE_LEVELS.base,
         propertyQuantity: PROPERTY_QUANTITY,
         accountsPerProperty: ACCOUNTS_PER_PROPERTY_DISTRIBUTION,
         periods: getPreviousPeriods(CURRENT_PERIOD, PERIODS_AMOUNT),
