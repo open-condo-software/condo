@@ -1836,6 +1836,8 @@ export type BillingIntegration = {
   detailsInstructionButtonText?: Maybe<Scalars['String']>;
   /**  Link to external resource, on which you will go by clicking on "Instruction" button  */
   detailsInstructionButtonLink?: Maybe<Scalars['String']>;
+  /**  This title is shown on /billing page, usually contains word "Billing"  */
+  billingPageTitle?: Maybe<Scalars['String']>;
   /**  Status, which BillingIntegrationOrganizationContext, linked to this integration, will have after creation  */
   contextDefaultStatus?: Maybe<Scalars['String']>;
   /**  Format of the data, that is output of this integration. This field specifies the detail and size of columns. If not specified we can only show first level of detail (address, account, toPay)  */
@@ -2140,6 +2142,7 @@ export type BillingIntegrationCreateInput = {
   detailsConfirmButtonText?: Maybe<Scalars['String']>;
   detailsInstructionButtonText?: Maybe<Scalars['String']>;
   detailsInstructionButtonLink?: Maybe<Scalars['String']>;
+  billingPageTitle?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<Scalars['JSON']>;
   currency?: Maybe<BillingCurrencyRelateToOneInput>;
@@ -2173,6 +2176,7 @@ export type BillingIntegrationHistoryRecord = {
   detailsConfirmButtonText?: Maybe<Scalars['String']>;
   detailsInstructionButtonText?: Maybe<Scalars['String']>;
   detailsInstructionButtonLink?: Maybe<Scalars['String']>;
+  billingPageTitle?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<Scalars['JSON']>;
   currency?: Maybe<Scalars['String']>;
@@ -2199,6 +2203,7 @@ export type BillingIntegrationHistoryRecordCreateInput = {
   detailsConfirmButtonText?: Maybe<Scalars['String']>;
   detailsInstructionButtonText?: Maybe<Scalars['String']>;
   detailsInstructionButtonLink?: Maybe<Scalars['String']>;
+  billingPageTitle?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<Scalars['JSON']>;
   currency?: Maybe<Scalars['String']>;
@@ -2230,6 +2235,7 @@ export type BillingIntegrationHistoryRecordUpdateInput = {
   detailsConfirmButtonText?: Maybe<Scalars['String']>;
   detailsInstructionButtonText?: Maybe<Scalars['String']>;
   detailsInstructionButtonLink?: Maybe<Scalars['String']>;
+  billingPageTitle?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<Scalars['JSON']>;
   currency?: Maybe<Scalars['String']>;
@@ -2386,6 +2392,24 @@ export type BillingIntegrationHistoryRecordWhereInput = {
   detailsInstructionButtonLink_not_ends_with_i?: Maybe<Scalars['String']>;
   detailsInstructionButtonLink_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   detailsInstructionButtonLink_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  billingPageTitle?: Maybe<Scalars['String']>;
+  billingPageTitle_not?: Maybe<Scalars['String']>;
+  billingPageTitle_contains?: Maybe<Scalars['String']>;
+  billingPageTitle_not_contains?: Maybe<Scalars['String']>;
+  billingPageTitle_starts_with?: Maybe<Scalars['String']>;
+  billingPageTitle_not_starts_with?: Maybe<Scalars['String']>;
+  billingPageTitle_ends_with?: Maybe<Scalars['String']>;
+  billingPageTitle_not_ends_with?: Maybe<Scalars['String']>;
+  billingPageTitle_i?: Maybe<Scalars['String']>;
+  billingPageTitle_not_i?: Maybe<Scalars['String']>;
+  billingPageTitle_contains_i?: Maybe<Scalars['String']>;
+  billingPageTitle_not_contains_i?: Maybe<Scalars['String']>;
+  billingPageTitle_starts_with_i?: Maybe<Scalars['String']>;
+  billingPageTitle_not_starts_with_i?: Maybe<Scalars['String']>;
+  billingPageTitle_ends_with_i?: Maybe<Scalars['String']>;
+  billingPageTitle_not_ends_with_i?: Maybe<Scalars['String']>;
+  billingPageTitle_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  billingPageTitle_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   contextDefaultStatus_not?: Maybe<Scalars['String']>;
   contextDefaultStatus_contains?: Maybe<Scalars['String']>;
@@ -3075,6 +3099,7 @@ export type BillingIntegrationUpdateInput = {
   detailsConfirmButtonText?: Maybe<Scalars['String']>;
   detailsInstructionButtonText?: Maybe<Scalars['String']>;
   detailsInstructionButtonLink?: Maybe<Scalars['String']>;
+  billingPageTitle?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<Scalars['JSON']>;
   currency?: Maybe<BillingCurrencyRelateToOneInput>;
@@ -3229,6 +3254,24 @@ export type BillingIntegrationWhereInput = {
   detailsInstructionButtonLink_not_ends_with_i?: Maybe<Scalars['String']>;
   detailsInstructionButtonLink_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   detailsInstructionButtonLink_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  billingPageTitle?: Maybe<Scalars['String']>;
+  billingPageTitle_not?: Maybe<Scalars['String']>;
+  billingPageTitle_contains?: Maybe<Scalars['String']>;
+  billingPageTitle_not_contains?: Maybe<Scalars['String']>;
+  billingPageTitle_starts_with?: Maybe<Scalars['String']>;
+  billingPageTitle_not_starts_with?: Maybe<Scalars['String']>;
+  billingPageTitle_ends_with?: Maybe<Scalars['String']>;
+  billingPageTitle_not_ends_with?: Maybe<Scalars['String']>;
+  billingPageTitle_i?: Maybe<Scalars['String']>;
+  billingPageTitle_not_i?: Maybe<Scalars['String']>;
+  billingPageTitle_contains_i?: Maybe<Scalars['String']>;
+  billingPageTitle_not_contains_i?: Maybe<Scalars['String']>;
+  billingPageTitle_starts_with_i?: Maybe<Scalars['String']>;
+  billingPageTitle_not_starts_with_i?: Maybe<Scalars['String']>;
+  billingPageTitle_ends_with_i?: Maybe<Scalars['String']>;
+  billingPageTitle_not_ends_with_i?: Maybe<Scalars['String']>;
+  billingPageTitle_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  billingPageTitle_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   contextDefaultStatus_not?: Maybe<Scalars['String']>;
   contextDefaultStatus_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -17469,6 +17512,8 @@ export enum SortBillingIntegrationHistoryRecordsBy {
   DetailsInstructionButtonTextDesc = 'detailsInstructionButtonText_DESC',
   DetailsInstructionButtonLinkAsc = 'detailsInstructionButtonLink_ASC',
   DetailsInstructionButtonLinkDesc = 'detailsInstructionButtonLink_DESC',
+  BillingPageTitleAsc = 'billingPageTitle_ASC',
+  BillingPageTitleDesc = 'billingPageTitle_DESC',
   ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
   ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   IdAsc = 'id_ASC',
@@ -17575,6 +17620,8 @@ export enum SortBillingIntegrationsBy {
   DetailsInstructionButtonTextDesc = 'detailsInstructionButtonText_DESC',
   DetailsInstructionButtonLinkAsc = 'detailsInstructionButtonLink_ASC',
   DetailsInstructionButtonLinkDesc = 'detailsInstructionButtonLink_DESC',
+  BillingPageTitleAsc = 'billingPageTitle_ASC',
+  BillingPageTitleDesc = 'billingPageTitle_DESC',
   ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
   ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   CurrencyAsc = 'currency_ASC',
