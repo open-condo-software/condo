@@ -18,6 +18,8 @@ type ChartConfigResult = {
     }
 }
 
+type PieChartConfigResult = Pick<ChartConfigResult, 'series'> //& { dataset: { source: any[] } }
+
 interface IGetChartConfig extends IGetBaseChartConfig<ViewModeTypes, AnalyticsDataType, ChartConfigResult>{
     (viewMode: ViewModeTypes, data: AnalyticsDataType): {
         legend,
@@ -30,6 +32,12 @@ interface IGetChartConfig extends IGetBaseChartConfig<ViewModeTypes, AnalyticsDa
             trigger,
             axisPointer: { type }
         }
+    }
+}
+
+interface IGetPieChartConfig extends IGetBaseChartConfig<ViewModeTypes, AnalyticsDataType, PieChartConfigResult> {
+    (viewMode: ViewModeTypes, data: AnalyticsDataType): {
+        series
     }
 }
 
@@ -51,7 +59,7 @@ interface IGetTableConfig extends IGetBaseTableConfig<ViewModeTypes, AnalyticsDa
 export type ChartConfigMapType = {
     bar?: { chart: IGetChartConfig; table: IGetTableConfig; };
     line?: { chart: IGetChartConfig; table: IGetTableConfig; };
-    pie?: { chart: IGetChartConfig; table: IGetTableConfig; };
+    pie?: { chart: IGetPieChartConfig; table: IGetTableConfig; };
 }
 
 class TicketChart extends BaseChart<ChartConfigMapType, ChartConfigResult, TableConfigResult>{
