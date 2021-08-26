@@ -10148,6 +10148,10 @@ export type Organization = {
   statusTransitions?: Maybe<Scalars['JSON']>;
   /**  Default employee role status transitions map which will be used as fallback for status transition validationif user dont have OrganizationEmployeeRole  */
   defaultEmployeeRoleStatusTransitions?: Maybe<Scalars['JSON']>;
+  /**  External system organization id. Used for integrations  */
+  importId?: Maybe<Scalars['String']>;
+  /**  External provider for organization  */
+  importRemoteSystem?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -10217,6 +10221,8 @@ export type OrganizationCreateInput = {
   meta?: Maybe<Scalars['JSON']>;
   employees?: Maybe<OrganizationEmployeeRelateToManyInput>;
   relatedOrganizations?: Maybe<OrganizationLinkRelateToManyInput>;
+  importId?: Maybe<Scalars['String']>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -11283,6 +11289,8 @@ export type OrganizationHistoryRecord = {
   meta?: Maybe<Scalars['JSON']>;
   statusTransitions?: Maybe<Scalars['JSON']>;
   defaultEmployeeRoleStatusTransitions?: Maybe<Scalars['JSON']>;
+  importId?: Maybe<Scalars['String']>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -11306,6 +11314,8 @@ export type OrganizationHistoryRecordCreateInput = {
   meta?: Maybe<Scalars['JSON']>;
   statusTransitions?: Maybe<Scalars['JSON']>;
   defaultEmployeeRoleStatusTransitions?: Maybe<Scalars['JSON']>;
+  importId?: Maybe<Scalars['String']>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -11334,6 +11344,8 @@ export type OrganizationHistoryRecordUpdateInput = {
   meta?: Maybe<Scalars['JSON']>;
   statusTransitions?: Maybe<Scalars['JSON']>;
   defaultEmployeeRoleStatusTransitions?: Maybe<Scalars['JSON']>;
+  importId?: Maybe<Scalars['String']>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -11417,6 +11429,42 @@ export type OrganizationHistoryRecordWhereInput = {
   defaultEmployeeRoleStatusTransitions_not?: Maybe<Scalars['JSON']>;
   defaultEmployeeRoleStatusTransitions_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   defaultEmployeeRoleStatusTransitions_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  importId?: Maybe<Scalars['String']>;
+  importId_not?: Maybe<Scalars['String']>;
+  importId_contains?: Maybe<Scalars['String']>;
+  importId_not_contains?: Maybe<Scalars['String']>;
+  importId_starts_with?: Maybe<Scalars['String']>;
+  importId_not_starts_with?: Maybe<Scalars['String']>;
+  importId_ends_with?: Maybe<Scalars['String']>;
+  importId_not_ends_with?: Maybe<Scalars['String']>;
+  importId_i?: Maybe<Scalars['String']>;
+  importId_not_i?: Maybe<Scalars['String']>;
+  importId_contains_i?: Maybe<Scalars['String']>;
+  importId_not_contains_i?: Maybe<Scalars['String']>;
+  importId_starts_with_i?: Maybe<Scalars['String']>;
+  importId_not_starts_with_i?: Maybe<Scalars['String']>;
+  importId_ends_with_i?: Maybe<Scalars['String']>;
+  importId_not_ends_with_i?: Maybe<Scalars['String']>;
+  importId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
+  importRemoteSystem_not?: Maybe<Scalars['String']>;
+  importRemoteSystem_contains?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_contains?: Maybe<Scalars['String']>;
+  importRemoteSystem_starts_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_starts_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_ends_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_ends_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_contains_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_contains_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_starts_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_starts_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_ends_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_ends_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importRemoteSystem_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -11825,6 +11873,8 @@ export type OrganizationUpdateInput = {
   meta?: Maybe<Scalars['JSON']>;
   employees?: Maybe<OrganizationEmployeeRelateToManyInput>;
   relatedOrganizations?: Maybe<OrganizationLinkRelateToManyInput>;
+  importId?: Maybe<Scalars['String']>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -11909,6 +11959,42 @@ export type OrganizationWhereInput = {
   relatedOrganizations_some?: Maybe<OrganizationLinkWhereInput>;
   /**  condition must be false for all nodes  */
   relatedOrganizations_none?: Maybe<OrganizationLinkWhereInput>;
+  importId?: Maybe<Scalars['String']>;
+  importId_not?: Maybe<Scalars['String']>;
+  importId_contains?: Maybe<Scalars['String']>;
+  importId_not_contains?: Maybe<Scalars['String']>;
+  importId_starts_with?: Maybe<Scalars['String']>;
+  importId_not_starts_with?: Maybe<Scalars['String']>;
+  importId_ends_with?: Maybe<Scalars['String']>;
+  importId_not_ends_with?: Maybe<Scalars['String']>;
+  importId_i?: Maybe<Scalars['String']>;
+  importId_not_i?: Maybe<Scalars['String']>;
+  importId_contains_i?: Maybe<Scalars['String']>;
+  importId_not_contains_i?: Maybe<Scalars['String']>;
+  importId_starts_with_i?: Maybe<Scalars['String']>;
+  importId_not_starts_with_i?: Maybe<Scalars['String']>;
+  importId_ends_with_i?: Maybe<Scalars['String']>;
+  importId_not_ends_with_i?: Maybe<Scalars['String']>;
+  importId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
+  importRemoteSystem_not?: Maybe<Scalars['String']>;
+  importRemoteSystem_contains?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_contains?: Maybe<Scalars['String']>;
+  importRemoteSystem_starts_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_starts_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_ends_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_ends_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_contains_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_contains_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_starts_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_starts_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_ends_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_ends_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importRemoteSystem_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -16957,6 +17043,10 @@ export enum SortOrganizationHistoryRecordsBy {
   CountryDesc = 'country_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  ImportIdAsc = 'importId_ASC',
+  ImportIdDesc = 'importId_DESC',
+  ImportRemoteSystemAsc = 'importRemoteSystem_ASC',
+  ImportRemoteSystemDesc = 'importRemoteSystem_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -17028,6 +17118,10 @@ export enum SortOrganizationsBy {
   EmployeesDesc = 'employees_DESC',
   RelatedOrganizationsAsc = 'relatedOrganizations_ASC',
   RelatedOrganizationsDesc = 'relatedOrganizations_DESC',
+  ImportIdAsc = 'importId_ASC',
+  ImportIdDesc = 'importId_DESC',
+  ImportRemoteSystemAsc = 'importRemoteSystem_ASC',
+  ImportRemoteSystemDesc = 'importRemoteSystem_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -17976,6 +18070,8 @@ export enum SortUserHistoryRecordsBy {
   IsPhoneVerifiedDesc = 'isPhoneVerified_DESC',
   ImportIdAsc = 'importId_ASC',
   ImportIdDesc = 'importId_DESC',
+  ImportRemoteSystemAsc = 'importRemoteSystem_ASC',
+  ImportRemoteSystemDesc = 'importRemoteSystem_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -18015,6 +18111,8 @@ export enum SortUsersBy {
   IsPhoneVerifiedDesc = 'isPhoneVerified_DESC',
   ImportIdAsc = 'importId_ASC',
   ImportIdDesc = 'importId_DESC',
+  ImportRemoteSystemAsc = 'importRemoteSystem_ASC',
+  ImportRemoteSystemDesc = 'importRemoteSystem_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -23744,6 +23842,8 @@ export type User = {
   meta?: Maybe<Scalars['JSON']>;
   /**  External system user id. Used for integrations  */
   importId?: Maybe<Scalars['String']>;
+  /**  External provider for user  */
+  importRemoteSystem?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -23776,6 +23876,7 @@ export type UserCreateInput = {
   avatar?: Maybe<Scalars['Upload']>;
   meta?: Maybe<Scalars['JSON']>;
   importId?: Maybe<Scalars['String']>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -23812,6 +23913,7 @@ export type UserHistoryRecord = {
   avatar?: Maybe<Scalars['JSON']>;
   meta?: Maybe<Scalars['JSON']>;
   importId?: Maybe<Scalars['String']>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -23842,6 +23944,7 @@ export type UserHistoryRecordCreateInput = {
   avatar?: Maybe<Scalars['JSON']>;
   meta?: Maybe<Scalars['JSON']>;
   importId?: Maybe<Scalars['String']>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -23877,6 +23980,7 @@ export type UserHistoryRecordUpdateInput = {
   avatar?: Maybe<Scalars['JSON']>;
   meta?: Maybe<Scalars['JSON']>;
   importId?: Maybe<Scalars['String']>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -24034,6 +24138,24 @@ export type UserHistoryRecordWhereInput = {
   importId_not_ends_with_i?: Maybe<Scalars['String']>;
   importId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   importId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
+  importRemoteSystem_not?: Maybe<Scalars['String']>;
+  importRemoteSystem_contains?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_contains?: Maybe<Scalars['String']>;
+  importRemoteSystem_starts_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_starts_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_ends_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_ends_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_contains_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_contains_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_starts_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_starts_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_ends_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_ends_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importRemoteSystem_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -24148,6 +24270,7 @@ export type UserUpdateInput = {
   avatar?: Maybe<Scalars['Upload']>;
   meta?: Maybe<Scalars['JSON']>;
   importId?: Maybe<Scalars['String']>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -24267,6 +24390,24 @@ export type UserWhereInput = {
   importId_not_ends_with_i?: Maybe<Scalars['String']>;
   importId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   importId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
+  importRemoteSystem_not?: Maybe<Scalars['String']>;
+  importRemoteSystem_contains?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_contains?: Maybe<Scalars['String']>;
+  importRemoteSystem_starts_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_starts_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_ends_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_ends_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_contains_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_contains_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_starts_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_starts_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_ends_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_ends_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importRemoteSystem_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
