@@ -14,9 +14,10 @@ const PAYMENT_SCHEMA = {
         recalculation: { type: 'string' },
         privilege: { type: 'string' },
         penalty: { type: 'string' },
+        volume: { type: 'string' },
     },
     required: ['formula'],
-    additionalProperties: false,
+    additionalProperties: true,
 }
 
 const jsonPaymentObjectSchemaValidator = ajv.compile(PAYMENT_SCHEMA)
