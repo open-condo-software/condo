@@ -9,7 +9,7 @@ const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/ut
 
 async function canReadMeterEntity ({ user }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin || user.isSupport) {
+    if (user.isAdmin) {
         return {}
     }
     if (user.type === RESIDENT) {
@@ -30,7 +30,7 @@ async function canReadMeterEntity ({ user }) {
 
 async function canManageMeterEntity ({ schema, user, itemId, operation, originalInput, context }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin || user.isSupport) return true
+    if (user.isAdmin) return true
     if (operation === 'create') {
         const organizationIdFromEntity = get(originalInput, ['organization', 'connect', 'id'])
         if (!organizationIdFromEntity) {
@@ -62,15 +62,12 @@ async function canManageMeterEntity ({ schema, user, itemId, operation, original
         if (!itemId) {
             return false
         }
-        const entity = await schema.getAll(context, { id: itemId })
+        const [entity] = await schema.getAll(context, { id: itemId })
         if (!entity) {
             return false
         }
-        if (entity.createdBy === user.id && user.type === RESIDENT) {
-            return true
-        }
 
-        const { organization: organizationIdFromMeterReading } = entity
+        const organizationIdFromMeterReading = get(entity, ['organization', 'id'])
 
         const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(context, user.id, organizationIdFromMeterReading, 'canManageMeters')
         if (canManageRelatedOrganizationTickets) {
