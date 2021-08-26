@@ -565,10 +565,10 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         ), [analyticsData, loading, viewMode])}
                     </Col>
                     <ActionBar fullscreen>
-                        <Button disabled={isControlsDisabled} onClick={printPdf} icon={<FilePdfFilled />} type='sberPrimary' secondary>
+                        <Button disabled={isControlsDisabled || isEmpty(analyticsData)} onClick={printPdf} icon={<FilePdfFilled />} type='sberPrimary' secondary>
                             {PrintTitle}
                         </Button>
-                        <Button disabled={isControlsDisabled} onClick={downloadExcel} loading={isXSLXLoading} icon={<EditFilled />} type='sberPrimary' secondary>{ExcelTitle}</Button>
+                        <Button disabled={isControlsDisabled || isEmpty(analyticsData)} onClick={downloadExcel} loading={isXSLXLoading} icon={<EditFilled />} type='sberPrimary' secondary>{ExcelTitle}</Button>
                     </ActionBar>
                 </Row>
             </PageContent>

@@ -8,6 +8,7 @@ const { makeClientWithProperty } = require('@condo/domains/property/utils/testSc
 const { createTestUser, makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
 const { createTestTicket, makeClientWithTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const isObsConfigured = require('@condo/domains/ticket/utils/testSchema/isObsConfigured')
 
 describe('TicketAnalyticsReportService', () => {
     describe('User', () => {
@@ -136,28 +137,30 @@ describe('TicketAnalyticsReportService', () => {
         })
 
         it('can read exportTicketAnalyticsToExcel with selected organization', async () => {
-            const client = await makeClientWithProperty()
-            await createTestTicket(client, client.organization, client.property)
-            const dateStart = moment().startOf('week')
-            const dateEnd = moment().endOf('week')
-            const { data: { result: { link } } }  = await client.query(EXPORT_TICKET_ANALYTICS_TO_EXCEL, {
-                dv: 1,
-                sender: { dv: 1, fingerprint: 'tests' },
-                data: {
-                    where: {
-                        organization: { id: client.organization.id },
-                        AND: [
-                            { createdAt_gte: dateStart.toISOString() },
-                            { createdAt_lte: dateEnd.toISOString() },
-                        ],
+            if (isObsConfigured()) {
+                const client = await makeClientWithProperty()
+                await createTestTicket(client, client.organization, client.property)
+                const dateStart = moment().startOf('week')
+                const dateEnd = moment().endOf('week')
+                const { data: { result: { link } } }  = await client.query(EXPORT_TICKET_ANALYTICS_TO_EXCEL, {
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: 'tests' },
+                    data: {
+                        where: {
+                            organization: { id: client.organization.id },
+                            AND: [
+                                { createdAt_gte: dateStart.toISOString() },
+                                { createdAt_lte: dateEnd.toISOString() },
+                            ],
+                        },
+                        groupBy: ['status', 'day'],
+                        translates: {
+                            property: client.property.address,
+                        },
                     },
-                    groupBy: ['status', 'day'],
-                    translates: {
-                        property: client.property.address,
-                    },
-                },
-            })
-            expect(link).not.toHaveLength(0)
+                })
+                expect(link).not.toHaveLength(0)
+            }
         })
 
         it('can not read exportTicketAnalyticsToExcel from another organization', async () => {

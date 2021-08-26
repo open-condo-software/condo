@@ -6,14 +6,7 @@ const { EXPORT_TICKETS_TO_EXCEL } = require('@condo/domains/ticket/gql')
 const { makeClient } = require('@core/keystone/test.utils')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
-
-// TODO(zuch): remove after tests will have obs configuration in .env
-const isObsConfigured = () => {
-    const S3Config = {
-        ...(process.env.SBERCLOUD_OBS_CONFIG ? JSON.parse(process.env.SBERCLOUD_OBS_CONFIG) : {}),
-    }
-    return !!(S3Config.bucket)
-}
+const isObsConfigured = require('@condo/domains/ticket/utils/testSchema/isObsConfigured')
 
 describe('ExportTicketService', () => {
     describe('User', () => {
