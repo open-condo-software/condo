@@ -46,7 +46,7 @@ async function canManageMeterReadings ({ authentication: { item: user }, origina
 
         const propertyId = get(originalInput, ['property', 'connect', 'id'])
 
-        const [property] = await Property.getAll({ id: propertyId })
+        const [property] = await Property.getAll(context, { id: propertyId })
         if (!property) {
             return false
         }
@@ -57,7 +57,7 @@ async function canManageMeterReadings ({ authentication: { item: user }, origina
         if (canManageRelatedOrganizationTickets) {
             return true
         }
-        const organizationIdFromProperty = get(property, 'organization')
+        const organizationIdFromProperty = get(property, ['organization', 'id'])
         const canManageMeterReadings = await checkOrganizationPermission(context, user.id, organizationIdFromMeter, 'canManageMeters')
         if (!canManageMeterReadings) {
             return false
@@ -69,7 +69,7 @@ async function canManageMeterReadings ({ authentication: { item: user }, origina
         if (!itemId) {
             return false
         }
-        const meterReading = await MeterReading.getAll({ id: itemId })
+        const meterReading = await MeterReading.getAll(context, { id: itemId })
         if (!meterReading) {
             return false
         }
@@ -90,12 +90,12 @@ async function canManageMeterReadings ({ authentication: { item: user }, origina
 
         const propertyId = get(originalInput, ['property', 'connect', 'id'])
         if (propertyId) {
-            const property = await getById('Property', propertyId)
+            const [property] = await Property.getAll(context, { id: propertyId })
             if (!property) {
                 return false
             }
 
-            const organizationIdFromProperty = get(property, 'organization')
+            const organizationIdFromProperty = get(property, ['organization', 'id'])
             const isSameOrganization = organizationIdFromMeterReading === organizationIdFromProperty
 
             if (!isSameOrganization) {

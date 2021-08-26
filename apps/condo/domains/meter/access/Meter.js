@@ -45,7 +45,7 @@ async function canManageMeters ({ authentication: { item: user }, originalInput,
 
         const propertyId = get(originalInput, ['property', 'connect', 'id'])
 
-        const [property] = await Property.getAll({ id: propertyId })
+        const [property] = await Property.getAll(context, { id: propertyId })
         if (!property) {
             return false
         }
@@ -56,7 +56,7 @@ async function canManageMeters ({ authentication: { item: user }, originalInput,
         if (canManageRelatedOrganizationTickets) {
             return true
         }
-        const organizationIdFromProperty = get(property, 'organization')
+        const organizationIdFromProperty = get(property, ['organization', 'id'])
         const canManageMeters = await checkOrganizationPermission(context, user.id, organizationIdFromMeter, 'canManageMeters')
         if (!canManageMeters) {
             return false
@@ -68,7 +68,7 @@ async function canManageMeters ({ authentication: { item: user }, originalInput,
         if (!itemId) {
             return false
         }
-        const meter = await Meter.getAll({ id: itemId })
+        const meter = await Meter.getAll(context, { id: itemId })
         if (!meter) {
             return false
         }
@@ -89,12 +89,12 @@ async function canManageMeters ({ authentication: { item: user }, originalInput,
 
         const propertyId = get(originalInput, ['property', 'connect', 'id'])
         if (propertyId) {
-            const property = await getById('Property', propertyId)
+            const [property] = await Property.getAll(context, { id: propertyId })
             if (!property) {
                 return false
             }
 
-            const organizationIdFromProperty = get(property, 'organization')
+            const organizationIdFromProperty = get(property, ['organization', 'id'])
             const isSameOrganization = organizationIdFromMeter === organizationIdFromProperty
 
             if (!isSameOrganization) {
