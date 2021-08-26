@@ -10,7 +10,6 @@ import { useOrganization } from '@core/next/organization'
 import { FormResetButton } from '@condo/domains/common/components/FormResetButton'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Loader } from '@condo/domains/common/components/Loader'
-import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 
 interface IUpdateDivisionForm {
     id: string
@@ -19,9 +18,7 @@ interface IUpdateDivisionForm {
 export const UpdateDivisionForm: React.FC<IUpdateDivisionForm> = ({ id }) => {
     const intl = useIntl()
     const ApplyChangesLabel = intl.formatMessage({ id: 'ApplyChanges' })
-    const ConfirmDeleteTitle = intl.formatMessage({ id: 'division.action.delete.confirm.title' })
-    const ConfirmDeleteMessage = intl.formatMessage({ id: 'division.action.delete.confirm.message' })
-    const DeleteDivisionLabel = intl.formatMessage({ id: 'division.action.delete.confirm.ok' })
+
     const router = useRouter()
     const { organization } = useOrganization()
     const { refetch, obj: division, loading, error } = Division.useObject({ where: { id } })
@@ -32,16 +29,8 @@ export const UpdateDivisionForm: React.FC<IUpdateDivisionForm> = ({ id }) => {
         router.push(`/division/${division.id}`)
     }
 
-    const handleCompleteSoftDelete = () => {
-        router.push('/property?tab=divisions')
-    }
-
     const action = Division.useUpdate({}, handleCompleteUpdate)
     const updateAction = (value) => action(value, division)
-
-    // TODO: Add separate type for `useSoftDelete` in SBERDOMA-1048
-    // @ts-ignore
-    const softDeleteAction = Division.useSoftDelete({}, handleCompleteSoftDelete)
 
     useEffect(() => {
         refetch()
@@ -90,12 +79,6 @@ export const UpdateDivisionForm: React.FC<IUpdateDivisionForm> = ({ id }) => {
                                                     responsible={responsible}
                                                 />
                                             </Space>
-                                            <DeleteButtonWithConfirmModal
-                                                title={ConfirmDeleteTitle}
-                                                message={ConfirmDeleteMessage}
-                                                okButtonLabel={DeleteDivisionLabel}
-                                                action={() => softDeleteAction({}, division)}
-                                            />
                                         </ActionBar>
                                     </>
                                 )
