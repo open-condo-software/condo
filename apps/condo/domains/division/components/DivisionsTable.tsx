@@ -28,7 +28,7 @@ type BuildingTableProps = {
 export default function DivisionPageViewTable (props: BuildingTableProps) {
     const intl = useIntl()
 
-    const CreateLabel = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
+    const CreateLabel = intl.formatMessage({ id: 'pages.condo.division.index.CreateDivisionButtonLabel' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.id.PageTitle' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
@@ -127,7 +127,7 @@ export default function DivisionPageViewTable (props: BuildingTableProps) {
                             type={'sberPrimary'}
                             icon={<DiffOutlined />}
                             secondary />
-                        <Button type='sberPrimary' onClick={() => router.push('/buildings/create')}>
+                        <Button type='sberPrimary' onClick={() => router.push('/division/create')}>
                             {CreateLabel}
                         </Button>
                     </Space>
