@@ -19,6 +19,8 @@ import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { useObject, useSoftDelete } from '@condo/domains/division/utils/clientSchema/Division'
 import { Division } from '../../../schema'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
+import Error from 'next/error'
+import { FeatureFlagRequired } from '@condo/domains/common/components/containers/FeatureFlag'
 
 interface IDivisionPageContentProps {
     division: Division
@@ -166,7 +168,7 @@ const DivisionPage: IDivisionPageProps = () => {
 
 
     return (
-        <>
+        <FeatureFlagRequired name={'division'} fallback={<Error statusCode={404}/>}>
             <Head>
                 <title>{PageTitleMsg}</title>
             </Head>
@@ -196,7 +198,7 @@ const DivisionPage: IDivisionPageProps = () => {
                     </ActionBar>
                 </PageContent>
             </PageWrapper>
-        </>
+        </FeatureFlagRequired>
     )
 }
 
