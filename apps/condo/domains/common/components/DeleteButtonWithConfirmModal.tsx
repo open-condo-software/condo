@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { Typography } from 'antd'
+import { ButtonProps, Typography } from 'antd'
 import { Button } from './Button'
 import Modal from 'antd/lib/modal/Modal'
 import React, { useState } from 'react'
@@ -11,6 +11,8 @@ interface IDeleteActionButtonWithConfirmModal {
     title: string
     message: string
     okButtonLabel: string
+    buttonCustomProps?: ButtonProps
+    buttonContent?: React.ReactNode
     action: () => Promise<any>
 }
 
@@ -22,6 +24,8 @@ export const DeleteButtonWithConfirmModal: React.FC<IDeleteActionButtonWithConfi
     title,
     message,
     okButtonLabel,
+    buttonCustomProps,
+    buttonContent,
     action,
 }) => {
     const intl = useIntl()
@@ -58,8 +62,9 @@ export const DeleteButtonWithConfirmModal: React.FC<IDeleteActionButtonWithConfi
                 type='sberDanger'
                 loading={isDeleting}
                 secondary
+                {...buttonCustomProps}
             >
-                <DeleteFilled />
+                {buttonContent || <DeleteFilled/>}
             </Button>
             <Modal
                 title={
