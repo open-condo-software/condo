@@ -1,4 +1,5 @@
 import { Typography, Row, Col } from 'antd'
+import Error from 'next/error'
 import Head from 'next/head'
 import React from 'react'
 import { useIntl } from '@core/next/intl'
@@ -6,6 +7,7 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { CreateDivisionForm } from '@condo/domains/division/components/DivisionForm/CreateDivisionForm'
+import { FeatureFlagRequired } from '@condo/domains/common/components/containers/FeatureFlag'
 
 interface ICreateDivisionPage extends React.FC {
     headerAction?: JSX.Element
@@ -16,7 +18,7 @@ const CreateDivisionPage: ICreateDivisionPage = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id:'pages.condo.division.create.CreateDivisionTitle' })
     return (
-        <>
+        <FeatureFlagRequired name={'division'} fallback={<Error statusCode={404}/>}>
             <Head>
                 <title>{PageTitleMsg}</title>
             </Head>
@@ -32,7 +34,7 @@ const CreateDivisionPage: ICreateDivisionPage = () => {
                     </Row>
                 </PageContent>
             </PageWrapper>
-        </>
+        </FeatureFlagRequired>
     )
 }
 
