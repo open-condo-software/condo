@@ -36,12 +36,16 @@ const MeterReading = new GQLListSchema('MeterReading', {
             schemaDoc: 'Client\'s billing account',
             type: Relationship,
             ref: 'BillingAccount',
+            knexOptions: { isNotNullable: false }, // Relationship only!
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
 
         billingAccountMeter: {
             schemaDoc: 'Link to BillingAccountMeter if it exist in billing context',
             type: Relationship,
             ref: 'BillingAccountMeter',
+            knexOptions: { isNotNullable: false }, // Relationship only!
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
 
         date: {
