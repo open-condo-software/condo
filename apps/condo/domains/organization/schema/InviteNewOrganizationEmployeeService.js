@@ -18,11 +18,11 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
     types: [
         {
             access: true,
-            type: 'input InviteNewOrganizationEmployeeInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, email: String!, phone: String, name: String, role: OrganizationEmployeeWhereUniqueInput, position: String}',
+            type: 'input InviteNewOrganizationEmployeeInput { dv: Int!, sender: JSON!, organization: OrganizationWhereUniqueInput!, email: String!, phone: String, name: String, role: OrganizationEmployeeWhereUniqueInput, position: String, specializations: [TicketClassifierWhereInput!]!}',
         },
         {
             access: true,
-            type: 'input ReInviteOrganizationEmployeeInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, email: String!, phone: String}',
+            type: 'input ReInviteOrganizationEmployeeInput { dv: Int!, sender: JSON!, organization: OrganizationWhereUniqueInput!, email: String!, phone: String}',
         },
     ],
     mutations: [
@@ -32,7 +32,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
             resolver: async (parent, args, context) => {
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
                 const { data } = args
-                let { organization, email, phone, role, position, name, ...restData } = data
+                let { organization, email, phone, role, position, name, specializations, ...restData } = data
                 phone = normalizePhone(phone)
                 email = normalizeEmail(email)
                 if (!phone) throw new Error(`${PHONE_WRONG_FORMAT_ERROR}phone] invalid format`)
@@ -81,6 +81,9 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     email,
                     name,
                     phone,
+                    specializations: {
+                        connect: specializations,
+                    },
                     ...restData,
                 })
 

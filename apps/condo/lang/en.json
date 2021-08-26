@@ -397,6 +397,7 @@
   "pages.users.status.WaitAcceptOrReject": "User registered, waiting for an accept/reject action",
   "pages.users.UserIsAlreadyInList": "The user is already in user list",
   "employee.Position": "Position",
+  "employee.Specializations": "Specializations",
   "employee.AddEmployee": "Add employee",
   "employee.InviteEmployee": "Invite employee",
   "employee.Role": "Role",
