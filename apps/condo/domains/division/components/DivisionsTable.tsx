@@ -1,8 +1,7 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { useRouter } from 'next/router'
 import { debounce } from 'lodash'
 import qs from 'qs'
-import { useLazyQuery } from '@apollo/client'
 
 import { PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
 import { useTableColumns } from '@condo/domains/division/hooks/useTableColumns'
@@ -10,8 +9,7 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 import { useOrganization } from '@core/next/organization'
 import { useIntl } from '@core/next/intl'
 
-import { EXPORT_PROPERTIES_TO_EXCEL } from '@condo/domains/property/gql'
-import { Col, Input, notification, Row, Space, Typography } from 'antd'
+import { Col, Input, Row, Space, Typography } from 'antd'
 import { Table } from '@condo/domains/common/components/Table'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { DatabaseFilled, DiffOutlined } from '@ant-design/icons'
@@ -19,8 +17,8 @@ import { Button } from '@condo/domains/common/components/Button'
 import { getFilter, getPageIndexFromOffset, getSorterMap, parseQuery, QueryMeta } from '@condo/domains/common/utils/tables.utils'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { Division } from '@condo/domains/division/utils/clientSchema'
-import { Tooltip } from '../../common/components/Tooltip'
-import { colors } from '../../common/constants/style'
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
+import { colors } from '@condo/domains/common/constants/style'
 
 
 type BuildingTableProps = {
