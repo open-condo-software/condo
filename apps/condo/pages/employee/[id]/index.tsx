@@ -1,4 +1,4 @@
-import { DeleteFilled, EditFilled } from '@ant-design/icons'
+import { EditFilled } from '@ant-design/icons'
 import { Button } from '@condo/domains/common/components/Button'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -12,14 +12,14 @@ import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
 import { Alert, Col, Row, Space, Switch, Tag, Typography } from 'antd'
-import Modal from 'antd/lib/modal/Modal'
 import Router from 'next/router'
 import get from 'lodash/get'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useState } from 'react'
+import React from 'react'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 
 const ReInviteActionAlert = ({ employee }) => {
     const intl = useIntl()
@@ -57,21 +57,13 @@ export const EmployeePageContent = ({
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
     const RoleMessage = intl.formatMessage({ id: 'employee.Role' })
     const BlockUserMessage = intl.formatMessage({ id: 'employee.BlockUser' })
-    const DeletePropertyLabel = intl.formatMessage({ id: 'Delete' })
+    const ConfirmDeleteButtonLabel = intl.formatMessage({ id: 'Delete' })
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'employee.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'employee.ConfirmDeleteMessage' })
 
-    const [isConfirmVisible, setIsConfirmVisible] = useState(false)
     const isEmployeeBlocked = get(employee, 'isBlocked')
 
     const name = get(employee, 'name')
-
-    const showConfirm = () => setIsConfirmVisible(true)
-    const handleOk = () => {
-        setIsConfirmVisible(false)
-        softDeleteAction({}, employee)
-    }
-    const handleCancel = () => setIsConfirmVisible(false)
 
     const handleEmployeeBlock = (blocked) => {
         if (!isEmployeeEditable) {
@@ -186,12 +178,12 @@ export const EmployeePageContent = ({
                                                             {UpdateMessage}
                                                         </Button>
                                                     </Link>
-                                                    <Button
-                                                        type='sberDanger'
-                                                        secondary
-                                                        onClick={showConfirm}>
-                                                        <DeleteFilled />
-                                                    </Button>
+                                                    <DeleteButtonWithConfirmModal
+                                                        title={ConfirmDeleteTitle}
+                                                        message={ConfirmDeleteMessage}
+                                                        okButtonLabel={ConfirmDeleteButtonLabel}
+                                                        action={() => softDeleteAction({}, employee)}
+                                                    />
                                                 </Space>
                                             </Col>
                                         )}
@@ -200,30 +192,6 @@ export const EmployeePageContent = ({
                             </Row>
                         </Col>
                     </Row>
-                    <Modal
-                        title={
-                            <Typography.Title style={{ fontSize: '24px', lineHeight: '32px' }}>
-                                {ConfirmDeleteTitle}
-                            </Typography.Title>
-                        }
-                        visible={isConfirmVisible}
-                        onCancel={handleCancel}
-                        footer={[
-                            <Button
-                                key='submit'
-                                type='sberDanger'
-                                secondary
-                                onClick={handleOk}
-                                style={{ margin: '15px' }}
-                            >
-                                {DeletePropertyLabel}
-                            </Button>,
-                        ]}
-                    >
-                        <Typography.Text>
-                            {ConfirmDeleteMessage}
-                        </Typography.Text>
-                    </Modal>
                 </PageContent>
             </PageWrapper>
         </>
