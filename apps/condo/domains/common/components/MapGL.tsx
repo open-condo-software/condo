@@ -25,7 +25,7 @@ export interface IPointsOfInterest {
 
 export interface IMapProps {
     points: [IPointsOfInterest],
-    containerCss?: any
+    containerCss?: React.CSSProperties
 }
 
 
@@ -53,7 +53,6 @@ export const MapGL: React.FC<IMapProps> = ({ points, containerCss }) => {
                 map.invalidateSize()
             })
             window.addEventListener('resize', handleResize)
-            // console.log(container)
         })
         return () => {
             window.removeEventListener('resize', handleResize)
