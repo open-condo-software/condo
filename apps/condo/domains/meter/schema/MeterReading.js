@@ -8,7 +8,11 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/meter/access/MeterReading')
+const { VALUE_LESS_THAN_PREVIOUS_ERROR } = require('@condo/domains/meter/constants/errors')
 const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
+const { MeterReading: MeterReadingApi } = require('../utils/serverSchema')
+const moment = require('moment')
+const { TIME_IS_UP_ERROR } = require('../constants/errors')
 
 
 const MeterReading = new GQLListSchema('MeterReading', {
@@ -59,6 +63,20 @@ const MeterReading = new GQLListSchema('MeterReading', {
             schemaDoc: 'Numerical value on the meter at the time of taking readings',
             type: Integer,
             isRequired: true,
+            hooks: {
+                validateInput: async ({ context, operation, itemId, resolvedData, fieldPath, addFieldValidationError }) => {
+                    if (operation === 'update') {
+                        const value = resolvedData[fieldPath]
+
+                        const [lastMeterReading] = await MeterReadingApi.getAll(context, { id: itemId }, {
+                            sortBy: ['createdAt_DESC'],
+                        })
+
+                        if (lastMeterReading && lastMeterReading.value > value)
+                            addFieldValidationError(`${VALUE_LESS_THAN_PREVIOUS_ERROR}value] Meter reading value less than previous`)
+                    }
+                },
+            },
         },
 
         source: {
@@ -70,6 +88,23 @@ const MeterReading = new GQLListSchema('MeterReading', {
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
         },
 
+    },
+    hooks: {
+        validateInput: async ({ context, operation, itemId, resolvedData, fieldPath, addFieldValidationError }) => {
+            // if 2 minutes have passed since the moment the readings were taken, then they cannot be changed
+            if (operation === 'update') {
+                const [meterReading] = await MeterReadingApi.getAll(context, { id: itemId }, {
+                    sortBy: ['createdAt_DESC'],
+                })
+                const createdDate = moment(meterReading.createdAt)
+                const now = moment()
+                const diffInMinutes = now.diff(createdDate, 'minutes')
+
+                if (!meterReading || diffInMinutes > 2) {
+                    addFieldValidationError(`${TIME_IS_UP_ERROR}date] 2 minutes have passed since MeterReading was created`)
+                }
+            }
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
