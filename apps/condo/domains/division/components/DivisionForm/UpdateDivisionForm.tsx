@@ -1,5 +1,5 @@
 import { Form, Space, Typography } from 'antd'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
 import BaseDivisionForm from '../BaseDivisionForm'
@@ -8,11 +8,9 @@ import { ErrorsContainer } from '../BaseDivisionForm/ErrorsContainer'
 import { Division } from '@condo/domains/division/utils/clientSchema'
 import { useOrganization } from '@core/next/organization'
 import { FormResetButton } from '@condo/domains/common/components/FormResetButton'
-import { runMutation } from '@condo/domains/common/utils/mutations.utils'
-import Modal from 'antd/lib/modal/Modal'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Loader } from '@condo/domains/common/components/Loader'
-import { omit } from 'lodash'
+import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 
 interface IUpdateDivisionForm {
     id: string
@@ -21,9 +19,9 @@ interface IUpdateDivisionForm {
 export const UpdateDivisionForm: React.FC<IUpdateDivisionForm> = ({ id }) => {
     const intl = useIntl()
     const ApplyChangesLabel = intl.formatMessage({ id: 'ApplyChanges' })
-    const DeleteDivisionLabel = intl.formatMessage({ id: 'division.form.actions.delete' })
-    const ConfirmDeleteTitle = intl.formatMessage({ id: 'pages.condo.division.form.ConfirmDeleteTitle' })
-    const ConfirmDeleteMessage = intl.formatMessage({ id: 'pages.condo.division.form.ConfirmDeleteMessage' })
+    const ConfirmDeleteTitle = intl.formatMessage({ id: 'division.action.delete.confirm.title' })
+    const ConfirmDeleteMessage = intl.formatMessage({ id: 'division.action.delete.confirm.message' })
+    const DeleteDivisionLabel = intl.formatMessage({ id: 'division.action.delete.confirm.ok' })
     const router = useRouter()
     const { organization } = useOrganization()
     const { refetch, obj: division, loading, error } = Division.useObject({ where: { id } })
@@ -44,36 +42,6 @@ export const UpdateDivisionForm: React.FC<IUpdateDivisionForm> = ({ id }) => {
     // TODO: Add separate type for `useSoftDelete` in SBERDOMA-1048
     // @ts-ignore
     const softDeleteAction = Division.useSoftDelete({}, handleCompleteSoftDelete)
-
-    const [isConfirmVisible, setIsConfirmVisible] = useState(false)
-    const [isDeleting, setIsDeleting] = useState(false)
-    const showConfirm = () => setIsConfirmVisible(true)
-
-    const handleSoftDelete = () => {
-        setIsConfirmVisible(false)
-        setIsDeleting(true)
-        return runMutation(
-            {
-                action: () => {
-                    // TODO: Add separate type for `useSoftDelete` in SBERDOMA-1048
-                    // @ts-ignore
-                    return softDeleteAction({}, division)
-                },
-                onError: (e) => {
-                    console.log(e)
-                    console.log(e.friendlyDescription)
-                    throw e
-                },
-                onCompleted: () => {
-                    setIsDeleting(false)
-                },
-                intl,
-            },
-        )
-    }
-
-    const handleCancel = () => setIsConfirmVisible(false)
-
 
     useEffect(() => {
         refetch()
@@ -102,29 +70,6 @@ export const UpdateDivisionForm: React.FC<IUpdateDivisionForm> = ({ id }) => {
                                 const { properties, responsible } = getFieldsValue(['properties', 'responsible'])
                                 return (
                                     <>
-                                        <Modal
-                                            title={
-                                                <Typography.Title style={{ fontSize: '24px', lineHeight: '32px' }}>
-                                                    {ConfirmDeleteTitle}
-                                                </Typography.Title>
-                                            }
-                                            visible={isConfirmVisible}
-                                            onCancel={handleCancel}
-                                            footer={[
-                                                <Button
-                                                    key="submit"
-                                                    type='sberDanger'
-                                                    onClick={handleSoftDelete}
-                                                    style={{ margin: '15px' }}
-                                                >
-                                                    {DeleteDivisionLabel}
-                                                </Button>,
-                                            ]}
-                                        >
-                                            <Typography.Text>
-                                                {ConfirmDeleteMessage}
-                                            </Typography.Text>
-                                        </Modal>
                                         <ActionBar>
                                             <FormResetButton
                                                 type={'sberPrimary'}
@@ -145,16 +90,12 @@ export const UpdateDivisionForm: React.FC<IUpdateDivisionForm> = ({ id }) => {
                                                     responsible={responsible}
                                                 />
                                             </Space>
-                                            <Button
-                                                key='submit'
-                                                onClick={showConfirm}
-                                                type='sberDanger'
-                                                loading={isDeleting}
-                                                secondary
-                                                style={{ position: 'absolute', right: '0px', top: '24px' }}
-                                            >
-                                                {DeleteDivisionLabel}
-                                            </Button>
+                                            <DeleteButtonWithConfirmModal
+                                                title={ConfirmDeleteTitle}
+                                                message={ConfirmDeleteMessage}
+                                                okButtonLabel={DeleteDivisionLabel}
+                                                action={() => softDeleteAction({}, division)}
+                                            />
                                         </ActionBar>
                                     </>
                                 )
