@@ -15,6 +15,7 @@ import { useOrganization } from '@core/next/organization'
 interface ICreateOrganizationModalFormResult {
     ModalForm: React.FC
     setIsVisible: Dispatch<SetStateAction<boolean>>
+    isVisible: boolean
 }
 
 interface IUseCreateOrganizationModalFormProps {
@@ -131,6 +132,7 @@ export const useCreateOrganizationModalForm = (props: IUseCreateOrganizationModa
     )
 
     return {
+        isVisible,
         ModalForm,
         setIsVisible,
     }
