@@ -403,6 +403,8 @@ export const filterToQuery: IFilterToQuery = ({ filter, viewMode, ticketType, ma
             groupBy = viewMode === 'line' ? [mainGroup, filter.specification] : [mainGroup, 'property']
             break
         case 'property':
+            groupBy = viewMode === 'bar' ? ['status', mainGroup] : [mainGroup, 'status']
+            break
         case 'category':
         case 'responsible':
         case 'user':

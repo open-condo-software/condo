@@ -23,7 +23,7 @@ import { TICKET_ANALYTICS_REPORT_QUERY, EXPORT_TICKET_ANALYTICS_TO_EXCEL } from 
 import { useLazyQuery } from '@core/next/apollo'
 
 import moment, { Moment } from 'moment'
-import { BarChartIcon, LinearChartIcon } from '@condo/domains/common/components/icons/ChartIcons'
+import { BarChartIcon, LinearChartIcon, PieChartIcon } from '@condo/domains/common/components/icons/ChartIcons'
 import { Button } from '@condo/domains/common/components/Button'
 import { EditFilled, FilePdfFilled, PlusCircleFilled } from '@ant-design/icons'
 import ActionBar from '@condo/domains/common/components/ActionBar'
@@ -51,6 +51,7 @@ interface ITicketAnalyticsPage extends React.FC {
 }
 
 interface ITicketAnalyticsPageFilterProps {
+    groupTicketsBy: GroupTicketsByTypes
     viewMode: ViewModeTypes
     onChange?: ({ range, specification, addressList }: ticketAnalyticsPageFilters) => void
 }
@@ -81,7 +82,7 @@ const tabsCss = css`
   }
 `
 
-const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ viewMode, onChange }) => {
+const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ groupTicketsBy, viewMode, onChange }) => {
     const router = useRouter()
     const intl = useIntl()
     const PeriodTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.PeriodTitle' })
@@ -112,8 +113,9 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
             specification,
             addressList: JSON.stringify(addressListRef.current),
             viewMode,
+            groupTicketsBy,
         }))
-    }, [dateRange, specification, addressList, viewMode])
+    }, [dateRange, specification, addressList, viewMode, groupTicketsBy])
 
     useEffect(() => {
         const queryParams = getQueryParams()
@@ -138,13 +140,13 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
 
     useEffect(() => {
         updateUrlFilters()
-    }, [viewMode])
+    }, [viewMode, groupTicketsBy])
 
 
     const applyFilters = useCallback(() => {
         updateUrlFilters()
         onChange({ range: dateRange, specification, addressList: addressListRef.current })
-    }, [dateRange, specification, addressList, viewMode])
+    }, [dateRange, specification, addressList, viewMode, groupTicketsBy])
 
     const searchAddress = useCallback(
         (client, query) => {
@@ -162,7 +164,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
         setAddressList(labelsList as string[])
         addressListRef.current = [...searchObjectsList.map(({ key: id, title: value }) => ({ id, value }))]
     }, [addressList])
-
+    const isDetailDisabled = groupTicketsBy === 'property'
     return (
         <Form>
             <Row gutter={[44, 12]}>
@@ -188,7 +190,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                 </Col>
                 <Col flex={0}>
                     <Form.Item label={SpecificationTitle} {...FORM_ITEM_STYLE} style={{ width: 170 }}>
-                        <Select value={specification} onChange={(e) => setSpecification(e)}>
+                        <Select value={specification} onChange={(e) => setSpecification(e)} disabled={isDetailDisabled}>
                             <Select.Option value={'day'}>{SpecificationDays}</Select.Option>
                             <Select.Option value={'week'}>{SpecificationWeeks}</Select.Option>
                         </Select>
@@ -401,6 +403,64 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                     },
 
                 },
+                pie: {
+                    chart: (viewMode, data) => {
+                        const series = []
+                        // const statuses = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
+                        Object.entries(data).forEach(([label, groupObject]) => {
+                            series.push({
+                                name: label,
+                                data: Object.entries(groupObject).map(([name, value]) => ({ name, value })),
+                                type: viewMode,
+                                radius: [50, 100],
+                                symbol: 'none',
+                                emphasis: {
+                                    focus: 'self',
+                                    blurScope: 'self',
+                                },
+                                label: {
+                                    show: false,
+                                },
+                            })
+                        })
+                        return { series }
+                    },
+                    table: (viewMode, data, restOptions) => {
+                        const { translations, filters } = restOptions
+                        const dataSource = []
+                        const tableColumns: TableColumnsType = [
+                            { title: translations['address'], dataIndex: 'address', key: 'address', sorter: (a, b) => a['address'] - b['address'] },
+                            ...Object.entries(data).map(([key]) => ({ title: key, dataIndex: key, key, sorter: (a, b) => a[key] - b[key] })),
+                        ]
+                        const restTableColumns = {}
+                        const addressList = get(filters, 'addresses')
+                        const aggregateSummary = addressList !== undefined && addressList.length === 0
+                        if (aggregateSummary) {
+                            Object.entries(data).forEach((rowEntry) => {
+                                const [ticketType, dataObj] = rowEntry
+                                const counts = Object.values(dataObj) as number[]
+                                restTableColumns[ticketType] = counts.reduce((a, b) => a + b, 0)
+                            })
+                            dataSource.push({
+                                key: 0,
+                                address: translations['allAddresses'],
+                                ...restTableColumns,
+                            })
+                        } else {
+                            addressList.forEach((address, key) => {
+                                const tableRow = { key, address }
+                                Object.entries(data).forEach(rowEntry => {
+                                    const [ticketType, dataObj] = rowEntry
+                                    const counts = Object.entries(dataObj)
+                                        .filter(obj => obj[0] === address).map(e => e[1]) as number[]
+                                    tableRow[ticketType] = counts.reduce((a, b) => a + b, 0)
+                                })
+                                dataSource.push(tableRow)
+                            })
+                        }
+                        return { dataSource, tableColumns }
+                    },
+                },
             })
             const where = { organization: { id: userOrganizationId }, AND }
             loadTicketAnalytics({ variables: { data: { groupBy, where } } })
@@ -409,6 +469,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
 
     useEffect(() => {
         const queryParams = getQueryParams()
+        setGroupTicketsBy(get(queryParams, 'groupTicketsBy', 'status'))
         setViewMode(get(queryParams, 'viewMode', 'line'))
     }, [])
 
@@ -494,17 +555,26 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                             css={tabsCss}
                             defaultActiveKey='status'
                             activeKey={groupTicketsBy}
-                            onChange={(key) => setGroupTicketsBy(key as GroupTicketsByTypes)}
+                            onChange={(key: GroupTicketsByTypes) => {
+                                setGroupTicketsBy(key)
+                                if (key === 'property') {
+                                    setViewMode('bar')
+                                }
+                            }}
                         >
                             <Tabs.TabPane key='status' tab={StatusFilterLabel} />
-                            <Tabs.TabPane disabled key='property' tab={PropertyFilterLabel} />
+                            <Tabs.TabPane key='property' tab={PropertyFilterLabel} />
                             <Tabs.TabPane disabled key='category' tab={CategoryFilterLabel} />
                             <Tabs.TabPane disabled key='user' tab={UserFilterLabel} />
                             <Tabs.TabPane disabled key='responsible' tab={ResponsibleFilterLabel} />
                         </Tabs>
                     </Col>
                     <Col span={24}>
-                        <TicketAnalyticsPageFilter onChange={onFilterChange} viewMode={viewMode} />
+                        <TicketAnalyticsPageFilter
+                            onChange={onFilterChange}
+                            viewMode={viewMode}
+                            groupTicketsBy={groupTicketsBy}
+                        />
                         <Divider style={{ padding: 0, marginTop: 40, marginBottom: 16 }} />
                     </Col>
                     <Col span={16}>
@@ -518,12 +588,19 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                             size='small'
                             buttonStyle='outline'
                             onChange={(e) => setViewMode(e.target.value)}>
-                            <Radio.Button value='line'>
-                                <LinearChartIcon height={32} width={24} />
-                            </Radio.Button>
+                            {groupTicketsBy !== 'property' && (
+                                <Radio.Button value='line'>
+                                    <LinearChartIcon height={32} width={24} />
+                                </Radio.Button>
+                            )}
                             <Radio.Button value='bar'>
                                 <BarChartIcon height={32} width={24} />
                             </Radio.Button>
+                            {groupTicketsBy === 'property' && (
+                                <Radio.Button value='pie'>
+                                    <PieChartIcon height={32} width={24} />
+                                </Radio.Button>
+                            )}
                         </RadioGroupWithIcon>
                     </Col>
                     <Col span={24}>
