@@ -52,7 +52,7 @@ async function updateTestMeterResource (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestMeterReadingSource (client, organization, extraAttrs = {}) {
+async function createTestMeterReadingSource (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
