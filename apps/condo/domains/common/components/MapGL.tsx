@@ -6,6 +6,7 @@ import { load } from '@2gis/mapgl'
 import { DEFAULT_CENTER, MARKER_SVG_URL } from '../constants/map'
 import { Card, Tag } from 'antd'
 
+const GUEST_API_KEY = 'bfd8bbca-8abf-11ea-b033-5fa57aae2de7'
 import getConfig from 'next/config'
 
 import { jsx } from '@emotion/core'
@@ -44,7 +45,7 @@ export const MapGL: React.FC<IMapProps> = ({ points, containerCss }) => {
                 center: DEFAULT_CENTER,
                 zoom: 13,
                 zoomControl: true,
-                key: mapApiKey,
+                key: mapApiKey || GUEST_API_KEY,
             })
             setMap(map)
             handleResize = (() => {

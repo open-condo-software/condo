@@ -10,7 +10,7 @@ import {
     getTextFilterDropdown,
 } from '../components/Table/Filters'
 import { getTextRender } from '@condo/domains/common/components/Table/Renders'
-import { TableRecord } from '@condo/domains/common/components/Table/Index'
+import { TableRecord } from '@condo/domains/common/components/Table'
 import { preciseFloor } from './helpers'
 import { FilterDropdownProps } from 'antd/es/table/interface'
 
@@ -80,8 +80,8 @@ export type SorterColumn = {
     columnKey: string,
     order: 'ascend' | 'descend'
 }
-type Sorters = { [column: string]: 'ascend' | 'descend' }
-type SorterMapType = (sorters: Array<SorterColumn>) => Sorters
+export type Sorters = { [column: string]: 'ascend' | 'descend' }
+export type SorterMapType = (sorters: Array<SorterColumn>) => Sorters
 
 export enum FULL_TO_SHORT_ORDERS_MAP {
     ascend = 'ASC',
