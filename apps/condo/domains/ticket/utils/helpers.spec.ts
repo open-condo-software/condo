@@ -492,7 +492,9 @@ describe('Helpers', () => {
                         groupBy: ['status', 'day'],
                     }
 
-                    expect(filterToQuery(filter, 'line', 'all')).toStrictEqual(expectedResult)
+                    expect(filterToQuery({
+                        filter, viewMode: 'line', ticketType: 'all', mainGroup: 'status',
+                    })).toStrictEqual(expectedResult)
                 })
 
                 it('filter not contains property', () => {
@@ -508,7 +510,9 @@ describe('Helpers', () => {
                         ],
                         groupBy: ['status', 'day'],
                     }
-                    expect(filterToQuery(filter, 'line', 'all')).toStrictEqual(expectedResult)
+                    expect(filterToQuery({
+                        filter, viewMode: 'line', ticketType: 'all', mainGroup: 'status' })
+                    ).toStrictEqual(expectedResult)
                 })
 
                 it('filter with emergency ticket type',  () => {
@@ -526,7 +530,9 @@ describe('Helpers', () => {
                         ],
                         groupBy: ['status', 'day'],
                     }
-                    expect(filterToQuery(filter, 'line', 'emergency')).toStrictEqual(expectedResult)
+                    expect(filterToQuery({
+                        filter, viewMode: 'line', ticketType: 'emergency', mainGroup: 'status' })
+                    ).toStrictEqual(expectedResult)
                 })
 
                 it('filter with paid ticket type',  () => {
@@ -544,7 +550,9 @@ describe('Helpers', () => {
                         ],
                         groupBy: ['status', 'day'],
                     }
-                    expect(filterToQuery(filter, 'line', 'paid')).toStrictEqual(expectedResult)
+                    expect(filterToQuery({
+                        filter, viewMode: 'line', ticketType: 'paid', mainGroup: 'status' })
+                    ).toStrictEqual(expectedResult)
                 })
             })
         })
