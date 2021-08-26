@@ -102,6 +102,19 @@ CREATE INDEX "MeterReading_source_5dc87b17" ON "MeterReading" ("source");
 CREATE INDEX "MeterReading_updatedBy_2c841173" ON "MeterReading" ("updatedBy");
 CREATE INDEX "Meter_resource_33ab2a27" ON "Meter" ("resource");
 CREATE INDEX "Meter_updatedBy_583c90ed" ON "Meter" ("updatedBy");
+
+
+INSERT INTO "MeterReadingSource" (dv, sender, type, name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy") VALUES (1, '{"dv": 1, "fingerprint": "initial"}', 'call', 'Звонок', '61764f14-0630-11ec-9a03-0242ac130003', 1, '2020-11-24 00:00:00.000000', '2020-11-24 00:00:00.000000', null, null, null, null);
+INSERT INTO "MeterReadingSource" (dv, sender, type, name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy") VALUES (1, '{"dv": 1, "fingerprint": "initial"}', 'mobile_app', 'Мобильное приложение', '694014c8-0630-11ec-9a03-0242ac130003', 1, '2020-11-24 00:00:00.000000', '2020-11-24 00:00:00.000000', null, null, null, null);
+INSERT INTO "MeterReadingSource" (dv, sender, type, name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy") VALUES (1, '{"dv": 1, "fingerprint": "initial"}', 'billing', 'Биллинг', '70cc789e-0630-11ec-9a03-0242ac130003', 1, '2020-11-24 00:00:00.000000', '2020-11-24 00:00:00.000000', null, null, null, null);
+
+INSERT INTO "MeterResource" (dv, sender, name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy") VALUES (1, '{"dv": 1, "fingerprint": "initial"}', 'Холодная вода', 'e2bd70ac-0630-11ec-9a03-0242ac130003', 1, '2020-11-24 00:00:00.000000', '2020-11-24 00:00:00.000000', null, null, null, null);
+INSERT INTO "MeterResource" (dv, sender, name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy") VALUES (1, '{"dv": 1, "fingerprint": "initial"}', 'Горячая вода', '0f54223c-0631-11ec-9a03-0242ac130003', 1, '2020-11-24 00:00:00.000000', '2020-11-24 00:00:00.000000', null, null, null, null);
+INSERT INTO "MeterResource" (dv, sender, name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy") VALUES (1, '{"dv": 1, "fingerprint": "initial"}', 'Электроэнергия', '139a0d98-0631-11ec-9a03-0242ac130003', 1, '2020-11-24 00:00:00.000000', '2020-11-24 00:00:00.000000', null, null, null, null);
+INSERT INTO "MeterResource" (dv, sender, name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy") VALUES (1, '{"dv": 1, "fingerprint": "initial"}', 'Теплоснабжение', '18555734-0631-11ec-9a03-0242ac130003', 1, '2020-11-24 00:00:00.000000', '2020-11-24 00:00:00.000000', null, null, null, null);
+INSERT INTO "MeterResource" (dv, sender, name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy") VALUES (1, '{"dv": 1, "fingerprint": "initial"}', 'Газоснабжение', '1c267e92-0631-11ec-9a03-0242ac130003', 1, '2020-11-24 00:00:00.000000', '2020-11-24 00:00:00.000000', null, null, null, null);
+
+
 COMMIT;
 
     `)

@@ -41,7 +41,6 @@ describe('MeterReadingSource', () => {
 
         // TODO(codegen): check 'user: read MeterReadingSource' test!
         expect(objs).toHaveLength(1)
-        // expect(objs.length >= 1).toBeTruthy()
         expect(objs[0].id).toMatch(obj.id)
         expect(objs[0].dv).toEqual(1)
         expect(objs[0].sender).toEqual(attrs.sender)
