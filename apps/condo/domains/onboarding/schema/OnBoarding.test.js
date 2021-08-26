@@ -49,7 +49,7 @@ describe('OnBoarding', () => {
         const client = await makeLoggedInClient()
         const objs = await OnBoarding.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
 
-        expect(objs).toHaveLength(1)
+        expect(objs.length >= 1).toBeTruthy()
         expect(objs[0].id).toMatch(obj.id)
         expect(objs[0].dv).toEqual(1)
         expect(objs[0].sender).toEqual(attrs.sender)
