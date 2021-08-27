@@ -19,7 +19,7 @@ import PropertiesMap from '@condo/domains/common/components/PropertiesMap'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { Division } from '@condo/domains/division/utils/clientSchema'
 import { FeatureFlagRequired, hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
-import { Tooltip } from '@condo/domains/common/components'
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { colors } from '@condo/domains/common/constants/style'
 import { useMemo } from 'react'
 
