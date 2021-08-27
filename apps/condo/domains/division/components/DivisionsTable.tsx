@@ -1,11 +1,10 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 import { useRouter } from 'next/router'
 import { debounce } from 'lodash'
 import qs from 'qs'
 
 import { PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
 import { useTableColumns } from '@condo/domains/division/hooks/useTableColumns'
-import { Property } from '@condo/domains/property/utils/clientSchema'
 import { useOrganization } from '@core/next/organization'
 import { useIntl } from '@core/next/intl'
 
@@ -14,11 +13,12 @@ import { Table } from '@condo/domains/common/components/Table/Index'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { DatabaseFilled, DiffOutlined } from '@ant-design/icons'
 import { Button } from '@condo/domains/common/components/Button'
-import { getFilter, getPageIndexFromOffset, getSorterMap, parseQuery, QueryMeta } from '@condo/domains/common/utils/tables.utils'
+import { FilterType, getFilter, getPageIndexFromOffset, getSorterMap, parseQuery, QueryMeta } from '@condo/domains/common/utils/tables.utils'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { Division } from '@condo/domains/division/utils/clientSchema'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { colors } from '@condo/domains/common/constants/style'
+import { DivisionWhereInput, SortDivisionsBy } from '../../../schema'
 
 
 type BuildingTableProps = {
@@ -40,25 +40,50 @@ export default function DivisionTable (props: BuildingTableProps) {
     const { organization, link: { role } } = useOrganization()
 
     const addressFilter = getFilter('name', 'single', 'string', 'contains_i')
-    const propertiesFilter = getFilter('properties', 'array', 'string', 'contains_i')
-    const responsibleFilter = getFilter(['responsible', 'name'], 'single', 'string', 'contains_i')
-    const executorsFilter = getFilter(['executors', 'name'], 'single', 'string', 'contains_i')
+    const propertiesFilter = (search: string): DivisionWhereInput => ({
+        properties_some: {
+            OR: [
+                {
+                    address_contains_i: search,
+                },
+                {
+                    name_contains_i: search,
+                },
+            ],
+        },
+    })
+    const responsibleFilter = (search: string): DivisionWhereInput => ({
+        responsible: {
+            name_contains_i: search,
+        },
+    })
+    const executorsFilter = (search: string): DivisionWhereInput => ({
+        executors_some: {
+            name_contains_i: search,
+        },
+    })
 
     const queryMetas: QueryMeta[] = [
         { keyword: 'address', filters: [addressFilter] },
-        { keyword: 'search', filters: [addressFilter, propertiesFilter, responsibleFilter, executorsFilter], combineType: 'OR' },
+        {
+            keyword: 'search', filters: [addressFilter,
+                propertiesFilter as FilterType,
+                responsibleFilter as FilterType,
+                executorsFilter as FilterType
+            ], combineType: 'OR',
+        },
     ]
 
     const { filters, sorters, offset } = parseQuery(router.query)
 
     const currentPageIndex = getPageIndexFromOffset(offset, PROPERTY_PAGE_SIZE)
 
-    const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, ['address'])
+    const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, ['name'])
     const sorterMap = getSorterMap(sorters)
 
     const tableColumns = useTableColumns(sorterMap, filters)
     const { loading, error, objs: divisions, count: total } = Division.useObjects({
-        // sortBy: sortersToSortBy(sorters),
+        sortBy: sortersToSortBy(sorters) as SortDivisionsBy[],
         where: { ...filtersToWhere(filters), organization: { id: organization.id } },
         skip: (currentPageIndex - 1) * PROPERTY_PAGE_SIZE,
         first: PROPERTY_PAGE_SIZE,
