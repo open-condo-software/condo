@@ -160,6 +160,7 @@ const MeterReading = new GQLListSchema('MeterReading', {
         },
 
     },
+
     hooks: {
         validateInput: async ({ context, operation, itemId, resolvedData, fieldPath, addFieldValidationError }) => {
             // if 2 minutes have passed since the moment the readings were taken, then they cannot be changed
