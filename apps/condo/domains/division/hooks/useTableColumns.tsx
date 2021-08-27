@@ -5,6 +5,11 @@ import { useIntl } from '@core/next/intl'
 import { FilterValue } from 'antd/es/table/interface'
 
 import { convertColumns, FiltersFromQueryType, Sorters } from '@condo/domains/common/utils/tables.utils'
+import { isEmpty } from 'lodash'
+import { EmptyTableCell } from '../../common/components/Table/EmptyTableCell'
+import { Typography } from 'antd'
+import { Highliter } from '@condo/domains/common/components'
+import { colors } from '@condo/domains/common/constants/style'
 
 export interface ITableColumn {
     title: string,
@@ -25,14 +30,31 @@ export const useTableColumns = (sorters: Sorters, filters: FiltersFromQueryType)
     const BuildingsTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Buildings' })
     const ForemanTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Foreman' })
     const TechiesTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Techies' })
-
+    const { search } = filters
+    const render = (text, isArray = false) => {
+        let result = text
+        if (!isEmpty(search) && text) {
+            result = (
+                <Highliter
+                    text={String(text)}
+                    search={String(search)}
+                    renderPart={(part) => (
+                        <Typography.Text style={{ backgroundColor: colors.markColor }}>
+                            {part}
+                        </Typography.Text>
+                    )}
+                />
+            )
+        }
+        return (<EmptyTableCell>{result}{isArray && <br />}</EmptyTableCell>)
+    }
     return useMemo(() =>
         convertColumns([
             {
                 title: DivisionTitleMessage,
                 ellipsis: true,
-                dataIndex: 'address',
-                key: 'address',
+                dataIndex: 'name',
+                key: 'name',
                 sortable: true,
                 width: 25,
                 filter: {
@@ -44,22 +66,26 @@ export const useTableColumns = (sorters: Sorters, filters: FiltersFromQueryType)
                 ellipsis: true,
                 dataIndex: 'properties',
                 key: 'properties',
-                width: 25,
+                render: properties => properties.map((property) => render(property.address, true)),
+                width: 35,
             },
             {
                 title: ForemanTitleMessage,
                 ellipsis: true,
                 dataIndex: 'responsible',
                 key: 'responsible',
-                width: 25,
+                render: responsible => render(responsible.name),
+
+                width: 20,
             },
             {
                 title: TechiesTitleMessage,
                 ellipsis: true,
                 dataIndex: 'executors',
+                render: executors => executors.map((executor) => render(executor.name, true)),
                 key: 'executors',
-                width: 25,
+                width: 20,
             },
         ], filters, sorters),
-        [filters, sorters])
+    [filters, sorters, render])
 }
