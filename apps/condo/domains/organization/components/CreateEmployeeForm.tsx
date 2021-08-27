@@ -145,6 +145,16 @@ export const CreateEmployeeForm: React.FC = () => {
                                     <Col span={24}>
                                         <Row gutter={[0, 24]}>
                                             <Col span={24}>
+                                                <Form.Item name={'role'} label={RoleLabel} {...INPUT_LAYOUT_PROPS} labelAlign={'left'} >
+                                                    <EmployeeRoleSelect
+                                                        loading={loading}
+                                                        error={Boolean(error)}
+                                                        employeeRoles={employeeRoles}
+                                                        onSelect={(roleId)=> setSelectedRoleId(roleId)}
+                                                    />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={24}>
                                                 <Form.Item
                                                     name={'name'}
                                                     label={FullNameLabel}
@@ -197,15 +207,6 @@ export const CreateEmployeeForm: React.FC = () => {
                                                     <GraphQlSearchInput mode="multiple" search={searchClassifers} />
                                                 </Form.Item>
                                             </Col>}
-                                            <Col span={24}>
-                                                <Form.Item name={'role'} label={RoleLabel} {...INPUT_LAYOUT_PROPS} labelAlign={'left'} >
-                                                    <EmployeeRoleSelect
-                                                        loading={loading}
-                                                        error={Boolean(error)}
-                                                        employeeRoles={employeeRoles}
-                                                        onSelect={(roleId)=> setSelectedRoleId(roleId)}
-                                                    />
-                                                </Form.Item>
                                             </Col>
                                         </Row>
                                     </Col>
