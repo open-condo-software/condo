@@ -8,7 +8,7 @@ import { convertColumns, FiltersFromQueryType, Sorters } from '@condo/domains/co
 import { isEmpty } from 'lodash'
 import { EmptyTableCell } from '../../common/components/Table/EmptyTableCell'
 import { Typography } from 'antd'
-import { Highliter } from '@condo/domains/common/components'
+import { Highliter } from '@condo/domains/common/components/Highliter'
 import { colors } from '@condo/domains/common/constants/style'
 
 export interface ITableColumn {
