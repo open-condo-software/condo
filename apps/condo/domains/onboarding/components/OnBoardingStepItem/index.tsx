@@ -21,11 +21,11 @@ export const OnBoardingStepItem: React.FC<IOnBoardingStep> = (props) => {
     const { type, icon, title, description, action } = props
     const StepIcon = icon
 
-    const handleClick = useCallback(() => {
+    const handleClick = () => {
         if (action) {
             action()
         }
-    }, [action])
+    }
 
     return (
         <StepContainer color={colors.transparent} type={props.type} onClick={handleClick}>
