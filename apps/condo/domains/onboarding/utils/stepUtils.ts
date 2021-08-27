@@ -1,5 +1,6 @@
+import { CheckOutlined } from '@ant-design/icons'
 import get from 'lodash/get'
-import { OnBoardingStep as OnBoardingStepInterface } from '../../../schema'
+import { OnBoarding, OnBoardingStep, OnBoardingStep as OnBoardingStepInterface } from '../../../schema'
 import { OnBoardingStepType } from '@condo/domains/onboarding/components/OnBoardingStepItem'
 
 export const getStepKey = (step: OnBoardingStepInterface) => `${step.action}.${step.entity}`
@@ -49,3 +50,10 @@ export const getStepType = (
     }
 }
 
+export const getOnBoardingProgress = (onBoardingSteps: Array<OnBoardingStep>, onBoarding: OnBoarding) => {
+    const stepTypes = onBoardingSteps.map((step) => getStepType(step, get(onBoarding, 'stepsTransitions', {}), onBoardingSteps))
+    const totalAvailableSteps = stepTypes.filter((type) => type !== undefined && type !== OnBoardingStepType.DISABLED).length
+    const completedSteps = onBoardingSteps.filter((obj) => obj.completed === true).length
+
+    return (completedSteps / totalAvailableSteps) * 100
+}
