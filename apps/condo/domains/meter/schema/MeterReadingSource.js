@@ -3,8 +3,7 @@
  */
 
 const { LocalizedText } = require('@core/keystone/fields')
-const { Text, Relationship, Integer, Select, Checkbox, DateTimeUtc, CalendarDay, Decimal, Password, File } = require('@keystonejs/fields')
-const { Json } = require('@core/keystone/fields')
+const { Select } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')

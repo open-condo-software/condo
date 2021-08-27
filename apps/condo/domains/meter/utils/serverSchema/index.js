@@ -4,7 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
+const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 
 const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
 const { MeterReadingSource: MeterReadingSourceGQL } = require('@condo/domains/meter/gql')

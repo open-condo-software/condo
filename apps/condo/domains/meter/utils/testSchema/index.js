@@ -3,11 +3,9 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
+
 const faker = require('faker')
-
-const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
-
-const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
+const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
 const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
 const { MeterReadingSource: MeterReadingSourceGQL } = require('@condo/domains/meter/gql')
