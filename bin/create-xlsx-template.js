@@ -6,6 +6,8 @@ const mkdirp = require('mkdirp')
  * 2) Template name <string> (Example: TicketDefaultExcelExportTemplate) - filename only
  * 3) Data mapper path <string> (Example: ../apps/condo/domains/ticket/serverSchema/xlsxDataMapper.js)
  * @returns {Promise<void>}
+ * @example
+ * yarn workspace @app/condo generate-excel-template someDomain someDomainExcelTemplate ./path/to/someDomainDataMapper.js
  */
 const createXlsxTemplate = async () => {
     if (process.argv.length !== 5) {
