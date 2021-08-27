@@ -406,11 +406,14 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                 pie: {
                     chart: (viewMode, data) => {
                         const series = []
-                        // const statuses = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
                         Object.entries(data).forEach(([label, groupObject]) => {
+                            const chartData = Object.entries(groupObject)
+                                .map(([name, value]) => ({ name, value }))
+                                .sort((a, b) => b.value - a.value)
                             series.push({
                                 name: label,
-                                data: Object.entries(groupObject).map(([name, value]) => ({ name, value })),
+                                data: chartData,
+                                selectedMode: 'multiple',
                                 type: viewMode,
                                 radius: [50, 100],
                                 symbol: 'none',
@@ -418,8 +421,40 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                     focus: 'self',
                                     blurScope: 'self',
                                 },
+                                labelLine: { show: false },
                                 label: {
-                                    show: false,
+                                    show: true,
+                                    // fontSize: 14,
+                                    overflow: 'none',
+                                    formatter: [
+                                        '{value|{b}} {percent|{d} %}',
+                                    ].join('\n'),
+                                    rich: {
+                                        value: {
+                                            fontSize: 14,
+                                            align: 'left',
+                                            width: 100,
+                                        },
+                                        percent: {
+                                            align: 'left',
+                                            fontWeight: 700,
+                                            fontSize: 14,
+                                            width: 40,
+                                        },
+                                    },
+                                },
+                                labelLayout: (chart) =>  {
+                                    const { dataIndex, seriesIndex } = chart
+                                    const isLeftAlignedChart = seriesIndex % 2 === 0
+                                    const xOffset = isLeftAlignedChart ? 300 : 850
+                                    const elementYOffset = 25 * dataIndex
+                                    const yOffset = 70 + 250 * Math.floor(seriesIndex / 2) + 10 + elementYOffset
+                                    return {
+                                        x: xOffset,
+                                        y: yOffset,
+                                        align: 'left',
+                                        verticalAlign: 'top',
+                                    }
                                 },
                             })
                         })
