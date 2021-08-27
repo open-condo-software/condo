@@ -15,7 +15,6 @@ const RELATIONS = ['billingAccountMeter', 'organization', 'property', 'resource'
 
 export interface IMeterUIState extends Meter {
     id: string
-    // TODO(codegen): write IMeterUIState or extends it from
 }
 
 function convertToUIState (item: Meter): IMeterUIState {
@@ -25,7 +24,6 @@ function convertToUIState (item: Meter): IMeterUIState {
 
 export interface IMeterFormState {
     id?: undefined
-    // TODO(codegen): write IMeterUIFormState or extends it from
 }
 
 function convertToUIFormState (state: IMeterUIState): IMeterFormState | undefined {

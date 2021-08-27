@@ -41,7 +41,6 @@ async function checkRelatedOrganizationPermission (context, userId, organization
     return checkOrganizationPermission(context, userId, organizationLink.from.id, permission)
 }
 
-
 async function checkUserBelongsToOrganization (userId, organizationId) {
     if (!userId || !organizationId) return false
     const employee = await getByCondition('OrganizationEmployee', {

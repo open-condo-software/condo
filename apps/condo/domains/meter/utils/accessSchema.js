@@ -3,15 +3,11 @@ const { checkOrganizationPermission } = require('@condo/domains/organization/uti
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const get = require('lodash/get')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadMeterEntity ({ user }) {
-    if (!user) return throwAuthenticationError()
-    if (user.isAdmin) {
-        return {}
-    }
+    if (user.isAdmin) return {}
     if (user.type === RESIDENT) {
         return {
             createdBy: { id: user.id },
@@ -29,7 +25,6 @@ async function canReadMeterEntity ({ user }) {
 }
 
 async function canManageMeterEntity ({ schema, user, itemId, operation, originalInput, context }) {
-    if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     if (operation === 'create') {
         const organizationIdFromEntity = get(originalInput, ['organization', 'connect', 'id'])
@@ -38,37 +33,38 @@ async function canManageMeterEntity ({ schema, user, itemId, operation, original
         }
 
         const propertyId = get(originalInput, ['property', 'connect', 'id'])
-
         const [property] = await Property.getAll(context, { id: propertyId })
         if (!property) {
             return false
         }
+
         if (user.type === RESIDENT) {
             return true
         }
+
         const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(context, user.id, organizationIdFromEntity, 'canManageMeters')
         if (canManageRelatedOrganizationTickets) {
             return true
         }
-        const organizationIdFromProperty = get(property, ['organization', 'id'])
         const canManageMeterReadings = await checkOrganizationPermission(context, user.id, organizationIdFromEntity, 'canManageMeters')
-        if (!canManageMeterReadings) {
-            return false
+        if (canManageMeterReadings) {
+            const organizationIdFromProperty = get(property, ['organization', 'id'])
+            return organizationIdFromEntity === organizationIdFromProperty
         }
 
-        return organizationIdFromEntity === organizationIdFromProperty
+        return false
 
     } else if (operation === 'update') {
         if (!itemId) {
             return false
         }
+
         const [entity] = await schema.getAll(context, { id: itemId })
         if (!entity) {
             return false
         }
 
         const organizationIdFromMeterReading = get(entity, ['organization', 'id'])
-
         const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(context, user.id, organizationIdFromMeterReading, 'canManageMeters')
         if (canManageRelatedOrganizationTickets) {
             return true
