@@ -185,7 +185,7 @@ export const CreateEmployeeForm: React.FC = () => {
                                                     <Input />
                                                 </Form.Item>
                                             </Col>
-                                            {selectedRole?.canBeAssignedAsResponsible && <Col span={24}>
+                                            {get(selectedRole, 'canBeAssignedAsResponsible') && <Col span={24}>
                                                 <Form.Item
                                                     name={'specializations'}
                                                     label={SpecializationsLabel}
