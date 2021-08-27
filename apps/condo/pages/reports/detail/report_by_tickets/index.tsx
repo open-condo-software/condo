@@ -46,6 +46,7 @@ import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderA
 import TicketChartView from '@condo/domains/ticket/components/analytics/TicketChartView'
 import TicketListView from '@condo/domains/ticket/components/analytics/TicketListView'
 import { DATE_DISPLAY_FORMAT, TICKET_REPORT_DAY_GROUP_STEPS } from '@condo/domains/ticket/constants/common'
+import { TicketAnalyticsGroupBy, TicketAnalyticsReportOutput } from '../../../../schema'
 
 dayjs.extend(quarterOfYear)
 
@@ -250,6 +251,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
     const filtersRef = useRef(null)
+    const groupsCache = useRef<null | TicketAnalyticsReportOutput['groups']>(null)
     const mapperInstanceRef = useRef(null)
     const [groupTicketsBy, setGroupTicketsBy] = useState<GroupTicketsByTypes>('status')
     const [viewMode, setViewMode] = useState<ViewModeTypes>('line')
@@ -274,7 +276,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
             const { groupBy } = filterToQuery(
                 { filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy }
             )
-
+            groupsCache.current = groups
             setAnalyticsData(getAggregatedData(groups, groupBy))
             setLoading(false)
         },
@@ -450,7 +452,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                 labelLayout: (chart) =>  {
                                     const { dataIndex, seriesIndex } = chart
                                     const isLeftAlignedChart = seriesIndex % 2 === 0
-                                    const xOffset = isLeftAlignedChart ? 300 : 850
+                                    const xOffset = isLeftAlignedChart ? 300 : 900
                                     const elementYOffset = 25 * dataIndex
                                     const yOffset = 70 + 250 * Math.floor(seriesIndex / 2) + 10 + elementYOffset
                                     return {
@@ -464,21 +466,33 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         })
                         return { series }
                     },
-                    table: (viewMode, data, restOptions) => {
+                    // FIXME(sitozzz): pass TicketGroupedCounter[] & aggregate here
+                    table: (viewMode, analyticsData, restOptions) => {
+                        const groupBy = ['status', 'property'] as TicketAnalyticsGroupBy[]
+                        const data = groupsCache.current !== null ? getAggregatedData(groupsCache.current, groupBy) : {}
+                        // const addressList = [...new Set(Object.values(data).flatMap(e => Object.keys(e)))]
                         const { translations, filters } = restOptions
                         const dataSource = []
                         const tableColumns: TableColumnsType = [
                             { title: translations['address'], dataIndex: 'address', key: 'address', sorter: (a, b) => a['address'] - b['address'] },
                             ...Object.entries(data).map(([key]) => ({ title: key, dataIndex: key, key, sorter: (a, b) => a[key] - b[key] })),
                         ]
+
                         const restTableColumns = {}
                         const addressList = get(filters, 'addresses')
                         const aggregateSummary = addressList !== undefined && addressList.length === 0
                         if (aggregateSummary) {
+                            const totalCount = Object.values(data)
+                                .reduce((prev, curr) => prev + Object.values(curr)
+                                    .reduce((a, b) => a + b, 0), 0)
+
                             Object.entries(data).forEach((rowEntry) => {
                                 const [ticketType, dataObj] = rowEntry
                                 const counts = Object.values(dataObj) as number[]
-                                restTableColumns[ticketType] = counts.reduce((a, b) => a + b, 0)
+                                const percentString = ((counts
+                                    .reduce((a, b) => a + b, 0) / totalCount) * 100)
+                                    .toFixed(2) + ' %'
+                                restTableColumns[ticketType] = percentString
                             })
                             dataSource.push({
                                 key: 0,
@@ -486,6 +500,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                 ...restTableColumns,
                             })
                         } else {
+                            // TODO(sitozzz): add percent counting
                             addressList.forEach((address, key) => {
                                 const tableRow = { key, address }
                                 Object.entries(data).forEach(rowEntry => {
@@ -596,7 +611,9 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                             activeKey={groupTicketsBy}
                             onChange={(key: GroupTicketsByTypes) => {
                                 setGroupTicketsBy(key)
-                                if (key === 'property') {
+                                if (key === 'status') {
+                                    setViewMode('line')
+                                } else {
                                     setViewMode('bar')
                                 }
                             }}
