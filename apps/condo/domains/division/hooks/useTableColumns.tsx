@@ -66,7 +66,7 @@ export const useTableColumns = (sorters: Sorters, filters: FiltersFromQueryType)
                 ellipsis: true,
                 dataIndex: 'properties',
                 key: 'properties',
-                render: properties => properties.map((property) => render(property.address, true)),
+                render: (properties) => properties.map((property) => render(property.address, true)),
                 width: 35,
             },
             {
