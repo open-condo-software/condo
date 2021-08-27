@@ -23,8 +23,6 @@ async function createTestMeterResource (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestMeterResource logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -39,8 +37,6 @@ async function updateTestMeterResource (client, id, extraAttrs = {}) {
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestMeterResource logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -53,8 +49,6 @@ async function updateTestMeterResource (client, id, extraAttrs = {}) {
 async function createTestMeterReadingSource (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestMeterReadingSource logic for generate fields
 
     const attrs = {
         dv: 1,
@@ -69,8 +63,6 @@ async function updateTestMeterReadingSource (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestMeterReadingSource logic for generate fields
 
     const attrs = {
         dv: 1,
@@ -87,8 +79,6 @@ async function createTestMeter (client, organization, property, resource, extraA
     if (!property || !property.id) throw new Error('no property.id')
     if (!resource || !resource.id) throw new Error('no resource.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestMeter logic for generate fields
 
     const attrs = {
         dv: 1,
@@ -109,8 +99,6 @@ async function updateTestMeter (client, id, extraAttrs = {}) {
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestMeter logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -127,8 +115,6 @@ async function createTestMeterReading (client, meter, property, organization, so
     if (!organization || !organization.id) throw new Error('no organization.id')
     if (!source || !source.id) throw new Error('no source.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestMeterReading logic for generate fields
 
     const attrs = {
         dv: 1,
@@ -149,8 +135,6 @@ async function updateTestMeterReading (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestMeterReading logic for generate fields
 
     const attrs = {
         dv: 1,
