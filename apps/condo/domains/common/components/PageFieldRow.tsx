@@ -3,14 +3,13 @@ import { Col, Typography } from 'antd'
 
 interface IPageFieldRowProps {
     title: string
-    style?: React.CSSProperties
     highlight?: boolean
     children: React.ReactNode
     labelSpan?: number
 }
 
 const PageFieldRow: React.FC<IPageFieldRowProps> = (props) => {
-    const { labelSpan = 8, title, children, highlight, style } = props
+    const { labelSpan = 8, title, children, highlight } = props
     return (
         <>
             <Col span={labelSpan} style={{ fontSize: '16px' }}>
