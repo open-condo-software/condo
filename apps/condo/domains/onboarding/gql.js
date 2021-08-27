@@ -16,8 +16,6 @@ const OnBoarding = generateGqlQueries('OnBoarding', ON_BOARDING_FIELDS)
 const ON_BOARDING_STEP_FIELDS = `{ icon title description action entity onBoarding { id } ${COMMON_FIELDS} required order }`
 const OnBoardingStep = generateGqlQueries('OnBoardingStep', ON_BOARDING_STEP_FIELDS)
 
-// TODO(codegen): write return type result!
-
 const CREATE_ONBOARDING_MUTATION = gql`
     mutation createOnBoardingByType ($data: CreateOnBoardingInput!) {
         result: createOnBoardingByType(data: $data) {
