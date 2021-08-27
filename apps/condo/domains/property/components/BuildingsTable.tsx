@@ -143,7 +143,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
                         onClick={onExportToExcelButtonClicked}>{ExportAsExcel}
                     </Button>}
             </Col>
-            <Col span={6} push={6} align={'right'}>
+            <Col span={6} push={6}>
                 {role?.canManageProperties ? (
                     <Space size={16}>
                         <ImportWrapper
