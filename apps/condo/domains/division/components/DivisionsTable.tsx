@@ -66,11 +66,14 @@ export default function DivisionTable (props: BuildingTableProps) {
     const queryMetas: QueryMeta[] = [
         { keyword: 'address', filters: [addressFilter] },
         {
-            keyword: 'search', filters: [addressFilter,
+            keyword: 'search',
+            filters: [
+                addressFilter,
                 propertiesFilter as FilterType,
                 responsibleFilter as FilterType,
-                executorsFilter as FilterType
-            ], combineType: 'OR',
+                executorsFilter as FilterType,
+            ],
+            combineType: 'OR',
         },
     ]
 
@@ -107,7 +110,8 @@ export default function DivisionTable (props: BuildingTableProps) {
     const applyFiltersToQuery = (newFilters) => {
         const query = { ...router.query, filters: JSON.stringify(newFilters) }
         const newQuery = qs.stringify({ ...query }, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })
-        router.replace(router.route + newQuery)
+        console.log(router.route)
+        router.push(router.route + newQuery)
     }
 
     const debouncedSearch = debounce((text) => {
@@ -168,6 +172,7 @@ export default function DivisionTable (props: BuildingTableProps) {
                     onRow={handleRowAction}
                     columns={tableColumns}
                     pageSize={PROPERTY_PAGE_SIZE}
+                    staticQueryParams={['tab']}
                 />
             </Col>
         </Row>)
