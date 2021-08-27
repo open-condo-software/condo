@@ -20,6 +20,7 @@ import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { Button } from '@condo/domains/common/components/Button'
 import { getFilter, getPageIndexFromOffset, getSorterMap, parseQuery, QueryMeta } from '@condo/domains/common/utils/tables.utils'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
+import { PropertyWhereInput } from '@app/condo/schema'
 
 type BuildingTableProps = {
     onSearch?: (properties: Property.IPropertyUIState[]) => void
@@ -44,7 +45,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
     const addressFilter = getFilter('address', 'single', 'string', 'contains_i')
     const unitsCountFilter = getFilter('unitsCount', 'single', 'number')
 
-    const queryMetas: QueryMeta[] = [
+    const queryMetas: QueryMeta<PropertyWhereInput>[] = [
         { keyword: 'address', filters: [addressFilter] },
         { keyword: 'search', filters: [addressFilter, unitsCountFilter], combineType: 'OR' },
     ]
