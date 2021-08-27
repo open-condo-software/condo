@@ -73,7 +73,6 @@ const ChangePasswordPage: AuthPage = () => {
             mutation: changePassword,
             variables: { data: { token, password } },
             onCompleted: async ({ data: { result } }) => {
-                console.log(result)
                 await signInByEmail({
                     email: result.email,
                     password: form.getFieldValue('password'),
