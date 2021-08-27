@@ -86,15 +86,15 @@ export const getMoneyRender = (search: string, currencyMark = '₽', partSeparat
         const markStyles = { backgroundColor: colors.markColor }
         if (isEmpty(search)) {
             return (
-                <>
+                <Typography.Text style={{ float: 'right' }}>
                     {recolorMoney(text, 0, separatorIndex, spaces, {})}
                     &nbsp;
                     {currencyMark}
-                </>
+                </Typography.Text>
             )
         }
         return (
-            <>
+            <Typography.Text style={{ float: 'right' }}>
                 <TextHighlighter
                     text={text}
                     search={search}
@@ -103,7 +103,7 @@ export const getMoneyRender = (search: string, currencyMark = '₽', partSeparat
                 />
                 &nbsp;
                 {currencyMark}
-            </>
+            </Typography.Text>
         )
     }
 }
