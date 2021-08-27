@@ -41,6 +41,13 @@ async function checkRelatedOrganizationPermission (context, userId, organization
     return checkOrganizationPermission(context, userId, organizationLink.from.id, permission)
 }
 
+// TODO(nomerdvadcatpyat): use this function where checkRelatedOrganizationPermission and checkOrganizationPermission used together
+async function checkPermissionInUserOrganizationOrRelatedOrganization (context, userId, organizationId, permission) {
+    const canManageRelatedOrganizationMeters = await checkRelatedOrganizationPermission(context, userId, organizationId, permission)
+    const canManageUserOrganizationMeters = await checkOrganizationPermission(context, userId, organizationId, permission)
+    return !!(canManageRelatedOrganizationMeters || canManageUserOrganizationMeters)
+}
+
 async function checkUserBelongsToOrganization (userId, organizationId) {
     if (!userId || !organizationId) return false
     const employee = await getByCondition('OrganizationEmployee', {
@@ -66,6 +73,7 @@ const queryOrganizationEmployeeFor = userId => ({ employees_some: { user: { id: 
 const queryOrganizationEmployeeFromRelatedOrganizationFor = userId => ({ relatedOrganizations_some: { from: queryOrganizationEmployeeFor(userId) } })
 
 module.exports = {
+    checkPermissionInUserOrganizationOrRelatedOrganization,
     checkOrganizationPermission,
     checkUserBelongsToOrganization,
     checkRelatedOrganizationPermission,
