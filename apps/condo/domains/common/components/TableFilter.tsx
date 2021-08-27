@@ -45,9 +45,9 @@ export const getTextFilterDropdown = (columnName: string,
             <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
                 <Input
                     placeholder={columnName}
-                    value={selectedKeys}
+                    value={selectedKeys as string[]}
                     onChange={e => {
-                        setSelectedKeys(e.target.value)
+                        setSelectedKeys(e.target.value as any)
                         setFiltersApplied(true)
                         confirm({ closeDropdown: false })
                     }}

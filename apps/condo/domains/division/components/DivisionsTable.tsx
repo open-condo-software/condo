@@ -58,7 +58,7 @@ export default function DivisionTable (props: BuildingTableProps) {
 
     const tableColumns = useTableColumns(sorterMap, filters)
     const { loading, error, objs: divisions, count: total } = Division.useObjects({
-        sortBy: sortersToSortBy(sorters),
+        // sortBy: sortersToSortBy(sorters),
         where: { ...filtersToWhere(filters), organization: { id: organization.id } },
         skip: (currentPageIndex - 1) * PROPERTY_PAGE_SIZE,
         first: PROPERTY_PAGE_SIZE,
@@ -122,7 +122,7 @@ export default function DivisionTable (props: BuildingTableProps) {
                 </Tooltip>
 
             </Col>
-            <Col span={6} push={6} align={'right'}>
+            <Col span={6} push={6}>
                 {role?.canManageProperties ? (
                     <Space size={16}>
                         <Button

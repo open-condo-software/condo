@@ -96,7 +96,7 @@ export default function PropertiesPage (props: PropertiesPageProps) {
                                 </Tabs>
                             }
                         </Col>
-                        <Col span={6} push={12} align={'right'} style={{ top: 10 }}>
+                        <Col span={6} push={12} style={{ top: 10 }}>
                             <Radio.Group className={'sberRadioGroup'} value={viewMode} buttonStyle="outline" onChange={e => changeViewMode(e.target.value)}>
                                 <Radio.Button value="list">{ShowTable}</Radio.Button>
                                 <Radio.Button value="map">{ShowMap}</Radio.Button>

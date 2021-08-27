@@ -9,7 +9,7 @@ import { Card, Tag } from 'antd'
 const GUEST_API_KEY = 'bfd8bbca-8abf-11ea-b033-5fa57aae2de7'
 import getConfig from 'next/config'
 
-import { jsx } from '@emotion/core'
+import { InterpolationWithTheme, jsx } from '@emotion/core'
 
 const {
     publicRuntimeConfig: { mapApiKey },
@@ -23,8 +23,8 @@ export interface IPointsOfInterest {
 }
 
 export interface IMapProps {
-    points: [IPointsOfInterest],
-    containerCss?: React.CSSProperties
+    points: IPointsOfInterest[],
+    containerCss?: InterpolationWithTheme<any>
 }
 
 
