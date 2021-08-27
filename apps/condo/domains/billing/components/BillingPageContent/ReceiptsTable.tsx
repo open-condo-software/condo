@@ -15,7 +15,7 @@ import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
 import { Table, DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
 import { BillingReceipt } from '@condo/domains/billing/utils/clientSchema'
-import { SortBillingReceiptsBy } from '../../../../schema'
+import { BillingReceiptWhereInput, SortBillingReceiptsBy } from '@app/condo/schema'
 import get from 'lodash/get'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { usePeriodSelector } from '@condo/domains/billing/hooks/usePeriodSelector'
@@ -25,7 +25,7 @@ const addressFilter = getStringContainsFilter(['property', 'address'])
 const accountFilter = getStringContainsFilter(['account', 'number'])
 const toPayFilter = getStringContainsFilter('toPay')
 const periodFilter = getFilter('period', 'single', 'string')
-const staticQueryMetas: Array<QueryMeta> = [
+const staticQueryMetas: Array<QueryMeta<BillingReceiptWhereInput>> = [
     { keyword: 'address', filters: [addressFilter] },
     { keyword: 'account', filters: [accountFilter] },
     { keyword: 'toPay', filters: [toPayFilter] },
@@ -48,7 +48,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
     const contextPeriod = get(context, ['lastReport', 'period'], null)
-    const queryMetas: Array<QueryMeta> = [
+    const queryMetas: Array<QueryMeta<BillingReceiptWhereInput>> = [
         ...staticQueryMetas, { keyword: 'period', filters: [periodFilter], defaultValue: contextPeriod },
     ]
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, sortableProperties)
