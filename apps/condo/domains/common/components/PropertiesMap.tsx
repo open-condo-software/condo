@@ -4,37 +4,35 @@ import { MapGL } from '@condo/domains/common/components/MapGL'
 import has from 'lodash/has'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { Division } from '@condo/domains/division/utils/clientSchema'
+import { Property as PropertyType } from '@app/condo/schema'
 
 type PropertiesMapProps = {
     properties: (Property.IPropertyUIState | Division.IDivisionUIState)[]
 } & Omit<ComponentProps<typeof MapGL>, 'points'>
 
 export default function PropertiesMap ({ properties, ...mapGLProps }: PropertiesMapProps) {
+
+    const propertyMapper = (property: PropertyType) => {
+        const { geo_lat, geo_lon } = property.addressMeta.data
+        return {
+            title: property.name,
+            text: property.address,
+            location: { lat: geo_lat, lng: geo_lon },
+            route: `/property/${property.id}/`,
+        }
+    }
+
     const points = useMemo(() => {
-        const buildings = properties
-            .filter(property => has(property, ['addressMeta', 'data']))
-            .map((property: Property.IPropertyUIState) => {
-                const { geo_lat, geo_lon } = property.addressMeta.data
-                return {
-                    title: property.name,
-                    text: property.address,
-                    location: { lat: geo_lat, lng: geo_lon },
-                    route: `/property/${property.id}/`,
-                }
-            })
+        const buildings = (properties
+            .filter((property) => has(property, ['addressMeta', 'data'])) as unknown as PropertyType[])
+            .map(propertyMapper)
+
         const divisions = properties
             .filter(division => has(division, ['properties']))
             .flatMap((division: Division.IDivisionUIState) => division.properties)
             .filter(property => has(property, ['addressMeta', 'data']))
-            .map(divisionProperty => {
-                const { geo_lat, geo_lon } = divisionProperty.addressMeta.data
-                return {
-                    title: divisionProperty.name,
-                    text: divisionProperty.address,
-                    location: { lat: geo_lat, lng: geo_lon },
-                    route: `/property/${divisionProperty.id}/`,
-                }
-            })
+            .map(propertyMapper)
+
         return buildings.concat(divisions)
 
     }, [properties])

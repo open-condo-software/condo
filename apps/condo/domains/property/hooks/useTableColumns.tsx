@@ -53,5 +53,5 @@ export const useTableColumns = (sorters: Sorters, filters: FiltersFromQueryType)
                 width: 25,
             },
         ], filters, sorters),
-        [filters, sorters])
+    [filters, sorters])
 }
