@@ -11,11 +11,9 @@ const Canvas = styled.canvas`
 
 const CanvasSegment: React.FC<{ progress: number }> = (props) => {
     const canvasRef = useRef<HTMLCanvasElement>(null)
-    const progressToDegrees = 360 / 100 * props.progress
+    const progressToDegrees = ( 2 * Math.PI / 100 * props.progress ) - Math.PI / 2
 
     useEffect(() => {
-        const rad = Math.PI / 180
-
         if (canvasRef) {
             const canvasContext = canvasRef.current.getContext('2d')
 
@@ -30,7 +28,7 @@ const CanvasSegment: React.FC<{ progress: number }> = (props) => {
 
             canvasContext.beginPath()
             canvasContext.moveTo(10, 10)
-            canvasContext.arc(10, 10, 20, -Math.PI / 2, (progressToDegrees * rad) - Math.PI / 2)
+            canvasContext.arc(10, 10, 20, -Math.PI / 2, progressToDegrees)
             canvasContext.fill()
         }
     }, [canvasRef, props.progress])
