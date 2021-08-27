@@ -9,7 +9,8 @@ interface IPageFieldRowProps {
     labelSpan?: number
 }
 
-const PageFieldRow: React.FC<IPageFieldRowProps> = ({ labelSpan, title, children, highlight, style }) => {
+const PageFieldRow: React.FC<IPageFieldRowProps> = (props) => {
+    const { labelSpan = 8, title, children, highlight, style } = props
     return (
         <>
             <Col span={labelSpan} style={{ fontSize: '16px' }}>
@@ -25,10 +26,6 @@ const PageFieldRow: React.FC<IPageFieldRowProps> = ({ labelSpan, title, children
             </Col>
         </>
     )
-}
-
-PageFieldRow.defaultProps = {
-    labelSpan: 8,
 }
 
 export { PageFieldRow }
