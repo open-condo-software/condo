@@ -35,7 +35,7 @@ export const UpdateDivisionForm: React.FC<IUpdateDivisionForm> = ({ id }) => {
     }
 
     const handleCompleteSoftDelete = () => {
-        router.push('/property/')
+        router.push('/property?tab=divisions')
     }
 
     const action = Division.useUpdate({}, handleCompleteUpdate)
