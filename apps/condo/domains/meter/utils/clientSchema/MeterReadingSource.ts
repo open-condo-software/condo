@@ -15,7 +15,6 @@ const RELATIONS = []
 
 export interface IMeterReadingSourceUIState extends MeterReadingSource {
     id: string
-    // TODO(codegen): write IMeterReadingSourceUIState or extends it from
 }
 
 function convertToUIState (item: MeterReadingSource): IMeterReadingSourceUIState {
@@ -25,7 +24,6 @@ function convertToUIState (item: MeterReadingSource): IMeterReadingSourceUIState
 
 export interface IMeterReadingSourceFormState {
     id?: undefined
-    // TODO(codegen): write IMeterReadingSourceUIFormState or extends it from
 }
 
 function convertToUIFormState (state: IMeterReadingSourceUIState): IMeterReadingSourceFormState | undefined {
