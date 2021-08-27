@@ -1,7 +1,7 @@
 import { BankOutlined, CheckOutlined, CreditCardFilled, ProfileFilled, WechatFilled } from '@ant-design/icons'
 import get from 'lodash/get'
 import Router, { useRouter } from 'next/router'
-import React, { createContext, useContext, useEffect, useMemo, useRef } from 'react'
+import React, { createContext, useContext, useEffect } from 'react'
 import { useAuth } from '@core/next/auth'
 import { useApolloClient } from '@core/next/apollo'
 import { HouseIcon } from '@condo/domains/common/components/icons/HouseIcon'
@@ -16,7 +16,11 @@ import { OrganizationEmployee as OrganizationEmployeeGql } from '@condo/domains/
 import { Property as PropertyGql } from '@condo/domains/property/gql'
 import { useFocusContext } from '@condo/domains/common/components/Focus/FocusContextProvider'
 import { useOnBoardingCompleteModal } from '@condo/domains/onboarding/hooks/useOnBoardingCompleeteModal'
-import { getStepKey, getStepType } from '@condo/domains/onboarding/utils/stepUtils'
+import {
+    getOnBoardingProgress,
+    getStepKey,
+    getStepType,
+} from '@condo/domains/onboarding/utils/stepUtils'
 import { OnBoardingStepType } from './OnBoardingStepItem'
 
 interface IDecoratedOnBoardingStepType extends Omit<IOnBoardingStep, 'action'> {
@@ -71,27 +75,25 @@ export const OnBoardingProvider: React.FC = (props) => {
     const updateOnBoarding = OnBoardingHooks.useUpdate({}, () => refetchOnBoarding())
     const updateStep = OnBoardingStepHooks.useUpdate({})
 
-    const onBoardingStepsConfig = useMemo(() => {
-        return {
-            'create.Organization': {
-                query: OrganizationEmployeeGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
-                resolver: (data) => get(data, 'objs', []).length > 0,
-                action: () => showCreateOrganizationModal(true),
-            },
-            'create.Property': {
-                query: PropertyGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
-                resolver: (data) => get(data, 'objs', []).length > 0,
-                action: () => Router.push('property/create'),
-            },
-            'create.OrganizationEmployee': {
-                query: OrganizationEmployeeGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
-                resolver: (data) => get(data, 'objs', []).length > 1,
-                action: () => Router.push('employee/create'),
-            },
-        }
-    }, [showCreateOrganizationModal])
+    const onBoardingStepsConfig = {
+        'create.Organization': {
+            query: OrganizationEmployeeGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
+            resolver: (data) => get(data, 'objs', []).length > 0,
+            action: () => showCreateOrganizationModal(true),
+        },
+        'create.Property': {
+            query: PropertyGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
+            resolver: (data) => get(data, 'objs', []).length > 0,
+            action: () => Router.push('property/create'),
+        },
+        'create.OrganizationEmployee': {
+            query: OrganizationEmployeeGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
+            resolver: (data) => get(data, 'objs', []).length > 1,
+            action: () => Router.push('employee/create'),
+        },
+    }
 
-    const decoratedSteps = useMemo(() => onBoardingSteps.map((step) => {
+    const decoratedSteps = onBoardingSteps.map((step) => {
         const stepKey = getStepKey(step)
 
         return {
@@ -100,21 +102,10 @@ export const OnBoardingProvider: React.FC = (props) => {
             iconView: step.completed ? CheckOutlined : onBoardingIcons[step.icon],
             type: getStepType(step, get(onBoarding, 'stepsTransitions', {}), onBoardingSteps),
         }
-    }), [onBoardingSteps])
-    // TODO(Dimitreee): think about better solution for progress state sync at hooks
-    const progressRef = useRef(0)
-
-    const progress = useMemo(() => {
-        const totalSteps = decoratedSteps.filter((obj) => obj.type !== undefined && obj.type !== OnBoardingStepType.DISABLED).length
-        const completedSteps = decoratedSteps.filter((obj) => obj.type === OnBoardingStepType.COMPLETED).length
-
-        progressRef.current = (completedSteps / totalSteps) * ONBOARDING_COMPLETED_PROGRESS
-
-        return progressRef.current
-    }, [decoratedSteps])
+    })
 
     useEffect(() => {
-        decoratedSteps.forEach(async (step) => {
+        onBoardingSteps.forEach(async (step) => {
             const stepKey = getStepKey(step)
             const query = get(onBoardingStepsConfig, [stepKey, 'query'], null)
 
@@ -124,9 +115,18 @@ export const OnBoardingProvider: React.FC = (props) => {
 
                     if (resolver(res.data) && !get(onBoarding, 'completed')) {
                         updateStep({ completed: true }, step).then(() => {
-                            refetchSteps().then(() => {
-                                if (router.pathname !== '/onboarding' && progressRef.current < ONBOARDING_COMPLETED_PROGRESS) {
+                            refetchSteps().then(({ data }) => {
+                                const { objs: steps } = data
+                                const onBoardingProgress = getOnBoardingProgress(steps, onBoarding)
+
+                                if (router.pathname !== '/onboarding' && onBoardingProgress < ONBOARDING_COMPLETED_PROGRESS) {
                                     showFocusTooltip()
+                                }
+
+                                if (onBoardingProgress === ONBOARDING_COMPLETED_PROGRESS && !get(onBoarding, 'completed')) {
+                                    updateOnBoarding({ completed: true }, onBoarding).then(() => {
+                                        showOnBoardingCompleteModal(true)
+                                    })
                                 }
                             })
                         })
@@ -134,23 +134,11 @@ export const OnBoardingProvider: React.FC = (props) => {
                 })
             }
         })
-    }, [decoratedSteps, progress, onBoarding])
-
-    useEffect(() => {
-        if (
-            progress === ONBOARDING_COMPLETED_PROGRESS &&
-            !isOnBoardingCompleteVisible &&
-            !get(onBoarding, 'completed', false)
-        ) {
-            updateOnBoarding({ completed: true }, onBoarding).then(() => {
-                showOnBoardingCompleteModal(true)
-            })
-        }
-    }, [progress, router, onBoarding, isOnBoardingCompleteVisible])
+    }, [onBoarding, onBoardingSteps, isOnBoardingCompleteVisible])
 
     return (
         <OnBoardingContext.Provider value={{
-            progress,
+            progress: getOnBoardingProgress(onBoardingSteps, onBoarding),
             onBoarding,
             isLoading: stepsLoading,
             onBoardingSteps: decoratedSteps,
