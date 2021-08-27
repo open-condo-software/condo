@@ -66,11 +66,7 @@ export const DeleteButtonWithConfirmModal: React.FC<IDeleteActionButtonWithConfi
                 {buttonContent || <DeleteFilled/>}
             </Button>
             <Modal
-                title={
-                    <Typography.Title style={{ fontSize: '24px', lineHeight: '32px' }}>
-                        {title}
-                    </Typography.Title>
-                }
+                title={title}
                 visible={isConfirmVisible}
                 onCancel={handleCancel}
                 footer={[
