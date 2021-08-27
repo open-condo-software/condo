@@ -58,7 +58,7 @@ exports.down = async (knex) => {
 -- Alter field importId on user
 --
 ALTER TABLE "User" ADD CONSTRAINT "User_importId_1ba44fc8_uniq" UNIQUE ("importId");
-CREATE INDEX "User_importId_1ba44fc8_like" ON "User" ("importId" text_pattern_ops);
+CREATE INDEX "User_importId_key" ON "User" ("importId" text_pattern_ops);
 --
 -- Alter field email on user
 --
