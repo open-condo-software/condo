@@ -67,7 +67,8 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const [search, handleSearchChange] = useSearch(loading)
     const [period, options, handlePeriodChange] = usePeriodSelector(contextPeriod)
 
-    const columns = useReceiptTableColumns(false, currencySign, separator)
+    const hasToPayDetails = get(context, ['integration', 'dataFormat', 'hasToPayDetail'], false)
+    const columns = useReceiptTableColumns(hasToPayDetails, currencySign, separator)
 
     if (error) {
         return (
