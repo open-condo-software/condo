@@ -123,7 +123,7 @@ export const OnBoardingProvider: React.FC = (props) => {
                                     showFocusTooltip()
                                 }
 
-                                if (onBoardingProgress === ONBOARDING_COMPLETED_PROGRESS && !get(onBoarding, 'completed')) {
+                                if (onBoardingProgress === ONBOARDING_COMPLETED_PROGRESS) {
                                     updateOnBoarding({ completed: true }, onBoarding).then(() => {
                                         showOnBoardingCompleteModal(true)
                                     })
