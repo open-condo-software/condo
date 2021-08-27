@@ -190,6 +190,11 @@ export default function GlobalStyle () {
                 color: ${colors.red[5]}
               }
               
+              .ant-modal-title {
+                font-size: 24px;
+                line-height: 32px; 
+                font-weight: 700;
+              }
               
               ${uploadControlCss}
               ${radioGroupCss}
