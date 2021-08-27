@@ -21,7 +21,7 @@ type OptionWhereArgumentType = Array<string> | Array<number>
 type WhereArgumentType = string | number | boolean | OptionWhereArgumentType
 export type WhereType = { [key: string]: WhereArgumentType | WhereType }
 // TODO(mrfoxpro): make type generic
-export type FilterType = (search: QueryArgType) => WhereType
+export type FilterType<F = WhereType> = (search: QueryArgType) => F
 export type ArgumentType = 'single' | 'array'
 export type ArgumentDataType = 'string' | 'number' | 'dateTime' | 'boolean'
 export type FiltersApplyMode = 'AND' | 'OR'
@@ -69,9 +69,9 @@ export type ColumnInfo = {
     render?: (value: any, record: TableRecord, index: number) => Record<string, unknown> | React.ReactNode
 }
 
-export type QueryMeta = {
+export type QueryMeta<F> = {
     keyword: string
-    filters: FilterType[]
+    filters: FilterType<F>[]
     // by default === 'AND'
     combineType?: FiltersApplyMode
     defaultValue?: QueryArgType
