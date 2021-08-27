@@ -14,10 +14,10 @@ const { DateTime } = require('luxon')
 
 const PROPERTY_QUANTITY = 10
 const AVAILABLE_LEVELS = {
-    base: 'base',
-    toPayDetails: 'detailed',
-    withServices: 'withServices',
-    withServiceDetails: 'withServiceDetails',
+    base: '1',
+    toPayDetails: '1+',
+    withServices: '2',
+    withServiceDetails: '2+',
 }
 const ACCOUNTS_PER_PROPERTY_DISTRIBUTION = { min: 30, max: 70 }
 const PERIODS_AMOUNT = 3
@@ -106,18 +106,18 @@ class ReceiptsGenerator {
     async generateReceipts () {
 
         // Gets somewhat like normal distribution using central limit theorem
-        function _gaussianRand () {
+        function _gaussianRand (attempts = 6) {
             let rand = 0
-            for (let i = 0; i < 6; i += 1) {
+            for (let i = 0; i < attempts; i += 1) {
                 rand += Math.random()
             }
-            return rand / 6
+            return rand / attempts
         }
 
-        function _gaussianInt (min, max) {
+        function _gaussianInt (min, max, attempts = 6) {
             min = Math.ceil(min)
             max = Math.floor(max)
-            return Math.floor(_gaussianRand() * (max - min + 1) + min)
+            return Math.floor(_gaussianRand(attempts) * (max - min + 1) + min)
         }
         
         console.info('[INFO] Generating receipts...')
@@ -155,19 +155,30 @@ class ReceiptsGenerator {
                     recipient: PAYMENT_ORGANIZATION,
                     raw: BASE_JSON,
                 }
-                const toPay = _gaussianInt(this.toPay.min, this.toPay.max)
                 switch (this.detailLevel) {
                     case AVAILABLE_LEVELS.base:
                         await BillingReceipt.create(this.context, {
-                            ...receipt, toPay: `${toPay}.00`,
+                            ...receipt, toPay: `${_gaussianInt(this.toPay.min, this.toPay.max)}.00`,
                         })
                         break
-                    // case AVAILABLE_LEVELS.toPayDetails: {
-                    //     if _gaussianRand()
-                    //     const charge = _gaussianInt(0, toPay)
-                    //     const
-                    //     break
-                    // }
+                    case AVAILABLE_LEVELS.toPayDetails: {
+                        const charge = _gaussianInt(this.toPay.min, this.toPay.max)
+                        const balance = _gaussianInt(-charge, charge * 4, 1)
+                        const penalty = balance > charge * 2 ? _gaussianInt(0, charge) : 0
+                        const toPay = `${charge + balance + penalty}.00`
+                        const toPayDetails = {
+                            formula: 'charge+balance+penalty',
+                            charge: `${charge}.00`,
+                            balance: `${balance}.00`,
+                            penalty: `${penalty}.00`,
+                        }
+                        await BillingReceipt.create(this.context, {
+                            ...receipt,
+                            toPay,
+                            toPayDetails,
+                        })
+                        break
+                    }
                     default:
                         throw new Error(`Cant generate receipts! Detail level is wrong. Should be 1. Got ${this.detailLevel}`)
                 }
@@ -213,14 +224,20 @@ class ReceiptsGenerator {
     }
 }
 
-const createReceipts = async ([billingContextId]) => {
+const createReceipts = async ([billingContextId, detailsLevel]) => {
+    if (!detailsLevel) {
+        detailsLevel = AVAILABLE_LEVELS.base
+    }
     if (!billingContextId) {
         throw new Error('No billingContextId was provided – please use like this: yarn generate-receipts <contextId>')
+    }
+    if (!Object.values(AVAILABLE_LEVELS).includes(detailsLevel)) {
+        throw new Error(`Incorrect detailsLevel was provided. Available: ${Object.values(AVAILABLE_LEVELS).join(', ')}`)
     }
 
     const ReceiptsManager = new ReceiptsGenerator({
         billingContextId: billingContextId,
-        detailLevel: AVAILABLE_LEVELS.base,
+        detailLevel: detailsLevel,
         propertyQuantity: PROPERTY_QUANTITY,
         accountsPerProperty: ACCOUNTS_PER_PROPERTY_DISTRIBUTION,
         periods: getPreviousPeriods(CURRENT_PERIOD, PERIODS_AMOUNT),
