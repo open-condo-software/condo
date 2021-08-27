@@ -6,7 +6,7 @@ import { FilterValue } from 'antd/es/table/interface'
 
 import { convertColumns, FiltersFromQueryType, Sorters } from '@condo/domains/common/utils/tables.utils'
 import { isEmpty } from 'lodash'
-import { EmptyTableCell } from '../../common/components/Table/EmptyTableCell'
+import { EmptyTableCell } from '@condo/domains/common/components/Table/EmptyTableCell'
 import { Typography } from 'antd'
 import { Highliter } from '@condo/domains/common/components/Highliter'
 import { colors } from '@condo/domains/common/constants/style'
