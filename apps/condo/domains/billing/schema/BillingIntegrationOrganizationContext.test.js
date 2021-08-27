@@ -18,10 +18,8 @@ const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/u
 describe('BillingIntegrationOrganizationContext', () => {
     test('admin: create BillingIntegrationOrganizationContext', async () => {
         const { context, integration, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
-        expect(context).toEqual(expect.objectContaining({
-            integration: { id: integration.id, name: integration.name },
-            organization: { id: organization.id, name: organization.name },
-        }))
+        expect(context).toHaveProperty(['integration', 'id'], integration.id)
+        expect(context).toHaveProperty(['organization', 'id'], organization.id)
     })
 
     test('user: create BillingIntegrationOrganizationContext', async () => {
@@ -49,11 +47,8 @@ describe('BillingIntegrationOrganizationContext', () => {
     test('organization integration manager: create BillingIntegrationOrganizationContext', async () => {
         const { managerUserClient, integration, organization } = await makeOrganizationIntegrationManager()
         const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-
-        expect(context).toEqual(expect.objectContaining({
-            integration: { id: integration.id, name: integration.name },
-            organization: { id: organization.id, name: organization.name },
-        }))
+        expect(context).toHaveProperty(['integration', 'id'], integration.id)
+        expect(context).toHaveProperty(['organization', 'id'], organization.id)
     })
 
     test('admin: update BillingIntegrationOrganizationContext', async () => {
