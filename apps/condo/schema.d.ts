@@ -10311,7 +10311,7 @@ export type MutationUpdateAuthenticatedUserArgs = {
   data?: Maybe<UserUpdateInput>;
 };
 
-/**  TODO DOC!  */
+/**  User action guide. It should be used to build complex hierarchical systems of user actions.  */
 export type OnBoarding = {
   __typename?: 'OnBoarding';
   /**
@@ -10326,12 +10326,19 @@ export type OnBoarding = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<Scalars['JSON']>;
-  /**  TODO DOC!  */
+  /**
+   *  Primary Attribute of user guide what we need to watch for.
+   * Indicates the status and detect the full completeness of guide.
+   */
   completed?: Maybe<Scalars['Boolean']>;
-  /**  TODO DOC!  */
+  /**
+   *  Graph of possible transitions for steps. If there is no transition in this graph,
+   * it is impossible to move forward or backward of guide.
+   */
   stepsTransitions?: Maybe<Scalars['JSON']>;
-  /**  TODO DOC!  */
+  /**  User onBoarding relates to.  */
   user?: Maybe<User>;
+  /**  Type of onBoarding. Used for guid classification  */
   type?: Maybe<OnBoardingTypeType>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -10562,7 +10569,7 @@ export type OnBoardingRelateToOneInput = {
   disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
-/**  TODO DOC!  */
+/**  Logic part of user app guide.  */
 export type OnBoardingStep = {
   __typename?: 'OnBoardingStep';
   /**
@@ -10577,23 +10584,22 @@ export type OnBoardingStep = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<Scalars['JSON']>;
-  /**  TODO DOC!  */
+  /**  Icon string definition of step.  */
   icon?: Maybe<Scalars['String']>;
-  /**  TODO DOC!  */
+  /**  Step order in view maps, should be used as priority indicator.  */
   order?: Maybe<Scalars['Int']>;
-  /**  TODO DOC!  */
+  /**  Shows the main point of a step.  */
   title?: Maybe<Scalars['String']>;
-  /**  TODO DOC!  */
+  /**  Shows additional point of a step  */
   description?: Maybe<Scalars['String']>;
-  /**  TODO DOC!  */
+  /**  Used for step transition logic calculation, if the value of this flag is true movement towards graph will be blocked.  */
   required?: Maybe<Scalars['Boolean']>;
-  /**  TODO DOC!  */
+  /**  Detect completness of the current step. If all steps in onBoarding will be completed, onBoarding completed state should be set to true.  */
   completed?: Maybe<Scalars['Boolean']>;
-  /**  TODO DOC!  */
+  /**  Detect step target action. Action should be used for validation step completness.  */
   action?: Maybe<OnBoardingStepActionType>;
-  /**  TODO DOC!  */
+  /**  Domain entity on which is performed to  */
   entity?: Maybe<Scalars['String']>;
-  /**  TODO DOC!  */
   onBoarding?: Maybe<OnBoarding>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
