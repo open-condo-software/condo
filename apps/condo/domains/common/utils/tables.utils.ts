@@ -56,7 +56,7 @@ type CustomFilter = {
     filterDropdown: (props: FilterDropdownProps) => React.ReactNode
 }
 
-export type ColumnInfo = {
+export type ColumnInfo<ColumnData> = {
     title: string
     key: string
     width: number
@@ -66,7 +66,7 @@ export type ColumnInfo = {
     sortable?: boolean
     visible?: boolean
     grow?: number
-    render?: (value: any, record: TableRecord, index: number) => Record<string, unknown> | React.ReactNode
+    render?: (value: ColumnData, record: TableRecord, index: number) => Record<string, unknown> | React.ReactNode
 }
 
 export type QueryMeta<F> = {
@@ -251,7 +251,8 @@ export const parseQuery = (query: ParsedUrlQuery): ParsedQueryType => {
 }
 
 export const convertColumns = (
-    columns: Array<ColumnInfo>,
+    // TODO(mrfoxpro): write generic argument
+    columns: ColumnInfo<any>[],
     filters: FiltersFromQueryType,
     sorters: Sorters
 ) => {

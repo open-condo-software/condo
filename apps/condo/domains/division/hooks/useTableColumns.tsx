@@ -4,12 +4,13 @@ import { useIntl } from '@core/next/intl'
 
 import { FilterValue } from 'antd/es/table/interface'
 
-import { convertColumns, FiltersFromQueryType, Sorters } from '@condo/domains/common/utils/tables.utils'
+import { ColumnInfo, convertColumns, FiltersFromQueryType, Sorters } from '@condo/domains/common/utils/tables.utils'
 import { isEmpty } from 'lodash'
 import { EmptyTableCell } from '@condo/domains/common/components/Table/EmptyTableCell'
 import { Typography } from 'antd'
 import { Highliter } from '@condo/domains/common/components/Highliter'
 import { colors } from '@condo/domains/common/constants/style'
+import { Division } from '../utils/clientSchema'
 
 export interface ITableColumn {
     title: string,
@@ -48,8 +49,14 @@ export const useTableColumns = (sorters: Sorters, filters: FiltersFromQueryType)
         }
         return (<EmptyTableCell>{result}{isArray && <br />}</EmptyTableCell>)
     }
-    return useMemo(() =>
-        convertColumns([
+    return useMemo(() => {
+        type ColumnTypes = [
+            ColumnInfo<string>,
+            ColumnInfo<Division.IDivisionUIState['properties']>,
+            ColumnInfo<Division.IDivisionUIState['responsible']>,
+            ColumnInfo<Division.IDivisionUIState['executors']>,
+        ]
+        const columns: ColumnTypes = [
             {
                 title: DivisionTitleMessage,
                 ellipsis: true,
@@ -74,7 +81,7 @@ export const useTableColumns = (sorters: Sorters, filters: FiltersFromQueryType)
                 ellipsis: true,
                 dataIndex: 'responsible',
                 key: 'responsible',
-                render: responsible => render(responsible.name),
+                render: (responsible) => render(responsible.name),
 
                 width: 20,
             },
@@ -82,10 +89,11 @@ export const useTableColumns = (sorters: Sorters, filters: FiltersFromQueryType)
                 title: TechiesTitleMessage,
                 ellipsis: true,
                 dataIndex: 'executors',
-                render: executors => executors.map((executor) => render(executor.name, true)),
+                render: (executors) => executors.map((executor) => render(executor.name, true)),
                 key: 'executors',
                 width: 20,
             },
-        ], filters, sorters),
-    [filters, sorters, render])
+        ]
+        return convertColumns(columns, filters, sorters)
+    }, [filters, sorters, render])
 }
