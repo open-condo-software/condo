@@ -37,22 +37,23 @@ export const FilterContainer: React.FC<IFilterContainerProps> = (props) => {
 
 export const getFilterIcon = filtered => <FilterFilled style={{ color: filtered ? colors.sberPrimary[5] : undefined }} />
 
-export const getTextFilterDropdown = (columnName: string,
-    setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>) => {
+export const getTextFilterDropdown = (columnName: string, setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>) => {
 
-    return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: FilterDropdownProps) => {
-        return (
-            <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
-                <Input
-                    placeholder={columnName}
-                    value={selectedKeys as string[]}
-                    onChange={e => {
-                        setSelectedKeys(e.target.value as any)
-                        setFiltersApplied(true)
-                        confirm({ closeDropdown: false })
-                    }}
-                />
-            </FilterContainer>
-        )
-    }
+    const TextFilterDropdown = ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: FilterDropdownProps) => (
+        <FilterContainer
+            clearFilters={clearFilters}
+            showClearButton={selectedKeys && selectedKeys.length > 0}>
+            <Input
+                placeholder={columnName}
+                value={selectedKeys[0]}
+                onChange={(e) => {
+                    setSelectedKeys(e.target.value ? [e.target.value] : [])
+                    setFiltersApplied(true)
+                    confirm({ closeDropdown: false })
+                }}
+            />
+        </FilterContainer>
+    )
+
+    return TextFilterDropdown
 }
