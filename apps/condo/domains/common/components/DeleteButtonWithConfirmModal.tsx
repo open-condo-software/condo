@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { ButtonProps, Typography } from 'antd'
 import { Button } from './Button'
 import Modal from 'antd/lib/modal/Modal'
