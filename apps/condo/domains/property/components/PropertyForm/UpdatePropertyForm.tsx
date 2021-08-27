@@ -10,7 +10,6 @@ import { useOrganization } from '@core/next/organization'
 import { FormResetButton } from '@condo/domains/common/components/FormResetButton'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Loader } from '@condo/domains/common/components/Loader'
-import { DeleteButtonWithConfirmModal } from '../../../common/components/DeleteButtonWithConfirmModal'
 
 interface IUpdatePropertyForm {
     id: string
@@ -19,16 +18,12 @@ interface IUpdatePropertyForm {
 export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
     const intl = useIntl()
     const ApplyChangesLabel = intl.formatMessage({ id: 'ApplyChanges' })
-    const DeletePropertyLabel = intl.formatMessage({ id: 'pages.condo.property.form.DeleteLabel' })
-    const ConfirmDeleteTitle = intl.formatMessage({ id: 'pages.condo.property.form.ConfirmDeleteTitle' })
-    const ConfirmDeleteMessage = intl.formatMessage({ id: 'pages.condo.property.form.ConfirmDeleteMessage' })
     const { push } = useRouter()
     const { organization } = useOrganization()
     const { refetch, obj: property, loading, error } = Property.useObject({ where: { id } })
     const initialValues = Property.convertToUIFormState(property)
     const action = Property.useUpdate({}, (property) => push(`/property/${property.id}`))
     const updateAction = (value) => action(value, property)
-    const softDeleteAction = Property.useSoftDelete({}, () => push('/property/'))
 
     useEffect(() => {
         refetch()
@@ -76,16 +71,6 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
                                                 </Button>
                                                 <ErrorsContainer address={address} />
                                             </Space>
-                                            <DeleteButtonWithConfirmModal
-                                                title={ConfirmDeleteTitle}
-                                                message={ConfirmDeleteMessage}
-                                                okButtonLabel={DeletePropertyLabel}
-                                                buttonCustomProps={{
-                                                    style: { position: 'absolute', right: '24px', top: '24px' },
-                                                }}
-                                                buttonContent={DeletePropertyLabel}
-                                                action={() => softDeleteAction({}, property)}
-                                            />
                                         </ActionBar>
                                     </>
                                 )
