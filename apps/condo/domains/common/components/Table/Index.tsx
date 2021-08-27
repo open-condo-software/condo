@@ -78,8 +78,6 @@ export const Table: React.FC<ITableProps> = ({
             shouldResetOffset = true
             newSorters = `${nextSorters.field}_${FULL_TO_SHORT_ORDERS_MAP[nextSorters.order]}`
         }
-        console.log('new sorters', newSorters)
-        console.log('next sorters', nextSorters)
         const newOffset = shouldResetOffset ? 0 : (current - 1) * rowsPerPage
 
         const queryParams = {

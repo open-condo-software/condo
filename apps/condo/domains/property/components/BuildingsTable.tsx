@@ -12,7 +12,7 @@ import { useIntl } from '@core/next/intl'
 
 import { EXPORT_PROPERTIES_TO_EXCEL } from '@condo/domains/property/gql'
 import { Col, Input, notification, Row, Space } from 'antd'
-import { Table } from '@condo/domains/common/components/Table'
+import { Table } from '@condo/domains/common/components/Table/Index'
 import { useImporterFunctions } from '../hooks/useImporterFunctions'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { DatabaseFilled, DiffOutlined } from '@ant-design/icons'
