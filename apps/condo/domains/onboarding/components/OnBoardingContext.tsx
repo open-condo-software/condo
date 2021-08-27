@@ -91,18 +91,16 @@ export const OnBoardingProvider: React.FC = (props) => {
         }
     }, [showCreateOrganizationModal])
 
-    const decoratedSteps = useMemo(() => {
-        return onBoardingSteps.map((step) => {
-            const stepKey = getStepKey(step)
+    const decoratedSteps = useMemo(() => onBoardingSteps.map((step) => {
+        const stepKey = getStepKey(step)
 
-            return {
-                ...step,
-                stepAction: step.completed ? null : get(onBoardingStepsConfig, [stepKey, 'action'], () => { void 0 }),
-                iconView: step.completed ? CheckOutlined : onBoardingIcons[step.icon],
-                type: getStepType(step, get(onBoarding, 'stepsTransitions', {}), onBoardingSteps),
-            }
-        })
-    }, [onBoardingSteps])
+        return {
+            ...step,
+            stepAction: step.completed ? null : get(onBoardingStepsConfig, [stepKey, 'action'], () => { void 0 }),
+            iconView: step.completed ? CheckOutlined : onBoardingIcons[step.icon],
+            type: getStepType(step, get(onBoarding, 'stepsTransitions', {}), onBoardingSteps),
+        }
+    }), [onBoardingSteps])
     // TODO(Dimitreee): think about better solution for progress state sync at hooks
     const progressRef = useRef(0)
 
