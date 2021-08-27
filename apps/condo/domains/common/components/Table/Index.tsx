@@ -79,7 +79,7 @@ export const Table: React.FC<ITableProps> = ({
             newSorters = `${nextSorters.field}_${FULL_TO_SHORT_ORDERS_MAP[nextSorters.order]}`
         }
         const currentSorters = sorters.map((sorter) => `${sorter.columnKey}_${FULL_TO_SHORT_ORDERS_MAP[sorter.order]}`)
-        if (!currentSorters.includes(newSorters)) {
+        if ((currentSorters.length && !currentSorters.includes(newSorters)) || (!currentSorters.length && newSorters)) {
             shouldResetOffset = true
         }
 
