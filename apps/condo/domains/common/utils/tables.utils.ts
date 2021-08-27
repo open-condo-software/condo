@@ -20,6 +20,7 @@ export type FiltersFromQueryType = { [key: string]: QueryArgType }
 type OptionWhereArgumentType = Array<string> | Array<number>
 type WhereArgumentType = string | number | boolean | OptionWhereArgumentType
 export type WhereType = { [key: string]: WhereArgumentType | WhereType }
+// TODO(mrfoxpro): make type generic
 export type FilterType = (search: QueryArgType) => WhereType
 export type ArgumentType = 'single' | 'array'
 export type ArgumentDataType = 'string' | 'number' | 'dateTime' | 'boolean'
