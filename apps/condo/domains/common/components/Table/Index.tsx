@@ -38,7 +38,7 @@ export const Table: React.FC<ITableProps> = ({
     const rowKey = keyPath || 'id'
 
     const router = useRouter()
-    const { filters, offset } = parseQuery(router.query)
+    const { filters, offset, sorters } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, rowsPerPage)
 
     // Triggered, when table pagination/filters/sorting changes
@@ -58,6 +58,7 @@ export const Table: React.FC<ITableProps> = ({
 
             if (!tableFilterValue && oldFilterValue) {
                 delete newFilters[tableFilterName]
+                shouldResetOffset = true
             }
 
             let typedValue = null
@@ -75,8 +76,11 @@ export const Table: React.FC<ITableProps> = ({
 
         let newSorters  = null
         if (nextSorters && nextSorters.order) {
-            shouldResetOffset = true
             newSorters = `${nextSorters.field}_${FULL_TO_SHORT_ORDERS_MAP[nextSorters.order]}`
+        }
+        const currentSorters = sorters.map((sorter) => `${sorter.columnKey}_${FULL_TO_SHORT_ORDERS_MAP[sorter.order]}`)
+        if (!currentSorters.includes(newSorters)) {
+            shouldResetOffset = true
         }
 
         const newOffset = shouldResetOffset ? 0 : (current - 1) * rowsPerPage
