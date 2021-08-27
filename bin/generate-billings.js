@@ -35,6 +35,30 @@ const DollarCurrency = {
     },
 }
 
+const Lvl1DataFormat = {
+    hasToPayDetail: false,
+    hasServices: false,
+    hasServicesDetail: false,
+}
+
+const Lvl1PlusDataFormat = {
+    hasToPayDetail: true,
+    hasServices: false,
+    hasServicesDetail: false,
+}
+
+const Lvl2DataFormat = {
+    hasToPayDetail: true,
+    hasServices: true,
+    hasServicesDetail: false,
+}
+
+const Lvl3DataFormat = {
+    hasToPayDetail: true,
+    hasServices: true,
+    hasServicesDetail: true,
+}
+
 const InProgressBilling = {
     dv: DV,
     sender: SENDER,
@@ -48,6 +72,7 @@ const InProgressBilling = {
     detailsInstructionButtonLink: 'https://dom.gosuslugi.ru',
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IN_PROGRESS_STATUS,
     billingPageTitle: 'Биллинг ГИС ЖКХ',
+    dataFormat: Lvl1DataFormat,
 }
 
 const SuccessfulBilling = {
@@ -62,6 +87,7 @@ const SuccessfulBilling = {
     detailsInstructionButtonLink: 'https://www.sberbank.ru/ru/s_m_business/new_sbbol',
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
     billingPageTitle: 'Биллинг, реестровый обмен',
+    dataFormat: Lvl1DataFormat,
 }
 
 const ErrorBilling = {
@@ -76,6 +102,7 @@ const ErrorBilling = {
     detailsInstructionButtonLink: 'https://www.sberbank.ru/ru/s_m_business/new_sbbol',
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_ERROR_STATUS,
     billingPageTitle: 'Биллинг, реестровый обмен',
+    dataFormat: Lvl1DataFormat,
 }
 
 const NoDetailsBilling = {
@@ -86,6 +113,7 @@ const NoDetailsBilling = {
     detailsTitle: 'Подключение биллинга с детализацией 1',
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
     billingPageTitle: 'Биллинг, уровень 1',
+    dataFormat: Lvl1DataFormat,
 }
 
 const NoDetailsDollarBilling = {
@@ -96,6 +124,7 @@ const NoDetailsDollarBilling = {
     detailsTitle: 'Подключение биллинга с детализацией 1 и долларами',
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
     billingPageTitle: 'Биллинг "Доллар", уровень 1',
+    dataFormat: Lvl1DataFormat,
 }
 
 const ToPayDetailsBilling = {
@@ -106,6 +135,7 @@ const ToPayDetailsBilling = {
     detailsTitle: 'Подключение биллинга с детализацией 1+',
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
     billingPageTitle: 'Биллинг, уровень 1+',
+    dataFormat: Lvl1PlusDataFormat,
 }
 
 const WithServicesBilling = {
@@ -116,6 +146,7 @@ const WithServicesBilling = {
     detailsTitle: 'Подключение биллинга с детализацией 2',
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
     billingPageTitle: 'Биллинг, уровень 2',
+    dataFormat: Lvl2DataFormat,
 }
 
 const WithServicesDetailsBilling = {
@@ -126,6 +157,7 @@ const WithServicesDetailsBilling = {
     detailsTitle: 'Подключение биллинга с детализацией 3',
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
     billingPageTitle: 'Биллинг, уровень 3',
+    dataFormat: Lvl3DataFormat,
 }
 
 const RUBLE_BILLINGS_TO_CREATE = [
