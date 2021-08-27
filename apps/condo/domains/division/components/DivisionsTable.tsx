@@ -40,7 +40,7 @@ export default function DivisionTable (props: BuildingTableProps) {
     const { organization, link: { role } } = useOrganization()
 
     const addressFilter = getFilter('name', 'single', 'string', 'contains_i')
-    const propertiesFilter = (search: string): DivisionWhereInput => ({
+    const propertiesFilter = (search: string) => ({
         properties_some: {
             OR: [
                 {
@@ -52,26 +52,26 @@ export default function DivisionTable (props: BuildingTableProps) {
             ],
         },
     })
-    const responsibleFilter = (search: string): DivisionWhereInput => ({
+    const responsibleFilter = (search: string) => ({
         responsible: {
             name_contains_i: search,
         },
     })
-    const executorsFilter = (search: string): DivisionWhereInput => ({
+    const executorsFilter = (search: string) => ({
         executors_some: {
             name_contains_i: search,
         },
     })
 
-    const queryMetas: QueryMeta[] = [
+    const queryMetas: QueryMeta<DivisionWhereInput>[] = [
         { keyword: 'address', filters: [addressFilter] },
         {
             keyword: 'search',
             filters: [
                 addressFilter,
-                propertiesFilter as FilterType,
-                responsibleFilter as FilterType,
-                executorsFilter as FilterType,
+                propertiesFilter,
+                responsibleFilter,
+                executorsFilter,
             ],
             combineType: 'OR',
         },
@@ -81,7 +81,7 @@ export default function DivisionTable (props: BuildingTableProps) {
 
     const currentPageIndex = getPageIndexFromOffset(offset, PROPERTY_PAGE_SIZE)
 
-    const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, ['name'])
+    const { filtersToWhere, sortersToSortBy } = useQueryMappers<DivisionWhereInput>(queryMetas, ['name'])
     const sorterMap = getSorterMap(sorters)
 
     const tableColumns = useTableColumns(sorterMap, filters)
