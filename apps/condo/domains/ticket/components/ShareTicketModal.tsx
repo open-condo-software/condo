@@ -89,12 +89,6 @@ const sendButton = css`
   }
 `
 
-const ModalHeader = styled.span`
-  font-weight: 700;
-  line-height: 32px;
-  font-size: 24px;
-`
-
 const ShareButton = styled.span`
   border: 1px solid ${colors.lightGrey[5]};
   border-radius: 8px;
@@ -293,9 +287,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                     {OKMessage}
                 </Button>}
                 onCancel={handleCancel}
-                title={
-                    <ModalHeader>{ShareSentMessage}</ModalHeader>
-                }
+                title={ShareSentMessage}
             >
                 {ShareSentToEmailMessage}
             </Modal>
@@ -304,11 +296,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                 visible={shareVisible}
                 footer={null}
                 onCancel={handleCancel}
-                title={
-                    <ModalHeader>
-                        {ShareHeaderMessage}
-                    </ModalHeader>
-                }
+                title={ShareHeaderMessage}
             >
                 <Row gutter={[0, 16]}>
                     <Col span={24}>

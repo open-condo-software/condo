@@ -386,7 +386,7 @@ const BaseModalForm: FunctionComponent<IBaseModalFormProps> = ({
         Buttons.push((<Button key="cancel" type="sberPrimary" secondary onClick={cancelModal}>{CancelMessage}</Button>))
     }
     return (<Modal
-        title={<h2 style={{ fontWeight: 'bold', lineHeight: '22px', marginBottom: '0px' }}>{ModalTitleMsg}</h2>}
+        title={ModalTitleMsg}
         visible={visible}
         onCancel={cancelModal}
         footer={[
