@@ -56,7 +56,10 @@ export const CreateEmployeeForm: React.FC = () => {
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
     const PhoneIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
     const UserAlreadyInListMsg = intl.formatMessage({ id: 'pages.users.UserIsAlreadyInList' })
+    const TechnicianRoleName = intl.formatMessage({ id: 'employee.role.Technician.name'})
+    const ForemanRoleName = intl.formatMessage({ id: 'employee.role.Foreman.name'})
 
+    const rolesForSpecialization = [TechnicianRoleName, ForemanRoleName]
     
     const classifiersLoader = new ClassifiersQueryRemote(useApolloClient())
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -195,19 +198,20 @@ export const CreateEmployeeForm: React.FC = () => {
                                                     <Input />
                                                 </Form.Item>
                                             </Col>
-                                            {get(selectedRole, 'canBeAssignedAsResponsible') && <Col span={24}>
-                                                <Form.Item
-                                                    name={'specializations'}
-                                                    label={SpecializationsLabel}
-                                                    labelAlign={'left'}
-                                                    required
-                                                    validateFirst
-                                                    {...INPUT_LAYOUT_PROPS}
-                                                >
-                                                    <GraphQlSearchInput mode="multiple" search={searchClassifers} />
-                                                </Form.Item>
-                                            </Col>}
-                                            </Col>
+                                            {rolesForSpecialization.includes(get(selectedRole, 'name')) && (
+                                                <Col span={24}>
+                                                    <Form.Item
+                                                        name={'specializations'}
+                                                        label={SpecializationsLabel}
+                                                        labelAlign={'left'}
+                                                        required
+                                                        validateFirst
+                                                        {...INPUT_LAYOUT_PROPS}
+                                                    >
+                                                        <GraphQlSearchInput mode="multiple" search={searchClassifers} />
+                                                    </Form.Item>
+                                                </Col>
+                                            )}
                                         </Row>
                                     </Col>
                                     <Col span={24}>
