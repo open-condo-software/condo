@@ -6,7 +6,7 @@ interface IPageFieldRowProps {
     style?: React.CSSProperties
     highlight?: boolean
     children: React.ReactNode
-    labelSpan: number
+    labelSpan?: number
 }
 
 const PageFieldRow: React.FC<IPageFieldRowProps> = ({ labelSpan, title, children, highlight, style }) => {
