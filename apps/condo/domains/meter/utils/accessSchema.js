@@ -1,5 +1,3 @@
-const { checkRelatedOrganizationPermission } = require('../../organization/utils/accessSchema')
-const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const get = require('lodash/get')
 const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('../../organization/utils/accessSchema')
