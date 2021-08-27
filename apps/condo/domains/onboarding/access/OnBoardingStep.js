@@ -4,15 +4,13 @@
 
 async function canReadOnBoardingSteps ({ authentication: { item: user } }) {
     if (!user) return false
-    if (user.isAdmin) return {}
 
-    return {
-    }
+    return {}
 }
 
 async function canManageOnBoardingSteps ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return false
-    if (user.isAdmin) return true
+
     if (operation === 'create') {
         return true
     } else if (operation === 'update') {
