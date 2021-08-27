@@ -5,7 +5,6 @@ import {
     getStringContainsFilter,
     getPageIndexFromOffset,
     parseQuery,
-    getFilter,
 } from '@condo/domains/common/utils/tables.utils'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useRouter } from 'next/router'
@@ -23,7 +22,7 @@ import { getMoneyFilter } from '../../utils/helpers'
 
 const addressFilter = getStringContainsFilter(['property', 'address'])
 const accountFilter = getStringContainsFilter(['account', 'number'])
-const periodFilter = getFilter('period', 'single', 'string')
+const periodFilter = (period: string) => ({ period })
 const staticQueryMetas: Array<QueryMeta> = [
     { keyword: 'address', filters: [addressFilter] },
     { keyword: 'account', filters: [accountFilter] },
@@ -48,7 +47,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const queryMetas: Array<QueryMeta> = [
         ...staticQueryMetas,
         { keyword: 'period', filters: [periodFilter], defaultValue: contextPeriod },
-        { keyword: 'toPay', filters: [toPayFilter], defaultValue: contextPeriod },
+        { keyword: 'toPay', filters: [toPayFilter] },
         { keyword: 'search', filters: [addressFilter, accountFilter, toPayFilter], combineType: 'OR' },
     ]
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, sortableProperties)
