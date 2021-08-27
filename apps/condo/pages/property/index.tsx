@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import React, { useRef, useState, useEffect } from 'react'
+import React, { useRef, useState, useEffect, useMemo } from 'react'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { Typography, Radio, Row, Col, Tabs } from 'antd'
 import Head from 'next/head'
@@ -21,7 +21,6 @@ import { Division } from '@condo/domains/division/utils/clientSchema'
 import { FeatureFlagRequired, hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { colors } from '@condo/domains/common/constants/style'
-import { useMemo } from 'react'
 
 type PropertiesType = 'buildings' | 'divisions'
 const propertiesTypes: PropertiesType[] = ['buildings', 'divisions']
