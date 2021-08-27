@@ -13,18 +13,11 @@ export const MainContent: React.FC<IContextProps> = ({ context }) => {
     const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
 
     const lastReport = get(context, 'lastReport')
-    const lastReportFinishTime = get(lastReport, 'finishTime')
-    const lastReportRecords = get(lastReport, 'totalReceipts', 0)
-
 
     return (
         <Row gutter={[0, 40]}>
             <Col span={24}>
-                {
-                    lastReport && (
-                        <ReportMessage totalRows={lastReportRecords} finishTime={lastReportFinishTime}/>
-                    )
-                }
+                <ReportMessage lastReport={lastReport}/>
             </Col>
             <Col span={24}>
                 <Tabs

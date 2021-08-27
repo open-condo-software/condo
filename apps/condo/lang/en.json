@@ -581,5 +581,6 @@
   "DataWasUploadedOnSuffix": " at",
   "DebtOverpayment": "Debt/Overpayment",
   "PaymentPenalty": "Penalty",
-  "Charged": "Charged"
+  "Charged": "Charged",
+  "NoReceiptsLoaded": "There's no data in our system, or it's currently loading"
 }

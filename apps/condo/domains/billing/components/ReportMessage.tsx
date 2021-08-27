@@ -4,21 +4,33 @@ import { Typography } from 'antd'
 import { colors } from '@condo/domains/common/constants/style'
 import React from 'react'
 
-interface IReportMessageProps {
-    totalRows: number
+type LastReportType = {
+    totalReceipts: number
     finishTime: string
 }
 
-export const ReportMessage: React.FC<IReportMessageProps> = ({ totalRows, finishTime }) => {
+interface IReportMessageProps {
+    lastReport: LastReportType
+}
+
+export const ReportMessage: React.FC<IReportMessageProps> = ({ lastReport }) => {
     const intl = useIntl()
-    const DataWasUploadedSuffixMessage = intl.formatMessage({ id: 'DataWasUploadedOnSuffix' })
-    const DataWasUploadedPrefixMessage = intl.formatMessage({ id: 'DataWasUploadedOnPrefix' })
-    const TotalReportsMessage = totalRows >= 1000
-        ? intl.formatMessage({ id: 'ThousandsRecordsLoaded' }, { count: Math.floor(totalRows / 1000) })
-        : intl.formatMessage({ id: 'RecordsLoaded' }, { count: totalRows })
-    const ReportDateMessage = intl.formatDate(finishTime, { day:'numeric', month:'long', year: 'numeric'  })
-    const ReportTimeMessage = intl.formatDate(finishTime, { hour: 'numeric', minute: 'numeric' })
     return useMemo(() => {
+        const DataWasUploadedSuffixMessage = intl.formatMessage({ id: 'DataWasUploadedOnSuffix' })
+        const DataWasUploadedPrefixMessage = intl.formatMessage({ id: 'DataWasUploadedOnPrefix' })
+        const NoReportMessage = intl.formatMessage({ id: 'NoReceiptsLoaded' })
+        if (!lastReport) {
+            return (
+                <Typography.Text style={{ color: colors.orange[5] }}>
+                    {NoReportMessage}
+                </Typography.Text>
+            )
+        }
+        const TotalReportsMessage = lastReport.totalReceipts >= 1000
+            ? intl.formatMessage({ id: 'ThousandsRecordsLoaded' }, { count: Math.floor(lastReport.totalReceipts / 1000) })
+            : intl.formatMessage({ id: 'RecordsLoaded' }, { count: lastReport.totalReceipts })
+        const ReportDateMessage = intl.formatDate(lastReport.finishTime, { day:'numeric', month:'long', year: 'numeric'  })
+        const ReportTimeMessage = intl.formatDate(lastReport.finishTime, { hour: 'numeric', minute: 'numeric' })
         const uploadMessage = `${DataWasUploadedPrefixMessage} ${ReportDateMessage}${DataWasUploadedSuffixMessage} ${ReportTimeMessage}`
         const rowsMessage = `(${TotalReportsMessage})`
         return (
@@ -32,5 +44,5 @@ export const ReportMessage: React.FC<IReportMessageProps> = ({ totalRows, finish
                 </Typography.Text>
             </>
         )
-    }, [DataWasUploadedSuffixMessage, DataWasUploadedPrefixMessage, TotalReportsMessage, ReportDateMessage, ReportTimeMessage])
+    }, [intl, lastReport])
 }
