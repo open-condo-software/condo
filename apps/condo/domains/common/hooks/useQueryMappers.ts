@@ -4,7 +4,7 @@ import get from 'lodash/get'
 
 const DEFAULT_SORT_BY = ['createdAt_DESC']
 
-export const useQueryMappers = (queryMetas: Array<QueryMeta>, sortableColumns: Array<string>) => {
+export const useQueryMappers = <F>(queryMetas: Array<QueryMeta<F>>, sortableColumns: Array<string>) => {
     return useMemo(() => {
         const validSorts = sortableColumns.reduce((acc, cur) => {
             return [...acc, `${cur}_ASC`, `${cur}_DESC`]
