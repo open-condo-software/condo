@@ -21,6 +21,7 @@ interface ITableProps {
     keyPath?: Array<string> | string
     columns: Array<Record<string, unknown>>
     onRow?: (record: TableRecord, index?: number) => React.HTMLAttributes<HTMLElement>
+    staticQueryParams?: string[]
 }
 
 export const DEFAULT_PAGE_SIZE = 10
@@ -33,6 +34,7 @@ export const Table: React.FC<ITableProps> = ({
     totalRows,
     pageSize,
     onRow,
+    staticQueryParams,
 }) => {
     const rowsPerPage = pageSize || DEFAULT_PAGE_SIZE
     const rowKey = keyPath || 'id'
@@ -80,12 +82,17 @@ export const Table: React.FC<ITableProps> = ({
         }
         const newOffset = shouldResetOffset ? 0 : (current - 1) * rowsPerPage
 
+
         const queryParams = {
             filters: JSON.stringify(newFilters),
             offset: newOffset,
             sort: newSorters,
         }
-
+        if (staticQueryParams) {
+            staticQueryParams.forEach(queryParam => {
+                queryParams[queryParam] = router.query[queryParam]
+            })
+        }
         const newQuery = qs.stringify({ ...queryParams }, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })
         return router.push(router.route + newQuery)
     }, 400)
