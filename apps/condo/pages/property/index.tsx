@@ -16,8 +16,9 @@ import DivisionTable from '@condo/domains/division/components/DivisionsTable'
 import BuildingsTable from '@condo/domains/property/components/BuildingsTable'
 
 import PropertiesMap from '@condo/domains/common/components/PropertiesMap'
-import { Property } from '../../domains/property/utils/clientSchema'
+import { Property } from '@condo/domains/property/utils/clientSchema'
 import { useEffect } from 'react'
+import { Division } from '@condo/domains/division/utils/clientSchema'
 
 type PropertiesType = 'buildings' | 'divisions'
 const propertiesTypes: PropertiesType[] = ['buildings', 'divisions']
@@ -36,7 +37,7 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
 }
 
 type PropertiesPageProps = {
-    tab?: string
+    tab?: PropertiesType
 }
 
 export default function PropertiesPage (props: PropertiesPageProps) {
@@ -49,20 +50,21 @@ export default function PropertiesPage (props: PropertiesPageProps) {
     const BuildingsTabTitle = intl.formatMessage({ id: 'pages.condo.property.index.Buildings.Tab.Title' })
     const DivisionsTabTitle = intl.formatMessage({ id: 'pages.condo.property.index.Divisions.Tab.Title' })
 
-    const [propertiesType, setPropertiesType] = useState<PropertiesType>('buildings')
+    const [propertiesType, setPropertiesType] = useState<PropertiesType>(props.tab)
     const [viewMode, changeViewMode] = useState('list')
 
     const initialTab = useRef(props.tab)
+
     useEffect(() => {
         if (!initialTab.current) {
             const queryParams = getQueryParams()
             initialTab.current = propertiesTypes.includes(queryParams.tab) ? queryParams.tab : propertiesTypes[0]
+            setPropertiesType(initialTab.current)
             router.push(`/property?tab=${initialTab.current}`)
         }
-    })
+    }, [])
 
-
-    const [properties, setShownProperties] = useState<Property.IPropertyUIState[]>([])
+    const [properties, setShownProperties] = useState<(Property.IPropertyUIState | Division.IDivisionUIState)[]>([])
 
     return (
         <>
@@ -109,15 +111,7 @@ export default function PropertiesPage (props: PropertiesPageProps) {
                             </Col>
                         }
                     </Row>
-                    <>
-                        {
-                            viewMode === 'map' ? (
-                                <PropertiesMap
-                                    propertiesToRender={properties}
-                                />
-                            ) : null
-                        }
-                    </>
+                    {viewMode === 'map' && <PropertiesMap properties={properties} />}
                 </PageContent>
             </PageWrapper>
         </>

@@ -10,7 +10,7 @@ import { useOrganization } from '@core/next/organization'
 import { useIntl } from '@core/next/intl'
 
 import { Col, Input, Row, Space, Typography } from 'antd'
-import { Table } from '@condo/domains/common/components/Table'
+import { Table } from '@condo/domains/common/components/Table/Index'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { DatabaseFilled, DiffOutlined } from '@ant-design/icons'
 import { Button } from '@condo/domains/common/components/Button'
@@ -22,10 +22,10 @@ import { colors } from '@condo/domains/common/constants/style'
 
 
 type BuildingTableProps = {
-    onSearch?: (properties: Property.IPropertyUIState[]) => void
+    onSearch?: (properties: Division.IDivisionUIState[]) => void
 }
 
-export default function DivisionPageViewTable (props: BuildingTableProps) {
+export default function DivisionTable (props: BuildingTableProps) {
     const intl = useIntl()
 
     const CreateLabel = intl.formatMessage({ id: 'pages.condo.division.index.CreateDivisionButtonLabel' })
@@ -39,12 +39,14 @@ export default function DivisionPageViewTable (props: BuildingTableProps) {
 
     const { organization, link: { role } } = useOrganization()
 
-    const addressFilter = getFilter('address', 'single', 'string', 'contains_i')
-    const unitsCountFilter = getFilter('unitsCount', 'single', 'number')
+    const addressFilter = getFilter('name', 'single', 'string', 'contains_i')
+    const propertiesFilter = getFilter('properties', 'array', 'string', 'contains_i')
+    const responsibleFilter = getFilter(['responsible', 'name'], 'single', 'string', 'contains_i')
+    const executorsFilter = getFilter(['executors', 'name'], 'single', 'string', 'contains_i')
 
     const queryMetas: QueryMeta[] = [
         { keyword: 'address', filters: [addressFilter] },
-        { keyword: 'search', filters: [addressFilter, unitsCountFilter], combineType: 'OR' },
+        { keyword: 'search', filters: [addressFilter, propertiesFilter, responsibleFilter, executorsFilter], combineType: 'OR' },
     ]
 
     const { filters, sorters, offset } = parseQuery(router.query)
@@ -67,6 +69,7 @@ export default function DivisionPageViewTable (props: BuildingTableProps) {
         },
     })
 
+
     const handleRowAction = (record) => {
         return {
             onClick: () => {
@@ -75,7 +78,6 @@ export default function DivisionPageViewTable (props: BuildingTableProps) {
         }
     }
 
-    const filtersWithOrganizations = useMemo(() => ({ ...filtersToWhere(filters), organization: { id: organization.id } }), [filters, filtersToWhere, organization.id])
     // TODO(mrfoxpro): move to common
     const applyFiltersToQuery = (newFilters) => {
         const query = { ...router.query, filters: JSON.stringify(newFilters) }
