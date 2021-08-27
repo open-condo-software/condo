@@ -23,7 +23,7 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
 
     useEffect(() => {
         refetchOnBoarding()
-    }, [])
+    }, [refetchOnBoarding])
 
     useEffect(() => {
         if (get(onBoarding, 'completed', false)) {
