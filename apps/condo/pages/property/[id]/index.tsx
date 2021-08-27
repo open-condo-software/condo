@@ -4,7 +4,7 @@ import { Row, Col, Typography, Tag, Space } from 'antd'
 import { useRouter } from 'next/router'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
+import { useObject, useSoftDelete } from '@condo/domains/property/utils/clientSchema/Property'
 import { EditFilled } from '@ant-design/icons'
 import { colors } from '@condo/domains/common/constants/style'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -15,6 +15,7 @@ import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { PropertyPanels } from '@condo/domains/property/components/panels'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 
 interface IPropertyInfoPanelProps {
     title: string
@@ -82,9 +83,14 @@ const PropertyIdPage: IPropertyIdPage = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.id.PageTitle' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
+    const DeletePropertyLabel = intl.formatMessage({ id: 'pages.condo.property.form.DeleteLabel' })
+    const ConfirmDeleteTitle = intl.formatMessage({ id: 'pages.condo.property.form.ConfirmDeleteTitle' })
+    const ConfirmDeleteMessage = intl.formatMessage({ id: 'pages.condo.property.form.ConfirmDeleteMessage' })
 
-    const { query: { id } } = useRouter()
+    const { push, query: { id } } = useRouter()
     const { loading, obj: property, error } = useObject({ where: { id: id as string } })
+
+    const softDeleteAction = useSoftDelete({}, () => push('/property/'))
 
     if (error || loading) {
         return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null}/>
@@ -113,6 +119,12 @@ const PropertyIdPage: IPropertyIdPage = () => {
                             </Button>
                         </span>
                     </Link>
+                    <DeleteButtonWithConfirmModal
+                        title={ConfirmDeleteTitle}
+                        message={ConfirmDeleteMessage}
+                        okButtonLabel={DeletePropertyLabel}
+                        action={() => softDeleteAction({}, property)}
+                    />
                 </ActionBar>
             </PageContent>
         </PageWrapper>
