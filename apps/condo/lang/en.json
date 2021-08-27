@@ -578,5 +578,8 @@
   "RecordsLoaded": "{count, plural, =0 {# records} one {# record} other {# records}}",
   "ThousandsRecordsLoaded": "{count, plural, one {# thousand} other {# thousands}} records",
   "DataWasUploadedOnPrefix": "The data was uploaded on",
-  "DataWasUploadedOnSuffix": " at"
+  "DataWasUploadedOnSuffix": " at",
+  "DebtOverpayment": "Debt/Overpayment",
+  "PaymentPenalty": "Penalty",
+  "Charged": "Charged"
 }

@@ -10,7 +10,7 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { BillingReceipt as BillingReceiptGQL } from '@condo/domains/billing/gql'
 import { BillingReceipt, BillingReceiptUpdateInput, QueryAllBillingReceiptsArgs } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'context', 'importId', 'property', 'account', 'period', 'raw', 'toPay', 'services', 'meta']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'context', 'importId', 'property', 'account', 'period', 'raw', 'toPay', 'services', 'meta', 'toPayDetails']
 const RELATIONS = ['context', 'property', 'account']
 
 export interface IBillingReceiptUIState extends BillingReceipt {

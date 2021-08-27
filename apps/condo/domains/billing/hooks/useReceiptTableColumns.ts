@@ -10,7 +10,10 @@ export const useReceiptTableColumns = (detailed: boolean, currencySign: string, 
     const intl = useIntl()
     const AddressTitle = intl.formatMessage({ id: 'field.Address' })
     const AccountTitle = intl.formatMessage({ id: 'field.AccountNumberShort' })
+    const DebtTitle = intl.formatMessage({ id: 'DebtOverpayment' })
     const ToPayTitle = intl.formatMessage({ id: 'field.TotalPayment' })
+    const PenaltyTitle = intl.formatMessage({ id: 'PaymentPenalty' })
+    const ChargeTitle = intl.formatMessage({ id: 'Charged' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
@@ -19,41 +22,81 @@ export const useReceiptTableColumns = (detailed: boolean, currencySign: string, 
         let search = get(filters, 'search')
         search = Array.isArray(search) ? null : search
 
-        return [
-            {
+        const columns = {
+            address: {
                 title: AddressTitle,
                 key: 'address',
                 dataIndex: ['property', 'address'],
                 sorter: false,
                 filteredValue: get(filters, 'address'),
-                width: detailed ? '38%' : '50%',
+                width: detailed ? '30%' : '50%',
                 filterIcon: getFilterIcon,
                 filterDropdown: getTextFilterDropdown(AddressTitle),
                 render: getTextRender(search),
             },
-            {
+            account: {
                 title: AccountTitle,
                 key: 'account',
                 dataIndex: ['account', 'number'],
                 sorter: false,
                 filteredValue: get(filters, 'account'),
-                width: detailed ? '22%' : '30%',
+                width: detailed ? '28%' : '30%',
                 filterIcon: getFilterIcon,
                 filterDropdown: getTextFilterDropdown(AccountTitle),
                 render: getTextRender(search),
             },
-            {
+            balance: {
+                title: DebtTitle,
+                key: 'balance',
+                dataIndex: ['toPayDetails', 'balance'],
+                sorter: false,
+                width: '13%',
+                render: getMoneyRender(undefined, currencySign, separator),
+            },
+            penalty: {
+                title: PenaltyTitle,
+                key: 'penalty',
+                dataIndex: ['toPayDetails', 'penalty'],
+                sorter: false,
+                width: '13%',
+                render: getMoneyRender(undefined, currencySign, separator),
+            },
+            charge: {
+                title: ChargeTitle,
+                key: 'charge',
+                dataIndex: ['toPayDetails', 'charge'],
+                sorter: false,
+                width: '13%',
+                render: getMoneyRender(undefined, currencySign, separator),
+            },
+            toPay: {
                 title: ToPayTitle,
                 key: 'toPay',
                 dataIndex: ['toPay'],
                 sorter: true,
                 sortOrder: get(sorterMap, 'toPay'),
                 filteredValue: get(filters, 'toPay'),
-                width: detailed ? '10%' : '20%',
+                width: detailed ? '13%' : '20%',
                 filterIcon: getFilterIcon,
                 filterDropdown: getTextFilterDropdown(ToPayTitle),
                 render: getMoneyRender(search, currencySign, separator),
             },
-        ]
-    }, [AddressTitle, AccountTitle, ToPayTitle, filters, sorterMap, detailed, currencySign, separator])
+        }
+
+        return detailed
+            ? [columns.address, columns.account, columns.balance, columns.penalty, columns.charge, columns.toPay]
+            : [columns.address, columns.account, columns.toPay]
+    }, [
+        AddressTitle,
+        AccountTitle,
+        ToPayTitle,
+        DebtTitle,
+        PenaltyTitle,
+        ChargeTitle,
+        filters,
+        sorterMap,
+        detailed,
+        currencySign,
+        separator,
+    ])
 }
