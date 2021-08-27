@@ -66,8 +66,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const [search, handleSearchChange] = useSearch(loading)
     const [period, options,  handlePeriodChange] = usePeriodSelector(contextPeriod)
 
-
-    const columns: Array<ColumnInfo> = [
+    const columns: Array<ColumnInfo<[string, string, string]>> = [
         {
             title: AddressTitle,
             key: 'address',
