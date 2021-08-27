@@ -39,6 +39,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
         return <Skeleton loading={loading} active paragraph={{ rows: 12 }} />
     }
     const { animationEnabled, chartOptions } = chartConfig
+    // TODO(sitozzz): find more clean solution
     if (viewMode !== 'pie') {
         const { series, legend, axisData, tooltip } = mapperInstance.getChartConfig(viewMode, data)
         const option = {
@@ -113,21 +114,32 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
     // TODO(sitozzz): just for debug, fix this
     // @ts-ignore
     const { series } = mapperInstance.getChartConfig(viewMode, data)
-    console.log(series)
     const option = {
         animation: animationEnabled,
         color: CHART_COLOR_SET,
         series,
+        legend: {
+            top: 10,
+            icon: 'circle',
+            itemWidth: 7,
+            itemHeight: 7,
+            itemGap: 28,
+            x: 'left',
+            textStyle: {
+                fontSize: '16px',
+            },
+        },
         tooltip: { trigger: 'item' },
         media: [{
             query: { minAspectRatio: 1 },
             option: {
-                series: [
-                    { center: ['15%', 100] },
-                    { center: ['65%', 100] },
-                    { center: ['15%', 350] },
-                    { center: ['65%', 350] },
-                ],
+                series: Array
+                    .from({ length: series.length },
+                        (_, index) => ({ center: [
+                            index % 2 === 0 ? '15%' : '65%',
+                            150 + Math.floor(index / 2) * 250,
+                        ] })
+                    ),
             },
         }],
     }
