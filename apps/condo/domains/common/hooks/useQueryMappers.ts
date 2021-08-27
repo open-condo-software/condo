@@ -11,27 +11,26 @@ export const useQueryMappers = (queryMetas: Array<QueryMeta>, sortableColumns: A
         }, [])
         const validMetas = queryMetas
             .filter((meta) => meta && meta.keyword && meta.filters && meta.filters.length > 0)
-            .map((meta) => ({ [meta.keyword]: meta }))
 
-        const filtersMap = Object.assign({}, ...validMetas)
 
         const filtersToWhere = (queryFilters) => {
             const whereQueries = []
-            for (const [filterName, filterValue] of Object.entries(queryFilters)) {
-                const responsibleFilters = get(filtersMap, filterName)
-                if (responsibleFilters) {
-                    const whereSubQueries = responsibleFilters.filters
-                        .map((filter) => filter(filterValue || responsibleFilters.defaultValue))
-                        .filter(Boolean)
-                    if (whereSubQueries.length) {
-                        const combineType = get(responsibleFilters, 'combineType', 'AND')
-                        whereQueries.push({ [combineType]: whereSubQueries })
-                    }
+            validMetas.forEach((meta) => {
+                const searchValue = get(queryFilters, meta.keyword)
+                const createdFilters = meta.filters
+                    .map((filter) => filter(searchValue || meta.defaultValue))
+                    .filter(Boolean)
+                if (createdFilters.length) {
+                    const combineType = get(meta, 'combineType', 'AND')
+                    whereQueries.push({ [combineType]: createdFilters })
                 }
-            }
-
-            return {
-                AND: whereQueries,
+            })
+            if (whereQueries.length) {
+                return {
+                    AND: whereQueries,
+                }
+            } else {
+                return {}
             }
         }
 
