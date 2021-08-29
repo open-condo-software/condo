@@ -134,7 +134,18 @@ You can also define a `condition` for `models.UniqueConstraint`:
 
 SQL result: `CREATE UNIQUE INDEX "unique_type_and_phone" ON "User" ("type", "phone") WHERE "deletedAt" IS NULL;`
 
-Some another examples for `Q` queries:
+Another example:
+```
+{
+    type: 'models.CheckConstraint',
+    check: 'Q(type__in=["b2b", "b2c", "sys"])',
+    name: 'b2b_b2c_or_sys_type',
+},
+```
+
+SQL result: `ALTER TABLE "User" ADD CONSTRAINT "b2b_b2c_or_sys_type" CHECK ("type" IN ('b2b', 'b2c', 'sys'));`
+
+Some examples for `Q` queries:
  - `Q(age__gte=18)` -- Ensures the age field is never less than 18, SQL: `id >= 18`
  - `Q(age__gt=18)` -- Ensures the age field is greater than 18, SQL: `id > 18`
  - `Q(age__lt=18)` -- Ensures the age field is less than 18, SQL: `id < 18`
