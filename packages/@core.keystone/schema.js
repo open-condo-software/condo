@@ -1,8 +1,7 @@
 /** @type {import('ow').default} */
 const ow = require('ow')
-const _ = require('lodash')
+const { pickBy, identity, get } = require('lodash')
 const Emittery = require('emittery')
-const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
 let EVENTS = new Emittery()
 let SCHEMAS = new Map()
@@ -47,7 +46,7 @@ class GQLListSchema {
             access: ow.object.nonEmpty,
         }))
         // remove null fields (may be overridden)
-        schema.fields = _.pickBy(schema.fields, _.identity)
+        schema.fields = pickBy(schema.fields, identity)
         this.name = name
         this.schema = schema
         this._type = GQL_LIST_SCHEMA_TYPE
@@ -84,7 +83,14 @@ class GQLListSchema {
         if (SCHEMAS.has(this.name)) throw new Error(`Schema ${this.name} is already registered`)
         SCHEMAS.set(this.name, this)
         this._keystone = keystone
-        keystone.createList(this.name, this.schema)
+        keystone.createList(this.name, this.schema)  // create this._keystone.lists[this.name] as List type
+        const keystoneList = get(this._keystone, ['lists', this.name])
+        if (keystoneList) {
+            // We need to save a shallow copy of createList config argument because
+            // we want to use it in a future for kMigrator or some another extensions which need to define extra schema
+            // extensions! It allow to use `this._keystone.lists[this.name].createListConfig`
+            keystoneList.createListConfig = { ...this.schema }
+        }
     }
 
     on (eventName, listener) {
@@ -116,7 +122,7 @@ class GQLCustomSchema {
             }))
         }
         if (!name.endsWith('Service')) console.warn(`GQLCustomSchema name=${name} is not ends with 'Service'`)
-        
+
         this.name = name
         this.schema = schema
         this._type = GQL_CUSTOM_SCHEMA_TYPE
