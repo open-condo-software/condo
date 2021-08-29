@@ -32,7 +32,7 @@ from datetime import datetime
 from pathlib import Path
 from time import time
 
-VERSION = (1, 5, 2)
+VERSION = (1, 5, 3)
 CACHE_DIR = Path('.kmigrator')
 KNEX_MIGRATIONS_DIR = Path('migrations')
 GET_KNEX_SETTINGS_SCRIPT = CACHE_DIR / 'get.knex.settings.js'
@@ -212,9 +212,9 @@ def to_meta(value):
         for constraint in constraints:
             type_ = constraint['type']
             if type_ == 'models.CheckConstraint':
-                code.append('            models.CheckConstraint(check=' + constraint['check'] + ', name="' + constraint['name'] + '")')
+                code.append('            models.CheckConstraint(check=' + constraint['check'] + ', name="' + constraint['name'] + '"),')
             elif type_ == 'models.UniqueConstraint':
-                code.append('            models.UniqueConstraint(fields=' + repr(constraint['fields']) + ', condition=' + (constraint.get('condition') or 'None') + ', name="' + constraint['name'] + '")')
+                code.append('            models.UniqueConstraint(fields=' + repr(constraint['fields']) + ', condition=' + (constraint.get('condition') or 'None') + ', name="' + constraint['name'] + '"),')
             else:
                 raise Error('unknown constraint type! type=' + type_)
         code.append('        ]')
