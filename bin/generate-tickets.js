@@ -1,4 +1,10 @@
-const { Ticket, TicketStatus, TicketClassifierRule } = require('@condo/domains/ticket/utils/serverSchema')
+const { 
+    Ticket, 
+    TicketStatus, 
+    TicketClassifierRule,
+    TicketComment, 
+} = require('@condo/domains/ticket/utils/serverSchema')
+
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { demoProperties } = require('./constants')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
@@ -90,6 +96,19 @@ class TicketGenerator {
         }
         const result = await Ticket.create(this.context, data)
         await this.setCreatedAt(result.id, timeStamp)
+        await this.createTicketComments(result.id, faker.datatype.number({ min: 0, max: 5 }))
+    }
+
+    async createTicketComments (ticketId, number) {
+        new Array(number).fill('').map(async _ => {
+            await TicketComment.create(this.context, {
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'import' },
+                ticket: { connect: { id: ticketId } },
+                user: { connect: { id: this.user.id } },
+                content: faker.lorem.paragraph(),
+            }) 
+        })
     }
 
     async prepareModels (propertyInfo) {
