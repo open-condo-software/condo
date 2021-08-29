@@ -27,11 +27,12 @@ import os
 import re
 import shutil
 import subprocess
+import json
 from datetime import datetime
 from pathlib import Path
 from time import time
 
-VERSION = (1, 4, 1)
+VERSION = (1, 5, 2)
 CACHE_DIR = Path('.kmigrator')
 KNEX_MIGRATIONS_DIR = Path('migrations')
 GET_KNEX_SETTINGS_SCRIPT = CACHE_DIR / 'get.knex.settings.js'
@@ -48,15 +49,21 @@ DATA = '__KNEX_SCHEMA_DATA__'
 NAME = '_django_model_generator'
 MODELS_TPL = """
 from django.db import models
-from django.contrib.postgres.fields import JSONField
+from django.db.models import Q
+from datetime import date, time, datetime, timedelta
+try:
+    from django.db.models import JSONField
+except ImportError:
+    from django.contrib.postgres.fields import JSONField
 
 {% for tablename, fields in schema.items %}
 class {{ tablename|to_classname }}(models.Model):
-    {% for fieldname, field in fields.items %}
-    {{ fieldname|to_fieldname }} = {{ field|to_fieldtype:fieldname|safe }}{% endfor %}
+    {% for fieldname, field in fields.items %}{% if fieldname != '__meta' %}
+    {{ fieldname|to_fieldname }} = {{ field|to_fieldtype:fieldname|safe }}{% endif %}{% endfor %}
 
     class Meta:
         db_table = '{{ tablename|to_tablename }}'
+        {{ fields|to_meta|safe }}
 
 {% endfor %}
 """
@@ -180,6 +187,38 @@ def to_fieldtype(value, fieldname=None):
         ctx.pop('db_column')
     ctx_line = ', '.join(['{}={}'.format(k, v) for k, v in ctx.items()])
     return '{}({})'.format(field_class, ctx_line)
+
+
+@register.filter
+def to_meta(value):
+    meta = value.get('__meta')
+    if not meta:
+        return ''
+
+    ctx = {}
+    processors = {
+        "kmigrator": lambda x, options: x.update(options),
+    }
+
+    for v in meta:
+        if v[0] not in processors:
+            raise RuntimeError('no meta processor: {0}(ctx, *{1!r})'.format(v[0], v[1:]))
+        processors[v[0]](ctx, *v[1:])
+
+    code = []
+    constraints = ctx.get('constraints')
+    if constraints:
+        code.append('constraints = [')
+        for constraint in constraints:
+            type_ = constraint['type']
+            if type_ == 'models.CheckConstraint':
+                code.append('            models.CheckConstraint(check=' + constraint['check'] + ', name="' + constraint['name'] + '")')
+            elif type_ == 'models.UniqueConstraint':
+                code.append('            models.UniqueConstraint(fields=' + repr(constraint['fields']) + ', condition=' + (constraint.get('condition') or 'None') + ', name="' + constraint['name'] + '")')
+            else:
+                raise Error('unknown constraint type! type=' + type_)
+        code.append('        ]')
+    return '\\n'.join(code)
 
 
 def main():
@@ -310,11 +349,27 @@ function createFakeTable (tableName) {
             callback(ft)
             console.log('CALL', 'createTable', tableName)
             if (!adapter.listAdapters[tableName]) {
-                console.warn(`NO adapter.listAdapters['${tableName}']`)
-                console.dir(adapter.listAdapters)
+                console.warn(`NO keystone.adapter.listAdapters['${tableName}']`)
+                console.dir(Object.keys(adapter.listAdapters))
             } else {
+                if (!keystone.lists[tableName]) {
+                    console.warn(`NO keystone.lists['${tableName}']`)
+                    console.dir(Object.keys(keystone.lists))
+                } else {
+                    const createListConfig = keystone.lists[tableName].createListConfig
+                    if (createListConfig && createListConfig.kmigratorOptions) {
+                        const kmigratorOptions = createListConfig.kmigratorOptions
+                        if (kmigratorOptions.constraints) {
+                            if (!Array.isArray(kmigratorOptions.constraints)) {
+                                throw new Error('kmigratorOptions.constraints is not an Array!')
+                            }
+                            ft.kmigrator('__meta', { constraints: kmigratorOptions.constraints })
+                        }
+                    }
+                }
                 for (const fad of adapter.listAdapters[tableName].fieldAdapters) {
                     if (fad.config.kmigratorOptions) {
+                        // TODO(pahaz): add field kmigratorOptions validation
                         ft.kmigrator(fad.path, fad.config.kmigratorOptions)
                     }
                 }
@@ -412,6 +467,7 @@ INSTALLED_APPS = [
 ]
 # ROOT_URLCONF = '_django_schema.urls'
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -475,7 +531,7 @@ class KProblem(Exception):
 
 def _inject_ctx(data, ctx):
     for k, v in ctx.items():
-        data = data.replace(str(k), str(v).replace('\\', '/'))
+        data = data.replace(str(k), json.dumps(str(v))[1:-1].replace('\'', '\\\''))
     return data
 
 
