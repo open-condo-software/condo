@@ -6,29 +6,11 @@ const { createExportFile } = require('@condo/domains/common/utils/createExportFi
 const { has, get } = require('lodash')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
+const { loadModelsByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { EMPTY_DATA_EXPORT_ERROR } = require('@condo/domains/common/constants/errors')
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
 
-const loadByChunks = async ({
-    context, 
-    model, 
-    where = {}, 
-    sortBy = ['createdAt_ASC'],
-    chunkSize = 100,
-    limit = 100000,
-}) => {
-    let skip = 0
-    let maxiterationsCount = Math.floor(limit / chunkSize)
-    let newchunk = []
-    let all = []
-    do {
-        newchunk = await model.getAll(context, where, { sortBy, first: chunkSize, skip: skip })
-        all = all.concat(newchunk)
-        skip += newchunk.length
-    } while (--maxiterationsCount > 0 && newchunk.length)
-    return all
-}
- 
+
 // TODO(zuch): if we add timeZone and locale to organization settings use organization timeZone instead of client's timezone
 const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
     types: [
@@ -50,11 +32,11 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                 const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
                 const formatDate = (date) => moment(date).tz(timeZone).format(DATE_FORMAT)
 
-                const allTickets = await loadByChunks({
+                const allTickets = await loadModelsByChunks({
                     context,
-                    model: Ticket, 
-                    where, 
-                    sortBy, 
+                    model: Ticket,
+                    where,
+                    sortBy,
                     chunkSize: 20,
                     limit: 10000,
                 })
@@ -64,12 +46,12 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                 }
                 const ticketIds = allTickets.map(ticket => ticket.id)
 
-                const comments = await loadByChunks({
+                const comments = await loadModelsByChunks({
                     context,
                     model: TicketComment,
                     where: { ticket: { id_in: ticketIds } },
                 })
-                
+
                 const indexedComments = {}
                 comments.forEach(comment => {
                     if (!has(indexedComments, comment.ticket.id)) {
@@ -77,16 +59,16 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                     }
                     indexedComments[comment.ticket.id].push(comment.content)
                 })
-                
+
                 const statuses = await TicketStatus.getAll(context, { type_in: ['processing', 'canceled', 'completed'] })
                 const indexedStatuses = Object.fromEntries(statuses.map(({ id, type }) => ([id, type])))
 
-                const statusChanges = await loadByChunks({
+                const statusChanges = await loadModelsByChunks({
                     context,
                     model: TicketChange,
                     where: { ticket: { id_in: ticketIds }, statusIdTo_in: Object.keys(indexedStatuses) },
                 })
-                
+
                 const statusDateByTickets = {}
                 statusChanges.forEach(statusChange => {
                     if (!has(statusDateByTickets, statusChange.ticket.id)){
@@ -118,6 +100,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                         category: get(ticket.categoryClassifier, 'name', ''),
                         description: get(ticket.problemClassifier, 'name', ''),
                         createdAt: formatDate(ticket.createdAt),
+                        updatedAt: formatDate(ticket.updatedAt),
                         inworkAt: inWork ? formatDate(inWork) : '',
                         completedAt: completed ? formatDate(completed) : '',
                         status: ticket.status.name,
