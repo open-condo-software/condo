@@ -159,8 +159,7 @@ class ReceiptsGenerator {
                 if (_gaussianRand() > 0.5) {
                     toPayDetails.measure = faker.finance.currencyCode()
                     toPayDetails.tariff = `${_gaussianInt(0, 2000)}.00`
-                    // TODO (savelevMatthew): add volume
-                    // toPayDetails.volume = `${_gaussianRand(0, 50) / 13}`
+                    toPayDetails.volume = `${_gaussianRand(0, 50) / 13}`
                 }
 
                 service.toPay = `${toPay}.00`
