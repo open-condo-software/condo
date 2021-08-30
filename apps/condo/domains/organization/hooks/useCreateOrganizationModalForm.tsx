@@ -56,7 +56,9 @@ export const useCreateOrganizationModalForm = (props: IUseCreateOrganizationModa
             if (id) {
                 const newLink = userLinks.find(link => link.organization.id === id)
                 if (newLink) {
-                    selectLink({ id: newLink.id })
+                    selectLink({ id: newLink.id }).then(() => {
+                        setIsVisible(false)
+                    })
                 }
             }
 
