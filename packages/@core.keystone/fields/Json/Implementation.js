@@ -14,7 +14,7 @@ class JsonImplementation extends Implementation {
         this.extendGraphQLTypes = extendGraphQLTypes
     }
 
-    // Output
+    // GQL Output
 
     gqlOutputFields () {
         return [`${this.path}: ${this.graphQLReturnType}`]
@@ -26,7 +26,7 @@ class JsonImplementation extends Implementation {
         }
     }
 
-    // Input
+    // GQL Input
 
     gqlQueryInputFields () {
         return [
@@ -43,16 +43,27 @@ class JsonImplementation extends Implementation {
         return [`${this.path}: ${this.graphQLInputType}`]
     }
 
-    // Aux
+    // GQL Auxiliary
+
+    /**
+     * Auxiliary Types are top-level types which a type may need or provide.
+     * Example: the `File` type, adds a graphql auxiliary type of `FileUpload`, as
+     * well as an `uploadFile()` graphql auxiliary type query resolver
+     */
 
     getGqlAuxTypes () {
+        // NOTE: based on Virtual field source code
         return this.extendGraphQLTypes
     }
+
+    // Admin
 
     extendAdminMeta (meta) {
         const { isMultiline } = this
         return { isMultiline, ...meta }
     }
+
+    // Hooks
 
     async resolveInput ({ resolvedData }) {
         return resolvedData[this.path]
