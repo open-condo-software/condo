@@ -122,7 +122,7 @@ const TICKET_CHANGE_DATA_FIELDS = [
     'watchersDisplayNamesFrom',
     'watchersDisplayNamesTo',
 ]
-const TICKET_CHANGE_FIELDS = `{ ticket { id property { address } } id dv sender v createdBy { id name } updatedBy { id name } createdAt updatedAt ${TICKET_CHANGE_DATA_FIELDS.join(' ')} }`
+const TICKET_CHANGE_FIELDS = `{ ticket { id property { address } } id dv sender { dv fingerprint } v createdBy { id name } updatedBy { id name } createdAt updatedAt ${TICKET_CHANGE_DATA_FIELDS.join(' ')} }`
 const TicketChange = generateGqlQueries('TicketChange', TICKET_CHANGE_FIELDS)
 const TICKET_FILE_FIELDS = `{ id file { id originalFilename publicUrl mimetype } organization { id } ticket { id } ${COMMON_FIELDS} }`
 const TicketFile = generateGqlQueries('TicketFile', TICKET_FILE_FIELDS)
@@ -139,7 +139,7 @@ const EXPORT_TICKET_ANALYTICS_TO_EXCEL = gql`
     }
 `
 
-const RESIDENT_TICKET_FIELDS = `{ organization { id name } property { id name address } unitName sectionName floorName number client { id name } clientName clientEmail clientPhone status { id name type organization { id } colors } classifier { id name } ${THREE_LVL_CLASSIFIER_FIELDS} details related { id details } isEmergency isPaid source { id name type } id dv sender v deletedAt newId createdAt updatedAt }`
+const RESIDENT_TICKET_FIELDS = `{ organization { id name } property { id name address } unitName sectionName floorName number client { id name } clientName clientEmail clientPhone status { id name type organization { id } colors } classifier { id name } ${THREE_LVL_CLASSIFIER_FIELDS} details related { id details } isEmergency isPaid source { id name type } id dv sender { dv fingerprint } v deletedAt newId createdAt updatedAt }`
 const ResidentTicket = generateGqlQueries('ResidentTicket', RESIDENT_TICKET_FIELDS)
 
 const TICKET_PLACE_CLASSIFIER_FIELDS = `{ organization { id } name ${COMMON_FIELDS} }`

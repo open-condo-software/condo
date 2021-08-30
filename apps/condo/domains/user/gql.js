@@ -84,7 +84,7 @@ const GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY = gql`
     }
 `
 
-const CONFIRM_PHONE_ACTION_FIELDS = '{ id dv sender deletedAt phone token smsCode smsCodeRequestedAt smsCodeExpiresAt retries isPhoneVerified requestedAt expiresAt completedAt }'
+const CONFIRM_PHONE_ACTION_FIELDS = '{ id dv sender { dv fingerprint } deletedAt phone token smsCode smsCodeRequestedAt smsCodeExpiresAt retries isPhoneVerified requestedAt expiresAt completedAt }'
 const ConfirmPhoneAction = generateGqlQueries('ConfirmPhoneAction', CONFIRM_PHONE_ACTION_FIELDS)
 const FORGOT_PASSWORD_ACTION_FIELDS = `{ user { id } token requestedAt expiresAt usedAt ${COMMON_FIELDS} }`
 const ForgotPasswordAction = generateGqlQueries('ForgotPasswordAction', FORGOT_PASSWORD_ACTION_FIELDS)
