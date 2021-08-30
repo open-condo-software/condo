@@ -23,6 +23,7 @@ const ACCOUNTS_PER_PROPERTY_DISTRIBUTION = { min: 30, max: 70 }
 const PERIODS_AMOUNT = 3
 
 const TO_PAY_DISTRIBUITION = { min: 1200, max: 8500 }
+const SERVICES_DISTRIBUTION = { min: 2, max: 30 }
 
 const DV = 1
 const SENDER = { dv: DV, fingerprint: faker.random.alphaNumeric(8) }
@@ -35,13 +36,14 @@ class ReceiptsGenerator {
 
     context = null
 
-    constructor ({ billingContextId, detailLevel, propertyQuantity, accountsPerProperty, toPay, periods }) {
+    constructor ({ billingContextId, detailLevel, propertyQuantity, accountsPerProperty, toPay, services, periods }) {
         this.billingContextId = billingContextId
         this.detailLevel = detailLevel
         this.propertyQuantity = propertyQuantity
         this.accountsPerProperty = accountsPerProperty
         this.toPay = toPay
         this.periods = periods
+        this.services = services
     }
 
     async connect () {
@@ -119,6 +121,22 @@ class ReceiptsGenerator {
             max = Math.floor(max)
             return Math.floor(_gaussianRand(attempts) * (max - min + 1) + min)
         }
+
+        function _getToPayDetails (charge) {
+            const balance = _gaussianInt(-charge, charge * 4, 1)
+            const penalty = balance > charge * 2 ? _gaussianInt(0, charge) : 0
+            const toPay = `${charge + balance + penalty}.00`
+            const toPayDetails = {
+                formula: 'charge+balance+penalty',
+                charge: `${charge}.00`,
+                balance: `${balance}.00`,
+                penalty: `${penalty}.00`,
+            }
+            return {
+                toPay,
+                toPayDetails,
+            }
+        }
         
         console.info('[INFO] Generating receipts...')
         if (!this.billingAccounts) {
@@ -163,19 +181,40 @@ class ReceiptsGenerator {
                         break
                     case AVAILABLE_LEVELS.toPayDetails: {
                         const charge = _gaussianInt(this.toPay.min, this.toPay.max)
-                        const balance = _gaussianInt(-charge, charge * 4, 1)
-                        const penalty = balance > charge * 2 ? _gaussianInt(0, charge) : 0
-                        const toPay = `${charge + balance + penalty}.00`
-                        const toPayDetails = {
-                            formula: 'charge+balance+penalty',
-                            charge: `${charge}.00`,
-                            balance: `${balance}.00`,
-                            penalty: `${penalty}.00`,
-                        }
+                        const { toPay, toPayDetails } = _getToPayDetails(charge)
                         await BillingReceipt.create(this.context, {
                             ...receipt,
                             toPay,
                             toPayDetails,
+                        })
+                        break
+                    }
+                    case AVAILABLE_LEVELS.withServices: {
+                        const servicesAmount = _gaussianInt(this.services.min, this.services.max, 1)
+                        const services = []
+                        let totalToPay = 0
+                        for (let s = 0; s < servicesAmount; s++) {
+                            const name = faker.commerce.productName()
+                            const id = faker.datatype.uuid()
+                            // ~50% of services has toPay = 0.00
+                            let toPay = 0
+                            if (_gaussianRand() > 0.5) {
+                                toPay = _gaussianInt(0, this.toPay.max * 2 / servicesAmount)
+                            }
+                            totalToPay += toPay
+                            services.push({
+                                id,
+                                name,
+                                toPay: `${toPay}.00`,
+                            })
+                        }
+                        const charge = totalToPay
+                        const { toPay, toPayDetails } = _getToPayDetails(charge)
+                        await BillingReceipt.create(this.context, {
+                            ...receipt,
+                            services,
+                            toPayDetails,
+                            toPay,
                         })
                         break
                     }
@@ -242,6 +281,7 @@ const createReceipts = async ([billingContextId, detailsLevel]) => {
         accountsPerProperty: ACCOUNTS_PER_PROPERTY_DISTRIBUTION,
         periods: getPreviousPeriods(CURRENT_PERIOD, PERIODS_AMOUNT),
         toPay: TO_PAY_DISTRIBUITION,
+        services: SERVICES_DISTRIBUTION,
     })
 
     console.time('keystone')
