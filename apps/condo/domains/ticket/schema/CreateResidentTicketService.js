@@ -15,7 +15,7 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
         {
             access: true,
             type:
-                'input ResidentTicketCreateInput { dv: Int!, sender: JSON!, details: String!,' +
+                'input ResidentTicketCreateInput { dv: Int!, sender: SenderFieldInput!, details: String!,' +
                 'source: TicketSourceRelateToOneInput!, property: PropertyRelateToOneInput!, unitName: String,' +
                 'placeClassifier: TicketPlaceClassifierRelateToOneInput, categoryClassifier: TicketCategoryClassifierRelateToOneInput,' +
                 'problemClassifier: TicketProblemClassifierRelateToOneInput, classifierRule: TicketClassifierRuleRelateToOneInput }',
@@ -28,7 +28,7 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
                 'clientEmail: String, clientPhone: String, details: String!, related: Ticket, isEmergency: Boolean, status: TicketStatus!' +
                 'isPaid: Boolean, source: TicketSource!, id: ID!, createdAt: String!, updatedAt: String, classifier: TicketClassifier,' +
                 'placeClassifier: TicketPlaceClassifier, problemClassifier: TicketProblemClassifier, classifierRule: TicketClassifierRule,' +
-                'categoryClassifier: TicketCategoryClassifier, dv: Int, sender: JSON, v: Int, deletedAt: String, newId: String }',
+                'categoryClassifier: TicketCategoryClassifier, dv: Int, sender: SenderField, v: Int, deletedAt: String, newId: String }',
         },
     ],
 

@@ -124,7 +124,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
         },
         {
             access: true,
-            type: 'input StartConfirmPhoneActionInput { phone: String!, dv:Int!, sender: JSON!, captcha: String! }',
+            type: 'input StartConfirmPhoneActionInput { phone: String!, dv:Int!, sender: SenderFieldInput!, captcha: String! }',
         },
         {
             access: true,
@@ -132,7 +132,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
         },
         {
             access: true,
-            type: 'input ResendConfirmPhoneActionSmsInput { token: String!, sender: JSON!, captcha: String! }',
+            type: 'input ResendConfirmPhoneActionSmsInput { token: String!, sender: SenderFieldInput!, captcha: String! }',
         },
         {
             access: true,

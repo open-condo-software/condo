@@ -14,7 +14,7 @@ const ChangePhoneNumberResidentUserService = new GQLCustomSchema('ChangePhoneNum
     types: [
         {
             access: true,
-            type: 'input ChangePhoneNumberResidentUserInput { dv: Int!, sender: JSON!, token: String! }',
+            type: 'input ChangePhoneNumberResidentUserInput { dv: Int!, sender: SenderFieldInput!, token: String! }',
         },
         {
             access: true,

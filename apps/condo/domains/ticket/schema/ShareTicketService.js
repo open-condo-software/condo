@@ -9,7 +9,7 @@ const ShareTicketService = new GQLCustomSchema('ShareTicketService', {
     types: [
         {
             access: true,
-            type: 'input ShareTicketInput { sender: JSON!, users: [ID!]!, ticketId: ID! }',
+            type: 'input ShareTicketInput { sender: SenderFieldInput!, users: [ID!]!, ticketId: ID! }',
         },
         {
             access: true,
