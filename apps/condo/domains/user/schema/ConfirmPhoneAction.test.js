@@ -34,6 +34,7 @@ const { expectToThrowAccessDeniedErrorToObjects, expectToThrowAuthenticationErro
 const captcha = () => {
     return faker.lorem.sentence()
 }
+
 describe('ConfirmPhoneAction CRUD', () => {
     describe('User', () => {
         it('cant create confirm phone action', async () => {
@@ -104,9 +105,6 @@ describe('ConfirmPhoneAction CRUD', () => {
         })
     })
 })
-
-
-
 
 describe('ConfirmPhoneAction Service', () => {
     it('can be created by Anonymous', async () => {
