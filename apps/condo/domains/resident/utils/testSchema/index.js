@@ -5,10 +5,7 @@
  */
 const faker = require('faker')
 const { get } = require('lodash')
-// TODO (savelevMatthew): Fix this
-const { buildFakeAddressMeta, buildFakeAddressAndMeta } = require('@condo/domains/common/utils/testSchema/factories')
-
-const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
+const { buildFakeAddressAndMeta } = require('@condo/domains/common/utils/testSchema/factories')
 
 const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
@@ -87,7 +84,7 @@ async function registerResidentByTestClient(client, extraAttrs = {}, withFlat = 
     return [data.result, attrs]
 }
 
-async function createTestServiceConsumer (client, resident, billingAccount, extraAttrs = {}) {
+async function createTestServiceConsumer (client, resident, billingAccount) {
     if (!client) throw new Error('no client')
     if (!resident || !resident.id) throw new Error('no resident.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }

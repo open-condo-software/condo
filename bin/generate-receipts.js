@@ -11,7 +11,6 @@ const { buildFakeAddressMeta } = require('@condo/domains/common/utils/testSchema
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { getPreviousPeriods } = require('@condo/domains/billing/utils/period')
 const { DateTime } = require('luxon')
-
 const PROPERTY_QUANTITY = 10
 const AVAILABLE_LEVELS = {
     base: '1',
@@ -137,6 +136,49 @@ class ReceiptsGenerator {
                 toPayDetails,
             }
         }
+
+        function _getDetailedService (servicesAmount, maxCharge) {
+            const rand = _gaussianRand(1)
+            const service = {}
+            service.name = faker.commerce.productName()
+            service.id = faker.datatype.uuid()
+            if (rand > 0.5) {
+                const charge = _gaussianInt(0, maxCharge / servicesAmount)
+                const formula = 'charge+recalculation+privilege+penalty'
+                const recalculation = _gaussianInt(-charge / 3, charge / 3)
+                const privilege = _gaussianRand(1) < 0.3 ? _gaussianInt(-charge / 3, 0) : null
+                const penalty = _gaussianRand(1) < 0.3 ? _gaussianInt(0, charge / 3) : null
+                const toPay = charge + recalculation + privilege + penalty
+                const toPayDetails = {
+                    charge: `${charge}.00`,
+                    recalculation: `${recalculation}.00`,
+                    penalty: `${penalty}.00`,
+                    privilege: `${privilege}.00`,
+                    formula,
+                }
+                if (_gaussianRand() > 0.5) {
+                    toPayDetails.measure = faker.finance.currencyCode()
+                    toPayDetails.tariff = `${_gaussianInt(0, 2000)}.00`
+                    // TODO (savelevMatthew): add volume
+                    // toPayDetails.volume = `${_gaussianRand(0, 50) / 13}`
+                }
+
+                service.toPay = `${toPay}.00`
+                service.toPayDetails = toPayDetails
+            } else {
+                service.toPay = '00.00'
+                if (_gaussianRand() < 0.5) {
+                    service.toPayDetails = {
+                        formula: 'charge+recalculation+privilege+penalty',
+                        privilege: `${_gaussianInt(-500, 500)}.00`,
+                    }
+                }
+            }
+            return {
+                service,
+                toPay: parseInt(service.toPay),
+            }
+        }
         
         console.info('[INFO] Generating receipts...')
         if (!this.billingAccounts) {
@@ -207,6 +249,25 @@ class ReceiptsGenerator {
                                 name,
                                 toPay: `${toPay}.00`,
                             })
+                        }
+                        const charge = totalToPay
+                        const { toPay, toPayDetails } = _getToPayDetails(charge)
+                        await BillingReceipt.create(this.context, {
+                            ...receipt,
+                            services,
+                            toPayDetails,
+                            toPay,
+                        })
+                        break
+                    }
+                    case AVAILABLE_LEVELS.withServiceDetails: {
+                        const servicesAmount = _gaussianInt(this.services.min, this.services.max, 1)
+                        const services = []
+                        let totalToPay = 0
+                        for (let s = 0; s < servicesAmount; s++) {
+                            const { toPay, service } = _getDetailedService(servicesAmount, this.toPay.max)
+                            totalToPay += toPay
+                            services.push(service)
                         }
                         const charge = totalToPay
                         const { toPay, toPayDetails } = _getToPayDetails(charge)
