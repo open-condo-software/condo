@@ -152,14 +152,20 @@ class ReceiptsGenerator {
                 const toPayDetails = {
                     charge: `${charge}.00`,
                     recalculation: `${recalculation}.00`,
-                    penalty: `${penalty}.00`,
-                    privilege: `${privilege}.00`,
                     formula,
                 }
+
+                if (penalty !== null) {
+                    toPayDetails.penalty = `${penalty}.00`
+                }
+                if (privilege !== null) {
+                    toPayDetails.provilege = `${privilege}.00`
+                }
+
                 if (_gaussianRand() > 0.5) {
                     toPayDetails.measure = faker.finance.currencyCode()
                     toPayDetails.tariff = `${_gaussianInt(0, 2000)}.00`
-                    toPayDetails.volume = `${_gaussianRand(0, 50) / 13}`
+                    toPayDetails.volume = `${_gaussianInt(0, 50) / 13}`
                 }
 
                 service.toPay = `${toPay}.00`
