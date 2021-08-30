@@ -18,7 +18,7 @@ export type Scalars = {
 
 export type AcceptOrRejectOrganizationInviteInput = {
   dv: Scalars['Int'];
-  sender: Scalars['JSON'];
+  sender: SenderFieldInput;
   isRejected?: Maybe<Scalars['Boolean']>;
   isAccepted?: Maybe<Scalars['Boolean']>;
 };
@@ -48,7 +48,7 @@ export type BillingAccount = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  Integration context  */
   context?: Maybe<BillingIntegrationOrganizationContext>;
   /**  `billing data source` local object ID. Used only for the internal needs of the `integration component`  */
@@ -77,7 +77,7 @@ export type BillingAccount = {
 
 export type BillingAccountCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   context?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
   importId?: Maybe<Scalars['String']>;
   raw?: Maybe<Scalars['JSON']>;
@@ -377,7 +377,7 @@ export type BillingAccountMeter = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  Integration context  */
   context?: Maybe<BillingIntegrationOrganizationContext>;
   /**  `billing data source` local object ID. Used only for the internal needs of the `integration component`  */
@@ -404,7 +404,7 @@ export type BillingAccountMeter = {
 
 export type BillingAccountMeterCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   context?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
   importId?: Maybe<Scalars['String']>;
   raw?: Maybe<Scalars['JSON']>;
@@ -654,7 +654,7 @@ export type BillingAccountMeterReading = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  Integration context  */
   context?: Maybe<BillingIntegrationOrganizationContext>;
   /**  `billing data source` local object ID. Used only for the internal needs of the `integration component`  */
@@ -689,7 +689,7 @@ export type BillingAccountMeterReading = {
 
 export type BillingAccountMeterReadingCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   context?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
   importId?: Maybe<Scalars['String']>;
   raw?: Maybe<Scalars['JSON']>;
@@ -979,7 +979,7 @@ export type BillingAccountMeterReadingHistoryRecordsUpdateInput = {
 
 export type BillingAccountMeterReadingUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   context?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
   importId?: Maybe<Scalars['String']>;
   raw?: Maybe<Scalars['JSON']>;
@@ -1011,10 +1011,10 @@ export type BillingAccountMeterReadingWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   context?: Maybe<BillingIntegrationOrganizationContextWhereInput>;
   context_is_null?: Maybe<Scalars['Boolean']>;
   importId?: Maybe<Scalars['String']>;
@@ -1153,7 +1153,7 @@ export type BillingAccountMeterRelateToOneInput = {
 
 export type BillingAccountMeterUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   context?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
   importId?: Maybe<Scalars['String']>;
   raw?: Maybe<Scalars['JSON']>;
@@ -1181,10 +1181,10 @@ export type BillingAccountMeterWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   context?: Maybe<BillingIntegrationOrganizationContextWhereInput>;
   context_is_null?: Maybe<Scalars['Boolean']>;
   importId?: Maybe<Scalars['String']>;
@@ -1287,7 +1287,7 @@ export type BillingAccountRelateToOneInput = {
 
 export type BillingAccountUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   context?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
   importId?: Maybe<Scalars['String']>;
   raw?: Maybe<Scalars['JSON']>;
@@ -1316,10 +1316,10 @@ export type BillingAccountWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   context?: Maybe<BillingIntegrationOrganizationContextWhereInput>;
   context_is_null?: Maybe<Scalars['Boolean']>;
   importId?: Maybe<Scalars['String']>;
@@ -1486,7 +1486,7 @@ export type BillingCurrency = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  International currency code, like RUB or USD  */
   code?: Maybe<Scalars['String']>;
   /**  Meta information that is required of user to properly display this currency in UI  */
@@ -1503,7 +1503,7 @@ export type BillingCurrency = {
 
 export type BillingCurrencyCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   code?: Maybe<Scalars['String']>;
   displayInfo?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -1708,7 +1708,7 @@ export type BillingCurrencyRelateToOneInput = {
 
 export type BillingCurrencyUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   code?: Maybe<Scalars['String']>;
   displayInfo?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -1731,10 +1731,10 @@ export type BillingCurrencyWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   code?: Maybe<Scalars['String']>;
   code_not?: Maybe<Scalars['String']>;
   code_contains?: Maybe<Scalars['String']>;
@@ -1821,7 +1821,7 @@ export type BillingIntegration = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  The name of the `integration component` that the developer remembers  */
   name?: Maybe<Scalars['String']>;
   /**  Short integration description, that would be shown on settings card  */
@@ -1890,7 +1890,7 @@ export type BillingIntegrationAccessRight = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  Integration  */
   integration?: Maybe<BillingIntegration>;
   /**  User  */
@@ -1904,7 +1904,7 @@ export type BillingIntegrationAccessRight = {
 
 export type BillingIntegrationAccessRightCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   integration?: Maybe<BillingIntegrationRelateToOneInput>;
   user?: Maybe<UserRelateToOneInput>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2063,7 +2063,7 @@ export type BillingIntegrationAccessRightRelateToManyInput = {
 
 export type BillingIntegrationAccessRightUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   integration?: Maybe<BillingIntegrationRelateToOneInput>;
   user?: Maybe<UserRelateToOneInput>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2083,10 +2083,10 @@ export type BillingIntegrationAccessRightWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   integration?: Maybe<BillingIntegrationWhereInput>;
   integration_is_null?: Maybe<Scalars['Boolean']>;
   user?: Maybe<UserWhereInput>;
@@ -2132,7 +2132,7 @@ export type BillingIntegrationAccessRightsUpdateInput = {
 
 export type BillingIntegrationCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   name?: Maybe<Scalars['String']>;
   shortDescription?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
@@ -2505,7 +2505,7 @@ export type BillingIntegrationLog = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  Integration context  */
   context?: Maybe<BillingIntegrationOrganizationContext>;
   /**  Message type. Our clients can use different languages. Sometimes we need to change the text message for the client. The settings for the message texts are in the integration. Ex: WRONG_AUTH_CREDENTIALS  */
@@ -2526,7 +2526,7 @@ export type BillingIntegrationLog = {
 
 export type BillingIntegrationLogCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   context?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
   type?: Maybe<Scalars['String']>;
   message?: Maybe<Scalars['String']>;
@@ -2542,7 +2542,7 @@ export type BillingIntegrationLogCreateInput = {
 
 export type BillingIntegrationLogUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   context?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
   type?: Maybe<Scalars['String']>;
   message?: Maybe<Scalars['String']>;
@@ -2567,10 +2567,10 @@ export type BillingIntegrationLogWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   context?: Maybe<BillingIntegrationOrganizationContextWhereInput>;
   context_is_null?: Maybe<Scalars['Boolean']>;
   type?: Maybe<Scalars['String']>;
@@ -2686,7 +2686,7 @@ export type BillingIntegrationOrganizationContext = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  ID of the integration that is configured to receive data for the organization  */
   integration?: Maybe<BillingIntegration>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
@@ -2711,7 +2711,7 @@ export type BillingIntegrationOrganizationContext = {
 
 export type BillingIntegrationOrganizationContextCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   integration?: Maybe<BillingIntegrationRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   settings?: Maybe<Scalars['JSON']>;
@@ -2948,7 +2948,7 @@ export type BillingIntegrationOrganizationContextRelateToOneInput = {
 
 export type BillingIntegrationOrganizationContextUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   integration?: Maybe<BillingIntegrationRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   settings?: Maybe<Scalars['JSON']>;
@@ -2975,10 +2975,10 @@ export type BillingIntegrationOrganizationContextWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   integration?: Maybe<BillingIntegrationWhereInput>;
   integration_is_null?: Maybe<Scalars['Boolean']>;
   organization?: Maybe<OrganizationWhereInput>;
@@ -3067,7 +3067,7 @@ export type BillingIntegrationRelateToOneInput = {
 
 export type BillingIntegrationUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   name?: Maybe<Scalars['String']>;
   shortDescription?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
@@ -3099,10 +3099,10 @@ export type BillingIntegrationWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   name?: Maybe<Scalars['String']>;
   name_not?: Maybe<Scalars['String']>;
   name_contains?: Maybe<Scalars['String']>;
@@ -3318,7 +3318,7 @@ export type BillingMeterResource = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  The name of the `resource types`  */
   name?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -3333,7 +3333,7 @@ export type BillingMeterResource = {
 
 export type BillingMeterResourceCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   name?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3530,7 +3530,7 @@ export type BillingMeterResourceRelateToOneInput = {
 
 export type BillingMeterResourceUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   name?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3552,10 +3552,10 @@ export type BillingMeterResourceWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   name?: Maybe<Scalars['String']>;
   name_not?: Maybe<Scalars['String']>;
   name_contains?: Maybe<Scalars['String']>;
@@ -3656,7 +3656,7 @@ export type BillingProperty = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  Integration context  */
   context?: Maybe<BillingIntegrationOrganizationContext>;
   /**  `billing data source` local object ID. Used only for the internal needs of the `integration component`  */
@@ -3681,7 +3681,7 @@ export type BillingProperty = {
 
 export type BillingPropertyCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   context?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
   importId?: Maybe<Scalars['String']>;
   raw?: Maybe<Scalars['JSON']>;
@@ -3946,7 +3946,7 @@ export type BillingPropertyRelateToOneInput = {
 
 export type BillingPropertyUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   context?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
   importId?: Maybe<Scalars['String']>;
   raw?: Maybe<Scalars['JSON']>;
@@ -3973,10 +3973,10 @@ export type BillingPropertyWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   context?: Maybe<BillingIntegrationOrganizationContextWhereInput>;
   context_is_null?: Maybe<Scalars['Boolean']>;
   importId?: Maybe<Scalars['String']>;
@@ -4105,7 +4105,7 @@ export type BillingReceipt = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  Integration context  */
   context?: Maybe<BillingIntegrationOrganizationContext>;
   /**  Billing property  */
@@ -4140,7 +4140,7 @@ export type BillingReceipt = {
 
 export type BillingReceiptCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   context?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
   property?: Maybe<BillingPropertyRelateToOneInput>;
   account?: Maybe<BillingAccountRelateToOneInput>;
@@ -4442,7 +4442,7 @@ export type BillingReceiptHistoryRecordsUpdateInput = {
 
 export type BillingReceiptUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   context?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
   property?: Maybe<BillingPropertyRelateToOneInput>;
   account?: Maybe<BillingAccountRelateToOneInput>;
@@ -4474,10 +4474,10 @@ export type BillingReceiptWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   context?: Maybe<BillingIntegrationOrganizationContextWhereInput>;
   context_is_null?: Maybe<Scalars['Boolean']>;
   property?: Maybe<BillingPropertyWhereInput>;
@@ -4639,7 +4639,7 @@ export type ChangePasswordWithTokenOutput = {
 
 export type ChangePhoneNumberResidentUserInput = {
   dv: Scalars['Int'];
-  sender: Scalars['JSON'];
+  sender: SenderFieldInput;
   token: Scalars['String'];
 };
 
@@ -4692,7 +4692,7 @@ export type ConfirmPhoneAction = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  Phone. In international E.164 format without spaces  */
   phone?: Maybe<Scalars['String']>;
   /**  Unique token to complete confirmation  */
@@ -4720,7 +4720,7 @@ export type ConfirmPhoneAction = {
 
 export type ConfirmPhoneActionCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   phone?: Maybe<Scalars['String']>;
   token?: Maybe<Scalars['String']>;
   smsCode?: Maybe<Scalars['Int']>;
@@ -4970,7 +4970,7 @@ export type ConfirmPhoneActionHistoryRecordsUpdateInput = {
 
 export type ConfirmPhoneActionUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   phone?: Maybe<Scalars['String']>;
   token?: Maybe<Scalars['String']>;
   smsCode?: Maybe<Scalars['Int']>;
@@ -4996,10 +4996,10 @@ export type ConfirmPhoneActionWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   phone?: Maybe<Scalars['String']>;
   phone_not?: Maybe<Scalars['String']>;
   phone_contains?: Maybe<Scalars['String']>;
@@ -5139,7 +5139,7 @@ export type Contact = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
   /**  Property, that is a subject of an issue, reported by this person in first ticket. Meaning of this field will be revised in the future  */
@@ -5164,7 +5164,7 @@ export type Contact = {
 
 export type ContactCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
   unitName?: Maybe<Scalars['String']>;
@@ -5443,7 +5443,7 @@ export type ContactRelateToOneInput = {
 
 export type ContactUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
   unitName?: Maybe<Scalars['String']>;
@@ -5470,10 +5470,10 @@ export type ContactWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
   property?: Maybe<PropertyWhereInput>;
@@ -5630,7 +5630,7 @@ export type Division = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  Display name of this division  */
   name?: Maybe<Scalars['String']>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
@@ -5699,7 +5699,7 @@ export type Division_ExecutorsMetaArgs = {
 
 export type DivisionCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   name?: Maybe<Scalars['String']>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   responsible?: Maybe<OrganizationEmployeeRelateToOneInput>;
@@ -5907,7 +5907,7 @@ export type DivisionHistoryRecordsUpdateInput = {
 
 export type DivisionUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   name?: Maybe<Scalars['String']>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   responsible?: Maybe<OrganizationEmployeeRelateToOneInput>;
@@ -5933,10 +5933,10 @@ export type DivisionWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   name?: Maybe<Scalars['String']>;
   name_not?: Maybe<Scalars['String']>;
   name_contains?: Maybe<Scalars['String']>;
@@ -6089,7 +6089,7 @@ export type ForgotPasswordAction = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  Ref to the user. The object will be deleted if the user ceases to exist  */
   user?: Maybe<User>;
   /**  Unique token to complete confirmation  */
@@ -6112,7 +6112,7 @@ export type ForgotPasswordAction = {
 
 export type ForgotPasswordActionCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   user?: Maybe<UserRelateToOneInput>;
   token?: Maybe<Scalars['String']>;
   requestedAt?: Maybe<Scalars['String']>;
@@ -6346,7 +6346,7 @@ export type ForgotPasswordActionHistoryRecordsUpdateInput = {
 
 export type ForgotPasswordActionUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   user?: Maybe<UserRelateToOneInput>;
   token?: Maybe<Scalars['String']>;
   requestedAt?: Maybe<Scalars['String']>;
@@ -6372,10 +6372,10 @@ export type ForgotPasswordActionWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   user?: Maybe<UserWhereInput>;
   user_is_null?: Maybe<Scalars['Boolean']>;
   token?: Maybe<Scalars['String']>;
@@ -6492,7 +6492,7 @@ export type GetPhoneByConfirmPhoneActionTokenOutput = {
 
 export type InviteNewOrganizationEmployeeInput = {
   dv: Scalars['Int'];
-  sender: Scalars['JSON'];
+  sender: SenderFieldInput;
   organization: OrganizationWhereUniqueInput;
   email: Scalars['String'];
   phone?: Maybe<Scalars['String']>;
@@ -6516,7 +6516,7 @@ export type Message = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  This message is related to some organization. Organization can manage their messages  */
   organization?: Maybe<Organization>;
   /**  to User  */
@@ -6549,7 +6549,7 @@ export type Message = {
 
 export type MessageCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   user?: Maybe<UserRelateToOneInput>;
   phone?: Maybe<Scalars['String']>;
@@ -6885,7 +6885,7 @@ export enum MessageStatusType {
 
 export type MessageUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   user?: Maybe<UserRelateToOneInput>;
   phone?: Maybe<Scalars['String']>;
@@ -6916,10 +6916,10 @@ export type MessageWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
   user?: Maybe<UserWhereInput>;
@@ -10325,7 +10325,7 @@ export type OnBoarding = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**
    *  Primary Attribute of user guide what we need to watch for.
    * Indicates the status and detect the full completeness of guide.
@@ -10352,7 +10352,7 @@ export type OnBoarding = {
 
 export type OnBoardingCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   completed?: Maybe<Scalars['Boolean']>;
   stepsTransitions?: Maybe<Scalars['JSON']>;
   user?: Maybe<UserRelateToOneInput>;
@@ -10583,7 +10583,7 @@ export type OnBoardingStep = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  Icon string definition of step.  */
   icon?: Maybe<Scalars['String']>;
   /**  Step order in view maps, should be used as priority indicator.  */
@@ -10620,7 +10620,7 @@ export enum OnBoardingStepActionType {
 
 export type OnBoardingStepCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   icon?: Maybe<Scalars['String']>;
   order?: Maybe<Scalars['Int']>;
   title?: Maybe<Scalars['String']>;
@@ -10930,7 +10930,7 @@ export type OnBoardingStepHistoryRecordsUpdateInput = {
 
 export type OnBoardingStepUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   icon?: Maybe<Scalars['String']>;
   order?: Maybe<Scalars['Int']>;
   title?: Maybe<Scalars['String']>;
@@ -10960,10 +10960,10 @@ export type OnBoardingStepWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   icon?: Maybe<Scalars['String']>;
   icon_not?: Maybe<Scalars['String']>;
   icon_contains?: Maybe<Scalars['String']>;
@@ -11123,7 +11123,7 @@ export enum OnBoardingTypeType {
 
 export type OnBoardingUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   completed?: Maybe<Scalars['Boolean']>;
   stepsTransitions?: Maybe<Scalars['JSON']>;
   user?: Maybe<UserRelateToOneInput>;
@@ -11148,10 +11148,10 @@ export type OnBoardingWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   completed?: Maybe<Scalars['Boolean']>;
   completed_not?: Maybe<Scalars['Boolean']>;
   stepsTransitions?: Maybe<Scalars['JSON']>;
@@ -11236,8 +11236,8 @@ export type Organization = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
   /**  Country level specific  */
   country?: Maybe<OrganizationCountryType>;
   /**  Customer-friendly name  */
@@ -11317,7 +11317,7 @@ export enum OrganizationCountryType {
 
 export type OrganizationCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   country?: Maybe<OrganizationCountryType>;
   name?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
@@ -11347,8 +11347,8 @@ export type OrganizationEmployee = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
   /**  If user exists => invite is matched by email/phone (user can reject or accept it)  */
@@ -11402,7 +11402,7 @@ export type OrganizationEmployee_SpecializationsMetaArgs = {
 
 export type OrganizationEmployeeCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   user?: Maybe<UserRelateToOneInput>;
   inviteCode?: Maybe<Scalars['ID']>;
@@ -11716,8 +11716,8 @@ export type OrganizationEmployeeRole = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
   name?: Maybe<Scalars['String']>;
@@ -11746,7 +11746,7 @@ export type OrganizationEmployeeRole = {
 
 export type OrganizationEmployeeRoleCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   name?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
@@ -12032,7 +12032,7 @@ export type OrganizationEmployeeRoleRelateToOneInput = {
 
 export type OrganizationEmployeeRoleUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   name?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
@@ -12066,10 +12066,10 @@ export type OrganizationEmployeeRoleWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
   name?: Maybe<Scalars['String']>;
@@ -12181,7 +12181,7 @@ export type OrganizationEmployeeRolesUpdateInput = {
 
 export type OrganizationEmployeeUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   user?: Maybe<UserRelateToOneInput>;
   inviteCode?: Maybe<Scalars['ID']>;
@@ -12214,10 +12214,10 @@ export type OrganizationEmployeeWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
   user?: Maybe<UserWhereInput>;
@@ -12618,7 +12618,7 @@ export type OrganizationLink = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  Organization that gets access  */
   from?: Maybe<Organization>;
   /**  Organization that gives access  */
@@ -12635,7 +12635,7 @@ export type OrganizationLink = {
 
 export type OrganizationLinkCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   from?: Maybe<OrganizationRelateToOneInput>;
   to?: Maybe<OrganizationRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
@@ -12826,7 +12826,7 @@ export type OrganizationLinkRelateToManyInput = {
 
 export type OrganizationLinkUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   from?: Maybe<OrganizationRelateToOneInput>;
   to?: Maybe<OrganizationRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
@@ -12849,10 +12849,10 @@ export type OrganizationLinkWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   from?: Maybe<OrganizationWhereInput>;
   from_is_null?: Maybe<Scalars['Boolean']>;
   to?: Maybe<OrganizationWhereInput>;
@@ -12925,7 +12925,7 @@ export type OrganizationRelateToOneInput = {
 
 export type OrganizationUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   country?: Maybe<OrganizationCountryType>;
   name?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
@@ -12953,10 +12953,10 @@ export type OrganizationWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   country?: Maybe<OrganizationCountryType>;
   country_not?: Maybe<OrganizationCountryType>;
   country_in?: Maybe<Array<Maybe<OrganizationCountryType>>>;
@@ -13099,7 +13099,7 @@ export type Property = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
   /**  Client understandable Property name. A well-known property name for the client  */
@@ -13130,7 +13130,7 @@ export type Property = {
 
 export type PropertyCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   name?: Maybe<Scalars['String']>;
   address?: Maybe<Scalars['String']>;
@@ -13433,7 +13433,7 @@ export enum PropertyTypeType {
 
 export type PropertyUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   name?: Maybe<Scalars['String']>;
   address?: Maybe<Scalars['String']>;
@@ -13461,10 +13461,10 @@ export type PropertyWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
   name?: Maybe<Scalars['String']>;
@@ -16031,7 +16031,7 @@ export type QueryAllResidentTicketsArgs = {
 
 export type ReInviteOrganizationEmployeeInput = {
   dv: Scalars['Int'];
-  sender: Scalars['JSON'];
+  sender: SenderFieldInput;
   organization: OrganizationWhereUniqueInput;
   email: Scalars['String'];
   phone?: Maybe<Scalars['String']>;
@@ -16039,7 +16039,7 @@ export type ReInviteOrganizationEmployeeInput = {
 
 export type RegisterNewOrganizationInput = {
   dv: Scalars['Int'];
-  sender: Scalars['JSON'];
+  sender: SenderFieldInput;
   country: Scalars['String'];
   name: Scalars['String'];
   description?: Maybe<Scalars['String']>;
@@ -16049,7 +16049,7 @@ export type RegisterNewOrganizationInput = {
 
 export type RegisterNewUserInput = {
   dv: Scalars['Int'];
-  sender: Scalars['JSON'];
+  sender: SenderFieldInput;
   name: Scalars['String'];
   email: Scalars['String'];
   password: Scalars['String'];
@@ -16060,7 +16060,7 @@ export type RegisterNewUserInput = {
 
 export type RegisterResidentInput = {
   dv: Scalars['Int'];
-  sender: Scalars['JSON'];
+  sender: SenderFieldInput;
   address: Scalars['String'];
   addressMeta: Scalars['JSON'];
   unitName: Scalars['String'];
@@ -16068,7 +16068,7 @@ export type RegisterResidentInput = {
 
 export type RegisterServiceConsumerInput = {
   dv: Scalars['Int'];
-  sender: Scalars['JSON'];
+  sender: SenderFieldInput;
   residentId: Scalars['ID'];
   unitName: Scalars['String'];
   accountNumber: Scalars['String'];
@@ -16076,7 +16076,7 @@ export type RegisterServiceConsumerInput = {
 
 export type ResendConfirmPhoneActionSmsInput = {
   token: Scalars['String'];
-  sender: Scalars['JSON'];
+  sender: SenderFieldInput;
   captcha: Scalars['String'];
 };
 
@@ -16087,7 +16087,7 @@ export type ResendConfirmPhoneActionSmsOutput = {
 
 export type ResendMessageInput = {
   dv: Scalars['Int'];
-  sender: Scalars['JSON'];
+  sender: SenderFieldInput;
   message?: Maybe<MessageWhereUniqueInput>;
 };
 
@@ -16111,7 +16111,7 @@ export type Resident = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  Mobile user account  */
   user?: Maybe<User>;
   /**  Organization, that provides service to this resident. Can be missing, when a resident has been registered, but there is no Organization, that serves specified address in our system yet  */
@@ -16209,7 +16209,7 @@ export type ResidentBillingReceiptWhereInput = {
 
 export type ResidentCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   user?: Maybe<UserRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
@@ -16487,7 +16487,7 @@ export type ResidentRelateToOneInput = {
 
 export type ResidentTicketCreateInput = {
   dv: Scalars['Int'];
-  sender: Scalars['JSON'];
+  sender: SenderFieldInput;
   details: Scalars['String'];
   source: TicketSourceRelateToOneInput;
   property: PropertyRelateToOneInput;
@@ -16525,7 +16525,7 @@ export type ResidentTicketOutput = {
   classifierRule?: Maybe<TicketClassifierRule>;
   categoryClassifier?: Maybe<TicketCategoryClassifier>;
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   v?: Maybe<Scalars['Int']>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -16533,7 +16533,7 @@ export type ResidentTicketOutput = {
 
 export type ResidentTicketUpdateInput = {
   dv: Scalars['Int'];
-  sender: Scalars['JSON'];
+  sender: SenderFieldInput;
   details?: Maybe<Scalars['String']>;
 };
 
@@ -16640,7 +16640,7 @@ export type ResidentTicketWhereInput = {
 
 export type ResidentUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   user?: Maybe<UserRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
@@ -16667,10 +16667,10 @@ export type ResidentWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   user?: Maybe<UserWhereInput>;
   user_is_null?: Maybe<Scalars['Boolean']>;
   organization?: Maybe<OrganizationWhereInput>;
@@ -16778,7 +16778,7 @@ export type ResidentsUpdateInput = {
 
 export type SendMessageInput = {
   dv: Scalars['Int'];
-  sender: Scalars['JSON'];
+  sender: SenderFieldInput;
   to: SendMessageToInput;
   type: SendMessageType;
   lang: SendMessageLang;
@@ -16812,6 +16812,17 @@ export enum SendMessageType {
   ShareTicket = 'SHARE_TICKET'
 }
 
+export type SenderField = {
+  __typename?: 'SenderField';
+  dv: Scalars['Int'];
+  fingerprint: Scalars['String'];
+};
+
+export type SenderFieldInput = {
+  dv: Scalars['Int'];
+  fingerprint: Scalars['String'];
+};
+
 /**  Service Consumer object. Existence of this object means that the resident is willing to pay for certain services  */
 export type ServiceConsumer = {
   __typename?: 'ServiceConsumer';
@@ -16826,7 +16837,7 @@ export type ServiceConsumer = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  Resident object  */
   resident?: Maybe<Resident>;
   /**  Billing account, that will allow this resident to pay for certain service  */
@@ -16845,7 +16856,7 @@ export type ServiceConsumer = {
 
 export type ServiceConsumerCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   resident?: Maybe<ResidentRelateToOneInput>;
   billingAccount?: Maybe<BillingAccountRelateToOneInput>;
   accountNumber?: Maybe<Scalars['String']>;
@@ -17051,7 +17062,7 @@ export type ServiceConsumerHistoryRecordsUpdateInput = {
 
 export type ServiceConsumerUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   resident?: Maybe<ResidentRelateToOneInput>;
   billingAccount?: Maybe<BillingAccountRelateToOneInput>;
   accountNumber?: Maybe<Scalars['String']>;
@@ -17075,10 +17086,10 @@ export type ServiceConsumerWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   resident?: Maybe<ResidentWhereInput>;
   resident_is_null?: Maybe<Scalars['Boolean']>;
   billingAccount?: Maybe<BillingAccountWhereInput>;
@@ -17161,7 +17172,7 @@ export type ServiceConsumersUpdateInput = {
 };
 
 export type ShareTicketInput = {
-  sender: Scalars['JSON'];
+  sender: SenderFieldInput;
   users: Array<Scalars['ID']>;
   ticketId: Scalars['ID'];
 };
@@ -17173,7 +17184,7 @@ export type ShareTicketOutput = {
 
 export type SigninResidentUserInput = {
   dv: Scalars['Int'];
-  sender: Scalars['JSON'];
+  sender: SenderFieldInput;
   token: Scalars['String'];
 };
 
@@ -19400,7 +19411,7 @@ export enum SortUsersBy {
 export type StartConfirmPhoneActionInput = {
   phone: Scalars['String'];
   dv: Scalars['Int'];
-  sender: Scalars['JSON'];
+  sender: SenderFieldInput;
   captcha: Scalars['String'];
 };
 
@@ -19411,7 +19422,7 @@ export type StartConfirmPhoneActionOutput = {
 
 export type StartPasswordRecoveryInput = {
   email: Scalars['String'];
-  sender: Scalars['JSON'];
+  sender: SenderFieldInput;
   dv: Scalars['Int'];
 };
 
@@ -19434,7 +19445,7 @@ export type Ticket = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
   /**  Counter showing the number of changes `status` to `new_or_reopened`  */
@@ -19562,7 +19573,7 @@ export type TicketCategoryClassifier = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  Ref to the organization. If this ref is null the object is common for all organizations  */
   organization?: Maybe<Organization>;
   /**  text description  */
@@ -19579,7 +19590,7 @@ export type TicketCategoryClassifier = {
 
 export type TicketCategoryClassifierCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   name?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -19791,7 +19802,7 @@ export type TicketCategoryClassifierRelateToOneInput = {
 
 export type TicketCategoryClassifierUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   name?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -19814,10 +19825,10 @@ export type TicketCategoryClassifierWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
   name?: Maybe<Scalars['String']>;
@@ -19911,7 +19922,7 @@ export type TicketChange = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  Related ticket, whose change is logged in this entity  */
   ticket?: Maybe<Ticket>;
   /**  Counter showing the number of changes `status` to `new_or_reopened`  */
@@ -20100,7 +20111,7 @@ export type TicketChange = {
 
 export type TicketChangeCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   ticket?: Maybe<TicketRelateToOneInput>;
   statusReopenedCounterFrom?: Maybe<Scalars['Int']>;
   statusReopenedCounterTo?: Maybe<Scalars['Int']>;
@@ -20199,7 +20210,7 @@ export type TicketChangeCreateInput = {
 
 export type TicketChangeUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   ticket?: Maybe<TicketRelateToOneInput>;
   statusReopenedCounterFrom?: Maybe<Scalars['Int']>;
   statusReopenedCounterTo?: Maybe<Scalars['Int']>;
@@ -20307,10 +20318,10 @@ export type TicketChangeWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   ticket?: Maybe<TicketWhereInput>;
   ticket_is_null?: Maybe<Scalars['Boolean']>;
   statusReopenedCounterFrom?: Maybe<Scalars['Int']>;
@@ -21350,7 +21361,7 @@ export type TicketClassifier = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  Ref to the organization. If this ref is null the object is common for all organizations  */
   organization?: Maybe<Organization>;
   /**  Multi level name  */
@@ -21371,7 +21382,7 @@ export type TicketClassifier = {
 
 export type TicketClassifierCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   name?: Maybe<Scalars['String']>;
   parent?: Maybe<TicketClassifierRelateToOneInput>;
@@ -21603,7 +21614,7 @@ export type TicketClassifierRule = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  Ref to the organization. If this ref is null the object is common for all organizations  */
   organization?: Maybe<Organization>;
   /**  Location of incident  */
@@ -21624,7 +21635,7 @@ export type TicketClassifierRule = {
 
 export type TicketClassifierRuleCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   place?: Maybe<TicketPlaceClassifierRelateToOneInput>;
   category?: Maybe<TicketCategoryClassifierRelateToOneInput>;
@@ -21831,7 +21842,7 @@ export type TicketClassifierRuleRelateToOneInput = {
 
 export type TicketClassifierRuleUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   place?: Maybe<TicketPlaceClassifierRelateToOneInput>;
   category?: Maybe<TicketCategoryClassifierRelateToOneInput>;
@@ -21856,10 +21867,10 @@ export type TicketClassifierRuleWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
   place?: Maybe<TicketPlaceClassifierWhereInput>;
@@ -21929,7 +21940,7 @@ export type TicketClassifierRulesUpdateInput = {
 
 export type TicketClassifierUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   name?: Maybe<Scalars['String']>;
   parent?: Maybe<TicketClassifierRelateToOneInput>;
@@ -21953,10 +21964,10 @@ export type TicketClassifierWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
   name?: Maybe<Scalars['String']>;
@@ -22052,7 +22063,7 @@ export type TicketComment = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  Related ticket of the comment  */
   ticket?: Maybe<Ticket>;
   /**  User, who created the comment  */
@@ -22071,7 +22082,7 @@ export type TicketComment = {
 
 export type TicketCommentCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   ticket?: Maybe<TicketRelateToOneInput>;
   user?: Maybe<UserRelateToOneInput>;
   content?: Maybe<Scalars['String']>;
@@ -22277,7 +22288,7 @@ export type TicketCommentHistoryRecordsUpdateInput = {
 
 export type TicketCommentUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   ticket?: Maybe<TicketRelateToOneInput>;
   user?: Maybe<UserRelateToOneInput>;
   content?: Maybe<Scalars['String']>;
@@ -22301,10 +22312,10 @@ export type TicketCommentWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   ticket?: Maybe<TicketWhereInput>;
   ticket_is_null?: Maybe<Scalars['Boolean']>;
   user?: Maybe<UserWhereInput>;
@@ -22388,7 +22399,7 @@ export type TicketCommentsUpdateInput = {
 
 export type TicketCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   statusReopenedCounter?: Maybe<Scalars['Int']>;
   statusUpdatedAt?: Maybe<Scalars['String']>;
@@ -22443,7 +22454,7 @@ export type TicketFile = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
   /**  File object with meta information and publicUrl  */
@@ -22462,7 +22473,7 @@ export type TicketFile = {
 
 export type TicketFileCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   file?: Maybe<Scalars['Upload']>;
   ticket?: Maybe<TicketRelateToOneInput>;
@@ -22654,7 +22665,7 @@ export type TicketFileHistoryRecordsUpdateInput = {
 
 export type TicketFileUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   file?: Maybe<Scalars['Upload']>;
   ticket?: Maybe<TicketRelateToOneInput>;
@@ -22678,10 +22689,10 @@ export type TicketFileWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
   file?: Maybe<Scalars['String']>;
@@ -23253,7 +23264,7 @@ export type TicketPlaceClassifier = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  Ref to the organization. If this ref is null the object is common for all organizations  */
   organization?: Maybe<Organization>;
   /**  text content  */
@@ -23270,7 +23281,7 @@ export type TicketPlaceClassifier = {
 
 export type TicketPlaceClassifierCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   name?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -23475,7 +23486,7 @@ export type TicketPlaceClassifierRelateToOneInput = {
 
 export type TicketPlaceClassifierUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   name?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -23498,10 +23509,10 @@ export type TicketPlaceClassifierWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
   name?: Maybe<Scalars['String']>;
@@ -23595,7 +23606,7 @@ export type TicketProblemClassifier = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  Ref to the organization. If this ref is null the object is common for all organizations  */
   organization?: Maybe<Organization>;
   /**  text content  */
@@ -23612,7 +23623,7 @@ export type TicketProblemClassifier = {
 
 export type TicketProblemClassifierCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   name?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -23817,7 +23828,7 @@ export type TicketProblemClassifierRelateToOneInput = {
 
 export type TicketProblemClassifierUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   name?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -23840,10 +23851,10 @@ export type TicketProblemClassifierWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
   name?: Maybe<Scalars['String']>;
@@ -23969,8 +23980,8 @@ export type TicketSource = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
   /**  Ref to the organization. If this ref is null the object is common for all organizations  */
   organization?: Maybe<Organization>;
   type?: Maybe<TicketSourceTypeType>;
@@ -23987,7 +23998,7 @@ export type TicketSource = {
 
 export type TicketSourceCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   type?: Maybe<TicketSourceTypeType>;
   name?: Maybe<Scalars['String']>;
@@ -24227,7 +24238,7 @@ export enum TicketSourceTypeType {
 
 export type TicketSourceUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   type?: Maybe<TicketSourceTypeType>;
   name?: Maybe<Scalars['String']>;
@@ -24251,10 +24262,10 @@ export type TicketSourceWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
   type?: Maybe<TicketSourceTypeType>;
@@ -24352,7 +24363,7 @@ export type TicketStatus = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  Ref to the organization. If this ref is null the object is common for all organizations  */
   organization?: Maybe<Organization>;
   /**  Ticket status. You should also increase `statusReopenedCounter` if you want to reopen ticket  */
@@ -24380,7 +24391,7 @@ export type TicketStatusColor = {
 
 export type TicketStatusCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   type?: Maybe<TicketStatusTypeType>;
   name?: Maybe<Scalars['String']>;
@@ -24623,7 +24634,7 @@ export enum TicketStatusTypeType {
 
 export type TicketStatusUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   type?: Maybe<TicketStatusTypeType>;
   name?: Maybe<Scalars['String']>;
@@ -24647,10 +24658,10 @@ export type TicketStatusWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
   type?: Maybe<TicketStatusTypeType>;
@@ -24736,7 +24747,7 @@ export type TicketStatusesUpdateInput = {
 
 export type TicketUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   statusReopenedCounter?: Maybe<Scalars['Int']>;
   statusUpdatedAt?: Maybe<Scalars['String']>;
@@ -24788,10 +24799,10 @@ export type TicketWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
   statusReopenedCounter?: Maybe<Scalars['Int']>;
@@ -25082,7 +25093,7 @@ export type User = {
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderField>;
   /**  Name. If impersonal account should be a company name  */
   name?: Maybe<Scalars['String']>;
   hasEmail?: Maybe<Scalars['String']>;
@@ -25128,7 +25139,7 @@ export type UserHasEmailArgs = {
 
 export type UserCreateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   name?: Maybe<Scalars['String']>;
   password?: Maybe<Scalars['String']>;
   type?: Maybe<UserTypeType>;
@@ -25500,7 +25511,7 @@ export enum UserTypeType {
 
 export type UserUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
   name?: Maybe<Scalars['String']>;
   password?: Maybe<Scalars['String']>;
   type?: Maybe<UserTypeType>;
@@ -25534,10 +25545,10 @@ export type UserWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   name?: Maybe<Scalars['String']>;
   name_not?: Maybe<Scalars['String']>;
   name_contains?: Maybe<Scalars['String']>;
