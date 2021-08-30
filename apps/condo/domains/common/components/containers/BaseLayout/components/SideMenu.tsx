@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core'
-import { Drawer, Layout, Space } from 'antd'
+import { Drawer, Layout, Typography, Space, Popover, Divider, Row } from 'antd'
 import get from 'lodash/get'
 import React from 'react'
 import Link from 'next/link'
@@ -15,7 +15,9 @@ import {
 } from './styles'
 import { Logo } from '@condo/domains/common/components/Logo'
 import { Button } from '@condo/domains/common/components/Button'
-import { PlusCircleFilled } from '@ant-design/icons'
+import styled from '@emotion/styled'
+import { AppealIcon } from '@condo/domains/common/components/icons/AppealIcon'
+import { MeterIcon } from '@condo/domains/common/components/icons/MeterIcon'
 
 interface ISideMenuProps {
     isMobile: boolean
@@ -29,18 +31,63 @@ interface ITicketCreateButton {
     disabled: boolean
 }
 
-const TicketCreateButton: React.FC<ITicketCreateButton> = ({ disabled }) => {
+const ResidentAppealPopoverContentWrapper = styled.div`
+  width: 216px;
+  height: 107px;
+  
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+`
+
+const AppealPopoverItem = styled.div`
+  padding-left: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  
+  & a {
+    color: black;
+    font-size: 14px;
+  }
+`
+
+const ResidentAppealPopoverContent = () => {
     const intl = useIntl()
+    const CreateAppealMessage = intl.formatMessage({ id: 'CreateAppeal' })
+    const CreateMeterReadingMessage = intl.formatMessage({ id: 'CreateMeterReading' })
 
     return (
-        <Link href={'/ticket/create'} >
-            <a>
-                <Button type='sberDefault' disabled={disabled}>
-                    <PlusCircleFilled />
-                    {intl.formatMessage({ id: 'CreateTicket' })}
-                </Button>
-            </a>
-        </Link>
+        <ResidentAppealPopoverContentWrapper>
+            <Link href={'/ticket/create'}>
+                <AppealPopoverItem>
+                    <AppealIcon />
+                    <a>{CreateAppealMessage}</a>
+                </AppealPopoverItem>
+            </Link>
+            <Divider style={{ margin: 0 }}/>
+            <Link href={'/meter/create'}>
+                <AppealPopoverItem>
+                    <MeterIcon />
+                    <a>{CreateMeterReadingMessage}</a>
+                </AppealPopoverItem>
+            </Link>
+        </ResidentAppealPopoverContentWrapper>
+    )
+}
+
+const ResidentAppealPopover = () => {
+    const intl = useIntl()
+    return (
+        <Popover
+            content={ResidentAppealPopoverContent}
+            trigger={'click'}
+            placement={'bottom'}
+        >
+            <Button type='sberDefault'>
+                {intl.formatMessage({ id: 'ResidentAppeal' })}
+            </Button>
+        </Popover>
     )
 }
 
@@ -75,10 +122,10 @@ export const SideMenu: React.FC<ISideMenuProps> = (props) => {
             >
                 <Logo onClick={onLogoClick} />
                 <Space size={60} direction={'vertical'}>
+                    <ResidentAppealPopover/>
                     <MenuItemsContainer>
                         {menuData}
                     </MenuItemsContainer>
-                    <TicketCreateButton disabled={!link}/>
                 </Space>
             </Layout.Sider>
         </Drawer>
@@ -94,12 +141,12 @@ export const SideMenu: React.FC<ISideMenuProps> = (props) => {
                 className='side-menu'
             >
                 <Logo onClick={onLogoClick} />
-                <Space size={60} direction={'vertical'}>
+                <ItemContainer>
+                    <ResidentAppealPopover/>
                     <MenuItemsContainer>
                         {menuData}
                     </MenuItemsContainer>
-                    <TicketCreateButton disabled={!link}/>
-                </Space>
+                </ItemContainer>
             </Layout.Sider>
             {menuData && <div css={substrateDesktopCss} className='side-menu-substrate' />}
         </>
