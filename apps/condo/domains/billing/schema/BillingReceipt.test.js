@@ -27,6 +27,7 @@ describe('BillingReceipt', () => {
                     formula: 'charge+penalty',
                     charge: '12341.21',
                     penalty: '200.12',
+                    debt: null,
                 },
             }
             const [objUpdated] = await updateTestBillingReceipt(managerUserClient, obj.id, payload)
