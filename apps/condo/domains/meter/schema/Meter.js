@@ -7,7 +7,9 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/meter/access/Meter')
+const { UNIQUE_ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
 const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
+const { Meter: MeterApi } = require('./../utils/serverSchema')
 
 
 const Meter = new GQLListSchema('Meter', {
@@ -20,6 +22,23 @@ const Meter = new GQLListSchema('Meter', {
             schemaDoc: 'Number of resource meter, such as "А03 9908"',
             type: Text,
             isRequired: true,
+            hooks: {
+                validateInput: async ({ context, operation, existingItem, resolvedData, fieldPath, addFieldValidationError }) => {
+                    // should be unique inside organization
+                    const value = resolvedData[fieldPath]
+                    let metersWithSameNumberInOrganization
+                    if (operation === 'create') {
+                        metersWithSameNumberInOrganization = await MeterApi.getAll(context, { number: value, organization: { id: resolvedData.organization }, deletedAt: null })
+                    }
+                    else if (operation === 'update' && resolvedData.number !== existingItem.number) {
+                        metersWithSameNumberInOrganization = await MeterApi.getAll(context, { number: value, organization: { id: existingItem.organization }, deletedAt: null })
+                    }
+
+                    if (metersWithSameNumberInOrganization && metersWithSameNumberInOrganization.length > 0) {
+                        addFieldValidationError(`${UNIQUE_ALREADY_EXISTS_ERROR}${fieldPath}] Meter with same number exist in current organization`)
+                    }
+                },
+            },
         },
 
         billingAccountMeter: {

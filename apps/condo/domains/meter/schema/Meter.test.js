@@ -20,6 +20,7 @@ const { expectToThrowAuthenticationErrorToObjects } = require('@condo/domains/co
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { UUID_RE } = require('@core/keystone/test.utils')
 const faker = require('faker')
+const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const { COLD_WATER_METER_RESOURCE_ID } = require('../constants/constants')
 
 describe('Meter', () => {
@@ -78,6 +79,25 @@ describe('Meter', () => {
 
             expect(meter.id).toMatch(UUID_RE)
         })
+
+        test('resident: cannot create Meter if another Meter with same number exist in user organization', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const client = await makeClientWithResidentUserAndProperty()
+            await createTestResident(adminClient, client.user, client.organization, client.property)
+            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+
+            const number = faker.random.alphaNumeric(5)
+            await createTestMeter(client, client.organization, client.property, resource, { number })
+
+            await catchErrorFrom(async () => {
+                await createTestMeter(client, client.organization, client.property, resource, { number })
+            }, ({ errors, data }) => {
+                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                expect(errors[0].data.messages[0]).toContain('Meter with same number exist in current organization')
+                expect(data).toEqual({ 'obj': null })
+            })
+        })
+
 
         test('user: cannot create Meter', async () => {
             const client = await makeClientWithProperty()
@@ -166,7 +186,7 @@ describe('Meter', () => {
 
         test('employee from "from" related organization without "canManageMeters" role: cannot update Meter', async () => {
             const admin = await makeLoggedInAdminClient()
-            const { clientFrom, employeeFrom, organizationFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
+            const { clientFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
             const [resource] = await MeterResource.getAll(clientFrom, { id: COLD_WATER_METER_RESOURCE_ID })
             const [meter] = await createTestMeter(admin, organizationTo, propertyTo, resource, {})
 
@@ -207,6 +227,27 @@ describe('Meter', () => {
                 await updateTestMeter(client, meter.id, {
                     number: newNumber,
                 })
+            })
+        })
+
+        test('resident: cannot update Meter if another Meter with same number exist in user organization', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const client = await makeClientWithResidentUserAndProperty()
+            await createTestResident(adminClient, client.user, client.organization, client.property)
+            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+
+            const number = faker.random.alphaNumeric(5)
+            await createTestMeter(client, client.organization, client.property, resource, { number })
+            const [meter2] = await createTestMeter(client, client.organization, client.property, resource)
+
+            await catchErrorFrom(async () => {
+                await updateTestMeter(client, meter2.id, {
+                    number,
+                })
+            }, ({ errors, data }) => {
+                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                expect(errors[0].data.messages[0]).toContain('Meter with same number exist in current organization')
+                expect(data).toEqual({ 'obj': null })
             })
         })
 
