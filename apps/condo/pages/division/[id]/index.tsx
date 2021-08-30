@@ -154,8 +154,6 @@ const DivisionPage: IDivisionPageProps = () => {
         router.push('/property/')
     }
 
-    // TODO: Add separate type for `useSoftDelete` in SBERDOMA-1048
-    // @ts-ignore
     const softDeleteAction = useSoftDelete({}, handleCompleteSoftDelete)
 
     if (error || loading) {
