@@ -2,11 +2,12 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Contact } from '../../utils/clientSchema'
 import { ContactFields, ContactsEditor, IContactEditorProps } from './index'
 import { IContactUIState } from '../../utils/clientSchema/Contact'
+import { IOrganizationEmployeeRoleUIState } from '../../../organization/utils/clientSchema/OrganizationEmployeeRole'
 
 interface IContactsEditorHookArgs {
     // Organization scope for contacts autocomplete and new contact, that can be created
     organization: string,
-    role?: Record<string, boolean>,
+    role?: IOrganizationEmployeeRoleUIState,
 }
 
 interface IContactsEditorHookResult {
