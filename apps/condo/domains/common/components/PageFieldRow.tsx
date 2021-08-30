@@ -1,5 +1,8 @@
 import React from 'react'
 import { Col, Typography } from 'antd'
+import { fontSizes } from '@condo/domains/common/constants/style'
+
+const { bodyCopy } = fontSizes
 
 interface IPageFieldRowProps {
     title: string
@@ -12,10 +15,10 @@ const PageFieldRow: React.FC<IPageFieldRowProps> = (props) => {
     const { labelSpan = 8, title, children, highlight } = props
     return (
         <>
-            <Col span={labelSpan} style={{ fontSize: '16px' }}>
-                {title}
+            <Col span={labelSpan}>
+                <Typography.Text style={{ fontSize: bodyCopy }}>{title}</Typography.Text>
             </Col>
-            <Col span={24 - labelSpan - 1} push={1} style={{ fontSize: '16px' }}>
+            <Col span={24 - labelSpan - 1} push={1} style={{ fontSize: bodyCopy }}>
                 <Typography.Text
                     type={highlight ? 'success' : null}
                     style={{ wordWrap: 'break-word' }}

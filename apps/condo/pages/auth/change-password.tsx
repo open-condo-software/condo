@@ -16,6 +16,9 @@ import { ButtonHeaderAction } from '@condo/domains/common/components/HeaderActio
 import { Loader } from '@condo/domains/common/components/Loader'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayoutContext'
+import { fontSizes } from '@condo/domains/common/constants/style'
+
+const { bodyCopy } = fontSizes
 
 const FORM_LAYOUT = {
     labelCol: { span: 10 },
@@ -116,7 +119,7 @@ const ChangePasswordPage: AuthPage = () => {
         return (
             <BasicEmptyListView>
                 <Typography.Title level={3}>{ChangePasswordTokenErrorLabel}</Typography.Title>
-                <Typography.Text style={{ fontSize: '16px' }}>{ChangePasswordTokenErrorMessage}</Typography.Text>
+                <Typography.Text style={{ fontSize: bodyCopy }}>{ChangePasswordTokenErrorMessage}</Typography.Text>
                 <Button
                     type='sberPrimary'
                     style={{ marginTop: '16px' }}

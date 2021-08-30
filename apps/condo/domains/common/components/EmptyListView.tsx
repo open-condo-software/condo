@@ -3,6 +3,10 @@ import { useRouter } from 'next/router'
 import { Button } from './Button'
 import { EmptyIcon } from './EmptyIcon'
 import React from 'react'
+import { fontSizes } from '@condo/domains/common/constants/style'
+
+const { bodyCopy } = fontSizes
+
 export interface IEmptyListProps {
     label: string,
     message: string,
@@ -46,7 +50,7 @@ export const EmptyListView: React.FC<IEmptyListProps> = ({ label, message, creat
             <Typography.Title level={3}>
                 {label}
             </Typography.Title>
-            <Typography.Text style={{ fontSize: '16px' }}>
+            <Typography.Text style={{ fontSize: bodyCopy }}>
                 {message}
             </Typography.Text>
             <Button

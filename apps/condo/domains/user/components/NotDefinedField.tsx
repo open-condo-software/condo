@@ -1,6 +1,9 @@
 import { Typography } from 'antd'
 import React, { ReactElement } from 'react'
 import { useIntl } from '@core/next/intl'
+import { fontSizes } from '@condo/domains/common/constants/style'
+
+const { bodyCopy } = fontSizes
 
 interface INotDefinedFieldProps {
     showMessage?: boolean
@@ -24,5 +27,5 @@ export const NotDefinedField: React.FC<INotDefinedFieldProps> = (props) => {
 
     return render
         ? render(value)
-        : <Typography.Text style={{ fontSize: '16px' }}>{value}</Typography.Text>
+        : <Typography.Text style={{ fontSize: bodyCopy }}>{value}</Typography.Text>
 }

@@ -34,6 +34,10 @@ import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderA
 import { formatPhone } from '@condo/domains/common/utils/helpers'
 import { ShareTicketModal } from '@condo/domains/ticket/components/ShareTicketModal'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
+import { fontSizes } from '@condo/domains/common/constants/style'
+
+const { bodyCopy } = fontSizes
+
 
 // TODO(Dimitreee):move to global defs
 interface IUser {
@@ -119,7 +123,7 @@ export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) 
 }
 
 const TicketTag = styled(Tag)`
-  font-size: 16px;
+  font-size: ${bodyCopy};
   line-height: 24px;
 `
 

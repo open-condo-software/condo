@@ -20,6 +20,10 @@ import { useRouter } from 'next/router'
 import React from 'react'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
+import { fontSizes } from '@condo/domains/common/constants/style'
+
+const { bodyCopy } = fontSizes
+
 
 const ReInviteActionAlert = ({ employee }) => {
     const intl = useIntl()
@@ -119,7 +123,7 @@ export const EmployeePageContent = ({
                                                             onChange={handleEmployeeBlock}
                                                             defaultChecked={isEmployeeBlocked}
                                                         />
-                                                        <Typography.Text type='danger' style={{ fontSize: '16px' }}>
+                                                        <Typography.Text type='danger' style={{ fontSize: bodyCopy }}>
                                                             {BlockUserMessage}
                                                         </Typography.Text>
                                                     </Space>

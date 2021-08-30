@@ -10,6 +10,9 @@ import {
 import { ApolloError } from '@apollo/client'
 import { IBillingIntegrationOrganizationContextUIState } from '../../utils/clientSchema/BillingIntegrationOrganizationContext'
 import { MainContent } from './MainContent'
+import { fontSizes } from '@condo/domains/common/constants/style'
+
+const { bodyCopy } = fontSizes
 
 const SETTINGS_ROUTE = '/settings'
 
@@ -84,7 +87,7 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
                 <Typography.Title level={3}>
                     {ConnectionInProgressMessage}
                 </Typography.Title>
-                <Typography.Text style={{ fontSize: '16px' }}>
+                <Typography.Text style={{ fontSize: bodyCopy }}>
                     {WillBeReadySoonMessage}
                 </Typography.Text>
             </BasicEmptyListView>
@@ -97,7 +100,7 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
                 <Typography.Title level={3}>
                     {ErrorOccurredMessage}
                 </Typography.Title>
-                <Typography.Text style={{ fontSize: '16px' }}>
+                <Typography.Text style={{ fontSize: bodyCopy }}>
                     {ConnectSupportMessage}
                 </Typography.Text>
             </BasicEmptyListView>

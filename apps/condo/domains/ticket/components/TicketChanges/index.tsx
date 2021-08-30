@@ -7,6 +7,9 @@ import { TicketChange as TicketChangeType } from '../../../../schema'
 // TODO(antonal): fix "Module not found: Can't resolve '@condo/schema'"
 // import { SortTicketChangesBy } from '@condo/schema'
 import { FormattedMessage } from 'react-intl'
+import { fontSizes } from '@condo/domains/common/constants/style'
+
+const { bodyCopy } = fontSizes
 
 interface ITicketChangesProps {
     items: TicketChangeType[],
@@ -45,7 +48,7 @@ export const TicketChanges: React.FC<ITicketChangesProps> = ({ items, total, loa
                                 setDisplayCount(displayCount + CHANGES_PER_CHUNK)
                             }}
                             style={{
-                                fontSize: '16px',
+                                fontSize: bodyCopy,
                                 padding: 0,
                                 color: green[6],
                             }}
