@@ -42,7 +42,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
         },
         {
             access: true,
-            type: 'input SendMessageInput { dv: Int!, sender: JSON!, to: SendMessageToInput!, type: SendMessageType!, lang: SendMessageLang!, meta: JSON!, organization: OrganizationWhereUniqueInput }',
+            type: 'input SendMessageInput { dv: Int!, sender: SenderFieldInput!, to: SendMessageToInput!, type: SendMessageType!, lang: SendMessageLang!, meta: JSON!, organization: OrganizationWhereUniqueInput }',
         },
         {
             access: true,
@@ -50,7 +50,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
         },
         {
             access: true,
-            type: 'input ResendMessageInput { dv: Int!, sender: JSON!, message: MessageWhereUniqueInput }',
+            type: 'input ResendMessageInput { dv: Int!, sender: SenderFieldInput!, message: MessageWhereUniqueInput }',
         },
         {
             access: true,

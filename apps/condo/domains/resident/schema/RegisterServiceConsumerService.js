@@ -43,7 +43,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
     types: [
         {
             access: true,
-            type: 'input RegisterServiceConsumerInput { dv: Int!, sender: JSON!, residentId: ID!, unitName: String!, accountNumber: String! }',
+            type: 'input RegisterServiceConsumerInput { dv: Int!, sender: SenderFieldInput!, residentId: ID!, unitName: String!, accountNumber: String! }',
         },
     ],
 

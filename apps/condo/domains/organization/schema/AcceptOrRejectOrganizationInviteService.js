@@ -6,7 +6,7 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
     types: [
         {
             access: true,
-            type: 'input AcceptOrRejectOrganizationInviteInput { dv: Int!, sender: JSON!, isRejected: Boolean, isAccepted: Boolean }',
+            type: 'input AcceptOrRejectOrganizationInviteInput { dv: Int!, sender: SenderFieldInput!, isRejected: Boolean, isAccepted: Boolean }',
         },
     ],
     mutations: [

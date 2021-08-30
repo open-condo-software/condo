@@ -28,9 +28,9 @@ const SENDER_FIELD = {
         validateInput: (args) => {
             if (!hasValidJsonStructure(args, true, 1, {
                 fingerprint: {
-                    type: 'string',
                     presence: true,
-                    length: { minimum: 5, maximum: 40 },
+                    format: /^[a-zA-Z0-9!#$%()*+-;=,:[\]/.?@^_`{|}~]{5,42}$/,
+                    length: { minimum: 5, maximum: 42 },
                 },
             })) return
         },

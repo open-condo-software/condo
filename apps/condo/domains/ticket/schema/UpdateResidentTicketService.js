@@ -11,7 +11,7 @@ const UpdateResidentTicketService = new GQLCustomSchema('UpdateResidentTicketSer
     types: [
         {
             access: true,
-            type: 'input ResidentTicketUpdateInput { dv: Int!, sender: JSON!, details: String }',
+            type: 'input ResidentTicketUpdateInput { dv: Int!, sender: SenderFieldInput!, details: String }',
         },
     ],
     

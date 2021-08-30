@@ -22,7 +22,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
         },
         {
             access: true,
-            type: 'input StartPasswordRecoveryInput { email: String!, sender: JSON!, dv: Int! }',
+            type: 'input StartPasswordRecoveryInput { email: String!, sender: SenderFieldInput!, dv: Int! }',
         },
         {
             access: true,

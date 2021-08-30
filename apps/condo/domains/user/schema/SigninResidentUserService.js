@@ -14,7 +14,7 @@ const SigninResidentUserService = new GQLCustomSchema('SigninResidentUserService
     types: [
         {
             access: true,
-            type: 'input SigninResidentUserInput { dv: Int!, sender: JSON!, token: String! }',
+            type: 'input SigninResidentUserInput { dv: Int!, sender: SenderFieldInput!, token: String! }',
         },
         {
             access: true,
