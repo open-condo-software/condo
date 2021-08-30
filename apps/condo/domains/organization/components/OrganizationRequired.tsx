@@ -1,5 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
 import { Typography } from 'antd'
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
@@ -12,7 +10,8 @@ import { AuthRequired } from '@condo/domains/common/components/containers/AuthRe
 import { Loader } from '@condo/domains/common/components/Loader'
 import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'
 import { useRouter } from 'next/router'
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
+import { OrganizationEmployee } from '../utils/clientSchema'
 
 const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions?: boolean }> = ({ children, withEmployeeRestrictions }) => {
     const intl = useIntl()
@@ -22,6 +21,11 @@ const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions
     const { isLoading: isLoadingAuth, user } = useAuth()
     const organization = useOrganization()
     const router = useRouter()
+
+    const { objs: userOrganizations = [], loading: organizationLinksLoading } = OrganizationEmployee.useObjects(
+        { where: user ? { user: { id: user.id }, isRejected: false, isBlocked: false } : {} },
+        { fetchPolicy: 'cache-first' }
+    )
 
     const { obj: onBoarding } = OnBoardingHooks
         .useObject(
@@ -37,8 +41,15 @@ const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions
             if (onBoarding && !get(onBoarding, 'completed', false)) {
                 router.push('/onboarding')
             }
+
         }
-    }, [onBoarding, link])
+    }, [onBoarding, link, isVisible])
+
+    useEffect(() => {
+        if (user && !isVisible && !organizationLinksLoading && !userOrganizations.length) {
+            showCreateOrganizationModal(true)
+        }
+    }, [user, isVisible, organizationLinksLoading, userOrganizations])
 
     let pageView = children
 
@@ -47,10 +58,6 @@ const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions
     }
 
     if (!link) {
-        if (!isVisible) {
-            showCreateOrganizationModal(true)
-        }
-
         pageView = (
             <>
                 <Typography.Title style={{ textAlign: 'center' }}>
