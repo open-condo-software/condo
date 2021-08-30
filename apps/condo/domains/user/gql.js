@@ -8,7 +8,7 @@ const { gql } = require('graphql-tag')
 
 const { generateGqlQueries } = require('@condo/domains/common/utils/codegeneration/generate.gql')
 
-const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
+const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
 const USER_FIELDS = `{ name avatar { publicUrl } meta type isPhoneVerified importId ${COMMON_FIELDS} }`
 const User = generateGqlQueries('User', USER_FIELDS)

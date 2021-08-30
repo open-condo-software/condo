@@ -135,18 +135,12 @@ describe('Message', () => {
         await catchErrorFrom(
             async () => await createTestMessage(admin, { sender: 'invalid' }),
             ({ errors, data }) => {
-                expect(data).toEqual({ obj: null })
+                expect(data).toEqual(undefined)
                 expect(errors[0]).toMatchObject({
-                    name: 'ValidationFailureError',
-                    message: 'You attempted to perform an invalid mutation',
-                    path: ['obj'],
+                    name: 'UserInputError',
+                    message: 'Variable "$data" got invalid value "invalid" at "data.sender"; Expected type "SenderFieldInput" to be an object.',
+                    extensions: { code: 'BAD_USER_INPUT' },
                     uid: expect.any(String),
-                    data: expect.objectContaining({
-                        messages: ['[json:expectObject:sender] Expect JSON Object'],
-                        errors: [{}],
-                        listKey: 'Message',
-                        operation: 'create',
-                    }),
                 })
             },
         )
