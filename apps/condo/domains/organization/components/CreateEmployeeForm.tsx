@@ -57,10 +57,7 @@ export const CreateEmployeeForm: React.FC = () => {
     const PhoneIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
     const UserAlreadyInListMsg = intl.formatMessage({ id: 'pages.users.UserIsAlreadyInList' })
     const TechnicianRoleName = intl.formatMessage({ id: 'employee.role.Technician.name' })
-    const ForemanRoleName = intl.formatMessage({ id: 'employee.role.Foreman.name' })
 
-    const rolesForSpecialization = [TechnicianRoleName, ForemanRoleName]
-    
     const classifiersLoader = new ClassifiersQueryRemote(useApolloClient())
     const { organization } = useOrganization()
     const router = useRouter()
@@ -196,7 +193,7 @@ export const CreateEmployeeForm: React.FC = () => {
                                                     <Input />
                                                 </Form.Item>
                                             </Col>
-                                            {rolesForSpecialization.includes(get(selectedRole, 'name')) && (
+                                            {get(selectedRole, 'name') === TechnicianRoleName && (
                                                 <Col span={24}>
                                                     <Form.Item
                                                         name={'specializations'}
