@@ -4,17 +4,20 @@ const { KnexFieldAdapter } = require('@keystonejs/adapter-knex')
 const stringify = JSON.stringify
 
 class JsonImplementation extends Implementation {
-    constructor (path, { isMultiline }) {
+    // NOTE: argument names are based no Virtual field
+    constructor (path, { isMultiline, graphQLInputType = 'JSON', graphQLReturnType = 'JSON', extendGraphQLTypes = [] }) {
         super(...arguments)
         this.isMultiline = isMultiline
         this.isOrderable = false
-        this.gqlBaseType = 'JSON'
+        this.graphQLInputType = graphQLInputType
+        this.graphQLReturnType = graphQLReturnType
+        this.extendGraphQLTypes = extendGraphQLTypes
     }
 
     // Output
 
     gqlOutputFields () {
-        return [`${this.path}: ${this.gqlBaseType}`]
+        return [`${this.path}: ${this.graphQLReturnType}`]
     }
 
     gqlOutputFieldResolvers () {
@@ -27,17 +30,23 @@ class JsonImplementation extends Implementation {
 
     gqlQueryInputFields () {
         return [
-            ...this.equalityInputFields(this.gqlBaseType),
-            ...this.inInputFields(this.gqlBaseType),
+            ...this.equalityInputFields(this.graphQLInputType),
+            ...this.inInputFields(this.graphQLInputType),
         ]
     }
 
     gqlUpdateInputFields () {
-        return [`${this.path}: ${this.gqlBaseType}`]
+        return [`${this.path}: ${this.graphQLInputType}`]
     }
 
     gqlCreateInputFields () {
-        return [`${this.path}: ${this.gqlBaseType}`]
+        return [`${this.path}: ${this.graphQLInputType}`]
+    }
+
+    // Aux
+
+    getGqlAuxTypes () {
+        return this.extendGraphQLTypes
     }
 
     extendAdminMeta (meta) {
