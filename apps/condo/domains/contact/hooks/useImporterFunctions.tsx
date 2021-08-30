@@ -54,7 +54,6 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                     address: suggestion.value,
                     organization: { id: userOrganizationId },
                 }
-                // TODO (savelevMatthew): better way to detect building
                 return searchProperty(client, where, undefined).then((res) => {
                     addons.property = res.length > 0 ? res[0].value : null
                     addons.phones = parsePhones(String(phones.value))
