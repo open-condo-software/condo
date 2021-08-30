@@ -7,6 +7,9 @@ import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListVi
 import ReactECharts from 'echarts-for-react'
 import TicketChart, { AnalyticsDataType, ViewModeTypes } from '@condo/domains/ticket/components/TicketChart'
 import { CHART_COLOR_SET } from '@condo/domains/common/constants/style'
+import { fontSizes } from '@condo/domains/common/constants/style'
+
+const { bodyCopy } = fontSizes
 
 export interface ITicketAnalyticsPageWidgetProps {
     data: null | AnalyticsDataType
@@ -53,7 +56,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
             itemHeight: 7,
             itemGap: 28,
             textStyle: {
-                fontSize: '16px',
+                fontSize: bodyCopy,
             },
         },
         grid: {

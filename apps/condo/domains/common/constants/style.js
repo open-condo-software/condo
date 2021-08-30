@@ -72,8 +72,14 @@ const colors = {
     malibu,
 }
 
+const fontSizes = {
+    bodyCopy: '16px',
+}
+
 const shadows = {
-    elevated: '0px 9px 28px rgba(0, 0, 0, 0.05), 0px 6px 16px rgba(0, 0, 0, 0.08), 0px 3px 6px rgba(0, 0, 0, 0.12)',
+    cardShadow: 'box-shadow: 0px 9px 28px 8px rgba(0, 0, 0, 0.05), 0px 6px 16px rgba(0, 0, 0, 0.08), 0px 3px 6px -4px rgba(0, 0, 0, 0.12);',
+    elevatedShadow: 'box-shadow: 0px 9px 28px rgba(0, 0, 0, 0.05), 0px 6px 16px rgba(0, 0, 0, 0.08), 0px 3px 6px rgba(0, 0, 0, 0.12);',
+    hover: '0px 9px 28px rgba(0, 0, 0, 0.05), 0px 6px 16px rgba(0, 0, 0, 0.08), 0px 3px 6px rgba(0, 0, 0, 0.12)',
 }
 
 const transitions = {
@@ -87,7 +93,6 @@ const gradients = {
 }
 
 const DEFAULT_BORDER_WIDTH = '2px'
-const DEFAULT_STRONG_TEXT_FONT_WEIGHT = 800
 
 // Possible customizations can be found at https://github.com/ant-design/ant-design/blob/master/components/style/themes/default.less
 const antGlobalVariables = {
@@ -109,6 +114,7 @@ const antGlobalVariables = {
     '@checkbox-check-bg': ultraLightGrey,
     '@checkbox-border-width': DEFAULT_BORDER_WIDTH,
     '@form-item-margin-bottom': '0',
+    '@success-color': green[6],
     '@table-border-color': colors.lightGrey[5],
     '@table-header-bg': ultraLightGrey,
     '@tabs-highlight-color': '@black',
@@ -126,15 +132,6 @@ const antGlobalVariables = {
     '@alert-warning-bg-color': '@gold-2',
     '@typography-title-margin-bottom': 0,
     '@tooltip-bg': 'rgba(0, 0, 0)',
-    '@text-color': colors.sberGrey[9],
-    '@text-color-secondary': colors.lightGrey[7],
-    '@success-color': green[6],
-    '@warning-color': colors.orange[6],
-    '@error-color': colors.red[5],
-    '@disabled-color': colors.sberGrey[2],
-    '@link-color': green[6],
-    '@link-hover-color': green[8],
-    '@link-active-color': colors.sberPrimary[6],
 }
 
 module.exports = {
@@ -145,5 +142,5 @@ module.exports = {
     transitions,
     CHART_COLOR_SET,
     DEFAULT_BORDER_WIDTH,
-    DEFAULT_STRONG_TEXT_FONT_WEIGHT,
+    fontSizes,
 }
