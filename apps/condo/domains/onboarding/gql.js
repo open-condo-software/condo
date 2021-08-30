@@ -8,7 +8,7 @@ const { generateGqlQueries } = require('@condo/domains/common/utils/codegenerati
 
 const { gql } = require('graphql-tag')
 
-const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt completed'
+const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt completed'
 
 const ON_BOARDING_FIELDS = `{ completed stepsTransitions ${COMMON_FIELDS} type }`
 const OnBoarding = generateGqlQueries('OnBoarding', ON_BOARDING_FIELDS)
