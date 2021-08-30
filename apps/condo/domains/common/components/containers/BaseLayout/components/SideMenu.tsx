@@ -81,7 +81,6 @@ const ResidentAppealPopover = () => {
     return (
         <Popover
             content={ResidentAppealPopoverContent}
-            trigger={'click'}
             placement={'bottom'}
         >
             <Button type='sberDefault'>

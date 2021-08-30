@@ -7,7 +7,7 @@ import { IPropertyUIState } from '@condo/domains/property/utils/clientSchema/Pro
 export interface IUnitNameInputProps extends Pick<SelectProps<string>, 'onChange' | 'onSelect'> {
     property: IPropertyUIState
     placeholder?: string
-    allowClear?: false
+    allowClear?: boolean
     loading: boolean
 }
 
