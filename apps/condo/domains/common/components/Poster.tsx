@@ -17,7 +17,7 @@ export const PosterContainer = styled.div<IImageProps>`
   transition: ${transitions.allDefault};
 `
 
-interface IPoser {
+interface IPoster {
     src: string
     delay?: number
     placeholderSrc?: string
@@ -25,7 +25,7 @@ interface IPoser {
     backgroundPosition?: string
 }
 
-export const Poster: React.FC<IPoser> = (props) => {
+export const Poster: React.FC<IPoster> = (props) => {
     const {
         src,
         placeholderSrc,
