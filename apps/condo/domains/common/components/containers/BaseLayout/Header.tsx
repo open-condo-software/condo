@@ -6,7 +6,7 @@ import { colors } from '@condo/domains/common/constants/style'
 import { useResponsive } from '@condo/domains/common/hooks/useResponsive'
 import { useAuth } from '@core/next/auth'
 import { Logo } from '../../Logo'
-import { TopMenuItems } from './components/TopMenuItems'
+import { ITopMenuItemsProps, TopMenuItems as BaseTopMenuItems } from './components/TopMenuItems'
 
 const DesktopHeader = styled(Layout.Header)`
   z-index: 9;
@@ -30,12 +30,15 @@ const MobileHeader = styled(Layout.Header)`
 
 interface IHeaderProps {
     headerAction?: React.ElementType
+    TopMenuItems?: React.FC<ITopMenuItemsProps>
 }
 
 export const Header: React.FC<IHeaderProps> = (props) => {
     const { isSmall } = useResponsive()
     const router = useRouter()
     const { isAuthenticated } = useAuth()
+
+    const TopMenuItems = props.TopMenuItems ? props.TopMenuItems : BaseTopMenuItems
 
     const handleLogoClick = useCallback(() => {
         if (isAuthenticated) {
