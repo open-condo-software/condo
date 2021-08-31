@@ -297,6 +297,9 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
             mapperInstanceRef.current = new TicketChart({
                 line: {
                     chart: (viewMode, ticketGroupedCounter) => {
+                        const { groupBy } = filterToQuery(
+                            { filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy }
+                        )
                         const data = getAggregatedData(ticketGroupedCounter, groupBy)
                         const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
                         const legend = Object.keys(data)
@@ -319,6 +322,9 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         return { series, legend, axisData, tooltip }
                     },
                     table: (viewMode, ticketGroupedCounter, restOptions) => {
+                        const { groupBy } = filterToQuery(
+                            { filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy }
+                        )
                         const data = getAggregatedData(ticketGroupedCounter, groupBy)
                         const dataSource = []
                         const { translations, filters } = restOptions
@@ -349,6 +355,9 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                 },
                 bar: {
                     chart: (viewMode, ticketGroupedCounter) => {
+                        const { groupBy } = filterToQuery(
+                            { filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy }
+                        )
                         const data = getAggregatedData(ticketGroupedCounter, groupBy)
                         const series = []
                         const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
@@ -371,6 +380,9 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         return { series, legend, axisData, tooltip }
                     },
                     table: (viewMode, ticketGroupedCounter, restOptions) => {
+                        const { groupBy } = filterToQuery(
+                            { filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy }
+                        )
                         const data = getAggregatedData(ticketGroupedCounter, groupTicketsBy === 'status' ? groupBy.reverse() : groupBy)
                         const { translations, filters } = restOptions
                         const dataSource = []
@@ -410,8 +422,13 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                 },
                 pie: {
                     chart: (viewMode, ticketGroupedCounter) => {
+                        const { groupBy } = filterToQuery(
+                            { filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy }
+                        )
                         const data = getAggregatedData(ticketGroupedCounter, groupBy)
                         const series = []
+
+                        const legend = [...new Set(Object.values(data).flatMap(e => Object.keys(e)))]
                         Object.entries(data).forEach(([label, groupObject]) => {
                             const chartData = Object.entries(groupObject)
                                 .map(([name, value]) => ({ name, value }))
@@ -419,9 +436,10 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                             series.push({
                                 name: label,
                                 data: chartData,
-                                selectedMode: 'multiple',
+                                selectedMode: false,
                                 type: viewMode,
-                                radius: [50, 100],
+                                radius: [60, 120],
+                                center: ['30%', '50%'],
                                 symbol: 'none',
                                 emphasis: {
                                     focus: 'self',
@@ -430,7 +448,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                 labelLine: { show: false },
                                 label: {
                                     show: true,
-                                    // fontSize: 14,
+                                    fontSize: 14,
                                     overflow: 'none',
                                     formatter: [
                                         '{value|{b}} {percent|{d} %}',
@@ -451,12 +469,10 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                 },
                                 labelLayout: (chart) =>  {
                                     const { dataIndex, seriesIndex } = chart
-                                    const isLeftAlignedChart = seriesIndex % 2 === 0
-                                    const xOffset = isLeftAlignedChart ? 300 : 900
                                     const elementYOffset = 25 * dataIndex
                                     const yOffset = 70 + 250 * Math.floor(seriesIndex / 2) + 10 + elementYOffset
                                     return {
-                                        x: xOffset,
+                                        x: 300,
                                         y: yOffset,
                                         align: 'left',
                                         verticalAlign: 'top',
@@ -464,9 +480,12 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                 },
                             })
                         })
-                        return { series }
+                        return { series, legend }
                     },
                     table: (viewMode, ticketGroupedCounter, restOptions) => {
+                        const { groupBy } = filterToQuery(
+                            { filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy }
+                        )
                         const data = getAggregatedData(ticketGroupedCounter, groupBy.reverse())
                         const { translations, filters } = restOptions
                         const dataSource = []
@@ -722,6 +741,5 @@ TicketAnalyticsPage.headerAction = <ReturnBackHeaderAction
     path={'/reports/'} />
 TicketAnalyticsPage.requiredAccess = OrganizationRequired
 TicketAnalyticsPage.whyDidYouRender = false
-
 
 export default TicketAnalyticsPage
