@@ -5,18 +5,33 @@ import { TableRecord } from '@condo/domains/common/components/Table/Index'
 import get from 'lodash/get'
 import { AlignType } from 'react-markdown'
 
-const DETAILED_COLUMNS_AMOUNT = 8
+const DETAILED_COLUMNS_AMOUNT = 9
 const BASE_COLUMNS_AMOUNT = 2
 
 
 const textRender = getTextRender()
-const getAdvancedTextRender = (detailed: boolean) => {
+const getExpandTextRender = (detailed: boolean) => {
     return function render (text: string, record: TableRecord) {
         if (get(record, ['children', 'length'])) {
             return {
                 children: text,
                 props: {
                     colSpan: detailed ? DETAILED_COLUMNS_AMOUNT : BASE_COLUMNS_AMOUNT,
+                },
+            }
+        }
+        return {
+            children: textRender(text),
+        }
+    }
+}
+
+const getHideCellTextRender = () => {
+    return function render (text: string, record: TableRecord) {
+        if (get(record, ['children', 'length'])) {
+            return {
+                props: {
+                    colSpan: 0,
                 },
             }
         }
@@ -43,29 +58,117 @@ export const useServicesTableColumns = (detailed: boolean, currencySign: string,
     const intl = useIntl()
     const ToPayTitle = intl.formatMessage({ id: 'field.TotalPayment' })
     const ServiceTitle = intl.formatMessage({ id: 'BillingServiceName' })
+    const ChargeTitle = intl.formatMessage({ id: 'Charged' })
+    const VolumeTitle = intl.formatMessage({ id: 'Volume' })
+    const UnitsTitle = intl.formatMessage({ id: 'ServicesUnitsShort' })
+    const TariffTitle = intl.formatMessage({ id: 'Tariff' })
+    const PrivilegesTitle = intl.formatMessage({ id: 'Privileges' })
+    const RecalculationTitle = intl.formatMessage({ id: 'Recalculation' })
+    const PenaltyTitle = intl.formatMessage({ id: 'PaymentPenalty' })
+
+
     const moneyRender = getAdvancedMoneyRender(currencySign, separator)
     const moneyAlign: AlignType = 'right'
     return useMemo(() => {
+        const expandTextRender = getExpandTextRender(detailed)
+        const hideTextRender = getHideCellTextRender()
         const columns = {
             name: {
                 title: ServiceTitle,
                 key: 'serviceName',
                 dataIndex: 'name',
-                width: detailed ? '70%' : '70%',
-                render: getAdvancedTextRender(detailed),
+                width: detailed ? '20%' : '70%',
+                render: expandTextRender,
             },
             toPay: {
                 title: ToPayTitle,
-                key: 'toPay',
+                key: 'serviceToPay',
                 dataIndex: 'toPay',
-                width: detailed ? '30%' : '30%',
+                width: detailed ? '10%' : '30%',
+                align: moneyAlign,
+                render: moneyRender,
+            },
+            charge: {
+                title: ChargeTitle,
+                key: 'serviceCharge',
+                dataIndex: ['toPayDetails', 'charge'],
+                width: '10%',
+                align: moneyAlign,
+                render: moneyRender,
+            },
+            volume: {
+                title: VolumeTitle,
+                key: 'serviceVolume',
+                dataIndex: ['toPayDetails', 'volume'],
+                width: '10%',
+                render: hideTextRender,
+            },
+            units: {
+                title: UnitsTitle,
+                key: 'serviceMeasure',
+                dataIndex: ['toPayDetails', 'measure'],
+                width: '10%',
+                render: hideTextRender,
+            },
+            tariff: {
+                title: TariffTitle,
+                key: 'serviceTariff',
+                dataIndex: ['toPayDetails', 'tariff'],
+                width: '10%',
+                align: moneyAlign,
+                render: moneyRender,
+            },
+            privileges: {
+                title: PrivilegesTitle,
+                key: 'servicePrivileges',
+                dataIndex: ['toPayDetails', 'privilege'],
+                width: '10%',
+                align: moneyAlign,
+                render: moneyRender,
+            },
+            recalculation: {
+                title: RecalculationTitle,
+                key: 'serviceRecalculation',
+                dataIndex: ['toPayDetails', 'recalculation'],
+                width: '10%',
+                align: moneyAlign,
+                render: moneyRender,
+            },
+            penalty: {
+                title: PenaltyTitle,
+                key: 'servicePenalty',
+                dataIndex: ['toPayDetails', 'penalty'],
+                width: '10%',
                 align: moneyAlign,
                 render: moneyRender,
             },
         }
 
         return detailed
-            ? [columns.name, columns.toPay]
+            ? [
+                columns.name,
+                columns.volume,
+                columns.units,
+                columns.tariff,
+                columns.privileges,
+                columns.recalculation,
+                columns.penalty,
+                columns.charge,
+                columns.toPay,
+            ]
             : [columns.name, columns.toPay]
-    }, [ToPayTitle, ServiceTitle, detailed, moneyRender, moneyAlign])
+    }, [
+        ToPayTitle,
+        UnitsTitle,
+        ChargeTitle,
+        VolumeTitle,
+        ServiceTitle,
+        RecalculationTitle,
+        PenaltyTitle,
+        PrivilegesTitle,
+        TariffTitle,
+        detailed,
+        moneyRender,
+        moneyAlign,
+    ])
 }
