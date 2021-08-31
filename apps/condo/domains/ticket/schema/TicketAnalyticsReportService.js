@@ -5,6 +5,8 @@
 const { GQLCustomSchema, getByCondition } = require('@core/keystone/schema')
 const access = require('@condo/domains/ticket/access/TicketAnalyticsReportService')
 const moment = require('moment')
+const { sortStatusesByType, loadModelsByChunks } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
+const { TicketGqlToKnexAdapter } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
 const { sortStatusesByType, TicketGqlToKnexAdapter, aggregateData } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
 const { DATE_DISPLAY_FORMAT } = require('@condo/domains/ticket/constants/common')
 const { Property: PropertyServerUtils } = require('@condo/domains/property/utils/serverSchema')
@@ -17,7 +19,9 @@ const propertySingleDataMapper = require('@condo/domains/ticket/utils/serverSche
 const dayGroupDataMapper = require('@condo/domains/ticket/utils/serverSchema/dayGroupDataMapper')
 
 const createPropertyRange = async (context, organizationWhereInput) => {
-    const properties = await PropertyServerUtils.getAll(context, { organization:  organizationWhereInput  })
+    const properties = await loadModelsByChunks(
+        { context, model: PropertyServerUtils, where: { organization: organizationWhereInput } }
+    )
     return properties.map( property => ({ label: property.address, value: property.id }))
 }
 
