@@ -3,7 +3,8 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
-
+const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
+const compact = require('lodash/compact')
 const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 const { Ticket: TicketGQL } = require('@condo/domains/ticket/gql')
 const { AnaliticsTicket: AnaliticsTicketGQL } = require('@condo/domains/ticket/gql')
@@ -38,6 +39,62 @@ const ResidentTicket = generateServerUtils(ResidentTicketGQL)
 
 /* AUTOGENERATE MARKER <CONST> */
 
+
+const loadTicketsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
+    const ticketStatusLoader = new GqlWithKnexLoadList({
+        listKey: 'TicketStatus',
+        fields: 'id type',
+    })
+    const statuses = await ticketStatusLoader.load()
+    const statusIndexes = Object.fromEntries(statuses.map(status => ([status.type, status.id ])))
+    const ticketsLoader = new GqlWithKnexLoadList({
+        listKey: 'Ticket',
+        fields: 'id number unitName sectionName floorName clientName clientPhone isEmergency isPaid details createdAt updatedAt',
+        singleRelations: [
+            ['User', 'createdBy', 'name'],
+            ['User', 'operator', 'name'],
+            ['User', 'executor', 'name'],
+            ['User', 'assignee', 'name'],
+            ['TicketPlaceClassifier', 'placeClassifier', 'name'],
+            ['TicketCategoryClassifier', 'categoryClassifier', 'name'],
+            ['TicketProblemClassifier', 'problemClassifier', 'name'],
+            ['Organization', 'organization', 'name'],
+            ['Property', 'property', 'address'],
+            ['TicketStatus', 'status', 'type'],
+        ],
+        multipleRelations: [
+            [
+                (idx, knex) => knex.raw(`ARRAY_AGG(mr${idx}.content ORDER BY mr${idx}."createdAt" ASC) as "TicketComment"`),
+                idx => [`TicketComment as mr${idx}`, `mr${idx}.ticket`, 'mainModel.id'],
+            ],
+            [
+                (idx, knex) => knex.raw(`MAX(mr${idx}."createdAt") as "startedAt"`),
+                idx => [`TicketChange as mr${idx}`, function () {
+                    this.on(`mr${idx}.ticket`, 'mainModel.id').onIn(`mr${idx}.statusIdTo`, [statusIndexes.processing])
+                }],
+            ],
+            [
+                (idx, knex) => knex.raw(`MAX(mr${idx}."createdAt") as "completedAt"`),
+                idx => [`TicketChange as mr${idx}`, function () {
+                    this.on(`mr${idx}.ticket`, 'mainModel.id').onIn(`mr${idx}.statusIdTo`, [statusIndexes.canceled, statusIndexes.completed])
+                }],
+            ],
+        ],
+        sortBy,
+        where,
+    })
+    const tickets = await ticketsLoader.load()
+    tickets.forEach(ticket => {
+        // if task has assigner then it was started on creation
+        if (ticket.assignee && !ticket.startedAt && ticket.status !== 'new_or_reopened'){
+            ticket.startedAt = ticket.createdAt
+        }
+        ticket.TicketComment = compact(ticket.TicketComment)
+    })
+    return tickets
+}
+
+
 module.exports = {
     Ticket,
     AnaliticsTicket,
@@ -52,5 +109,6 @@ module.exports = {
     TicketClassifierRule,
     ResidentTicket,
     TicketSource,
+    loadTicketsForExcelExport,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
