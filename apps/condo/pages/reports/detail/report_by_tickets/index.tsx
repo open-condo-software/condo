@@ -466,7 +466,6 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                     table: (viewMode, analyticsData, restOptions) => {
                         const groupBy = ['status', 'property'] as TicketAnalyticsGroupBy[]
                         const data = groupsCache.current !== null ? getAggregatedData(groupsCache.current, groupBy) : {}
-                        // const addressList = [...new Set(Object.values(data).flatMap(e => Object.keys(e)))]
                         const { translations, filters } = restOptions
                         const dataSource = []
                         const tableColumns: TableColumnsType = [
@@ -475,7 +474,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         ]
 
                         const restTableColumns = {}
-                        const addressList = get(filters, 'addresses')
+                        const addressList = get(filters, 'addresses', [])
                         const aggregateSummary = addressList !== undefined && addressList.length === 0
                         if (aggregateSummary) {
                             const totalCount = Object.values(data)
@@ -496,14 +495,25 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                 ...restTableColumns,
                             })
                         } else {
-                            // TODO(sitozzz): add percent counting
+                            const totalCounts = {}
+                            Object.values(data).forEach((dataObj) => {
+                                Object.entries(dataObj).forEach(([propertyAddress, count]) => {
+                                    if (get(totalCounts, propertyAddress, false)) {
+                                        totalCounts[propertyAddress] += count
+                                    } else {
+                                        totalCounts[propertyAddress] = count
+                                    }
+                                })
+                            })
                             addressList.forEach((address, key) => {
                                 const tableRow = { key, address }
                                 Object.entries(data).forEach(rowEntry => {
                                     const [ticketType, dataObj] = rowEntry
                                     const counts = Object.entries(dataObj)
                                         .filter(obj => obj[0] === address).map(e => e[1]) as number[]
-                                    tableRow[ticketType] = counts.reduce((a, b) => a + b, 0)
+                                    const totalPropertyCount = counts.reduce((a, b) => a + b, 0)
+                                    tableRow[ticketType] = (totalPropertyCount / totalCounts[address] * 100)
+                                        .toFixed(2) + ' %'
                                 })
                                 dataSource.push(tableRow)
                             })
