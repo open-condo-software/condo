@@ -19,10 +19,7 @@ const PageFieldRow: React.FC<IPageFieldRowProps> = (props) => {
                 <Typography.Text style={{ fontSize: bodyCopy }}>{title}</Typography.Text>
             </Col>
             <Col span={24 - labelSpan - 1} push={1} style={{ fontSize: bodyCopy }}>
-                <Typography.Text
-                    type={highlight ? 'success' : null}
-                    style={{ wordWrap: 'break-word' }}
-                >
+                <Typography.Text type={highlight ? 'success' : null}>
                     {children}
                 </Typography.Text>
             </Col>
