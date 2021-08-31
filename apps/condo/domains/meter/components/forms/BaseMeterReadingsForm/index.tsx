@@ -16,6 +16,7 @@ import { IOrganizationUIState } from '@condo/domains/organization/utils/clientSc
 import { MetersGroup } from '../../MetersGroup'
 import { MeterResource } from '../../../utils/clientSchema'
 import { SnowflakeIcon } from '@condo/domains/common/components/icons/SnowflakeIcon'
+import { Loader } from '../../../../common/components/Loader'
 
 export const LAYOUT = {
     labelCol: { span: 8 },
@@ -154,9 +155,7 @@ export const BaseMeterForm: React.FC<ITicketFormProps> = (props) => {
         selectedUnitNameRef.current = selectedUnitName
     }, [selectedUnitName])
 
-    const { objs: resources } = MeterResource.useObjects({})
-
-    console.log(role)
+    const { objs: resources, loading: resourcesLoading } = MeterResource.useObjects({})
 
     const { createContact, canCreateContact, ContactsEditorComponent } = useContactsEditorHook({
         organization: organization.id,
@@ -250,10 +249,14 @@ export const BaseMeterForm: React.FC<ITicketFormProps> = (props) => {
                                     initialValues={initialValues}
                                     selectedPropertyId={selectedPropertyId}
                                 />
-                                <MetersGroup
-                                    Icon={SnowflakeIcon}
-                                    meterResource={resources.find(resource => resource.id === COLD_WATER_METER_RESOURCE_ID)}
-                                />
+                                {
+                                    !resourcesLoading ? (
+                                        <MetersGroup
+                                            Icon={SnowflakeIcon}
+                                            meterResource={resources.find(resource => resource.id === COLD_WATER_METER_RESOURCE_ID)}
+                                        />
+                                    ) :  <Loader />
+                                }
                             </Row>
                         </Col>
                         {props.children({ handleSave, isLoading, form })}

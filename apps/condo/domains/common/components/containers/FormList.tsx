@@ -253,7 +253,7 @@ const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
 
     let create = null
 
-    if (!action) {
+    if (!action && mutation) {
         [create] = useMutation(mutation) // eslint-disable-line react-hooks/rules-of-hooks
     }
 

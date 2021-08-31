@@ -5,7 +5,7 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { Typography, Row, Col } from 'antd'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
-import { CreateMeterForm } from '@condo/domains/meter/components/forms/CreateMeterForm'
+import { CreateMeterReadingsForm } from '../../domains/meter/components/forms/CreateMeterReadingsForm'
 
 interface ICreateContactPage extends React.FC {
     headerAction?: JSX.Element
@@ -28,7 +28,7 @@ const CreateMeterPage: ICreateContactPage = () => {
                             <Typography.Title level={1} style={{ margin: 0 }}>{PageTitle}</Typography.Title>
                         </Col>
                         <Col span={24}>
-                            <CreateMeterForm/>
+                            <CreateMeterReadingsForm/>
                         </Col>
                     </Row>
                 </PageContent>
