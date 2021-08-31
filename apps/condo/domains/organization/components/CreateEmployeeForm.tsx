@@ -110,7 +110,7 @@ export const CreateEmployeeForm: React.FC = () => {
     useEffect(()=> {
         classifiersLoader.init()
         return () => classifiersLoader.clear()
-    })
+    }, [])
 
     return (
         <FormWithAction
