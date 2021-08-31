@@ -99,6 +99,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
 
     const [expanded, setExpanded] = useState(false)
     const handleRowExpand = () => setExpanded(!expanded)
+    const modalMinWidthStyle = isDetailed ? { minWidth: 1100 } : undefined
 
     return (
         <Modal
@@ -114,7 +115,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
             }}
             footer={null}
             centered
-            style={{ marginTop: 40, minWidth: 1100 }}
+            style={{ ...modalMinWidthStyle, marginTop: 40 }}
         >
             <Table
                 bordered
