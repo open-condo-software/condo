@@ -401,7 +401,7 @@ export const filterToQuery: IFilterToQuery = ({ filter, viewMode, ticketType, ma
     let groupBy = []
     switch (mainGroup) {
         case 'status':
-            groupBy = viewMode === 'line' ? [mainGroup, filter.specification] : [mainGroup, 'property']
+            groupBy = viewMode === 'line' ? [mainGroup, filter.specification] : ['property', mainGroup]
             break
         case 'property':
             groupBy = viewMode === 'bar' ? ['status', mainGroup] : [mainGroup, 'status']

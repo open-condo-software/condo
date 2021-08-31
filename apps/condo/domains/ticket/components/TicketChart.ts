@@ -1,5 +1,6 @@
 import { TableColumnsType, TableProps } from 'antd'
 import BaseChart, { IGetBaseChartConfig, IGetBaseTableConfig } from '@condo/domains/common/components/BaseChart'
+import { TicketGroupedCounter } from '../../../schema'
 export type TicketSelectTypes = 'all' | 'default' | 'paid' | 'emergency'
 export type ViewModeTypes = 'bar' | 'line' | 'pie'
 
@@ -20,8 +21,8 @@ type ChartConfigResult = {
 
 type PieChartConfigResult = Pick<ChartConfigResult, 'series'> //& { dataset: { source: any[] } }
 
-interface IGetChartConfig extends IGetBaseChartConfig<ViewModeTypes, AnalyticsDataType, ChartConfigResult>{
-    (viewMode: ViewModeTypes, data: AnalyticsDataType): {
+interface IGetChartConfig extends IGetBaseChartConfig<ViewModeTypes, TicketGroupedCounter[], ChartConfigResult>{
+    (viewMode: ViewModeTypes, data: TicketGroupedCounter[]): {
         legend,
         series,
         axisData: {
@@ -35,8 +36,8 @@ interface IGetChartConfig extends IGetBaseChartConfig<ViewModeTypes, AnalyticsDa
     }
 }
 
-interface IGetPieChartConfig extends IGetBaseChartConfig<ViewModeTypes, AnalyticsDataType, PieChartConfigResult> {
-    (viewMode: ViewModeTypes, data: AnalyticsDataType): {
+interface IGetPieChartConfig extends IGetBaseChartConfig<ViewModeTypes, TicketGroupedCounter[], PieChartConfigResult> {
+    (viewMode: ViewModeTypes, data: TicketGroupedCounter[]): {
         series
     }
 }
@@ -46,12 +47,12 @@ type RestTableOptionsType = {
     filters?: unknown;
 }
 type TableConfigResult = {
-    dataSource: TableProps<AnalyticsDataType>['dataSource']
+    dataSource: TableProps<TicketGroupedCounter[]>['dataSource']
     tableColumns: TableColumnsType
 }
 
-interface IGetTableConfig extends IGetBaseTableConfig<ViewModeTypes, AnalyticsDataType, RestTableOptionsType, TableConfigResult>{
-    (viewMode, data: AnalyticsDataType, restOptions): {
+interface IGetTableConfig extends IGetBaseTableConfig<ViewModeTypes, TicketGroupedCounter[], RestTableOptionsType, TableConfigResult>{
+    (viewMode, data: TicketGroupedCounter[], restOptions): {
         dataSource, tableColumns
     }
 }

@@ -46,7 +46,7 @@ import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderA
 import TicketChartView from '@condo/domains/ticket/components/analytics/TicketChartView'
 import TicketListView from '@condo/domains/ticket/components/analytics/TicketListView'
 import { DATE_DISPLAY_FORMAT, TICKET_REPORT_DAY_GROUP_STEPS } from '@condo/domains/ticket/constants/common'
-import { TicketAnalyticsGroupBy, TicketAnalyticsReportOutput } from '../../../../schema'
+import { TicketAnalyticsGroupBy, TicketAnalyticsReportOutput, TicketGroupedCounter } from '../../../../schema'
 
 dayjs.extend(quarterOfYear)
 
@@ -169,7 +169,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
         setAddressList(labelsList as string[])
         addressListRef.current = [...searchObjectsList.map(({ key: id, title: value }) => ({ id, value }))]
     }, [addressList])
-    const isDetailDisabled = groupTicketsBy === 'property'
+    const isDetailDisabled = groupTicketsBy === 'property' || viewMode === 'bar'
     return (
         <Form>
             <Row gutter={[44, 12]}>
@@ -251,11 +251,10 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
     const filtersRef = useRef(null)
-    const groupsCache = useRef<null | TicketAnalyticsReportOutput['groups']>(null)
     const mapperInstanceRef = useRef(null)
     const [groupTicketsBy, setGroupTicketsBy] = useState<GroupTicketsByTypes>('status')
     const [viewMode, setViewMode] = useState<ViewModeTypes>('line')
-    const [analyticsData, setAnalyticsData] = useState(null)
+    const [analyticsData, setAnalyticsData] = useState<null | TicketGroupedCounter[]>(null)
     const [loading, setLoading] = useState<boolean>(false)
     const [excelDownloadLink, setExcelDownloadLink] = useState<null | string>(null)
 
@@ -273,11 +272,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
         fetchPolicy: 'network-only',
         onCompleted: response => {
             const { result: { groups } } = response
-            const { groupBy } = filterToQuery(
-                { filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy }
-            )
-            groupsCache.current = groups
-            setAnalyticsData(getAggregatedData(groups, groupBy))
+            setAnalyticsData(groups)
             setLoading(false)
         },
     })
@@ -301,7 +296,8 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
             )
             mapperInstanceRef.current = new TicketChart({
                 line: {
-                    chart: (viewMode, data) => {
+                    chart: (viewMode, ticketGroupedCounter) => {
+                        const data = getAggregatedData(ticketGroupedCounter, groupBy)
                         const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
                         const legend = Object.keys(data)
                         const series = []
@@ -322,7 +318,8 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         const tooltip = { trigger: 'axis', axisPointer: { type: 'line' } }
                         return { series, legend, axisData, tooltip }
                     },
-                    table: (viewMode, data, restOptions) => {
+                    table: (viewMode, ticketGroupedCounter, restOptions) => {
+                        const data = getAggregatedData(ticketGroupedCounter, groupBy)
                         const dataSource = []
                         const { translations, filters } = restOptions
                         const tableColumns: TableColumnsType = [
@@ -351,7 +348,8 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                     },
                 },
                 bar: {
-                    chart: (viewMode, data) => {
+                    chart: (viewMode, ticketGroupedCounter) => {
+                        const data = getAggregatedData(ticketGroupedCounter, groupBy)
                         const series = []
                         const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
                         const legend = Object.keys(data)
@@ -372,7 +370,8 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         const tooltip = { trigger: 'item', axisPointer: { type: 'line' } }
                         return { series, legend, axisData, tooltip }
                     },
-                    table: (viewMode, data, restOptions) => {
+                    table: (viewMode, ticketGroupedCounter, restOptions) => {
+                        const data = getAggregatedData(ticketGroupedCounter, groupTicketsBy === 'status' ? groupBy.reverse() : groupBy)
                         const { translations, filters } = restOptions
                         const dataSource = []
                         const tableColumns: TableColumnsType = [
@@ -410,7 +409,8 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
 
                 },
                 pie: {
-                    chart: (viewMode, data) => {
+                    chart: (viewMode, ticketGroupedCounter) => {
+                        const data = getAggregatedData(ticketGroupedCounter, groupBy)
                         const series = []
                         Object.entries(data).forEach(([label, groupObject]) => {
                             const chartData = Object.entries(groupObject)
@@ -466,10 +466,8 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         })
                         return { series }
                     },
-                    // FIXME(sitozzz): pass TicketGroupedCounter[] & aggregate here
-                    table: (viewMode, analyticsData, restOptions) => {
-                        const groupBy = ['status', 'property'] as TicketAnalyticsGroupBy[]
-                        const data = groupsCache.current !== null ? getAggregatedData(groupsCache.current, groupBy) : {}
+                    table: (viewMode, ticketGroupedCounter, restOptions) => {
+                        const data = getAggregatedData(ticketGroupedCounter, groupBy.reverse())
                         const { translations, filters } = restOptions
                         const dataSource = []
                         const tableColumns: TableColumnsType = [
