@@ -21,6 +21,7 @@ import React from 'react'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { map } from 'lodash'
 
 const ReInviteActionAlert = ({ employee }) => {
     const intl = useIntl()
@@ -57,6 +58,7 @@ export const EmployeePageContent = ({
     const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
     const RoleMessage = intl.formatMessage({ id: 'employee.Role' })
+    const SpecializationsMessage = intl.formatMessage({ id: 'employee.Specializations' })
     const BlockUserMessage = intl.formatMessage({ id: 'employee.BlockUser' })
     const ConfirmDeleteButtonLabel = intl.formatMessage({ id: 'Delete' })
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'employee.ConfirmDeleteTitle' })
@@ -150,6 +152,24 @@ export const EmployeePageContent = ({
                                                             render={
                                                                 (roleName) => (
                                                                     <Tag color='default'>{roleName}</Tag>
+                                                                )
+                                                            }
+                                                        />
+                                                    </Col>
+
+                                                    <Col span={3}>
+                                                        <Typography.Text type='secondary'>
+                                                            {SpecializationsMessage}
+                                                        </Typography.Text>
+                                                    </Col>
+                                                    <Col span={19} push={2}>
+                                                        <NotDefinedField
+                                                            value={get(employee, 'specializations')}
+                                                            render={
+                                                                (specializations) => (
+                                                                    <Typography.Text>
+                                                                        {map(specializations, 'name').join(', ')}
+                                                                    </Typography.Text>
                                                                 )
                                                             }
                                                         />

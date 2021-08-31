@@ -14,7 +14,7 @@ import {
     QueryAllOrganizationEmployeesArgs,
 } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'isBlocked', 'updatedBy', 'organization', 'user', 'inviteCode', 'name', 'email', 'phone', 'role', 'position', 'isAccepted', 'isRejected']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'isBlocked', 'updatedBy', 'organization', 'user', 'inviteCode', 'name', 'email', 'phone', 'role', 'position', 'isAccepted', 'isRejected', 'specializations']
 const RELATIONS = ['organization', 'user', 'role']
 
 export interface IOrganizationEmployeeUIState extends OrganizationEmployee {
