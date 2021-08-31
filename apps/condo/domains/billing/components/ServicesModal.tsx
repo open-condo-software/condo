@@ -129,6 +129,13 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
                 onExpand={handleRowExpand}
                 expandedRowKeys={expanded ? [ExpandMessage] : []}
                 rowKey={(record) => record.name}
+                onRow={(record) => ({
+                    onClick: () => {
+                        if (record.name === ExpandMessage) {
+                            setExpanded(!expanded)
+                        }
+                    },
+                })}
                 summary={(pageData) => {
                     let totalToPay = 0
                     pageData.forEach(({ toPay }) => {
