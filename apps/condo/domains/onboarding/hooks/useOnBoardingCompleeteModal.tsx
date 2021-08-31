@@ -8,6 +8,7 @@ import { Poster } from '@condo/domains/common/components/Poster'
 
 const PosterWrapper = styled.div`
   height: 320px;
+  border-radius: 4px;
 `
 
 interface IApplySubscriptionModal {
