@@ -582,5 +582,7 @@
   "DebtOverpayment": "Debt/Overpayment",
   "PaymentPenalty": "Penalty",
   "Charged": "Charged",
-  "NoReceiptsLoaded": "There's no data in our system, or it's currently loading"
+  "NoReceiptsLoaded": "There's no data in our system, or it's currently loading",
+  "BillingServiceName": "Service",
+  "MoreReceiptsWithZeroCharge": "{count, plural, one {# service} other {# services}} with zero charges"
 }

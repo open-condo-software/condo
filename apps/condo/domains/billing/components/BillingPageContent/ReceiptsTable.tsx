@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback, useState } from 'react'
 import { IContextProps } from './index'
 import {
     QueryMeta,
@@ -17,8 +17,10 @@ import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { usePeriodSelector } from '@condo/domains/billing/hooks/usePeriodSelector'
 import { Row, Col, Space, Input, Select, Typography } from 'antd'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { useReceiptTableColumns } from '../../hooks/useReceiptTableColumns'
-import { getMoneyFilter } from '../../utils/helpers'
+import { useReceiptTableColumns } from '@condo/domains/billing/hooks/useReceiptTableColumns'
+import { getMoneyFilter } from '@condo/domains/billing/utils/helpers'
+import { ServicesModal } from '../ServicesModal'
+import { IBillingReceiptUIState } from '@condo/domains/billing/utils/clientSchema/BillingReceipt'
 
 const addressFilter = getStringContainsFilter(['property', 'address'])
 const accountFilter = getStringContainsFilter(['account', 'number'])
@@ -67,7 +69,30 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const [period, options, handlePeriodChange] = usePeriodSelector(contextPeriod)
 
     const hasToPayDetails = get(context, ['integration', 'dataFormat', 'hasToPayDetail'], false)
-    const columns = useReceiptTableColumns(hasToPayDetails, currencySign, separator)
+    const hasServices = get(context, ['integration', 'dataFormat', 'hasServices'], false)
+    const hasServicesDetail = get(context, ['integration', 'dataFormat', 'hasServicesDetail'], false)
+    const mainTableColumns = useReceiptTableColumns(hasToPayDetails, currencySign, separator)
+
+    const [modalIsVisible, setModalIsVisible] = useState(false)
+    const [detailedReceipt, setDetailedReceipt] = useState<IBillingReceiptUIState>(null)
+    const showServiceModal = (receipt: IBillingReceiptUIState) => {
+        setModalIsVisible(true)
+        setDetailedReceipt(receipt || null)
+        return
+    }
+    const hideServiceModal = () => {
+        setModalIsVisible(false)
+    }
+
+    const onRow = useCallback((record: IBillingReceiptUIState) => {
+        return {
+            onClick: () => {
+                if (hasServices) {
+                    showServiceModal(record)
+                }
+            },
+        }
+    }, [hasServices])
 
     if (error) {
         return (
@@ -80,43 +105,55 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     }
 
     return (
-        <Row gutter={[0, 40]}>
-            <Col span={24}>
-                <Space size={40} style={{ width: '100%', flexWrap: 'wrap' }}>
-                    <Input
-                        style={{ minWidth: 280 }}
-                        placeholder={SearchPlaceholder}
-                        onChange={(e) => {handleSearchChange(e.target.value)}}
-                        value={search}
+        <>
+            <Row gutter={[0, 40]}>
+                <Col span={24}>
+                    <Space size={40} style={{ width: '100%', flexWrap: 'wrap' }}>
+                        <Input
+                            style={{ minWidth: 280 }}
+                            placeholder={SearchPlaceholder}
+                            onChange={(e) => {handleSearchChange(e.target.value)}}
+                            value={search}
+                        />
+                        {options.length > 0 && (
+                            <Select
+                                style={{ minWidth: 220 }}
+                                defaultValue={contextPeriod}
+                                value={period}
+                                onChange={(newValue) => handlePeriodChange(newValue)}
+                            >
+                                {
+                                    options.map((option, index) => {
+                                        return (
+                                            <Select.Option value={option.period} key={index}>
+                                                {`${DataForTitle} ${option.title}`}
+                                            </Select.Option>
+                                        )
+                                    })
+                                }
+                            </Select>
+                        )}
+                    </Space>
+                </Col>
+                <Col span={24}>
+                    <Table
+                        loading={loading}
+                        totalRows={total}
+                        dataSource={receipts}
+                        columns={mainTableColumns}
+                        onRow={onRow}
                     />
-                    {options.length > 0 && (
-                        <Select
-                            style={{ minWidth: 220 }}
-                            defaultValue={contextPeriod}
-                            value={period}
-                            onChange={(newValue) => handlePeriodChange(newValue)}
-                        >
-                            {
-                                options.map((option, index) => {
-                                    return (
-                                        <Select.Option value={option.period} key={index}>
-                                            {`${DataForTitle} ${option.title}`}
-                                        </Select.Option>
-                                    )
-                                })
-                            }
-                        </Select>
-                    )}
-                </Space>
-            </Col>
-            <Col span={24}>
-                <Table
-                    loading={loading}
-                    totalRows={total}
-                    dataSource={receipts}
-                    columns={columns}
-                />
-            </Col>
-        </Row>
+                </Col>
+            </Row>
+            <ServicesModal
+                receipt={detailedReceipt}
+                visible={modalIsVisible}
+                onOk={hideServiceModal}
+                onCancel={hideServiceModal}
+                isDetailed={hasServicesDetail}
+                currencyMark={currencySign}
+                currencySeparator={separator}
+            />
+        </>
     )
 }
