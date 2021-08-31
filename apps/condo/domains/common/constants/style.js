@@ -30,6 +30,7 @@ const brightRed = '#F5222D'
 const whiteTranslucent = 'rgba(255, 255, 255, 0.9)'
 const indigo = '#5473C3'
 const turquoiseBlue = '#6BEAC7'
+const malibu = '#5CB2F8'
 
 const CHART_COLOR_SET = [blue[5], green[5], red[4], gold[5], volcano[5], purple[5],
     lime[7], sberGrey[7], magenta[5], blue[4], gold[6], cyan[6],
@@ -68,6 +69,7 @@ const colors = {
     orange,
     indigo,
     turquoiseBlue,
+    malibu,
 }
 
 const shadows = {

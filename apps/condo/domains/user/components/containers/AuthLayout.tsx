@@ -62,7 +62,7 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
                                 <Poster
                                     src={'/authPoster.png'}
                                     placeholderSrc={'/authPosterPlaceholder.png'}
-                                    placeholderColor={'#5CB2F8'}
+                                    placeholderColor={colors.malibu}
                                 />
                             </PosterWrapper>
                         </Col>
