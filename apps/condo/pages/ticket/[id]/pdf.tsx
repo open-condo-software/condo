@@ -19,8 +19,6 @@ import { PageContent } from '@condo/domains/common/components/containers/BaseLay
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
-const { bodyCopy } = fontSizes
-
 interface ITicketDescriptionFieldProps {
     title?: string
     value?: React.ReactNode
@@ -33,7 +31,7 @@ const TicketDescriptionField: React.FC<ITicketDescriptionFieldProps> = ({ title,
     return (
         <Space direction={'vertical'} size={8}>
             <Typography.Text type={'secondary'}>{title}</Typography.Text>
-            <Typography.Text style={{ fontSize: bodyCopy }}>{value || NotDefinedMessage}</Typography.Text>
+            <Typography.Text style={{ fontSize: fontSizes.content }}>{value || NotDefinedMessage}</Typography.Text>
         </Space>
     )
 }
@@ -58,7 +56,7 @@ const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = ({ title, user 
     return (
         <Space direction={'vertical'} size={8}>
             <Typography.Text type={'secondary'}>{title}</Typography.Text>
-            <Space size={4} direction={'vertical'} style={{ fontSize: bodyCopy }}>
+            <Space size={4} direction={'vertical'} style={{ fontSize: fontSizes.content }}>
                 {name
                     ? <Typography.Text >{name}</Typography.Text>
                     : NotDefinedMessage

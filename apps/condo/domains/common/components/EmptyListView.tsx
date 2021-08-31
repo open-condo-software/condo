@@ -5,8 +5,6 @@ import { EmptyIcon } from './EmptyIcon'
 import React from 'react'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
-const { bodyCopy } = fontSizes
-
 export interface IEmptyListProps {
     label: string,
     message: string,
@@ -50,7 +48,7 @@ export const EmptyListView: React.FC<IEmptyListProps> = ({ label, message, creat
             <Typography.Title level={3}>
                 {label}
             </Typography.Title>
-            <Typography.Text style={{ fontSize: bodyCopy }}>
+            <Typography.Text style={{ fontSize: fontSizes.content }}>
                 {message}
             </Typography.Text>
             <Button

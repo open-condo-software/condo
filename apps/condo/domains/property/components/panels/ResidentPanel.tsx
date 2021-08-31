@@ -5,8 +5,6 @@ import React from 'react'
 import { Button } from '@condo/domains/common/components/Button'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
-const { bodyCopy } = fontSizes
-
 const EmptyResidentBlock: React.FC = () => {
     const intl = useIntl()
     const EmptyResidentsTitle = intl.formatMessage({ id: 'pages.condo.property.form.EmptyResidents.header' })
@@ -19,7 +17,7 @@ const EmptyResidentBlock: React.FC = () => {
             <Typography.Title level={3}>
                 {EmptyResidentsTitle}
             </Typography.Title>
-            <Typography.Text style={{ fontSize: bodyCopy, maxWidth: '350px', display: 'flex' }}>
+            <Typography.Text style={{ fontSize: fontSizes.content, maxWidth: '350px', display: 'flex' }}>
                 {EmptyResidentsMessage}
             </Typography.Text>
             <Space style={{ marginTop: '24px' }}>

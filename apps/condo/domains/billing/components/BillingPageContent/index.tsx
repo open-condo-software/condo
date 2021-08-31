@@ -12,8 +12,6 @@ import { IBillingIntegrationOrganizationContextUIState } from '../../utils/clien
 import { MainContent } from './MainContent'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
-const { bodyCopy } = fontSizes
-
 const SETTINGS_ROUTE = '/settings'
 
 interface IBillingPageContentProps {
@@ -87,7 +85,7 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
                 <Typography.Title level={3}>
                     {ConnectionInProgressMessage}
                 </Typography.Title>
-                <Typography.Text style={{ fontSize: bodyCopy }}>
+                <Typography.Text style={{ fontSize: fontSizes.content }}>
                     {WillBeReadySoonMessage}
                 </Typography.Text>
             </BasicEmptyListView>
@@ -100,7 +98,7 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
                 <Typography.Title level={3}>
                     {ErrorOccurredMessage}
                 </Typography.Title>
-                <Typography.Text style={{ fontSize: bodyCopy }}>
+                <Typography.Text style={{ fontSize: fontSizes.content }}>
                     {ConnectSupportMessage}
                 </Typography.Text>
             </BasicEmptyListView>

@@ -31,8 +31,6 @@ import { SortTicketsBy } from '../../schema'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
-const { bodyCopy } = fontSizes
-
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
     requiredAccess?: React.FC
@@ -167,7 +165,7 @@ export const TicketsPageContent = ({
                                     <Checkbox
                                         onChange={handleEmergencyChange}
                                         checked={emergency}
-                                        style={{ paddingLeft: '0px', fontSize: bodyCopy }}
+                                        style={{ paddingLeft: '0px', fontSize: fontSizes.content }}
                                     >{EmergencyLabel}</Checkbox>
                                 </Col>
                                 <Col span={6} push={1}>

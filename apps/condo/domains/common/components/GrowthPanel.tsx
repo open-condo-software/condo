@@ -4,11 +4,9 @@ import { ArrowIconDown, ArrowIconUp } from './icons/ArrowIcons'
 import { css, jsx } from '@emotion/core'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
-const { bodyCopy } = fontSizes
-
 const growthPanelCss = (isPositive) => css`
   display: flex;
-  font-size: ${bodyCopy};
+  font-size: ${fontSizes.content};
   font-weight: 600;
   align-items: center;
   color: ${isPositive ? colors.green[5] : colors.red[5]};

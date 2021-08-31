@@ -11,8 +11,6 @@ import { MAX_DESCRIPTION_DISPLAY_LENGTH } from '@condo/domains/ticket/constants/
 import { FormattedMessage } from 'react-intl'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
-const { bodyCopy } = fontSizes
-
 interface ITicketChangeProps {
     ticketChange: TicketChangeType
 }
@@ -34,11 +32,11 @@ export const TicketChange: React.FC<ITicketChangeProps> = ({ ticketChange }) => 
     return (
         <Row gutter={[12, 12]}>
             <Col span={6}>
-                <Typography.Text style={{ fontSize: bodyCopy }}>{formatDate(intl, ticketChange.createdAt)}</Typography.Text>
+                <Typography.Text style={{ fontSize: fontSizes.content }}>{formatDate(intl, ticketChange.createdAt)}</Typography.Text>
             </Col>
             <Col span={18}>
                 {changedFieldMessages.map(({ field, message }) => (
-                    <Typography.Text key={field} style={{ fontSize: bodyCopy }}>
+                    <Typography.Text key={field} style={{ fontSize: fontSizes.content }}>
                         <Diff className={field}>
                             {message}
                         </Diff>
