@@ -59,7 +59,11 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
                     <Row align={'stretch'}>
                         <Col lg={11} md={24}>
                             <PosterWrapper>
-                                <Poster src={'/auth_poster.png'}/>
+                                <Poster
+                                    src={'/authPoster.png'}
+                                    placeholderSrc={'/authPosterPlaceholder.png'}
+                                    placeholderColor={'#5CB2F8'}
+                                />
                             </PosterWrapper>
                         </Col>
                         <Col lg={13} md={24}>
