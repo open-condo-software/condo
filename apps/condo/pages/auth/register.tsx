@@ -63,7 +63,7 @@ const RegisterPage: AuthPage = () => {
                 <Typography.Title level={3}>
                     {PhoneConfirmTokenErrorLabel}
                 </Typography.Title>
-                <Typography.Text style={{ fontSize: bodyCopy }}>
+                <Typography.Text style={{ fontSize: fontSizes.content }}>
                     {PhoneConfirmTokenErrorMessage}
                 </Typography.Text>
                 <Button

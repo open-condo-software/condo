@@ -24,6 +24,7 @@ const FORM_LAYOUT = {
     labelCol: { span: 10 },
     wrapperCol: { span: 14 },
 }
+const INPUT_STYLE = { width: '20em' }
 
 const ChangePasswordPage: AuthPage = () => {
     const [form] = Form.useForm()
@@ -119,7 +120,7 @@ const ChangePasswordPage: AuthPage = () => {
         return (
             <BasicEmptyListView>
                 <Typography.Title level={3}>{ChangePasswordTokenErrorLabel}</Typography.Title>
-                <Typography.Text style={{ fontSize: bodyCopy }}>{ChangePasswordTokenErrorMessage}</Typography.Text>
+                <Typography.Text style={{ fontSize: fontSizes.content }}>{ChangePasswordTokenErrorMessage}</Typography.Text>
                 <Button
                     type='sberPrimary'
                     style={{ marginTop: '16px' }}

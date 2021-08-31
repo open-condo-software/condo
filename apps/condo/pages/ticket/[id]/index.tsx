@@ -36,9 +36,6 @@ import { ShareTicketModal } from '@condo/domains/ticket/components/ShareTicketMo
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
-const { bodyCopy } = fontSizes
-
-
 // TODO(Dimitreee):move to global defs
 interface IUser {
     name?: string
@@ -123,7 +120,7 @@ export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) 
 }
 
 const TicketTag = styled(Tag)`
-  font-size: ${bodyCopy};
+  font-size: ${fontSizes.content};
   line-height: 24px;
 `
 

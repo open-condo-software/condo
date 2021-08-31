@@ -9,8 +9,6 @@ import { TicketChange as TicketChangeType } from '../../../../schema'
 import { FormattedMessage } from 'react-intl'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
-const { bodyCopy } = fontSizes
-
 interface ITicketChangesProps {
     items: TicketChangeType[],
     total: number,
@@ -48,7 +46,7 @@ export const TicketChanges: React.FC<ITicketChangesProps> = ({ items, total, loa
                                 setDisplayCount(displayCount + CHANGES_PER_CHUNK)
                             }}
                             style={{
-                                fontSize: bodyCopy,
+                                fontSize: fontSizes.content,
                                 padding: 0,
                                 color: green[6],
                             }}

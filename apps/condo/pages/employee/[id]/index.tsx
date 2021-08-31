@@ -22,9 +22,6 @@ import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderA
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
-const { bodyCopy } = fontSizes
-
-
 const ReInviteActionAlert = ({ employee }) => {
     const intl = useIntl()
     const EmployeeDidntEnteredMessage = intl.formatMessage({ id: 'employee.EmployeeDidntEntered' })
@@ -123,7 +120,7 @@ export const EmployeePageContent = ({
                                                             onChange={handleEmployeeBlock}
                                                             defaultChecked={isEmployeeBlocked}
                                                         />
-                                                        <Typography.Text type='danger' style={{ fontSize: bodyCopy }}>
+                                                        <Typography.Text type='danger' style={{ fontSize: fontSizes.content }}>
                                                             {BlockUserMessage}
                                                         </Typography.Text>
                                                     </Space>

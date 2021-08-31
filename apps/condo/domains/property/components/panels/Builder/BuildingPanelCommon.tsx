@@ -11,8 +11,6 @@ import { MapEdit, MapView } from './MapConstructor'
 import { FullscreenFooter } from './Fullscreen'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
-const { bodyCopy } = fontSizes
-
 export const PropertyMapFloor: React.FC = ({ children }) => {
     return (
         <div style={{ display: 'block' }}>
@@ -35,7 +33,7 @@ export const EmptyBuildingBlock: React.FC = () => {
     const EmptyPropertyBuildingDescription = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingDescription' })
     const descriptionStyle = {
         display: 'flex',
-        fontSize: bodyCopy,
+        fontSize: fontSizes.content,
         maxWidth: '350px',
     }
     return (

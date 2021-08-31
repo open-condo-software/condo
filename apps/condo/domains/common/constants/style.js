@@ -73,7 +73,7 @@ const colors = {
 }
 
 const fontSizes = {
-    bodyCopy: '16px',
+    content: '16px',
 }
 
 const shadows = {

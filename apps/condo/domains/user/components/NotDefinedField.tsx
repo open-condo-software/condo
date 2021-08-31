@@ -3,8 +3,6 @@ import React, { ReactElement } from 'react'
 import { useIntl } from '@core/next/intl'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
-const { bodyCopy } = fontSizes
-
 interface INotDefinedFieldProps {
     showMessage?: boolean
     value?: string
@@ -27,5 +25,5 @@ export const NotDefinedField: React.FC<INotDefinedFieldProps> = (props) => {
 
     return render
         ? render(value)
-        : <Typography.Text style={{ fontSize: bodyCopy }}>{value}</Typography.Text>
+        : <Typography.Text style={{ fontSize: fontSizes.content }}>{value}</Typography.Text>
 }

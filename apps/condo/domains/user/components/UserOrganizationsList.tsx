@@ -9,8 +9,6 @@ import { OrganizationEmployee as OrganizationEmployeeType } from '../../../schem
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
-const { bodyCopy } = fontSizes
-
 interface IOrganizationName {
     name: string
     organizationId: string
@@ -30,11 +28,11 @@ const OrganizationName: React.FC<IOrganizationName> = (props) => {
     } = props
 
     if (organizationId === employeeOrganizationId) {
-        return (<Typography.Text style={{ fontSize: bodyCopy, fontWeight: 'bold' }}>{ name }</Typography.Text>)
+        return (<Typography.Text style={{ fontSize: fontSizes.content, fontWeight: 'bold' }}>{ name }</Typography.Text>)
     }
 
     return (
-        <Typography.Text style={{ fontSize: bodyCopy }}>
+        <Typography.Text style={{ fontSize: fontSizes.content }}>
             { name } ({ <Button type={'inlineLink'} onClick={selectOrganization}>{ EnterMessage }</Button> })
         </Typography.Text>
     )

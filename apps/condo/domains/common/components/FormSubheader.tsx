@@ -4,8 +4,6 @@ import { QuestionCircleFilled } from '@ant-design/icons'
 import { grey } from '@ant-design/colors'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
-const { bodyCopy } = fontSizes
-
 interface IFormSubheaderProps {
     title: string,
     hint?: string
@@ -16,7 +14,7 @@ interface IFormSubheaderProps {
  */
 const FormSubheader: React.FC<IFormSubheaderProps> = ({ title, hint }) => {
     return (
-        <Typography.Title level={2} style={{ fontSize: bodyCopy }}>
+        <Typography.Title level={2} style={{ fontSize: fontSizes.content }}>
             {title}
             {hint && (
                 <>

@@ -9,8 +9,6 @@ import TicketChart, { AnalyticsDataType, ViewModeTypes } from '@condo/domains/ti
 import { CHART_COLOR_SET } from '@condo/domains/common/constants/style'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
-const { bodyCopy } = fontSizes
-
 export interface ITicketAnalyticsPageWidgetProps {
     data: null | AnalyticsDataType
     viewMode: ViewModeTypes
@@ -56,7 +54,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
             itemHeight: 7,
             itemGap: 28,
             textStyle: {
-                fontSize: bodyCopy,
+                fontSize: fontSizes.content,
             },
         },
         grid: {
