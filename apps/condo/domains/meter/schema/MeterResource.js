@@ -18,6 +18,12 @@ const MeterResource = new GQLListSchema('MeterResource', {
             isRequired: true,
             template: 'meterResource.*.name',
         },
+
+        measure: {
+            type: LocalizedText,
+            isRequired: true,
+            template: 'meterResource.*.measure',
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {

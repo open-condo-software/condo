@@ -8,7 +8,7 @@ const { generateGqlQueries } = require('@condo/domains/common/utils/codegenerati
 
 const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const METER_RESOURCE_FIELDS = `{ name ${COMMON_FIELDS} }`
+const METER_RESOURCE_FIELDS = `{ name measure ${COMMON_FIELDS} }`
 const MeterResource = generateGqlQueries('MeterResource', METER_RESOURCE_FIELDS)
 
 const METER_READING_SOURCE_FIELDS = `{ type name ${COMMON_FIELDS} }`
