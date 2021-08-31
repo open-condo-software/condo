@@ -74,7 +74,6 @@ export const DeleteButtonWithConfirmModal: React.FC<IDeleteActionButtonWithConfi
                         key={'submit'}
                         type={'sberDanger'}
                         onClick={handleDeleteButtonClick}
-                        style={{ margin: '15px' }}
                     >
                         {okButtonLabel}
                     </Button>,
