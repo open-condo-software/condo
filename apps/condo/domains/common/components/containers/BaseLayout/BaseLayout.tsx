@@ -13,6 +13,7 @@ import { layoutCss, pageContentCss, pageHeaderCss, StyledPageWrapper, subLayoutC
 import { ElementType } from 'react'
 import MenuItem from 'antd/lib/menu/MenuItem'
 import { Header } from './Header'
+import { ITopMenuItemsProps } from './components/TopMenuItems'
 
 interface ILayoutContext {
     isMobile: boolean
@@ -32,6 +33,7 @@ interface IBaseLayoutProps {
     style?: CSSProperties
     className?: string
     menuDataRender?: () => MenuItem[]
+    TopMenuItems?: React.FC<ITopMenuItemsProps>
     logoLocation?: string
     onLogoClick?: () => void
 }
@@ -44,6 +46,7 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
         menuData,
         headerAction,
         onLogoClick = () => Router.push('/'),
+        TopMenuItems,
     } = props
 
     const {
@@ -63,7 +66,7 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
             <Layout className={menuDataClassNames} style={style} css={layoutCss} >
                 <SideMenu {...{ onLogoClick, menuData }}/>
                 <Layout css={subLayoutCss}>
-                    <Header headerAction={headerAction}/>
+                    <Header headerAction={headerAction} TopMenuItems={TopMenuItems} />
                     {children}
                 </Layout>
             </Layout>
