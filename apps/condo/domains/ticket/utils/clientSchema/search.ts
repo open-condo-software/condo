@@ -151,8 +151,6 @@ export function searchEmployee (organizationId) {
         const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, organizationId })
         if (error) console.warn(error)
 
-        console.log(data)
-
         return data.objs.map(({ name, id }) => ({ text: name, value: id }))
     }
 }
