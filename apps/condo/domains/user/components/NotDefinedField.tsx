@@ -3,10 +3,12 @@ import React, { ReactElement } from 'react'
 import { useIntl } from '@core/next/intl'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
+type Value = string | any[]
+
 interface INotDefinedFieldProps {
     showMessage?: boolean
-    value?: string
-    render?: (value: string) => ReactElement
+    value?: Value
+    render?: (value: Value) => ReactElement
 }
 
 export const NotDefinedField: React.FC<INotDefinedFieldProps> = (props) => {
@@ -19,7 +21,7 @@ export const NotDefinedField: React.FC<INotDefinedFieldProps> = (props) => {
     const intl = useIntl()
     const NotDefinedMessage = intl.formatMessage({ id: 'errors.NotDefined' })
 
-    if (!value) {
+    if (!value || Array.isArray(value) && value.length === 0) {
         return showMessage ? NotDefinedMessage : null
     }
 
