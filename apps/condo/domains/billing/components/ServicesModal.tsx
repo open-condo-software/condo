@@ -114,7 +114,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
             }}
             footer={null}
             centered
-            style={{ marginTop: 40 }}
+            style={{ marginTop: 40, minWidth: 1100 }}
         >
             <Table
                 bordered

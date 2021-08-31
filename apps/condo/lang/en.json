@@ -584,5 +584,10 @@
   "Charged": "Charged",
   "NoReceiptsLoaded": "There's no data in our system, or it's currently loading",
   "BillingServiceName": "Service",
-  "MoreReceiptsWithZeroCharge": "{count, plural, one {# service} other {# services}} with zero charges"
+  "MoreReceiptsWithZeroCharge": "{count, plural, one {# service} other {# services}} with zero charges",
+  "Volume": "Volume",
+  "ServicesUnitsShort": "Units",
+  "Tariff": "Tariff",
+  "Privileges": "Privileges",
+  "Recalculation": "Recalculation"
 }
