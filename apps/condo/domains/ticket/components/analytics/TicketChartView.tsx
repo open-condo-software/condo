@@ -5,12 +5,13 @@ import isEmpty from 'lodash/isEmpty'
 import get from 'lodash/get'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import ReactECharts from 'echarts-for-react'
-import TicketChart, { AnalyticsDataType, ViewModeTypes } from '@condo/domains/ticket/components/TicketChart'
+import TicketChart, { ViewModeTypes } from '@condo/domains/ticket/components/TicketChart'
 import { CHART_COLOR_SET } from '@condo/domains/common/constants/style'
+import { TicketGroupedCounter } from '../../../../schema'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
 export interface ITicketAnalyticsPageWidgetProps {
-    data: null | AnalyticsDataType
+    data: null | TicketGroupedCounter[]
     viewMode: ViewModeTypes
     loading?: boolean
     mapperInstance: TicketChart

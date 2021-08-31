@@ -18,7 +18,7 @@ import { DATE_DISPLAY_FORMAT, PDF_REPORT_WIDTH } from '@condo/domains/ticket/con
 import { Logo } from '@condo/domains/common/components/Logo'
 import { colors } from '@condo/domains/common/constants/style'
 import TicketChart from '@condo/domains/ticket/components/TicketChart'
-import { TicketAnalyticsGroupBy } from '../../../../schema'
+import { TicketAnalyticsGroupBy, TicketGroupedCounter } from '../../../../schema'
 
 const PdfView = () => {
     const intl = useIntl()
@@ -35,7 +35,7 @@ const PdfView = () => {
     const groupByRef = useRef<null | TicketAnalyticsGroupBy[]>(null)
     const mapperInstanceRef = useRef(null)
 
-    const [data, setData] = useState(null)
+    const [data, setData] = useState<null | TicketGroupedCounter[]>(null)
     const [loading, setLoading] = useState(true)
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
@@ -53,8 +53,7 @@ const PdfView = () => {
         onCompleted: response => {
             setLoading(false)
             const { result: { groups } } = response
-
-            setData(getAggregatedData(groups, groupByRef.current))
+            setData(groups)
         },
     })
     useEffect(() => {
@@ -63,6 +62,7 @@ const PdfView = () => {
         const dateFrom = get(queryParams, 'dateFrom', moment().subtract(1, 'week'))
         const dateTo = get(queryParams, 'dateTo', moment())
         const addressList = JSON.parse(get(queryParams, 'addressList', '[]'))
+        const mainGroup = get(queryParams, 'groupBy', 'status')
         const specification = get(queryParams, 'specification', 'day')
         const viewMode = get(queryParams, 'viewMode', 'line')
         const ticketType = get(queryParams, 'ticketType', 'all')
@@ -74,7 +74,7 @@ const PdfView = () => {
                 addressList,
                 specification,
             },
-            mainGroup: 'status',
+            mainGroup,
         })
         groupByRef.current = groupBy
         const where = { organization: { id: userOrganizationId }, AND }
@@ -84,10 +84,12 @@ const PdfView = () => {
     }, [userOrganizationId])
 
     useEffect(() => {
-        if (mapperInstanceRef.current === null) {
+        if (mapperInstanceRef.current === null && groupByRef.current !== null) {
+            const mainGroup = get(queryParamsRef.current, 'groupBy', 'status')
             mapperInstanceRef.current = new TicketChart({
                 line: {
-                    chart: (viewMode, data) => {
+                    chart: (viewMode, ticketGroupedCounter) => {
+                        const data = getAggregatedData(ticketGroupedCounter, groupByRef.current)
                         const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
                         const legend = Object.keys(data)
                         const series = []
@@ -108,7 +110,8 @@ const PdfView = () => {
                         const tooltip = { trigger: 'axis', axisPointer: { type: 'line' } }
                         return { series, legend, axisData, tooltip }
                     },
-                    table: (viewMode, data, restOptions) => {
+                    table: (viewMode, ticketGroupedCounter, restOptions) => {
+                        const data = getAggregatedData(ticketGroupedCounter, groupByRef.current)
                         const dataSource = []
                         const { translations, filters } = restOptions
                         const tableColumns: TableColumnsType = [
@@ -137,7 +140,8 @@ const PdfView = () => {
                     },
                 },
                 bar: {
-                    chart: (viewMode, data) => {
+                    chart: (viewMode, ticketGroupedCounter) => {
+                        const data = getAggregatedData(ticketGroupedCounter, groupByRef.current)
                         const series = []
                         const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
                         const legend = Object.keys(data)
@@ -158,7 +162,8 @@ const PdfView = () => {
                         const tooltip = { trigger: 'item', axisPointer: { type: 'line' } }
                         return { series, legend, axisData, tooltip }
                     },
-                    table: (viewMode, data, restOptions) => {
+                    table: (viewMode, ticketGroupedCounter, restOptions) => {
+                        const data = getAggregatedData(ticketGroupedCounter, mainGroup === 'status' ? groupByRef.current.reverse() : groupByRef.current)
                         const { translations, filters } = restOptions
                         const dataSource = []
                         const tableColumns: TableColumnsType = [
@@ -194,6 +199,121 @@ const PdfView = () => {
                         return { dataSource, tableColumns }
                     },
 
+                },
+                pie: {
+                    chart: (viewMode, ticketGroupedCounter) => {
+                        const data = getAggregatedData(ticketGroupedCounter, groupByRef.current)
+                        const series = []
+                        Object.entries(data).forEach(([label, groupObject]) => {
+                            const chartData = Object.entries(groupObject)
+                                .map(([name, value]) => ({ name, value }))
+                                .sort((a, b) => b.value - a.value)
+                            series.push({
+                                name: label,
+                                data: chartData,
+                                selectedMode: 'multiple',
+                                type: viewMode,
+                                radius: [50, 100],
+                                symbol: 'none',
+                                emphasis: {
+                                    focus: 'self',
+                                    blurScope: 'self',
+                                },
+                                labelLine: { show: false },
+                                label: {
+                                    show: true,
+                                    // fontSize: 14,
+                                    overflow: 'none',
+                                    formatter: [
+                                        '{value|{b}} {percent|{d} %}',
+                                    ].join('\n'),
+                                    rich: {
+                                        value: {
+                                            fontSize: 14,
+                                            align: 'left',
+                                            width: 100,
+                                        },
+                                        percent: {
+                                            align: 'left',
+                                            fontWeight: 700,
+                                            fontSize: 14,
+                                            width: 40,
+                                        },
+                                    },
+                                },
+                                labelLayout: (chart) =>  {
+                                    const { dataIndex, seriesIndex } = chart
+                                    const isLeftAlignedChart = seriesIndex % 2 === 0
+                                    const xOffset = isLeftAlignedChart ? 300 : 900
+                                    const elementYOffset = 25 * dataIndex
+                                    const yOffset = 70 + 250 * Math.floor(seriesIndex / 2) + 10 + elementYOffset
+                                    return {
+                                        x: xOffset,
+                                        y: yOffset,
+                                        align: 'left',
+                                        verticalAlign: 'top',
+                                    }
+                                },
+                            })
+                        })
+                        return { series }
+                    },
+                    table: (viewMode, ticketGroupedCounter, restOptions) => {
+                        const data = getAggregatedData(ticketGroupedCounter, groupByRef.current.reverse())
+                        const { translations, filters } = restOptions
+                        const dataSource = []
+                        const tableColumns: TableColumnsType = [
+                            { title: translations['address'], dataIndex: 'address', key: 'address', sorter: (a, b) => a['address'] - b['address'] },
+                            ...Object.entries(data).map(([key]) => ({ title: key, dataIndex: key, key, sorter: (a, b) => a[key] - b[key] })),
+                        ]
+
+                        const restTableColumns = {}
+                        const addressList = get(filters, 'addresses', [])
+                        const aggregateSummary = addressList !== undefined && addressList.length === 0
+                        if (aggregateSummary) {
+                            const totalCount = Object.values(data)
+                                .reduce((prev, curr) => prev + Object.values(curr)
+                                    .reduce((a, b) => a + b, 0), 0)
+
+                            Object.entries(data).forEach((rowEntry) => {
+                                const [ticketType, dataObj] = rowEntry
+                                const counts = Object.values(dataObj) as number[]
+                                const percentString = ((counts
+                                    .reduce((a, b) => a + b, 0) / totalCount) * 100)
+                                    .toFixed(2) + ' %'
+                                restTableColumns[ticketType] = percentString
+                            })
+                            dataSource.push({
+                                key: 0,
+                                address: translations['allAddresses'],
+                                ...restTableColumns,
+                            })
+                        } else {
+                            const totalCounts = {}
+                            Object.values(data).forEach((dataObj) => {
+                                Object.entries(dataObj).forEach(([propertyAddress, count]) => {
+                                    if (get(totalCounts, propertyAddress, false)) {
+                                        totalCounts[propertyAddress] += count
+                                    } else {
+                                        totalCounts[propertyAddress] = count
+                                    }
+                                })
+                            })
+                            addressList.forEach((address, key) => {
+                                const tableRow = { key, address }
+                                Object.entries(data).forEach(rowEntry => {
+                                    const [ticketType, dataObj] = rowEntry
+                                    const counts = Object.entries(dataObj)
+                                        .filter(obj => obj[0] === address).map(e => e[1]) as number[]
+                                    const totalPropertyCount = counts.reduce((a, b) => a + b, 0)
+                                    tableRow[ticketType] = (totalPropertyCount / totalCounts[address] * 100)
+                                        .toFixed(2) + ' %'
+                                })
+                                dataSource.push(tableRow)
+                            })
+                        }
+                        return { dataSource, tableColumns }
+                    },
                 },
             })
         }
