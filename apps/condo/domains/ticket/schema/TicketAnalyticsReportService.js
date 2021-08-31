@@ -5,9 +5,11 @@
 const { GQLCustomSchema, getByCondition } = require('@core/keystone/schema')
 const access = require('@condo/domains/ticket/access/TicketAnalyticsReportService')
 const moment = require('moment')
-const { sortStatusesByType, loadModelsByChunks } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
-const { TicketGqlToKnexAdapter } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
-const { sortStatusesByType, TicketGqlToKnexAdapter, aggregateData } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
+const {
+    sortStatusesByType,
+    loadModelsByChunks,
+    aggregateData,
+    TicketGqlToKnexAdapter } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
 const { DATE_DISPLAY_FORMAT } = require('@condo/domains/ticket/constants/common')
 const { Property: PropertyServerUtils } = require('@condo/domains/property/utils/serverSchema')
 const { TicketStatus: TicketStatusServerUtils, Ticket } = require('@condo/domains/ticket/utils/serverSchema')
