@@ -156,7 +156,20 @@ export default function GlobalStyle () {
                   cursor: pointer;
                 }
               }
-
+              
+              .ant-table-row-expand-icon-spaced {
+                display: none;
+              }
+              
+              .ant-table-row-expand-icon {
+                color: ${colors.green[6]};
+                border-color: ${colors.green[6]};
+                border-radius: 1px;
+                &:hover, &:focus {
+                  color: ${colors.green[6]};
+                }
+              }
+              
               ${uploadControlCss}
               ${radioGroupCss}
               ${inputControlCss}
