@@ -78,7 +78,7 @@ export const SideMenu: React.FC<ISideMenuProps> = (props) => {
                     <MenuItemsContainer>
                         {menuData}
                     </MenuItemsContainer>
-                    <TicketCreateButton disabled={!link}/>
+                    <TicketCreateButton disabled={false}/>
                 </Space>
             </Layout.Sider>
         </Drawer>
@@ -98,7 +98,7 @@ export const SideMenu: React.FC<ISideMenuProps> = (props) => {
                     <MenuItemsContainer>
                         {menuData}
                     </MenuItemsContainer>
-                    <TicketCreateButton disabled={!link}/>
+                    <TicketCreateButton disabled={false}/>
                 </Space>
             </Layout.Sider>
             {menuData && <div css={substrateDesktopCss} className='side-menu-substrate' />}
