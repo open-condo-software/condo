@@ -1,6 +1,6 @@
 import React from 'react'
 import { useIntl } from '@core/next/intl'
-import { Skeleton, Typography } from 'antd'
+import { Col, Row, Skeleton, Typography } from 'antd'
 import isEmpty from 'lodash/isEmpty'
 import get from 'lodash/get'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
@@ -8,6 +8,7 @@ import ReactECharts from 'echarts-for-react'
 import TicketChart, { ViewModeTypes } from '@condo/domains/ticket/components/TicketChart'
 import { CHART_COLOR_SET } from '@condo/domains/common/constants/style'
 import { TicketGroupedCounter } from '../../../../schema'
+import { colors } from '@condo/domains/common/constants/style'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
 export interface ITicketAnalyticsPageWidgetProps {
@@ -24,6 +25,10 @@ interface ITicketAnalyticsPageChartProps extends ITicketAnalyticsPageWidgetProps
         chartOptions?: ReactECharts['props']['opts']
     }
 }
+
+const truncate = (inputString: string) => inputString.length > 53
+    ? `${inputString.substring(0, 53)}...`
+    : inputString
 
 const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
     children,
@@ -112,44 +117,28 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
 
         </Typography.Paragraph>
     }
-    // TODO(sitozzz): just for debug, fix this
-    // @ts-ignore
-    const { series } = mapperInstance.getChartConfig(viewMode, data)
+    const { series, legend } = mapperInstance.getChartConfig(viewMode, data)
     const option = {
         animation: animationEnabled,
         color: CHART_COLOR_SET,
-        series,
         legend: {
-            top: 10,
+            data: legend,
+            top: 80,
+            show: false,
             icon: 'circle',
             itemWidth: 7,
             itemHeight: 7,
-            itemGap: 28,
-            x: 'left',
+            left: 280,
+            itemGap: 10,
+            orient: 'vertical',
             textStyle: {
-                fontSize: '16px',
+                fontSize: 14,
             },
         },
         tooltip: { trigger: 'item' },
-        media: [{
-            query: { minAspectRatio: 1 },
-            option: {
-                series: Array
-                    .from({ length: series.length },
-                        (_, index) => ({ center: [
-                            index % 2 === 0 ? '15%' : '65%',
-                            150 + Math.floor(index / 2) * 250,
-                        ] })
-                    ),
-            },
-        }],
     }
     const chartHeight = get(chartOptions, 'height', 'auto')
     const chartStyle = {}
-    if (chartHeight === 'auto') {
-        chartStyle['height'] = 350 * series.length / 2
-    }
-
     return <Typography.Paragraph style={{ position: 'relative' }}>
         {loading ? (
             <Typography.Paragraph>
@@ -160,16 +149,64 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
             </Typography.Paragraph>
         ) : (
             <>
+                {/* TODO(sitozzz): Add click handle for global legend or create it with other way */}
                 <ReactECharts
-                    opts={{ ...chartOptions, renderer: 'svg', height: chartHeight }}
-                    onChartReady={onChartReady}
+                    opts={{ renderer: 'svg', height: 50 }}
                     notMerge
-                    style={{ ...chartStyle }}
-                    option={option}/>
+                    option={{
+                        legend: {
+                            data: legend,
+                            top: 5,
+                            show: true,
+                            icon: 'circle',
+                            itemWidth: 7,
+                            itemHeight: 7,
+                            itemGap: 10,
+                            textStyle: {
+                                fontSize: 16,
+                            },
+                            width: '100%',
+                            backgroundColor: 'white',
+                        },
+                        series: [{ ...series[0], top: -1000, left: -1000, labelLayout: {}, label: { show: false } }],
+                        title: {
+                            display: false,
+                        },
+                    }}
+                    style={{ height: 40, overflow: 'hidden', width: 600 }}
+                />
+                <Row gutter={[0, 40]} justify={'space-between'} align={'top'} style={{ paddingTop: 60 }}>
+                    {series.map((chartSeries, index) => (
+                        <Col key={`pie-${index}`} span={11}>
+                            <ReactECharts
+                                opts={{ ...chartOptions, renderer: 'svg', height: chartHeight }}
+                                // TODO(sitozzz): add onChart ready support for multiple charts
+                                // onChartReady={onChartReady}
+                                notMerge
+                                style={{ ...chartStyle, border: '1px solid', borderColor: colors.lightGrey[6], borderRadius: 8 }}
+                                option={{
+                                    series: [chartSeries],
+                                    title: {
+                                        show: true,
+                                        text: truncate(chartSeries.name.split(', ').slice(1).join(', ')),
+                                        left: 295,
+                                        top: 30,
+                                        textStyle: {
+                                            fontSize: 16,
+                                            fontWeight: 700,
+                                            overflow: 'breakAll',
+                                            width: 200,
+                                            lineHeight: 20,
+                                        },
+                                    },
+                                    ...option }}
+                            />
+                        </Col>
+                    ))}
+                </Row>
                 {children}
             </>
         )}
-
     </Typography.Paragraph>
 
 }
