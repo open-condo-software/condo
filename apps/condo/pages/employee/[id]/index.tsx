@@ -58,6 +58,7 @@ export const EmployeePageContent = ({
     const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
     const RoleMessage = intl.formatMessage({ id: 'employee.Role' })
+    const PositionMessage = intl.formatMessage({ id: 'employee.Position' })
     const SpecializationsMessage = intl.formatMessage({ id: 'employee.Specializations' })
     const BlockUserMessage = intl.formatMessage({ id: 'employee.BlockUser' })
     const ConfirmDeleteButtonLabel = intl.formatMessage({ id: 'Delete' })
@@ -132,21 +133,21 @@ export const EmployeePageContent = ({
                                         <Col span={24}>
                                             <FrontLayerContainer showLayer={isEmployeeBlocked}>
                                                 <Row gutter={[0, 24]}>
-                                                    <Col span={3}>
+                                                    <Col span={4}>
                                                         <Typography.Text type='secondary'>
                                                             {PhoneMessage}
                                                         </Typography.Text>
                                                     </Col>
-                                                    <Col span={19} push={2}>
+                                                    <Col span={18} push={1}>
                                                         <NotDefinedField value={get(employee, 'phone')}/>
                                                     </Col>
 
-                                                    <Col span={3}>
+                                                    <Col span={4}>
                                                         <Typography.Text type='secondary'>
                                                             {RoleMessage}
                                                         </Typography.Text>
                                                     </Col>
-                                                    <Col span={19} push={2}>
+                                                    <Col span={18} push={1}>
                                                         <NotDefinedField
                                                             value={get(employee, ['role', 'name'])}
                                                             render={
@@ -157,12 +158,28 @@ export const EmployeePageContent = ({
                                                         />
                                                     </Col>
 
-                                                    <Col span={3}>
+                                                    <Col span={4}>
+                                                        <Typography.Text type='secondary'>
+                                                            {PositionMessage}
+                                                        </Typography.Text>
+                                                    </Col>
+                                                    <Col span={18} push={1}>
+                                                        <NotDefinedField
+                                                            value={get(employee, 'position')}
+                                                            render={
+                                                                (value) => (
+                                                                    <Tag color='default'>{value}</Tag>
+                                                                )
+                                                            }
+                                                        />
+                                                    </Col>
+
+                                                    <Col span={4}>
                                                         <Typography.Text type='secondary'>
                                                             {SpecializationsMessage}
                                                         </Typography.Text>
                                                     </Col>
-                                                    <Col span={19} push={2}>
+                                                    <Col span={18} push={1}>
                                                         <NotDefinedField
                                                             value={get(employee, 'specializations')}
                                                             render={
@@ -175,12 +192,12 @@ export const EmployeePageContent = ({
                                                         />
                                                     </Col>
 
-                                                    <Col span={3}>
+                                                    <Col span={4}>
                                                         <Typography.Text type='secondary'>
                                                             {EmailMessage}
                                                         </Typography.Text>
                                                     </Col>
-                                                    <Col span={19} push={2}>
+                                                    <Col span={18} push={1}>
                                                         <NotDefinedField value={get(employee, 'email')}/>
                                                     </Col>
                                                 </Row>
