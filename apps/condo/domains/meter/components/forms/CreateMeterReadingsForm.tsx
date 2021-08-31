@@ -9,8 +9,8 @@ import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 
 
-import { BaseMeterForm } from './BaseMeterForm'
-import { ErrorsContainer } from './BaseMeterForm/ErrorsContainer'
+import { BaseMeterForm } from './BaseMeterReadingsForm'
+import { ErrorsContainer } from './BaseMeterReadingsForm/ErrorsContainer'
 
 const DEFAULT_TICKET_SOURCE_CALL_ID = '779d7bb6-b194-4d2c-a967-1f7321b2787f'
 
@@ -46,7 +46,7 @@ export const CreateTicketActionBar = ({ handleSave, isLoading }) => {
     )
 }
 
-export const CreateMeterForm: React.FC = () => {
+export const CreateMeterReadingsForm: React.FC = () => {
     const { organization, link } = useOrganization()
     const router = useRouter()
     const auth = useAuth() as { user: { id: string } }

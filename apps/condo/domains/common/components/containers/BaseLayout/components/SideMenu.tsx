@@ -27,10 +27,6 @@ interface ISideMenuProps {
     menuData?: React.ElementType
 }
 
-interface ITicketCreateButton {
-    disabled: boolean
-}
-
 const ResidentAppealPopoverContentWrapper = styled.div`
   width: 216px;
   height: 107px;
@@ -140,12 +136,12 @@ export const SideMenu: React.FC<ISideMenuProps> = (props) => {
                 className='side-menu'
             >
                 <Logo onClick={onLogoClick} />
-                <ItemContainer>
+                <MenuItemsContainer>
                     <ResidentAppealPopover/>
                     <MenuItemsContainer>
                         {menuData}
                     </MenuItemsContainer>
-                </ItemContainer>
+                </MenuItemsContainer>
             </Layout.Sider>
             {menuData && <div css={substrateDesktopCss} className='side-menu-substrate' />}
         </>
