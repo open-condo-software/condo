@@ -10,7 +10,7 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { MeterResource as MeterResourceGQL } from '@condo/domains/meter/gql'
 import { MeterResource, MeterResourceUpdateInput, QueryAllMeterResourcesArgs } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'name']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'name', 'measure']
 const RELATIONS = []
 
 export interface IMeterResourceUIState extends MeterResource {
