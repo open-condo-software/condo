@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core'
-import { Drawer, Layout, Typography, Space, Popover, Divider, Row } from 'antd'
+import { Drawer, Layout, Space, Popover, Divider } from 'antd'
 import get from 'lodash/get'
 import React from 'react'
 import Link from 'next/link'

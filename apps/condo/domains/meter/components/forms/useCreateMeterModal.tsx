@@ -10,17 +10,10 @@ import {
 //     setVisible: (arg?: any) => boolean
 // }
 
-export const useCreateMeterModal = ({ handleSubmit: _handleSubmit })=> {
+export const useCreateMeterModal = ()=> {
     const [visible, setVisible] = useState(false)
 
-    const handleSubmit = (values) => {
-        if (_handleSubmit) {
-            _handleSubmit(values)
-        }
-        setVisible(false)
-    }
-
-    const ModalForm: React.FC = () => (
+    const ModalForm = ({ handleSubmit: _handleSubmit }) => (
         <BaseModalForm
             // mutation={REGISTER_NEW_ORGANIZATION_MUTATION}
             // formValuesToMutationDataPreprocessor={(values) => {
@@ -40,7 +33,12 @@ export const useCreateMeterModal = ({ handleSubmit: _handleSubmit })=> {
             ModalSaveButtonLabelMsg={'Добавить'}
             showCancelButton={false}
             validateTrigger={['onBlur', 'onSubmit']}
-            handleSubmit={handleSubmit}
+            handleSubmit={
+                (values) => {
+                    _handleSubmit(values)
+                    setVisible(false)
+                }
+            }
         >
             <Row gutter={[0, 20]}>
                 <Col span={24}>
