@@ -14,7 +14,6 @@ const moment = require('moment')
 const { AutoIncrementInteger } = require('@core/keystone/fields')
 const { PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
-const { TIME_IS_UP_ERROR } = require('../constants/errors')
 
 
 const MeterReading = new GQLListSchema('MeterReading', {
