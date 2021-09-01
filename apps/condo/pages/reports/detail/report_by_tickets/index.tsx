@@ -44,7 +44,7 @@ import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderA
 import TicketChartView from '@condo/domains/ticket/components/analytics/TicketChartView'
 import TicketListView from '@condo/domains/ticket/components/analytics/TicketListView'
 import { DATE_DISPLAY_FORMAT, TICKET_REPORT_DAY_GROUP_STEPS } from '@condo/domains/ticket/constants/common'
-import { TicketAnalyticsGroupBy, TicketAnalyticsReportOutput, TicketGroupedCounter } from '../../../../schema'
+import { TicketGroupedCounter } from '../../../../schema'
 
 interface ITicketAnalyticsPage extends React.FC {
     headerAction?: JSX.Element
@@ -425,10 +425,11 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         const series = []
 
                         const legend = [...new Set(Object.values(data).flatMap(e => Object.keys(e)))]
+                            .sort((a, b) => a.localeCompare(b))
                         Object.entries(data).forEach(([label, groupObject]) => {
                             const chartData = Object.entries(groupObject)
                                 .map(([name, value]) => ({ name, value }))
-                                .sort((a, b) => b.value - a.value)
+                                .sort((a, b) => a.name.localeCompare(b.name))
                             series.push({
                                 name: label,
                                 data: chartData,
