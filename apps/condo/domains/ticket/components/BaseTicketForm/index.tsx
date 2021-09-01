@@ -221,6 +221,14 @@ const TicketAssignments = ({ validations, organizationId, disableUserInteraction
         </UserNameField>
     )
 
+    const whoCanBeAssignedAsExecutor = ({ role }) => (
+        get(role, 'canBeAssignedAsExecutor', false)
+    )
+
+    const whoCanBeAssignedAsResponsible = ({ role }) => (
+        get(role, 'canBeAssignedAsResponsible', false)
+    )
+
     return (
         <Col span={24}>
             <Row justify={'space-between'} gutter={[0, 24]}>
@@ -235,7 +243,7 @@ const TicketAssignments = ({ validations, organizationId, disableUserInteraction
                     >
                         <GraphQlSearchInput
                             formatLabel={formatUserFieldLabel}
-                            search={searchEmployeeUser(organizationId)}
+                            search={searchEmployeeUser(organizationId, whoCanBeAssignedAsExecutor)}
                             allowClear={false}
                             showArrow={false}
                             disabled={disableUserInteraction}
@@ -250,7 +258,7 @@ const TicketAssignments = ({ validations, organizationId, disableUserInteraction
                     >
                         <GraphQlSearchInput
                             formatLabel={formatUserFieldLabel}
-                            search={searchEmployeeUser(organizationId)}
+                            search={searchEmployeeUser(organizationId, whoCanBeAssignedAsResponsible)}
                             allowClear={false}
                             showArrow={false}
                             disabled={disableUserInteraction}
