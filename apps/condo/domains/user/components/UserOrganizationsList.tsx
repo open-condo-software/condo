@@ -72,7 +72,7 @@ const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) =>
                         value={get(employee, ['organization', 'name'])}
                         render={(name) => (
                             <OrganizationName
-                                name={name}
+                                name={String(name)}
                                 organizationId={get(employee, ['organization', 'id'])}
                                 employeeOrganizationId={get(userOrganization, ['link', 'organization', 'id'])}
                                 selectOrganization={selectOrganization}
