@@ -4778,10 +4778,10 @@ export type BuildingMap = {
   __typename?: 'BuildingMap';
   dv: Scalars['Int'];
   sections?: Maybe<Array<Maybe<BuildingSection>>>;
-  type?: Maybe<BuildingMapEntity>;
+  type?: Maybe<BuildingMapEntityType>;
 };
 
-export enum BuildingMapEntity {
+export enum BuildingMapEntityType {
   Building = 'building',
   Section = 'section',
   Floor = 'floor',
