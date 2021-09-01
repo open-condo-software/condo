@@ -126,6 +126,9 @@ const antGlobalVariables = {
     '@alert-warning-bg-color': '@gold-2',
     '@typography-title-margin-bottom': 0,
     '@tooltip-bg': 'rgba(0, 0, 0)',
+    '@text-color-secondary': colors.lightGrey[7],
+    '@warning-color': colors.orange[6],
+    'error-color': colors.red[5],
 }
 
 module.exports = {

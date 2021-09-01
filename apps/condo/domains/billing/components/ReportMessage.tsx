@@ -1,7 +1,6 @@
 import { useIntl } from '@core/next/intl'
 import { useMemo } from 'react'
 import { Typography } from 'antd'
-import { colors } from '@condo/domains/common/constants/style'
 import React from 'react'
 
 type LastReportType = {
@@ -21,7 +20,7 @@ export const ReportMessage: React.FC<IReportMessageProps> = ({ lastReport }) => 
         const NoReportMessage = intl.formatMessage({ id: 'NoReceiptsLoaded' })
         if (!lastReport) {
             return (
-                <Typography.Text style={{ color: colors.orange[5] }}>
+                <Typography.Text type={'warning'}>
                     {NoReportMessage}
                 </Typography.Text>
             )
@@ -35,7 +34,7 @@ export const ReportMessage: React.FC<IReportMessageProps> = ({ lastReport }) => 
         const rowsMessage = `(${TotalReportsMessage})`
         return (
             <>
-                <Typography.Text style={{ color: colors.orange[5] }}>
+                <Typography.Text type={'warning'}>
                     {uploadMessage}
                 </Typography.Text>
                 &nbsp;

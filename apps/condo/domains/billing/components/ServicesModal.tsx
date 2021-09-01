@@ -1,12 +1,13 @@
-import React, { useMemo, useState } from 'react'
-import { Modal, Typography, Space, Table } from 'antd'
+import React, { useContext, useMemo, useState } from 'react'
+import { Modal, Typography, Space, Table, ConfigProvider } from 'antd'
 import { IBillingReceiptUIState } from '../utils/clientSchema/BillingReceipt'
 import { useIntl } from '@core/next/intl'
-import { colors } from '@condo/domains/common/constants/style'
 import get from 'lodash/get'
 import { useServicesTableColumns } from '@condo/domains/billing/hooks/useServicesTableColumns'
 import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
 import { TableRecord } from '@condo/domains/common/components/Table/Index'
+import { SubText } from '@condo/domains/common/components/Text'
+import { SizeType } from 'antd/es/config-provider/SizeContext'
 
 interface IServicesModalProps {
     receipt: IBillingReceiptUIState
@@ -75,15 +76,17 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
     const accountNumber = get(receipt, ['account', 'number'])
     const address = get(receipt, ['property', 'address'])
 
+    const configSize = useContext<SizeType>(ConfigProvider.SizeContext)
+
     const modalTitleMessage = `${AccountMessage} ${accountNumber}`
     const title = (
         <Space direction={'vertical'} size={4}>
             <Typography.Title level={3}>
                 {modalTitleMessage}
             </Typography.Title>
-            <Typography.Text style={{ fontSize: 14, color: colors.lightGrey[7] }}>
+            <SubText size={configSize}>
                 {address}
-            </Typography.Text>
+            </SubText>
         </Space>
     )
 
