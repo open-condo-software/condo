@@ -9,7 +9,7 @@ import { AddressSuggestionsSearchInput } from '@condo/domains/property/component
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import { PropertyPanels } from '../panels'
 import Prompt from '@condo/domains/common/components/Prompt'
-import { AddressMeta } from '@condo/domains/common/utils/addressApi/AddressMeta'
+import { AddressMeta } from '../../../../schema'
 import { useState } from 'react'
 import { validHouseTypes, validSettlementTypes } from '@condo/domains/property/constants/property'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
