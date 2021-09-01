@@ -160,24 +160,6 @@ const MeterReading = new GQLListSchema('MeterReading', {
         },
 
     },
-
-    hooks: {
-        validateInput: async ({ context, operation, itemId, addFieldValidationError }) => {
-            // if 2 minutes have passed since the moment the readings were taken, then they cannot be changed
-            if (operation === 'update') {
-                const [meterReading] = await MeterReadingApi.getAll(context, { id: itemId }, {
-                    sortBy: ['createdAt_DESC'],
-                })
-                const createdDate = moment(meterReading.createdAt)
-                const now = moment()
-                const diffInMinutes = now.diff(createdDate, 'minutes')
-
-                if (!meterReading || diffInMinutes > 2) {
-                    addFieldValidationError(`${TIME_IS_UP_ERROR}date] 2 minutes have passed since MeterReading was created`)
-                }
-            }
-        },
-    },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadMeterReadings,

@@ -6,8 +6,7 @@ const { CALL_METER_READING_SOURCE_ID } = require('../constants/constants')
 const { COLD_WATER_METER_RESOURCE_ID } = require('../constants/constants')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { expectToThrowAuthenticationErrorToObjects } = require('@condo/domains/common/utils/testSchema')
-const { catchErrorFrom, expectToThrowAuthenticationErrorToObj, expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
-const { VALUE_LESS_THAN_PREVIOUS_ERROR } = require('../constants/errors')
+const { expectToThrowAuthenticationErrorToObj, expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
@@ -134,7 +133,7 @@ describe('MeterReading', () => {
         })
     })
     describe('Update', () => {
-        test('employee with canManageMeters role: can update MeterReadings', async () => {
+        test('employee with canManageMeters role: cannot update MeterReadings', async () => {
             const client = await makeEmployeeUserClientWithAbilities({
                 canManageMeters: true,
             })
@@ -146,33 +145,10 @@ describe('MeterReading', () => {
             const oldValue = meterReading.value
             const newValue = oldValue + 100
 
-            const [updatedMeterReading] = await updateTestMeterReading(client, meterReading.id, {
-                value: newValue,
-            })
-
-            expect(updatedMeterReading.id).toMatch(UUID_RE)
-            expect(updatedMeterReading.value).toEqual(newValue)
-        })
-
-        test('employee with canManageMeters role: cannot update MeterReadings with meter reading value less than previous', async () => {
-            const client = await makeEmployeeUserClientWithAbilities({
-                canManageMeters: true,
-            })
-            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-            const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
-            const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
-            const [meterReading] = await createTestMeterReading(client, meter, client.property, client.organization, source)
-
-            const oldValue = meterReading.value
-            const newValue = oldValue - 100
-
-            await catchErrorFrom(async () => {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestMeterReading(client, meterReading.id, {
                     value: newValue,
                 })
-            }, ({ errors }) => {
-                console.log(errors)
-                expect(errors[0].data.messages[0]).toContain(VALUE_LESS_THAN_PREVIOUS_ERROR)
             })
         })
 
@@ -194,7 +170,7 @@ describe('MeterReading', () => {
             })
         })
 
-        test('employee from "from" related organization with "canManageMeters" role: can update MeterReadings', async () => {
+        test('employee from "from" related organization: cannot update MeterReadings', async () => {
             const admin = await makeLoggedInAdminClient()
             const { clientFrom, employeeFrom, organizationFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
             const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
@@ -208,25 +184,6 @@ describe('MeterReading', () => {
             const [meter] = await createTestMeter(clientFrom, organizationTo, propertyTo, resource, {})
 
             const [meterReading] = await createTestMeterReading(clientFrom, meter, propertyTo, organizationTo, source)
-
-            const oldValue = meterReading.value
-            const newValue = oldValue + 100
-
-            const [updatedMeterReading] = await updateTestMeterReading(clientFrom, meterReading.id, {
-                value: newValue,
-            })
-
-            expect(updatedMeterReading.id).toMatch(UUID_RE)
-            expect(updatedMeterReading.value).toEqual(newValue)
-        })
-
-        test('employee from "from" related organization without "canManageMeters" role: cannot update MeterReadings', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const { clientFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
-            const [resource] = await MeterResource.getAll(clientFrom, { id: COLD_WATER_METER_RESOURCE_ID })
-            const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
-            const [meter] = await createTestMeter(admin, organizationTo, propertyTo, resource, {})
-            const [meterReading] = await createTestMeterReading(admin, meter, propertyTo, organizationTo, source)
 
             const oldValue = meterReading.value
             const newValue = oldValue + 100
