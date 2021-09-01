@@ -41,6 +41,12 @@ const Meter = new GQLListSchema('Meter', {
             },
         },
 
+        account: {
+            schemaDoc: 'Client\'s billing account',
+            type: Text,
+            isRequired: true,
+        },
+
         billingAccountMeter: {
             schemaDoc: 'Link to BillingAccountMeter if it exist in billing context',
             type: Relationship,

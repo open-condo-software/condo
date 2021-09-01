@@ -41,10 +41,8 @@ const MeterReading = new GQLListSchema('MeterReading', {
 
         account: {
             schemaDoc: 'Client\'s billing account',
-            type: Relationship,
-            ref: 'BillingAccount',
-            knexOptions: { isNotNullable: false }, // Relationship only!
-            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+            type: Text,
+            isRequired: true,
         },
 
         billingAccountMeter: {
