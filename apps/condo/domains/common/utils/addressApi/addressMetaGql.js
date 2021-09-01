@@ -86,11 +86,105 @@ const ADDRESS_META_FIELD_GRAPHQL_TYPES = `
         qc: String
     }
     
+    input AddressMetaDataFieldInput {
+        postal_code: String!
+        country: String!
+        country_iso_code: String!
+        federal_district: String
+        region_fias_id: String!
+        region_kladr_id: String!
+        region_iso_code: String!
+        region_with_type: String!
+        region_type: String!
+        region_type_full: String!
+        region: String!
+        area_fias_id: String
+        area_kladr_id: String
+        area_with_type: String
+        area_type: String
+        area_type_full: String
+        area: String
+        city_fias_id: String!
+        city_kladr_id: String!
+        city_with_type: String!
+        city_type: String!
+        city_type_full: String!
+        city: String!
+        city_area: String
+        city_district_fias_id: String
+        city_district_kladr_id: String
+        city_district_with_type: String
+        city_district_type: String
+        city_district_type_full: String
+        city_district: String
+        settlement_fias_id: String
+        settlement_kladr_id: String
+        settlement_with_type: String
+        settlement_type: String
+        settlement_type_full: String
+        settlement: String
+        street_fias_id: String!
+        street_kladr_id: String!
+        street_with_type: String!
+        street_type: String!
+        street_type_full: String!
+        street: String!
+        house_fias_id: String!
+        house_kladr_id: String!
+        house_type: String!
+        house_type_full: String!
+        house: String!
+        block_type: String
+        block_type_full: String
+        block: String
+        entrance: String
+        floor: String
+        flat_fias_id: String
+        flat_type: String
+        flat_type_full: String
+        flat: String
+        flat_area: String
+        square_meter_price: String
+        flat_price: String
+        postal_box: String
+        fias_id: String!
+        fias_code: String!
+        fias_level: String!
+        fias_actuality_state: String!
+        kladr_id: String!
+        geoname_id: String!
+        capital_marker: String!
+        okato: String!
+        oktmo: String!
+        tax_office: String!
+        tax_office_legal: String!
+        timezone: String
+        geo_lat: String!
+        geo_lon: String!
+        beltway_hit: String
+        beltway_distance: String
+        metro: String
+        qc_geo: String!
+        qc_complete: String
+        qc_house: String
+        history_values: [String]
+        unparsed_parts: String
+        source: String
+        qc: String
+    }
+    
     type AddressMetaField {
         dv: Int!
         value: String!
         unrestricted_value: String!
         data: AddressMetaDataField!
+    }
+    
+    input AddressMetaFieldInput {
+        dv: Int!
+        value: String!
+        unrestricted_value: String!
+        data: AddressMetaDataFieldInput!
     }
 `
 
