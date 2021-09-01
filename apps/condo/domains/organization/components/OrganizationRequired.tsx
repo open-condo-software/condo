@@ -8,10 +8,8 @@ import { OnBoarding as OnBoardingHooks } from '@condo/domains/onboarding/utils/c
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import { Loader } from '@condo/domains/common/components/Loader'
-import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'
 import { useRouter } from 'next/router'
 import React, { useEffect } from 'react'
-import { OrganizationEmployee } from '../utils/clientSchema'
 
 const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions?: boolean }> = ({ children, withEmployeeRestrictions }) => {
     const intl = useIntl()
@@ -22,18 +20,12 @@ const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions
     const organization = useOrganization()
     const router = useRouter()
 
-    const { objs: userOrganizations = [], loading: organizationLinksLoading } = OrganizationEmployee.useObjects(
-        { where: user ? { user: { id: user.id }, isRejected: false, isBlocked: false } : {} },
-        { fetchPolicy: 'cache-first' }
-    )
-
     const { obj: onBoarding } = OnBoardingHooks
         .useObject(
             { where: { user: { id: get(user, 'id') } } },
             { fetchPolicy: 'network-only' },
         )
 
-    const { setIsVisible: showCreateOrganizationModal, ModalForm, isVisible } = useCreateOrganizationModalForm({})
     const { isLoading, link } = organization
 
     useEffect(() => {
@@ -43,13 +35,7 @@ const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions
             }
 
         }
-    }, [onBoarding, link, isVisible])
-
-    useEffect(() => {
-        if (user && !isVisible && !organizationLinksLoading && !userOrganizations.length) {
-            showCreateOrganizationModal(true)
-        }
-    }, [user, isVisible, organizationLinksLoading, userOrganizations])
+    }, [onBoarding, link])
 
     let pageView = children
 
@@ -87,7 +73,6 @@ const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions
     return (
         <>
             {pageView}
-            <ModalForm/>
         </>
     )
 }
