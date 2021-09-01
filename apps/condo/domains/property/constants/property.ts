@@ -1,4 +1,4 @@
-import { AddressMeta } from '@condo/domains/common/utils/addressApi/AddressMeta'
+import { AddressMeta } from '../../../schema'
 
 // "д" - "дом" or "к" - "корпус"
 const validHouseTypes: AddressMeta['data']['house_type_full'][] = ['дом', 'корпус', 'строение', 'домовладение', 'сооружение', 'владение']

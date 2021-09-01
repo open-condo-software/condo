@@ -28,6 +28,102 @@ export type AcceptOrRejectOrganizationInviteInput = {
   isAccepted?: Maybe<Scalars['Boolean']>;
 };
 
+export type AddressMeta = {
+  __typename?: 'AddressMeta';
+  dv: Scalars['Int'];
+  value: Scalars['String'];
+  unrestricted_value: Scalars['String'];
+  data: AddressMetaData;
+};
+
+export type AddressMetaData = {
+  __typename?: 'AddressMetaData';
+  postal_code: Scalars['String'];
+  country: Scalars['String'];
+  country_iso_code: Scalars['String'];
+  federal_district?: Maybe<Scalars['String']>;
+  region_fias_id: Scalars['String'];
+  region_kladr_id: Scalars['String'];
+  region_iso_code: Scalars['String'];
+  region_with_type: Scalars['String'];
+  region_type: Scalars['String'];
+  region_type_full: Scalars['String'];
+  region: Scalars['String'];
+  area_fias_id?: Maybe<Scalars['String']>;
+  area_kladr_id?: Maybe<Scalars['String']>;
+  area_with_type?: Maybe<Scalars['String']>;
+  area_type?: Maybe<Scalars['String']>;
+  area_type_full?: Maybe<Scalars['String']>;
+  area?: Maybe<Scalars['String']>;
+  city_fias_id: Scalars['String'];
+  city_kladr_id: Scalars['String'];
+  city_with_type: Scalars['String'];
+  city_type: Scalars['String'];
+  city_type_full: Scalars['String'];
+  city: Scalars['String'];
+  city_area?: Maybe<Scalars['String']>;
+  city_district_fias_id?: Maybe<Scalars['String']>;
+  city_district_kladr_id?: Maybe<Scalars['String']>;
+  city_district_with_type?: Maybe<Scalars['String']>;
+  city_district_type?: Maybe<Scalars['String']>;
+  city_district_type_full?: Maybe<Scalars['String']>;
+  city_district?: Maybe<Scalars['String']>;
+  settlement_fias_id?: Maybe<Scalars['String']>;
+  settlement_kladr_id?: Maybe<Scalars['String']>;
+  settlement_with_type?: Maybe<Scalars['String']>;
+  settlement_type?: Maybe<Scalars['String']>;
+  settlement_type_full?: Maybe<Scalars['String']>;
+  settlement?: Maybe<Scalars['String']>;
+  street_fias_id: Scalars['String'];
+  street_kladr_id: Scalars['String'];
+  street_with_type: Scalars['String'];
+  street_type: Scalars['String'];
+  street_type_full: Scalars['String'];
+  street: Scalars['String'];
+  house_fias_id: Scalars['String'];
+  house_kladr_id: Scalars['String'];
+  house_type: Scalars['String'];
+  house_type_full: Scalars['String'];
+  house: Scalars['String'];
+  block_type?: Maybe<Scalars['String']>;
+  block_type_full?: Maybe<Scalars['String']>;
+  block?: Maybe<Scalars['String']>;
+  entrance?: Maybe<Scalars['String']>;
+  floor?: Maybe<Scalars['String']>;
+  flat_fias_id?: Maybe<Scalars['String']>;
+  flat_type?: Maybe<Scalars['String']>;
+  flat_type_full?: Maybe<Scalars['String']>;
+  flat?: Maybe<Scalars['String']>;
+  flat_area?: Maybe<Scalars['String']>;
+  square_meter_price?: Maybe<Scalars['String']>;
+  flat_price?: Maybe<Scalars['String']>;
+  postal_box?: Maybe<Scalars['String']>;
+  fias_id: Scalars['String'];
+  fias_code: Scalars['String'];
+  fias_level: Scalars['String'];
+  fias_actuality_state: Scalars['String'];
+  kladr_id: Scalars['String'];
+  geoname_id: Scalars['String'];
+  capital_marker: Scalars['String'];
+  okato: Scalars['String'];
+  oktmo: Scalars['String'];
+  tax_office: Scalars['String'];
+  tax_office_legal: Scalars['String'];
+  timezone?: Maybe<Scalars['String']>;
+  geo_lat: Scalars['String'];
+  geo_lon: Scalars['String'];
+  beltway_hit?: Maybe<Scalars['String']>;
+  beltway_distance?: Maybe<Scalars['String']>;
+  metro?: Maybe<Scalars['String']>;
+  qc_geo: Scalars['String'];
+  qc_complete?: Maybe<Scalars['String']>;
+  qc_house?: Maybe<Scalars['String']>;
+  history_values?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unparsed_parts?: Maybe<Scalars['String']>;
+  source?: Maybe<Scalars['String']>;
+  qc?: Maybe<Scalars['String']>;
+};
+
 export type AuthenticateUserWithPhoneAndPasswordInput = {
   phone: Scalars['String'];
   password: Scalars['String'];
@@ -13202,7 +13298,7 @@ export type Property = {
   /**  Normalized address  */
   address?: Maybe<Scalars['String']>;
   /**  Property address components  */
-  addressMeta?: Maybe<Scalars['JSON']>;
+  addressMeta?: Maybe<AddressMeta>;
   /**  Common property type  */
   type?: Maybe<PropertyTypeType>;
   /**  Property map/schema  */
@@ -16220,7 +16316,7 @@ export type Resident = {
   /**  Normalized address  */
   address?: Maybe<Scalars['String']>;
   /**  Property address components  */
-  addressMeta?: Maybe<Scalars['JSON']>;
+  addressMeta?: Maybe<AddressMeta>;
   /**  Unit of the property, in which this person resides  */
   unitName?: Maybe<Scalars['String']>;
   id: Scalars['ID'];

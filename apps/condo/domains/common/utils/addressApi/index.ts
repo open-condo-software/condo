@@ -1,6 +1,6 @@
 import getConfig from 'next/config'
 import get from 'lodash/get'
-import { AddressMeta, AddressValue } from './AddressMeta'
+import { AddressMeta } from '../../../../schema'
 
 type SuggestionsResponse = Promise<{ suggestions: Array<AddressMeta> }>
 
@@ -71,5 +71,5 @@ export class AddressApi implements IAddressApi {
         to_bound: { value: 'house' },
         restrict_value: true,
     }
-    private addressMetaCache: Map<AddressValue, AddressMeta> = new Map()
+    private addressMetaCache: Map<string, AddressMeta> = new Map()
 }
