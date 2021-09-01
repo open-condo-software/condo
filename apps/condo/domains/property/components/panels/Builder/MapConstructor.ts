@@ -1,53 +1,20 @@
 import { buildingEmptyMapJson } from '@condo/domains/property/constants/property'
 import { cloneDeep, compact, has, uniq, get } from 'lodash'
-
 import { CheckboxValueType } from 'antd/lib/checkbox/Group'
 import MapSchemaJSON from './MapJsonSchema.json'
 import Ajv from 'ajv'
+import {
+    BuildingMap,
+    BuildingMapEntity,
+    BuildingUnit,
+    BuildingSection,
+} from '../../../../../schema'
 
 const ajv = new Ajv()
 const validator = ajv.compile(MapSchemaJSON)
 
 type Maybe<T> = T | null
 
-export enum MapTypesList {
-    Section = 'section',
-    Floor = 'floor',
-    Unit = 'unit',
-    Building = 'building',
-    Village = 'vilage',
-}
-
-export type BuildingUnit = {
-    id: string
-    type: MapTypesList.Unit
-    name?: string,
-    label: string
-    preview?: boolean
-}
-
-export type BuildingFloor = {
-    id: string
-    index: number
-    name: string
-    type: MapTypesList.Floor
-    units: BuildingUnit[]
-}
-
-export type BuildingSection = {
-    id: string
-    index: number
-    name: string
-    type: MapTypesList.Section
-    floors: BuildingFloor[]
-    preview?: boolean    
-}
-
-export type BuildingMap = {
-    dv: number
-    sections: BuildingSection[]
-    type: MapTypesList
-}
 export type BuildingSectionArg =  BuildingSection & {
     minFloor?: number
     maxFloor?: number
@@ -109,17 +76,17 @@ class Map {
             this.map.dv = 1
         }
         if (!has(this.map, 'type')) {
-            this.map.type = MapTypesList.Building
+            this.map.type = BuildingMapEntity.Building
         }
         this.map.sections.forEach((section, sectionIndex) => {
-            section.type = MapTypesList.Section
+            section.type = BuildingMapEntity.Section
             section.id = String(++this.autoincrement)
             section.index = sectionIndex
             if (!has(section, 'name')) {
                 section.name = String(section.index)
             }
             section.floors.forEach((floor, floorIndex) => {
-                floor.type = MapTypesList.Floor
+                floor.type = BuildingMapEntity.Floor
                 floor.id = String(++this.autoincrement)
                 if (!has(floor, 'index')) {
                     floor.index = floorIndex
@@ -128,7 +95,7 @@ class Map {
                     floor.name = String(floorIndex)
                 }
                 floor.units.forEach(unit => {
-                    unit.type = MapTypesList.Unit
+                    unit.type = BuildingMapEntity.Unit
                     unit.id = String(++this.autoincrement)
                     if (!has(unit, 'label')) {
                         unit.label = has(unit, 'name') ? unit.name : ''
@@ -265,7 +232,7 @@ class MapView extends Map {
     }
 
     public getUnitInfo (id: string): BuildingUnitArg {
-        const newUnit: BuildingUnitArg = { id: '', label: '', floor: '', section: '', type: MapTypesList.Unit }
+        const newUnit: BuildingUnitArg = { id: '', label: '', floor: '', section: '', type: BuildingMapEntity.Unit }
         if (!id) {
             return newUnit
         }
@@ -445,7 +412,7 @@ class MapEdit extends MapView {
             index: this.sections.length + 1,
             type: null,
         }
-        newSection.type = MapTypesList.Section
+        newSection.type = BuildingMapEntity.Section
         for (let floor = minFloor; floor <= maxFloor; floor++) {
             if (floor === 0) {
                 continue
@@ -467,7 +434,7 @@ class MapEdit extends MapView {
                 id: String(++this.autoincrement),
                 index: floor,
                 name: String(floor),
-                type: MapTypesList.Floor,
+                type: BuildingMapEntity.Floor,
                 units,
             })
         }
@@ -527,7 +494,7 @@ class MapEdit extends MapView {
             type: null,
             preview: true,
         }
-        newUnit.type = MapTypesList.Unit
+        newUnit.type = BuildingMapEntity.Unit
         if (!id) {
             newUnit.id = String(++this.autoincrement)
         }
@@ -551,7 +518,7 @@ class MapEdit extends MapView {
             label, 
             type: null,
         }
-        newUnit.type = MapTypesList.Unit
+        newUnit.type = BuildingMapEntity.Unit
         if (!id) {
             newUnit.id = String(++this.autoincrement)
         }

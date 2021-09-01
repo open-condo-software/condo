@@ -13,10 +13,12 @@ import { Button } from '@condo/domains/common/components/Button'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import {
     MapEdit,
+} from './MapConstructor'
+import {
     BuildingMap,
     BuildingUnit,
     BuildingSection,
-} from './MapConstructor'
+} from '../../../../../schema'
 import { FullscreenWrapper, FullscreenHeader } from './Fullscreen'
 
 import ScrollContainer from 'react-indiana-drag-scroll'

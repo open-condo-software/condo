@@ -12,7 +12,7 @@ const get = require('lodash/get')
 const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 const { hasDbFields, hasRequestFields } = require('@condo/domains/common/utils/validation.utils')
 const { DV_UNKNOWN_VERSION_ERROR, JSON_UNKNOWN_VERSION_ERROR, JSON_SCHEMA_VALIDATION_ERROR, REQUIRED_NO_VALUE_ERROR, JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/errors')
-const { GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY, GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY } = require('../gql')
+const { PROPERTY_MAP_GRAPHQL_TYPES, GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY, GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY } = require('../gql')
 const MapSchemaJSON = require('@condo/domains/property/components/panels/Builder/MapJsonSchema.json')
 const Ajv = require('ajv')
 const { ADDRESS_META_FIELD } = require('@condo/domains/common/schema/fields')
@@ -20,6 +20,8 @@ const { UNIQUE_ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants
 const { Property: PropertyAPI } = require('../utils/serverSchema')
 const ajv = new Ajv()
 const jsonMapValidator = ajv.compile(MapSchemaJSON)
+
+
 
 // ORGANIZATION_OWNED_FIELD
 const Property = new GQLListSchema('Property', {
@@ -70,6 +72,8 @@ const Property = new GQLListSchema('Property', {
         map: {
             schemaDoc: 'Property map/schema',
             type: Json,
+            extendGraphQLTypes: [PROPERTY_MAP_GRAPHQL_TYPES],
+            graphQLReturnType: 'BuildingMap',
             isRequired: false,
             hooks: {
                 validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
