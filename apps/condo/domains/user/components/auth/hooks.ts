@@ -9,7 +9,6 @@ type ValidatorsMap = {
 
 export const useRegisterFormValidators = () => {
     const intl = useIntl()
-    const PleaseInputYourEmailMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourEmail' })
     const PleaseInputYourPasswordMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourPassword' })
     const PleaseInputYourNameMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourName' })
     const EmailIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
@@ -44,10 +43,6 @@ export const useRegisterFormValidators = () => {
                 {
                     type: 'email',
                     message: EmailIsNotValidMsg,
-                },
-                {
-                    required: true,
-                    message: PleaseInputYourEmailMsg,
                 },
             ],
             password: [
