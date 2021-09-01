@@ -1,5 +1,5 @@
-const ADDRESS_META_GRAPHQL_TYPES = `
-    type AddressMetaData {
+const ADDRESS_META_FIELD_GRAPHQL_TYPES = `
+    type AddressMetaDataField {
         postal_code: String!
         country: String!
         country_iso_code: String!
@@ -86,11 +86,11 @@ const ADDRESS_META_GRAPHQL_TYPES = `
         qc: String
     }
     
-    type AddressMeta {
+    type AddressMetaField {
         dv: Int!
         value: String!
         unrestricted_value: String!
-        data: AddressMetaData!
+        data: AddressMetaDataField!
     }
 `
 
@@ -184,7 +184,7 @@ const ADDRESS_META_DATA_FIELDS = [
 const ADDRESS_META_SUBFIELDS_QUERY_LIST = `dv value unrestricted_value data { ${ADDRESS_META_DATA_FIELDS.join(' ')} }`
 
 module.exports = {
-    ADDRESS_META_GRAPHQL_TYPES,
+    ADDRESS_META_FIELD_GRAPHQL_TYPES,
     ADDRESS_META_SUBFIELDS_QUERY_LIST,
     ADDRESS_META_DATA_FIELDS,
 }

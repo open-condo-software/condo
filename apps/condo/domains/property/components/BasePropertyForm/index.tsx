@@ -9,7 +9,7 @@ import { AddressSuggestionsSearchInput } from '@condo/domains/property/component
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import { PropertyPanels } from '../panels'
 import Prompt from '@condo/domains/common/components/Prompt'
-import { AddressMeta } from '../../../../schema'
+import { AddressMetaField } from '../../../../schema'
 import { useState } from 'react'
 import { validHouseTypes, validSettlementTypes } from '@condo/domains/property/constants/property'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
@@ -118,7 +118,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                     >
                                         <AddressSuggestionsSearchInput
                                             onSelect={(_, option) => {
-                                                const address = JSON.parse(option.key) as AddressMeta
+                                                const address = JSON.parse(option.key) as AddressMetaField
                                                 if (!validHouseTypes.includes(address.data.house_type_full)) {
                                                     setAddressValidatorError(AddressValidationErrorMsg)
                                                 }

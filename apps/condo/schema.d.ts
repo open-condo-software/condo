@@ -28,16 +28,8 @@ export type AcceptOrRejectOrganizationInviteInput = {
   isAccepted?: Maybe<Scalars['Boolean']>;
 };
 
-export type AddressMeta = {
-  __typename?: 'AddressMeta';
-  dv: Scalars['Int'];
-  value: Scalars['String'];
-  unrestricted_value: Scalars['String'];
-  data: AddressMetaData;
-};
-
-export type AddressMetaData = {
-  __typename?: 'AddressMetaData';
+export type AddressMetaDataField = {
+  __typename?: 'AddressMetaDataField';
   postal_code: Scalars['String'];
   country: Scalars['String'];
   country_iso_code: Scalars['String'];
@@ -122,6 +114,14 @@ export type AddressMetaData = {
   unparsed_parts?: Maybe<Scalars['String']>;
   source?: Maybe<Scalars['String']>;
   qc?: Maybe<Scalars['String']>;
+};
+
+export type AddressMetaField = {
+  __typename?: 'AddressMetaField';
+  dv: Scalars['Int'];
+  value: Scalars['String'];
+  unrestricted_value: Scalars['String'];
+  data: AddressMetaDataField;
 };
 
 export type AuthenticateUserWithPhoneAndPasswordInput = {
@@ -13298,7 +13298,7 @@ export type Property = {
   /**  Normalized address  */
   address?: Maybe<Scalars['String']>;
   /**  Property address components  */
-  addressMeta?: Maybe<AddressMeta>;
+  addressMeta?: Maybe<AddressMetaField>;
   /**  Common property type  */
   type?: Maybe<PropertyTypeType>;
   /**  Property map/schema  */
@@ -16316,7 +16316,7 @@ export type Resident = {
   /**  Normalized address  */
   address?: Maybe<Scalars['String']>;
   /**  Property address components  */
-  addressMeta?: Maybe<AddressMeta>;
+  addressMeta?: Maybe<AddressMetaField>;
   /**  Unit of the property, in which this person resides  */
   unitName?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
