@@ -5,7 +5,7 @@ import MapSchemaJSON from './MapJsonSchema.json'
 import Ajv from 'ajv'
 import {
     BuildingMap,
-    BuildingMapEntity,
+    BuildingMapEntityType,
     BuildingUnit,
     BuildingSection,
 } from '../../../../../schema'
@@ -76,17 +76,17 @@ class Map {
             this.map.dv = 1
         }
         if (!has(this.map, 'type')) {
-            this.map.type = BuildingMapEntity.Building
+            this.map.type = BuildingMapEntityType.Building
         }
         this.map.sections.forEach((section, sectionIndex) => {
-            section.type = BuildingMapEntity.Section
+            section.type = BuildingMapEntityType.Section
             section.id = String(++this.autoincrement)
             section.index = sectionIndex
             if (!has(section, 'name')) {
                 section.name = String(section.index)
             }
             section.floors.forEach((floor, floorIndex) => {
-                floor.type = BuildingMapEntity.Floor
+                floor.type = BuildingMapEntityType.Floor
                 floor.id = String(++this.autoincrement)
                 if (!has(floor, 'index')) {
                     floor.index = floorIndex
@@ -95,7 +95,7 @@ class Map {
                     floor.name = String(floorIndex)
                 }
                 floor.units.forEach(unit => {
-                    unit.type = BuildingMapEntity.Unit
+                    unit.type = BuildingMapEntityType.Unit
                     unit.id = String(++this.autoincrement)
                     if (!has(unit, 'label')) {
                         unit.label = has(unit, 'name') ? unit.name : ''
@@ -232,7 +232,7 @@ class MapView extends Map {
     }
 
     public getUnitInfo (id: string): BuildingUnitArg {
-        const newUnit: BuildingUnitArg = { id: '', label: '', floor: '', section: '', type: BuildingMapEntity.Unit }
+        const newUnit: BuildingUnitArg = { id: '', label: '', floor: '', section: '', type: BuildingMapEntityType.Unit }
         if (!id) {
             return newUnit
         }
@@ -412,7 +412,7 @@ class MapEdit extends MapView {
             index: this.sections.length + 1,
             type: null,
         }
-        newSection.type = BuildingMapEntity.Section
+        newSection.type = BuildingMapEntityType.Section
         for (let floor = minFloor; floor <= maxFloor; floor++) {
             if (floor === 0) {
                 continue
@@ -434,7 +434,7 @@ class MapEdit extends MapView {
                 id: String(++this.autoincrement),
                 index: floor,
                 name: String(floor),
-                type: BuildingMapEntity.Floor,
+                type: BuildingMapEntityType.Floor,
                 units,
             })
         }
@@ -494,7 +494,7 @@ class MapEdit extends MapView {
             type: null,
             preview: true,
         }
-        newUnit.type = BuildingMapEntity.Unit
+        newUnit.type = BuildingMapEntityType.Unit
         if (!id) {
             newUnit.id = String(++this.autoincrement)
         }
@@ -518,7 +518,7 @@ class MapEdit extends MapView {
             label, 
             type: null,
         }
-        newUnit.type = BuildingMapEntity.Unit
+        newUnit.type = BuildingMapEntityType.Unit
         if (!id) {
             newUnit.id = String(++this.autoincrement)
         }
