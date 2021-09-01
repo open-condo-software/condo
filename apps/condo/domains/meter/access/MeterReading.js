@@ -57,31 +57,7 @@ async function canManageMeterReadings ({ authentication: { item: user }, origina
 
         return await checkPermissionInUserOrganizationOrRelatedOrganization(context, user.id, organizationIdFromMeterReading, 'canManageMeters')
 
-    } else if (operation === 'update') {
-        if (!itemId) {
-            return false
-        }
-
-        const [meterReading] = await MeterReading.getAll(context, { id: itemId })
-        if (!meterReading)
-            return false
-
-        // if we pass property then we need check that this Property is in the organization in which the Meter is located
-        const organizationIdFromMeterReading = get(meterReading, ['organization', 'id'])
-        const propertyId = get(originalInput, ['property', 'connect', 'id'])
-        if (propertyId) {
-            const [property] = await Property.getAll(context, { id: propertyId })
-            if (!property)
-                return false
-
-            const organizationIdFromProperty = get(property, ['organization', 'id'])
-            if (organizationIdFromMeterReading !== organizationIdFromProperty)
-                return false
-        }
-
-        return await checkPermissionInUserOrganizationOrRelatedOrganization(context, user.id, organizationIdFromMeterReading, 'canManageMeters')
     }
-
     return false
 }
 
