@@ -8,6 +8,9 @@ import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
 import { TableRecord } from '@condo/domains/common/components/Table/Index'
 import { SubText } from '@condo/domains/common/components/Text'
 import { SizeType } from 'antd/es/config-provider/SizeContext'
+import { PlusSquareOutlined, MinusSquareOutlined } from '@ant-design/icons'
+import styled from '@emotion/styled'
+import { colors } from '@condo/domains/common/constants/style'
 
 interface IServicesModalProps {
     receipt: IBillingReceiptUIState
@@ -40,6 +43,15 @@ const splitServices = (receipt: IBillingReceiptUIState) => {
         insignificantServices,
     }
 }
+
+const ExpandIconWrapper = styled.div`
+  font-size: 20px;
+  margin-right: 12px;
+  width: 20px;
+  color: ${colors.green[6]};
+  transform: translateY(2px);
+  display: inline-block;
+`
 
 const formatRows = (significantServices: Array<TableRecord>, insignificantServices: Array<TableRecord>, expandMessage: string) => {
     if (significantServices.length) {
@@ -126,6 +138,20 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
                 pagination={false}
                 expandable={{
                     indentSize: 0,
+                    // eslint-disable-next-line react/display-name
+                    expandIcon: ({ expanded, onExpand, record }) => {
+                        if (record.name !== ExpandMessage) return
+                        if (expanded) return (
+                            <ExpandIconWrapper>
+                                <MinusSquareOutlined onClick={(e) => onExpand(record, e)}/>
+                            </ExpandIconWrapper>
+                        )
+                        return (
+                            <ExpandIconWrapper>
+                                <PlusSquareOutlined onClick={(e) => onExpand(record, e)}/>
+                            </ExpandIconWrapper>
+                        )
+                    },
                 }}
                 onExpand={handleRowExpand}
                 expandedRowKeys={expanded ? [ExpandMessage] : []}
