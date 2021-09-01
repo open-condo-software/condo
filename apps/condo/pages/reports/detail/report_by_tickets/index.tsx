@@ -470,9 +470,9 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                 labelLayout: (chart) =>  {
                                     const { dataIndex, seriesIndex } = chart
                                     const elementYOffset = 25 * dataIndex
-                                    const yOffset = 70 + 250 * Math.floor(seriesIndex / 2) + 10 + elementYOffset
+                                    const yOffset = 75 + 250 * Math.floor(seriesIndex / 2) + 10 + elementYOffset
                                     return {
-                                        x: 300,
+                                        x: 380,
                                         y: yOffset,
                                         align: 'left',
                                         verticalAlign: 'top',
