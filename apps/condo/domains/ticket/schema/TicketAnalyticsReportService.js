@@ -111,7 +111,11 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
         },
         {
             access: true,
-            type: 'input ExportTicketAnalyticsToExcelInput { where: TicketWhereInput!, groupBy: [TicketAnalyticsGroupBy!], translates: JSON }',
+            type: 'input ExportTicketAnalyticsToExcelTranslates { property: String }',
+        },
+        {
+            access: true,
+            type: 'input ExportTicketAnalyticsToExcelInput { where: TicketWhereInput!, groupBy: [TicketAnalyticsGroupBy!], translates: ExportTicketAnalyticsToExcelTranslates! }',
         },
         {
             access: true,
@@ -145,7 +149,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
 
                 let rowColumns = []
                 const groupByToken = groupBy.join('-')
-                let address = get(translates, 'property')
+                const address = get(translates, 'property', '')
 
                 switch (groupByToken) {
                     case 'status-day':

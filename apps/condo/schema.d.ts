@@ -6044,12 +6044,16 @@ export type ExportPropertiesToExcelOutput = {
 export type ExportTicketAnalyticsToExcelInput = {
   where: TicketWhereInput;
   groupBy?: Maybe<Array<TicketAnalyticsGroupBy>>;
-  translates?: Maybe<Scalars['JSON']>;
+  translates: ExportTicketAnalyticsToExcelTranslates;
 };
 
 export type ExportTicketAnalyticsToExcelOutput = {
   __typename?: 'ExportTicketAnalyticsToExcelOutput';
   link: Scalars['String'];
+};
+
+export type ExportTicketAnalyticsToExcelTranslates = {
+  property?: Maybe<Scalars['String']>;
 };
 
 export type ExportTicketsToExcelInput = {
