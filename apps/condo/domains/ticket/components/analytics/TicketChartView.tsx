@@ -42,8 +42,8 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
     const intl = useIntl()
     const chartRefs = useRef([])
     const NoData = intl.formatMessage({ id: 'NoData' })
-    let series, legend = []
-    let axisData, tooltip = {}
+    let series = [], legend = []
+    let axisData = {}, tooltip = {}
     if (data !== null) {
         const mapperResult = mapperInstance.getChartConfig(viewMode, data)
         series = mapperResult.series
@@ -54,7 +54,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
 
     useEffect(() => {
         chartRefs.current = chartRefs.current.slice(0, series.length)
-    }, [series])
+    }, [data])
 
     if (data === null || loading) {
         return <Skeleton loading={loading} active paragraph={{ rows: 12 }} />
@@ -137,17 +137,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
         color: CHART_COLOR_SET,
         legend: {
             data: legend,
-            top: 80,
             show: false,
-            icon: 'circle',
-            itemWidth: 7,
-            itemHeight: 7,
-            left: 280,
-            itemGap: 10,
-            orient: 'vertical',
-            textStyle: {
-                fontSize: 14,
-            },
         },
         tooltip: { trigger: 'item' },
     }
