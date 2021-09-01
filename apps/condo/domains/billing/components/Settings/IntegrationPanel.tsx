@@ -28,7 +28,7 @@ const CardContainer = styled.div`
         : 'transparent'};
   &:hover {
     border-color: transparent;
-    ${shadows.elevatedShadow}
+    box-shadow: ${shadows.elevated};
   }
 `
 

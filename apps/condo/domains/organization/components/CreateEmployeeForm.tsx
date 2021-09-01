@@ -36,7 +36,7 @@ const INPUT_LAYOUT_PROPS = {
 const CardCss = css`
     width: 300px;
     height: fit-content;
-    ${shadows.cardShadow}
+    box-shadow: ${shadows.elevated};
 `
 
 export const CreateEmployeeForm: React.FC = () => {

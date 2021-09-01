@@ -62,7 +62,7 @@ export const StepContainer = styled(FocusContainer)<{ type: OnBoardingStepType }
 
         return `
             &:hover {
-                box-shadow: ${shadows.hover};
+                box-shadow: ${shadows.elevated};
                 ${ActivateStepIcon} {
                     opacity: 1;
                 }
