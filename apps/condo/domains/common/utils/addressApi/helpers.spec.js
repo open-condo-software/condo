@@ -7,11 +7,11 @@ describe('helpers', () => {
         it('wipes out flat with prefix', () => {
             const withFlat = true
             const addressMeta = buildFakeAddressMeta(withFlat)
-            const { address } = addressMeta
+            const { value } = addressMeta
 
             // Try with automatic preparation
-            const index = address.lastIndexOf(',')
-            const addressWithoutFlat = address.substring(0, index)
+            const index = value.lastIndexOf(',')
+            const addressWithoutFlat = value.substring(0, index)
             expect(getAddressUpToBuildingFrom(addressMeta)).toEqual(addressWithoutFlat)
 
             // Try with manual preparation
@@ -23,18 +23,18 @@ describe('helpers', () => {
 
         it('returns address without flat as is', () => {
             const addressMeta = buildFakeAddressMeta(false)
-            const { address } = addressMeta
-            expect(getAddressUpToBuildingFrom(addressMeta)).toEqual(address)
+            const { value } = addressMeta
+            expect(getAddressUpToBuildingFrom(addressMeta)).toEqual(value)
         })
 
         it('throws an error, if flat is presented in addressMeta without flat_type', () => {
             const withFlat = true
             const addressMeta = buildFakeAddressMeta(withFlat)
             addressMeta.data.flat_type = null
-            const { address } = addressMeta
+            const { value } = addressMeta
 
             catchErrorFrom(async () => {
-                getAddressUpToBuildingFrom(address, addressMeta)
+                getAddressUpToBuildingFrom(value, addressMeta)
             }, (error) => {
                 expect(error.message).toEqual(FLAT_WITHOUT_FLAT_TYPE_MESSAGE)
             })
