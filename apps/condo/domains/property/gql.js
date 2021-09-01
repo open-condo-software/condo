@@ -20,7 +20,7 @@ const PROPERTY_MAP_GRAPHQL_TYPES = `
     scalar unit
     scalar village
 
-    enum BuildingMapEntity {
+    enum BuildingMapEntityType {
         building
         section
         floor
@@ -56,7 +56,7 @@ const PROPERTY_MAP_GRAPHQL_TYPES = `
     type BuildingMap {
         dv: Int!
         sections: [BuildingSection]
-        type: BuildingMapEntity
+        type: BuildingMapEntityType
     }
 `
 

@@ -5,7 +5,7 @@ import get from 'lodash/get'
 import { Property } from '../utils/clientSchema'
 import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 import { MapEdit } from '../components/panels/Builder/MapConstructor'
-import { BuildingMapEntity } from '../../../schema'
+import { BuildingMapEntityType } from '../../../schema'
 import { TableRow, Columns, RowNormalizer, RowValidator, ObjectCreator } from '@condo/domains/common/utils/importer'
 
 const createPropertyUnitsMap = (units, sections, floors) => {
@@ -16,7 +16,7 @@ const createPropertyUnitsMap = (units, sections, floors) => {
 
     const propertyUnitsMap = {
         dv: 1,
-        type: BuildingMapEntity.Building,
+        type: BuildingMapEntityType.Building,
         sections: [],
     }
 
