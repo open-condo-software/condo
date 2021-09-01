@@ -10,7 +10,7 @@ const access = require('@condo/domains/meter/access/MeterReading')
 const { VALUE_LESS_THAN_PREVIOUS_ERROR } = require('@condo/domains/meter/constants/errors')
 const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 const { MeterReading: MeterReadingApi } = require('../utils/serverSchema')
-const moment = require('moment')
+const { BILLING_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { AutoIncrementInteger } = require('@core/keystone/fields')
 const { PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
@@ -73,11 +73,16 @@ const MeterReading = new GQLListSchema('MeterReading', {
             type: Integer,
             isRequired: true,
             hooks: {
-                validateInput: async ({ context, operation, itemId, resolvedData, fieldPath, addFieldValidationError }) => {
-                    if (operation === 'update') {
+                validateInput: async ({ context, operation, resolvedData, fieldPath, addFieldValidationError }) => {
+                    if (operation === 'create') {
                         const value = resolvedData[fieldPath]
 
-                        const [lastMeterReading] = await MeterReadingApi.getAll(context, { id: itemId }, {
+                        const { meter: meterId } = resolvedData
+
+                        const [lastMeterReading] = await MeterReadingApi.getAll(context, {
+                            meter: { id: meterId },
+                            source: { id: BILLING_SOURCE_ID },
+                        }, {
                             sortBy: ['createdAt_DESC'],
                         })
 
