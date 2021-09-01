@@ -8,9 +8,56 @@ const { generateGqlQueries } = require('@condo/domains/common/utils/codegenerati
 const { gql } = require('graphql-tag')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt organization { id name} newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
-
-const PROPERTY_FIELDS = `{ name address addressMeta type ticketsInWork ticketsClosed unitsCount map ${COMMON_FIELDS} }`
+const PROPERTY_MAP_JSON_FIELDS = 'dv type sections { id type index name preview floors { id type index name units { id type name label preview } } }'
+const PROPERTY_FIELDS = `{ name address addressMeta type ticketsInWork ticketsClosed unitsCount map { ${PROPERTY_MAP_JSON_FIELDS} } ${COMMON_FIELDS} }`
 const Property = generateGqlQueries('Property', PROPERTY_FIELDS)
+
+const PROPERTY_MAP_GRAPHQL_TYPES = `
+    scalar building
+    scalar section
+    scalar floor
+    scalar unit
+    scalar village
+
+    enum BuildingMapEntity {
+        building
+        section
+        floor
+        unit
+        village
+    }
+
+    type BuildingUnit {
+        id: String!
+        type: unit!
+        name: String
+        label: String!
+        preview: Boolean
+    }
+
+    type BuildingFloor {
+        id: String!
+        type: floor!
+        index: Int!
+        name: String!
+        units: [BuildingUnit]!
+    }
+
+    type BuildingSection {
+        id: String!
+        type: section!
+        index: Int!
+        name: String!
+        floors: [BuildingFloor]!
+        preview: Boolean  
+    }
+
+    type BuildingMap {
+        dv: Int!
+        sections: [BuildingSection]
+        type: BuildingMapEntity
+    }
+`
 
 const GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY = gql`
     query GetTicketInWorkCountForProperty ($propertyId: ID!) {
@@ -43,6 +90,7 @@ const EXPORT_PROPERTIES_TO_EXCEL =  gql`
 
 module.exports = {
     Property,
+    PROPERTY_MAP_GRAPHQL_TYPES,
     GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY,
     GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY,
     CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY,

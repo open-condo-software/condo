@@ -8,10 +8,8 @@ import { Col, Row } from 'antd'
 import React, { useEffect, useState } from 'react'
 import cloneDeep from 'lodash/cloneDeep'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
-import {
-    MapView,
-    BuildingMap,
-} from './MapConstructor'
+import { MapView } from './MapConstructor'
+import { BuildingMap } from '../../../../../schema'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
 import { useRouter } from 'next/router'
 import { EditFilled } from '@ant-design/icons'

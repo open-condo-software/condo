@@ -13,6 +13,11 @@ export type Scalars = {
   JSON: any;
   /** The `Upload` scalar type represents a file upload. */
   Upload: any;
+  building: any;
+  floor: any;
+  section: any;
+  unit: any;
+  village: any;
 };
 
 
@@ -4662,6 +4667,49 @@ export type BillingReceiptsCreateInput = {
 export type BillingReceiptsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<BillingReceiptUpdateInput>;
+};
+
+export type BuildingFloor = {
+  __typename?: 'BuildingFloor';
+  id: Scalars['String'];
+  type: Scalars['floor'];
+  index: Scalars['Int'];
+  name: Scalars['String'];
+  units: Array<Maybe<BuildingUnit>>;
+};
+
+export type BuildingMap = {
+  __typename?: 'BuildingMap';
+  dv: Scalars['Int'];
+  sections?: Maybe<Array<Maybe<BuildingSection>>>;
+  type?: Maybe<BuildingMapEntity>;
+};
+
+export enum BuildingMapEntity {
+  Building = 'building',
+  Section = 'section',
+  Floor = 'floor',
+  Unit = 'unit',
+  Village = 'village'
+}
+
+export type BuildingSection = {
+  __typename?: 'BuildingSection';
+  id: Scalars['String'];
+  type: Scalars['section'];
+  index: Scalars['Int'];
+  name: Scalars['String'];
+  floors: Array<Maybe<BuildingFloor>>;
+  preview?: Maybe<Scalars['Boolean']>;
+};
+
+export type BuildingUnit = {
+  __typename?: 'BuildingUnit';
+  id: Scalars['String'];
+  type: Scalars['unit'];
+  name?: Maybe<Scalars['String']>;
+  label: Scalars['String'];
+  preview?: Maybe<Scalars['Boolean']>;
 };
 
 export enum CacheControlScope {
@@ -13158,7 +13206,7 @@ export type Property = {
   /**  Common property type  */
   type?: Maybe<PropertyTypeType>;
   /**  Property map/schema  */
-  map?: Maybe<Scalars['JSON']>;
+  map?: Maybe<BuildingMap>;
   /**  A number of parts in the property. The number of flats for property.type = house. The number of garden houses for property.type = village.  */
   unitsCount?: Maybe<Scalars['Int']>;
   /**  Counter for closed tickets  */
@@ -25924,6 +25972,9 @@ export type AuthenticateUserOutput = {
   item?: Maybe<User>;
 };
 
+
+
+
 export type UnauthenticateUserOutput = {
   __typename?: 'unauthenticateUserOutput';
   /**
@@ -25932,3 +25983,5 @@ export type UnauthenticateUserOutput = {
    */
   success?: Maybe<Scalars['Boolean']>;
 };
+
+
