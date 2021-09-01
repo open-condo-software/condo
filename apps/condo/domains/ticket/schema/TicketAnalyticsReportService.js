@@ -7,11 +7,9 @@ const access = require('@condo/domains/ticket/access/TicketAnalyticsReportServic
 const moment = require('moment')
 const {
     sortStatusesByType,
-    loadModelsByChunks,
     aggregateData,
     TicketGqlToKnexAdapter } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
 const { DATE_DISPLAY_FORMAT } = require('@condo/domains/ticket/constants/common')
-const { Property: PropertyServerUtils } = require('@condo/domains/property/utils/serverSchema')
 const { TicketStatus: TicketStatusServerUtils, Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 const isEmpty = require('lodash/isEmpty')
 const get = require('lodash/get')
@@ -19,11 +17,15 @@ const { createExportFile } = require('@condo/domains/common/utils/createExportFi
 const propertySummaryDataMapper = require('@condo/domains/ticket/utils/serverSchema/propertySummaryDataMapper')
 const propertySingleDataMapper = require('@condo/domains/ticket/utils/serverSchema/propertySingleDataMapper')
 const dayGroupDataMapper = require('@condo/domains/ticket/utils/serverSchema/dayGroupDataMapper')
+const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
 
-const createPropertyRange = async (context, organizationWhereInput) => {
-    const properties = await loadModelsByChunks(
-        { context, model: PropertyServerUtils, where: { organization: organizationWhereInput } }
-    )
+const createPropertyRange = async (organizationWhereInput) => {
+    const propertyLoader = new GqlWithKnexLoadList({
+        listKey: 'Property',
+        fields: 'id address',
+        where: { organization: organizationWhereInput },
+    })
+    const properties = await propertyLoader.load()
     return properties.map( property => ({ label: property.address, value: property.id }))
 }
 
@@ -52,7 +54,7 @@ const getTicketCounts = async (context, where, groupBy, extraLabels = {}) => {
     for (const group of groupBy) {
         switch (group) {
             case 'property':
-                translates[group] = await createPropertyRange(context, where.organization)
+                translates[group] = await createPropertyRange(where.organization)
                 break
             case 'status':
                 translates[group] = await createStatusRange(

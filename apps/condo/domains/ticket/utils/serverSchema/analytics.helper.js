@@ -98,34 +98,9 @@ const aggregateData = (data, groupByFilter) => {
     return { result, groupKeys: [axisGroupKey, labelsGroupKey] }
 }
 
-// FIXME(sitozzz): replace with zuch knex based solution on branch SBERDOMA-992
-// Now can be selected 100 items by default with getAll method
-// Remove this after @zuch add knex reusable solution
-const loadModelsByChunks = async ({
-    context,
-    model,
-    where = {},
-    sortBy = ['createdAt_ASC'],
-    chunkSize = 100,
-    limit = 100000,
-}) => {
-    let skip = 0
-    let maxIterationsCount = Math.ceil(limit / chunkSize)
-    let newChunk = []
-    let all = []
-    do {
-        newChunk = await model.getAll(context, where, { sortBy, first: chunkSize, skip: skip })
-        all = all.concat(newChunk)
-        skip += newChunk.length
-    } while (--maxIterationsCount > 0 && newChunk.length)
-    return all
-}
-
-
 module.exports = {
     DATE_FORMATS,
     TicketGqlToKnexAdapter,
     sortStatusesByType,
     aggregateData,
-    loadModelsByChunks,
 }
