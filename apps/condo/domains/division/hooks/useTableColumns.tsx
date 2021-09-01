@@ -2,15 +2,17 @@
 import { useMemo } from 'react'
 import { useIntl } from '@core/next/intl'
 
-import { FilterValue } from 'antd/es/table/interface'
+import { ColumnType, FilterValue } from 'antd/es/table/interface'
 
-import { ColumnInfo, convertColumns, FiltersFromQueryType, Sorters } from '@condo/domains/common/utils/tables.utils'
-import { isEmpty } from 'lodash'
+import { FiltersFromQueryType, Sorters } from '@condo/domains/common/utils/tables.utils'
+import { get, isEmpty } from 'lodash'
 import { EmptyTableCell } from '@condo/domains/common/components/Table/EmptyTableCell'
 import { Typography } from 'antd'
 import { Highliter } from '@condo/domains/common/components/Highliter'
 import { colors } from '@condo/domains/common/constants/style'
 import { Division } from '../utils/clientSchema'
+import { getFilterValue, getTextFilterDropdown } from '@condo/domains/common/components/Table/Filters'
+import { getTextRender } from '@condo/domains/common/components/Table/Renders'
 
 export interface ITableColumn {
     title: string,
@@ -30,7 +32,7 @@ export const useTableColumns = (sorters: Sorters, filters: FiltersFromQueryType)
     const DivisionTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Division' })
     const BuildingsTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Buildings' })
     const ForemanTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Foreman' })
-    const TechiesTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Techies' })
+    const TechniciansTitleMessage  = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Technicians' })
     const { search } = filters
     const render = (text, isArray = false) => {
         let result = text
@@ -51,22 +53,24 @@ export const useTableColumns = (sorters: Sorters, filters: FiltersFromQueryType)
     }
     return useMemo(() => {
         type ColumnTypes = [
-            ColumnInfo<string>,
-            ColumnInfo<Division.IDivisionUIState['properties']>,
-            ColumnInfo<Division.IDivisionUIState['responsible']>,
-            ColumnInfo<Division.IDivisionUIState['executors']>,
+            ColumnType<string>,
+            ColumnType<Division.IDivisionUIState['properties']>,
+            ColumnType<Division.IDivisionUIState['responsible']>,
+            ColumnType<Division.IDivisionUIState['executors']>,
         ]
+        const search = get(filters, 'search')
         const columns: ColumnTypes = [
             {
                 title: DivisionTitleMessage,
                 ellipsis: true,
                 dataIndex: 'name',
                 key: 'name',
-                sortable: true,
-                width: 25,
-                filter: {
-                    type: 'string',
-                },
+                sorter: true,
+                filterDropdown: getTextFilterDropdown(DivisionTitleMessage),
+                filteredValue: getFilterValue('name', filters),
+                width: '25%',
+                render: !Array.isArray(search) ? getTextRender(search) : undefined,
+                sortOrder: get(sorters, 'name'),
             },
             {
                 title: BuildingsTitleMessage,
@@ -74,7 +78,7 @@ export const useTableColumns = (sorters: Sorters, filters: FiltersFromQueryType)
                 dataIndex: 'properties',
                 key: 'properties',
                 render: (properties) => properties.map((property) => render(property.address, true)),
-                width: 35,
+                width: '35%',
             },
             {
                 title: ForemanTitleMessage,
@@ -82,18 +86,17 @@ export const useTableColumns = (sorters: Sorters, filters: FiltersFromQueryType)
                 dataIndex: 'responsible',
                 key: 'responsible',
                 render: (responsible) => render(responsible.name),
-
-                width: 20,
+                width: '20%',
             },
             {
-                title: TechiesTitleMessage,
+                title: TechniciansTitleMessage,
                 ellipsis: true,
                 dataIndex: 'executors',
                 render: (executors) => executors.map((executor) => render(executor.name, true)),
                 key: 'executors',
-                width: 20,
+                width: '20%',
             },
         ]
-        return convertColumns(columns, filters, sorters)
+        return columns
     }, [filters, sorters, render])
 }
