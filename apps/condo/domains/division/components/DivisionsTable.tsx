@@ -18,7 +18,7 @@ import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { Division } from '@condo/domains/division/utils/clientSchema'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { colors } from '@condo/domains/common/constants/style'
-import { DivisionWhereInput, SortDivisionsBy } from '../../../schema'
+import { DivisionWhereInput, SortDivisionsBy } from '@app/condo/schema'
 
 
 type BuildingTableProps = {
@@ -171,7 +171,11 @@ export default function DivisionTable (props: BuildingTableProps) {
                     onRow={handleRowAction}
                     columns={tableColumns}
                     pageSize={PROPERTY_PAGE_SIZE}
-                    staticQueryParams={['tab']}
+                    applyQuery={(queryParams)=> {
+                        queryParams['tab'] = router.query['tab'] 
+                        const newQuery = qs.stringify({ ...queryParams }, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })
+                        return router.push(router.route + newQuery)
+                    }}
                 />
             </Col>
         </Row>)
