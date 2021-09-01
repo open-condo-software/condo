@@ -1,4 +1,5 @@
-import { MapEdit, MapTypesList } from './MapConstructor'
+import { MapEdit } from './MapConstructor'
+import { BuildingMapEntity } from '../../../../../schema'
 import { notValidBuildingMapJson, buildingMapJson } from '@condo/domains/property/constants/property'
 import { cloneDeep } from 'lodash'
 
@@ -15,7 +16,7 @@ const sectionName = () => {
 const createBuildingMap = (sections: number): MapEdit => {
     const PropertyMap = new MapEdit(null, () => null )
     for (let i = 0; i < sections; i++){
-        PropertyMap.addSection({ ...testSection, name: sectionName(), type: MapTypesList.Section })
+        PropertyMap.addSection({ ...testSection, name: sectionName(), type: BuildingMapEntity.Section })
     }
     return PropertyMap
 }
