@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef,  useEffect } from 'react'
 import { useIntl } from '@core/next/intl'
 import { Col, Row, Skeleton, Typography } from 'antd'
 import isEmpty from 'lodash/isEmpty'
@@ -40,14 +40,28 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
     mapperInstance,
 }) => {
     const intl = useIntl()
+    const chartRefs = useRef([])
     const NoData = intl.formatMessage({ id: 'NoData' })
+    let series, legend = []
+    let axisData, tooltip = {}
+    if (data !== null) {
+        const mapperResult = mapperInstance.getChartConfig(viewMode, data)
+        series = mapperResult.series
+        legend = mapperResult.legend
+        axisData = mapperResult.axisData
+        tooltip = mapperResult.tooltip
+    }
+
+    useEffect(() => {
+        chartRefs.current = chartRefs.current.slice(0, series.length)
+    }, [series])
+
     if (data === null || loading) {
         return <Skeleton loading={loading} active paragraph={{ rows: 12 }} />
     }
     const { animationEnabled, chartOptions } = chartConfig
     // TODO(sitozzz): find more clean solution
     if (viewMode !== 'pie') {
-        const { series, legend, axisData, tooltip } = mapperInstance.getChartConfig(viewMode, data)
         const option = {
             animation: animationEnabled,
             color: CHART_COLOR_SET,
@@ -117,7 +131,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
 
         </Typography.Paragraph>
     }
-    const { series, legend } = mapperInstance.getChartConfig(viewMode, data)
+
     const option = {
         animation: animationEnabled,
         color: CHART_COLOR_SET,
@@ -149,9 +163,19 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
             </Typography.Paragraph>
         ) : (
             <>
-                {/* TODO(sitozzz): Add click handle for global legend or create it with other way */}
                 <ReactECharts
-                    opts={{ renderer: 'svg', height: 50 }}
+                    onEvents={{
+                        legendselectchanged: function (params) {
+                            chartRefs.current.forEach(chartRef => {
+                                const chartInstance = chartRef.getEchartsInstance()
+                                chartInstance._api.dispatchAction({
+                                    type: 'legendToggleSelect',
+                                    name: params.name,
+                                })
+                            })
+                        },
+                    }}
+                    opts={{ renderer: 'svg' }}
                     notMerge
                     option={{
                         legend: {
@@ -165,6 +189,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
                             textStyle: {
                                 fontSize: 16,
                             },
+                            x: 'left',
                             width: '100%',
                             backgroundColor: 'white',
                         },
@@ -173,12 +198,13 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
                             display: false,
                         },
                     }}
-                    style={{ height: 40, overflow: 'hidden', width: 600 }}
+                    style={{ height: 40, overflow: 'hidden' }}
                 />
-                <Row gutter={[0, 40]} justify={'space-between'} align={'top'} style={{ paddingTop: 60 }}>
+                <Row gutter={[24, 40]} justify={'space-between'} align={'top'} style={{ paddingTop: 60 }} wrap>
                     {series.map((chartSeries, index) => (
-                        <Col key={`pie-${index}`} span={11}>
+                        <Col key={`pie-${index}`} style={{ maxWidth: 620 }} span={12} >
                             <ReactECharts
+                                ref={element => chartRefs.current[index] = element}
                                 opts={{ ...chartOptions, renderer: 'svg', height: chartHeight }}
                                 // TODO(sitozzz): add onChart ready support for multiple charts
                                 // onChartReady={onChartReady}
@@ -189,13 +215,13 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
                                     title: {
                                         show: true,
                                         text: truncate(chartSeries.name.split(', ').slice(1).join(', ')),
-                                        left: 295,
+                                        left: 375,
                                         top: 30,
                                         textStyle: {
                                             fontSize: 16,
                                             fontWeight: 700,
                                             overflow: 'breakAll',
-                                            width: 200,
+                                            width: 160,
                                             lineHeight: 20,
                                         },
                                     },
