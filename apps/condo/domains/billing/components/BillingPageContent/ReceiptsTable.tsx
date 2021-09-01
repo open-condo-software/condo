@@ -15,7 +15,7 @@ import { SortBillingReceiptsBy } from '../../../../schema'
 import get from 'lodash/get'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { usePeriodSelector } from '@condo/domains/billing/hooks/usePeriodSelector'
-import { Row, Col, Space, Input, Select, Typography } from 'antd'
+import { Row, Col, Input, Select, Typography } from 'antd'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useReceiptTableColumns } from '@condo/domains/billing/hooks/useReceiptTableColumns'
 import { getMoneyFilter } from '@condo/domains/billing/utils/helpers'
@@ -107,34 +107,33 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     return (
         <>
             <Row gutter={[0, 40]}>
-                <Col span={24}>
-                    <Space size={40} style={{ width: '100%', flexWrap: 'wrap' }}>
-                        <Input
-                            style={{ minWidth: 280 }}
-                            placeholder={SearchPlaceholder}
-                            onChange={(e) => {handleSearchChange(e.target.value)}}
-                            value={search}
-                        />
-                        {options.length > 0 && (
-                            <Select
-                                style={{ minWidth: 220 }}
-                                defaultValue={contextPeriod}
-                                value={period}
-                                onChange={(newValue) => handlePeriodChange(newValue)}
-                            >
-                                {
-                                    options.map((option, index) => {
-                                        return (
-                                            <Select.Option value={option.period} key={index}>
-                                                {`${DataForTitle} ${option.title}`}
-                                            </Select.Option>
-                                        )
-                                    })
-                                }
-                            </Select>
-                        )}
-                    </Space>
+                <Col span={7}>
+                    <Input
+                        placeholder={SearchPlaceholder}
+                        onChange={(e) => {handleSearchChange(e.target.value)}}
+                        value={search}
+                    />
                 </Col>
+                {options.length > 0 && (
+                    <Col span={7} offset={1}>
+                        <Select
+                            defaultValue={contextPeriod}
+                            value={period}
+                            onChange={(newValue) => handlePeriodChange(newValue)}
+                        >
+                            {
+                                options.map((option, index) => {
+                                    return (
+                                        <Select.Option value={option.period} key={index}>
+                                            {`${DataForTitle} ${option.title}`}
+                                        </Select.Option>
+                                    )
+                                })
+                            }
+                        </Select>
+                    </Col>
+
+                )}
                 <Col span={24}>
                     <Table
                         loading={loading}
