@@ -1,4 +1,4 @@
-import React, { useRef,  useEffect } from 'react'
+import React, { useRef,  useEffect, useState } from 'react'
 import { useIntl } from '@core/next/intl'
 import { Col, Row, Skeleton, Typography } from 'antd'
 import isEmpty from 'lodash/isEmpty'
@@ -41,6 +41,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
 }) => {
     const intl = useIntl()
     const chartRefs = useRef([])
+    const [chartReadyCounter, setChartReadyCounter] = useState<number>(0)
     const NoData = intl.formatMessage({ id: 'NoData' })
     let series = [], legend = []
     let axisData = {}, tooltip = {}
@@ -53,8 +54,20 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
     }
 
     useEffect(() => {
-        chartRefs.current = chartRefs.current.slice(0, series.length)
+        if (viewMode === 'pie') {
+            if (series.length !== chartRefs.current.length) {
+                setChartReadyCounter(0)
+            }
+            chartRefs.current = chartRefs.current.slice(0, series.length)
+        }
     }, [data])
+
+    useEffect(() => {
+        if (viewMode === 'pie' && onChartReady !== undefined) {
+            chartReadyCounter === series.length && onChartReady()
+        }
+    }, [chartReadyCounter])
+
 
     if (data === null || loading) {
         return <Skeleton loading={loading} active paragraph={{ rows: 12 }} />
@@ -197,7 +210,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
                                 ref={element => chartRefs.current[index] = element}
                                 opts={{ ...chartOptions, renderer: 'svg', height: chartHeight }}
                                 // TODO(sitozzz): add onChart ready support for multiple charts
-                                // onChartReady={onChartReady}
+                                onChartReady={() => setChartReadyCounter(chartReadyCounter + 1)}
                                 notMerge
                                 style={{ ...chartStyle, border: '1px solid', borderColor: colors.lightGrey[6], borderRadius: 8 }}
                                 option={{
