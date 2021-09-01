@@ -4,7 +4,10 @@ import { useMemo } from 'react'
 import { useIntl } from '@core/next/intl'
 
 
-import { convertColumns, FiltersFromQueryType, Sorters } from '@condo/domains/common/utils/tables.utils'
+import { FiltersFromQueryType, Sorters } from '@condo/domains/common/utils/tables.utils'
+import { getTextFilterDropdown } from '@condo/domains/common/components/Table/Filters'
+import { get } from 'lodash'
+import { getTextRender } from '@condo/domains/common/components/Table/Renders'
 
 export interface ITableColumn {
     title: string,
@@ -25,25 +28,25 @@ export const useTableColumns = (sorters: Sorters, filters: FiltersFromQueryType)
     const UnitsCountMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.UnitsCount' })
     const TasksInWorkMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.TasksInWorkCount' })
 
-    return useMemo(() =>
-        convertColumns([
+    return useMemo(() => {
+        const search = get(filters, 'name')
+        const columns = [
             {
                 title: AddressMessage,
                 ellipsis: true,
                 dataIndex: 'address',
                 key: 'address',
-                sortable: true,
-                width: 50,
-                filter: {
-                    type: 'string',
-                },
+                sorter: true,
+                width: '50%',
+                filterDropdown: getTextFilterDropdown(AddressMessage),
+                render: !Array.isArray(search) ? getTextRender(search) : undefined,
             },
             {
                 title: UnitsCountMessage,
                 ellipsis: true,
                 dataIndex: 'unitsCount',
                 key: 'unitsCount',
-                width: 25,
+                width: '25%',
             },
             {
                 title: TasksInWorkMessage,
@@ -52,6 +55,7 @@ export const useTableColumns = (sorters: Sorters, filters: FiltersFromQueryType)
                 key: 'ticketsInWork',
                 width: 25,
             },
-        ], filters, sorters),
-    [filters, sorters])
+        ]
+        return columns
+    }, [filters, sorters])
 }
