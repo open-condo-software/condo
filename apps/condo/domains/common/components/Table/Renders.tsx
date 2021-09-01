@@ -55,7 +55,7 @@ const recolorMoney = (
     }
     if (startIndex >= separatorIndex) {
         return (
-            <Typography.Text style={{ color: colors.sberGrey[3], ...extraStyles }}>
+            <Typography.Text type={'secondary'} style={extraStyles}>
                 {fillMoneyWithSpaces(text, startIndex, spaces)}
             </Typography.Text>
         )
@@ -66,7 +66,7 @@ const recolorMoney = (
             <Typography.Text style={extraStyles}>
                 {fillMoneyWithSpaces(text.substring(0, blackLength), startIndex, spaces)}
             </Typography.Text>
-            <Typography.Text style={{ color: colors.sberGrey[3], ...extraStyles }}>
+            <Typography.Text type={'secondary'} style={extraStyles}>
                 {text.substring(blackLength)}
             </Typography.Text>
         </>
