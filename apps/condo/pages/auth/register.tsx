@@ -15,6 +15,7 @@ import { useMutation } from '@core/next/apollo'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { CREATE_ONBOARDING_MUTATION } from '@condo/domains/onboarding/gql'
+import { fontSizes } from '@condo/domains/common/constants/style'
 
 const RegisterPage: AuthPage = () => {
     const intl = useIntl()
