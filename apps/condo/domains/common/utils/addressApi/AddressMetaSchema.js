@@ -1,4 +1,4 @@
-const { ADDRESS_META_DATA_FIELDS } = require('./addressMetaGql')
+const { AddressMetaDataFields } = require('./addressMetaGql')
 
 const AddressMetaJSONSchema = {
     'type': 'object',
@@ -15,11 +15,11 @@ const AddressMetaJSONSchema = {
         'data': {
             'type': 'object',
             'properties': Object.assign({},
-                ...ADDRESS_META_DATA_FIELDS.map((x) => ({ [x]: { 'type': ['string', 'null'] } })),
+                ...Object.keys(AddressMetaDataFields).map((x) => ({ [x]: { 'type': ['string', 'null'] } })),
                 { history_values: { type: ['array', 'null'], items: { type: 'string' } } }
             ),
             'additionalProperties': true,
-            'required': ADDRESS_META_DATA_FIELDS,
+            'required': Object.keys(AddressMetaDataFields),
         },
     },
     'additionalProperties': true,
@@ -33,5 +33,5 @@ const AddressMetaJSONSchema = {
 
 module.exports = {
     AddressMetaJSONSchema,
-    AddressMetaDataFields: ADDRESS_META_DATA_FIELDS,
+    AddressMetaDataFields,
 }

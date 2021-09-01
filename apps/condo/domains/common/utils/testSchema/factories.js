@@ -6,7 +6,7 @@ const FIAS_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 35, 65, 75, 90, 91]
 const FIAS_ACTUALITY_STATE = [0, 1]
 
 const buildFakeAddressMeta = (withFlat = false) => {
-    const emptyData = Object.assign({}, ...AddressMetaDataFields.map((field) => ({[field]: null})))
+    const emptyData = Object.assign({}, ...Object.keys(AddressMetaDataFields).map((field) => ({[field]: null})))
     emptyData.postal_code = faker.address.zipCode()
     emptyData.country = faker.address.country()
     emptyData.country_iso_code = faker.address.countryCode()
