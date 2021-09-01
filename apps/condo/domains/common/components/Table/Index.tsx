@@ -1,6 +1,6 @@
 import React from 'react'
-import { Table as DefaultTable } from 'antd'
 import { ColumnsType } from 'antd/es/table/interface'
+import { Table as DefaultTable, TableProps } from 'antd'
 import get from 'lodash/get'
 import { debounce } from 'lodash'
 import { useRouter } from 'next/router'
@@ -15,7 +15,7 @@ import { isEqual } from 'lodash'
 
 export type TableRecord = any
 
-interface ITableProps {
+interface ITableProps extends TableProps<TableRecord> {
     loading: boolean
     totalRows: number
     dataSource: TableRecord[]
@@ -37,6 +37,7 @@ export const Table: React.FC<ITableProps> = ({
     pageSize,
     onRow,
     staticQueryParams,
+    ...otherTableProps
 }) => {
     const rowsPerPage = pageSize || DEFAULT_PAGE_SIZE
     const rowKey = keyPath || 'id'
@@ -122,6 +123,7 @@ export const Table: React.FC<ITableProps> = ({
                     pageSize: rowsPerPage,
                     position: ['bottomLeft'],
                 }}
+                {...otherTableProps}
             />
         </>
     )
