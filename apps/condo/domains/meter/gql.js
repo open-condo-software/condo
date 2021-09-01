@@ -17,7 +17,7 @@ const MeterReadingSource = generateGqlQueries('MeterReadingSource', METER_READIN
 const METER_FIELDS = `{ number billingAccountMeter { id } organization { id } property { id } unitName place resource { id } ${COMMON_FIELDS} }`
 const Meter = generateGqlQueries('Meter', METER_FIELDS)
 
-const METER_READING_FIELDS = `{ number date account { id } billingAccountMeter { id } meter { id } property { id } organization { id } value sectionName floorName unitName client { id } clientName clientEmail clientPhone contact { id } source { id } ${COMMON_FIELDS} }`
+const METER_READING_FIELDS = `{ number date account { id } billingAccountMeter { id } meter { id } property { id } organization { id } value sectionName floorName unitName client { id } clientName clientEmail clientPhone contact { id } source { id name } ${COMMON_FIELDS} }`
 const MeterReading = generateGqlQueries('MeterReading', METER_READING_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
