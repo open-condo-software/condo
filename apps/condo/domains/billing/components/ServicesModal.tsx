@@ -77,16 +77,14 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
 
     const modalTitleMessage = `${AccountMessage} ${accountNumber}`
     const title = (
-        <>
-            <Space direction={'vertical'} size={4}>
-                <Typography.Title level={3}>
-                    {modalTitleMessage}
-                </Typography.Title>
-                <Typography.Text style={{ fontSize: 14, color: colors.lightGrey[7] }}>
-                    {address}
-                </Typography.Text>
-            </Space>
-        </>
+        <Space direction={'vertical'} size={4}>
+            <Typography.Title level={3}>
+                {modalTitleMessage}
+            </Typography.Title>
+            <Typography.Text style={{ fontSize: 14, color: colors.lightGrey[7] }}>
+                {address}
+            </Typography.Text>
+        </Space>
     )
 
     const columns = useServicesTableColumns(isDetailed, currencyMark, currencySeparator)
@@ -143,15 +141,13 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
                     })
                     const pointedNumber = totalToPay.toFixed(2)
                     return (
-                        <>
-                            <Table.Summary.Row>
-                                <Table.Summary.Cell index={0} align={'right'} colSpan={columns.length}>
-                                    <Typography.Text strong>
-                                        {moneyRender(pointedNumber)}
-                                    </Typography.Text>
-                                </Table.Summary.Cell>
-                            </Table.Summary.Row>
-                        </>
+                        <Table.Summary.Row>
+                            <Table.Summary.Cell index={0} align={'right'} colSpan={columns.length}>
+                                <Typography.Text strong>
+                                    {moneyRender(pointedNumber)}
+                                </Typography.Text>
+                            </Table.Summary.Cell>
+                        </Table.Summary.Row>
                     )
                 }}
             />
