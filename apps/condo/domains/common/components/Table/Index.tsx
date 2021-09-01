@@ -1,5 +1,6 @@
 import React from 'react'
 import { Table as DefaultTable } from 'antd'
+import { ColumnsType } from 'antd/es/table/interface'
 import get from 'lodash/get'
 import { debounce } from 'lodash'
 import { useRouter } from 'next/router'
@@ -19,7 +20,7 @@ interface ITableProps {
     dataSource: TableRecord[]
     pageSize?: number
     keyPath?: Array<string> | string
-    columns: Array<Record<string, unknown>>
+    columns: Array<Record<string, unknown>> | ColumnsType<TableRecord>
     onRow?: (record: TableRecord, index?: number) => React.HTMLAttributes<HTMLElement>
     staticQueryParams?: string[]
 }
