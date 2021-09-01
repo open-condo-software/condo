@@ -2,7 +2,7 @@ const { hasValidJsonStructure } = require('@condo/domains/common/utils/validatio
 const { Integer } = require('@keystonejs/fields')
 const { Json } = require('@core/keystone/fields')
 const { JSON_UNKNOWN_VERSION_ERROR, REQUIRED_NO_VALUE_ERROR, JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/errors')
-const { ADDRESS_META_GRAPHQL_TYPES } = require('../utils/addressApi/addressMetaGql')
+const { ADDRESS_META_FIELD_GRAPHQL_TYPES } = require('../utils/addressApi/addressMetaGql')
 
 const DV_FIELD = {
     type: Integer,
@@ -42,8 +42,8 @@ const SENDER_FIELD = {
 const ADDRESS_META_FIELD = {
     schemaDoc: 'Property address components',
     type: Json,
-    extendGraphQLTypes: [ADDRESS_META_GRAPHQL_TYPES],
-    graphQLReturnType: 'AddressMeta',
+    extendGraphQLTypes: [ADDRESS_META_FIELD_GRAPHQL_TYPES],
+    graphQLReturnType: 'AddressMetaField',
     isRequired: true,
     kmigratorOptions: { null: false },
     hooks: {

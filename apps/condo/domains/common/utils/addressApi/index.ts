@@ -1,13 +1,13 @@
 import getConfig from 'next/config'
 import get from 'lodash/get'
-import { AddressMeta } from '../../../../schema'
+import { AddressMetaField } from '../../../../schema'
 
-type SuggestionsResponse = Promise<{ suggestions: Array<AddressMeta> }>
+type SuggestionsResponse = Promise<{ suggestions: Array<AddressMetaField> }>
 
 export interface IAddressApi {
-    getAddressMeta(address: string): AddressMeta
+    getAddressMeta(address: string): AddressMetaField
     getSuggestions(query: string): SuggestionsResponse
-    cacheAddressMeta(address: string, addressMeta: AddressMeta): void
+    cacheAddressMeta(address: string, addressMeta: AddressMetaField): void
 }
 
 export class AddressApi implements IAddressApi {
@@ -21,7 +21,7 @@ export class AddressApi implements IAddressApi {
             .then((res) => JSON.parse(res))
     }
 
-    public getAddressMeta (address: string): AddressMeta | undefined {
+    public getAddressMeta (address: string): AddressMetaField | undefined {
         const addressMeta = this.addressMetaCache.get(address)
 
         if (!addressMeta) {
@@ -31,7 +31,7 @@ export class AddressApi implements IAddressApi {
         return addressMeta
     }
 
-    public cacheAddressMeta (address: string, addressMeta: AddressMeta): void {
+    public cacheAddressMeta (address: string, addressMeta: AddressMetaField): void {
         this.addressMetaCache.set(address, addressMeta)
     }
 
@@ -71,5 +71,5 @@ export class AddressApi implements IAddressApi {
         to_bound: { value: 'house' },
         restrict_value: true,
     }
-    private addressMetaCache: Map<string, AddressMeta> = new Map()
+    private addressMetaCache: Map<string, AddressMetaField> = new Map()
 }

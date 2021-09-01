@@ -1,7 +1,7 @@
-import { AddressMeta } from '../../../schema'
+import { AddressMetaField } from '../../../schema'
 
 // "д" - "дом" or "к" - "корпус"
-const validHouseTypes: AddressMeta['data']['house_type_full'][] = ['дом', 'корпус', 'строение', 'домовладение', 'сооружение', 'владение']
+const validHouseTypes: AddressMetaField['data']['house_type_full'][] = ['дом', 'корпус', 'строение', 'домовладение', 'сооружение', 'владение']
 
 const buildingEmptyMapJson = {
     'dv': 1,
