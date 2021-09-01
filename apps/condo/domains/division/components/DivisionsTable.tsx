@@ -39,7 +39,7 @@ export default function DivisionTable (props: BuildingTableProps) {
 
     const { organization, link: { role } } = useOrganization()
 
-    const addressFilter = getFilter('name', 'single', 'string', 'contains_i')
+    const nameFilter = getFilter('name', 'single', 'string', 'contains_i')
     const propertiesFilter = (search: string) => ({
         properties_some: {
             OR: [
@@ -64,11 +64,11 @@ export default function DivisionTable (props: BuildingTableProps) {
     })
 
     const queryMetas: QueryMeta<DivisionWhereInput>[] = [
-        { keyword: 'address', filters: [addressFilter] },
+        { keyword: 'name', filters: [nameFilter] },
         {
             keyword: 'search',
             filters: [
-                addressFilter,
+                nameFilter,
                 propertiesFilter,
                 responsibleFilter,
                 executorsFilter,
@@ -110,7 +110,6 @@ export default function DivisionTable (props: BuildingTableProps) {
     const applyFiltersToQuery = (newFilters) => {
         const query = { ...router.query, filters: JSON.stringify(newFilters) }
         const newQuery = qs.stringify({ ...query }, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })
-        console.log(router.route)
         router.push(router.route + newQuery)
     }
 

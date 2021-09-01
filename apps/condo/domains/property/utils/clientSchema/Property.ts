@@ -13,13 +13,12 @@ import { Property, PropertyUpdateInput, QueryAllPropertiesArgs } from '@condo/do
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'name', 'address', 'addressMeta', 'type', 'map', 'ticketsInWork', 'ticketsClosed', 'unitsCount']
 const RELATIONS = ['organization']
 import { BuildingMap } from '@condo/domains/property/components/panels/Builder/MapConstructor'
+import { AddressMeta } from '@condo/domains/common/utils/addressApi/AddressMeta'
 
 export interface IPropertyUIState extends Property {
     id: string
     address: string
-    addressMeta: {
-        data: any
-    }
+    addressMeta: AddressMeta
     name?: string
     ticketsInWork: string
     ticketsClosed: string
