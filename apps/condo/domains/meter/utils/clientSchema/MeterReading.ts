@@ -11,7 +11,7 @@ import { MeterReading as MeterReadingGQL } from '@condo/domains/meter/gql'
 import { MeterReading, MeterReadingUpdateInput, QueryAllMeterReadingsArgs } from '../../../../schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'number', 'date', 'account', 'billingAccountMeter', 'meter', 'property', 'organization', 'value', 'sectionName', 'floorName', 'unitName', 'client', 'clientName', 'clientEmail', 'clientPhone', 'contact', 'source']
-const RELATIONS = ['account', 'billingAccountMeter', 'meter', 'property', 'organization', 'client', 'contact', 'source']
+const RELATIONS = ['billingAccountMeter', 'meter', 'property', 'organization', 'client', 'contact', 'source']
 
 export interface IMeterReadingUIState extends MeterReading {
     id: string

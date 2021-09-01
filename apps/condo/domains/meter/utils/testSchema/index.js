@@ -79,6 +79,7 @@ async function createTestMeter (client, organization, property, resource, extraA
     if (!property || !property.id) throw new Error('no property.id')
     if (!resource || !resource.id) throw new Error('no resource.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const account = faker.random.alphaNumeric(8)
 
     const attrs = {
         dv: 1,
@@ -88,6 +89,7 @@ async function createTestMeter (client, organization, property, resource, extraA
         organization: { connect: { id: organization.id } },
         property: { connect: { id: property.id } },
         resource: { connect: { id: resource.id } },
+        account,
         ...extraAttrs,
     }
     const obj = await Meter.create(client, attrs)
@@ -115,6 +117,7 @@ async function createTestMeterReading (client, meter, property, organization, so
     if (!organization || !organization.id) throw new Error('no organization.id')
     if (!source || !source.id) throw new Error('no source.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const account = faker.random.alphaNumeric(8)
 
     const attrs = {
         dv: 1,
@@ -126,6 +129,7 @@ async function createTestMeterReading (client, meter, property, organization, so
         date: faker.date.recent(),
         value: faker.random.number(),
         unitName: faker.random.alphaNumeric(5),
+        account,
         ...extraAttrs,
     }
     const obj = await MeterReading.create(client, attrs)
