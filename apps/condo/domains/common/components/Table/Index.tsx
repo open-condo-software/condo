@@ -22,7 +22,7 @@ interface ITableProps extends TableProps<TableRecord> {
     keyPath?: Array<string> | string
     columns: Array<Record<string, unknown>> | ColumnsType<TableRecord>
     onRow?: (record: TableRecord, index?: number) => React.HTMLAttributes<HTMLElement>
-    staticQueryParams?: string[]
+    applyQuery?: (queryParams) => Promise<boolean>
 }
 
 export const DEFAULT_PAGE_SIZE = 10
@@ -35,7 +35,7 @@ export const Table: React.FC<ITableProps> = ({
     totalRows,
     pageSize,
     onRow,
-    staticQueryParams,
+    applyQuery,
     ...otherTableProps
 }) => {
     const rowsPerPage = pageSize || DEFAULT_PAGE_SIZE
@@ -95,13 +95,13 @@ export const Table: React.FC<ITableProps> = ({
             offset: newOffset,
             sort: newSorters,
         }
-        if (staticQueryParams) {
-            staticQueryParams.forEach(queryParam => {
-                queryParams[queryParam] = router.query[queryParam]
-            })
+        if (applyQuery) {
+            return applyQuery(queryParams)
         }
-        const newQuery = qs.stringify({ ...queryParams }, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })
-        return router.push(router.route + newQuery)
+        else {
+            const newQuery = qs.stringify({ ...queryParams }, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })
+            return router.push(router.route + newQuery)
+        }
     }, 400)
 
     return (

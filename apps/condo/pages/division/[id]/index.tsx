@@ -3,7 +3,7 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
-import { get, map } from 'lodash'
+import { get } from 'lodash'
 import { Row, Col, Typography } from 'antd'
 import { EditFilled } from '@ant-design/icons'
 import { green } from '@ant-design/colors'
@@ -21,17 +21,17 @@ import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/D
 import Error from 'next/error'
 import { FeatureFlagRequired } from '@condo/domains/common/components/containers/FeatureFlag'
 import { Table } from '@condo/domains/common/components/Table/Index'
-import { getFilter, getPageIndexFromOffset, parseQuery, QueryMeta } from '../../../domains/common/utils/tables.utils'
-import { useQueryMappers } from '../../../domains/common/hooks/useQueryMappers'
-import { DivisionWhereInput } from '../../../schema'
+import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { useTableColumns } from '@condo/domains/division/hooks/useTechniciansTableColumns'
+import qs from 'qs'
 
 type DivisionPageContentProps = {
     division: ReturnType<typeof useObject>['obj']
     loading: ReturnType<typeof useObject>['loading']
     columns: any
-} 
+}
 
-const DivisionPageContent = ({ division, loading }: DivisionPageContentProps) => {
+const DivisionPageContent = ({ division, loading, columns }: DivisionPageContentProps) => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.division.id.PageTitle' }, { name: division.name })
     const NameBlankMessage = intl.formatMessage({ id: 'pages.condo.division.id.NameBlank' })
@@ -40,7 +40,7 @@ const DivisionPageContent = ({ division, loading }: DivisionPageContentProps) =>
     const ExecutorsLabelMessage = intl.formatMessage({ id: 'pages.condo.division.id.ExecutorsLabel' })
     const ExecutorsEmptyTitleMessage = intl.formatMessage({ id: 'pages.condo.division.id.ExecutorsEmpty.title' })
     const ExecutorsEmptyDescriptionMessage = intl.formatMessage({ id: 'pages.condo.division.id.ExecutorsEmpty.description' })
-
+    const router = useRouter()
 
     // Transform executors array to make `name` attribute required. This fixes following error:
     // TS2322: Type 'OrganizationEmployee[]' is not assignable to type 'readonly { id: any; name: any; }[]'.
@@ -86,7 +86,11 @@ const DivisionPageContent = ({ division, loading }: DivisionPageContentProps) =>
                             loading={loading}
                             totalRows={executors.length}
                             pagination={{
-                                hideOnSinglePage: true
+                                hideOnSinglePage: true,
+                            }}
+                            applyQuery={(queryParams) => {
+                                const newQuery = qs.stringify({ ...queryParams }, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })
+                                return router.push(`${router.query.id}${newQuery}`)
                             }}
                         />
                     ) : (
@@ -109,7 +113,7 @@ const DivisionPageContent = ({ division, loading }: DivisionPageContentProps) =>
 
 function DivisionPage () {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.division.id.PageTitle' })
+
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const UpdateTitle = intl.formatMessage({ id: 'Edit' })
     const DivisionNotFoundMessage = intl.formatMessage({ id: 'pages.condo.division.id.PageTitleNotFound' })
@@ -117,93 +121,48 @@ function DivisionPage () {
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'division.action.delete.confirm.message' })
     const DeleteDivisionLabel = intl.formatMessage({ id: 'division.action.delete.confirm.ok' })
 
-    const ExecutorNameMessage = intl.formatMessage({ id: 'pages.condo.division.id.executor.name' })
-    const ExecutorPhoneMessage = intl.formatMessage({ id: 'pages.condo.division.id.executor.phone' })
-    const ExecutorSpecializationsMessage = intl.formatMessage({ id: 'pages.condo.division.id.executor.specializations' })
-    const ExecutorSpecializationBlankMessage = intl.formatMessage({ id: 'pages.condo.division.id.executor.SpecializationBlank' })
-
     const router = useRouter()
     const { query: { id } } = router
-    const { loading, obj: division, error } = useObject({ where: { id: id as string } })
 
     const handleCompleteSoftDelete = () => {
         router.push('/property/')
     }
-    const nameFilter = getFilter('name', 'single', 'string', 'contains_i')
-    const phoneFilter = getFilter('phone', 'single', 'string', 'contains_i')
-    const specializationsFilter = (search: string) => ({
-        specializations_some: {
-            name_contains_i: search,
+    const EXECUTORS_PAGE_SIZE = 10
+    const { offset } = parseQuery(router.query)
+
+    const currentPageIndex = getPageIndexFromOffset(offset, EXECUTORS_PAGE_SIZE)
+
+    const { loading, obj: division, error } = useObject({
+        where: {
+            id: typeof id === 'string' ? id : undefined, 
         },
+        skip: (currentPageIndex - 1) * EXECUTORS_PAGE_SIZE,
     })
-    const executorsFilter = (search: string) => ({
-        executors_some: {
-            name_contains_i: search,
-        },
+
+    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.division.id.PageTitle' }, {
+        name: get(division, 'name', ''),
     })
-    const queryMetas: QueryMeta<DivisionWhereInput>[] = [
-        { keyword: 'name', filters: [nameFilter] },
-        { keyword: 'phone', filters: [phoneFilter] },
-        { keyword: 'specializations', filters: [specializationsFilter] },
-        { keyword: 'executors', filters: [executorsFilter] },
-    ]
 
-    const { filters, sorters, offset } = parseQuery(router.query)
-
-    const currentPageIndex = getPageIndexFromOffset(offset, 10)
-
-    const { filtersToWhere, sortersToSortBy } = useQueryMappers<DivisionWhereInput>(queryMetas, ['name'])
-    const sorterMap = getSorterMap(sorters)
-
-
-    const columns = [
-        {
-            title: ExecutorNameMessage,
-            dataIndex: 'name',
-            key: 'name',
-            sorter: true,
-            render: (_, { id, name }) => (
-                <Link href={`/employee/${id}`}>
-                    <Typography.Link style={{ color: green[6], display: 'block' }}>
-                        {name}
-                    </Typography.Link>
-                </Link>
-            ),
-        }, {
-            title: ExecutorPhoneMessage,
-            dataIndex: 'phone',
-            key: 'phone',
-        }, {
-            title: ExecutorSpecializationsMessage,
-            dataIndex: 'specializations',
-            key: 'specializations',
-            render: specializations => (
-                specializations.length > 0
-                    ? map(specializations, 'name').join(', ')
-                    : <Typography.Text strong>{ExecutorSpecializationBlankMessage}</Typography.Text>
-            ),
-        },
-    ]
+    const columns = useTableColumns()
 
     const softDeleteAction = useSoftDelete({}, handleCompleteSoftDelete)
 
     if (error) {
-        return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null}/>
+        return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null} />
     }
 
-    if (!division) {
-        return <LoadingOrErrorPage title={DivisionNotFoundMessage} loading={loading} error={error ? ServerErrorMsg : null}/>
+    if (!division || loading) {
+        return <LoadingOrErrorPage title={DivisionNotFoundMessage} loading={loading} error={error ? ServerErrorMsg : null} />
     }
-
 
     return (
-        <FeatureFlagRequired name={'division'} fallback={<Error statusCode={404}/>}>
+        <FeatureFlagRequired name={'division'} fallback={<Error statusCode={404} />}>
             <Head>
                 <title>{PageTitleMsg}</title>
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <DivisionPageContent division={division} loading={loading} />
+                    <DivisionPageContent division={division} loading={loading} columns={columns} />
                     <ActionBar>
                         <Link href={`/division/${division.id}/update`}>
                             <span>
@@ -231,7 +190,7 @@ function DivisionPage () {
     )
 }
 
-DivisionPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllProperties' }} path={'/property/'}/>
+DivisionPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllProperties' }} path={'/property/'} />
 DivisionPage.requiredAccess = OrganizationRequired
 
 export default DivisionPage
