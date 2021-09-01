@@ -8,7 +8,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 
 const MeterResource = new GQLListSchema('MeterResource', {
-    schemaDoc: 'Resource for Meter',
+    schemaDoc: 'Kind of consumed resource, measured by meter',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,

@@ -43,9 +43,9 @@ async function checkRelatedOrganizationPermission (context, userId, organization
 
 // TODO(nomerdvadcatpyat): use this function where checkRelatedOrganizationPermission and checkOrganizationPermission used together
 async function checkPermissionInUserOrganizationOrRelatedOrganization (context, userId, organizationId, permission) {
-    const canManageRelatedOrganizationMeters = await checkRelatedOrganizationPermission(context, userId, organizationId, permission)
-    const canManageUserOrganizationMeters = await checkOrganizationPermission(context, userId, organizationId, permission)
-    return !!(canManageRelatedOrganizationMeters || canManageUserOrganizationMeters)
+    const hasPermissionInRelatedOrganization = await checkRelatedOrganizationPermission(context, userId, organizationId, permission)
+    const hasPermissionInUserOrganization = await checkOrganizationPermission(context, userId, organizationId, permission)
+    return !!(hasPermissionInRelatedOrganization || hasPermissionInUserOrganization)
 }
 
 async function checkUserBelongsToOrganization (userId, organizationId) {
