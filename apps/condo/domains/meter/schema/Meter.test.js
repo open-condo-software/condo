@@ -69,21 +69,21 @@ describe('Meter', () => {
             })
         })
 
-        test('resident: can create Meter', async () => {
+        test('resident: cannot create Meter', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const client = await makeClientWithResidentUserAndProperty()
             await createTestResident(adminClient, client.user, client.organization, client.property)
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
 
-            const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
-
-            expect(meter.id).toMatch(UUID_RE)
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestMeter(client, client.organization, client.property, resource, {})
+            })
         })
 
-        test('resident: cannot create Meter if another Meter with same number exist in user organization', async () => {
-            const adminClient = await makeLoggedInAdminClient()
-            const client = await makeClientWithResidentUserAndProperty()
-            await createTestResident(adminClient, client.user, client.organization, client.property)
+        test('employee with canManageMeters role: cannot create Meter if another Meter with same number exist in user organization', async () => {
+            const client = await makeEmployeeUserClientWithAbilities({
+                canManageMeters: true,
+            })
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
 
             const number = faker.random.alphaNumeric(5)
@@ -198,23 +198,7 @@ describe('Meter', () => {
             })
         })
 
-        test('resident: can update own Meter', async () => {
-            const adminClient = await makeLoggedInAdminClient()
-            const client = await makeClientWithResidentUserAndProperty()
-            await createTestResident(adminClient, client.user, client.organization, client.property)
-            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-
-            const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
-
-            const newNumber = faker.random.alphaNumeric(8)
-            const [updatedMeter] = await updateTestMeter(adminClient, meter.id, {
-                number: newNumber,
-            })
-
-            expect(updatedMeter.number).toEqual(newNumber)
-        })
-
-        test('resident: cannot update not his own Meter', async () => {
+        test('resident: cannot update Meter', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const client = await makeClientWithResidentUserAndProperty()
             await createTestResident(adminClient, client.user, client.organization, client.property)
@@ -227,27 +211,6 @@ describe('Meter', () => {
                 await updateTestMeter(client, meter.id, {
                     number: newNumber,
                 })
-            })
-        })
-
-        test('resident: cannot update Meter if another Meter with same number exist in user organization', async () => {
-            const adminClient = await makeLoggedInAdminClient()
-            const client = await makeClientWithResidentUserAndProperty()
-            await createTestResident(adminClient, client.user, client.organization, client.property)
-            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-
-            const number = faker.random.alphaNumeric(5)
-            await createTestMeter(client, client.organization, client.property, resource, { number })
-            const [meter2] = await createTestMeter(client, client.organization, client.property, resource)
-
-            await catchErrorFrom(async () => {
-                await updateTestMeter(client, meter2.id, {
-                    number,
-                })
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toContain('Meter with same number exist in current organization')
-                expect(data).toEqual({ 'obj': null })
             })
         })
 
@@ -325,7 +288,7 @@ describe('Meter', () => {
             await createTestResident(adminClient, client.user, client.organization, client.property)
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
 
-            const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
+            const [meter] = await createTestMeter(adminClient, client.organization, client.property, resource, {})
 
             const meters = await Meter.getAll(client, { id: meter.id })
             expect(meters).toHaveLength(1)
@@ -339,7 +302,7 @@ describe('Meter', () => {
             await createTestResident(adminClient, client2.user, client2.organization, client2.property)
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
 
-            const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
+            const [meter] = await createTestMeter(adminClient, client.organization, client.property, resource, {})
 
             const meters = await Meter.getAll(client2, { id: meter.id })
             expect(meters).toHaveLength(0)
