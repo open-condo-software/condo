@@ -15,7 +15,7 @@ const CODEGEN_CONFIG = `
 # the file is required for @graphql-codegen package
 schema: ./schema.graphql
 generates:
-  ./schema.d.ts:
+  ./schema.ts:
     plugins:
       - typescript
 `
