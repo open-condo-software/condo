@@ -82,7 +82,7 @@ const PdfView = () => {
         loadTicketAnalyticsData({ variables: { data: { groupBy, where } } })
 
     }, [userOrganizationId])
-
+    //TODO: make mappers same with detail page
     useEffect(() => {
         if (mapperInstanceRef.current === null && groupByRef.current !== null) {
             const mainGroup = get(queryParamsRef.current, 'groupBy', 'status')
@@ -202,18 +202,39 @@ const PdfView = () => {
                 },
                 pie: {
                     chart: (viewMode, ticketGroupedCounter) => {
-                        const data = getAggregatedData(ticketGroupedCounter, groupByRef.current)
+                        const queryParams = getQueryParams()
+                        const dateFrom = get(queryParams, 'dateFrom', moment().subtract(1, 'week'))
+                        const dateTo = get(queryParams, 'dateTo', moment())
+                        const addressList = JSON.parse(get(queryParams, 'addressList', '[]'))
+                        const mainGroup = get(queryParams, 'groupBy', 'status')
+                        const specification = get(queryParams, 'specification', 'day')
+                        const ticketType = get(queryParams, 'ticketType', 'all')
+                        const { groupBy } = filterToQuery({
+                            viewMode,
+                            ticketType,
+                            filter: {
+                                range: [moment(dateFrom), moment(dateTo)],
+                                addressList,
+                                specification,
+                            },
+                            mainGroup,
+                        })
+                        const data = getAggregatedData(ticketGroupedCounter, groupBy)
                         const series = []
+
+                        const legend = [...new Set(Object.values(data).flatMap(e => Object.keys(e)))]
+                            .sort((a, b) => a.localeCompare(b))
                         Object.entries(data).forEach(([label, groupObject]) => {
                             const chartData = Object.entries(groupObject)
                                 .map(([name, value]) => ({ name, value }))
-                                .sort((a, b) => b.value - a.value)
+                                .sort((a, b) => a.name.localeCompare(b.name))
                             series.push({
                                 name: label,
                                 data: chartData,
-                                selectedMode: 'multiple',
+                                selectedMode: false,
                                 type: viewMode,
-                                radius: [50, 100],
+                                radius: [60, 120],
+                                center: ['30%', '50%'],
                                 symbol: 'none',
                                 emphasis: {
                                     focus: 'self',
@@ -222,7 +243,7 @@ const PdfView = () => {
                                 labelLine: { show: false },
                                 label: {
                                     show: true,
-                                    // fontSize: 14,
+                                    fontSize: 14,
                                     overflow: 'none',
                                     formatter: [
                                         '{value|{b}} {percent|{d} %}',
@@ -243,12 +264,10 @@ const PdfView = () => {
                                 },
                                 labelLayout: (chart) =>  {
                                     const { dataIndex, seriesIndex } = chart
-                                    const isLeftAlignedChart = seriesIndex % 2 === 0
-                                    const xOffset = isLeftAlignedChart ? 300 : 900
                                     const elementYOffset = 25 * dataIndex
-                                    const yOffset = 70 + 250 * Math.floor(seriesIndex / 2) + 10 + elementYOffset
+                                    const yOffset = 75 + 250 * Math.floor(seriesIndex / 2) + 10 + elementYOffset
                                     return {
-                                        x: xOffset,
+                                        x: 380,
                                         y: yOffset,
                                         align: 'left',
                                         verticalAlign: 'top',
@@ -256,7 +275,7 @@ const PdfView = () => {
                                 },
                             })
                         })
-                        return { series }
+                        return { series, legend }
                     },
                     table: (viewMode, ticketGroupedCounter, restOptions) => {
                         const data = getAggregatedData(ticketGroupedCounter, groupByRef.current.reverse())
