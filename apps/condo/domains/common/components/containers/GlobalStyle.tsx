@@ -161,15 +161,6 @@ export default function GlobalStyle () {
                 display: none;
               }
               
-              .ant-table-row-expand-icon {
-                color: ${colors.green[6]};
-                border-color: ${colors.green[6]};
-                border-radius: 1px;
-                &:hover, &:focus {
-                  color: ${colors.green[6]};
-                }
-              }
-              
               ${uploadControlCss}
               ${radioGroupCss}
               ${inputControlCss}
