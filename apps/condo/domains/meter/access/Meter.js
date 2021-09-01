@@ -5,21 +5,31 @@
 const { Meter } = require('../utils/serverSchema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
-const get = require('lodash/get')
-const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('../../organization/utils/accessSchema')
+const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
-const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
+const { queryOrganizationEmployeeFromRelatedOrganizationFor, queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
+const { Resident: ResidentServerUtils } = require('@condo/domains/resident/utils/serverSchema')
+const { get, uniq, compact } = require('lodash')
 
-async function canReadMeters ({ authentication: { item: user } }) {
+
+async function canReadMeters ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return {}
 
     if (user.type === RESIDENT) {
-        return {
-            createdBy: { id: user.id },
+        const residents = await ResidentServerUtils.getAll(context, { user: { id: user.id } })
+        if (residents.length === 0) {
+            return false
         }
+        const organizations = compact(residents.map(resident => get(resident, ['organization', 'id'])))
+        if (organizations.length > 0) {
+            return {
+                organization: { id_in: uniq(organizations) },
+            }
+        }
+        return false
     }
+
     const userId = user.id
     return {
         organization: {
@@ -35,11 +45,6 @@ async function canManageMeters ({ authentication: { item: user }, originalInput,
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
 
-    if (operation === 'update' && user.type === RESIDENT) {
-        const [meter] = await Meter.getAll(context, { id: itemId, createdBy: { id: user.id } })
-        return !!meter
-    }
-
     if (operation === 'create') {
         const organizationIdFromMeter = get(originalInput, ['organization', 'connect', 'id'])
         if (!organizationIdFromMeter) {
@@ -50,10 +55,6 @@ async function canManageMeters ({ authentication: { item: user }, originalInput,
         const [property] = await Property.getAll(context, { id: propertyId })
         if (!property) {
             return false
-        }
-
-        if (user.type === RESIDENT) {
-            return true
         }
 
         const organizationIdFromProperty = get(property, ['organization', 'id'])

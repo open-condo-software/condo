@@ -86,11 +86,26 @@ describe('MeterReading', () => {
             await createTestResident(adminClient, client.user, client.organization, client.property)
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
             const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
-            const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
+            const [meter] = await createTestMeter(adminClient, client.organization, client.property, resource, {})
 
             const [meterReading] = await createTestMeterReading(client, meter, client.property, client.organization, source)
 
             expect(meterReading.id).toMatch(UUID_RE)
+        })
+
+        test('resident: cannot create MeterReadings in other organization', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const client = await makeClientWithResidentUserAndProperty()
+            await createTestResident(adminClient, client.user, client.organization, client.property)
+            const [organization] = await createTestOrganization(adminClient)
+            const [property] = await createTestProperty(adminClient, organization)
+            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+            const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
+            const [meter] = await createTestMeter(adminClient, organization, property, resource, {})
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestMeterReading(client, meter, property, organization, source)
+            })
         })
 
         test('user: cannot create MeterReadings', async () => {
@@ -201,7 +216,7 @@ describe('MeterReading', () => {
             await createTestResident(adminClient, client.user, client.organization, client.property)
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
             const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
-            const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
+            const [meter] = await createTestMeter(adminClient, client.organization, client.property, resource, {})
             const [meterReading] = await createTestMeterReading(client, meter, client.property, client.organization, source)
 
             const oldValue = meterReading.value
@@ -301,7 +316,7 @@ describe('MeterReading', () => {
             await createTestResident(adminClient, client.user, client.organization, client.property)
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
             const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
-            const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
+            const [meter] = await createTestMeter(adminClient, client.organization, client.property, resource, {})
 
             const [meterReading] = await createTestMeterReading(client, meter, client.property, client.organization, source)
 
@@ -317,7 +332,7 @@ describe('MeterReading', () => {
             await createTestResident(adminClient, client2.user, client2.organization, client2.property)
             const [resource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
             const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
-            const [meter] = await createTestMeter(client1, client1.organization, client1.property, resource, {})
+            const [meter] = await createTestMeter(adminClient, client1.organization, client1.property, resource, {})
 
             const [meterReading] = await createTestMeterReading(client1, meter, client1.property, client1.organization, source)
 
