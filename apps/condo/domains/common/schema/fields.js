@@ -2,7 +2,7 @@ const { hasValidJsonStructure } = require('@condo/domains/common/utils/validatio
 const { Integer } = require('@keystonejs/fields')
 const { Json } = require('@core/keystone/fields')
 const { JSON_UNKNOWN_VERSION_ERROR, REQUIRED_NO_VALUE_ERROR, JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/errors')
-const { ADDRESS_META_FIELD_GRAPHQL_TYPES } = require('../../property/schema/fields/AddressMetaField')
+const { ADDRESS_META_FIELD_GRAPHQL_TYPES } = require('@condo/domains/property/schema/fields/AddressMetaField')
 
 const DV_FIELD = {
     type: Integer,
