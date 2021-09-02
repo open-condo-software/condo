@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core'
-import { Drawer, Layout, Space, Popover, Divider } from 'antd'
+import { Drawer, Layout, Divider, Dropdown, Menu } from 'antd'
 import get from 'lodash/get'
 import React from 'react'
 import { useIntl } from '@core/next/intl'
@@ -27,44 +27,52 @@ interface ISideMenuProps {
     menuData?: React.ElementType
 }
 
-const ResidentAppealPopoverContentWrapper = styled.div`
-  width: 216px;
-  height: 107px;
-  
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
+export const StyledMenu = styled(Menu)`
+  width: 225px;
+  box-sizing: border-box;
+  border-radius: 8px;
 `
 
-const ResidentAppealPopoverContent = () => {
+const ResidentAppealDropdownOverlay = () => {
     return (
-        <ResidentAppealPopoverContentWrapper>
+        <StyledMenu>
             <MenuItem
+                menuItemWrapperProps={{
+                    labelFontSize: '14px',
+                    padding: '16px',
+                    flexGap: '10px',
+                }}
                 path={'/ticket/create'}
                 icon={AppealIcon}
                 label={'CreateAppeal'}
             />
             <Divider style={{ margin: 0 }}/>
             <MenuItem
+                menuItemWrapperProps={{
+                    labelFontSize: '14px',
+                    padding: '16px',
+                    flexGap: '10px',
+                }}
                 path={'/meter/create'}
                 icon={MeterIcon}
                 label={'CreateMeterReading'}
             />
-        </ResidentAppealPopoverContentWrapper>
+        </StyledMenu>
     )
 }
 
-const ResidentAppealPopover = () => {
+const ResidentAppealDropdown = () => {
     const intl = useIntl()
+
     return (
-        <Popover
-            content={ResidentAppealPopoverContent}
-            placement={'bottom'}
+        <Dropdown
+            overlay={ResidentAppealDropdownOverlay}
+            placement={'bottomCenter'}
         >
             <Button type='sberDefault' style={{ position: 'relative', left: '-10px' }}>
                 {intl.formatMessage({ id: 'ResidentAppeal' })}
             </Button>
-        </Popover>
+        </Dropdown>
     )
 }
 
@@ -98,12 +106,12 @@ export const SideMenu: React.FC<ISideMenuProps> = (props) => {
                 onCollapse={toggleSideMenuCollapsed}
             >
                 <Logo onClick={onLogoClick} />
-                <Space size={60} direction={'vertical'}>
-                    <ResidentAppealPopover/>
+                <MenuItemsContainer>
+                    <ResidentAppealDropdown/>
                     <MenuItemsContainer>
                         {menuData}
                     </MenuItemsContainer>
-                </Space>
+                </MenuItemsContainer>
             </Layout.Sider>
         </Drawer>
     )
@@ -119,7 +127,7 @@ export const SideMenu: React.FC<ISideMenuProps> = (props) => {
             >
                 <Logo onClick={onLogoClick} />
                 <MenuItemsContainer>
-                    <ResidentAppealPopover/>
+                    <ResidentAppealDropdown/>
                     <MenuItemsContainer>
                         {menuData}
                     </MenuItemsContainer>
