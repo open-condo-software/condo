@@ -85,7 +85,7 @@ const Property = new GQLListSchema('Property', {
                     if (dv === 1) {
                         if (!jsonMapValidator(value)){
                             // console.log(JSON.stringify(jsonMapValidator.errors, null, 2))
-                            return addFieldValidationError(`${JSON_SCHEMA_VALIDATION_ERROR}] invalid json structure`)
+                            return addFieldValidationError(`${JSON_SCHEMA_VALIDATION_ERROR}] invalid json structure of "map" field`)
                         }
                     } else {
                         return addFieldValidationError(`${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`)
