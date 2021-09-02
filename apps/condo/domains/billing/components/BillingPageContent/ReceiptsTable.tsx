@@ -124,7 +124,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
                             {
                                 options.map((option, index) => {
                                     return (
-                                        <Select.Option value={option.period} key={index}>
+                                        <Select.Option value={option.value} key={index}>
                                             {`${DataForTitle} ${option.title}`}
                                         </Select.Option>
                                     )
