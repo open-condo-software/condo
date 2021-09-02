@@ -57,6 +57,7 @@
     "carbone": "3.2.3",
     "classnames": "^2.2.6",
     "date-fns": "^2.20.1",
+    "dayjs": "^1.10.6",
     "dd-trace": "^0.32.0",
     "echarts": "^5.1.2",
     "echarts-for-react": "^3.0.1",
