@@ -1,6 +1,6 @@
 import { useIntl } from '@core/next/intl'
 import { useMemo } from 'react'
-import { Typography } from 'antd'
+import { Typography, Tooltip } from 'antd'
 import React from 'react'
 
 type LastReportType = {
@@ -25,13 +25,14 @@ export const ReportMessage: React.FC<IReportMessageProps> = ({ lastReport }) => 
                 </Typography.Text>
             )
         }
-        const TotalReportsMessage = lastReport.totalReceipts >= 1000
+        const thousands = lastReport.totalReceipts >= 1000
+        const TotalReportsMessage = intl.formatMessage({ id: 'RecordsLoaded' }, { count: lastReport.totalReceipts })
+        const ReportsMessage = thousands
             ? intl.formatMessage({ id: 'ThousandsRecordsLoaded' }, { count: Math.floor(lastReport.totalReceipts / 1000) })
-            : intl.formatMessage({ id: 'RecordsLoaded' }, { count: lastReport.totalReceipts })
+            : TotalReportsMessage
         const ReportDateMessage = intl.formatDate(lastReport.finishTime, { day:'numeric', month:'long', year: 'numeric'  })
         const ReportTimeMessage = intl.formatDate(lastReport.finishTime, { hour: 'numeric', minute: 'numeric' })
         const uploadMessage = `${DataWasUploadedPrefixMessage} ${ReportDateMessage}${DataWasUploadedSuffixMessage} ${ReportTimeMessage}`
-        const rowsMessage = `(${TotalReportsMessage})`
         return (
             <>
                 <Typography.Text type={'warning'}>
@@ -39,7 +40,16 @@ export const ReportMessage: React.FC<IReportMessageProps> = ({ lastReport }) => 
                 </Typography.Text>
                 &nbsp;
                 <Typography.Text>
-                    {rowsMessage}
+                    &#40;
+                    {
+                        thousands
+                            ? (
+                                <Tooltip title={TotalReportsMessage}>
+                                    {ReportsMessage}
+                                </Tooltip>
+                            ) : (TotalReportsMessage)
+                    }
+                    &#41;
                 </Typography.Text>
             </>
         )
