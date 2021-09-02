@@ -73,7 +73,7 @@ const getTicketCounts = async (context, where, groupBy, extraLabels = {}) => {
                     const translateMapping = get(translates, groupName, false)
                     if (translateMapping) {
                         const translation = translateMapping.find(translate => translate.value === value)
-                        searchResult[groupName] = translation.label
+                        searchResult[groupName] = get(translation, 'label', null)
                     }
                 })
                 return {
@@ -87,7 +87,10 @@ const getTicketCounts = async (context, where, groupBy, extraLabels = {}) => {
                 dayGroup: moment(dayGroup).format(DATE_DISPLAY_FORMAT),
                 count:parseInt(count),
             }
-        }).sort((a, b) =>
+        })
+        // This is hack to process old database records with tickets with user organization and property from another org
+        .filter(ticketCount => ticketCount.property !== null)
+        .sort((a, b) =>
             moment(a.dayGroup, DATE_DISPLAY_FORMAT).format('X') - moment(b.dayGroup, DATE_DISPLAY_FORMAT).format('X'))
 }
 
