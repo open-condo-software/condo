@@ -358,6 +358,7 @@
   "pages.condo.meter.form.ConfirmDeleteTitle": "Удалить ИПУ?",
   "pages.condo.meter.form.ConfirmDeleteMessage": "Восстановить счетчик будет невозможно",
   "pages.condo.meter.warning.modal.Title": "Не сохранять показания?",
+  "pages.condo.meter.MeterDataTitle": "Данные счетчиков",
   "pages.index.PageTitle": "Аналитика",
   "pages.organizations.CreateOrganizationMessage": "Давайте создадим вашу управляющую компанию",
   "pages.condo.analytics.index.PageTitle": "Аналитика",

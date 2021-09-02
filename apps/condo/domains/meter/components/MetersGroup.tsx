@@ -13,7 +13,7 @@ import { useRemoveMeterModal } from './hooks/useRemoveMeterModal'
 
 const MeterGroupContainer = styled(FocusContainer)`
   margin: 0;
-  width: 596px;
+  width: 100%;
   transition: ${transitions.allDefault};
 
   & .addMeterButton {
@@ -129,6 +129,7 @@ const NewMeterReading = ({
 
 export const MetersGroup = ({ name, form, existedMeters = [], billingMeterReadings, Icon, meterResource }) => {
     const { CreateModal, setIsCreateModalVisible } = useCreateMeterModal()
+
     return (
         <>
             <MeterGroupContainer>
@@ -196,6 +197,5 @@ export const MetersGroup = ({ name, form, existedMeters = [], billingMeterReadin
                 </Row>
             </MeterGroupContainer>
         </>
-
     )
 }
