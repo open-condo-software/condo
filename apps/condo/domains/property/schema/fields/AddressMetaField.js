@@ -1,7 +1,14 @@
 const Ajv = require('ajv')
 
+/**
+ * There is no official information about required status of these fields.
+ * Requirement status of each column was determined empirically by its presence in data from production.
+ * If a column in question is marked as required in GraphQL, but its value is blank,
+ * following error will occur, for example, with blank column `house_fias_id`:
+ * > Cannot return null for non-nullable field AddressMetaDataField.house_fias_id
+ */
 const AddressMetaDataFields = {
-    postal_code: 'String!',
+    postal_code: 'String',
     country: 'String!',
     country_iso_code: 'String!',
     federal_district: 'String',
@@ -18,12 +25,12 @@ const AddressMetaDataFields = {
     area_type: 'String',
     area_type_full: 'String',
     area: 'String',
-    city_fias_id: 'String!',
-    city_kladr_id: 'String!',
-    city_with_type: 'String!',
-    city_type: 'String!',
-    city_type_full: 'String!',
-    city: 'String!',
+    city_fias_id: 'String',
+    city_kladr_id: 'String',
+    city_with_type: 'String',
+    city_type: 'String',
+    city_type_full: 'String',
+    city: 'String',
     city_area: 'String',
     city_district_fias_id: 'String',
     city_district_kladr_id: 'String',
@@ -37,15 +44,15 @@ const AddressMetaDataFields = {
     settlement_type: 'String',
     settlement_type_full: 'String',
     settlement: 'String',
-    street_fias_id: 'String!',
+    street_fias_id: 'String',
     street_kladr_id: 'String!',
     street_with_type: 'String!',
     street_type: 'String!',
     street_type_full: 'String!',
     street: 'String!',
-    house_fias_id: 'String!',
-    house_kladr_id: 'String!',
-    house_type: 'String!',
+    house_fias_id: 'String',
+    house_kladr_id: 'String',
+    house_type: 'String',
     house_type_full: 'String!',
     house: 'String!',
     block_type: 'String',
@@ -66,19 +73,19 @@ const AddressMetaDataFields = {
     fias_level: 'String!',
     fias_actuality_state: 'String!',
     kladr_id: 'String!',
-    geoname_id: 'String!',
+    geoname_id: 'String',
     capital_marker: 'String!',
-    okato: 'String!',
-    oktmo: 'String!',
-    tax_office: 'String!',
-    tax_office_legal: 'String!',
+    okato: 'String',
+    oktmo: 'String',
+    tax_office: 'String',
+    tax_office_legal: 'String',
     timezone: 'String',
-    geo_lat: 'String!',
-    geo_lon: 'String!',
+    geo_lat: 'String',
+    geo_lon: 'String',
     beltway_hit: 'String',
     beltway_distance: 'String',
     metro: 'String',
-    qc_geo: 'String!',
+    qc_geo: 'String',
     qc_complete: 'String',
     qc_house: 'String',
     history_values: '[String]',
@@ -103,7 +110,7 @@ const ADDRESS_META_FIELD_GRAPHQL_TYPES = `
     }
     
     type AddressMetaField {
-        dv: Int!
+        dv: Int
         value: String!
         unrestricted_value: String!
         data: AddressMetaDataField!
