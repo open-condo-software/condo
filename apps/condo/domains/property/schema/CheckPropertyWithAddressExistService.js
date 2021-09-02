@@ -7,7 +7,7 @@ const access = require('@condo/domains/property/access/CheckPropertyWithAddressE
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const get = require('lodash/get')
 const { jsonAddressMetaValidator } = require('../utils/validation.utils')
-const { getAddressUpToBuildingFrom, FLAT_WITHOUT_FLAT_TYPE_MESSAGE } = require('@condo/domains/common/utils/addressApi/helpers')
+const { getAddressUpToBuildingFrom, FLAT_WITHOUT_FLAT_TYPE_MESSAGE } = require('../utils/serverSchema/helpers')
 
 const NO_OBJECT_MESSAGE = 'No object specified!'
 const META_INCORRECT_JSON_MESSAGE = 'AddressMeta Json had incorrect format!'

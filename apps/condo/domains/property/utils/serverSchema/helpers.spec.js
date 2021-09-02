@@ -1,6 +1,6 @@
 import { buildFakeAddressMeta } from '../testSchema/factories'
 import { FLAT_WITHOUT_FLAT_TYPE_MESSAGE, getAddressUpToBuildingFrom } from './helpers'
-import { catchErrorFrom } from '../testSchema'
+import { catchErrorFrom } from '@condo/domains/common/utils/testSchema'
 
 describe('helpers', () => {
     describe('getAddressUpToBuildingFrom', () => {
