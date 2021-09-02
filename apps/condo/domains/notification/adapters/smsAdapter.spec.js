@@ -2,7 +2,7 @@ const { SMSAdapter } = require('./smsAdapter')
 const conf = require('@core/config')
 
 const TEST_PHONE_NUMBER = conf.SMS_TEST_PHONE || '88009232323'
-const NOT_VALID_PHONE_NUMBER = '+19999999999'
+const NOT_VALID_PHONE_NUMBER = '+55555555555'
 
 describe('SMS adapters', () => {
     describe('SMS.ru adapter', () => {
@@ -33,7 +33,7 @@ describe('SMS adapters', () => {
             }
         })
     })
-    
+
     describe('SMSC.ru adapter', () => {
         it('should reject bad formatted phones', async () => {
             const Adapter = new SMSAdapter('SMSC')
