@@ -14,12 +14,6 @@ const PROPERTY_FIELDS = `{ name address addressMeta { ${ADDRESS_META_SUBFIELDS_Q
 const Property = generateGqlQueries('Property', PROPERTY_FIELDS)
 
 const PROPERTY_MAP_GRAPHQL_TYPES = `
-    scalar building
-    scalar section
-    scalar floor
-    scalar unit
-    scalar village
-
     enum BuildingMapEntityType {
         building
         section
@@ -30,7 +24,7 @@ const PROPERTY_MAP_GRAPHQL_TYPES = `
 
     type BuildingUnit {
         id: String!
-        type: unit!
+        type: BuildingMapEntityType!
         name: String
         label: String!
         preview: Boolean
@@ -38,7 +32,7 @@ const PROPERTY_MAP_GRAPHQL_TYPES = `
 
     type BuildingFloor {
         id: String!
-        type: floor!
+        type: BuildingMapEntityType!
         index: Int!
         name: String!
         units: [BuildingUnit]!
@@ -46,7 +40,7 @@ const PROPERTY_MAP_GRAPHQL_TYPES = `
 
     type BuildingSection {
         id: String!
-        type: section!
+        type: BuildingMapEntityType!
         index: Int!
         name: String!
         floors: [BuildingFloor]!

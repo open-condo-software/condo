@@ -13,11 +13,6 @@ export type Scalars = {
   JSON: any;
   /** The `Upload` scalar type represents a file upload. */
   Upload: any;
-  building: any;
-  floor: any;
-  section: any;
-  unit: any;
-  village: any;
 };
 
 
@@ -4862,7 +4857,7 @@ export type BillingReceiptsUpdateInput = {
 export type BuildingFloor = {
   __typename?: 'BuildingFloor';
   id: Scalars['String'];
-  type: Scalars['floor'];
+  type: BuildingMapEntityType;
   index: Scalars['Int'];
   name: Scalars['String'];
   units: Array<Maybe<BuildingUnit>>;
@@ -4886,7 +4881,7 @@ export enum BuildingMapEntityType {
 export type BuildingSection = {
   __typename?: 'BuildingSection';
   id: Scalars['String'];
-  type: Scalars['section'];
+  type: BuildingMapEntityType;
   index: Scalars['Int'];
   name: Scalars['String'];
   floors: Array<Maybe<BuildingFloor>>;
@@ -4896,7 +4891,7 @@ export type BuildingSection = {
 export type BuildingUnit = {
   __typename?: 'BuildingUnit';
   id: Scalars['String'];
-  type: Scalars['unit'];
+  type: BuildingMapEntityType;
   name?: Maybe<Scalars['String']>;
   label: Scalars['String'];
   preview?: Maybe<Scalars['Boolean']>;
@@ -26162,9 +26157,6 @@ export type AuthenticateUserOutput = {
   item?: Maybe<User>;
 };
 
-
-
-
 export type UnauthenticateUserOutput = {
   __typename?: 'unauthenticateUserOutput';
   /**
@@ -26173,5 +26165,3 @@ export type UnauthenticateUserOutput = {
    */
   success?: Maybe<Scalars['Boolean']>;
 };
-
-
