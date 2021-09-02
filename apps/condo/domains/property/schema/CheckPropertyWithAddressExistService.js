@@ -17,7 +17,7 @@ const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyW
     types: [
         {
             access: true,
-            type: 'input CheckPropertyWithAddressExistInput { address: String!, addressMeta: JSON! }',
+            type: 'input CheckPropertyWithAddressExistInput { address: String!, addressMeta: AddressMetaFieldInput! }',
         },
         {
             access: true,
