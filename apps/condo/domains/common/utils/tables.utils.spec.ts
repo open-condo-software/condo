@@ -15,8 +15,7 @@ import {
     getSorterMap,
     convertColumns,
 } from './tables.utils'
-
-import moment from 'moment'
+import dayjs from 'dayjs'
 
 function randInt (maxValue) {
     return Math.floor(Math.random() * maxValue)
@@ -242,7 +241,7 @@ describe('Table utils', () => {
             expect(result).toBeUndefined()
         })
         it('should parse start of the day correctly', () => {
-            const startOfDay = moment(dateSearch).startOf('day').toISOString()
+            const startOfDay = dayjs(dateSearch).startOf('day').toISOString()
             const expectedResult = { [propertyName]: startOfDay }
             expect(filter(dateSearch)).toStrictEqual(expectedResult)
         })
@@ -262,7 +261,7 @@ describe('Table utils', () => {
             expect(result).toBeUndefined()
         })
         it('should parse end of the day correctly', () => {
-            const startOfDay = moment(dateSearch).endOf('day').toISOString()
+            const startOfDay = dayjs(dateSearch).endOf('day').toISOString()
             const expectedResult = { [propertyName]: startOfDay }
             expect(filter(dateSearch)).toStrictEqual(expectedResult)
         })

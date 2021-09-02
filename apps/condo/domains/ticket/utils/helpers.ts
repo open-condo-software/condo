@@ -3,7 +3,7 @@ import { format, formatDuration, intervalToDuration } from 'date-fns'
 import get from 'lodash/get'
 import groupBy from 'lodash/groupBy'
 import { LOCALES } from '@condo/domains/common/constants/locale'
-import moment, { Moment } from 'moment'
+import dayjs, { Dayjs } from 'dayjs'
 import { ParsedUrlQuery } from 'querystring'
 import {
     Ticket,
@@ -123,7 +123,7 @@ export const createdAtToQuery = (createdAt?: string): Array<string> => {
         return
     }
 
-    const date = moment(createdAt)
+    const date = dayjs(createdAt)
 
     if (date.isValid()) {
         const min = date.startOf('day').toISOString()
@@ -378,7 +378,7 @@ export type addressPickerType = { id: string; value: string; }
 export type GroupTicketsByTypes = 'status' | 'property' | 'category' | 'user' | 'responsible'
 
 export type ticketAnalyticsPageFilters = {
-    range: [Moment, Moment];
+    range: [Dayjs, Dayjs];
     specification: specificationTypes;
     addressList: addressPickerType[];
 }
