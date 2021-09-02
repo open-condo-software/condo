@@ -1,4 +1,4 @@
-const { get } = require('lodash')
+const { get, omitBy, isNull } = require('lodash')
 
 const FLAT_WITHOUT_FLAT_TYPE_MESSAGE = 'Flat is specified, but flat type is not!'
 
@@ -22,7 +22,24 @@ const getAddressUpToBuildingFrom = (addressMeta) => {
     return result
 }
 
+/**
+ * Removes `name` field with `null` value from `map.sections[].floors[].units[]`
+ * @param {BuildingMap} map
+ * @return {BuildingMap}
+ */
+const normalizePropertyMap = ({ sections, ...restMapProps }) => ({
+    ...restMapProps,
+    sections: sections.map(({ floors, ...restSectionProps }) => ({
+        ...restSectionProps,
+        floors: floors.map(({ units, ...restFloorProps }) => ({
+            ...restFloorProps,
+            units: units.map(unit => omitBy(unit, isNull)),
+        })),
+    })),
+})
+
 module.exports = {
     FLAT_WITHOUT_FLAT_TYPE_MESSAGE,
     getAddressUpToBuildingFrom,
+    normalizePropertyMap,
 }
