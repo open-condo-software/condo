@@ -14,6 +14,7 @@ import { useState } from 'react'
 import { validHouseTypes, validSettlementTypes } from '@condo/domains/property/constants/property'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { PROPERTY_WITH_SAME_ADDRESS_EXIST } from '../../constants/errors'
+import { omitRecursively } from '@condo/domains/common/utils/omitRecursively'
 
 interface IOrganization {
     id: string
@@ -64,7 +65,11 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
             }
         }
 
-        return formData
+        // Requested fields of Property of JSON-type, mapped to GraphQL, containing `__typename` field in each typed node.
+        // It seems, like we cannot control it.
+        // So, these fields should be cleaned, because it will result to incorrect input into update-mutation
+        const cleanedFormData = omitRecursively(formData, '__typename')
+        return cleanedFormData
     }, [initialValues])
 
     const { requiredValidator } = useValidations()
