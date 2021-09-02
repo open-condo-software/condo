@@ -5,7 +5,7 @@
  */
 const faker = require('faker')
 const { get } = require('lodash')
-const { buildFakeAddressAndMeta } = require('@condo/domains/common/utils/testSchema/factories')
+const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 
 const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
