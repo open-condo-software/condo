@@ -8,7 +8,6 @@ import { css, jsx } from '@emotion/core'
 const actionBar = css`
     position: relative;
     padding: 24px;
-    margin: 0 -24px;
     transition: box-shadow 0.6s ease-out;
 
     .ant-affix & {
@@ -21,7 +20,7 @@ interface IActionBarProps {
     fullscreen?: boolean;
 }
 
-const ActionBar: React.FC<IActionBarProps> = ({ children, fullscreen = false }) => {
+const ActionBar: React.FC<IActionBarProps> = ({ children, fullscreen = true }) => {
     const barWidthStyle = { width: fullscreen ? '100%' : 'unset' }
     return (
         <Affix offsetBottom={48} style={barWidthStyle}>
