@@ -69,7 +69,7 @@ const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, initi
         <Col span={24}>
             <Form.Item shouldUpdate noStyle>
                 {({ getFieldsValue }) => {
-                    const { property, unitName } = getFieldsValue(['property', 'unitName'])
+                    const { unitName } = getFieldsValue(['property', 'unitName'])
 
                     const value = {
                         id: get(initialValues, ['contact', 'id']),
@@ -78,7 +78,7 @@ const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, initi
                     }
 
                     return (
-                        <DisabledWrapper className={!property ? 'disabled' : ''}>
+                        <DisabledWrapper className={!unitName ? 'disabled' : ''}>
                             <ContactsEditorComponent
                                 form={form}
                                 fields={{
@@ -336,34 +336,36 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                 initialValues={{}}
                                 selectedPropertyId={selectedPropertyId}
                             />
-                            {
-                                !resourcesLoading && !billingMeterReadingsLoading && !existingMetersLoading ? (
-                                    <Col span={24}>
-                                        <Row gutter={[0, 12]} style={{ marginTop: '40px' }}>
-                                            <Typography.Paragraph
-                                                strong={true}
-                                                style={{ fontSize: '20px', marginBottom: 0 }}
-                                            >
-                                                {MeterDataTitle}
-                                            </Typography.Paragraph>
-                                            {
-                                                resourceIds.map(resourceId => (
-                                                    <Col key={resourceId} span={24}>
-                                                        <MetersGroup
-                                                            form={form}
-                                                            name={resourceId}
-                                                            existedMeters={existingMeters.filter(meter => meter.resource.id === resourceId)}
-                                                            billingMeterReadings={billingMeterReadings}
-                                                            Icon={resourceToIcon[resourceId]}
-                                                            meterResource={resources.find(resource => resource.id === resourceId)}
-                                                        />
-                                                    </Col>
-                                                ))
-                                            }
-                                        </Row>
-                                    </Col>
-                                ) :  <Loader />
-                            }
+                            <DisabledWrapper className={!selectedUnitNameRef.current ? 'disabled' : ''}>
+                                {
+                                    !resourcesLoading && !billingMeterReadingsLoading && !existingMetersLoading ? (
+                                        <Col span={24}>
+                                            <Row gutter={[0, 12]} style={{ marginTop: '40px' }}>
+                                                <Typography.Paragraph
+                                                    strong={true}
+                                                    style={{ fontSize: '20px', marginBottom: 0 }}
+                                                >
+                                                    {MeterDataTitle}
+                                                </Typography.Paragraph>
+                                                {
+                                                    resourceIds.map(resourceId => (
+                                                        <Col key={resourceId} span={24}>
+                                                            <MetersGroup
+                                                                form={form}
+                                                                name={resourceId}
+                                                                existedMeters={existingMeters.filter(meter => meter.resource.id === resourceId)}
+                                                                billingMeterReadings={billingMeterReadings}
+                                                                Icon={resourceToIcon[resourceId]}
+                                                                meterResource={resources.find(resource => resource.id === resourceId)}
+                                                            />
+                                                        </Col>
+                                                    ))
+                                                }
+                                            </Row>
+                                        </Col>
+                                    ) :  <Loader />
+                                }
+                            </DisabledWrapper>
                         </Row>
                     </Col>
                     <CreateMeterReadingsActionBar handleSave={handleSave} isLoading={isLoading}/>
