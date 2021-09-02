@@ -83,7 +83,15 @@ class TicketGqlToKnexAdapter extends GqlToKnexBaseAdapter {
     }
 }
 
-const aggregateData = (data, groupByFilter) => {
+const aggregateData = (data, groupByDependencyList) => {
+    let groupByFilter = groupByDependencyList
+    switch (groupByDependencyList[0]) {
+        case 'property':
+            groupByFilter = groupByDependencyList.reverse()
+            break
+        default:
+            break
+    }
     const [axisGroupKey] = groupByFilter
     const labelsGroupKey = TICKET_REPORT_DAY_GROUP_STEPS.includes(groupByFilter[1]) ? 'dayGroup' : groupByFilter[1]
     const groupedResult = groupBy(data, axisGroupKey)

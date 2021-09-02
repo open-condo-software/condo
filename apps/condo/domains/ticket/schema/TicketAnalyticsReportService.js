@@ -18,6 +18,7 @@ const propertySummaryDataMapper = require('@condo/domains/ticket/utils/serverSch
 const propertySingleDataMapper = require('@condo/domains/ticket/utils/serverSchema/propertySingleDataMapper')
 const dayGroupDataMapper = require('@condo/domains/ticket/utils/serverSchema/dayGroupDataMapper')
 const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
+const propertyPercentDataMapper = require('@condo/domains/ticket/utils/serverSchema/propertyPercentDataMapper')
 
 const createPropertyRange = async (organizationWhereInput) => {
     const propertyLoader = new GqlWithKnexLoadList({
@@ -160,6 +161,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                         rowColumns = [...new Set(Object.values(result).flatMap(e => Object.keys(e)))]
                         break
                     case 'status-property':
+                    case 'property-status':
                         rowColumns = address.includes('@') ? address.split('@') : []
                         break
                     default:
@@ -178,6 +180,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                 } else {
                     switch (groupBy[1]) {
                         case 'property':
+                            //TODO: find simple way to determine when to use propertyPercentDataMapper
                             rowColumns.forEach((rowAddress) => {
                                 const tableRow = {}
                                 Object.entries(result).forEach(([ticketType, dataObject]) => {
