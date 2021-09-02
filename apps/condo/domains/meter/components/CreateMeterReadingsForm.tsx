@@ -206,10 +206,6 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         const { property, sectionName, floorName, unitName, client, clientName, clientEmail, clientPhone, source } = variables
 
         const existedMetersFromForm = variables.existedMeters
-
-        console.log('organization', organization)
-        // console.log('existedMetersFromForm, existingMetersRef.current, variables', existedMetersFromForm, existingMetersRef.current, variables)
-
         if (existedMetersFromForm) {
             for (const [meterId, value] of Object.entries(existedMetersFromForm)) {
                 if (!value) continue
@@ -235,12 +231,8 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
             }
         }
 
-        console.log('after existedMetersFromForm')
-
         for (const resourceId of resourceIds) {
-            console.log('resourceId', resourceId)
             const newResourceMeters = variables[resourceId]
-            console.log('newResourceMeters', newResourceMeters)
 
             if (newResourceMeters) {
                 for (const newMeter of newResourceMeters) {
@@ -276,8 +268,6 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                 }
             }
         }
-
-        console.log('after newResourceMeters')
 
         await router.push('/')
     }, [])
