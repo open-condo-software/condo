@@ -116,6 +116,10 @@ INSERT INTO "MeterResource" (dv, sender, name, measure, id, v, "createdAt", "upd
 INSERT INTO "MeterResource" (dv, sender, name, measure, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy") VALUES (1, '{"dv": 1, "fingerprint": "initial"}', 'meterResource.HeatSupply.name', 'meterResource.HeatSupply.measure', '18555734-0631-11ec-9a03-0242ac130003', 1, '2020-11-24 00:00:00.000000', '2020-11-24 00:00:00.000000', null, null, null, null);
 INSERT INTO "MeterResource" (dv, sender, name, measure, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy") VALUES (1, '{"dv": 1, "fingerprint": "initial"}', 'meterResource.GasSupply.name', 'meterResource.GasSupply.measure', '1c267e92-0631-11ec-9a03-0242ac130003', 1, '2020-11-24 00:00:00.000000', '2020-11-24 00:00:00.000000', null, null, null, null);
 
+UPDATE "OrganizationEmployeeRole"
+SET "canManageMeters" = true
+WHERE name = 'employee.role.Administrator.name';
+
 COMMIT;
 
     `)
