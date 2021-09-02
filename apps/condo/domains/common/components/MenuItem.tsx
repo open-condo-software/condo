@@ -11,25 +11,31 @@ import { ClientRenderedIcon } from './icons/ClientRenderedIcon'
 
 const IconWrapper = styled.div``
 
-const MenuItemWrapper = styled.span`
+interface IMenuItemWrapperProps {
+    padding?: string
+    labelFontSize?: string
+    flexGap?: string
+}
+
+const MenuItemWrapper = styled.span<IMenuItemWrapperProps>`
   cursor: pointer;
-  padding: 16px 0;
+  padding: ${props => props.padding ? props.padding : '16px 0'};
   display: flex;
   border-radius: 8px;
   flex-direction: row;
+  gap: ${props => props.flexGap ? props.flexGap : '20px'};
   align-items: center;
   justify-content: flex-start;
   vertical-align: center;
   
   .label {
-    font-size: 16px;
+    font-size: ${props => props.labelFontSize ? props.labelFontSize : '16px'};
     transition: ${transitions.allDefault};
   }
 
   .icon {
     color: ${colors.lightGrey[5]};
     font-size: 20px;
-    margin-right: 20px;
     transition: ${transitions.allDefault};
   }
 
@@ -61,10 +67,11 @@ interface IMenuItemProps {
     label: string
     disabled?: boolean
     hideInMenu?: boolean
+    menuItemWrapperProps?: IMenuItemWrapperProps
 }
 
 export const MenuItem: React.FC<IMenuItemProps> = (props) => {
-    const { path, icon, label, hideInMenu, disabled } = props
+    const { path, icon, label, hideInMenu, disabled, menuItemWrapperProps } = props
     const { route } = useRouter()
     const intl = useIntl()
 
@@ -79,7 +86,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
 
     return (
         <Link href={path}>
-            <MenuItemWrapper className={menuItemClassNames}>
+            <MenuItemWrapper className={menuItemClassNames} {...menuItemWrapperProps}>
                 <IconWrapper className='icon'>
                     <ClientRenderedIcon icon={icon}/>
                 </IconWrapper>
