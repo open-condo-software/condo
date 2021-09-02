@@ -3,11 +3,12 @@ import styled from '@emotion/styled'
 import { Col, Divider, Form, Input, Row, Space, Typography } from 'antd'
 import { green } from '@ant-design/colors'
 import { DeleteFilled, PlusCircleFilled } from '@ant-design/icons'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback } from 'react'
 import { useCreateMeterModal } from './hooks/useCreateMeterModal'
 import { shadows, transitions } from '@condo/domains/common/constants/style'
 import { Button } from '@condo/domains/common/components/Button'
 import { NamePath } from 'antd/lib/form/interface'
+import moment from 'moment'
 
 const MeterGroupContainer = styled(FocusContainer)`
   margin: 0;
@@ -45,8 +46,9 @@ const OldMeterReading = ({
     meterId,
     billingMeterReadings,
 }) => {
-    // const lastMeterReading = billingMeterReadings.find(billingMeterReading => billingMeterReading.meter.id === meterId)
-    const lastMeterReading = {}
+    // TODO(nomerdvadcatpyat): Now in BillingAccountMeterReading there is no reference to Meter, so this logic will not work.
+    //  Consider the advisability of adding Meter to BillingAccountMeterReading or think of another way to get BillingAccountMeterReading by Meter
+    const lastMeterReading = billingMeterReadings.find(billingMeterReading => billingMeterReading.meter.id === meterId)
 
     return (
         <Col span={24}>
@@ -58,18 +60,18 @@ const OldMeterReading = ({
                     <Col span={12}>
                         <Input addonAfter={measure} />
                     </Col>
-                    {/*{*/}
-                    {/*    lastMeterReading ? (*/}
-                    {/*        <Col span={10}>*/}
-                    {/*            <Typography.Paragraph strong={true} style={{ margin: 0 }}>*/}
-                    {/*                {lastMeterReading.value} {measure}*/}
-                    {/*            </Typography.Paragraph>*/}
-                    {/*            <Typography.Paragraph style={{ fontSize: '12px', margin: 0 }}>*/}
-                    {/*                {lastMeterReading.source.name} {moment(lastMeterReading.date).format('DD.MM')}*/}
-                    {/*            </Typography.Paragraph>*/}
-                    {/*        </Col>*/}
-                    {/*    ) : null*/}
-                    {/*}*/}
+                    {
+                        lastMeterReading ? (
+                            <Col span={10}>
+                                <Typography.Paragraph strong={true} style={{ margin: 0 }}>
+                                    {lastMeterReading.value} {measure}
+                                </Typography.Paragraph>
+                                <Typography.Paragraph style={{ fontSize: '12px', margin: 0 }}>
+                                    {lastMeterReading.source.name} {moment(lastMeterReading.date).format('DD.MM')}
+                                </Typography.Paragraph>
+                            </Col>
+                        ) : null
+                    }
                 </Row>
             </Form.Item>
         </Col>
