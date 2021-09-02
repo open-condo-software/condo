@@ -53,7 +53,8 @@ const TicketStatus = new GQLListSchema('TicketStatus', {
             schemaDoc: 'Status colors, includes primary (font color), secondary (background color), additional (border color), all colors presented in HEX',
             type: Virtual,
             extendGraphQLTypes: ['type TicketStatusColor { primary: String, secondary: String, additional: String }'],
-            graphQLReturnType: 'JSON',
+            graphQLReturnType: 'TicketStatusColor',
+            graphQLReturnFragment: '{ primary secondary additional }',
             resolver: async (item) => {
                 if (!get(item, 'type')) {
                     throw new Error('Error while trying to find ticket status color')
