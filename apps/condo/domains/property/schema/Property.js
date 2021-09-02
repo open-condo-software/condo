@@ -83,8 +83,9 @@ const Property = new GQLListSchema('Property', {
                     if (typeof value !== 'object') { return addFieldValidationError(`${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] ${fieldPath} field type error. We expect JSON Object`) }
                     const { dv } = value
                     if (dv === 1) {
+                        // Failed with exactly the same value of `map` as in Property.test.js:L25
                         if (!jsonMapValidator(value)){
-                            // console.log(JSON.stringify(jsonMapValidator.errors, null, 2))
+                            console.log(JSON.stringify(jsonMapValidator.errors, null, 2))
                             return addFieldValidationError(`${JSON_SCHEMA_VALIDATION_ERROR}] invalid json structure of "map" field`)
                         }
                     } else {
