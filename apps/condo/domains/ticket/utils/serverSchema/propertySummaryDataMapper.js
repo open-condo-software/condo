@@ -7,7 +7,7 @@ const propertySummaryDataMapper = ({ row = {}, constants = {} }) => ({
         en: ['Address', 'In progress', 'Done', 'Canceled', 'Deferred', 'Closed', 'Opened'],
     },
     rows: {
-        address: () => constants.address.replaceAll('@', ''),
+        address: () => constants.address.split('@').join(''),
         processing: () => fieldMapLambda(row),
         completed: () => fieldMapLambda(row),
         canceled: () => fieldMapLambda(row),
@@ -18,4 +18,3 @@ const propertySummaryDataMapper = ({ row = {}, constants = {} }) => ({
 })
 
 module.exports = propertySummaryDataMapper
-
