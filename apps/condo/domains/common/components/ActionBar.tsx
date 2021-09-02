@@ -22,9 +22,10 @@ interface IActionBarProps {
 }
 
 const ActionBar: React.FC<IActionBarProps> = ({ children, fullscreen = false }) => {
+    const barWidthStyle = { width: fullscreen ? '100%' : 'unset' }
     return (
-        <Affix offsetBottom={48} style={{ width: fullscreen ? '100%' : 'unset' }}>
-            <Space wrap={true} size={[40, 24]} css={actionBar}>
+        <Affix offsetBottom={48} style={barWidthStyle}>
+            <Space wrap={true} size={[40, 24]} css={actionBar} style={barWidthStyle}>
                 { children }
             </Space>
         </Affix>
