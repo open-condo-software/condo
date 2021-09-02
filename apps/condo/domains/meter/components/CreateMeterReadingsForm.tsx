@@ -338,27 +338,30 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                             />
                             {
                                 !resourcesLoading && !billingMeterReadingsLoading && !existingMetersLoading ? (
-                                    <>
-                                        <Typography.Paragraph
-                                            strong={true}
-                                            style={{ fontSize: '20px' }}
-                                        >
-                                            {MeterDataTitle}
-                                        </Typography.Paragraph>
-                                        {
-                                            resourceIds.map(resourceId => (
-                                                <MetersGroup
-                                                    key={resourceId}
-                                                    form={form}
-                                                    name={resourceId}
-                                                    existedMeters={existingMeters.filter(meter => meter.resource.id === resourceId)}
-                                                    billingMeterReadings={billingMeterReadings}
-                                                    Icon={resourceToIcon[resourceId]}
-                                                    meterResource={resources.find(resource => resource.id === resourceId)}
-                                                />
-                                            ))
-                                        }
-                                    </>
+                                    <Col span={24}>
+                                        <Row gutter={[0, 12]} style={{ marginTop: '40px' }}>
+                                            <Typography.Paragraph
+                                                strong={true}
+                                                style={{ fontSize: '20px', marginBottom: 0 }}
+                                            >
+                                                {MeterDataTitle}
+                                            </Typography.Paragraph>
+                                            {
+                                                resourceIds.map(resourceId => (
+                                                    <Col key={resourceId} span={24}>
+                                                        <MetersGroup
+                                                            form={form}
+                                                            name={resourceId}
+                                                            existedMeters={existingMeters.filter(meter => meter.resource.id === resourceId)}
+                                                            billingMeterReadings={billingMeterReadings}
+                                                            Icon={resourceToIcon[resourceId]}
+                                                            meterResource={resources.find(resource => resource.id === resourceId)}
+                                                        />
+                                                    </Col>
+                                                ))
+                                            }
+                                        </Row>
+                                    </Col>
                                 ) :  <Loader />
                             }
                         </Row>
