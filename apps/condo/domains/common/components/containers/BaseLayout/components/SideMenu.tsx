@@ -3,7 +3,6 @@ import { jsx } from '@emotion/core'
 import { Drawer, Layout, Space, Popover, Divider } from 'antd'
 import get from 'lodash/get'
 import React from 'react'
-import Link from 'next/link'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
 import {
@@ -18,6 +17,7 @@ import { Button } from '@condo/domains/common/components/Button'
 import styled from '@emotion/styled'
 import { AppealIcon } from '@condo/domains/common/components/icons/AppealIcon'
 import { MeterIcon } from '@condo/domains/common/components/icons/MeterIcon'
+import { MenuItem } from '../../../MenuItem'
 
 interface ISideMenuProps {
     isMobile: boolean
@@ -36,38 +36,20 @@ const ResidentAppealPopoverContentWrapper = styled.div`
   justify-content: space-around;
 `
 
-const AppealPopoverItem = styled.div`
-  padding-left: 18px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  
-  & a {
-    color: black;
-    font-size: 14px;
-  }
-`
-
 const ResidentAppealPopoverContent = () => {
-    const intl = useIntl()
-    const CreateAppealMessage = intl.formatMessage({ id: 'CreateAppeal' })
-    const CreateMeterReadingMessage = intl.formatMessage({ id: 'CreateMeterReading' })
-
     return (
         <ResidentAppealPopoverContentWrapper>
-            <Link href={'/ticket/create'}>
-                <AppealPopoverItem>
-                    <AppealIcon />
-                    <a>{CreateAppealMessage}</a>
-                </AppealPopoverItem>
-            </Link>
+            <MenuItem
+                path={'/ticket/create'}
+                icon={AppealIcon}
+                label={'CreateAppeal'}
+            />
             <Divider style={{ margin: 0 }}/>
-            <Link href={'/meter/create'}>
-                <AppealPopoverItem>
-                    <MeterIcon />
-                    <a>{CreateMeterReadingMessage}</a>
-                </AppealPopoverItem>
-            </Link>
+            <MenuItem
+                path={'/meter/create'}
+                icon={MeterIcon}
+                label={'CreateMeterReading'}
+            />
         </ResidentAppealPopoverContentWrapper>
     )
 }
@@ -79,7 +61,7 @@ const ResidentAppealPopover = () => {
             content={ResidentAppealPopoverContent}
             placement={'bottom'}
         >
-            <Button type='sberDefault'>
+            <Button type='sberDefault' style={{ position: 'relative', left: '-10px' }}>
                 {intl.formatMessage({ id: 'ResidentAppeal' })}
             </Button>
         </Popover>
