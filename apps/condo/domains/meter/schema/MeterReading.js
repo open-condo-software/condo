@@ -68,8 +68,8 @@ const MeterReading = new GQLListSchema('MeterReading', {
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
 
-        value: {
-            schemaDoc: 'Numerical value on the meter at the time of taking readings',
+        value1: {
+            schemaDoc: 'Meter reading value of tariff 1',
             type: Integer,
             isRequired: true,
             hooks: {
@@ -86,11 +86,21 @@ const MeterReading = new GQLListSchema('MeterReading', {
                             sortBy: ['createdAt_DESC'],
                         })
 
-                        if (lastMeterReading && lastMeterReading.value > value)
+                        if (lastMeterReading && lastMeterReading.value1 > value)
                             addFieldValidationError(`${VALUE_LESS_THAN_PREVIOUS_ERROR}value] Meter reading value less than previous`)
                     }
                 },
             },
+        },
+
+        value2: {
+            schemaDoc: 'Meter reading value of tariff 2',
+            type: Integer,
+        },
+
+        value3: {
+            schemaDoc: 'Meter reading value of tariff 3',
+            type: Integer,
         },
 
         sectionName: {

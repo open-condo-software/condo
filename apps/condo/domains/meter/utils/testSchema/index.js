@@ -90,6 +90,7 @@ async function createTestMeter (client, organization, property, resource, extraA
         property: { connect: { id: property.id } },
         resource: { connect: { id: resource.id } },
         account,
+        tariffsCount: 1,
         ...extraAttrs,
     }
     const obj = await Meter.create(client, attrs)
@@ -127,7 +128,7 @@ async function createTestMeterReading (client, meter, property, organization, so
         organization: { connect: { id: organization.id } },
         source: { connect: { id: source.id } },
         date: faker.date.recent(),
-        value: faker.random.number(),
+        value1: faker.random.number(),
         unitName: faker.random.alphaNumeric(5),
         account,
         ...extraAttrs,

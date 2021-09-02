@@ -7359,6 +7359,7 @@ export type Meter = {
   sender?: Maybe<SenderField>;
   /**  Number of resource meter, such as "А03 9908"  */
   number?: Maybe<Scalars['String']>;
+  tariffsCount?: Maybe<Scalars['Int']>;
   /**  Client's billing account  */
   account?: Maybe<Scalars['String']>;
   /**  Link to BillingAccountMeter if it exist in billing context  */
@@ -7387,6 +7388,7 @@ export type MeterCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
   number?: Maybe<Scalars['String']>;
+  tariffsCount?: Maybe<Scalars['Int']>;
   account?: Maybe<Scalars['String']>;
   billingAccountMeter?: Maybe<BillingAccountMeterRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
@@ -7417,6 +7419,7 @@ export type MeterHistoryRecord = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   number?: Maybe<Scalars['String']>;
+  tariffsCount?: Maybe<Scalars['Int']>;
   account?: Maybe<Scalars['String']>;
   billingAccountMeter?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
@@ -7441,6 +7444,7 @@ export type MeterHistoryRecordCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   number?: Maybe<Scalars['String']>;
+  tariffsCount?: Maybe<Scalars['Int']>;
   account?: Maybe<Scalars['String']>;
   billingAccountMeter?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
@@ -7470,6 +7474,7 @@ export type MeterHistoryRecordUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   number?: Maybe<Scalars['String']>;
+  tariffsCount?: Maybe<Scalars['Int']>;
   account?: Maybe<Scalars['String']>;
   billingAccountMeter?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
@@ -7522,6 +7527,14 @@ export type MeterHistoryRecordWhereInput = {
   number_not_ends_with_i?: Maybe<Scalars['String']>;
   number_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   number_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  tariffsCount?: Maybe<Scalars['Int']>;
+  tariffsCount_not?: Maybe<Scalars['Int']>;
+  tariffsCount_lt?: Maybe<Scalars['Int']>;
+  tariffsCount_lte?: Maybe<Scalars['Int']>;
+  tariffsCount_gt?: Maybe<Scalars['Int']>;
+  tariffsCount_gte?: Maybe<Scalars['Int']>;
+  tariffsCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  tariffsCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   account?: Maybe<Scalars['String']>;
   account_not?: Maybe<Scalars['String']>;
   account_contains?: Maybe<Scalars['String']>;
@@ -7700,8 +7713,12 @@ export type MeterReading = {
   date?: Maybe<Scalars['String']>;
   /**  Meter from which readings were taken  */
   meter?: Maybe<Meter>;
-  /**  Numerical value on the meter at the time of taking readings  */
-  value?: Maybe<Scalars['Int']>;
+  /**  Meter reading value of tariff 1  */
+  value1?: Maybe<Scalars['Int']>;
+  /**  Meter reading value of tariff 2  */
+  value2?: Maybe<Scalars['Int']>;
+  /**  Meter reading value of tariff 3  */
+  value3?: Maybe<Scalars['Int']>;
   /**  Section name/number of an apartment building (property). You need to take from Property.map  */
   sectionName?: Maybe<Scalars['String']>;
   /**  Floor of an apartment building (property). You need to take from Property.map  */
@@ -7740,7 +7757,9 @@ export type MeterReadingCreateInput = {
   billingAccountMeter?: Maybe<BillingAccountMeterRelateToOneInput>;
   date?: Maybe<Scalars['String']>;
   meter?: Maybe<MeterRelateToOneInput>;
-  value?: Maybe<Scalars['Int']>;
+  value1?: Maybe<Scalars['Int']>;
+  value2?: Maybe<Scalars['Int']>;
+  value3?: Maybe<Scalars['Int']>;
   sectionName?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
@@ -7779,7 +7798,9 @@ export type MeterReadingHistoryRecord = {
   billingAccountMeter?: Maybe<Scalars['String']>;
   date?: Maybe<Scalars['String']>;
   meter?: Maybe<Scalars['String']>;
-  value?: Maybe<Scalars['Int']>;
+  value1?: Maybe<Scalars['Int']>;
+  value2?: Maybe<Scalars['Int']>;
+  value3?: Maybe<Scalars['Int']>;
   sectionName?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
@@ -7812,7 +7833,9 @@ export type MeterReadingHistoryRecordCreateInput = {
   billingAccountMeter?: Maybe<Scalars['String']>;
   date?: Maybe<Scalars['String']>;
   meter?: Maybe<Scalars['String']>;
-  value?: Maybe<Scalars['Int']>;
+  value1?: Maybe<Scalars['Int']>;
+  value2?: Maybe<Scalars['Int']>;
+  value3?: Maybe<Scalars['Int']>;
   sectionName?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
@@ -7850,7 +7873,9 @@ export type MeterReadingHistoryRecordUpdateInput = {
   billingAccountMeter?: Maybe<Scalars['String']>;
   date?: Maybe<Scalars['String']>;
   meter?: Maybe<Scalars['String']>;
-  value?: Maybe<Scalars['Int']>;
+  value1?: Maybe<Scalars['Int']>;
+  value2?: Maybe<Scalars['Int']>;
+  value3?: Maybe<Scalars['Int']>;
   sectionName?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
@@ -7933,14 +7958,30 @@ export type MeterReadingHistoryRecordWhereInput = {
   meter_not?: Maybe<Scalars['String']>;
   meter_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   meter_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  value?: Maybe<Scalars['Int']>;
-  value_not?: Maybe<Scalars['Int']>;
-  value_lt?: Maybe<Scalars['Int']>;
-  value_lte?: Maybe<Scalars['Int']>;
-  value_gt?: Maybe<Scalars['Int']>;
-  value_gte?: Maybe<Scalars['Int']>;
-  value_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  value_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value1?: Maybe<Scalars['Int']>;
+  value1_not?: Maybe<Scalars['Int']>;
+  value1_lt?: Maybe<Scalars['Int']>;
+  value1_lte?: Maybe<Scalars['Int']>;
+  value1_gt?: Maybe<Scalars['Int']>;
+  value1_gte?: Maybe<Scalars['Int']>;
+  value1_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value1_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value2?: Maybe<Scalars['Int']>;
+  value2_not?: Maybe<Scalars['Int']>;
+  value2_lt?: Maybe<Scalars['Int']>;
+  value2_lte?: Maybe<Scalars['Int']>;
+  value2_gt?: Maybe<Scalars['Int']>;
+  value2_gte?: Maybe<Scalars['Int']>;
+  value2_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value2_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value3?: Maybe<Scalars['Int']>;
+  value3_not?: Maybe<Scalars['Int']>;
+  value3_lt?: Maybe<Scalars['Int']>;
+  value3_lte?: Maybe<Scalars['Int']>;
+  value3_gt?: Maybe<Scalars['Int']>;
+  value3_gte?: Maybe<Scalars['Int']>;
+  value3_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value3_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   sectionName?: Maybe<Scalars['String']>;
   sectionName_not?: Maybe<Scalars['String']>;
   sectionName_contains?: Maybe<Scalars['String']>;
@@ -8512,7 +8553,9 @@ export type MeterReadingUpdateInput = {
   billingAccountMeter?: Maybe<BillingAccountMeterRelateToOneInput>;
   date?: Maybe<Scalars['String']>;
   meter?: Maybe<MeterRelateToOneInput>;
-  value?: Maybe<Scalars['Int']>;
+  value1?: Maybe<Scalars['Int']>;
+  value2?: Maybe<Scalars['Int']>;
+  value3?: Maybe<Scalars['Int']>;
   sectionName?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
@@ -8588,14 +8631,30 @@ export type MeterReadingWhereInput = {
   date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   meter?: Maybe<MeterWhereInput>;
   meter_is_null?: Maybe<Scalars['Boolean']>;
-  value?: Maybe<Scalars['Int']>;
-  value_not?: Maybe<Scalars['Int']>;
-  value_lt?: Maybe<Scalars['Int']>;
-  value_lte?: Maybe<Scalars['Int']>;
-  value_gt?: Maybe<Scalars['Int']>;
-  value_gte?: Maybe<Scalars['Int']>;
-  value_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  value_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value1?: Maybe<Scalars['Int']>;
+  value1_not?: Maybe<Scalars['Int']>;
+  value1_lt?: Maybe<Scalars['Int']>;
+  value1_lte?: Maybe<Scalars['Int']>;
+  value1_gt?: Maybe<Scalars['Int']>;
+  value1_gte?: Maybe<Scalars['Int']>;
+  value1_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value1_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value2?: Maybe<Scalars['Int']>;
+  value2_not?: Maybe<Scalars['Int']>;
+  value2_lt?: Maybe<Scalars['Int']>;
+  value2_lte?: Maybe<Scalars['Int']>;
+  value2_gt?: Maybe<Scalars['Int']>;
+  value2_gte?: Maybe<Scalars['Int']>;
+  value2_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value2_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value3?: Maybe<Scalars['Int']>;
+  value3_not?: Maybe<Scalars['Int']>;
+  value3_lt?: Maybe<Scalars['Int']>;
+  value3_lte?: Maybe<Scalars['Int']>;
+  value3_gt?: Maybe<Scalars['Int']>;
+  value3_gte?: Maybe<Scalars['Int']>;
+  value3_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value3_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   sectionName?: Maybe<Scalars['String']>;
   sectionName_not?: Maybe<Scalars['String']>;
   sectionName_contains?: Maybe<Scalars['String']>;
@@ -9150,6 +9209,7 @@ export type MeterUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
   number?: Maybe<Scalars['String']>;
+  tariffsCount?: Maybe<Scalars['Int']>;
   account?: Maybe<Scalars['String']>;
   billingAccountMeter?: Maybe<BillingAccountMeterRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
@@ -9199,6 +9259,14 @@ export type MeterWhereInput = {
   number_not_ends_with_i?: Maybe<Scalars['String']>;
   number_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   number_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  tariffsCount?: Maybe<Scalars['Int']>;
+  tariffsCount_not?: Maybe<Scalars['Int']>;
+  tariffsCount_lt?: Maybe<Scalars['Int']>;
+  tariffsCount_lte?: Maybe<Scalars['Int']>;
+  tariffsCount_gt?: Maybe<Scalars['Int']>;
+  tariffsCount_gte?: Maybe<Scalars['Int']>;
+  tariffsCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  tariffsCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   account?: Maybe<Scalars['String']>;
   account_not?: Maybe<Scalars['String']>;
   account_contains?: Maybe<Scalars['String']>;
@@ -20925,6 +20993,8 @@ export enum SortMeterHistoryRecordsBy {
   DvDesc = 'dv_DESC',
   NumberAsc = 'number_ASC',
   NumberDesc = 'number_DESC',
+  TariffsCountAsc = 'tariffsCount_ASC',
+  TariffsCountDesc = 'tariffsCount_DESC',
   AccountAsc = 'account_ASC',
   AccountDesc = 'account_DESC',
   UnitNameAsc = 'unitName_ASC',
@@ -20954,8 +21024,12 @@ export enum SortMeterReadingHistoryRecordsBy {
   AccountDesc = 'account_DESC',
   DateAsc = 'date_ASC',
   DateDesc = 'date_DESC',
-  ValueAsc = 'value_ASC',
-  ValueDesc = 'value_DESC',
+  Value1Asc = 'value1_ASC',
+  Value1Desc = 'value1_DESC',
+  Value2Asc = 'value2_ASC',
+  Value2Desc = 'value2_DESC',
+  Value3Asc = 'value3_ASC',
+  Value3Desc = 'value3_DESC',
   SectionNameAsc = 'sectionName_ASC',
   SectionNameDesc = 'sectionName_DESC',
   FloorNameAsc = 'floorName_ASC',
@@ -21047,8 +21121,12 @@ export enum SortMeterReadingsBy {
   DateDesc = 'date_DESC',
   MeterAsc = 'meter_ASC',
   MeterDesc = 'meter_DESC',
-  ValueAsc = 'value_ASC',
-  ValueDesc = 'value_DESC',
+  Value1Asc = 'value1_ASC',
+  Value1Desc = 'value1_DESC',
+  Value2Asc = 'value2_ASC',
+  Value2Desc = 'value2_DESC',
+  Value3Asc = 'value3_ASC',
+  Value3Desc = 'value3_DESC',
   SectionNameAsc = 'sectionName_ASC',
   SectionNameDesc = 'sectionName_DESC',
   FloorNameAsc = 'floorName_ASC',
@@ -21134,6 +21212,8 @@ export enum SortMetersBy {
   DvDesc = 'dv_DESC',
   NumberAsc = 'number_ASC',
   NumberDesc = 'number_DESC',
+  TariffsCountAsc = 'tariffsCount_ASC',
+  TariffsCountDesc = 'tariffsCount_DESC',
   AccountAsc = 'account_ASC',
   AccountDesc = 'account_DESC',
   BillingAccountMeterAsc = 'billingAccountMeter_ASC',
