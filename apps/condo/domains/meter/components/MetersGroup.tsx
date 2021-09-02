@@ -79,7 +79,6 @@ const OldMeterReading = ({
     )
 }
 
-
 interface INewMeterReadingProps {
     meterNumber: string,
     measure: string,
