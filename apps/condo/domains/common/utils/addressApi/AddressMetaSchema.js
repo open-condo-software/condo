@@ -1,4 +1,4 @@
-const { AddressMetaDataFields } = require('./addressMetaGql')
+const { AddressMetaDataFields } = require('../../../property/schema/fields/AddressMetaField')
 
 const AddressMetaJSONSchema = {
     'type': 'object',
