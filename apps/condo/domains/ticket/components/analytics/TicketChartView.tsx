@@ -1,6 +1,6 @@
-import React, { useRef,  useEffect, useState } from 'react'
+import React, { useRef,  useEffect, useState, useCallback } from 'react'
 import { useIntl } from '@core/next/intl'
-import { Col, Row, Skeleton, Typography } from 'antd'
+import { Skeleton, Typography, List } from 'antd'
 import isEmpty from 'lodash/isEmpty'
 import get from 'lodash/get'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
@@ -9,6 +9,8 @@ import TicketChart, { ViewModeTypes } from '@condo/domains/ticket/components/Tic
 import { CHART_COLOR_SET } from '@condo/domains/common/constants/style'
 import { TicketGroupedCounter } from '../../../../schema'
 import { colors } from '@condo/domains/common/constants/style'
+import InfiniteScroll from 'react-infinite-scroller'
+import { TICKET_CHART_PAGE_SIZE, MAX_CHART_NAME_LENGTH } from '@condo/domains/ticket/constants/restrictions'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
 export interface ITicketAnalyticsPageWidgetProps {
@@ -26,9 +28,9 @@ interface ITicketAnalyticsPageChartProps extends ITicketAnalyticsPageWidgetProps
     }
 }
 
-const truncate = (inputString: string) => inputString.length > 53
-    ? `${inputString.substring(0, 53)}...`
-    : inputString
+const truncate = (chartName: string) => chartName.length > MAX_CHART_NAME_LENGTH
+    ? `${chartName.substring(0, MAX_CHART_NAME_LENGTH)}...`
+    : chartName
 
 const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
     children,
@@ -40,34 +42,45 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
     mapperInstance,
 }) => {
     const intl = useIntl()
-    const chartRefs = useRef([])
-    const [chartReadyCounter, setChartReadyCounter] = useState<number>(0)
     const NoData = intl.formatMessage({ id: 'NoData' })
     let series = [], legend = []
     let axisData = {}, tooltip = {}
+    const [chartReadyCounter, setChartReadyCounter] = useState<number>(0)
+    // Start from 1 because used as multiplier with TICKET_CHART_PAGE_SIZE
+    const [pieChartPage, setPieChartPage] = useState(1)
+    // Store pie chart refs because we need to access api for every chart component
+    const chartRefs = useRef([])
+    // Cache series result for client side paging
+    const seriesRef = useRef([])
+
     if (data !== null) {
         const mapperResult = mapperInstance.getChartConfig(viewMode, data)
-        series = mapperResult.series
+        seriesRef.current = mapperResult.series
+        series = seriesRef.current.slice(0, TICKET_CHART_PAGE_SIZE * pieChartPage)
         legend = mapperResult.legend
         axisData = mapperResult.axisData
         tooltip = mapperResult.tooltip
     }
 
     useEffect(() => {
+        // Clean chart refs if input data was changed
         if (viewMode === 'pie') {
             if (series.length !== chartRefs.current.length) {
                 setChartReadyCounter(0)
+                setPieChartPage(1)
             }
             chartRefs.current = chartRefs.current.slice(0, series.length)
         }
     }, [data])
 
+    // Way to await moment when all pie chart instance were rendered (needed for client side pdf generation)
     useEffect(() => {
         if (viewMode === 'pie' && onChartReady !== undefined) {
             chartReadyCounter === series.length && onChartReady()
         }
     }, [chartReadyCounter])
 
+    const loadMore = useCallback(() => { setPieChartPage(pieChartPage + 1) }, [pieChartPage])
 
     if (data === null || loading) {
         return <Skeleton loading={loading} active paragraph={{ rows: 12 }} />
@@ -156,6 +169,8 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
     }
     const chartHeight = get(chartOptions, 'height', 'auto')
     const chartStyle = {}
+    const hasMore = !loading && pieChartPage * TICKET_CHART_PAGE_SIZE <= seriesRef.current.length
+
     return <Typography.Paragraph style={{ position: 'relative' }}>
         {loading ? (
             <Typography.Paragraph>
@@ -203,36 +218,55 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
                     }}
                     style={{ height: 40, overflow: 'hidden' }}
                 />
-                <Row gutter={[24, 40]} justify={'space-between'} align={'top'} style={{ paddingTop: 60 }} wrap>
-                    {series.map((chartSeries, index) => (
-                        <Col key={`pie-${index}`} style={{ maxWidth: 620 }} span={12} >
-                            <ReactECharts
-                                ref={element => chartRefs.current[index] = element}
-                                opts={{ ...chartOptions, renderer: 'svg', height: chartHeight }}
-                                // TODO(sitozzz): add onChart ready support for multiple charts
-                                onChartReady={() => setChartReadyCounter(chartReadyCounter + 1)}
-                                notMerge
-                                style={{ ...chartStyle, border: '1px solid', borderColor: colors.lightGrey[6], borderRadius: 8 }}
-                                option={{
-                                    series: [chartSeries],
-                                    title: {
-                                        show: true,
-                                        text: truncate(chartSeries.name.split(', ').slice(1).join(', ')),
-                                        left: 375,
-                                        top: 30,
-                                        textStyle: {
-                                            fontSize: 16,
-                                            fontWeight: 700,
-                                            overflow: 'breakAll',
-                                            width: 160,
-                                            lineHeight: 20,
-                                        },
-                                    },
-                                    ...option }}
-                            />
-                        </Col>
-                    ))}
-                </Row>
+                <Typography.Paragraph style={{ marginTop: 60, paddingBottom: 40, height: 620, overflow: 'auto' }}>
+                    {/* FIXME(sitozzz): load all charts when using at pdf */}
+                    <InfiniteScroll
+                        initialLoad={false}
+                        loadMore={loadMore}
+                        hasMore={hasMore}
+                        useWindow={false}>
+                        <List
+                            grid={{
+                                gutter: 24,
+                                xs: 1,
+                                sm: 1,
+                                md: 1,
+                                lg: 1,
+                                xl: 1,
+                                xxl: 2,
+                            }}
+                            dataSource={series}
+                            renderItem={(chartSeries, index) => (
+                                <List.Item key={`pie-${index}`} style={{ width: 620 }} >
+                                    <ReactECharts
+                                        ref={element => chartRefs.current[index] = element}
+                                        opts={{ ...chartOptions, renderer: 'svg', height: chartHeight }}
+                                        onChartReady={() => setChartReadyCounter(chartReadyCounter + 1)}
+                                        notMerge
+                                        style={{ ...chartStyle, border: '1px solid', borderColor: colors.lightGrey[6], borderRadius: 8 }}
+                                        option={{
+                                            series: [chartSeries],
+                                            title: {
+                                                show: true,
+                                                text: truncate(chartSeries.name.split(', ').slice(1).join(', ')),
+                                                left: 375,
+                                                top: 30,
+                                                textStyle: {
+                                                    fontSize: 16,
+                                                    fontWeight: 700,
+                                                    overflow: 'breakAll',
+                                                    width: 160,
+                                                    lineHeight: 20,
+                                                },
+                                            },
+                                            ...option }}
+                                    />
+                                </List.Item>
+                            )}
+                            style={{ paddingRight: 20, minWidth: 1080 }}
+                        />
+                    </InfiniteScroll>
+                </Typography.Paragraph>
                 {children}
             </>
         )}
