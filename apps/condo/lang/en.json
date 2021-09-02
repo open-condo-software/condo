@@ -589,5 +589,6 @@
   "ServicesUnitsShort": "Units",
   "Tariff": "Tariff",
   "Privileges": "Privileges",
-  "Recalculation": "Recalculation"
+  "Recalculation": "Recalculation",
+  "errors.LoadingError": "Sorry, an error has occurred, please try refreshing the page"
 }

@@ -8,7 +8,7 @@ import { EmptyTableCell } from './EmptyTableCell'
 type RenderReturnType = string | React.ReactNode
 
 const DEFAULT_CURRENCY_SEPARATOR = '.'
-const MONEY_PARTS_SEPARATOR = ' '
+const MONEY_PARTS_SEPARATOR = ' '
 
 export const getTextRender = (search?: string) => {
     return function render (text: string): RenderReturnType {
