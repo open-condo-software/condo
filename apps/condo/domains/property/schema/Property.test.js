@@ -12,16 +12,12 @@ const { createTestTicket, updateTestTicket, ticketStatusByType } = require('@con
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const faker = require('faker')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
-const Ajv = require('ajv')
-const MapSchemaJSON = require('@condo/domains/property/components/panels/Builder/MapJsonSchema.json')
 
 
 describe('Property', () => {
 
-    describe('map validation', () => {
-        it('validates elementary chessboard 1 to 1', async () => {
-            const ajv = new Ajv()
-            const jsonMapValidator = ajv.compile(MapSchemaJSON)
+    describe('resolveInput', () => {
+        it('gets created with `null` values in `map.sections[].floors[].units[]`', async () => {
             const map = {
                 'dv': 1,
                 'type': 'building',
@@ -52,18 +48,10 @@ describe('Property', () => {
                     },
                 ],
             }
-            const valid = !jsonMapValidator(map)
-            if (!valid) {
-                console.log(JSON.stringify(jsonMapValidator.errors, null, 2))
-            }
-            // Passed
-            expect(valid).toBeTruthy()
-
             const client = await makeClientWithRegisteredOrganization()
             const payload = {
                 map,
             }
-            // Failed with exactly the same value of `map` as in Property.test.js:L25
             const [obj] = await createTestProperty(client, client.organization, payload)
             expect(obj.id).toMatch(UUID_RE)
         })

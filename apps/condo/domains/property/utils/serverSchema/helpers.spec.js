@@ -1,5 +1,5 @@
 import { buildFakeAddressMeta } from '../testSchema/factories'
-import { FLAT_WITHOUT_FLAT_TYPE_MESSAGE, getAddressUpToBuildingFrom } from './helpers'
+import { FLAT_WITHOUT_FLAT_TYPE_MESSAGE, getAddressUpToBuildingFrom, normalizePropertyMap } from './helpers'
 import { catchErrorFrom } from '@condo/domains/common/utils/testSchema'
 
 describe('helpers', () => {
@@ -38,6 +38,71 @@ describe('helpers', () => {
             }, (error) => {
                 expect(error.message).toEqual(FLAT_WITHOUT_FLAT_TYPE_MESSAGE)
             })
+        })
+    })
+
+    describe('normalizePropertyMap', () => {
+        it('removes all properties with `null` values from `sections[].floors[].units[]` from provided `Property.map`', async () => {
+            const map = {
+                'dv': 1,
+                'type': 'building',
+                'sections': [
+                    {
+                        'id': '5',
+                        'type': 'section',
+                        'index': 1,
+                        'name': '1',
+                        'preview': null,
+                        'floors': [
+                            {
+                                'id': '7',
+                                'type': 'floor',
+                                'index': 1,
+                                'name': '1',
+                                'units': [
+                                    {
+                                        'id': '6',
+                                        'type': 'unit',
+                                        'name': null,
+                                        'label': '1',
+                                        'preview': null,
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            }
+            const mapWithoutNameInUnit = {
+                'dv': 1,
+                'type': 'building',
+                'sections': [
+                    {
+                        'id': '5',
+                        'type': 'section',
+                        'index': 1,
+                        'name': '1',
+                        'preview': null,
+                        'floors': [
+                            {
+                                'id': '7',
+                                'type': 'floor',
+                                'index': 1,
+                                'name': '1',
+                                'units': [
+                                    {
+                                        'id': '6',
+                                        'type': 'unit',
+                                        'label': '1',
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            }
+            const sanitizedMap = normalizePropertyMap(map)
+            expect(sanitizedMap).toStrictEqual(mapWithoutNameInUnit)
         })
     })
 })

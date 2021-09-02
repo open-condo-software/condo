@@ -18,6 +18,7 @@ const Ajv = require('ajv')
 const { ADDRESS_META_FIELD } = require('@condo/domains/common/schema/fields')
 const { UNIQUE_ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
 const { Property: PropertyAPI } = require('../utils/serverSchema')
+const { normalizePropertyMap } = require('../utils/serverSchema/helpers')
 const ajv = new Ajv()
 const jsonMapValidator = ajv.compile(MapSchemaJSON)
 
@@ -76,6 +77,10 @@ const Property = new GQLListSchema('Property', {
             graphQLReturnType: 'BuildingMap',
             isRequired: false,
             hooks: {
+                resolveInput: ({ resolvedData }) => {
+                    const { map } = resolvedData
+                    return normalizePropertyMap(map)
+                },
                 validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
                     if (!resolvedData.hasOwnProperty(fieldPath)) return // skip if on value
                     const value = resolvedData[fieldPath]
