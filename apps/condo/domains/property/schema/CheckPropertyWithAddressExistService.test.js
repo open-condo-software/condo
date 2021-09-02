@@ -4,7 +4,7 @@
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { checkPropertyWithAddressExistByTestClient } = require('@condo/domains/property/utils/testSchema')
 const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
-const { DV_VERSION_MISMATCH_MESSAGE, META_INCORRECT_JSON_MESSAGE } = require('./CheckPropertyWithAddressExistService')
+const { DV_VERSION_MISMATCH_MESSAGE } = require('./CheckPropertyWithAddressExistService')
 const { FLAT_WITHOUT_FLAT_TYPE_MESSAGE } = require('@condo/domains/common/utils/addressApi/helpers')
 
 describe('CheckPropertyWithAddressExistService', async () => {
@@ -71,7 +71,7 @@ describe('CheckPropertyWithAddressExistService', async () => {
             await catchErrorFrom(async () => {
                 await checkPropertyWithAddressExistByTestClient(client, payload)
             }, ({ errors }) => {
-                expect(errors[0].message).toEqual(META_INCORRECT_JSON_MESSAGE)
+                expect(errors[0].message).toEqual('Variable "$data" got invalid value { invalidField: "invalid data" } at "data.addressMeta"; Field "dv" of required type "Int!" was not provided.')
             })
         })
     })
