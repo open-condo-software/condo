@@ -6,7 +6,7 @@ const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/property/access/CheckPropertyWithAddressExistService')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const get = require('lodash/get')
-const { jsonAddressMetaValidator } = require('../utils/validation.utils')
+const { addressMetaJsonValidator } = require('../schema/fields/AddressMetaField')
 const { getAddressUpToBuildingFrom, FLAT_WITHOUT_FLAT_TYPE_MESSAGE } = require('../utils/serverSchema/helpers')
 
 const NO_OBJECT_MESSAGE = 'No object specified!'
@@ -34,7 +34,7 @@ const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyW
                 // Later we will use "address" without "addressMeta"
                 const { addressMeta } = inputData
                 if (!addressMeta) throw new Error(NO_OBJECT_MESSAGE)
-                if (!jsonAddressMetaValidator(addressMeta)) throw new Error(META_INCORRECT_JSON_MESSAGE)
+                if (!addressMetaJsonValidator(addressMeta)) throw new Error(META_INCORRECT_JSON_MESSAGE)
 
                 const dv = get(addressMeta, 'dv')
                 if (dv !== 1) {
