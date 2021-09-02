@@ -24,6 +24,12 @@ class JsonController extends FieldController {
         return JSON.parse(data[path])
     }
 
+    getQueryFragment = () => {
+        return `
+            ${this.path} ${this.config.graphQLAdminFragment}
+        `
+    }
+
     // For simplicity let's disable filtering on this field (PRs welcome)
     getFilterTypes = () => { return [] }
 }

@@ -5,13 +5,14 @@ const stringify = JSON.stringify
 
 class JsonImplementation extends Implementation {
     // NOTE: argument names are based no Virtual field
-    constructor (path, { isMultiline, graphQLInputType = 'JSON', graphQLReturnType = 'JSON', extendGraphQLTypes = [] }) {
+    constructor (path, { isMultiline, graphQLInputType = 'JSON', graphQLReturnType = 'JSON', extendGraphQLTypes = [], graphQLAdminFragment = '' }) {
         super(...arguments)
         this.isMultiline = isMultiline
         this.isOrderable = false
         this.graphQLInputType = graphQLInputType
         this.graphQLReturnType = graphQLReturnType
         this.extendGraphQLTypes = extendGraphQLTypes
+        this.graphQLAdminFragment = graphQLAdminFragment
     }
 
     // GQL Output
@@ -60,7 +61,11 @@ class JsonImplementation extends Implementation {
 
     extendAdminMeta (meta) {
         const { isMultiline } = this
-        return { isMultiline, ...meta }
+        return {
+            isMultiline,
+            graphQLAdminFragment: this.graphQLAdminFragment,
+            ...meta,
+        }
     }
 
     // Hooks

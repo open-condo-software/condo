@@ -18,6 +18,7 @@ const SENDER_FIELD = {
         'It\'s the device ID like browser / mobile application / remote system',
     graphQLInputType: 'SenderFieldInput',
     graphQLReturnType: 'SenderField',
+    graphQLAdminFragment: '{ dv fingerprint }',
     extendGraphQLTypes: [
         'type SenderField { dv: Int!, fingerprint: String! }',
         'input SenderFieldInput { dv: Int!, fingerprint: String! }',
