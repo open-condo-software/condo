@@ -23,8 +23,6 @@ const { makeEmployeeUserClientWithAbilities } = require('@condo/domains/organiza
 const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@core/keystone/test.utils')
 const { createTestMeterReading, updateTestMeterReading } = require('../utils/testSchema')
 
-
-
 describe('MeterReading', () => {
     describe('Create', () => {
         test('employee with canManageMeters role: can create MeterReadings', async () => {
@@ -51,11 +49,11 @@ describe('MeterReading', () => {
 
             const [meterReading] = await createTestMeterReading(client, meter,  client.property, client.organization, billingSource)
 
-            const oldValue = meterReading.value
+            const oldValue = meterReading.value1
             const newValue = oldValue - 100
 
             await catchErrorFrom(async () => {
-                await createTestMeterReading(client, meter,  client.property, client.organization, callSource, { value: newValue })
+                await createTestMeterReading(client, meter,  client.property, client.organization, callSource, { value1: newValue })
             }, ({ errors, data }) => {
                 expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
                 expect(errors[0].data.messages[0]).toContain('Meter reading value less than previous')
@@ -182,12 +180,12 @@ describe('MeterReading', () => {
             const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
             const [meterReading] = await createTestMeterReading(client, meter, client.property, client.organization, source)
 
-            const oldValue = meterReading.value
+            const oldValue = meterReading.value1
             const newValue = oldValue + 100
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestMeterReading(client, meterReading.id, {
-                    value: newValue,
+                    value1: newValue,
                 })
             })
         })
@@ -200,12 +198,12 @@ describe('MeterReading', () => {
             const [meter] = await createTestMeter(admin, client.organization, client.property, resource, {})
             const [meterReading] = await createTestMeterReading(admin, meter, client.property, client.organization, source)
 
-            const oldValue = meterReading.value
+            const oldValue = meterReading.value1
             const newValue = oldValue + 100
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestMeterReading(client, meterReading.id, {
-                    value: newValue,
+                    value1: newValue,
                 })
             })
         })
@@ -225,12 +223,12 @@ describe('MeterReading', () => {
 
             const [meterReading] = await createTestMeterReading(clientFrom, meter, propertyTo, organizationTo, source)
 
-            const oldValue = meterReading.value
+            const oldValue = meterReading.value1
             const newValue = oldValue + 100
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestMeterReading(clientFrom, meterReading.id, {
-                    value: newValue,
+                    value1: newValue,
                 })
             })
         })
@@ -244,11 +242,11 @@ describe('MeterReading', () => {
             const [meter] = await createTestMeter(adminClient, client.organization, client.property, resource, {})
             const [meterReading] = await createTestMeterReading(client, meter, client.property, client.organization, source)
 
-            const oldValue = meterReading.value
+            const oldValue = meterReading.value1
             const newValue = oldValue + 100
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestMeterReading(client, meterReading.id, {
-                    value: newValue,
+                    value1: newValue,
                 })
             })
         })
@@ -261,11 +259,11 @@ describe('MeterReading', () => {
             const [meter] = await createTestMeter(adminClient, client.organization, client.property, resource, {})
             const [meterReading] = await createTestMeterReading(adminClient, meter, client.property, client.organization, source)
 
-            const oldValue = meterReading.value
+            const oldValue = meterReading.value1
             const newValue = oldValue + 100
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestMeterReading(client, meterReading.id, {
-                    value: newValue,
+                    value1: newValue,
                 })
             })
         })
@@ -280,11 +278,11 @@ describe('MeterReading', () => {
             const [meter] = await createTestMeter(adminClient, organization, property, resource, {})
             const [meterReading] = await createTestMeterReading(adminClient, meter, property, organization, source)
 
-            const oldValue = meterReading.value
+            const oldValue = meterReading.value1
             const newValue = oldValue + 100
             await expectToThrowAuthenticationErrorToObj(async () => {
                 await updateTestMeterReading(client, meterReading.id, {
-                    value: newValue,
+                    value1: newValue,
                 })
             })
         })
@@ -298,14 +296,14 @@ describe('MeterReading', () => {
             const [meter] = await createTestMeter(adminClient, organization, property, resource, {})
             const [meterReading] = await createTestMeterReading(adminClient, meter, property, organization, source)
 
-            const oldValue = meterReading.value
+            const oldValue = meterReading.value1
             const newValue = oldValue + 100
             const [updatedMeterReading] = await updateTestMeterReading(adminClient, meterReading.id, {
-                value: newValue,
+                value1: newValue,
             })
 
             expect(updatedMeterReading.id).toMatch(UUID_RE)
-            expect(updatedMeterReading.value).toEqual(newValue)
+            expect(updatedMeterReading.value1).toEqual(newValue)
         })
     })
     describe('Read', () => {
