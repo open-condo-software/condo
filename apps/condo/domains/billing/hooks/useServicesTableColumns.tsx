@@ -1,12 +1,14 @@
-import { useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { useIntl } from '@core/next/intl'
 import { getTextRender, getMoneyRender } from '@condo/domains/common/components/Table/Renders'
 import { TableRecord } from '@condo/domains/common/components/Table/Index'
 import get from 'lodash/get'
 import { AlignType } from 'react-markdown'
+import { Tooltip } from 'antd'
 
 const DETAILED_COLUMNS_AMOUNT = 9
 const BASE_COLUMNS_AMOUNT = 2
+const DEFAULT_VOLUME_MAX_DECIMALS = 4
 
 
 const textRender = getTextRender()
@@ -54,6 +56,27 @@ const getAdvancedMoneyRender = (currencyMark: string, currencySeparator: string)
     }
 }
 
+const getVolumeRender = (decimals: number) => {
+    return function render (text: string, record: TableRecord) {
+        if (get(record, ['children', 'length'])) {
+            return {
+                props: {
+                    colSpan: 0,
+                },
+            }
+        }
+        if (!text) return textRender(text)
+        const volume = parseFloat(text)
+        const scaleRate = Math.pow(10, decimals)
+        const roundedVolume = Math.round((volume + Number.EPSILON) * scaleRate) / scaleRate
+        return (
+            <Tooltip title={text}>
+                {roundedVolume}
+            </Tooltip>
+        )
+    }
+}
+
 export const useServicesTableColumns = (detailed: boolean, currencySign: string, separator: string) => {
     const intl = useIntl()
     const ToPayTitle = intl.formatMessage({ id: 'field.TotalPayment' })
@@ -72,6 +95,7 @@ export const useServicesTableColumns = (detailed: boolean, currencySign: string,
     return useMemo(() => {
         const expandTextRender = getExpandTextRender(detailed)
         const hideTextRender = getHideCellTextRender()
+        const volumeRender = getVolumeRender(DEFAULT_VOLUME_MAX_DECIMALS)
         const columns = {
             name: {
                 title: ServiceTitle,
@@ -101,7 +125,7 @@ export const useServicesTableColumns = (detailed: boolean, currencySign: string,
                 key: 'serviceVolume',
                 dataIndex: ['toPayDetails', 'volume'],
                 width: '10%',
-                render: hideTextRender,
+                render: volumeRender,
             },
             units: {
                 title: UnitsTitle,
