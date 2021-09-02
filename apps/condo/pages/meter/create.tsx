@@ -5,7 +5,8 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { Typography, Row, Col } from 'antd'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
-import { CreateMeterReadingsForm } from '../../domains/meter/components/forms/CreateMeterReadingsForm'
+import { CreateMeterReadingsForm } from '../../domains/meter/components/CreateMeterReadingsForm'
+import { useOrganization } from '@core/next/organization'
 
 interface ICreateContactPage extends React.FC {
     headerAction?: JSX.Element
@@ -15,6 +16,8 @@ interface ICreateContactPage extends React.FC {
 const CreateMeterPage: ICreateContactPage = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'meter.AddMeterReadings' })
+
+    const { organization, link: { role: role } } = useOrganization()
 
     return (
         <>
@@ -28,7 +31,7 @@ const CreateMeterPage: ICreateContactPage = () => {
                             <Typography.Title level={1} style={{ margin: 0 }}>{PageTitle}</Typography.Title>
                         </Col>
                         <Col span={24}>
-                            <CreateMeterReadingsForm/>
+                            <CreateMeterReadingsForm organization={organization} role={role} />
                         </Col>
                     </Row>
                 </PageContent>

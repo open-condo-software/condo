@@ -353,6 +353,8 @@
   "pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.title": "Неизвестный пользователь",
   "pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.description": "Упс, кажется пользователь, который внёс эти изменения, был удалён из системы",
   "pages.condo.ticket.TicketChanges.fetchMore": "Показать ещё {count}",
+  "pages.condo.meter.warning.modal.HelpMessage": "Новые счетчики и показания не сохранятся, если вы уйдете со страницы. Сожалеем",
+  "pages.condo.meter.warning.modal.Title": "Не сохранять показания?",
   "pages.index.PageTitle": "Аналитика",
   "pages.organizations.CreateOrganizationMessage": "Давайте создадим вашу управляющую компанию",
   "pages.condo.analytics.index.PageTitle": "Аналитика",
