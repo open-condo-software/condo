@@ -15,18 +15,6 @@ export const useCreateMeterModal = ()=> {
 
     const ModalForm = ({ handleSubmit: _handleSubmit }) => (
         <BaseModalForm
-            // mutation={REGISTER_NEW_ORGANIZATION_MUTATION}
-            // formValuesToMutationDataPreprocessor={(values) => {
-            //     const { name, inn } = values
-            //     return convertUIStateToGQLItem({
-            //         name,
-            //         meta: { v: 1, inn },
-            //     })
-            // }}
-            // onMutationCompleted={(result) => {
-            //     // onFinish(result)
-            //     setVisible(false)
-            // }}
             visible={visible}
             cancelModal={() => setVisible(false)}
             ModalTitleMsg={'Добавить счетчик'}
@@ -42,6 +30,15 @@ export const useCreateMeterModal = ()=> {
         >
             <Row gutter={[0, 20]}>
                 <Col span={24}>
+                    <Col span={24}>
+                        <Form.Item
+                            label={'Лицевой счет'}
+                            name='account'
+                            required={true}
+                        >
+                            <Input />
+                        </Form.Item>
+                    </Col>
                     <Form.Item
                         label={'Номер счетчика'}
                         name='number'

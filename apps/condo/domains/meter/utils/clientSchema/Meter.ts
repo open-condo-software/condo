@@ -27,6 +27,7 @@ export interface IMeterFormState {
     number?: string
     numberOfTariffs?: number
     organization?: string
+    account?: string
     property?: string
     accountNumber?: string
     unitName?: string

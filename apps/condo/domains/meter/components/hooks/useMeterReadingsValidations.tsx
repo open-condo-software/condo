@@ -5,7 +5,7 @@ type IFormFieldsRuleMap = {
     [key: string]: Rule[]
 }
 
-export function useTicketValidations (): IFormFieldsRuleMap {
+export function useMeterReadingsValidations (): IFormFieldsRuleMap {
     const intl = useIntl()
 
     return {
@@ -13,13 +13,6 @@ export function useTicketValidations (): IFormFieldsRuleMap {
             {
                 required: true,
                 message: intl.formatMessage({ id: 'field.Property.requiredError' }),
-            },
-        ],
-        unitName: [],
-        source: [
-            {
-                required: true,
-                message: intl.formatMessage({ id: 'SelectIsRequired' }),
             },
         ],
         clientName: [
@@ -51,38 +44,6 @@ export function useTicketValidations (): IFormFieldsRuleMap {
             {
                 type: 'email',
                 message: intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' }),
-            },
-        ],
-        placeClassifier: [
-            {
-                required: true,
-                message: intl.formatMessage({ id: 'field.Classifier.requiredError' }),
-            },
-        ],
-        classifierRule: [
-            {
-                required: true,
-                message: intl.formatMessage({ id: 'field.Classifier.requiredError' }),
-            },
-        ],
-        categoryClassifier: [
-            {
-                required: true,
-                message: intl.formatMessage({ id: 'field.Classifier.requiredError' }),
-            },
-        ],
-        details: [
-            {
-                required: true,
-                min: 20,
-                message: intl.formatMessage({ id: 'field.Description.lengthError' }),
-            },
-        ],
-        executor: [],
-        assignee: [
-            {
-                required: true,
-                message: intl.formatMessage({ id: 'field.Assignee.requiredError' }),
             },
         ],
     }
