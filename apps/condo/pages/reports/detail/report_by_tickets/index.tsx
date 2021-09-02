@@ -22,7 +22,9 @@ import isEmpty from 'lodash/isEmpty'
 import { TICKET_ANALYTICS_REPORT_QUERY, EXPORT_TICKET_ANALYTICS_TO_EXCEL } from '@condo/domains/ticket/gql'
 import { useLazyQuery } from '@core/next/apollo'
 
-import moment, { Moment } from 'moment'
+import dayjs, { Dayjs } from 'dayjs'
+import quarterOfYear from 'dayjs/plugin/quarterOfYear'
+
 import { BarChartIcon, LinearChartIcon } from '@condo/domains/common/components/icons/ChartIcons'
 import { Button } from '@condo/domains/common/components/Button'
 import { EditFilled, FilePdfFilled, PlusCircleFilled } from '@ant-design/icons'
@@ -30,7 +32,7 @@ import ActionBar from '@condo/domains/common/components/ActionBar'
 import RadioGroupWithIcon, { radioButtonBorderlessCss } from '@condo/domains/common/components/RadioGroupWithIcon'
 import { useRouter } from 'next/router'
 import qs from 'qs'
-import DateRangePicker from '@condo/domains/common/components/DateRangePicker'
+import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import TicketChart, { ViewModeTypes, TicketSelectTypes } from '@condo/domains/ticket/components/TicketChart'
 import {
     filterToQuery,
@@ -44,6 +46,8 @@ import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderA
 import TicketChartView from '@condo/domains/ticket/components/analytics/TicketChartView'
 import TicketListView from '@condo/domains/ticket/components/analytics/TicketListView'
 import { DATE_DISPLAY_FORMAT, TICKET_REPORT_DAY_GROUP_STEPS } from '@condo/domains/ticket/constants/common'
+
+dayjs.extend(quarterOfYear)
 
 interface ITicketAnalyticsPage extends React.FC {
     headerAction?: JSX.Element
@@ -63,10 +67,10 @@ const FORM_ITEM_STYLE = {
     },
 }
 const DATE_RANGE_PRESETS = {
-    week: [moment().subtract(1, 'week'), moment()],
-    month: [moment().subtract(1, 'month'), moment()],
-    quarter: [moment().subtract(1, 'quarter'), moment()],
-    year: [moment().subtract(1, 'year'), moment()],
+    week: [dayjs().subtract(1, 'week'), dayjs()],
+    month: [dayjs().subtract(1, 'month'), dayjs()],
+    quarter: [dayjs().subtract(1, 'quarter'), dayjs()],
+    year: [dayjs().subtract(1, 'year'), dayjs()],
 }
 
 const tabsCss = css`
@@ -98,7 +102,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
-    const [dateRange, setDateRange] = useState<[Moment, Moment]>([moment().subtract(1, 'week'), moment()])
+    const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>([dayjs().subtract(1, 'week'), dayjs()])
     const [dateRangePreset, setDateRangePreset] = useState<null | string>(null)
     const [addressList, setAddressList] = useState([])
     const addressListRef = useRef([])
@@ -118,9 +122,9 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     useEffect(() => {
         const queryParams = getQueryParams()
         const addressList = JSON.parse(get(queryParams, 'addressList', '[]'))
-        const startDate = get(queryParams, 'createdAt_lte', moment().subtract(1, 'week').toISOString())
-        const endDate = get(queryParams, 'createdAt_gte', moment().toISOString())
-        const range = [moment(startDate), moment(endDate)] as [Moment, Moment]
+        const startDate = get(queryParams, 'createdAt_lte', dayjs().subtract(1, 'week').toISOString())
+        const endDate = get(queryParams, 'createdAt_gte', dayjs().toISOString())
+        const range = [dayjs(startDate), dayjs(endDate)] as [Dayjs, Dayjs]
         const specificationUrl = get(queryParams, 'specification')
         if (startDate && endDate && specificationUrl && addressList) {
             addressListRef.current = addressList
@@ -324,7 +328,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                 dataIndex: 'date',
                                 key: 'date',
                                 defaultSortOrder: 'descend',
-                                sorter: (a, b) => moment(a['date'], DATE_DISPLAY_FORMAT).unix() - moment(b['date'], DATE_DISPLAY_FORMAT).unix(),
+                                sorter: (a, b) => dayjs(a['date'], DATE_DISPLAY_FORMAT).unix() - dayjs(b['date'], DATE_DISPLAY_FORMAT).unix(),
                             },
                             ...Object.entries(data).map(([key]) => ({ title: key, dataIndex: key, key, sorter: (a, b) =>a[key] - b[key] })),
                         ]

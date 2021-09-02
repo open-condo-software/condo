@@ -1,6 +1,6 @@
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const { Ticket, TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
-const moment = require('moment')
+const dayjs = require('dayjs')
 const access = require('@condo/domains/ticket/access/TicketReportService')
 const { TICKET_STATUS_TYPES: ticketStatusTypes } = require('@condo/domains/ticket/constants')
 
@@ -63,10 +63,10 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
                 if (!PERIOD_TYPES.includes(periodType)) {
                     throw new Error(`[error] possible period types are: ${PERIOD_TYPES.join(', ')}`)
                 }
-                const startDate = moment().startOf(periodType).add(offset, periodType).toISOString()
-                const previousStartDate = moment().startOf(periodType).add(offset - 1, periodType).toISOString()
-                const endDate = moment().endOf(periodType).add(offset, periodType).toISOString()
-                const previousEndDate =  moment().endOf(periodType).add(offset - 1, periodType).toISOString()
+                const startDate = dayjs().startOf(periodType).add(offset, periodType).toISOString()
+                const previousStartDate = dayjs().startOf(periodType).add(offset - 1, periodType).toISOString()
+                const endDate = dayjs().endOf(periodType).add(offset, periodType).toISOString()
+                const previousEndDate =  dayjs().endOf(periodType).add(offset - 1, periodType).toISOString()
 
 
                 const currentData = await countTicketsByStatuses(context,  startDate, endDate, userOrganizationId)

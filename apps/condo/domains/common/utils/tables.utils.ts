@@ -1,5 +1,4 @@
 import React from 'react'
-import moment from 'moment'
 import get from 'lodash/get'
 import { ParsedUrlQuery } from 'querystring'
 import {
@@ -13,6 +12,7 @@ import { getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { TableRecord } from '@condo/domains/common/components/Table/Index'
 import { preciseFloor } from './helpers'
 import { FilterDropdownProps } from 'antd/es/table/interface'
+import dayjs from 'dayjs'
 
 export type DataIndexType = string | Array<string>
 export type QueryArgType = string | Array<string>
@@ -122,8 +122,8 @@ export const getFilter: (
                 break
             case 'dateTime':
                 args = search
-                    .filter((el) => moment(el).isValid())
-                    .map((el) => moment(el).toISOString())
+                    .filter((el) => dayjs(el).isValid())
+                    .map((el) => dayjs(el).toISOString())
                 break
             case 'boolean':
                 args = search
@@ -165,8 +165,8 @@ export const getStringOptionFilter: (dataIndex: DataIndexType) => FilterType = (
 export const getDayGteFilter: (dataIndex: DataIndexType) => FilterType = (dataIndex) => {
     const filter = getFilter(dataIndex, 'single', 'dateTime', 'gte')
     return function searchDayGte (search) {
-        if (!search) return
-        const date = moment(search)
+        if (!search || Array.isArray(search)) return
+        const date = dayjs(search)
         if (!date.isValid()) return
         return filter(date.startOf('day').toISOString())
     }
@@ -175,8 +175,8 @@ export const getDayGteFilter: (dataIndex: DataIndexType) => FilterType = (dataIn
 export const getDayLteFilter: (dataIndex: DataIndexType) => FilterType = (dataIndex) => {
     const filter = getFilter(dataIndex, 'single', 'dateTime', 'lte')
     return function searchDayLte (search) {
-        if (!search) return
-        const date = moment(search)
+        if (!search || Array.isArray(search)) return
+        const date = dayjs(search)
         if (!date.isValid()) return
         return filter(date.endOf('day').toISOString())
     }
