@@ -9,6 +9,7 @@ import { shadows, transitions } from '@condo/domains/common/constants/style'
 import { Button } from '@condo/domains/common/components/Button'
 import { NamePath } from 'antd/lib/form/interface'
 import moment from 'moment'
+import { useRemoveMeterModal } from './hooks/useRemoveMeterModal'
 
 const MeterGroupContainer = styled(FocusContainer)`
   margin: 0;
@@ -92,37 +93,42 @@ const NewMeterReading = ({
     remove,
     name,
 }: INewMeterReadingProps) => {
+    const { RemoveModal, setIsRemoveModalVisible } = useRemoveMeterModal()
+
     const handleDeleteButtonClick = useCallback(() => {
-        remove(name)
+        setIsRemoveModalVisible(true)
     }, [])
 
     return (
-        <Col span={24}>
-            <Form.Item
-                label={meterNumber}
-                name={name}
-            >
-                <Row align={'middle'} justify={'space-between'}>
-                    <Col span={12}>
-                        <Input addonAfter={measure} />
-                    </Col>
-                    <Col span={10}>
-                        <Button
-                            type='sberDanger'
-                            secondary
-                            onClick={handleDeleteButtonClick}
-                        >
-                            <DeleteFilled/>
-                        </Button>
-                    </Col>
-                </Row>
-            </Form.Item>
-        </Col>
+        <>
+            <Col span={24}>
+                <Form.Item
+                    label={meterNumber}
+                    name={name}
+                >
+                    <Row align={'middle'} justify={'space-between'}>
+                        <Col span={12}>
+                            <Input addonAfter={measure} />
+                        </Col>
+                        <Col span={10}>
+                            <Button
+                                type='sberDanger'
+                                secondary
+                                onClick={handleDeleteButtonClick}
+                            >
+                                <DeleteFilled/>
+                            </Button>
+                        </Col>
+                    </Row>
+                </Form.Item>
+            </Col>
+            <RemoveModal removeAction={() => remove(name)} />
+        </>
     )
 }
 
 export const MetersGroup = ({ name, form, existedMeters = [], billingMeterReadings, Icon, meterResource }) => {
-    const { ModalForm, setVisible } = useCreateMeterModal()
+    const { CreateModal, setIsCreateModalVisible } = useCreateMeterModal()
     return (
         <>
             <MeterGroupContainer>
@@ -135,7 +141,7 @@ export const MetersGroup = ({ name, form, existedMeters = [], billingMeterReadin
                                     {meterResource.name}
                                 </Typography.Text>
                             </Space>
-                            <AddMeterButton className={'addMeterButton'} onClick={() => setVisible(true)}/>
+                            <AddMeterButton className={'addMeterButton'} onClick={() => setIsCreateModalVisible(true)}/>
                         </Row>
                     </Col>
                     {
@@ -181,7 +187,7 @@ export const MetersGroup = ({ name, form, existedMeters = [], billingMeterReadin
                                         )
                                     })
                                 }
-                                <ModalForm handleSubmit={(values) => {
+                                <CreateModal handleSubmit={(values) => {
                                     add({ ...values, meterResource })
                                 }}/>
                             </>

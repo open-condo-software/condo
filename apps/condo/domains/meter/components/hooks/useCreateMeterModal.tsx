@@ -1,22 +1,15 @@
 import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
-import { Col, Form, Input, Row, Typography } from 'antd'
+import { Col, Form, Input, Row } from 'antd'
 import { useState } from 'react'
-import {
-    REGISTER_NEW_ORGANIZATION_MUTATION,
-} from '@condo/domains/organization/gql'
 
-// {
-//     ModalForm: React.FC,
-//     setVisible: (arg?: any) => boolean
-// }
 
 export const useCreateMeterModal = ()=> {
-    const [visible, setVisible] = useState(false)
+    const [isCreateModalVisible, setIsCreateModalVisible] = useState(false)
 
-    const ModalForm = ({ handleSubmit: _handleSubmit }) => (
+    const CreateModal = ({ handleSubmit: _handleSubmit }) => (
         <BaseModalForm
-            visible={visible}
-            cancelModal={() => setVisible(false)}
+            visible={isCreateModalVisible}
+            cancelModal={() => setIsCreateModalVisible(false)}
             ModalTitleMsg={'Добавить счетчик'}
             ModalSaveButtonLabelMsg={'Добавить'}
             showCancelButton={false}
@@ -24,7 +17,7 @@ export const useCreateMeterModal = ()=> {
             handleSubmit={
                 (values) => {
                     _handleSubmit(values)
-                    setVisible(false)
+                    setIsCreateModalVisible(false)
                 }
             }
         >
@@ -60,7 +53,7 @@ export const useCreateMeterModal = ()=> {
     )
 
     return {
-        ModalForm,
-        setVisible,
+        CreateModal,
+        setIsCreateModalVisible,
     }
 }
