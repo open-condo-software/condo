@@ -138,6 +138,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.HelpMessage' })
+    const MeterDataTitle = intl.formatMessage({ id: 'pages.condo.meter.MeterDataTitle' })
 
     const validations = useMeterReadingsValidations()
     const router = useRouter()
@@ -195,7 +196,6 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const createMeterReadingAction = MeterReading.useCreate({
         source: CALL_METER_READING_SOURCE_ID,
     }, () => {return})
-
 
     const action = useCallback(async (variables) => {
         let createdContact
@@ -343,7 +343,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                             strong={true}
                                             style={{ fontSize: '20px' }}
                                         >
-                                            Данные счетчиков
+                                            {MeterDataTitle}
                                         </Typography.Paragraph>
                                         {
                                             resourceIds.map(resourceId => (
