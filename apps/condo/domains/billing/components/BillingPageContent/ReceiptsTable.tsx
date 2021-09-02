@@ -36,7 +36,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const intl = useIntl()
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const DataForTitle = intl.formatMessage({ id: 'DataFor' })
-    const LoadingErrorMessage = intl.formatMessage({ id: 'errors.PdfGenerationError' })
+    const LoadingErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
 
     const router = useRouter()
     const { filters, sorters, offset } = parseQuery(router.query)

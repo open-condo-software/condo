@@ -30,7 +30,7 @@ const ButtonWrap = styled.div`
 
 const BillingIntegrationDetailsPage = () => {
     const intl = useIntl()
-    const ErrorMessage = intl.formatMessage({ id: 'errors.PdfGenerationError' })
+    const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
     const NoPermissionMessage = intl.formatMessage({ id: 'NoPermissionToSettings' })
     const DefaultStartButtonMessage = intl.formatMessage({ id: 'StartIntegration' })

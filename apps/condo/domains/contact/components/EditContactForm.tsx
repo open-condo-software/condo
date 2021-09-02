@@ -30,7 +30,7 @@ const INPUT_LAYOUT_PROPS = {
 
 export const EditContactForm: React.FC = () => {
     const intl = useIntl()
-    const ErrorMessage = intl.formatMessage({ id: 'errors.PdfGenerationError' })
+    const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
     const ContactNotFoundTitle = intl.formatMessage({ id: 'Contact.NotFound.Title' })
     const ContactNotFoundMessage = intl.formatMessage({ id: 'Contact.NotFound.Message' })

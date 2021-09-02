@@ -590,5 +590,6 @@
   "ServicesUnitsShort": "ЕИ",
   "Tariff": "Тариф",
   "Privileges": "Льготы",
-  "Recalculation": "Перерасчёт"
+  "Recalculation": "Перерасчёт",
+  "errors.LoadingError": "К сожалению произошла ошибка, попробуйте обновить страницу"
 }

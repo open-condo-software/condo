@@ -32,7 +32,7 @@ export const EmployeeProfileForm = () => {
     const RoleLabel = intl.formatMessage({ id: 'employee.Role' })
     const PositionLabel = intl.formatMessage({ id: 'employee.Position' })
     const UpdateEmployeeMessage = intl.formatMessage({ id: 'employee.UpdateTitle' })
-    const ErrorMessage = intl.formatMessage({ id: 'errors.PdfGenerationError' })
+    const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
 
     const { query, push } = useRouter()
 

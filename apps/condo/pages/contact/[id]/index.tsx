@@ -137,7 +137,7 @@ export const ContactPageContent = ({ organization, contact, isContactEditable })
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 const ContactInfoPage = () => {
     const intl = useIntl()
-    const ErrorMessage = intl.formatMessage({ id: 'errors.PdfGenerationError' })
+    const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
     const ContactNotFoundTitle = intl.formatMessage({ id: 'Contact.NotFound.Title' })
     const ContactNotFoundMessage = intl.formatMessage({ id: 'Contact.NotFound.Message' })
