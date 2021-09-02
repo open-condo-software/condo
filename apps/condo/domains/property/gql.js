@@ -5,7 +5,7 @@
  */
 
 const { generateGqlQueries } = require('@condo/domains/common/utils/codegeneration/generate.gql')
-const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/common/utils/addressApi/addressMetaGql')
+const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('./schema/fields/AddressMetaField')
 const { gql } = require('graphql-tag')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt organization { id name} newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
