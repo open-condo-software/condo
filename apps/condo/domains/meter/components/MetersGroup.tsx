@@ -57,6 +57,7 @@ const OldMeterReading = ({
                 label={meterNumber}
                 name={name}
             >
+                <Input addonAfter={measure} />
                 <Row align={'middle'} justify={'space-between'}>
                     <Col span={12}>
                         <Input addonAfter={measure} />
@@ -104,6 +105,11 @@ const NewMeterReading = ({
                 <Form.Item
                     label={meterNumber}
                     name={name}
+                    rules={[
+                        {
+                            type: 'number',
+                        },
+                    ]}
                 >
                     <Row align={'middle'} justify={'space-between'}>
                         <Col span={12}>
@@ -146,9 +152,8 @@ export const MetersGroup = ({ name, form, existedMeters = [], billingMeterReadin
                     </Col>
                     {
                         existedMeters && existedMeters.map((meter, index) => (
-                            <>
+                            <React.Fragment key={meter.number}>
                                 <OldMeterReading
-                                    key={meter.number}
                                     name={['existedMeters', meter.id]}
                                     billingMeterReadings={billingMeterReadings}
                                     meterId={meter.id}
@@ -156,7 +161,7 @@ export const MetersGroup = ({ name, form, existedMeters = [], billingMeterReadin
                                     measure={meterResource.measure}
                                 />
                                 {index !== existedMeters.length - 1 ? <Divider style={{ marginBottom: 0 }}/> : null}
-                            </>
+                            </React.Fragment>
 
                         ))
                     }
@@ -167,7 +172,7 @@ export const MetersGroup = ({ name, form, existedMeters = [], billingMeterReadin
                                     fields.map((field, index) => {
                                         const meter = form.getFieldValue([name, index])
                                         return (
-                                            <>
+                                            <React.Fragment key={name}>
                                                 {index === 0 && existedMeters.length > 0 ? <Divider style={{ marginBottom: 0 }}/> : null}
                                                 <Form.Item
                                                     {...field}
@@ -183,7 +188,7 @@ export const MetersGroup = ({ name, form, existedMeters = [], billingMeterReadin
                                                     />
                                                 </Form.Item>
                                                 {index !== fields.length - 1 ? <Divider style={{ marginBottom: 0 }}/> : null}
-                                            </>
+                                            </React.Fragment>
                                         )
                                     })
                                 }
