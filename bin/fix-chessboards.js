@@ -120,15 +120,9 @@ const fixMaps = async () => {
     await fixer.init()
     await fixer.check()
     await fixer.fix()
+    console.log(`Check: ${fixer.toFix.length} / ${fixer.properties.length}`)
 }
 
-fixMaps().then(() => {
-    process.exit(0)
-}).catch(err => {
-    console.error('Error: ', err)
-})
-
-/*
 const importProperties = async () => {
     // Better to use sql dump - but this will work with csv
     const fs = require('fs')
@@ -174,9 +168,17 @@ const importProperties = async () => {
 
 }
 
-importProperties().then(() => {
+// Turn on if you need to import properties
+//importProperties().then(() => {
+//    process.exit(0)
+//}).catch(err => {
+//    console.error('Error: ', err)
+//})
+
+// Turn on if you need to fix
+
+fixMaps().then(() => {
     process.exit(0)
 }).catch(err => {
     console.error('Error: ', err)
 })
-*/
