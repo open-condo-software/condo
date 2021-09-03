@@ -1,10 +1,10 @@
 import { identity } from 'lodash/util'
-import { Checkbox, DatePicker, Space, Tag, Typography } from 'antd'
+import { Checkbox, Space, Tag, Typography } from 'antd'
+import { getDateFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import { FilterValue } from 'antd/es/table/interface'
 import { format } from 'date-fns'
 import { get, isEmpty } from 'lodash'
 import { useIntl } from '@core/next/intl'
-import moment from 'moment'
 import React, { useMemo } from 'react'
 import { colors } from '@condo/domains/common/constants/style'
 import { EMERGENCY_TAG_COLOR } from '@condo/domains/ticket/constants/style'
@@ -87,28 +87,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                         { locale: LOCALES[intl.locale] }
                     )
                 ),
-                filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
-                    const pickerProps = {
-                        value: undefined,
-                        onChange: e => {
-                            setSelectedKeys(e.toISOString())
-                            setFiltersApplied(true)
-                            confirm({ closeDropdown: false })
-                        },
-                        allowClear: false,
-                    }
-
-                    if (selectedKeys && selectedKeys.length > 0) {
-                        pickerProps.value = moment(selectedKeys)
-                    }
-
-                    return (
-                        <FilterContainer clearFilters={clearFilters}
-                            showClearButton={selectedKeys && selectedKeys.length > 0}>
-                            <DatePicker {...pickerProps}/>
-                        </FilterContainer>
-                    )
-                },
+                filterDropdown: getDateFilterDropdown(),
                 filterIcon: getFilterIcon,
             },
             {

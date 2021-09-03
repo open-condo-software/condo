@@ -1,7 +1,10 @@
 const conf = require('@core/config')
 const IORedis = require('ioredis')
 const REDIS_URL = conf['REDIS_URL']
-const { utc } = require('moment')
+const dayjs = require('dayjs')
+const utc = require('dayjs/plugin/utc')
+dayjs.extend(utc)
+
 const {
     ApolloError,
 } = require('apollo-errors')
@@ -59,7 +62,7 @@ class RedisGuard {
         let afterIncrement = await this.db.incr(`${this.counterPrefix}${variable}`)
         afterIncrement = Number(afterIncrement)
         if (afterIncrement === 1) {
-            await this.db.expireat(`${this.counterPrefix}${variable}`, parseInt(utc().endOf('day') / 1000) )
+            await this.db.expireat(`${this.counterPrefix}${variable}`, parseInt(`${dayjs().endOf('day') / 1000}`))
         }
         return afterIncrement
     }

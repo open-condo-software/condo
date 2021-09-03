@@ -1,12 +1,13 @@
 import { FilterFilled } from '@ant-design/icons'
 import { colors } from '@condo/domains/common/constants/style'
 import React from 'react'
-import { Checkbox, DatePicker, Input } from 'antd'
+import { Checkbox, Input } from 'antd'
+import DatePicker from '../Pickers/DatePicker'
 import { FilterContainer } from '../TableFilter'
 import { OptionType, QueryArgType } from '../../utils/tables.utils'
 import { FilterValue } from 'antd/es/table/interface'
 import get from 'lodash/get'
-import moment from 'moment'
+import dayjs from 'dayjs'
 
 type FilterIconType = (filtered?: boolean) => React.ReactNode
 type FilterValueType = (path: string | Array<string>, filters: { [x: string]: QueryArgType }) => FilterValue
@@ -66,7 +67,7 @@ export const getDateFilterDropdown = () => {
         }
 
         if (selectedKeys && selectedKeys.length > 0) {
-            pickerProps.value = moment(selectedKeys)
+            pickerProps.value = dayjs(selectedKeys)
         }
 
         return (
