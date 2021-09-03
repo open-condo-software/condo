@@ -95,7 +95,7 @@ class FixPropertyMaps {
         return map
     }
 
-    countUnits = (map) => {
+    countUnits (map) {
         return get(map, 'sections', [])
             .map((section) => get(section, 'floors', [])
                 .map(floor => get(floor, 'units', []).length))
