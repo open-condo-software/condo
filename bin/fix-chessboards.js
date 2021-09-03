@@ -1,15 +1,15 @@
 const {
     Property,
 } = require('@condo/domains/property/utils/serverSchema')
-
+const { normalizePropertyMap } = require('@condo/domains/property/utils/serverSchema/helpers.js')
 const path = require('path')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
-const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
+// const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const MapSchemaJSON = require('@condo/domains/property/components/panels/Builder/MapJsonSchema.json')
 const Ajv = require('ajv')
 const mapValidator = (new Ajv()).compile(MapSchemaJSON)
 const { has, get } = require('lodash')
-
+const { Client } = require('pg')
 
 class FixPropertyMaps {
 
@@ -21,29 +21,41 @@ class FixPropertyMaps {
         await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
         await keystone.connect()
         this.context = await keystone.createContext({ skipAccessControl: true })
+        this.pg = new Client(process.env.DATABASE_URL)
+        this.pg.connect()
+        this.toFix = []
+        /* Not working, we need direct sql query here
         this.properties = await loadListByChunks({
             context: this.context,
             list: Property,
         })
-        this.toFix = []
+        */
+        const { rows } = await this.pg.query(' SELECT id, map, "unitsCount" FROM "Property" WHERE 1=1 ')
+        this.properties = rows
+        this.properties.forEach(property => {
+            property.map = normalizePropertyMap(property.map)
+        })
     }
 
     async check () {
         this.properties.forEach(property => {
             const units = this.countUnits(property.map)
             if (!mapValidator(property.map) ||  units !== property.unitsCount){
-                console.log('Errors: ', mapValidator.errors)
-                console.log('Units: ', property.unitsCount, units)
+                console.log('~Errors: ', mapValidator.errors, `${property.unitsCount} == ${units}`)
                 this.toFix.push(property)
             }
         })
     }
 
     async fix () {
-        this.toFix.forEach(async property => {
-            console.log(`Fixing... ${property.address}`)
-            await Property.update(this.context, property.id, { map: this.fixChessboard(property.map) })
-        })
+        for (const property of this.toFix) {
+            const repairedMap = this.fixChessboard(property.map)
+            await Property.update(this.context, property.id, {
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'map-fixer' },
+                map: repairedMap,
+            })
+        }
     }
 
 
@@ -77,7 +89,6 @@ class FixPropertyMaps {
                     if (!has(unit, 'label')) {
                         unit.label = has(unit, 'name') ? unit.name : ''
                     }
-                    console.log('>>>', unit)
                 })
             })
         })
@@ -104,7 +115,6 @@ const fixMaps = async () => {
 
 
 fixMaps().then(() => {
-    console.log('All done')
     process.exit(0)
 }).catch(err => {
     console.error('Error: ', err)
