@@ -57,7 +57,6 @@ const OldMeterReading = ({
                 label={meterNumber}
                 name={name}
             >
-                <Input addonAfter={measure} />
                 <Row align={'middle'} justify={'space-between'}>
                     <Col span={12}>
                         <Input addonAfter={measure} />
