@@ -84,10 +84,10 @@ class TicketGqlToKnexAdapter extends GqlToKnexBaseAdapter {
 }
 
 const aggregateData = (data, groupByDependencyList) => {
-    let groupByFilter = groupByDependencyList
+    let groupByFilter = [...groupByDependencyList]
     switch (groupByDependencyList[0]) {
         case 'property':
-            groupByFilter = groupByDependencyList.reverse()
+            groupByFilter = groupByFilter.reverse()
             break
         default:
             break
