@@ -7,7 +7,6 @@ const faker = require('faker')
 const { v4: uuid } = require('uuid')
 const { getRandomString, makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
-
 const { User: UserGQL, UserAdmin: UserAdminGQL, REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
 const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@condo/domains/user/gql')
 const { generateSmsCode } = require('@condo/domains/user/utils/serverSchema')
@@ -25,7 +24,7 @@ const {
     SMS_CODE_TTL,
     CONFIRM_PHONE_ACTION_EXPIRY,
 } = require('@condo/domains/user/constants/common')
-const { RESIDENT } = require('../../constants/common')
+const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 
 async function createTestUser (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -43,7 +42,7 @@ async function createTestUser (client, extraAttrs = {}) {
         sender,
         name, email, phone,
         password, meta,
-        type: 'staff',
+        type: STAFF,
         ...extraAttrs,
     }
     const obj = await User.create(client, attrs)
@@ -143,7 +142,7 @@ async function addResidentAccess (user) {
 
 async function addStaffAccess (user) {
     const admin = await makeLoggedInAdminClient()
-    await User.update(admin, user.id, { type: 'staff' })
+    await User.update(admin, user.id, { type: STAFF })
 }
 
 const ConfirmPhoneAction = generateGQLTestUtils(ConfirmPhoneActionGQL)

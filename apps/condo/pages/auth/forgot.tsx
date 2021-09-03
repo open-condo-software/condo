@@ -1,4 +1,4 @@
-import { Form, Input, Typography } from 'antd'
+import { Form, Input, Typography, Row, Col } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import AuthLayout, { AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
 
@@ -93,54 +93,60 @@ const ResetPage: AuthPage = () => {
     }
 
     return (
-        <div>
-            <Typography.Title style={{ textAlign: 'left' }}>{ResetTitle}</Typography.Title>
-            <Typography.Paragraph style={{ textAlign: 'left' }}>{InstructionsMsg}</Typography.Paragraph>
-            <Form
-                form={form}
-                name='forgot-password'
-                validateTrigger={['onBlur', 'onSubmit']}
-                initialValues={initialValues}
-                colon={false}
-                style={{ marginTop: '40px' }}
-                requiredMark={false}
-            >
-                <Form.Item
-                    name='email'
-                    label={EmailMsg}
-                    rules={validations.email}
-                    labelAlign='left'
-                    labelCol={{ flex: 1 }}
+        <Row gutter={[0, 40]}>
+            <Col span={24}>
+                <Typography.Title style={{ textAlign: 'left' }}>{ResetTitle}</Typography.Title>
+                <Typography.Paragraph style={{ textAlign: 'left' }}>{InstructionsMsg}</Typography.Paragraph>
+            </Col>
+            <Col span={24}>
+                <Form
+                    form={form}
+                    name='forgot-password'
+                    validateTrigger={['onBlur', 'onSubmit']}
+                    initialValues={initialValues}
+                    colon={false}
+                    requiredMark={false}
                 >
-                    <Input placeholder={EmailPlaceholder}  style={INPUT_STYLE}/>
-                </Form.Item>
-                <Form.Item style={{ textAlign: 'left', marginTop: '36px' }}>
-                    <CountDownTimer action={forgotAction} id={'FORGOT_ACTION'} timeout={LOCK_TIMEOUT}>
-                        {({ countdown, runAction }) => {
-                            const isCountDownActive = countdown > 0
-                            return (
-                                <Button
-                                    onClick={() => {
-                                        form.validateFields().then(() => {
-                                            runAction()
-                                        }).catch(_ => {
-                                            // validation check failed - don't invoke runAction
-                                        })
-                                    }}
-                                    type={isCountDownActive ? 'sberGrey' : 'sberPrimary'}
-                                    disabled={isCountDownActive}
-                                    loading={isLoading}
-                                    htmlType='submit'
-                                    style={{ marginTop: '24px' }}
-                                >
-                                    {isCountDownActive ? `${RestorePasswordMsg} ${countdown}` : RestorePasswordMsg}
-                                </Button>
-                            )
-                        }}
-                    </CountDownTimer>
-                </Form.Item>
-            </Form>
-        </div>
+                    <Row gutter={[0, 60]}>
+                        <Col span={24}>
+                            <Form.Item
+                                name='email'
+                                label={EmailMsg}
+                                rules={validations.email}
+                                labelAlign='left'
+                                labelCol={{ flex: 1 }}
+                            >
+                                <Input placeholder={EmailPlaceholder}  style={INPUT_STYLE}/>
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Form.Item>
+                        <CountDownTimer action={forgotAction} id={'FORGOT_ACTION'} timeout={LOCK_TIMEOUT}>
+                            {({ countdown, runAction }) => {
+                                const isCountDownActive = countdown > 0
+                                return (
+                                    <Button
+                                        onClick={() => {
+                                            form.validateFields().then(() => {
+                                                runAction()
+                                            }).catch(_ => {
+                                                // validation check failed - don't invoke runAction
+                                            })
+                                        }}
+                                        type={isCountDownActive ? 'sberGrey' : 'sberPrimary'}
+                                        disabled={isCountDownActive}
+                                        loading={isLoading}
+                                        htmlType='submit'
+                                    >
+                                        {isCountDownActive ? `${RestorePasswordMsg} ${countdown}` : RestorePasswordMsg}
+                                    </Button>
+                                )
+                            }}
+                        </CountDownTimer>
+                    </Form.Item>
+                </Form>
+            </Col>
+        </Row>
     )
 }
 
