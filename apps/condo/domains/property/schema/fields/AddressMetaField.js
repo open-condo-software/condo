@@ -1,5 +1,11 @@
 const Ajv = require('ajv')
 
+const AddressMetaDataMetroField = {
+    name: 'String',
+    line: 'String',
+    distance: 'String',
+}
+
 /**
  * There is no official information about required status of these fields.
  * Requirement status of each column was determined empirically by its presence in data from production.
@@ -84,7 +90,7 @@ const AddressMetaDataFields = {
     geo_lon: 'String',
     beltway_hit: 'String',
     beltway_distance: 'String',
-    metro: 'String',
+    metro: 'AddressMetaDataMetroField', // 'Input' will be appended to type in case of rendering as input
     qc_geo: 'String',
     qc_complete: 'String',
     qc_house: 'String',
@@ -94,19 +100,47 @@ const AddressMetaDataFields = {
     qc: 'String',
 }
 
-const render = (fields) => (
+/**
+ * These types will get extra 'Input' postfix, when rendered as GraphQL input
+ */
+const CUSTOM_FIELD_TYPES = {
+    AddressMetaDataMetroField,
+}
+
+/**
+ * Renders custom field type as query result or GraphQL input (with 'Input' postfix)
+ */
+const renderFieldType = (typename, isInput) => (
+    isInput && Object.keys(CUSTOM_FIELD_TYPES).includes(typename)
+        ? typename + 'Input'
+        : typename
+)
+
+/**
+ * Procedural generation of GraphQL type fields list from provided object.
+ * Let us to avoid overhead with copy-pasting 83 fields for input variant of type
+ */
+const render = (fields, isInput) => (
     Object.keys(fields).reduce((acc, key) => (
-        acc + `${key}: ${fields[key]}\n`
+        acc + `${key}: ${isInput ? renderFieldType(fields[key], isInput) : fields[key]}\n`
     ), '')
 )
 
 const ADDRESS_META_FIELD_GRAPHQL_TYPES = `
+    type AddressMetaDataMetroField {
+        ${render(AddressMetaDataMetroField, false)}
+    }
+    
+    input AddressMetaDataMetroFieldInput {
+        ${render(AddressMetaDataMetroField, true)}
+    }
+    
     type AddressMetaDataField {
         ${render(AddressMetaDataFields)}
     }
 
     input AddressMetaDataFieldInput {
-        ${render(AddressMetaDataFields)}
+        ${render(AddressMetaDataFields, true)}
     }
 
     type AddressMetaField {
@@ -159,7 +193,10 @@ const AddressMetaJSONSchema = {
 const ajv = new Ajv()
 const addressMetaJsonValidator = ajv.compile(AddressMetaJSONSchema)
 
-const ADDRESS_META_SUBFIELDS_QUERY_LIST = `dv value unrestricted_value data { ${Object.keys(AddressMetaDataFields).join(' ')} }`
+const ADDRESS_META_DATA_SUBFIELDS_QUERY_LIST = 'postal_code country country_iso_code federal_district region_fias_id region_kladr_id region_iso_code region_with_type region_type region_type_full region area_fias_id area_kladr_id area_with_type area_type area_type_full area city_fias_id city_kladr_id city_with_type city_type city_type_full city city_area city_district_fias_id city_district_kladr_id city_district_with_type city_district_type city_district_type_full city_district settlement_fias_id settlement_kladr_id settlement_with_type settlement_type settlement_type_full settlement street_fias_id street_kladr_id street_with_type street_type street_type_full street house_fias_id house_kladr_id house_type house_type_full house block_type block_type_full block entrance floor flat_fias_id flat_type flat_type_full flat flat_area square_meter_price flat_price postal_box fias_id fias_code fias_level fias_actuality_state kladr_id geoname_id capital_marker okato oktmo tax_office tax_office_legal timezone geo_lat geo_lon beltway_hit beltway_distance metro { name line distance } qc_geo qc_complete qc_house history_values unparsed_parts source qc'
+
+const ADDRESS_META_SUBFIELDS_QUERY_LIST = `dv value unrestricted_value data { ${ADDRESS_META_DATA_SUBFIELDS_QUERY_LIST} }`
+
 
 module.exports = {
     ADDRESS_META_FIELD_GRAPHQL_TYPES,
