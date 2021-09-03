@@ -17,6 +17,7 @@ const bodyParser = require('body-parser')
 const nextCookie = require('next-cookies')
 const { makeId } = require('@condo/domains/common/utils/makeid.utils')
 const { formatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production'
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
@@ -157,7 +158,24 @@ module.exports = {
         app.use('/admin/', (req, res, next) => {
             if (req.url === '/api') return next()
             const cookies = nextCookie({ req })
-            let isSenderValid = typeof cookies['sender'] === 'object' && !!cookies['sender']
+            let isSenderValid = true
+
+            isSenderValid = hasValidJsonStructure(
+                {
+                    resolvedData: { sender: cookies['sender'] },
+                    fieldPath: 'sender',
+                    addFieldValidationError: () => null,
+                },
+                true,
+                1,
+                {
+                    fingerprint: {
+                        presence: true,
+                        format: /^[a-zA-Z0-9!#$%()*+-;=,:[\]/.?@^_`{|}~]{5,42}$/,
+                        length: { minimum: 5, maximum: 42 },
+                    },
+                })
+            console.log('isSenderValid', cookies['sender'], isSenderValid)
             if (!isSenderValid) {
                 res.cookie('sender', JSON.stringify({ fingerprint: makeId(12), dv: 1 }))
                 res.cookie('dv', 1)
