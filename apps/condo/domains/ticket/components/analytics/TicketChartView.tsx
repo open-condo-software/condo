@@ -28,9 +28,12 @@ interface ITicketAnalyticsPageChartProps extends ITicketAnalyticsPageWidgetProps
     }
 }
 
-const truncate = (chartName: string) => chartName.length > MAX_CHART_NAME_LENGTH
-    ? `${chartName.substring(0, MAX_CHART_NAME_LENGTH)}...`
-    : chartName
+const formatPieChartName = (propertyFullAddress: string): string => {
+    const chartName = propertyFullAddress.split(', ').slice(1).join(', ')
+    return chartName.length > MAX_CHART_NAME_LENGTH
+        ? `${chartName.substring(0, MAX_CHART_NAME_LENGTH)}...`
+        : chartName
+}
 
 const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
     children,
@@ -56,7 +59,11 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
     if (data !== null) {
         const mapperResult = mapperInstance.getChartConfig(viewMode, data)
         seriesRef.current = mapperResult.series
-        series = seriesRef.current.slice(0, TICKET_CHART_PAGE_SIZE * pieChartPage)
+        // If component used as report widget, we should use page separation. Otherwise we load all data (for pdf page)
+        const pageSize = onChartReady === undefined
+            ? TICKET_CHART_PAGE_SIZE * pieChartPage
+            : seriesRef.current.length
+        series = seriesRef.current.slice(0, pageSize)
         legend = mapperResult.legend
         axisData = mapperResult.axisData
         tooltip = mapperResult.tooltip
@@ -65,6 +72,8 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
     useEffect(() => {
         // Clean chart refs if input data was changed
         if (viewMode === 'pie') {
+            // TODO(sitozzz): find way to optimize render speed
+            // (with requestAnimationFrame API or something else that help us draw chart components not in one time)
             if (series.length !== chartRefs.current.length) {
                 setChartReadyCounter(0)
                 setPieChartPage(1)
@@ -169,7 +178,12 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
     }
     const chartHeight = get(chartOptions, 'height', 'auto')
     const chartStyle = {}
-    const hasMore = !loading && pieChartPage * TICKET_CHART_PAGE_SIZE <= seriesRef.current.length
+    const hasMore = pieChartPage * TICKET_CHART_PAGE_SIZE <= seriesRef.current.length
+    let infiniteScrollContainerHeight = series.length > 2 ? '640px' : '340px'
+    // onChartReadyCallback is used only for pdf generation page to make sure that chart component was rendered at DOM
+    if (onChartReady !== undefined) {
+        infiniteScrollContainerHeight = '100%'
+    }
 
     return <Typography.Paragraph style={{ position: 'relative' }}>
         {loading ? (
@@ -218,23 +232,14 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
                     }}
                     style={{ height: 40, overflow: 'hidden' }}
                 />
-                <Typography.Paragraph style={{ marginTop: 60, paddingBottom: 40, height: 620, overflow: 'auto' }}>
-                    {/* FIXME(sitozzz): load all charts when using at pdf */}
+                <Typography.Paragraph style={{ marginTop: 60, paddingBottom: 0, height: infiniteScrollContainerHeight, overflow: 'auto' }}>
                     <InfiniteScroll
                         initialLoad={false}
                         loadMore={loadMore}
                         hasMore={hasMore}
                         useWindow={false}>
                         <List
-                            grid={{
-                                gutter: 24,
-                                xs: 1,
-                                sm: 1,
-                                md: 1,
-                                lg: 1,
-                                xl: 1,
-                                xxl: 2,
-                            }}
+                            grid={{ gutter: 24, xs: 1, sm: 1, md: 1, lg: 1, xl: 1, xxl: 2 }}
                             dataSource={series}
                             renderItem={(chartSeries, index) => (
                                 <List.Item key={`pie-${index}`} style={{ width: 620 }} >
@@ -248,7 +253,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
                                             series: [chartSeries],
                                             title: {
                                                 show: true,
-                                                text: truncate(chartSeries.name.split(', ').slice(1).join(', ')),
+                                                text: formatPieChartName(chartSeries.name),
                                                 left: 375,
                                                 top: 30,
                                                 textStyle: {
@@ -271,7 +276,6 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
             </>
         )}
     </Typography.Paragraph>
-
 }
 
 export default TicketChartView
