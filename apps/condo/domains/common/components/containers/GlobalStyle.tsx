@@ -161,6 +161,36 @@ export default function GlobalStyle () {
                 display: none;
               }
               
+              a.ant-typography[disabled], 
+              .ant-typography a[disabled], 
+              a.ant-typography.ant-typography-disabled, 
+              .ant-typography a.ant-typography-disabled {
+                color: ${colors.green[6]};
+                &:hover {
+                  color: ${colors.green[6]};
+                }
+              }
+              
+              .ant-typography strong {
+                font-weight: 800;
+              }
+              .ant-typography mark {
+                background-color: ${colors.sberPrimary[5]};
+              }
+              .ant-alert-info > .ant-alert-content > .ant-alert-message {
+                color: ${colors.blue[6]}
+              }
+              .ant-alert-warning > .ant-alert-content > .ant-alert-message {
+                color: ${colors.orange[6]}
+              }
+              .ant-alert-success > .ant-alert-content > .ant-alert-message {
+                color: ${colors.green[6]}
+              }
+              .ant-alert-error > .ant-alert-content > .ant-alert-message {
+                color: ${colors.red[5]}
+              }
+              
+              
               ${uploadControlCss}
               ${radioGroupCss}
               ${inputControlCss}

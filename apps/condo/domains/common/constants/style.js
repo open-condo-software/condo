@@ -108,7 +108,6 @@ const antGlobalVariables = {
     '@checkbox-check-bg': ultraLightGrey,
     '@checkbox-border-width': DEFAULT_BORDER_WIDTH,
     '@form-item-margin-bottom': '0',
-    '@success-color': green[6],
     '@table-border-color': colors.lightGrey[5],
     '@table-header-bg': ultraLightGrey,
     '@tabs-highlight-color': '@black',
@@ -126,9 +125,15 @@ const antGlobalVariables = {
     '@alert-warning-bg-color': '@gold-2',
     '@typography-title-margin-bottom': 0,
     '@tooltip-bg': 'rgba(0, 0, 0)',
+    '@text-color': colors.sberGrey[9],
     '@text-color-secondary': colors.lightGrey[7],
+    '@success-color': green[6],
     '@warning-color': colors.orange[6],
     '@error-color': colors.red[5],
+    '@disabled-color': colors.sberGrey[2],
+    '@link-color': green[6],
+    '@link-hover-color': green[8],
+    '@link-active-color': colors.sberPrimary[6],
 }
 
 module.exports = {
