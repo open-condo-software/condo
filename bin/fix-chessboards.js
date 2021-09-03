@@ -43,11 +43,11 @@ class FixPropertyMaps {
         this.properties.forEach(property => {
             if (property.map) {
                 if (typeof property.map !== 'object') {
-                    console.log('property with strange map', property.id, property.map)
+                    // console.log('property with strange map', property.id, property.map)
                 } else {
-                    const units = this.countUnits(property.map)
-                    if (!mapValidator(property.map) ||  units !== property.unitsCount){
-                        console.log('~Errors: ', property.id, mapValidator.errors, `${property.unitsCount} == ${units}`)
+                    // const units = this.countUnits(property.map)
+                    if (!mapValidator(property.map)){ // ||  units !== property.unitsCount
+                        console.log('~Errors: ', property.id, mapValidator.errors)
                         this.toFix.push(property)
                     }
                 }
