@@ -10,14 +10,14 @@ const Ajv = require('ajv')
 const AddressMetaDataFields = {
     postal_code: 'String',
     country: 'String!',
-    country_iso_code: 'String!',
+    country_iso_code: 'String',
     federal_district: 'String',
-    region_fias_id: 'String!',
-    region_kladr_id: 'String!',
-    region_iso_code: 'String!',
-    region_with_type: 'String!',
-    region_type: 'String!',
-    region_type_full: 'String!',
+    region_fias_id: 'String',
+    region_kladr_id: 'String',
+    region_iso_code: 'String',
+    region_with_type: 'String',
+    region_type: 'String',
+    region_type_full: 'String',
     region: 'String!',
     area_fias_id: 'String',
     area_kladr_id: 'String',
@@ -45,16 +45,16 @@ const AddressMetaDataFields = {
     settlement_type_full: 'String',
     settlement: 'String',
     street_fias_id: 'String',
-    street_kladr_id: 'String!',
-    street_with_type: 'String!',
-    street_type: 'String!',
-    street_type_full: 'String!',
-    street: 'String!',
+    street_kladr_id: 'String',
+    street_with_type: 'String',
+    street_type: 'String',
+    street_type_full: 'String',
+    street: 'String',
     house_fias_id: 'String',
     house_kladr_id: 'String',
     house_type: 'String',
-    house_type_full: 'String!',
-    house: 'String!',
+    house_type_full: 'String',
+    house: 'String',
     block_type: 'String',
     block_type_full: 'String',
     block: 'String',
@@ -68,13 +68,13 @@ const AddressMetaDataFields = {
     square_meter_price: 'String',
     flat_price: 'String',
     postal_box: 'String',
-    fias_id: 'String!',
-    fias_code: 'String!',
-    fias_level: 'String!',
-    fias_actuality_state: 'String!',
-    kladr_id: 'String!',
+    fias_id: 'String',
+    fias_code: 'String',
+    fias_level: 'String',
+    fias_actuality_state: 'String',
+    kladr_id: 'String',
     geoname_id: 'String',
-    capital_marker: 'String!',
+    capital_marker: 'String',
     okato: 'String',
     oktmo: 'String',
     tax_office: 'String',
@@ -104,18 +104,18 @@ const ADDRESS_META_FIELD_GRAPHQL_TYPES = `
     type AddressMetaDataField {
         ${render(AddressMetaDataFields)}
     }
-    
+
     input AddressMetaDataFieldInput {
         ${render(AddressMetaDataFields)}
     }
-    
+
     type AddressMetaField {
         dv: Int
         value: String!
         unrestricted_value: String!
         data: AddressMetaDataField!
     }
-    
+
     input AddressMetaFieldInput {
         dv: Int!
         value: String!
