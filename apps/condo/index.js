@@ -157,8 +157,9 @@ module.exports = {
         app.use('/admin/', (req, res, next) => {
             if (req.url === '/api') return next()
             const cookies = nextCookie({ req })
-            if (!cookies.sender){
-                res.cookie('sender', makeId(12))
+            let isSenderValid = typeof cookies['sender'] === 'object' && !!cookies['sender']
+            if (!isSenderValid) {
+                res.cookie('sender', JSON.stringify({ fingerprint: makeId(12), dv: 1 }))
                 res.cookie('dv', 1)
             }
             next()
