@@ -20,7 +20,7 @@ const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions
     const organization = useOrganization()
     const router = useRouter()
 
-    const { obj: onBoarding } = OnBoardingHooks
+    const { obj: onBoardingHookObj, loading: isOnBoardingLoading } = OnBoardingHooks
         .useObject(
             { where: { user: { id: get(user, 'id') } } },
             { fetchPolicy: 'network-only' },
@@ -29,13 +29,13 @@ const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions
     const { isLoading, link } = organization
 
     useEffect(() => {
+        if (isOnBoardingLoading || isLoadingAuth || isLoading) return
         if (!link) {
-            if (onBoarding && !get(onBoarding, 'completed', false)) {
+            if (onBoardingHookObj && !get(onBoardingHookObj, 'completed', false)) {
                 router.push('/onboarding')
             }
-
         }
-    }, [onBoarding, link])
+    }, [isOnBoardingLoading, isLoadingAuth, isLoading, onBoardingHookObj, link])
 
     let pageView = children
 
