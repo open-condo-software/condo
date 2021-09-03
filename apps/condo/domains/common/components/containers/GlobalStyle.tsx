@@ -1,6 +1,6 @@
 import React from 'react'
 import { css, Global } from '@emotion/core'
-import { colors } from '@condo/domains/common/constants/style'
+import { colors, DEFAULT_STRONG_TEXT_FONT_WEIGHT } from '@condo/domains/common/constants/style'
 
 export default function GlobalStyle () {
     return (
@@ -172,7 +172,7 @@ export default function GlobalStyle () {
               }
               
               .ant-typography strong {
-                font-weight: 800;
+                font-weight: ${DEFAULT_STRONG_TEXT_FONT_WEIGHT};
               }
               .ant-typography mark {
                 background-color: ${colors.sberPrimary[5]};

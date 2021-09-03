@@ -87,6 +87,7 @@ const gradients = {
 }
 
 const DEFAULT_BORDER_WIDTH = '2px'
+const DEFAULT_STRONG_TEXT_FONT_WEIGHT = 800
 
 // Possible customizations can be found at https://github.com/ant-design/ant-design/blob/master/components/style/themes/default.less
 const antGlobalVariables = {
@@ -144,4 +145,5 @@ module.exports = {
     transitions,
     CHART_COLOR_SET,
     DEFAULT_BORDER_WIDTH,
+    DEFAULT_STRONG_TEXT_FONT_WEIGHT,
 }
