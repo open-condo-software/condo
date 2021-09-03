@@ -175,7 +175,6 @@ module.exports = {
                         length: { minimum: 5, maximum: 42 },
                     },
                 })
-            console.log('isSenderValid', cookies['sender'], isSenderValid)
             if (!isSenderValid) {
                 res.cookie('sender', JSON.stringify({ fingerprint: makeId(12), dv: 1 }))
                 res.cookie('dv', 1)

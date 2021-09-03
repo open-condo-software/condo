@@ -47,7 +47,6 @@ function hasDvAndSenderFields (resolvedData, context, addFieldValidationError) {
                         length: { minimum: 5, maximum: 42 },
                     },
                 })
-                console.log('isJsonStructureValid', cookies['sender'], isJsonStructureValid)
                 if (isJsonStructureValid) {
                     resolvedData['sender'] = cookies['sender']
                     hasSenderField = true
