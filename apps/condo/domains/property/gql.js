@@ -9,7 +9,7 @@ const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('./schema/fields/AddressMe
 const { gql } = require('graphql-tag')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt organization { id name} newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
-const PROPERTY_MAP_JSON_FIELDS = 'dv type sections { id type name preview floors { id type index name units { id type name label preview } } }'
+const PROPERTY_MAP_JSON_FIELDS = 'dv type sections { id type index name preview floors { id type index name units { id type name label preview } } }'
 const PROPERTY_FIELDS = `{ name address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } type ticketsInWork ticketsClosed unitsCount map { ${PROPERTY_MAP_JSON_FIELDS} } ${COMMON_FIELDS} }`
 const Property = generateGqlQueries('Property', PROPERTY_FIELDS)
 
@@ -41,6 +41,7 @@ const PROPERTY_MAP_GRAPHQL_TYPES = `
     type BuildingSection {
         id: String!
         type: BuildingMapEntityType!
+        index: Int!
         name: String!
         floors: [BuildingFloor]!
         preview: Boolean  
@@ -90,5 +91,5 @@ module.exports = {
     CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY,
     EXPORT_PROPERTIES_TO_EXCEL,
 
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }
