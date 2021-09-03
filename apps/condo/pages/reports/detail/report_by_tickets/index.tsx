@@ -1,25 +1,17 @@
 /** @jsx jsx */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { jsx, css } from '@emotion/core'
+import { css, jsx } from '@emotion/core'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import Head from 'next/head'
 import { useIntl } from '@core/next/intl'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import {
-    Col,
-    Radio,
-    Row,
-    Typography,
-    Tabs,
-    Divider,
-    Select,
-    Tooltip, Form, notification, TableColumnsType,
-} from 'antd'
+import { Col, Divider, Form, notification, Radio, Row, Select, TableColumnsType, Tabs, Tooltip, Typography } from 'antd'
 import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import { TICKET_ANALYTICS_REPORT_QUERY, EXPORT_TICKET_ANALYTICS_TO_EXCEL } from '@condo/domains/ticket/gql'
+import sum from 'lodash/sum'
+import { EXPORT_TICKET_ANALYTICS_TO_EXCEL, TICKET_ANALYTICS_REPORT_QUERY } from '@condo/domains/ticket/gql'
 import { useLazyQuery } from '@core/next/apollo'
 
 import moment, { Moment } from 'moment'
@@ -31,10 +23,11 @@ import RadioGroupWithIcon, { radioButtonBorderlessCss } from '@condo/domains/com
 import { useRouter } from 'next/router'
 import qs from 'qs'
 import DateRangePicker from '@condo/domains/common/components/DateRangePicker'
-import TicketChart, { ViewModeTypes, TicketSelectTypes } from '@condo/domains/ticket/components/TicketChart'
+import TicketChart, { TicketSelectTypes, ViewModeTypes } from '@condo/domains/ticket/components/TicketChart'
 import {
     filterToQuery,
-    getAggregatedData, GroupTicketsByTypes,
+    getAggregatedData,
+    GroupTicketsByTypes,
     specificationTypes,
     ticketAnalyticsPageFilters,
 } from '@condo/domains/ticket/utils/helpers'
@@ -393,7 +386,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                             Object.entries(data).forEach((rowEntry) => {
                                 const [ticketType, dataObj] = rowEntry
                                 const counts = Object.values(dataObj) as number[]
-                                restTableColumns[ticketType] = counts.reduce((a, b) => a + b, 0)
+                                restTableColumns[ticketType] = sum(counts)
                             })
                             dataSource.push({
                                 key: 0,
@@ -407,7 +400,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                     const [ticketType, dataObj] = rowEntry
                                     const counts = Object.entries(dataObj)
                                         .filter(obj => obj[0] === address).map(e => e[1]) as number[]
-                                    tableRow[ticketType] = counts.reduce((a, b) => a + b, 0)
+                                    tableRow[ticketType] = sum(counts)
                                 })
                                 dataSource.push(tableRow)
                             })
@@ -496,16 +489,13 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         const aggregateSummary = addressList !== undefined && addressList.length === 0
                         if (aggregateSummary) {
                             const totalCount = Object.values(data)
-                                .reduce((prev, curr) => prev + Object.values(curr)
-                                    .reduce((a, b) => a + b, 0), 0)
+                                .reduce((prev, curr) => prev + sum(Object.values(curr)), 0)
 
                             Object.entries(data).forEach((rowEntry) => {
                                 const [ticketType, dataObj] = rowEntry
                                 const counts = Object.values(dataObj) as number[]
-                                const percentString = ((counts
-                                    .reduce((a, b) => a + b, 0) / totalCount) * 100)
+                                restTableColumns[ticketType] = ((sum(counts) / totalCount) * 100)
                                     .toFixed(2) + ' %'
-                                restTableColumns[ticketType] = percentString
                             })
                             dataSource.push({
                                 key: 0,
@@ -529,7 +519,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                     const [ticketType, dataObj] = rowEntry
                                     const counts = Object.entries(dataObj)
                                         .filter(obj => obj[0] === address).map(e => e[1]) as number[]
-                                    const totalPropertyCount = counts.reduce((a, b) => a + b, 0)
+                                    const totalPropertyCount = sum(counts)
                                     tableRow[ticketType] = (totalPropertyCount / totalCounts[address] * 100)
                                         .toFixed(2) + ' %'
                                 })
