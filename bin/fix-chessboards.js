@@ -8,7 +8,7 @@ const { GraphQLApp } = require('@keystonejs/app-graphql')
 const MapSchemaJSON = require('@condo/domains/property/components/panels/Builder/MapJsonSchema.json')
 const Ajv = require('ajv')
 const mapValidator = (new Ajv()).compile(MapSchemaJSON)
-const { has, get } = require('lodash')
+const { has, get, isEmpty, compact, trim } = require('lodash')
 const { Client } = require('pg')
 
 class FixPropertyMaps {
@@ -33,16 +33,24 @@ class FixPropertyMaps {
         const { rows } = await this.pg.query(' SELECT id, map, "unitsCount" FROM "Property" WHERE 1=1 ')
         this.properties = rows
         this.properties.forEach(property => {
-            property.map = normalizePropertyMap(property.map)
+            if (property.map) {
+                property.map = normalizePropertyMap(property.map)
+            }
         })
     }
 
     async check () {
         this.properties.forEach(property => {
-            const units = this.countUnits(property.map)
-            if (!mapValidator(property.map) ||  units !== property.unitsCount){
-                console.log('~Errors: ', mapValidator.errors, `${property.unitsCount} == ${units}`)
-                this.toFix.push(property)
+            if (property.map) {
+                if (typeof property.map !== 'object') {
+                    console.log('property with strange map', property.id, property.map)
+                } else {
+                    const units = this.countUnits(property.map)
+                    if (!mapValidator(property.map) ||  units !== property.unitsCount){
+                        console.log('~Errors: ', property.id, mapValidator.errors, `${property.unitsCount} == ${units}`)
+                        this.toFix.push(property)
+                    }
+                }
             }
         })
     }
@@ -50,7 +58,7 @@ class FixPropertyMaps {
     async fix () {
         for (const property of this.toFix) {
             const repairedMap = this.fixChessboard(property.map)
-            await Property.update(this.context, property.id, {
+            await Property.update(this.context.createContext({ skipAccessControl: true }), property.id, {
                 dv: 1,
                 sender: { dv: 1, fingerprint: 'map-fixer' },
                 map: repairedMap,
@@ -105,17 +113,70 @@ class FixPropertyMaps {
 
 }
 
+// Some times need to start this script several times
+// Need to fix: 787 / 1917
 const fixMaps = async () => {
     const fixer = new FixPropertyMaps()
     await fixer.init()
     await fixer.check()
-    console.log(`Need to fix: ${fixer.toFix.length} / ${fixer.properties.length}`)
     await fixer.fix()
 }
-
 
 fixMaps().then(() => {
     process.exit(0)
 }).catch(err => {
     console.error('Error: ', err)
 })
+
+/*
+const importProperties = async () => {
+    // Better to use sql dump - but this will work with csv
+    const fs = require('fs')
+    // set your data here
+    const ORGANIZATION_ID = 'fdd26d23-7782-4bad-b6b8-812e5d4baf76'
+    const file = fs.readFileSync(`${__dirname}/houses.csv`).toString()
+
+    const strings = compact(file.split(/[\r\n]/g))
+    const pg = new Client(process.env.DATABASE_URL)
+    pg.connect()
+    let header = []
+    const data = []
+    const tryToJson = (text) => {
+        text = trim(text.split('""').join('"'), '"')
+        try {
+            const objs = JSON.parse(text)
+            return objs
+        } catch (err) {
+            return text
+        }
+    }
+    strings.forEach( (str, idx) => {
+        const row = str.split(/(?:,|\n|^)("(?:(?:"")*[^"]*)*"|[^",\n]*|(?:\n|$))/g)
+        if (!idx) {
+            header = row
+        } else {
+            data.push(Object.fromEntries(row.map( (r, i) => ([header[i], tryToJson(r)]))))
+        }
+    })
+    for (const property of data) {
+        if (typeof property.map === 'object' ) {
+            await pg.query('INSERT INTO "Property" (dv, v, type, sender, id, organization, address, "addressMeta", map, "unitsCount") VALUES (1, 1, \'building\', $1, $2, $3, $4, $5, $6, $7) ', [
+                { dv: 1, fingerprint: 'import-property' },
+                property.id,
+                ORGANIZATION_ID,
+                property.address,
+                property.addressMeta,
+                property.map,
+                property.unitsCount || 0,
+            ])
+        }
+    }
+
+}
+
+importProperties().then(() => {
+    process.exit(0)
+}).catch(err => {
+    console.error('Error: ', err)
+})
+*/
