@@ -207,15 +207,15 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
 
         const existedMetersFromForm = variables.existedMeters
         if (existedMetersFromForm) {
-            for (const [meterId, value] of Object.entries(existedMetersFromForm)) {
-                if (!value) continue
+            const existingMetersCreateActions = Object.entries(existedMetersFromForm).map(([meterId, value]) => {
+                if (!value) return
                 const existedMeter = existingMetersRef.current.find(meter => meter.id === meterId)
 
-                await createMeterReadingAction({
+                return createMeterReadingAction({
                     property: property,
                     organization: organization.id,
                     contact: get(createdContact, 'id') || variables.contact,
-                    value: Number(value),
+                    value1: Number(value),
                     meter: meterId,
                     account: existedMeter.account,
                     date: new Date(),
@@ -228,46 +228,56 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                     clientPhone,
                     source,
                 })
-            }
+            })
+            await Promise.all([existingMetersCreateActions])
         }
 
-        for (const resourceId of resourceIds) {
-            const newResourceMeters = variables[resourceId]
 
-            if (newResourceMeters) {
-                for (const newMeter of newResourceMeters) {
-                    const meter = await createMeterAction({
-                        number: newMeter.number,
-                        organization: organization.id,
-                        property: property,
-                        unitName,
-                        account: newMeter.account,
-                        place: newMeter.place,
-                        resource: newMeter.meterResource,
-                    })
+        const createNewMetersWithMeterReadingsActions = []
+        resourceIds.forEach(resourceId => {
+            const newMeterReadingsByResource = variables[resourceId]
 
-                    if (!newMeter.value) continue
+            if (newMeterReadingsByResource) {
+                createNewMetersWithMeterReadingsActions.push(
+                    newMeterReadingsByResource.map(newMeterReading => (
+                        createMeterAction({
+                            number: newMeterReading.number,
+                            organization: organization.id,
+                            property: property,
+                            tariffsCount: 1,
+                            unitName,
+                            account: newMeterReading.account,
+                            place: newMeterReading.place,
+                            resource: newMeterReading.meterResource,
+                        })
+                            .then(
+                                meter => {
+                                    if (!newMeterReading.value) return
 
-                    await createMeterReadingAction({
-                        property: property,
-                        organization: organization.id,
-                        contact: get(createdContact, 'id') || variables.contact,
-                        value: Number(newMeter.value),
-                        meter: meter.id,
-                        account: newMeter.account,
-                        date: new Date(),
-                        sectionName,
-                        floorName,
-                        unitName,
-                        client,
-                        clientName,
-                        clientEmail,
-                        clientPhone,
-                        source,
-                    })
-                }
+                                    return createMeterReadingAction({
+                                        property: property,
+                                        organization: organization.id,
+                                        contact: get(createdContact, 'id') || variables.contact,
+                                        value1: Number(newMeterReading.value),
+                                        meter: meter.id,
+                                        account: newMeterReading.account,
+                                        date: new Date(),
+                                        sectionName,
+                                        floorName,
+                                        unitName,
+                                        client,
+                                        clientName,
+                                        clientEmail,
+                                        clientPhone,
+                                        source,
+                                    })
+                                }
+                            )
+                    ))
+                )
             }
-        }
+        })
+        await Promise.all(createNewMetersWithMeterReadingsActions)
 
         await router.push('/')
     }, [])
