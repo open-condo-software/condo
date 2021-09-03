@@ -38,7 +38,6 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
     const PasswordMsg = intl.formatMessage({ id: 'pages.auth.register.field.Password' })
     const ConfirmPasswordMsg = intl.formatMessage({ id: 'pages.auth.register.field.ConfirmPassword' })
     const EmailMsg = intl.formatMessage({ id: 'pages.auth.register.field.Email' })
-    const AllFieldsAreRequired = intl.formatMessage({ id: 'pages.auth.register.AllFieldsAreRequired' })
     const PhoneIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsAlreadyRegistered' })
     const PasswordIsTooShortMsg = intl.formatMessage({ id: 'pages.auth.PasswordIsTooShort' })
     const EmailIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsAlreadyRegistered' })
@@ -78,7 +77,8 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
             sender: getClientSideSenderInfo(),
         }
         const { name, email: inputEmail, password } = form.getFieldsValue(['name', 'email', 'password'])
-        const email = inputEmail.toLowerCase().trim()
+
+        const email = inputEmail ? inputEmail.toLowerCase().trim() : ''
         const data = { name, email, password, ...registerExtraData, confirmPhoneActionToken: token }
         setIsLoading(true)
 
@@ -110,16 +110,13 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
             onFinish={registerComplete}
             initialValues={initialValues}
             colon={false}
-            requiredMark={false}
+            requiredMark={true}
             labelAlign={'left'}
             validateTrigger={['onBlur', 'onSubmit']}
         >
             <Row gutter={[0, 60]}>
                 <Col span={24}>
                     <Row gutter={[0, 40]}>
-                        <Col span={24}>
-                            <Typography.Paragraph>{AllFieldsAreRequired}</Typography.Paragraph>
-                        </Col>
                         <Col span={24}>
                             <Row gutter={[0, 24]}>
                                 <Col span={24}>
