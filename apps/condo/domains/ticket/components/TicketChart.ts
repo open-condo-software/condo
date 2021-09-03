@@ -9,36 +9,28 @@ export type AnalyticsDataType = Record<string, Record<string, number>>
 type ChartConfigResult = {
     legend: string[],
     series: unknown[],
-    axisData: {
+    axisData?: {
         xAxis: { type: string, data: null | string[] },
         yAxis: { type: string, data: null | string[] }
     },
-    tooltip: {
+    tooltip?: {
         trigger: string,
         axisPointer: { type: string }
     }
 }
 
-type PieChartConfigResult = Pick<ChartConfigResult, 'series'> //& { dataset: { source: any[] } }
-
 interface IGetChartConfig extends IGetBaseChartConfig<ViewModeTypes, TicketGroupedCounter[], ChartConfigResult>{
     (viewMode: ViewModeTypes, data: TicketGroupedCounter[]): {
         legend,
         series,
-        axisData: {
+        axisData?: {
             xAxis: { type, data },
             yAxis: { type, data }
         },
-        tooltip: {
+        tooltip?: {
             trigger,
             axisPointer: { type }
         }
-    }
-}
-
-interface IGetPieChartConfig extends IGetBaseChartConfig<ViewModeTypes, TicketGroupedCounter[], PieChartConfigResult> {
-    (viewMode: ViewModeTypes, data: TicketGroupedCounter[]): {
-        series
     }
 }
 
@@ -60,7 +52,7 @@ interface IGetTableConfig extends IGetBaseTableConfig<ViewModeTypes, TicketGroup
 export type ChartConfigMapType = {
     bar?: { chart: IGetChartConfig; table: IGetTableConfig; };
     line?: { chart: IGetChartConfig; table: IGetTableConfig; };
-    pie?: { chart: IGetPieChartConfig; table: IGetTableConfig; };
+    pie?: { chart: IGetChartConfig; table: IGetTableConfig; };
 }
 
 class TicketChart extends BaseChart<ChartConfigMapType, ChartConfigResult, TableConfigResult>{
