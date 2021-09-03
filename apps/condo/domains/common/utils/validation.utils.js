@@ -40,9 +40,15 @@ function hasDvAndSenderFields (resolvedData, context, addFieldValidationError) {
         if (context.req) {
             const cookies = nextCookies({ req: context.req })
             if (cookies.hasOwnProperty('sender') && cookies['sender']) {
-                if (typeof cookies['sender'] === 'object' &&
-                    typeof cookies['sender']['fingerprint'] === 'string' &&
-                    typeof cookies['sender']['dv'] === 'number') {
+                const isJsonStructureValid = hasValidJsonStructure({ resolvedData: { sender: cookies['sender'] }, fieldPath: 'sender', addFieldValidationError }, true, 1, {
+                    fingerprint: {
+                        presence: true,
+                        format: /^[a-zA-Z0-9!#$%()*+-;=,:[\]/.?@^_`{|}~]{5,42}$/,
+                        length: { minimum: 5, maximum: 42 },
+                    },
+                })
+                console.log('isJsonStructureValid', cookies['sender'], isJsonStructureValid)
+                if (isJsonStructureValid) {
                     resolvedData['sender'] = cookies['sender']
                     hasSenderField = true
                 }
