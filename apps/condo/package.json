@@ -77,7 +77,6 @@
     "less": "^3.12.2",
     "lodash": "^4.17.21",
     "minimatch": "^3.0.4",
-    "moment": "^2.29.1",
     "next": "^9.5.2",
     "next-transpile-modules": "^7.0.0",
     "numeral": "2.0.6",
