@@ -14,6 +14,44 @@ ALTER TABLE "BillingIntegration" ADD COLUMN "billingPageTitle" text NULL;
 ALTER TABLE "BillingIntegrationHistoryRecord" ADD COLUMN "billingPageTitle" text NULL;
 COMMIT;
 
+update "BillingAccount" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "BillingAccountMeter" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "BillingAccountMeterReading" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "BillingCurrency" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "BillingIntegration" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "BillingIntegrationAccessRight" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "BillingIntegrationLog" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "BillingIntegrationOrganizationContext" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "BillingMeterResource" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "BillingProperty" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "BillingReceipt" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "ConfirmPhoneAction" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "Contact" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "Division" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "ForgotPasswordAction" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "Message" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "OnBoarding" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "OnBoardingStep" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "Organization" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "OrganizationEmployee" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "OrganizationEmployeeRole" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "OrganizationLink" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "Property" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "Resident" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "ServiceConsumer" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "Ticket" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "TicketCategoryClassifier" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "TicketChange" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "TicketClassifier" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "TicketClassifierRule" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "TicketComment" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "TicketFile" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "TicketPlaceClassifier" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "TicketProblemClassifier" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "TicketSource" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "TicketStatus" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+update "User" set sender = '{"dv": 1, "fingerprint": "hotfix-20210903"}' where "sender"->'dv' is NULL;
+
     `)
 }
 
