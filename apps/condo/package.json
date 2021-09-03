@@ -18,7 +18,8 @@
     "generate-tickets": "node ./../../bin/generate-tickets.js",
     "generate-receipts": "node ./../../bin/generate-receipts.js",
     "generate-billings": "node ./../../bin/generate-billings.js",
-    "generate-excel-template": "node ./../../bin/create-xlsx-template.js"
+    "generate-excel-template": "node ./../../bin/create-xlsx-template.js",
+    "fix-property-maps": "node ./../../bin/fix-chessboards.js"
   },
   "dependencies": {
     "@2gis/mapgl": "^1.12.0",
