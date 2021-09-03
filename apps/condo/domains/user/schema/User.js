@@ -15,6 +15,7 @@ const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { updateEmployeesRelatedToUser } = require('@condo/domains/user/utils/serverSchema')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const AVATAR_FILE_ADAPTER = new FileAdapter('avatars')
+const { STAFF, USER_TYPES } = require('@condo/domains/user/constants/common')
 
 const User = new GQLListSchema('User', {
     schemaDoc: 'Individual / person / service account / impersonal company account',
@@ -41,8 +42,8 @@ const User = new GQLListSchema('User', {
             schemaDoc: 'Field that allows you to distinguish CRM users from mobile app users',
             type: Select,
             dataType: 'enum',
-            options: ['staff', 'resident'],
-            defaultValue: 'staff',
+            options: USER_TYPES,
+            defaultValue: STAFF,
             isRequired: true,
         },
         // TODO(pahaz): useless! remove it or write auth checks!
@@ -71,7 +72,7 @@ const User = new GQLListSchema('User', {
             schemaDoc: 'Email. Transformed to lower case',
             type: Text,
             access: access.canAccessToEmailField,
-            kmigratorOptions: { null: true, unique: true },
+            kmigratorOptions: { null: true, unique: false },
             hooks: {
                 resolveInput: ({ resolvedData }) => {
                     return normalizeEmail(resolvedData['email']) || resolvedData['email']

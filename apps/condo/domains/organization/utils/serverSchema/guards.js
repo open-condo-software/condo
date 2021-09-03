@@ -1,5 +1,6 @@
 const { OrganizationEmployee } = require('./index')
 const { User } = require('@condo/domains/user/utils/serverSchema')
+const { STAFF } = require('@condo/domains/user/constants/common')
 
 const checkEmployeeExistency = async (context, organization, email, phone, user) => {
     const employeesByEmail = await OrganizationEmployee.getAll(context, {
@@ -39,7 +40,7 @@ const checkEmployeeExistency = async (context, organization, email, phone, user)
 }
 
 const checkStaffUserExistency = async (context, email, phone) => {
-    const usersByEmail = await User.getAll(context, { email })
+    const usersByEmail = await User.getAll(context, { email, type: STAFF })
 
     if (usersByEmail.length > 1) throw new Error('[error] more than one user found')
 
@@ -47,7 +48,7 @@ const checkStaffUserExistency = async (context, email, phone) => {
         return usersByEmail[0]
     }
 
-    const usersByPhone = await User.getAll(context, { phone, type: 'staff' })
+    const usersByPhone = await User.getAll(context, { phone, type: STAFF })
 
     if (usersByPhone.length > 1) throw new Error('[error] more than one user found')
 
