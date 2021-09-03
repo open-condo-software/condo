@@ -15,12 +15,16 @@ const { DATE_DISPLAY_FORMAT } = require('@condo/domains/ticket/constants/common'
 const { TicketStatus: TicketStatusServerUtils, Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 const isEmpty = require('lodash/isEmpty')
 const get = require('lodash/get')
+const sum = require('lodash/sum')
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
 const propertySummaryDataMapper = require('@condo/domains/ticket/utils/serverSchema/propertySummaryDataMapper')
 const propertySingleDataMapper = require('@condo/domains/ticket/utils/serverSchema/propertySingleDataMapper')
 const dayGroupDataMapper = require('@condo/domains/ticket/utils/serverSchema/dayGroupDataMapper')
 const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
 const propertyPercentDataMapper = require('@condo/domains/ticket/utils/serverSchema/propertyPercentDataMapper')
+const propertySummaryPercentDataMapper = require('@condo/domains/ticket/utils/serverSchema/propertySummaryPercentDataMapper')
+
+const PERCENT_AGGREGATION_TOKENS = ['property-status']
 
 const createPropertyRange = async (organizationWhereInput) => {
     const propertyLoader = new GqlWithKnexLoadList({
@@ -156,7 +160,6 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                 let rowColumns = []
                 const groupByToken = groupBy.join('-')
                 const address = get(translates, 'property', '')
-
                 switch (groupByToken) {
                     case 'status-day':
                     case 'status-week':
@@ -173,27 +176,64 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                 const tickets = []
                 if (rowColumns.length === 0) {
                     const tableColumns = {}
-                    Object.entries(result).forEach(([ticketType, dataObject]) => {
-                        const { rows } = propertySummaryDataMapper({ row: dataObject, constants: { address } })
-                        tableColumns[ticketType] = rows[ticketType]()
-                        tableColumns.address = rows.address()
-                    })
+                    if (PERCENT_AGGREGATION_TOKENS.includes(groupByToken)) {
+                        const totalCount = Object.values(result)
+                            .reduce((previousCount, currentAggregateObject) =>
+                                previousCount + sum(Object.values(currentAggregateObject)), 0)
+
+                        Object.entries(result).forEach(([ticketType, dataObject]) => {
+                            const { rows } = propertySummaryPercentDataMapper(
+                                { row: dataObject, constants: { address, totalCount } }
+                            )
+                            tableColumns[ticketType] = rows[ticketType]()
+                            tableColumns.address = rows.address()
+                        })
+                    } else {
+                        Object.entries(result).forEach(([ticketType, dataObject]) => {
+                            const { rows } = propertySummaryDataMapper({ row: dataObject, constants: { address } })
+                            tableColumns[ticketType] = rows[ticketType]()
+                            tableColumns.address = rows.address()
+                        })
+                    }
                     tickets.push(tableColumns)
                 } else {
                     switch (groupBy[1]) {
+                        case 'status':
                         case 'property':
-                            //TODO: find simple way to determine when to use propertyPercentDataMapper
-                            rowColumns.forEach((rowAddress) => {
-                                const tableRow = {}
-                                Object.entries(result).forEach(([ticketType, dataObject]) => {
-                                    const { rows } = propertySingleDataMapper(
-                                        { row: dataObject, constants: { address: rowAddress } }
-                                    )
-                                    tableRow[ticketType] = rows[ticketType]()
-                                    tableRow.address = rows.address()
+                            if (PERCENT_AGGREGATION_TOKENS.includes(groupByToken)) {
+                                const totalCounts = {}
+                                Object.values(result).forEach((dataObj) => {
+                                    Object.entries(dataObj).forEach(([propertyAddress, count]) => {
+                                        get(totalCounts, propertyAddress, false)
+                                            ? (totalCounts[propertyAddress] += count)
+                                            : (totalCounts[propertyAddress] = count)
+                                    })
                                 })
-                                tickets.push(tableRow)
-                            })
+                                rowColumns.forEach(rowAddress => {
+                                    const tableRow = {}
+                                    Object.entries(result).forEach(rowEntry => {
+                                        const [ticketType, dataObj] = rowEntry
+                                        const { rows } = propertyPercentDataMapper({
+                                            row: dataObj, constants: { address: rowAddress, totalCounts },
+                                        })
+                                        tableRow[ticketType] = rows[ticketType]()
+                                        tableRow.address = rows.address()
+                                    })
+                                    tickets.push(tableRow)
+                                })
+                            } else {
+                                rowColumns.forEach((rowAddress) => {
+                                    const tableRow = {}
+                                    Object.entries(result).forEach(([ticketType, dataObject]) => {
+                                        const { rows } = propertySingleDataMapper(
+                                            { row: dataObject, constants: { address: rowAddress } }
+                                        )
+                                        tableRow[ticketType] = rows[ticketType]()
+                                        tableRow.address = rows.address()
+                                    })
+                                    tickets.push(tableRow)
+                                })
+                            }
                             break
                         case 'day':
                         case 'week':
