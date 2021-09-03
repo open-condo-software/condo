@@ -19,33 +19,43 @@ function hasDbFields (databaseRequired, resolvedData, existingItem, context, add
     }
     return hasAllFields
 }
-
-function hasRequestFields (requestFields = ['dv', 'sender'], resolvedData, context, addFieldValidationError) {
-    for (let field of requestFields) {
-        if (!resolvedData.hasOwnProperty(field)) {
-            if (context.req) {
-                const cookies = nextCookies({ req: context.req } )
-                if (cookies.hasOwnProperty(field)) {
-                    if (field === 'dv') {
-                        let parsed = parseInt(cookies[field])
-                        if (!isNaN(parsed)) {
-                            resolvedData[field] = parsed
-                            continue
-                        }
-                    }
-                    else
-                    { 
-                        resolvedData[field] = cookies[field]
-                        continue
-                    }
-                    
+function hasDvAndSenderFields (resolvedData, context, addFieldValidationError) {
+    let hasDvField = true
+    if (!resolvedData.hasOwnProperty('dv')) {
+        hasDvField = false
+        if (context.req) {
+            const cookies = nextCookies({ req: context.req })
+            if (cookies.hasOwnProperty('dv')) {
+                let parsed = parseInt(cookies['dv'])
+                if (!isNaN(parsed)) {
+                    resolvedData['dv'] = parsed
+                    hasDvField = true
                 }
             }
-            addFieldValidationError(`${REQUIRED_NO_VALUE_ERROR}${field}] Value is required`)
-            return false
         }
     }
-    return true
+    let hasSenderField = true
+    if (!resolvedData.hasOwnProperty('sender')) {
+        hasSenderField = false
+        if (context.req) {
+            const cookies = nextCookies({ req: context.req })
+            if (cookies.hasOwnProperty('sender') && cookies['sender']) {
+                if (typeof cookies['sender'] === 'object' &&
+                    typeof cookies['sender']['fingerprint'] === 'string' &&
+                    typeof cookies['sender']['dv'] === 'number') {
+                    resolvedData['sender'] = cookies['sender']
+                    hasSenderField = true
+                }
+            }
+        }
+    }
+    if (!hasDvField) {
+        addFieldValidationError(`${REQUIRED_NO_VALUE_ERROR}${'dv'}] Value is required`)
+    }
+    if (!hasSenderField) {
+        addFieldValidationError(`${REQUIRED_NO_VALUE_ERROR}${'sender'}] Value is required`)
+    }
+    return hasDvField && hasSenderField
 }
 
 function hasOneOfFields (requestRequired, resolvedData, existingItem, addFieldValidationError) {
@@ -92,6 +102,6 @@ function hasValidJsonStructure (args, isRequired, dataVersion, fieldsConstraints
 module.exports = {
     hasDbFields,
     hasOneOfFields,
-    hasRequestFields,
+    hasDvAndSenderFields,
     hasValidJsonStructure,
 }

@@ -9,7 +9,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingAccount')
 const { DV_UNKNOWN_VERSION_ERROR, JSON_EXPECT_OBJECT_ERROR, JSON_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
-const { hasDbFields, hasValidJsonStructure, hasRequestFields } = require('@condo/domains/common/utils/validation.utils')
+const { hasValidJsonStructure, hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { INTEGRATION_CONTEXT_FIELD, IMPORT_ID_FIELD, BILLING_PROPERTY_FIELD, RAW_DATA_FIELD } = require('./fields')
 
 
@@ -79,7 +79,7 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
     },
     hooks: {
         validateInput: ({ resolvedData, existingItem, context, addValidationError }) => {
-            if (!hasRequestFields(['dv', 'sender'], resolvedData, context, addValidationError)) return
+            if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
             const { dv } = resolvedData
             if (dv === 1) {
                 // NOTE: version 1 specific translations. Don't optimize this logic
