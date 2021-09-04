@@ -75,6 +75,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
             // TODO(sitozzz): find way to optimize render speed
             // (with requestAnimationFrame API or something else that help us draw chart components not in one time)
             if (series.length !== chartRefs.current.length) {
+                // It means that filters were changed & total chart count may be changed too, so just reset refs & page
                 setChartReadyCounter(0)
                 setPieChartPage(1)
             }
@@ -109,7 +110,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
                 icon: 'circle',
                 itemWidth: 7,
                 itemHeight: 7,
-                itemGap: 28,
+                // itemGap: 28,
                 textStyle: {
                     fontSize: fontSizes.content,
                 },
@@ -118,6 +119,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
                 left: 0,
                 right: 10,
                 bottom: 0,
+                // top: 0,
                 containLabel: true,
                 borderWidth: 1,
             },
