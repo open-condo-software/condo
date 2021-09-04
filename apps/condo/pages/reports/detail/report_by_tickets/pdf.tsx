@@ -36,7 +36,9 @@ const PdfView = () => {
     const mapperInstanceRef = useRef(null)
 
     const [data, setData] = useState<null | TicketGroupedCounter[]>(null)
+    // 2 different loading states by reason of it is 2 step page loading - 1st is data fetch, 2nd is wait for all charts to be rendered
     const [loading, setLoading] = useState(true)
+    const [chartLoading, setChartLoading] = useState(true)
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
@@ -278,7 +280,24 @@ const PdfView = () => {
                         return { series, legend }
                     },
                     table: (viewMode, ticketGroupedCounter, restOptions) => {
-                        const data = getAggregatedData(ticketGroupedCounter, groupByRef.current.reverse())
+                        const queryParams = getQueryParams()
+                        const dateFrom = get(queryParams, 'dateFrom', moment().subtract(1, 'week'))
+                        const dateTo = get(queryParams, 'dateTo', moment())
+                        const addressList = JSON.parse(get(queryParams, 'addressList', '[]'))
+                        const mainGroup = get(queryParams, 'groupBy', 'status')
+                        const specification = get(queryParams, 'specification', 'day')
+                        const ticketType = get(queryParams, 'ticketType', 'all')
+                        const { groupBy } = filterToQuery({
+                            viewMode,
+                            ticketType,
+                            filter: {
+                                range: [moment(dateFrom), moment(dateTo)],
+                                addressList,
+                                specification,
+                            },
+                            mainGroup,
+                        })
+                        const data = getAggregatedData(ticketGroupedCounter, groupBy.reverse())
                         const { translations, filters } = restOptions
                         const dataSource = []
                         const tableColumns: TableColumnsType = [
@@ -287,8 +306,8 @@ const PdfView = () => {
                         ]
 
                         const restTableColumns = {}
-                        const addressList = get(filters, 'addresses', [])
-                        const aggregateSummary = addressList !== undefined && addressList.length === 0
+                        const addressListRows = get(filters, 'addresses', [])
+                        const aggregateSummary = addressListRows !== undefined && addressListRows.length === 0
                         if (aggregateSummary) {
                             const totalCount = Object.values(data)
                                 .reduce((prev, curr) => prev + Object.values(curr)
@@ -318,7 +337,7 @@ const PdfView = () => {
                                     }
                                 })
                             })
-                            addressList.forEach((address, key) => {
+                            addressListRows.forEach((address, key) => {
                                 const tableRow = { key, address }
                                 Object.entries(data).forEach(rowEntry => {
                                     const [ticketType, dataObj] = rowEntry
@@ -336,7 +355,7 @@ const PdfView = () => {
                 },
             })
         }
-        if (!loading && data !== null) {
+        if (!loading && !chartLoading && data !== null) {
             createPdfWithPageBreaks({ element: containerRef.current, fileName: 'analytics_result.pdf' })
                 .catch((e) => {
                     notification.error({
@@ -345,7 +364,7 @@ const PdfView = () => {
                     })
                 })
         }
-    }, [loading, data])
+    }, [loading, data, chartLoading])
 
     if (queryParamsRef.current === null ) {
         return null
@@ -363,6 +382,11 @@ const PdfView = () => {
                 <Typography.Paragraph style={{ position: 'absolute', top: 0, right: 0 }}>
                     <Logo onClick={undefined} fillColor={colors.lightGrey[6]} />
                 </Typography.Paragraph>
+                {chartLoading &&
+                    <Typography.Paragraph>
+                        <Loader fill spinning tip={LoadingTip} />
+                    </Typography.Paragraph>
+                }
                 <Typography.Title level={3}>{PageTitle}</Typography.Title>
                 <Typography.Title level={4}>
                     {ticketTypeTitle} {moment(dateFrom).format('DD.MM.YYYY')} - {moment(dateTo).format('DD.MM.YYYY')} {addressFilterTitle} {AllCategories}
@@ -370,7 +394,7 @@ const PdfView = () => {
                 <TicketChartView
                     data={data}
                     viewMode={viewMode}
-                    onChartReady={() => setLoading(false)}
+                    onChartReady={() => setChartLoading(false)}
                     mapperInstance={mapperInstanceRef.current}
                     chartConfig={{
                         animationEnabled: false,
