@@ -16,6 +16,7 @@ const { TicketStatus: TicketStatusServerUtils, Ticket } = require('@condo/domain
 const isEmpty = require('lodash/isEmpty')
 const get = require('lodash/get')
 const sum = require('lodash/sum')
+// const union = require('lodash/union')
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
 const propertySummaryDataMapper = require('@condo/domains/ticket/utils/serverSchema/propertySummaryDataMapper')
 const propertySingleDataMapper = require('@condo/domains/ticket/utils/serverSchema/propertySingleDataMapper')
@@ -53,26 +54,69 @@ const createStatusRange = async (context, organizationWhereInput, labelKey = 'na
     return sortStatusesByType(allStatuses).map(status => ({ label: status[labelKey], value: status.id }))
 }
 
+// const getCombinations = ({ options = {}, optionIndex = 0, results = [], current = {} }) => {
+//     const allKeys = Object.keys(options)
+//     const optionKey = allKeys[optionIndex]
+//     const option = options[optionKey]
+//
+//     for (let i = 0; i < option.length; i++) {
+//         current[optionKey] = option[i]
+//         if (optionIndex + 1 < allKeys.length) {
+//             getCombinations({ options, optionIndex: optionIndex + 1, results, current })
+//         } else {
+//             const res = JSON.parse(JSON.stringify(current))
+//             results.push(res)
+//         }
+//     }
+//
+//     return results
+// }
+
+// const enumerateDaysBetweenDates = function (startDate, endDate) {
+//     const dates = []
+//
+//     const currDate = moment(startDate).startOf('day')
+//     const lastDate = moment(endDate).startOf('day')
+//
+//     while (currDate.add(1, 'days').diff(lastDate) < 0) {
+//         dates.push(currDate.clone().format('DD.MM.YYYY'))
+//     }
+//
+//     return dates
+// }
+
 const getTicketCounts = async (context, where, groupBy, extraLabels = {}) => {
     const ticketGqlToKnexAdapter = new TicketGqlToKnexAdapter(where, groupBy)
     await ticketGqlToKnexAdapter.loadData()
 
     const translates = {}
+    // const options = {
+    //     count: [0],
+    //     property: [null],
+    // }
+
     for (const group of groupBy) {
         switch (group) {
             case 'property':
                 translates[group] = await createPropertyRange(where.organization)
+                // options[group] = translates[group].map(({ label }) => label)
                 break
             case 'status':
                 translates[group] = await createStatusRange(
                     context, where.organization, isEmpty(extraLabels) ? 'name' :  extraLabels[group]
                 )
+                // options[group] = translates[group].map(({ label }) => label)
                 break
+            // case 'day':
+            // case 'week':
+            //     options['dayGroup'] = enumerateDaysBetweenDates(ticketGqlToKnexAdapter.dateRange.from, ticketGqlToKnexAdapter.dateRange.to)
+            //     break
             default:
                 break
         }
     }
-    return ticketGqlToKnexAdapter
+    // TODO(sitozzz): find way to return zero values from knex aggregation result or combine with result of getCombinations
+    const ticketGqlResult = ticketGqlToKnexAdapter
         .getResult(({ count, dayGroup, ...searchResult }) =>
         {
             if (!isEmpty(translates)) {
@@ -97,8 +141,12 @@ const getTicketCounts = async (context, where, groupBy, extraLabels = {}) => {
         })
         // This is hack to process old database records with tickets with user organization and property from another org
         .filter(ticketCount => ticketCount.property !== null)
-        .sort((a, b) =>
-            dayjs(a.dayGroup, DATE_DISPLAY_FORMAT).unix() - dayjs(b.dayGroup, DATE_DISPLAY_FORMAT).unix())
+    // const fullCombinationsResult = getCombinations({ options })
+
+    // return union(fullCombinationsResult, ticketGqlResult).sort((a, b) =>
+    //     moment(a.dayGroup, DATE_DISPLAY_FORMAT).format('X') - moment(b.dayGroup, DATE_DISPLAY_FORMAT).format('X'))
+    return ticketGqlResult.sort((a, b) =>
+        dayjs(a.dayGroup, DATE_DISPLAY_FORMAT).unix() - dayjs(b.dayGroup, DATE_DISPLAY_FORMAT).unix())
 }
 
 const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportService', {
