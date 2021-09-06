@@ -109,6 +109,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
     const { animationEnabled, chartOptions } = chartConfig
     // TODO(sitozzz): find more clean solution
     if (viewMode !== 'pie') {
+        const gridTop = legend.length / 3 * 36
         const option = {
             animation: animationEnabled,
             color: CHART_COLOR_SET,
@@ -130,12 +131,12 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
                 left: 0,
                 right: 10,
                 bottom: 0,
-                // top: 0,
+                top: gridTop,
                 containLabel: true,
                 borderWidth: 1,
             },
             ...axisData,
-            series: seriesRef.current,
+            series: seriesCacheRef.current,
         }
 
         const isEmptyDataSet = Object.values(data).every(ticketStatus => {
@@ -223,6 +224,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
                     opts={{ renderer: 'svg' }}
                     notMerge
                     option={{
+                        color: CHART_COLOR_SET,
                         legend: {
                             data: legend,
                             top: 5,
