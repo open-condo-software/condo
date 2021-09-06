@@ -103,6 +103,11 @@ const MeterReading = new GQLListSchema('MeterReading', {
             type: Integer,
         },
 
+        value4: {
+            schemaDoc: 'Meter reading value of tariff 4',
+            type: Integer,
+        },
+
         sectionName: {
             schemaDoc: 'Section name/number of an apartment building (property). You need to take from Property.map',
             type: Text,
