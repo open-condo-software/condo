@@ -4,7 +4,7 @@ import Router from 'next/router'
 import Head from 'next/head'
 import getConfig from 'next/config'
 import { useIntl } from '@core/next/intl'
-import { format } from 'date-fns'
+import dayjs from 'dayjs'
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import {
     ALGORITHM,
@@ -42,7 +42,7 @@ interface IShareProps extends React.FC<ShareProps> {
 
 const Share: IShareProps = ({ date, number, details, id }) => {
     const intl = useIntl()
-    const dateFormatted = format(new Date(date || 0), 'd MMMM Y', { locale: LOCALES[intl.locale] })
+    const dateFormatted = dayjs(date || 0).locale(LOCALES[intl.locale]).format('D MMMM Y')
 
     const ShareTitleMessage = intl.formatMessage({ id: 'ticket.shareTitle' }, {
         date: dateFormatted,

@@ -2,7 +2,7 @@ import { identity } from 'lodash/util'
 import { Checkbox, Space, Tag, Typography } from 'antd'
 import { getDateFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import { FilterValue } from 'antd/es/table/interface'
-import { format } from 'date-fns'
+import dayjs from 'dayjs'
 import { get, isEmpty } from 'lodash'
 import { useIntl } from '@core/next/intl'
 import React, { useMemo } from 'react'
@@ -80,13 +80,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 key: 'createdAt',
                 sorter: true,
                 width: '10%',
-                render: (createdAt) => (
-                    format(
-                        new Date(createdAt),
-                        'dd MMMM',
-                        { locale: LOCALES[intl.locale] }
-                    )
-                ),
+                render: (createdAt) => dayjs(createdAt).locale(LOCALES[intl.locale]).format('DD MMMM'),
                 filterDropdown: getDateFilterDropdown(),
                 filterIcon: getFilterIcon,
             },

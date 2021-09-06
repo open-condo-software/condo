@@ -1,5 +1,6 @@
 const conf = require('@core/config')
-const { format } = require('date-fns')
+const dayjs = require('dayjs')
+
 const { RU_LOCALE, EN_LOCALE, LOCALES } = require('@condo/domains/common/constants/locale')
 
 const {
@@ -101,7 +102,7 @@ async function renderTemplate (transport, message) {
                                 </tr>
                             </table>
                             <p style="font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif; font-size: 22px; font-weight: 400; line-height: 32px; text-align: left;">Hello!<br />
-                            Ticket #${ticketNumber} dated ${format(new Date(date), 'd MMMM Y', { locale: LOCALES[EN_LOCALE] })} has been shared with you.<br />
+                            Ticket #${ticketNumber} dated ${dayjs(date).locale(LOCALES[EN_LOCALE]).format('D MMMM Y')} has been shared with you.<br />
                             The text of the ticket: "${details}"</p>
                             <p>&nbsp;</p>
                             <div><!--[if mso]>
@@ -129,7 +130,7 @@ async function renderTemplate (transport, message) {
                                 </tr>
                             </table>
                             <p style="font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif; font-size: 22px; font-weight: 400; line-height: 32px; text-align: left;">Добрый день!<br />
-                            С вами поделились заявкой №${ticketNumber} от ${format(new Date(date), 'd MMMM Y', { locale: LOCALES[RU_LOCALE] })}.<br />
+                            С вами поделились заявкой №${ticketNumber} от ${dayjs(date).locale(LOCALES[RU_LOCALE]).format('D MMMM Y')})}.<br />
                             Текст заявки: «${details}»</p>
                             <p>&nbsp;</p>
                             <div><!--[if mso]>
