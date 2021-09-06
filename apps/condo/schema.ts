@@ -101,7 +101,7 @@ export type AddressMetaDataField = {
   geo_lon?: Maybe<Scalars['String']>;
   beltway_hit?: Maybe<Scalars['String']>;
   beltway_distance?: Maybe<Scalars['String']>;
-  metro?: Maybe<Scalars['String']>;
+  metro?: Maybe<Array<Maybe<AddressMetaDataMetroField>>>;
   qc_geo?: Maybe<Scalars['String']>;
   qc_complete?: Maybe<Scalars['String']>;
   qc_house?: Maybe<Scalars['String']>;
@@ -188,7 +188,7 @@ export type AddressMetaDataFieldInput = {
   geo_lon?: Maybe<Scalars['String']>;
   beltway_hit?: Maybe<Scalars['String']>;
   beltway_distance?: Maybe<Scalars['String']>;
-  metro?: Maybe<Scalars['String']>;
+  metro?: Maybe<Array<Maybe<AddressMetaDataMetroFieldInput>>>;
   qc_geo?: Maybe<Scalars['String']>;
   qc_complete?: Maybe<Scalars['String']>;
   qc_house?: Maybe<Scalars['String']>;
@@ -196,6 +196,19 @@ export type AddressMetaDataFieldInput = {
   unparsed_parts?: Maybe<Scalars['String']>;
   source?: Maybe<Scalars['String']>;
   qc?: Maybe<Scalars['String']>;
+};
+
+export type AddressMetaDataMetroField = {
+  __typename?: 'AddressMetaDataMetroField';
+  name?: Maybe<Scalars['String']>;
+  line?: Maybe<Scalars['String']>;
+  distance?: Maybe<Scalars['String']>;
+};
+
+export type AddressMetaDataMetroFieldInput = {
+  name?: Maybe<Scalars['String']>;
+  line?: Maybe<Scalars['String']>;
+  distance?: Maybe<Scalars['String']>;
 };
 
 export type AddressMetaField = {
@@ -7719,6 +7732,8 @@ export type MeterReading = {
   value2?: Maybe<Scalars['Int']>;
   /**  Meter reading value of tariff 3  */
   value3?: Maybe<Scalars['Int']>;
+  /**  Meter reading value of tariff 4  */
+  value4?: Maybe<Scalars['Int']>;
   /**  Section name/number of an apartment building (property). You need to take from Property.map  */
   sectionName?: Maybe<Scalars['String']>;
   /**  Floor of an apartment building (property). You need to take from Property.map  */
@@ -7760,6 +7775,7 @@ export type MeterReadingCreateInput = {
   value1?: Maybe<Scalars['Int']>;
   value2?: Maybe<Scalars['Int']>;
   value3?: Maybe<Scalars['Int']>;
+  value4?: Maybe<Scalars['Int']>;
   sectionName?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
@@ -7801,6 +7817,7 @@ export type MeterReadingHistoryRecord = {
   value1?: Maybe<Scalars['Int']>;
   value2?: Maybe<Scalars['Int']>;
   value3?: Maybe<Scalars['Int']>;
+  value4?: Maybe<Scalars['Int']>;
   sectionName?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
@@ -7836,6 +7853,7 @@ export type MeterReadingHistoryRecordCreateInput = {
   value1?: Maybe<Scalars['Int']>;
   value2?: Maybe<Scalars['Int']>;
   value3?: Maybe<Scalars['Int']>;
+  value4?: Maybe<Scalars['Int']>;
   sectionName?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
@@ -7876,6 +7894,7 @@ export type MeterReadingHistoryRecordUpdateInput = {
   value1?: Maybe<Scalars['Int']>;
   value2?: Maybe<Scalars['Int']>;
   value3?: Maybe<Scalars['Int']>;
+  value4?: Maybe<Scalars['Int']>;
   sectionName?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
@@ -7982,6 +8001,14 @@ export type MeterReadingHistoryRecordWhereInput = {
   value3_gte?: Maybe<Scalars['Int']>;
   value3_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   value3_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value4?: Maybe<Scalars['Int']>;
+  value4_not?: Maybe<Scalars['Int']>;
+  value4_lt?: Maybe<Scalars['Int']>;
+  value4_lte?: Maybe<Scalars['Int']>;
+  value4_gt?: Maybe<Scalars['Int']>;
+  value4_gte?: Maybe<Scalars['Int']>;
+  value4_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value4_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   sectionName?: Maybe<Scalars['String']>;
   sectionName_not?: Maybe<Scalars['String']>;
   sectionName_contains?: Maybe<Scalars['String']>;
@@ -8556,6 +8583,7 @@ export type MeterReadingUpdateInput = {
   value1?: Maybe<Scalars['Int']>;
   value2?: Maybe<Scalars['Int']>;
   value3?: Maybe<Scalars['Int']>;
+  value4?: Maybe<Scalars['Int']>;
   sectionName?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
@@ -8655,6 +8683,14 @@ export type MeterReadingWhereInput = {
   value3_gte?: Maybe<Scalars['Int']>;
   value3_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   value3_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value4?: Maybe<Scalars['Int']>;
+  value4_not?: Maybe<Scalars['Int']>;
+  value4_lt?: Maybe<Scalars['Int']>;
+  value4_lte?: Maybe<Scalars['Int']>;
+  value4_gt?: Maybe<Scalars['Int']>;
+  value4_gte?: Maybe<Scalars['Int']>;
+  value4_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value4_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   sectionName?: Maybe<Scalars['String']>;
   sectionName_not?: Maybe<Scalars['String']>;
   sectionName_contains?: Maybe<Scalars['String']>;
@@ -14125,6 +14161,8 @@ export type OrganizationEmployeeHistoryRecord = {
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<Scalars['String']>;
   updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<OrganizationEmployeeHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -14149,6 +14187,8 @@ export type OrganizationEmployeeHistoryRecordCreateInput = {
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<Scalars['String']>;
   updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<OrganizationEmployeeHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -14179,6 +14219,8 @@ export type OrganizationEmployeeHistoryRecordUpdateInput = {
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<Scalars['String']>;
   updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<OrganizationEmployeeHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -14329,6 +14371,18 @@ export type OrganizationEmployeeHistoryRecordWhereInput = {
   updatedBy_not?: Maybe<Scalars['String']>;
   updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   history_date?: Maybe<Scalars['String']>;
   history_date_not?: Maybe<Scalars['String']>;
   history_date_lt?: Maybe<Scalars['String']>;
@@ -21030,6 +21084,8 @@ export enum SortMeterReadingHistoryRecordsBy {
   Value2Desc = 'value2_DESC',
   Value3Asc = 'value3_ASC',
   Value3Desc = 'value3_DESC',
+  Value4Asc = 'value4_ASC',
+  Value4Desc = 'value4_DESC',
   SectionNameAsc = 'sectionName_ASC',
   SectionNameDesc = 'sectionName_DESC',
   FloorNameAsc = 'floorName_ASC',
@@ -21127,6 +21183,8 @@ export enum SortMeterReadingsBy {
   Value2Desc = 'value2_DESC',
   Value3Asc = 'value3_ASC',
   Value3Desc = 'value3_DESC',
+  Value4Asc = 'value4_ASC',
+  Value4Desc = 'value4_DESC',
   SectionNameAsc = 'sectionName_ASC',
   SectionNameDesc = 'sectionName_DESC',
   FloorNameAsc = 'floorName_ASC',
@@ -21391,6 +21449,8 @@ export enum SortOrganizationEmployeeHistoryRecordsBy {
   CreatedAtDesc = 'createdAt_DESC',
   UpdatedAtAsc = 'updatedAt_ASC',
   UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
   HistoryDateAsc = 'history_date_ASC',
   HistoryDateDesc = 'history_date_DESC',
   HistoryActionAsc = 'history_action_ASC',
