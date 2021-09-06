@@ -5,7 +5,7 @@ import React from 'react'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
 import getConfig from 'next/config'
-import { ThunderboltFilled, HomeFilled, SettingFilled, ApiFilled } from '@ant-design/icons'
+import { ThunderboltFilled, HomeFilled, SettingFilled, ApiFilled, MoneyCollectOutlined } from '@ant-design/icons'
 
 import whyDidYouRender from '@welldone-software/why-did-you-render'
 
@@ -88,6 +88,14 @@ const MenuItems: React.FC = () => {
                 label={'menu.Employees'}
                 disabled={!link}
             />
+            <FeatureFlagRequired name={'eps'}>
+                <MenuItem
+                    path={'/eps'}
+                    icon={MoneyCollectOutlined}
+                    label={'menu.EPS'}
+                    disabled={!link}
+                />
+            </FeatureFlagRequired>
             <FeatureFlagRequired name={'billing'}>
                 <MenuItem
                     path={'/billing'}
