@@ -1,8 +1,7 @@
 # kmigrator
 
-It's CLI migration tool. It helps you to create a `migrations` folder.
 
-Kmigrater also allow you to manage database level options. 
+Kmigrator – is a CLI for managing database schema using migrations, that are stored in `migrations` folder. 
 You can change a table and column options. For tables, you can set constraints and indexes.
 
 ## kmigrator columns options
@@ -36,16 +35,15 @@ const User = new GQLListSchema('User', {
 
 #### on_delete
 
-It set relations on delete behavior.
+Determines, what will happen with foreign key, when a row, it referenced to, will be deleted.
 
-For example, if you have foregin key from Ticket.assignee to User.id you need to set 
-on delete User behaviour for Ticket.assignee column. 
+For example, for a foreign key `Ticket.assignee`, that points to `User.id` you need to specify behaviour, when a row from `User` table will be deleted. 
  
 You can use options:
 
- - `models.PROTECT` -- forbid the deletion of the referenced object. To delete it you will have to delete all objects that reference it manually. SQL equivalent: `RESTRICT`.
- - `models.SET_NULL` -- set the reference to NULL (requires the field to be nullable). For instance, when you delete a User, you might want to keep the comments he posted on blog posts, but say it was posted by an anonymous (or deleted) user. SQL equivalent: SET NULL.
- - `models.CASCADE` -- when the referenced object is deleted, also delete the objects that have references to it (when you remove a blog post for instance, you might want to delete comments as well). SQL equivalent: CASCADE.
+ - `models.PROTECT` forbids deletion of the referenced object. To delete it you will have to delete all objects that referencing it. SQL equivalent: `RESTRICT`.
+ - `models.SET_NULL` sets the reference to NULL (requires the field to be nullable). For instance, when you delete a User, you might want to keep the comments he posted on blog posts, but say it was posted by an anonymous (or deleted) user. SQL equivalent: `SET NULL`.
+ - `models.CASCADE` deletes the object on delete of referenced object. (when you remove a blog post for instance, you might want to delete comments as well). SQL equivalent: `CASCADE`.
 
 ## kmigrator table options
 
@@ -88,7 +86,7 @@ const User = new GQLListSchema('User', {
 })
 ```
 
-This example generate SQL like so: `ALTER TABLE "User" ADD CONSTRAINT "unique_type_and_phone" UNIQUE ("type", "phone");`
+This example generate following SQL: `ALTER TABLE "User" ADD CONSTRAINT "unique_type_and_phone" UNIQUE ("type", "phone");`
 
 Another example:
 ```
@@ -119,7 +117,7 @@ const User = new GQLListSchema('User', {
 })
 ```
 
-This example generate SQL like so: `ALTER TABLE "User" ADD CONSTRAINT "has_phone_or_email" CHECK (("phone" IS NOT NULL OR "email" IS NOT NULL));`
+This example generates following SQL: `ALTER TABLE "User" ADD CONSTRAINT "has_phone_or_email" CHECK (("phone" IS NOT NULL OR "email" IS NOT NULL));`
 
 You can also define a `condition` for `models.UniqueConstraint`:
 
