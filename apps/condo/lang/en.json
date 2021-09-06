@@ -115,6 +115,7 @@
   "menu.Contacts": "Contacts",
   "menu.Settings": "Settings",
   "menu.Billing": "Billing",
+  "menu.EPS": "EPS",
   "menu.TicketAnalytics": "Ticket analytics",
   "RolesAndAccess": "Roles and accesses",
   "OneBillingWarning": "Attention! It's impossible to integrate with more than one billing",
