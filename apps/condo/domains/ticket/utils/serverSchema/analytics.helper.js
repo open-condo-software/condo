@@ -3,7 +3,7 @@ const { getSchemaCtx } = require('@core/keystone/schema')
 const get = require('lodash/get')
 const { TICKET_REPORT_DAY_GROUP_STEPS } = require('@condo/domains/ticket/constants/common')
 const groupBy = require('lodash/groupBy')
-const sum = require('lodash/sum')
+const moment = require('moment')
 
 const DATE_FORMATS = {
     day: 'DD.MM.YYYY',
@@ -106,9 +106,42 @@ const aggregateData = (data, groupByDependencyList) => {
     return { result, groupKeys: [axisGroupKey, labelsGroupKey] }
 }
 
+const getCombinations = ({ options = {}, optionIndex = 0, results = [], current = {} }) => {
+    const allKeys = Object.keys(options)
+    const optionKey = allKeys[optionIndex]
+    const option = options[optionKey]
+
+    for (let i = 0; i < option.length; i++) {
+        current[optionKey] = option[i]
+        if (optionIndex + 1 < allKeys.length) {
+            getCombinations({ options, optionIndex: optionIndex + 1, results, current })
+        } else {
+            const res = JSON.parse(JSON.stringify(current))
+            results.push(res)
+        }
+    }
+
+    return results
+}
+
+const enumerateDaysBetweenDates = function (startDate, endDate, step = 'day') {
+    const currDate = moment(startDate).startOf(step).isoWeekday(1)
+    const lastDate = moment(endDate).startOf(step).isoWeekday(1)
+    const dateStringFormat = DATE_FORMATS[step]
+    const dates = [currDate.format(dateStringFormat)]
+
+    while (currDate.add(1, step).diff(lastDate) < 0) {
+        dates.push(currDate.clone().format(dateStringFormat))
+    }
+    dates.push(lastDate.format(dateStringFormat))
+    return dates
+}
+
 module.exports = {
     DATE_FORMATS,
     TicketGqlToKnexAdapter,
     sortStatusesByType,
     aggregateData,
+    getCombinations,
+    enumerateDaysBetweenDates,
 }
