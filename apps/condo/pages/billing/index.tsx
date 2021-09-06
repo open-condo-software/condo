@@ -11,15 +11,10 @@ import get from 'lodash/get'
 import { BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
 import { FeatureFlagRequired } from '@condo/domains/common/components/containers/FeatureFlag'
 import Error from 'next/error'
-import dayjs from 'dayjs'
 
 
 const BillingPage = () => {
     const intl = useIntl()
-    console.log(intl.formatDate(dayjs().valueOf(), {
-        day: 'numeric',
-        month: 'short',
-    }))
     const BillingTitle = intl.formatMessage({ id:'menu.Billing' })
 
     const userOrganization = useOrganization()
