@@ -161,7 +161,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
                                 icon={<DiffOutlined />}
                                 secondary />
                         </ImportWrapper>
-                        <Button type='sberPrimary' onClick={() => router.push('/buildings/create')}>
+                        <Button type='sberPrimary' onClick={() => router.push('/property/create')}>
                             {CreateLabel}
                         </Button>
                     </Space>
