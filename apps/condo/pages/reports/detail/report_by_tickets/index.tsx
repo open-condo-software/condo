@@ -273,7 +273,6 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
         fetchPolicy: 'network-only',
         onCompleted: response => {
             const { result: { link } } = response
-            console.log(link)
             setExcelDownloadLink(link)
         },
     })
@@ -423,52 +422,54 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                             const chartData = Object.entries(groupObject)
                                 .map(([name, value]) => ({ name, value }))
                                 .sort((a, b) => a.name.localeCompare(b.name))
-                            series.push({
-                                name: label,
-                                data: chartData,
-                                selectedMode: false,
-                                type: viewMode,
-                                radius: [60, 120],
-                                center: ['30%', '50%'],
-                                symbol: 'none',
-                                emphasis: {
-                                    focus: 'self',
-                                    blurScope: 'self',
-                                },
-                                labelLine: { show: false },
-                                label: {
-                                    show: true,
-                                    fontSize: 14,
-                                    overflow: 'none',
-                                    formatter: [
-                                        '{value|{b}} {percent|{d} %}',
-                                    ].join('\n'),
-                                    rich: {
-                                        value: {
-                                            fontSize: 14,
-                                            align: 'left',
-                                            width: 100,
-                                        },
-                                        percent: {
-                                            align: 'left',
-                                            fontWeight: 700,
-                                            fontSize: 14,
-                                            width: 40,
+                            if (chartData.map(({ value }) => value).some(value => value > 0)) {
+                                series.push({
+                                    name: label,
+                                    data: chartData,
+                                    selectedMode: false,
+                                    type: viewMode,
+                                    radius: [60, 120],
+                                    center: ['30%', '50%'],
+                                    symbol: 'none',
+                                    emphasis: {
+                                        focus: 'self',
+                                        blurScope: 'self',
+                                    },
+                                    labelLine: { show: false },
+                                    label: {
+                                        show: true,
+                                        fontSize: 14,
+                                        overflow: 'none',
+                                        formatter: [
+                                            '{value|{b}} {percent|{d} %}',
+                                        ].join('\n'),
+                                        rich: {
+                                            value: {
+                                                fontSize: 14,
+                                                align: 'left',
+                                                width: 100,
+                                            },
+                                            percent: {
+                                                align: 'left',
+                                                fontWeight: 700,
+                                                fontSize: 14,
+                                                width: 40,
+                                            },
                                         },
                                     },
-                                },
-                                labelLayout: (chart) =>  {
-                                    const { dataIndex, seriesIndex } = chart
-                                    const elementYOffset = 25 * dataIndex
-                                    const yOffset = 75 + 250 * Math.floor(seriesIndex / 2) + 10 + elementYOffset
-                                    return {
-                                        x: 380,
-                                        y: yOffset,
-                                        align: 'left',
-                                        verticalAlign: 'top',
-                                    }
-                                },
-                            })
+                                    labelLayout: (chart) =>  {
+                                        const { dataIndex, seriesIndex } = chart
+                                        const elementYOffset = 25 * dataIndex
+                                        const yOffset = 75 + 250 * Math.floor(seriesIndex / 2) + 10 + elementYOffset
+                                        return {
+                                            x: 380,
+                                            y: yOffset,
+                                            align: 'left',
+                                            verticalAlign: 'top',
+                                        }
+                                    },
+                                })
+                            }
                         })
                         return { series, legend }
                     },
