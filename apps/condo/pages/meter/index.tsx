@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import { jsx } from '@emotion/core'
+import { css, jsx } from '@emotion/core'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { MeterReading } from '@condo/domains/meter/utils/clientSchema'
@@ -30,6 +30,8 @@ import { useQueryMappers } from '../../domains/common/hooks/useQueryMappers'
 import qs from 'qs'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { Dayjs } from 'dayjs'
+import { EXPORT_METER_READINGS } from '@condo/domains/meter/gql'
+
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -75,7 +77,7 @@ export const MetersPageContent = ({
         exportToExcel,
         { loading: isXlsLoading },
     ] = useLazyQuery(
-        EXPORT_TICKETS_TO_EXCEL,
+        EXPORT_METER_READINGS,
         {
             onError: error => {
                 notification.error(error)
@@ -205,6 +207,9 @@ const MetersPage: ITicketIndexPage = () => {
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
     const addressFilter = getStringContainsFilter(['property', 'address'])
+    const placeFilter = getStringContainsFilter(['meter', 'place'])
+    const numberFilter = getStringContainsFilter(['meter', 'number'])
+    const clientNameFilter = getStringContainsFilter('clientName')
     const readingDateGteFilter = getDayGteFilter('date')
     const readingDateLteFilter = getDayLteFilter('date')
     const sourceFilter = getFilter(['source', 'id'], 'array', 'string', 'in')
@@ -212,6 +217,9 @@ const MetersPage: ITicketIndexPage = () => {
 
     const queryMetas: Array<QueryMeta<MeterReadingWhereInput>> = [
         { keyword: 'address', filters: [addressFilter] },
+        { keyword: 'place', filters: [placeFilter] },
+        { keyword: 'number', filters: [numberFilter] },
+        { keyword: 'clientName', filters: [clientNameFilter] },
         { keyword: 'date', filters: [readingDateGteFilter, readingDateLteFilter] },
         { keyword: 'createdAt_gte', filters: [readingDateGteFilter] },
         { keyword: 'createdAt_lte', filters: [readingDateLteFilter] },

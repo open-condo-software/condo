@@ -4,7 +4,7 @@ const meterReadingDataMapper = ({ row = {}, constants = {} }) => ({
         en: ['Reading date', 'Address', 'Service', 'Meter number', 'Place', 'Reading', 'Contact', 'Source'],
     },
     rows: {
-        date: () => constants.date,
+        date: () => row.date,
         address: () => row.property.address,
         resource: () => row.meter.resource.name,
         number: () => row.meter.number,
