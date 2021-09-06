@@ -128,8 +128,8 @@ const Resident = new GQLListSchema('Resident', {
             if (operation === 'create') {
                 const addressUpToBuilding = getAddressUpToBuildingFrom(addressMeta)
                 const [resident] = await ResidentAPI.getAll(context, {
-                    address: addressUpToBuilding,
-                    unitName,
+                    address_i: addressUpToBuilding,
+                    unitName_i: unitName,
                     user: { id: userId },
                 })
                 if (resident) {

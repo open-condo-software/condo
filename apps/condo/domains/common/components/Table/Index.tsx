@@ -11,6 +11,7 @@ import {
     FiltersFromQueryType,
 } from '@condo/domains/common/utils/tables.utils'
 import qs from 'qs'
+import { isEqual } from 'lodash'
 
 export type TableRecord = any
 
@@ -72,7 +73,7 @@ export const Table: React.FC<ITableProps> = ({
                 typedValue = tableFilterValue
             }
 
-            if (typedValue && (!oldFilterValue || oldFilterValue !== tableFilterValue)) {
+            if (typedValue && (!oldFilterValue || !isEqual(oldFilterValue, tableFilterValue))) {
                 shouldResetOffset = true
                 newFilters[tableFilterName] = typedValue
             }
