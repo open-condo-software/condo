@@ -6459,6 +6459,18 @@ export type DivisionsUpdateInput = {
   data?: Maybe<DivisionUpdateInput>;
 };
 
+export type ExportMeterReadingsInput = {
+  where: MeterReadingWhereInput;
+  sortBy?: Maybe<Array<SortMeterReadingsBy>>;
+  timeZone: Scalars['String'];
+};
+
+export type ExportMeterReadingsOutput = {
+  __typename?: 'ExportMeterReadingsOutput';
+  status: Scalars['String'];
+  linkToFile: Scalars['String'];
+};
+
 export type ExportPropertiesToExcelInput = {
   where: PropertyWhereInput;
   sortBy?: Maybe<Array<SortPropertiesBy>>;
@@ -17022,6 +17034,7 @@ export type Query = {
   ticketAnalyticsReport?: Maybe<TicketAnalyticsReportOutput>;
   exportTicketAnalyticsToExcel?: Maybe<ExportTicketAnalyticsToExcelOutput>;
   allResidentTickets?: Maybe<Array<Maybe<ResidentTicketOutput>>>;
+  exportMeterReadings?: Maybe<ExportMeterReadingsOutput>;
   /** The version of the Keystone application serving this API. */
   appVersion?: Maybe<Scalars['String']>;
   authenticatedUser?: Maybe<User>;
@@ -19086,6 +19099,11 @@ export type QueryAllResidentTicketsArgs = {
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
   sortBy?: Maybe<Array<SortResidentTicketsBy>>;
+};
+
+
+export type QueryExportMeterReadingsArgs = {
+  data: ExportMeterReadingsInput;
 };
 
 export type ReInviteOrganizationEmployeeInput = {

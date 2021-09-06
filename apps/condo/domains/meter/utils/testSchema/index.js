@@ -11,6 +11,7 @@ const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
 const { MeterReadingSource: MeterReadingSourceGQL } = require('@condo/domains/meter/gql')
 const { Meter: MeterGQL } = require('@condo/domains/meter/gql')
 const { MeterReading: MeterReadingGQL } = require('@condo/domains/meter/gql')
+const { EXPORT_METER_READINGS_MUTATION } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateGQLTestUtils(MeterResourceGQL)
@@ -146,6 +147,19 @@ async function updateTestMeterReading (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function exportMeterReadingsByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(EXPORT_METER_READINGS_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -153,5 +167,6 @@ module.exports = {
     MeterReadingSource, createTestMeterReadingSource, updateTestMeterReadingSource,
     Meter, createTestMeter, updateTestMeter,
     MeterReading, createTestMeterReading, updateTestMeterReading,
+exportMeterReadingsByTestClient
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
