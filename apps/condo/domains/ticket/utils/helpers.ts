@@ -1,9 +1,10 @@
 import { SortOrder } from 'antd/es/table/interface'
-import { format, formatDuration, intervalToDuration } from 'date-fns'
 import get from 'lodash/get'
 import groupBy from 'lodash/groupBy'
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import dayjs, { Dayjs } from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import duration from 'dayjs/plugin/duration'
 import { ParsedUrlQuery } from 'querystring'
 import {
     Ticket,
@@ -16,18 +17,23 @@ import {
 import { AnalyticsDataType, TicketSelectTypes, ViewModeTypes } from '../components/TicketChart'
 import { TICKET_REPORT_DAY_GROUP_STEPS } from '@condo/domains/ticket/constants/common'
 
+
+dayjs.extend(duration)
+dayjs.extend(relativeTime)
+
 export const getTicketCreateMessage = (intl, ticket) => {
     if (!ticket) {
         return
     }
-
-    const formattedCreatedDate = format(
-        new Date(ticket.createdAt),
-        'dd MMMM HH:mm',
-        { locale: LOCALES[intl.locale] }
-    )
-
-    return `${intl.formatMessage({ id: 'CreatedDate' })} ${formattedCreatedDate}`
+    const dt = dayjs(ticket.createdAt)
+    if (!dt.isValid()) return
+    const formattedDate = intl.formatDate(dt.valueOf(), {
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    })
+    return `${intl.formatMessage({ id: 'CreatedDate' })} ${formattedDate}`
 }
 
 export const getTicketTitleMessage = (intl, ticket) => {
@@ -46,21 +52,12 @@ export const getTicketFormattedLastStatusUpdate = (intl, ticket) => {
     const { createdAt, statusUpdatedAt } = ticket
     const ticketLastUpdateDate = statusUpdatedAt || createdAt
 
-    const formattedDate = ticketLastUpdateDate
-        ? formatDuration(
-            intervalToDuration({
-                start: new Date(ticketLastUpdateDate),
-                end: new Date(),
-            }),
-            { locale: LOCALES[intl.locale], format: ['months', 'days', 'hours', 'minutes'] }
-        )
-        : ''
-
-    if (ticketLastUpdateDate && !formattedDate) {
-        return intl.formatMessage({ id: 'LessThanMinute' })
+    if (ticketLastUpdateDate) {
+        const duration = dayjs.duration(dayjs().diff(dayjs(ticketLastUpdateDate)))
+        if (duration.asSeconds() < 60) return intl.formatMessage({ id: 'LessThanMinute' })
+        return duration.locale(LOCALES[intl.locale]).humanize()
     }
-
-    return formattedDate
+    return ''
 }
 
 export const getTicketPdfName = (intl, ticket) => {
@@ -74,10 +71,10 @@ export const getTicketLabel = (intl, ticket) => {
 
     const { createdAt, statusUpdatedAt } = ticket
     const ticketLastUpdateDate = statusUpdatedAt || createdAt
-    const formattedDate = format(
-        new Date(ticketLastUpdateDate), 'd MMM',
-        { locale: LOCALES[intl.locale] }
-    )
+    const formattedDate = intl.formatDate(dayjs(ticketLastUpdateDate).valueOf(), {
+        day: 'numeric',
+        month: 'short',
+    })
 
     return `${get(ticket, ['status', 'name'])} ${intl.formatMessage({ id: 'From' })} ${formattedDate}`
 }
@@ -368,9 +365,9 @@ export const formatDate = (intl, dateStr?: string): string => {
     const currentDate = new Date()
     const date = new Date(dateStr)
     const pattern = date.getFullYear() === currentDate.getFullYear()
-        ? 'd MMMM H:mm'
-        : 'd MMMM yyyy H:mm'
-    return format(date, pattern, { locale: LOCALES[intl.locale] })
+        ? 'D MMMM H:mm'
+        : 'D MMMM YYYY H:mm'
+    return dayjs(date).locale(LOCALES[intl.locale]).format(pattern)
 }
 
 export type specificationTypes = 'day' | 'week' | 'month'

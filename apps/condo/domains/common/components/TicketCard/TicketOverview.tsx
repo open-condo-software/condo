@@ -1,7 +1,7 @@
 import React from 'react'
 import { Row, Col, Typography, Space } from 'antd'
 import Link from 'next/link'
-import { format } from 'date-fns'
+import dayjs from 'dayjs'
 import { LOCALES } from '../../constants/locale'
 import { useIntl } from '@core/next/intl'
 import { green } from '@ant-design/colors'
@@ -20,11 +20,7 @@ export const TicketOverview: React.FC<TTicket> = ({
     createdAt,
     number, status }) => {
     const intl = useIntl()
-    const formattedCreatedAt = format(
-        new Date(createdAt),
-        'dd MMMM Y',
-        { locale: LOCALES[intl.locale] }
-    )
+    const formattedCreatedAt = dayjs(createdAt).locale(LOCALES[intl.locale]).format('DD MMMM Y')
     const topLine = `№ ${number} ${status}`.toLowerCase()
     const ticketRef = `/ticket/${id}`
 
