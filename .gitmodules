@@ -7,3 +7,4 @@
 [submodule "infrastructure/helm"]
 	path = .helm
 	url = ../infrastructure-condo.git
+	branch = master
