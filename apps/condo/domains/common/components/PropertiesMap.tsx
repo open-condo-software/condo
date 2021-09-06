@@ -14,10 +14,12 @@ export default function PropertiesMap ({ properties, ...mapGLProps }: Properties
 
     const propertyMapper = (property: PropertyType) => {
         const { geo_lat, geo_lon } = property.addressMeta.data
+        const geo_latNumber = parseInt(geo_lat) || 0
+        const geo_lonNumber = parseInt(geo_lon) || 0
         return {
             title: property.name,
             text: property.address,
-            location: { lat: geo_lat, lng: geo_lon },
+            location: { lat: geo_latNumber, lng: geo_lonNumber },
             route: `/property/${property.id}/`,
         }
     }
