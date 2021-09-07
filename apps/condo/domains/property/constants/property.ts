@@ -9,6 +9,54 @@ const buildingEmptyMapJson = {
     'sections': [],
 }
 
+const autoFixBuildingMapJson = {
+    'dv': 1,
+    'type': 'building',
+    'sections': [  {
+        'id': '1',
+        'type': 'section',
+        'name': 'Подъезд №1',
+        'preview': true,
+        'floors': [
+            {
+                'id': '7',
+                'type': 'floor',
+                'name': '7',
+                'preview': true,
+                'units': [
+                    {
+                        'id': '25',
+                        'label': '25',
+                        'type': 'unit',
+                        'name': null,
+                        'preview': true,
+                    },
+                    {
+                        'id': '26',
+                        'type': 'unit',
+                        'name': null,
+                        'preview': true,
+                    },
+                    {
+                        'id': '27',
+                        'label': '27',
+                        'type': 'unit',
+                        'name': null,
+                        'preview': true,
+                    },
+                    {
+                        'id': '28',
+                        'label': '28',
+                        'type': 'unit',
+                        'name': null,
+                        'preview': true,
+                    },
+                ],
+            },
+        ],
+    }],
+}
+
 const notValidBuildingMapJson = {
     'dv': 1,
     'type': 'building',
@@ -313,4 +361,5 @@ export {
     buildingAddressMetaJson,
     notValidBuildingMapJson,
     validHouseTypes,
+    autoFixBuildingMapJson,
 }
