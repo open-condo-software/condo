@@ -7,10 +7,9 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/meter/access/MeterReading')
+const { getLastBillingAccountMeterReading } = require('../utils/serverSchema')
 const { VALUE_LESS_THAN_PREVIOUS_ERROR } = require('@condo/domains/meter/constants/errors')
 const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
-const { MeterReading: MeterReadingApi } = require('../utils/serverSchema')
-const { BILLING_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { AutoIncrementInteger } = require('@core/keystone/fields')
 const { PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
@@ -76,15 +75,7 @@ const MeterReading = new GQLListSchema('MeterReading', {
                 validateInput: async ({ context, operation, resolvedData, fieldPath, addFieldValidationError }) => {
                     if (operation === 'create') {
                         const value = resolvedData[fieldPath]
-
-                        const { meter: meterId } = resolvedData
-
-                        const [lastMeterReading] = await MeterReadingApi.getAll(context, {
-                            meter: { id: meterId },
-                            source: { id: BILLING_SOURCE_ID },
-                        }, {
-                            sortBy: ['createdAt_DESC'],
-                        })
+                        const lastMeterReading = await getLastBillingAccountMeterReading(context, resolvedData)
 
                         if (lastMeterReading && lastMeterReading.value1 > value)
                             addFieldValidationError(`${VALUE_LESS_THAN_PREVIOUS_ERROR}value] Meter reading value less than previous`)
@@ -96,16 +87,49 @@ const MeterReading = new GQLListSchema('MeterReading', {
         value2: {
             schemaDoc: 'Meter reading value of tariff 2',
             type: Integer,
+            hooks: {
+                validateInput: async ({ context, operation, resolvedData, fieldPath, addFieldValidationError }) => {
+                    if (operation === 'create') {
+                        const value = resolvedData[fieldPath]
+                        const lastMeterReading = await getLastBillingAccountMeterReading(context, resolvedData)
+
+                        if (lastMeterReading && lastMeterReading.value2 > value)
+                            addFieldValidationError(`${VALUE_LESS_THAN_PREVIOUS_ERROR}value] Meter reading value less than previous`)
+                    }
+                },
+            },
         },
 
         value3: {
             schemaDoc: 'Meter reading value of tariff 3',
             type: Integer,
+            hooks: {
+                validateInput: async ({ context, operation, resolvedData, fieldPath, addFieldValidationError }) => {
+                    if (operation === 'create') {
+                        const value = resolvedData[fieldPath]
+                        const lastMeterReading = await getLastBillingAccountMeterReading(context, resolvedData)
+
+                        if (lastMeterReading && lastMeterReading.value3 > value)
+                            addFieldValidationError(`${VALUE_LESS_THAN_PREVIOUS_ERROR}value] Meter reading value less than previous`)
+                    }
+                },
+            },
         },
 
         value4: {
             schemaDoc: 'Meter reading value of tariff 4',
             type: Integer,
+            hooks: {
+                validateInput: async ({ context, operation, resolvedData, fieldPath, addFieldValidationError }) => {
+                    if (operation === 'create') {
+                        const value = resolvedData[fieldPath]
+                        const lastMeterReading = await getLastBillingAccountMeterReading(context, resolvedData)
+
+                        if (lastMeterReading && lastMeterReading.value4 > value)
+                            addFieldValidationError(`${VALUE_LESS_THAN_PREVIOUS_ERROR}value] Meter reading value less than previous`)
+                    }
+                },
+            },
         },
 
         sectionName: {

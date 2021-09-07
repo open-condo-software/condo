@@ -5,7 +5,6 @@
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClient } = require('@core/keystone/test.utils')
-const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithResidentUserAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
@@ -20,6 +19,7 @@ const { expectToThrowAuthenticationErrorToObjects } = require('@condo/domains/co
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { UUID_RE } = require('@core/keystone/test.utils')
 const faker = require('faker')
+const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const { COLD_WATER_METER_RESOURCE_ID } = require('../constants/constants')
 
@@ -71,12 +71,14 @@ describe('Meter', () => {
 
         test('resident: cannot create Meter', async () => {
             const adminClient = await makeLoggedInAdminClient()
-            const client = await makeClientWithResidentUserAndProperty()
-            await createTestResident(adminClient, client.user, client.organization, client.property)
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [organization] = await createTestOrganization(adminClient)
+            const [property] = await createTestProperty(adminClient, organization)
+            await createTestResident(adminClient, client.user, organization, property)
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await createTestMeter(client, client.organization, client.property, resource, {})
+                await createTestMeter(client, organization, property, resource, {})
             })
         })
 
@@ -98,13 +100,16 @@ describe('Meter', () => {
             })
         })
 
-
         test('user: cannot create Meter', async () => {
-            const client = await makeClientWithProperty()
+            const adminClient = await makeLoggedInAdminClient()
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [organization] = await createTestOrganization(adminClient)
+            const [property] = await createTestProperty(adminClient, organization)
+
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await createTestMeter(client, client.organization, client.property, resource, {})
+                await createTestMeter(client, organization, property, resource, {})
             })
         })
 
@@ -200,11 +205,13 @@ describe('Meter', () => {
 
         test('resident: cannot update Meter', async () => {
             const adminClient = await makeLoggedInAdminClient()
-            const client = await makeClientWithResidentUserAndProperty()
-            await createTestResident(adminClient, client.user, client.organization, client.property)
+            const client = await makeClientWithResidentUser()
+            const [organization] = await createTestOrganization(adminClient)
+            const [property] = await createTestProperty(adminClient, organization)
+            await createTestResident(adminClient, client.user, organization, property)
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
 
-            const [meter] = await createTestMeter(adminClient, client.organization, client.property, resource, {})
+            const [meter] = await createTestMeter(adminClient, organization, property, resource, {})
 
             const newNumber = faker.random.alphaNumeric(8)
             await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -215,10 +222,12 @@ describe('Meter', () => {
         })
 
         test('user: cannot update Meter', async () => {
-            const client = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [organization] = await createTestOrganization(adminClient)
+            const [property] = await createTestProperty(adminClient, organization)
             const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
-            const [meter] = await createTestMeter(adminClient, client.organization, client.property, resource, {})
+            const [meter] = await createTestMeter(adminClient, organization, property, resource, {})
 
             const newNumber = faker.random.alphaNumeric(8)
             await expectToThrowAccessDeniedErrorToObj(async () => {

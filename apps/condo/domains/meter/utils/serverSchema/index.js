@@ -4,8 +4,8 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
+const { BillingAccountMeterReading } = require('@condo/domains/billing/utils/serverSchema')
 const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
-
 const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
 const { MeterReadingSource: MeterReadingSourceGQL } = require('@condo/domains/meter/gql')
 const { Meter: MeterGQL } = require('@condo/domains/meter/gql')
@@ -18,10 +18,28 @@ const Meter = generateServerUtils(MeterGQL)
 const MeterReading = generateServerUtils(MeterReadingGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
+const getLastBillingAccountMeterReading = async (context, resolvedData) => {
+    const { meter: meterId } = resolvedData
+
+    const [meter] = await Meter.getAll(context, {
+        id: meterId,
+    })
+
+    const [lastMeterReading] = await BillingAccountMeterReading.getAll(context, {
+        meter: { number: meter.number },
+        account: { number: meter.account },
+    }, {
+        sortBy: ['createdAt_DESC'],
+    })
+
+    return lastMeterReading
+}
+
 module.exports = {
     MeterResource,
     MeterReadingSource,
     Meter,
     MeterReading,
+    getLastBillingAccountMeterReading,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -37,13 +37,16 @@ const BillingAccountMeterReading = new GQLListSchema('BillingAccountMeterReading
         value2: {
             schemaDoc: 'Meter reading value of tariff 2',
             type: Integer,
-            isRequired: true,
         },
 
         value3: {
             schemaDoc: 'Meter reading value of tariff 3',
             type: Integer,
-            isRequired: true,
+        },
+
+        value4: {
+            schemaDoc: 'Meter reading value of tariff 4',
+            type: Integer,
         },
 
         date: {
