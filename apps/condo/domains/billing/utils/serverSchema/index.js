@@ -19,6 +19,7 @@ const { BillingReceipt: BillingReceiptGQL } = require('@condo/domains/billing/gq
 const { BillingOrganization: BillingOrganizationGQL } = require('@condo/domains/billing/gql')
 const { ResidentBillingReceipt: ResidentBillingReceiptGQL } = require('@condo/domains/billing/gql')
 const { BillingCurrency: BillingCurrencyGQL } = require('@condo/domains/billing/gql')
+const { EPS_REQUEST_MUTATION } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateServerUtils(BillingIntegrationGQL)
@@ -36,6 +37,26 @@ const ResidentBillingReceipt = generateServerUtils(ResidentBillingReceiptGQL)
 
 
 const BillingCurrency = generateServerUtils(BillingCurrencyGQL)
+
+async function epsRequest (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    return await execGqlWithoutAccess(context, {
+        query: EPS_REQUEST_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to make epsRequest',
+        dataPath: 'obj',
+    })
+}
+
+const epsReplaceEnvParamsInXml = (xml = '') => {
+    const EPS_CONFIG = process.env.EPS_CONFIG ? JSON.parse(process.env.EPS_CONFIG) : {}
+    for (const key in EPS_CONFIG) {
+        xml = xml.split(`{{${key}}}`).join(EPS_CONFIG[key])
+    }
+    return xml
+}
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -52,5 +73,7 @@ module.exports = {
     BillingOrganization,
     ResidentBillingReceipt,
     BillingCurrency,
+    epsRequest,
+    epsReplaceEnvParamsInXml,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

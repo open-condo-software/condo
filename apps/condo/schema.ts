@@ -101,7 +101,7 @@ export type AddressMetaDataField = {
   geo_lon?: Maybe<Scalars['String']>;
   beltway_hit?: Maybe<Scalars['String']>;
   beltway_distance?: Maybe<Scalars['String']>;
-  metro?: Maybe<Scalars['String']>;
+  metro?: Maybe<Array<Maybe<AddressMetaDataMetroField>>>;
   qc_geo?: Maybe<Scalars['String']>;
   qc_complete?: Maybe<Scalars['String']>;
   qc_house?: Maybe<Scalars['String']>;
@@ -188,7 +188,7 @@ export type AddressMetaDataFieldInput = {
   geo_lon?: Maybe<Scalars['String']>;
   beltway_hit?: Maybe<Scalars['String']>;
   beltway_distance?: Maybe<Scalars['String']>;
-  metro?: Maybe<Scalars['String']>;
+  metro?: Maybe<Array<Maybe<AddressMetaDataMetroFieldInput>>>;
   qc_geo?: Maybe<Scalars['String']>;
   qc_complete?: Maybe<Scalars['String']>;
   qc_house?: Maybe<Scalars['String']>;
@@ -196,6 +196,19 @@ export type AddressMetaDataFieldInput = {
   unparsed_parts?: Maybe<Scalars['String']>;
   source?: Maybe<Scalars['String']>;
   qc?: Maybe<Scalars['String']>;
+};
+
+export type AddressMetaDataMetroField = {
+  __typename?: 'AddressMetaDataMetroField';
+  name?: Maybe<Scalars['String']>;
+  line?: Maybe<Scalars['String']>;
+  distance?: Maybe<Scalars['String']>;
+};
+
+export type AddressMetaDataMetroFieldInput = {
+  name?: Maybe<Scalars['String']>;
+  line?: Maybe<Scalars['String']>;
+  distance?: Maybe<Scalars['String']>;
 };
 
 export type AddressMetaField = {
@@ -6306,6 +6319,19 @@ export type DivisionsUpdateInput = {
   data?: Maybe<DivisionUpdateInput>;
 };
 
+export type EpsRequestInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  xml: Scalars['String'];
+};
+
+export type EpsRequestOutput = {
+  __typename?: 'EpsRequestOutput';
+  requestId: Scalars['String'];
+  xml?: Maybe<Scalars['String']>;
+  status?: Maybe<Scalars['String']>;
+};
+
 export type ExportPropertiesToExcelInput = {
   where: PropertyWhereInput;
   sortBy?: Maybe<Array<SortPropertiesBy>>;
@@ -8222,6 +8248,7 @@ export type Mutation = {
   reInviteOrganizationEmployee?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteById?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteByCode?: Maybe<OrganizationEmployee>;
+  epsRequest?: Maybe<EpsRequestOutput>;
   shareTicket?: Maybe<ShareTicketOutput>;
   createResidentTicket?: Maybe<ResidentTicketOutput>;
   updateResidentTicket?: Maybe<ResidentTicketOutput>;
@@ -10541,6 +10568,11 @@ export type MutationAcceptOrRejectOrganizationInviteByCodeArgs = {
 };
 
 
+export type MutationEpsRequestArgs = {
+  data: EpsRequestInput;
+};
+
+
 export type MutationShareTicketArgs = {
   data: ShareTicketInput;
 };
@@ -11735,6 +11767,8 @@ export type OrganizationEmployeeHistoryRecord = {
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<Scalars['String']>;
   updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<OrganizationEmployeeHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -11759,6 +11793,8 @@ export type OrganizationEmployeeHistoryRecordCreateInput = {
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<Scalars['String']>;
   updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<OrganizationEmployeeHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -11789,6 +11825,8 @@ export type OrganizationEmployeeHistoryRecordUpdateInput = {
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<Scalars['String']>;
   updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<OrganizationEmployeeHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -11939,6 +11977,18 @@ export type OrganizationEmployeeHistoryRecordWhereInput = {
   updatedBy_not?: Maybe<Scalars['String']>;
   updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   history_date?: Maybe<Scalars['String']>;
   history_date_not?: Maybe<Scalars['String']>;
   history_date_lt?: Maybe<Scalars['String']>;
@@ -18471,6 +18521,8 @@ export enum SortOrganizationEmployeeHistoryRecordsBy {
   CreatedAtDesc = 'createdAt_DESC',
   UpdatedAtAsc = 'updatedAt_ASC',
   UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
   HistoryDateAsc = 'history_date_ASC',
   HistoryDateDesc = 'history_date_DESC',
   HistoryActionAsc = 'history_action_ASC',

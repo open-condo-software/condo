@@ -5,6 +5,7 @@
  */
 
 const { generateGqlQueries } = require('@condo/domains/common/utils/codegeneration/generate.gql')
+const { gql } = require('graphql-tag')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
@@ -44,6 +45,14 @@ const ResidentBillingReceipt = generateGqlQueries('ResidentBillingReceipt', RESI
 const BILLING_CURRENCY_FIELDS = `{ code displayInfo ${COMMON_FIELDS} }`
 const BillingCurrency = generateGqlQueries('BillingCurrency', BILLING_CURRENCY_FIELDS)
 
+// TODO(codegen): write return type result!
+
+const EPS_REQUEST_MUTATION = gql`
+    mutation epsRequest ($data: EpsRequestInput!) {
+        result: epsRequest(data: $data) { status requestId xml }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -60,5 +69,6 @@ module.exports = {
     ResidentBillingReceipt,
     RESIDENT_BILLING_RECEIPTS_FIELDS,
     BillingCurrency,
+    EPS_REQUEST_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
