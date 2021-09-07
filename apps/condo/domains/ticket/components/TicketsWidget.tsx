@@ -42,7 +42,7 @@ export const TicketsWidget = () => {
     return (
         <StatsCard
             title={TicketsWidgetTitle}
-            link='/reports/detail/report_by_tickets'
+            link='/reports/detail/report-by-tickets'
             onFilterChange={filterChange}
             loading={loading}
             dependencyArray={[userOrganizationId]}>
