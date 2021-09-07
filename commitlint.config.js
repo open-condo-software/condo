@@ -5,6 +5,9 @@ module.exports = {
             2, // level: error
             'always',
             ({ header }) => {
+                if (header.match(/^HOTFIX \w+/)) {
+                    return [true]
+                }
                 if (!header.match(/^DOMA-\d+ \w+/)) {
                     return [false, 'Wrong commit prefix. Please, start commit message with "DOMA-123" prefix followed by space, where 123 – is your task number. Example: "DOMA-123 short description"']
                 }
