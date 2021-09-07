@@ -7840,7 +7840,7 @@ export type MeterReading = {
   value4?: Maybe<Scalars['Int']>;
   /**  Inhabitant/customer/person who has a problem or want to improve/order something. Not null if we have a registered client  */
   client?: Maybe<User>;
-  /**  Contact, that reported issue, described in this meter reading  */
+  /**  Contact, that reported issue, described in this ticket  */
   contact?: Maybe<Contact>;
   /**  Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it  */
   clientName?: Maybe<Scalars['String']>;
