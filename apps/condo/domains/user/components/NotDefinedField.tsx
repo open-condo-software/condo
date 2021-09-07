@@ -3,12 +3,12 @@ import React, { ReactElement } from 'react'
 import { useIntl } from '@core/next/intl'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
-type Value = string | any[]
+type DisplayValue = string | any[]
 
 interface INotDefinedFieldProps {
     showMessage?: boolean
-    value?: Value
-    render?: (value: Value) => ReactElement
+    value?: DisplayValue
+    render?: (value: DisplayValue) => ReactElement
 }
 
 export const NotDefinedField: React.FC<INotDefinedFieldProps> = (props) => {
