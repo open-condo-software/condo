@@ -205,8 +205,8 @@ const PdfView = () => {
                 pie: {
                     chart: (viewMode, ticketGroupedCounter) => {
                         const queryParams = getQueryParams()
-                        const dateFrom = get(queryParams, 'dateFrom', moment().subtract(1, 'week'))
-                        const dateTo = get(queryParams, 'dateTo', moment())
+                        const dateFrom = get(queryParams, 'dateFrom', dayjs().subtract(1, 'week'))
+                        const dateTo = get(queryParams, 'dateTo', dayjs())
                         const addressList = JSON.parse(get(queryParams, 'addressList', '[]'))
                         const mainGroup = get(queryParams, 'groupBy', 'status')
                         const specification = get(queryParams, 'specification', 'day')
@@ -215,7 +215,7 @@ const PdfView = () => {
                             viewMode,
                             ticketType,
                             filter: {
-                                range: [moment(dateFrom), moment(dateTo)],
+                                range: [dayjs(dateFrom), dayjs(dateTo)],
                                 addressList,
                                 specification,
                             },
@@ -283,8 +283,8 @@ const PdfView = () => {
                     },
                     table: (viewMode, ticketGroupedCounter, restOptions) => {
                         const queryParams = getQueryParams()
-                        const dateFrom = get(queryParams, 'dateFrom', moment().subtract(1, 'week'))
-                        const dateTo = get(queryParams, 'dateTo', moment())
+                        const dateFrom = get(queryParams, 'dateFrom', dayjs().subtract(1, 'week'))
+                        const dateTo = get(queryParams, 'dateTo', dayjs())
                         const addressList = JSON.parse(get(queryParams, 'addressList', '[]'))
                         const mainGroup = get(queryParams, 'groupBy', 'status')
                         const specification = get(queryParams, 'specification', 'day')
@@ -293,7 +293,7 @@ const PdfView = () => {
                             viewMode,
                             ticketType,
                             filter: {
-                                range: [moment(dateFrom), moment(dateTo)],
+                                range: [dayjs(dateFrom), dayjs(dateTo)],
                                 addressList,
                                 specification,
                             },

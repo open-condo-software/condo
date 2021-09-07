@@ -64,7 +64,7 @@ const getTicketCounts = async (context, where, groupBy, extraLabels = {}) => {
     const options = {
         count: [0],
         property: [null],
-        dayGroup: [moment().format('DD.MM.YYYY')],
+        dayGroup: [dayjs().format('DD.MM.YYYY')],
     }
 
     for (const group of groupBy) {
