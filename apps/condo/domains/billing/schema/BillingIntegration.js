@@ -14,9 +14,9 @@ const {
     BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IN_PROGRESS_STATUS,
 } = require('../constants')
 
-
 const BillingIntegration = new GQLListSchema('BillingIntegration', {
-    schemaDoc: 'Identification of the `integration component` which responsible for getting data from the `billing data source` and delivering the data to `this API`. Examples: tap-1c, ... ',
+    schemaDoc:
+        'Identification of the `integration component` which responsible for getting data from the `billing data source` and delivering the data to `this API`. Examples: tap-1c, ... ',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
@@ -70,7 +70,8 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
         },
 
         contextDefaultStatus: {
-            schemaDoc: 'Status, which BillingIntegrationOrganizationContext, linked to this integration, will have after creation',
+            schemaDoc:
+                'Status, which BillingIntegrationOrganizationContext, linked to this integration, will have after creation',
             type: Select,
             isRequired: true,
             dataType: 'string',
@@ -79,7 +80,8 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
         },
 
         dataFormat: {
-            schemaDoc: 'Format of the data, that is output of this integration. This field specifies the detail and size of columns. If not specified we can only show first level of detail (address, account, toPay)',
+            schemaDoc:
+                'Format of the data, that is output of this integration. This field specifies the detail and size of columns. If not specified we can only show first level of detail (address, account, toPay)',
             type: Json,
             isRequired: false,
             hooks: {

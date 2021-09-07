@@ -4,27 +4,24 @@ import { extractCritical } from 'emotion-server'
 import React from 'react'
 
 export default class MyDocument extends Document {
-    static getInitialProps ({ renderPage }) {
+    static getInitialProps({ renderPage }) {
         const page = renderPage()
         const styles = extractCritical(page.html)
         return { ...page, ...styles }
     }
 
-    render () {
+    render() {
         const innerHtml = { __html: this.props.css }
         return (
             <Html>
                 <Head>
-                    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+                    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
                     <meta name="viewport" content="initial-scale=1.0, width=device-width" />
                 </Head>
                 <body>
-                    <Main/>
-                    <NextScript/>
-                    <style
-                        data-emotion-css={this.props.ids.join(' ')}
-                        dangerouslySetInnerHTML={innerHtml}
-                    />
+                    <Main />
+                    <NextScript />
+                    <style data-emotion-css={this.props.ids.join(' ')} dangerouslySetInnerHTML={innerHtml} />
                 </body>
             </Html>
         )

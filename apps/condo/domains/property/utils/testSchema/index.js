@@ -18,7 +18,7 @@ const { EXPORT_PROPERTIES_TO_EXCEL } = require('@condo/domains/property/gql')
 const Property = generateGQLTestUtils(PropertyGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-async function createTestProperty (client, organization, extraAttrs = {}, withFlat = false) {
+async function createTestProperty(client, organization, extraAttrs = {}, withFlat = false) {
     if (!client) throw new Error('no client')
     if (!organization) throw new Error('no organization')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -38,7 +38,7 @@ async function createTestProperty (client, organization, extraAttrs = {}, withFl
     return [obj, attrs]
 }
 
-async function updateTestProperty (client, id, extraAttrs = {}) {
+async function updateTestProperty(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -51,14 +51,14 @@ async function updateTestProperty (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function makeClientWithProperty (includeFlat = false) {
+async function makeClientWithProperty(includeFlat = false) {
     const client = await makeClientWithRegisteredOrganization()
     const [property] = await createTestProperty(client, client.organization, { map: buildingMapJson }, includeFlat)
     client.property = property
     return client
 }
 
-async function makeClientWithResidentUserAndProperty () {
+async function makeClientWithResidentUserAndProperty() {
     const userClient = await makeClientWithProperty()
     await addResidentAccess(userClient.user)
     return userClient
@@ -95,5 +95,5 @@ module.exports = {
     checkPropertyWithAddressExistByTestClient,
     makeClientWithResidentUserAndProperty,
     exportPropertiesToExcelByTestClient,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

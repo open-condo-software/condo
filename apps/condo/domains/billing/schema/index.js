@@ -30,5 +30,5 @@ module.exports = {
     BillingReceipt,
     GetAllResidentBillingReceiptsService,
     BillingCurrency,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

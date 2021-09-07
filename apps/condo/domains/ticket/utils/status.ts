@@ -15,7 +15,7 @@ export const getPossibleStatuses = (
     const possibleOrganizationTransitions = get(transitionsFromOrganization, ticketStatusId, [])
     const possibleEmployeeTransitions = get(transitionsFromEmployeeRole, ticketStatusId, [])
 
-    return intersection(possibleOrganizationTransitions, possibleEmployeeTransitions).map(
-        (transition) => statusList.find((status) => get(status, 'id') === transition)
-    ).filter(Boolean)
+    return intersection(possibleOrganizationTransitions, possibleEmployeeTransitions)
+        .map((transition) => statusList.find((status) => get(status, 'id') === transition))
+        .filter(Boolean)
 }

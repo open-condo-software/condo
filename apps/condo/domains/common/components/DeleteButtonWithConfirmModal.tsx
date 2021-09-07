@@ -38,17 +38,15 @@ export const DeleteButtonWithConfirmModal: React.FC<IDeleteActionButtonWithConfi
     const handleDeleteButtonClick = () => {
         setIsConfirmVisible(false)
         setIsDeleting(true)
-        runMutation(
-            {
-                action,
-                onError: (e) => {
-                    console.log(e)
-                    console.error(e.friendlyDescription)
-                    throw e
-                },
-                intl,
+        runMutation({
+            action,
+            onError: (e) => {
+                console.log(e)
+                console.error(e.friendlyDescription)
+                throw e
             },
-        ).then(() => {
+            intl,
+        }).then(() => {
             setIsDeleting(false)
         })
     }
@@ -63,27 +61,20 @@ export const DeleteButtonWithConfirmModal: React.FC<IDeleteActionButtonWithConfi
                 secondary
                 {...buttonCustomProps}
             >
-                {buttonContent || <DeleteFilled/>}
+                {buttonContent || <DeleteFilled />}
             </Button>
             <Modal
                 title={title}
                 visible={isConfirmVisible}
                 onCancel={handleCancel}
                 footer={[
-                    <Button
-                        key={'submit'}
-                        type={'sberDanger'}
-                        onClick={handleDeleteButtonClick}
-                    >
+                    <Button key={'submit'} type={'sberDanger'} onClick={handleDeleteButtonClick}>
                         {okButtonLabel}
                     </Button>,
                 ]}
             >
-                <Typography.Text>
-                    {message}
-                </Typography.Text>
+                <Typography.Text>{message}</Typography.Text>
             </Modal>
         </>
-
     )
 }

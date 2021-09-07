@@ -14,5 +14,5 @@ module.exports = {
     RegisterResidentService,
     ServiceConsumer,
     RegisterServiceConsumerService,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

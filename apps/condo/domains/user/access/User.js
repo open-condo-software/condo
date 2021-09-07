@@ -4,14 +4,14 @@
 const access = require('@core/keystone/access')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
-async function canReadUsers ({ authentication: { item: user } }) {
+async function canReadUsers({ authentication: { item: user } }) {
     if (!user || !user.id) return false
     if (user.isAdmin) return true
 
     return true
 }
 
-async function canManageUsers ({ authentication: { item: user }, operation, itemId }) {
+async function canManageUsers({ authentication: { item: user }, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin || user.isSupport) return true
 
@@ -49,7 +49,6 @@ const canAccessToIsAdminField = {
 const canAccessToIsEmailVerifiedField = readByAnyUpdateByAdminField
 const canAccessToIsPhoneVerifiedField = readByAnyUpdateByAdminField
 const canAccessToImportIdField = readByAnyUpdateByAdminField
-
 
 const canAccessToStaffUserField = {
     read: access.userIsNotResidentUser,

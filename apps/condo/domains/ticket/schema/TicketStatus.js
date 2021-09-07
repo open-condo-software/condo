@@ -3,7 +3,7 @@
  */
 
 const { Select, Virtual } = require('@keystonejs/fields')
-const LocalizedText  = require('@core/keystone/fields/LocalizedText')
+const LocalizedText = require('@core/keystone/fields/LocalizedText')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
@@ -50,7 +50,8 @@ const TicketStatus = new GQLListSchema('TicketStatus', {
             template: 'ticket.status.*.name',
         },
         colors: {
-            schemaDoc: 'Status colors, includes primary (font color), secondary (background color), additional (border color), all colors presented in HEX',
+            schemaDoc:
+                'Status colors, includes primary (font color), secondary (background color), additional (border color), all colors presented in HEX',
             type: Virtual,
             extendGraphQLTypes: ['type TicketStatusColorsField { primary: String, secondary: String, additional: String }'],
             graphQLReturnType: 'TicketStatusColorsField',
@@ -66,7 +67,7 @@ const TicketStatus = new GQLListSchema('TicketStatus', {
                     throw new Error('Error while trying to find ticket status color: no ticketStatus colors found')
                 }
 
-                if (!ticketStatusColorsJsonValidator(statusColors)){
+                if (!ticketStatusColorsJsonValidator(statusColors)) {
                     throw new Error(`${JSON_SCHEMA_VALIDATION_ERROR}] invalid json structure`)
                 }
 

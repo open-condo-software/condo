@@ -16,33 +16,24 @@ const SettingsPage = () => {
     const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
     const RolesAndAccessesTitle = intl.formatMessage({ id: 'RolesAndAccess' })
     return (
-        <FeatureFlagRequired name={'billing'} fallback={<Error statusCode={404}/>}>
+        <FeatureFlagRequired name={'billing'} fallback={<Error statusCode={404} />}>
             <Head>
-                <title>
-                    {PageTitle}
-                </title>
+                <title>{PageTitle}</title>
             </Head>
             <PageWrapper>
-                <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitle}</Typography.Title>}/>
+                <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitle}</Typography.Title>} />
                 <OrganizationRequired>
                     <PageContent>
                         <Col span={20}>
-                            <Tabs
-                                defaultActiveKey="settings"
-                                tabBarStyle={{ marginBottom: 40 }}
-                                style={{ overflow: 'visible' }}
-                            >
+                            <Tabs defaultActiveKey="settings" tabBarStyle={{ marginBottom: 40 }} style={{ overflow: 'visible' }}>
                                 <Tabs.TabPane key="settings" tab={BillingTitle}>
-                                    <BillingChooser/>
+                                    <BillingChooser />
                                 </Tabs.TabPane>
                                 <Tabs.TabPane
                                     key="rolesAndAccess"
-                                    tab={(
-                                        <Tooltip title={NotImplementedYetMessage}>
-                                            {RolesAndAccessesTitle}
-                                        </Tooltip>
-                                    )}
-                                    disabled />
+                                    tab={<Tooltip title={NotImplementedYetMessage}>{RolesAndAccessesTitle}</Tooltip>}
+                                    disabled
+                                />
                             </Tabs>
                         </Col>
                     </PageContent>
@@ -52,6 +43,6 @@ const SettingsPage = () => {
     )
 }
 
-SettingsPage.headerAction = <TitleHeaderAction descriptor={{ id: 'menu.Settings' }}/>
+SettingsPage.headerAction = <TitleHeaderAction descriptor={{ id: 'menu.Settings' }} />
 
 export default SettingsPage

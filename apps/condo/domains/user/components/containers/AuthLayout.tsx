@@ -16,7 +16,9 @@ import { colors } from '@condo/domains/common/constants/style'
 import { AuthLayoutContextProvider } from './AuthLayoutContext'
 import { ChildrenWrapper, Footer, Header, Layout, PageContent, PosterWrapper } from './styles'
 
-const { publicRuntimeConfig: { googleCaptcha } } = getConfig()
+const {
+    publicRuntimeConfig: { googleCaptcha },
+} = getConfig()
 
 export interface AuthPage extends React.FC {
     headerAction: React.ReactElement
@@ -48,14 +50,12 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
                 async: true,
                 defer: true,
                 appendTo: 'body',
-            }}>
+            }}
+        >
             <AuthLayoutContextProvider>
-                <Global styles={formInputFixCss}/>
+                <Global styles={formInputFixCss} />
                 <Layout>
-                    <Header
-                        title={<Logo fillColor={colors.white} onClick={handleLogoClick} />}
-                        extra={headerAction}
-                    />
+                    <Header title={<Logo fillColor={colors.white} onClick={handleLogoClick} />} extra={headerAction} />
                     <Row align={'stretch'}>
                         <Col lg={11} md={24}>
                             <PosterWrapper>
@@ -78,10 +78,26 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
                                         <Row>
                                             <Col lg={14} push={4} md={24} pull={6}>
                                                 <FormattedMessage
-                                                    id='pages.auth.FooterText'
+                                                    id="pages.auth.FooterText"
                                                     values={{
-                                                        email: <Button size={'small'} type={'inlineLink'} href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</Button>,
-                                                        phone: <Button size={'small'} type={'inlineLink'} href={`tel:${SUPPORT_PHONE}`}>{SUPPORT_PHONE}</Button>,
+                                                        email: (
+                                                            <Button
+                                                                size={'small'}
+                                                                type={'inlineLink'}
+                                                                href={`mailto:${SUPPORT_EMAIL}`}
+                                                            >
+                                                                {SUPPORT_EMAIL}
+                                                            </Button>
+                                                        ),
+                                                        phone: (
+                                                            <Button
+                                                                size={'small'}
+                                                                type={'inlineLink'}
+                                                                href={`tel:${SUPPORT_PHONE}`}
+                                                            >
+                                                                {SUPPORT_PHONE}
+                                                            </Button>
+                                                        ),
                                                     }}
                                                 />
                                             </Col>
@@ -91,7 +107,6 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
                             </PageContent>
                         </Col>
                     </Row>
-
                 </Layout>
             </AuthLayoutContextProvider>
         </GoogleReCaptchaProvider>

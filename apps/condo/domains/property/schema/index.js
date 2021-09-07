@@ -12,5 +12,5 @@ module.exports = {
     Property,
     CheckPropertyWithAddressExistService,
     ExportPropertiesToExcelService,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

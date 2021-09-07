@@ -21,17 +21,11 @@ describe('period utils test', () => {
                 expect(getPreviousPeriods(startPeriod)).toStrictEqual(expectedResult)
             })
             it('in this and previous year', () => {
-                const expectedResult = [
-                    '2021-03-01',
-                    '2021-02-01',
-                    '2021-01-01',
-                    '2020-12-01',
-                    '2020-11-01',
-                ]
+                const expectedResult = ['2021-03-01', '2021-02-01', '2021-01-01', '2020-12-01', '2020-11-01']
                 expect(getPreviousPeriods(startPeriod, 5)).toStrictEqual(expectedResult)
             })
             it('in multiple year', () => {
-                const expectedResult =  [
+                const expectedResult = [
                     '2021-03-01',
                     '2021-02-01',
                     '2021-01-01',
@@ -63,16 +57,34 @@ describe('period utils test', () => {
                 expect(getPeriodMessage('incorrect')).toBeUndefined()
             })
         })
-        describe('should generate correct message', ()=> {
+        describe('should generate correct message', () => {
             const ruMonths = [
-                'январь', 'февраль', 'март', 'апрель',
-                'май', 'июнь', 'июль', 'август',
-                'сентябрь', 'октябрь', 'ноябрь', 'декабрь',
+                'январь',
+                'февраль',
+                'март',
+                'апрель',
+                'май',
+                'июнь',
+                'июль',
+                'август',
+                'сентябрь',
+                'октябрь',
+                'ноябрь',
+                'декабрь',
             ]
             const enMonths = [
-                'January', 'February', 'March', 'April',
-                'May', 'June', 'July', 'August',
-                'September', 'October', 'November', 'December',
+                'January',
+                'February',
+                'March',
+                'April',
+                'May',
+                'June',
+                'July',
+                'August',
+                'September',
+                'October',
+                'November',
+                'December',
             ]
             const dt = DateTime.now()
             const currentPeriod = dt.toFormat('yyyy-MM-01')

@@ -11,17 +11,17 @@ export interface IAddressApi {
 }
 
 export class AddressApi implements IAddressApi {
-    constructor () {
+    constructor() {
         this.setAddressSuggestionsConfig()
     }
 
-    public getSuggestions (query: string): SuggestionsResponse {
+    public getSuggestions(query: string): SuggestionsResponse {
         return fetch(this.suggestionsUrl, this.getAddressSuggestionRequestParams(query))
-            .then(response => response.text())
+            .then((response) => response.text())
             .then((res) => JSON.parse(res))
     }
 
-    public getAddressMeta (address: string): AddressMetaField | undefined {
+    public getAddressMeta(address: string): AddressMetaField | undefined {
         const addressMeta = this.addressMetaCache.get(address)
 
         if (!addressMeta) {
@@ -31,11 +31,11 @@ export class AddressApi implements IAddressApi {
         return addressMeta
     }
 
-    public cacheAddressMeta (address: string, addressMeta: AddressMetaField): void {
+    public cacheAddressMeta(address: string, addressMeta: AddressMetaField): void {
         this.addressMetaCache.set(address, addressMeta)
     }
 
-    private setAddressSuggestionsConfig () {
+    private setAddressSuggestionsConfig() {
         const {
             publicRuntimeConfig: { addressSuggestionsConfig },
         } = getConfig()
@@ -47,20 +47,18 @@ export class AddressApi implements IAddressApi {
         this.suggestionsUrl = apiUrl
     }
 
-    private getAddressSuggestionRequestParams (query: string) {
+    private getAddressSuggestionRequestParams(query: string) {
         return {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Authorization': `Token ${this.apiToken}`,
+                Accept: 'application/json',
+                Authorization: `Token ${this.apiToken}`,
             },
-            body: JSON.stringify(
-                {
-                    query,
-                    ...this.defaultSearchApiParams,
-                }
-            ),
+            body: JSON.stringify({
+                query,
+                ...this.defaultSearchApiParams,
+            }),
         }
     }
 

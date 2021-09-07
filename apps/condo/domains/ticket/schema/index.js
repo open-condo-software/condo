@@ -43,5 +43,5 @@ module.exports = {
     TicketCategoryClassifier,
     TicketProblemClassifier,
     TicketClassifierRule,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

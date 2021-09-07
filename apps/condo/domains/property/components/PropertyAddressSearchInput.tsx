@@ -22,64 +22,49 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
     const client = useApolloClient()
     const organizationId = get(organization, 'id')
 
-    const initialValueGetter = useCallback(
-        (value) => {
-            return searchSingleProperty(client, value, organizationId).then((property: Property) => {
-                if (property) {
-                    return property.address
-                }
-            })
-        },
-        [],
-    )
-
-    const searchAddress = useCallback(
-        (query) => {
-            const where = {
-                address_contains_i: query,
-                organization: { id: organizationId },
+    const initialValueGetter = useCallback((value) => {
+        return searchSingleProperty(client, value, organizationId).then((property: Property) => {
+            if (property) {
+                return property.address
             }
+        })
+    }, [])
 
-            return searchProperty(client, where, 'unitsCount_DESC')
-        },
-        [],
-    )
+    const searchAddress = useCallback((query) => {
+        const where = {
+            address_contains_i: query,
+            organization: { id: organizationId },
+        }
 
-    const renderOption = useCallback(
-        (dataItem, searchValue) => {
-            return (
-                <Select.Option
-                    style={{ direction: 'rtl', textAlign: 'left', color: grey[6] }}
-                    key={dataItem.value}
-                    value={dataItem.text}
-                    title={dataItem.text}
-                >
-                    {
-                        searchValue === dataItem.text
-                            ? dataItem.text
-                            : (
-                                <Highliter
-                                    text={dataItem.text}
-                                    search={searchValue}
-                                    renderPart={(part, index) => {
-                                        return (
-                                            <Typography.Text
-                                                strong
-                                                key={part + index}
-                                                style={{ color: colors.black }}
-                                            >
-                                                {part}
-                                            </Typography.Text>
-                                        )
-                                    }}
-                                />
+        return searchProperty(client, where, 'unitsCount_DESC')
+    }, [])
+
+    const renderOption = useCallback((dataItem, searchValue) => {
+        return (
+            <Select.Option
+                style={{ direction: 'rtl', textAlign: 'left', color: grey[6] }}
+                key={dataItem.value}
+                value={dataItem.text}
+                title={dataItem.text}
+            >
+                {searchValue === dataItem.text ? (
+                    dataItem.text
+                ) : (
+                    <Highliter
+                        text={dataItem.text}
+                        search={searchValue}
+                        renderPart={(part, index) => {
+                            return (
+                                <Typography.Text strong key={part + index} style={{ color: colors.black }}>
+                                    {part}
+                                </Typography.Text>
                             )
-                    }
-                </Select.Option>
-            )
-        },
-        [],
-    )
+                        }}
+                    />
+                )}
+            </Select.Option>
+        )
+    }, [])
 
     return (
         <BaseSearchInput

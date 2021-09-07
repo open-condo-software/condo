@@ -15,13 +15,20 @@ const { createTestOrganization } = require('../utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, DATETIME_RE } = require('@core/keystone/test.utils')
 const { pick } = require('lodash')
 
-const { OrganizationEmployee, createTestOrganizationEmployee, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
-const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('../../common/utils/testSchema')
+const {
+    OrganizationEmployee,
+    createTestOrganizationEmployee,
+    updateTestOrganizationEmployee,
+} = require('@condo/domains/organization/utils/testSchema')
+const {
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj,
+} = require('../../common/utils/testSchema')
 const { createTestTicketCategoryClassifier } = require('@condo/domains/ticket/utils/testSchema')
 
 describe('OrganizationEmployee', () => {
     describe('user: create OrganizationEmployee', () => {
-
         test('cannot without granted "canManageEmployees" permission', async () => {
             const admin = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(admin)
@@ -51,10 +58,7 @@ describe('OrganizationEmployee', () => {
 
             const [obj, attrs] = await createTestOrganizationEmployee(managerUserClient, organization, user, role, {
                 specializations: {
-                    connect: [
-                        { id: categoryClassifier1.id },
-                        { id: categoryClassifier2.id },
-                    ],
+                    connect: [{ id: categoryClassifier1.id }, { id: categoryClassifier2.id }],
                 },
             })
             expect(obj.id).toBeDefined()
@@ -67,17 +71,12 @@ describe('OrganizationEmployee', () => {
             expect(obj.updatedAt).toMatch(DATETIME_RE)
             expect(obj.specializations).toHaveLength(2)
             expect(obj.specializations).toEqual(
-                expect.arrayContaining([
-                    expect.objectContaining(pick(categoryClassifier1, ['id', 'name'])),
-                ])
+                expect.arrayContaining([expect.objectContaining(pick(categoryClassifier1, ['id', 'name']))]),
             )
             expect(obj.specializations).toEqual(
-                expect.arrayContaining([
-                    expect.objectContaining(pick(categoryClassifier2, ['id', 'name'])),
-                ])
+                expect.arrayContaining([expect.objectContaining(pick(categoryClassifier2, ['id', 'name']))]),
             )
         })
-
     })
 
     test('anonymous: create OrganizationEmployee', async () => {
@@ -124,7 +123,6 @@ describe('OrganizationEmployee', () => {
     })
 
     describe('user: update OrganizationEmployee', () => {
-
         test('cannot without granted "canManageEmployees" permission', async () => {
             const admin = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(admin)
@@ -164,7 +162,6 @@ describe('OrganizationEmployee', () => {
             expect(obj.createdAt).toMatch(DATETIME_RE)
             expect(obj.updatedAt).toMatch(DATETIME_RE)
         })
-
     })
 
     test('anonymous: update OrganizationEmployee', async () => {
@@ -178,7 +175,6 @@ describe('OrganizationEmployee', () => {
     })
 
     describe('user: softDelete OrganizationEmployee', () => {
-
         test('cannot without granted "canManageEmployees" permission', async () => {
             const { employee, admin, organization } = await makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee()
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
@@ -210,7 +206,6 @@ describe('OrganizationEmployee', () => {
 
             expect(objs).toHaveLength(0)
         })
-
     })
 
     test('anonymous: delete OrganizationEmployee', async () => {

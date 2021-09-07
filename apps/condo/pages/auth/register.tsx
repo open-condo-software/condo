@@ -61,14 +61,10 @@ const RegisterPage: AuthPage = () => {
     if (tokenError && token) {
         return (
             <BasicEmptyListView>
-                <Typography.Title level={3}>
-                    {PhoneConfirmTokenErrorLabel}
-                </Typography.Title>
-                <Typography.Text style={{ fontSize: fontSizes.content }}>
-                    {PhoneConfirmTokenErrorMessage}
-                </Typography.Text>
+                <Typography.Title level={3}>{PhoneConfirmTokenErrorLabel}</Typography.Title>
+                <Typography.Text style={{ fontSize: fontSizes.content }}>{PhoneConfirmTokenErrorMessage}</Typography.Text>
                 <Button
-                    type='sberPrimary'
+                    type="sberPrimary"
                     style={{ marginTop: '16px' }}
                     onClick={() => {
                         setToken(null)
@@ -85,13 +81,15 @@ const RegisterPage: AuthPage = () => {
 
     const steps = {
         inputPhone: <InputPhoneForm onFinish={() => setState('validatePhone')} />,
-        validatePhone: <ValidatePhoneForm
-            onFinish={() => setState('register')}
-            onReset={() => {
-                setState('inputPhone')
-                Router.push('/auth/register')
-            }}
-        />,
+        validatePhone: (
+            <ValidatePhoneForm
+                onFinish={() => setState('register')}
+                onReset={() => {
+                    setState('inputPhone')
+                    Router.push('/auth/register')
+                }}
+            />
+        ),
         register: <RegisterForm onFinish={initOnBoarding} />,
     }
 
@@ -101,20 +99,13 @@ const RegisterPage: AuthPage = () => {
                 <Col span={24}>
                     <Typography.Title>{RegistrationTitleMsg}</Typography.Title>
                 </Col>
-                <Col span={24}>
-                    { steps[state] }
-                </Col>
+                <Col span={24}>{steps[state]}</Col>
             </Row>
         </RegisterContextProvider>
     )
 }
 
-RegisterPage.headerAction = (
-    <ButtonHeaderAction
-        descriptor={{ id: 'pages.auth.AlreadyRegistered' }}
-        path={'/auth/signin'}
-    />
-)
+RegisterPage.headerAction = <ButtonHeaderAction descriptor={{ id: 'pages.auth.AlreadyRegistered' }} path={'/auth/signin'} />
 RegisterPage.container = AuthLayout
 
 export default RegisterPage

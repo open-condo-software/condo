@@ -19,28 +19,20 @@ export const CreateTicketActionBar = ({ handleSave, isLoading }) => {
 
     return (
         <Form.Item noStyle dependencies={['property']}>
-            {
-                ({ getFieldsValue }) => {
-                    const { property } = getFieldsValue(['property'])
+            {({ getFieldsValue }) => {
+                const { property } = getFieldsValue(['property'])
 
-                    return (
-                        <ActionBar>
-                            <Space size={12}>
-                                <Button
-                                    key='submit'
-                                    onClick={handleSave}
-                                    type='sberPrimary'
-                                    loading={isLoading}
-                                    disabled={!property}
-                                >
-                                    {CreateTicketMessage}
-                                </Button>
-                                <ErrorsContainer property={property}/>
-                            </Space>
-                        </ActionBar>
-                    )
-                }
-            }
+                return (
+                    <ActionBar>
+                        <Space size={12}>
+                            <Button key="submit" onClick={handleSave} type="sberPrimary" loading={isLoading} disabled={!property}>
+                                {CreateTicketMessage}
+                            </Button>
+                            <ErrorsContainer property={property} />
+                        </Space>
+                    </ActionBar>
+                )
+            }}
         </Form.Item>
     )
 }
@@ -58,7 +50,8 @@ export const CreateTicketForm: React.FC = () => {
         },
         () => {
             router.push('/ticket/')
-        })
+        },
+    )
 
     const initialValues = {
         assignee: auth.user.id,
@@ -66,13 +59,8 @@ export const CreateTicketForm: React.FC = () => {
     }
 
     return (
-        <BaseTicketForm
-            action={action}
-            initialValues={initialValues}
-            organization={organization}
-            role={link.role}
-        >
-            {({ handleSave, isLoading }) => <CreateTicketActionBar handleSave={handleSave} isLoading={isLoading}/>}
+        <BaseTicketForm action={action} initialValues={initialValues} organization={organization} role={link.role}>
+            {({ handleSave, isLoading }) => <CreateTicketActionBar handleSave={handleSave} isLoading={isLoading} />}
         </BaseTicketForm>
     )
 }

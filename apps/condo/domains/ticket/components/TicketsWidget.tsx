@@ -21,14 +21,16 @@ export const TicketsWidget = () => {
     const [loading, setLoading] = useState(false)
 
     const [loadTicketsWidgetData] = useLazyQuery(GET_TICKET_WIDGET_REPORT_DATA, {
-        onError: error => {
+        onError: (error) => {
             setLoading(false)
             notification.error(error)
             setTicketData(null)
         },
         fetchPolicy: 'cache-and-network',
         onCompleted: (response) => {
-            const { result: { data } } = response
+            const {
+                result: { data },
+            } = response
             setTicketData(data)
             setLoading(false)
         },
@@ -42,26 +44,27 @@ export const TicketsWidget = () => {
     return (
         <StatsCard
             title={TicketsWidgetTitle}
-            link='/reports/detail/report_by_tickets'
+            link="/reports/detail/report_by_tickets"
             onFilterChange={filterChange}
             loading={loading}
-            dependencyArray={[userOrganizationId]}>
+            dependencyArray={[userOrganizationId]}
+        >
             <Row gutter={[40, 20]} justify={'center'}>
-                {
-                    ticketData === null ?
-                        <BasicEmptyListView>
-                            <Typography.Text>{NoDataTitle}</Typography.Text>
-                        </BasicEmptyListView> :
-                        ticketData.map((e, i) => (
-                            <StatsContainer key={i}>
-                                <Statistic
-                                    title={e.statusName}
-                                    prefix={<span style={{ fontSize: 30, fontWeight: 600 }}>{e.currentValue}</span>}
-                                    valueRender={() => <GrowthPanel value={e.growth}  />}
-                                />
-                            </StatsContainer>
-                        ))
-                }
+                {ticketData === null ? (
+                    <BasicEmptyListView>
+                        <Typography.Text>{NoDataTitle}</Typography.Text>
+                    </BasicEmptyListView>
+                ) : (
+                    ticketData.map((e, i) => (
+                        <StatsContainer key={i}>
+                            <Statistic
+                                title={e.statusName}
+                                prefix={<span style={{ fontSize: 30, fontWeight: 600 }}>{e.currentValue}</span>}
+                                valueRender={() => <GrowthPanel value={e.growth} />}
+                            />
+                        </StatsContainer>
+                    ))
+                )}
             </Row>
         </StatsCard>
     )

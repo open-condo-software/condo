@@ -1,7 +1,7 @@
 import cookie from 'js-cookie'
 import { makeId } from './makeid.utils'
 
-function getCurrentUserId () {
+function getCurrentUserId() {
     let current = cookie.get('userId')
     if (!current) {
         current = makeId(12)
@@ -10,14 +10,11 @@ function getCurrentUserId () {
     return current
 }
 
-function getClientSideSenderInfo () {
+function getClientSideSenderInfo() {
     return {
         dv: 1,
         fingerprint: getCurrentUserId(),
     }
 }
 
-export {
-    getCurrentUserId,
-    getClientSideSenderInfo,
-}
+export { getCurrentUserId, getClientSideSenderInfo }

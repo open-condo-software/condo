@@ -14,7 +14,8 @@ import {
     CONFIRM_PHONE_ACTION_EXPIRED,
     CONFIRM_PHONE_SMS_CODE_EXPIRED,
     CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED,
-    CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED, TOO_MANY_REQUESTS,
+    CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED,
+    TOO_MANY_REQUESTS,
 } from '@condo/domains/user/constants/errors'
 import { COMPLETE_CONFIRM_PHONE_MUTATION, RESEND_CONFIRM_PHONE_SMS_MUTATION } from '@condo/domains/user/gql'
 import { RegisterContext } from './RegisterContextProvider'
@@ -76,7 +77,6 @@ export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IVa
 
     const PhoneToggleLabel = isPhoneVisible ? intl.formatMessage({ id: 'Hide' }) : intl.formatMessage({ id: 'Show' })
 
-
     const resendSms = useCallback(async () => {
         const sender = getClientSideSenderInfo()
         const captcha = await handleReCaptchaVerify('resend_sms')
@@ -87,7 +87,7 @@ export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IVa
             intl,
             form,
             ErrorToFormFieldMsgMapping,
-        }).catch(error => {
+        }).catch((error) => {
             console.error(error)
         })
     }, [intl, form, handleReCaptchaVerify, resendSmsMutation])
@@ -141,10 +141,10 @@ export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IVa
         <Form
             {...FORM_LAYOUT}
             form={form}
-            name='register-verify-code'
+            name="register-verify-code"
             initialValues={initialValues}
             colon={false}
-            labelAlign='left'
+            labelAlign="left"
             requiredMark={false}
         >
             <Row gutter={[0, 60]}>
@@ -152,9 +152,20 @@ export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IVa
                     <Space direction={'vertical'} size={24}>
                         <Typography.Text>
                             <FormattedMessage
-                                id='pages.auth.register.info.SmsCodeSent'
+                                id="pages.auth.register.info.SmsCodeSent"
                                 values={{
-                                    phone: (<span>{showPhone}<Button type={'inlineLink'} size={'small'} onClick={() => setIsPhoneVisible(!isPhoneVisible)}>({PhoneToggleLabel})</Button></span>),
+                                    phone: (
+                                        <span>
+                                            {showPhone}
+                                            <Button
+                                                type={'inlineLink'}
+                                                size={'small'}
+                                                onClick={() => setIsPhoneVisible(!isPhoneVisible)}
+                                            >
+                                                ({PhoneToggleLabel})
+                                            </Button>
+                                        </span>
+                                    ),
                                 }}
                             />
                         </Typography.Text>
@@ -165,7 +176,7 @@ export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IVa
                 </Col>
                 <Col span={24}>
                     <Form.Item
-                        name='smsCode'
+                        name="smsCode"
                         label={SmsCodeTitle}
                         rules={[
                             {
@@ -173,7 +184,7 @@ export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IVa
                                 message: FieldIsRequiredMsg,
                             },
                             () => ({
-                                validator () {
+                                validator() {
                                     if (!phoneValidateError) {
                                         return Promise.resolve()
                                     }
@@ -182,12 +193,7 @@ export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IVa
                             }),
                         ]}
                     >
-                        <MaskedInput
-                            mask='1111'
-                            placeholder=''
-                            placeholderChar=' '
-                            onChange={handleVerifyCode}
-                        />
+                        <MaskedInput mask="1111" placeholder="" placeholderChar=" " onChange={handleVerifyCode} />
                     </Form.Item>
                 </Col>
                 <Col span={24}>
@@ -196,17 +202,12 @@ export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IVa
                             const isCountDownActive = countdown > 0
                             return (
                                 <Space direction={'horizontal'} size={8}>
-                                    <Button
-                                        type={'inlineLink'}
-                                        size={'small'}
-                                        disabled={isCountDownActive}
-                                        onClick={runAction}
-                                    >
+                                    <Button type={'inlineLink'} size={'small'} disabled={isCountDownActive} onClick={runAction}>
                                         {ResendSmsLabel}
                                     </Button>
                                     {isCountDownActive && (
-                                        <Typography.Text type='secondary'>
-                                            { `${new Date(countdown * 1000).toISOString().substr(14, 5)}` }
+                                        <Typography.Text type="secondary">
+                                            {`${new Date(countdown * 1000).toISOString().substr(14, 5)}`}
                                         </Typography.Text>
                                     )}
                                 </Space>

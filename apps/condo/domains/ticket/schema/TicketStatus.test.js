@@ -16,7 +16,11 @@ const { STATUS_SELECT_COLORS } = require('@condo/domains/ticket/constants/style'
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { TicketStatus, createTestTicketStatus, updateTestTicketStatus } = require('@condo/domains/ticket/utils/testSchema')
-const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const {
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj,
+} = require('@condo/domains/common/utils/testSchema')
 const { getTranslations, getAvailableLocales } = require('@condo/domains/common/utils/localesLoader')
 const { STATUS_IDS } = require('../constants/statusTransitions')
 
@@ -41,15 +45,20 @@ describe('TicketStatus', () => {
     test('admin: create TicketStatus with valid PROCESSING_STATUS_TYPE color', async () => {
         const client = await makeLoggedInAdminClient()
         const [organization] = await createTestOrganization(client)
-        const [obj] = await createTestTicketStatus(client, { type: PROCESSING_STATUS_TYPE, organization: { connect: { id: organization.id } } })
+        const [obj] = await createTestTicketStatus(client, {
+            type: PROCESSING_STATUS_TYPE,
+            organization: { connect: { id: organization.id } },
+        })
         expect(obj.colors).toStrictEqual(STATUS_SELECT_COLORS[obj.type])
-
     })
 
     test('admin: create TicketStatus with valid NEW_OR_REOPENED_STATUS_TYPE color', async () => {
         const client = await makeLoggedInAdminClient()
         const [organization] = await createTestOrganization(client)
-        const [obj] = await createTestTicketStatus(client, { type: NEW_OR_REOPENED_STATUS_TYPE, organization: { connect: { id: organization.id } } })
+        const [obj] = await createTestTicketStatus(client, {
+            type: NEW_OR_REOPENED_STATUS_TYPE,
+            organization: { connect: { id: organization.id } },
+        })
         expect(obj.colors).toStrictEqual(STATUS_SELECT_COLORS[obj.type])
     })
 
@@ -57,7 +66,10 @@ describe('TicketStatus', () => {
         const client = await makeLoggedInAdminClient()
         const [organization] = await createTestOrganization(client)
 
-        const [obj] = await createTestTicketStatus(client, { type: CANCELED_STATUS_TYPE, organization: { connect: { id: organization.id } } })
+        const [obj] = await createTestTicketStatus(client, {
+            type: CANCELED_STATUS_TYPE,
+            organization: { connect: { id: organization.id } },
+        })
         expect(obj.colors).toStrictEqual(STATUS_SELECT_COLORS[obj.type])
     })
 
@@ -65,7 +77,10 @@ describe('TicketStatus', () => {
         const client = await makeLoggedInAdminClient()
         const [organization] = await createTestOrganization(client)
 
-        const [obj] = await createTestTicketStatus(client, { type: COMPLETED_STATUS_TYPE, organization: { connect: { id: organization.id } } })
+        const [obj] = await createTestTicketStatus(client, {
+            type: COMPLETED_STATUS_TYPE,
+            organization: { connect: { id: organization.id } },
+        })
         expect(obj.colors).toStrictEqual(STATUS_SELECT_COLORS[obj.type])
     })
 
@@ -73,7 +88,10 @@ describe('TicketStatus', () => {
         const client = await makeLoggedInAdminClient()
         const [organization] = await createTestOrganization(client)
 
-        const [obj] = await createTestTicketStatus(client, { type: DEFERRED_STATUS_TYPE, organization: { connect: { id: organization.id } } })
+        const [obj] = await createTestTicketStatus(client, {
+            type: DEFERRED_STATUS_TYPE,
+            organization: { connect: { id: organization.id } },
+        })
         expect(obj.colors).toStrictEqual(STATUS_SELECT_COLORS[obj.type])
     })
 
@@ -81,7 +99,10 @@ describe('TicketStatus', () => {
         const client = await makeLoggedInAdminClient()
         const [organization] = await createTestOrganization(client)
 
-        const [obj] = await createTestTicketStatus(client, { type: CLOSED_STATUS_TYPE, organization: { connect: { id: organization.id } } })
+        const [obj] = await createTestTicketStatus(client, {
+            type: CLOSED_STATUS_TYPE,
+            organization: { connect: { id: organization.id } },
+        })
         expect(obj.colors).toStrictEqual(STATUS_SELECT_COLORS[obj.type])
     })
 
@@ -194,7 +215,7 @@ describe('TicketStatus', () => {
             await TicketStatus.delete(client, objCreated.id)
         })
     })
-    
+
     test.each(getAvailableLocales())('localization [%s]: static statuses has translations', async (locale) => {
         const translations = Object.values(getTranslations(locale))
 
@@ -207,12 +228,11 @@ describe('TicketStatus', () => {
             id_in: Object.values(STATUS_IDS),
         })
 
-        const isTranslationCompleted = Object.values(statuses).every(status => translations.includes(status.name))
+        const isTranslationCompleted = Object.values(statuses).every((status) => translations.includes(status.name))
 
         expect(isTranslationCompleted).toBeTruthy()
     })
 
-    
     test.each(getAvailableLocales())('Passes request in complex raw backend query', async (locale) => {
         const translations = Object.values(getTranslations(locale))
 
@@ -222,20 +242,20 @@ describe('TicketStatus', () => {
             'Accept-Language': locale,
         })
 
-        const statuses = await TicketStatus.getAll(admin, { 
-            OR: [
-                { organization: { id: organization.id } },
-                { organization_is_null: true },
-            ] })
-            .then((statuses)=> statuses.filter(status => {
-                if (!status.organization) { 
-                    return true 
+        const statuses = await TicketStatus.getAll(admin, {
+            OR: [{ organization: { id: organization.id } }, { organization_is_null: true }],
+        }).then((statuses) =>
+            statuses.filter((status) => {
+                if (!status.organization) {
+                    return true
                 }
-                return !statuses
-                    .find(organizationStatus => organizationStatus.organization !== null && organizationStatus.type === status.type)
-            }))
-            
-        const isTranslationCompleted = Object.values(statuses).every(status => translations.includes(status.name))
+                return !statuses.find(
+                    (organizationStatus) => organizationStatus.organization !== null && organizationStatus.type === status.type,
+                )
+            }),
+        )
+
+        const isTranslationCompleted = Object.values(statuses).every((status) => translations.includes(status.name))
 
         expect(isTranslationCompleted).toBeTruthy()
     })

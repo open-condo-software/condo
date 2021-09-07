@@ -7,9 +7,7 @@
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const has = require('lodash/has')
 const faker = require('faker')
-const {
-    SMS_CODE_LENGTH,
-} = require('@condo/domains/user/constants/common')
+const { SMS_CODE_LENGTH } = require('@condo/domains/user/constants/common')
 
 const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 
@@ -26,9 +24,9 @@ const ForgotPasswordAction = generateServerUtils(ForgotPasswordActionGQL)
 const conf = require('@core/config')
 const whiteList = conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {}
 
-
 const generateSmsCode = (phone) => {
-    if (has(whiteList, phone)) { // Emulate Firebase white list for development - no real send sms
+    if (has(whiteList, phone)) {
+        // Emulate Firebase white list for development - no real send sms
         return Number(whiteList[phone])
     }
     return faker.datatype.number({
@@ -40,7 +38,7 @@ const generateSmsCode = (phone) => {
 const updateEmployeesRelatedToUser = async (context, user) => {
     const acceptedInviteEmployees = await OrganizationEmployee.getAll(context, { user: { id: user.id }, isAccepted: true })
     if (acceptedInviteEmployees.length > 0) {
-        acceptedInviteEmployees.forEach(employee => {
+        acceptedInviteEmployees.forEach((employee) => {
             OrganizationEmployee.update(context, employee.id, {
                 dv: user.dv,
                 sender: user.sender,
@@ -52,12 +50,11 @@ const updateEmployeesRelatedToUser = async (context, user) => {
     }
 }
 
-
 module.exports = {
     User,
     ConfirmPhoneAction,
     generateSmsCode,
     ForgotPasswordAction,
     updateEmployeesRelatedToUser,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

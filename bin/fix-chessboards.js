@@ -1,22 +1,19 @@
-const {
-    Property,
-} = require('@condo/domains/property/utils/serverSchema')
+const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { normalizePropertyMap } = require('@condo/domains/property/utils/serverSchema/helpers.js')
 const path = require('path')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 // const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const MapSchemaJSON = require('@condo/domains/property/components/panels/Builder/MapJsonSchema.json')
 const Ajv = require('ajv')
-const mapValidator = (new Ajv()).compile(MapSchemaJSON)
+const mapValidator = new Ajv().compile(MapSchemaJSON)
 const { has, get, isEmpty, compact, trim } = require('lodash')
 const { Client } = require('pg')
 
 class FixPropertyMaps {
-
-    async init () {
+    async init() {
         const resolved = path.resolve('./index.js')
         const { distDir, keystone, apps } = require(resolved)
-        const graphqlIndex = apps.findIndex(app => app instanceof GraphQLApp)
+        const graphqlIndex = apps.findIndex((app) => app instanceof GraphQLApp)
         // we need only apollo
         await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
         await keystone.connect()
@@ -32,21 +29,22 @@ class FixPropertyMaps {
         */
         const { rows } = await this.pg.query(' SELECT id, map, "unitsCount" FROM "Property" WHERE 1=1 ')
         this.properties = rows
-        this.properties.forEach(property => {
+        this.properties.forEach((property) => {
             if (property.map) {
                 property.map = normalizePropertyMap(property.map)
             }
         })
     }
 
-    async check () {
-        this.properties.forEach(property => {
+    async check() {
+        this.properties.forEach((property) => {
             if (property.map) {
                 if (typeof property.map !== 'object') {
                     // console.log('property with strange map', property.id, property.map)
                 } else {
                     // const units = this.countUnits(property.map)
-                    if (!mapValidator(property.map)){ // ||  units !== property.unitsCount
+                    if (!mapValidator(property.map)) {
+                        // ||  units !== property.unitsCount
                         console.log('~Errors: ', property.id, mapValidator.errors)
                         this.toFix.push(property)
                     }
@@ -55,7 +53,7 @@ class FixPropertyMaps {
         })
     }
 
-    async fix () {
+    async fix() {
         for (const property of this.toFix) {
             const repairedMap = this.fixChessboard(property.map)
             await Property.update(this.context.createContext({ skipAccessControl: true }), property.id, {
@@ -66,8 +64,7 @@ class FixPropertyMaps {
         }
     }
 
-
-    fixChessboard (map) {
+    fixChessboard(map) {
         let autoincrement = 0
         if (!has(map, 'dv')) {
             map.dv = 1
@@ -91,7 +88,7 @@ class FixPropertyMaps {
                 if (!has(floor, 'name')) {
                     floor.name = String(floorIndex)
                 }
-                floor.units.forEach(unit => {
+                floor.units.forEach((unit) => {
                     unit.type = 'unit'
                     unit.id = String(++autoincrement)
                     if (!has(unit, 'label')) {
@@ -103,14 +100,12 @@ class FixPropertyMaps {
         return map
     }
 
-    countUnits (map) {
+    countUnits(map) {
         return get(map, 'sections', [])
-            .map((section) => get(section, 'floors', [])
-                .map(floor => get(floor, 'units', []).length))
+            .map((section) => get(section, 'floors', []).map((floor) => get(floor, 'units', []).length))
             .flat()
             .reduce((total, unitsOnFloor) => total + unitsOnFloor, 0)
     }
-
 }
 
 // Some times need to start this script several times
@@ -144,28 +139,30 @@ const importProperties = async () => {
             return text
         }
     }
-    strings.forEach( (str, idx) => {
+    strings.forEach((str, idx) => {
         const row = str.split(/(?:,|\n|^)("(?:(?:"")*[^"]*)*"|[^",\n]*|(?:\n|$))/g)
         if (!idx) {
             header = row
         } else {
-            data.push(Object.fromEntries(row.map( (r, i) => ([header[i], tryToJson(r)]))))
+            data.push(Object.fromEntries(row.map((r, i) => [header[i], tryToJson(r)])))
         }
     })
     for (const property of data) {
-        if (typeof property.map === 'object' ) {
-            await pg.query('INSERT INTO "Property" (dv, v, type, sender, id, organization, address, "addressMeta", map, "unitsCount") VALUES (1, 1, \'building\', $1, $2, $3, $4, $5, $6, $7) ', [
-                { dv: 1, fingerprint: 'import-property' },
-                property.id,
-                ORGANIZATION_ID,
-                property.address,
-                property.addressMeta,
-                property.map,
-                property.unitsCount || 0,
-            ])
+        if (typeof property.map === 'object') {
+            await pg.query(
+                'INSERT INTO "Property" (dv, v, type, sender, id, organization, address, "addressMeta", map, "unitsCount") VALUES (1, 1, \'building\', $1, $2, $3, $4, $5, $6, $7) ',
+                [
+                    { dv: 1, fingerprint: 'import-property' },
+                    property.id,
+                    ORGANIZATION_ID,
+                    property.address,
+                    property.addressMeta,
+                    property.map,
+                    property.unitsCount || 0,
+                ],
+            )
         }
     }
-
 }
 
 // Turn on if you need to import properties
@@ -177,8 +174,10 @@ const importProperties = async () => {
 
 // Turn on if you need to fix
 
-fixMaps().then(() => {
-    process.exit(0)
-}).catch(err => {
-    console.error('Error: ', err)
-})
+fixMaps()
+    .then(() => {
+        process.exit(0)
+    })
+    .catch((err) => {
+        console.error('Error: ', err)
+    })

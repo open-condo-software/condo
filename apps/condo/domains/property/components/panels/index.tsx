@@ -14,42 +14,36 @@ interface IPropertyPanels {
     mode: 'view' | 'edit'
     updateMap?(map: BuildingMap): void
     handleSave?(): void
-    address?: string,
+    address?: string
     mapValidationError?: string
 }
-
 
 export const PropertyPanels: React.FC<IPropertyPanels> = ({ mapValidationError, mode, map, updateMap, handleSave, address }) => {
     const intl = useIntl()
     const BuildingTabTitle = intl.formatMessage({ id: 'pages.condo.property.form.BuildingTabTitle' })
     const ResidentsTabTitle = intl.formatMessage({ id: 'pages.condo.property.form.ResidentsTabTitle' })
     return (
-        <Tabs defaultActiveKey='1'>
-            <TabPane tab={BuildingTabTitle} key='1'>
+        <Tabs defaultActiveKey="1">
+            <TabPane tab={BuildingTabTitle} key="1">
                 <FocusContainer style={{ margin: 'initial', marginTop: '40px' }}>
-                    {
-                        mode === 'view'
-                            ? <BuildingPanelView
-                                map={map as BuildingMap}
-                            />
-                            : <BuildingPanelEdit
-                                mapValidationError={mapValidationError}
-                                handleSave={handleSave}
-                                map={map as BuildingMap}
-                                updateMap={updateMap}
-                                address={address}
-                            />
-                    }
+                    {mode === 'view' ? (
+                        <BuildingPanelView map={map as BuildingMap} />
+                    ) : (
+                        <BuildingPanelEdit
+                            mapValidationError={mapValidationError}
+                            handleSave={handleSave}
+                            map={map as BuildingMap}
+                            updateMap={updateMap}
+                            address={address}
+                        />
+                    )}
                 </FocusContainer>
             </TabPane>
-            <TabPane tab={ResidentsTabTitle} key='2'>
+            <TabPane tab={ResidentsTabTitle} key="2">
                 <FocusContainer style={{ margin: 'initial', marginTop: '40px' }}>
-                    {
-                        mode === 'view' ? <ResidentPanelView /> : <ResidentPanelEdit />
-                    }
+                    {mode === 'view' ? <ResidentPanelView /> : <ResidentPanelEdit />}
                 </FocusContainer>
             </TabPane>
         </Tabs>
-
     )
 }

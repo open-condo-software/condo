@@ -1,4 +1,3 @@
-
 import { useMemo } from 'react'
 import { useIntl } from '@core/next/intl'
 
@@ -15,15 +14,15 @@ import { getFilterValue, getTextFilterDropdown } from '@condo/domains/common/com
 import { getTextRender } from '@condo/domains/common/components/Table/Renders'
 
 export interface ITableColumn {
-    title: string,
-    ellipsis?: boolean,
-    sortOrder?: string,
-    filteredValue?: FilterValue,
-    dataIndex?: string,
-    key?: string,
-    sorter?: boolean,
-    width?: string,
-    filterDropdown?: unknown,
+    title: string
+    ellipsis?: boolean
+    sortOrder?: string
+    filteredValue?: FilterValue
+    dataIndex?: string
+    key?: string
+    sorter?: boolean
+    width?: string
+    filterDropdown?: unknown
     filterIcon?: unknown
 }
 
@@ -32,7 +31,7 @@ export const useTableColumns = (sorters: Sorters, filters: FiltersFromQueryType)
     const DivisionTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Division' })
     const BuildingsTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Buildings' })
     const ForemanTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Foreman' })
-    const TechniciansTitleMessage  = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Technicians' })
+    const TechniciansTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Technicians' })
     const { search } = filters
     const render = (text, isArray = false) => {
         let result = text
@@ -41,15 +40,16 @@ export const useTableColumns = (sorters: Sorters, filters: FiltersFromQueryType)
                 <Highliter
                     text={String(text)}
                     search={String(search)}
-                    renderPart={(part) => (
-                        <Typography.Text style={{ backgroundColor: colors.markColor }}>
-                            {part}
-                        </Typography.Text>
-                    )}
+                    renderPart={(part) => <Typography.Text style={{ backgroundColor: colors.markColor }}>{part}</Typography.Text>}
                 />
             )
         }
-        return (<EmptyTableCell>{result}{isArray && <br />}</EmptyTableCell>)
+        return (
+            <EmptyTableCell>
+                {result}
+                {isArray && <br />}
+            </EmptyTableCell>
+        )
     }
     return useMemo(() => {
         type ColumnTypes = [

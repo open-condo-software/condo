@@ -1,6 +1,6 @@
 const { get } = require('lodash')
 
-function getSectionAndFloorByUnitName (property, unitName) {
+function getSectionAndFloorByUnitName(property, unitName) {
     const res = {
         sectionName: null,
         floorName: null,

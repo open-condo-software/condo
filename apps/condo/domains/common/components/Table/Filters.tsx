@@ -11,8 +11,9 @@ import moment from 'moment'
 type FilterIconType = (filtered?: boolean) => React.ReactNode
 type FilterValueType = (path: string | Array<string>, filters: { [x: string]: QueryArgType }) => FilterValue
 
-
-export const getFilterIcon: FilterIconType = (filtered) => <FilterFilled style={{ color: filtered ? colors.sberPrimary[5] : undefined }} />
+export const getFilterIcon: FilterIconType = (filtered) => (
+    <FilterFilled style={{ color: filtered ? colors.sberPrimary[5] : undefined }} />
+)
 export const getFilterValue: FilterValueType = (path, filters) => get(filters, path, null)
 
 export const getTextFilterDropdown = (placeholder: string) => {
@@ -22,7 +23,7 @@ export const getTextFilterDropdown = (placeholder: string) => {
                 <Input
                     placeholder={placeholder}
                     value={selectedKeys}
-                    onChange={e => {
+                    onChange={(e) => {
                         setSelectedKeys(e.target.value)
                         confirm({ closeDropdown: false })
                     }}
@@ -35,10 +36,7 @@ export const getTextFilterDropdown = (placeholder: string) => {
 export const getOptionFilterDropdown = (options: Array<OptionType>, loading: boolean) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         return (
-            <FilterContainer
-                clearFilters={clearFilters}
-                showClearButton={selectedKeys && selectedKeys.length > 0}
-            >
+            <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
                 <Checkbox.Group
                     disabled={loading}
                     options={options}
@@ -58,7 +56,7 @@ export const getDateFilterDropdown = () => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         const pickerProps = {
             value: undefined,
-            onChange: e => {
+            onChange: (e) => {
                 setSelectedKeys(e.toISOString())
                 confirm({ closeDropdown: false })
             },
@@ -70,9 +68,8 @@ export const getDateFilterDropdown = () => {
         }
 
         return (
-            <FilterContainer clearFilters={clearFilters}
-                showClearButton={selectedKeys && selectedKeys.length > 0}>
-                <DatePicker {...pickerProps}/>
+            <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
+                <DatePicker {...pickerProps} />
             </FilterContainer>
         )
     }

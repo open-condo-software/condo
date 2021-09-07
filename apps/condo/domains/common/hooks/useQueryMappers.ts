@@ -9,17 +9,13 @@ export const useQueryMappers = <F>(queryMetas: Array<QueryMeta<F>>, sortableColu
         const validSorts = sortableColumns.reduce((acc, cur) => {
             return [...acc, `${cur}_ASC`, `${cur}_DESC`]
         }, [])
-        const validMetas = queryMetas
-            .filter((meta) => meta && meta.keyword && meta.filters && meta.filters.length > 0)
-
+        const validMetas = queryMetas.filter((meta) => meta && meta.keyword && meta.filters && meta.filters.length > 0)
 
         const filtersToWhere = (queryFilters) => {
             const whereQueries = []
             validMetas.forEach((meta) => {
                 const searchValue = get(queryFilters, meta.keyword)
-                const createdFilters = meta.filters
-                    .map((filter) => filter(searchValue || meta.defaultValue))
-                    .filter(Boolean)
+                const createdFilters = meta.filters.map((filter) => filter(searchValue || meta.defaultValue)).filter(Boolean)
                 if (createdFilters.length) {
                     const combineType = get(meta, 'combineType', 'AND')
                     whereQueries.push({ [combineType]: createdFilters })
@@ -35,8 +31,7 @@ export const useQueryMappers = <F>(queryMetas: Array<QueryMeta<F>>, sortableColu
         }
 
         const sortersToSortBy = (querySorts: SorterColumn | Array<SorterColumn>) => {
-            const sorters = convertSortersToSortBy(querySorts)
-                .filter((sortLine) => validSorts.includes(sortLine))
+            const sorters = convertSortersToSortBy(querySorts).filter((sortLine) => validSorts.includes(sortLine))
             return sorters.length ? sorters : DEFAULT_SORT_BY
         }
 
@@ -44,6 +39,5 @@ export const useQueryMappers = <F>(queryMetas: Array<QueryMeta<F>>, sortableColu
             filtersToWhere,
             sortersToSortBy,
         }
-
     }, [queryMetas, sortableColumns])
 }

@@ -11,7 +11,6 @@ interface IPromptProps {
     handleSave: () => void
 }
 
-
 const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: formSubmit }) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'pages.condo.warning.modal.SaveLabel' })
@@ -47,7 +46,7 @@ const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: for
             isIgnoringPrompt.current = true
             oldFormSubmit.call(form)
         }
-        const onRouteChange = url => {
+        const onRouteChange = (url) => {
             if (!isIgnoringPrompt.current) {
                 if (isFormChanged()) {
                     setNext(url)
@@ -71,17 +70,16 @@ const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: for
             onCancel={hideModal}
             title={title}
             footer={[
-                <Button key="back" type='sberDanger' style={{ margin: '16px' }} onClick={handleCancel}>
+                <Button key="back" type="sberDanger" style={{ margin: '16px' }} onClick={handleCancel}>
                     {LeaveLabel}
                 </Button>,
-                <Button key="submit" type='sberPrimary' onClick={handleSave}>
+                <Button key="submit" type="sberPrimary" onClick={handleSave}>
                     {SaveLabel}
                 </Button>,
             ]}
         >
             {children}
         </Modal>
-
     )
 }
 

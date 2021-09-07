@@ -8,7 +8,6 @@ const { Resident } = require('../utils/serverSchema/index')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { Resident: ResidentAPI } = require('../utils/serverSchema')
 
-
 const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
     types: [
         {
@@ -16,13 +15,15 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
             type: 'input RegisterResidentInput { dv: Int!, sender: SenderFieldInput!, address: String!, addressMeta: AddressMetaFieldInput!, unitName: String! }',
         },
     ],
-    
+
     mutations: [
         {
             access: access.canRegisterResident,
             schema: 'registerResident(data: RegisterResidentInput!): Resident',
             resolver: async (parent, args, context) => {
-                const { data: { dv, sender, address, addressMeta, unitName } } = args
+                const {
+                    data: { dv, sender, address, addressMeta, unitName },
+                } = args
                 const attrs = {
                     dv,
                     sender,
@@ -57,7 +58,6 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
             },
         },
     ],
-    
 })
 
 module.exports = {

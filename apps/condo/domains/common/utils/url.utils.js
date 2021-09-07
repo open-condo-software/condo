@@ -1,6 +1,6 @@
 const qs = require('qs')
 
-function getQueryParams () {
+function getQueryParams() {
     if (typeof global === 'undefined' || !global.location) return {}
     let startIndex = global.location.href.indexOf('?')
     let endIndex = global.location.href.indexOf('#')
@@ -10,7 +10,7 @@ function getQueryParams () {
 }
 
 // refs to: https://stackoverflow.com/questions/8498592/extract-hostname-name-from-string
-function extractHostname (url) {
+function extractHostname(url) {
     let hostname
 
     if (url.indexOf('//') > -1) {
@@ -25,7 +25,7 @@ function extractHostname (url) {
     return hostname
 }
 
-function extractRootDomain (url) {
+function extractRootDomain(url) {
     let domain = extractHostname(url)
     const domainPaths = domain.split('.')
     const pathLength = domainPaths.length

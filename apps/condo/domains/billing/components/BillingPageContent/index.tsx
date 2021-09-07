@@ -15,8 +15,8 @@ import { fontSizes } from '@condo/domains/common/constants/style'
 const SETTINGS_ROUTE = '/settings'
 
 interface IBillingPageContentProps {
-    access: boolean,
-    contextLoading: boolean,
+    access: boolean
+    contextLoading: boolean
     contextError: string | ApolloError
     context: IBillingIntegrationOrganizationContextUIState
 }
@@ -30,40 +30,40 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
     const NoPermissionsMessage = intl.formatMessage({ id: 'NoPermissionToPage' })
     const ConnectBillingMessage = intl.formatMessage({ id: 'ConnectBilling' })
     const AvailableBillingsLabel = intl.formatMessage({ id: 'AvailableBillings' })
-    const YouCanIntegrateWithMessage = intl.formatMessage({ id: 'CanIntegrateWithThisBillings' }, {
-        billingList: AvailableBillingsLabel,
-    })
+    const YouCanIntegrateWithMessage = intl.formatMessage(
+        { id: 'CanIntegrateWithThisBillings' },
+        {
+            billingList: AvailableBillingsLabel,
+        },
+    )
     const NoBillingIntegrationYetMessage = intl.formatMessage({ id: 'NoBillingIntegrationYet' })
-    const ConnectionInProgressMessage = intl.formatMessage({ id:'ConnectionInProgress' })
+    const ConnectionInProgressMessage = intl.formatMessage({ id: 'ConnectionInProgress' })
     const WillBeReadySoonMessage = intl.formatMessage({ id: 'WillBeReadySoon' })
     const ErrorOccurredMessage = intl.formatMessage({ id: 'ErrorOccurred' })
     const CompanyName = intl.formatMessage({ id: 'CompanyName' })
-    const ConnectSupportMessage = intl.formatMessage({ id: 'ErrorHappenedDuringIntegration' }, {
-        company: CompanyName,
-    })
+    const ConnectSupportMessage = intl.formatMessage(
+        { id: 'ErrorHappenedDuringIntegration' },
+        {
+            company: CompanyName,
+        },
+    )
 
     if (!access) {
         return (
             <BasicEmptyListView>
-                <Typography.Title level={3}>
-                    {NoPermissionsMessage}
-                </Typography.Title>
+                <Typography.Title level={3}>{NoPermissionsMessage}</Typography.Title>
             </BasicEmptyListView>
         )
     }
 
     if (contextLoading) {
-        return (
-            <Loader fill size={'large'}/>
-        )
+        return <Loader fill size={'large'} />
     }
 
     if (contextError) {
         return (
             <BasicEmptyListView>
-                <Typography.Title level={3}>
-                    {contextError}
-                </Typography.Title>
+                <Typography.Title level={3}>{contextError}</Typography.Title>
             </BasicEmptyListView>
         )
     }
@@ -82,12 +82,8 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
     if (context.status === BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IN_PROGRESS_STATUS) {
         return (
             <BasicEmptyListView>
-                <Typography.Title level={3}>
-                    {ConnectionInProgressMessage}
-                </Typography.Title>
-                <Typography.Text style={{ fontSize: fontSizes.content }}>
-                    {WillBeReadySoonMessage}
-                </Typography.Text>
+                <Typography.Title level={3}>{ConnectionInProgressMessage}</Typography.Title>
+                <Typography.Text style={{ fontSize: fontSizes.content }}>{WillBeReadySoonMessage}</Typography.Text>
             </BasicEmptyListView>
         )
     }
@@ -95,19 +91,15 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
     if (context.status === BILLING_INTEGRATION_ORGANIZATION_CONTEXT_ERROR_STATUS) {
         return (
             <BasicEmptyListView>
-                <Typography.Title level={3}>
-                    {ErrorOccurredMessage}
-                </Typography.Title>
-                <Typography.Text style={{ fontSize: fontSizes.content }}>
-                    {ConnectSupportMessage}
-                </Typography.Text>
+                <Typography.Title level={3}>{ErrorOccurredMessage}</Typography.Title>
+                <Typography.Text style={{ fontSize: fontSizes.content }}>{ConnectSupportMessage}</Typography.Text>
             </BasicEmptyListView>
         )
     }
 
     return (
         <>
-            <MainContent context={context}/>
+            <MainContent context={context} />
         </>
     )
 }

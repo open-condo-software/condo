@@ -9,14 +9,15 @@ const { BillingIntegrationOrganizationContext, BillingAccount } = require('@cond
 const { ServiceConsumer, Resident } = require('../utils/serverSchema')
 const { NOT_FOUND_ERROR, REQUIRED_NO_VALUE_ERROR } = require('@condo/domains/common/constants/errors')
 
-
-async function _getAccountsFromOrganizationIntgration (context, resident, unitName, accountNumber) {
-    const [userOrganization] = await Organization.getAll(context, { id : resident.organization.id })
+async function _getAccountsFromOrganizationIntgration(context, resident, unitName, accountNumber) {
+    const [userOrganization] = await Organization.getAll(context, { id: resident.organization.id })
     if (!userOrganization) {
         throw new Error(`${NOT_FOUND_ERROR}organization] Organization not found for this user`)
     }
 
-    const [billingContext] = await BillingIntegrationOrganizationContext.getAll(context, { organization: { id: resident.organization.id } })
+    const [billingContext] = await BillingIntegrationOrganizationContext.getAll(context, {
+        organization: { id: resident.organization.id },
+    })
     if (!billingContext) {
         throw new Error(`${NOT_FOUND_ERROR}context] BillingIntegrationOrganizationContext not found for this user`)
     }
@@ -29,15 +30,12 @@ async function _getAccountsFromOrganizationIntgration (context, resident, unitNa
         throw new Error(`${NOT_FOUND_ERROR}account] BillingAccounts not found for this user`)
     }
 
-    applicableBillingAccounts = applicableBillingAccounts.filter(
-        (billingAccount) => {
-            return accountNumber === billingAccount.number || accountNumber === billingAccount.globalId
-        }
-    )
+    applicableBillingAccounts = applicableBillingAccounts.filter((billingAccount) => {
+        return accountNumber === billingAccount.number || accountNumber === billingAccount.globalId
+    })
 
     return applicableBillingAccounts
 }
-
 
 const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsumerService', {
     types: [
@@ -53,18 +51,29 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
             access: access.canRegisterServiceConsumer,
             schema: 'registerServiceConsumer(data: RegisterServiceConsumerInput!): ServiceConsumer',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { data: { dv, sender, residentId, unitName, accountNumber } } = args
+                const {
+                    data: { dv, sender, residentId, unitName, accountNumber },
+                } = args
 
-                if (!unitName || unitName.length === 0) { throw new Error(`${REQUIRED_NO_VALUE_ERROR}unitName] Unit name null or empty: ${unitName}`) }
+                if (!unitName || unitName.length === 0) {
+                    throw new Error(`${REQUIRED_NO_VALUE_ERROR}unitName] Unit name null or empty: ${unitName}`)
+                }
 
-                if (!accountNumber || accountNumber.length === 0) { throw new Error(`${REQUIRED_NO_VALUE_ERROR}accountNumber] Account number null or empty: ${accountNumber}`) }
+                if (!accountNumber || accountNumber.length === 0) {
+                    throw new Error(`${REQUIRED_NO_VALUE_ERROR}accountNumber] Account number null or empty: ${accountNumber}`)
+                }
 
                 const [resident] = await Resident.getAll(context, { id: residentId })
                 if (!resident) {
                     throw new Error(`${NOT_FOUND_ERROR}resident] Resident not found for this user`)
                 }
 
-                const applicableBillingAccounts = await _getAccountsFromOrganizationIntgration(context, resident, unitName, accountNumber)
+                const applicableBillingAccounts = await _getAccountsFromOrganizationIntgration(
+                    context,
+                    resident,
+                    unitName,
+                    accountNumber,
+                )
 
                 if (!Array.isArray(applicableBillingAccounts)) {
                     throw new Error(`${NOT_FOUND_ERROR}billingAccount] No suitable billing accounts found for this user`)
@@ -87,7 +96,6 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
             },
         },
     ],
-    
 })
 
 module.exports = {

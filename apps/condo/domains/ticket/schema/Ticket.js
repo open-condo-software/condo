@@ -15,8 +15,17 @@ const { buildSetOfFieldsToTrackFrom } = require('@condo/domains/common/utils/ser
 const { storeChangesIfUpdated } = require('@condo/domains/common/utils/serverSchema/changeTrackable')
 const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 const { hasDbFields, hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
-const { JSON_EXPECT_OBJECT_ERROR, DV_UNKNOWN_VERSION_ERROR, STATUS_UPDATED_AT_ERROR, JSON_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
-const { createTicketChange, ticketChangeDisplayNameResolversForSingleRelations, relatedManyToManyResolvers } = require('../utils/serverSchema/TicketChange')
+const {
+    JSON_EXPECT_OBJECT_ERROR,
+    DV_UNKNOWN_VERSION_ERROR,
+    STATUS_UPDATED_AT_ERROR,
+    JSON_UNKNOWN_VERSION_ERROR,
+} = require('@condo/domains/common/constants/errors')
+const {
+    createTicketChange,
+    ticketChangeDisplayNameResolversForSingleRelations,
+    relatedManyToManyResolvers,
+} = require('../utils/serverSchema/TicketChange')
 const { PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { normalizeText } = require('@condo/domains/common/utils/text')
@@ -55,7 +64,8 @@ const Ticket = new GQLListSchema('Ticket', {
             type: Text,
         },
         status: {
-            schemaDoc: 'Status is the step of the ticket processing workflow. Companies may have different ticket processing workflows',
+            schemaDoc:
+                'Status is the step of the ticket processing workflow. Companies may have different ticket processing workflows',
             type: Relationship,
             ref: 'TicketStatus',
             knexOptions: { isNotNullable: true }, // Required relationship only!
@@ -70,7 +80,8 @@ const Ticket = new GQLListSchema('Ticket', {
         },
 
         client: {
-            schemaDoc: 'Inhabitant/customer/person who has a problem or want to improve/order something. Not null if we have a registered client',
+            schemaDoc:
+                'Inhabitant/customer/person who has a problem or want to improve/order something. Not null if we have a registered client',
             type: Relationship,
             ref: 'User',
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
@@ -85,15 +96,18 @@ const Ticket = new GQLListSchema('Ticket', {
         },
 
         clientName: {
-            schemaDoc: 'Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it',
+            schemaDoc:
+                'Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it',
             type: Text,
         },
         clientEmail: {
-            schemaDoc: 'Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it',
+            schemaDoc:
+                'Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it',
             type: Text,
         },
         clientPhone: {
-            schemaDoc: 'Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it',
+            schemaDoc:
+                'Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it',
             type: Text,
             hooks: {
                 resolveInput: async ({ resolvedData }) => {
@@ -111,7 +125,8 @@ const Ticket = new GQLListSchema('Ticket', {
         },
 
         operator: {
-            schemaDoc: 'Staff/person who created the issue (submitter). This may be a call center operator or an employee who speaks to a inhabitant/client and filled out an issue for him',
+            schemaDoc:
+                'Staff/person who created the issue (submitter). This may be a call center operator or an employee who speaks to a inhabitant/client and filled out an issue for him',
             type: Relationship,
             ref: 'User',
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
@@ -229,12 +244,18 @@ const Ticket = new GQLListSchema('Ticket', {
                     if (!resolvedData.hasOwnProperty(fieldPath)) return // skip if on value
                     const value = resolvedData[fieldPath]
                     if (value === null) return // null is OK
-                    if (typeof value !== 'object') {return addFieldValidationError(`${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] ${fieldPath} field type error. We expect JSON Object`)}
+                    if (typeof value !== 'object') {
+                        return addFieldValidationError(
+                            `${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] ${fieldPath} field type error. We expect JSON Object`,
+                        )
+                    }
                     const { dv } = value
                     if (dv === 1) {
                         // TODO(pahaz): need to checkIt!
                     } else {
-                        return addFieldValidationError(`${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`)
+                        return addFieldValidationError(
+                            `${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`,
+                        )
                     }
                 },
             },
@@ -269,7 +290,6 @@ const Ticket = new GQLListSchema('Ticket', {
             type: Text,
         },
 
-
         source: {
             schemaDoc: 'Ticket source channel/system. Examples: call, email, visit, ...',
             type: Relationship,
@@ -292,7 +312,16 @@ const Ticket = new GQLListSchema('Ticket', {
         },
         validateInput: ({ resolvedData, existingItem, addValidationError, context, operation }) => {
             // Todo(zuch): add placeClassifier, categoryClassifier and classifierRule
-            if (!hasDbFields(['organization', 'source', 'status', 'details'], resolvedData, existingItem, context, addValidationError)) return
+            if (
+                !hasDbFields(
+                    ['organization', 'source', 'status', 'details'],
+                    resolvedData,
+                    existingItem,
+                    context,
+                    addValidationError,
+                )
+            )
+                return
             if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
             const { dv } = resolvedData
             if (dv === 1) {
@@ -300,16 +329,16 @@ const Ticket = new GQLListSchema('Ticket', {
                 if (resolvedData.statusUpdatedAt) {
                     if (existingItem.statusUpdatedAt) {
                         if (new Date(resolvedData.statusUpdatedAt) <= new Date(existingItem.statusUpdatedAt)) {
-                            return addValidationError(`${ STATUS_UPDATED_AT_ERROR }statusUpdatedAt] Incorrect \`statusUpdatedAt\``)
+                            return addValidationError(`${STATUS_UPDATED_AT_ERROR}statusUpdatedAt] Incorrect \`statusUpdatedAt\``)
                         }
                     } else {
                         if (new Date(resolvedData.statusUpdatedAt) <= new Date(existingItem.createdAt)) {
-                            return addValidationError(`${ STATUS_UPDATED_AT_ERROR }statusUpdatedAt] Incorrect \`statusUpdatedAt\``)
+                            return addValidationError(`${STATUS_UPDATED_AT_ERROR}statusUpdatedAt] Incorrect \`statusUpdatedAt\``)
                         }
                     }
                 }
             } else {
-                return addValidationError(`${ DV_UNKNOWN_VERSION_ERROR }dv] Unknown \`dv\``)
+                return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
             }
         },
         // `beforeChange` cannot be used, because data can be manipulated during updating process somewhere inside a ticket
@@ -326,7 +355,10 @@ const Ticket = new GQLListSchema('Ticket', {
                 createTicketChange,
                 ticketChangeDisplayNameResolversForSingleRelations,
                 relatedManyToManyResolvers,
-                [{ property, unitName }, { placeClassifier, categoryClassifier, problemClassifier }]
+                [
+                    { property, unitName },
+                    { placeClassifier, categoryClassifier, problemClassifier },
+                ],
             )(...args)
         },
     },

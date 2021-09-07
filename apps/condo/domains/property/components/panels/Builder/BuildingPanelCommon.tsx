@@ -12,17 +12,15 @@ import { FullscreenFooter } from './Fullscreen'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
 export const PropertyMapFloor: React.FC = ({ children }) => {
-    return (
-        <div style={{ display: 'block' }}>
-            {children}
-        </div>
-    )
+    return <div style={{ display: 'block' }}>{children}</div>
 }
 
 export const EmptyFloor: React.FC = () => {
     return (
         <div style={{ display: 'block' }}>
-            <UnitButton secondary disabled >&nbsp;</UnitButton>
+            <UnitButton secondary disabled>
+                &nbsp;
+            </UnitButton>
         </div>
     )
 }
@@ -37,17 +35,12 @@ export const EmptyBuildingBlock: React.FC = () => {
         maxWidth: '350px',
     }
     return (
-        <BasicEmptyListView image='/propertyEmpty.svg' >
-            <Typography.Title level={3} >
-                {EmptyPropertyBuildingHeader}
-            </Typography.Title>
-            <Typography.Text style={descriptionStyle}>
-                {EmptyPropertyBuildingDescription}
-            </Typography.Text>
+        <BasicEmptyListView image="/propertyEmpty.svg">
+            <Typography.Title level={3}>{EmptyPropertyBuildingHeader}</Typography.Title>
+            <Typography.Text style={descriptionStyle}>{EmptyPropertyBuildingDescription}</Typography.Text>
         </BasicEmptyListView>
     )
 }
-
 
 interface IBuildingAxisYProps {
     floors: number[]
@@ -56,12 +49,14 @@ interface IBuildingAxisYProps {
 export const BuildingAxisY: React.FC<IBuildingAxisYProps> = ({ floors }) => {
     return (
         <div style={{ display: 'inline-block', marginRight: '12px' }}>
-            {
-                floors.map(floorNum => (
-                    <UnitButton secondary disabled key={`floor_${floorNum}`} style={{ display: 'block' }}>{floorNum}</UnitButton>
-                ))
-            }
-            <UnitButton secondary disabled >&nbsp;</UnitButton>
+            {floors.map((floorNum) => (
+                <UnitButton secondary disabled key={`floor_${floorNum}`} style={{ display: 'block' }}>
+                    {floorNum}
+                </UnitButton>
+            ))}
+            <UnitButton secondary disabled>
+                &nbsp;
+            </UnitButton>
         </div>
     )
 }
@@ -90,20 +85,18 @@ export const BuildingChooseSections: React.FC<IBuildingChooseSectionsProps> = ({
     const sections = Builder.sections
 
     return (
-        <Checkbox.Group onChange={updateVisibleSections} value={Builder.visibleSections}
-            style={{ width: '100%', marginTop: '36px' }} >
-
-            <Row
-                css={FullscreenFooter}
-                gutter={[40, 40]}
-            >
-                {
-                    sections.length >= 2 && sections.map(section => (
+        <Checkbox.Group
+            onChange={updateVisibleSections}
+            value={Builder.visibleSections}
+            style={{ width: '100%', marginTop: '36px' }}
+        >
+            <Row css={FullscreenFooter} gutter={[40, 40]}>
+                {sections.length >= 2 &&
+                    sections.map((section) => (
                         <Col key={section.id} flex={0} style={{ paddingTop: '10px' }}>
                             <Checkbox value={section.id}>{section.name}</Checkbox>
                         </Col>
-                    ))
-                }
+                    ))}
                 <Col style={{ marginLeft: 'auto' }}>
                     <span>
                         <Button
@@ -115,9 +108,7 @@ export const BuildingChooseSections: React.FC<IBuildingChooseSectionsProps> = ({
                             size={'large'}
                             onClick={toggleFullscreen}
                         >
-                            {isFullscreen
-                                ? ExitFullscreenMessage
-                                : RequestFullscreenMessage}
+                            {isFullscreen ? ExitFullscreenMessage : RequestFullscreenMessage}
                         </Button>
                     </span>
                 </Col>
@@ -126,7 +117,7 @@ export const BuildingChooseSections: React.FC<IBuildingChooseSectionsProps> = ({
     )
 }
 
-export function useHorizontalScroll (): React.RefObject<HTMLElement>{
+export function useHorizontalScroll(): React.RefObject<HTMLElement> {
     const elementRef = useRef<HTMLElement | null>(null)
     useEffect(() => {
         const element = elementRef.current

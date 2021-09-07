@@ -6,55 +6,56 @@ export type ViewModeTypes = 'bar' | 'line' | 'pie'
 export type AnalyticsDataType = Record<string, Record<string, number>>
 
 type ChartConfigResult = {
-    legend: string[],
-    series: unknown[],
+    legend: string[]
+    series: unknown[]
     axisData: {
-        xAxis: { type: string, data: null | string[] },
-        yAxis: { type: string, data: null | string[] }
-    },
+        xAxis: { type: string; data: null | string[] }
+        yAxis: { type: string; data: null | string[] }
+    }
     tooltip: {
-        trigger: string,
+        trigger: string
         axisPointer: { type: string }
     }
 }
 
-interface IGetChartConfig extends IGetBaseChartConfig<ViewModeTypes, AnalyticsDataType, ChartConfigResult>{
+interface IGetChartConfig extends IGetBaseChartConfig<ViewModeTypes, AnalyticsDataType, ChartConfigResult> {
     (viewMode: ViewModeTypes, data: AnalyticsDataType): {
-        legend,
-        series,
+        legend
+        series
         axisData: {
-            xAxis: { type, data },
-            yAxis: { type, data }
-        },
+            xAxis: { type; data }
+            yAxis: { type; data }
+        }
         tooltip: {
-            trigger,
+            trigger
             axisPointer: { type }
         }
     }
 }
 
 type RestTableOptionsType = {
-    translations: unknown;
-    filters?: unknown;
+    translations: unknown
+    filters?: unknown
 }
 type TableConfigResult = {
     dataSource: TableProps<AnalyticsDataType>['dataSource']
     tableColumns: TableColumnsType
 }
 
-interface IGetTableConfig extends IGetBaseTableConfig<ViewModeTypes, AnalyticsDataType, RestTableOptionsType, TableConfigResult>{
+interface IGetTableConfig extends IGetBaseTableConfig<ViewModeTypes, AnalyticsDataType, RestTableOptionsType, TableConfigResult> {
     (viewMode, data: AnalyticsDataType, restOptions): {
-        dataSource, tableColumns
+        dataSource
+        tableColumns
     }
 }
 
 export type ChartConfigMapType = {
-    bar?: { chart: IGetChartConfig; table: IGetTableConfig; };
-    line?: { chart: IGetChartConfig; table: IGetTableConfig; };
-    pie?: { chart: IGetChartConfig; table: IGetTableConfig; };
+    bar?: { chart: IGetChartConfig; table: IGetTableConfig }
+    line?: { chart: IGetChartConfig; table: IGetTableConfig }
+    pie?: { chart: IGetChartConfig; table: IGetTableConfig }
 }
 
-class TicketChart extends BaseChart<ChartConfigMapType, ChartConfigResult, TableConfigResult>{
+class TicketChart extends BaseChart<ChartConfigMapType, ChartConfigResult, TableConfigResult> {
     getChartConfig: IGetChartConfig = (viewMode, data) => {
         return this.chartConfigMap[viewMode]['chart'](viewMode, data)
     }

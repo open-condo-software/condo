@@ -20,13 +20,13 @@ const userIsOwner = ({ existingItem, authentication: { item: user } }) => {
     return existingItem.user.id === user.id
 }
 
-const userIsAdminOrOwner = auth => {
+const userIsAdminOrOwner = (auth) => {
     const isAdmin = userIsAdmin(auth)
     const isOwner = userIsOwner(auth)
     return Boolean(isAdmin || isOwner)
 }
 
-const userIsAdminOrIsThisItem = auth => {
+const userIsAdminOrIsThisItem = (auth) => {
     const isAdmin = userIsAdmin(auth)
     const isThisItem = userIsThisItem(auth)
     return Boolean(isAdmin || isThisItem)
@@ -64,19 +64,17 @@ const readOnlyField = {
 
 const isSoftDelete = (originalInput) => {
     // TODO(antonal): extract validations of `originalInput` to separate module and user ajv to validate JSON-schema
-    const isJustSoftDelete = (
+    const isJustSoftDelete =
         Object.keys(originalInput).length === 3 &&
         get(originalInput, 'deletedAt') &&
         get(originalInput, 'dv') &&
         get(originalInput, 'sender')
-    )
-    const isSoftDeleteWithMerge = (
+    const isSoftDeleteWithMerge =
         Object.keys(originalInput).length === 4 &&
         get(originalInput, 'deletedAt') &&
         get(originalInput, 'newId') &&
         get(originalInput, 'dv') &&
         get(originalInput, 'sender')
-    )
     return isJustSoftDelete || isSoftDeleteWithMerge
 }
 

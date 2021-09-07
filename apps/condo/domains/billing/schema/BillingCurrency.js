@@ -10,9 +10,7 @@ const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields'
 const access = require('@condo/domains/billing/access/BillingCurrency')
 const { validateCurrencyDisplayInfo } = require('@condo/domains/billing/utils/validation.utils')
 
-
 const BillingCurrency = new GQLListSchema('BillingCurrency', {
-
     schemaDoc: 'Billing Currency model',
     fields: {
         dv: DV_FIELD,
@@ -33,7 +31,6 @@ const BillingCurrency = new GQLListSchema('BillingCurrency', {
                 validateInput: validateCurrencyDisplayInfo,
             },
         },
-
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {

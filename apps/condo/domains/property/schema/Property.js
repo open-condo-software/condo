@@ -11,8 +11,18 @@ const access = require('@condo/domains/property/access/Property')
 const get = require('lodash/get')
 const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 const { hasDbFields, hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
-const { DV_UNKNOWN_VERSION_ERROR, JSON_UNKNOWN_VERSION_ERROR, JSON_SCHEMA_VALIDATION_ERROR, REQUIRED_NO_VALUE_ERROR, JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/errors')
-const { PROPERTY_MAP_GRAPHQL_TYPES, GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY, GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY } = require('../gql')
+const {
+    DV_UNKNOWN_VERSION_ERROR,
+    JSON_UNKNOWN_VERSION_ERROR,
+    JSON_SCHEMA_VALIDATION_ERROR,
+    REQUIRED_NO_VALUE_ERROR,
+    JSON_EXPECT_OBJECT_ERROR,
+} = require('@condo/domains/common/constants/errors')
+const {
+    PROPERTY_MAP_GRAPHQL_TYPES,
+    GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY,
+    GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY,
+} = require('../gql')
 const MapSchemaJSON = require('@condo/domains/property/components/panels/Builder/MapJsonSchema.json')
 const Ajv = require('ajv')
 const { ADDRESS_META_FIELD } = require('@condo/domains/common/schema/fields')
@@ -22,11 +32,10 @@ const { normalizePropertyMap } = require('../utils/serverSchema/helpers')
 const ajv = new Ajv()
 const jsonMapValidator = ajv.compile(MapSchemaJSON)
 
-
-
 // ORGANIZATION_OWNED_FIELD
 const Property = new GQLListSchema('Property', {
-    schemaDoc: 'Common property. The property is divided into separate `unit` parts, each of which can be owned by an independent owner. Community farm, residential buildings, or a cottage settlement',
+    schemaDoc:
+        'Common property. The property is divided into separate `unit` parts, each of which can be owned by an independent owner. Community farm, residential buildings, or a cottage settlement',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
@@ -48,14 +57,23 @@ const Property = new GQLListSchema('Property', {
                     const value = resolvedData[fieldPath]
                     let propertiesWithSameAddressInOrganization
                     if (operation === 'create') {
-                        propertiesWithSameAddressInOrganization = await PropertyAPI.getAll(context, { address: value, organization: { id: resolvedData.organization }, deletedAt: null })
-                    }
-                    else if (operation === 'update' && resolvedData.address !== existingItem.address) {
-                        propertiesWithSameAddressInOrganization = await PropertyAPI.getAll(context, { address: value, organization: { id: existingItem.organization }, deletedAt: null })
+                        propertiesWithSameAddressInOrganization = await PropertyAPI.getAll(context, {
+                            address: value,
+                            organization: { id: resolvedData.organization },
+                            deletedAt: null,
+                        })
+                    } else if (operation === 'update' && resolvedData.address !== existingItem.address) {
+                        propertiesWithSameAddressInOrganization = await PropertyAPI.getAll(context, {
+                            address: value,
+                            organization: { id: existingItem.organization },
+                            deletedAt: null,
+                        })
                     }
 
                     if (propertiesWithSameAddressInOrganization && propertiesWithSameAddressInOrganization.length > 0) {
-                        addFieldValidationError(`${UNIQUE_ALREADY_EXISTS_ERROR}${fieldPath}] Property with same address exist in current organization`)
+                        addFieldValidationError(
+                            `${UNIQUE_ALREADY_EXISTS_ERROR}${fieldPath}] Property with same address exist in current organization`,
+                        )
                     }
                 },
             },
@@ -87,21 +105,30 @@ const Property = new GQLListSchema('Property', {
                     if (!resolvedData.hasOwnProperty(fieldPath)) return // skip if on value
                     const value = resolvedData[fieldPath]
                     if (value === null) return // null is OK
-                    if (typeof value !== 'object') { return addFieldValidationError(`${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] ${fieldPath} field type error. We expect JSON Object`) }
+                    if (typeof value !== 'object') {
+                        return addFieldValidationError(
+                            `${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] ${fieldPath} field type error. We expect JSON Object`,
+                        )
+                    }
                     const { dv } = value
                     if (dv === 1) {
-                        if (!jsonMapValidator(value)){
+                        if (!jsonMapValidator(value)) {
                             // console.log(JSON.stringify(jsonMapValidator.errors, null, 2))
-                            return addFieldValidationError(`${JSON_SCHEMA_VALIDATION_ERROR}] invalid json structure of "map" field`)
+                            return addFieldValidationError(
+                                `${JSON_SCHEMA_VALIDATION_ERROR}] invalid json structure of "map" field`,
+                            )
                         }
                     } else {
-                        return addFieldValidationError(`${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`)
+                        return addFieldValidationError(
+                            `${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`,
+                        )
                     }
                 },
             },
         },
         unitsCount: {
-            schemaDoc: 'A number of parts in the property. The number of flats for property.type = house. The number of garden houses for property.type = village.',
+            schemaDoc:
+                'A number of parts in the property. The number of flats for property.type = house. The number of garden houses for property.type = village.',
             type: Integer,
             isRequired: true,
             defaultValue: 0,
@@ -109,11 +136,9 @@ const Property = new GQLListSchema('Property', {
                 resolveInput: async ({ operation, existingItem, resolvedData }) => {
                     const getTotalUnitsCount = (map) => {
                         return get(map, 'sections', [])
-                            .map((section) => get(section, 'floors', [])
-                                .map(floor => get(floor, 'units', []).length))
+                            .map((section) => get(section, 'floors', []).map((floor) => get(floor, 'units', []).length))
                             .flat()
                             .reduce((total, unitsOnFloor) => total + unitsOnFloor, 0)
-
                     }
 
                     let unitsCount = 0
@@ -191,7 +216,16 @@ const Property = new GQLListSchema('Property', {
     hooks: {
         validateInput: ({ resolvedData, existingItem, context, addValidationError }) => {
             if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
-            if (!hasDbFields(['organization', 'type', 'address', 'addressMeta'], resolvedData, existingItem, context, addValidationError)) return
+            if (
+                !hasDbFields(
+                    ['organization', 'type', 'address', 'addressMeta'],
+                    resolvedData,
+                    existingItem,
+                    context,
+                    addValidationError,
+                )
+            )
+                return
             const { dv } = resolvedData
             if (dv === 1) {
                 // NOTE: version 1 specific translations. Don't optimize this logic

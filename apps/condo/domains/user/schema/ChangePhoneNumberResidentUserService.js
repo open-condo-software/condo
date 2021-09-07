@@ -4,11 +4,8 @@
 
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/user/access/ChangePhoneNumberResidentUserService')
-const {
-    CONFIRM_PHONE_ACTION_EXPIRED,
-} = require('@condo/domains/user/constants/errors')
+const { CONFIRM_PHONE_ACTION_EXPIRED } = require('@condo/domains/user/constants/errors')
 const { ConfirmPhoneAction, User } = require('@condo/domains/user/utils/serverSchema')
-
 
 const ChangePhoneNumberResidentUserService = new GQLCustomSchema('ChangePhoneNumberResidentUserService', {
     types: [
@@ -27,16 +24,16 @@ const ChangePhoneNumberResidentUserService = new GQLCustomSchema('ChangePhoneNum
             access: access.canChangePhoneNumberResidentUser,
             schema: 'changePhoneNumberResidentUser(data: ChangePhoneNumberResidentUserInput!): ChangePhoneNumberResidentUserOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { data: { token } } = args
+                const {
+                    data: { token },
+                } = args
                 const userId = context.authedItem.id
-                const [action] = await ConfirmPhoneAction.getAll(context,
-                    {
-                        expiresAt_gte: new Date().toISOString(),
-                        token,
-                        completedAt: null,
-                        isPhoneVerified: true,
-                    }
-                )
+                const [action] = await ConfirmPhoneAction.getAll(context, {
+                    expiresAt_gte: new Date().toISOString(),
+                    token,
+                    completedAt: null,
+                    isPhoneVerified: true,
+                })
                 if (!action) {
                     throw new Error(`${CONFIRM_PHONE_ACTION_EXPIRED}] Unable to find confirm phone action`)
                 }
@@ -50,7 +47,6 @@ const ChangePhoneNumberResidentUserService = new GQLCustomSchema('ChangePhoneNum
             },
         },
     ],
-
 })
 
 module.exports = {

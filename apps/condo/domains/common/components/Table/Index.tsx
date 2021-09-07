@@ -49,11 +49,7 @@ export const Table: React.FC<ITableProps> = ({
     // Triggered, when table pagination/filters/sorting changes
     // Modifies the query to match the state of the table
     const handleChange = debounce((...tableChangeArguments) => {
-        const [
-            nextPagination,
-            nextFilters,
-            nextSorters,
-        ] = tableChangeArguments
+        const [nextPagination, nextFilters, nextSorters] = tableChangeArguments
         const { current } = nextPagination
         let shouldResetOffset = false
 
@@ -79,7 +75,7 @@ export const Table: React.FC<ITableProps> = ({
             }
         }
 
-        let newSorters  = null
+        let newSorters = null
         if (nextSorters && nextSorters.order) {
             newSorters = `${nextSorters.field}_${FULL_TO_SHORT_ORDERS_MAP[nextSorters.order]}`
         }
@@ -90,7 +86,6 @@ export const Table: React.FC<ITableProps> = ({
 
         const newOffset = shouldResetOffset ? 0 : (current - 1) * rowsPerPage
 
-
         const queryParams = {
             filters: JSON.stringify(newFilters),
             offset: newOffset,
@@ -98,8 +93,7 @@ export const Table: React.FC<ITableProps> = ({
         }
         if (applyQuery) {
             return applyQuery(queryParams)
-        }
-        else {
+        } else {
             const newQuery = qs.stringify({ ...queryParams }, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })
             return router.push(router.route + newQuery)
         }

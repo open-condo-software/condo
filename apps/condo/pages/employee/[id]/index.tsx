@@ -30,18 +30,20 @@ const ReInviteActionAlert = ({ employee }) => {
     const isEmployeeRejected = get(employee, 'isRejected')
 
     if (isEmployeeRejected) {
-        return (
-            <Alert showIcon type='warning' message={EmployeeRejectedMessage}/>
-        )
+        return <Alert showIcon type="warning" message={EmployeeRejectedMessage} />
     }
 
     return (
-        <Alert showIcon type='warning' message={
-            <>
-                {EmployeeDidntEnteredMessage}&nbsp;
-                <EmployeeInviteRetryButton employee={employee}/>
-            </>
-        }/>
+        <Alert
+            showIcon
+            type="warning"
+            message={
+                <>
+                    {EmployeeDidntEnteredMessage}&nbsp;
+                    <EmployeeInviteRetryButton employee={employee} />
+                </>
+            }
+        />
     )
 }
 
@@ -83,35 +85,27 @@ export const EmployeePageContent = ({
                 <PageContent>
                     <Row gutter={[0, 40]}>
                         <Col span={3}>
-                            <UserAvatar borderRadius={24} isBlocked={isEmployeeBlocked}/>
+                            <UserAvatar borderRadius={24} isBlocked={isEmployeeBlocked} />
                         </Col>
                         <Col span={20} push={1}>
                             <Row gutter={[0, 60]}>
                                 <Col span={24}>
                                     <Row gutter={[0, 40]}>
                                         <Col span={24}>
-                                            <Typography.Title
-                                                level={1}
-                                                style={{ margin: 0, fontWeight: 'bold' }}
-                                            >
+                                            <Typography.Title level={1} style={{ margin: 0, fontWeight: 'bold' }}>
                                                 {name}
                                             </Typography.Title>
                                             <NotDefinedField
                                                 showMessage={false}
                                                 value={get(employee, ['position'])}
                                                 render={(value) => (
-                                                    <Typography.Title
-                                                        level={2}
-                                                        style={{ margin: '8px 0 0', fontWeight: 400 }}
-                                                    >
+                                                    <Typography.Title level={2} style={{ margin: '8px 0 0', fontWeight: 400 }}>
                                                         {value}
                                                     </Typography.Title>
                                                 )}
                                             />
                                         </Col>
-                                        {isEmployeeReinvitable && (
-                                            <ReInviteActionAlert employee={employee} />
-                                        )}
+                                        {isEmployeeReinvitable && <ReInviteActionAlert employee={employee} />}
                                         {isEmployeeEditable && (
                                             <Col span={24}>
                                                 <label>
@@ -120,7 +114,7 @@ export const EmployeePageContent = ({
                                                             onChange={handleEmployeeBlock}
                                                             defaultChecked={isEmployeeBlocked}
                                                         />
-                                                        <Typography.Text type='danger' style={{ fontSize: fontSizes.content }}>
+                                                        <Typography.Text type="danger" style={{ fontSize: fontSizes.content }}>
                                                             {BlockUserMessage}
                                                         </Typography.Text>
                                                     </Space>
@@ -131,37 +125,27 @@ export const EmployeePageContent = ({
                                             <FrontLayerContainer showLayer={isEmployeeBlocked}>
                                                 <Row gutter={[0, 24]}>
                                                     <Col span={3}>
-                                                        <Typography.Text type='secondary'>
-                                                            {PhoneMessage}
-                                                        </Typography.Text>
+                                                        <Typography.Text type="secondary">{PhoneMessage}</Typography.Text>
                                                     </Col>
                                                     <Col span={19} push={2}>
-                                                        <NotDefinedField value={get(employee, 'phone')}/>
+                                                        <NotDefinedField value={get(employee, 'phone')} />
                                                     </Col>
 
                                                     <Col span={3}>
-                                                        <Typography.Text type='secondary'>
-                                                            {RoleMessage}
-                                                        </Typography.Text>
+                                                        <Typography.Text type="secondary">{RoleMessage}</Typography.Text>
                                                     </Col>
                                                     <Col span={19} push={2}>
                                                         <NotDefinedField
                                                             value={get(employee, ['role', 'name'])}
-                                                            render={
-                                                                (roleName) => (
-                                                                    <Tag color='default'>{roleName}</Tag>
-                                                                )
-                                                            }
+                                                            render={(roleName) => <Tag color="default">{roleName}</Tag>}
                                                         />
                                                     </Col>
 
                                                     <Col span={3}>
-                                                        <Typography.Text type='secondary'>
-                                                            {EmailMessage}
-                                                        </Typography.Text>
+                                                        <Typography.Text type="secondary">{EmailMessage}</Typography.Text>
                                                     </Col>
                                                     <Col span={19} push={2}>
-                                                        <NotDefinedField value={get(employee, 'email')}/>
+                                                        <NotDefinedField value={get(employee, 'email')} />
                                                     </Col>
                                                 </Row>
                                             </FrontLayerContainer>
@@ -207,13 +191,16 @@ export const EmployeeInfoPage = () => {
     const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
 
     const employeeId = get(query, 'id', '')
-    const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject(
-        {
-            where: {
-                id: String(employeeId),
-            },
-        }
-    )
+    const {
+        obj: employee,
+        loading,
+        error,
+        refetch,
+    } = OrganizationEmployee.useObject({
+        where: {
+            id: String(employeeId),
+        },
+    })
 
     const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => refetch())
     const softDeleteAction = OrganizationEmployee.useSoftDelete({}, () => Router.push('/employee/'))
@@ -222,7 +209,7 @@ export const EmployeeInfoPage = () => {
     const isEmployeeReinvitable = canReinviteEmployee(link, employee)
 
     if (error || loading) {
-        return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null}/>
+        return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null} />
     }
 
     return (
@@ -236,9 +223,9 @@ export const EmployeeInfoPage = () => {
     )
 }
 
-EmployeeInfoPage.headerAction = <ReturnBackHeaderAction
-    descriptor={{ id: 'pages.condo.employee.PageTitle' }}
-    path={'/employee/'}/>
+EmployeeInfoPage.headerAction = (
+    <ReturnBackHeaderAction descriptor={{ id: 'pages.condo.employee.PageTitle' }} path={'/employee/'} />
+)
 EmployeeInfoPage.requiredAccess = OrganizationRequired
 
 export default EmployeeInfoPage

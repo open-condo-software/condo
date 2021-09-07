@@ -46,35 +46,38 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
 
     const [mapValidationError, setMapValidationError] = useState<string | null>(null)
     const [addressValidatorError, setAddressValidatorError] = useState<string | null>(null)
-    const formValuesToMutationDataPreprocessor = useCallback((formData, _, form) => {
-        const isAddressFieldTouched = form.isFieldsTouched(['address'])
+    const formValuesToMutationDataPreprocessor = useCallback(
+        (formData, _, form) => {
+            const isAddressFieldTouched = form.isFieldsTouched(['address'])
 
-        if (isAddressFieldTouched) {
-            try {
-                const addressMeta = addressApi.getAddressMeta(formData.address)
+            if (isAddressFieldTouched) {
+                try {
+                    const addressMeta = addressApi.getAddressMeta(formData.address)
 
-                return { ...formData, addressMeta: { dv: 1, ...addressMeta } }
-            } catch (e) {
-                notification.error({
-                    message: ServerErrorMsg,
-                    description: AddressMetaError,
-                })
+                    return { ...formData, addressMeta: { dv: 1, ...addressMeta } }
+                } catch (e) {
+                    notification.error({
+                        message: ServerErrorMsg,
+                        description: AddressMetaError,
+                    })
 
-                console.error(e)
-                return
+                    console.error(e)
+                    return
+                }
             }
-        }
 
-        // Requested fields of Property of JSON-type, mapped to GraphQL, containing `__typename` field in each typed node.
-        // It seems, like we cannot control it.
-        // So, these fields should be cleaned, because it will result to incorrect input into update-mutation
-        const cleanedFormData = omitRecursively(formData, '__typename')
-        return cleanedFormData
-    }, [initialValues])
+            // Requested fields of Property of JSON-type, mapped to GraphQL, containing `__typename` field in each typed node.
+            // It seems, like we cannot control it.
+            // So, these fields should be cleaned, because it will result to incorrect input into update-mutation
+            const cleanedFormData = omitRecursively(formData, '__typename')
+            return cleanedFormData
+        },
+        [initialValues],
+    )
 
     const { requiredValidator } = useValidations()
     const addressValidator = {
-        validator () {
+        validator() {
             if (!addressValidatorError) {
                 return Promise.resolve()
             }
@@ -105,52 +108,39 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                 {({ handleSave, isLoading, form }) => {
                     return (
                         <>
-                            <Prompt
-                                title={PromptTitle}
-                                form={form}
-                                handleSave={handleSave}
-                            >
-                                <Typography.Paragraph>
-                                    {PromptHelpMessage}
-                                </Typography.Paragraph>
+                            <Prompt title={PromptTitle} form={form} handleSave={handleSave}>
+                                <Typography.Paragraph>{PromptHelpMessage}</Typography.Paragraph>
                             </Prompt>
                             <Row gutter={[0, 40]}>
-                                <Col span={7} >
-                                    <Form.Item
-                                        name="address"
-                                        label={AddressLabel}
-                                        rules={validations.address}
-                                    >
+                                <Col span={7}>
+                                    <Form.Item name="address" label={AddressLabel} rules={validations.address}>
                                         <AddressSuggestionsSearchInput
                                             onSelect={(_, option) => {
                                                 const address = JSON.parse(option.key) as AddressMetaField
                                                 if (!validHouseTypes.includes(address.data.house_type_full)) {
                                                     setAddressValidatorError(AddressValidationErrorMsg)
-                                                }
-                                                else if (AddressValidationErrorMsg) setAddressValidatorError(null)
-                                            }} />
+                                                } else if (AddressValidationErrorMsg) setAddressValidatorError(null)
+                                            }}
+                                        />
                                     </Form.Item>
                                 </Col>
                                 <Col span={7} offset={1}>
-                                    <Form.Item
-                                        name="name"
-                                        label={NameMsg}
-                                    >
-                                        <Input allowClear={true}/>
+                                    <Form.Item name="name" label={NameMsg}>
+                                        <Input allowClear={true} />
                                     </Form.Item>
                                 </Col>
-                                <Col span={24} >
+                                <Col span={24}>
                                     <Form.Item
                                         hidden
-                                        name='map'
+                                        name="map"
                                         rules={[
                                             {
-                                                validator (rule, value) {
+                                                validator(rule, value) {
                                                     const unitLabels = value?.sections
-                                                        ?.map((section) => section.floors
-                                                            ?.map(floor => floor.units
-                                                                ?.map(unit => unit.label)
-                                                            )
+                                                        ?.map((section) =>
+                                                            section.floors?.map((floor) =>
+                                                                floor.units?.map((unit) => unit.label),
+                                                            ),
                                                         )
                                                         .flat(2)
 
@@ -167,30 +157,23 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                     >
                                         <Input />
                                     </Form.Item>
-                                    <Form.Item
-                                        shouldUpdate={true}
-                                        onBlur={() => setMapValidationError(null)}
-                                    >
-                                        {
-                                            ({ getFieldsValue, setFieldsValue }) => {
-                                                const { map } = getFieldsValue(['map'])
-                                                return (
-                                                    <PropertyPanels
-                                                        mapValidationError={mapValidationError}
-                                                        mode='edit'
-                                                        map={map}
-                                                        handleSave={handleSave}
-                                                        updateMap={map => setFieldsValue({ map })}
-                                                        address={props.address}
-                                                    />
-                                                )
-                                            }
-                                        }
+                                    <Form.Item shouldUpdate={true} onBlur={() => setMapValidationError(null)}>
+                                        {({ getFieldsValue, setFieldsValue }) => {
+                                            const { map } = getFieldsValue(['map'])
+                                            return (
+                                                <PropertyPanels
+                                                    mapValidationError={mapValidationError}
+                                                    mode="edit"
+                                                    map={map}
+                                                    handleSave={handleSave}
+                                                    updateMap={(map) => setFieldsValue({ map })}
+                                                    address={props.address}
+                                                />
+                                            )
+                                        }}
                                     </Form.Item>
                                 </Col>
-                                <Col span={24}>
-                                    {props.children({ handleSave, isLoading, form })}
-                                </Col>
+                                <Col span={24}>{props.children({ handleSave, isLoading, form })}</Col>
                             </Row>
                         </>
                     )

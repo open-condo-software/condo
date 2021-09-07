@@ -5,15 +5,15 @@ import { IContactUIState } from '../../utils/clientSchema/Contact'
 
 interface IContactsEditorHookArgs {
     // Organization scope for contacts autocomplete and new contact, that can be created
-    organization: string,
-    role?: Record<string, boolean>,
+    organization: string
+    role?: Record<string, boolean>
 }
 
 interface IContactsEditorHookResult {
-    createContact: (organization: string, property: string, unitName: string) => Promise<IContactUIState>,
-    ContactsEditorComponent: React.FC<IContactEditorProps>,
+    createContact: (organization: string, property: string, unitName: string) => Promise<IContactUIState>
+    ContactsEditorComponent: React.FC<IContactEditorProps>
     // Explicitly indicates, that we have enough data to call `createContact` action
-    canCreateContact: boolean,
+    canCreateContact: boolean
 }
 
 export const useContactsEditorHook = ({ organization, role }: IContactsEditorHookArgs): IContactsEditorHookResult => {
@@ -62,7 +62,7 @@ export const useContactsEditorHook = ({ organization, role }: IContactsEditorHoo
                 if (e.message.match('Contact_uniq')) {
                     console.error(e)
                 } else {
-                    throw (e)
+                    throw e
                 }
             }
         }
@@ -70,12 +70,7 @@ export const useContactsEditorHook = ({ organization, role }: IContactsEditorHoo
 
     const ContactsEditorComponent: React.FC<IContactEditorProps> = useMemo(() => {
         const ContactsEditorWrapper = (props) => (
-            <ContactsEditor
-                {...props}
-                role={role}
-                organization={organization}
-                onChange={handleChangeContact}
-            />
+            <ContactsEditor {...props} role={role} organization={organization} onChange={handleChangeContact} />
         )
         return ContactsEditorWrapper
     }, [role, organization])

@@ -20,7 +20,6 @@ const TicketPlaceClassifier = new GQLListSchema('TicketPlaceClassifier', {
             type: Text,
             isRequired: true,
         },
-
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {

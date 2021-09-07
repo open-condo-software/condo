@@ -6,16 +6,7 @@ import Head from 'next/head'
 import { useIntl } from '@core/next/intl'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import {
-    Col,
-    Radio,
-    Row,
-    Typography,
-    Tabs,
-    Divider,
-    Select,
-    Tooltip, Form, notification, TableColumnsType,
-} from 'antd'
+import { Col, Radio, Row, Typography, Tabs, Divider, Select, Tooltip, Form, notification, TableColumnsType } from 'antd'
 import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
@@ -34,7 +25,8 @@ import DateRangePicker from '@condo/domains/common/components/DateRangePicker'
 import TicketChart, { ViewModeTypes, TicketSelectTypes } from '@condo/domains/ticket/components/TicketChart'
 import {
     filterToQuery,
-    getAggregatedData, GroupTicketsByTypes,
+    getAggregatedData,
+    GroupTicketsByTypes,
     specificationTypes,
     ticketAnalyticsPageFilters,
 } from '@condo/domains/ticket/utils/helpers'
@@ -70,15 +62,15 @@ const DATE_RANGE_PRESETS = {
 }
 
 const tabsCss = css`
-  & .ant-tabs-tab.ant-tabs-tab-active {
-    font-weight: bold;
-  }
-  & .ant-tabs-nav {
-    margin: 0;
-  }
-  & .ant-tabs-nav::before {
-    border-bottom: unset;
-  }
+    & .ant-tabs-tab.ant-tabs-tab-active {
+        font-weight: bold;
+    }
+    & .ant-tabs-nav {
+        margin: 0;
+    }
+    & .ant-tabs-nav::before {
+        border-bottom: unset;
+    }
 `
 
 const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ viewMode, onChange }) => {
@@ -88,7 +80,9 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     const SpecificationTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.SpecificationTitle' })
     const SpecificationDays = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.Specification.Days' })
     const SpecificationWeeks = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.Specification.Weeks' })
-    const AllAddressesPlaceholder = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.AllAddressesPlaceholder' })
+    const AllAddressesPlaceholder = intl.formatMessage({
+        id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.AllAddressesPlaceholder',
+    })
     const AddressTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.AddressTitle' })
     const ApplyButtonTitle = intl.formatMessage({ id: 'Show' })
     const PresetWeek = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.PeriodPreset.Week' })
@@ -106,13 +100,16 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
 
     const updateUrlFilters = useCallback(() => {
         const [startDate, endDate] = dateRange
-        router.push(`${router.route}?` + qs.stringify({
-            createdAt_lte: startDate.toISOString(),
-            createdAt_gte: endDate.toISOString(),
-            specification,
-            addressList: JSON.stringify(addressListRef.current),
-            viewMode,
-        }))
+        router.push(
+            `${router.route}?` +
+                qs.stringify({
+                    createdAt_lte: startDate.toISOString(),
+                    createdAt_gte: endDate.toISOString(),
+                    specification,
+                    addressList: JSON.stringify(addressListRef.current),
+                    viewMode,
+                }),
+        )
     }, [dateRange, specification, addressList, viewMode])
 
     useEffect(() => {
@@ -124,7 +121,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
         const specificationUrl = get(queryParams, 'specification')
         if (startDate && endDate && specificationUrl && addressList) {
             addressListRef.current = addressList
-            setAddressList(addressList.length ? addressList.map(e => e.value) : [])
+            setAddressList(addressList.length ? addressList.map((e) => e.value) : [])
             setDateRange(range)
             setSpecification(specificationUrl)
         }
@@ -139,7 +136,6 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     useEffect(() => {
         updateUrlFilters()
     }, [viewMode])
-
 
     const applyFilters = useCallback(() => {
         updateUrlFilters()
@@ -158,25 +154,25 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
         [userOrganizationId],
     )
 
-    const onAddressChange = useCallback((labelsList, searchObjectsList) => {
-        setAddressList(labelsList as string[])
-        addressListRef.current = [...searchObjectsList.map(({ key: id, title: value }) => ({ id, value }))]
-    }, [addressList])
+    const onAddressChange = useCallback(
+        (labelsList, searchObjectsList) => {
+            setAddressList(labelsList as string[])
+            addressListRef.current = [...searchObjectsList.map(({ key: id, title: value }) => ({ id, value }))]
+        },
+        [addressList],
+    )
 
     return (
         <Form>
             <Row gutter={[44, 12]}>
                 <Col flex={0}>
                     <Form.Item label={PeriodTitle} {...FORM_ITEM_STYLE} style={{ width: 240 }}>
-                        <DateRangePicker
-                            value={dateRange}
-                            onChange={(range) => setDateRange(range)}
-                        />
+                        <DateRangePicker value={dateRange} onChange={(range) => setDateRange(range)} />
                         <Typography.Paragraph>
                             <Radio.Group
                                 css={radioButtonBorderlessCss}
                                 size={'small'}
-                                onChange={preset => setDateRangePreset(preset.target.value)}
+                                onChange={(preset) => setDateRangePreset(preset.target.value)}
                             >
                                 <Radio.Button value={'week'}>{PresetWeek}</Radio.Button>
                                 <Radio.Button value={'month'}>{PresetMonth}</Radio.Button>
@@ -202,13 +198,15 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                             mode={'multiple'}
                             value={addressList}
                             onChange={onAddressChange}
-                            maxTagCount='responsive'
+                            maxTagCount="responsive"
                             placeholder={AllAddressesPlaceholder}
                         />
                     </Form.Item>
                 </Col>
                 <Col span={24}>
-                    <Button onClick={applyFilters} type={'sberPrimary'}>{ApplyButtonTitle}</Button>
+                    <Button onClick={applyFilters} type={'sberPrimary'}>
+                        {ApplyButtonTitle}
+                    </Button>
                 </Col>
             </Row>
         </Form>
@@ -224,13 +222,15 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     const PropertyFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Property' })
     const CategoryFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Category' })
     const UserFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.User' })
-    const ResponsibleFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Responsible' })
+    const ResponsibleFilterLabel = intl.formatMessage({
+        id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Responsible',
+    })
     const TicketTypeAll = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.AllTypes' })
     const TicketTypeDefault = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Default' })
     const TicketTypePaid = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Paid' })
     const TicketTypeEmergency = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Emergency' })
     const AllAddresses = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.AllAddresses' })
-    const ManyAddresses = intl.formatMessage({ id:'pages.condo.analytics.TicketAnalyticsPage.ManyAddresses' })
+    const ManyAddresses = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ManyAddresses' })
     const AllAddressTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllAddresses' })
     const SingleAddress = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.SingleAddress' })
     const AllCategories = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.AllCategories' })
@@ -253,34 +253,37 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
 
     const [ticketType, setTicketType] = useState<TicketSelectTypes>('all')
     const [dateFrom, dateTo] = filtersRef.current !== null ? filtersRef.current.range : []
-    const selectedPeriod = filtersRef.current !== null ? filtersRef.current.range.map(e => e.format(DATE_DISPLAY_FORMAT)).join(' - ') : ''
+    const selectedPeriod =
+        filtersRef.current !== null ? filtersRef.current.range.map((e) => e.format(DATE_DISPLAY_FORMAT)).join(' - ') : ''
     const selectedAddresses = filtersRef.current !== null ? filtersRef.current.addressList : []
 
     const [loadTicketAnalytics] = useLazyQuery(TICKET_ANALYTICS_REPORT_QUERY, {
-        onError: error => {
+        onError: (error) => {
             console.log(error)
             notification.error(error)
             setLoading(false)
         },
         fetchPolicy: 'network-only',
-        onCompleted: response => {
-            const { result: { groups } } = response
-            const { groupBy } = filterToQuery(
-                { filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy }
-            )
+        onCompleted: (response) => {
+            const {
+                result: { groups },
+            } = response
+            const { groupBy } = filterToQuery({ filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy })
 
             setAnalyticsData(getAggregatedData(groups, groupBy))
             setLoading(false)
         },
     })
     const [exportTicketAnalyticsToExcel, { loading: isXSLXLoading }] = useLazyQuery(EXPORT_TICKET_ANALYTICS_TO_EXCEL, {
-        onError: error => {
+        onError: (error) => {
             console.log(error)
             notification.error(error)
         },
         fetchPolicy: 'network-only',
-        onCompleted: response => {
-            const { result: { link } } = response
+        onCompleted: (response) => {
+            const {
+                result: { link },
+            } = response
             console.log(link)
             setExcelDownloadLink(link)
         },
@@ -288,13 +291,16 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     const getAnalyticsData = () => {
         if (filtersRef.current !== null) {
             setLoading(true)
-            const { AND, groupBy } = filterToQuery(
-                { filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy }
-            )
+            const { AND, groupBy } = filterToQuery({
+                filter: filtersRef.current,
+                viewMode,
+                ticketType,
+                mainGroup: groupTicketsBy,
+            })
             mapperInstanceRef.current = new TicketChart({
                 line: {
                     chart: (viewMode, data) => {
-                        const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
+                        const axisLabels = Array.from(new Set(Object.values(data).flatMap((e) => Object.keys(e))))
                         const legend = Object.keys(data)
                         const series = []
                         Object.entries(data).map(([groupBy, dataObj]) => {
@@ -318,20 +324,31 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         const dataSource = []
                         const { translations, filters } = restOptions
                         const tableColumns: TableColumnsType = [
-                            { title: translations['address'], dataIndex: 'address', key: 'address', sorter: (a, b) => a['address'] - b['address'] },
+                            {
+                                title: translations['address'],
+                                dataIndex: 'address',
+                                key: 'address',
+                                sorter: (a, b) => a['address'] - b['address'],
+                            },
                             {
                                 title: translations['date'],
                                 dataIndex: 'date',
                                 key: 'date',
                                 defaultSortOrder: 'descend',
-                                sorter: (a, b) => moment(a['date'], DATE_DISPLAY_FORMAT).unix() - moment(b['date'], DATE_DISPLAY_FORMAT).unix(),
+                                sorter: (a, b) =>
+                                    moment(a['date'], DATE_DISPLAY_FORMAT).unix() - moment(b['date'], DATE_DISPLAY_FORMAT).unix(),
                             },
-                            ...Object.entries(data).map(([key]) => ({ title: key, dataIndex: key, key, sorter: (a, b) =>a[key] - b[key] })),
+                            ...Object.entries(data).map(([key]) => ({
+                                title: key,
+                                dataIndex: key,
+                                key,
+                                sorter: (a, b) => a[key] - b[key],
+                            })),
                         ]
-                        const uniqueDates = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
+                        const uniqueDates = Array.from(new Set(Object.values(data).flatMap((e) => Object.keys(e))))
                         uniqueDates.forEach((date, key) => {
                             const restTableColumns = {}
-                            Object.keys(data).forEach(ticketType => (restTableColumns[ticketType] = data[ticketType][date]))
+                            Object.keys(data).forEach((ticketType) => (restTableColumns[ticketType] = data[ticketType][date]))
                             let address = translations['allAddresses']
                             const addressList = get(filters, 'addresses')
                             if (addressList && addressList.length) {
@@ -345,7 +362,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                 bar: {
                     chart: (viewMode, data) => {
                         const series = []
-                        const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
+                        const axisLabels = Array.from(new Set(Object.values(data).flatMap((e) => Object.keys(e))))
                         const legend = Object.keys(data)
                         Object.entries(data).map(([groupBy, dataObj]) => {
                             series.push({
@@ -368,8 +385,18 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         const { translations, filters } = restOptions
                         const dataSource = []
                         const tableColumns: TableColumnsType = [
-                            { title: translations['address'], dataIndex: 'address', key: 'address', sorter: (a, b) => a['address'] - b['address'] },
-                            ...Object.entries(data).map(([key]) => ({ title: key, dataIndex: key, key, sorter: (a, b) => a[key] - b[key] })),
+                            {
+                                title: translations['address'],
+                                dataIndex: 'address',
+                                key: 'address',
+                                sorter: (a, b) => a['address'] - b['address'],
+                            },
+                            ...Object.entries(data).map(([key]) => ({
+                                title: key,
+                                dataIndex: key,
+                                key,
+                                sorter: (a, b) => a[key] - b[key],
+                            })),
                         ]
                         const restTableColumns = {}
                         const addressList = get(filters, 'addresses')
@@ -388,10 +415,11 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         } else {
                             addressList.forEach((address, key) => {
                                 const tableRow = { key, address }
-                                Object.entries(data).forEach(rowEntry => {
+                                Object.entries(data).forEach((rowEntry) => {
                                     const [ticketType, dataObj] = rowEntry
                                     const counts = Object.entries(dataObj)
-                                        .filter(obj => obj[0] === address).map(e => e[1]) as number[]
+                                        .filter((obj) => obj[0] === address)
+                                        .map((e) => e[1]) as number[]
                                     tableRow[ticketType] = counts.reduce((a, b) => a + b, 0)
                                 })
                                 dataSource.push(tableRow)
@@ -399,7 +427,6 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         }
                         return { dataSource, tableColumns }
                     },
-
                 },
             })
             const where = { organization: { id: userOrganizationId }, AND }
@@ -430,157 +457,185 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
         }
     }, [excelDownloadLink, isXSLXLoading])
 
+    const printPdf = useCallback(() => {
+        router.push(
+            router.route +
+                '/pdf?' +
+                qs.stringify({
+                    dateFrom: dateFrom.toISOString(),
+                    dateTo: dateTo.toISOString(),
+                    groupBy: groupTicketsBy,
+                    ticketType,
+                    viewMode,
+                    addressList: JSON.stringify(filtersRef.current.addressList),
+                    specification: filtersRef.current.specification,
+                }),
+        )
+    }, [ticketType, viewMode, dateFrom, dateTo, groupTicketsBy, userOrganizationId])
 
-    const printPdf = useCallback(
-        () => {
-            router.push(router.route + '/pdf?' + qs.stringify({
-                dateFrom: dateFrom.toISOString(),
-                dateTo: dateTo.toISOString(),
-                groupBy: groupTicketsBy,
-                ticketType,
-                viewMode,
-                addressList: JSON.stringify(filtersRef.current.addressList),
-                specification: filtersRef.current.specification,
-            }))
+    const downloadExcel = useCallback(() => {
+        const { AND, groupBy } = filterToQuery({ filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy })
+        const where = { organization: { id: userOrganizationId }, AND }
+        const translates = {
+            property: filtersRef.current.addressList.length
+                ? filtersRef.current.addressList.map(({ value }) => value).join('@')
+                : AllAddressTitle,
+        }
+
+        exportTicketAnalyticsToExcel({ variables: { data: { groupBy, where, translates } } })
+    }, [ticketType, viewMode, dateFrom, dateTo, groupTicketsBy, userOrganizationId])
+    const onFilterChange: ITicketAnalyticsPageFilterProps['onChange'] = useCallback(
+        (filters) => {
+            filtersRef.current = filters
+            getAnalyticsData()
         },
-        [ticketType, viewMode, dateFrom, dateTo, groupTicketsBy, userOrganizationId],
+        [viewMode, ticketType, userOrganizationId],
     )
-
-    const downloadExcel = useCallback(
-        () => {
-            const { AND, groupBy } = filterToQuery({ filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy })
-            const where = { organization: { id: userOrganizationId }, AND }
-            const translates = {
-                property: filtersRef.current.addressList.length ?
-                    filtersRef.current.addressList.map(({ value }) => value).join('@')
-                    : AllAddressTitle,
-            }
-
-            exportTicketAnalyticsToExcel({ variables: { data: { groupBy, where, translates } } })
-        },
-        [ticketType, viewMode, dateFrom, dateTo, groupTicketsBy, userOrganizationId],
-    )
-    const onFilterChange: ITicketAnalyticsPageFilterProps['onChange'] = useCallback((filters) => {
-        filtersRef.current = filters
-        getAnalyticsData()
-    }, [viewMode, ticketType, userOrganizationId])
 
     let addressFilterTitle = selectedAddresses.length === 0 ? AllAddresses : `${SingleAddress} «${selectedAddresses[0].value}»`
     if (selectedAddresses.length > 1) {
         addressFilterTitle = ManyAddresses
     }
     const isControlsDisabled = loading || isXSLXLoading || filtersRef.current === null
-    return <>
-        <Head>
-            <title>{PageTitle}</title>
-        </Head>
-        <PageWrapper>
-            <PageContent>
-                <Row gutter={[40, 8]}>
-                    <Col span={18}>
-                        <PageHeader
-                            style={{ width: '100%', padding: '0 0 16px' }}
-                            title={<Typography.Title>{PageTitle}</Typography.Title>} />
-                    </Col>
-                    <Col span={6} style={{ textAlign: 'right', marginTop: 4 }}>
-                        <Tooltip title={NotImplementedYetMessage}>
-                            <Button icon={<PlusCircleFilled />} type='sberPrimary' secondary>{HeaderButtonTitle}</Button>
-                        </Tooltip>
-                    </Col>
-                </Row>
-                <Row gutter={[0, 24]} align={'top'} justify={'space-between'}>
-                    <Col span={24}>
-                        <Tabs
-                            css={tabsCss}
-                            defaultActiveKey='status'
-                            activeKey={groupTicketsBy}
-                            onChange={(key) => setGroupTicketsBy(key as GroupTicketsByTypes)}
-                        >
-                            <Tabs.TabPane key='status' tab={StatusFilterLabel} />
-                            <Tabs.TabPane disabled key='property' tab={PropertyFilterLabel} />
-                            <Tabs.TabPane disabled key='category' tab={CategoryFilterLabel} />
-                            <Tabs.TabPane disabled key='user' tab={UserFilterLabel} />
-                            <Tabs.TabPane disabled key='responsible' tab={ResponsibleFilterLabel} />
-                        </Tabs>
-                    </Col>
-                    <Col span={24}>
-                        <TicketAnalyticsPageFilter onChange={onFilterChange} viewMode={viewMode} />
-                        <Divider style={{ padding: 0, marginTop: 40, marginBottom: 16 }} />
-                    </Col>
-                    <Col span={16}>
-                        <Typography.Title level={3}>
-                            {ViewModeTitle} {selectedPeriod} {addressFilterTitle} {AllCategories}
-                        </Typography.Title>
-                    </Col>
-                    <Col span={4} style={{ textAlign: 'right', flexWrap: 'nowrap' }}>
-                        <RadioGroupWithIcon
-                            value={viewMode}
-                            size='small'
-                            buttonStyle='outline'
-                            onChange={(e) => setViewMode(e.target.value)}>
-                            <Radio.Button value='line'>
-                                <LinearChartIcon height={32} width={24} />
-                            </Radio.Button>
-                            <Radio.Button value='bar'>
-                                <BarChartIcon height={32} width={24} />
-                            </Radio.Button>
-                        </RadioGroupWithIcon>
-                    </Col>
-                    <Col span={24}>
-                        {useMemo(() => (
-                            <TicketChartView
-                                data={analyticsData}
-                                loading={loading}
-                                viewMode={viewMode}
-                                chartConfig={{
-                                    animationEnabled: true,
-                                    chartOptions: { renderer: 'svg', height: viewMode === 'line' ? 440 : 'auto' },
-                                }}
-                                mapperInstance={mapperInstanceRef.current}
-                            >
-                                <Select
-                                    value={ticketType}
-                                    onChange={(e) => setTicketType(e)}
-                                    style={{ position: 'absolute', top: 0, right: 0, minWidth: '132px' }}
-                                    disabled={loading}
-                                >
-                                    <Select.Option value='all'>{TicketTypeAll}</Select.Option>
-                                    <Select.Option value='default'>{TicketTypeDefault}</Select.Option>
-                                    <Select.Option value='paid'>{TicketTypePaid}</Select.Option>
-                                    <Select.Option value='emergency'>{TicketTypeEmergency}</Select.Option>
-                                </Select>
-                            </TicketChartView>
-                        ), [analyticsData, loading, viewMode, ticketType])}
-                    </Col>
-                    <Col span={24}>
-                        <Typography.Title level={4} style={{ marginBottom: 20 }}>{TableTitle}</Typography.Title>
-                        {useMemo(() => (
-                            <TicketListView
-                                data={analyticsData}
-                                loading={loading}
-                                viewMode={viewMode}
-                                filters={filtersRef.current}
-                                mapperInstance={mapperInstanceRef.current}
+    return (
+        <>
+            <Head>
+                <title>{PageTitle}</title>
+            </Head>
+            <PageWrapper>
+                <PageContent>
+                    <Row gutter={[40, 8]}>
+                        <Col span={18}>
+                            <PageHeader
+                                style={{ width: '100%', padding: '0 0 16px' }}
+                                title={<Typography.Title>{PageTitle}</Typography.Title>}
                             />
-                        ), [analyticsData, loading, viewMode])}
-                    </Col>
-                    <ActionBar fullscreen>
-                        <Button disabled={isControlsDisabled || isEmpty(analyticsData)} onClick={printPdf} icon={<FilePdfFilled />} type='sberPrimary' secondary>
-                            {PrintTitle}
-                        </Button>
-                        <Button disabled={isControlsDisabled || isEmpty(analyticsData)} onClick={downloadExcel} loading={isXSLXLoading} icon={<EditFilled />} type='sberPrimary' secondary>{ExcelTitle}</Button>
-                    </ActionBar>
-                </Row>
-            </PageContent>
-        </PageWrapper>
-    </>
+                        </Col>
+                        <Col span={6} style={{ textAlign: 'right', marginTop: 4 }}>
+                            <Tooltip title={NotImplementedYetMessage}>
+                                <Button icon={<PlusCircleFilled />} type="sberPrimary" secondary>
+                                    {HeaderButtonTitle}
+                                </Button>
+                            </Tooltip>
+                        </Col>
+                    </Row>
+                    <Row gutter={[0, 24]} align={'top'} justify={'space-between'}>
+                        <Col span={24}>
+                            <Tabs
+                                css={tabsCss}
+                                defaultActiveKey="status"
+                                activeKey={groupTicketsBy}
+                                onChange={(key) => setGroupTicketsBy(key as GroupTicketsByTypes)}
+                            >
+                                <Tabs.TabPane key="status" tab={StatusFilterLabel} />
+                                <Tabs.TabPane disabled key="property" tab={PropertyFilterLabel} />
+                                <Tabs.TabPane disabled key="category" tab={CategoryFilterLabel} />
+                                <Tabs.TabPane disabled key="user" tab={UserFilterLabel} />
+                                <Tabs.TabPane disabled key="responsible" tab={ResponsibleFilterLabel} />
+                            </Tabs>
+                        </Col>
+                        <Col span={24}>
+                            <TicketAnalyticsPageFilter onChange={onFilterChange} viewMode={viewMode} />
+                            <Divider style={{ padding: 0, marginTop: 40, marginBottom: 16 }} />
+                        </Col>
+                        <Col span={16}>
+                            <Typography.Title level={3}>
+                                {ViewModeTitle} {selectedPeriod} {addressFilterTitle} {AllCategories}
+                            </Typography.Title>
+                        </Col>
+                        <Col span={4} style={{ textAlign: 'right', flexWrap: 'nowrap' }}>
+                            <RadioGroupWithIcon
+                                value={viewMode}
+                                size="small"
+                                buttonStyle="outline"
+                                onChange={(e) => setViewMode(e.target.value)}
+                            >
+                                <Radio.Button value="line">
+                                    <LinearChartIcon height={32} width={24} />
+                                </Radio.Button>
+                                <Radio.Button value="bar">
+                                    <BarChartIcon height={32} width={24} />
+                                </Radio.Button>
+                            </RadioGroupWithIcon>
+                        </Col>
+                        <Col span={24}>
+                            {useMemo(
+                                () => (
+                                    <TicketChartView
+                                        data={analyticsData}
+                                        loading={loading}
+                                        viewMode={viewMode}
+                                        chartConfig={{
+                                            animationEnabled: true,
+                                            chartOptions: { renderer: 'svg', height: viewMode === 'line' ? 440 : 'auto' },
+                                        }}
+                                        mapperInstance={mapperInstanceRef.current}
+                                    >
+                                        <Select
+                                            value={ticketType}
+                                            onChange={(e) => setTicketType(e)}
+                                            style={{ position: 'absolute', top: 0, right: 0, minWidth: '132px' }}
+                                            disabled={loading}
+                                        >
+                                            <Select.Option value="all">{TicketTypeAll}</Select.Option>
+                                            <Select.Option value="default">{TicketTypeDefault}</Select.Option>
+                                            <Select.Option value="paid">{TicketTypePaid}</Select.Option>
+                                            <Select.Option value="emergency">{TicketTypeEmergency}</Select.Option>
+                                        </Select>
+                                    </TicketChartView>
+                                ),
+                                [analyticsData, loading, viewMode, ticketType],
+                            )}
+                        </Col>
+                        <Col span={24}>
+                            <Typography.Title level={4} style={{ marginBottom: 20 }}>
+                                {TableTitle}
+                            </Typography.Title>
+                            {useMemo(
+                                () => (
+                                    <TicketListView
+                                        data={analyticsData}
+                                        loading={loading}
+                                        viewMode={viewMode}
+                                        filters={filtersRef.current}
+                                        mapperInstance={mapperInstanceRef.current}
+                                    />
+                                ),
+                                [analyticsData, loading, viewMode],
+                            )}
+                        </Col>
+                        <ActionBar fullscreen>
+                            <Button
+                                disabled={isControlsDisabled || isEmpty(analyticsData)}
+                                onClick={printPdf}
+                                icon={<FilePdfFilled />}
+                                type="sberPrimary"
+                                secondary
+                            >
+                                {PrintTitle}
+                            </Button>
+                            <Button
+                                disabled={isControlsDisabled || isEmpty(analyticsData)}
+                                onClick={downloadExcel}
+                                loading={isXSLXLoading}
+                                icon={<EditFilled />}
+                                type="sberPrimary"
+                                secondary
+                            >
+                                {ExcelTitle}
+                            </Button>
+                        </ActionBar>
+                    </Row>
+                </PageContent>
+            </PageWrapper>
+        </>
+    )
 }
 
-TicketAnalyticsPage.headerAction = <ReturnBackHeaderAction
-    descriptor={{ id: 'pages.condo.analytics.TicketAnalyticsPage.PageTitle' }}
-    path={'/reports/'} />
+TicketAnalyticsPage.headerAction = (
+    <ReturnBackHeaderAction descriptor={{ id: 'pages.condo.analytics.TicketAnalyticsPage.PageTitle' }} path={'/reports/'} />
+)
 TicketAnalyticsPage.requiredAccess = OrganizationRequired
 TicketAnalyticsPage.whyDidYouRender = false
-
 
 export default TicketAnalyticsPage

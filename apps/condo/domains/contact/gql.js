@@ -6,7 +6,8 @@
 
 const { generateGqlQueries } = require('@condo/domains/common/utils/codegeneration/generate.gql')
 
-const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
+const COMMON_FIELDS =
+    'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
 const CONTACT_FIELDS = `{ organization { id name } property { id, address } name phone unitName email ${COMMON_FIELDS} }`
 const Contact = generateGqlQueries('Contact', CONTACT_FIELDS)
@@ -15,5 +16,5 @@ const Contact = generateGqlQueries('Contact', CONTACT_FIELDS)
 
 module.exports = {
     Contact,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -45,7 +45,7 @@ const DivisionPageContent = ({ division, loading, columns }: DivisionPageContent
     // Transform executors array to make `name` attribute required. This fixes following error:
     // TS2322: Type 'OrganizationEmployee[]' is not assignable to type 'readonly { id: any; name: any; }[]'.
     // Property 'name' is optional in type 'OrganizationEmployee' but required in type '{ id: any; name: any; }'.
-    const executors = division.executors.map(executor => ({
+    const executors = division.executors.map((executor) => ({
         name: executor.name || '',
         ...executor,
     }))
@@ -59,11 +59,8 @@ const DivisionPageContent = ({ division, loading, columns }: DivisionPageContent
                     {get(division, ['responsible', 'name'])}
                 </PageFieldRow>
                 <PageFieldRow labelSpan={5} title={PropertiesLabelMessage}>
-                    {division.properties.map(property => (
-                        <Link
-                            key={property.id}
-                            href={`/property/${get(property, 'id')}`}
-                        >
+                    {division.properties.map((property) => (
+                        <Link key={property.id} href={`/property/${get(property, 'id')}`}>
                             <Typography.Link style={{ color: green[6], display: 'block' }}>
                                 {property.name || property.address}
                             </Typography.Link>
@@ -71,10 +68,7 @@ const DivisionPageContent = ({ division, loading, columns }: DivisionPageContent
                     ))}
                 </PageFieldRow>
                 <Col span={24}>
-                    <Typography.Title
-                        level={2}
-                        style={{ fontSize: '20px' }}
-                    >
+                    <Typography.Title level={2} style={{ fontSize: '20px' }}>
                         {ExecutorsLabelMessage}
                     </Typography.Title>
                 </Col>
@@ -89,16 +83,17 @@ const DivisionPageContent = ({ division, loading, columns }: DivisionPageContent
                                 hideOnSinglePage: true,
                             }}
                             applyQuery={(queryParams) => {
-                                const newQuery = qs.stringify({ ...queryParams }, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })
+                                const newQuery = qs.stringify(
+                                    { ...queryParams },
+                                    { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
+                                )
                                 return router.push(`${router.query.id}${newQuery}`)
                             }}
                         />
                     ) : (
                         <FocusContainer>
                             <BasicEmptyListView>
-                                <Typography.Title level={3}>
-                                    {ExecutorsEmptyTitleMessage}
-                                </Typography.Title>
+                                <Typography.Title level={3}>{ExecutorsEmptyTitleMessage}</Typography.Title>
                                 <Typography.Text style={{ width: '37ex', display: 'block' }}>
                                     {ExecutorsEmptyDescriptionMessage}
                                 </Typography.Text>
@@ -111,7 +106,7 @@ const DivisionPageContent = ({ division, loading, columns }: DivisionPageContent
     )
 }
 
-function DivisionPage () {
+function DivisionPage() {
     const intl = useIntl()
 
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
@@ -122,7 +117,9 @@ function DivisionPage () {
     const DeleteDivisionLabel = intl.formatMessage({ id: 'division.action.delete.confirm.ok' })
 
     const router = useRouter()
-    const { query: { id } } = router
+    const {
+        query: { id },
+    } = router
 
     const handleCompleteSoftDelete = () => {
         router.push('/property/')
@@ -132,16 +129,23 @@ function DivisionPage () {
 
     const currentPageIndex = getPageIndexFromOffset(offset, EXECUTORS_PAGE_SIZE)
 
-    const { loading, obj: division, error } = useObject({
+    const {
+        loading,
+        obj: division,
+        error,
+    } = useObject({
         where: {
-            id: typeof id === 'string' ? id : undefined, 
+            id: typeof id === 'string' ? id : undefined,
         },
         skip: (currentPageIndex - 1) * EXECUTORS_PAGE_SIZE,
     })
 
-    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.division.id.PageTitle' }, {
-        name: get(division, 'name', ''),
-    })
+    const PageTitleMsg = intl.formatMessage(
+        { id: 'pages.condo.division.id.PageTitle' },
+        {
+            name: get(division, 'name', ''),
+        },
+    )
 
     const columns = useTableColumns()
 
@@ -166,13 +170,7 @@ function DivisionPage () {
                     <ActionBar>
                         <Link href={`/division/${division.id}/update`}>
                             <span>
-                                <Button
-                                    color={'green'}
-                                    type={'sberPrimary'}
-                                    secondary
-                                    icon={<EditFilled />}
-                                    size={'large'}
-                                >
+                                <Button color={'green'} type={'sberPrimary'} secondary icon={<EditFilled />} size={'large'}>
                                     {UpdateTitle}
                                 </Button>
                             </span>

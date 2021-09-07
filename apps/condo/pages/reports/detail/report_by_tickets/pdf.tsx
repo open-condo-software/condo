@@ -41,18 +41,20 @@ const PdfView = () => {
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
     const [loadTicketAnalyticsData] = useLazyQuery(TICKET_ANALYTICS_REPORT_QUERY, {
-        onError: error => {
+        onError: (error) => {
             console.log(error)
             notification.error({
-                message: intl.formatMessage(({ id: 'errors.PdfGenerationError' })),
+                message: intl.formatMessage({ id: 'errors.PdfGenerationError' }),
                 description: error,
             })
             setLoading(false)
         },
         fetchPolicy: 'network-only',
-        onCompleted: response => {
+        onCompleted: (response) => {
             setLoading(false)
-            const { result: { groups } } = response
+            const {
+                result: { groups },
+            } = response
 
             setData(getAggregatedData(groups, groupByRef.current))
         },
@@ -80,7 +82,6 @@ const PdfView = () => {
         const where = { organization: { id: userOrganizationId }, AND }
 
         loadTicketAnalyticsData({ variables: { data: { groupBy, where } } })
-
     }, [userOrganizationId])
 
     useEffect(() => {
@@ -88,7 +89,7 @@ const PdfView = () => {
             mapperInstanceRef.current = new TicketChart({
                 line: {
                     chart: (viewMode, data) => {
-                        const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
+                        const axisLabels = Array.from(new Set(Object.values(data).flatMap((e) => Object.keys(e))))
                         const legend = Object.keys(data)
                         const series = []
                         Object.entries(data).map(([groupBy, dataObj]) => {
@@ -112,20 +113,31 @@ const PdfView = () => {
                         const dataSource = []
                         const { translations, filters } = restOptions
                         const tableColumns: TableColumnsType = [
-                            { title: translations['address'], dataIndex: 'address', key: 'address', sorter: (a, b) => a['address'] - b['address'] },
+                            {
+                                title: translations['address'],
+                                dataIndex: 'address',
+                                key: 'address',
+                                sorter: (a, b) => a['address'] - b['address'],
+                            },
                             {
                                 title: translations['date'],
                                 dataIndex: 'date',
                                 key: 'date',
                                 defaultSortOrder: 'descend',
-                                sorter: (a, b) => moment(a['date'], DATE_DISPLAY_FORMAT).unix() - moment(b['date'], DATE_DISPLAY_FORMAT).unix(),
+                                sorter: (a, b) =>
+                                    moment(a['date'], DATE_DISPLAY_FORMAT).unix() - moment(b['date'], DATE_DISPLAY_FORMAT).unix(),
                             },
-                            ...Object.entries(data).map(([key]) => ({ title: key, dataIndex: key, key, sorter: (a, b) =>a[key] - b[key] })),
+                            ...Object.entries(data).map(([key]) => ({
+                                title: key,
+                                dataIndex: key,
+                                key,
+                                sorter: (a, b) => a[key] - b[key],
+                            })),
                         ]
-                        const uniqueDates = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
+                        const uniqueDates = Array.from(new Set(Object.values(data).flatMap((e) => Object.keys(e))))
                         uniqueDates.forEach((date, key) => {
                             const restTableColumns = {}
-                            Object.keys(data).forEach(ticketType => (restTableColumns[ticketType] = data[ticketType][date]))
+                            Object.keys(data).forEach((ticketType) => (restTableColumns[ticketType] = data[ticketType][date]))
                             let address = translations['allAddresses']
                             const addressList = get(filters, 'addresses')
                             if (addressList && addressList.length) {
@@ -139,7 +151,7 @@ const PdfView = () => {
                 bar: {
                     chart: (viewMode, data) => {
                         const series = []
-                        const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
+                        const axisLabels = Array.from(new Set(Object.values(data).flatMap((e) => Object.keys(e))))
                         const legend = Object.keys(data)
                         Object.entries(data).map(([groupBy, dataObj]) => {
                             series.push({
@@ -162,8 +174,18 @@ const PdfView = () => {
                         const { translations, filters } = restOptions
                         const dataSource = []
                         const tableColumns: TableColumnsType = [
-                            { title: translations['address'], dataIndex: 'address', key: 'address', sorter: (a, b) => a['address'] - b['address'] },
-                            ...Object.entries(data).map(([key]) => ({ title: key, dataIndex: key, key, sorter: (a, b) => a[key] - b[key] })),
+                            {
+                                title: translations['address'],
+                                dataIndex: 'address',
+                                key: 'address',
+                                sorter: (a, b) => a['address'] - b['address'],
+                            },
+                            ...Object.entries(data).map(([key]) => ({
+                                title: key,
+                                dataIndex: key,
+                                key,
+                                sorter: (a, b) => a[key] - b[key],
+                            })),
                         ]
                         const restTableColumns = {}
                         const addressList = get(filters, 'addresses')
@@ -182,10 +204,11 @@ const PdfView = () => {
                         } else {
                             addressList.forEach((address, key) => {
                                 const tableRow = { key, address }
-                                Object.entries(data).forEach(rowEntry => {
+                                Object.entries(data).forEach((rowEntry) => {
                                     const [ticketType, dataObj] = rowEntry
                                     const counts = Object.entries(dataObj)
-                                        .filter(obj => obj[0] === address).map(e => e[1]) as number[]
+                                        .filter((obj) => obj[0] === address)
+                                        .map((e) => e[1]) as number[]
                                     tableRow[ticketType] = counts.reduce((a, b) => a + b, 0)
                                 })
                                 dataSource.push(tableRow)
@@ -193,22 +216,20 @@ const PdfView = () => {
                         }
                         return { dataSource, tableColumns }
                     },
-
                 },
             })
         }
         if (!loading && data !== null) {
-            createPdfWithPageBreaks({ element: containerRef.current, fileName: 'analytics_result.pdf' })
-                .catch((e) => {
-                    notification.error({
-                        message: intl.formatMessage(({ id: 'errors.PdfGenerationError' })),
-                        description: e.message,
-                    })
+            createPdfWithPageBreaks({ element: containerRef.current, fileName: 'analytics_result.pdf' }).catch((e) => {
+                notification.error({
+                    message: intl.formatMessage({ id: 'errors.PdfGenerationError' }),
+                    description: e.message,
                 })
+            })
         }
     }, [loading, data])
 
-    if (queryParamsRef.current === null ) {
+    if (queryParamsRef.current === null) {
         return null
     }
     let ticketTypeTitle = DefaultTickets
@@ -217,53 +238,52 @@ const PdfView = () => {
     ticketType === 'emergency' && (ticketTypeTitle = EmergencyTickets)
     const addressListParsed = JSON.parse(addressList)
     const addressFilterTitle = addressListParsed.length ? `${SingleAddress} «${addressListParsed[0].value}»` : AllAddresses
-    return <>
-        {loading && <Loader fill spinning tip={LoadingTip} /> }
-        <Row ref={containerRef} gutter={[0, 40]} style={{ width: PDF_REPORT_WIDTH, paddingLeft: 80, paddingRight: 120 }}>
-            <Col flex={1} style={{ visibility: loading ? 'hidden' : 'visible', position: 'relative' }}>
-                <Typography.Paragraph style={{ position: 'absolute', top: 0, right: 0 }}>
-                    <Logo onClick={undefined} fillColor={colors.lightGrey[6]} />
-                </Typography.Paragraph>
-                <Typography.Title level={3}>{PageTitle}</Typography.Title>
-                <Typography.Title level={4}>
-                    {ticketTypeTitle} {moment(dateFrom).format('DD.MM.YYYY')} - {moment(dateTo).format('DD.MM.YYYY')} {addressFilterTitle} {AllCategories}
-                </Typography.Title>
-                <TicketChartView
-                    data={data}
-                    viewMode={viewMode}
-                    onChartReady={() => setLoading(false)}
-                    mapperInstance={mapperInstanceRef.current}
-                    chartConfig={{
-                        animationEnabled: false,
-                        chartOptions: { renderer: 'svg' },
-                    }}
-                />
-            </Col>
-            <Col flex={1} >
-                <TicketListView
-                    mapperInstance={mapperInstanceRef.current}
-                    data={data}
-                    viewMode={viewMode}
-                    filters={{
-                        range: [dateFrom, dateTo],
-                        addressList: addressListParsed,
-                        specification: specification,
-                    }}
-                />
-            </Col>
-        </Row>
-    </>
+    return (
+        <>
+            {loading && <Loader fill spinning tip={LoadingTip} />}
+            <Row ref={containerRef} gutter={[0, 40]} style={{ width: PDF_REPORT_WIDTH, paddingLeft: 80, paddingRight: 120 }}>
+                <Col flex={1} style={{ visibility: loading ? 'hidden' : 'visible', position: 'relative' }}>
+                    <Typography.Paragraph style={{ position: 'absolute', top: 0, right: 0 }}>
+                        <Logo onClick={undefined} fillColor={colors.lightGrey[6]} />
+                    </Typography.Paragraph>
+                    <Typography.Title level={3}>{PageTitle}</Typography.Title>
+                    <Typography.Title level={4}>
+                        {ticketTypeTitle} {moment(dateFrom).format('DD.MM.YYYY')} - {moment(dateTo).format('DD.MM.YYYY')}{' '}
+                        {addressFilterTitle} {AllCategories}
+                    </Typography.Title>
+                    <TicketChartView
+                        data={data}
+                        viewMode={viewMode}
+                        onChartReady={() => setLoading(false)}
+                        mapperInstance={mapperInstanceRef.current}
+                        chartConfig={{
+                            animationEnabled: false,
+                            chartOptions: { renderer: 'svg' },
+                        }}
+                    />
+                </Col>
+                <Col flex={1}>
+                    <TicketListView
+                        mapperInstance={mapperInstanceRef.current}
+                        data={data}
+                        viewMode={viewMode}
+                        filters={{
+                            range: [dateFrom, dateTo],
+                            addressList: addressListParsed,
+                            specification: specification,
+                        }}
+                    />
+                </Col>
+            </Row>
+        </>
+    )
 }
 
 const DynamicPdfView = dynamic(() => Promise.resolve(PdfView), { ssr: false })
 
-const AnalyticsPdfPage = () => (
-    <DynamicPdfView />
-)
+const AnalyticsPdfPage = () => <DynamicPdfView />
 
-AnalyticsPdfPage.container = ({ children }) => (
-    <Typography.Paragraph style={{ padding: 40 }}>{children}</Typography.Paragraph>
-)
+AnalyticsPdfPage.container = ({ children }) => <Typography.Paragraph style={{ padding: 40 }}>{children}</Typography.Paragraph>
 AnalyticsPdfPage.requiredAccess = OrganizationRequired
 
 export default AnalyticsPdfPage

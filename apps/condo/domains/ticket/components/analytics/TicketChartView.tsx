@@ -68,12 +68,13 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
         series,
     }
 
-    const isEmptyDataSet = Object.values(data).every(ticketStatus => {
-        if (viewMode === 'line') {
-            return isEmpty(ticketStatus)
-        }
-        return Object.values(ticketStatus).every(count => count === 0)
-    }) && !loading
+    const isEmptyDataSet =
+        Object.values(data).every((ticketStatus) => {
+            if (viewMode === 'line') {
+                return isEmpty(ticketStatus)
+            }
+            return Object.values(ticketStatus).every((count) => count === 0)
+        }) && !loading
     const chartHeight = get(chartOptions, 'height', 'auto')
     const chartStyle = {}
     if (chartHeight !== 'auto') {
@@ -87,27 +88,29 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
         }
     }
 
-    return <Typography.Paragraph style={{ position: 'relative' }}>
-        {isEmptyDataSet ? (
-            <Typography.Paragraph>
-                <BasicEmptyListView>
-                    <Typography.Text>{NoData}</Typography.Text>
-                </BasicEmptyListView>
-                {children}
-            </Typography.Paragraph>
-        ) : (
-            <>
-                <ReactECharts
-                    opts={{ ...chartOptions, renderer: 'svg', height: chartHeight }}
-                    onChartReady={onChartReady}
-                    notMerge
-                    style={{ ...chartStyle }}
-                    option={option}/>
-                {children}
-            </>
-        )}
-
-    </Typography.Paragraph>
+    return (
+        <Typography.Paragraph style={{ position: 'relative' }}>
+            {isEmptyDataSet ? (
+                <Typography.Paragraph>
+                    <BasicEmptyListView>
+                        <Typography.Text>{NoData}</Typography.Text>
+                    </BasicEmptyListView>
+                    {children}
+                </Typography.Paragraph>
+            ) : (
+                <>
+                    <ReactECharts
+                        opts={{ ...chartOptions, renderer: 'svg', height: chartHeight }}
+                        onChartReady={onChartReady}
+                        notMerge
+                        style={{ ...chartStyle }}
+                        option={option}
+                    />
+                    {children}
+                </>
+            )}
+        </Typography.Paragraph>
+    )
 }
 
 export default TicketChartView

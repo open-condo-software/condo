@@ -7,7 +7,7 @@ const { queryOrganizationEmployeeFromRelatedOrganizationFor, queryOrganizationEm
 const { Resident: ResidentServerUtils } = require('@condo/domains/resident/utils/serverSchema')
 const { get, uniq, compact } = require('lodash')
 
-async function canReadOrganizations ({ authentication: { item: user }, context }) {
+async function canReadOrganizations({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin || user.isSupport) return {}
     const userId = user.id
@@ -16,7 +16,7 @@ async function canReadOrganizations ({ authentication: { item: user }, context }
         if (residents.length === 0) {
             return false
         }
-        const organizations = compact(residents.map(resident => get(resident, ['organization', 'id'])))
+        const organizations = compact(residents.map((resident) => get(resident, ['organization', 'id'])))
         if (organizations.length > 0) {
             return {
                 id_in: uniq(organizations),
@@ -25,14 +25,11 @@ async function canReadOrganizations ({ authentication: { item: user }, context }
         return false
     }
     return {
-        OR: [
-            queryOrganizationEmployeeFor(userId),
-            queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
-        ],
+        OR: [queryOrganizationEmployeeFor(userId), queryOrganizationEmployeeFromRelatedOrganizationFor(userId)],
     }
 }
 
-async function canManageOrganizations ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageOrganizations({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     if (operation === 'create') {

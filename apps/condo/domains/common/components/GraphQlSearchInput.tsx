@@ -19,7 +19,7 @@ interface ISearchInputProps extends SelectProps<string> {
     disabled?: boolean
     autoFocus?: boolean
     initialValue?: string
-    formatLabel?: (option: { value: string, text: string }) => JSX.Element
+    formatLabel?: (option: { value: string; text: string }) => JSX.Element
 }
 
 export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
@@ -38,7 +38,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         const value = ['string', 'number'].includes(typeof option.value) ? option.value : JSON.stringify(option)
 
         return (
-            <Select.Option key={option.key || value } value={value} title={option.text}>
+            <Select.Option key={option.key || value} value={value} title={option.text}>
                 {optionLabel}
             </Select.Option>
         )
@@ -48,22 +48,17 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         handleSearch('')
     }, [])
 
-    async function handleSearch (value) {
+    async function handleSearch(value) {
         if (!search) return
         setLoading(true)
 
-        const data = await search(
-            client,
-            (selected && (!props.mode || props.mode !== 'multiple'))
-                ? selected + ' ' + value
-                : value,
-        )
+        const data = await search(client, selected && (!props.mode || props.mode !== 'multiple') ? selected + ' ' + value : value)
         setLoading(false)
         if (data.length) setData(data)
         setValue(value)
     }
 
-    function handleSelect (value, option) {
+    function handleSelect(value, option) {
         setSelected(option.children)
 
         if (props.mode === 'multiple') {
@@ -75,7 +70,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         }
     }
 
-    function handleClear () {
+    function handleClear() {
         setSelected('')
     }
 

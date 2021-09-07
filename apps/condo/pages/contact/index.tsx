@@ -5,7 +5,8 @@ import {
     getPageIndexFromQuery,
     getSortStringFromQuery,
     CONTACT_PAGE_SIZE,
-    sorterToQuery, queryToSorter,
+    sorterToQuery,
+    queryToSorter,
 } from '@condo/domains/contact/utils/helpers'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { IFilters } from '@condo/domains/contact/utils/helpers'
@@ -60,14 +61,17 @@ export const ContactsPageContent = ({
         loading,
         count: total,
         objs: contacts,
-    } = Contact.useObjects({
-        sortBy,
-        where: searchContactsQuery,
-        skip: (offsetFromQuery * CONTACT_PAGE_SIZE) - CONTACT_PAGE_SIZE,
-        first: CONTACT_PAGE_SIZE,
-    }, {
-        fetchPolicy: 'network-only',
-    })
+    } = Contact.useObjects(
+        {
+            sortBy,
+            where: searchContactsQuery,
+            skip: offsetFromQuery * CONTACT_PAGE_SIZE - CONTACT_PAGE_SIZE,
+            first: CONTACT_PAGE_SIZE,
+        },
+        {
+            fetchPolicy: 'network-only',
+        },
+    )
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -77,31 +81,39 @@ export const ContactsPageContent = ({
         }
     }, [])
 
-    const handleTableChange = useCallback(debounce((...tableChangeArguments) => {
-        const [nextPagination, nextFilters, nextSorter] = tableChangeArguments
-        const { current, pageSize } = nextPagination
-        const offset = filtersApplied ? 0 : current * pageSize - pageSize
-        const sort = sorterToQuery(nextSorter)
-        const filters = filtersToQuery(nextFilters)
-        setFiltersApplied(false)
+    const handleTableChange = useCallback(
+        debounce((...tableChangeArguments) => {
+            const [nextPagination, nextFilters, nextSorter] = tableChangeArguments
+            const { current, pageSize } = nextPagination
+            const offset = filtersApplied ? 0 : current * pageSize - pageSize
+            const sort = sorterToQuery(nextSorter)
+            const filters = filtersToQuery(nextFilters)
+            setFiltersApplied(false)
 
-        if (!loading) {
-            fetchMore({
-                // @ts-ignore
-                sortBy: sort,
-                where: filters,
-                skip: offset,
-                first: CONTACT_PAGE_SIZE,
-            }).then(() => {
-                const query = qs.stringify(
-                    { ...router.query, sort, offset, filters: JSON.stringify(pickBy({ ...filtersFromQuery, ...nextFilters })) },
-                    { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-                )
+            if (!loading) {
+                fetchMore({
+                    // @ts-ignore
+                    sortBy: sort,
+                    where: filters,
+                    skip: offset,
+                    first: CONTACT_PAGE_SIZE,
+                }).then(() => {
+                    const query = qs.stringify(
+                        {
+                            ...router.query,
+                            sort,
+                            offset,
+                            filters: JSON.stringify(pickBy({ ...filtersFromQuery, ...nextFilters })),
+                        },
+                        { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
+                    )
 
-                router.push(router.route + query)
-            })
-        }
-    }, 400), [loading])
+                    router.push(router.route + query)
+                })
+            }
+        }, 400),
+        [loading],
+    )
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
     const [columns, contactNormalizer, contactValidator, contactCreator] = useImporterFunctions()
@@ -112,76 +124,73 @@ export const ContactsPageContent = ({
                 <title>{PageTitleMessage}</title>
             </Head>
             <PageWrapper>
-                <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>}/>
+                <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>} />
                 <PageContent>
-                    {
-                        !contacts.length && !filtersFromQuery
-                            ? <EmptyListView
-                                label={EmptyListLabel}
-                                message={EmptyListMessage}
-                                createRoute={ADD_CONTACT_ROUTE}
-                                createLabel={CreateContact} />
-                            : <Row gutter={[0, 40]} align={'middle'}>
-                                <Col span={24}>
-                                    <Row justify={'space-between'}>
-                                        <Col span={6}>
-                                            <Input
-                                                placeholder={SearchPlaceholder}
-                                                onChange={(e) => {handleSearchChange(e.target.value)}}
-                                                value={search}
-                                            />
-                                        </Col>
-                                        {
-                                            canManageContacts ? (
-                                                <Space size={16}>
-                                                    <ImportWrapper
-                                                        objectsName={ContactsMessage}
-                                                        accessCheck={canManageContacts}
-                                                        onFinish={refetch}
-                                                        columns={columns}
-                                                        rowNormalizer={contactNormalizer}
-                                                        rowValidator={contactValidator}
-                                                        objectCreator={contactCreator}
-                                                    >
-                                                        <Button
-                                                            type={'sberPrimary'}
-                                                            icon={<DiffOutlined />}
-                                                            secondary
-                                                        />
-                                                    </ImportWrapper>
-                                                    <Button
-                                                        key='left'
-                                                        type={'sberPrimary'}
-                                                        onClick={() => router.push(ADD_CONTACT_ROUTE)}
-                                                    >
-                                                        {CreateContact}
-                                                    </Button>
-                                                </Space>
-                                            ) : null
-                                        }
-                                    </Row>
-                                </Col>
-                                <Col span={24}>
-                                    <Table
-                                        bordered
-                                        tableLayout={'fixed'}
-                                        loading={loading}
-                                        dataSource={contacts}
-                                        columns={tableColumns}
-                                        rowKey={record =>  record.id}
-                                        onRow={handleRowAction}
-                                        onChange={handleTableChange}
-                                        pagination={{
-                                            showSizeChanger: false,
-                                            total,
-                                            current: offsetFromQuery,
-                                            pageSize: CONTACT_PAGE_SIZE,
-                                            position: ['bottomLeft'],
-                                        }}
-                                    />
-                                </Col>
-                            </Row>
-                    }
+                    {!contacts.length && !filtersFromQuery ? (
+                        <EmptyListView
+                            label={EmptyListLabel}
+                            message={EmptyListMessage}
+                            createRoute={ADD_CONTACT_ROUTE}
+                            createLabel={CreateContact}
+                        />
+                    ) : (
+                        <Row gutter={[0, 40]} align={'middle'}>
+                            <Col span={24}>
+                                <Row justify={'space-between'}>
+                                    <Col span={6}>
+                                        <Input
+                                            placeholder={SearchPlaceholder}
+                                            onChange={(e) => {
+                                                handleSearchChange(e.target.value)
+                                            }}
+                                            value={search}
+                                        />
+                                    </Col>
+                                    {canManageContacts ? (
+                                        <Space size={16}>
+                                            <ImportWrapper
+                                                objectsName={ContactsMessage}
+                                                accessCheck={canManageContacts}
+                                                onFinish={refetch}
+                                                columns={columns}
+                                                rowNormalizer={contactNormalizer}
+                                                rowValidator={contactValidator}
+                                                objectCreator={contactCreator}
+                                            >
+                                                <Button type={'sberPrimary'} icon={<DiffOutlined />} secondary />
+                                            </ImportWrapper>
+                                            <Button
+                                                key="left"
+                                                type={'sberPrimary'}
+                                                onClick={() => router.push(ADD_CONTACT_ROUTE)}
+                                            >
+                                                {CreateContact}
+                                            </Button>
+                                        </Space>
+                                    ) : null}
+                                </Row>
+                            </Col>
+                            <Col span={24}>
+                                <Table
+                                    bordered
+                                    tableLayout={'fixed'}
+                                    loading={loading}
+                                    dataSource={contacts}
+                                    columns={tableColumns}
+                                    rowKey={(record) => record.id}
+                                    onRow={handleRowAction}
+                                    onChange={handleTableChange}
+                                    pagination={{
+                                        showSizeChanger: false,
+                                        total,
+                                        current: offsetFromQuery,
+                                        pageSize: CONTACT_PAGE_SIZE,
+                                        position: ['bottomLeft'],
+                                    }}
+                                />
+                            </Col>
+                        </Row>
+                    )}
                 </PageContent>
             </PageWrapper>
         </>
@@ -191,7 +200,7 @@ export const ContactsPageContent = ({
 const ContactsPage = () => {
     const router = useRouter()
     const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
-    const sortBy = sortFromQuery.length > 0 ? sortFromQuery : ['createdAt_DESC'] as Array<SortContactsBy>
+    const sortBy = sortFromQuery.length > 0 ? sortFromQuery : (['createdAt_DESC'] as Array<SortContactsBy>)
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
 
     const { organization, link } = useOrganization()
@@ -200,7 +209,8 @@ const ContactsPage = () => {
     const tableColumns = useTableColumns(sortFromQuery, filtersFromQuery, setFiltersApplied)
 
     const searchContactsQuery = {
-        ...filtersToQuery(filtersFromQuery), organization: { id: organization.id },
+        ...filtersToQuery(filtersFromQuery),
+        organization: { id: organization.id },
     }
 
     return (
@@ -216,7 +226,7 @@ const ContactsPage = () => {
     )
 }
 
-ContactsPage.headerAction = <TitleHeaderAction descriptor={{ id: 'pages.condo.contact.PageTitle' }}/>
+ContactsPage.headerAction = <TitleHeaderAction descriptor={{ id: 'pages.condo.contact.PageTitle' }} />
 ContactsPage.requiredAccess = OrganizationRequired
 
 export default ContactsPage

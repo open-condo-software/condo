@@ -4,13 +4,13 @@
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
-async function canReadForgotPasswordAction ({ authentication: { item: user } }) {
+async function canReadForgotPasswordAction({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     return false
 }
 
-async function canManageForgotPasswordAction ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageForgotPasswordAction({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     if (operation === 'create') {

@@ -1,4 +1,3 @@
-
 import { useMemo } from 'react'
 import { useIntl } from '@core/next/intl'
 
@@ -13,15 +12,15 @@ import { green } from '@ant-design/colors'
 import Link from 'next/link'
 
 export interface ITableColumn {
-    title: string,
-    ellipsis?: boolean,
-    sortOrder?: string,
-    filteredValue?: FilterValue,
-    dataIndex?: string,
-    key?: string,
-    sorter?: boolean,
-    width?: string,
-    filterDropdown?: unknown,
+    title: string
+    ellipsis?: boolean
+    sortOrder?: string
+    filteredValue?: FilterValue
+    dataIndex?: string
+    key?: string
+    sorter?: boolean
+    width?: string
+    filterDropdown?: unknown
     filterIcon?: unknown
 }
 
@@ -35,17 +34,16 @@ export const useTableColumns = () => {
 
     const renderExecutorName = (_, { id, name }: OrganizationEmployee) => (
         <Link href={`/employee/${id}`}>
-            <Typography.Link style={{ color: green[6], display: 'block' }}>
-                {name}
-            </Typography.Link>
+            <Typography.Link style={{ color: green[6], display: 'block' }}>{name}</Typography.Link>
         </Link>
     )
 
-    const renderSpecializations = specializations => (
-        specializations.length > 0
-            ? map(specializations, 'name').join(', ')
-            : <Typography.Text strong>{ExecutorSpecializationBlankMessage}</Typography.Text>
-    )
+    const renderSpecializations = (specializations) =>
+        specializations.length > 0 ? (
+            map(specializations, 'name').join(', ')
+        ) : (
+            <Typography.Text strong>{ExecutorSpecializationBlankMessage}</Typography.Text>
+        )
     return useMemo(() => {
         type ColumnTypes = [
             ColumnType<Division.IDivisionUIState['executors'][number]>,
@@ -58,12 +56,12 @@ export const useTableColumns = () => {
                 dataIndex: 'name',
                 key: 'name',
                 render: renderExecutorName,
-            }, 
+            },
             {
                 title: ExecutorPhoneMessage,
                 dataIndex: 'phone',
                 key: 'phone',
-            }, 
+            },
             {
                 title: ExecutorSpecializationsMessage,
                 dataIndex: 'specializations',

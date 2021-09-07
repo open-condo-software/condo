@@ -129,15 +129,15 @@ const User = new GQLListSchema('User', {
             access: access.canAccessToImportIdField,
             kmigratorOptions: { null: true, unique: true },
         },
-
     },
     hooks: {
         afterChange: async ({ updatedItem, context, existingItem, operation }) => {
             if (
-                operation === 'update' && existingItem &&
+                operation === 'update' &&
+                existingItem &&
                 (updatedItem.phone !== existingItem.phone ||
-                updatedItem.email !== existingItem.email ||
-                updatedItem.name !== existingItem.name)
+                    updatedItem.email !== existingItem.email ||
+                    updatedItem.name !== existingItem.name)
             ) {
                 await updateEmployeesRelatedToUser(context, updatedItem)
             }

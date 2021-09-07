@@ -36,11 +36,11 @@ if (root !== cwd) {
 if (DEBUG) console.log(`@core.config: inited! namespace=${namespace}, cwd=${cwd}, root=${root}`)
 if (DEBUG) console.dir(process.env)
 
-function getEnv (namespace, name, defaultValue) {
+function getEnv(namespace, name, defaultValue) {
     return preprocessEnv(process.env[`${namespace}_${name}`] || process.env[`${name}`] || defaultValue)
 }
 
-function preprocessEnv (v) {
+function preprocessEnv(v) {
     if (!v) return v
     if (v.includes('${ROOT}')) {
         v = v.replace('${ROOT}', root)
@@ -48,7 +48,7 @@ function preprocessEnv (v) {
     return v
 }
 
-function getConfig (namespace) {
+function getConfig(namespace) {
     namespace = namespace ? namespace.toUpperCase().replace('_', '') : ''
     namespace = namespace ? namespace + '__' : ''
 
@@ -57,7 +57,7 @@ function getConfig (namespace) {
         PROJECT_NAME: getEnv(namespace, 'PROJECT_NAME', 'noname-project'),
         SERVER_URL: getEnv(namespace, 'SERVER_URL', 'http://localhost:3000'),
         DATABASE_URL: getEnv(namespace, 'DATABASE_URL'),
-        // LOCAL MEDIA FILES 
+        // LOCAL MEDIA FILES
         MEDIA_ROOT: process.env.MEDIA_ROOT || path.join(root, '__media'),
         MEDIA_URL: process.env.MEDIA_URL || '/media',
         DEFAULT_LOCALE: process.env.DEFAULT_LOCALE || 'en',
@@ -70,7 +70,7 @@ function getConfig (namespace) {
     const setter = () => {
         throw new TypeError(
             'config object is not settable! If you want to change value, you should set ' +
-                'an environment variable or change value inside .env file'
+                'an environment variable or change value inside .env file',
         )
     }
 

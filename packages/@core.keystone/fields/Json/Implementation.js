@@ -5,7 +5,16 @@ const stringify = JSON.stringify
 
 class JsonImplementation extends Implementation {
     // NOTE: argument names are based no Virtual field
-    constructor (path, { isMultiline, graphQLInputType = 'JSON', graphQLReturnType = 'JSON', extendGraphQLTypes = [], graphQLAdminFragment = '' }) {
+    constructor(
+        path,
+        {
+            isMultiline,
+            graphQLInputType = 'JSON',
+            graphQLReturnType = 'JSON',
+            extendGraphQLTypes = [],
+            graphQLAdminFragment = '',
+        },
+    ) {
         super(...arguments)
         this.isMultiline = isMultiline
         this.isOrderable = false
@@ -17,30 +26,27 @@ class JsonImplementation extends Implementation {
 
     // GQL Output
 
-    gqlOutputFields () {
+    gqlOutputFields() {
         return [`${this.path}: ${this.graphQLReturnType}`]
     }
 
-    gqlOutputFieldResolvers () {
+    gqlOutputFieldResolvers() {
         return {
-            [`${this.path}`]: item => item[this.path],
+            [`${this.path}`]: (item) => item[this.path],
         }
     }
 
     // GQL Input
 
-    gqlQueryInputFields () {
-        return [
-            ...this.equalityInputFields(this.graphQLInputType),
-            ...this.inInputFields(this.graphQLInputType),
-        ]
+    gqlQueryInputFields() {
+        return [...this.equalityInputFields(this.graphQLInputType), ...this.inInputFields(this.graphQLInputType)]
     }
 
-    gqlUpdateInputFields () {
+    gqlUpdateInputFields() {
         return [`${this.path}: ${this.graphQLInputType}`]
     }
 
-    gqlCreateInputFields () {
+    gqlCreateInputFields() {
         return [`${this.path}: ${this.graphQLInputType}`]
     }
 
@@ -52,14 +58,14 @@ class JsonImplementation extends Implementation {
      * well as an `uploadFile()` graphql auxiliary type query resolver
      */
 
-    getGqlAuxTypes () {
+    getGqlAuxTypes() {
         // NOTE: based on Virtual field source code
         return this.extendGraphQLTypes
     }
 
     // Admin
 
-    extendAdminMeta (meta) {
+    extendAdminMeta(meta) {
         const { isMultiline } = this
         return {
             isMultiline,
@@ -70,14 +76,14 @@ class JsonImplementation extends Implementation {
 
     // Hooks
 
-    async resolveInput ({ resolvedData }) {
+    async resolveInput({ resolvedData }) {
         return resolvedData[this.path]
     }
 }
 
-const CommonFieldAdapterInterface = superclass =>
+const CommonFieldAdapterInterface = (superclass) =>
     class extends superclass {
-        getQueryConditions (dbPath) {
+        getQueryConditions(dbPath) {
             // https://github.com/Vincit/objection.js/blob/0.9.4/lib/queryBuilder/operations/jsonApi/postgresJsonApi.js
             // TODO(pahaz): gql type `[JSON]` accepts not lists types like true, null.
             // The result is INTERNAL_SERVER_ERROR like "TypeError: Cannot read property 'includes' of null"
@@ -92,7 +98,7 @@ class JsonMongooseFieldAdapter extends CommonFieldAdapterInterface(MongooseField
     /*
      * @param {mongoose.Schema} schema
      */
-    addToMongooseSchema (schema) {
+    addToMongooseSchema(schema) {
         const schemaOptions = {
             type: Object,
         }
@@ -102,19 +108,21 @@ class JsonMongooseFieldAdapter extends CommonFieldAdapterInterface(MongooseField
 }
 
 class JsonKnexFieldAdapter extends CommonFieldAdapterInterface(KnexFieldAdapter) {
-    constructor () {
+    constructor() {
         super(...arguments)
 
         // Error rather than ignoring invalid config
         // We totally can index these values, it's just not trivial. See issue #1297
         if (this.config.isUnique || this.config.isIndexed) {
-            throw 'The Location field type doesn\'t support indexes on Knex. ' +
-            `Check the config for ${this.path} on the ${this.field.listKey} list`
+            throw (
+                "The Location field type doesn't support indexes on Knex. " +
+                `Check the config for ${this.path} on the ${this.field.listKey} list`
+            )
         }
     }
 
-    setupHooks ({ addPreSaveHook, addPostReadHook }) {
-        addPreSaveHook(item => {
+    setupHooks({ addPreSaveHook, addPostReadHook }) {
+        addPreSaveHook((item) => {
             // Only run the hook if the item actually contains the field
             // NOTE: Can't use hasOwnProperty here
             if (!(this.path in item)) {
@@ -128,37 +136,31 @@ class JsonKnexFieldAdapter extends CommonFieldAdapterInterface(KnexFieldAdapter)
         })
     }
 
-    addToTableSchema (table) {
+    addToTableSchema(table) {
         const column = table.jsonb(this.path)
         if (this.isNotNullable) column.notNullable()
         if (this.defaultTo) column.defaultTo(this.defaultTo)
     }
 
-    inConditions (dbPath, f = stringify) {
+    inConditions(dbPath, f = stringify) {
         // ref#PGDB/NULL: convert null to 'null' as pgdb json value!
         return {
-            [`${this.path}_in`]: value => b =>
-                value.includes(null)
-                    ? b.whereIn(dbPath, value.map(f)).orWhereNull(dbPath)
-                    : b.whereIn(dbPath, value.map(f)),
-            [`${this.path}_not_in`]: value => b =>
+            [`${this.path}_in`]: (value) => (b) =>
+                value.includes(null) ? b.whereIn(dbPath, value.map(f)).orWhereNull(dbPath) : b.whereIn(dbPath, value.map(f)),
+            [`${this.path}_not_in`]: (value) => (b) =>
                 value.includes(null)
                     ? b.whereNotIn(dbPath, value.map(f)).whereNotNull(dbPath)
                     : b.whereNotIn(dbPath, value.map(f)).orWhereNull(dbPath),
         }
     }
 
-    equalityConditions (dbPath, f = stringify) {
+    equalityConditions(dbPath, f = stringify) {
         // ref#PGDB/NULL: convert null to 'null' as pgdb json value!
         return {
-            [this.path]: value => b =>
-                value === null ?
-                    b.where(dbPath, f(value)).orWhereNull(dbPath) :
-                    b.where(dbPath, f(value)),
-            [`${this.path}_not`]: value => b =>
-                value === null
-                    ? b.where(dbPath, '!=', f(value)).whereNotNull(dbPath)
-                    : b.where(dbPath, '!=', f(value)),
+            [this.path]: (value) => (b) =>
+                value === null ? b.where(dbPath, f(value)).orWhereNull(dbPath) : b.where(dbPath, f(value)),
+            [`${this.path}_not`]: (value) => (b) =>
+                value === null ? b.where(dbPath, '!=', f(value)).whereNotNull(dbPath) : b.where(dbPath, '!=', f(value)),
         }
     }
 }

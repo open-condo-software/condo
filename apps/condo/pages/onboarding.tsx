@@ -47,40 +47,38 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
                                 </Space>
                             </Col>
                             <Col span={24}>
-                                {onBoardingSteps.length > 0 && !get(onBoarding, 'completed')
-                                    ? (
-                                        <Row gutter={[0, 0]}>
-                                            {onBoardingSteps.sort((leftStep, rightStep) => leftStep.order > rightStep.order ? 1 : -1)
-                                                .map((step) => {
-                                                    const { title, description, iconView, stepAction, type, id } = step
+                                {onBoardingSteps.length > 0 && !get(onBoarding, 'completed') ? (
+                                    <Row gutter={[0, 0]}>
+                                        {onBoardingSteps
+                                            .sort((leftStep, rightStep) => (leftStep.order > rightStep.order ? 1 : -1))
+                                            .map((step) => {
+                                                const { title, description, iconView, stepAction, type, id } = step
 
-                                                    if (!type) {
-                                                        return null
-                                                    }
+                                                if (!type) {
+                                                    return null
+                                                }
 
-                                                    return (
-                                                        <Col lg={16} md={24} key={id}>
-                                                            <OnBoardingStepItem
-                                                                action={stepAction}
-                                                                icon={iconView}
-                                                                type={type}
-                                                                title={title}
-                                                                description={description}
-                                                            />
-                                                        </Col>
-                                                    )
-                                                })}
-                                        </Row>
-                                    )
-                                    : (
-                                        <React.Fragment>
-                                            <Skeleton active/>
-                                            <Skeleton active/>
-                                            <Skeleton active/>
-                                            <Skeleton active/>
-                                        </React.Fragment>
-                                    )
-                                }
+                                                return (
+                                                    <Col lg={16} md={24} key={id}>
+                                                        <OnBoardingStepItem
+                                                            action={stepAction}
+                                                            icon={iconView}
+                                                            type={type}
+                                                            title={title}
+                                                            description={description}
+                                                        />
+                                                    </Col>
+                                                )
+                                            })}
+                                    </Row>
+                                ) : (
+                                    <React.Fragment>
+                                        <Skeleton active />
+                                        <Skeleton active />
+                                        <Skeleton active />
+                                        <Skeleton active />
+                                    </React.Fragment>
+                                )}
                             </Col>
                         </Row>
                     </PageContent>

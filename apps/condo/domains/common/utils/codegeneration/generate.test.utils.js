@@ -1,6 +1,6 @@
 const faker = require('faker')
 
-function throwIfError (data, errors) {
+function throwIfError(data, errors) {
     if (errors) {
         const err = new Error('TestRequestError')
         err.errors = errors
@@ -9,15 +9,14 @@ function throwIfError (data, errors) {
     }
 }
 
-function checkClient (client) {
+function checkClient(client) {
     if (!client) throw new Error('no client argument')
     if (typeof client !== 'object') throw new Error('The client argument should be an object type')
     if (client.then) throw new Error('The client argument is a Promise! Probably you should to await it')
 }
 
-function generateGQLTestUtils (gql) {
-
-    async function getAll (client, where, { raw = false, sortBy } = {}) {
+function generateGQLTestUtils(gql) {
+    async function getAll(client, where, { raw = false, sortBy } = {}) {
         checkClient(client)
         const { data, errors } = await client.query(gql.GET_ALL_OBJS_QUERY, { where: where, sortBy })
         if (raw) return { data, errors }
@@ -25,7 +24,7 @@ function generateGQLTestUtils (gql) {
         return data.objs
     }
 
-    async function count (client, where, { raw = false } = {}) {
+    async function count(client, where, { raw = false } = {}) {
         checkClient(client)
         const { data, errors } = await client.query(gql.GET_COUNT_OBJS_QUERY, { where: where })
         if (raw) return { data, errors }
@@ -33,7 +32,7 @@ function generateGQLTestUtils (gql) {
         return data.meta.count
     }
 
-    async function getAllWithMeta (client, where, { raw = false } = {}) {
+    async function getAllWithMeta(client, where, { raw = false } = {}) {
         checkClient(client)
         const { data, errors } = await client.query(gql.GET_ALL_OBJS_WITH_COUNT_QUERY, { where: where })
         if (raw) return { data, errors }
@@ -41,7 +40,7 @@ function generateGQLTestUtils (gql) {
         return data.meta.count
     }
 
-    async function create (client, attrs = {}, { raw = false } = {}) {
+    async function create(client, attrs = {}, { raw = false } = {}) {
         checkClient(client)
         const { data, errors } = await client.mutate(gql.CREATE_OBJ_MUTATION, {
             data: { ...attrs },
@@ -51,17 +50,18 @@ function generateGQLTestUtils (gql) {
         return data.obj
     }
 
-    async function update (client, id, attrs = {}, { raw = false } = {}) {
+    async function update(client, id, attrs = {}, { raw = false } = {}) {
         checkClient(client)
         const { data, errors } = await client.mutate(gql.UPDATE_OBJ_MUTATION, {
-            id, data: { ...attrs },
+            id,
+            data: { ...attrs },
         })
         if (raw) return { data, errors }
         throwIfError(data, errors)
         return data.obj
     }
 
-    async function delete_ (client, id, { raw = false } = {}) {
+    async function delete_(client, id, { raw = false } = {}) {
         checkClient(client)
         const { data, errors } = await client.mutate(gql.DELETE_OBJ_MUTATION, { id })
         if (raw) return { data, errors }
@@ -69,7 +69,7 @@ function generateGQLTestUtils (gql) {
         return data.obj
     }
 
-    async function softDelete (client, id, extraAttrs = {}, { raw = false } = {}) {
+    async function softDelete(client, id, extraAttrs = {}, { raw = false } = {}) {
         const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
         const attrs = {
             dv: 1,
@@ -79,7 +79,8 @@ function generateGQLTestUtils (gql) {
         }
         checkClient(client)
         const { data, errors } = await client.mutate(gql.UPDATE_OBJ_MUTATION, {
-            id, data: { ...attrs },
+            id,
+            data: { ...attrs },
         })
         if (raw) return { data, errors }
         throwIfError(data, errors)
@@ -88,9 +89,11 @@ function generateGQLTestUtils (gql) {
 
     return {
         gql,
-        getAll, count,
+        getAll,
+        count,
         getAllWithMeta,
-        create, update,
+        create,
+        update,
         delete: delete_,
         softDelete,
     }

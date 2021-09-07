@@ -13,7 +13,8 @@ const TicketListView: React.FC<ITicketAnalyticsPageListViewProps> = ({
     data,
     viewMode,
     mapperInstance,
-    filters }) => {
+    filters,
+}) => {
     const intl = useIntl()
     const DateTitle = intl.formatMessage({ id: 'Date' })
     const AddressTitle = intl.formatMessage({ id: 'field.Address' })

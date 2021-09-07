@@ -1,7 +1,7 @@
 const { Integer } = require('@keystonejs/fields')
 
 class Stars extends Integer.implementation {
-    extendAdminMeta (meta) {
+    extendAdminMeta(meta) {
         return { ...meta, starCount: this.config.starCount || 5 }
     }
 }

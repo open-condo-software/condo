@@ -11,9 +11,9 @@ import {
 } from '@condo/domains/common/utils/importer'
 import { useIntl } from '@core/next/intl'
 
-
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const useImporter = (columns: Columns,
+export const useImporter = (
+    columns: Columns,
     rowNormalizer: RowNormalizer,
     rowValidator: RowValidator,
     objectCreator: ObjectCreator,
@@ -21,14 +21,21 @@ export const useImporter = (columns: Columns,
     setSuccessRows: () => void,
     handleRowError: (row: ProcessedRow) => void,
     onFinish: () => void,
-    onError: () => void) => {
+    onError: () => void,
+) => {
     const intl = useIntl()
-    const TooManyRowsErrorMessage = intl.formatMessage({ id: 'TooManyRowsInTable' }, {
-        value: MAX_TABLE_LENGTH,
-    })
-    const InvalidRowsErrorMessage = intl.formatMessage({ id: 'TableHasInvalidHeaders' }, {
-        value: columns.map(column => `"${column.name}"`).join(', '),
-    })
+    const TooManyRowsErrorMessage = intl.formatMessage(
+        { id: 'TooManyRowsInTable' },
+        {
+            value: MAX_TABLE_LENGTH,
+        },
+    )
+    const InvalidRowsErrorMessage = intl.formatMessage(
+        { id: 'TableHasInvalidHeaders' },
+        {
+            value: columns.map((column) => `"${column.name}"`).join(', '),
+        },
+    )
     const [progress, setProgress] = useState(0)
     const [error, setError] = useState(null)
     const [isImported, setIsImported] = useState(false)

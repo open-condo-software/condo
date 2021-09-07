@@ -17,7 +17,7 @@ class GqlToKnexBaseAdapter {
      * @param where {Object} GQL where condition
      * @param groupBy {Array} fields in domainName table that should be applied to result
      */
-    constructor (domainName, where = {}, groupBy) {
+    constructor(domainName, where = {}, groupBy) {
         this.domainName = domainName
         let whereConditions = []
         for (const field in where) {
@@ -27,7 +27,7 @@ class GqlToKnexBaseAdapter {
                 whereConditions.push({ [field]: where[field] })
             }
         }
-        whereConditions.forEach(condition => {
+        whereConditions.forEach((condition) => {
             Object.entries(condition).forEach(([field, query]) => {
                 if (field === 'createdAt_gte') {
                     this.dateRange.from = query
@@ -39,12 +39,12 @@ class GqlToKnexBaseAdapter {
             })
         })
         this.dayGroup = 'day'
-        this.dayGroups.forEach(possibleDateGroup => {
+        this.dayGroups.forEach((possibleDateGroup) => {
             if (groupBy.includes(possibleDateGroup)) {
                 this.dayGroup = possibleDateGroup
             }
         })
-        this.groups = groupBy.filter(type => !this.dayGroups.includes(type))
+        this.groups = groupBy.filter((type) => !this.dayGroups.includes(type))
     }
 
     /**
@@ -54,7 +54,7 @@ class GqlToKnexBaseAdapter {
      * @param mapLambda {Function | null}
      * @returns {null|Array}
      */
-    getResult (mapLambda = null) {
+    getResult(mapLambda = null) {
         if (mapLambda !== null) {
             return this.result.map(mapLambda)
         }
@@ -67,7 +67,7 @@ class GqlToKnexBaseAdapter {
      * @param condition {Array}
      * @returns {Boolean}
      */
-    isWhereInCondition (condition) {
+    isWhereInCondition(condition) {
         const [, query] = Object.entries(condition)[0]
         return has(query, 'id_in')
     }

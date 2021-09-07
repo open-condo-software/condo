@@ -12,12 +12,12 @@ export const TextHighlighter: React.FC<ITextHighlighterProps> = ({ text, search,
     if (!text) return null
 
     if (isEmpty(search)) {
-        return <>{ renderPart(text, 0, false) }</>
+        return <>{renderPart(text, 0, false)}</>
     }
 
     const searchRegexp = new RegExp(`(${ESCAPE_REGEX(search)})`, 'ig')
     if (!text.match(searchRegexp)) {
-        return <>{ renderPart(text, 0, false) }</>
+        return <>{renderPart(text, 0, false)}</>
     }
 
     const parts = text.split(searchRegexp)

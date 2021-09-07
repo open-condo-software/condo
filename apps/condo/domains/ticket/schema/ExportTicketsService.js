@@ -8,8 +8,6 @@ const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { EMPTY_DATA_EXPORT_ERROR } = require('@condo/domains/common/constants/errors')
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
 
-
-
 // TODO(zuch): if we add timeZone and locale to organization settings use organization timeZone instead of client's timezone
 const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
     types: [
@@ -31,12 +29,12 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                 const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
                 const formatDate = (date) => moment(date).tz(timeZone).format(DATE_FORMAT)
                 const statuses = await TicketStatus.getAll(context, {})
-                const indexedStatuses = Object.fromEntries(statuses.map(status => ([status.type, status.name])))
+                const indexedStatuses = Object.fromEntries(statuses.map((status) => [status.type, status.name]))
                 const allTickets = await loadTicketsForExcelExport({ where, sortBy })
                 if (allTickets.length === 0) {
                     throw new Error(`${EMPTY_DATA_EXPORT_ERROR}] empty export file`)
                 }
-                const excelRows = allTickets.map(ticket => {
+                const excelRows = allTickets.map((ticket) => {
                     return {
                         number: ticket.number,
                         organization: ticket.organization,
@@ -77,9 +75,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
             },
         },
     ],
-    mutations: [
-
-    ],
+    mutations: [],
 })
 
 module.exports = {

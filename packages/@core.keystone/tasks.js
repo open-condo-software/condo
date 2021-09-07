@@ -20,7 +20,7 @@ const globalTaskOptions = {}
 const TASKS = new Map()
 let isWorkerCreated = false
 
-function createTask (name, fn, opts = {}) {
+function createTask(name, fn, opts = {}) {
     if (typeof fn !== 'function') throw new Error('unsupported fn argument type. Function expected')
     if (!name) throw new Error('no name')
 
@@ -29,13 +29,13 @@ function createTask (name, fn, opts = {}) {
     return createTaskWrapper(name, fn, opts)
 }
 
-async function awaitResult (jobId) {
+async function awaitResult(jobId) {
     const job = await Queue.Job.fromId(taskQueue, jobId)
     return await job.finished()
 }
 
-function createTaskWrapper (name, fn, defaultTaskOptions = {}) {
-    async function applyAsync (args, taskOptions) {
+function createTaskWrapper(name, fn, defaultTaskOptions = {}) {
+    async function applyAsync(args, taskOptions) {
         if (!isSerializable(args)) throw new Error('arguments is not serializable')
         if (FAKE_WORKER_MODE) {
             // NOTE: it's just for test purposes
@@ -44,16 +44,24 @@ function createTaskWrapper (name, fn, defaultTaskOptions = {}) {
             console.warn('LocalTaskExecution', name, args, taskOptions, '(task options ignored)')
             const result = await executeTask(name, createSerializableCopy(args))
             return {
-                getState: async () => { return Promise.resolve('completed') },
-                awaitResult: async () => { return Promise.resolve(result) },
+                getState: async () => {
+                    return Promise.resolve('completed')
+                },
+                awaitResult: async () => {
+                    return Promise.resolve(result)
+                },
             }
         }
 
-        const job = await taskQueue.add(name, { args: createSerializableCopy([...args]) }, {
-            ...globalTaskOptions,
-            ...defaultTaskOptions,
-            ...taskOptions,
-        })
+        const job = await taskQueue.add(
+            name,
+            { args: createSerializableCopy([...args]) },
+            {
+                ...globalTaskOptions,
+                ...defaultTaskOptions,
+                ...taskOptions,
+            },
+        )
 
         return {
             getState: async () => {
@@ -65,11 +73,11 @@ function createTaskWrapper (name, fn, defaultTaskOptions = {}) {
         }
     }
 
-    async function delay () {
+    async function delay() {
         return await applyAsync([...arguments])
     }
 
-    function errorTaskCallPrevent () {
+    function errorTaskCallPrevent() {
         throw new Error('This function is converted to a task, and you need to use fn.delay(...) to call the tasks')
     }
 
@@ -83,24 +91,22 @@ function createTaskWrapper (name, fn, defaultTaskOptions = {}) {
     return errorTaskCallPrevent
 }
 
-function registerTasks (modulesList) {
-    modulesList.forEach(
-        (module) => {
-            Object.values(module).forEach(
-                (task) => {
-                    if (task._type !== TASK_TYPE) {
-                        console.warn(task)
-                        throw new Error('Wrong task module export format! What\'s this? You should wrap everything by createTask()')
-                    }
-                })
+function registerTasks(modulesList) {
+    modulesList.forEach((module) => {
+        Object.values(module).forEach((task) => {
+            if (task._type !== TASK_TYPE) {
+                console.warn(task)
+                throw new Error("Wrong task module export format! What's this? You should wrap everything by createTask()")
+            }
         })
+    })
 }
 
-function createSerializableCopy (data) {
+function createSerializableCopy(data) {
     return JSON.parse(JSON.stringify(data))
 }
 
-function isSerializable (data) {
+function isSerializable(data) {
     try {
         JSON.stringify(data)
         return true
@@ -109,7 +115,7 @@ function isSerializable (data) {
     }
 }
 
-function executeTask (name, args, job = null) {
+function executeTask(name, args, job = null) {
     if (!TASKS.has(name)) throw new Error(`executeTask: Unknown task name ${name}`)
     if (!isSerializable(args)) throw new Error('executeTask: args is not serializable')
 
@@ -118,7 +124,7 @@ function executeTask (name, args, job = null) {
     return fn.apply(job, args)
 }
 
-async function createWorker (keystoneModule) {
+async function createWorker(keystoneModule) {
     // NOTE: we should have only one worker per node process!
     if (isWorkerCreated) {
         taskLogger.warn({ message: 'Call createWorker() more than one time! (ignored)' })
@@ -132,7 +138,7 @@ async function createWorker (keystoneModule) {
     if (keystoneModule) {
         await prepareKeystoneExpressApp(keystoneModule)
     } else {
-        taskLogger.warn({ message: 'Keystone APP context is not prepared! You can\'t use Keystone GQL query inside the tasks!' })
+        taskLogger.warn({ message: "Keystone APP context is not prepared! You can't use Keystone GQL query inside the tasks!" })
     }
 
     taskQueue.process('*', WORKER_CONCURRENCY, async function (job) {
@@ -150,7 +156,14 @@ async function createWorker (keystoneModule) {
     })
 
     taskQueue.on('completed', function (job) {
-        taskLogger.info({ job: job.id, status: 'completed', task: job.toJSON(), t0: job.finishedOn - job.timestamp, t1: job.processedOn - job.timestamp, t2: job.finishedOn - job.processedOn })
+        taskLogger.info({
+            job: job.id,
+            status: 'completed',
+            task: job.toJSON(),
+            t0: job.finishedOn - job.timestamp,
+            t1: job.processedOn - job.timestamp,
+            t2: job.finishedOn - job.processedOn,
+        })
     })
 
     await taskQueue.isReady()

@@ -1,11 +1,5 @@
 import React, { useCallback, useRef } from 'react'
-import {
-    Columns,
-    RowNormalizer,
-    RowValidator,
-    ObjectCreator,
-    ProcessedRow,
-} from '@condo/domains/common/utils/importer'
+import { Columns, RowNormalizer, RowValidator, ObjectCreator, ProcessedRow } from '@condo/domains/common/utils/importer'
 import { Modal, Popover, Typography, Space } from 'antd'
 import { useImporter } from '@condo/domains/common/hooks/useImporter'
 import { useIntl } from '@core/next/intl'
@@ -34,10 +28,10 @@ interface IImportProps {
 }
 
 const InfoBoxContainer = styled.div`
-  max-width: 300px;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
+    max-width: 300px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
 `
 
 const ColumnsInfoBox: React.FC<IColumnsInfoBoxProps> = ({ columns }) => {
@@ -46,27 +40,23 @@ const ColumnsInfoBox: React.FC<IColumnsInfoBoxProps> = ({ columns }) => {
     const RequiredFieldsMessage = intl.formatMessage({ id: 'ImportRequiredFields' })
     return (
         <Space direction={'vertical'} size={10}>
-            <Typography.Text>
-                {ColumnsFormatMessage}
-            </Typography.Text>
+            <Typography.Text>{ColumnsFormatMessage}</Typography.Text>
             <InfoBoxContainer>
-                {
-                    columns.map((column, index) => {
-                        return (
-                            <>
-                                {index !== 0 && ', '}
-                                <Typography.Text keyboard key={column.name}>
-                                    {column.required && (
-                                        <Typography.Text type={'danger'} style={{ marginRight: 3 }}>
-                                            <sup>*</sup>
-                                        </Typography.Text>
-                                    )}
-                                    {column.name}
-                                </Typography.Text>
-                            </>
-                        )
-                    })
-                }
+                {columns.map((column, index) => {
+                    return (
+                        <>
+                            {index !== 0 && ', '}
+                            <Typography.Text keyboard key={column.name}>
+                                {column.required && (
+                                    <Typography.Text type={'danger'} style={{ marginRight: 3 }}>
+                                        <sup>*</sup>
+                                    </Typography.Text>
+                                )}
+                                {column.name}
+                            </Typography.Text>
+                        </>
+                    )
+                })}
             </InfoBoxContainer>
             <Typography.Text>
                 <Typography.Text type={'danger'} style={{ marginRight: 3 }}>
@@ -79,22 +69,14 @@ const ColumnsInfoBox: React.FC<IColumnsInfoBoxProps> = ({ columns }) => {
 }
 
 export const ImportWrapper: React.FC<IImportProps> = (props) => {
-    const {
-        objectsName,
-        accessCheck,
-        columns,
-        rowNormalizer,
-        rowValidator,
-        objectCreator,
-        onFinish,
-    } = props
+    const { objectsName, accessCheck, columns, rowNormalizer, rowValidator, objectCreator, onFinish } = props
     const intl = useIntl()
-    const ImportTitle = intl.formatMessage({ id:'Import' })
-    const ImportSuccessMessage = intl.formatMessage({ id: 'ImportSuccess' },  { objects: objectsName })
+    const ImportTitle = intl.formatMessage({ id: 'Import' })
+    const ImportSuccessMessage = intl.formatMessage({ id: 'ImportSuccess' }, { objects: objectsName })
     const ImportOKMessage = intl.formatMessage({ id: 'Continue' })
     const ImportDefaultErrorMessage = intl.formatMessage({ id: 'ImportError' })
-    const ImportProcessingMessage = intl.formatMessage({ id:'ImportProcessing' })
-    const ImportBreakButtonMessage = intl.formatMessage({ id:'Break' })
+    const ImportProcessingMessage = intl.formatMessage({ id: 'ImportProcessing' })
+    const ImportBreakButtonMessage = intl.formatMessage({ id: 'Break' })
     const ImportPopoverTitle = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
     const GetFailedDataMessage = intl.formatMessage({ id: 'GetFailedData' })
     const CloseMessage = intl.formatMessage({ id: 'Close' })
@@ -127,14 +109,25 @@ export const ImportWrapper: React.FC<IImportProps> = (props) => {
         }
     }
     const [importData, progress, error, isImported, breakImport] = useImporter(
-        columns, rowNormalizer, rowValidator, objectCreator,
-        setTotalRowsRef, setSuccessRowsRef, addError,
+        columns,
+        rowNormalizer,
+        rowValidator,
+        objectCreator,
+        setTotalRowsRef,
+        setSuccessRowsRef,
+        addError,
         () => {
             const message = `${ImportSuccessMessage} [${successRowsRef.current}/${totalRowsRef.current}]`
             destroyActiveModal()
             if (errors.current.length > 0) {
-                const config = getPartlyLoadedModalConfig(ImportTitle, message, GetFailedDataMessage, CloseMessage,
-                    errors.current, columns)
+                const config = getPartlyLoadedModalConfig(
+                    ImportTitle,
+                    message,
+                    GetFailedDataMessage,
+                    CloseMessage,
+                    errors.current,
+                    columns,
+                )
                 activeModal.current = modal.confirm(config)
             } else {
                 const config = getUploadSuccessModalConfig(ImportTitle, message, ImportOKMessage)
@@ -145,16 +138,15 @@ export const ImportWrapper: React.FC<IImportProps> = (props) => {
             destroyActiveModal()
             const config = getUploadErrorModalConfig(ImportTitle, ImportDefaultErrorMessage, ImportOKMessage)
             activeModal.current = modal.error(config)
-        }
+        },
     )
 
     const handleUpload = useCallback((file) => {
         destroyActiveModal()
-        const config = getUploadProgressModalConfig(ImportTitle, ImportProcessingMessage, ImportBreakButtonMessage,
-            () => {
-                breakImport()
-                onFinish()
-            })
+        const config = getUploadProgressModalConfig(ImportTitle, ImportProcessingMessage, ImportBreakButtonMessage, () => {
+            breakImport()
+            onFinish()
+        })
         // @ts-ignore
         activeModal.current = modal.info(config)
         totalRowsRef.current = 0
@@ -167,7 +159,7 @@ export const ImportWrapper: React.FC<IImportProps> = (props) => {
         accessCheck && (
             <ModalContext.Provider value={{ progress, error, isImported }}>
                 <DataImporter onUpload={handleUpload}>
-                    <Popover title={ImportPopoverTitle} content={<ColumnsInfoBox columns={columns}/>}>
+                    <Popover title={ImportPopoverTitle} content={<ColumnsInfoBox columns={columns} />}>
                         {props.children}
                     </Popover>
                 </DataImporter>

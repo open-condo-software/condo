@@ -22,7 +22,9 @@ interface IUseCreateOrganizationModalFormProps {
     onFinish?: () => void
 }
 
-export const useCreateOrganizationModalForm = (props: IUseCreateOrganizationModalFormProps): ICreateOrganizationModalFormResult => {
+export const useCreateOrganizationModalForm = (
+    props: IUseCreateOrganizationModalFormProps,
+): ICreateOrganizationModalFormResult => {
     const intl = useIntl()
 
     const ValueIsTooShortMsg = intl.formatMessage({ id: 'ValueIsTooShort' })
@@ -42,33 +44,36 @@ export const useCreateOrganizationModalForm = (props: IUseCreateOrganizationModa
 
     const { fetchMore } = OrganizationEmployee.useObjects(
         { where: user ? { user: { id: user.id }, isRejected: false, isBlocked: false } : {} },
-        { fetchPolicy: 'network-only' }
+        { fetchPolicy: 'network-only' },
     )
 
-    const onFinish = useCallback((createResult) => {
-        const id = get(createResult, 'data.obj.id')
+    const onFinish = useCallback(
+        (createResult) => {
+            const id = get(createResult, 'data.obj.id')
 
-        fetchMore({
-            where: { organization: { id }, user: { id: user.id } },
-        }).then((data) => {
-            const userLinks = get(data, 'data.objs', [])
+            fetchMore({
+                where: { organization: { id }, user: { id: user.id } },
+            }).then((data) => {
+                const userLinks = get(data, 'data.objs', [])
 
-            if (id) {
-                const newLink = userLinks.find(link => link.organization.id === id)
-                if (newLink) {
-                    selectLink({ id: newLink.id }).then(() => {
-                        setIsVisible(false)
-                    })
+                if (id) {
+                    const newLink = userLinks.find((link) => link.organization.id === id)
+                    if (newLink) {
+                        selectLink({ id: newLink.id }).then(() => {
+                            setIsVisible(false)
+                        })
+                    }
                 }
-            }
 
-            if (props.onFinish) {
-                props.onFinish()
-            }
-        })
+                if (props.onFinish) {
+                    props.onFinish()
+                }
+            })
 
-        return null
-    }, [user])
+            return null
+        },
+        [user],
+    )
 
     const ErrorToFormFieldMsgMapping = {
         [EMPTY_NAME_ERROR]: {
@@ -112,22 +117,11 @@ export const useCreateOrganizationModalForm = (props: IUseCreateOrganizationModa
             showCancelButton={false}
             validateTrigger={['onBlur', 'onSubmit']}
         >
-            <Typography.Paragraph>
-                {CreateOrganizationModalMsg}
-            </Typography.Paragraph>
-            <Form.Item
-                name='name'
-                label={NameMsg}
-                rules={validations.name}
-            >
+            <Typography.Paragraph>{CreateOrganizationModalMsg}</Typography.Paragraph>
+            <Form.Item name="name" label={NameMsg} rules={validations.name}>
                 <Input />
             </Form.Item>
-            <Form.Item
-                name='inn'
-                style={{ width: '50%' }}
-                label={InnMessage}
-                rules={validations.inn}
-            >
+            <Form.Item name="inn" style={{ width: '50%' }} label={InnMessage} rules={validations.inn}>
                 <Input />
             </Form.Item>
         </BaseModalForm>

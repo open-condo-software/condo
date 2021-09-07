@@ -17,9 +17,7 @@ const PageFieldRow: React.FC<IPageFieldRowProps> = (props) => {
                 <Typography.Text style={{ fontSize: fontSizes.content }}>{title}</Typography.Text>
             </Col>
             <Col span={24 - labelSpan - 1} push={1} style={{ fontSize: fontSizes.content }}>
-                <Typography.Text type={highlight ? 'success' : null}>
-                    {children}
-                </Typography.Text>
+                <Typography.Text type={highlight ? 'success' : null}>{children}</Typography.Text>
             </Col>
         </>
     )

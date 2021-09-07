@@ -8,8 +8,8 @@ import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, SIGNIN_MUTATION } from '@condo/d
 
 interface IAuthLayoutContext {
     isMobile: boolean
-    signInByEmail: ({ email, password }, onCompleted?: () => void) => Promise<unknown>,
-    signInByPhone: ({ phone, password }, onCompleted?: () => void) => Promise<unknown>,
+    signInByEmail: ({ email, password }, onCompleted?: () => void) => Promise<unknown>
+    signInByPhone: ({ phone, password }, onCompleted?: () => void) => Promise<unknown>
 }
 
 export const AuthLayoutContext = createContext<IAuthLayoutContext>({
@@ -27,44 +27,52 @@ export const AuthLayoutContextProvider: React.FC = (props) => {
     const [signinByPhoneMutation] = useMutation(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION)
     const [signinByEmailMutation] = useMutation(SIGNIN_MUTATION)
 
-    const signInByPhone = useCallback((variables, onCompleted) => {
-        return runMutation({
-            mutation: signinByPhoneMutation,
-            variables,
-            onCompleted: () => {
-                refetch().then(() => {
-                    onCompleted()
-                })
-            },
-            onError: (error) => {
-                console.error(error)
-            },
-            intl,
-        })
-    }, [intl])
+    const signInByPhone = useCallback(
+        (variables, onCompleted) => {
+            return runMutation({
+                mutation: signinByPhoneMutation,
+                variables,
+                onCompleted: () => {
+                    refetch().then(() => {
+                        onCompleted()
+                    })
+                },
+                onError: (error) => {
+                    console.error(error)
+                },
+                intl,
+            })
+        },
+        [intl],
+    )
 
-    const signInByEmail = useCallback((variables, onCompleted) => {
-        return runMutation({
-            mutation: signinByEmailMutation,
-            variables,
-            onCompleted: () => {
-                refetch().then(() => {
-                    onCompleted()
-                })
-            },
-            onError: (error) => {
-                console.error(error)
-            },
-            intl,
-        })
-    }, [intl])
+    const signInByEmail = useCallback(
+        (variables, onCompleted) => {
+            return runMutation({
+                mutation: signinByEmailMutation,
+                variables,
+                onCompleted: () => {
+                    refetch().then(() => {
+                        onCompleted()
+                    })
+                },
+                onError: (error) => {
+                    console.error(error)
+                },
+                intl,
+            })
+        },
+        [intl],
+    )
 
     return (
-        <AuthLayoutContext.Provider value={{
-            isMobile: colSize === 'xs',
-            signInByEmail,
-            signInByPhone,
-        }}>
+        <AuthLayoutContext.Provider
+            value={{
+                isMobile: colSize === 'xs',
+                signInByEmail,
+                signInByPhone,
+            }}
+        >
             {props.children}
         </AuthLayoutContext.Provider>
     )

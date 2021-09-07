@@ -40,18 +40,18 @@ const SLEEP_INTERVAL_BEFORE_QUERIES = 300
 export const MAX_TABLE_LENGTH = 500
 
 export class Importer implements IImporter {
-    constructor (
+    constructor(
         columnsTemplate: Columns,
         private rowNormalizer: RowNormalizer,
         private rowValidator: RowValidator,
         private objectCreator: ObjectCreator,
         private errors: ImporterErrorMessages,
         private sleepInterval: number = SLEEP_INTERVAL_BEFORE_QUERIES,
-        private maxTableLength: number = MAX_TABLE_LENGTH
+        private maxTableLength: number = MAX_TABLE_LENGTH,
     ) {
-        this.columnsNames = columnsTemplate.map(column => column.name.trim().toLowerCase())
-        this.columnsTypes = columnsTemplate.map(column => column.type)
-        this.columnsRequired = columnsTemplate.map(column => column.required)
+        this.columnsNames = columnsTemplate.map((column) => column.name.trim().toLowerCase())
+        this.columnsTypes = columnsTemplate.map((column) => column.type)
+        this.columnsRequired = columnsTemplate.map((column) => column.required)
     }
 
     private progress = {
@@ -71,7 +71,7 @@ export class Importer implements IImporter {
     private readonly columnsTypes: Array<'string' | 'number'>
     private readonly columnsRequired: Array<boolean>
 
-    public import (data: Array<TableRow>): Promise<void> {
+    public import(data: Array<TableRow>): Promise<void> {
         this.tableData = data
         const [columns, ...body] = this.tableData
         if (!columns) {
@@ -88,36 +88,36 @@ export class Importer implements IImporter {
             return
         }
 
-        return this.createRecord(cloneDeep(body)).catch(error => {
+        return this.createRecord(cloneDeep(body)).catch((error) => {
             this.errorHandler(error)
         })
     }
 
-    public break (): void {
+    public break(): void {
         this.breakImport = true
     }
 
-    public onError (handleError: ErrorHandler): void {
+    public onError(handleError: ErrorHandler): void {
         this.errorHandler = handleError
     }
 
-    public onFinish (handleFinish: FinishHandler): void {
+    public onFinish(handleFinish: FinishHandler): void {
         this.finishHandler = handleFinish
     }
 
-    public onRowProcessed (handleSuccess: SuccessProcessingHandler): void {
+    public onRowProcessed(handleSuccess: SuccessProcessingHandler): void {
         this.successProcessingHandler = handleSuccess
     }
 
-    public onRowFailed (handleFail: FailProcessingHandler): void {
+    public onRowFailed(handleFail: FailProcessingHandler): void {
         this.failProcessingHandler = handleFail
     }
 
-    public onProgressUpdate (handleProgressUpdate: ProgressUpdateHandler): void {
+    public onProgressUpdate(handleProgressUpdate: ProgressUpdateHandler): void {
         this.progressUpdateHandler = handleProgressUpdate
     }
 
-    private isColumnsValid (row: TableRow): boolean {
+    private isColumnsValid(row: TableRow): boolean {
         const normalizedColumns = row.map(({ value }) => {
             if (typeof value === 'string') {
                 return value.trim().toLowerCase()
@@ -127,7 +127,7 @@ export class Importer implements IImporter {
         return isEqual(this.columnsNames, normalizedColumns)
     }
 
-    private isRowValid (row: TableRow): boolean {
+    private isRowValid(row: TableRow): boolean {
         for (let i = 0; i < row.length; i++) {
             if (row[i].value === undefined && this.columnsRequired[i]) {
                 return false
@@ -141,7 +141,7 @@ export class Importer implements IImporter {
         return true
     }
 
-    private updateProgress (value?: number) {
+    private updateProgress(value?: number) {
         if (value) {
             this.progress.current = value
         } else {
@@ -155,7 +155,7 @@ export class Importer implements IImporter {
         }
     }
 
-    private async createRecord (table, index = 0) {
+    private async createRecord(table, index = 0) {
         if (this.breakImport) {
             return Promise.resolve()
         }
@@ -175,26 +175,25 @@ export class Importer implements IImporter {
             return this.createRecord(table, index++)
         }
         return this.rowNormalizer(row)
-            .then(normalizedRow => {
-                return this.rowValidator(normalizedRow)
-                    .then(isValid => {
-                        if (isValid) {
-                            return this.objectCreator(normalizedRow).then(() => {
-                                if (normalizedRow.shouldBeReported && this.failProcessingHandler) {
-                                    this.failProcessingHandler(normalizedRow)
-                                }
-                                if (this.successProcessingHandler) {
-                                    this.successProcessingHandler(row)
-                                }
-                                return Promise.resolve()
-                            })
-                        } else {
-                            if (this.failProcessingHandler) {
+            .then((normalizedRow) => {
+                return this.rowValidator(normalizedRow).then((isValid) => {
+                    if (isValid) {
+                        return this.objectCreator(normalizedRow).then(() => {
+                            if (normalizedRow.shouldBeReported && this.failProcessingHandler) {
                                 this.failProcessingHandler(normalizedRow)
-                                return Promise.resolve()
                             }
+                            if (this.successProcessingHandler) {
+                                this.successProcessingHandler(row)
+                            }
+                            return Promise.resolve()
+                        })
+                    } else {
+                        if (this.failProcessingHandler) {
+                            this.failProcessingHandler(normalizedRow)
+                            return Promise.resolve()
                         }
-                    })
+                    }
+                })
             })
             .then(() => {
                 this.updateProgress()
@@ -208,11 +207,9 @@ export class Importer implements IImporter {
             .catch((error) => {
                 this.errorHandler(error)
             })
-
     }
-
 }
 
-function sleep (ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms))
+function sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms))
 }

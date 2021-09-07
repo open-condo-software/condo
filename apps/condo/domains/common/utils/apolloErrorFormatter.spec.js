@@ -21,7 +21,7 @@ const NestedError = createError('NestedError', {
 })
 
 class MyApolloError extends ApolloError {
-    constructor (message) {
+    constructor(message) {
         super(message, 'MY_ERROR_CODE')
         Object.defineProperty(this, 'name', { value: 'MyApolloError' })
     }
@@ -31,9 +31,9 @@ describe('safeFormatError hide=false', () => {
     test('safeFormatError(new Error)', () => {
         const result = safeFormatError(new Error('Hello'))
         expect(result).toEqual({
-            'message': 'Hello',
-            'name': 'Error',
-            'stack': expect.stringMatching(/^Error: Hello/),
+            message: 'Hello',
+            name: 'Error',
+            stack: expect.stringMatching(/^Error: Hello/),
         })
     })
     test('safeFormatError(new Error) uid', () => {
@@ -41,32 +41,32 @@ describe('safeFormatError hide=false', () => {
         error.uid = 'nfiqwjfqf'
         const result = safeFormatError(error)
         expect(result).toEqual({
-            'message': 'Hello',
-            'name': 'Error',
-            'stack': expect.stringMatching(/^Error: Hello/),
-            'uid': 'nfiqwjfqf',
+            message: 'Hello',
+            name: 'Error',
+            stack: expect.stringMatching(/^Error: Hello/),
+            uid: 'nfiqwjfqf',
         })
     })
     test('safeFormatError(new NestedError)', () => {
         const result = safeFormatError(new NestedError({ message: 'Hello' }))
         expect(result).toEqual({
-            'message': 'Hello',
-            'name': 'NestedError',
-            'stack': expect.stringMatching(/^NestedError: Hello/),
-            'data': {},
-            'internalData': {},
-            'time_thrown': expect.stringMatching(/^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/),
+            message: 'Hello',
+            name: 'NestedError',
+            stack: expect.stringMatching(/^NestedError: Hello/),
+            data: {},
+            internalData: {},
+            time_thrown: expect.stringMatching(/^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/),
         })
     })
     test('safeFormatError(new MyApolloError)', () => {
         const error = new MyApolloError('something wrong!')
         const result = safeFormatError(error)
         expect(result).toEqual({
-            'message': 'something wrong!',
-            'name': 'MyApolloError',
-            'stack': expect.stringMatching(/^MyApolloError: something wrong/),
-            'extensions': {
-                'code': 'MY_ERROR_CODE',
+            message: 'something wrong!',
+            name: 'MyApolloError',
+            stack: expect.stringMatching(/^MyApolloError: something wrong/),
+            extensions: {
+                code: 'MY_ERROR_CODE',
             },
         })
     })
@@ -74,10 +74,10 @@ describe('safeFormatError hide=false', () => {
         const error = new ApolloError('something happened!', 'CODE1', { foo: [1], bar: '22' })
         const result = safeFormatError(error)
         expect(result).toEqual({
-            'message': 'something happened!',
-            'name': 'Error',
-            'stack': expect.stringMatching(/^Error: something happened/),
-            'extensions': {
+            message: 'something happened!',
+            name: 'Error',
+            stack: expect.stringMatching(/^Error: something happened/),
+            extensions: {
                 code: 'CODE1',
                 foo: [1],
                 bar: '22',
@@ -85,18 +85,20 @@ describe('safeFormatError hide=false', () => {
         })
     })
     test('safeFormatError(new NestedError) with data', () => {
-        const result = safeFormatError(new NestedError({
-            message: 'Hello',
-            internalData: { foo: [1] },
-            data: { bar: 'no' },
-        }))
+        const result = safeFormatError(
+            new NestedError({
+                message: 'Hello',
+                internalData: { foo: [1] },
+                data: { bar: 'no' },
+            }),
+        )
         expect(result).toEqual({
-            'message': 'Hello',
-            'name': 'NestedError',
-            'stack': expect.stringMatching(/^NestedError: Hello/),
-            'data': { bar: 'no' },
-            'internalData': { foo: [1] },
-            'time_thrown': expect.stringMatching(/^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/),
+            message: 'Hello',
+            name: 'NestedError',
+            stack: expect.stringMatching(/^NestedError: Hello/),
+            data: { bar: 'no' },
+            internalData: { foo: [1] },
+            time_thrown: expect.stringMatching(/^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/),
         })
     })
     test('safeFormatError(new Error) errors = null', () => {
@@ -104,9 +106,9 @@ describe('safeFormatError hide=false', () => {
         error.errors = null
         const result = safeFormatError(error)
         expect(result).toEqual({
-            'message': 'Hello',
-            'name': 'Error',
-            'stack': expect.stringMatching(/^Error: Hello/),
+            message: 'Hello',
+            name: 'Error',
+            stack: expect.stringMatching(/^Error: Hello/),
         })
     })
     test('safeFormatError(new Error) errors = {}', () => {
@@ -114,24 +116,24 @@ describe('safeFormatError hide=false', () => {
         error.errors = {}
         const result = safeFormatError(error)
         expect(result).toEqual({
-            'message': 'Hello',
-            'name': 'Error',
-            'stack': expect.stringMatching(/^Error: Hello/),
+            message: 'Hello',
+            name: 'Error',
+            stack: expect.stringMatching(/^Error: Hello/),
         })
     })
     test('safeFormatError(new Error) errors = {"name": new Error}', () => {
         const error = new Error('Hello')
-        error.errors = { 'field': new Error('World') }
+        error.errors = { field: new Error('World') }
         const result = safeFormatError(error)
         expect(result).toEqual({
-            'message': 'Hello',
-            'name': 'Error',
-            'stack': expect.stringMatching(/^Error: Hello/),
-            'errors': [
+            message: 'Hello',
+            name: 'Error',
+            stack: expect.stringMatching(/^Error: Hello/),
+            errors: [
                 expect.objectContaining({
-                    'message': 'World',
-                    'name': 'Error',
-                    'stack': expect.stringMatching(/^Error: World/),
+                    message: 'World',
+                    name: 'Error',
+                    stack: expect.stringMatching(/^Error: World/),
                 }),
             ],
         })
@@ -141,14 +143,14 @@ describe('safeFormatError hide=false', () => {
         error.errors = [new Error('World')]
         const result = safeFormatError(error)
         expect(result).toEqual({
-            'message': 'Hello',
-            'name': 'Error',
-            'stack': expect.stringMatching(/^Error: Hello/),
-            'errors': [
+            message: 'Hello',
+            name: 'Error',
+            stack: expect.stringMatching(/^Error: Hello/),
+            errors: [
                 expect.objectContaining({
-                    'message': 'World',
-                    'name': 'Error',
-                    'stack': expect.stringMatching(/^Error: World/),
+                    message: 'World',
+                    name: 'Error',
+                    stack: expect.stringMatching(/^Error: World/),
                 }),
             ],
         })
@@ -156,26 +158,26 @@ describe('safeFormatError hide=false', () => {
     test('safeFormatError(new NestedError) nested', () => {
         const result = safeFormatError(new NestedError({ message: 'Hello' }))
         expect(result).toEqual({
-            'message': 'Hello',
-            'name': 'NestedError',
-            'stack': expect.stringMatching(/^NestedError: Hello/),
-            'data': {},
-            'internalData': {},
-            'time_thrown': expect.stringMatching(/^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/),
+            message: 'Hello',
+            name: 'NestedError',
+            stack: expect.stringMatching(/^NestedError: Hello/),
+            data: {},
+            internalData: {},
+            time_thrown: expect.stringMatching(/^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/),
         })
     })
     test('safeFormatError(new GraphQLError) with printable GQL_SOURCE_EXAMPLE case1', () => {
         const error = new GraphQLError('msg1', [GQL_FIELD_NODE_EXAMPLE])
         const result = safeFormatError(error)
         expect(result).toEqual({
-            'message': 'msg1',
-            'name': 'GraphQLError',
-            'stack': expect.stringMatching(/^GraphQLError: msg1/),
-            'developerMessage': 'msg1\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
-            'locations': [
+            message: 'msg1',
+            name: 'GraphQLError',
+            stack: expect.stringMatching(/^GraphQLError: msg1/),
+            developerMessage: 'msg1\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
+            locations: [
                 {
-                    'column': 5,
-                    'line': 3,
+                    column: 5,
+                    line: 3,
                 },
             ],
         })
@@ -184,36 +186,26 @@ describe('safeFormatError hide=false', () => {
         const error = new GraphQLError('msg2', null, GQL_SOURCE_EXAMPLE, [9])
         const result = safeFormatError(error)
         expect(result).toEqual({
-            'message': 'msg2',
-            'name': 'GraphQLError',
-            'stack': expect.stringMatching(/^GraphQLError: msg2/),
-            'developerMessage': 'msg2\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
-            'locations': [
+            message: 'msg2',
+            name: 'GraphQLError',
+            stack: expect.stringMatching(/^GraphQLError: msg2/),
+            developerMessage: 'msg2\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
+            locations: [
                 {
-                    'column': 5,
-                    'line': 3,
+                    column: 5,
+                    line: 3,
                 },
             ],
         })
     })
     test('safeFormatError(new GraphQLError) with path', () => {
-        const error = new GraphQLError('msg3', null, null, null, [
-            'path',
-            3,
-            'to',
-            'field',
-        ])
+        const error = new GraphQLError('msg3', null, null, null, ['path', 3, 'to', 'field'])
         const result = safeFormatError(error)
         expect(result).toEqual({
-            'message': 'msg3',
-            'name': 'GraphQLError',
-            'stack': expect.stringMatching(/^GraphQLError: msg3/),
-            'path': [
-                'path',
-                3,
-                'to',
-                'field',
-            ],
+            message: 'msg3',
+            name: 'GraphQLError',
+            stack: expect.stringMatching(/^GraphQLError: msg3/),
+            path: ['path', 3, 'to', 'field'],
         })
     })
     test('safeFormatError(new GraphQLError) based on keystone error', () => {
@@ -221,13 +213,13 @@ describe('safeFormatError hide=false', () => {
         const error = new GraphQLError('msg5', null, null, null, null, original)
         const result = safeFormatError(error)
         expect(result).toEqual({
-            'message': 'msg5',
-            'name': 'GraphQLError',
-            'stack': expect.stringMatching(/^Error: original/),
-            'originalError': {
-                'message': 'original',
-                'name': 'Error',
-                'stack': expect.stringMatching(/^Error: original/),
+            message: 'msg5',
+            name: 'GraphQLError',
+            stack: expect.stringMatching(/^Error: original/),
+            originalError: {
+                message: 'original',
+                name: 'Error',
+                stack: expect.stringMatching(/^Error: original/),
             },
         })
     })
@@ -236,19 +228,20 @@ describe('safeFormatError hide=false', () => {
         const error = new GraphQLError('msg4', null, null, null, null, original)
         const result = safeFormatError(error)
         expect(result).toEqual({
-            'data': {  // keystone specific
-                'bar': '33',
+            data: {
+                // keystone specific
+                bar: '33',
             },
-            'message': 'msg4',
-            'name': 'NestedError',  // keystone specific
-            'stack': expect.stringMatching(/^NestedError: Hello/),
-            'originalError': {
-                'message': 'Hello',
-                'name': 'NestedError',
-                'stack': expect.stringMatching(/^NestedError: Hello/),
-                'internalData': { foo: [2] },
-                'data': { bar: '33' },
-                'time_thrown': expect.stringMatching(/^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/),
+            message: 'msg4',
+            name: 'NestedError', // keystone specific
+            stack: expect.stringMatching(/^NestedError: Hello/),
+            originalError: {
+                message: 'Hello',
+                name: 'NestedError',
+                stack: expect.stringMatching(/^NestedError: Hello/),
+                internalData: { foo: [2] },
+                data: { bar: '33' },
+                time_thrown: expect.stringMatching(/^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/),
             },
         })
     })
@@ -258,8 +251,8 @@ describe('safeFormatError hide=true', () => {
     test('safeFormatError(new Error)', () => {
         const result = safeFormatError(new Error('Hello'), true)
         expect(result).toEqual({
-            'message': 'Hello',
-            'name': 'Error',
+            message: 'Hello',
+            name: 'Error',
         })
     })
     test('safeFormatError(new Error) uid', () => {
@@ -267,28 +260,28 @@ describe('safeFormatError hide=true', () => {
         error.uid = 'nfiqwjfqf'
         const result = safeFormatError(error, true)
         expect(result).toEqual({
-            'message': 'Hello',
-            'name': 'Error',
-            'uid': 'nfiqwjfqf',
+            message: 'Hello',
+            name: 'Error',
+            uid: 'nfiqwjfqf',
         })
     })
     test('safeFormatError(new NestedError)', () => {
         const result = safeFormatError(new NestedError({ message: 'Hello' }), true)
         expect(result).toEqual({
-            'message': 'Hello',
-            'name': 'NestedError',
-            'data': {},
-            'time_thrown': expect.stringMatching(/^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/),
+            message: 'Hello',
+            name: 'NestedError',
+            data: {},
+            time_thrown: expect.stringMatching(/^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/),
         })
     })
     test('safeFormatError(new MyApolloError)', () => {
         const error = new MyApolloError('something wrong!')
         const result = safeFormatError(error, true)
         expect(result).toEqual({
-            'message': 'something wrong!',
-            'name': 'MyApolloError',
-            'extensions': {
-                'code': 'MY_ERROR_CODE',
+            message: 'something wrong!',
+            name: 'MyApolloError',
+            extensions: {
+                code: 'MY_ERROR_CODE',
             },
         })
     })
@@ -296,9 +289,9 @@ describe('safeFormatError hide=true', () => {
         const error = new ApolloError('something happened!', 'CODE1', { foo: [1], bar: '22' })
         const result = safeFormatError(error, true)
         expect(result).toEqual({
-            'message': 'something happened!',
-            'name': 'Error',
-            'extensions': {
+            message: 'something happened!',
+            name: 'Error',
+            extensions: {
                 code: 'CODE1',
                 foo: [1],
                 bar: '22',
@@ -306,16 +299,19 @@ describe('safeFormatError hide=true', () => {
         })
     })
     test('safeFormatError(new NestedError) with data', () => {
-        const result = safeFormatError(new NestedError({
-            message: 'Hello',
-            internalData: { foo: [1] },
-            data: { bar: 'no' },
-        }), true)
+        const result = safeFormatError(
+            new NestedError({
+                message: 'Hello',
+                internalData: { foo: [1] },
+                data: { bar: 'no' },
+            }),
+            true,
+        )
         expect(result).toEqual({
-            'message': 'Hello',
-            'name': 'NestedError',
-            'data': { bar: 'no' },
-            'time_thrown': expect.stringMatching(/^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/),
+            message: 'Hello',
+            name: 'NestedError',
+            data: { bar: 'no' },
+            time_thrown: expect.stringMatching(/^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/),
         })
     })
     test('safeFormatError(new Error) errors = null', () => {
@@ -323,8 +319,8 @@ describe('safeFormatError hide=true', () => {
         error.errors = null
         const result = safeFormatError(error, true)
         expect(result).toEqual({
-            'message': 'Hello',
-            'name': 'Error',
+            message: 'Hello',
+            name: 'Error',
         })
     })
     test('safeFormatError(new Error) errors = {}', () => {
@@ -332,21 +328,21 @@ describe('safeFormatError hide=true', () => {
         error.errors = {}
         const result = safeFormatError(error, true)
         expect(result).toEqual({
-            'message': 'Hello',
-            'name': 'Error',
+            message: 'Hello',
+            name: 'Error',
         })
     })
     test('safeFormatError(new Error) errors = {"name": new Error}', () => {
         const error = new Error('Hello')
-        error.errors = { 'field': new Error('World') }
+        error.errors = { field: new Error('World') }
         const result = safeFormatError(error, true)
         expect(result).toEqual({
-            'message': 'Hello',
-            'name': 'Error',
-            'errors': [
+            message: 'Hello',
+            name: 'Error',
+            errors: [
                 expect.objectContaining({
-                    'message': 'World',
-                    'name': 'Error',
+                    message: 'World',
+                    name: 'Error',
                 }),
             ],
         })
@@ -356,12 +352,12 @@ describe('safeFormatError hide=true', () => {
         error.errors = [new Error('World')]
         const result = safeFormatError(error, true)
         expect(result).toEqual({
-            'message': 'Hello',
-            'name': 'Error',
-            'errors': [
+            message: 'Hello',
+            name: 'Error',
+            errors: [
                 expect.objectContaining({
-                    'message': 'World',
-                    'name': 'Error',
+                    message: 'World',
+                    name: 'Error',
                 }),
             ],
         })
@@ -369,23 +365,23 @@ describe('safeFormatError hide=true', () => {
     test('safeFormatError(new NestedError) nested', () => {
         const result = safeFormatError(new NestedError({ message: 'Hello' }), true)
         expect(result).toEqual({
-            'message': 'Hello',
-            'name': 'NestedError',
-            'data': {},
-            'time_thrown': expect.stringMatching(/^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/),
+            message: 'Hello',
+            name: 'NestedError',
+            data: {},
+            time_thrown: expect.stringMatching(/^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/),
         })
     })
     test('safeFormatError(new GraphQLError) with printable GQL_SOURCE_EXAMPLE case1', () => {
         const error = new GraphQLError('msg1', [GQL_FIELD_NODE_EXAMPLE])
         const result = safeFormatError(error, true)
         expect(result).toEqual({
-            'message': 'msg1',
-            'name': 'GraphQLError',
-            'developerMessage': 'msg1\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
-            'locations': [
+            message: 'msg1',
+            name: 'GraphQLError',
+            developerMessage: 'msg1\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
+            locations: [
                 {
-                    'column': 5,
-                    'line': 3,
+                    column: 5,
+                    line: 3,
                 },
             ],
         })
@@ -394,34 +390,24 @@ describe('safeFormatError hide=true', () => {
         const error = new GraphQLError('msg2', null, GQL_SOURCE_EXAMPLE, [9])
         const result = safeFormatError(error, true)
         expect(result).toEqual({
-            'message': 'msg2',
-            'name': 'GraphQLError',
-            'developerMessage': 'msg2\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
-            'locations': [
+            message: 'msg2',
+            name: 'GraphQLError',
+            developerMessage: 'msg2\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
+            locations: [
                 {
-                    'column': 5,
-                    'line': 3,
+                    column: 5,
+                    line: 3,
                 },
             ],
         })
     })
     test('safeFormatError(new GraphQLError) with path', () => {
-        const error = new GraphQLError('msg3', null, null, null, [
-            'path',
-            3,
-            'to',
-            'field',
-        ])
+        const error = new GraphQLError('msg3', null, null, null, ['path', 3, 'to', 'field'])
         const result = safeFormatError(error, true)
         expect(result).toEqual({
-            'message': 'msg3',
-            'name': 'GraphQLError',
-            'path': [
-                'path',
-                3,
-                'to',
-                'field',
-            ],
+            message: 'msg3',
+            name: 'GraphQLError',
+            path: ['path', 3, 'to', 'field'],
         })
     })
     test('safeFormatError(new GraphQLError) based on keystone error', () => {
@@ -429,8 +415,8 @@ describe('safeFormatError hide=true', () => {
         const error = new GraphQLError('msg5', null, null, null, null, original)
         const result = safeFormatError(error, true)
         expect(result).toEqual({
-            'message': 'msg5',
-            'name': 'GraphQLError',
+            message: 'msg5',
+            name: 'GraphQLError',
         })
     })
     test('safeFormatError(new GraphQLError) with original error', () => {
@@ -438,11 +424,12 @@ describe('safeFormatError hide=true', () => {
         const error = new GraphQLError('msg4', null, null, null, null, original)
         const result = safeFormatError(error, true)
         expect(result).toEqual({
-            'data': {  // keystone specific
-                'bar': '33',
+            data: {
+                // keystone specific
+                bar: '33',
             },
-            'message': 'msg4',
-            'name': 'NestedError',
+            message: 'msg4',
+            name: 'NestedError',
         })
     })
 })
@@ -452,84 +439,76 @@ describe('toGraphQLFormat', () => {
         const original = new Error('original')
         original.errors = [
             new ApolloError('something happened!', 'CODE1', { foo: [1], bar: '22' }),
-            new NestedError({ message: 'Hello', internalData: { foo: [2] }, data: { bar: '33' } })]
+            new NestedError({ message: 'Hello', internalData: { foo: [2] }, data: { bar: '33' } }),
+        ]
         const error = new GraphQLError('msg', [GQL_FIELD_NODE_EXAMPLE], null, null, ['path', 'field'], original)
         const result = toGraphQLFormat(safeFormatError(error))
         expect(result).toEqual({
-            'extensions': {
-                'developerMessage': 'msg\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
-                'name': 'GraphQLError',
-                'originalError': {
-                    'errors': [
+            extensions: {
+                developerMessage: 'msg\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
+                name: 'GraphQLError',
+                originalError: {
+                    errors: [
                         {
-                            'extensions': {
-                                'bar': '22',
-                                'code': 'CODE1',
-                                'foo': [
-                                    1,
-                                ],
+                            extensions: {
+                                bar: '22',
+                                code: 'CODE1',
+                                foo: [1],
                             },
-                            'message': 'something happened!',
-                            'name': 'Error',
-                            'stack': expect.stringMatching(/^Error: something happened!/),
+                            message: 'something happened!',
+                            name: 'Error',
+                            stack: expect.stringMatching(/^Error: something happened!/),
                         },
                         {
-                            'data': {
-                                'bar': '33',
+                            data: {
+                                bar: '33',
                             },
-                            'internalData': {
-                                'foo': [
-                                    2,
-                                ],
+                            internalData: {
+                                foo: [2],
                             },
-                            'message': 'Hello',
-                            'name': 'NestedError',
-                            'stack': expect.stringMatching(/^NestedError: Hello/),
-                            'time_thrown': expect.stringMatching(/^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/),
+                            message: 'Hello',
+                            name: 'NestedError',
+                            stack: expect.stringMatching(/^NestedError: Hello/),
+                            time_thrown: expect.stringMatching(/^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/),
                         },
                     ],
-                    'message': 'original',
-                    'name': 'Error',
-                    'stack': expect.stringMatching(/^Error: original/),
+                    message: 'original',
+                    name: 'Error',
+                    stack: expect.stringMatching(/^Error: original/),
                 },
-                'stack': expect.stringMatching(/^Error: original/),
+                stack: expect.stringMatching(/^Error: original/),
             },
-            'locations': [
+            locations: [
                 {
-                    'column': 5,
-                    'line': 3,
+                    column: 5,
+                    line: 3,
                 },
             ],
-            'message': 'msg',
-            'path': [
-                'path',
-                'field',
-            ],
+            message: 'msg',
+            path: ['path', 'field'],
         })
     })
     test('toGraphQLFormat(GraphQLError) hide', () => {
         const original = new Error('original')
         original.errors = [
             new ApolloError('something happened!', 'CODE1', { foo: [1], bar: '22' }),
-            new NestedError({ message: 'Hello', internalData: { foo: [2] }, data: { bar: '33' } })]
+            new NestedError({ message: 'Hello', internalData: { foo: [2] }, data: { bar: '33' } }),
+        ]
         const error = new GraphQLError('msg', [GQL_FIELD_NODE_EXAMPLE], null, null, ['path', 'field'], original)
         const result = toGraphQLFormat(safeFormatError(error, true))
         expect(result).toEqual({
-            'extensions': {
-                'developerMessage': 'msg\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
-                'name': 'GraphQLError',
+            extensions: {
+                developerMessage: 'msg\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
+                name: 'GraphQLError',
             },
-            'locations': [
+            locations: [
                 {
-                    'column': 5,
-                    'line': 3,
+                    column: 5,
+                    line: 3,
                 },
             ],
-            'message': 'msg',
-            'path': [
-                'path',
-                'field',
-            ],
+            message: 'msg',
+            path: ['path', 'field'],
         })
     })
 })

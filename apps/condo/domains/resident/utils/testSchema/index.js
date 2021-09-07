@@ -16,14 +16,18 @@ const { REGISTER_SERVICE_CONSUMER_MUTATION } = require('@condo/domains/resident/
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { createTestBillingAccount, createTestBillingProperty, makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
+const {
+    createTestBillingAccount,
+    createTestBillingProperty,
+    makeContextWithOrganizationAndIntegrationAsAdmin,
+} = require('@condo/domains/billing/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 
 const Resident = generateGQLTestUtils(ResidentGQL)
 const ServiceConsumer = generateGQLTestUtils(ServiceConsumerGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-async function createTestResident (client, user, organization, property, extraAttrs = {}) {
+async function createTestResident(client, user, organization, property, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!user || !user.id) throw new Error('no user.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -50,7 +54,7 @@ async function createTestResident (client, user, organization, property, extraAt
     return [obj, attrs]
 }
 
-async function updateTestResident (client, id, extraAttrs = {}) {
+async function updateTestResident(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -84,7 +88,7 @@ async function registerResidentByTestClient(client, extraAttrs = {}, withFlat = 
     return [data.result, attrs]
 }
 
-async function createTestServiceConsumer (client, resident, billingAccount) {
+async function createTestServiceConsumer(client, resident, billingAccount) {
     if (!client) throw new Error('no client')
     if (!resident || !resident.id) throw new Error('no resident.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -94,13 +98,13 @@ async function createTestServiceConsumer (client, resident, billingAccount) {
         sender,
         resident: { connect: { id: resident.id } },
         accountNumber: faker.random.alphaNumeric(8),
-        billingAccount: { connect: { id: billingAccount.id }},
+        billingAccount: { connect: { id: billingAccount.id } },
     }
     const obj = await ServiceConsumer.create(client, attrs)
     return [obj, attrs]
 }
 
-async function updateTestServiceConsumer (client, id, extraAttrs = {}) {
+async function updateTestServiceConsumer(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -116,7 +120,7 @@ async function updateTestServiceConsumer (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function registerServiceConsumerByTestClient (client, extraAttrs = {}) {
+async function registerServiceConsumerByTestClient(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -146,10 +150,14 @@ async function createTestServiceConsumerForUserAsAdmin() {
 }
 
 module.exports = {
-    Resident, createTestResident, updateTestResident,
+    Resident,
+    createTestResident,
+    updateTestResident,
     registerResidentByTestClient,
-    ServiceConsumer, createTestServiceConsumer, updateTestServiceConsumer,
+    ServiceConsumer,
+    createTestServiceConsumer,
+    updateTestServiceConsumer,
     createTestServiceConsumerForUserAsAdmin,
-registerServiceConsumerByTestClient
-/* AUTOGENERATE MARKER <EXPORTS> */
+    registerServiceConsumerByTestClient,
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

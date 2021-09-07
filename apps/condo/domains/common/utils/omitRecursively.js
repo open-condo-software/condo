@@ -8,11 +8,14 @@ import { isArray, isObject, omit, transform } from 'lodash'
  */
 export const omitRecursively = (obj, propToOmit) => {
     const cleanedObj = omit(obj, propToOmit)
-    return transform(cleanedObj, (result, value, key) => (
-        result[key] = isObject(value) && propToOmit in value
-            ? omitRecursively(value, propToOmit)
-            : isArray(value)
-                ? value.map(item => omitRecursively(item, propToOmit))
-                : value
-    ))
+    return transform(
+        cleanedObj,
+        (result, value, key) =>
+            (result[key] =
+                isObject(value) && propToOmit in value
+                    ? omitRecursively(value, propToOmit)
+                    : isArray(value)
+                    ? value.map((item) => omitRecursively(item, propToOmit))
+                    : value),
+    )
 }

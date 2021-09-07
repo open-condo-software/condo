@@ -21,7 +21,7 @@ export const UserNameField: React.FC<IUserNameFieldProps> = ({ user, children })
 
     const auth = useAuth()
     const id = get(auth, ['user', 'id'])
-    const postfix = (user && user.id === id) ? ` (${YouMessage})` : ''
+    const postfix = user && user.id === id ? ` (${YouMessage})` : ''
 
-    return children({ name: (user && user.name) ? user.name : undefined, postfix })
+    return children({ name: user && user.name ? user.name : undefined, postfix })
 }

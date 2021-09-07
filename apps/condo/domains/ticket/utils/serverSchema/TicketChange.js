@@ -16,10 +16,7 @@ const createTicketChange = async (fieldsChanges, { existingItem, updatedItem, co
         ticket: { connect: { id: existingItem.id } },
         ...fieldsChanges,
     }
-    await TicketChange.create(
-        context.createContext({ skipAccessControl: true }),
-        payload,
-    )
+    await TicketChange.create(context.createContext({ skipAccessControl: true }), payload)
 }
 
 /**
@@ -28,59 +25,59 @@ const createTicketChange = async (fieldsChanges, { existingItem, updatedItem, co
  * 👉 When a new single relation field will be added to Ticket, new resolver should be implemented here
  */
 const ticketChangeDisplayNameResolversForSingleRelations = {
-    'organization': async (itemId) => {
+    organization: async (itemId) => {
         const item = await getById('Organization', itemId)
         return get(item, 'name')
     },
-    'property': async (itemId) => {
+    property: async (itemId) => {
         const item = await getById('Property', itemId)
         return get(item, 'address')
     },
-    'status': async (itemId) => {
+    status: async (itemId) => {
         const item = await getById('TicketStatus', itemId)
         return get(item, 'name')
     },
-    'client': async (itemId) => {
+    client: async (itemId) => {
         const item = await getById('User', itemId)
         return get(item, 'name')
     },
-    'contact': async (itemId) => {
+    contact: async (itemId) => {
         const item = await getById('Contact', itemId)
         return get(item, 'name')
     },
-    'operator': async (itemId) => {
+    operator: async (itemId) => {
         const item = await getById('User', itemId)
         return get(item, 'name')
     },
-    'assignee': async (itemId) => {
+    assignee: async (itemId) => {
         const item = await getById('User', itemId)
         return get(item, 'name')
     },
-    'executor': async (itemId) => {
+    executor: async (itemId) => {
         const item = await getById('User', itemId)
         return get(item, 'name')
     },
-    'classifier': async (itemId) => {
+    classifier: async (itemId) => {
         const item = await getById('TicketClassifier', itemId)
         return get(item, 'name')
     },
-    'placeClassifier': async (itemId) => {
+    placeClassifier: async (itemId) => {
         const item = await getById('TicketPlaceClassifier', itemId)
         return get(item, 'name')
     },
-    'categoryClassifier': async (itemId) => {
+    categoryClassifier: async (itemId) => {
         const item = await getById('TicketCategoryClassifier', itemId)
         return get(item, 'name')
     },
-    'problemClassifier': async (itemId) => {
+    problemClassifier: async (itemId) => {
         const item = await getById('TicketProblemClassifier', itemId)
         return get(item, 'name')
     },
-    'source': async (itemId) => {
+    source: async (itemId) => {
         const item = await getById('TicketSource', itemId)
         return get(item, 'name')
     },
-    'related': async (itemId) => {
+    related: async (itemId) => {
         const item = await getById('Ticket', itemId)
         if (!item) {
             return null
@@ -97,7 +94,7 @@ const ticketChangeDisplayNameResolversForSingleRelations = {
  * 👉 When a new "many" relation field will be added to Ticket, new resolver should be implemented here
  */
 const relatedManyToManyResolvers = {
-    'watchers': async ({ context, existingItem, originalInput }) => {
+    watchers: async ({ context, existingItem, originalInput }) => {
         let updated
         const updatedResult = await context.executeGraphQL({
             context: context.createContext({ skipAccessControl: true }),
@@ -115,7 +112,10 @@ const relatedManyToManyResolvers = {
             variables: { id: existingItem.id },
         })
         if (updatedResult.errors) {
-            console.error('Error while fetching related items in relatedManyToManyResolvers of changeTrackable for a Ticket', updatedResult.errors)
+            console.error(
+                'Error while fetching related items in relatedManyToManyResolvers of changeTrackable for a Ticket',
+                updatedResult.errors,
+            )
             return {}
         }
         if (updatedResult.data.ticket) {
@@ -162,7 +162,10 @@ const relatedManyToManyResolvers = {
             variables: { ids: existing.ids },
         })
         if (usersResult.error) {
-            console.error('Error while fetching users in relatedManyToManyResolvers of changeTrackable for a Ticket', updatedResult.errors)
+            console.error(
+                'Error while fetching users in relatedManyToManyResolvers of changeTrackable for a Ticket',
+                updatedResult.errors,
+            )
             return {}
         }
         if (usersResult.data.users) {

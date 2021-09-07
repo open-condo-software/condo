@@ -3,7 +3,7 @@
  */
 const { checkAccessToResidentTicketActions } = require('../utils/accessSchema')
 
-async function canUpdateResidentTicket ({ authentication: { item: user } }) {
+async function canUpdateResidentTicket({ authentication: { item: user } }) {
     return checkAccessToResidentTicketActions(user)
 }
 

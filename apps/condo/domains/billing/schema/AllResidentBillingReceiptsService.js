@@ -17,7 +17,6 @@ const fieldsObj = {
     printableNumber: 'String',
 }
 
-
 const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResidentBillingReceiptsService', {
     types: [
         {
@@ -33,7 +32,7 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
             type: 'type ResidentBillingReceiptOutput { dv: String!, recipient: JSON!, id: ID!, period: String!, toPay: String!, printableNumber: String, toPayDetails: JSON, services: JSON }',
         },
     ],
-    
+
     queries: [
         {
             access: access.canGetAllResidentBillingReceipts,
@@ -42,7 +41,8 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
                 const { where, first, skip, sortBy } = args
 
                 const userId = _.get(context, ['authedItem', 'id'])
-                if (!userId) { // impossible, but who knows
+                if (!userId) {
+                    // impossible, but who knows
                     throw new Error('Invalid user id!')
                 }
 
@@ -59,28 +59,24 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
                 const billingReceipts = []
                 for (let i = 0; i < serviceConsumers.length; ++i) {
                     const receiptsQuery = { ...where, account: { id: serviceConsumers[i].billingAccount.id } }
-                    const billingReceiptsForConsumer = await BillingReceipt.getAll(
-                        context,
-                        receiptsQuery,
-                        {
-                            sortBy, first, skip,
-                        }
-                    )
+                    const billingReceiptsForConsumer = await BillingReceipt.getAll(context, receiptsQuery, {
+                        sortBy,
+                        first,
+                        skip,
+                    })
                     billingReceipts.push(billingReceiptsForConsumer)
                 }
 
-                return billingReceipts.flat().map(
-                    receipt => ({
-                        id: receipt.id,
-                        dv: receipt.dv,
-                        recipient: receipt.recipient,
-                        period: receipt.period,
-                        toPay: receipt.toPay,
-                        toPayDetails: receipt.toPayDetails,
-                        services: receipt.services,
-                        printableNumber: receipt.printableNumber,
-                    })
-                )
+                return billingReceipts.flat().map((receipt) => ({
+                    id: receipt.id,
+                    dv: receipt.dv,
+                    recipient: receipt.recipient,
+                    period: receipt.period,
+                    toPay: receipt.toPay,
+                    toPayDetails: receipt.toPayDetails,
+                    services: receipt.services,
+                    printableNumber: receipt.printableNumber,
+                }))
             },
         },
     ],

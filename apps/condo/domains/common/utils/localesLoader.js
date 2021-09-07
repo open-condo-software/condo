@@ -9,12 +9,14 @@ let translations = {}
 const loadTranslations = () => {
     const translationsDir = path.join(process.cwd(), 'lang')
     const localeFiles = fs.readdirSync(translationsDir)
-    translations = localeFiles.map(x => {
-        const languageCode = x.split('.json')[0]
-        return {
-            [languageCode]: require(path.join(translationsDir, x)),
-        }
-    }).reduce((prev, curr) => ({ ...prev, ...curr }))
+    translations = localeFiles
+        .map((x) => {
+            const languageCode = x.split('.json')[0]
+            return {
+                [languageCode]: require(path.join(translationsDir, x)),
+            }
+        })
+        .reduce((prev, curr) => ({ ...prev, ...curr }))
 }
 
 const getTranslations = (lang = conf.DEFAULT_LOCALE) => {

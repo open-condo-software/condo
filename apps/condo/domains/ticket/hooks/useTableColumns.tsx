@@ -16,17 +16,19 @@ import { Highliter } from '@condo/domains/common/components/Highliter'
 import { EmptyTableCell } from '@condo/domains/common/components/Table/EmptyTableCell'
 import { getTextFilterDropdown, getFilterIcon, FilterContainer } from '@condo/domains/common/components/TableFilter'
 
-
 const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
 
-export const useTableColumns = (sort: Array<string>, filters: IFilters,
-    setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>) => {
+export const useTableColumns = (
+    sort: Array<string>,
+    filters: IFilters,
+    setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>,
+) => {
     const intl = useIntl()
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' }).toLowerCase()
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
     const PaidMessage = intl.formatMessage({ id: 'Paid' }).toLowerCase()
     const DateMessage = intl.formatMessage({ id: 'Date' })
-    const StatusMessage =  intl.formatMessage({ id: 'Status' })
+    const StatusMessage = intl.formatMessage({ id: 'Status' })
     const ClientNameMessage = intl.formatMessage({ id: 'Client' })
     const DescriptionMessage = intl.formatMessage({ id: 'Description' })
     const FindWordMessage = intl.formatMessage({ id: 'filters.FindWord' })
@@ -47,15 +49,11 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 <Highliter
                     text={String(text)}
                     search={String(search)}
-                    renderPart={(part) => (
-                        <Typography.Text style={{ backgroundColor: colors.markColor }}>
-                            {part}
-                        </Typography.Text>
-                    )}
+                    renderPart={(part) => <Typography.Text style={{ backgroundColor: colors.markColor }}>{part}</Typography.Text>}
                 />
             )
         }
-        return (<EmptyTableCell>{result}</EmptyTableCell>)
+        return <EmptyTableCell>{result}</EmptyTableCell>
     }
 
     return useMemo(() => {
@@ -80,17 +78,11 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 key: 'createdAt',
                 sorter: true,
                 width: '10%',
-                render: (createdAt) => (
-                    format(
-                        new Date(createdAt),
-                        'dd MMMM',
-                        { locale: LOCALES[intl.locale] }
-                    )
-                ),
+                render: (createdAt) => format(new Date(createdAt), 'dd MMMM', { locale: LOCALES[intl.locale] }),
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
                     const pickerProps = {
                         value: undefined,
-                        onChange: e => {
+                        onChange: (e) => {
                             setSelectedKeys(e.toISOString())
                             setFiltersApplied(true)
                             confirm({ closeDropdown: false })
@@ -103,9 +95,8 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                     }
 
                     return (
-                        <FilterContainer clearFilters={clearFilters}
-                            showClearButton={selectedKeys && selectedKeys.length > 0}>
-                            <DatePicker {...pickerProps}/>
+                        <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
+                            <DatePicker {...pickerProps} />
                         </FilterContainer>
                     )
                 },
@@ -118,32 +109,32 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 render: (status, record) => {
                     const { primary: color, secondary: backgroundColor } = status.colors
                     return (
-                        <Space direction='vertical' size={7}>
+                        <Space direction="vertical" size={7}>
                             <Tag color={backgroundColor}>
-                                <Typography.Text style={{ color }}>{
-                                    isEmpty(status.name)
-                                        ? status.name
-                                        : (
-                                            <Highliter
-                                                text={status.name}
-                                                search={String(search)}
-                                                renderPart={(part) => (
-                                                    <Typography.Text style={{ backgroundColor: colors.markColor }}>
-                                                        {part}
-                                                    </Typography.Text>
-                                                )}
-                                            />
-                                        )}</Typography.Text>
+                                <Typography.Text style={{ color }}>
+                                    {isEmpty(status.name) ? (
+                                        status.name
+                                    ) : (
+                                        <Highliter
+                                            text={status.name}
+                                            search={String(search)}
+                                            renderPart={(part) => (
+                                                <Typography.Text style={{ backgroundColor: colors.markColor }}>
+                                                    {part}
+                                                </Typography.Text>
+                                            )}
+                                        />
+                                    )}
+                                </Typography.Text>
                             </Tag>
-                            {record.isEmergency &&
-                            <Tag color={EMERGENCY_TAG_COLOR.background}>
-                                <Typography.Text
-                                    style={{ color: EMERGENCY_TAG_COLOR.text }}>{EmergencyMessage}</Typography.Text>
-                            </Tag>}
-                            { record.isPaid &&
-                            <Tag color={'orange'}>
-                                { PaidMessage }
-                            </Tag> }
+                            {record.isEmergency && (
+                                <Tag color={EMERGENCY_TAG_COLOR.background}>
+                                    <Typography.Text style={{ color: EMERGENCY_TAG_COLOR.text }}>
+                                        {EmergencyMessage}
+                                    </Typography.Text>
+                                </Tag>
+                            )}
+                            {record.isPaid && <Tag color={'orange'}>{PaidMessage}</Tag>}
                         </Space>
                     )
                 },
@@ -155,10 +146,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                     const adaptedStatuses = ticketStatuses.map(convertGQLItemToFormSelectState).filter(identity)
 
                     return (
-                        <FilterContainer
-                            clearFilters={clearFilters}
-                            showClearButton={selectedKeys && selectedKeys.length > 0}
-                        >
+                        <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
                             <Checkbox.Group
                                 disabled={loading}
                                 options={adaptedStatuses}
@@ -207,9 +195,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                                     text={text}
                                     search={String(search)}
                                     renderPart={(part) => (
-                                        <Typography.Text style={{ backgroundColor: colors.markColor }}>
-                                            {part}
-                                        </Typography.Text>
+                                        <Typography.Text style={{ backgroundColor: colors.markColor }}>{part}</Typography.Text>
                                     )}
                                 />
                                 {` ${unitPrefix}`}

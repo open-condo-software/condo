@@ -20,13 +20,12 @@ import styled from '@emotion/styled'
 import Error from 'next/error'
 import { FeatureFlagRequired } from '@condo/domains/common/components/containers/FeatureFlag'
 
-
 const SETTINGS_PAGE_ROUTE = '/settings/'
 
 const ButtonWrap = styled.div`
-   width: fit-content;
-   cursor: ${({ disabled }: { disabled: boolean }) => disabled ? 'not-allowed' : 'pointer'};
- `
+    width: fit-content;
+    cursor: ${({ disabled }: { disabled: boolean }) => (disabled ? 'not-allowed' : 'pointer')};
+`
 
 const BillingIntegrationDetailsPage = () => {
     const intl = useIntl()
@@ -38,14 +37,20 @@ const BillingIntegrationDetailsPage = () => {
     const ContinueMessage = intl.formatMessage({ id: 'Continue' })
     const ConfirmModalTitle = intl.formatMessage({ id: 'BillingIntegrationContextConfirmQuestion' })
     const CancelMessage = intl.formatMessage({ id: 'Cancel' })
-    const CreateContextRestrictionMessage = intl.formatMessage({ id:'BillingIntegrationContextNoReturns' }, {
-        buttonValue: ContinueMessage,
-    })
+    const CreateContextRestrictionMessage = intl.formatMessage(
+        { id: 'BillingIntegrationContextNoReturns' },
+        {
+            buttonValue: ContinueMessage,
+        },
+    )
     const ContextAlreadyCreatedMessage = intl.formatMessage({ id: 'ContextAlreadyCreated' })
     const CompanyNameLabel = intl.formatMessage({ id: 'CompanyName' })
-    const AnotherContextAlreadyCreatedMessage = intl.formatMessage({ id: 'AnotherContextAlreadyCreated' }, {
-        company: CompanyNameLabel,
-    })
+    const AnotherContextAlreadyCreatedMessage = intl.formatMessage(
+        { id: 'AnotherContextAlreadyCreated' },
+        {
+            company: CompanyNameLabel,
+        },
+    )
 
     const { query, push } = useRouter()
     const integrationId = get(query, 'id')
@@ -68,34 +73,38 @@ const BillingIntegrationDetailsPage = () => {
         obj: currentContext,
         error: contextError,
         loading: contextLoading,
-    } = BillingIntegrationOrganizationContext.useObject({
-        where: {
-            organization: {
-                id: organizationId,
+    } = BillingIntegrationOrganizationContext.useObject(
+        {
+            where: {
+                organization: {
+                    id: organizationId,
+                },
             },
         },
-    }, {
-        fetchPolicy: 'network-only',
-    })
+        {
+            fetchPolicy: 'network-only',
+        },
+    )
 
-    const createContextAction = BillingIntegrationOrganizationContext.useCreate({
-        integration: String(integrationId),
-        organization: organizationId,
-    }, () => {
-        push(SETTINGS_PAGE_ROUTE)
-    })
+    const createContextAction = BillingIntegrationOrganizationContext.useCreate(
+        {
+            integration: String(integrationId),
+            organization: organizationId,
+        },
+        () => {
+            push(SETTINGS_PAGE_ROUTE)
+        },
+    )
 
     const { confirm } = Modal
     const showConfirmModal = () => {
         confirm({
             title: ConfirmModalTitle,
             icon: <ExclamationCircleOutlined />,
-            content: (
-                <Alert message={CreateContextRestrictionMessage} type={'warning'}/>
-            ),
+            content: <Alert message={CreateContextRestrictionMessage} type={'warning'} />,
             okText: ContinueMessage,
             cancelText: CancelMessage,
-            onOk () {
+            onOk() {
                 return createContextAction({ status: get(integration, 'contextDefaultStatus') })
             },
         })
@@ -120,96 +129,81 @@ const BillingIntegrationDetailsPage = () => {
     const disabledIntegration = !!currentContext
     const shouldNotifyWithAlert = !!currentContext && currentContext.integration.id !== integrationId
     return (
-        <FeatureFlagRequired name={'billing'} fallback={<Error statusCode={404}/>}>
+        <FeatureFlagRequired name={'billing'} fallback={<Error statusCode={404} />}>
             <Head>
                 <title>{pageTitle}</title>
             </Head>
             <PageWrapper>
                 <OrganizationRequired>
-                    {
-                        canManageIntegrations
-                            ? (
-                                <>
-                                    <PageHeader
-                                        title={<Typography.Title style={{ margin: 0 }}>{pageTitle}</Typography.Title>}
-                                        style={{ marginTop: 30 }}
-                                    />
-                                    <PageContent>
-                                        <Col span={20}>
-                                            <Row gutter={[0, 50]}>
-                                                {
-                                                    shouldNotifyWithAlert && (
-                                                        <Col span={24}>
-                                                            <Alert
-                                                                message={AnotherContextAlreadyCreatedMessage}
-                                                                type={'warning'}
-                                                                showIcon
-                                                                style={{ width: 'fit-content' }}
-                                                            />
-                                                        </Col>
-                                                    )
-                                                }
-                                                {
-                                                    markDownText && (
-                                                        <Col span={24} style={{ fontSize: 16 }}>
-                                                            <ReactMarkdown remarkPlugins={[gfm]}>
-                                                                {markDownText}
-                                                            </ReactMarkdown>
-                                                        </Col>
-                                                    )
-                                                }
-                                                <Col span={24}>
-                                                    <Space size={20} style={{ width: '100%', flexWrap: 'wrap' }}>
-                                                        <Tooltip
-                                                            title={ContextAlreadyCreatedMessage}
-                                                            visible={!disabledIntegration ? false : undefined}
+                    {canManageIntegrations ? (
+                        <>
+                            <PageHeader
+                                title={<Typography.Title style={{ margin: 0 }}>{pageTitle}</Typography.Title>}
+                                style={{ marginTop: 30 }}
+                            />
+                            <PageContent>
+                                <Col span={20}>
+                                    <Row gutter={[0, 50]}>
+                                        {shouldNotifyWithAlert && (
+                                            <Col span={24}>
+                                                <Alert
+                                                    message={AnotherContextAlreadyCreatedMessage}
+                                                    type={'warning'}
+                                                    showIcon
+                                                    style={{ width: 'fit-content' }}
+                                                />
+                                            </Col>
+                                        )}
+                                        {markDownText && (
+                                            <Col span={24} style={{ fontSize: 16 }}>
+                                                <ReactMarkdown remarkPlugins={[gfm]}>{markDownText}</ReactMarkdown>
+                                            </Col>
+                                        )}
+                                        <Col span={24}>
+                                            <Space size={20} style={{ width: '100%', flexWrap: 'wrap' }}>
+                                                <Tooltip
+                                                    title={ContextAlreadyCreatedMessage}
+                                                    visible={!disabledIntegration ? false : undefined}
+                                                >
+                                                    <ButtonWrap disabled={disabledIntegration}>
+                                                        <Button
+                                                            type="sberPrimary"
+                                                            onClick={showConfirmModal}
+                                                            disabled={disabledIntegration}
+                                                            style={{ pointerEvents: disabledIntegration ? 'none' : 'auto' }}
                                                         >
-                                                            <ButtonWrap disabled={disabledIntegration}>
-                                                                <Button
-                                                                    type='sberPrimary'
-                                                                    onClick={showConfirmModal}
-                                                                    disabled={disabledIntegration}
-                                                                    style={{ pointerEvents: disabledIntegration ? 'none' : 'auto' }}
-                                                                >
-                                                                    {startButtonMessage}
-                                                                </Button>
-                                                            </ButtonWrap>
-                                                        </Tooltip>
-                                                        {
-                                                            instructionsButtonLink && (
-                                                                <Link href={instructionsButtonLink}>
-                                                                    <a target='_blank'>
-                                                                        <Button type='sberPrimary' secondary>
-                                                                            {instructionsButtonText}
-                                                                        </Button>
-                                                                    </a>
-                                                                </Link>
-                                                            )
-                                                        }
-                                                    </Space>
-                                                </Col>
-                                            </Row>
+                                                            {startButtonMessage}
+                                                        </Button>
+                                                    </ButtonWrap>
+                                                </Tooltip>
+                                                {instructionsButtonLink && (
+                                                    <Link href={instructionsButtonLink}>
+                                                        <a target="_blank">
+                                                            <Button type="sberPrimary" secondary>
+                                                                {instructionsButtonText}
+                                                            </Button>
+                                                        </a>
+                                                    </Link>
+                                                )}
+                                            </Space>
                                         </Col>
-                                    </PageContent>
-                                </>
-                            )
-                            : (
-                                <BasicEmptyListView>
-                                    <Typography.Title level={3}>
-                                        {NoPermissionMessage}
-                                    </Typography.Title>
-                                </BasicEmptyListView>
-                            )
-                    }
+                                    </Row>
+                                </Col>
+                            </PageContent>
+                        </>
+                    ) : (
+                        <BasicEmptyListView>
+                            <Typography.Title level={3}>{NoPermissionMessage}</Typography.Title>
+                        </BasicEmptyListView>
+                    )}
                 </OrganizationRequired>
             </PageWrapper>
         </FeatureFlagRequired>
     )
 }
 
-BillingIntegrationDetailsPage.headerAction = <ReturnBackHeaderAction
-    descriptor={{ id: 'menu.Settings' }}
-    path={SETTINGS_PAGE_ROUTE}
-/>
+BillingIntegrationDetailsPage.headerAction = (
+    <ReturnBackHeaderAction descriptor={{ id: 'menu.Settings' }} path={SETTINGS_PAGE_ROUTE} />
+)
 
 export default BillingIntegrationDetailsPage

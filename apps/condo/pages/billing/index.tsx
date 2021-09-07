@@ -12,10 +12,9 @@ import { BillingIntegrationOrganizationContext } from '@condo/domains/billing/ut
 import { FeatureFlagRequired } from '@condo/domains/common/components/containers/FeatureFlag'
 import Error from 'next/error'
 
-
 const BillingPage = () => {
     const intl = useIntl()
-    const BillingTitle = intl.formatMessage({ id:'menu.Billing' })
+    const BillingTitle = intl.formatMessage({ id: 'menu.Billing' })
 
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], '')
@@ -25,27 +24,28 @@ const BillingPage = () => {
         obj: currentContext,
         error: contextError,
         loading: contextLoading,
-    } = BillingIntegrationOrganizationContext.useObject({
-        where: {
-            organization: {
-                id: organizationId,
+    } = BillingIntegrationOrganizationContext.useObject(
+        {
+            where: {
+                organization: {
+                    id: organizationId,
+                },
             },
         },
-    }, {
-        fetchPolicy: 'network-only',
-    })
+        {
+            fetchPolicy: 'network-only',
+        },
+    )
 
     const PageTitle = get(currentContext, ['integration', 'billingPageTitle'], BillingTitle)
 
     return (
-        <FeatureFlagRequired name={'billing'} fallback={<Error statusCode={404}/>}>
+        <FeatureFlagRequired name={'billing'} fallback={<Error statusCode={404} />}>
             <Head>
-                <title>
-                    {BillingTitle}
-                </title>
+                <title>{BillingTitle}</title>
             </Head>
             <PageWrapper>
-                <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitle}</Typography.Title>}/>
+                <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitle}</Typography.Title>} />
                 <PageContent>
                     <BillingPageContent
                         access={canManageIntegrations}
@@ -59,7 +59,7 @@ const BillingPage = () => {
     )
 }
 
-BillingPage.headerAction = <TitleHeaderAction descriptor={{ id:'menu.Billing' }}/>
+BillingPage.headerAction = <TitleHeaderAction descriptor={{ id: 'menu.Billing' }} />
 BillingPage.requiredAccess = OrganizationRequired
 
 export default BillingPage

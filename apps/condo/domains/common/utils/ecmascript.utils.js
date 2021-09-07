@@ -1,12 +1,12 @@
-function isFunction (functionToCheck) {
+function isFunction(functionToCheck) {
     return functionToCheck && Object.prototype.toString.call(functionToCheck) === '[object Function]'
 }
 
-function isAsyncFunction (functionToCheck) {
+function isAsyncFunction(functionToCheck) {
     return functionToCheck && Object.prototype.toString.call(functionToCheck) === '[object AsyncFunction]'
 }
 
-function isGeneratorFunction (functionToCheck) {
+function isGeneratorFunction(functionToCheck) {
     return functionToCheck && Object.prototype.toString.call(functionToCheck) === '[object GeneratorFunction]'
 }
 

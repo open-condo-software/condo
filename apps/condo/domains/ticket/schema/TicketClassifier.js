@@ -19,7 +19,7 @@ const TicketClassifier = new GQLListSchema('TicketClassifier', {
         fullName: {
             schemaDoc: 'Multi level name',
             type: Virtual,
-            resolver: item => `${item.parent} -- ${item.name}`,
+            resolver: (item) => `${item.parent} -- ${item.name}`,
         },
         name: {
             schemaDoc: 'This level name',
@@ -32,7 +32,6 @@ const TicketClassifier = new GQLListSchema('TicketClassifier', {
             ref: 'TicketClassifier',
             kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
         },
-
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {

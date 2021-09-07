@@ -22,7 +22,7 @@ interface IInputPhoneFormProps {
     onFinish: () => void
 }
 
-export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
+export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => {
     const [form] = Form.useForm()
     const intl = useIntl()
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
@@ -65,7 +65,11 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
             mutation: startPhoneVerify,
             variables,
             onCompleted: (data) => {
-                const { data: { result: { token } } } = data
+                const {
+                    data: {
+                        result: { token },
+                    },
+                } = data
                 setToken(token)
                 Router.push(`/auth/register?token=${token}`)
                 onFinish()
@@ -85,10 +89,10 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
         <Form
             {...FORM_LAYOUT}
             form={form}
-            name='register-input-phone'
+            name="register-input-phone"
             onFinish={startConfirmPhone}
             colon={false}
-            labelAlign='left'
+            labelAlign="left"
             requiredMark={false}
         >
             <Row gutter={[0, 60]}>
@@ -99,7 +103,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
                         </Col>
                         <Col span={24}>
                             <Form.Item
-                                name='phone'
+                                name="phone"
                                 label={PhoneMsg}
                                 rules={[
                                     {
@@ -107,7 +111,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
                                         message: FieldIsRequiredMsg,
                                     },
                                     () => ({
-                                        validator () {
+                                        validator() {
                                             if (!smsSendError) {
                                                 return Promise.resolve()
                                             }
@@ -116,15 +120,21 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
                                     }),
                                 ]}
                             >
-                                <PhoneInput placeholder={ExamplePhoneMsg} onChange={() => setSmsSendError(null)}/>
+                                <PhoneInput placeholder={ExamplePhoneMsg} onChange={() => setSmsSendError(null)} />
                             </Form.Item>
                         </Col>
                         <Col span={24}>
                             <FormattedMessage
-                                id='pages.auth.register.info.UserAgreement'
+                                id="pages.auth.register.info.UserAgreement"
                                 values={{
                                     link: (
-                                        <Button type={'inlineLink'} size={'small'} target='_blank' href={'/policy.pdf'} rel='noreferrer'>
+                                        <Button
+                                            type={'inlineLink'}
+                                            size={'small'}
+                                            target="_blank"
+                                            href={'/policy.pdf'}
+                                            rel="noreferrer"
+                                        >
                                             {UserAgreementFileName}
                                         </Button>
                                     ),
@@ -136,22 +146,13 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
                 <Col span={24}>
                     <Row justify={'space-between'} gutter={[0, 12]}>
                         <Col lg={24} xl={11}>
-                            <Button
-                                key='submit'
-                                type='sberPrimary'
-                                htmlType='submit'
-                                loading={isLoading}
-                            >
+                            <Button key="submit" type="sberPrimary" htmlType="submit" loading={isLoading}>
                                 {RegisterMsg}
                             </Button>
                         </Col>
                         <Col lg={24} xl={11}>
                             <Tooltip title={NotImplementedYetMessage}>
-                                <Button
-                                    secondary
-                                    key='submit'
-                                    type='sberPrimary'
-                                >
+                                <Button secondary key="submit" type="sberPrimary">
                                     {SberIdRegisterMsg}
                                 </Button>
                             </Tooltip>

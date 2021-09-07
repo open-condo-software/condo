@@ -25,7 +25,8 @@ const TicketSource = new GQLListSchema('TicketSource', {
         type: {
             type: Select,
             isRequired: true,
-            options: 'mobile_app, web_app, organization_site, call, visit, email, social_network, messenger, remote_system, other',
+            options:
+                'mobile_app, web_app, organization_site, call, visit, email, social_network, messenger, remote_system, other',
         },
         name: {
             type: Text,

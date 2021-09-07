@@ -18,7 +18,7 @@ type Options = {
 export enum TicketClassifierTypes {
     place = 'place',
     category = 'category',
-    problem =  'problem',
+    problem = 'problem',
 }
 export interface IClassifiersSearch {
     init: () => Promise<void>
@@ -34,7 +34,10 @@ interface ILoadClassifierRulesVariables {
     sortBy?: string
 }
 
-async function loadClassifierRules (client: ApolloClient, variables: ILoadClassifierRulesVariables): Promise<ITicketClassifierRuleUIState[]> {
+async function loadClassifierRules(
+    client: ApolloClient,
+    variables: ILoadClassifierRulesVariables,
+): Promise<ITicketClassifierRuleUIState[]> {
     const data = await client.query({
         query: TicketClassifierRuleGQL.GET_ALL_OBJS_QUERY,
         variables,
@@ -44,10 +47,15 @@ async function loadClassifierRules (client: ApolloClient, variables: ILoadClassi
 
 // We load all rules to client and do not make any requests later when select changes
 export class ClassifiersQueryLocal implements IClassifiersSearch {
+    constructor(
+        private client: ApolloClient,
+        private rules = [],
+        private place = [],
+        private category = [],
+        private problem = [],
+    ) {}
 
-    constructor (private client: ApolloClient, private rules = [], private place = [], private category = [], private problem = []) {}
-
-    public async init (): Promise<void> {
+    public async init(): Promise<void> {
         let skip = 0
         let maxCount = 500
         let newchunk = []
@@ -63,14 +71,16 @@ export class ClassifiersQueryLocal implements IClassifiersSearch {
         this.problem = this.rulesToOptions(allRules, 'problem')
     }
 
-    public rulesToOptions (data: ITicketClassifierRuleUIState[], field: string): Options[] {
-        const fromRules = Object.fromEntries(data.map(link => {
-            if (link[field]) {
-                return [link[field].id, link[field]]
-            } else {
-                return [null, { id: null, name: '' }]
-            }
-        }))
+    public rulesToOptions(data: ITicketClassifierRuleUIState[], field: string): Options[] {
+        const fromRules = Object.fromEntries(
+            data.map((link) => {
+                if (link[field]) {
+                    return [link[field].id, link[field]]
+                } else {
+                    return [null, { id: null, name: '' }]
+                }
+            }),
+        )
         if (isEmpty(fromRules)) {
             return []
         } else {
@@ -78,12 +88,12 @@ export class ClassifiersQueryLocal implements IClassifiersSearch {
         }
     }
 
-    public async findRules (query: ITicketClassifierRuleWhereInput): Promise<ITicketClassifierRuleUIState[]> {
+    public async findRules(query: ITicketClassifierRuleWhereInput): Promise<ITicketClassifierRuleUIState[]> {
         const filtered = filter<ITicketClassifierRuleUIState>(this.rules, query)
         return filtered
     }
 
-    public async search (input: string, type: string): Promise<Options[]> {
+    public async search(input: string, type: string): Promise<Options[]> {
         if (isEmpty(input)) {
             return this[type].slice(0, MAX_SEARCH_COUNT)
         } else {
@@ -102,7 +112,7 @@ export class ClassifiersQueryLocal implements IClassifiersSearch {
         }
     }
 
-    public clear (): void {
+    public clear(): void {
         this.rules = []
         this.problem = []
         this.category = []
@@ -112,7 +122,7 @@ export class ClassifiersQueryLocal implements IClassifiersSearch {
 
 // We do not load all rules to client but load them on request (looks a little bit slow)
 
-async function searchClassifiers (client: ApolloClient, query, input: string) {
+async function searchClassifiers(client: ApolloClient, query, input: string) {
     const data = await client.query({
         query,
         variables: {
@@ -125,16 +135,16 @@ async function searchClassifiers (client: ApolloClient, query, input: string) {
     })
     return data.data.objs
 }
-async function searchPlaceClassifiers (client: ApolloClient, input: string): Promise<Options[]> {
+async function searchPlaceClassifiers(client: ApolloClient, input: string): Promise<Options[]> {
     const result = await searchClassifiers(client, TicketPlaceClassifierGQL.GET_ALL_OBJS_QUERY, input)
     return result
 }
-async function searchCategoryClassifiers (client: ApolloClient, input: string): Promise<Options[]> {
+async function searchCategoryClassifiers(client: ApolloClient, input: string): Promise<Options[]> {
     const result = await searchClassifiers(client, TicketCategoryClassifierGQL.GET_ALL_OBJS_QUERY, input)
     return result
 }
 
-async function searchProblemClassifiers (client: ApolloClient, input: string): Promise<Options[]> {
+async function searchProblemClassifiers(client: ApolloClient, input: string): Promise<Options[]> {
     const result = await searchClassifiers(client, TicketProblemClassifierGQL.GET_ALL_OBJS_QUERY, input)
     return result
 }
@@ -145,23 +155,29 @@ const searchClassifiersByType = {
     problem: searchProblemClassifiers,
 }
 
-
 export class ClassifiersQueryRemote implements IClassifiersSearch {
+    constructor(
+        private client: ApolloClient,
+        private rules = [],
+        private place = [],
+        private category = [],
+        private problem = [],
+    ) {}
 
-    constructor (private client: ApolloClient, private rules = [], private place = [], private category = [], private problem = []) {}
-
-    public async init (): Promise<void> {
+    public async init(): Promise<void> {
         return
     }
 
-    public rulesToOptions (data: ITicketClassifierRuleUIState[], field: string): Options[] {
-        const fromRules = Object.fromEntries(data.map(link => {
-            if (link[field]) {
-                return [link[field].id, link[field]]
-            } else {
-                return [null, { id: null, name: '' }]
-            }
-        }))
+    public rulesToOptions(data: ITicketClassifierRuleUIState[], field: string): Options[] {
+        const fromRules = Object.fromEntries(
+            data.map((link) => {
+                if (link[field]) {
+                    return [link[field].id, link[field]]
+                } else {
+                    return [null, { id: null, name: '' }]
+                }
+            }),
+        )
         if (isEmpty(fromRules)) {
             return []
         } else {
@@ -169,7 +185,7 @@ export class ClassifiersQueryRemote implements IClassifiersSearch {
         }
     }
 
-    public async findRules (query: ITicketClassifierRuleWhereInput): Promise<ITicketClassifierRuleUIState[]> {
+    public async findRules(query: ITicketClassifierRuleWhereInput): Promise<ITicketClassifierRuleUIState[]> {
         const filtered = await loadClassifierRules(this.client, {
             where: query,
             first: 100,
@@ -177,12 +193,12 @@ export class ClassifiersQueryRemote implements IClassifiersSearch {
         return filtered
     }
 
-    public async search (input: string, type: string): Promise<Options[]> {
+    public async search(input: string, type: string): Promise<Options[]> {
         const result = await searchClassifiersByType[type](this.client, input)
         return result
     }
 
-    public clear (): void {
+    public clear(): void {
         return
     }
 }

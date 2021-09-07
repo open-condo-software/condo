@@ -5,7 +5,11 @@ import { OnBoardingStepType } from '@condo/domains/onboarding/components/OnBoard
 
 export const getStepKey = (step: OnBoardingStepInterface) => `${step.action}.${step.entity}`
 
-export const getParentStep = (stepTransitions: Record<string, Array<string>>, stepKey: string, steps: Array<OnBoardingStepInterface>) => {
+export const getParentStep = (
+    stepTransitions: Record<string, Array<string>>,
+    stepKey: string,
+    steps: Array<OnBoardingStepInterface>,
+) => {
     let parentKey: string | undefined
 
     Object.keys(stepTransitions).map((key) => {
@@ -20,9 +24,7 @@ export const getParentStep = (stepTransitions: Record<string, Array<string>>, st
 
     const [targetAction, targetEntity] = parentKey.split('.')
 
-    return steps.find((step) => (
-        step.action === targetAction && step.entity === targetEntity
-    ))
+    return steps.find((step) => step.action === targetAction && step.entity === targetEntity)
 }
 
 export const getStepType = (

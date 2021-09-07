@@ -33,7 +33,7 @@ const normalizePropertyMap = ({ sections, ...restMapProps }) => ({
         ...restSectionProps,
         floors: floors.map(({ units, ...restFloorProps }) => ({
             ...restFloorProps,
-            units: units.map(unit => omitBy(unit, isNull)),
+            units: units.map((unit) => omitBy(unit, isNull)),
         })),
     })),
 })

@@ -11,7 +11,7 @@ const DEFAULT_CURRENCY_SEPARATOR = '.'
 const MONEY_PARTS_SEPARATOR = ' '
 
 export const getTextRender = (search?: string) => {
-    return function render (text: string): RenderReturnType {
+    return function render(text: string): RenderReturnType {
         let result: RenderReturnType = text
         if (!isEmpty(search) && text) {
             result = (
@@ -19,14 +19,12 @@ export const getTextRender = (search?: string) => {
                     text={String(text)}
                     search={search}
                     renderPart={(part, startIndex, marked) => (
-                        <Typography.Text style={marked ? { backgroundColor: colors.markColor } : {}}>
-                            {part}
-                        </Typography.Text>
+                        <Typography.Text style={marked ? { backgroundColor: colors.markColor } : {}}>{part}</Typography.Text>
                     )}
                 />
             )
         }
-        return (<EmptyTableCell>{result}</EmptyTableCell>)
+        return <EmptyTableCell>{result}</EmptyTableCell>
     }
 }
 
@@ -44,14 +42,14 @@ const fillMoneyWithSpaces = (substring: string, startIndex: number, spaces: Arra
 }
 
 const recolorMoney = (
-    text: string, startIndex: number, separatorIndex: number, spaces: Array<number>, extraStyles: React.CSSProperties
+    text: string,
+    startIndex: number,
+    separatorIndex: number,
+    spaces: Array<number>,
+    extraStyles: React.CSSProperties,
 ) => {
-    if (separatorIndex === - 1 || startIndex + text.length <= separatorIndex) {
-        return (
-            <Typography.Text style={extraStyles}>
-                {fillMoneyWithSpaces(text, startIndex, spaces)}
-            </Typography.Text>
-        )
+    if (separatorIndex === -1 || startIndex + text.length <= separatorIndex) {
+        return <Typography.Text style={extraStyles}>{fillMoneyWithSpaces(text, startIndex, spaces)}</Typography.Text>
     }
     if (startIndex >= separatorIndex) {
         return (
@@ -74,8 +72,8 @@ const recolorMoney = (
 }
 
 export const getMoneyRender = (search: string, currencyMark = '₽', partSeparator = DEFAULT_CURRENCY_SEPARATOR) => {
-    return function render (text: string): RenderReturnType {
-        if (!text) return <EmptyTableCell/>
+    return function render(text: string): RenderReturnType {
+        if (!text) return <EmptyTableCell />
         text = text.replace('.', partSeparator)
         const separatorIndex = text.indexOf(partSeparator)
         const lastSymbol = text.startsWith('-') ? 2 : 1
@@ -99,7 +97,8 @@ export const getMoneyRender = (search: string, currencyMark = '₽', partSeparat
                     text={text}
                     search={search}
                     renderPart={(part, startIndex, marked) =>
-                        recolorMoney(part, startIndex, separatorIndex, spaces, marked ? markStyles : {})}
+                        recolorMoney(part, startIndex, separatorIndex, spaces, marked ? markStyles : {})
+                    }
                 />
                 &nbsp;
                 {currencyMark}

@@ -12,5 +12,5 @@ module.exports = {
     OnBoarding,
     OnBoardingStep,
     CreateOnBoardingService,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -7,7 +7,7 @@ import get from 'lodash/get'
 import qs from 'qs'
 
 type PeriodOption = {
-    period: string,
+    period: string
     title: string
 }
 type UsePeriodSelectorReturnType = [string, Array<PeriodOption>, (string) => void]

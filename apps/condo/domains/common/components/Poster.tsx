@@ -9,12 +9,12 @@ interface IImageProps {
 }
 
 export const PosterContainer = styled.div<IImageProps>`
-  background: url(${({ src }) => src}) no-repeat center center;
-  background-color: ${({ placeholderColor }) => placeholderColor ? placeholderColor : colors.white};
-  background-size: cover;
-  width: 100%;
-  height: 100%;
-  transition: ${transitions.allDefault};
+    background: url(${({ src }) => src}) no-repeat center center;
+    background-color: ${({ placeholderColor }) => (placeholderColor ? placeholderColor : colors.white)};
+    background-size: cover;
+    width: 100%;
+    height: 100%;
+    transition: ${transitions.allDefault};
 `
 
 interface IPoster {
@@ -26,18 +26,11 @@ interface IPoster {
 }
 
 export const Poster: React.FC<IPoster> = (props) => {
-    const {
-        src,
-        placeholderSrc,
-        placeholderColor,
-        delay = 500,
-    } = props
+    const { src, placeholderSrc, placeholderColor, delay = 500 } = props
 
     return (
         <ProgressiveImage src={src} placeholder={placeholderSrc} delay={delay}>
-            {(src) => (
-                <PosterContainer src={src} placeholderColor={placeholderColor}/>
-            )}
+            {(src) => <PosterContainer src={src} placeholderColor={placeholderColor} />}
         </ProgressiveImage>
     )
 }

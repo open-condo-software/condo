@@ -15,7 +15,7 @@ const CHUNK_SIZE = 50
 // TODO(zuch): use workers for export
 const ExportPropertiesToExcelService = new GQLCustomSchema('ExportPropertiesToExcelService', {
     types: [
-        { 
+        {
             access: true,
             type: 'input ExportPropertiesToExcelInput { where: PropertyWhereInput!, sortBy: [SortPropertiesBy!] }',
         },
@@ -24,7 +24,7 @@ const ExportPropertiesToExcelService = new GQLCustomSchema('ExportPropertiesToEx
             type: 'type ExportPropertiesToExcelOutput { status: String!, linkToFile: String!  }',
         },
     ],
-    
+
     queries: [
         {
             access: access.canExportPropertiesToExcel,
@@ -43,7 +43,7 @@ const ExportPropertiesToExcelService = new GQLCustomSchema('ExportPropertiesToEx
                 if (allProperties.length === 0) {
                     throw new Error(`${EMPTY_DATA_EXPORT_ERROR}] empty export file`)
                 }
-                const excelRows = allProperties.map(property => {
+                const excelRows = allProperties.map((property) => {
                     return {
                         organization: property.organization.name,
                         address: property.address,
@@ -65,7 +65,6 @@ const ExportPropertiesToExcelService = new GQLCustomSchema('ExportPropertiesToEx
             },
         },
     ],
-    
 })
 
 module.exports = {

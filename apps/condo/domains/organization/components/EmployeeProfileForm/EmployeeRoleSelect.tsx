@@ -12,22 +12,33 @@ export const EmployeeRoleSelect: React.FC<IEmployeeRoleSelectProps> = (props) =>
     const { employee, ...restProps } = props
 
     const employeeOrganizationId = get(employee, ['organization', 'id'])
-    const { objs: employeeRoles, loading, error } = OrganizationEmployeeRole.useObjects({ where: { organization: { id: employeeOrganizationId } } })
-    const options = useMemo(() => employeeRoles.map((employeeRole) => {
-        const convertedOption = OrganizationEmployeeRole.convertGQLItemToFormSelectState(employeeRole)
-        if (convertedOption) {
-            const { value, label } = convertedOption
+    const {
+        objs: employeeRoles,
+        loading,
+        error,
+    } = OrganizationEmployeeRole.useObjects({ where: { organization: { id: employeeOrganizationId } } })
+    const options = useMemo(
+        () =>
+            employeeRoles.map((employeeRole) => {
+                const convertedOption = OrganizationEmployeeRole.convertGQLItemToFormSelectState(employeeRole)
+                if (convertedOption) {
+                    const { value, label } = convertedOption
 
-            return (<Select.Option key={value} value={value} title={label}>{label}</Select.Option>)
-        }
-    }), [employeeRoles, employee])
+                    return (
+                        <Select.Option key={value} value={value} title={label}>
+                            {label}
+                        </Select.Option>
+                    )
+                }
+            }),
+        [employeeRoles, employee],
+    )
 
-    return !error && (
-        <Select
-            loading={loading}
-            allowClear={true}
-            defaultActiveFirstOption
-            {...restProps}
-        >{options}</Select>
+    return (
+        !error && (
+            <Select loading={loading} allowClear={true} defaultActiveFirstOption {...restProps}>
+                {options}
+            </Select>
+        )
     )
 }

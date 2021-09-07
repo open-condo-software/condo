@@ -16,7 +16,7 @@ const OnBoarding = generateGQLTestUtils(OnBoardingGQL)
 const OnBoardingStep = generateGQLTestUtils(OnBoardingStepGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-async function createTestOnBoarding (client, extraAttrs = {}) {
+async function createTestOnBoarding(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -31,7 +31,7 @@ async function createTestOnBoarding (client, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function updateTestOnBoarding (client, id, extraAttrs = {}) {
+async function updateTestOnBoarding(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -45,7 +45,7 @@ async function updateTestOnBoarding (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestOnBoardingStep (client, onBoarding, extraAttrs = {}) {
+async function createTestOnBoardingStep(client, onBoarding, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!onBoarding || !onBoarding.id) throw new Error('no onBoarding.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -62,7 +62,7 @@ async function createTestOnBoardingStep (client, onBoarding, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function updateTestOnBoardingStep (client, id, extraAttrs = {}) {
+async function updateTestOnBoardingStep(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -94,8 +94,12 @@ async function createOnBoardingByTestClient(client, extraAttrs = {}) {
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    OnBoarding, createTestOnBoarding, updateTestOnBoarding,
-    OnBoardingStep, createTestOnBoardingStep, updateTestOnBoardingStep,
+    OnBoarding,
+    createTestOnBoarding,
+    updateTestOnBoarding,
+    OnBoardingStep,
+    createTestOnBoardingStep,
+    updateTestOnBoardingStep,
     createOnBoardingByTestClient,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

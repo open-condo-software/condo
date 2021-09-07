@@ -3,18 +3,26 @@
  */
 
 const { makeClient } = require('@core/keystone/test.utils')
-const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const {
+    catchErrorFrom,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj,
+} = require('@condo/domains/common/utils/testSchema')
 const { updateTestUser } = require('@condo/domains/user/utils/testSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
-const { createTestBillingProperty, createTestBillingAccount, createTestBillingIntegration, createTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
+const {
+    createTestBillingProperty,
+    createTestBillingAccount,
+    createTestBillingIntegration,
+    createTestBillingIntegrationOrganizationContext,
+} = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { registerServiceConsumerByTestClient } = require('@condo/domains/resident/utils/testSchema')
- 
+
 describe('RegisterServiceConsumerService', () => {
     it('creates b2b-integration serviceConsumer for valid input as resident', async () => {
-
         const userClient = await makeClientWithProperty()
         const adminClient = await makeLoggedInAdminClient()
 
@@ -39,7 +47,6 @@ describe('RegisterServiceConsumerService', () => {
     })
 
     it('does not create b2b-integration serviceConsumer for not valid unit name', async () => {
-
         const userClient = await makeClientWithProperty()
         const adminClient = await makeLoggedInAdminClient()
 
@@ -59,15 +66,17 @@ describe('RegisterServiceConsumerService', () => {
             accountNumber: billingAccountAttrs.number,
         }
 
-        await catchErrorFrom(async () => {
-            await registerServiceConsumerByTestClient(userClient, payload)
-        }, (e) => {
-            expect(e.message).not.toEqual(undefined)
-        })
+        await catchErrorFrom(
+            async () => {
+                await registerServiceConsumerByTestClient(userClient, payload)
+            },
+            (e) => {
+                expect(e.message).not.toEqual(undefined)
+            },
+        )
     })
 
     it('does not create b2b-integration serviceConsumer for not valid account number', async () => {
-
         const userClient = await makeClientWithProperty()
         const adminClient = await makeLoggedInAdminClient()
 
@@ -87,15 +96,17 @@ describe('RegisterServiceConsumerService', () => {
             accountNumber: billingAccountAttrs.number + 'not-valid-buddy',
         }
 
-        await catchErrorFrom(async () => {
-            await registerServiceConsumerByTestClient(userClient, payload)
-        }, (e) => {
-            expect(e.message).not.toEqual(undefined)
-        })
+        await catchErrorFrom(
+            async () => {
+                await registerServiceConsumerByTestClient(userClient, payload)
+            },
+            (e) => {
+                expect(e.message).not.toEqual(undefined)
+            },
+        )
     })
 
     it('does not create b2b-integration serviceConsumer for nullish data', async () => {
-
         const userClient = await makeClientWithProperty()
         const adminClient = await makeLoggedInAdminClient()
 
@@ -115,11 +126,14 @@ describe('RegisterServiceConsumerService', () => {
             accountNumber: '',
         }
 
-        await catchErrorFrom(async () => {
-            await registerServiceConsumerByTestClient(userClient, payloadWithNullishAccountName)
-        }, (e) => {
-            expect(e.message).not.toEqual(undefined)
-        })
+        await catchErrorFrom(
+            async () => {
+                await registerServiceConsumerByTestClient(userClient, payloadWithNullishAccountName)
+            },
+            (e) => {
+                expect(e.message).not.toEqual(undefined)
+            },
+        )
 
         const payloadWithNullishUnitName = {
             residentId: resident.id,
@@ -127,11 +141,14 @@ describe('RegisterServiceConsumerService', () => {
             accountNumber: '',
         }
 
-        await catchErrorFrom(async () => {
-            await registerServiceConsumerByTestClient(userClient, payloadWithNullishUnitName)
-        }, (e) => {
-            expect(e.message).not.toEqual(undefined)
-        })
+        await catchErrorFrom(
+            async () => {
+                await registerServiceConsumerByTestClient(userClient, payloadWithNullishUnitName)
+            },
+            (e) => {
+                expect(e.message).not.toEqual(undefined)
+            },
+        )
 
         const payloadWithNullishUnitNameAndAccountName = {
             residentId: resident.id,
@@ -139,15 +156,17 @@ describe('RegisterServiceConsumerService', () => {
             accountNumber: '',
         }
 
-        await catchErrorFrom(async () => {
-            await registerServiceConsumerByTestClient(userClient, payloadWithNullishUnitNameAndAccountName)
-        }, (e) => {
-            expect(e.message).not.toEqual(undefined)
-        })
+        await catchErrorFrom(
+            async () => {
+                await registerServiceConsumerByTestClient(userClient, payloadWithNullishUnitNameAndAccountName)
+            },
+            (e) => {
+                expect(e.message).not.toEqual(undefined)
+            },
+        )
     })
 
     it('cannot be invoked by non-resident user', async () => {
-
         const userClient = await makeClientWithProperty()
 
         const payload = {
@@ -162,7 +181,6 @@ describe('RegisterServiceConsumerService', () => {
     })
 
     it('cannot be invoked by anonymous', async () => {
-
         const userClient = await makeClient()
 
         const payload = {

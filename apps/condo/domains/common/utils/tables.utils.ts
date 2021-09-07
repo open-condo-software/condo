@@ -37,8 +37,8 @@ type StringFilter = {
 }
 
 export type OptionType = {
-    label: string,
-    value: string,
+    label: string
+    value: string
 }
 
 type StringOptionFilter = {
@@ -48,11 +48,11 @@ type StringOptionFilter = {
 }
 
 type DateFilter = {
-    type: 'date',
+    type: 'date'
 }
 
 type CustomFilter = {
-    type: 'custom',
+    type: 'custom'
     filterDropdown: (props: FilterDropdownProps) => React.ReactNode
 }
 
@@ -78,7 +78,7 @@ export type QueryMeta<F> = {
 }
 
 export type SorterColumn = {
-    columnKey: string,
+    columnKey: string
     order: 'ascend' | 'descend'
 }
 export type Sorters = { [column: string]: 'ascend' | 'descend' }
@@ -98,17 +98,15 @@ export const getFilter: (
     dataIndex: DataIndexType,
     argType: ArgumentType,
     argData: ArgumentDataType,
-    suffix?: string
-) => FilterType = (
-    dataIndex, argType, argData, suffix
-) => {
+    suffix?: string,
+) => FilterType = (dataIndex, argType, argData, suffix) => {
     let wrappedDataIndex = []
     if (Array.isArray(dataIndex) && dataIndex.every(Boolean)) {
         wrappedDataIndex = dataIndex
     } else if (typeof dataIndex === 'string' && dataIndex) {
         wrappedDataIndex = [dataIndex]
     }
-    return function getWhereQuery (search) {
+    return function getWhereQuery(search) {
         if (!search) return
         if (wrappedDataIndex.length < 1) return
         let args = undefined
@@ -121,9 +119,7 @@ export const getFilter: (
                 args = search.filter(Number).map(Number)
                 break
             case 'dateTime':
-                args = search
-                    .filter((el) => moment(el).isValid())
-                    .map((el) => moment(el).toISOString())
+                args = search.filter((el) => moment(el).isValid()).map((el) => moment(el).toISOString())
                 break
             case 'boolean':
                 args = search
@@ -164,7 +160,7 @@ export const getStringOptionFilter: (dataIndex: DataIndexType) => FilterType = (
 
 export const getDayGteFilter: (dataIndex: DataIndexType) => FilterType = (dataIndex) => {
     const filter = getFilter(dataIndex, 'single', 'dateTime', 'gte')
-    return function searchDayGte (search) {
+    return function searchDayGte(search) {
         if (!search) return
         const date = moment(search)
         if (!date.isValid()) return
@@ -174,7 +170,7 @@ export const getDayGteFilter: (dataIndex: DataIndexType) => FilterType = (dataIn
 
 export const getDayLteFilter: (dataIndex: DataIndexType) => FilterType = (dataIndex) => {
     const filter = getFilter(dataIndex, 'single', 'dateTime', 'lte')
-    return function searchDayLte (search) {
+    return function searchDayLte(search) {
         if (!search) return
         const date = moment(search)
         if (!date.isValid()) return
@@ -254,11 +250,9 @@ export const convertColumns = (
     // TODO(mrfoxpro): write generic argument
     columns: ColumnInfo<any>[],
     filters: FiltersFromQueryType,
-    sorters: Sorters
+    sorters: Sorters,
 ) => {
-    const visibleWidth = columns
-        .filter((column) => get(column, 'visible', true))
-        .reduce((acc, current) => acc + current.width, 0)
+    const visibleWidth = columns.filter((column) => get(column, 'visible', true)).reduce((acc, current) => acc + current.width, 0)
     const totalWidth = columns.reduce((acc, current) => acc + current.width, 0)
     const freeSpace = totalWidth - visibleWidth
     const growSum = columns
@@ -270,8 +264,8 @@ export const convertColumns = (
 
     return columns.map((column) => {
         const columnGrow = get(column, 'grow', 1)
-        const grownWidth = growSum === 0 ? 0 : (freeSpace) * columnGrow / growSum
-        const proportionalWidth = (column.width + grownWidth) * 100 / totalWidth
+        const grownWidth = growSum === 0 ? 0 : (freeSpace * columnGrow) / growSum
+        const proportionalWidth = ((column.width + grownWidth) * 100) / totalWidth
         const percentageWidth = `${preciseFloor(proportionalWidth)}%`
         const isColumnVisible = get(column, 'visible', true)
         const responsive = isColumnVisible ? undefined : []

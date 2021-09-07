@@ -8,9 +8,9 @@ const { uuided, historical, tracked } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingIntegrationAccessRight')
 
-
 const BillingIntegrationAccessRight = new GQLListSchema('BillingIntegrationAccessRight', {
-    schemaDoc: 'Link between billing integrations and users. The existence of the object means that there is user has access to integration',
+    schemaDoc:
+        'Link between billing integrations and users. The existence of the object means that there is user has access to integration',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
@@ -32,7 +32,6 @@ const BillingIntegrationAccessRight = new GQLListSchema('BillingIntegrationAcces
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
-
     },
     plugins: [uuided(), tracked(), historical()],
     access: {

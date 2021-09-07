@@ -77,7 +77,7 @@ describe('changeTrackable', () => {
                 const fields = generateChangeTrackableFieldsFrom(
                     House.schema.fields,
                     personDisplayNameSingleRelationshipResolvers,
-                    personDisplayNameManyRelationshipResolvers
+                    personDisplayNameManyRelationshipResolvers,
                 )
 
                 expect(fields).toMatchObject({
@@ -104,7 +104,7 @@ describe('changeTrackable', () => {
                 const fields = generateChangeTrackableFieldsFrom(
                     Person.schema.fields,
                     personDisplayNameSingleRelationshipResolvers,
-                    personDisplayNameManyRelationshipResolvers
+                    personDisplayNameManyRelationshipResolvers,
                 )
 
                 expect(fields).toMatchObject({
@@ -158,19 +158,18 @@ describe('changeTrackable', () => {
 
         describe('resolvers validation', () => {
             it('throws error when display name resolvers is missing for some single-relationship fields', async () => {
-                await catchErrorFrom(async () => {
-                    generateChangeTrackableFieldsFrom(
-                        Person.schema.fields,
-                        {},
-                        {}
-                    )
-                }, (error) => {
-                    expect(error instanceof ResolversValidationError).toBe(true)
-                    expect(error).toMatchObject({
-                        message: 'Missing display name resolvers for some fields',
-                        fields: ['currentHome', 'homes'],
-                    })
-                })
+                await catchErrorFrom(
+                    async () => {
+                        generateChangeTrackableFieldsFrom(Person.schema.fields, {}, {})
+                    },
+                    (error) => {
+                        expect(error instanceof ResolversValidationError).toBe(true)
+                        expect(error).toMatchObject({
+                            message: 'Missing display name resolvers for some fields',
+                            fields: ['currentHome', 'homes'],
+                        })
+                    },
+                )
             })
         })
     })

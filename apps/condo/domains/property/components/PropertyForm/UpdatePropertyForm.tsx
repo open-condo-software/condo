@@ -32,8 +32,8 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
     if (error || loading) {
         return (
             <>
-                {(loading) ? <Loader size={'large'} fill/> : null}
-                {(error) ? <Typography.Title>{error}</Typography.Title> : null}
+                {loading ? <Loader size={'large'} fill /> : null}
+                {error ? <Typography.Title>{error}</Typography.Title> : null}
             </>
         )
     }
@@ -43,39 +43,34 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
             action={updateAction}
             initialValues={initialValues}
             organization={organization}
-            type='building'
+            type="building"
             address={property.address}
         >
             {({ handleSave, isLoading }) => {
                 return (
                     <Form.Item noStyle dependencies={['address']}>
-                        {
-                            ({ getFieldsValue }) => {
-                                const { address } = getFieldsValue(['address'])
-                                return (
-                                    <>
-                                        <ActionBar>
-                                            <FormResetButton
-                                                type={'sberPrimary'}
-                                                secondary
-                                            />
-                                            <Space size={12}>
-                                                <Button
-                                                    key='submit'
-                                                    onClick={handleSave}
-                                                    type='sberPrimary'
-                                                    loading={isLoading}
-                                                    disabled={!address}
-                                                >
-                                                    {ApplyChangesLabel}
-                                                </Button>
-                                                <ErrorsContainer address={address} />
-                                            </Space>
-                                        </ActionBar>
-                                    </>
-                                )
-                            }
-                        }
+                        {({ getFieldsValue }) => {
+                            const { address } = getFieldsValue(['address'])
+                            return (
+                                <>
+                                    <ActionBar>
+                                        <FormResetButton type={'sberPrimary'} secondary />
+                                        <Space size={12}>
+                                            <Button
+                                                key="submit"
+                                                onClick={handleSave}
+                                                type="sberPrimary"
+                                                loading={isLoading}
+                                                disabled={!address}
+                                            >
+                                                {ApplyChangesLabel}
+                                            </Button>
+                                            <ErrorsContainer address={address} />
+                                        </Space>
+                                    </ActionBar>
+                                </>
+                            )
+                        }}
                     </Form.Item>
                 )
             }}

@@ -2,7 +2,12 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useApolloClient, useMutation, useQuery } from './apollo'
 import { gql } from 'graphql-tag'
 
-const { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
+const {
+    DEBUG_RERENDERS,
+    DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER,
+    preventInfinityLoop,
+    getContextIndependentWrappedInitialProps,
+} = require('./_utils')
 
 /**
  * AuthContext
@@ -75,7 +80,9 @@ const AuthProvider = ({ children, initialUserValue }) => {
 
     const [signin, { loading: signinLoading }] = useMutation(SIGNIN_MUTATION, {
         onCompleted: async ({ authenticateUserWithPassword: { item } = {}, error }) => {
-            if (error) { return onError(error) }
+            if (error) {
+                return onError(error)
+            }
             if (DEBUG_RERENDERS) console.log('AuthProvider() signin()')
 
             if (item) {
@@ -88,7 +95,9 @@ const AuthProvider = ({ children, initialUserValue }) => {
 
     const [signout, { loading: signoutLoading }] = useMutation(SIGNOUT_MUTATION, {
         onCompleted: async ({ unauthenticateUser: { success } = {}, error }) => {
-            if (error) { return onError(error) }
+            if (error) {
+                return onError(error)
+            }
             if (DEBUG_RERENDERS) console.log('AuthProvider() signout()')
 
             if (success) {
@@ -106,7 +115,9 @@ const AuthProvider = ({ children, initialUserValue }) => {
     }
 
     const onData = (data) => {
-        if (data && data.error) { return onError(data.error) }
+        if (data && data.error) {
+            return onError(data.error)
+        }
         if (!data || !data.authenticatedUser) {
             console.warn('Unexpected auth.onData(..) call', data)
             return
@@ -116,9 +127,10 @@ const AuthProvider = ({ children, initialUserValue }) => {
         setUser(data.authenticatedUser)
     }
 
-    const refetchUserData = () => refetch().then(({ data }) => {
-        onData(data)
-    })
+    const refetchUserData = () =>
+        refetch().then(({ data }) => {
+            onData(data)
+        })
 
     if (DEBUG_RERENDERS) console.log('AuthProvider()', user)
 
@@ -146,7 +158,7 @@ const initOnRestore = async (ctx) => {
     try {
         const data = await ctx.apolloClient.query({
             query: USER_QUERY,
-            fetchPolicy: (isOnServerSide) ? 'network-only' : 'cache-first',
+            fetchPolicy: isOnServerSide ? 'network-only' : 'cache-first',
         })
         user = data.data ? data.data.authenticatedUser : undefined
     } catch (error) {
@@ -159,51 +171,50 @@ const initOnRestore = async (ctx) => {
     return { user }
 }
 
-const withAuth = ({ ssr = false, ...opts } = {}) => PageComponent => {
-    // TODO(pahaz): refactor it. No need to patch globals here!
-    USER_QUERY = opts.USER_QUERY ? opts.USER_QUERY : USER_QUERY
-    SIGNIN_MUTATION = opts.SIGNIN_MUTATION ? opts.SIGNIN_MUTATION : SIGNIN_MUTATION
-    SIGNOUT_MUTATION = opts.SIGNOUT_MUTATION ? opts.SIGNOUT_MUTATION : SIGNOUT_MUTATION
+const withAuth =
+    ({ ssr = false, ...opts } = {}) =>
+    (PageComponent) => {
+        // TODO(pahaz): refactor it. No need to patch globals here!
+        USER_QUERY = opts.USER_QUERY ? opts.USER_QUERY : USER_QUERY
+        SIGNIN_MUTATION = opts.SIGNIN_MUTATION ? opts.SIGNIN_MUTATION : SIGNIN_MUTATION
+        SIGNOUT_MUTATION = opts.SIGNOUT_MUTATION ? opts.SIGNOUT_MUTATION : SIGNOUT_MUTATION
 
-    const WithAuth = ({ user, ...pageProps }) => {
-        if (DEBUG_RERENDERS) console.log('WithAuth()', user)
-        return (
-            <AuthProvider initialUserValue={user}>
-                <PageComponent {...pageProps} />
-            </AuthProvider>
-        )
-    }
+        const WithAuth = ({ user, ...pageProps }) => {
+            if (DEBUG_RERENDERS) console.log('WithAuth()', user)
+            return (
+                <AuthProvider initialUserValue={user}>
+                    <PageComponent {...pageProps} />
+                </AuthProvider>
+            )
+        }
 
-    if (DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER) WithAuth.whyDidYouRender = true
+        if (DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER) WithAuth.whyDidYouRender = true
 
-    // Set the correct displayName in development
-    if (process.env.NODE_ENV !== 'production') {
-        const displayName = PageComponent.displayName || PageComponent.name || 'Component'
-        WithAuth.displayName = `withAuth(${displayName})`
-    }
+        // Set the correct displayName in development
+        if (process.env.NODE_ENV !== 'production') {
+            const displayName = PageComponent.displayName || PageComponent.name || 'Component'
+            WithAuth.displayName = `withAuth(${displayName})`
+        }
 
-    if (ssr || PageComponent.getInitialProps) {
-        WithAuth.getInitialProps = async ctx => {
-            if (DEBUG_RERENDERS) console.log('WithAuth.getInitialProps()', ctx)
-            const isOnServerSide = typeof window === 'undefined'
-            const { user } = await initOnRestore(ctx)
-            const pageProps = await getContextIndependentWrappedInitialProps(PageComponent, ctx)
+        if (ssr || PageComponent.getInitialProps) {
+            WithAuth.getInitialProps = async (ctx) => {
+                if (DEBUG_RERENDERS) console.log('WithAuth.getInitialProps()', ctx)
+                const isOnServerSide = typeof window === 'undefined'
+                const { user } = await initOnRestore(ctx)
+                const pageProps = await getContextIndependentWrappedInitialProps(PageComponent, ctx)
 
-            if (isOnServerSide) {
-                preventInfinityLoop(ctx)
-            }
+                if (isOnServerSide) {
+                    preventInfinityLoop(ctx)
+                }
 
-            return {
-                ...pageProps,
-                user,
+                return {
+                    ...pageProps,
+                    user,
+                }
             }
         }
+
+        return WithAuth
     }
 
-    return WithAuth
-}
-
-export {
-    withAuth,
-    useAuth,
-}
+export { withAuth, useAuth }

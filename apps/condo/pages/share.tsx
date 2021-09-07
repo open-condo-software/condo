@@ -6,14 +6,10 @@ import getConfig from 'next/config'
 import { useIntl } from '@core/next/intl'
 import { format } from 'date-fns'
 import { LOCALES } from '@condo/domains/common/constants/locale'
-import {
-    ALGORITHM,
-    SALT,
-    CRYPTOENCODING,
-} from '@condo/domains/ticket/constants/crypto'
+import { ALGORITHM, SALT, CRYPTOENCODING } from '@condo/domains/ticket/constants/crypto'
 import BaseLayout, { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 
-function RedirectToTicket ({ ticketId }) {
+function RedirectToTicket({ ticketId }) {
     const intl = useIntl()
     const RedirectingMessage = intl.formatMessage({ id: 'Redirecting' })
 
@@ -33,7 +29,7 @@ interface ShareProps {
     number: string
     details: string
     id: string
-    date: string;
+    date: string
 }
 
 interface IShareProps extends React.FC<ShareProps> {
@@ -44,19 +40,25 @@ const Share: IShareProps = ({ date, number, details, id }) => {
     const intl = useIntl()
     const dateFormatted = format(new Date(date || 0), 'd MMMM Y', { locale: LOCALES[intl.locale] })
 
-    const ShareTitleMessage = intl.formatMessage({ id: 'ticket.shareTitle' }, {
-        date: dateFormatted,
-        number,
-    })
-    const ShareDetailsMessage = intl.formatMessage({ id: 'ticket.shareDetails' }, {
-        details,
-    })
+    const ShareTitleMessage = intl.formatMessage(
+        { id: 'ticket.shareTitle' },
+        {
+            date: dateFormatted,
+            number,
+        },
+    )
+    const ShareDetailsMessage = intl.formatMessage(
+        { id: 'ticket.shareDetails' },
+        {
+            details,
+        },
+    )
 
     let origin = 'http://localhost:3000'
     if (typeof window !== 'undefined') {
         origin = window.location.origin
     } else {
-        ({
+        ;({
             publicRuntimeConfig: { serverUrl: origin },
         } = getConfig())
     }
@@ -83,15 +85,11 @@ export const getServerSideProps = ({ query }) => {
 }
 
 const EmptyLayout = ({ children, ...props }) => {
-    return <BaseLayout
-        {...props}
-        logoLocation='topMenu'
-        className='top-menu-only-layout'
-    >
-        <PageWrapper>
-            {children}
-        </PageWrapper>
-    </BaseLayout>
+    return (
+        <BaseLayout {...props} logoLocation="topMenu" className="top-menu-only-layout">
+            <PageWrapper>{children}</PageWrapper>
+        </BaseLayout>
+    )
 }
 
 Share.container = EmptyLayout

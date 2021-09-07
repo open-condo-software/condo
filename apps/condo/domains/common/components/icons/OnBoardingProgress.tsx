@@ -4,14 +4,14 @@ import React, { useEffect, useRef } from 'react'
 import { useOnBoardingContext } from '@condo/domains/onboarding/components/OnBoardingContext'
 
 const Canvas = styled.canvas`
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
 `
 
 const CanvasSegment: React.FC<{ progress: number }> = (props) => {
     const canvasRef = useRef<HTMLCanvasElement>(null)
-    const progressToDegrees = ( 2 * Math.PI / 100 * props.progress ) - Math.PI / 2
+    const progressToDegrees = ((2 * Math.PI) / 100) * props.progress - Math.PI / 2
 
     useEffect(() => {
         if (canvasRef) {
@@ -33,9 +33,7 @@ const CanvasSegment: React.FC<{ progress: number }> = (props) => {
         }
     }, [canvasRef, props.progress])
 
-    return (
-        <Canvas ref={canvasRef} width='20' height='20'/>
-    )
+    return <Canvas ref={canvasRef} width="20" height="20" />
 }
 
 const Progress = styled.div`
@@ -54,7 +52,7 @@ export const OnBoardingProgress: React.FC = () => {
 
     return (
         <Progress>
-            <CanvasSegment progress={progress || 20}/>
+            <CanvasSegment progress={progress || 20} />
         </Progress>
     )
 }

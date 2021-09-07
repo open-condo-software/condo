@@ -8,21 +8,34 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { updateTestUser } = require('@condo/domains/user/utils/testSchema/')
 const { createTestResident } = require('../utils/testSchema')
 const { createTestProperty, makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { createTestBillingAccount, createTestBillingProperty, makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
+const {
+    createTestBillingAccount,
+    createTestBillingProperty,
+    makeContextWithOrganizationAndIntegrationAsAdmin,
+} = require('@condo/domains/billing/utils/testSchema')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
-const { createTestOrganization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
+const {
+    createTestOrganization,
+    createTestOrganizationEmployee,
+    createTestOrganizationEmployeeRole,
+} = require('@condo/domains/organization/utils/testSchema')
+const {
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedErrorToObjects,
+} = require('@condo/domains/common/utils/testSchema')
 const { makeClient } = require('@core/keystone/test.utils')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
-const { createTestServiceConsumer, updateTestServiceConsumer, createTestServiceConsumerForUserAsAdmin } = require('@condo/domains/resident/utils/testSchema')
+const {
+    createTestServiceConsumer,
+    updateTestServiceConsumer,
+    createTestServiceConsumerForUserAsAdmin,
+} = require('@condo/domains/resident/utils/testSchema')
 const { ServiceConsumer } = require('../utils/testSchema')
 
-
 describe('ServiceConsumer', () => {
-
-    describe('Create',  () => {
+    describe('Create', () => {
         it('can be created by admin', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
@@ -31,7 +44,12 @@ describe('ServiceConsumer', () => {
             const [billingProperty] = await createTestBillingProperty(adminClient, context)
             const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
 
-            const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+            const [resident] = await createTestResident(
+                adminClient,
+                userClient.user,
+                userClient.organization,
+                userClient.property,
+            )
             const [consumer] = await createTestServiceConsumer(adminClient, resident, billingAccount)
             expect(consumer.resident.id).toEqual(resident.id)
         })
@@ -58,7 +76,12 @@ describe('ServiceConsumer', () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
             const anonymous = await makeClient()
-            const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+            const [resident] = await createTestResident(
+                adminClient,
+                userClient.user,
+                userClient.organization,
+                userClient.property,
+            )
 
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [billingProperty] = await createTestBillingProperty(adminClient, context)
@@ -99,7 +122,9 @@ describe('ServiceConsumer', () => {
 
             const newAccountNumber = faker.random.alphaNumeric(8)
 
-            const [updatedConsumer] = await updateTestServiceConsumer(adminClient, consumer.id, { accountNumber: newAccountNumber })
+            const [updatedConsumer] = await updateTestServiceConsumer(adminClient, consumer.id, {
+                accountNumber: newAccountNumber,
+            })
             expect(updatedConsumer.id).toEqual(consumer.id)
             expect(updatedConsumer.accountNumber).toEqual(newAccountNumber)
         })

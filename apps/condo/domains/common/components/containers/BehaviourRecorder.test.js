@@ -16,15 +16,13 @@ jest.mock('next/config', () => () => ({
     },
 }))
 
-const CORRECT_PLERDY_HTML = '<script type="text/javascript" defer>var _protocol = (("https:" == document.location.protocol) ? " https://" : " http://");var _site_hash_code = "1234567890abcdefghijklmnopqrstyv";var _suid = 12345;</script><script type="text/javascript" defer src="https://a.plerdy.com/public/js/click/main.js"></script>'
+const CORRECT_PLERDY_HTML =
+    '<script type="text/javascript" defer>var _protocol = (("https:" == document.location.protocol) ? " https://" : " http://");var _site_hash_code = "1234567890abcdefghijklmnopqrstyv";var _suid = 12345;</script><script type="text/javascript" defer src="https://a.plerdy.com/public/js/click/main.js"></script>'
 
 describe('BehaviorRecorder', () => {
     describe('plerdy', () => {
-
         it('renders html in div for correct config params', () => {
-            const result = TestRenderer.create(
-                <BehaviorRecorder engine="plerdy"/>
-            )
+            const result = TestRenderer.create(<BehaviorRecorder engine="plerdy" />)
             expect(result.toJSON()).toMatchObject({
                 type: 'div',
                 props: {
@@ -36,9 +34,7 @@ describe('BehaviorRecorder', () => {
         })
 
         it('renders null for not supported engine', () => {
-            const result = TestRenderer.create(
-                <BehaviorRecorder engine="not_supported_engine"/>
-            )
+            const result = TestRenderer.create(<BehaviorRecorder engine="not_supported_engine" />)
             expect(result.toJSON()).toBeNull()
         })
 
@@ -72,12 +68,12 @@ describe('BehaviorRecorder', () => {
             })
 
             it('throws error when provided correct JSON-string has incorrect "site_hash_code" param', () => {
-                [
-                    '1234567890abcdefghijklmnopqrsty',   // too short
+                ;[
+                    '1234567890abcdefghijklmnopqrsty', // too short
                     '1234567890abcdefghijklmnopqrstyvw', // too wide
-                    '-1234567890abcdefghijklmnopqrsty',  // forbidden symbols
-                    '_1234567890abcdefghijklmnopqrsty',  // forbidden symbols
-                ].map(sample => {
+                    '-1234567890abcdefghijklmnopqrsty', // forbidden symbols
+                    '_1234567890abcdefghijklmnopqrsty', // forbidden symbols
+                ].map((sample) => {
                     expect(() => {
                         parseParamsFor.plerdy(`{"site_hash_code": "${sample}", "suid": ${CORRECT_PLERDY_PARSED_PARAMS.suid}}`)
                     }).toThrow('Incorrect value of site_hash_code param for Plerdy behaviour recorder')

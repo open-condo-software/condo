@@ -20,20 +20,20 @@ import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/D
 interface IPropertyInfoPanelProps {
     title: string
     message: string
-    type?:  'success' | 'warning'
+    type?: 'success' | 'warning'
 }
 
 const PropertyInfoPanel: React.FC<IPropertyInfoPanelProps> = ({ title, message, type }) => {
-
     return (
         <FocusContainer style={{ margin: 'initial', width: '180px', height: '105px' }}>
             <Space direction={'vertical'} size={8}>
                 <Typography.Text type={'secondary'}>{title}</Typography.Text>
-                <Typography.Text {...{ type }} style={{ fontSize: '20px', fontWeight: 'bold' }}>{message}</Typography.Text>
+                <Typography.Text {...{ type }} style={{ fontSize: '20px', fontWeight: 'bold' }}>
+                    {message}
+                </Typography.Text>
             </Space>
         </FocusContainer>
     )
-
 }
 
 export const PropertyPageContent = ({ property }) => {
@@ -44,30 +44,32 @@ export const PropertyPageContent = ({ property }) => {
 
     return (
         <>
-            <Row gutter={[12, 40]} align='top'>
+            <Row gutter={[12, 40]} align="top">
                 <Col span={24}>
-                    <Typography.Title level={1} style={{ margin: 0 }}>{property.address}</Typography.Title>
-                    {
-                        property.name ?
-                            <Tag style={{ marginTop: '25px', borderColor: 'transparent', backgroundColor: colors.ultraLightGrey }}>{property.name}</Tag> :
-                            null
-                    }
+                    <Typography.Title level={1} style={{ margin: 0 }}>
+                        {property.address}
+                    </Typography.Title>
+                    {property.name ? (
+                        <Tag style={{ marginTop: '25px', borderColor: 'transparent', backgroundColor: colors.ultraLightGrey }}>
+                            {property.name}
+                        </Tag>
+                    ) : null}
                 </Col>
             </Row>
-            <Row gutter={[47, 40]} style={{ marginTop: '40px' }} justify='start'>
-                <Col flex={0} >
+            <Row gutter={[47, 40]} style={{ marginTop: '40px' }} justify="start">
+                <Col flex={0}>
                     <PropertyInfoPanel title={UnitsCountTitle} message={property.unitsCount} />
                 </Col>
                 <Col flex={0}>
-                    <PropertyInfoPanel title={TicketsClosedTitle} message={property.ticketsClosed} type='success' />
+                    <PropertyInfoPanel title={TicketsClosedTitle} message={property.ticketsClosed} type="success" />
                 </Col>
                 <Col flex={0}>
-                    <PropertyInfoPanel title={TicketsInWorkTitle} message={property.ticketsInWork}  type='warning' />
+                    <PropertyInfoPanel title={TicketsInWorkTitle} message={property.ticketsInWork} type="warning" />
                 </Col>
             </Row>
             <Row gutter={[12, 40]} style={{ marginTop: '40px' }}>
                 <Col span={24}>
-                    <PropertyPanels mode='view' map={property.map} address={property.address} />
+                    <PropertyPanels mode="view" map={property.map} address={property.address} />
                 </Col>
             </Row>
         </>
@@ -87,51 +89,50 @@ const PropertyIdPage: IPropertyIdPage = () => {
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'pages.condo.property.form.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'pages.condo.property.form.ConfirmDeleteMessage' })
 
-    const { push, query: { id } } = useRouter()
+    const {
+        push,
+        query: { id },
+    } = useRouter()
     const { loading, obj: property, error } = useObject({ where: { id: id as string } })
 
     const softDeleteAction = useSoftDelete({}, () => push('/property/'))
 
     if (error || loading) {
-        return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null}/>
+        return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null} />
     }
 
     const UpdateTitle = intl.formatMessage({ id: 'Edit' })
 
-    return <>
-        <Head>
-            <title>{PageTitleMsg}</title>
-        </Head>
-        <PageWrapper>
-            <PageContent>
-                <PropertyPageContent property={property} />
-                <ActionBar>
-                    <Link href={`/property/${property.id}/update`}>
-                        <span>
-                            <Button
-                                color={'green'}
-                                type={'sberPrimary'}
-                                secondary
-                                icon={<EditFilled />}
-                                size={'large'}
-                            >
-                                {UpdateTitle}
-                            </Button>
-                        </span>
-                    </Link>
-                    <DeleteButtonWithConfirmModal
-                        title={ConfirmDeleteTitle}
-                        message={ConfirmDeleteMessage}
-                        okButtonLabel={DeletePropertyLabel}
-                        action={() => softDeleteAction({}, property)}
-                    />
-                </ActionBar>
-            </PageContent>
-        </PageWrapper>
-    </>
+    return (
+        <>
+            <Head>
+                <title>{PageTitleMsg}</title>
+            </Head>
+            <PageWrapper>
+                <PageContent>
+                    <PropertyPageContent property={property} />
+                    <ActionBar>
+                        <Link href={`/property/${property.id}/update`}>
+                            <span>
+                                <Button color={'green'} type={'sberPrimary'} secondary icon={<EditFilled />} size={'large'}>
+                                    {UpdateTitle}
+                                </Button>
+                            </span>
+                        </Link>
+                        <DeleteButtonWithConfirmModal
+                            title={ConfirmDeleteTitle}
+                            message={ConfirmDeleteMessage}
+                            okButtonLabel={DeletePropertyLabel}
+                            action={() => softDeleteAction({}, property)}
+                        />
+                    </ActionBar>
+                </PageContent>
+            </PageWrapper>
+        </>
+    )
 }
 
-PropertyIdPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllProperties' }} path={'/property/'}/>
+PropertyIdPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllProperties' }} path={'/property/'} />
 PropertyIdPage.requiredAccess = OrganizationRequired
 
 export default PropertyIdPage

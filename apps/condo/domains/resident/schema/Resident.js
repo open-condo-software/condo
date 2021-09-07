@@ -32,7 +32,8 @@ const Resident = new GQLListSchema('Resident', {
         },
 
         organization: {
-            schemaDoc: 'Organization, that provides service to this resident. Can be missing, when a resident has been registered, but there is no Organization, that serves specified address in our system yet',
+            schemaDoc:
+                'Organization, that provides service to this resident. Can be missing, when a resident has been registered, but there is no Organization, that serves specified address in our system yet',
             type: Relationship,
             ref: 'Organization',
             isRequired: false,
@@ -63,7 +64,8 @@ const Resident = new GQLListSchema('Resident', {
         },
 
         property: {
-            schemaDoc: 'Property, in which this person resides. Can be missing, when a resident has been registered, but there is no Property in our system yet',
+            schemaDoc:
+                'Property, in which this person resides. Can be missing, when a resident has been registered, but there is no Property in our system yet',
             type: Relationship,
             ref: 'Property',
             isRequired: false,
@@ -77,7 +79,9 @@ const Resident = new GQLListSchema('Resident', {
                     const [property] = await Property.getAll(context, { id: propertyId })
                     const residentAddress = getAddressUpToBuildingFrom(resolvedData.addressMeta)
                     if (property.address !== residentAddress) {
-                        return addFieldValidationError('Cannot connect property, because its address differs from address of resident')
+                        return addFieldValidationError(
+                            'Cannot connect property, because its address differs from address of resident',
+                        )
                     }
                 },
             },
@@ -133,11 +137,15 @@ const Resident = new GQLListSchema('Resident', {
                     user: { id: userId },
                 })
                 if (resident) {
-                    return addValidationError('Cannot create resident, because another resident with the same provided "address" and "unitName" already exists for current user')
+                    return addValidationError(
+                        'Cannot create resident, because another resident with the same provided "address" and "unitName" already exists for current user',
+                    )
                 }
             } else if (operation === 'update') {
                 if (property || address || addressMeta || unitName) {
-                    return addValidationError('Changing of address, addressMeta, unitName or property is not allowed for already existing Resident')
+                    return addValidationError(
+                        'Changing of address, addressMeta, unitName or property is not allowed for already existing Resident',
+                    )
                 }
             }
         },

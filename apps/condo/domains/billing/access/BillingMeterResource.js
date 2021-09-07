@@ -7,12 +7,12 @@ const { getById } = require('@core/keystone/schema')
 const { checkBillingIntegrationAccessRight } = require('@condo/domains/billing/utils/accessSchema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
-async function canReadBillingMeterResources ({ authentication: { item: user } }) {
+async function canReadBillingMeterResources({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     return {}
 }
 
-async function canManageBillingMeterResources ({ authentication: { item: user }, originalInput, operation, itemId  }) {
+async function canManageBillingMeterResources({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin || user.isSupport) return true
     let contextId

@@ -65,7 +65,8 @@ const InProgressBilling = {
     name: 'In progress',
     shortDescription: 'Государственная информационная система ЖКХ',
     detailsTitle: 'Подключение ГИС ЖКХ',
-    detailsText: 'Вам нужно подать заявку на интеграцию через ваш личный кабинет в ГИС ЖКХ. Дальше, мы сделаем всё сами.\n' +
+    detailsText:
+        'Вам нужно подать заявку на интеграцию через ваш личный кабинет в ГИС ЖКХ. Дальше, мы сделаем всё сами.\n' +
         'В результате, вы будете видеть все данные биллинга внутри платформы «Домá».',
     detailsConfirmButtonText: 'Подать заявку на интеграцию с ГИС ЖКХ',
     detailsInstructionButtonText: 'Инструкция на сайте биллинга',
@@ -170,31 +171,29 @@ const RUBLE_BILLINGS_TO_CREATE = [
     WithServicesDetailsBilling,
 ]
 
-const DOLLAR_BILLINGS_TO_CREATE = [
-    NoDetailsDollarBilling,
-]
+const DOLLAR_BILLINGS_TO_CREATE = [NoDetailsDollarBilling]
 
 class BillingsGenerator {
     context = null
 
-    async connect () {
+    async connect() {
         console.info('[INFO] Connecting to database...')
         const resolved = path.resolve('./index.js')
         const { distDir, keystone, apps } = require(resolved)
-        const graphqlIndex = apps.findIndex(app => app instanceof GraphQLApp)
+        const graphqlIndex = apps.findIndex((app) => app instanceof GraphQLApp)
         await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
         await keystone.connect()
         this.context = await keystone.createContext({ skipAccessControl: true })
     }
 
-    async generateCurrencies () {
+    async generateCurrencies() {
         console.info('[INFO] Generating currencies...')
         const rub = await BillingCurrency.create(this.context, RubleCurrency)
         const usd = await BillingCurrency.create(this.context, DollarCurrency)
         return { rub, usd }
     }
 
-    async generateBillings () {
+    async generateBillings() {
         console.info('[INFO] Generating billings...')
         const { rub, usd } = await this.generateCurrencies()
         console.log(rub)
@@ -211,8 +210,6 @@ class BillingsGenerator {
             })
         }
     }
-
-
 }
 
 const createBillings = async () => {
@@ -233,6 +230,7 @@ createBillings()
         console.log('\r\n')
         console.log('All done')
         process.exit(0)
-    }).catch((err) => {
+    })
+    .catch((err) => {
         console.error('Failed to done', err)
     })

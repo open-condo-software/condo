@@ -5,8 +5,4 @@ interface IPhoneLink {
     value: string
 }
 
-export const PhoneLink: React.FC<IPhoneLink> = ({ value }) => (
-    <a href={`tel:${normalizePhone(value)}`}>
-        {value}
-    </a>
-)
+export const PhoneLink: React.FC<IPhoneLink> = ({ value }) => <a href={`tel:${normalizePhone(value)}`}>{value}</a>

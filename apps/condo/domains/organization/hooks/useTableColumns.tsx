@@ -14,17 +14,23 @@ import { EmptyTableCell } from '@condo/domains/common/components/Table/EmptyTabl
 
 const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
 
-export const useTableColumns = (organizationId: string, sort: Array<string>, filters: IFilters,
-    setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>) => {
+export const useTableColumns = (
+    organizationId: string,
+    sort: Array<string>,
+    filters: IFilters,
+    setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>,
+) => {
     const intl = useIntl()
     const NameMessage = intl.formatMessage({ id: 'pages.auth.register.field.Name' })
     const RoleMessage = intl.formatMessage({ id: 'employee.Role' })
     const PositionMessage = intl.formatMessage({ id: 'employee.Position' })
-    const PhoneMessage =  intl.formatMessage({ id: 'Phone' })
+    const PhoneMessage = intl.formatMessage({ id: 'Phone' })
     const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
 
     const sorterMap = createSorterMap(sort)
-    const { loading, objs: organizationEmployeeRoles } = OrganizationEmployeeRole.useObjects({ where: { organization: { id: organizationId } } })
+    const { loading, objs: organizationEmployeeRoles } = OrganizationEmployeeRole.useObjects({
+        where: { organization: { id: organizationId } },
+    })
     const search = getFilteredValue(filters, 'search')
     const render = (text) => {
         let result = text
@@ -33,15 +39,11 @@ export const useTableColumns = (organizationId: string, sort: Array<string>, fil
                 <Highliter
                     text={String(text)}
                     search={String(search)}
-                    renderPart={(part) => (
-                        <Typography.Text style={{ backgroundColor: colors.markColor }}>
-                            {part}
-                        </Typography.Text>
-                    )}
+                    renderPart={(part) => <Typography.Text style={{ backgroundColor: colors.markColor }}>{part}</Typography.Text>}
                 />
             )
         }
-        return (<EmptyTableCell>{result}</EmptyTableCell>)
+        return <EmptyTableCell>{result}</EmptyTableCell>
     }
     const columns = useMemo(() => {
         return [
@@ -78,13 +80,12 @@ export const useTableColumns = (organizationId: string, sort: Array<string>, fil
                 width: '20%',
                 render: (role) => render(get(role, 'name')),
                 filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
-                    const adaptedStatuses = organizationEmployeeRoles.map(OrganizationEmployeeRole.convertGQLItemToFormSelectState).filter(identity)
+                    const adaptedStatuses = organizationEmployeeRoles
+                        .map(OrganizationEmployeeRole.convertGQLItemToFormSelectState)
+                        .filter(identity)
 
                     return (
-                        <FilterContainer
-                            clearFilters={clearFilters}
-                            showClearButton={selectedKeys && selectedKeys.length > 0}
-                        >
+                        <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
                             <Checkbox.Group
                                 disabled={loading}
                                 options={adaptedStatuses}

@@ -44,28 +44,24 @@ export const EmployeeInviteRetryButton: React.FC<IEmployeeInviteRetryButtonProps
         })
     }, [employee, organization])
 
-    return isEmployeeReinvitable && (
-        <CountDownTimer action={reInviteEmployee} id={'RESET_EMPLOYEE_INVITE'}>
-            {({ countdown, runAction, loading }) => {
-                const isCountDownActive = countdown > 0
+    return (
+        isEmployeeReinvitable && (
+            <CountDownTimer action={reInviteEmployee} id={'RESET_EMPLOYEE_INVITE'}>
+                {({ countdown, runAction, loading }) => {
+                    const isCountDownActive = countdown > 0
 
-                return (
-                    <Button
-                        type={'inlineLink'}
-                        loading={loading}
-                        disabled={isCountDownActive}
-                        onClick={runAction}
-                    >
-                        {RetryInviteMessage}
-                        {isCountDownActive && (
-                            <Typography.Text type={'secondary'}>
-                                &nbsp;
-                                ({ countdown } {Seconds})
-                            </Typography.Text>
-                        )}
-                    </Button>
-                )
-            }}
-        </CountDownTimer>
+                    return (
+                        <Button type={'inlineLink'} loading={loading} disabled={isCountDownActive} onClick={runAction}>
+                            {RetryInviteMessage}
+                            {isCountDownActive && (
+                                <Typography.Text type={'secondary'}>
+                                    &nbsp; ({countdown} {Seconds})
+                                </Typography.Text>
+                            )}
+                        </Button>
+                    )
+                }}
+            </CountDownTimer>
+        )
     )
 }

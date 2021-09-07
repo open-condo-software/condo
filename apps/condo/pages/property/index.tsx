@@ -7,7 +7,6 @@ import { jsx } from '@emotion/core'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
 
-
 import { GetServerSideProps } from 'next'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
@@ -42,7 +41,7 @@ type PropertiesPageProps = {
     tab?: PropertiesType
 }
 
-export default function PropertiesPage (props: PropertiesPageProps) {
+export default function PropertiesPage(props: PropertiesPageProps) {
     const intl = useIntl()
     const router = useRouter()
 
@@ -61,8 +60,7 @@ export default function PropertiesPage (props: PropertiesPageProps) {
     useEffect(() => {
         if (!hasFeature('division')) {
             initialTab.current = 'buildings'
-        }
-        else if (!initialTab.current) {
+        } else if (!initialTab.current) {
             const queryParams = getQueryParams()
             initialTab.current = propertiesTypes.includes(queryParams.tab) ? queryParams.tab : propertiesTypes[0]
         }
@@ -72,34 +70,29 @@ export default function PropertiesPage (props: PropertiesPageProps) {
 
     const [properties, setShownProperties] = useState<(Property.IPropertyUIState | Division.IDivisionUIState)[]>([])
 
-    const PreviewFeatureTabs = useMemo(() => (
-        <Tabs
-            defaultActiveKey={initialTab.current}
-            onChange={(key: PropertiesType) => {
-                setPropertiesType(key)
-                router.push(`/property?tab=${key}`)
-            }}>
-            <Tabs.TabPane
-                key="buildings"
-                tab={BuildingsTabTitle}
-            />
-            <Tabs.TabPane
-                key="divisions"
-                tab={DivisionsTabTitle}
-            />
-        </Tabs>
-    ), [router])
+    const PreviewFeatureTabs = useMemo(
+        () => (
+            <Tabs
+                defaultActiveKey={initialTab.current}
+                onChange={(key: PropertiesType) => {
+                    setPropertiesType(key)
+                    router.push(`/property?tab=${key}`)
+                }}
+            >
+                <Tabs.TabPane key="buildings" tab={BuildingsTabTitle} />
+                <Tabs.TabPane key="divisions" tab={DivisionsTabTitle} />
+            </Tabs>
+        ),
+        [router],
+    )
 
     const DefaultTabs = () => (
         <Tabs activeKey="buildings">
-            <Tabs.TabPane
-                key="buildings"
-                tab={BuildingsTabTitle}
-            />
+            <Tabs.TabPane key="buildings" tab={BuildingsTabTitle} />
             <Tabs.TabPane
                 key="divisions"
                 tab={
-                    <Tooltip title={NotImplementedYetMessage} >
+                    <Tooltip title={NotImplementedYetMessage}>
                         <Typography.Text
                             style={{
                                 opacity: 70,
@@ -111,7 +104,8 @@ export default function PropertiesPage (props: PropertiesPageProps) {
                     </Tooltip>
                 }
             />
-        </Tabs>)
+        </Tabs>
+    )
 
     return (
         <>
@@ -121,30 +115,37 @@ export default function PropertiesPage (props: PropertiesPageProps) {
             <PageWrapper>
                 <PageContent>
                     <Row gutter={[0, 40]} align={'top'} style={{ zIndex: 1, position: 'relative' }}>
-                        <Col span={6} >
-                            <PageHeader style={{ background: 'transparent' }} title={<Typography.Title>
-                                {PageTitleMessage}
-                            </Typography.Title>} />
-                            {viewMode !== 'map' &&
+                        <Col span={6}>
+                            <PageHeader
+                                style={{ background: 'transparent' }}
+                                title={<Typography.Title>{PageTitleMessage}</Typography.Title>}
+                            />
+                            {viewMode !== 'map' && (
                                 <FeatureFlagRequired name="division" fallback={<DefaultTabs />}>
                                     {PreviewFeatureTabs}
                                 </FeatureFlagRequired>
-                            }
+                            )}
                         </Col>
                         <Col span={6} push={12} style={{ top: 10 }}>
-                            <Radio.Group className={'sberRadioGroup'} value={viewMode} buttonStyle="outline" onChange={e => changeViewMode(e.target.value)}>
+                            <Radio.Group
+                                className={'sberRadioGroup'}
+                                value={viewMode}
+                                buttonStyle="outline"
+                                onChange={(e) => changeViewMode(e.target.value)}
+                            >
                                 <Radio.Button value="list">{ShowTable}</Radio.Button>
                                 <Radio.Button value="map">{ShowMap}</Radio.Button>
                             </Radio.Group>
                         </Col>
-                        {viewMode !== 'map' &&
+                        {viewMode !== 'map' && (
                             <Col span={24}>
-                                {propertiesType === 'buildings' ?
-                                    <BuildingsTable onSearch={(properties) => setShownProperties(properties)} /> :
+                                {propertiesType === 'buildings' ? (
+                                    <BuildingsTable onSearch={(properties) => setShownProperties(properties)} />
+                                ) : (
                                     <DivisionTable onSearch={(properties) => setShownProperties(properties)} />
-                                }
+                                )}
                             </Col>
-                        }
+                        )}
                     </Row>
                     {viewMode === 'map' && <PropertiesMap properties={properties} />}
                 </PageContent>

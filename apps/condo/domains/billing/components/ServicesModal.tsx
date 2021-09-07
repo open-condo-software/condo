@@ -27,10 +27,11 @@ const splitServices = (receipt: IBillingReceiptUIState) => {
     const services = get(receipt, 'services', [])
     const significantServices: Array<TableRecord> = []
     const insignificantServices: Array<TableRecord> = []
-    if (!services.length) return {
-        significantServices,
-        insignificantServices,
-    }
+    if (!services.length)
+        return {
+            significantServices,
+            insignificantServices,
+        }
     services.forEach((service) => {
         const toPay = parseFloat(get(service, 'toPay', '0'))
         if (toPay === 0) {
@@ -46,24 +47,28 @@ const splitServices = (receipt: IBillingReceiptUIState) => {
 }
 
 const ExpandIconWrapper = styled.div`
-  font-size: 20px;
-  margin-right: 12px;
-  width: 20px;
-  color: ${colors.green[6]};
-  transform: translateY(2px);
-  display: inline-block;
+    font-size: 20px;
+    margin-right: 12px;
+    width: 20px;
+    color: ${colors.green[6]};
+    transform: translateY(2px);
+    display: inline-block;
 `
 
 const WideModalStyles = css`
-  .services-modal {
-    width: fit-content !important;
-    & > .ant-modal-content > .ant-modal-body {
-      width: min-content;
+    .services-modal {
+        width: fit-content !important;
+        & > .ant-modal-content > .ant-modal-body {
+            width: min-content;
+        }
     }
-  }
 `
 
-const formatRows = (significantServices: Array<TableRecord>, insignificantServices: Array<TableRecord>, expandMessage: string) => {
+const formatRows = (
+    significantServices: Array<TableRecord>,
+    insignificantServices: Array<TableRecord>,
+    expandMessage: string,
+) => {
     if (significantServices.length) {
         if (insignificantServices.length) {
             return [
@@ -103,21 +108,20 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
     const modalTitleMessage = `${AccountMessage} ${accountNumber}`
     const title = (
         <Space direction={'vertical'} size={4}>
-            <Typography.Title level={3}>
-                {modalTitleMessage}
-            </Typography.Title>
-            <SubText size={configSize}>
-                {address}
-            </SubText>
+            <Typography.Title level={3}>{modalTitleMessage}</Typography.Title>
+            <SubText size={configSize}>{address}</SubText>
         </Space>
     )
 
     const columns = useServicesTableColumns(isDetailed, currencyMark, currencySeparator)
 
     const { significantServices, insignificantServices } = splitServices(receipt)
-    const ExpandMessage = intl.formatMessage({ id: 'MoreReceiptsWithZeroCharge' }, {
-        count: insignificantServices.length,
-    })
+    const ExpandMessage = intl.formatMessage(
+        { id: 'MoreReceiptsWithZeroCharge' },
+        {
+            count: insignificantServices.length,
+        },
+    )
     const dataSource = formatRows(significantServices, insignificantServices, ExpandMessage)
 
     const [expanded, setExpanded] = useState(false)
@@ -125,7 +129,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
     // TODO (savelevMatthew): Move modal to common width-expandable component?
     return (
         <>
-            {isDetailed && <Global styles={WideModalStyles}/>}
+            {isDetailed && <Global styles={WideModalStyles} />}
             <Modal
                 title={title}
                 visible={visible}
@@ -140,7 +144,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
                 footer={null}
                 centered
                 className={'services-modal'}
-                style={{ marginTop:40 }}
+                style={{ marginTop: 40 }}
             >
                 <Table
                     bordered
@@ -153,14 +157,15 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
                         // eslint-disable-next-line react/display-name
                         expandIcon: ({ expanded, onExpand, record }) => {
                             if (record.name !== ExpandMessage) return
-                            if (expanded) return (
-                                <ExpandIconWrapper>
-                                    <MinusSquareOutlined onClick={(e) => onExpand(record, e)}/>
-                                </ExpandIconWrapper>
-                            )
+                            if (expanded)
+                                return (
+                                    <ExpandIconWrapper>
+                                        <MinusSquareOutlined onClick={(e) => onExpand(record, e)} />
+                                    </ExpandIconWrapper>
+                                )
                             return (
                                 <ExpandIconWrapper>
-                                    <PlusSquareOutlined onClick={(e) => onExpand(record, e)}/>
+                                    <PlusSquareOutlined onClick={(e) => onExpand(record, e)} />
                                 </ExpandIconWrapper>
                             )
                         },
@@ -184,9 +189,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
                         return (
                             <Table.Summary.Row>
                                 <Table.Summary.Cell index={0} align={'right'} colSpan={columns.length}>
-                                    <Typography.Text strong>
-                                        {moneyRender(pointedNumber)}
-                                    </Typography.Text>
+                                    <Typography.Text strong>{moneyRender(pointedNumber)}</Typography.Text>
                                 </Table.Summary.Cell>
                             </Table.Summary.Row>
                         )

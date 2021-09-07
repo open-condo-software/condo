@@ -43,7 +43,7 @@ const getScreenClassName = (defaultMedia = DEFAULT_MEDIA) => {
     if (typeof window === 'undefined' || !window.matchMedia) {
         return defaultMedia
     }
-    return Object.keys(MEDIA_QUERIES).find(key => {
+    return Object.keys(MEDIA_QUERIES).find((key) => {
         const { matchMedia } = MEDIA_QUERIES[key]
         return window.matchMedia(matchMedia).matches
     })
@@ -89,7 +89,4 @@ const useAntdMediaQuery = (initialValue = DEFAULT_MEDIA) => {
     return colSpan
 }
 
-export {
-    getScreenClassName,
-    useAntdMediaQuery,
-}
+export { getScreenClassName, useAntdMediaQuery }

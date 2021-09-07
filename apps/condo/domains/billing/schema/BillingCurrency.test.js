@@ -5,8 +5,15 @@
 const { expectToThrowAuthenticationErrorToObjects } = require('@condo/domains/common/utils/testSchema')
 const { makeLoggedInAdminClient, makeLoggedInClient, makeClient } = require('@core/keystone/test.utils')
 const { makeClientWithSupportUser } = require('../../user/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
-const { BillingCurrency, createTestBillingCurrency, updateTestBillingCurrency } = require('@condo/domains/billing/utils/testSchema')
+const {
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj,
+} = require('@condo/domains/common/utils/testSchema')
+const {
+    BillingCurrency,
+    createTestBillingCurrency,
+    updateTestBillingCurrency,
+} = require('@condo/domains/billing/utils/testSchema')
 
 describe('BillingCurrency', () => {
     describe('Create', async () => {

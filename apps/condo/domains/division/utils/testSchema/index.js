@@ -15,7 +15,7 @@ const { Division: DivisionGQL } = require('@condo/domains/division/gql')
 const Division = generateGQLTestUtils(DivisionGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-async function createTestDivision (client, organization, responsible, extraAttrs = {}) {
+async function createTestDivision(client, organization, responsible, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
     if (!responsible || !responsible.id) throw new Error('no responsible.id')
@@ -33,7 +33,7 @@ async function createTestDivision (client, organization, responsible, extraAttrs
     return [obj, attrs]
 }
 
-async function updateTestDivision (client, id, extraAttrs = {}) {
+async function updateTestDivision(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -51,6 +51,8 @@ async function updateTestDivision (client, id, extraAttrs = {}) {
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    Division, createTestDivision, updateTestDivision,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    Division,
+    createTestDivision,
+    updateTestDivision,
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

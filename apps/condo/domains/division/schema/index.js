@@ -8,5 +8,5 @@ const { Division } = require('./Division')
 
 module.exports = {
     Division,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

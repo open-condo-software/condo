@@ -1,25 +1,26 @@
 const ObsClient = require('esdk-obs-nodejs')
 const FOLDER_NAME = '__jest_test_api___'
 
-
 class SberCloudObsTest {
-    constructor (config) {
+    constructor(config) {
         this.bucket = config.bucket
         if (!this.bucket) {
             throw new Error('SberCloudAdapter: S3Adapter requires a bucket name.')
         }
         this.obs = new ObsClient(config.s3Options)
-        this.folder = config.folder     
+        this.folder = config.folder
     }
 
-    async checkBucket () {
-        const { CommonMsg: { Status: bucketStatus } } = await this.obs.headBucket({
+    async checkBucket() {
+        const {
+            CommonMsg: { Status: bucketStatus },
+        } = await this.obs.headBucket({
             Bucket: this.bucket,
         })
         return bucketStatus === 200
     }
 
-    async uploadObject (name, text) {
+    async uploadObject(name, text) {
         const serverAnswer = await this.obs.putObject({
             Bucket: this.bucket,
             Key: `${this.folder}/${name}`,
@@ -28,7 +29,7 @@ class SberCloudObsTest {
         return serverAnswer
     }
 
-    async checkObjectExists (name) {
+    async checkObjectExists(name) {
         const serverAnswer = await this.obs.getObjectMetadata({
             Bucket: this.bucket,
             Key: `${this.folder}/${name}`,
@@ -36,7 +37,7 @@ class SberCloudObsTest {
         return serverAnswer
     }
 
-    async deleteObject (name) {
+    async deleteObject(name) {
         const serverAnswer = await this.obs.deleteObject({
             Bucket: this.bucket,
             Key: `${this.folder}/${name}`,
@@ -44,8 +45,8 @@ class SberCloudObsTest {
         return serverAnswer
     }
 
-    async getMeta (filename) {
-        const result  = await this.s3.getObjectMetadata({
+    async getMeta(filename) {
+        const result = await this.s3.getObjectMetadata({
             Bucket: this.bucket,
             Key: filename,
         })
@@ -56,18 +57,20 @@ class SberCloudObsTest {
         }
     }
 
-    async setMeta (filename, newMeta = {} ) {
+    async setMeta(filename, newMeta = {}) {
         const result = await this.s3.setObjectMetadata({
             Bucket: this.bucket,
             Key: filename,
             Metadata: newMeta,
             MetadataDirective: 'REPLACE_NEW',
         })
-        const  { CommonMsg: { Status } } = result 
+        const {
+            CommonMsg: { Status },
+        } = result
         return Status < 300
-    }    
-    
-    static async initApi () {
+    }
+
+    static async initApi() {
         const S3Config = {
             ...(process.env.SBERCLOUD_OBS_CONFIG ? JSON.parse(process.env.SBERCLOUD_OBS_CONFIG) : {}),
             folder: FOLDER_NAME,
@@ -83,9 +86,8 @@ class SberCloudObsTest {
             return null
         }
         return Api
-    }    
+    }
 }
-
 
 describe('Sbercloud', () => {
     describe('Huawei SDK', () => {
@@ -93,11 +95,17 @@ describe('Sbercloud', () => {
             const Api = await SberCloudObsTest.initApi()
             if (Api) {
                 const name = `testFile_${Math.random()}.txt`
-                const { CommonMsg: { Status: createStatus } } = await Api.uploadObject(name, `Random text ${Math.random()}`)
+                const {
+                    CommonMsg: { Status: createStatus },
+                } = await Api.uploadObject(name, `Random text ${Math.random()}`)
                 expect(createStatus).toBe(200)
-                const { CommonMsg: { Status: checkStatus } } = await Api.checkObjectExists(name)
+                const {
+                    CommonMsg: { Status: checkStatus },
+                } = await Api.checkObjectExists(name)
                 expect(checkStatus).toBe(200)
-                const { CommonMsg: { Status: deleteStatus } } = await Api.deleteObject(name)
+                const {
+                    CommonMsg: { Status: deleteStatus },
+                } = await Api.deleteObject(name)
                 expect(deleteStatus).toBe(204)
             }
         })
@@ -118,13 +126,19 @@ describe('Sbercloud', () => {
             const Api = await SberCloudObsTest.initApi()
             if (Api) {
                 const name = `testFile_${Math.random()}.txt`
-                const { CommonMsg: { Status: createStatus } } = await Api.uploadObject(name, `Random text ${Math.random()}`)
+                const {
+                    CommonMsg: { Status: createStatus },
+                } = await Api.uploadObject(name, `Random text ${Math.random()}`)
                 expect(createStatus).toBe(200)
-                const { CommonMsg: { Status: deleteStatus } } = await Api.deleteObject(name)
+                const {
+                    CommonMsg: { Status: deleteStatus },
+                } = await Api.deleteObject(name)
                 expect(deleteStatus).toBe(204)
-                const { CommonMsg: { Status: checkStatus } } = await Api.checkObjectExists(name)
+                const {
+                    CommonMsg: { Status: checkStatus },
+                } = await Api.checkObjectExists(name)
                 expect(checkStatus).toBe(404)
             }
-        })    
+        })
     })
 })

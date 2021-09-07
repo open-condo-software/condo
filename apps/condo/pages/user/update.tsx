@@ -18,14 +18,14 @@ export const UserInfoPage = () => {
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <UserProfileForm/>
+                    <UserProfileForm />
                 </PageContent>
             </PageWrapper>
         </>
     )
 }
 
-UserInfoPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'Back' }} path={'/user/'}/>
+UserInfoPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'Back' }} path={'/user/'} />
 UserInfoPage.requiredAccess = AuthRequired
 
 export default UserInfoPage

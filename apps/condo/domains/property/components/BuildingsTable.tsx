@@ -26,8 +26,7 @@ type BuildingTableProps = {
     onSearch?: (properties: Property.IPropertyUIState[]) => void
 }
 
-export default function BuildingsTable (props: BuildingTableProps) {
-
+export default function BuildingsTable(props: BuildingTableProps) {
     const intl = useIntl()
 
     const ExportAsExcel = intl.formatMessage({ id: 'ExportAsExcel' })
@@ -40,7 +39,10 @@ export default function BuildingsTable (props: BuildingTableProps) {
 
     const router = useRouter()
 
-    const { organization, link: { role } } = useOrganization()
+    const {
+        organization,
+        link: { role },
+    } = useOrganization()
 
     const addressFilter = getFilter('address', 'single', 'string', 'contains_i')
     const unitsCountFilter = getFilter('unitsCount', 'single', 'number')
@@ -58,17 +60,26 @@ export default function BuildingsTable (props: BuildingTableProps) {
     const sorterMap = getSorterMap(sorters)
 
     const tableColumns = useTableColumns(sorterMap, filters)
-    const { loading, error, refetch, objs: properties, count: total } = Property.useObjects({
-        sortBy: sortersToSortBy(sorters),
-        where: { ...filtersToWhere(filters), organization: { id: organization.id } },
-        skip: (currentPageIndex - 1) * PROPERTY_PAGE_SIZE,
-        first: PROPERTY_PAGE_SIZE,
-    }, {
-        fetchPolicy: 'network-only',
-        onCompleted: () => {
-            props.onSearch && props.onSearch(properties)
+    const {
+        loading,
+        error,
+        refetch,
+        objs: properties,
+        count: total,
+    } = Property.useObjects(
+        {
+            sortBy: sortersToSortBy(sorters),
+            where: { ...filtersToWhere(filters), organization: { id: organization.id } },
+            skip: (currentPageIndex - 1) * PROPERTY_PAGE_SIZE,
+            first: PROPERTY_PAGE_SIZE,
         },
-    })
+        {
+            fetchPolicy: 'network-only',
+            onCompleted: () => {
+                props.onSearch && props.onSearch(properties)
+            },
+        },
+    )
 
     const handleRowAction = (record) => {
         return {
@@ -79,22 +90,20 @@ export default function BuildingsTable (props: BuildingTableProps) {
     }
 
     const [downloadLink, setDownloadLink] = useState(null)
-    const [
-        exportToExcel, { loading: isXlsLoading },
-    ] = useLazyQuery(
-        EXPORT_PROPERTIES_TO_EXCEL,
-        {
-            onError: error => {
-                notification.error(error)
-            },
-            onCompleted: data => {
-                setDownloadLink(data.result.linkToFile)
-            },
-        }
-    )
+    const [exportToExcel, { loading: isXlsLoading }] = useLazyQuery(EXPORT_PROPERTIES_TO_EXCEL, {
+        onError: (error) => {
+            notification.error(error)
+        },
+        onCompleted: (data) => {
+            setDownloadLink(data.result.linkToFile)
+        },
+    })
 
     const [columns, propertyNormalizer, propertyValidator, propertyCreator] = useImporterFunctions()
-    const filtersWithOrganizations = useMemo(() => ({ ...filtersToWhere(filters), organization: { id: organization.id } }), [filters, filtersToWhere, organization.id])
+    const filtersWithOrganizations = useMemo(
+        () => ({ ...filtersToWhere(filters), organization: { id: organization.id } }),
+        [filters, filtersToWhere, organization.id],
+    )
     // TODO(mrfoxpro): move to common
     const applyFiltersToQuery = (newFilters) => {
         const query = { ...router.query, filters: JSON.stringify(newFilters) }
@@ -107,7 +116,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
         applyFiltersToQuery(filters)
     }, 400)
 
-    function onExportToExcelButtonClicked () {
+    function onExportToExcelButtonClicked() {
         exportToExcel({ variables: { data: { where: filtersWithOrganizations, sortBy: sortersToSortBy(sorters) } } })
     }
 
@@ -119,30 +128,33 @@ export default function BuildingsTable (props: BuildingTableProps) {
         <Row align={'middle'} gutter={[0, 40]}>
             <Col span={6}>
                 <Input
-
                     placeholder={SearchPlaceholder}
                     onChange={(e) => debouncedSearch(e.target.value)}
                     defaultValue={filters.address}
                 />
             </Col>
             <Col span={6} push={1}>
-                {downloadLink
-                    ?
+                {downloadLink ? (
                     <Button
                         type={'inlineLink'}
                         icon={<DatabaseFilled />}
                         loading={isXlsLoading}
-                        target='_blank'
+                        target="_blank"
                         href={downloadLink}
-                        rel='noreferrer'>{DownloadExcelLabel}
+                        rel="noreferrer"
+                    >
+                        {DownloadExcelLabel}
                     </Button>
-                    :
+                ) : (
                     <Button
                         type={'inlineLink'}
                         icon={<DatabaseFilled />}
                         loading={isXlsLoading}
-                        onClick={onExportToExcelButtonClicked}>{ExportAsExcel}
-                    </Button>}
+                        onClick={onExportToExcelButtonClicked}
+                    >
+                        {ExportAsExcel}
+                    </Button>
+                )}
             </Col>
             <Col span={6} push={6}>
                 {role?.canManageProperties ? (
@@ -156,12 +168,9 @@ export default function BuildingsTable (props: BuildingTableProps) {
                             rowValidator={propertyValidator}
                             objectCreator={propertyCreator}
                         >
-                            <Button
-                                type={'sberPrimary'}
-                                icon={<DiffOutlined />}
-                                secondary />
+                            <Button type={'sberPrimary'} icon={<DiffOutlined />} secondary />
                         </ImportWrapper>
-                        <Button type='sberPrimary' onClick={() => router.push('/property/create')}>
+                        <Button type="sberPrimary" onClick={() => router.push('/property/create')}>
                             {CreateLabel}
                         </Button>
                     </Space>
@@ -177,5 +186,6 @@ export default function BuildingsTable (props: BuildingTableProps) {
                     pageSize={PROPERTY_PAGE_SIZE}
                 />
             </Col>
-        </Row>)
+        </Row>
+    )
 }

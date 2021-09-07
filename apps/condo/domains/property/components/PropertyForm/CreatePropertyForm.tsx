@@ -18,47 +18,45 @@ export const CreatePropertyForm: React.FC = () => {
     const CreatePropertyMessage = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
     const router = useRouter()
     const { organization } = useOrganization()
-    const action = Property.useCreate({
-        organization: organization.id,
-        type: DEFAULT_PROPERTY_TYPE,
-    }, () => { router.push('/property/') })
+    const action = Property.useCreate(
+        {
+            organization: organization.id,
+            type: DEFAULT_PROPERTY_TYPE,
+        },
+        () => {
+            router.push('/property/')
+        },
+    )
 
     const initialValues = {
         name: '',
     }
 
     return (
-        <BasePropertyForm
-            action={action}
-            initialValues={initialValues}
-            organization={organization}
-            type='building'
-        >
+        <BasePropertyForm action={action} initialValues={initialValues} organization={organization} type="building">
             {({ handleSave, isLoading }) => {
                 return (
                     <Form.Item noStyle dependencies={['address']}>
-                        {
-                            ({ getFieldsValue }) => {
-                                const { address } = getFieldsValue(['address'])
+                        {({ getFieldsValue }) => {
+                            const { address } = getFieldsValue(['address'])
 
-                                return (
-                                    <ActionBar>
-                                        <Space size={12}>
-                                            <Button
-                                                key='submit'
-                                                onClick={handleSave}
-                                                type='sberPrimary'
-                                                loading={isLoading}
-                                                disabled={!address}
-                                            >
-                                                {CreatePropertyMessage}
-                                            </Button>
-                                            <ErrorsContainer address={address} />
-                                        </Space>
-                                    </ActionBar>
-                                )
-                            }
-                        }
+                            return (
+                                <ActionBar>
+                                    <Space size={12}>
+                                        <Button
+                                            key="submit"
+                                            onClick={handleSave}
+                                            type="sberPrimary"
+                                            loading={isLoading}
+                                            disabled={!address}
+                                        >
+                                            {CreatePropertyMessage}
+                                        </Button>
+                                        <ErrorsContainer address={address} />
+                                    </Space>
+                                </ActionBar>
+                            )
+                        }}
                     </Form.Item>
                 )
             }}

@@ -12,36 +12,40 @@ const serverUrl = process.env.SERVER_URL || 'http://localhost:3000'
 const apolloGraphQLUrl = `${serverUrl}/admin/api`
 const addressSuggestionsConfig = conf['ADDRESS_SUGGESTIONS_CONFIG'] && JSON.parse(conf['ADDRESS_SUGGESTIONS_CONFIG'])
 const mapApiKey = conf['MAP_API_KEY']
-const behaviorRecorder = { 'plerdy': conf['BEHAVIOR_RECORDER_PLERDY_CONFIG'] }
+const behaviorRecorder = { plerdy: conf['BEHAVIOR_RECORDER_PLERDY_CONFIG'] }
 const featureFlagsConfig = conf['FEATURE_FLAGS_CONFIG']
-const docsConfig = { 'isGraphqlPlaygroundEnabled': conf['ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND'] === 'true' }
+const docsConfig = { isGraphqlPlaygroundEnabled: conf['ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND'] === 'true' }
 const googleCaptcha = conf['GOOGLE_RECAPTCHA_CONFIG'] && JSON.parse(conf['GOOGLE_RECAPTCHA_CONFIG'])
 const defaultLocale = conf.DEFAULT_LOCALE
 
-module.exports = withTM(withLess(withCSS({
-    publicRuntimeConfig: {
-        // Will be available on both server and client
-        serverUrl,
-        apolloGraphQLUrl,
-        addressSuggestionsConfig,
-        mapApiKey,
-        googleCaptcha,
-        behaviorRecorder,
-        featureFlagsConfig,
-        docsConfig,
-        defaultLocale,
-    },
-    lessLoaderOptions: {
-        javascriptEnabled: true,
-        modifyVars: antGlobalVariables,
-    },
-    async redirects () {
-        return [
-            {
-                source: '/analytics/:path*',
-                destination: '/reports/:path*',
-                permanent: false,
+module.exports = withTM(
+    withLess(
+        withCSS({
+            publicRuntimeConfig: {
+                // Will be available on both server and client
+                serverUrl,
+                apolloGraphQLUrl,
+                addressSuggestionsConfig,
+                mapApiKey,
+                googleCaptcha,
+                behaviorRecorder,
+                featureFlagsConfig,
+                docsConfig,
+                defaultLocale,
             },
-        ]
-    },
-})))
+            lessLoaderOptions: {
+                javascriptEnabled: true,
+                modifyVars: antGlobalVariables,
+            },
+            async redirects() {
+                return [
+                    {
+                        source: '/analytics/:path*',
+                        destination: '/reports/:path*',
+                        permanent: false,
+                    },
+                ]
+            },
+        }),
+    ),
+)

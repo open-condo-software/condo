@@ -14,12 +14,18 @@ const { createTestTicket } = require('../utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, DATETIME_RE } = require('@core/keystone/test.utils')
 
-const { TicketChange, TicketStatus, TicketSource, TicketClassifier, createTestTicketChange, updateTestTicketChange } = require('@condo/domains/ticket/utils/testSchema')
+const {
+    TicketChange,
+    TicketStatus,
+    TicketSource,
+    TicketClassifier,
+    createTestTicketChange,
+    updateTestTicketChange,
+} = require('@condo/domains/ticket/utils/testSchema')
 
 const { STATUS_IDS } = require('../constants/statusTransitions')
 
 describe('TicketChange', () => {
-
     describe('create', () => {
         it('gets created when Ticket has changes in at least one field', async () => {
             const admin = await makeLoggedInAdminClient()
@@ -288,14 +294,17 @@ describe('TicketChange', () => {
             ticket: { id: ticket.id },
         })
 
-        await catchErrorFrom(async () => {
-            await updateTestTicketChange(client, objCreated.id)
-        }, ({ errors, data }) => {
-            // Custom match should be used here, because error message contains
-            // suggestions, like "Did you mean …", that cannot be known in advance
-            // So, just inspect basic part of the message
-            expect(errors[0].message).toMatch('Unknown type "TicketChangeUpdateInput"')
-        })
+        await catchErrorFrom(
+            async () => {
+                await updateTestTicketChange(client, objCreated.id)
+            },
+            ({ errors, data }) => {
+                // Custom match should be used here, because error message contains
+                // suggestions, like "Did you mean …", that cannot be known in advance
+                // So, just inspect basic part of the message
+                expect(errors[0].message).toMatch('Unknown type "TicketChangeUpdateInput"')
+            },
+        )
     })
 
     test('anonymous: update TicketChange', async () => {
@@ -314,14 +323,17 @@ describe('TicketChange', () => {
             ticket: { id: ticket.id },
         })
 
-        await catchErrorFrom(async () => {
-            await updateTestTicketChange(anonymous, objCreated.id)
-        }, ({ errors, data }) => {
-            // Custom match should be used here, because error message contains
-            // suggestions, like "Did you mean …", that cannot be known in advance
-            // So, just inspect basic part of the message
-            expect(errors[0].message).toMatch('Unknown type "TicketChangeUpdateInput"')
-        })
+        await catchErrorFrom(
+            async () => {
+                await updateTestTicketChange(anonymous, objCreated.id)
+            },
+            ({ errors, data }) => {
+                // Custom match should be used here, because error message contains
+                // suggestions, like "Did you mean …", that cannot be known in advance
+                // So, just inspect basic part of the message
+                expect(errors[0].message).toMatch('Unknown type "TicketChangeUpdateInput"')
+            },
+        )
     })
 
     test('user: delete TicketChange', async () => {
@@ -339,14 +351,17 @@ describe('TicketChange', () => {
             ticket: { id: ticket.id },
         })
 
-        await catchErrorFrom(async () => {
-            await TicketChange.delete(client, objCreated.id)
-        }, ({ errors, data }) => {
-            // Custom match should be used here, because error message contains
-            // suggestions, like "Did you mean …", that cannot be known in advance
-            // So, just inspect basic part of the message
-            expect(errors[0].message).toMatch('Cannot query field "deleteTicketChange" on type "Mutation"')
-        })
+        await catchErrorFrom(
+            async () => {
+                await TicketChange.delete(client, objCreated.id)
+            },
+            ({ errors, data }) => {
+                // Custom match should be used here, because error message contains
+                // suggestions, like "Did you mean …", that cannot be known in advance
+                // So, just inspect basic part of the message
+                expect(errors[0].message).toMatch('Cannot query field "deleteTicketChange" on type "Mutation"')
+            },
+        )
     })
 
     test('anonymous: delete TicketChange', async () => {
@@ -365,14 +380,17 @@ describe('TicketChange', () => {
             ticket: { id: ticket.id },
         })
 
-        await catchErrorFrom(async () => {
-            await TicketChange.delete(anonymous, objCreated.id)
-        }, ({ errors, data }) => {
-            // Custom match should be used here, because error message contains
-            // suggestions, like "Did you mean …", that cannot be known in advance
-            // So, just inspect basic part of the message
-            expect(errors[0].message).toMatch('Cannot query field "deleteTicketChange" on type "Mutation"')
-        })
+        await catchErrorFrom(
+            async () => {
+                await TicketChange.delete(anonymous, objCreated.id)
+            },
+            ({ errors, data }) => {
+                // Custom match should be used here, because error message contains
+                // suggestions, like "Did you mean …", that cannot be known in advance
+                // So, just inspect basic part of the message
+                expect(errors[0].message).toMatch('Cannot query field "deleteTicketChange" on type "Mutation"')
+            },
+        )
     })
 
     test('employee from "from" relation: can read ticket changes from his "to" relation organization', async () => {

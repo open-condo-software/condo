@@ -40,12 +40,13 @@ export const FocusContextProvider: React.FC = (props) => {
     }, [])
 
     return (
-        <FocusContext.Provider value={{
-            isFocusVisible,
-            showFocusTooltip,
-        }}>
+        <FocusContext.Provider
+            value={{
+                isFocusVisible,
+                showFocusTooltip,
+            }}
+        >
             {props.children}
         </FocusContext.Provider>
     )
 }
-

@@ -4,15 +4,15 @@ import React from 'react'
 import { colors } from '@condo/domains/common/constants/style'
 
 export const ErrorsWrapper = styled.div`
-  display: inline-block;
-  padding: 9px 16px;
-  border-radius: 8px;
-  background-color: ${colors.beautifulBlue[5]};
+    display: inline-block;
+    padding: 9px 16px;
+    border-radius: 8px;
+    background-color: ${colors.beautifulBlue[5]};
 `
 
 interface IErrorsContainerProps {
-    properties: string,
-    responsible: string,
+    properties: string
+    responsible: string
 }
 
 export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ properties, responsible }) => {
@@ -23,10 +23,8 @@ export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ properties, r
     const disableUserInteraction = !properties || properties.length === 0 || !responsible
 
     const errors = []
-    if (properties && properties.length === 0)
-        errors.push(PropertiesLabel)
-    if (!responsible)
-        errors.push(ResponsibleLabel)
+    if (properties && properties.length === 0) errors.push(PropertiesLabel)
+    if (!responsible) errors.push(ResponsibleLabel)
 
     return (
         disableUserInteraction && (

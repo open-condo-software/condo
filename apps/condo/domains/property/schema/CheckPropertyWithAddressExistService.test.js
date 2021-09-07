@@ -20,7 +20,7 @@ describe('CheckPropertyWithAddressExistService', async () => {
         const [result] = await checkPropertyWithAddressExistByTestClient(client, payload)
         expect(result).toStrictEqual(expectedResult)
     })
-    test('user don\'t find result', async () => {
+    test("user don't find result", async () => {
         const client = await makeClientWithProperty(false)
         const payload = {
             address: 'address',
@@ -41,11 +41,14 @@ describe('CheckPropertyWithAddressExistService', async () => {
                 address: client.property.address,
                 addressMeta: client.property.addressMeta,
             }
-            await catchErrorFrom(async () => {
-                await checkPropertyWithAddressExistByTestClient(client, payload)
-            }, ({ errors }) => {
-                expect(errors[0].message).toEqual(DV_VERSION_MISMATCH_MESSAGE)
-            })
+            await catchErrorFrom(
+                async () => {
+                    await checkPropertyWithAddressExistByTestClient(client, payload)
+                },
+                ({ errors }) => {
+                    expect(errors[0].message).toEqual(DV_VERSION_MISMATCH_MESSAGE)
+                },
+            )
         })
         test('if flat is specified without flat type', async () => {
             const client = await makeClientWithProperty(true)
@@ -54,11 +57,14 @@ describe('CheckPropertyWithAddressExistService', async () => {
                 address: client.property.address,
                 addressMeta: client.property.addressMeta,
             }
-            await catchErrorFrom(async () => {
-                await checkPropertyWithAddressExistByTestClient(client, payload)
-            }, ({ errors }) => {
-                expect(errors[0].message).toEqual(FLAT_WITHOUT_FLAT_TYPE_MESSAGE)
-            })
+            await catchErrorFrom(
+                async () => {
+                    await checkPropertyWithAddressExistByTestClient(client, payload)
+                },
+                ({ errors }) => {
+                    expect(errors[0].message).toEqual(FLAT_WITHOUT_FLAT_TYPE_MESSAGE)
+                },
+            )
         })
         test('if addressMeta json has invalid format ', async () => {
             const client = await makeClientWithProperty(true)
@@ -68,11 +74,16 @@ describe('CheckPropertyWithAddressExistService', async () => {
                     invalidField: 'invalid data',
                 },
             }
-            await catchErrorFrom(async () => {
-                await checkPropertyWithAddressExistByTestClient(client, payload)
-            }, ({ errors }) => {
-                expect(errors[0].message).toEqual('Variable "$data" got invalid value { invalidField: "invalid data" } at "data.addressMeta"; Field "dv" of required type "Int!" was not provided.')
-            })
+            await catchErrorFrom(
+                async () => {
+                    await checkPropertyWithAddressExistByTestClient(client, payload)
+                },
+                ({ errors }) => {
+                    expect(errors[0].message).toEqual(
+                        'Variable "$data" got invalid value { invalidField: "invalid data" } at "data.addressMeta"; Field "dv" of required type "Int!" was not provided.',
+                    )
+                },
+            )
         })
     })
 })

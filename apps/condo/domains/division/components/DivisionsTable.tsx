@@ -13,19 +13,18 @@ import { Table } from '@condo/domains/common/components/Table/Index'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { DatabaseFilled, DiffOutlined } from '@ant-design/icons'
 import { Button } from '@condo/domains/common/components/Button'
-import {  getFilter, getPageIndexFromOffset, getSorterMap, parseQuery, QueryMeta } from '@condo/domains/common/utils/tables.utils'
+import { getFilter, getPageIndexFromOffset, getSorterMap, parseQuery, QueryMeta } from '@condo/domains/common/utils/tables.utils'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { Division } from '@condo/domains/division/utils/clientSchema'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { colors } from '@condo/domains/common/constants/style'
 import { DivisionWhereInput, SortDivisionsBy } from '@app/condo/schema'
 
-
 type BuildingTableProps = {
     onSearch?: (properties: Division.IDivisionUIState[]) => void
 }
 
-export default function DivisionTable (props: BuildingTableProps) {
+export default function DivisionTable(props: BuildingTableProps) {
     const intl = useIntl()
 
     const CreateLabel = intl.formatMessage({ id: 'pages.condo.division.index.CreateDivisionButtonLabel' })
@@ -37,7 +36,10 @@ export default function DivisionTable (props: BuildingTableProps) {
 
     const router = useRouter()
 
-    const { organization, link: { role } } = useOrganization()
+    const {
+        organization,
+        link: { role },
+    } = useOrganization()
 
     const nameFilter = getFilter('name', 'single', 'string', 'contains_i')
     const propertiesFilter = (search: string) => ({
@@ -67,12 +69,7 @@ export default function DivisionTable (props: BuildingTableProps) {
         { keyword: 'name', filters: [nameFilter] },
         {
             keyword: 'search',
-            filters: [
-                nameFilter,
-                propertiesFilter,
-                responsibleFilter,
-                executorsFilter,
-            ],
+            filters: [nameFilter, propertiesFilter, responsibleFilter, executorsFilter],
             combineType: 'OR',
         },
     ]
@@ -85,18 +82,25 @@ export default function DivisionTable (props: BuildingTableProps) {
     const sorterMap = getSorterMap(sorters)
 
     const tableColumns = useTableColumns(sorterMap, filters)
-    const { loading, error, objs: divisions, count: total } = Division.useObjects({
-        sortBy: sortersToSortBy(sorters) as SortDivisionsBy[],
-        where: { ...filtersToWhere(filters), organization: { id: organization.id } },
-        skip: (currentPageIndex - 1) * PROPERTY_PAGE_SIZE,
-        first: PROPERTY_PAGE_SIZE,
-    }, {
-        fetchPolicy: 'network-only',
-        onCompleted: () => {
-            props.onSearch && props.onSearch(divisions)
+    const {
+        loading,
+        error,
+        objs: divisions,
+        count: total,
+    } = Division.useObjects(
+        {
+            sortBy: sortersToSortBy(sorters) as SortDivisionsBy[],
+            where: { ...filtersToWhere(filters), organization: { id: organization.id } },
+            skip: (currentPageIndex - 1) * PROPERTY_PAGE_SIZE,
+            first: PROPERTY_PAGE_SIZE,
         },
-    })
-
+        {
+            fetchPolicy: 'network-only',
+            onCompleted: () => {
+                props.onSearch && props.onSearch(divisions)
+            },
+        },
+    )
 
     const handleRowAction = (record) => {
         return {
@@ -126,38 +130,30 @@ export default function DivisionTable (props: BuildingTableProps) {
         <Row align={'middle'} gutter={[0, 40]}>
             <Col span={6}>
                 <Input
-
                     placeholder={SearchPlaceholder}
                     onChange={(e) => debouncedSearch(e.target.value)}
                     defaultValue={filters.address}
                 />
             </Col>
             <Col span={6} push={1}>
-                <Tooltip title={NotImplementedYetMessage} >
+                <Tooltip title={NotImplementedYetMessage}>
                     <Typography.Text
                         style={{
                             opacity: 70,
                             color: colors.sberGrey[4],
                         }}
                     >
-                        <Button
-                            type={'inlineLink'}
-                            icon={<DatabaseFilled />}
-                            target='_blank'
-                            rel='noreferrer'>{DownloadExcelLabel}
+                        <Button type={'inlineLink'} icon={<DatabaseFilled />} target="_blank" rel="noreferrer">
+                            {DownloadExcelLabel}
                         </Button>
                     </Typography.Text>
                 </Tooltip>
-
             </Col>
             <Col span={6} push={6}>
                 {role?.canManageProperties ? (
                     <Space size={16}>
-                        <Button
-                            type={'sberPrimary'}
-                            icon={<DiffOutlined />}
-                            secondary />
-                        <Button type='sberPrimary' onClick={() => router.push('/division/create')}>
+                        <Button type={'sberPrimary'} icon={<DiffOutlined />} secondary />
+                        <Button type="sberPrimary" onClick={() => router.push('/division/create')}>
                             {CreateLabel}
                         </Button>
                     </Space>
@@ -171,12 +167,16 @@ export default function DivisionTable (props: BuildingTableProps) {
                     onRow={handleRowAction}
                     columns={tableColumns}
                     pageSize={PROPERTY_PAGE_SIZE}
-                    applyQuery={(queryParams)=> {
-                        queryParams['tab'] = router.query['tab'] 
-                        const newQuery = qs.stringify({ ...queryParams }, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })
+                    applyQuery={(queryParams) => {
+                        queryParams['tab'] = router.query['tab']
+                        const newQuery = qs.stringify(
+                            { ...queryParams },
+                            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
+                        )
                         return router.push(router.route + newQuery)
                     }}
                 />
             </Col>
-        </Row>)
+        </Row>
+    )
 }

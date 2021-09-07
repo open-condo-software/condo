@@ -1,7 +1,11 @@
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 const { Integer } = require('@keystonejs/fields')
 const { Json } = require('@core/keystone/fields')
-const { JSON_UNKNOWN_VERSION_ERROR, REQUIRED_NO_VALUE_ERROR, JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/errors')
+const {
+    JSON_UNKNOWN_VERSION_ERROR,
+    REQUIRED_NO_VALUE_ERROR,
+    JSON_EXPECT_OBJECT_ERROR,
+} = require('@condo/domains/common/constants/errors')
 const { ADDRESS_META_FIELD_GRAPHQL_TYPES } = require('@condo/domains/property/schema/fields/AddressMetaField')
 
 const DV_FIELD = {
@@ -13,10 +17,11 @@ const DV_FIELD = {
 
 const SENDER_FIELD = {
     type: Json,
-    schemaDoc: 'Client-side devise identification used for the anti-fraud detection. ' +
-        'Example `{ dv: 1, fingerprint: \'VaxSw2aXZa\'}`. ' +
-        'Where the `fingerprint` should be the same for the same devices and it\'s not linked to the user ID. ' +
-        'It\'s the device ID like browser / mobile application / remote system',
+    schemaDoc:
+        'Client-side devise identification used for the anti-fraud detection. ' +
+        "Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. " +
+        "Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. " +
+        "It's the device ID like browser / mobile application / remote system",
     graphQLInputType: 'SenderFieldInput',
     graphQLReturnType: 'SenderField',
     graphQLAdminFragment: '{ dv fingerprint }',
@@ -28,17 +33,19 @@ const SENDER_FIELD = {
     kmigratorOptions: { null: false },
     hooks: {
         validateInput: (args) => {
-            if (!hasValidJsonStructure(args, true, 1, {
-                fingerprint: {
-                    presence: true,
-                    format: /^[a-zA-Z0-9!#$%()*+-;=,:[\]/.?@^_`{|}~]{5,42}$/,
-                    length: { minimum: 5, maximum: 42 },
-                },
-            })) return
+            if (
+                !hasValidJsonStructure(args, true, 1, {
+                    fingerprint: {
+                        presence: true,
+                        format: /^[a-zA-Z0-9!#$%()*+-;=,:[\]/.?@^_`{|}~]{5,42}$/,
+                        length: { minimum: 5, maximum: 42 },
+                    },
+                })
+            )
+                return
         },
     },
 }
-
 
 const ADDRESS_META_FIELD = {
     schemaDoc: 'Property address components',
@@ -49,9 +56,14 @@ const ADDRESS_META_FIELD = {
     kmigratorOptions: { null: false },
     hooks: {
         validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
-            if (!resolvedData.hasOwnProperty(fieldPath)) return addFieldValidationError(`${REQUIRED_NO_VALUE_ERROR}${fieldPath}] Value is required`)
+            if (!resolvedData.hasOwnProperty(fieldPath))
+                return addFieldValidationError(`${REQUIRED_NO_VALUE_ERROR}${fieldPath}] Value is required`)
             const value = resolvedData[fieldPath]
-            if (typeof value !== 'object' || value === null) { return addFieldValidationError(`${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] ${fieldPath} field type error. We expect JSON Object`) }
+            if (typeof value !== 'object' || value === null) {
+                return addFieldValidationError(
+                    `${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] ${fieldPath} field type error. We expect JSON Object`,
+                )
+            }
             const { dv } = value
             if (dv === 1) {
                 // TODO(pahaz): need to checkIt!

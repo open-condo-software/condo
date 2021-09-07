@@ -19,32 +19,21 @@ export const ApplyChangesActionBar = ({ handleSave, isLoading }) => {
 
     return (
         <Form.Item noStyle dependencies={['property']}>
-            {
-                ({ getFieldsValue }) => {
-                    const { property } = getFieldsValue(['property'])
+            {({ getFieldsValue }) => {
+                const { property } = getFieldsValue(['property'])
 
-                    return (
-                        <ActionBar>
-                            <FormResetButton
-                                type='sberPrimary'
-                                secondary
-                            />
-                            <Space size={12}>
-                                <Button
-                                    key='submit'
-                                    onClick={handleSave}
-                                    type='sberPrimary'
-                                    loading={isLoading}
-                                    disabled={!property}
-                                >
-                                    {ApplyChangesMessage}
-                                </Button>
-                                <ErrorsContainer property={property} />
-                            </Space>
-                        </ActionBar>
-                    )
-                }
-            }
+                return (
+                    <ActionBar>
+                        <FormResetButton type="sberPrimary" secondary />
+                        <Space size={12}>
+                            <Button key="submit" onClick={handleSave} type="sberPrimary" loading={isLoading} disabled={!property}>
+                                {ApplyChangesMessage}
+                            </Button>
+                            <ErrorsContainer property={property} />
+                        </Space>
+                    </ActionBar>
+                )
+            }}
         </Form.Item>
     )
 }
@@ -60,7 +49,7 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
     const { obj, loading, refetch, error } = Ticket.useObject({ where: { id } })
     const { objs: files, refetch: refetchFiles } = TicketFile.useObjects({ where: { ticket: { id } } })
     const { organization, link } = useOrganization()
-    
+
     // no redirect after mutation as we need to wait for ticket files to save
     const action = Ticket.useUpdate({}, () => null)
     const updateAction = (value) => action(value, obj)
@@ -68,14 +57,14 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
     useEffect(() => {
         refetch()
         refetchFiles()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
-        
+
     if (error || loading) {
         return (
             <>
-                {(loading) ? <Loader fill size={'large'}/> : null}
-                {(error) ? <Typography.Title>{error}</Typography.Title> : null}
+                {loading ? <Loader fill size={'large'} /> : null}
+                {error ? <Typography.Title>{error}</Typography.Title> : null}
             </>
         )
     }
@@ -91,7 +80,7 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
                 push(`/ticket/${ticket.id}`)
             }}
         >
-            {({ handleSave, isLoading }) => <ApplyChangesActionBar handleSave={handleSave} isLoading={isLoading}/>}
+            {({ handleSave, isLoading }) => <ApplyChangesActionBar handleSave={handleSave} isLoading={isLoading} />}
         </BaseTicketForm>
     )
 }

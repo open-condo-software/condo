@@ -36,9 +36,7 @@ export const Tag: React.FC<ITagProps> = ({ children, type, style }) => {
     const backgroundColor = get(theme, 'backgroundColor', undefined)
     return (
         <DefaultTag color={backgroundColor} style={style ? style : {}}>
-            <Typography.Text style={textColor ? { color: textColor } : {}}>
-                {children}
-            </Typography.Text>
+            <Typography.Text style={textColor ? { color: textColor } : {}}>{children}</Typography.Text>
         </DefaultTag>
     )
 }

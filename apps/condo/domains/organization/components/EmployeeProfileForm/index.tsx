@@ -36,7 +36,12 @@ export const EmployeeProfileForm = () => {
 
     const { query, push } = useRouter()
 
-    const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject({ where: { id: String(get(query, 'id', '')) } })
+    const {
+        obj: employee,
+        loading,
+        error,
+        refetch,
+    } = OrganizationEmployee.useObject({ where: { id: String(get(query, 'id', '')) } })
     const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => {
         refetch().then(() => {
             push(`/employee/${get(query, 'id')}/`)
@@ -44,7 +49,7 @@ export const EmployeeProfileForm = () => {
     })
 
     if (error) {
-        return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null}/>
+        return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null} />
     }
     if (loading) {
         return <Loader />
@@ -79,26 +84,18 @@ export const EmployeeProfileForm = () => {
                 return (
                     <Row>
                         <Col span={3}>
-                            <UserAvatar borderRadius={24} isBlocked={get(employee, 'isBlocked')}/>
+                            <UserAvatar borderRadius={24} isBlocked={get(employee, 'isBlocked')} />
                         </Col>
                         <Col span={20} push={1}>
                             <Row gutter={[0, 40]}>
                                 <Col span={24}>
-                                    <Typography.Title
-                                        level={1}
-                                        style={{ margin: 0, fontWeight: 'bold' }}
-                                    >
+                                    <Typography.Title level={1} style={{ margin: 0, fontWeight: 'bold' }}>
                                         {ProfileUpdateTitle}
                                     </Typography.Title>
                                 </Col>
                                 <Col span={24}>
-                                    <Form.Item
-                                        {...INPUT_LAYOUT_PROPS}
-                                        labelAlign={'left'}
-                                        name={'role'}
-                                        label={RoleLabel}
-                                    >
-                                        <EmployeeRoleSelect employee={employee}/>
+                                    <Form.Item {...INPUT_LAYOUT_PROPS} labelAlign={'left'} name={'role'} label={RoleLabel}>
+                                        <EmployeeRoleSelect employee={employee} />
                                     </Form.Item>
                                     <Form.Item
                                         {...INPUT_LAYOUT_PROPS}
@@ -106,19 +103,11 @@ export const EmployeeProfileForm = () => {
                                         name={'position'}
                                         label={PositionLabel}
                                     >
-                                        <Input/>
+                                        <Input />
                                     </Form.Item>
                                     <Space size={40} style={{ paddingTop: '36px' }}>
-                                        <FormResetButton
-                                            type={'sberPrimary'}
-                                            secondary
-                                        />
-                                        <Button
-                                            key={'submit'}
-                                            onClick={handleSave}
-                                            type={'sberPrimary'}
-                                            loading={isLoading}
-                                        >
+                                        <FormResetButton type={'sberPrimary'} secondary />
+                                        <Button key={'submit'} onClick={handleSave} type={'sberPrimary'} loading={isLoading}>
                                             {ApplyChangesMessage}
                                         </Button>
                                     </Space>
@@ -131,4 +120,3 @@ export const EmployeeProfileForm = () => {
         </FormWithAction>
     )
 }
-

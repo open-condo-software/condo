@@ -10,7 +10,23 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { Property as PropertyGQL } from '@condo/domains/property/gql'
 import { Property, PropertyUpdateInput, QueryAllPropertiesArgs } from '@condo/domains/property/schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'name', 'address', 'addressMeta', 'type', 'map', 'ticketsInWork', 'ticketsClosed', 'unitsCount']
+const FIELDS = [
+    'id',
+    'deletedAt',
+    'createdAt',
+    'updatedAt',
+    'createdBy',
+    'updatedBy',
+    'organization',
+    'name',
+    'address',
+    'addressMeta',
+    'type',
+    'map',
+    'ticketsInWork',
+    'ticketsClosed',
+    'unitsCount',
+]
 const RELATIONS = ['organization']
 import { BuildingMap, AddressMetaField } from '../../../../schema'
 
@@ -25,7 +41,7 @@ export interface IPropertyUIState extends Property {
     map?: BuildingMap
 }
 
-function convertToUIState (item: Property): IPropertyUIState {
+function convertToUIState(item: Property): IPropertyUIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
     const result = pick(item, FIELDS) as IPropertyUIState
     return result
@@ -42,27 +58,27 @@ export interface IPropertyFormState {
     // TODO(codegen): write IPropertyUIFormState or extends it from
 }
 
-function convertToUIFormState (state: IPropertyUIState): IPropertyFormState | undefined {
+function convertToUIFormState(state: IPropertyUIState): IPropertyFormState | undefined {
     if (!state) return
     const result = {}
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? attrId || state[attr] : state[attr]
     }
     return result as IPropertyFormState
 }
 
-function convertToGQLInput (state: IPropertyFormState): PropertyUpdateInput {
+function convertToGQLInput(state: IPropertyFormState): PropertyUpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? { connect: { id: attrId || state[attr] } } : state[attr]
     }
     return result
 }
 
-function extractAttributes (state: IPropertyUIState, attributes: Array<string>): IPropertyUIState | undefined {
+function extractAttributes(state: IPropertyUIState, attributes: Array<string>): IPropertyUIState | undefined {
     const result = {}
     attributes.forEach((attribute) => {
         if (RELATIONS.includes(attribute)) {
@@ -74,22 +90,12 @@ function extractAttributes (state: IPropertyUIState, attributes: Array<string>):
     return result as IPropertyUIState
 }
 
-const {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-    useSoftDelete,
-} = generateReactHooks<Property, PropertyUpdateInput, IPropertyFormState, IPropertyUIState, QueryAllPropertiesArgs>(PropertyGQL, { convertToGQLInput, convertToUIState })
+const { useObject, useObjects, useCreate, useUpdate, useDelete, useSoftDelete } = generateReactHooks<
+    Property,
+    PropertyUpdateInput,
+    IPropertyFormState,
+    IPropertyUIState,
+    QueryAllPropertiesArgs
+>(PropertyGQL, { convertToGQLInput, convertToUIState })
 
-export {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-    useSoftDelete,
-    convertToUIFormState,
-    extractAttributes,
-}
+export { useObject, useObjects, useCreate, useUpdate, useDelete, useSoftDelete, convertToUIFormState, extractAttributes }

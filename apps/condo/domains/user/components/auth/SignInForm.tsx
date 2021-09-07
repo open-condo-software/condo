@@ -46,27 +46,30 @@ export const SignInForm = (): React.ReactElement => {
         }
     }, [intl])
 
-    const onFormSubmit = useCallback((values) => {
-        setIsLoading(true)
+    const onFormSubmit = useCallback(
+        (values) => {
+            setIsLoading(true)
 
-        return runMutation({
-            mutation: signinByPhoneAndPassword,
-            variables: values,
-            onCompleted: () => {
-                refetch().then(() => {
-                    Router.push(next ? next : '/')
-                })
-            },
-            onFinally: () => {
+            return runMutation({
+                mutation: signinByPhoneAndPassword,
+                variables: values,
+                onCompleted: () => {
+                    refetch().then(() => {
+                        Router.push(next ? next : '/')
+                    })
+                },
+                onFinally: () => {
+                    setIsLoading(false)
+                },
+                intl,
+                form,
+                ErrorToFormFieldMsgMapping,
+            }).catch(() => {
                 setIsLoading(false)
-            },
-            intl,
-            form,
-            ErrorToFormFieldMsgMapping,
-        }).catch(() => {
-            setIsLoading(false)
-        })
-    }, [intl, form])
+            })
+        },
+        [intl, form],
+    )
 
     const initialValues = { password: '', phone: '' }
 
@@ -74,30 +77,26 @@ export const SignInForm = (): React.ReactElement => {
         <Form
             {...FORM_LAYOUT}
             form={form}
-            name='signin'
-            labelAlign='left'
+            name="signin"
+            labelAlign="left"
             onFinish={onFormSubmit}
             initialValues={initialValues}
             colon={false}
             requiredMark={false}
         >
             <Row gutter={[0, 60]}>
-                <Col span={24} >
+                <Col span={24}>
                     <Row gutter={[0, 24]}>
                         <Col span={24}>
-                            <Form.Item
-                                name='phone'
-                                label={PhoneMsg}
-                                rules={[{ required: true, message: FieldIsRequiredMsg }]}
-                            >
-                                <PhoneInput placeholder={ExamplePhoneMsg} tabIndex={1} style={{ width: '100%' }}/>
+                            <Form.Item name="phone" label={PhoneMsg} rules={[{ required: true, message: FieldIsRequiredMsg }]}>
+                                <PhoneInput placeholder={ExamplePhoneMsg} tabIndex={1} style={{ width: '100%' }} />
                             </Form.Item>
                         </Col>
                         <Col span={24}>
                             <Form.Item
-                                name='password'
+                                name="password"
                                 label={PasswordMsg}
-                                labelAlign='left'
+                                labelAlign="left"
                                 rules={[{ required: true, message: FieldIsRequiredMsg }]}
                             >
                                 <Input.Password tabIndex={2} />
@@ -107,17 +106,12 @@ export const SignInForm = (): React.ReactElement => {
                 </Col>
                 <Col span={24}>
                     <Row justify={'space-between'} align={'middle'}>
-                        <Button
-                            key='submit'
-                            type='sberPrimary'
-                            htmlType='submit'
-                            loading={isLoading}
-                        >
+                        <Button key="submit" type="sberPrimary" htmlType="submit" loading={isLoading}>
                             {SignInMsg}
                         </Button>
-                        <Typography.Text type='secondary'>
+                        <Typography.Text type="secondary">
                             <FormattedMessage
-                                id='pages.auth.signin.ResetPasswordLink'
+                                id="pages.auth.signin.ResetPasswordLink"
                                 values={{
                                     link: (
                                         <Button type={'inlineLink'} size={'small'} onClick={() => Router.push('/auth/forgot')}>
@@ -130,7 +124,6 @@ export const SignInForm = (): React.ReactElement => {
                     </Row>
                 </Col>
             </Row>
-
         </Form>
     )
 }

@@ -15,24 +15,19 @@ import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayer
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { Button } from '@condo/domains/common/components/Button'
 import { useOrganization } from '@core/next/organization'
-import  { TicketCard } from '@condo/domains/common/components/TicketCard/TicketCard'
+import { TicketCard } from '@condo/domains/common/components/TicketCard/TicketCard'
 import { canManageContacts } from '@condo/domains/organization/permissions'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
 const FieldPairRow = (props) => {
-    const {
-        fieldTitle,
-        fieldValue,
-    } = props
+    const { fieldTitle, fieldValue } = props
     return (
         <>
             <Col span={8}>
-                <Typography.Text type='secondary'>
-                    {fieldTitle}
-                </Typography.Text>
+                <Typography.Text type="secondary">{fieldTitle}</Typography.Text>
             </Col>
             <Col span={16} style={{ width: '100%' }}>
-                <NotDefinedField value={fieldValue}/>
+                <NotDefinedField value={fieldValue} />
             </Col>
         </>
     )
@@ -40,7 +35,7 @@ const FieldPairRow = (props) => {
 
 export const ContactPageContent = ({ organization, contact, isContactEditable }) => {
     const intl = useIntl()
-    const ContactLabel = intl.formatMessage({ id:'Contact' }).toLowerCase()
+    const ContactLabel = intl.formatMessage({ id: 'Contact' }).toLowerCase()
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
@@ -61,38 +56,24 @@ export const ContactPageContent = ({ organization, contact, isContactEditable })
             <PageWrapper>
                 <Row gutter={[0, 40]}>
                     <Col span={3}>
-                        <UserAvatar borderRadius={24}/>
+                        <UserAvatar borderRadius={24} />
                     </Col>
                     <Col span={20} push={1}>
                         <Row gutter={[0, 60]}>
                             <Col span={15}>
                                 <Row gutter={[0, 40]}>
                                     <Col span={24}>
-                                        <Typography.Title>
-                                            {contactName}
-                                        </Typography.Title>
-                                        <Typography.Title
-                                            level={2}
-                                            style={{ margin: '8px 0 0', fontWeight: 400 }}
-                                        >
+                                        <Typography.Title>{contactName}</Typography.Title>
+                                        <Typography.Title level={2} style={{ margin: '8px 0 0', fontWeight: 400 }}>
                                             {ContactLabel}
                                         </Typography.Title>
                                     </Col>
                                     <Col span={24}>
                                         <FrontLayerContainer>
                                             <Row gutter={[0, 24]}>
-                                                <FieldPairRow
-                                                    fieldTitle={AddressLabel}
-                                                    fieldValue={contactAddress}
-                                                />
-                                                <FieldPairRow
-                                                    fieldTitle={PhoneLabel}
-                                                    fieldValue={get(contact, ['phone'])}
-                                                />
-                                                <FieldPairRow
-                                                    fieldTitle={EmailLabel}
-                                                    fieldValue={get(contact, ['email'])}
-                                                />
+                                                <FieldPairRow fieldTitle={AddressLabel} fieldValue={contactAddress} />
+                                                <FieldPairRow fieldTitle={PhoneLabel} fieldValue={get(contact, ['phone'])} />
+                                                <FieldPairRow fieldTitle={EmailLabel} fieldValue={get(contact, ['email'])} />
                                             </Row>
                                         </FrontLayerContainer>
                                     </Col>
@@ -100,12 +81,7 @@ export const ContactPageContent = ({ organization, contact, isContactEditable })
                                         <Col span={24}>
                                             <Space direction={'horizontal'} size={40}>
                                                 <Link href={`/contact/${get(contact, 'id')}/update`}>
-                                                    <Button
-                                                        color={'green'}
-                                                        type={'sberPrimary'}
-                                                        secondary
-                                                        icon={<EditFilled />}
-                                                    >
+                                                    <Button color={'green'} type={'sberPrimary'} secondary icon={<EditFilled />}>
                                                         {UpdateMessage}
                                                     </Button>
                                                 </Link>
@@ -114,7 +90,7 @@ export const ContactPageContent = ({ organization, contact, isContactEditable })
                                     )}
                                 </Row>
                             </Col>
-                            <Col span={1}/>
+                            <Col span={1} />
                             <Col span={8}>
                                 <Affix offsetTop={40}>
                                     <TicketCard
@@ -161,26 +137,18 @@ const ContactInfoPage = () => {
     })
 
     if (error || loading) {
-        return <LoadingOrErrorPage title={LoadingMessage} loading={loading} error={error ? ErrorMessage : null}/>
+        return <LoadingOrErrorPage title={LoadingMessage} loading={loading} error={error ? ErrorMessage : null} />
     }
     if (!contact) {
-        return <LoadingOrErrorPage title={ContactNotFoundTitle} loading={false} error={ContactNotFoundMessage}/>
+        return <LoadingOrErrorPage title={ContactNotFoundTitle} loading={false} error={ContactNotFoundMessage} />
     }
 
     const isContactEditable = canManageContacts(link, contact)
 
-    return (
-        <ContactPageContent
-            organization={organization}
-            contact={contact}
-            isContactEditable={isContactEditable}
-        />
-    )
+    return <ContactPageContent organization={organization} contact={contact} isContactEditable={isContactEditable} />
 }
 
-ContactInfoPage.headerAction = <ReturnBackHeaderAction
-    descriptor={{ id: 'pages.condo.contact.PageTitle' }}
-    path={'/contact/'}/>
+ContactInfoPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'pages.condo.contact.PageTitle' }} path={'/contact/'} />
 ContactInfoPage.requiredAccess = OrganizationRequired
 
 export default ContactInfoPage

@@ -18,7 +18,7 @@ export interface IBillingCurrencyUIState extends BillingCurrency {
     // TODO(codegen): write IBillingCurrencyUIState or extends it from
 }
 
-function convertToUIState (item: BillingCurrency): IBillingCurrencyUIState {
+function convertToUIState(item: BillingCurrency): IBillingCurrencyUIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
     return pick(item, FIELDS) as IBillingCurrencyUIState
 }
@@ -28,39 +28,32 @@ export interface IBillingCurrencyFormState {
     // TODO(codegen): write IBillingCurrencyUIFormState or extends it from
 }
 
-function convertToUIFormState (state: IBillingCurrencyUIState): IBillingCurrencyFormState | undefined {
+function convertToUIFormState(state: IBillingCurrencyUIState): IBillingCurrencyFormState | undefined {
     if (!state) return
     const result = {}
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? attrId || state[attr] : state[attr]
     }
     return result as IBillingCurrencyFormState
 }
 
-function convertToGQLInput (state: IBillingCurrencyFormState): BillingCurrencyUpdateInput {
+function convertToGQLInput(state: IBillingCurrencyFormState): BillingCurrencyUpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? { connect: { id: attrId || state[attr] } } : state[attr]
     }
     return result
 }
 
-const {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-} = generateReactHooks<BillingCurrency, BillingCurrencyUpdateInput, IBillingCurrencyFormState, IBillingCurrencyUIState, QueryAllBillingCurrenciesArgs>(BillingCurrencyGQL, { convertToGQLInput, convertToUIState })
+const { useObject, useObjects, useCreate, useUpdate, useDelete } = generateReactHooks<
+    BillingCurrency,
+    BillingCurrencyUpdateInput,
+    IBillingCurrencyFormState,
+    IBillingCurrencyUIState,
+    QueryAllBillingCurrenciesArgs
+>(BillingCurrencyGQL, { convertToGQLInput, convertToUIState })
 
-export {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-    convertToUIFormState,
-}
+export { useObject, useObjects, useCreate, useUpdate, useDelete, convertToUIFormState }

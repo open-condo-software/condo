@@ -1,11 +1,6 @@
 import React, { useCallback, useState } from 'react'
 import { IContextProps } from './index'
-import {
-    QueryMeta,
-    getStringContainsFilter,
-    getPageIndexFromOffset,
-    parseQuery,
-} from '@condo/domains/common/utils/tables.utils'
+import { QueryMeta, getStringContainsFilter, getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
@@ -84,22 +79,23 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
         setModalIsVisible(false)
     }
 
-    const onRow = useCallback((record: IBillingReceiptUIState) => {
-        return {
-            onClick: () => {
-                if (hasServices) {
-                    showServiceModal(record)
-                }
-            },
-        }
-    }, [hasServices])
+    const onRow = useCallback(
+        (record: IBillingReceiptUIState) => {
+            return {
+                onClick: () => {
+                    if (hasServices) {
+                        showServiceModal(record)
+                    }
+                },
+            }
+        },
+        [hasServices],
+    )
 
     if (error) {
         return (
             <BasicEmptyListView>
-                <Typography.Title level={4}>
-                    {LoadingErrorMessage}
-                </Typography.Title>
+                <Typography.Title level={4}>{LoadingErrorMessage}</Typography.Title>
             </BasicEmptyListView>
         )
     }
@@ -110,38 +106,27 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
                 <Col span={7}>
                     <Input
                         placeholder={SearchPlaceholder}
-                        onChange={(e) => {handleSearchChange(e.target.value)}}
+                        onChange={(e) => {
+                            handleSearchChange(e.target.value)
+                        }}
                         value={search}
                     />
                 </Col>
                 {options.length > 0 && (
                     <Col span={7} offset={1}>
-                        <Select
-                            defaultValue={contextPeriod}
-                            value={period}
-                            onChange={(newValue) => handlePeriodChange(newValue)}
-                        >
-                            {
-                                options.map((option, index) => {
-                                    return (
-                                        <Select.Option value={option.period} key={index}>
-                                            {`${DataForTitle} ${option.title}`}
-                                        </Select.Option>
-                                    )
-                                })
-                            }
+                        <Select defaultValue={contextPeriod} value={period} onChange={(newValue) => handlePeriodChange(newValue)}>
+                            {options.map((option, index) => {
+                                return (
+                                    <Select.Option value={option.period} key={index}>
+                                        {`${DataForTitle} ${option.title}`}
+                                    </Select.Option>
+                                )
+                            })}
                         </Select>
                     </Col>
-
                 )}
                 <Col span={24}>
-                    <Table
-                        loading={loading}
-                        totalRows={total}
-                        dataSource={receipts}
-                        columns={mainTableColumns}
-                        onRow={onRow}
-                    />
+                    <Table loading={loading} totalRows={total} dataSource={receipts} columns={mainTableColumns} onRow={onRow} />
                 </Col>
             </Row>
             <ServicesModal

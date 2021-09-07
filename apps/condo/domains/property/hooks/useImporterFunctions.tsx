@@ -43,9 +43,12 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
-    const createPropertyAction = Property.useCreate({
-        organization: userOrganizationId,
-    }, () => Promise.resolve())
+    const createPropertyAction = Property.useCreate(
+        {
+            organization: userOrganizationId,
+        },
+        () => Promise.resolve(),
+    )
 
     const columns: Columns = [
         { name: 'address', type: 'string', required: true },
@@ -63,17 +66,16 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     }
 
     const propertyValidator: RowValidator = (row) => {
-        if (!row ) return Promise.resolve(false)
+        if (!row) return Promise.resolve(false)
         const address = get(row.addons, ['suggestion', 'value'])
         if (!address) return Promise.resolve(false)
         const where = {
             address: address,
             organization: { id: userOrganizationId },
         }
-        return searchProperty(client, where, undefined)
-            .then((res) => {
-                return res.length === 0
-            })
+        return searchProperty(client, where, undefined).then((res) => {
+            return res.length === 0
+        })
     }
 
     const propertyCreator: ObjectCreator = (row) => {

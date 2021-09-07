@@ -20,23 +20,27 @@ describe('Helpers', () => {
                     const search = 'search'
                     const position = 'position'
 
-                    expect(filtersToQuery({
-                        name,
-                        phone,
-                        email,
-                        role,
-                        search,
-                        position,
-                    })).toStrictEqual({
+                    expect(
+                        filtersToQuery({
+                            name,
+                            phone,
+                            email,
+                            role,
+                            search,
+                            position,
+                        }),
+                    ).toStrictEqual({
                         AND: [
                             { name_contains_i: name },
                             { phone_contains_i: phone },
                             { email_contains_i: email },
                             {
                                 role: {
-                                    AND: [{
-                                        id_in: role,
-                                    }],
+                                    AND: [
+                                        {
+                                            id_in: role,
+                                        },
+                                    ],
                                 },
                             },
                             { position_contains_i: position },
@@ -47,9 +51,11 @@ describe('Helpers', () => {
                                     { email_contains_i: search },
                                     {
                                         role: {
-                                            AND: [{
-                                                name_contains_i: search,
-                                            }],
+                                            AND: [
+                                                {
+                                                    name_contains_i: search,
+                                                },
+                                            ],
                                         },
                                     },
                                     { position_contains_i: search },
@@ -64,9 +70,7 @@ describe('Helpers', () => {
                         const name = 'name'
 
                         expect(filtersToQuery({ name })).toStrictEqual({
-                            AND: [
-                                { name_contains_i: name },
-                            ],
+                            AND: [{ name_contains_i: name }],
                         })
                     })
 
@@ -74,9 +78,7 @@ describe('Helpers', () => {
                         const phone = 'phone'
 
                         expect(filtersToQuery({ phone })).toStrictEqual({
-                            AND: [
-                                { phone_contains_i: phone },
-                            ],
+                            AND: [{ phone_contains_i: phone }],
                         })
                     })
 
@@ -84,9 +86,7 @@ describe('Helpers', () => {
                         const email = 'email'
 
                         expect(filtersToQuery({ email })).toStrictEqual({
-                            AND: [
-                                { email_contains_i: email },
-                            ],
+                            AND: [{ email_contains_i: email }],
                         })
                     })
 
@@ -97,9 +97,11 @@ describe('Helpers', () => {
                             AND: [
                                 {
                                     role: {
-                                        AND: [{
-                                            id_in: role,
-                                        }],
+                                        AND: [
+                                            {
+                                                id_in: role,
+                                            },
+                                        ],
                                     },
                                 },
                             ],
@@ -118,9 +120,11 @@ describe('Helpers', () => {
                                         { email_contains_i: search },
                                         {
                                             role: {
-                                                AND: [{
-                                                    name_contains_i: search,
-                                                }],
+                                                AND: [
+                                                    {
+                                                        name_contains_i: search,
+                                                    },
+                                                ],
                                             },
                                         },
                                         { position_contains_i: search },
@@ -140,26 +144,32 @@ describe('Helpers', () => {
         describe('sorterToQuery', () => {
             describe('should correctly generate query from sorter', () => {
                 it('if sorter is Array if objects', () => {
-                    expect(sorterToQuery([
-                        { columnKey: 'column1', order: 'ascend' },
-                        { columnKey: 'column2', order: 'descend' },
-                    ])).toStrictEqual(['column1_ASC', 'column2_DESC'])
+                    expect(
+                        sorterToQuery([
+                            { columnKey: 'column1', order: 'ascend' },
+                            { columnKey: 'column2', order: 'descend' },
+                        ]),
+                    ).toStrictEqual(['column1_ASC', 'column2_DESC'])
                 })
 
                 it('if sorter is Single object', () => {
-                    expect(sorterToQuery({
-                        columnKey: 'column1',
-                        order: 'ascend',
-                    })).toStrictEqual(['column1_ASC'])
+                    expect(
+                        sorterToQuery({
+                            columnKey: 'column1',
+                            order: 'ascend',
+                        }),
+                    ).toStrictEqual(['column1_ASC'])
                 })
             })
 
             it('should drop sort if order is invalid', () => {
-                expect(sorterToQuery([
-                    { columnKey: 'column1', order: 'ascend' },
-                    // @ts-ignore
-                    { columnKey: 'column2', order: 'invalid_descend' },
-                ])).toStrictEqual(['column1_ASC'])
+                expect(
+                    sorterToQuery([
+                        { columnKey: 'column1', order: 'ascend' },
+                        // @ts-ignore
+                        { columnKey: 'column2', order: 'invalid_descend' },
+                    ]),
+                ).toStrictEqual(['column1_ASC'])
             })
 
             it('should not generate query if no sort is provided', () => {
@@ -234,7 +244,6 @@ describe('Helpers', () => {
                     expect(queryToSorter([' '])).toStrictEqual([])
                 })
             })
-
         })
 
         describe('getSortStringFromQuery', () => {
@@ -265,12 +274,10 @@ describe('Helpers', () => {
                     expect(getPageIndexFromQuery({ offset: undefined })).toStrictEqual(1)
                 })
             })
-
         })
 
         describe('searchToQuery', () => {
             describe('it should correctly generate query if', () => {
-
                 it('search is a string', () => {
                     const search = 'search'
 
@@ -280,15 +287,16 @@ describe('Helpers', () => {
                         { email_contains_i: search },
                         {
                             role: {
-                                AND: [{
-                                    name_contains_i: search,
-                                }],
+                                AND: [
+                                    {
+                                        name_contains_i: search,
+                                    },
+                                ],
                             },
                         },
                         { position_contains_i: search },
                     ])
                 })
-
 
                 it('search is string that can be converted to a number', () => {
                     const search = '10'
@@ -299,9 +307,11 @@ describe('Helpers', () => {
                         { email_contains_i: search },
                         {
                             role: {
-                                AND: [{
-                                    name_contains_i: search,
-                                }],
+                                AND: [
+                                    {
+                                        name_contains_i: search,
+                                    },
+                                ],
                             },
                         },
                         { position_contains_i: search },

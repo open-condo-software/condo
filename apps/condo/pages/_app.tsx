@@ -51,56 +51,17 @@ const MenuItems: React.FC = () => {
         <>
             <FocusElement>
                 <OnBoardingProgressIconContainer>
-                    <MenuItem
-                        path={'/onboarding'}
-                        icon={OnBoardingProgress}
-                        label={'menu.OnBoarding'}
-                    />
+                    <MenuItem path={'/onboarding'} icon={OnBoardingProgress} label={'menu.OnBoarding'} />
                 </OnBoardingProgressIconContainer>
             </FocusElement>
-            <MenuItem
-                path={'/reports'}
-                icon={BarChartIcon}
-                label={'menu.Analytics'}
-                disabled={!link}
-            />
-            <MenuItem
-                path={'/ticket'}
-                icon={ThunderboltFilled}
-                label={'menu.ControlRoom'}
-                disabled={!link}
-            />
-            <MenuItem
-                path={'/property'}
-                icon={HomeFilled}
-                label={'menu.Property'}
-                disabled={!link}
-            />
-            <MenuItem
-                path={'/contact'}
-                icon={UserIcon}
-                label={'menu.Contacts'}
-                disabled={!link}
-            />
-            <MenuItem
-                path={'/employee'}
-                icon={UserIcon}
-                label={'menu.Employees'}
-                disabled={!link}
-            />
+            <MenuItem path={'/reports'} icon={BarChartIcon} label={'menu.Analytics'} disabled={!link} />
+            <MenuItem path={'/ticket'} icon={ThunderboltFilled} label={'menu.ControlRoom'} disabled={!link} />
+            <MenuItem path={'/property'} icon={HomeFilled} label={'menu.Property'} disabled={!link} />
+            <MenuItem path={'/contact'} icon={UserIcon} label={'menu.Contacts'} disabled={!link} />
+            <MenuItem path={'/employee'} icon={UserIcon} label={'menu.Employees'} disabled={!link} />
             <FeatureFlagRequired name={'billing'}>
-                <MenuItem
-                    path={'/billing'}
-                    icon={ApiFilled}
-                    label={'menu.Billing'}
-                    disabled={!link}
-                />
-                <MenuItem
-                    path={'/settings'}
-                    icon={SettingFilled}
-                    label={'menu.Settings'}
-                    disabled={!link}
-                />
+                <MenuItem path={'/billing'} icon={ApiFilled} label={'menu.Billing'} disabled={!link} />
+                <MenuItem path={'/settings'} icon={SettingFilled} label={'menu.Settings'} disabled={!link} />
             </FeatureFlagRequired>
         </>
     )
@@ -118,26 +79,28 @@ const MyApp = ({ Component, pageProps }) => {
         <GlobalErrorBoundary>
             <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize={'large'}>
                 <CacheProvider value={cache}>
-                    <GlobalStyle/>
+                    <GlobalStyle />
                     <FocusContextProvider>
                         <OnBoardingProvider>
-                            <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                            <LayoutComponent menuData={<MenuItems />} headerAction={HeaderAction}>
                                 <RequiredAccess>
                                     <Component {...pageProps} />
                                 </RequiredAccess>
                             </LayoutComponent>
                         </OnBoardingProvider>
                     </FocusContextProvider>
-                    <GoogleAnalytics/>
-                    <BehaviorRecorder engine="plerdy"/>
+                    <GoogleAnalytics />
+                    <BehaviorRecorder engine="plerdy" />
                 </CacheProvider>
             </ConfigProvider>
         </GlobalErrorBoundary>
     )
 }
-const { publicRuntimeConfig: { defaultLocale } } = getConfig()
+const {
+    publicRuntimeConfig: { defaultLocale },
+} = getConfig()
 
-async function messagesImporter (locale) {
+async function messagesImporter(locale) {
     const locale_data = await import(`../lang/${locale}`)
     return { ...locale_data.default }
 }
@@ -161,15 +124,13 @@ const apolloClientConfig = {
     },
 }
 
-export default (
-    withApollo({ ssr: true, apolloCacheConfig, apolloClientConfig })(
-        withIntl({ ssr: true, messagesImporter, extractReqLocale, defaultLocale })(
-            withAuth({ ssr: true })(
-                withOrganization({
-                    ssr: true,
-                    GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
-                })(MyApp)
-            )
-        )
-    )
+export default withApollo({ ssr: true, apolloCacheConfig, apolloClientConfig })(
+    withIntl({ ssr: true, messagesImporter, extractReqLocale, defaultLocale })(
+        withAuth({ ssr: true })(
+            withOrganization({
+                ssr: true,
+                GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
+            })(MyApp),
+        ),
+    ),
 )

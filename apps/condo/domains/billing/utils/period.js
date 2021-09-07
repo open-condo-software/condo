@@ -1,6 +1,6 @@
 const { DateTime } = require('luxon')
 
-function getPeriodMessage (period, locale) {
+function getPeriodMessage(period, locale) {
     if (!period) return
     let dt = DateTime.fromISO(period)
     if (!dt.isValid) return
@@ -11,10 +11,10 @@ function getPeriodMessage (period, locale) {
     return `${month} ${dt.year}`
 }
 
-function getPreviousPeriods (period, totalAmount = 3) {
+function getPreviousPeriods(period, totalAmount = 3) {
     if (!period || !totalAmount || totalAmount < 1) return []
     let date = DateTime.fromISO(period)
-    if (!date.isValid) return  []
+    if (!date.isValid) return []
     const result = []
     for (let i = 0; i < totalAmount; i++) {
         result.push(date.toFormat('yyyy-MM-01'))

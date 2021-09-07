@@ -6,7 +6,7 @@ import { Tooltip } from './Tooltip'
 
 const StyledSpace = styled(Space)`
     &:hover {
-      cursor: help;
+        cursor: help;
     }
 `
 
@@ -16,10 +16,10 @@ interface ILabelWithInfo {
 }
 
 export const LabelWithInfo: React.FC<ILabelWithInfo> = ({ title, message }) => (
-    <Tooltip placement='topLeft' title={title}>
+    <Tooltip placement="topLeft" title={title}>
         <StyledSpace>
             {message}
-            <QuestionCircleOutlined/>
+            <QuestionCircleOutlined />
         </StyledSpace>
     </Tooltip>
 )

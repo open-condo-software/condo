@@ -29,38 +29,30 @@ export const CreateDivisionForm: React.FC = () => {
     const action = Division.useCreate(attrs, handleComplete)
 
     return (
-        <BaseDivisionForm
-            action={action}
-            organization={organization}
-        >
+        <BaseDivisionForm action={action} organization={organization}>
             {({ handleSave, isLoading }) => {
                 return (
                     <Form.Item noStyle dependencies={['properties', 'responsible']}>
-                        {
-                            ({ getFieldsValue }) => {
-                                const { properties, responsible } = getFieldsValue(['properties', 'responsible'])
+                        {({ getFieldsValue }) => {
+                            const { properties, responsible } = getFieldsValue(['properties', 'responsible'])
 
-                                return (
-                                    <ActionBar>
-                                        <Space size={12}>
-                                            <Button
-                                                key='submit'
-                                                onClick={handleSave}
-                                                type='sberPrimary'
-                                                loading={isLoading}
-                                                disabled={properties && properties.length === 0 || !responsible}
-                                            >
-                                                {CreateDivisionMessage}
-                                            </Button>
-                                            <ErrorsContainer
-                                                properties={properties}
-                                                responsible={responsible}
-                                            />
-                                        </Space>
-                                    </ActionBar>
-                                )
-                            }
-                        }
+                            return (
+                                <ActionBar>
+                                    <Space size={12}>
+                                        <Button
+                                            key="submit"
+                                            onClick={handleSave}
+                                            type="sberPrimary"
+                                            loading={isLoading}
+                                            disabled={(properties && properties.length === 0) || !responsible}
+                                        >
+                                            {CreateDivisionMessage}
+                                        </Button>
+                                        <ErrorsContainer properties={properties} responsible={responsible} />
+                                    </Space>
+                                </ActionBar>
+                            )
+                        }}
                     </Form.Item>
                 )
             }}

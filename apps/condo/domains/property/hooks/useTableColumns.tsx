@@ -3,22 +3,21 @@ import { FilterValue } from 'antd/es/table/interface'
 import { useMemo } from 'react'
 import { useIntl } from '@core/next/intl'
 
-
 import { FiltersFromQueryType, Sorters } from '@condo/domains/common/utils/tables.utils'
 import { getTextFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import { get } from 'lodash'
 import { getTextRender } from '@condo/domains/common/components/Table/Renders'
 
 export interface ITableColumn {
-    title: string,
-    ellipsis?: boolean,
-    sortOrder?: string,
-    filteredValue?: FilterValue,
-    dataIndex?: string,
-    key?: string,
-    sorter?: boolean,
-    width?: string,
-    filterDropdown?: unknown,
+    title: string
+    ellipsis?: boolean
+    sortOrder?: string
+    filteredValue?: FilterValue
+    dataIndex?: string
+    key?: string
+    sorter?: boolean
+    width?: string
+    filterDropdown?: unknown
     filterIcon?: unknown
 }
 

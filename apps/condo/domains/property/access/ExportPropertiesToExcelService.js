@@ -3,11 +3,19 @@
  */
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { Organization: OrganizationAPI } = require('@condo/domains/organization/utils/serverSchema')
-const { checkOrganizationPermission, checkRelatedOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    checkOrganizationPermission,
+    checkRelatedOrganizationPermission,
+} = require('@condo/domains/organization/utils/accessSchema')
 const get = require('lodash/get')
 
-
-async function canExportPropertiesToExcel ({ args: { data: { where } }, authentication: { item: user }, context }) {
+async function canExportPropertiesToExcel({
+    args: {
+        data: { where },
+    },
+    authentication: { item: user },
+    context,
+}) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     const organizationId = get(where, 'organization.id')
@@ -17,7 +25,12 @@ async function canExportPropertiesToExcel ({ args: { data: { where } }, authenti
         if (!relatedFromOrganization) {
             return false
         }
-        const canManageRelatedOrganizationProperties = await checkRelatedOrganizationPermission(context, user.id, relatedFromOrganization.id, 'canManageProperties')
+        const canManageRelatedOrganizationProperties = await checkRelatedOrganizationPermission(
+            context,
+            user.id,
+            relatedFromOrganization.id,
+            'canManageProperties',
+        )
         return canManageRelatedOrganizationProperties
     }
     const hasAccess = await checkOrganizationPermission(context, user.id, organizationId, 'canManageProperties')

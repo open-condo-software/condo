@@ -5,8 +5,16 @@
 const { makeLoggedInAdminClient, makeClient, makeLoggedInClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestUser } = require('@condo/domains/user/utils/testSchema')
-const { TicketProblemClassifier, createTestTicketProblemClassifier, updateTestTicketProblemClassifier } = require('@condo/domains/ticket/utils/testSchema')
-const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const {
+    TicketProblemClassifier,
+    createTestTicketProblemClassifier,
+    updateTestTicketProblemClassifier,
+} = require('@condo/domains/ticket/utils/testSchema')
+const {
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj,
+} = require('@condo/domains/common/utils/testSchema')
 const faker = require('faker')
 
 describe('TicketProblemClassifier CRUD', () => {

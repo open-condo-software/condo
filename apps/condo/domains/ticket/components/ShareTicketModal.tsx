@@ -18,148 +18,154 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { useRouter } from 'next/router'
 import crypto from 'crypto'
 import getConfig from 'next/config'
-import {
-    ALGORITHM,
-    SALT,
-    CRYPTOENCODING,
-} from '@condo/domains/ticket/constants/crypto'
+import { ALGORITHM, SALT, CRYPTOENCODING } from '@condo/domains/ticket/constants/crypto'
 import { Organization } from '@core/keystone/schema'
 import { get } from 'lodash'
 
 const collapse = css`
-  border-radius: 8px;
-  background: ${colors.white};
-
-  & .ant-collapse-content {
-    border-top: none;
-  }
-
-  & .ant-collapse-item:last-child,
-  & .ant-collapse-item:last-child > .ant-collapse-header {
     border-radius: 8px;
-    line-height: 24px
-  }
-
-  & > .ant-collapse-item > .ant-collapse-header .ant-collapse-arrow {
-    right: 20px;
-    font-size: 14px;
-  }
-  & > .ant-collapse-item > .ant-collapse-header {
-    color: ${green[6]};
-    padding: 17px 20px;
-    font-size: 16px;
-
-    &:hover, &:focus {
-      color: ${green[5]};
-    }
-  }
-  & .ant-collapse-item:last-child > .ant-collapse-content {
-    border-radius: 8px;
-  }
-  & .ant-collapse-content > .ant-collapse-content-box {
-    padding: 0px 19px 22px;
-  }
-
-  & .ant-select-multiple .ant-select-selection-item {
     background: ${colors.white};
-    font-size: 12px;
-  }
 
-  & .ant-select-multiple.ant-select-lg .ant-select-selection-item {
-    line-height: 20px;
-    height: 20px;
-    border: none;
-  }
+    & .ant-collapse-content {
+        border-top: none;
+    }
 
-  & .ant-select-item-option-content,
-  & .ant-select-item,
-  & .ant-select-show-search.ant-select:not(.ant-select-customize-input) .ant-select-selector input {
-    font-size: 12px;
-  }
+    & .ant-collapse-item:last-child,
+    & .ant-collapse-item:last-child > .ant-collapse-header {
+        border-radius: 8px;
+        line-height: 24px;
+    }
 
+    & > .ant-collapse-item > .ant-collapse-header .ant-collapse-arrow {
+        right: 20px;
+        font-size: 14px;
+    }
+    & > .ant-collapse-item > .ant-collapse-header {
+        color: ${green[6]};
+        padding: 17px 20px;
+        font-size: 16px;
+
+        &:hover,
+        &:focus {
+            color: ${green[5]};
+        }
+    }
+    & .ant-collapse-item:last-child > .ant-collapse-content {
+        border-radius: 8px;
+    }
+    & .ant-collapse-content > .ant-collapse-content-box {
+        padding: 0px 19px 22px;
+    }
+
+    & .ant-select-multiple .ant-select-selection-item {
+        background: ${colors.white};
+        font-size: 12px;
+    }
+
+    & .ant-select-multiple.ant-select-lg .ant-select-selection-item {
+        line-height: 20px;
+        height: 20px;
+        border: none;
+    }
+
+    & .ant-select-item-option-content,
+    & .ant-select-item,
+    & .ant-select-show-search.ant-select:not(.ant-select-customize-input) .ant-select-selector input {
+        font-size: 12px;
+    }
 `
 
 const search = css`
-  width: 100%;
+    width: 100%;
 `
 
 const sendButton = css`
-  &, &:focus {
-    background-color: ${colors.white};
-  }
+    &,
+    &:focus {
+        background-color: ${colors.white};
+    }
 `
 
 const ShareButton = styled.span`
-  border: 1px solid ${colors.lightGrey[5]};
-  border-radius: 8px;
-  display: inline-block;
-  width: 100%;
-  color: ${green[6]};
-  cursor: pointer;
-  height: 60px;
-  line-height: 60px;
-  position: relative;
-  padding-left: 20px;
-  font-size: 16px;
+    border: 1px solid ${colors.lightGrey[5]};
+    border-radius: 8px;
+    display: inline-block;
+    width: 100%;
+    color: ${green[6]};
+    cursor: pointer;
+    height: 60px;
+    line-height: 60px;
+    position: relative;
+    padding-left: 20px;
+    font-size: 16px;
 
-  &:hover, &:focus {
-    color: ${green[5]};
-  }
+    &:hover,
+    &:focus {
+        color: ${green[5]};
+    }
 
-  & .anticon {
-    position: absolute;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 14px;
-    margin-top: 1px;
-  }
+    & .anticon {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 14px;
+        margin-top: 1px;
+    }
 `
 
 const Warning = (props) => {
     const intl = useIntl()
     const EmployeesMessage = intl.formatMessage({ id: 'menu.Employees' })
-    const ShareWarningEmailMessage = intl.formatMessage({ id: 'ticket.shareWarningEmail' }, {
-        link: <Link href='/employee'>{EmployeesMessage}</Link>,
-        employees: `${props.children[0]} ${props.children[1] ? (`\n${props.children[1]}`) : ''}`,
-    })
+    const ShareWarningEmailMessage = intl.formatMessage(
+        { id: 'ticket.shareWarningEmail' },
+        {
+            link: <Link href="/employee">{EmployeesMessage}</Link>,
+            employees: `${props.children[0]} ${props.children[1] ? `\n${props.children[1]}` : ''}`,
+        },
+    )
     const length = props.children.length - 2
 
-    const ShareWarningEmailAndMoreMessage = intl.formatMessage({ id: 'ticket.shareWarningEmailAndMore' }, {
-        length,
-    })
+    const ShareWarningEmailAndMoreMessage = intl.formatMessage(
+        { id: 'ticket.shareWarningEmailAndMore' },
+        {
+            length,
+        },
+    )
 
     const WarningContainer = styled.div`
-      background: ${colors.lightRed};
-      border-radius: 2px;
-      padding: 9px 16px 11px 42px;
-      position: relative;
-      margin-top: 8px;
-      white-space: pre-wrap;
-      font-size: 14px;
-      line-height: 22px;
+        background: ${colors.lightRed};
+        border-radius: 2px;
+        padding: 9px 16px 11px 42px;
+        position: relative;
+        margin-top: 8px;
+        white-space: pre-wrap;
+        font-size: 14px;
+        line-height: 22px;
 
-      & a {
-        color: ${green[6]};
-        &:hover,
-        &:focus,
-        &:active {
-          color: ${green[5]};
+        & a {
+            color: ${green[6]};
+            &:hover,
+            &:focus,
+            &:active {
+                color: ${green[5]};
+            }
         }
-      }
     `
     return (
         <WarningContainer>
-            <CloseCircleFilled css={css`
-              border-radius: 7px;
-              color: ${colors.brightRed};
-              background: ${colors.white};
-              position: absolute;
-              left: 17px;
-              top: 14px;
-              height: 14px;
-              width: 14px;
-            `} />
+            <CloseCircleFilled
+                css={css`
+                    border-radius: 7px;
+                    color: ${colors.brightRed};
+                    background: ${colors.white};
+                    position: absolute;
+                    left: 17px;
+                    top: 14px;
+                    height: 14px;
+                    width: 14px;
+                `}
+            />
 
             {ShareWarningEmailMessage}
             {length > 0 ? ShareWarningEmailAndMoreMessage : ''}
@@ -207,7 +213,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     if (typeof window !== 'undefined') {
         origin = window.location.origin
     } else {
-        ({
+        ;({
             publicRuntimeConfig: { serverUrl: origin },
         } = getConfig())
     }
@@ -218,12 +224,17 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     const [okVisible, setOkVisible] = useState(false)
     const [usersWithoutEmail, setUsersWithoutEmail] = useState([])
 
-    function handleSelect (value) {
-        setUsersWithoutEmail(value.map(JSON.parse).filter(item => item.value.hasEmail === 'false').map(item => item.text))
+    function handleSelect(value) {
+        setUsersWithoutEmail(
+            value
+                .map(JSON.parse)
+                .filter((item) => item.value.hasEmail === 'false')
+                .map((item) => item.text),
+        )
         setValue(value)
     }
 
-    async function handleClick () {
+    async function handleClick() {
         setLoading(true)
         const sender = getClientSideSenderInfo()
         const { data, error } = await shareTicket({
@@ -231,9 +242,9 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                 data: {
                     sender,
                     users: value
-                        .map(item=>JSON.parse(item))
-                        .filter(item=> item.value.hasEmail === 'true')
-                        .map(item=>item.value.id),
+                        .map((item) => JSON.parse(item))
+                        .filter((item) => item.value.hasEmail === 'true')
+                        .map((item) => item.value.id),
                     ticketId: query.id,
                 },
             },
@@ -253,57 +264,45 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
         setLoading(false)
     }
 
-    function handleCancel () {
+    function handleCancel() {
         setShareVisible(false)
     }
 
-    function handleShow () {
+    function handleShow() {
         setShareVisible(true)
     }
 
-    function handleClickSecond () {
+    function handleClickSecond() {
         setOkVisible(false)
     }
 
     return (
         <>
-            <Button
-                type={'sberPrimary'}
-                icon={<ShareAltOutlined />}
-                secondary
-                onClick={handleShow}
-                css={sendButton}
-            >
+            <Button type={'sberPrimary'} icon={<ShareAltOutlined />} secondary onClick={handleShow} css={sendButton}>
                 {ShareButtonMessage}
             </Button>
             <Modal
                 style={{ top: 30 }}
                 visible={okVisible}
-                footer={<Button
-                    type='sberPrimary'
-                    size='large'
-                    onClick={handleClickSecond}
-                >
-                    {OKMessage}
-                </Button>}
+                footer={
+                    <Button type="sberPrimary" size="large" onClick={handleClickSecond}>
+                        {OKMessage}
+                    </Button>
+                }
                 onCancel={handleCancel}
                 title={ShareSentMessage}
             >
                 {ShareSentToEmailMessage}
             </Modal>
-            <Modal
-                style={{ top: 30 }}
-                visible={shareVisible}
-                footer={null}
-                onCancel={handleCancel}
-                title={ShareHeaderMessage}
-            >
+            <Modal style={{ top: 30 }} visible={shareVisible} footer={null} onCancel={handleCancel} title={ShareHeaderMessage}>
                 <Row gutter={[0, 16]}>
                     <Col span={24}>
                         <a
-                            target='_blank'
-                            rel='noreferrer'
-                            href={`https://wa.me/?text=${encodeURIComponent(`${origin}/share?q=${encryptedText}&locale=${locale || EN_LOCALE}`)}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            href={`https://wa.me/?text=${encodeURIComponent(
+                                `${origin}/share?q=${encryptedText}&locale=${locale || EN_LOCALE}`,
+                            )}`}
                         >
                             <ShareButton>
                                 {WhatsappMessage}
@@ -313,9 +312,11 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                     </Col>
                     <Col span={24}>
                         <a
-                            target='_blank'
-                            rel='noreferrer'
-                            href={`https://t.me/share/url?url=${encodeURIComponent(`${origin}/share?q=${encryptedText}&locale=${locale || EN_LOCALE}`)}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            href={`https://t.me/share/url?url=${encodeURIComponent(
+                                `${origin}/share?q=${encryptedText}&locale=${locale || EN_LOCALE}`,
+                            )}`}
                         >
                             <ShareButton>
                                 {TelegramMessage}
@@ -324,12 +325,12 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                         </a>
                     </Col>
                     <Col span={24}>
-                        <Collapse expandIconPosition='right' css={collapse}>
-                            <Collapse.Panel key='1' header={ToEmployeesEmailMessage}>
+                        <Collapse expandIconPosition="right" css={collapse}>
+                            <Collapse.Panel key="1" header={ToEmployeesEmailMessage}>
                                 <GraphQlSearchInput
                                     search={getEmployeeWithEmail(get(organization, 'id'))}
                                     showArrow={false}
-                                    mode='multiple'
+                                    mode="multiple"
                                     css={search}
                                     onChange={handleSelect}
                                     value={value}
@@ -337,15 +338,17 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                                     autoClearSearchValue={true}
                                 />
                                 {usersWithoutEmail.length ? <Warning>{usersWithoutEmail}</Warning> : null}
-                                {value.length ? <Button
-                                    type='sberPrimary'
-                                    size='large'
-                                    onClick={handleClick}
-                                    style={{ marginTop: '20px' }}
-                                    disabled={loading}
-                                >
-                                    {SendTicketToEmailMessage}
-                                </Button> : null}
+                                {value.length ? (
+                                    <Button
+                                        type="sberPrimary"
+                                        size="large"
+                                        onClick={handleClick}
+                                        style={{ marginTop: '20px' }}
+                                        disabled={loading}
+                                    >
+                                        {SendTicketToEmailMessage}
+                                    </Button>
+                                ) : null}
                             </Collapse.Panel>
                         </Collapse>
                     </Col>

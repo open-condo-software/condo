@@ -8,7 +8,8 @@ const moment = require('moment')
 const {
     sortStatusesByType,
     aggregateData,
-    TicketGqlToKnexAdapter } = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
+    TicketGqlToKnexAdapter,
+} = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
 const { DATE_DISPLAY_FORMAT } = require('@condo/domains/ticket/constants/common')
 const { TicketStatus: TicketStatusServerUtils, Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 const isEmpty = require('lodash/isEmpty')
@@ -26,24 +27,24 @@ const createPropertyRange = async (organizationWhereInput) => {
         where: { organization: organizationWhereInput },
     })
     const properties = await propertyLoader.load()
-    return properties.map( property => ({ label: property.address, value: property.id }))
+    return properties.map((property) => ({ label: property.address, value: property.id }))
 }
 
 const createStatusRange = async (context, organizationWhereInput, labelKey = 'name') => {
-    const statuses = await TicketStatusServerUtils.getAll(context, { OR: [
-        { organization: organizationWhereInput },
-        { organization_is_null: true },
-    ] })
+    const statuses = await TicketStatusServerUtils.getAll(context, {
+        OR: [{ organization: organizationWhereInput }, { organization_is_null: true }],
+    })
     // We use organization specific statuses if they exists
     // or default if there is no organization specific status with a same type
-    const allStatuses = statuses.filter(status => {
+    const allStatuses = statuses.filter((status) => {
         if (!status.organization) {
             return true
         }
-        return !statuses
-            .find(organizationStatus => organizationStatus.organization !== null && organizationStatus.type === status.type)
+        return !statuses.find(
+            (organizationStatus) => organizationStatus.organization !== null && organizationStatus.type === status.type,
+        )
     })
-    return sortStatusesByType(allStatuses).map(status => ({ label: status[labelKey], value: status.id }))
+    return sortStatusesByType(allStatuses).map((status) => ({ label: status[labelKey], value: status.id }))
 }
 
 const getTicketCounts = async (context, where, groupBy, extraLabels = {}) => {
@@ -58,40 +59,45 @@ const getTicketCounts = async (context, where, groupBy, extraLabels = {}) => {
                 break
             case 'status':
                 translates[group] = await createStatusRange(
-                    context, where.organization, isEmpty(extraLabels) ? 'name' :  extraLabels[group]
+                    context,
+                    where.organization,
+                    isEmpty(extraLabels) ? 'name' : extraLabels[group],
                 )
                 break
             default:
                 break
         }
     }
-    return ticketGqlToKnexAdapter
-        .getResult(({ count, dayGroup, ...searchResult }) =>
-        {
-            if (!isEmpty(translates)) {
-                Object.entries(searchResult).forEach(([groupName, value]) => {
-                    const translateMapping = get(translates, groupName, false)
-                    if (translateMapping) {
-                        const translation = translateMapping.find(translate => translate.value === value)
-                        searchResult[groupName] = get(translation, 'label', null)
+    return (
+        ticketGqlToKnexAdapter
+            .getResult(({ count, dayGroup, ...searchResult }) => {
+                if (!isEmpty(translates)) {
+                    Object.entries(searchResult).forEach(([groupName, value]) => {
+                        const translateMapping = get(translates, groupName, false)
+                        if (translateMapping) {
+                            const translation = translateMapping.find((translate) => translate.value === value)
+                            searchResult[groupName] = get(translation, 'label', null)
+                        }
+                    })
+                    return {
+                        ...searchResult,
+                        dayGroup: moment(dayGroup).format(DATE_DISPLAY_FORMAT),
+                        count: parseInt(count),
                     }
-                })
+                }
                 return {
                     ...searchResult,
                     dayGroup: moment(dayGroup).format(DATE_DISPLAY_FORMAT),
                     count: parseInt(count),
                 }
-            }
-            return {
-                ...searchResult,
-                dayGroup: moment(dayGroup).format(DATE_DISPLAY_FORMAT),
-                count:parseInt(count),
-            }
-        })
-        // This is hack to process old database records with tickets with user organization and property from another org
-        .filter(ticketCount => ticketCount.property !== null)
-        .sort((a, b) =>
-            moment(a.dayGroup, DATE_DISPLAY_FORMAT).format('X') - moment(b.dayGroup, DATE_DISPLAY_FORMAT).format('X'))
+            })
+            // This is hack to process old database records with tickets with user organization and property from another org
+            .filter((ticketCount) => ticketCount.property !== null)
+            .sort(
+                (a, b) =>
+                    moment(a.dayGroup, DATE_DISPLAY_FORMAT).format('X') - moment(b.dayGroup, DATE_DISPLAY_FORMAT).format('X'),
+            )
+    )
 }
 
 const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportService', {
@@ -130,7 +136,9 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
             access: access.canReadTicketAnalyticsReport,
             schema: 'ticketAnalyticsReport(data: TicketAnalyticsReportInput): TicketAnalyticsReportOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { data: { where = {}, groupBy = [] } } = args
+                const {
+                    data: { where = {}, groupBy = [] },
+                } = args
                 const groups = await getTicketCounts(context, where, groupBy)
                 return { groups }
             },
@@ -139,7 +147,9 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
             access: access.canReadExportTicketAnalyticsToExcel,
             schema: 'exportTicketAnalyticsToExcel(data: ExportTicketAnalyticsToExcelInput): ExportTicketAnalyticsToExcelOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { data: { where = {}, groupBy = [], translates = {} } } = args
+                const {
+                    data: { where = {}, groupBy = [], translates = {} },
+                } = args
                 const ticketCounts = await getTicketCounts(context, where, groupBy, { status: 'type' })
                 const { result, groupKeys } = aggregateData(ticketCounts, groupBy)
                 const ticketAccessCheck = await Ticket.getAll(context, where, { first: 1 })
@@ -157,7 +167,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                 switch (groupByToken) {
                     case 'status-day':
                     case 'status-week':
-                        rowColumns = [...new Set(Object.values(result).flatMap(e => Object.keys(e)))]
+                        rowColumns = [...new Set(Object.values(result).flatMap((e) => Object.keys(e)))]
                         break
                     case 'status-property':
                         rowColumns = address.includes('@') ? address.split('@') : []
@@ -181,9 +191,10 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                             rowColumns.forEach((rowAddress) => {
                                 const tableRow = {}
                                 Object.entries(result).forEach(([ticketType, dataObject]) => {
-                                    const { rows } = propertySingleDataMapper(
-                                        { row: dataObject, constants: { address: rowAddress } }
-                                    )
+                                    const { rows } = propertySingleDataMapper({
+                                        row: dataObject,
+                                        constants: { address: rowAddress },
+                                    })
                                     tableRow[ticketType] = rows[ticketType]()
                                     tableRow.address = rows.address()
                                 })
@@ -196,7 +207,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                                 const tableColumns = {}
                                 let addressRow = ''
                                 let dateRow = ''
-                                Object.keys(result).forEach(ticketType => {
+                                Object.keys(result).forEach((ticketType) => {
                                     const { rows } = dayGroupDataMapper({ row: result, constants: { date, address } })
                                     tableColumns[ticketType] = rows[ticketType]()
                                     addressRow = rows.address()

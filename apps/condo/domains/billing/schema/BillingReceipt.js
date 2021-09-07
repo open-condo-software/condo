@@ -11,7 +11,13 @@ const access = require('@condo/domains/billing/access/BillingReceipt')
 const { validatePaymentDetails, validateServices, validateRecipient } = require('../utils/validation.utils')
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { DV_UNKNOWN_VERSION_ERROR, WRONG_TEXT_FORMAT } = require('@condo/domains/common/constants/errors')
-const { INTEGRATION_CONTEXT_FIELD, RAW_DATA_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD, PERIOD_FIELD } = require('./fields')
+const {
+    INTEGRATION_CONTEXT_FIELD,
+    RAW_DATA_FIELD,
+    BILLING_PROPERTY_FIELD,
+    BILLING_ACCOUNT_FIELD,
+    PERIOD_FIELD,
+} = require('./fields')
 const { get } = require('lodash')
 
 const BillingReceipt = new GQLListSchema('BillingReceipt', {
@@ -28,7 +34,8 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
         // Refs migration: 20210823172647-0047_auto_20210823_1226.js
         importId: {
-            schemaDoc: '`billing receipt` local object ID. Unique up to billing context. It is unique up to the context. ' +
+            schemaDoc:
+                '`billing receipt` local object ID. Unique up to billing context. It is unique up to the context. ' +
                 'The constrain is a combination of contextId and importId.',
             type: Text,
             isRequired: true,
@@ -39,7 +46,8 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
                     if (!resolvedImportId || typeof resolvedImportId !== 'string' || resolvedImportId.length === 0) {
                         addValidationError(
-                            `${WRONG_TEXT_FORMAT}importId] Cant mutate billing receipt with empty or null importId, found ${resolvedImportId}`)
+                            `${WRONG_TEXT_FORMAT}importId] Cant mutate billing receipt with empty or null importId, found ${resolvedImportId}`,
+                        )
                     }
                 },
             },
@@ -91,7 +99,8 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         },
 
         services: {
-            schemaDoc: 'Services to pay for. Every service has id, name and toPay. Service may or may not have toPay detail. Detail level 3 and 4',
+            schemaDoc:
+                'Services to pay for. Every service has id, name and toPay. Service may or may not have toPay detail. Detail level 3 and 4',
             type: Json,
             isRequired: false,
             hooks: {
@@ -118,7 +127,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
     },
     hooks: {
         validateInput: ({ resolvedData, existingItem, context, addValidationError }) => {
-            if (!hasDvAndSenderFields( resolvedData, context, addValidationError)) return
+            if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
             const { dv } = resolvedData
             if (dv === 1) {
                 // NOTE: version 1 specific translations. Don't optimize this logic

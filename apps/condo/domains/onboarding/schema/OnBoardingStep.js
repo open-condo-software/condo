@@ -41,12 +41,14 @@ const OnBoardingStep = new GQLListSchema('OnBoardingStep', {
         },
 
         required: {
-            schemaDoc: 'Used for step transition logic calculation, if the value of this flag is true movement towards graph will be blocked.',
+            schemaDoc:
+                'Used for step transition logic calculation, if the value of this flag is true movement towards graph will be blocked.',
             type: Checkbox,
         },
 
         completed: {
-            schemaDoc: 'Detect completness of the current step. If all steps in onBoarding will be completed, onBoarding completed state should be set to true.',
+            schemaDoc:
+                'Detect completness of the current step. If all steps in onBoarding will be completed, onBoarding completed state should be set to true.',
             type: Checkbox,
             defaultValue: false,
         },

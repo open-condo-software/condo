@@ -1,5 +1,18 @@
 const {
-    generate, grey, green, gold, blue, red, volcano, purple, lime, magenta, cyan, geekblue, yellow, orange,
+    generate,
+    grey,
+    green,
+    gold,
+    blue,
+    red,
+    volcano,
+    purple,
+    lime,
+    magenta,
+    cyan,
+    geekblue,
+    yellow,
+    orange,
 } = require('@ant-design/colors')
 
 const generateCustomColorPalette = (primaryColor, secondaryColor) => {
@@ -32,11 +45,35 @@ const indigo = '#5473C3'
 const turquoiseBlue = '#6BEAC7'
 const malibu = '#5CB2F8'
 
-const CHART_COLOR_SET = [blue[5], green[5], red[4], gold[5], volcano[5], purple[5],
-    lime[7], sberGrey[7], magenta[5], blue[4], gold[6], cyan[6],
-    blue[7], volcano[6], green[5], geekblue[7], sberGrey[7], gold[7],
-    magenta[7], yellow[5], lime[7], blue[8], cyan[5], yellow[6],
-    purple[7], lime[8], red[6]]
+const CHART_COLOR_SET = [
+    blue[5],
+    green[5],
+    red[4],
+    gold[5],
+    volcano[5],
+    purple[5],
+    lime[7],
+    sberGrey[7],
+    magenta[5],
+    blue[4],
+    gold[6],
+    cyan[6],
+    blue[7],
+    volcano[6],
+    green[5],
+    geekblue[7],
+    sberGrey[7],
+    gold[7],
+    magenta[7],
+    yellow[5],
+    lime[7],
+    blue[8],
+    cyan[5],
+    yellow[6],
+    purple[7],
+    lime[8],
+    red[6],
+]
 
 const colors = {
     sberDefault: generateCustomColorPalette(sberBlue, sberSecondaryBlue),
@@ -77,8 +114,10 @@ const fontSizes = {
 }
 
 const shadows = {
-    cardShadow: 'box-shadow: 0px 9px 28px 8px rgba(0, 0, 0, 0.05), 0px 6px 16px rgba(0, 0, 0, 0.08), 0px 3px 6px -4px rgba(0, 0, 0, 0.12);',
-    elevatedShadow: 'box-shadow: 0px 9px 28px rgba(0, 0, 0, 0.05), 0px 6px 16px rgba(0, 0, 0, 0.08), 0px 3px 6px rgba(0, 0, 0, 0.12);',
+    cardShadow:
+        'box-shadow: 0px 9px 28px 8px rgba(0, 0, 0, 0.05), 0px 6px 16px rgba(0, 0, 0, 0.08), 0px 3px 6px -4px rgba(0, 0, 0, 0.12);',
+    elevatedShadow:
+        'box-shadow: 0px 9px 28px rgba(0, 0, 0, 0.05), 0px 6px 16px rgba(0, 0, 0, 0.08), 0px 3px 6px rgba(0, 0, 0, 0.12);',
     hover: '0px 9px 28px rgba(0, 0, 0, 0.05), 0px 6px 16px rgba(0, 0, 0, 0.08), 0px 3px 6px rgba(0, 0, 0, 0.12)',
 }
 

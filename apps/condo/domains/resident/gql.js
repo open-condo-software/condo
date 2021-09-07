@@ -9,7 +9,8 @@ const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/s
 
 const gql = require('graphql-tag')
 
-const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
+const COMMON_FIELDS =
+    'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
 const RESIDENT_FIELDS = `{ user { id name } organization { id } residentOrganization { id name } property { id } residentProperty { id name address } address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitName ${COMMON_FIELDS} }`
 const Resident = generateGqlQueries('Resident', RESIDENT_FIELDS)
@@ -21,7 +22,6 @@ const REGISTER_RESIDENT_MUTATION = gql`
 `
 const SERVICE_CONSUMER_FIELDS = `{ resident { id } billingAccount { id } accountNumber ${COMMON_FIELDS} }`
 const ServiceConsumer = generateGqlQueries('ServiceConsumer', SERVICE_CONSUMER_FIELDS)
-
 
 const REGISTER_SERVICE_CONSUMER_MUTATION = gql`
     mutation registerServiceConsumer ($data: RegisterServiceConsumerInput!) {
@@ -36,5 +36,5 @@ module.exports = {
     REGISTER_RESIDENT_MUTATION,
     ServiceConsumer,
     REGISTER_SERVICE_CONSUMER_MUTATION,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }
