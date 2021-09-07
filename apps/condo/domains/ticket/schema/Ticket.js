@@ -7,7 +7,7 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { Json, AutoIncrementInteger } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
+const { SENDER_FIELD, DV_FIELD, CLIENT_PHONE_FIELD, CLIENT_EMAIL_FIELD, CLIENT_NAME_FIELD, CONTACT_FIELD, CLIENT_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/Ticket')
 const { triggersManager } = require('@core/triggers')
 const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS } = require('../constants')
@@ -17,8 +17,6 @@ const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 const { hasDbFields, hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { JSON_EXPECT_OBJECT_ERROR, DV_UNKNOWN_VERSION_ERROR, STATUS_UPDATED_AT_ERROR, JSON_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { createTicketChange, ticketChangeDisplayNameResolversForSingleRelations, relatedManyToManyResolvers } = require('../utils/serverSchema/TicketChange')
-const { PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
-const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { normalizeText } = require('@condo/domains/common/utils/text')
 
 const Ticket = new GQLListSchema('Ticket', {
@@ -69,46 +67,11 @@ const Ticket = new GQLListSchema('Ticket', {
             kmigratorOptions: { unique: true, null: false },
         },
 
-        client: {
-            schemaDoc: 'Inhabitant/customer/person who has a problem or want to improve/order something. Not null if we have a registered client',
-            type: Relationship,
-            ref: 'User',
-            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
-        },
-
-        contact: {
-            schemaDoc: 'Contact, that reported issue, described in this ticket',
-            type: Relationship,
-            ref: 'Contact',
-            isRequired: false,
-            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
-        },
-
-        clientName: {
-            schemaDoc: 'Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it',
-            type: Text,
-        },
-        clientEmail: {
-            schemaDoc: 'Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it',
-            type: Text,
-        },
-        clientPhone: {
-            schemaDoc: 'Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it',
-            type: Text,
-            hooks: {
-                resolveInput: async ({ resolvedData }) => {
-                    if (!resolvedData['clientPhone']) return resolvedData['clientPhone']
-                    const newValue = normalizePhone(resolvedData['clientPhone'])
-                    return newValue || resolvedData['clientPhone']
-                },
-                validateInput: async ({ resolvedData, addFieldValidationError }) => {
-                    const newValue = normalizePhone(resolvedData['clientPhone'])
-                    if (resolvedData['clientPhone'] && newValue !== resolvedData['clientPhone']) {
-                        addFieldValidationError(`${PHONE_WRONG_FORMAT_ERROR}phone] invalid format`)
-                    }
-                },
-            },
-        },
+        client: CLIENT_FIELD,
+        contact: CONTACT_FIELD,
+        clientName: CLIENT_NAME_FIELD,
+        clientEmail:  CLIENT_EMAIL_FIELD,
+        clientPhone: CLIENT_PHONE_FIELD,
 
         operator: {
             schemaDoc: 'Staff/person who created the issue (submitter). This may be a call center operator or an employee who speaks to a inhabitant/client and filled out an issue for him',
