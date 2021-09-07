@@ -90,7 +90,7 @@ const MenuItems: React.FC = () => {
             />
             <FeatureFlagRequired name={'eps'}>
                 <MenuItem
-                    path={'/eps'}
+                    path={'/billing/eps'}
                     icon={MoneyCollectOutlined}
                     label={'menu.EPS'}
                     disabled={!link}

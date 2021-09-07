@@ -8,7 +8,7 @@ const GROUP_LIST_XML = `
     </order>
 `
 
-const SERVICE_LIST = `
+const SERVICE_LIST_XML = `
     <?xml version="1.0" encoding="UTF-8"?>
     <order>
         <action>service_list</action>
@@ -22,7 +22,7 @@ const SERVICE_LIST = `
     </order>
 `
 
-const CHECK_PAY = `
+const CHECK_PAY_XML = `
     <?xml version="1.0" encoding="UTF-8"?>
     <order>
         <action>check_pay</action>
@@ -59,6 +59,6 @@ const CHECK_PAY = `
 
 module.exports = {
     GROUP_LIST_XML,
-    SERVICE_LIST,
-    CHECK_PAY,
+    SERVICE_LIST_XML,
+    CHECK_PAY_XML,
 }

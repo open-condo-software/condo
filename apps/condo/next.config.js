@@ -17,6 +17,7 @@ const featureFlagsConfig = conf['FEATURE_FLAGS_CONFIG']
 const docsConfig = { 'isGraphqlPlaygroundEnabled': conf['ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND'] === 'true' }
 const googleCaptcha = conf['GOOGLE_RECAPTCHA_CONFIG'] && JSON.parse(conf['GOOGLE_RECAPTCHA_CONFIG'])
 const defaultLocale = conf.DEFAULT_LOCALE
+const epsConfig = conf['EPS_CONFIG'] && JSON.parse(conf['EPS_CONFIG']) || {}
 
 module.exports = withTM(withLess(withCSS({
     publicRuntimeConfig: {
@@ -25,6 +26,7 @@ module.exports = withTM(withLess(withCSS({
         apolloGraphQLUrl,
         addressSuggestionsConfig,
         mapApiKey,
+        epsConfig,
         googleCaptcha,
         behaviorRecorder,
         featureFlagsConfig,
