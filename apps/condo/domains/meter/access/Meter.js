@@ -16,6 +16,7 @@ async function canReadMeters ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return {}
 
+    // TODO посмотреть ацессы в других проперти этой орг
     if (user.type === RESIDENT) {
         const residents = await ResidentServerUtils.getAll(context, { user: { id: user.id } })
         if (residents.length === 0) {
