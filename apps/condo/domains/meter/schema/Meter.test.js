@@ -303,7 +303,7 @@ describe('Meter', () => {
             expect(meters).toHaveLength(1)
         })
 
-        test('resident: cannot read not his Meters', async () => {
+        test('resident: cannot read Meters from other organization', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const client = await makeClientWithResidentUserAndProperty()
             await createTestResident(adminClient, client.user, client.organization, client.property)

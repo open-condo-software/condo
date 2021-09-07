@@ -18,6 +18,17 @@ const Meter = new GQLListSchema('Meter', {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
+        organization: ORGANIZATION_OWNED_FIELD,
+
+        property: {
+            schemaDoc: 'Link to property which contains unit with this meter',
+            type: Relationship,
+            ref: 'Property',
+            isRequired: true,
+            knexOptions: { isNotNullable: true }, // Required relationship only!
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+        },
+
         number: {
             schemaDoc: 'Number of resource meter, such as "А03 9908"',
             type: Text,
@@ -41,7 +52,7 @@ const Meter = new GQLListSchema('Meter', {
             },
         },
 
-        tariffsCount: {
+        numberOfTariffs: {
             type: Integer,
             isRequired: true,
         },
@@ -57,12 +68,12 @@ const Meter = new GQLListSchema('Meter', {
         },
 
         verificationDate: {
-            schemaDoc: 'Date when the meter was verified',
+            schemaDoc: 'The date when the employee came and checked how accurately the meter counts the resource',
             type: DateTimeUtc,
         },
 
         controlReadingsDate: {
-            schemaDoc: 'Date of control readings',
+            schemaDoc: 'The date when the employee came and took readings from the meter',
             type: DateTimeUtc,
         },
 
@@ -70,24 +81,6 @@ const Meter = new GQLListSchema('Meter', {
             schemaDoc: 'Client\'s billing account',
             type: Text,
             isRequired: true,
-        },
-
-        billingAccountMeter: {
-            schemaDoc: 'Link to BillingAccountMeter if it exist in billing context',
-            type: Relationship,
-            ref: 'BillingAccountMeter',
-            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
-        },
-
-        organization: ORGANIZATION_OWNED_FIELD,
-
-        property: {
-            schemaDoc: 'Link to property which contains unit with this meter',
-            type: Relationship,
-            ref: 'Property',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
 
         unitName: {
