@@ -80,7 +80,11 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 key: 'createdAt',
                 sorter: true,
                 width: '10%',
-                render: (createdAt) => dayjs(createdAt).locale(LOCALES[intl.locale]).format('DD MMMM'),
+                render: (createdAt) => {
+                    const locale = get(LOCALES, intl.locale)
+                    const date = locale ? dayjs(createdAt).locale(locale) : dayjs(createdAt)
+                    return date.format('DD MMMM')
+                },
                 filterDropdown: getDateFilterDropdown(),
                 filterIcon: getFilterIcon,
             },

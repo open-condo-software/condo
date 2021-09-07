@@ -53,9 +53,11 @@ export const getTicketFormattedLastStatusUpdate = (intl, ticket) => {
     const ticketLastUpdateDate = statusUpdatedAt || createdAt
 
     if (ticketLastUpdateDate) {
-        const duration = dayjs.duration(dayjs().diff(dayjs(ticketLastUpdateDate)))
+        let duration = dayjs.duration(dayjs().diff(dayjs(ticketLastUpdateDate)))
         if (duration.asSeconds() < 60) return intl.formatMessage({ id: 'LessThanMinute' })
-        return duration.locale(LOCALES[intl.locale]).humanize()
+        const locale = get(LOCALES, intl.locale)
+        if (locale) duration = duration.locale(locale)
+        return duration.humanize()
     }
     return ''
 }
@@ -367,7 +369,9 @@ export const formatDate = (intl, dateStr?: string): string => {
     const pattern = date.getFullYear() === currentDate.getFullYear()
         ? 'D MMMM H:mm'
         : 'D MMMM YYYY H:mm'
-    return dayjs(date).locale(LOCALES[intl.locale]).format(pattern)
+    const locale = get(LOCALES, intl.locale)
+    const localizedDate = locale ? dayjs(date).locale(locale) : dayjs(date)
+    return localizedDate.format(pattern)
 }
 
 export type specificationTypes = 'day' | 'week' | 'month'
