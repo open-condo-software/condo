@@ -3,7 +3,9 @@ const { getSchemaCtx } = require('@core/keystone/schema')
 const get = require('lodash/get')
 const { TICKET_REPORT_DAY_GROUP_STEPS } = require('@condo/domains/ticket/constants/common')
 const groupBy = require('lodash/groupBy')
-const moment = require('moment')
+const dayjs = require('dayjs')
+const isoWeek = require('dayjs/plugin/isoWeek')
+dayjs.extend(isoWeek)
 
 const DATE_FORMATS = {
     day: 'DD.MM.YYYY',
@@ -125,8 +127,8 @@ const getCombinations = ({ options = {}, optionIndex = 0, results = [], current 
 }
 
 const enumerateDaysBetweenDates = function (startDate, endDate, step = 'day') {
-    const currDate = moment(startDate).startOf(step).isoWeekday(1)
-    const lastDate = moment(endDate).startOf(step).isoWeekday(1)
+    const currDate = dayjs(startDate).startOf(step).isoWeekday(1)
+    const lastDate = dayjs(endDate).startOf(step).isoWeekday(1)
     const dateStringFormat = DATE_FORMATS[step]
     const dates = [currDate.format(dateStringFormat)]
 
