@@ -317,6 +317,42 @@ describe('Meter', () => {
             expect(meters).toHaveLength(0)
         })
 
+
+        test('resident: cannot read Meters in other property in same organization', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const client = await makeClientWithResidentUser()
+            const [organization] = await createTestOrganization(adminClient)
+            const [property1] = await createTestProperty(adminClient, organization)
+            const [property2] = await createTestProperty(adminClient, organization)
+            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+
+            const unitName = faker.random.alphaNumeric(8)
+            await createTestResident(adminClient, client.user, organization, property1, {
+                unitName,
+            })
+            const [meter] = await createTestMeter(adminClient, organization, property2, resource, {
+                unitName,
+            })
+
+            const meterReadings = await Meter.getAll(client, { id: meter.id })
+            expect(meterReadings).toHaveLength(0)
+        })
+
+        test('resident: cannot read Meters in other unit in same property', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const client = await makeClientWithResidentUser()
+            const [organization] = await createTestOrganization(adminClient)
+            const [property] = await createTestProperty(adminClient, organization)
+            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+
+            await createTestResident(adminClient, client.user, organization, property)
+
+            const [meter] = await createTestMeter(adminClient, organization, property, resource)
+
+            const meterReadings = await Meter.getAll(client, { id: meter.id })
+            expect(meterReadings).toHaveLength(0)
+        })
+
         test('user: cannot read Meters', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const client = await makeClientWithNewRegisteredAndLoggedInUser()

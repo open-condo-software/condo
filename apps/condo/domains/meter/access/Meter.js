@@ -9,29 +9,30 @@ const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@con
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { queryOrganizationEmployeeFromRelatedOrganizationFor, queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 const { Resident: ResidentServerUtils } = require('@condo/domains/resident/utils/serverSchema')
-const { get, uniq, compact } = require('lodash')
+const { get } = require('lodash')
 
 
 async function canReadMeters ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return {}
 
-    // TODO посмотреть ацессы в других проперти этой орг
+    const userId = user.id
     if (user.type === RESIDENT) {
-        const residents = await ResidentServerUtils.getAll(context, { user: { id: user.id } })
-        if (residents.length === 0) {
-            return false
+        const residents = await ResidentServerUtils.getAll(context, { user: { id: userId } })
+
+        for (const resident of residents) {
+            const residentPropertyId = get(resident, ['property', 'id'])
+            const residentUnitName = get(resident, 'unitName')
+
+            const meters = await Meter.getAll(context, {
+                property: { id: residentPropertyId },
+                unitName: residentUnitName,
+            })
+
+            if (meters.length > 0) return {}
         }
-        const organizations = compact(residents.map(resident => get(resident, ['organization', 'id'])))
-        if (organizations.length > 0) {
-            return {
-                organization: { id_in: uniq(organizations) },
-            }
-        }
-        return false
     }
 
-    const userId = user.id
     return {
         organization: {
             OR: [
