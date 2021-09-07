@@ -38,7 +38,7 @@ describe('MeterReading', () => {
             const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
             const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
 
-            const [meterReading] = await createTestMeterReading(client, meter,  client.property, client.organization, source)
+            const [meterReading] = await createTestMeterReading(client, meter, client.organization, source)
 
             expect(meterReading.id).toMatch(UUID_RE)
         })
@@ -51,7 +51,7 @@ describe('MeterReading', () => {
             const [meter] = await createTestMeter(admin, client.organization, client.property, resource, {})
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await createTestMeterReading(client, meter,  client.property, client.organization, source)
+                await createTestMeterReading(client, meter, client.organization, source)
             })
         })
 
@@ -68,7 +68,7 @@ describe('MeterReading', () => {
             const [source] = await MeterReadingSource.getAll(clientFrom, { id: CALL_METER_READING_SOURCE_ID })
             const [meter] = await createTestMeter(clientFrom, organizationTo, propertyTo, resource, {})
 
-            const [meterReading] = await createTestMeterReading(clientFrom, meter, propertyTo, organizationTo, source)
+            const [meterReading] = await createTestMeterReading(clientFrom, meter, organizationTo, source)
 
             expect(meterReading.id).toMatch(UUID_RE)
         })
@@ -81,7 +81,7 @@ describe('MeterReading', () => {
             const [meter] = await createTestMeter(admin, organizationTo, propertyTo, resource, {})
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await createTestMeterReading(clientFrom, meter, propertyTo, organizationTo, source)
+                await createTestMeterReading(clientFrom, meter, organizationTo, source)
             })
         })
 
@@ -93,7 +93,7 @@ describe('MeterReading', () => {
             const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
             const [meter] = await createTestMeter(adminClient, client.organization, client.property, resource, {})
 
-            const [meterReading] = await createTestMeterReading(client, meter, client.property, client.organization, source)
+            const [meterReading] = await createTestMeterReading(client, meter, client.organization, source)
 
             expect(meterReading.id).toMatch(UUID_RE)
         })
@@ -128,7 +128,7 @@ describe('MeterReading', () => {
             })
 
             await catchErrorFrom(async () => {
-                await createTestMeterReading(client, meter, client.property, client.organization, source, {
+                await createTestMeterReading(client, meter, client.organization, source, {
                     value1: value1 - 10,
                 })
             }, ({ errors, data }) => {
@@ -150,7 +150,7 @@ describe('MeterReading', () => {
             const [meter] = await createTestMeter(adminClient, organization, property, resource, {})
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await createTestMeterReading(client, meter, property, organization, source)
+                await createTestMeterReading(client, meter, organization, source)
             })
         })
 
@@ -164,7 +164,7 @@ describe('MeterReading', () => {
             const [meter] = await createTestMeter(adminClient, organization, property, resource, {})
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await createTestMeterReading(client, meter, property, organization, source)
+                await createTestMeterReading(client, meter, organization, source)
             })
         })
 
@@ -178,7 +178,7 @@ describe('MeterReading', () => {
             const [meter] = await createTestMeter(adminClient, organization, property, resource, {})
 
             await expectToThrowAuthenticationErrorToObj(async () => {
-                await createTestMeterReading(client, meter, property, organization, source)
+                await createTestMeterReading(client, meter, organization, source)
             })
         })
 
@@ -190,7 +190,7 @@ describe('MeterReading', () => {
             const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
             const [meter] = await createTestMeter(adminClient, organization, property, resource, {})
 
-            const [meterReading] = await createTestMeterReading(adminClient, meter, property, organization, source)
+            const [meterReading] = await createTestMeterReading(adminClient, meter, organization, source)
 
             expect(meterReading.id).toMatch(UUID_RE)
         })
@@ -203,7 +203,7 @@ describe('MeterReading', () => {
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
             const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
             const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
-            const [meterReading] = await createTestMeterReading(client, meter, client.property, client.organization, source)
+            const [meterReading] = await createTestMeterReading(client, meter, client.organization, source)
 
             const oldValue = meterReading.value1
             const newValue = oldValue + 100
@@ -221,7 +221,7 @@ describe('MeterReading', () => {
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
             const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
             const [meter] = await createTestMeter(admin, client.organization, client.property, resource, {})
-            const [meterReading] = await createTestMeterReading(admin, meter, client.property, client.organization, source)
+            const [meterReading] = await createTestMeterReading(admin, meter, client.organization, source)
 
             const oldValue = meterReading.value1
             const newValue = oldValue + 100
@@ -246,7 +246,7 @@ describe('MeterReading', () => {
             const [source] = await MeterReadingSource.getAll(clientFrom, { id: CALL_METER_READING_SOURCE_ID })
             const [meter] = await createTestMeter(clientFrom, organizationTo, propertyTo, resource, {})
 
-            const [meterReading] = await createTestMeterReading(clientFrom, meter, propertyTo, organizationTo, source)
+            const [meterReading] = await createTestMeterReading(clientFrom, meter, organizationTo, source)
 
             const oldValue = meterReading.value1
             const newValue = oldValue + 100
@@ -265,7 +265,7 @@ describe('MeterReading', () => {
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
             const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
             const [meter] = await createTestMeter(adminClient, client.organization, client.property, resource, {})
-            const [meterReading] = await createTestMeterReading(client, meter, client.property, client.organization, source)
+            const [meterReading] = await createTestMeterReading(client, meter, client.organization, source)
 
             const oldValue = meterReading.value1
             const newValue = oldValue + 100
@@ -282,7 +282,7 @@ describe('MeterReading', () => {
             const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
             const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
             const [meter] = await createTestMeter(adminClient, client.organization, client.property, resource, {})
-            const [meterReading] = await createTestMeterReading(adminClient, meter, client.property, client.organization, source)
+            const [meterReading] = await createTestMeterReading(adminClient, meter, client.organization, source)
 
             const oldValue = meterReading.value1
             const newValue = oldValue + 100
@@ -301,7 +301,7 @@ describe('MeterReading', () => {
             const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
             const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
             const [meter] = await createTestMeter(adminClient, organization, property, resource, {})
-            const [meterReading] = await createTestMeterReading(adminClient, meter, property, organization, source)
+            const [meterReading] = await createTestMeterReading(adminClient, meter, organization, source)
 
             const oldValue = meterReading.value1
             const newValue = oldValue + 100
@@ -319,7 +319,7 @@ describe('MeterReading', () => {
             const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
             const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
             const [meter] = await createTestMeter(adminClient, organization, property, resource, {})
-            const [meterReading] = await createTestMeterReading(adminClient, meter, property, organization, source)
+            const [meterReading] = await createTestMeterReading(adminClient, meter, organization, source)
 
             const oldValue = meterReading.value1
             const newValue = oldValue + 100
@@ -339,7 +339,7 @@ describe('MeterReading', () => {
             const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
             const [meter] = await createTestMeter(admin, client.organization, client.property, resource, {})
 
-            const [meterReading] = await createTestMeterReading(admin, meter,  client.property, client.organization, source)
+            const [meterReading] = await createTestMeterReading(admin, meter, client.organization, source)
 
             const meterReadings = await MeterReading.getAll(client, { id: meterReading.id })
             expect(meterReadings).toHaveLength(1)
@@ -352,7 +352,7 @@ describe('MeterReading', () => {
             const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
             const [meter] = await createTestMeter(admin, organizationTo, propertyTo, resource, {})
 
-            const [meterReading] = await createTestMeterReading(admin, meter, propertyTo, organizationTo, source)
+            const [meterReading] = await createTestMeterReading(admin, meter, organizationTo, source)
 
             const meterReadings = await MeterReading.getAll(clientFrom, { id: meterReading.id })
             expect(meterReadings).toHaveLength(1)
@@ -366,7 +366,7 @@ describe('MeterReading', () => {
             const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
             const [meter] = await createTestMeter(adminClient, client.organization, client.property, resource, {})
 
-            const [meterReading] = await createTestMeterReading(client, meter, client.property, client.organization, source)
+            const [meterReading] = await createTestMeterReading(client, meter, client.organization, source)
 
             const meterReadings = await MeterReading.getAll(client, { id: meterReading.id })
             expect(meterReadings).toHaveLength(1)
@@ -382,7 +382,7 @@ describe('MeterReading', () => {
             const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
             const [meter] = await createTestMeter(adminClient, client1.organization, client1.property, resource, {})
 
-            const [meterReading] = await createTestMeterReading(client1, meter, client1.property, client1.organization, source)
+            const [meterReading] = await createTestMeterReading(client1, meter, client1.organization, source)
 
             const meterReadings = await MeterReading.getAll(client2, { id: meterReading.id })
             expect(meterReadings).toHaveLength(0)
@@ -396,7 +396,7 @@ describe('MeterReading', () => {
             const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
             const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
             const [meter] = await createTestMeter(adminClient, organization, property, resource, {})
-            const [meterReading] = await createTestMeterReading(adminClient, meter, property, organization, source)
+            const [meterReading] = await createTestMeterReading(adminClient, meter, organization, source)
 
             const meterReadings = await MeterReading.getAll(client, { id: meterReading.id })
             expect(meterReadings).toHaveLength(0)
@@ -410,7 +410,7 @@ describe('MeterReading', () => {
             const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
             const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
             const [meter] = await createTestMeter(adminClient, organization, property, resource, {})
-            const [meterReading] = await createTestMeterReading(adminClient, meter, property, organization, source)
+            const [meterReading] = await createTestMeterReading(adminClient, meter, organization, source)
 
             await expectToThrowAuthenticationErrorToObjects(async () => {
                 await MeterReading.getAll(client, { id: meterReading.id })

@@ -10,8 +10,8 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { MeterReading as MeterReadingGQL } from '@condo/domains/meter/gql'
 import { MeterReading, MeterReadingUpdateInput, QueryAllMeterReadingsArgs } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'number', 'date', 'account', 'billingAccountMeter', 'meter', 'property', 'organization', 'value', 'sectionName', 'floorName', 'unitName', 'client', 'clientName', 'clientEmail', 'clientPhone', 'contact', 'source']
-const RELATIONS = ['billingAccountMeter', 'meter', 'property', 'organization', 'client', 'contact', 'source']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'date', 'meter', 'value1', 'value2', 'value3', 'value4', 'client', 'clientName', 'clientEmail', 'clientPhone', 'contact', 'source']
+const RELATIONS = ['meter', 'organization', 'client', 'contact', 'source']
 
 export interface IMeterReadingUIState extends MeterReading {
     id: string
@@ -23,7 +23,21 @@ function convertToUIState (item: MeterReading): IMeterReadingUIState {
 }
 
 export interface IMeterReadingFormState {
-    id?: undefined
+    id?: string
+    organization?: string
+    date?: Date
+    meter?: string
+    value1?: number
+    value2?: number
+    value3?: number
+    value4?: number
+    unitName?: string
+    contact?: string
+    clientName?: string
+    clientEmail?: string
+    clientPhone?: string
+    client?: string
+    source?: string
 }
 
 function convertToUIFormState (state: IMeterReadingUIState): IMeterReadingFormState | undefined {

@@ -10,8 +10,8 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { Meter as MeterGQL } from '@condo/domains/meter/gql'
 import { Meter, MeterUpdateInput, QueryAllMetersArgs } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'number', 'tariffsCount', 'account', 'billingAccountMeter', 'organization', 'property', 'unitName', 'place', 'resource']
-const RELATIONS = ['billingAccountMeter', 'organization', 'property', 'resource']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'number', 'numberOfTariffs', 'installationDate', 'commissioningDate', 'verificationDate', 'controlReadingsDate', 'account', 'organization', 'property', 'unitName', 'place', 'resource']
+const RELATIONS = ['organization', 'property', 'resource']
 
 export interface IMeterUIState extends Meter {
     id: string
@@ -23,7 +23,19 @@ function convertToUIState (item: Meter): IMeterUIState {
 }
 
 export interface IMeterFormState {
-    id?: undefined
+    id?: string
+    number?: string
+    numberOfTariffs?: number
+    organization?: string
+    property?: string
+    account?: string
+    unitName?: string
+    place?: string
+    resource?: string
+    installationDate?: string
+    commissioningDate?: string
+    verificationDate?: string
+    controlReadingsDate?: string
 }
 
 function convertToUIFormState (state: IMeterUIState): IMeterFormState | undefined {
