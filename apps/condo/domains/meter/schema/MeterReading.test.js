@@ -403,6 +403,19 @@ describe('MeterReading', () => {
             expect(meterReadings).toHaveLength(1)
         })
 
+        test('employee from "to" related organization: cannot read MeterReadings from "from" organization', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const { clientTo, organizationFrom, propertyFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
+            const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
+            const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+            const [meter] = await createTestMeter(admin, organizationFrom, propertyFrom, resource, {})
+
+            const [meterReading] = await createTestMeterReading(admin, meter, organizationFrom, source)
+
+            const meterReadings = await MeterReading.getAll(clientTo, { id: meterReading.id })
+            expect(meterReadings).toHaveLength(0)
+        })
+
         test('resident: can read his own MeterReadings', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const client = await makeClientWithResidentUser()
