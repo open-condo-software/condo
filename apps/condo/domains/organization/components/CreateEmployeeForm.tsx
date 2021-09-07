@@ -6,7 +6,7 @@ import { useOrganization } from '@core/next/organization'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
 import { useApolloClient } from '@core/next/apollo'
-import get from 'lodash/get'
+import { get, find } from 'lodash'
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 import { Button } from '@condo/domains/common/components/Button'
 import {
@@ -101,7 +101,7 @@ export const CreateEmployeeForm: React.FC = () => {
     }
 
     const [selectedRoleId, setSelectedRoleId] = useState(initialValues.role)
-    const selectedRole = useMemo(() => employeeRoles.find(x=> x.id === selectedRoleId), [selectedRoleId])
+    const selectedRole = useMemo(() => find(employeeRoles, { id: selectedRoleId }), [selectedRoleId])
 
     const searchClassifers = (_, input) => 
         classifiersLoader.search(input, TicketClassifierTypes.category)
