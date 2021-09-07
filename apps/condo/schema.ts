@@ -591,6 +591,8 @@ export type BillingAccountMeter = {
   property?: Maybe<BillingProperty>;
   /**  Billing account  */
   account?: Maybe<BillingAccount>;
+  /**  Number of resource meter, such as "А03 9908"  */
+  number?: Maybe<Scalars['String']>;
   /**  Meter resource types  */
   resource?: Maybe<BillingMeterResource>;
   /**  Structured metadata obtained from the `billing data source`. Some of this data is required for use in the `receipt template`. Examples of data keys: `sealing date`, `install date`, `verification date`, `serial number`, `units of measurement`  */
@@ -613,6 +615,7 @@ export type BillingAccountMeterCreateInput = {
   raw?: Maybe<Scalars['JSON']>;
   property?: Maybe<BillingPropertyRelateToOneInput>;
   account?: Maybe<BillingAccountRelateToOneInput>;
+  number?: Maybe<Scalars['String']>;
   resource?: Maybe<BillingMeterResourceRelateToOneInput>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -642,6 +645,7 @@ export type BillingAccountMeterHistoryRecord = {
   raw?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
   account?: Maybe<Scalars['String']>;
+  number?: Maybe<Scalars['String']>;
   resource?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
@@ -665,6 +669,7 @@ export type BillingAccountMeterHistoryRecordCreateInput = {
   raw?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
   account?: Maybe<Scalars['String']>;
+  number?: Maybe<Scalars['String']>;
   resource?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -693,6 +698,7 @@ export type BillingAccountMeterHistoryRecordUpdateInput = {
   raw?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
   account?: Maybe<Scalars['String']>;
+  number?: Maybe<Scalars['String']>;
   resource?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -756,6 +762,24 @@ export type BillingAccountMeterHistoryRecordWhereInput = {
   account_not?: Maybe<Scalars['String']>;
   account_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   account_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  number?: Maybe<Scalars['String']>;
+  number_not?: Maybe<Scalars['String']>;
+  number_contains?: Maybe<Scalars['String']>;
+  number_not_contains?: Maybe<Scalars['String']>;
+  number_starts_with?: Maybe<Scalars['String']>;
+  number_not_starts_with?: Maybe<Scalars['String']>;
+  number_ends_with?: Maybe<Scalars['String']>;
+  number_not_ends_with?: Maybe<Scalars['String']>;
+  number_i?: Maybe<Scalars['String']>;
+  number_not_i?: Maybe<Scalars['String']>;
+  number_contains_i?: Maybe<Scalars['String']>;
+  number_not_contains_i?: Maybe<Scalars['String']>;
+  number_starts_with_i?: Maybe<Scalars['String']>;
+  number_not_starts_with_i?: Maybe<Scalars['String']>;
+  number_ends_with_i?: Maybe<Scalars['String']>;
+  number_not_ends_with_i?: Maybe<Scalars['String']>;
+  number_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  number_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   resource?: Maybe<Scalars['String']>;
   resource_not?: Maybe<Scalars['String']>;
   resource_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -878,6 +902,8 @@ export type BillingAccountMeterReading = {
   value2?: Maybe<Scalars['Int']>;
   /**  Meter reading value of tariff 3  */
   value3?: Maybe<Scalars['Int']>;
+  /**  Meter reading value of tariff 4  */
+  value4?: Maybe<Scalars['Int']>;
   /**  Date of reading  */
   date?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -903,6 +929,7 @@ export type BillingAccountMeterReadingCreateInput = {
   value1?: Maybe<Scalars['Int']>;
   value2?: Maybe<Scalars['Int']>;
   value3?: Maybe<Scalars['Int']>;
+  value4?: Maybe<Scalars['Int']>;
   date?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -936,6 +963,7 @@ export type BillingAccountMeterReadingHistoryRecord = {
   value1?: Maybe<Scalars['Int']>;
   value2?: Maybe<Scalars['Int']>;
   value3?: Maybe<Scalars['Int']>;
+  value4?: Maybe<Scalars['Int']>;
   date?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -963,6 +991,7 @@ export type BillingAccountMeterReadingHistoryRecordCreateInput = {
   value1?: Maybe<Scalars['Int']>;
   value2?: Maybe<Scalars['Int']>;
   value3?: Maybe<Scalars['Int']>;
+  value4?: Maybe<Scalars['Int']>;
   date?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -995,6 +1024,7 @@ export type BillingAccountMeterReadingHistoryRecordUpdateInput = {
   value1?: Maybe<Scalars['Int']>;
   value2?: Maybe<Scalars['Int']>;
   value3?: Maybe<Scalars['Int']>;
+  value4?: Maybe<Scalars['Int']>;
   date?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -1093,6 +1123,14 @@ export type BillingAccountMeterReadingHistoryRecordWhereInput = {
   value3_gte?: Maybe<Scalars['Int']>;
   value3_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   value3_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value4?: Maybe<Scalars['Int']>;
+  value4_not?: Maybe<Scalars['Int']>;
+  value4_lt?: Maybe<Scalars['Int']>;
+  value4_lte?: Maybe<Scalars['Int']>;
+  value4_gt?: Maybe<Scalars['Int']>;
+  value4_gte?: Maybe<Scalars['Int']>;
+  value4_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value4_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   date?: Maybe<Scalars['String']>;
   date_not?: Maybe<Scalars['String']>;
   date_lt?: Maybe<Scalars['String']>;
@@ -1193,6 +1231,7 @@ export type BillingAccountMeterReadingUpdateInput = {
   value1?: Maybe<Scalars['Int']>;
   value2?: Maybe<Scalars['Int']>;
   value3?: Maybe<Scalars['Int']>;
+  value4?: Maybe<Scalars['Int']>;
   date?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -1280,6 +1319,14 @@ export type BillingAccountMeterReadingWhereInput = {
   value3_gte?: Maybe<Scalars['Int']>;
   value3_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   value3_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value4?: Maybe<Scalars['Int']>;
+  value4_not?: Maybe<Scalars['Int']>;
+  value4_lt?: Maybe<Scalars['Int']>;
+  value4_lte?: Maybe<Scalars['Int']>;
+  value4_gt?: Maybe<Scalars['Int']>;
+  value4_gte?: Maybe<Scalars['Int']>;
+  value4_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value4_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   date?: Maybe<Scalars['String']>;
   date_not?: Maybe<Scalars['String']>;
   date_lt?: Maybe<Scalars['String']>;
@@ -1362,6 +1409,7 @@ export type BillingAccountMeterUpdateInput = {
   raw?: Maybe<Scalars['JSON']>;
   property?: Maybe<BillingPropertyRelateToOneInput>;
   account?: Maybe<BillingAccountRelateToOneInput>;
+  number?: Maybe<Scalars['String']>;
   resource?: Maybe<BillingMeterResourceRelateToOneInput>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -1416,6 +1464,24 @@ export type BillingAccountMeterWhereInput = {
   property_is_null?: Maybe<Scalars['Boolean']>;
   account?: Maybe<BillingAccountWhereInput>;
   account_is_null?: Maybe<Scalars['Boolean']>;
+  number?: Maybe<Scalars['String']>;
+  number_not?: Maybe<Scalars['String']>;
+  number_contains?: Maybe<Scalars['String']>;
+  number_not_contains?: Maybe<Scalars['String']>;
+  number_starts_with?: Maybe<Scalars['String']>;
+  number_not_starts_with?: Maybe<Scalars['String']>;
+  number_ends_with?: Maybe<Scalars['String']>;
+  number_not_ends_with?: Maybe<Scalars['String']>;
+  number_i?: Maybe<Scalars['String']>;
+  number_not_i?: Maybe<Scalars['String']>;
+  number_contains_i?: Maybe<Scalars['String']>;
+  number_not_contains_i?: Maybe<Scalars['String']>;
+  number_starts_with_i?: Maybe<Scalars['String']>;
+  number_not_starts_with_i?: Maybe<Scalars['String']>;
+  number_ends_with_i?: Maybe<Scalars['String']>;
+  number_not_ends_with_i?: Maybe<Scalars['String']>;
+  number_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  number_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   resource?: Maybe<BillingMeterResourceWhereInput>;
   resource_is_null?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
@@ -7373,6 +7439,14 @@ export type Meter = {
   /**  Number of resource meter, such as "А03 9908"  */
   number?: Maybe<Scalars['String']>;
   tariffsCount?: Maybe<Scalars['Int']>;
+  /**  Date when the meter was installed  */
+  installationDate?: Maybe<Scalars['String']>;
+  /**  Date when the meter was commissioned  */
+  commissioningDate?: Maybe<Scalars['String']>;
+  /**  Date when the meter was verified  */
+  verificationDate?: Maybe<Scalars['String']>;
+  /**  Date of control readings  */
+  controlReadingsDate?: Maybe<Scalars['String']>;
   /**  Client's billing account  */
   account?: Maybe<Scalars['String']>;
   /**  Link to BillingAccountMeter if it exist in billing context  */
@@ -7402,6 +7476,10 @@ export type MeterCreateInput = {
   sender?: Maybe<SenderFieldInput>;
   number?: Maybe<Scalars['String']>;
   tariffsCount?: Maybe<Scalars['Int']>;
+  installationDate?: Maybe<Scalars['String']>;
+  commissioningDate?: Maybe<Scalars['String']>;
+  verificationDate?: Maybe<Scalars['String']>;
+  controlReadingsDate?: Maybe<Scalars['String']>;
   account?: Maybe<Scalars['String']>;
   billingAccountMeter?: Maybe<BillingAccountMeterRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
@@ -7433,6 +7511,10 @@ export type MeterHistoryRecord = {
   sender?: Maybe<Scalars['JSON']>;
   number?: Maybe<Scalars['String']>;
   tariffsCount?: Maybe<Scalars['Int']>;
+  installationDate?: Maybe<Scalars['String']>;
+  commissioningDate?: Maybe<Scalars['String']>;
+  verificationDate?: Maybe<Scalars['String']>;
+  controlReadingsDate?: Maybe<Scalars['String']>;
   account?: Maybe<Scalars['String']>;
   billingAccountMeter?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
@@ -7458,6 +7540,10 @@ export type MeterHistoryRecordCreateInput = {
   sender?: Maybe<Scalars['JSON']>;
   number?: Maybe<Scalars['String']>;
   tariffsCount?: Maybe<Scalars['Int']>;
+  installationDate?: Maybe<Scalars['String']>;
+  commissioningDate?: Maybe<Scalars['String']>;
+  verificationDate?: Maybe<Scalars['String']>;
+  controlReadingsDate?: Maybe<Scalars['String']>;
   account?: Maybe<Scalars['String']>;
   billingAccountMeter?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
@@ -7488,6 +7574,10 @@ export type MeterHistoryRecordUpdateInput = {
   sender?: Maybe<Scalars['JSON']>;
   number?: Maybe<Scalars['String']>;
   tariffsCount?: Maybe<Scalars['Int']>;
+  installationDate?: Maybe<Scalars['String']>;
+  commissioningDate?: Maybe<Scalars['String']>;
+  verificationDate?: Maybe<Scalars['String']>;
+  controlReadingsDate?: Maybe<Scalars['String']>;
   account?: Maybe<Scalars['String']>;
   billingAccountMeter?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
@@ -7548,6 +7638,38 @@ export type MeterHistoryRecordWhereInput = {
   tariffsCount_gte?: Maybe<Scalars['Int']>;
   tariffsCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   tariffsCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  installationDate?: Maybe<Scalars['String']>;
+  installationDate_not?: Maybe<Scalars['String']>;
+  installationDate_lt?: Maybe<Scalars['String']>;
+  installationDate_lte?: Maybe<Scalars['String']>;
+  installationDate_gt?: Maybe<Scalars['String']>;
+  installationDate_gte?: Maybe<Scalars['String']>;
+  installationDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  installationDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  commissioningDate?: Maybe<Scalars['String']>;
+  commissioningDate_not?: Maybe<Scalars['String']>;
+  commissioningDate_lt?: Maybe<Scalars['String']>;
+  commissioningDate_lte?: Maybe<Scalars['String']>;
+  commissioningDate_gt?: Maybe<Scalars['String']>;
+  commissioningDate_gte?: Maybe<Scalars['String']>;
+  commissioningDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  commissioningDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  verificationDate?: Maybe<Scalars['String']>;
+  verificationDate_not?: Maybe<Scalars['String']>;
+  verificationDate_lt?: Maybe<Scalars['String']>;
+  verificationDate_lte?: Maybe<Scalars['String']>;
+  verificationDate_gt?: Maybe<Scalars['String']>;
+  verificationDate_gte?: Maybe<Scalars['String']>;
+  verificationDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  verificationDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  controlReadingsDate?: Maybe<Scalars['String']>;
+  controlReadingsDate_not?: Maybe<Scalars['String']>;
+  controlReadingsDate_lt?: Maybe<Scalars['String']>;
+  controlReadingsDate_lte?: Maybe<Scalars['String']>;
+  controlReadingsDate_gt?: Maybe<Scalars['String']>;
+  controlReadingsDate_gte?: Maybe<Scalars['String']>;
+  controlReadingsDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  controlReadingsDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   account?: Maybe<Scalars['String']>;
   account_not?: Maybe<Scalars['String']>;
   account_contains?: Maybe<Scalars['String']>;
@@ -9246,6 +9368,10 @@ export type MeterUpdateInput = {
   sender?: Maybe<SenderFieldInput>;
   number?: Maybe<Scalars['String']>;
   tariffsCount?: Maybe<Scalars['Int']>;
+  installationDate?: Maybe<Scalars['String']>;
+  commissioningDate?: Maybe<Scalars['String']>;
+  verificationDate?: Maybe<Scalars['String']>;
+  controlReadingsDate?: Maybe<Scalars['String']>;
   account?: Maybe<Scalars['String']>;
   billingAccountMeter?: Maybe<BillingAccountMeterRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
@@ -9303,6 +9429,38 @@ export type MeterWhereInput = {
   tariffsCount_gte?: Maybe<Scalars['Int']>;
   tariffsCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   tariffsCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  installationDate?: Maybe<Scalars['String']>;
+  installationDate_not?: Maybe<Scalars['String']>;
+  installationDate_lt?: Maybe<Scalars['String']>;
+  installationDate_lte?: Maybe<Scalars['String']>;
+  installationDate_gt?: Maybe<Scalars['String']>;
+  installationDate_gte?: Maybe<Scalars['String']>;
+  installationDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  installationDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  commissioningDate?: Maybe<Scalars['String']>;
+  commissioningDate_not?: Maybe<Scalars['String']>;
+  commissioningDate_lt?: Maybe<Scalars['String']>;
+  commissioningDate_lte?: Maybe<Scalars['String']>;
+  commissioningDate_gt?: Maybe<Scalars['String']>;
+  commissioningDate_gte?: Maybe<Scalars['String']>;
+  commissioningDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  commissioningDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  verificationDate?: Maybe<Scalars['String']>;
+  verificationDate_not?: Maybe<Scalars['String']>;
+  verificationDate_lt?: Maybe<Scalars['String']>;
+  verificationDate_lte?: Maybe<Scalars['String']>;
+  verificationDate_gt?: Maybe<Scalars['String']>;
+  verificationDate_gte?: Maybe<Scalars['String']>;
+  verificationDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  verificationDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  controlReadingsDate?: Maybe<Scalars['String']>;
+  controlReadingsDate_not?: Maybe<Scalars['String']>;
+  controlReadingsDate_lt?: Maybe<Scalars['String']>;
+  controlReadingsDate_lte?: Maybe<Scalars['String']>;
+  controlReadingsDate_gt?: Maybe<Scalars['String']>;
+  controlReadingsDate_gte?: Maybe<Scalars['String']>;
+  controlReadingsDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  controlReadingsDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   account?: Maybe<Scalars['String']>;
   account_not?: Maybe<Scalars['String']>;
   account_contains?: Maybe<Scalars['String']>;
@@ -20225,6 +20383,8 @@ export enum SortBillingAccountMeterHistoryRecordsBy {
   DvDesc = 'dv_DESC',
   ImportIdAsc = 'importId_ASC',
   ImportIdDesc = 'importId_DESC',
+  NumberAsc = 'number_ASC',
+  NumberDesc = 'number_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -20254,6 +20414,8 @@ export enum SortBillingAccountMeterReadingHistoryRecordsBy {
   Value2Desc = 'value2_DESC',
   Value3Asc = 'value3_ASC',
   Value3Desc = 'value3_DESC',
+  Value4Asc = 'value4_ASC',
+  Value4Desc = 'value4_DESC',
   DateAsc = 'date_ASC',
   DateDesc = 'date_DESC',
   IdAsc = 'id_ASC',
@@ -20293,6 +20455,8 @@ export enum SortBillingAccountMeterReadingsBy {
   Value2Desc = 'value2_DESC',
   Value3Asc = 'value3_ASC',
   Value3Desc = 'value3_DESC',
+  Value4Asc = 'value4_ASC',
+  Value4Desc = 'value4_DESC',
   DateAsc = 'date_ASC',
   DateDesc = 'date_DESC',
   IdAsc = 'id_ASC',
@@ -20322,6 +20486,8 @@ export enum SortBillingAccountMetersBy {
   PropertyDesc = 'property_DESC',
   AccountAsc = 'account_ASC',
   AccountDesc = 'account_DESC',
+  NumberAsc = 'number_ASC',
+  NumberDesc = 'number_DESC',
   ResourceAsc = 'resource_ASC',
   ResourceDesc = 'resource_DESC',
   IdAsc = 'id_ASC',
@@ -21049,6 +21215,14 @@ export enum SortMeterHistoryRecordsBy {
   NumberDesc = 'number_DESC',
   TariffsCountAsc = 'tariffsCount_ASC',
   TariffsCountDesc = 'tariffsCount_DESC',
+  InstallationDateAsc = 'installationDate_ASC',
+  InstallationDateDesc = 'installationDate_DESC',
+  CommissioningDateAsc = 'commissioningDate_ASC',
+  CommissioningDateDesc = 'commissioningDate_DESC',
+  VerificationDateAsc = 'verificationDate_ASC',
+  VerificationDateDesc = 'verificationDate_DESC',
+  ControlReadingsDateAsc = 'controlReadingsDate_ASC',
+  ControlReadingsDateDesc = 'controlReadingsDate_DESC',
   AccountAsc = 'account_ASC',
   AccountDesc = 'account_DESC',
   UnitNameAsc = 'unitName_ASC',
@@ -21272,6 +21446,14 @@ export enum SortMetersBy {
   NumberDesc = 'number_DESC',
   TariffsCountAsc = 'tariffsCount_ASC',
   TariffsCountDesc = 'tariffsCount_DESC',
+  InstallationDateAsc = 'installationDate_ASC',
+  InstallationDateDesc = 'installationDate_DESC',
+  CommissioningDateAsc = 'commissioningDate_ASC',
+  CommissioningDateDesc = 'commissioningDate_DESC',
+  VerificationDateAsc = 'verificationDate_ASC',
+  VerificationDateDesc = 'verificationDate_DESC',
+  ControlReadingsDateAsc = 'controlReadingsDate_ASC',
+  ControlReadingsDateDesc = 'controlReadingsDate_DESC',
   AccountAsc = 'account_ASC',
   AccountDesc = 'account_DESC',
   BillingAccountMeterAsc = 'billingAccountMeter_ASC',
