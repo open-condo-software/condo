@@ -45,7 +45,7 @@ async function checkRelatedOrganizationPermission (context, userId, organization
 async function checkPermissionInUserOrganizationOrRelatedOrganization (context, userId, organizationId, permission) {
     const hasPermissionInRelatedOrganization = await checkRelatedOrganizationPermission(context, userId, organizationId, permission)
     const hasPermissionInUserOrganization = await checkOrganizationPermission(context, userId, organizationId, permission)
-    return !!(hasPermissionInRelatedOrganization || hasPermissionInUserOrganization)
+    return Boolean(hasPermissionInRelatedOrganization || hasPermissionInUserOrganization)
 }
 
 async function checkUserBelongsToOrganization (userId, organizationId) {
