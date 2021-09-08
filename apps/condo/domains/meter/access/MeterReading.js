@@ -31,7 +31,7 @@ async function canReadMeterReadings ({ authentication: { item: user }, context }
             const meters = await Meter.getAll(context, {
                 property: { id: residentPropertyId },
                 unitName: residentUnitName,
-                account_in: serviceConsumerAccounts,
+                accountNumber_in: serviceConsumerAccounts,
             })
 
             if (meters.length > 0) return {}
@@ -85,7 +85,7 @@ async function canManageMeterReadings ({ authentication: { item: user }, origina
                 const meters = await Meter.getAll(context, {
                     property: { id: residentPropertyId },
                     unitName: residentUnitName,
-                    account_in: serviceConsumerAccounts,
+                    accountNumber_in: serviceConsumerAccounts,
                 })
 
                 if (meters.length > 0) return true

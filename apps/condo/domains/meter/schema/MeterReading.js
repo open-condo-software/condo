@@ -120,7 +120,7 @@ const MeterReading = new GQLListSchema('MeterReading', {
 
     },
     hooks: {
-        validateInput: ({ resolvedData, existingItem, context, addValidationError }) => {
+        validateInput: ({ resolvedData, context, addValidationError }) => {
             if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
             const { dv } = resolvedData
             if (dv === 1) {
