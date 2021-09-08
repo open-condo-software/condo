@@ -3,8 +3,36 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
+import {
+    COLD_WATER_METER_RESOURCE_ID, ELECTRICITY_METER_RESOURCE_ID,
+    GAS_SUPPLY_METER_RESOURCE_ID, HEAT_SUPPLY_METER_RESOURCE_ID,
+    HOT_WATER_METER_RESOURCE_ID,
+} from '../../constants/constants'
+import { SnowflakeIcon } from '@condo/domains/common/components/icons/SnowflakeIcon'
+import { FireIcon } from '@condo/domains/common/components/icons/FireIcon'
+import { StoveIcon } from '@condo/domains/common/components/icons/StoveIcon'
+import { BulbIcon } from '@condo/domains/common/components/icons/BulbIcon'
+import { RadiatorIcon } from '@condo/domains/common/components/icons/RadiatorIcon'
+
 export * as MeterResource from './MeterResource'
 export * as MeterReadingSource from './MeterReadingSource'
 export * as MeterReading from './MeterReading'
 export * as Meter from './Meter'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
+
+
+export const resourceIds = [
+    COLD_WATER_METER_RESOURCE_ID,
+    HOT_WATER_METER_RESOURCE_ID,
+    GAS_SUPPLY_METER_RESOURCE_ID,
+    ELECTRICITY_METER_RESOURCE_ID,
+    HEAT_SUPPLY_METER_RESOURCE_ID,
+]
+
+export const resourceIdToIcon = {
+    [COLD_WATER_METER_RESOURCE_ID]: SnowflakeIcon,
+    [HOT_WATER_METER_RESOURCE_ID]: FireIcon,
+    [GAS_SUPPLY_METER_RESOURCE_ID]: StoveIcon,
+    [ELECTRICITY_METER_RESOURCE_ID]: BulbIcon,
+    [HEAT_SUPPLY_METER_RESOURCE_ID]: RadiatorIcon,
+}
