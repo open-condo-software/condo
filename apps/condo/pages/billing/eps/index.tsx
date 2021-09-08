@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useCallback } from 'react'
 import Head from 'next/head'
-import { Form, Button, Space, Typography, Skeleton, Row, Col } from 'antd'
+import { Button, Space, Typography, Row, Col } from 'antd'
 import { RightCircleOutlined } from '@ant-design/icons'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { useIntl } from '@core/next/intl'
@@ -36,6 +36,7 @@ const EpsPage = () => {
 
     const onRunButtonClick = useCallback((inputValue) => {
         setIsLoading(true)
+        setOutputValue('')
         const data = { dv: 1, sender: getClientSideSenderInfo(), xml: inputValue }
         return runMutation({
             mutation: requestEps,
@@ -52,7 +53,7 @@ const EpsPage = () => {
         }).catch(() => {
             setIsLoading(false)
         })
-    }, [intl])
+    }, [intl, requestEps])
 
     const setInputXml = (xml) => {
         for (const key in epsConfig) {
@@ -93,6 +94,7 @@ const EpsPage = () => {
                                 defaultLanguage='xml'
                                 theme={'vs-dark'}
                                 options={{ minimap: { enabled: false } }}
+                                onChange={setInputValue}
                                 value={inputValue}
                             />
                         </Col>

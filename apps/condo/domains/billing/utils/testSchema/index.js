@@ -533,9 +533,8 @@ async function createOrganizationIntegrationManager() {
 }
 
 
-async function epsRequestByTestClient (client, id, extraAttrs = {}) {
+async function epsRequestByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const attrs = {
         dv: 1,

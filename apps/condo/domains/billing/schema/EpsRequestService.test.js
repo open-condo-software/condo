@@ -3,7 +3,7 @@
  */
 
 const { makeClient } = require('@core/keystone/test.utils')
-const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAuthenticationError } = require('@condo/domains/common/utils/testSchema')
 
 const { epsRequestByTestClient } = require('@condo/domains/billing/utils/testSchema')
 const { GROUP_LIST_XML } = require('@condo/domains/billing/constants/eps')
@@ -14,9 +14,8 @@ describe('EpsRequestService', () => {
     test('anonymous: can not execute', async () => {
         const client = await makeClient()
         const payload = { xml: epsReplaceEnvParamsInXml(GROUP_LIST_XML) }
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationError(async () => {
             await epsRequestByTestClient(client, payload)
-        })
+        }, 'result')
     })
-
 })
