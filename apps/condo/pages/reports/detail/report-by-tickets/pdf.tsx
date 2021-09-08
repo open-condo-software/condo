@@ -84,7 +84,7 @@ const PdfView = () => {
         loadTicketAnalyticsData({ variables: { data: { groupBy, where } } })
 
     }, [userOrganizationId])
-    //TODO: make mappers same with detail page
+
     useEffect(() => {
         if (mapperInstanceRef.current === null && groupByRef.current !== null) {
             const mainGroup = get(queryParamsRef.current, 'groupBy', 'status')
@@ -165,7 +165,8 @@ const PdfView = () => {
                         return { series, legend, axisData, tooltip }
                     },
                     table: (viewMode, ticketGroupedCounter, restOptions) => {
-                        const data = getAggregatedData(ticketGroupedCounter, mainGroup === 'status' ? groupByRef.current.reverse() : groupByRef.current)
+                        const groupByCopy = [...groupByRef.current]
+                        const data = getAggregatedData(ticketGroupedCounter, mainGroup === 'status' ? groupByCopy.reverse() : groupByCopy)
                         const { translations, filters } = restOptions
                         const dataSource = []
                         const tableColumns: TableColumnsType = [

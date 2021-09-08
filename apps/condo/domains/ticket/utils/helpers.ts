@@ -14,9 +14,16 @@ import {
     TicketStatusWhereInput,
     TicketWhereInput,
 } from '../../../schema'
-import { AnalyticsDataType, TicketSelectTypes, ViewModeTypes } from '../components/TicketChart'
+import {
+    AnalyticsDataType,
+    ChartConfigResult,
+    TicketSelectTypes,
+    ViewModeTypes,
+} from '../components/TicketChart'
 import { TICKET_REPORT_DAY_GROUP_STEPS } from '@condo/domains/ticket/constants/common'
-
+import { MAX_CHART_LEGEND_ELEMENTS, MAX_CHART_NAME_LENGTH } from '../constants/restrictions'
+import { CHART_COLOR_SET, fontSizes } from '@condo/domains/common/constants/style'
+import { EChartsOption, EChartsReactProps } from 'echarts-for-react'
 
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
@@ -449,4 +456,112 @@ export const getAggregatedData: IGetAggregatedData = (data, groupByFilter) => {
         )
     })
     return result
+}
+
+const formatPieChartName = (propertyFullAddress: string): string => {
+    const chartName = propertyFullAddress.split(', ').slice(1).join(', ')
+    return chartName.length > MAX_CHART_NAME_LENGTH
+        ? `${chartName.substring(0, MAX_CHART_NAME_LENGTH)}...`
+        : chartName
+}
+
+interface IGetChartOptions {
+    ({
+        legend,
+        viewMode,
+        animationEnabled,
+        axisData,
+        tooltip,
+        series,
+        chartOptions,
+    }: {
+        legend: string[],
+        viewMode: ViewModeTypes,
+        animationEnabled: boolean,
+        axisData?: ChartConfigResult['axisData'],
+        tooltip?: ChartConfigResult['tooltip'],
+        series: ChartConfigResult['series'],
+        chartOptions: EChartsReactProps['opts']
+    }): {
+        option: EChartsOption,
+        opts: unknown
+    }
+}
+
+export const getChartOptions: IGetChartOptions = ({
+    series,
+    axisData,
+    tooltip,
+    animationEnabled,
+    viewMode,
+    legend,
+    chartOptions }) => {
+    const option = {
+        animation: animationEnabled,
+        color: CHART_COLOR_SET,
+        grid: {
+            left: 0,
+            right: 0,
+            bottom: 0,
+            containLabel: true,
+            borderWidth: 1,
+        },
+    }
+    const opts = { ...chartOptions, renderer: 'svg' }
+
+    const chartStyle = {}
+
+    if (viewMode === 'pie') {
+        option['legend'] = { data: legend, show: false }
+        option['tooltip'] = { trigger: 'item' }
+
+        option['series'] = series
+
+        option['title'] = {
+            show: true,
+            text: formatPieChartName(series[0].name),
+            left: 375,
+            top: 30,
+            textStyle: {
+                fontSize: fontSizes.content,
+                fontWeight: 700,
+                overflow: 'breakAll',
+                width: 160,
+                lineHeight: 20,
+            },
+        }
+    } else {
+        option['legend'] = {
+            data: legend,
+            x: 'left',
+            top: 10,
+            padding: [5, 135, 0, 0],
+            icon: 'circle',
+            itemWidth: 7,
+            itemHeight: 7,
+            textStyle: { fontSize: fontSizes.content },
+            itemGap: 14,
+        }
+        option['xAxis'] = axisData['xAxis']
+        option['yAxis'] = axisData['yAxis']
+        option['series'] = series
+        option['tooltip'] = tooltip
+        const legendItemGap = 36
+        option['grid']['top'] = legend.length / MAX_CHART_LEGEND_ELEMENTS * legendItemGap
+
+        const chartHeight = get(chartOptions, 'height', 'auto')
+        if (chartHeight !== 'auto') {
+            chartStyle['height'] = chartHeight
+        }
+
+        if (viewMode === 'bar' && chartHeight === 'auto') {
+            const axisLabels = get(axisData, 'yAxis.data')
+            if (axisLabels && axisLabels.length > 5) {
+                chartStyle['height'] = axisLabels.length * 50
+            }
+        }
+        opts['height'] = chartHeight
+    }
+
+    return { option, opts }
 }

@@ -248,25 +248,21 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     const [groupTicketsBy, setGroupTicketsBy] = useState<GroupTicketsByTypes>('status')
     const [viewMode, setViewMode] = useState<ViewModeTypes>('line')
     const [analyticsData, setAnalyticsData] = useState<null | TicketGroupedCounter[]>(null)
-    const [loading, setLoading] = useState<boolean>(false)
     const [excelDownloadLink, setExcelDownloadLink] = useState<null | string>(null)
-
     const [ticketType, setTicketType] = useState<TicketSelectTypes>('all')
     const [dateFrom, dateTo] = filtersRef.current !== null ? filtersRef.current.range : []
     const selectedPeriod = filtersRef.current !== null ? filtersRef.current.range.map(e => e.format(DATE_DISPLAY_FORMAT)).join(' - ') : ''
     const selectedAddresses = filtersRef.current !== null ? filtersRef.current.addressList : []
 
-    const [loadTicketAnalytics] = useLazyQuery(TICKET_ANALYTICS_REPORT_QUERY, {
+    const [loadTicketAnalytics, { loading }] = useLazyQuery(TICKET_ANALYTICS_REPORT_QUERY, {
         onError: error => {
             console.log(error)
             notification.error(error)
-            setLoading(false)
         },
         fetchPolicy: 'network-only',
         onCompleted: response => {
             const { result: { groups } } = response
             setAnalyticsData(groups)
-            setLoading(false)
         },
     })
     const [exportTicketAnalyticsToExcel, { loading: isXSLXLoading }] = useLazyQuery(EXPORT_TICKET_ANALYTICS_TO_EXCEL, {
@@ -282,7 +278,6 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     })
     const getAnalyticsData = () => {
         if (filtersRef.current !== null) {
-            setLoading(true)
             const { AND, groupBy } = filterToQuery(
                 { filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy }
             )
@@ -603,6 +598,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     if (selectedAddresses.length > 1) {
         addressFilterTitle = ManyAddresses
     }
+
     const isControlsDisabled = loading || isXSLXLoading || filtersRef.current === null
     return <>
         <Head>
@@ -702,7 +698,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                     <Select.Option value='emergency'>{TicketTypeEmergency}</Select.Option>
                                 </Select>
                             </TicketChartView>
-                        ), [analyticsData, loading, viewMode, ticketType])}
+                        ), [analyticsData, loading, viewMode, ticketType, userOrganizationId])}
                     </Col>
                     <Col span={24}>
                         <Typography.Title level={4} style={{ marginBottom: 20 }}>{TableTitle}</Typography.Title>
@@ -714,7 +710,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                 filters={filtersRef.current}
                                 mapperInstance={mapperInstanceRef.current}
                             />
-                        ), [analyticsData, loading, viewMode])}
+                        ), [analyticsData, loading, viewMode, ticketType, userOrganizationId])}
                     </Col>
                     <ActionBar fullscreen>
                         <Button disabled={isControlsDisabled || isEmpty(analyticsData)} onClick={printPdf} icon={<FilePdfFilled />} type='sberPrimary' secondary>
