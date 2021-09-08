@@ -68,6 +68,7 @@ export const EmployeePageContent = ({
     const isEmployeeBlocked = get(employee, 'isBlocked')
 
     const name = get(employee, 'name')
+    const email = get(employee, 'email')
 
     const handleEmployeeBlock = (blocked) => {
         if (!isEmployeeEditable) {
@@ -191,15 +192,18 @@ export const EmployeePageContent = ({
                                                             }
                                                         />
                                                     </Col>
-
-                                                    <Col span={4}>
-                                                        <Typography.Text type='secondary'>
-                                                            {EmailMessage}
-                                                        </Typography.Text>
-                                                    </Col>
-                                                    <Col span={18} push={1}>
-                                                        <NotDefinedField value={get(employee, 'email')}/>
-                                                    </Col>
+                                                    {
+                                                        email && <>
+                                                            <Col span={4}>
+                                                                <Typography.Text type='secondary'>
+                                                                    {EmailMessage}
+                                                                </Typography.Text>
+                                                            </Col>
+                                                            <Col span={18} push={1}>
+                                                                <NotDefinedField value={email}/>
+                                                            </Col>
+                                                        </>
+                                                    }
                                                 </Row>
                                             </FrontLayerContainer>
                                         </Col>

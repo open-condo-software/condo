@@ -18,11 +18,11 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
     types: [
         {
             access: true,
-            type: 'input InviteNewOrganizationEmployeeInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, email: String!, phone: String, name: String, role: OrganizationEmployeeWhereUniqueInput, position: String, specializations: [TicketCategoryClassifierWhereInput!]}',
+            type: 'input InviteNewOrganizationEmployeeInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, email: String, phone: String, name: String, role: OrganizationEmployeeWhereUniqueInput, position: String, specializations: [TicketCategoryClassifierWhereInput!]}',
         },
         {
             access: true,
-            type: 'input ReInviteOrganizationEmployeeInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, email: String!, phone: String}',
+            type: 'input ReInviteOrganizationEmployeeInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, email: String, phone: String!}',
         },
     ],
     mutations: [
@@ -116,8 +116,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     throw new Error('[error] User is not authenticated')
                 }
                 const { data } = args
-                let { organization, email, sender } = data
-                let { phone } = data
+                let { organization, email, sender, phone } = data
                 phone = normalizePhone(phone)
                 email = normalizeEmail(email)
                 if (!phone) {
