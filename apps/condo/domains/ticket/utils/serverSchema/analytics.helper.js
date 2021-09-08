@@ -118,8 +118,12 @@ const getCombinations = ({ options = {}, optionIndex = 0, results = [], current 
         if (optionIndex + 1 < allKeys.length) {
             getCombinations({ options, optionIndex: optionIndex + 1, results, current })
         } else {
-            const res = JSON.parse(JSON.stringify(current))
-            results.push(res)
+            try {
+                const res = JSON.parse(JSON.stringify(current))
+                results.push(res)
+            } catch (e) {
+                break
+            }
         }
     }
 
@@ -127,13 +131,14 @@ const getCombinations = ({ options = {}, optionIndex = 0, results = [], current 
 }
 
 const enumerateDaysBetweenDates = function (startDate, endDate, step = 'day') {
-    const currDate = dayjs(startDate).startOf(step).isoWeekday(1)
+    let currentDate = dayjs(startDate).startOf(step).isoWeekday(1)
     const lastDate = dayjs(endDate).startOf(step).isoWeekday(1)
     const dateStringFormat = DATE_FORMATS[step]
-    const dates = [currDate.format(dateStringFormat)]
+    const dates = [currentDate.format(dateStringFormat)]
 
-    while (currDate.add(1, step).diff(lastDate) < 0) {
-        dates.push(currDate.clone().format(dateStringFormat))
+    while (currentDate.add(1, step).diff(lastDate) < 0) {
+        currentDate = currentDate.add(1, step)
+        dates.push(currentDate.clone().format(dateStringFormat))
     }
     dates.push(lastDate.format(dateStringFormat))
     return dates

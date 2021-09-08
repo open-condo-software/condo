@@ -5,14 +5,13 @@ import isEmpty from 'lodash/isEmpty'
 import get from 'lodash/get'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import ReactECharts from 'echarts-for-react'
-import TicketChart, { ViewModeTypes } from '@condo/domains/ticket/components/TicketChart'
+import TicketChart, { EchartsSeries, ViewModeTypes } from '@condo/domains/ticket/components/TicketChart'
 import { CHART_COLOR_SET } from '@condo/domains/common/constants/style'
 import { TicketGroupedCounter } from '../../../../schema'
 import { colors } from '@condo/domains/common/constants/style'
 import InfiniteScroll from 'react-infinite-scroller'
-import { TICKET_CHART_PAGE_SIZE, MAX_CHART_NAME_LENGTH } from '@condo/domains/ticket/constants/restrictions'
-import { fontSizes } from '@condo/domains/common/constants/style'
-
+import { TICKET_CHART_PAGE_SIZE } from '@condo/domains/ticket/constants/restrictions'
+import { getChartOptions } from '@condo/domains/ticket/utils/helpers'
 export interface ITicketAnalyticsPageWidgetProps {
     data: null | TicketGroupedCounter[]
     viewMode: ViewModeTypes
@@ -28,13 +27,6 @@ interface ITicketAnalyticsPageChartProps extends ITicketAnalyticsPageWidgetProps
     }
 }
 
-const formatPieChartName = (propertyFullAddress: string): string => {
-    const chartName = propertyFullAddress.split(', ').slice(1).join(', ')
-    return chartName.length > MAX_CHART_NAME_LENGTH
-        ? `${chartName.substring(0, MAX_CHART_NAME_LENGTH)}...`
-        : chartName
-}
-
 const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
     children,
     data,
@@ -46,15 +38,15 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
 }) => {
     const intl = useIntl()
     const NoData = intl.formatMessage({ id: 'NoData' })
-    let legend = [], axisData = {}, tooltip = {}
+    let legend = [], axisData = null, tooltip = null
     const [chartReadyCounter, setChartReadyCounter] = useState<number>(0)
     // Start from 1 because used as multiplier with TICKET_CHART_PAGE_SIZE
     const [pieChartPage, setPieChartPage] = useState(1)
     // Store pie chart refs because we need to access api for every chart component
     const chartRefs = useRef([])
     // Cache series result for client side paging
-    const seriesRef = useRef([])
-    const seriesCacheRef = useRef([])
+    const seriesRef = useRef<EchartsSeries[]>([])
+    const seriesCacheRef = useRef<EchartsSeries[]>([])
 
     if (data !== null) {
         const mapperResult = mapperInstance.getChartConfig(viewMode, data)
@@ -62,7 +54,6 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
         const pageSize = TICKET_CHART_PAGE_SIZE * pieChartPage
         seriesRef.current = mapperResult.series.slice(0, pageSize)
         // If component used as report widget, we should use page separation. Otherwise we load all data (for pdf page)
-        // series = seriesRef.current.slice(0, pageSize)
         legend = mapperResult.legend
         axisData = mapperResult.axisData
         tooltip = mapperResult.tooltip
@@ -91,7 +82,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
             if (chartReadyCounter < seriesRef.current.length) {
                 let animationFrameId
                 const nextAnimationFrame = () => {
-                    setPieChartPage(x => x + 1)
+                    setPieChartPage(pieChartPage => pieChartPage + 1)
                     animationFrameId = requestAnimationFrame(nextAnimationFrame)
                 }
 
@@ -107,37 +98,17 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
         return <Skeleton loading={loading} active paragraph={{ rows: 12 }} />
     }
     const { animationEnabled, chartOptions } = chartConfig
-    // TODO(sitozzz): find more clean solution
+
     if (viewMode !== 'pie') {
-        const gridTop = legend.length / 3 * 36
-        const option = {
-            animation: animationEnabled,
-            color: CHART_COLOR_SET,
+        const { opts, option } = getChartOptions({
+            legend,
+            axisData,
             tooltip,
-            legend: {
-                data: legend,
-                x: 'left',
-                top: 10,
-                padding: [5, 135, 0, 0],
-                icon: 'circle',
-                itemWidth: 7,
-                itemHeight: 7,
-                // itemGap: 28,
-                textStyle: {
-                    fontSize: fontSizes.content,
-                },
-            },
-            grid: {
-                left: 0,
-                right: 10,
-                bottom: 0,
-                top: gridTop,
-                containLabel: true,
-                borderWidth: 1,
-            },
-            ...axisData,
             series: seriesCacheRef.current,
-        }
+            chartOptions,
+            viewMode,
+            animationEnabled,
+        })
 
         const isEmptyDataSet = Object.values(data).every(ticketStatus => {
             if (viewMode === 'line') {
@@ -169,7 +140,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
             ) : (
                 <>
                     <ReactECharts
-                        opts={{ ...chartOptions, renderer: 'svg', height: chartHeight }}
+                        opts={opts}
                         onChartReady={onChartReady}
                         notMerge
                         style={{ ...chartStyle }}
@@ -181,17 +152,6 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
         </Typography.Paragraph>
     }
 
-    const option = {
-        animation: animationEnabled,
-        color: CHART_COLOR_SET,
-        legend: {
-            data: legend,
-            show: false,
-        },
-        tooltip: { trigger: 'item' },
-    }
-    const chartHeight = get(chartOptions, 'height', 'auto')
-    const chartStyle = {}
     const hasMore = pieChartPage * TICKET_CHART_PAGE_SIZE <= seriesRef.current.length
     let infiniteScrollContainerHeight = seriesRef.current.length > 2 ? '640px' : '340px'
     // onChartReadyCallback is used only for pdf generation page to make sure that chart component was rendered at DOM
@@ -256,33 +216,31 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
                         <List
                             grid={{ gutter: 24, xs: 1, sm: 1, md: 1, lg: 1, xl: 1, xxl: 2 }}
                             dataSource={seriesRef.current}
-                            renderItem={(chartSeries, index) => (
-                                <List.Item key={`pie-${index}`} style={{ width: 620 }} >
-                                    <ReactECharts
-                                        ref={element => chartRefs.current[index] = element}
-                                        opts={{ ...chartOptions, renderer: 'svg', height: chartHeight }}
-                                        onChartReady={() => setChartReadyCounter(chartReadyCounter + 1)}
-                                        notMerge
-                                        style={{ ...chartStyle, border: '1px solid', borderColor: colors.lightGrey[6], borderRadius: 8 }}
-                                        option={{
-                                            series: [chartSeries],
-                                            title: {
-                                                show: true,
-                                                text: formatPieChartName(chartSeries.name),
-                                                left: 375,
-                                                top: 30,
-                                                textStyle: {
-                                                    fontSize: 16,
-                                                    fontWeight: 700,
-                                                    overflow: 'breakAll',
-                                                    width: 160,
-                                                    lineHeight: 20,
-                                                },
-                                            },
-                                            ...option }}
-                                    />
-                                </List.Item>
-                            )}
+                            renderItem={(chartSeries, index) => {
+                                const { option, opts } = getChartOptions({
+                                    series: [chartSeries],
+                                    legend,
+                                    viewMode,
+                                    chartOptions,
+                                    animationEnabled,
+                                })
+                                return (
+                                    <List.Item key={`pie-${index}`} style={{ width: 620 }}>
+                                        <ReactECharts
+                                            ref={element => chartRefs.current[index] = element}
+                                            opts={opts}
+                                            onChartReady={() => setChartReadyCounter(chartReadyCounter + 1)}
+                                            notMerge
+                                            style={{
+                                                border: '1px solid',
+                                                borderColor: colors.lightGrey[6],
+                                                borderRadius: 8,
+                                            }}
+                                            option={option}
+                                        />
+                                    </List.Item>
+                                )
+                            }}
                             style={{ paddingRight: 20, minWidth: 1080 }}
                         />
                     </InfiniteScroll>
