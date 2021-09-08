@@ -365,6 +365,7 @@
   "pages.condo.meter.NoAccountNumber": "Нет номера лицевого счета",
   "pages.condo.meter.AddAccountDescription": "Добавьте лицевой счет, чтобы иметь возможность создавать приборы учета у этого абонента",
   "pages.condo.meter.AddAccount": "Добавить лицевой счет",
+  "pages.condo.meter.NewAccountAlert": "Проверьте корректно ли вы ввели номер лицевого счета.\nПосле сдачи показаний поменять его будет невозможно!",
   "pages.index.PageTitle": "Аналитика",
   "pages.organizations.CreateOrganizationMessage": "Давайте создадим вашу управляющую компанию",
   "pages.condo.analytics.index.PageTitle": "Аналитика",
