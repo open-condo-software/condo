@@ -153,7 +153,6 @@ export function searchEmployeeUser (organizationId, filter) {
                     return ({ text: object.name, value: object.user.id })
                 }
             })
-        console.debug(result)
         return result
     }
 }
