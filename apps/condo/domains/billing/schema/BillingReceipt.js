@@ -9,15 +9,9 @@ const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields'
 const access = require('@condo/domains/billing/access/BillingReceipt')
 const { validatePaymentDetails, validateServices, validateRecipient } = require('../utils/validation.utils')
 const { DV_UNKNOWN_VERSION_ERROR, WRONG_TEXT_FORMAT } = require('@condo/domains/common/constants/errors')
-const { RAW_DATA_FIELD, PERIOD_FIELD } = require('./fields/common')
-const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD } = require('./fields/relations')
-const { TO_PAY_DETAILS_FIELD } = require('./fields/BillingReceipt/ToPayDetailsField')
-const { SERVICES_FIELD } = require('./fields/BillingReceipt/Services')
-const { RECIPIENT_FIELD } = require('./fields/BillingReceipt/Recipient')
+const { INTEGRATION_CONTEXT_FIELD, IMPORT_ID_FIELD, RAW_DATA_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD, PERIOD_FIELD } = require('./fields')
 const { get } = require('lodash')
 const { validateIdentity } = require('@condo/domains/common/utils/validation.utils')
-const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
-const { INTEGRATION_CONTEXT_FIELD, IMPORT_ID_FIELD, RAW_DATA_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD, PERIOD_FIELD } = require('./fields')
 
 const BillingReceipt = new GQLListSchema('BillingReceipt', {
     schemaDoc: 'Account monthly invoice document',
