@@ -82,7 +82,6 @@ const PdfView = () => {
     const ClientInfoMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.ClientInfo' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
     const FullNameMessage = intl.formatMessage({ id: 'field.FullName' })
-    const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
     const SourceMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.Source' })
     const ExecutorMessage = intl.formatMessage({ id: 'field.Executor' })
     const ClassifierMessage = intl.formatMessage({ id: 'Classifier' })
@@ -114,7 +113,6 @@ const PdfView = () => {
         }
     }, [loading])
 
-
     const TicketTitleMessage = getTicketTitleMessage(intl, ticket)
 
     if (error || loading || !ticket) {
@@ -128,7 +126,7 @@ const PdfView = () => {
         + (ticket.sectionName && ticket.floorName ? `, ${SectionName} ${ticket.sectionName}, ${FloorName} ${ticket.floorName}` : '')
         + (ticket.unitName ? `, ${ShortFlatNumber} ${ticket.unitName}` : '')
     const isEmergency = get(ticket, 'isEmergency')
-
+    // TODO(zuch): display 3-level classifier here
     return (
         <Row gutter={[12, 40]} style={{ filter: 'grayscale(1)', maxWidth: '800px', padding: '40px' }} ref={containerRef}>
             <Col span={24}>
@@ -185,13 +183,13 @@ const PdfView = () => {
                         </Col>
                         <Col span={24}>
                             <Row gutter={[12, 12]}>
-                                <Col span={6}>
+                                <Col span={12}>
                                     <TicketDescriptionField
                                         title={AddressMessage}
                                         value={ticketAddress}
                                     />
                                 </Col>
-                                <Col span={6}>
+                                <Col span={12}>
                                     <TicketUserInfoField
                                         title={FullNameMessage}
                                         user={{
@@ -199,9 +197,6 @@ const PdfView = () => {
                                             phone: ticket.clientPhone,
                                         }}
                                     />
-                                </Col>
-                                <Col span={6}>
-                                    <TicketDescriptionField title={EmailMessage} value={ticket.clientEmail}/>
                                 </Col>
                             </Row>
                         </Col>

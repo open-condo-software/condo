@@ -31,6 +31,7 @@ export const UserInfoPage = () => {
     }, [])
 
     const name = get(user, 'name')
+    const email = get(user, 'email', '')
 
     return (
         <>
@@ -66,16 +67,18 @@ export const UserInfoPage = () => {
                                                 <Col span={19} push={2}>
                                                     <NotDefinedField value={get(user, 'phone')}/>
                                                 </Col>
-
-                                                <Col span={3}>
-                                                    <Typography.Text type='secondary'>
-                                                        {EmailMessage}
-                                                    </Typography.Text>
-                                                </Col>
-                                                <Col span={19} push={2}>
-                                                    <NotDefinedField value={get(user, 'email')}/>
-                                                </Col>
-
+                                                {
+                                                    email && <>
+                                                        <Col span={3}>
+                                                            <Typography.Text type='secondary'>
+                                                                {EmailMessage}
+                                                            </Typography.Text>
+                                                        </Col>
+                                                        <Col span={19} push={2}>
+                                                            <NotDefinedField value={get(user, 'email')}/>
+                                                        </Col>
+                                                    </>
+                                                }
                                                 <Col span={3}>
                                                     <Typography.Text type='secondary'>
                                                         {PasswordMessage}

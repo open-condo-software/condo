@@ -30,9 +30,9 @@ export const UserProfileForm = () => {
     const router = useRouter()
     const FullNameLabel = intl.formatMessage({ id: 'pages.auth.register.field.Name' })
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
+    const ExampleEmailMessage = intl.formatMessage({ id: 'example.Email' })
     const PasswordLabel = intl.formatMessage({ id: 'pages.auth.signin.field.Password' })
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
-    const PleaseInputYourEmailMessage = intl.formatMessage({ id: 'pages.auth.PleaseInputYourEmail' })
     const MinLengthError = intl.formatMessage({ id: 'field.ClientName.minLengthError' })
     const ProfileUpdateTitle = intl.formatMessage({ id: 'profile.Update' })
 
@@ -43,7 +43,7 @@ export const UserProfileForm = () => {
     const { requiredValidator, emailValidator, changeMessage, minLengthValidator } = useValidations()
     const minClientNameRule = changeMessage(minLengthValidator(2), MinLengthError)
     const validations = {
-        email: [changeMessage(requiredValidator, PleaseInputYourEmailMessage), emailValidator],
+        email: [emailValidator],
         name: [requiredValidator, minClientNameRule],
     }
 
@@ -95,7 +95,7 @@ export const UserProfileForm = () => {
                                         label={EmailLabel}
                                         rules={validations.email}
                                     >
-                                        <Input/>
+                                        <Input placeholder={ExampleEmailMessage}/>
                                     </Form.Item>
                                     <Form.Item {...INPUT_LAYOUT_PROPS} labelAlign={'left'} label={PasswordLabel}>
                                         <UserPasswordResetButton/>
