@@ -6,7 +6,6 @@ const { createTestProperty } = require('@condo/domains/property/utils/testSchema
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClient } = require('@core/keystone/test.utils')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
-const { makeClientWithResidentUserAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
