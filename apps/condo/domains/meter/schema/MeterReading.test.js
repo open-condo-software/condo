@@ -31,7 +31,7 @@ const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSc
 
 describe('MeterReading', () => {
     describe('Create', () => {
-        test('employee with canManageMeters role: can create MeterReadings', async () => {
+        test('employee with "canManageMeters" role: can create MeterReadings', async () => {
             const client = await makeEmployeeUserClientWithAbilities({
                 canManageMeters: true,
             })
@@ -42,6 +42,25 @@ describe('MeterReading', () => {
             const [meterReading] = await createTestMeterReading(client, meter, client.organization, source)
 
             expect(meterReading.id).toMatch(UUID_RE)
+        })
+
+        test('employee with "canManageMeters" role: cannot create MeterReadings with wrong "sender" field', async () => {
+            const client = await makeEmployeeUserClientWithAbilities({
+                canManageMeters: true,
+            })
+            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+            const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
+            const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
+
+            await catchErrorFrom(async () => {
+                await createTestMeterReading(client, meter, client.organization, source, {
+                    sender: null,
+                })
+            }, ({ errors, data }) => {
+                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                expect(errors[0].data.messages[0]).toContain('Required field "sender" is null or undefined.')
+                expect(data).toEqual({ 'obj': null })
+            })
         })
 
         test('employee without "canManageMeters" role: cannot create MeterReadings', async () => {
