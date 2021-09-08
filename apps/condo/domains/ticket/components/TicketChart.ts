@@ -6,9 +6,28 @@ export type ViewModeTypes = 'bar' | 'line' | 'pie'
 
 export type AnalyticsDataType = Record<string, Record<string, number>>
 
-type ChartConfigResult = {
+export type EchartsSeries = {
+    type: ViewModeTypes
+    name?: string
+    stack?: string
+    data: unknown[]
+    label?: {
+        show: boolean
+        position: 'top' | 'bottom' | 'left' | 'right'
+        padding: number | number[]
+        width: number
+        height: number
+    }
+    emphasis?: {
+        focus: string
+        blurScope: string
+    }
+    symbol?: string
+}
+
+export type ChartConfigResult = {
     legend: string[],
-    series: unknown[],
+    series: EchartsSeries[],
     axisData?: {
         xAxis: { type: string, data: null | string[] },
         yAxis: { type: string, data: null | string[] }
