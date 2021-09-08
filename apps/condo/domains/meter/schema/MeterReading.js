@@ -36,7 +36,8 @@ const MeterReading = new GQLListSchema('MeterReading', {
         },
 
         value1: {
-            schemaDoc: 'Meter reading value of tariff 1',
+            schemaDoc: 'If the meter is single-tariff, then only this value will be filled in;' +
+                'If multi-tariff, then the value of the first tariff will be in this field',
             type: Integer,
             isRequired: true,
             hooks: {
@@ -53,7 +54,7 @@ const MeterReading = new GQLListSchema('MeterReading', {
         },
 
         value2: {
-            schemaDoc: 'Meter reading value of tariff 2',
+            schemaDoc: 'If the meter is multi-tariff, then the value of the second tariff is stored here',
             type: Integer,
             hooks: {
                 validateInput: async ({ context, operation, resolvedData, fieldPath, addFieldValidationError }) => {
@@ -69,7 +70,7 @@ const MeterReading = new GQLListSchema('MeterReading', {
         },
 
         value3: {
-            schemaDoc: 'Meter reading value of tariff 3',
+            schemaDoc: 'If the meter is multi-tariff, then the value of the third tariff is stored here',
             type: Integer,
             hooks: {
                 validateInput: async ({ context, operation, resolvedData, fieldPath, addFieldValidationError }) => {
@@ -85,7 +86,7 @@ const MeterReading = new GQLListSchema('MeterReading', {
         },
 
         value4: {
-            schemaDoc: 'Meter reading value of tariff 4',
+            schemaDoc: 'If the meter is multi-tariff, then the value of the fourth tariff is stored here',
             type: Integer,
             hooks: {
                 validateInput: async ({ context, operation, resolvedData, fieldPath, addFieldValidationError }) => {
