@@ -4,7 +4,7 @@ import { Col, Divider, Form, Input, Row, Space, Typography } from 'antd'
 import { green } from '@ant-design/colors'
 import { DeleteFilled, PlusCircleFilled } from '@ant-design/icons'
 import React, { useCallback } from 'react'
-import { useCreateMeterModal } from './hooks/useCreateMeterModal'
+import { useCreateMeterModalOLD } from './hooks/useCreateMeterModalOLD'
 import { shadows, transitions } from '@condo/domains/common/constants/style'
 import { Button } from '@condo/domains/common/components/Button'
 import { NamePath } from 'antd/lib/form/interface'
@@ -132,7 +132,7 @@ const NewMeterReading = ({
 }
 
 export const MetersGroup = ({ name, form, existedMeters = [], billingMeterReadings, Icon, meterResource }) => {
-    const { CreateModal, setIsCreateModalVisible } = useCreateMeterModal()
+    const { CreateModal, setIsCreateModalVisible } = useCreateMeterModalOLD()
 
     return (
         <>
@@ -170,6 +170,7 @@ export const MetersGroup = ({ name, form, existedMeters = [], billingMeterReadin
                                 {
                                     fields.map((field, index) => {
                                         const meter = form.getFieldValue([name, index])
+
                                         return (
                                             <React.Fragment key={name}>
                                                 {index === 0 && existedMeters.length > 0 ? <Divider style={{ marginBottom: 0 }}/> : null}
