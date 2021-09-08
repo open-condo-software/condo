@@ -1,59 +1,48 @@
 import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
 import { Col, Form, Input, Row } from 'antd'
-import { useState } from 'react'
+import React, { useState } from 'react'
+import { StoreValue } from 'rc-field-form/lib/interface'
+import { useIntl } from '@core/next/intl'
+import { ResourcesList } from '../createMeterModal/ResourcesList'
+import { MeterInfo } from '../createMeterModal/MeterInfo'
 
+type CreateMeterModalProps = {
+    addMeterToFormAction: (defaultValue?: StoreValue, insertIndex?: number) => void
+}
 
 export const useCreateMeterModal = ()=> {
-    const [isCreateModalVisible, setIsCreateModalVisible] = useState(false)
+    const intl = useIntl()
 
-    const CreateModal = ({ handleSubmit: _handleSubmit }) => (
+    const [isCreateMeterModalVisible, setIsCreateMeterModalVisible] = useState<boolean>(false)
+    const [selectedMeterResource, setSelectedMeterResource] = useState<string | null>(null)
+
+    const CreateMeterModal = ({ addMeterToFormAction }: CreateMeterModalProps) => (
         <BaseModalForm
-            visible={isCreateModalVisible}
-            cancelModal={() => setIsCreateModalVisible(false)}
+            visible={isCreateMeterModalVisible}
+            cancelModal={() => setIsCreateMeterModalVisible(false)}
             ModalTitleMsg={'Добавить счетчик'}
             ModalSaveButtonLabelMsg={'Добавить'}
             showCancelButton={false}
             validateTrigger={['onBlur', 'onSubmit']}
             handleSubmit={
                 (values) => {
-                    _handleSubmit(values)
-                    setIsCreateModalVisible(false)
+                    addMeterToFormAction(values)
+                    setIsCreateMeterModalVisible(false)
                 }
             }
         >
-            <Row gutter={[0, 20]}>
-                <Col span={24}>
-                    <Col span={24}>
-                        <Form.Item
-                            label={'Лицевой счет'}
-                            name='account'
-                            required={true}
-                        >
-                            <Input />
-                        </Form.Item>
-                    </Col>
-                    <Form.Item
-                        label={'Номер счетчика'}
-                        name='number'
-                        required={true}
-                    >
-                        <Input />
-                    </Form.Item>
-                </Col>
-                <Col span={24}>
-                    <Form.Item
-                        label={'Место установки счетчика'}
-                        name='place'
-                    >
-                        <Input />
-                    </Form.Item>
-                </Col>
-            </Row>
+            {
+                !selectedMeterResource ? (
+                    <ResourcesList setSelectedMeterResource={setSelectedMeterResource} />
+                ) : (
+                    <MeterInfo resourceId={selectedMeterResource} />
+                )
+            }
         </BaseModalForm>
     )
 
     return {
-        CreateModal,
-        setIsCreateModalVisible,
+        CreateMeterModal,
+        setIsCreateMeterModalVisible,
     }
 }
