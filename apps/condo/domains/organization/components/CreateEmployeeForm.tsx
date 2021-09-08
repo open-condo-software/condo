@@ -91,7 +91,7 @@ export const CreateEmployeeForm: React.FC = () => {
 
     const validations: { [key: string]: Rule[] } = {
         phone: [requiredValidator, phoneValidator, alreadyRegisteredPhoneValidator],
-        email: [requiredValidator, emailValidator, alreadyRegisteredEmailValidator],
+        email: [emailValidator, alreadyRegisteredEmailValidator],
     }
 
     const action = useInviteNewOrganizationEmployee({ organization: { id: organization.id } }, () => {
