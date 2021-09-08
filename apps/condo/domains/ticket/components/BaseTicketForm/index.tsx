@@ -209,7 +209,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
 
 const TicketAssignments = ({ validations, organizationId, disableUserInteraction }) => {
     const intl = useIntl()
-    const TicketPurposeTitle = intl.formatMessage({ id: 'TicketPurpose' })
+    const TicketAssignmentTitle = intl.formatMessage({ id: 'TicketAssignment' })
     const ExecutorLabel = intl.formatMessage({ id: 'field.Executor' })
     const ResponsibleLabel = intl.formatMessage({ id: 'field.Responsible' })
     const ExecutorExtra = intl.formatMessage({ id: 'field.Executor.description' })
@@ -233,7 +233,7 @@ const TicketAssignments = ({ validations, organizationId, disableUserInteraction
         <Col span={24}>
             <Row justify={'space-between'} gutter={[0, 24]}>
                 <Col span={24}>
-                    <Typography.Title level={5} style={{ margin: '0' }}>{TicketPurposeTitle}</Typography.Title>
+                    <Typography.Title level={5} style={{ margin: '0' }}>{TicketAssignmentTitle}</Typography.Title>
                 </Col>
                 <Col span={11}>
                     <Form.Item

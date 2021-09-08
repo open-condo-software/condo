@@ -501,7 +501,7 @@
   "ticket.status.COMPLETED.name": "Выполнена",
   "ticket.status.DEFERRED.name": "Отложена",
   "ticket.status.CLOSED.name": "Закрыта",
-  "TicketPurpose": "Назначение заявки",
+  "TicketAssignment": "Назначение заявки",
   "ticketsTable.Number": "№",
   "ticketsTable.ResidentName": "Фио Жителя",
   "ticket.shareTitle": "Заявка №{number} от {date}",
