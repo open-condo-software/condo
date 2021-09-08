@@ -105,35 +105,41 @@ describe('MeterReading', () => {
 
         test('resident: cannot create MeterReadings when last BillingAccountMeterReading less', async () => {
             const admin = await makeLoggedInAdminClient()
-            const client = await makeClientWithResidentUserAndProperty()
+            const client = await makeClientWithResidentUser()
 
             const meterNumber = faker.random.alphaNumeric(8)
             const accountNumber = faker.random.alphaNumeric(8)
             const value1 = faker.datatype.number()
 
-            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
-            const [property] = await createTestBillingProperty(admin, context)
-            const [billingAccount] = await createTestBillingAccount(admin, context, property, {
+            const { context, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const [billingProperty] = await createTestBillingProperty(admin, context)
+            const [billingAccount] = await createTestBillingAccount(admin, context, billingProperty, {
                 number: accountNumber,
             })
             const [billingMeterResource] = await createTestBillingMeterResource(admin)
-            const [billingMeter] = await createTestBillingAccountMeter(admin, context, property, billingAccount, billingMeterResource, {
+            const [billingMeter] = await createTestBillingAccountMeter(admin, context, billingProperty, billingAccount, billingMeterResource, {
                 number: meterNumber,
             })
-            await createTestBillingAccountMeterReading(admin, context, property, billingAccount, billingMeter, {
+            await createTestBillingAccountMeterReading(admin, context, billingProperty, billingAccount, billingMeter, {
                 value1,
             })
 
-            await createTestResident(admin, client.user, client.organization, client.property)
+            const [property] = await createTestProperty(admin, organization)
+            const unitName = faker.random.alphaNumeric(8)
+            await createTestResident(admin, client.user, organization, property, {
+                unitName,
+            })
+
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
             const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
-            const [meter] = await createTestMeter(admin, client.organization, client.property, resource, {
+            const [meter] = await createTestMeter(admin, organization, property, resource, {
                 account: accountNumber,
                 number: meterNumber,
+                unitName,
             })
 
             await catchErrorFrom(async () => {
-                await createTestMeterReading(client, meter, client.organization, source, {
+                await createTestMeterReading(client, meter, organization, source, {
                     value1: value1 - 10,
                 })
             }, ({ errors, data }) => {

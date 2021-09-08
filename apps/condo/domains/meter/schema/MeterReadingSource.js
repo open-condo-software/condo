@@ -10,14 +10,15 @@ const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields'
 
 
 const MeterReadingSource = new GQLListSchema('MeterReadingSource', {
-    schemaDoc: 'Ticket source. Income call, mobile_app, billing, ...',
+    schemaDoc: 'Ticket source. Income call, mobile_app, ...',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
         type: {
             type: Select,
-            options: 'call, mobile_app, billing',
+            options: 'call, mobile_app',
+
             isRequired: true,
         },
 

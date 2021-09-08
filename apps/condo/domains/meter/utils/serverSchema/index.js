@@ -28,6 +28,9 @@ const getLastBillingAccountMeterReading = async (context, resolvedData) => {
     const [lastMeterReading] = await BillingAccountMeterReading.getAll(context, {
         meter: { number: meter.number },
         account: { number: meter.account },
+        context: {
+            organization: { id: meter.organization.id },
+        },
     }, {
         sortBy: ['createdAt_DESC'],
     })
