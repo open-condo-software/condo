@@ -1,4 +1,4 @@
-import { Col, Form, Row, Space, Typography } from 'antd'
+import { Alert, Col, Form, Input, Row, Space, Typography } from 'antd'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useIntl } from '@core/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
@@ -39,6 +39,7 @@ import { jsx } from '@emotion/core'
 import EmptyListView, { BasicEmptyListView } from '../../common/components/EmptyListView'
 import { fontSizes } from '../../common/constants/style'
 import { useCreateAccountModal } from './hooks/useCreateAccountModal'
+import { AccountNumberInput } from './AccountNumberInput'
 
 
 const resourceIds = [
@@ -220,6 +221,8 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         existingMetersRef.current = existingMeters
     }, [existingMeters])
 
+    const isNoExistingMetersInThisUnit = existingMetersRef.current.length === 0
+
     const createMeterAction = Meter.useCreate({}, () => { return })
 
     const createMeterReadingAction = MeterReading.useCreate({
@@ -301,8 +304,6 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         await router.push('/')
     }, [])
 
-    // console.log('form.getFieldsValue()', form.getFieldsValue())
-
     return (
         <FormWithAction
             {...LAYOUT}
@@ -370,9 +371,15 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                             {
                                 resourcesLoading || existingMetersLoading ? <Loader /> :
                                     !selectedUnitNameRef.current ? null :
-                                        accountNumber ? (
+                                        accountNumberRef.current ? (
                                             <Col span={24}>
-                                                <Row gutter={[0, 12]} style={{ marginTop: '40px' }}>
+                                                <Row gutter={[0, 12]}>
+                                                    <AccountNumberInput
+                                                        accountNumberRef={accountNumberRef}
+                                                        isNoExistingMetersInThisUnit={isNoExistingMetersInThisUnit}
+                                                    />
+
+
                                                     <Typography.Paragraph
                                                         strong={true}
                                                         style={{ fontSize: '20px', marginBottom: 0 }}
