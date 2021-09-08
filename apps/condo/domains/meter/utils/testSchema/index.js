@@ -79,7 +79,7 @@ async function createTestMeter (client, organization, property, resource, extraA
     if (!property || !property.id) throw new Error('no property.id')
     if (!resource || !resource.id) throw new Error('no resource.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const account = faker.random.alphaNumeric(8)
+    const accountNumber = faker.random.alphaNumeric(8)
 
     const attrs = {
         dv: 1,
@@ -89,7 +89,7 @@ async function createTestMeter (client, organization, property, resource, extraA
         organization: { connect: { id: organization.id } },
         property: { connect: { id: property.id } },
         resource: { connect: { id: resource.id } },
-        account,
+        accountNumber,
         numberOfTariffs: 1,
         ...extraAttrs,
     }

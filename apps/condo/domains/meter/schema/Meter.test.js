@@ -157,7 +157,7 @@ describe('Meter', () => {
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await createTestMeter(client, organization, property, resource, {
-                    account: billingAccount.number,
+                    accountNumber: billingAccount.number,
                     unitName,
                 })
             })
@@ -305,7 +305,7 @@ describe('Meter', () => {
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
 
             const [meter] = await createTestMeter(adminClient, organization, property, resource, {
-                account: billingAccount.number,
+                accountNumber: billingAccount.number,
                 unitName,
             })
 
@@ -417,7 +417,7 @@ describe('Meter', () => {
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
 
             const [meter] = await createTestMeter(adminClient, organization, property, resource, {
-                account: billingAccount.number,
+                accountNumber: billingAccount.number,
                 unitName,
             })
 
@@ -456,7 +456,7 @@ describe('Meter', () => {
             const [resource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
 
             const [meter] = await createTestMeter(adminClient, organization2, property2, resource, {
-                account: billingAccount2.number,
+                accountNumber: billingAccount2.number,
                 unitName,
             })
 
@@ -495,7 +495,7 @@ describe('Meter', () => {
             const [resource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
 
             const [meter] = await createTestMeter(adminClient, organization, property2, resource, {
-                account: billingAccount2.number,
+                accountNumber: billingAccount2.number,
                 unitName,
             })
 
@@ -533,7 +533,7 @@ describe('Meter', () => {
             const [resource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
 
             const [meter] = await createTestMeter(adminClient, organization, property, resource, {
-                account: billingAccount2.number,
+                accountNumber: billingAccount2.number,
                 unitName: unitName2,
             })
             const meters = await Meter.getAll(client1, { id: meter.id })

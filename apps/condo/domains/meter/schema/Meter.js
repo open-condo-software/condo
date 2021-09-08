@@ -79,7 +79,7 @@ const Meter = new GQLListSchema('Meter', {
             type: DateTimeUtc,
         },
 
-        account: {
+        accountNumber: {
             schemaDoc: 'Client\'s billing account',
             type: Text,
             isRequired: true,
@@ -107,7 +107,7 @@ const Meter = new GQLListSchema('Meter', {
 
     },
     hooks: {
-        validateInput: ({ resolvedData, existingItem, context, addValidationError }) => {
+        validateInput: ({ resolvedData, context, addValidationError }) => {
             if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
             const { dv } = resolvedData
             if (dv === 1) {

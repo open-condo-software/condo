@@ -33,7 +33,7 @@ async function canReadMeters ({ authentication: { item: user }, context }) {
             const meters = await Meter.getAll(context, {
                 property: { id: residentPropertyId },
                 unitName: residentUnitName,
-                account_in: serviceConsumerAccounts,
+                accountNumber_in: serviceConsumerAccounts,
             })
 
             if (meters.length > 0) return {}
