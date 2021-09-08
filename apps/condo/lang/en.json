@@ -501,7 +501,7 @@
   "ticket.status.COMPLETED.name": "Completed",
   "ticket.status.DEFERRED.name": "Deferred",
   "ticket.status.CLOSED.name": "Closed",
-  "TicketPurpose": "Application assignment",
+  "TicketAssignment": "Application assignment",
   "ticketsTable.Number": "№",
   "ticketsTable.ResidentName": "Resident Name",
   "ticket.shareTitle": "Ticket №{number} dated {date}",
