@@ -7,6 +7,8 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD, CONTACT_FIELD, CLIENT_EMAIL_FIELD, CLIENT_NAME_FIELD, CLIENT_PHONE_FIELD, CLIENT_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/meter/access/MeterReading')
+const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
+const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { getLastBillingAccountMeterReading } = require('../utils/serverSchema')
 const { VALUE_LESS_THAN_PREVIOUS_ERROR } = require('@condo/domains/meter/constants/errors')
 const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
@@ -117,7 +119,17 @@ const MeterReading = new GQLListSchema('MeterReading', {
         },
 
     },
-    // TODO хук на валидацию сендера и дв
+    hooks: {
+        validateInput: ({ resolvedData, existingItem, context, addValidationError }) => {
+            if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
+            const { dv } = resolvedData
+            if (dv === 1) {
+                // NOTE: version 1 specific translations. Don't optimize this logic
+            } else {
+                return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
+            }
+        },
+    },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadMeterReadings,

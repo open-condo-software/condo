@@ -35,6 +35,23 @@ describe('Meter', () => {
             expect(meter.id).toMatch(UUID_RE)
         })
 
+        test('employee with "canManageMeters" role: cannot create Meter with wrong "sender" field', async () => {
+            const client = await makeEmployeeUserClientWithAbilities({
+                canManageMeters: true,
+            })
+            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+
+            await catchErrorFrom(async () => {
+                await createTestMeter(client, client.organization, client.property, resource, {
+                    sender: null,
+                })
+            }, ({ errors, data }) => {
+                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                expect(errors[0].data.messages[0]).toContain('Required field "sender" is null or undefined.')
+                expect(data).toEqual({ 'obj': null })
+            })
+        })
+
         test('employee without "canManageMeters" role: cannot create Meter', async () => {
             const client = await makeEmployeeUserClientWithAbilities()
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
