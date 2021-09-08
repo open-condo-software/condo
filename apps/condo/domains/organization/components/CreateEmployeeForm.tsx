@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import { Card, Col, Form, Input, Row } from 'antd'
+import { Card, Col, Form, Input, Row, Space } from 'antd'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { useState, useEffect, useMemo } from 'react'
 import { useOrganization } from '@core/next/organization'
@@ -23,6 +23,7 @@ import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { colors, shadows } from '@condo/domains/common/constants/style'
 import { css, jsx } from '@emotion/core'
 import { ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
+import ActionBar from '@condo/domains/common/components/ActionBar'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -54,6 +55,7 @@ export const CreateEmployeeForm: React.FC = () => {
     const SpecializationsLabel = intl.formatMessage({ id: 'employee.Specializations' })
     const RoleLabel = intl.formatMessage({ id: 'employee.Role' })
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
+    const ExampleEmailMsg = intl.formatMessage({ id: 'example.Email' })
     const PhoneIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
     const UserAlreadyInListMsg = intl.formatMessage({ id: 'pages.users.UserIsAlreadyInList' })
     const TechnicianRoleName = intl.formatMessage({ id: 'employee.role.Technician.name' })
@@ -103,7 +105,7 @@ export const CreateEmployeeForm: React.FC = () => {
     const [selectedRoleId, setSelectedRoleId] = useState(initialValues.role)
     const selectedRole = useMemo(() => find(employeeRoles, { id: selectedRoleId }), [selectedRoleId])
 
-    const searchClassifers = (_, input) => 
+    const searchClassifers = (_, input) =>
         classifiersLoader.search(input, TicketClassifierTypes.category)
             .then(result=>result.map((classifier)=> ({ text: classifier.name, value: classifier.id })))
 
@@ -137,131 +139,127 @@ export const CreateEmployeeForm: React.FC = () => {
                 ({ handleSave, isLoading }) => {
 
                     return (
-                        <Row>
-                            <Col span={14}>
-                                <Row gutter={[0, 40]}>
-                                    <Col span={24}>
-                                        <Row gutter={[0, 24]}>
-                                            <Col span={24}>
-                                                <Form.Item name={'role'} label={RoleLabel} {...INPUT_LAYOUT_PROPS} labelAlign={'left'} >
-                                                    <EmployeeRoleSelect
-                                                        loading={loading}
-                                                        error={Boolean(error)}
-                                                        employeeRoles={employeeRoles}
-                                                        onSelect={(roleId)=> setSelectedRoleId(roleId)}
-                                                    />
-                                                </Form.Item>
-                                            </Col>
-                                            <Col span={24}>
-                                                <Form.Item
-                                                    name={'name'}
-                                                    label={FullNameLabel}
-                                                    {...INPUT_LAYOUT_PROPS}
-                                                    labelAlign={'left'}
-                                                >
-                                                    <Input placeholder={FullNamePlaceholder} />
-                                                </Form.Item>
-                                            </Col>
-                                            <Col span={24}>
-                                                <Form.Item name={'position'} label={PositionLabel} {...INPUT_LAYOUT_PROPS} labelAlign={'left'}>
-                                                    <Input />
-                                                </Form.Item>
-                                            </Col>
-                                            <Col span={24}>
-                                                <Form.Item
-                                                    name={'phone'}
-                                                    label={PhoneLabel}
-                                                    labelAlign={'left'}
-                                                    required
-                                                    validateFirst
-                                                    rules={validations.phone}
-                                                    {...INPUT_LAYOUT_PROPS}
-                                                >
-                                                    <PhoneInput placeholder={ExamplePhoneMsg} style={{ width: '100%' }} />
-                                                </Form.Item>
-                                            </Col>
-                                            <Col span={24}>
-                                                <Form.Item
-                                                    name={'email'}
-                                                    label={EmailLabel}
-                                                    labelAlign={'left'}
-                                                    required
-                                                    validateFirst
-                                                    rules={validations.email}
-                                                    {...INPUT_LAYOUT_PROPS}
-                                                >
-                                                    <Input />
-                                                </Form.Item>
-                                            </Col>
-                                            {get(selectedRole, 'name') === TechnicianRoleName && (
+                        <>
+                            <Row>
+                                <Col span={14}>
+                                    <Row gutter={[0, 40]}>
+                                        <Col span={24}>
+                                            <Row gutter={[0, 24]}>
+                                                <Col span={24}>
+                                                    <Form.Item name={'role'} label={RoleLabel} {...INPUT_LAYOUT_PROPS} labelAlign={'left'} >
+                                                        <EmployeeRoleSelect
+                                                            loading={loading}
+                                                            error={Boolean(error)}
+                                                            employeeRoles={employeeRoles}
+                                                            onSelect={(roleId)=> setSelectedRoleId(roleId)}
+                                                        />
+                                                    </Form.Item>
+                                                </Col>
                                                 <Col span={24}>
                                                     <Form.Item
-                                                        name={'specializations'}
-                                                        label={SpecializationsLabel}
+                                                        name={'name'}
+                                                        label={FullNameLabel}
+                                                        {...INPUT_LAYOUT_PROPS}
+                                                        labelAlign={'left'}
+                                                    >
+                                                        <Input placeholder={FullNamePlaceholder} />
+                                                    </Form.Item>
+                                                </Col>
+                                                <Col span={24}>
+                                                    <Form.Item name={'position'} label={PositionLabel} {...INPUT_LAYOUT_PROPS} labelAlign={'left'}>
+                                                        <Input />
+                                                    </Form.Item>
+                                                </Col>
+                                                <Col span={24}>
+                                                    <Form.Item
+                                                        name={'phone'}
+                                                        label={PhoneLabel}
                                                         labelAlign={'left'}
                                                         required
                                                         validateFirst
+                                                        rules={validations.phone}
                                                         {...INPUT_LAYOUT_PROPS}
                                                     >
-                                                        <GraphQlSearchInput mode="multiple" search={searchClassifers} />
+                                                        <PhoneInput placeholder={ExamplePhoneMsg} style={{ width: '100%' }} />
                                                     </Form.Item>
                                                 </Col>
-                                            )}
-                                        </Row>
-                                    </Col>
-                                    <Col span={24}>
-                                        <Form.Item noStyle dependencies={['phone', 'email']}>
-                                            {
-                                                ({ getFieldsValue }) => {
-                                                    const { phone, email } = getFieldsValue(['phone', 'email'])
+                                                <Col span={24}>
+                                                    <Form.Item
+                                                        name={'email'}
+                                                        label={EmailLabel}
+                                                        labelAlign={'left'}
+                                                        validateFirst
+                                                        rules={validations.email}
+                                                        {...INPUT_LAYOUT_PROPS}
+                                                    >
+                                                        <Input placeholder={ExampleEmailMsg}/>
+                                                    </Form.Item>
+                                                </Col>
+                                                {get(selectedRole, 'name') === TechnicianRoleName && (
+                                                    <Col span={24}>
+                                                        <Form.Item
+                                                            name={'specializations'}
+                                                            label={SpecializationsLabel}
+                                                            labelAlign={'left'}
+                                                            required
+                                                            validateFirst
+                                                            {...INPUT_LAYOUT_PROPS}
+                                                        >
+                                                            <GraphQlSearchInput mode="multiple" search={searchClassifers} />
+                                                        </Form.Item>
+                                                    </Col>
+                                                )}
+                                            </Row>
+                                        </Col>
+                                    </Row>
+                                </Col>
+                                <Col span={10}>
+                                    <Form.Item dependencies={['role']}>
+                                        {({ getFieldValue }) => {
+                                            const roleId = getFieldValue('role')
+                                            const role = employeeRoles.find(x => x.id === roleId)
+                                            if (!role) return null
+                                            return (
+                                                <Card
+                                                    title={role.name}
+                                                    bordered={false}
+                                                    css={CardCss}
+                                                    headStyle={{
+                                                        color: colors.lightGrey[10],
+                                                        fontSize: 24,
+                                                        fontWeight: 'bold',
+                                                    }}
+                                                >
+                                                    {role.description}
+                                                </Card>
+                                            )
+                                        }}
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                            <Form.Item noStyle dependencies={['phone']}>
+                                {
+                                    ({ getFieldsValue }) => {
+                                        const { phone } = getFieldsValue(['phone'])
 
-                                                    return (
-                                                        <Row gutter={[0, 24]}>
-                                                            <ErrorsContainer phone={phone} email={email} />
-                                                            <Col span={24}>
-                                                                <Button
-                                                                    key='submit'
-                                                                    onClick={handleSave}
-                                                                    type='sberPrimary'
-                                                                    loading={isLoading}
-                                                                    disabled={!phone || !email}
-                                                                >
-                                                                    {InviteEmployeeLabel}
-                                                                </Button>
-                                                            </Col>
-                                                        </Row>
-                                                    )
-                                                }
-                                            }
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-                            </Col>
-                            <Col span={10}>
-                                <Form.Item dependencies={['role']}>
-                                    {({ getFieldValue }) => {
-                                        const roleId = getFieldValue('role')
-                                        const role = employeeRoles.find(x => x.id === roleId)
-                                        if (!role) return null
                                         return (
-                                            <Card
-                                                title={role.name}
-                                                bordered={false}
-                                                css={CardCss}
-                                                headStyle={{
-                                                    color: colors.lightGrey[10],
-                                                    fontSize: 24,
-                                                    fontWeight: 'bold',
-                                                }}
-                                            >
-                                                {role.description}
-                                            </Card>
+                                            <ActionBar>
+                                                <Button
+                                                    key='submit'
+                                                    onClick={handleSave}
+                                                    type='sberPrimary'
+                                                    loading={isLoading}
+                                                    disabled={!phone}
+                                                >
+                                                    {InviteEmployeeLabel}
+                                                </Button>
+                                                <ErrorsContainer phone={phone} />
+                                            </ActionBar>
                                         )
-                                    }}
-                                </Form.Item>
-                            </Col>
-                        </Row>
-
+                                    }
+                                }
+                            </Form.Item>
+                        </>
                     )
                 }
             }
