@@ -6853,7 +6853,7 @@ export type InviteNewOrganizationEmployeeInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
   organization: OrganizationWhereUniqueInput;
-  email: Scalars['String'];
+  email?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   role?: Maybe<OrganizationEmployeeWhereUniqueInput>;
@@ -18959,8 +18959,8 @@ export type ReInviteOrganizationEmployeeInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
   organization: OrganizationWhereUniqueInput;
-  email: Scalars['String'];
-  phone?: Maybe<Scalars['String']>;
+  email?: Maybe<Scalars['String']>;
+  phone: Scalars['String'];
 };
 
 export type RegisterNewOrganizationInput = {
@@ -18977,7 +18977,7 @@ export type RegisterNewUserInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
   name: Scalars['String'];
-  email: Scalars['String'];
+  email?: Maybe<Scalars['String']>;
   password: Scalars['String'];
   confirmPhoneActionToken?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
