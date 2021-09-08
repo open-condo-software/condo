@@ -12,7 +12,7 @@ module.exports = {
                     }
                 }
                 if (!header.match(/^DOMA-\d+ \w+/)) {
-                    return [false, 'Wrong commit prefix. Please, start commit message with "DOMA-123" prefix followed by space, where 123 – is your task number. Example: "DOMA-123 short description"']
+                    return [false, 'Wrong commit prefix. Allowed prefixes: DOMA-123, HOTFIX, INFRA. Examples: "DOMA-123 describe what have been done", "HOTFIX describe what have been fixed", "INFRA describe what have been introduced".']
                 }
                 const headerMessage = header.split(/^DOMA-\d+ /)[1]
                 const words = headerMessage.split(' ')
