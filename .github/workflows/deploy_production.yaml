@@ -1,0 +1,30 @@
+name: Deploy condo production
+
+on:
+  workflow_dispatch:
+    branches:
+      - master
+      - 'flant-**'
+      - 'infra-**'
+
+jobs:
+  deploy_production:
+    name: "Deploy production"
+    runs-on: self-hosted
+    env:
+      WERF_SECRET_KEY: ${{ secrets.WERF_SECRET_KEY }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Werf converge
+        uses: werf/actions/converge@v1.2
+        with:
+          channel: beta
+          env: production
+          kube-config-base64-data: ${{ secrets.KUBE_CONFIG_BASE64_DATA }}
+        env:
+          WERF_SET_CI_CONDO_URL: "global.ci_condo_url=condo.d.doma.ai"
+          WERF_SET_CI_CALLCENTER_URL: "global.ci_callcenter_url=callcenter.d.doma.ai"
