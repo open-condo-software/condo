@@ -49,6 +49,7 @@ export const ContactPageContent = ({ organization, contact, isContactEditable })
     const UnitShortMessage = intl.formatMessage({ id: 'field.ShortFlatNumber' })
 
     const contactName = get(contact, 'name')
+    const contactEmail = get(contact, 'email', '')
     const contactUnitName = get(contact, 'unitName')
     const unitSuffix = contactUnitName ? `${UnitShortMessage} ${contactUnitName}` : ''
     const contactAddress = `${get(contact, ['property', 'address'], DeletedMessage)} ${unitSuffix}`
@@ -89,10 +90,12 @@ export const ContactPageContent = ({ organization, contact, isContactEditable })
                                                     fieldTitle={PhoneLabel}
                                                     fieldValue={get(contact, ['phone'])}
                                                 />
-                                                <FieldPairRow
-                                                    fieldTitle={EmailLabel}
-                                                    fieldValue={get(contact, ['email'])}
-                                                />
+                                                {
+                                                    contactEmail && <FieldPairRow
+                                                        fieldTitle={EmailLabel}
+                                                        fieldValue={get(contact, ['email'])}
+                                                    />
+                                                }
                                             </Row>
                                         </FrontLayerContainer>
                                     </Col>
