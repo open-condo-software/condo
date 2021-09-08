@@ -84,7 +84,7 @@ async function registerResidentByTestClient(client, extraAttrs = {}, withFlat = 
     return [data.result, attrs]
 }
 
-async function createTestServiceConsumer (client, resident, billingAccount) {
+async function createTestServiceConsumer (client, resident, billingAccount, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!resident || !resident.id) throw new Error('no resident.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -95,6 +95,7 @@ async function createTestServiceConsumer (client, resident, billingAccount) {
         resident: { connect: { id: resident.id } },
         accountNumber: faker.random.alphaNumeric(8),
         billingAccount: { connect: { id: billingAccount.id }},
+        ...extraAttrs,
     }
     const obj = await ServiceConsumer.create(client, attrs)
     return [obj, attrs]
