@@ -4,7 +4,7 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { Col, Row, Space, Typography } from 'antd'
 import styled from '@emotion/styled'
-import { shadows, transitions } from '@condo/domains/common/constants/style'
+import { colors, shadows, transitions } from '@condo/domains/common/constants/style'
 
 
 const ResourceCardContainer = styled(FocusContainer)`
@@ -16,7 +16,7 @@ const ResourceCardContainer = styled(FocusContainer)`
       
       span {
         transition: ${transitions.allDefault};
-        color: #73de90;
+        color: ${colors.sberPrimary[5]};
       }
     }
 `
