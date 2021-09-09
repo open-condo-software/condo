@@ -8,7 +8,10 @@ const buildingEmptyMapJson = {
     'type': 'building',
     'sections': [],
 }
-
+// JSON from old maps that will be auto repaired after loading
+// floors - didnt have index
+// after moving from json schema to garphql type nulls will be in some unit's names
+// preview field will disable editting 
 const autoFixBuildingMapJson = {
     'dv': 1,
     'type': 'building',
