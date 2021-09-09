@@ -50,7 +50,8 @@ const ServiceToPayDetailsSchema = {
     type: 'object',
     properties: Object.assign({},
         ...Object.keys(ServiceToPayDetailsFields).map((field) => ({ [field]: { type: ['string', 'null'] } })),
-        { formula: { type: 'string' } }
+        { formula: { type: 'string' } },
+        { __typename: { type: 'string' } },
     ),
 }
 
@@ -63,6 +64,7 @@ const ServicesSchema = {
             name: { type: 'string' },
             toPay: { type: 'string' },
             toPayDetails: ServiceToPayDetailsSchema,
+            __typename: { type: 'string' },
         },
         // todo(toplenboren) discuss the analytics and standartization service for services
         required: ['name', 'toPay'],
