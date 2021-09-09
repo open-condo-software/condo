@@ -1,4 +1,4 @@
-const { validatePeriod } = require('../../utils/validation.utils')
+const { validatePeriod } = require('@condo/domains/billing/utils/validation.utils')
 const { Text, CalendarDay } = require('@keystonejs/fields')
 const { Json } = require('@core/keystone/fields')
 
