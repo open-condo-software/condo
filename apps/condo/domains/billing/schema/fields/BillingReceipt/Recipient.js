@@ -41,8 +41,8 @@ const RECIPIENT_FIELD = {
     type: Json,
     isRequired: true,
     extendGraphQLTypes: [RECIPIENT_GRAPHQL_TYPES],
-    graphQLReturnType: `${BILLING_RECEIPT_RECIPIENT_FIELD_NAME}!`,
-    graphQLInputType: `${BILLING_RECEIPT_RECIPIENT_INPUT_NAME}!`,
+    graphQLReturnType: BILLING_RECEIPT_RECIPIENT_FIELD_NAME,
+    graphQLInputType: BILLING_RECEIPT_RECIPIENT_INPUT_NAME,
     graphQLAdminFragment: `{ ${RECIPIENT_QUERY_LIST} }`,
     hooks: {
         validateInput: validateRecipient,
