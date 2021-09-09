@@ -1,15 +1,15 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core'
-import { Drawer, Layout, Divider, Dropdown, Menu } from 'antd'
+import { Layout, Divider, Dropdown, Menu } from 'antd'
 import get from 'lodash/get'
 import React from 'react'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
+import { useResponsive } from '../../../../hooks/useResponsive'
 import {
     MenuItemsContainer,
     SIDE_MENU_WIDTH,
     sideMenuDesktopCss,
-    sideMenuMobileCss,
     substrateDesktopCss,
 } from './styles'
 import { Logo } from '@condo/domains/common/components/Logo'
@@ -20,10 +20,7 @@ import { MeterIcon } from '@condo/domains/common/components/icons/MeterIcon'
 import { MenuItem } from '@condo/domains/common/components/MenuItem'
 
 interface ISideMenuProps {
-    isMobile: boolean
     onLogoClick: (...args) => void
-    isSideMenuCollapsed: boolean
-    toggleSideMenuCollapsed: (...args) => void
     menuData?: React.ElementType
 }
 
@@ -75,52 +72,26 @@ const ResidentAppealDropdown = () => {
 }
 
 export const SideMenu: React.FC<ISideMenuProps> = (props) => {
-    const { onLogoClick, menuData, isMobile, isSideMenuCollapsed, toggleSideMenuCollapsed } = props
+    const { onLogoClick, menuData } = props
     const { link } = useOrganization()
+    const { isSmall } = useResponsive()
     const isEmployeeBlocked = get(link, 'isBlocked', false)
 
     if (isEmployeeBlocked) {
         return null
     }
 
-    const MobileSideNav = (
-        <Drawer
-            closable={false}
-            visible={!isSideMenuCollapsed}
-            placement='left'
-            style={{
-                padding: 0,
-                height: '100vh',
-            }}
-            width={SIDE_MENU_WIDTH}
-            bodyStyle={{ height: '100vh', padding: 0 }}
-            className='side-menu'
-            onClose={toggleSideMenuCollapsed}
-        >
-            <Layout.Sider
-                theme='light'
-                css={sideMenuMobileCss}
-                width={SIDE_MENU_WIDTH}
-                onCollapse={toggleSideMenuCollapsed}
-            >
-                <Logo onClick={onLogoClick} />
-                <MenuItemsContainer>
-                    <ResidentAppealDropdown/>
-                    <MenuItemsContainer>
-                        {menuData}
-                    </MenuItemsContainer>
-                </MenuItemsContainer>
-            </Layout.Sider>
-        </Drawer>
-    )
+    // TODO: (Dimitreee) implement mobile nav later
+    if (isSmall) {
+        return null
+    }
 
-    const DesktopSideNav = (
+    return (
         <>
             <Layout.Sider
                 theme='light'
                 css={sideMenuDesktopCss}
                 width={SIDE_MENU_WIDTH}
-                onCollapse={toggleSideMenuCollapsed}
                 className='side-menu'
             >
                 <Logo onClick={onLogoClick} />
@@ -134,6 +105,4 @@ export const SideMenu: React.FC<ISideMenuProps> = (props) => {
             {menuData && <div css={substrateDesktopCss} className='side-menu-substrate' />}
         </>
     )
-
-    return isMobile ? MobileSideNav : DesktopSideNav
 }

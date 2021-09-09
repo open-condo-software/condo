@@ -3,6 +3,7 @@ import { Row, Col, Typography, Tooltip } from 'antd'
 import { has } from 'lodash'
 import styled from '@emotion/styled'
 import { TicketChange as TicketChangeType } from '../../../../schema'
+import { useResponsive } from '@condo/domains/common/hooks/useResponsive'
 import { formatDate } from '../../utils/helpers'
 import { useIntl } from '@core/next/intl'
 import { PhoneLink } from '@condo/domains/common/components/PhoneLink'
@@ -29,12 +30,18 @@ enum TicketChangeFieldMessageType {
 export const TicketChange: React.FC<ITicketChangeProps> = ({ ticketChange }) => {
     const intl = useIntl()
     const changedFieldMessages = useChangedFieldMessagesOf(ticketChange)
+    const { isSmall } = useResponsive()
+
     return (
         <Row gutter={[12, 12]}>
-            <Col span={6}>
-                <Typography.Text style={{ fontSize: fontSizes.content }}>{formatDate(intl, ticketChange.createdAt)}</Typography.Text>
+            <Col xs={24} lg={6}>
+                {
+                    isSmall
+                        ? <Typography.Text disabled>{formatDate(intl, ticketChange.createdAt)}</Typography.Text>
+                        : <Typography.Text style={{ fontSize: fontSizes.content }}>{formatDate(intl, ticketChange.createdAt)}</Typography.Text>
+                }
             </Col>
-            <Col span={18}>
+            <Col xs={24} lg={18}>
                 {changedFieldMessages.map(({ field, message }) => (
                     <Typography.Text key={field} style={{ fontSize: fontSizes.content }}>
                         <Diff className={field}>

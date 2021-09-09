@@ -30,8 +30,8 @@ interface IHookResult<UI, UIForm, Q, TData = any, TVariables = OperationVariable
     useObjects: (variables: Q, options?: QueryHookOptions<TData, TVariables>) => { objs: UI[], count: number | null, loading: boolean, error?: ApolloError | string, refetch?: Refetch<Q>, fetchMore: FetchMore<Q> }
     useCreate: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm) => Promise<UI>
     useUpdate: (attrs: UIForm, onComplete?: (obj: UI) => void) => (attrs: UIForm, obj: UI) => Promise<UI>
-    useDelete: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm) => Promise<UI>
-    useSoftDelete: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm, obj: UI) => Promise<UI>
+    useDelete: (attrs: UIForm, onComplete?: (obj: UI) => void) => (attrs: UIForm) => Promise<UI>
+    useSoftDelete: (attrs: UIForm, onComplete?: (obj: UI) => void) => (attrs: UIForm, obj: UI) => Promise<UI>
 }
 
 export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convertToGQLInput, convertToUIState }: IHookConverters<GQL, GQLInput, UI, UIForm>): IHookResult<UI, UIForm, Q> {

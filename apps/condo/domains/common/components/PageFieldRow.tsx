@@ -1,6 +1,7 @@
 import React from 'react'
 import { Col, Typography } from 'antd'
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { useResponsive } from '../hooks/useResponsive'
 
 interface IPageFieldRowProps {
     title: string
@@ -10,14 +11,16 @@ interface IPageFieldRowProps {
 }
 
 const PageFieldRow: React.FC<IPageFieldRowProps> = (props) => {
+    const { isSmall } = useResponsive()
     const { labelSpan = 8, title, children, highlight } = props
+
     return (
         <>
-            <Col span={labelSpan}>
-                <Typography.Text style={{ fontSize: fontSizes.content }}>{title}</Typography.Text>
+            <Col lg={labelSpan} xs={24} >
+                <Typography.Title level={5}>{title}</Typography.Title>
             </Col>
-            <Col span={24 - labelSpan - 1} push={1} style={{ fontSize: fontSizes.content }}>
-                <Typography.Text type={highlight ? 'success' : null}>
+            <Col lg={24 - labelSpan - 1} xs={24} offset={isSmall ? 0 : 1}>
+                <Typography.Text type={highlight ? 'success' : null} style={{ fontSize: fontSizes.content }}>
                     {children}
                 </Typography.Text>
             </Col>

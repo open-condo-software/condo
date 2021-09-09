@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react'
 import styled from '@emotion/styled'
 import { useIntl } from '@core/next/intl'
 import { Empty, Typography } from 'antd'
+import { useResponsive } from '../../hooks/useResponsive'
 import { Comment } from './Comment'
 import { CommentForm } from './CommentForm'
 import { colors } from '@condo/domains/common/constants/style'
@@ -19,10 +20,21 @@ export type TComment = {
     deletedAt: string,
 }
 
-const Container = styled.aside`
+interface IContainerProps {
+    isSmall: boolean
+}
+
+const Container = styled.aside<IContainerProps>`
   background: #F5F5F5;
   border-radius: 8px;
-  height: calc(100vh - 120px);
+  
+  ${({ isSmall }) => {
+        if (isSmall) {
+            return 'margin: 0 -20px -60px;'
+        } else {
+            return 'height: calc(100vh - 120px);'
+        }
+    }}
 
   > * {
     padding: 24px
@@ -86,6 +98,7 @@ const Comments: React.FC<ICommentsListProps> = ({
     const CannotCreateCommentsMessage = intl.formatMessage({ id: 'Comments.cannotCreateComments' })
 
     const bodyRef = useRef(null)
+    const { isSmall } = useResponsive()
 
     const scrollToBottom = () => {
         if (bodyRef.current) {
@@ -98,7 +111,7 @@ const Comments: React.FC<ICommentsListProps> = ({
     }, [comments.length])
 
     return (
-        <Container>
+        <Container isSmall={isSmall}>
             <Head>{TitleMessage}</Head>
             {comments.length === 0 ? (
                 <EmptyContainer>

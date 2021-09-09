@@ -1,5 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { Ticket, TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
 import {
@@ -9,15 +7,31 @@ import {
 } from '@condo/domains/ticket/utils/helpers'
 import { useIntl } from '@core/next/intl'
 import styled from '@emotion/styled'
-import { Select, Space, Typography } from 'antd'
+import { Select, Typography } from 'antd'
 import get from 'lodash/get'
 import React, { useCallback, useMemo } from 'react'
 import { useStatusTransitions } from '../hooks/useStatusTransitions'
 
-const StyledSelect = styled(Select)`
+interface IStyledSelect {
+    color: string
+    backgroundColor: string
+}
+
+const StyledSelect = styled(Select)<IStyledSelect>`
   width: 100%;
   font-weight: 700;
   border-radius: 4px;
+  color: ${({ color }) => color};
+  background-color: ${({ backgroundColor }) => backgroundColor};
+`
+
+interface IStyledText {
+    color: string
+}
+
+const StyledText = styled(Typography.Text)<IStyledText>`
+  color: ${({ color }) => color};
+  padding-top: 8px;
 `
 
 export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, ...props }) => {
@@ -47,12 +61,10 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
     const selectValue = { value: ticket.status.id, label: getTicketLabel(intl, ticket) }
 
     return (
-        <Space size={8} direction={'vertical'} align={'end'}>
+        <>
             <StyledSelect
-                style={{
-                    color,
-                    backgroundColor,
-                }}
+                color={color}
+                backgroundColor={backgroundColor}
                 disabled={!statuses.length}
                 loading={loading}
                 onChange={handleChange}
@@ -64,7 +76,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
             >
                 {options}
             </StyledSelect>
-            <Typography.Text type="warning" style={{ color }}>{FormattedStatusUpdateMessage}</Typography.Text>
-        </Space>
+            <StyledText type="warning" color={color}>{FormattedStatusUpdateMessage}</StyledText>
+        </>
     )
 }

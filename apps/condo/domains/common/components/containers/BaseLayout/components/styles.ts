@@ -2,7 +2,7 @@ import { colors } from '@condo/domains/common/constants/style'
 const { red } = require('@ant-design/colors')
 import { css } from '@emotion/core'
 import styled from '@emotion/styled'
-import { Menu } from 'antd'
+import { Layout, Menu } from 'antd'
 
 export const SIDE_MENU_WIDTH = 256
 
@@ -39,18 +39,6 @@ export const formInputFixCss = css`
   .ant-input:focus:hover, .ant-input:active:hover {
     background-color: ${colors.white};
   }
-`
-
-const shadow = css`
-  box-shadow: 0 9px 28px 8px rgba(0, 0, 0, 0.05), 0 3px 6px -4px rgba(0, 0, 0, 0.12);
-  filter: drop-shadow(0px 6px 16px rgba(0, 0, 0, 0.08));
-`
-
-export const sideMenuMobileCss = css`
-  padding: 20px 10px 0 20px;
-  z-index: 10;
-  min-height: 100%;
-  ${shadow}
 `
 
 export const sideMenuDesktopCss = css`
@@ -145,8 +133,12 @@ export const topMenuCss = css`
   line-height: 100%;
 `
 
-export const pageWrapperCss = css`
-  padding: 0 48px;
+interface IPageWrapper {
+    isSmall: boolean
+}
+
+export const StyledPageWrapper = styled(Layout.Content)<IPageWrapper>`
+  padding: ${({ isSmall }) => isSmall ? '20px 20px 0' : '20px 48px 0'};
   margin: 0;
   height: 100%;
   display: flex;

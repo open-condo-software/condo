@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
 import { Col, Row, Space, Typography, Tag, Affix, Breadcrumb } from 'antd'
 import UploadList from 'antd/lib/upload/UploadList/index'
 import { get, isEmpty, compact } from 'lodash'
@@ -23,7 +22,6 @@ import {
 } from '@condo/domains/ticket/utils/helpers'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { UploadFileStatus } from 'antd/lib/upload/interface'
-// @ts-ignore
 import { TicketChanges } from '@condo/domains/ticket/components/TicketChanges'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
@@ -35,22 +33,17 @@ import { formatPhone } from '@condo/domains/common/utils/helpers'
 import { ShareTicketModal } from '@condo/domains/ticket/components/ShareTicketModal'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { fontSizes } from '@condo/domains/common/constants/style'
-
-// TODO(Dimitreee):move to global defs
-interface IUser {
-    name?: string
-    id?: string
-    phone?: string
-}
+import { useResponsive } from '@condo/domains/common/hooks/useResponsive'
+import { User } from '../../../schema'
 
 interface ITicketFileListProps {
     files?: TicketFile.ITicketFileUIState[]
 }
 
 const UploadListWrapperStyles = css`
-    .ant-upload-list-text-container:first-child .ant-upload-list-item {
-        margin-top: 0;
-    }
+  .ant-upload-list-text-container:first-child .ant-upload-list-item {
+    margin-top: 0;
+  }
 `
 
 export const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
@@ -71,7 +64,7 @@ export const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
 }
 
 interface ITicketUserInfoFieldProps {
-    user?: IUser
+    user?: Partial<User>
 }
 
 export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) => {
@@ -148,10 +141,11 @@ const TicketContent = ({ ticket }) => {
     }, {
         fetchPolicy: 'network-only',
     })
+    const { isSmall } = useResponsive()
 
     return (
         <Col span={24}>
-            <Row style={{ rowGap: '1.6em' }}>
+            <Row gutter={[0, 8]}>
                 <PageFieldRow title={AddressMessage} highlight>
                     {ticketAddress}
                     {ticketAddressExtra && (
@@ -180,17 +174,13 @@ const TicketContent = ({ ticket }) => {
                     </PageFieldRow>
                 )}
             </Row>
-            <FocusContainer style={{ marginTop: '1.6em' }}>
-                <Row style={{ rowGap: '1.6em' }}>
+            <FocusContainer style={{ marginTop: '1.6em' }} margin={isSmall ? '0' :  '0 -24px'}>
+                <Row gutter={[0, 8]}>
                     <PageFieldRow title={ExecutorMessage} highlight>
-                        <TicketUserInfoField
-                            user={get(ticket, ['executor'])}
-                        />
+                        <TicketUserInfoField user={get(ticket, ['executor'])}/>
                     </PageFieldRow>
                     <PageFieldRow title={AssigneeMessage} highlight>
-                        <TicketUserInfoField
-                            user={get(ticket, ['assignee'])}
-                        />
+                        <TicketUserInfoField user={get(ticket, ['assignee'])}/>
                     </PageFieldRow>
                     <PageFieldRow title={ClassifierMessage}>
                         <Breadcrumb separator="≫">
@@ -227,6 +217,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
 
     const router = useRouter()
     const auth = useAuth() as { user: { id: string } }
+    const { isSmall } = useResponsive()
 
     // NOTE: cast `string | string[]` to `string`
     const { query: { id } } = router as { query: { [key: string]: string } }
@@ -252,8 +243,8 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
         // @ts-ignore
         sortBy: ['createdAt_ASC'],
     })
-    const updateComment = TicketComment.useUpdate({}, () => {})
-    const deleteComment = TicketComment.useSoftDelete({}, () => {})
+    const updateComment = TicketComment.useUpdate({})
+    const deleteComment = TicketComment.useSoftDelete({})
 
     const createCommentAction = TicketComment.useCreate({
         ticket: id,
@@ -286,11 +277,11 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
             <PageWrapper>
                 <PageContent>
                     <Row gutter={[0, 40]}>
-                        <Col span={16}>
+                        <Col lg={16} xs={24}>
                             <Row gutter={[0, 40]}>
                                 <Col span={24}>
-                                    <Row>
-                                        <Col span={18}>
+                                    <Row gutter={[0, 40]}>
+                                        <Col lg={18} xs={24}>
                                             <Space size={8} direction={'vertical'}>
                                                 <Typography.Title level={1} style={{ margin: 0 }}>{TicketTitleMessage}</Typography.Title>
                                                 <Typography.Text>
@@ -309,8 +300,8 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                                 </Typography.Text>
                                             </Space>
                                         </Col>
-                                        <Col span={6}>
-                                            <Row justify={'end'}>
+                                        <Col lg={6} xs={24}>
+                                            <Row justify={isSmall ? 'center' : 'end'}>
                                                 <TicketStatusSelect
                                                     organization={organization}
                                                     employee={employee}
@@ -327,7 +318,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                     </Space>
                                 </Col>
                                 <TicketContent ticket={ticket}/>
-                                <ActionBar>
+                                <ActionBar hidden={isSmall}>
                                     <Link href={`/ticket/${ticket.id}/update`}>
                                         <Button
                                             color={'green'}
@@ -338,14 +329,18 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                             {UpdateMessage}
                                         </Button>
                                     </Link>
-                                    {canShareTickets ? <ShareTicketModal
-                                        organization={organization}
-                                        date={get(ticket, 'createdAt')}
-                                        number={get(ticket, 'number')}
-                                        details={get(ticket, 'details')}
-                                        id={id}
-                                        locale={get(organization, 'country')}
-                                    /> : null}
+                                    {
+                                        canShareTickets
+                                            ? <ShareTicketModal
+                                                organization={organization}
+                                                date={get(ticket, 'createdAt')}
+                                                number={get(ticket, 'number')}
+                                                details={get(ticket, 'details')}
+                                                id={id}
+                                                locale={get(organization, 'country')}
+                                            />
+                                            : null
+                                    }
                                     <Button
                                         type={'sberPrimary'}
                                         icon={<FilePdfFilled />}
@@ -363,9 +358,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                 />
                             </Row>
                         </Col>
-                        <Col span={1}>
-                        </Col>
-                        <Col span={7}>
+                        <Col lg={7} xs={24} offset={isSmall ? 0 : 1}>
                             <Affix offsetTop={40}>
                                 <Comments
                                     // @ts-ignore
