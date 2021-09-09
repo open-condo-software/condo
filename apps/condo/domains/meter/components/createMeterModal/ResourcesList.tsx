@@ -1,6 +1,5 @@
-import { MeterResource, resourceIdToIcon } from '../../utils/clientSchema'
+import { resourceIdToIcon } from '../../utils/clientSchema'
 import React from 'react'
-import { Loader } from '@condo/domains/common/components/Loader'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { Col, Row, Space, Typography } from 'antd'
 import styled from '@emotion/styled'
@@ -21,7 +20,6 @@ const ResourceCardContainer = styled(FocusContainer)`
       }
     }
 `
-
 
 type ResourceCardProps = {
     label: string
@@ -48,7 +46,6 @@ type ResourcesListProps = {
 }
 
 export const ResourcesList = ({ resources, setSelectedMeterResource }: ResourcesListProps) => {
-
     return (
         <Row gutter={[0, 10]} justify={'center'}>
             {
