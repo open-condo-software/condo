@@ -10,7 +10,8 @@ const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields'
 const access = require('@condo/domains/billing/access/BillingAccount')
 const { DV_UNKNOWN_VERSION_ERROR, JSON_EXPECT_OBJECT_ERROR, JSON_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { hasValidJsonStructure, hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
-const { INTEGRATION_CONTEXT_FIELD, IMPORT_ID_FIELD, BILLING_PROPERTY_FIELD, RAW_DATA_FIELD } = require('./fields')
+const { IMPORT_ID_FIELD, RAW_DATA_FIELD } = require('./fields/common')
+const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD } = require('./fields/relations')
 
 
 const BillingAccount = new GQLListSchema('BillingAccount', {
@@ -41,7 +42,7 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
             isRequired: true,
         },
 
-        // TODO(pahaz): make a link to property domain fields
+        // TODO(pahaz): make a link to property domain utils
         unitName: {
             schemaDoc: 'Flat number / door number of an apartment building (property)',
             type: Text,
@@ -78,7 +79,7 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
         auth: true,
     },
     hooks: {
-        validateInput: ({ resolvedData, existingItem, context, addValidationError }) => {
+        validateInput: ({ resolvedData, context, addValidationError }) => {
             if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
             const { dv } = resolvedData
             if (dv === 1) {
