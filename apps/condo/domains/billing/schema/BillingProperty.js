@@ -8,7 +8,8 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingProperty')
-const { INTEGRATION_CONTEXT_FIELD, IMPORT_ID_FIELD, RAW_DATA_FIELD } = require('./fields')
+const { INTEGRATION_CONTEXT_FIELD } = require('./fields/relations')
+const { RAW_DATA_FIELD, IMPORT_ID_FIELD } = require('./fields/common')
 
 
 const BillingProperty = new GQLListSchema('BillingProperty', {
