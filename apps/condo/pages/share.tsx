@@ -45,7 +45,7 @@ const Share: IShareProps = ({ date, number, details, id }) => {
     const intl = useIntl()
     const locale = get(LOCALES, intl.locale)
     const localizedDate = locale ? dayjs(date || 0).locale(locale) : dayjs(date || 0)
-    const dateFormatted = localizedDate.format('D MMMM Y')
+    const dateFormatted = localizedDate.format('D MMMM YYYY')
 
     const ShareTitleMessage = intl.formatMessage({ id: 'ticket.shareTitle' }, {
         date: dateFormatted,
