@@ -71,6 +71,7 @@ export const CreateTicketForm: React.FC = () => {
             initialValues={initialValues}
             organization={organization}
             role={link.role}
+            autoAssign
         >
             {({ handleSave, isLoading }) => <CreateTicketActionBar handleSave={handleSave} isLoading={isLoading}/>}
         </BaseTicketForm>

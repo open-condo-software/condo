@@ -25,6 +25,7 @@ import { InputWithCounter } from '@condo/domains/common/components/InputWithCoun
 import Prompt from '@condo/domains/common/components/Prompt'
 import { IOrganizationEmployeeRoleUIState } from '@condo/domains/organization/utils/clientSchema/OrganizationEmployeeRole'
 import { IOrganizationUIState } from '@condo/domains/organization/utils/clientSchema/Organization'
+import { AutoAssignerByDivisions } from './AutoAssignerByDivisions'
 
 const { TabPane } = Tabs
 
@@ -207,7 +208,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
     )
 }
 
-const TicketAssignments = ({ validations, organizationId, disableUserInteraction }) => {
+const TicketAssignments = ({ validations, organizationId, propertyId, disableUserInteraction, autoAssign, categoryClassifier, form }) => {
     const intl = useIntl()
     const TicketAssignmentTitle = intl.formatMessage({ id: 'TicketAssignment' })
     const ExecutorLabel = intl.formatMessage({ id: 'field.Executor' })
@@ -235,6 +236,16 @@ const TicketAssignments = ({ validations, organizationId, disableUserInteraction
                 <Col span={24}>
                     <Typography.Title level={5} style={{ margin: '0' }}>{TicketAssignmentTitle}</Typography.Title>
                 </Col>
+                {autoAssign && propertyId && (
+                    <Col span={24}>
+                        <AutoAssignerByDivisions
+                            organizationId={organizationId}
+                            propertyId={propertyId}
+                            categoryClassifier={categoryClassifier}
+                            form={form}
+                        />
+                    </Col>
+                )}
                 <Col span={11}>
                     <Form.Item
                         name={'executor'}
@@ -277,6 +288,7 @@ export interface ITicketFormProps {
     action?: (...args) => void,
     files?: ITicketFileUIState[],
     afterActionCompleted?: (ticket: ITicketFormState) => void,
+    autoAssign?: boolean,
 }
 
 export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
@@ -288,7 +300,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.HelpMessage' })
 
-    const { action: _action, initialValues, organization, role, afterActionCompleted, files } = props
+    const { action: _action, initialValues, organization, role, afterActionCompleted, files, autoAssign } = props
     const validations = useTicketValidations()
     const [selectedPropertyId, setSelectedPropertyId] = useState(get(initialValues, 'property'))
     const selectPropertyIdRef = useRef(selectedPropertyId)
@@ -409,10 +421,10 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                     initialValues={initialValues}
                                     selectedPropertyId={selectedPropertyId}
                                 />
-                                <Form.Item noStyle dependencies={['property']}>
+                                <Form.Item noStyle dependencies={['property', 'categoryClassifier']} shouldUpdate>
                                     {
                                         ({ getFieldsValue }) => {
-                                            const { property } = getFieldsValue(['property'])
+                                            const { property, categoryClassifier } = getFieldsValue(['property', 'categoryClassifier'])
                                             const disableUserInteraction = !property
 
                                             return (
@@ -431,6 +443,10 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                 disableUserInteraction={disableUserInteraction}
                                                                 validations={validations}
                                                                 organizationId={get(organization, 'id')}
+                                                                propertyId={selectedPropertyId}
+                                                                autoAssign={autoAssign}
+                                                                categoryClassifier={categoryClassifier}
+                                                                form={form}
                                                             />
                                                         </Row>
                                                     </FrontLayerContainer>

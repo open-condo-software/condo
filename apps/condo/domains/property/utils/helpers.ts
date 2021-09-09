@@ -1,7 +1,7 @@
 import { SortOrder } from 'antd/es/table/interface'
 import get from 'lodash/get'
 import { ParsedUrlQuery } from 'querystring'
-import { Property, PropertyWhereInput } from '@app/condo/schema'
+import { AddressMetaField, Property, PropertyWhereInput } from '@app/condo/schema'
 
 
 export const PROPERTY_PAGE_SIZE = 10
@@ -96,4 +96,8 @@ export const filtersToQuery = (filters: IFilters): PropertyWhereInput => {
             AND: filtersCollection,
         }
     }
+}
+
+export const formatAddressWithoutCityFrom = ({ value, data }: AddressMetaField) => {
+    return value.replace(data.city_with_type + ', ', '')
 }
