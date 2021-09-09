@@ -1,11 +1,12 @@
 import { Col, Form, Input, Row } from 'antd'
 import React from 'react'
+import { IMeterResourceUIState } from '../../utils/clientSchema/MeterResource'
 
 type MeterInfoProps = {
-    resourceId: string
+    resource: IMeterResourceUIState
 }
 
-export const MeterInfo = ({ resourceId }: MeterInfoProps) => {
+export const MeterInfo = ({ resource }: MeterInfoProps) => {
     return (
         <Row gutter={[0, 20]}>
             <Col span={24}>
