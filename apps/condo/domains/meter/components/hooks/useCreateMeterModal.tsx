@@ -1,6 +1,5 @@
 import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
-import { Col, Form, Input, Row } from 'antd'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { StoreValue } from 'rc-field-form/lib/interface'
 import { useIntl } from '@core/next/intl'
 import { ResourcesList } from '../createMeterModal/ResourcesList'
@@ -15,6 +14,10 @@ export const useCreateMeterModal = ()=> {
 
     const [isCreateMeterModalVisible, setIsCreateMeterModalVisible] = useState<boolean>(false)
     const [selectedMeterResource, setSelectedMeterResource] = useState<string | null>(null)
+
+    useEffect(() => {
+        setSelectedMeterResource(null)
+    }, [isCreateMeterModalVisible])
 
     const CreateMeterModal = ({ addMeterToFormAction }: CreateMeterModalProps) => (
         <BaseModalForm
