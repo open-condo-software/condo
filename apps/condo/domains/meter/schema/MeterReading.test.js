@@ -44,6 +44,24 @@ describe('MeterReading', () => {
             expect(meterReading.id).toMatch(UUID_RE)
         })
 
+        test('employee with "canManageMeters" role: can create MeterReadings with float number value', async () => {
+            const client = await makeEmployeeUserClientWithAbilities({
+                canManageMeters: true,
+            })
+            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+            const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
+            const [meter] = await createTestMeter(client, client.organization, client.property, resource, {
+                numberOfTariffs: 2,
+            })
+
+            const [meterReading] = await createTestMeterReading(client, meter, client.organization, source, {
+                value1: 132.32,
+                value2: 32.123,
+            })
+
+            expect(meterReading.id).toMatch(UUID_RE)
+        })
+
         test('employee with "canManageMeters" role: cannot create MeterReadings with wrong "sender" field', async () => {
             const client = await makeEmployeeUserClientWithAbilities({
                 canManageMeters: true,

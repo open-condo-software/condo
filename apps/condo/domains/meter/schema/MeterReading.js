@@ -7,6 +7,7 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD, CONTACT_FIELD, CLIENT_EMAIL_FIELD, CLIENT_NAME_FIELD, CLIENT_PHONE_FIELD, CLIENT_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/meter/access/MeterReading')
+const { Decimal } = require('@keystonejs/fields')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { getLastBillingAccountMeterReading } = require('../utils/serverSchema')
@@ -40,7 +41,7 @@ const MeterReading = new GQLListSchema('MeterReading', {
         value1: {
             schemaDoc: 'If the meter is single-tariff, then only this value will be filled in;' +
                 'If multi-tariff, then the value of the first tariff will be in this field',
-            type: Integer,
+            type: Decimal,
             isRequired: true,
             hooks: {
                 validateInput: async ({ context, operation, resolvedData, fieldPath, addFieldValidationError }) => {
@@ -57,7 +58,7 @@ const MeterReading = new GQLListSchema('MeterReading', {
 
         value2: {
             schemaDoc: 'If the meter is multi-tariff, then the value of the second tariff is stored here',
-            type: Integer,
+            type: Decimal,
             hooks: {
                 validateInput: async ({ context, operation, resolvedData, fieldPath, addFieldValidationError }) => {
                     if (operation === 'create') {
@@ -73,7 +74,7 @@ const MeterReading = new GQLListSchema('MeterReading', {
 
         value3: {
             schemaDoc: 'If the meter is multi-tariff, then the value of the third tariff is stored here',
-            type: Integer,
+            type: Decimal,
             hooks: {
                 validateInput: async ({ context, operation, resolvedData, fieldPath, addFieldValidationError }) => {
                     if (operation === 'create') {
@@ -89,7 +90,7 @@ const MeterReading = new GQLListSchema('MeterReading', {
 
         value4: {
             schemaDoc: 'If the meter is multi-tariff, then the value of the fourth tariff is stored here',
-            type: Integer,
+            type: Decimal,
             hooks: {
                 validateInput: async ({ context, operation, resolvedData, fieldPath, addFieldValidationError }) => {
                     if (operation === 'create') {
