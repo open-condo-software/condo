@@ -14,10 +14,14 @@ import {
     queryToSorter,
     searchToQuery,
     formatDate,
-    TICKET_PAGE_SIZE, filterToQuery, ticketAnalyticsPageFilters,
+    getAggregatedData,
+    TICKET_PAGE_SIZE,
+    filterToQuery,
+    ticketAnalyticsPageFilters, getChartOptions,
 } from './helpers'
 import { EN_LOCALE, RU_LOCALE } from '../../common/constants/locale'
 import { randomUUID } from 'crypto'
+import { TicketAnalyticsGroupBy, TicketGroupedCounter } from '../../../schema'
 
 describe('Helpers', () => {
     describe('queryUtils', () => {
@@ -588,6 +592,136 @@ describe('Helpers', () => {
                 const year = now.getFullYear() - 1
                 const intl = { locale: EN_LOCALE }
                 expect(formatDate(intl, `${year}-05-26 09:03:27.058000`)).toBe(`26 May ${year} 9:03`)
+            })
+        })
+    })
+
+    describe('analyticsUtils', () => {
+        describe('getAggregateData', () => {
+            describe('it should correctly generate output object if', () => {
+                const dates = [dayjs().subtract(1, 'day').format('DD.MM.YYYY'), dayjs().format('DD.MM.YYYY')]
+                const ticketGroupedCounter: TicketGroupedCounter[] = [
+                    { status: 'open', count: 1, property: 'property1', dayGroup: dates[1] },
+                    { status: 'closed', count: 3, property: 'property1', dayGroup: dates[1] },
+                    { status: 'open', count: 2, property: 'property2', dayGroup: dates[0] }
+                    ,
+                    { status: 'closed', count: 1, property: 'property2', dayGroup: dates[0] },
+                ]
+                it('groupBy dependencies contains day group', () => {
+                    const groupBy = ['status', 'day'] as TicketAnalyticsGroupBy[]
+                    const data = getAggregatedData(ticketGroupedCounter, groupBy)
+                    expect(data).toMatchObject({
+                        open: { [dates[1]]: 1, [dates[0]]: 2 },
+                        closed: { [dates[0]]: 1, [dates[1]]: 3 },
+                    })
+                })
+
+                it('groupBy dependencies contains week group', () => {
+                    const groupBy = ['status', 'week'] as TicketAnalyticsGroupBy[]
+                    const data = getAggregatedData(ticketGroupedCounter, groupBy)
+                    expect(data).toMatchObject({
+                        open: { [dates[1]]: 1, [dates[0]]: 2 },
+                        closed: { [dates[0]]: 1, [dates[1]]: 3 },
+                    })
+                })
+
+                it('groupBy dependencies contains property', () => {
+                    const groupBy = ['status', 'property'] as TicketAnalyticsGroupBy[]
+                    const data = getAggregatedData(ticketGroupedCounter, groupBy)
+                    expect(data).toMatchObject({
+                        open: { property1: 1, property2: 2 },
+                        closed: { property1: 3, property2: 1 },
+                    })
+                })
+
+                it('groupBy dependencies equal ["property", "status"]', () => {
+                    const groupBy = ['property', 'status'] as TicketAnalyticsGroupBy[]
+                    const data = getAggregatedData(ticketGroupedCounter, groupBy)
+                    expect(data).toMatchObject(    {
+                        property1: { open: 1, closed: 3 },
+                        property2: { open: 2, closed: 1 },
+                    })
+                })
+            })
+        })
+
+        describe('getChartOptions', () => {
+            describe('it should correctly generate chart options if', () => {
+                const axisData = {
+                    xAxis: {
+                        type: 'unset',
+                        data: null,
+                    },
+                    yAxis: {
+                        type: 'unset',
+                        data: null,
+                    },
+                }
+                const tooltip = { trigger: 'none', axisPointer: { type: 'none' } }
+                it('chart type is bar', () => {
+                    const { option, opts } = getChartOptions({
+                        viewMode: 'bar',
+                        series: [{
+                            data: [1, 2],
+                            type: 'bar',
+                        }],
+                        axisData,
+                        tooltip,
+                        animationEnabled: false,
+                        chartOptions: { renderer: 'svg' },
+                        legend: ['label1', 'label2'],
+                    })
+
+                    expect(opts).toMatchObject({ renderer: 'svg', height: 'auto' })
+                    expect(Object.keys(option).sort()).toEqual([
+                        'animation', 'color', 'grid', 'legend', 'series', 'tooltip', 'xAxis', 'yAxis',
+                    ])
+                    expect(option.legend.data).toEqual(['label1', 'label2'])
+                    expect(option.series).toHaveLength(1)
+                    expect(option.series[0].data).toEqual([1, 2])
+                })
+
+                it('chart type is line', () => {
+                    const { option, opts } = getChartOptions({
+                        viewMode: 'line',
+                        series: [{
+                            data: [1, 2],
+                            type: 'line',
+                        }],
+                        axisData,
+                        tooltip,
+                        animationEnabled: false,
+                        chartOptions: { height: 200 },
+                        legend: ['label1', 'label2'],
+                    })
+                    expect(opts).toMatchObject({  height: 200, renderer: 'svg' })
+                    expect(Object.keys(option).sort()).toEqual([
+                        'animation', 'color', 'grid', 'legend', 'series', 'tooltip', 'xAxis', 'yAxis',
+                    ])
+                    expect(option.series).toHaveLength(1)
+                    expect(option.series[0].type).toEqual('line')
+                })
+
+                it('chart type is pie', () => {
+                    const { option, opts } = getChartOptions({
+                        viewMode: 'pie',
+                        series: [{
+                            data: [1, 2],
+                            type: 'pie',
+                            name: 'pie chart name',
+
+                        }],
+                        tooltip,
+                        animationEnabled: false,
+                        chartOptions: { height: 'auto' },
+                        legend: ['label1', 'label2'],
+                    })
+
+                    expect(opts).toMatchObject({ height: 'auto', renderer: 'svg' })
+                    expect(Object.keys(option).sort()).toEqual([
+                        'animation', 'color', 'grid', 'legend', 'series', 'title', 'tooltip',
+                    ])
+                })
             })
         })
     })
