@@ -359,7 +359,7 @@
   "pages.condo.meter.form.ConfirmDeleteTitle": "Удалить ИПУ?",
   "pages.condo.meter.form.ConfirmDeleteMessage": "Восстановить счетчик будет невозможно",
   "pages.condo.meter.warning.modal.Title": "Не сохранять показания?",
-  "pages.condo.meter.MeterDataTitle": "Данные счетчиков",
+  "pages.condo.meter.MeterDataTitle": "Данные приборов учета",
   "pages.condo.meter.SendMetersReading": "Отправить показания",
   "pages.condo.meter.AddMeter": "Добавить прибор учета",
   "pages.condo.meter.Account": "Лицевой счет",

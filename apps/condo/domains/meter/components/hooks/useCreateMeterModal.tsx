@@ -7,6 +7,7 @@ import { MeterInfo } from '../createMeterModal/MeterInfo'
 import { MeterResource, resourceIdToCreateMeterTitleId } from '../../utils/clientSchema'
 import { Loader } from '../../../common/components/Loader'
 import { FormattedMessage } from 'react-intl'
+import { IMeterResourceUIState } from '../../utils/clientSchema/MeterResource'
 
 type MeterInfoModalTitleProps = {
     resourceId: string
@@ -28,6 +29,7 @@ const MeterInfoModalTitle = ({ resourceId }: MeterInfoModalTitleProps) => {
 
 type CreateMeterModalProps = {
     addMeterToFormAction: (defaultValue?: StoreValue, insertIndex?: number) => void
+    resources: IMeterResourceUIState[]
 }
 
 export const useCreateMeterModal = ()=> {
@@ -38,13 +40,11 @@ export const useCreateMeterModal = ()=> {
     const [isCreateMeterModalVisible, setIsCreateMeterModalVisible] = useState<boolean>(false)
     const [selectedMeterResourceId, setSelectedMeterResourceId] = useState<string | null>(null)
 
-    const { objs: resources, loading: resourcesLoading } = MeterResource.useObjects({})
-
     useEffect(() => {
         setSelectedMeterResourceId(null)
     }, [isCreateMeterModalVisible])
 
-    const CreateMeterModal = ({ addMeterToFormAction }: CreateMeterModalProps) => (
+    const CreateMeterModal = ({ addMeterToFormAction, resources }: CreateMeterModalProps) => (
         <BaseModalForm
             visible={isCreateMeterModalVisible}
             cancelModal={() => setIsCreateMeterModalVisible(false)}
@@ -58,23 +58,22 @@ export const useCreateMeterModal = ()=> {
             validateTrigger={['onBlur', 'onSubmit']}
             handleSubmit={
                 (values) => {
-                    addMeterToFormAction(values)
+                    addMeterToFormAction({ ...values, resource: selectedMeterResourceId })
                     setIsCreateMeterModalVisible(false)
                 }
             }
         >
             {
-                resourcesLoading ? <Loader /> :
-                    !selectedMeterResourceId ? (
-                        <ResourcesList
-                            resources={resources}
-                            setSelectedMeterResource={setSelectedMeterResourceId}
-                        />
-                    ) : (
-                        <MeterInfo
-                            resource={resources.find(resource => resource.id === selectedMeterResourceId)}
-                        />
-                    )
+                !selectedMeterResourceId ? (
+                    <ResourcesList
+                        resources={resources}
+                        setSelectedMeterResource={setSelectedMeterResourceId}
+                    />
+                ) : (
+                    <MeterInfo
+                        resource={resources.find(resource => resource.id === selectedMeterResourceId)}
+                    />
+                )
             }
         </BaseModalForm>
     )
