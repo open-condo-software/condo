@@ -219,7 +219,14 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     const [usersWithoutEmail, setUsersWithoutEmail] = useState([])
 
     function handleSelect (value) {
-        setUsersWithoutEmail(value.map(JSON.parse).filter(item => item.value.hasEmail === 'false').map(item => item.text))
+        let users = []
+        try {
+            users = value.map(JSON.parse)
+        } catch (error) {
+            console.error('Invalid format for employees in multiple select', value)
+        }
+        const withoutEmails = users.filter(item => !get(item, 'value.hasEmail')).map(item => item.text)
+        setUsersWithoutEmail(withoutEmails)
         setValue(value)
     }
 
