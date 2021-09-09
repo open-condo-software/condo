@@ -10,12 +10,14 @@ const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields'
 const { EMAIL_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/user/access/User')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const get = require('lodash/get')
 
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-const { updateEmployeesRelatedToUser } = require('@condo/domains/user/utils/serverSchema')
+const { updateEmployeesRelatedToUser, User: UserAPI } = require('@condo/domains/user/utils/serverSchema')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const AVATAR_FILE_ADAPTER = new FileAdapter('avatars')
 const { STAFF, USER_TYPES } = require('@condo/domains/user/constants/common')
+const { EMAIL_ALREADY_REGISTERED_ERROR } = require('@condo/domains/user/constants/errors')
 
 const User = new GQLListSchema('User', {
     schemaDoc: 'Individual / person / service account / impersonal company account',
@@ -77,9 +79,21 @@ const User = new GQLListSchema('User', {
                 resolveInput: ({ resolvedData }) => {
                     return normalizeEmail(resolvedData['email']) || resolvedData['email']
                 },
-                validateInput: async ({ resolvedData, addFieldValidationError }) => {
+                validateInput: async ({ context, operation, fieldPath, resolvedData, existingItem, addFieldValidationError }) => {
                     if (resolvedData['email'] && normalizeEmail(resolvedData['email']) !== resolvedData['email']) {
                         addFieldValidationError(`${EMAIL_WRONG_FORMAT_ERROR}mail] invalid format`)
+                    }
+                    if (get(resolvedData, 'email', '').length) {
+                        let existedUsers = []
+                        const userType = resolvedData.type || STAFF
+                        if (operation === 'create') {
+                            existedUsers = await UserAPI.getAll(context, { email: resolvedData['email'], type: userType, deletedAt: null })
+                        } else if (operation === 'update' && resolvedData.email !== existingItem.email) {
+                            existedUsers = await UserAPI.getAll(context, { email: resolvedData['email'], type: userType, deletedAt: null })
+                        }
+                        if (existedUsers && existedUsers.length > 0) {
+                            addFieldValidationError(`${EMAIL_ALREADY_REGISTERED_ERROR}] user already exists`)
+                        }
                     }
                 },
             },

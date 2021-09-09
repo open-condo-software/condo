@@ -11,6 +11,7 @@ import { FormResetButton } from '@condo/domains/common/components/FormResetButto
 import { UserAvatar } from './UserAvatar'
 import { UserPasswordResetButton } from './UserPasswordResetButton'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { EMAIL_ALREADY_REGISTERED_ERROR } from '@condo/domains/user/constants/errors'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -35,6 +36,7 @@ export const UserProfileForm = () => {
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
     const MinLengthError = intl.formatMessage({ id: 'field.ClientName.minLengthError' })
     const ProfileUpdateTitle = intl.formatMessage({ id: 'profile.Update' })
+    const EmailIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsAlreadyRegistered' })
 
     const { user } = useAuth()
     const updateUserAction = User.useUpdate({}, () => router.push('/user/'))
@@ -52,12 +54,19 @@ export const UserProfileForm = () => {
         email: get(user, 'email'),
         avatar: get(user, 'avatar'),
     }
+    const ErrorToFormFieldMsgMapping = {
+        [EMAIL_ALREADY_REGISTERED_ERROR]: {
+            name: 'email',
+            errors: [EmailIsAlreadyRegisteredMsg],
+        },
+    }
 
     return (
         <FormWithAction
             action={formAction}
             initialValues={initialValues}
             layout={'horizontal'}
+            ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
             validateTrigger={['onBlur', 'onSubmit']}
         >
             {({ handleSave, isLoading }) => {
