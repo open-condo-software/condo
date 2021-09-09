@@ -96,7 +96,7 @@
   "GoToSignIn": "Перейти на страницу входа",
   "Hide": "Скрыть",
   "Leave": "Покинуть",
-  "LessThanMinute": "Меньше минуты назад",
+  "LessThanMinuteAgo": "Меньше минуты назад",
   "Loading": "Загрузка",
   "NotFound": "Не найдено",
   "Logout": "Выйти",
