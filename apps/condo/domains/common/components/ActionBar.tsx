@@ -17,10 +17,17 @@ const actionBar = css`
 `
 interface IActionBarProps {
     fullscreen?: boolean;
+    hidden?: boolean;
 }
 
-const ActionBar: React.FC<IActionBarProps> = ({ children, fullscreen = true }) => {
+const ActionBar: React.FC<IActionBarProps> = (props) => {
+    const { children, fullscreen = true, hidden } = props
     const barWidthStyle = { width: fullscreen ? '100%' : 'unset' }
+
+    if (hidden) {
+        return null
+    }
+
     return (
         <Affix offsetBottom={48} style={barWidthStyle}>
             <Space wrap={true} size={[40, 24]} css={actionBar} style={barWidthStyle}>

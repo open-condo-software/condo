@@ -1,17 +1,18 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core'
-import React, { createContext, CSSProperties, FunctionComponent, useContext, useState } from 'react'
+import React, { createContext, CSSProperties, FunctionComponent, useContext } from 'react'
 import { Layout, PageHeader as AntPageHeader, PageHeaderProps } from 'antd'
 import { useTopNotificationsHook, ITopNotification } from '@condo/domains/common/components/TopNotifications'
 import { detectMobileNavigator } from '@condo/domains/common/utils/navigator'
+import { useResponsive } from '../../../hooks/useResponsive'
 import { SideMenu } from './components/SideMenu'
 import Router from 'next/router'
 import classnames from 'classnames'
 import 'antd/dist/antd.less'
-import { ITopMenuItemsProps, TopMenuItems as BaseTopMenuItems } from './components/TopMenuItems'
-import { layoutCss, pageContentCss, pageHeaderCss, pageWrapperCss, subLayoutCss, topMenuCss } from './components/styles'
+import { layoutCss, pageContentCss, pageHeaderCss, StyledPageWrapper, subLayoutCss } from './components/styles'
 import { ElementType } from 'react'
 import MenuItem from 'antd/lib/menu/MenuItem'
+import { Header } from './Header'
 
 interface ILayoutContext {
     isMobile: boolean
@@ -25,15 +26,12 @@ const LayoutContext = createContext<ILayoutContext>({
 
 const useLayoutContext = (): ILayoutContext => useContext<ILayoutContext>(LayoutContext)
 
-const { Header, Content } = Layout
-
 interface IBaseLayoutProps {
     headerAction?: ElementType<unknown>
     menuData?: React.ElementType
     style?: CSSProperties
     className?: string
     menuDataRender?: () => MenuItem[]
-    TopMenuItems?: React.FC<ITopMenuItemsProps>
     logoLocation?: string
     onLogoClick?: () => void
 }
@@ -46,7 +44,6 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
         menuData,
         headerAction,
         onLogoClick = () => Router.push('/'),
-        TopMenuItems: TopMenuItemsFromProps,
     } = props
 
     const {
@@ -54,37 +51,19 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
         addNotification,
     } = useTopNotificationsHook()
 
-    const isMobile = detectMobileNavigator()
-    const [isSideMenuCollapsed, setIsSideMenuCollapsed] = useState(!isMobile)
     const menuDataClassNames = classnames(
         'layout',
         { 'hided-side-menu': !menuData || menuData.length === 0 },
         className
     )
-    const toggleSideMenuCollapsed = () => setIsSideMenuCollapsed(!isSideMenuCollapsed)
-
-    const TopMenuItems = TopMenuItemsFromProps ? TopMenuItemsFromProps : BaseTopMenuItems
 
     return (
-        <LayoutContext.Provider value={{ isMobile, addNotification }}>
+        <LayoutContext.Provider value={{ isMobile: detectMobileNavigator(), addNotification }}>
             <TopNotificationComponent />
             <Layout className={menuDataClassNames} style={style} css={layoutCss} >
-                <SideMenu {...{
-                    onLogoClick,
-                    menuData,
-                    isMobile,
-                    isSideMenuCollapsed,
-                    toggleSideMenuCollapsed,
-                }} />
+                <SideMenu {...{ onLogoClick, menuData }}/>
                 <Layout css={subLayoutCss}>
-                    <Header css={topMenuCss}>
-                        <TopMenuItems
-                            headerAction={headerAction}
-                            isMobile={isMobile}
-                            isSideMenuCollapsed={isSideMenuCollapsed}
-                            toggleSideMenuCollapsed={toggleSideMenuCollapsed}
-                        />
-                    </Header>
+                    <Header headerAction={headerAction}/>
                     {children}
                 </Layout>
             </Layout>
@@ -98,10 +77,12 @@ interface IPageWrapperProps {
 }
 
 const PageWrapper: FunctionComponent<IPageWrapperProps> = ({ children, className, style }) => {
+    const { isSmall } = useResponsive()
+
     return (
-        <Content className={classnames('page-wrapper', className)} css={pageWrapperCss}  style={style}>
+        <StyledPageWrapper isSmall={isSmall} className={classnames('page-wrapper', className)} style={style}>
             {children}
-        </Content>
+        </StyledPageWrapper>
     )
 }
 
