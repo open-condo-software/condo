@@ -54,7 +54,7 @@ export const getTicketFormattedLastStatusUpdate = (intl, ticket) => {
 
     if (ticketLastUpdateDate) {
         let duration = dayjs.duration(dayjs(ticketLastUpdateDate).diff(dayjs()))
-        if (Math.abs(duration.asSeconds()) < 60) return intl.formatMessage({ id: 'LessThanMinute' })
+        if (Math.abs(duration.asSeconds()) < 60) return intl.formatMessage({ id: 'LessThanMinuteAgo' })
         const locale = get(LOCALES, intl.locale)
         if (locale) duration = duration.locale(locale)
         return duration.humanize(true)
