@@ -76,10 +76,10 @@ export const MeterInfo = ({ resource }: MeterInfoProps) => {
                                     required={isElectricityMeter}
                                     hidden={!isElectricityMeter}
                                     label={TariffsCountMessage}
-                                    name='tariffsCount'
+                                    name='numberOfTariffs'
                                 >
                                     <Select>
-                                        {getTariffNumberSelectOptions()}
+                                        { getTariffNumberSelectOptions() }
                                     </Select>
                                 </Form.Item>
                             </Col>
