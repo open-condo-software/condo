@@ -5,6 +5,7 @@ import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { Col, Row, Space, Typography } from 'antd'
 import styled from '@emotion/styled'
 import { colors, shadows, transitions } from '@condo/domains/common/constants/style'
+import { IMeterResourceUIState } from '../../utils/clientSchema/MeterResource'
 
 
 const ResourceCardContainer = styled(FocusContainer)`
@@ -42,26 +43,25 @@ const ResourceCard = ({ label, resourceId, onClick }: ResourceCardProps) => {
 }
 
 type ResourcesListProps = {
+    resources: IMeterResourceUIState[]
     setSelectedMeterResource: React.Dispatch<React.SetStateAction<string>>
 }
 
-export const ResourcesList = ({ setSelectedMeterResource }: ResourcesListProps) => {
-    const { objs: resources, loading: resourcesLoading } = MeterResource.useObjects({})
+export const ResourcesList = ({ resources, setSelectedMeterResource }: ResourcesListProps) => {
 
-    return resourcesLoading ? <Loader /> :
-        (
-            <Row gutter={[0, 10]} justify={'center'}>
-                {
-                    resources.map(resource => (
-                        <Col key={resource.id} span={22}>
-                            <ResourceCard
-                                label={resource.name}
-                                resourceId={resource.id}
-                                onClick={() => setSelectedMeterResource(resource.id)}
-                            />
-                        </Col>
-                    ))
-                }
-            </Row>
-        )
+    return (
+        <Row gutter={[0, 10]} justify={'center'}>
+            {
+                resources.map(resource => (
+                    <Col key={resource.id} span={22}>
+                        <ResourceCard
+                            label={resource.name}
+                            resourceId={resource.id}
+                            onClick={() => setSelectedMeterResource(resource.id)}
+                        />
+                    </Col>
+                ))
+            }
+        </Row>
+    )
 }

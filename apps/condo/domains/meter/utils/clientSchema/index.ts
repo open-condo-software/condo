@@ -36,3 +36,11 @@ export const resourceIdToIcon = {
     [ELECTRICITY_METER_RESOURCE_ID]: BulbIcon,
     [HEAT_SUPPLY_METER_RESOURCE_ID]: RadiatorIcon,
 }
+
+export const resourceIdToCreateMeterTitleId = {
+    [COLD_WATER_METER_RESOURCE_ID]: 'pages.condo.meter.AddColdWaterMeterModalTitle',
+    [HOT_WATER_METER_RESOURCE_ID]: 'pages.condo.meter.AddHotWaterMeterModalTitle',
+    [GAS_SUPPLY_METER_RESOURCE_ID]: 'pages.condo.meter.AddGasSupplyMeterModalTitle',
+    [ELECTRICITY_METER_RESOURCE_ID]: 'pages.condo.meter.AddElectricityMeterModalTitle',
+    [HEAT_SUPPLY_METER_RESOURCE_ID]: 'pages.condo.meter.AddHeatSupplyMeterModalTitle',
+}

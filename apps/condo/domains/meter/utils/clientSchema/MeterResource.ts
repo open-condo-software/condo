@@ -15,6 +15,8 @@ const RELATIONS = []
 
 export interface IMeterResourceUIState extends MeterResource {
     id: string
+    name: string
+    measure: string
 }
 
 function convertToUIState (item: MeterResource): IMeterResourceUIState {
