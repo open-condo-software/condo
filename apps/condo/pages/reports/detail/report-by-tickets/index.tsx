@@ -363,7 +363,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                             })
                         })
                         const axisData = { yAxis: { type: 'category', data: axisLabels }, xAxis: { type: 'value', data: null } }
-                        const tooltip = { trigger: 'item', axisPointer: { type: 'line' } }
+                        const tooltip = { trigger: 'item', axisPointer: { type: 'line' }, borderColor: '#fff' }
                         return { series, legend, axisData, tooltip }
                     },
                     table: (viewMode, ticketGroupedCounter, restOptions) => {
