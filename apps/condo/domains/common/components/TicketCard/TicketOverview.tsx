@@ -23,7 +23,7 @@ export const TicketOverview: React.FC<TTicket> = ({
     const intl = useIntl()
     const locale = get(LOCALES, intl.locale)
     const date = locale ? dayjs(createdAt).locale(locale) : dayjs(createdAt)
-    const formattedCreatedAt = date.format('DD MMMM Y')
+    const formattedCreatedAt = date.format('DD MMMM YYYY')
     const topLine = `№ ${number} ${status}`.toLowerCase()
     const ticketRef = `/ticket/${id}`
 

@@ -1,6 +1,6 @@
 import { MapEdit } from './MapConstructor'
-import { BuildingMapEntityType } from '../../../../../schema'
-import { notValidBuildingMapJson, buildingMapJson } from '@condo/domains/property/constants/property'
+import { BuildingMap, BuildingMapEntityType } from '../../../../../schema'
+import { notValidBuildingMapJson, buildingMapJson, autoFixBuildingMapJson } from '@condo/domains/property/constants/property'
 import { cloneDeep } from 'lodash'
 
 const testSection = {
@@ -27,6 +27,26 @@ const createBuilding = (data): MapEdit => {
 }
 
 describe('Map constructor', () => {
+
+    describe('Repair structure', () => {
+        it('should remove preview attributes if they occasionally exists', () => {
+            const Building = new MapEdit(cloneDeep(autoFixBuildingMapJson) as unknown as BuildingMap, () => null )
+            const map = Building.getMap()
+            expect(map.sections[0]).not.toHaveProperty('preview')
+            expect(map.sections[0].floors[0].units[0]).not.toHaveProperty('preview')
+        })
+        it('should add floor index', () => {
+            const Building = new MapEdit(cloneDeep(autoFixBuildingMapJson) as unknown as BuildingMap, () => null )
+            const map = Building.getMap()
+            expect(map.sections[0].floors[0]).toHaveProperty('index')
+        })
+        it('should remove null names from units', () => {
+            const Building = new MapEdit(cloneDeep(autoFixBuildingMapJson) as unknown as BuildingMap, () => null )
+            const map = Building.getMap()
+            expect(map.sections[0].floors[0].units[0]).not.toHaveProperty('name')
+        })
+
+    })
     describe('Service functions', () => {
         describe('Select options for sections', () => {
             it('should correctly generate floor list for choosed section', () => {
@@ -51,7 +71,7 @@ describe('Map constructor', () => {
                 expect(unit.floor).toEqual(jsonMap.sections[2].floors[2].id)
             })
         })
-        describe('geting floors range', () => {
+        describe('getting floors range', () => {
             it('should correctly get min and max floor from all sections', () => {
                 const PropertyMap = new MapEdit(null, () => null )
                 PropertyMap.addSection({ id: '', minFloor: -2, maxFloor: 5, unitsOnFloor: 10, name: sectionName() })
@@ -111,9 +131,9 @@ describe('Map constructor', () => {
                 const Building = createBuildingMap(10)
                 const jsonMap = Building.getMap()
                 const updatedUnit = jsonMap.sections[5].floors[5].units[5]
-                Building.updateUnit({ ...updatedUnit, 
-                    label: 'Test label', 
-                    floor:  jsonMap.sections[2].floors[2].id, 
+                Building.updateUnit({ ...updatedUnit,
+                    label: 'Test label',
+                    floor:  jsonMap.sections[2].floors[2].id,
                     section: jsonMap.sections[2].id,
                 })
                 const newJsonMap = Building.getMap()
@@ -156,7 +176,7 @@ describe('Map constructor', () => {
             })
         })
     })
-        
+
     describe('Section operations', () => {
         describe('Add section', () => {
             it('have valid structure on section add', () => {
@@ -191,9 +211,9 @@ describe('Map constructor', () => {
                 expect(Building.sections).toHaveLength(9)
             })
         })
-    })       
+    })
 
-    
+
     describe('Checking validation', () => {
         it('should be valid after unit operations', () => {
             const Building = createBuildingMap(10)
@@ -227,16 +247,16 @@ describe('Map constructor', () => {
         describe('Check that JSON schema validator is working', () => {
             it('should react to bad structure', () => {
                 const Building = new MapEdit(null, () => null )
-                Building.map = cloneDeep(notValidBuildingMapJson)
+                Building.map = cloneDeep(notValidBuildingMapJson) as BuildingMap
                 const isValid = Building.validateSchema()
                 expect(isValid).toBe(false)
                 expect(Building.validationErrors).toHaveLength(1)
             })
             it('should pass validation on good structure', () => {
                 const Building = new MapEdit(null, () => null )
-                Building.map = cloneDeep(buildingMapJson)
+                Building.map = cloneDeep(buildingMapJson) as BuildingMap
                 const isValid = Building.validateSchema()
-                expect(isValid).toBe(true)                
+                expect(isValid).toBe(true)
             })
         })
 
@@ -364,7 +384,7 @@ describe('Check new MapConstructor to work on old JSON data', () => {
                 .map( section => section.floors )
                 .flat()
             expect(allFloors).toHaveLength(4)
-            
+
         })
         it('shoud contain 7 units', () => {
             const Building = createBuilding(TWO_SECTION_THREE_FLOORS)
