@@ -458,8 +458,7 @@ export const getAggregatedData: IGetAggregatedData = (data, groupByFilter) => {
     return result
 }
 
-const formatPieChartName = (propertyFullAddress: string): string => {
-    const chartName = propertyFullAddress.split(', ').slice(1).join(', ')
+const formatPieChartName = (chartName: string): string => {
     return chartName.length > MAX_CHART_NAME_LENGTH
         ? `${chartName.substring(0, MAX_CHART_NAME_LENGTH)}...`
         : chartName
