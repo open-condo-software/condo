@@ -116,17 +116,9 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
             }
             return Object.values(ticketStatus).every(count => count === 0)
         }) && !loading
-        const chartHeight = get(chartOptions, 'height', 'auto')
-        const chartStyle = {}
-        if (chartHeight !== 'auto') {
-            chartStyle['height'] = chartHeight
-        }
-
-        if (viewMode === 'bar' && chartHeight === 'auto') {
-            const axisLabels = get(axisData, 'yAxis.data')
-            if (axisLabels && axisLabels.length > 5) {
-                chartStyle['height'] = axisLabels.length * 50
-            }
+        const chartHeight = get(chartOptions, 'height', false) || get(opts, 'height', 'auto')
+        const chartStyle = {
+            height: chartHeight,
         }
 
         return <Typography.Paragraph style={{ position: 'relative' }}>

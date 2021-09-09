@@ -512,7 +512,7 @@ export const getChartOptions: IGetChartOptions = ({
 
     if (viewMode === 'pie') {
         option['legend'] = { data: legend, show: false }
-        option['tooltip'] = { trigger: 'item' }
+        option['tooltip'] = { trigger: 'item', borderColor: '#fff' }
 
         option['series'] = series
 
@@ -539,27 +539,29 @@ export const getChartOptions: IGetChartOptions = ({
             itemWidth: 7,
             itemHeight: 7,
             textStyle: { fontSize: fontSizes.content },
-            itemGap: 14,
+            itemGap: 28,
         }
         option['xAxis'] = axisData['xAxis']
         option['yAxis'] = axisData['yAxis']
         option['series'] = series
         option['tooltip'] = tooltip
-        const legendItemGap = 36
+        const legendItemGap = 56
         option['grid']['top'] = legend.length / MAX_CHART_LEGEND_ELEMENTS * legendItemGap
 
         const chartHeight = get(chartOptions, 'height', 'auto')
+        opts['height'] = chartHeight
+
         if (chartHeight !== 'auto') {
             chartStyle['height'] = chartHeight
         }
-
         if (viewMode === 'bar' && chartHeight === 'auto') {
             const axisLabels = get(axisData, 'yAxis.data')
-            if (axisLabels && axisLabels.length > 5) {
-                chartStyle['height'] = axisLabels.length * 50
+            if (axisLabels) {
+                chartStyle['height'] = axisLabels.length * 65 + option['grid']['top']
+                opts['height'] = chartStyle['height']
             }
         }
-        opts['height'] = chartHeight
+
     }
 
     return { option, opts }
