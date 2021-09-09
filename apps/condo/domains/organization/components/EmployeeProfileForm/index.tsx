@@ -41,7 +41,6 @@ export const EmployeeProfileForm = () => {
     const { query, push } = useRouter()
 
     const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject({ where: { id: String(get(query, 'id', '')) } })
-    console.log('employee', employee)
     const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => {
         refetch().then(() => {
             push(`/employee/${get(query, 'id')}/`)
