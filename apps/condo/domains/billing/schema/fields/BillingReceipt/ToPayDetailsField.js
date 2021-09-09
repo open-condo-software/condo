@@ -26,7 +26,8 @@ const ToPayDetailsSchema = {
     type: 'object',
     properties: Object.assign({},
         ...Object.keys(ToPayDetailsFields).map((field) => ({ [field]: { 'type': ['string', 'null'] } })),
-        { formula: { type: 'string' } }
+        { formula: { type: 'string' } },
+        { __typename: { type: 'string' } },
     ),
     required: ['formula'],
     additionalProperties: false,
