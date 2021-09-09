@@ -102,7 +102,7 @@ async function renderTemplate (transport, message) {
                                 </tr>
                             </table>
                             <p style="font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif; font-size: 22px; font-weight: 400; line-height: 32px; text-align: left;">Hello!<br />
-                            Ticket #${ticketNumber} dated ${dayjs(date).locale(LOCALES[EN_LOCALE]).format('D MMMM Y')} has been shared with you.<br />
+                            Ticket #${ticketNumber} dated ${dayjs(date).locale(LOCALES[EN_LOCALE]).format('D MMMM YYYY')} has been shared with you.<br />
                             The text of the ticket: "${details}"</p>
                             <p>&nbsp;</p>
                             <div><!--[if mso]>
@@ -130,7 +130,7 @@ async function renderTemplate (transport, message) {
                                 </tr>
                             </table>
                             <p style="font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif; font-size: 22px; font-weight: 400; line-height: 32px; text-align: left;">Добрый день!<br />
-                            С вами поделились заявкой №${ticketNumber} от ${dayjs(date).locale(LOCALES[RU_LOCALE]).format('D MMMM Y')})}.<br />
+                            С вами поделились заявкой №${ticketNumber} от ${dayjs(date).locale(LOCALES[RU_LOCALE]).format('D MMMM YYYY')})}.<br />
                             Текст заявки: «${details}»</p>
                             <p>&nbsp;</p>
                             <div><!--[if mso]>
