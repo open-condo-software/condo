@@ -11,6 +11,8 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { OrganizationEmployee } from '../../utils/clientSchema'
 import { EmployeeRoleSelect } from './EmployeeRoleSelect'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { Rule } from 'rc-field-form/lib/interface'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -30,6 +32,8 @@ export const EmployeeProfileForm = () => {
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
     const ProfileUpdateTitle = intl.formatMessage({ id: 'profile.Employee.Update' })
     const RoleLabel = intl.formatMessage({ id: 'employee.Role' })
+    const EmailLabel = intl.formatMessage({ id: 'Email' })
+    const ExampleEmailMsg = intl.formatMessage({ id: 'example.Email' })
     const PositionLabel = intl.formatMessage({ id: 'employee.Position' })
     const UpdateEmployeeMessage = intl.formatMessage({ id: 'employee.UpdateTitle' })
     const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
@@ -37,11 +41,16 @@ export const EmployeeProfileForm = () => {
     const { query, push } = useRouter()
 
     const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject({ where: { id: String(get(query, 'id', '')) } })
+    console.log('employee', employee)
     const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => {
         refetch().then(() => {
             push(`/employee/${get(query, 'id')}/`)
         })
     })
+    const { emailValidator } = useValidations()
+    const validations: { [key: string]: Rule[] } = {
+        email: [emailValidator],
+    }
 
     if (error) {
         return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null}/>
@@ -57,6 +66,7 @@ export const EmployeeProfileForm = () => {
     const initialValues = {
         role: get(employee, ['role', 'id']),
         position: get(employee, 'position'),
+        email: get(employee, 'email'),
     }
 
     return (
@@ -107,6 +117,16 @@ export const EmployeeProfileForm = () => {
                                         label={PositionLabel}
                                     >
                                         <Input/>
+                                    </Form.Item>
+                                    <Form.Item
+                                        {...INPUT_LAYOUT_PROPS}
+                                        labelAlign={'left'}
+                                        name={'email'}
+                                        label={EmailLabel}
+                                        validateFirst
+                                        rules={validations.email}
+                                    >
+                                        <Input placeholder={ExampleEmailMsg}/>
                                     </Form.Item>
                                     <Space size={40} style={{ paddingTop: '36px' }}>
                                         <FormResetButton

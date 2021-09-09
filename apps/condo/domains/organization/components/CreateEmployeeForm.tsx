@@ -241,7 +241,6 @@ export const CreateEmployeeForm: React.FC = () => {
                                 {
                                     ({ getFieldsValue }) => {
                                         const { phone } = getFieldsValue(['phone'])
-
                                         return (
                                             <ActionBar>
                                                 <Button
