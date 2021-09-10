@@ -7,6 +7,7 @@ import { Button } from '@condo/domains/common/components/Button'
 import { useAuth } from '@core/next/auth'
 import { OrganizationEmployee as OrganizationEmployeeType } from '../../../schema'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
+import { fontSizes } from '@condo/domains/common/constants/style'
 
 interface IOrganizationName {
     name: string
@@ -27,11 +28,11 @@ const OrganizationName: React.FC<IOrganizationName> = (props) => {
     } = props
 
     if (organizationId === employeeOrganizationId) {
-        return (<Typography.Text style={{ fontSize: '16px', fontWeight: 'bold' }}>{ name }</Typography.Text>)
+        return (<Typography.Text style={{ fontSize: fontSizes.content, fontWeight: 'bold' }}>{ name }</Typography.Text>)
     }
 
     return (
-        <Typography.Text style={{ fontSize: '16px' }}>
+        <Typography.Text style={{ fontSize: fontSizes.content }}>
             { name } ({ <Button type={'inlineLink'} onClick={selectOrganization}>{ EnterMessage }</Button> })
         </Typography.Text>
     )
@@ -71,7 +72,7 @@ const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) =>
                         value={get(employee, ['organization', 'name'])}
                         render={(name) => (
                             <OrganizationName
-                                name={name}
+                                name={String(name)}
                                 organizationId={get(employee, ['organization', 'id'])}
                                 employeeOrganizationId={get(userOrganization, ['link', 'organization', 'id'])}
                                 selectOrganization={selectOrganization}

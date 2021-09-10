@@ -15,8 +15,7 @@ import {
     getSorterMap,
     convertColumns,
 } from './tables.utils'
-
-import moment from 'moment'
+import dayjs from 'dayjs'
 
 function randInt (maxValue) {
     return Math.floor(Math.random() * maxValue)
@@ -242,7 +241,7 @@ describe('Table utils', () => {
             expect(result).toBeUndefined()
         })
         it('should parse start of the day correctly', () => {
-            const startOfDay = moment(dateSearch).startOf('day').toISOString()
+            const startOfDay = dayjs(dateSearch).startOf('day').toISOString()
             const expectedResult = { [propertyName]: startOfDay }
             expect(filter(dateSearch)).toStrictEqual(expectedResult)
         })
@@ -262,7 +261,7 @@ describe('Table utils', () => {
             expect(result).toBeUndefined()
         })
         it('should parse end of the day correctly', () => {
-            const startOfDay = moment(dateSearch).endOf('day').toISOString()
+            const startOfDay = dayjs(dateSearch).endOf('day').toISOString()
             const expectedResult = { [propertyName]: startOfDay }
             expect(filter(dateSearch)).toStrictEqual(expectedResult)
         })
@@ -379,7 +378,7 @@ describe('Table utils', () => {
         })
     })
     describe('convertColumns', () => {
-        const column: ColumnInfo = {
+        const column: ColumnInfo<string> = {
             title: 'title',
             key: 'key',
             width: 100,
@@ -461,9 +460,9 @@ describe('Table utils', () => {
             expect(antdColumns[1]).toHaveProperty('filteredValue', null)
         })
         it('should create filterDropdowns for typed filters', () => {
-            const col1: ColumnInfo = { ...column, filter: { type: 'string' } }
-            const col2: ColumnInfo = { ...column, key: 'key2', filter: { type: 'stringOption', options: [{ label: 'label', value: '0' }] } }
-            const col3: ColumnInfo = { ...column, key: 'key2', filter: { type: 'date' } }
+            const col1: ColumnInfo<string> = { ...column, filter: { type: 'string' } }
+            const col2: ColumnInfo<string> = { ...column, key: 'key2', filter: { type: 'stringOption', options: [{ label: 'label', value: '0' }] } }
+            const col3: ColumnInfo<string> = { ...column, key: 'key2', filter: { type: 'date' } }
             const antdColumns = convertColumns([col1, col2, col3], {}, {})
             expect(antdColumns).toHaveLength(3)
             expect(antdColumns[0]).toHaveProperty('filterDropdown')
@@ -474,8 +473,8 @@ describe('Table utils', () => {
             expect(antdColumns[2].filterDropdown).toBeDefined()
         })
         it('should create default render for string-filtered columns', () => {
-            const col1: ColumnInfo = { ...column }
-            const col2: ColumnInfo = { ...column, key: 'key2', filter: { type: 'string' } }
+            const col1: ColumnInfo<string> = { ...column }
+            const col2: ColumnInfo<string> = { ...column, key: 'key2', filter: { type: 'string' } }
             const antdColumns = convertColumns([col1, col2], {}, {})
             expect(antdColumns).toHaveLength(2)
             expect(antdColumns[0]).toHaveProperty('render')

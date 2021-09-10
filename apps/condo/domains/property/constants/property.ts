@@ -8,6 +8,57 @@ const buildingEmptyMapJson = {
     'type': 'building',
     'sections': [],
 }
+// JSON from old maps that will be auto repaired after loading
+// floors - didnt have index
+// after moving from json schema to garphql type nulls will be in some unit's names
+// preview field will disable editting 
+const autoFixBuildingMapJson = {
+    'dv': 1,
+    'type': 'building',
+    'sections': [  {
+        'id': '1',
+        'type': 'section',
+        'name': 'Подъезд №1',
+        'preview': true,
+        'floors': [
+            {
+                'id': '7',
+                'type': 'floor',
+                'name': '7',
+                'preview': true,
+                'units': [
+                    {
+                        'id': '25',
+                        'label': '25',
+                        'type': 'unit',
+                        'name': null,
+                        'preview': true,
+                    },
+                    {
+                        'id': '26',
+                        'type': 'unit',
+                        'name': null,
+                        'preview': true,
+                    },
+                    {
+                        'id': '27',
+                        'label': '27',
+                        'type': 'unit',
+                        'name': null,
+                        'preview': true,
+                    },
+                    {
+                        'id': '28',
+                        'label': '28',
+                        'type': 'unit',
+                        'name': null,
+                        'preview': true,
+                    },
+                ],
+            },
+        ],
+    }],
+}
 
 const notValidBuildingMapJson = {
     'dv': 1,
@@ -313,4 +364,5 @@ export {
     buildingAddressMetaJson,
     notValidBuildingMapJson,
     validHouseTypes,
+    autoFixBuildingMapJson,
 }

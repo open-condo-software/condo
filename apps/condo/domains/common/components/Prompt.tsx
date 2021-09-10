@@ -69,11 +69,7 @@ const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: for
         <Modal
             visible={isModalVisible}
             onCancel={hideModal}
-            title={
-                <Typography.Title style={{ fontSize: '24px', lineHeight: '32px' }}>
-                    {title}
-                </Typography.Title>
-            }
+            title={title}
             footer={[
                 <Button key="back" type='sberDanger' style={{ margin: '16px' }} onClick={handleCancel}>
                     {LeaveLabel}

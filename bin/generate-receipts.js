@@ -10,7 +10,8 @@ const path = require('path')
 const { buildFakeAddressMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { getPreviousPeriods } = require('@condo/domains/billing/utils/period')
-const { DateTime } = require('luxon')
+const dayjs = require('dayjs')
+
 const PROPERTY_QUANTITY = 10
 const AVAILABLE_LEVELS = {
     base: '1',
@@ -27,8 +28,9 @@ const SERVICES_DISTRIBUTION = { min: 2, max: 30 }
 const DV = 1
 const SENDER = { dv: DV, fingerprint: faker.random.alphaNumeric(8) }
 const BASE_JSON = { dv: DV, sender: SENDER }
-const CURRENT_DATE = DateTime.now()
-const CURRENT_PERIOD = CURRENT_DATE.toFormat('yyyy-MM-01')
+const CURRENT_DATE = dayjs()
+const CURRENT_PERIOD = CURRENT_DATE.format('YYYY-MM-01')
+
 
 
 class ReceiptsGenerator {
@@ -294,7 +296,7 @@ class ReceiptsGenerator {
         await BillingIntegrationOrganizationContext.update(this.context, this.billingContextId, {
             lastReport: {
                 period: this.periods[0],
-                finishTime: DateTime.now().toISO(),
+                finishTime: dayjs().toISOString(),
                 totalReceipts: toBeGenerated,
             },
         })

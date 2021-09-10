@@ -6,7 +6,7 @@ const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/property/access/ExportPropertiesToExcelService')
 const { Property: PropertyAPI } = require('@condo/domains/property/utils/serverSchema')
 const { EMPTY_DATA_EXPORT_ERROR } = require('@condo/domains/common/constants/errors')
-const moment = require('moment')
+const dayjs = require('dayjs')
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
 
 // as we have limits in query we need to fetch all properties by chunks
@@ -53,7 +53,7 @@ const ExportPropertiesToExcelService = new GQLCustomSchema('ExportPropertiesToEx
                     }
                 })
                 const linkToFile = await createExportFile({
-                    fileName: `properties_${moment().format('DD_MM')}.xlsx`,
+                    fileName: `properties_${dayjs().format('DD_MM')}.xlsx`,
                     templatePath: './domains/property/templates/PropertiesExportTemplate.xlsx',
                     replaces: { properties: excelRows },
                     meta: {

@@ -11,7 +11,7 @@ import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
 import { Table, DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
 import { BillingReceipt } from '@condo/domains/billing/utils/clientSchema'
-import { SortBillingReceiptsBy } from '../../../../schema'
+import { BillingReceiptWhereInput, SortBillingReceiptsBy } from '@app/condo/schema'
 import get from 'lodash/get'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { usePeriodSelector } from '@condo/domains/billing/hooks/usePeriodSelector'
@@ -25,7 +25,7 @@ import { IBillingReceiptUIState } from '@condo/domains/billing/utils/clientSchem
 const addressFilter = getStringContainsFilter(['property', 'address'])
 const accountFilter = getStringContainsFilter(['account', 'number'])
 const periodFilter = (period: string) => ({ period })
-const staticQueryMetas: Array<QueryMeta> = [
+const staticQueryMetas: Array<QueryMeta<BillingReceiptWhereInput>> = [
     { keyword: 'address', filters: [addressFilter] },
     { keyword: 'account', filters: [accountFilter] },
 ]
@@ -46,7 +46,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const separator = get(context, ['integration', 'currency', 'displayInfo', 'delimiterNative'], '.')
     const currencySign = get(context, ['integration', 'currency', 'displayInfo', 'symbolNative'], '₽')
     const toPayFilter = getMoneyFilter('toPay', separator)
-    const queryMetas: Array<QueryMeta> = [
+    const queryMetas: Array<QueryMeta<BillingReceiptWhereInput>> = [
         ...staticQueryMetas,
         { keyword: 'period', filters: [periodFilter], defaultValue: contextPeriod },
         { keyword: 'toPay', filters: [toPayFilter] },
@@ -124,7 +124,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
                             {
                                 options.map((option, index) => {
                                     return (
-                                        <Select.Option value={option.period} key={index}>
+                                        <Select.Option value={option.value} key={index}>
                                             {`${DataForTitle} ${option.title}`}
                                         </Select.Option>
                                     )

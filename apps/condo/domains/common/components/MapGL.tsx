@@ -1,3 +1,4 @@
+/** @jsx jsx */
 import React, { useEffect, useState } from 'react'
 
 import { load } from '@2gis/mapgl'
@@ -6,8 +7,9 @@ import { DEFAULT_CENTER, MARKER_SVG_URL } from '../constants/map'
 import { Card, Tag } from 'antd'
 
 const GUEST_API_KEY = 'bfd8bbca-8abf-11ea-b033-5fa57aae2de7'
-
 import getConfig from 'next/config'
+
+import { InterpolationWithTheme, jsx } from '@emotion/core'
 
 const {
     publicRuntimeConfig: { mapApiKey },
@@ -21,13 +23,14 @@ export interface IPointsOfInterest {
 }
 
 export interface IMapProps {
-    points: [IPointsOfInterest],
+    points: IPointsOfInterest[],
+    containerCss?: InterpolationWithTheme<any>
 }
 
 
 const _toArrCoordinates = ({ lng, lat }) => [Number(lng), Number(lat)] 
 
-export const MapGL: React.FC<IMapProps> = ({ points }) => {
+export const MapGL: React.FC<IMapProps> = ({ points, containerCss }) => {
     
     const [map, setMap] = useState(null)
     const [api, setApi] = useState(null)
@@ -76,7 +79,7 @@ export const MapGL: React.FC<IMapProps> = ({ points }) => {
 
     return (
         <>  
-            <div id="map-container" style={{ position: 'absolute', top: 140, bottom: 0, right: 0, left: 0 }} />
+            <div id="map-container" css={containerCss}/>
             { selected ? 
                 <Card style={{ width: 300, bottom: 20, position: 'absolute' }} >
                     <p>

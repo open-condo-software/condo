@@ -18,7 +18,8 @@
     "generate-tickets": "node ./../../bin/generate-tickets.js",
     "generate-receipts": "node ./../../bin/generate-receipts.js",
     "generate-billings": "node ./../../bin/generate-billings.js",
-    "generate-excel-template": "node ./../../bin/create-xlsx-template.js"
+    "generate-excel-template": "node ./../../bin/create-xlsx-template.js",
+    "fix-property-maps": "node ./../../bin/fix-chessboards.js"
   },
   "dependencies": {
     "@2gis/mapgl": "^1.12.0",
@@ -55,7 +56,7 @@
     "bull-repl": "^0.26.3",
     "carbone": "3.2.3",
     "classnames": "^2.2.6",
-    "date-fns": "^2.20.1",
+    "dayjs": "^1.10.6",
     "dd-trace": "^0.32.0",
     "echarts": "^5.1.2",
     "echarts-for-react": "^3.0.1",
@@ -74,9 +75,7 @@
     "jspdf": "^2.3.1",
     "less": "^3.12.2",
     "lodash": "^4.17.21",
-    "luxon": "^2.0.2",
     "minimatch": "^3.0.4",
-    "moment": "^2.29.1",
     "next": "^9.5.2",
     "next-transpile-modules": "^7.0.0",
     "numeral": "2.0.6",

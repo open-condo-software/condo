@@ -90,7 +90,7 @@ const AddressMetaDataFields = {
     geo_lon: 'String',
     beltway_hit: 'String',
     beltway_distance: 'String',
-    metro: 'AddressMetaDataMetroField', // 'Input' will be appended to type in case of rendering as input
+    metro: '[AddressMetaDataMetroField]',
     qc_geo: 'String',
     qc_complete: 'String',
     qc_house: 'String',
@@ -103,18 +103,23 @@ const AddressMetaDataFields = {
 /**
  * These types will get extra 'Input' postfix, when rendered as GraphQL input
  */
-const CUSTOM_FIELD_TYPES = {
-    AddressMetaDataMetroField,
-}
+const CUSTOM_FIELD_TYPES = [
+    'AddressMetaDataMetroField',
+]
 
 /**
  * Renders custom field type as query result or GraphQL input (with 'Input' postfix)
  */
-const renderFieldType = (typename, isInput) => (
-    isInput && Object.keys(CUSTOM_FIELD_TYPES).includes(typename)
-        ? typename + 'Input'
-        : typename
-)
+const renderFieldType = (typename, isInput) => {
+    // '[ExampleType]' -> 'ExampleType', 'ExampleType!' -> 'ExampleType', etc.
+    const typeWithoutModifiers = typename.match(/(\w+)/)[0]
+    return (
+        isInput && CUSTOM_FIELD_TYPES.includes(typeWithoutModifiers)
+            // 'ExampleType' -> 'ExampleTypeInput', '[ExampleType]' -> '[ExampleTypeInput]', etc.
+            ? typename.replace(/(\w+)/, '$1Input')
+            : typename
+    )
+}
 
 /**
  * Procedural generation of GraphQL type fields list from provided object.

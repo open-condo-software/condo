@@ -1,11 +1,14 @@
 import { Typography } from 'antd'
 import React, { ReactElement } from 'react'
 import { useIntl } from '@core/next/intl'
+import { fontSizes } from '@condo/domains/common/constants/style'
+
+type DisplayValue = string | any[]
 
 interface INotDefinedFieldProps {
     showMessage?: boolean
-    value?: string
-    render?: (value: string) => ReactElement
+    value?: DisplayValue
+    render?: (value: DisplayValue) => ReactElement
 }
 
 export const NotDefinedField: React.FC<INotDefinedFieldProps> = (props) => {
@@ -18,11 +21,11 @@ export const NotDefinedField: React.FC<INotDefinedFieldProps> = (props) => {
     const intl = useIntl()
     const NotDefinedMessage = intl.formatMessage({ id: 'errors.NotDefined' })
 
-    if (!value) {
+    if (!value || Array.isArray(value) && value.length === 0) {
         return showMessage ? NotDefinedMessage : null
     }
 
     return render
         ? render(value)
-        : <Typography.Text style={{ fontSize: '16px' }}>{value}</Typography.Text>
+        : <Typography.Text style={{ fontSize: fontSizes.content }}>{value}</Typography.Text>
 }

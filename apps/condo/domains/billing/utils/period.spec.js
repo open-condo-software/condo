@@ -1,5 +1,4 @@
-const { getPeriodMessage, getPreviousPeriods } = require('./period')
-const { DateTime } = require('luxon')
+const { getPreviousPeriods } = require('./period')
 
 describe('period utils test', () => {
     describe('getPreviousPeriods', () => {
@@ -51,43 +50,6 @@ describe('period utils test', () => {
                     '2019-11-01',
                 ]
                 expect(getPreviousPeriods(startPeriod, 17)).toStrictEqual(expectedResult)
-            })
-        })
-    })
-    describe('getPeriodMessage', () => {
-        describe('should be undefined', () => {
-            it('if parameters is not specified', () => {
-                expect(getPeriodMessage()).toBeUndefined()
-            })
-            it('if incorrect data specified', () => {
-                expect(getPeriodMessage('incorrect')).toBeUndefined()
-            })
-        })
-        describe('should generate correct message', ()=> {
-            const ruMonths = [
-                'январь', 'февраль', 'март', 'апрель',
-                'май', 'июнь', 'июль', 'август',
-                'сентябрь', 'октябрь', 'ноябрь', 'декабрь',
-            ]
-            const enMonths = [
-                'January', 'February', 'March', 'April',
-                'May', 'June', 'July', 'August',
-                'September', 'October', 'November', 'December',
-            ]
-            const dt = DateTime.now()
-            const currentPeriod = dt.toFormat('yyyy-MM-01')
-            it('for ru locale', () => {
-                const expectedResult = `${ruMonths[dt.month - 1]} ${dt.year}`
-                expect(getPeriodMessage(currentPeriod, 'ru-RU')).toStrictEqual(expectedResult)
-            })
-            it('for en locale', () => {
-                const expectedResult = `${enMonths[dt.month - 1]} ${dt.year}`
-                expect(getPeriodMessage(currentPeriod, 'en-EN')).toStrictEqual(expectedResult)
-            })
-            it('for default locale', () => {
-                const expectedMonth = dt.toLocaleString({ month: 'long' })
-                const expectedResult = `${expectedMonth} ${dt.year}`
-                expect(getPeriodMessage(currentPeriod)).toStrictEqual(expectedResult)
             })
         })
     })

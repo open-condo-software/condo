@@ -9,23 +9,46 @@ const { ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { createTestUser, createTestPhone, createTestEmail } = require('@condo/domains/user/utils/testSchema')
 const faker = require('faker')
+const { createTestTicketCategoryClassifier } = require('@condo/domains/ticket/utils/testSchema')
+const { pick } = require('lodash')
 
 describe('InviteNewOrganizationEmployeeService', () => {
     describe('owner', () => {
         describe('without error', () => {
             describe('employee by new user', () => {
                 test('invite', async () => {
+                    const admin = await makeLoggedInAdminClient()
+                    const [categoryClassifier1] = await createTestTicketCategoryClassifier(admin)
+                    const [categoryClassifier2] = await createTestTicketCategoryClassifier(admin)
+
                     const userAttrs = {
                         name: faker.name.firstName(),
                         email: createTestEmail(),
                         phone: createTestPhone(),
                     }
+                    const extraAttrs = {
+                        specializations: [
+                            { id: categoryClassifier1.id },
+                            { id: categoryClassifier2.id },
+                        ],
+                    }
                     const client = await makeClientWithRegisteredOrganization()
-                    const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
+                    const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs, extraAttrs)
 
                     expect(employee.email).toEqual(userAttrs.email)
                     expect(employee.phone).toEqual(userAttrs.phone)
                     expect(employee.name).toEqual(userAttrs.name)
+                    expect(employee.specializations).toHaveLength(2)
+                    expect(employee.specializations).toEqual(
+                        expect.arrayContaining([
+                            expect.objectContaining(pick(categoryClassifier1, ['id', 'name'])),
+                        ])
+                    )
+                    expect(employee.specializations).toEqual(
+                        expect.arrayContaining([
+                            expect.objectContaining(pick(categoryClassifier2, ['id', 'name'])),
+                        ])
+                    )
                 })
 
                 test('reinvite', async () => {

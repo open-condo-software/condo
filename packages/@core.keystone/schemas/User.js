@@ -1,6 +1,6 @@
 const faker = require('faker')
 const { Text, Checkbox, Password, CalendarDay, File } = require('@keystonejs/fields')
-const getYear = require('date-fns/getYear')
+const dayjs = require('dayjs')
 const { byTracking, atTracking } = require('@keystonejs/list-plugins')
 
 const { GQLListSchema } = require('@core/keystone/schema')
@@ -62,7 +62,7 @@ const User = new GQLListSchema('User', {
             },
         },
         avatar: { type: File, adapter: AVATAR_FILE_ADAPTER },
-        dob: { type: CalendarDay, format: 'Do MMMM YYYY', yearRangeFrom: 1901, yearRangeTo: getYear(new Date()) },
+        dob: { type: CalendarDay, format: 'Do MMMM YYYY', yearRangeFrom: 1901, yearRangeTo: dayjs().year() },
     },
     access: {
         // read: access.userIsAdminOrOwner,

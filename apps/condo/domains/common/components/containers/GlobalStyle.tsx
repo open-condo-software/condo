@@ -1,6 +1,6 @@
 import React from 'react'
 import { css, Global } from '@emotion/core'
-import { colors } from '@condo/domains/common/constants/style'
+import { colors, DEFAULT_STRONG_TEXT_FONT_WEIGHT } from '@condo/domains/common/constants/style'
 
 export default function GlobalStyle () {
     return (
@@ -159,6 +159,41 @@ export default function GlobalStyle () {
               
               .ant-table-row-expand-icon-spaced {
                 display: none;
+              }
+              
+              a.ant-typography[disabled], 
+              .ant-typography a[disabled], 
+              a.ant-typography.ant-typography-disabled, 
+              .ant-typography a.ant-typography-disabled {
+                color: ${colors.green[6]};
+                &:hover {
+                  color: ${colors.green[6]};
+                }
+              }
+              
+              .ant-typography strong {
+                font-weight: ${DEFAULT_STRONG_TEXT_FONT_WEIGHT};
+              }
+              .ant-typography mark {
+                background-color: ${colors.sberPrimary[5]};
+              }
+              .ant-alert-info > .ant-alert-content > .ant-alert-message {
+                color: ${colors.blue[6]}
+              }
+              .ant-alert-warning > .ant-alert-content > .ant-alert-message {
+                color: ${colors.orange[6]}
+              }
+              .ant-alert-success > .ant-alert-content > .ant-alert-message {
+                color: ${colors.green[6]}
+              }
+              .ant-alert-error > .ant-alert-content > .ant-alert-message {
+                color: ${colors.red[5]}
+              }
+              
+              .ant-modal-title {
+                font-size: 24px;
+                line-height: 32px; 
+                font-weight: 700;
               }
               
               ${uploadControlCss}

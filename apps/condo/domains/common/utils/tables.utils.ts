@@ -1,5 +1,4 @@
 import React from 'react'
-import moment from 'moment'
 import get from 'lodash/get'
 import { ParsedUrlQuery } from 'querystring'
 import {
@@ -13,6 +12,7 @@ import { getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { TableRecord } from '@condo/domains/common/components/Table/Index'
 import { preciseFloor } from './helpers'
 import { FilterDropdownProps } from 'antd/es/table/interface'
+import dayjs from 'dayjs'
 
 export type DataIndexType = string | Array<string>
 export type QueryArgType = string | Array<string>
@@ -20,7 +20,8 @@ export type FiltersFromQueryType = { [key: string]: QueryArgType }
 type OptionWhereArgumentType = Array<string> | Array<number>
 type WhereArgumentType = string | number | boolean | OptionWhereArgumentType
 export type WhereType = { [key: string]: WhereArgumentType | WhereType }
-export type FilterType = (search: QueryArgType) => WhereType
+// TODO(mrfoxpro): make type generic
+export type FilterType<F = WhereType> = (search: QueryArgType) => F
 export type ArgumentType = 'single' | 'array'
 export type ArgumentDataType = 'string' | 'number' | 'dateTime' | 'boolean'
 export type FiltersApplyMode = 'AND' | 'OR'
@@ -55,7 +56,7 @@ type CustomFilter = {
     filterDropdown: (props: FilterDropdownProps) => React.ReactNode
 }
 
-export type ColumnInfo = {
+export type ColumnInfo<ColumnData> = {
     title: string
     key: string
     width: number
@@ -65,12 +66,12 @@ export type ColumnInfo = {
     sortable?: boolean
     visible?: boolean
     grow?: number
-    render?: (text: string, record: TableRecord, index: number) => Record<string, unknown> | React.ReactNode
+    render?: (value: ColumnData, record: TableRecord, index: number) => Record<string, unknown> | React.ReactNode
 }
 
-export type QueryMeta = {
+export type QueryMeta<F> = {
     keyword: string
-    filters: FilterType[]
+    filters: FilterType<F>[]
     // by default === 'AND'
     combineType?: FiltersApplyMode
     defaultValue?: QueryArgType
@@ -80,8 +81,8 @@ export type SorterColumn = {
     columnKey: string,
     order: 'ascend' | 'descend'
 }
-type Sorters = { [column: string]: 'ascend' | 'descend' }
-type SorterMapType = (sorters: Array<SorterColumn>) => Sorters
+export type Sorters = { [column: string]: 'ascend' | 'descend' }
+export type SorterMapType = (sorters: Array<SorterColumn>) => Sorters
 
 export enum FULL_TO_SHORT_ORDERS_MAP {
     ascend = 'ASC',
@@ -121,8 +122,8 @@ export const getFilter: (
                 break
             case 'dateTime':
                 args = search
-                    .filter((el) => moment(el).isValid())
-                    .map((el) => moment(el).toISOString())
+                    .filter((el) => dayjs(el).isValid())
+                    .map((el) => dayjs(el).toISOString())
                 break
             case 'boolean':
                 args = search
@@ -164,8 +165,8 @@ export const getStringOptionFilter: (dataIndex: DataIndexType) => FilterType = (
 export const getDayGteFilter: (dataIndex: DataIndexType) => FilterType = (dataIndex) => {
     const filter = getFilter(dataIndex, 'single', 'dateTime', 'gte')
     return function searchDayGte (search) {
-        if (!search) return
-        const date = moment(search)
+        if (!search || Array.isArray(search)) return
+        const date = dayjs(search)
         if (!date.isValid()) return
         return filter(date.startOf('day').toISOString())
     }
@@ -174,8 +175,8 @@ export const getDayGteFilter: (dataIndex: DataIndexType) => FilterType = (dataIn
 export const getDayLteFilter: (dataIndex: DataIndexType) => FilterType = (dataIndex) => {
     const filter = getFilter(dataIndex, 'single', 'dateTime', 'lte')
     return function searchDayLte (search) {
-        if (!search) return
-        const date = moment(search)
+        if (!search || Array.isArray(search)) return
+        const date = dayjs(search)
         if (!date.isValid()) return
         return filter(date.endOf('day').toISOString())
     }
@@ -250,7 +251,8 @@ export const parseQuery = (query: ParsedUrlQuery): ParsedQueryType => {
 }
 
 export const convertColumns = (
-    columns: Array<ColumnInfo>,
+    // TODO(mrfoxpro): write generic argument
+    columns: ColumnInfo<any>[],
     filters: FiltersFromQueryType,
     sorters: Sorters
 ) => {

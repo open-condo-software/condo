@@ -2,31 +2,32 @@ import { useRouter } from 'next/router'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useRef } from 'react'
 import { useIntl } from '@core/next/intl'
-const { getPeriodMessage, getPreviousPeriods } = require('@condo/domains/billing/utils/period')
+const { getPreviousPeriods } = require('@condo/domains/billing/utils/period')
 import get from 'lodash/get'
 import qs from 'qs'
 
 type PeriodOption = {
-    period: string,
+    value: string,
     title: string
 }
 type UsePeriodSelectorReturnType = [string, Array<PeriodOption>, (string) => void]
 
 const PERIODS_AMOUNT = 3
-const generatePeriods = (currentPeriod: string, amount: number, locale: string): Array<PeriodOption> => {
-    if (!currentPeriod) return []
-    return getPreviousPeriods(currentPeriod, PERIODS_AMOUNT).map((period) => {
-        return { period: period, title: getPeriodMessage(period, locale) }
-    })
-}
 
 export const usePeriodSelector = (lastPeriod: string, amount: number = PERIODS_AMOUNT): UsePeriodSelectorReturnType => {
     const intl = useIntl()
     const router = useRouter()
     const { filters } = parseQuery(router.query)
     const period = useRef(lastPeriod)
-    const options = generatePeriods(lastPeriod, amount, intl.locale)
-    const availablePeriods = options.map((option) => option.period)
+    const availablePeriods = getPreviousPeriods(lastPeriod, amount)
+    const options = availablePeriods.map((p) => {
+        const date = new Date(p)
+        const month = intl.formatDate(date, { month: 'long' })
+        return {
+            value: p,
+            title: `${month} ${date.getFullYear()}`,
+        }
+    })
     const filterPeriod = get(filters, 'period', null)
 
     const handleChange = (newPeriod: string) => {

@@ -17,6 +17,7 @@ import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { PageContent } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { fontSizes } from '@condo/domains/common/constants/style'
 
 interface ITicketDescriptionFieldProps {
     title?: string
@@ -30,7 +31,7 @@ const TicketDescriptionField: React.FC<ITicketDescriptionFieldProps> = ({ title,
     return (
         <Space direction={'vertical'} size={8}>
             <Typography.Text type={'secondary'}>{title}</Typography.Text>
-            <Typography.Text style={{ fontSize: '16px' }}>{value || NotDefinedMessage}</Typography.Text>
+            <Typography.Text style={{ fontSize: fontSizes.content }}>{value || NotDefinedMessage}</Typography.Text>
         </Space>
     )
 }
@@ -55,7 +56,7 @@ const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = ({ title, user 
     return (
         <Space direction={'vertical'} size={8}>
             <Typography.Text type={'secondary'}>{title}</Typography.Text>
-            <Space size={4} direction={'vertical'} style={{ fontSize: '16px' }}>
+            <Space size={4} direction={'vertical'} style={{ fontSize: fontSizes.content }}>
                 {name
                     ? <Typography.Text >{name}</Typography.Text>
                     : NotDefinedMessage

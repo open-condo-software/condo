@@ -45,6 +45,12 @@ const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
             user {
                 id
             }
+            role {
+                id
+                name
+                canBeAssignedAsExecutor
+                canBeAssignedAsResponsible
+            }
         }
     }
 `
@@ -131,17 +137,23 @@ export async function searchTicketClassifier (client, value) {
     return []
 }
 
-export function searchEmployeeUser (organizationId) {
+export function searchEmployeeUser (organizationId, filter) {
     if (!organizationId) return
     return async function (client, value) {
         const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, organizationId })
         if (error) console.warn(error)
 
-        return data.objs.map(object => {
-            if (object.user) {
-                return ({ text: object.name, value: object.user.id })
-            }
-        }).filter(Boolean)
+        const withUser = ({ user }) => user
+
+        const result = data.objs
+            .filter(withUser)
+            .filter(filter || Boolean)
+            .map(object => {
+                if (object.user) {
+                    return ({ text: object.name, value: object.user.id })
+                }
+            })
+        return result
     }
 }
 

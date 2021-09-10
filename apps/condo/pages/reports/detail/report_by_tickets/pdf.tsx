@@ -11,7 +11,7 @@ import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
 import { createPdfWithPageBreaks } from '@condo/domains/common/utils/pdf'
-import moment from 'moment'
+import dayjs from 'dayjs'
 import { filterToQuery, getAggregatedData } from '@condo/domains/ticket/utils/helpers'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { DATE_DISPLAY_FORMAT, PDF_REPORT_WIDTH } from '@condo/domains/ticket/constants/common'
@@ -60,8 +60,8 @@ const PdfView = () => {
     useEffect(() => {
         const queryParams = getQueryParams()
         queryParamsRef.current = queryParams
-        const dateFrom = get(queryParams, 'dateFrom', moment().subtract(1, 'week'))
-        const dateTo = get(queryParams, 'dateTo', moment())
+        const dateFrom = get(queryParams, 'dateFrom', dayjs().subtract(1, 'week'))
+        const dateTo = get(queryParams, 'dateTo', dayjs())
         const addressList = JSON.parse(get(queryParams, 'addressList', '[]'))
         const specification = get(queryParams, 'specification', 'day')
         const viewMode = get(queryParams, 'viewMode', 'line')
@@ -70,7 +70,7 @@ const PdfView = () => {
             viewMode,
             ticketType,
             filter: {
-                range: [moment(dateFrom), moment(dateTo)],
+                range: [dayjs(dateFrom), dayjs(dateTo)],
                 addressList,
                 specification,
             },
@@ -118,7 +118,7 @@ const PdfView = () => {
                                 dataIndex: 'date',
                                 key: 'date',
                                 defaultSortOrder: 'descend',
-                                sorter: (a, b) => moment(a['date'], DATE_DISPLAY_FORMAT).unix() - moment(b['date'], DATE_DISPLAY_FORMAT).unix(),
+                                sorter: (a, b) => dayjs(a['date'], DATE_DISPLAY_FORMAT).unix() - dayjs(b['date'], DATE_DISPLAY_FORMAT).unix(),
                             },
                             ...Object.entries(data).map(([key]) => ({ title: key, dataIndex: key, key, sorter: (a, b) =>a[key] - b[key] })),
                         ]
@@ -226,7 +226,7 @@ const PdfView = () => {
                 </Typography.Paragraph>
                 <Typography.Title level={3}>{PageTitle}</Typography.Title>
                 <Typography.Title level={4}>
-                    {ticketTypeTitle} {moment(dateFrom).format('DD.MM.YYYY')} - {moment(dateTo).format('DD.MM.YYYY')} {addressFilterTitle} {AllCategories}
+                    {ticketTypeTitle} {dayjs(dateFrom).format('DD.MM.YYYY')} - {dayjs(dateTo).format('DD.MM.YYYY')} {addressFilterTitle} {AllCategories}
                 </Typography.Title>
                 <TicketChartView
                     data={data}

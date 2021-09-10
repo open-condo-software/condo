@@ -3,7 +3,7 @@
  */
 
 const { TICKET_ANALYTICS_REPORT_QUERY, EXPORT_TICKET_ANALYTICS_TO_EXCEL } = require(('@condo/domains/ticket/gql'))
-const moment = require('moment')
+const dayjs = require('dayjs')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestUser, makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
 const { createTestTicket, makeClientWithTicket } = require('@condo/domains/ticket/utils/testSchema')
@@ -15,8 +15,8 @@ describe('TicketAnalyticsReportService', () => {
         it('can read TicketAnalyticsReportService grouped counts [day, status]', async () => {
             const client = await makeClientWithTicket()
             await createTestTicket(client, client.organization, client.property)
-            const dateStart = moment().startOf('week')
-            const dateEnd = moment().endOf('week')
+            const dateStart = dayjs().startOf('week')
+            const dateEnd = dayjs().endOf('week')
             const { data: { result: { groups } } } = await client.query(TICKET_ANALYTICS_REPORT_QUERY, {
                 dv: 1,
                 sender: { dv: 1, fingerprint: 'tests' },
@@ -41,8 +41,8 @@ describe('TicketAnalyticsReportService', () => {
             await createTestTicket(client, client.organization, client.property)
             await createTestTicket(client, client.organization, client.property, { isPaid: true })
             await createTestTicket(client, client.organization, client.property, { isEmergency: true })
-            const dateStart = moment().startOf('week')
-            const dateEnd = moment().endOf('week')
+            const dateStart = dayjs().startOf('week')
+            const dateEnd = dayjs().endOf('week')
             const { data: { result: { groups } } } = await client.query(TICKET_ANALYTICS_REPORT_QUERY, {
                 dv: 1,
                 sender: { dv: 1, fingerprint: 'tests' },
@@ -69,8 +69,8 @@ describe('TicketAnalyticsReportService', () => {
             await createTestTicket(client, client.organization, client.property, { isPaid: true })
             await createTestTicket(client, client.organization, client.property, { isEmergency: true })
 
-            const dateStart = moment().startOf('week')
-            const dateEnd = moment().endOf('week')
+            const dateStart = dayjs().startOf('week')
+            const dateEnd = dayjs().endOf('week')
             const { data: { result: { groups } } } = await client.query(TICKET_ANALYTICS_REPORT_QUERY, {
                 dv: 1,
                 sender: { dv: 1, fingerprint: 'tests' },
@@ -98,8 +98,8 @@ describe('TicketAnalyticsReportService', () => {
             const client = await makeClientWithProperty()
             await createTestTicket(client, client.organization, client.property)
             const wrongClient = await makeClientWithProperty()
-            const dateStart = moment().startOf('week')
-            const dateEnd = moment().endOf('week')
+            const dateStart = dayjs().startOf('week')
+            const dateEnd = dayjs().endOf('week')
             const { data: { result: { groups: emptyGroups } } } = await wrongClient.query(TICKET_ANALYTICS_REPORT_QUERY, {
                 dv: 1,
                 sender: { dv:1, fingerprint: 'tests' },
@@ -140,8 +140,8 @@ describe('TicketAnalyticsReportService', () => {
             if (isObsConfigured()) {
                 const client = await makeClientWithProperty()
                 await createTestTicket(client, client.organization, client.property)
-                const dateStart = moment().startOf('week')
-                const dateEnd = moment().endOf('week')
+                const dateStart = dayjs().startOf('week')
+                const dateEnd = dayjs().endOf('week')
                 const { data: { result: { link } } }  = await client.query(EXPORT_TICKET_ANALYTICS_TO_EXCEL, {
                     dv: 1,
                     sender: { dv: 1, fingerprint: 'tests' },
@@ -169,8 +169,8 @@ describe('TicketAnalyticsReportService', () => {
             const restrictedClient = await makeLoggedInClient(userAttrs)
             const client = await makeClientWithProperty()
             await createTestTicket(client, client.organization, client.property)
-            const dateStart = moment().startOf('week')
-            const dateEnd = moment().endOf('week')
+            const dateStart = dayjs().startOf('week')
+            const dateEnd = dayjs().endOf('week')
             const { data: { result }, errors } = await restrictedClient.query(EXPORT_TICKET_ANALYTICS_TO_EXCEL, {
                 dv: 1,
                 sender: { dv:1, fingerprint: 'tests' },
@@ -199,8 +199,8 @@ describe('TicketAnalyticsReportService', () => {
         it('can not read TicketAnalyticsReportService', async () => {
             const client = await makeClient()
             const clientWithProperty = await makeClientWithProperty()
-            const dateStart = moment().startOf('week')
-            const dateEnd = moment().endOf('week')
+            const dateStart = dayjs().startOf('week')
+            const dateEnd = dayjs().endOf('week')
             const { errors, data: { result } } = await client.query(TICKET_ANALYTICS_REPORT_QUERY, {
                 dv: 1, sender: { dv: 1, fingerprint: 'tests' },
                 data: {
@@ -223,8 +223,8 @@ describe('TicketAnalyticsReportService', () => {
             const anonymousClient = await makeClient()
             const client = await makeClientWithProperty()
             await createTestTicket(client, client.organization, client.property)
-            const dateStart = moment().startOf('week')
-            const dateEnd = moment().endOf('week')
+            const dateStart = dayjs().startOf('week')
+            const dateEnd = dayjs().endOf('week')
             const { data: { result }, errors } = await anonymousClient.query(EXPORT_TICKET_ANALYTICS_TO_EXCEL, {
                 data: {
                     where: {

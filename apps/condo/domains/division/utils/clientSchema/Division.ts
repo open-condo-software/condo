@@ -16,7 +16,7 @@ import {
     QueryAllDivisionsArgs,
 } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'name', 'organization', 'properties', 'responsible', 'executors']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'name', 'organization', 'responsible', 'executors', 'properties']
 const RELATIONS = ['organization', 'properties', 'responsible', 'executors']
 
 export interface IDivisionUIState extends Division {
@@ -119,6 +119,18 @@ export function convertToGQLInput (state: IDivisionFormState, obj?: IDivisionUIS
     return result
 }
 
+function extractAttributes (state: IDivisionUIState, attributes: Array<string>): IDivisionUIState | undefined {
+    const result = {}
+    attributes.forEach((attribute) => {
+        if (RELATIONS.includes(attribute)) {
+            result[attribute] = get(state, [attribute, 'name'])
+        } else {
+            result[attribute] = get(state, attribute)
+        }
+    })
+    return result as IDivisionUIState
+}
+
 const {
     useObject,
     useObjects,
@@ -136,4 +148,5 @@ export {
     useDelete,
     useSoftDelete,
     convertToUIFormState,
+    extractAttributes,
 }
