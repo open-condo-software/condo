@@ -1,7 +1,10 @@
 /** @type {import('ow').default} */
 const ow = require('ow')
-const { pickBy, identity, get } = require('lodash')
+const fs = require('fs')
+const _ = require('lodash')
 const Emittery = require('emittery')
+const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { composeHook } = require('@core/keystone/plugins/utils')
 
 let EVENTS = new Emittery()
 let SCHEMAS = new Map()
@@ -51,6 +54,17 @@ class GQLListSchema {
         this.schema = schema
         this._type = GQL_LIST_SCHEMA_TYPE
         this._keystone = null
+        if (schema.metadata) {
+            const metadataHook = () => {
+                schema.metadata.validate()
+                schema.metadata.upgrade()
+            }
+            if (!schema.hooks) schema.hooks = {}
+            if (schema.hooks.validateInput) {
+                schema.hooks.validateInput = composeHook(metadataHook, schema.hoosk.validateInput)
+            }
+            else schema.hooks.validateInput = metadataHook
+        }
     }
 
     _factory (props = {}) {
@@ -107,7 +121,7 @@ class GQLListSchema {
 }
 
 class GQLCustomSchema {
-    constructor (name, schema) {
+    constructor(name, schema) {
         if (schema.hasOwnProperty('mutations')) {
             ow(schema, ow.object.partialShape({
                 mutations: ow.array.valueOf(

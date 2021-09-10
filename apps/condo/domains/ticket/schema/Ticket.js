@@ -15,7 +15,7 @@ const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS } = require('../constants')
 const { buildSetOfFieldsToTrackFrom } = require('@condo/domains/common/utils/serverSchema/changeTrackable')
 const { storeChangesIfUpdated } = require('@condo/domains/common/utils/serverSchema/changeTrackable')
 const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
-const { hasDbFields, validateIdentity } = require('@condo/domains/common/utils/validation.utils')
+const { hasDbFields, defaultValidateIdentity } = require('@condo/domains/common/utils/validation.utils')
 const { JSON_EXPECT_OBJECT_ERROR, DV_UNKNOWN_VERSION_ERROR, STATUS_UPDATED_AT_ERROR, JSON_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { createTicketChange, ticketChangeDisplayNameResolversForSingleRelations, relatedManyToManyResolvers } = require('../utils/serverSchema/TicketChange')
 const { normalizeText } = require('@condo/domains/common/utils/text')
@@ -256,7 +256,7 @@ const Ticket = new GQLListSchema('Ticket', {
         },
         validateInput: ({ resolvedData, existingItem, addValidationError, context, operation }) => {
             // Todo(zuch): add placeClassifier, categoryClassifier and classifierRule
-            validateIdentity(resolvedData, existingItem, context, addValidationError)
+            defaultValidateIdentity(resolvedData, existingItem, context, addValidationError)
             if (!hasDbFields(['organization', 'source', 'status', 'details'], resolvedData, existingItem, context, addValidationError)) return
             TicketDvManager.validate(existingItem, resolvedData, addValidationError)
             TicketDvManager.upgrade(resolvedData)

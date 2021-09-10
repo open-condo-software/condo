@@ -3,18 +3,18 @@
  */
 const faker = require('faker')
 const { v4: uuid } = require('uuid')
-const OrganizationEmployeeDvManager = require('./OrganizationEmployee.dv')
 
 const { Text, Relationship, Uuid, Checkbox } = require('@keystonejs/fields')
 const { userIsAdmin } = require('@core/keystone/access')
 const access = require('@condo/domains/organization/access/OrganizationEmployee')
+const metadata = require('@condo/domains/organization/metadata/OrganizationEmployee')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, tracked, softDeleted, uuided } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 const { DV_UNKNOWN_VERSION_ERROR, EMAIL_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
-const { hasDbFields, hasOneOfFields, validateIdentity } = require('@condo/domains/common/utils/validation.utils')
+const { hasDbFields, hasOneOfFields, defaultValidateIdentity } = require('@condo/domains/common/utils/validation.utils')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 
 const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
@@ -130,13 +130,12 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
         delete: access.canManageOrganizationEmployees,
         auth: true,
     },
+    metadata,
     hooks: {
         validateInput: ({ resolvedData, existingItem, addValidationError, context }) => {
-            const res = validateIdentity(resolvedData, existingItem, context, addValidationError)
+            const res = defaultValidateIdentity(resolvedData, existingItem, context, addValidationError)
             if (!hasDbFields(['organization'], resolvedData, existingItem, context, addValidationError)) return
             if (!hasOneOfFields(['email', 'name', 'phone'], resolvedData, existingItem, addValidationError)) return
-            OrganizationEmployeeDvManager.validate(existingItem, resolvedData, addValidationError)
-            OrganizationEmployeeDvManager.upgrade(existingItem, resolvedData, addValidationError)
         },
     },
 })

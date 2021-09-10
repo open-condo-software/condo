@@ -1,4 +1,5 @@
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
+const { defaultValidateIdentity } = require('@condo/domains/common/utils/validation.utils')
 
 const defaultValidationError = (error) => console.warn('ValidationError for entity OrganizationEmployee', error)
 module.exports = {
@@ -11,6 +12,7 @@ module.exports = {
                 return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
         }
     },
+    validateIdentity: defaultValidateIdentity,
     upgrade (data, resolved, addValidationError = defaultValidationError) {
         const currentVersion = data.dv
         const newVersion = resolved.dv

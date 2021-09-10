@@ -11,7 +11,7 @@ const { validatePaymentDetails, validateServices, validateRecipient } = require(
 const { DV_UNKNOWN_VERSION_ERROR, WRONG_TEXT_FORMAT } = require('@condo/domains/common/constants/errors')
 const { INTEGRATION_CONTEXT_FIELD, IMPORT_ID_FIELD, RAW_DATA_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD, PERIOD_FIELD } = require('./fields')
 const { get } = require('lodash')
-const { validateIdentity } = require('@condo/domains/common/utils/validation.utils')
+const { defaultValidateIdentity } = require('@condo/domains/common/utils/validation.utils')
 
 const BillingReceipt = new GQLListSchema('BillingReceipt', {
     schemaDoc: 'Account monthly invoice document',
@@ -96,7 +96,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
     },
     hooks: {
         validateInput: ({ resolvedData, existingItem, context, addValidationError }) => {
-            validateIdentity(resolvedData, existingItem, context, addValidationError)
+            defaultValidateIdentity(resolvedData, existingItem, context, addValidationError)
         },
     },
 })

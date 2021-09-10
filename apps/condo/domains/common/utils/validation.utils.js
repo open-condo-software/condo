@@ -63,7 +63,7 @@ function hasDvAndSenderFields (resolvedData, context, addFieldValidationError) {
     return hasDvField && hasSenderField
 }
 
-function validateIdentity (resolvedData, existingItem, context, addValidationError) {
+function defaultValidateIdentity (resolvedData, existingItem, context, addValidationError) {
     let cookies
     if (!resolvedData.hasOwnProperty('dv')) {
         cookies = nextCookies({ req: context.req })
@@ -132,6 +132,6 @@ function hasValidJsonStructure (args, isRequired, dataVersion, fieldsConstraints
 module.exports = {
     hasDbFields,
     hasOneOfFields,
-    validateIdentity,
+    defaultValidateIdentity,
     hasValidJsonStructure,
 }
