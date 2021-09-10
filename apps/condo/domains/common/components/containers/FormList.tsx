@@ -396,6 +396,7 @@ const BaseModalForm: FunctionComponent<IBaseModalFormProps> = ({
                 handleSaveRef.current()
             }} type="sberPrimary" >{SaveMessage}</Button>,
         ]}
+        centered
     >
         <FormWithAction {...props}>
             {
