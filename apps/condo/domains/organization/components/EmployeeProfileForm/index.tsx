@@ -1,18 +1,21 @@
 import { Col, Form, Input, Row, Space, Typography } from 'antd'
-import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useIntl } from '@core/next/intl'
+import { useApolloClient } from '@core/next/apollo'
 import { Button } from '@condo/domains/common/components/Button'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { FormResetButton } from '@condo/domains/common/components/FormResetButton'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { OrganizationEmployee } from '../../utils/clientSchema'
+import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { EmployeeRoleSelect } from './EmployeeRoleSelect'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { Rule } from 'rc-field-form/lib/interface'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
+import { get } from 'lodash'
+import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -33,14 +36,23 @@ export const EmployeeProfileForm = () => {
     const RoleLabel = intl.formatMessage({ id: 'employee.Role' })
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
     const ExampleEmailMsg = intl.formatMessage({ id: 'example.Email' })
+    const SpecializationsLabel = intl.formatMessage({ id: 'employee.Specializations' })
+    const TechnicianRoleName = intl.formatMessage({ id: 'employee.role.Technician.name' })
     const PositionLabel = intl.formatMessage({ id: 'employee.Position' })
     const UpdateEmployeeMessage = intl.formatMessage({ id: 'employee.UpdateTitle' })
     const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
 
     const { query, push } = useRouter()
+    const classifiersLoader = new ClassifiersQueryRemote(useApolloClient())
 
-    const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject({ where: { id: String(get(query, 'id', '')) } })
-    const updateEmployeeAction = OrganizationEmployee.useUpdate({}, (data) => {
+    const [selectedRole, setSelectedRole] = useState('')
+
+    const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject({ where: { id: String(get(query, 'id', '')) } }, {
+        onCompleted: ()=> {
+            setSelectedRole(employee.role.name)
+        },
+    })
+    const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => {
         refetch().then(() => {
             push(`/employee/${get(query, 'id')}/`)
         })
@@ -49,6 +61,16 @@ export const EmployeeProfileForm = () => {
     const validations: { [key: string]: Rule[] } = {
         email: [emailValidator],
     }
+
+
+    const searchClassifers = (_, input) => 
+        classifiersLoader.search(input, TicketClassifierTypes.category)
+            .then(result=>result.map((classifier)=> ({ text: classifier.name, value: classifier.id })))
+
+    useEffect(()=> {
+        classifiersLoader.init()
+        return () => classifiersLoader.clear()
+    }, [])
 
     if (error) {
         return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null}/>
@@ -75,11 +97,15 @@ export const EmployeeProfileForm = () => {
             validateTrigger={['onBlur', 'onSubmit']}
             formValuesToMutationDataPreprocessor={(values) => {
                 const isRoleDeleted = !values.role && initialValues.role
+                const specializations = get(values, 'specializations')
 
                 if (isRoleDeleted) {
                     values.role = null
                 }
 
+                if (specializations) {
+                    values.specializations = { connect: specializations.map(id => ({ id })) }
+                }
                 return values
             }}
         >
@@ -106,7 +132,7 @@ export const EmployeeProfileForm = () => {
                                         name={'role'}
                                         label={RoleLabel}
                                     >
-                                        <EmployeeRoleSelect employee={employee}/>
+                                        <EmployeeRoleSelect employee={employee} onSelect={(_, options)=> setSelectedRole(options.title)} />
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
