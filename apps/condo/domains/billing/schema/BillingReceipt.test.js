@@ -101,7 +101,8 @@ describe('BillingReceipt', () => {
                 async () => await updateTestBillingReceipt(managerUserClient, obj.id, payload),
                 ({ errors, _ }) => {
                     expect(errors[0]).toMatchObject({
-                        'message': 'You attempted to perform an invalid mutation',
+                        name: 'UserInputError',
+                        extensions: { code: 'BAD_USER_INPUT' },
                     })
                 })
         })
@@ -154,7 +155,8 @@ describe('BillingReceipt', () => {
                 async () => await updateTestBillingReceipt(managerUserClient, obj.id, payload),
                 ({ errors, _ }) => {
                     expect(errors[0]).toMatchObject({
-                        'message': 'You attempted to perform an invalid mutation',
+                        name: 'UserInputError',
+                        extensions: { code: 'BAD_USER_INPUT' },
                     })
                 })
         })
@@ -184,7 +186,8 @@ describe('BillingReceipt', () => {
                 async () => await updateTestBillingReceipt(managerUserClient, obj.id, payload),
                 ({ errors, _ }) => {
                     expect(errors[0]).toMatchObject({
-                        'message': 'You attempted to perform an invalid mutation',
+                        name: 'UserInputError',
+                        extensions: { code: 'BAD_USER_INPUT' },
                     })
                 })
         })
