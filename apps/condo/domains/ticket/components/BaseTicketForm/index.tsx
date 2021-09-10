@@ -2,7 +2,7 @@
 // @ts-nocheck
 import { useIntl } from '@core/next/intl'
 import { Checkbox, Col, Form, Input, Row, Typography, Tooltip, Tabs } from 'antd'
-import { get } from 'lodash'
+import { get, find } from 'lodash'
 import React, { useEffect, useRef, useState } from 'react'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
@@ -216,11 +216,25 @@ const TicketAssignments = ({ validations, organizationId, propertyId, disableUse
     const ExecutorExtra = intl.formatMessage({ id: 'field.Executor.description' })
     const ResponsibleExtra = intl.formatMessage({ id: 'field.Responsible.description' })
 
-    const formatUserFieldLabel = ({ text, value }) => (
-        <UserNameField user={{ name: text, id: value }}>
-            {({ name, postfix }) => <>{name} {postfix}</>}
-        </UserNameField>
-    )
+    const formatUserFieldLabel = ({ text, value, data: employee }) => {
+        const matchedSpecialization = find(employee.specializations, { id: categoryClassifier })
+        return (
+            <UserNameField user={{ name: text, id: value }}>
+                {({ name, postfix }) => (
+                    <>
+                        <Typography.Text>
+                            {name} {postfix}
+                        </Typography.Text>
+                        {matchedSpecialization && (
+                            <Typography.Text type="secondary">
+                                {`(${matchedSpecialization.name.toLowerCase()})`}
+                            </Typography.Text>
+                        )}
+                    </>
+                )}
+            </UserNameField>
+        )
+    }
 
     return (
         <Col span={24}>

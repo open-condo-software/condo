@@ -19,7 +19,7 @@ interface ISearchInputProps extends SelectProps<string> {
     disabled?: boolean
     autoFocus?: boolean
     initialValue?: string
-    formatLabel?: (option: { value: string, text: string }) => JSX.Element
+    formatLabel?: (option: { value: string, text: string, data?: any }) => JSX.Element
 }
 
 export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
