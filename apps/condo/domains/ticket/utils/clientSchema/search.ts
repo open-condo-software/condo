@@ -174,10 +174,9 @@ export function getEmployeeWithEmail (organizationId) {
         if (error) console.warn(error)
         const result = data.objs.map(object => {
             if (object.user) {
-                return ({ text: object.name, value: { id: object.user.id, hasEmail: !isEmpty(object.email) } })
+                return ({ text: object.name, id: object.id, value: { id: object.user.id, hasEmail: !isEmpty(object.email) } })
             }
         }).filter(Boolean)
-        console.log('Result', result)
         return result
     }
 }

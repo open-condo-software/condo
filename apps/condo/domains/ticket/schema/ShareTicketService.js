@@ -31,7 +31,10 @@ const ShareTicketService = new GQLCustomSchema('ShareTicketService', {
                 await Promise.all(employess.map( employee => {
                     return sendMessage(context, {
                         lang,
-                        to,
+                        to: {
+                            email: employee.email,
+                            ...employee.user ? { user: { id: employee.user.id } } : {},
+                        },
                         type: SHARE_TICKET_MESSAGE_TYPE,
                         meta: {
                             dv: 1,
@@ -43,7 +46,6 @@ const ShareTicketService = new GQLCustomSchema('ShareTicketService', {
                         sender,
                     })
                 }))
-
                 return { status: 'ok' }
             },
         },
