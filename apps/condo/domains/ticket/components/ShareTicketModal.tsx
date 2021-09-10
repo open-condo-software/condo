@@ -24,7 +24,7 @@ import {
     CRYPTOENCODING,
 } from '@condo/domains/ticket/constants/crypto'
 import { Organization } from '@core/keystone/schema'
-import { get } from 'lodash'
+import { get, isEmpty } from 'lodash'
 
 const collapse = css`
   border-radius: 8px;
@@ -212,22 +212,25 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
         } = getConfig())
     }
 
-    const [value, setValue] = useState([])
+    const [chosenEmployees, setChosenEmployees] = useState([])
     const [loading, setLoading] = useState(false)
     const [shareVisible, setShareVisible] = useState(false)
     const [okVisible, setOkVisible] = useState(false)
     const [usersWithoutEmail, setUsersWithoutEmail] = useState([])
 
-    function handleSelect (value) {
-        let users = []
+    const parseSelectValue = (selectedEmployees) => {
         try {
-            users = value.map(JSON.parse)
+            const employees = selectedEmployees.map(JSON.parse)
+            return employees
         } catch (error) {
-            console.error('Invalid format for employees in multiple select', value)
+            console.error('Invalid format for employees in multiple select', selectedEmployees)
         }
-        const withoutEmails = users.filter(item => !get(item, 'value.hasEmail')).map(item => item.text)
+    }
+
+    function handleSelect (value) {
+        const withoutEmails = parseSelectValue(value).filter(item => !get(item, 'value.hasEmail')).map(item => item.text)
         setUsersWithoutEmail(withoutEmails)
-        setValue(value)
+        setChosenEmployees(value)
     }
 
     async function handleClick () {
@@ -237,18 +240,16 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
             variables: {
                 data: {
                     sender,
-                    users: value
-                        .map(item=>JSON.parse(item))
-                        .filter(item=> item.value.hasEmail === 'true')
-                        .map(item=>item.value.id),
+                    users: parseSelectValue(chosenEmployees).filter(employee => get(employee, 'value.hasEmail')).map(employee => employee.id),
                     ticketId: query.id,
                 },
             },
         })
         if (data && data.obj) {
-            setValue([])
+            setChosenEmployees([])
             setShareVisible(false)
             setOkVisible(true)
+            setUsersWithoutEmail([])
         }
         if (error) {
             console.error(error)
@@ -339,20 +340,28 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                                     mode='multiple'
                                     css={search}
                                     onChange={handleSelect}
-                                    value={value}
+                                    value={chosenEmployees}
                                     placeholder={EmployeesNameMessage}
                                     autoClearSearchValue={true}
                                 />
-                                {usersWithoutEmail.length ? <Warning>{usersWithoutEmail}</Warning> : null}
-                                {value.length ? <Button
-                                    type='sberPrimary'
-                                    size='large'
-                                    onClick={handleClick}
-                                    style={{ marginTop: '20px' }}
-                                    disabled={loading}
-                                >
-                                    {SendTicketToEmailMessage}
-                                </Button> : null}
+                                {
+                                    !isEmpty(usersWithoutEmail) &&
+                                    <Warning>
+                                        {usersWithoutEmail}
+                                    </Warning>
+                                }
+                                {
+                                    !isEmpty(chosenEmployees) &&
+                                    <Button
+                                        type='sberPrimary'
+                                        size='large'
+                                        onClick={handleClick}
+                                        style={{ marginTop: '20px' }}
+                                        disabled={loading}
+                                    >
+                                        {SendTicketToEmailMessage}
+                                    </Button>
+                                }
                             </Collapse.Panel>
                         </Collapse>
                     </Col>
