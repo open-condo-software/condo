@@ -97,11 +97,13 @@ const AutoAssignerByDivisions: React.FC<ITicketAutoAssignment> = ({ organization
         message += '. ' + AssignedResponsibleMessage
     }
 
-    message += executorUserId
-        ? AssignedExecutorMessage
-        : categoryClassifier
-            ? NotAssignedExecutorMessage
-            : SelectCategoryClassifierToAssignExecutorMessage
+    if (executorUserId) {
+        message += AssignedExecutorMessage
+    } else if (categoryClassifier) {
+        message += NotAssignedExecutorMessage
+    } else {
+        message += SelectCategoryClassifierToAssignExecutorMessage
+    }
 
     return (
         <Alert
