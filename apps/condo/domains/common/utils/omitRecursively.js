@@ -1,4 +1,4 @@
-import { isArray, isObject, omit, transform } from 'lodash'
+const { isArray, isObject, omit, transform } = require('lodash')
 
 /**
  * Omits property with given name from object
@@ -6,7 +6,7 @@ import { isArray, isObject, omit, transform } from 'lodash'
  * @param propToOmit name of property to recursively omit from `obj`
  * @return {*}
  */
-export const omitRecursively = (obj, propToOmit) => {
+const omitRecursively = (obj, propToOmit) => {
     const cleanedObj = omit(obj, propToOmit)
     return transform(cleanedObj, (result, value, key) => (
         result[key] = isObject(value) && propToOmit in value
@@ -15,4 +15,8 @@ export const omitRecursively = (obj, propToOmit) => {
                 ? value.map(item => omitRecursively(item, propToOmit))
                 : value
     ))
+}
+
+module.exports = {
+    omitRecursively,
 }
