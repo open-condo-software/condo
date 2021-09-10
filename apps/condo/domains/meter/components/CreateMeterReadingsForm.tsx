@@ -98,9 +98,7 @@ export const CreateMeterReadingsActionBar = ({
         >
             {
                 ({ getFieldsValue }) => {
-                    const { newMeters, accountNumber, property } = getFieldsValue(['newMeters', 'accountNumber', 'property'])
-
-                    console.log('accountNumber', accountNumber)
+                    const { accountNumber, property } = getFieldsValue(['accountNumber', 'property'])
 
                     return (
                         <ActionBar>
@@ -258,6 +256,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                     commissioningDate: newMeterFromForm.commissioningDate,
                     installationDate: newMeterFromForm.installationDate,
                     sealingDate: newMeterFromForm.sealingDate,
+                    verificationDate: newMeterFromForm.verificationDate,
                     number: newMeterFromForm.number,
                     organization: organization.id,
                     property: property,
