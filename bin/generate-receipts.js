@@ -161,7 +161,7 @@ class ReceiptsGenerator {
                     toPayDetails.penalty = `${penalty}.00`
                 }
                 if (privilege !== null) {
-                    toPayDetails.provilege = `${privilege}.00`
+                    toPayDetails.privilege = `${privilege}.00`
                 }
 
                 if (_gaussianRand() > 0.5) {
