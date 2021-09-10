@@ -4,7 +4,6 @@ import { Alert, Col, Divider, Form, Input, Row, Space, Typography } from 'antd'
 import { resourceIdToIcon } from '../utils/clientSchema'
 import React from 'react'
 import { css } from '@emotion/core'
-import { NamePath } from 'antd/lib/form/interface'
 
 type MeterCardProps = {
     meter: {
@@ -21,7 +20,7 @@ type MeterCardProps = {
         name: string
         measure: string
     }
-    name: NamePath
+    name: any
 }
 
 const MeterCardWrapper = styled(FocusContainer)`
@@ -46,7 +45,7 @@ export const MeterCard = ({ meter, resource, name }: MeterCardProps) => {
                             </Space>
                         </Col>
                         <Col>
-                            <Alert showIcon type='warning' message={'тест'} />
+                            {/*<Alert showIcon type='warning' message={'тест'} />*/}
                         </Col>
                     </Row>
                 </Col>
@@ -73,10 +72,10 @@ export const MeterCard = ({ meter, resource, name }: MeterCardProps) => {
                                             </Form.Item>
                                         </Col>
                                         <Col span={8}>
-                                            <Typography.Paragraph style={{ margin: 0 }} strong={true}>
-                                                16 {resource.measure}
-                                            </Typography.Paragraph>
-                                            <Typography.Text type={'secondary'}>Звонок жителя 26.07</Typography.Text>
+                                            {/*<Typography.Paragraph style={{ margin: 0 }} strong={true}>*/}
+                                            {/*    16 {resource.measure}*/}
+                                            {/*</Typography.Paragraph>*/}
+                                            {/*<Typography.Text type={'secondary'}>Звонок жителя 26.07</Typography.Text>*/}
                                         </Col>
                                     </Row>
                                 </Col>

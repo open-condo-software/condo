@@ -355,78 +355,80 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                     !selectedUnitNameRef.current || !form.getFieldValue('accountNumber') ? null :
                                         (
                                             <Col span={24}>
-                                                <Col span={24}>
-                                                    {
-                                                        isNoExistingMetersInThisUnit &&
-                                                        !form.getFieldValue('newMeters') ? (
-                                                                <>
-                                                                    <Typography.Title level={3}>
-                                                                        {NoMetersMessage}
-                                                                    </Typography.Title>
-                                                                    <Typography.Paragraph type='secondary'>
-                                                                        {AddMetersMessage}
-                                                                    </Typography.Paragraph>
-                                                                </>
-                                                            ) : (
-                                                                <Typography.Paragraph
-                                                                    strong={true}
-                                                                    style={{ fontSize: '20px', marginBottom: 0 }}
-                                                                >
-                                                                    {MeterDataTitle}
-                                                                </Typography.Paragraph>
-                                                            )
-                                                    }
-                                                </Col>
-                                                <Form.Item name={'existedMeters'}>
-                                                    <Row gutter={[0, 20]}>
+                                                <Row gutter={[0, 20]}>
+                                                    <Col span={24}>
                                                         {
-                                                            existingMeters.map((existedMeter, index) => {
-                                                                const meter = convertToUIFormState(existedMeter)
-                                                                const resource = resources.find(resource => resource.id === meter.resource)
+                                                            isNoExistingMetersInThisUnit &&
+                                                        !form.getFieldValue('newMeters') ? (
+                                                                    <>
+                                                                        <Typography.Title level={3}>
+                                                                            {NoMetersMessage}
+                                                                        </Typography.Title>
+                                                                        <Typography.Paragraph type='secondary'>
+                                                                            {AddMetersMessage}
+                                                                        </Typography.Paragraph>
+                                                                    </>
+                                                                ) : (
+                                                                    <Typography.Paragraph
+                                                                        strong={true}
+                                                                        style={{ fontSize: '20px', marginBottom: 0 }}
+                                                                    >
+                                                                        {MeterDataTitle}
+                                                                    </Typography.Paragraph>
+                                                                )
+                                                        }
+                                                    </Col>
+                                                    <Form.Item name={'existedMeters'}>
+                                                        <Row gutter={[0, 20]}>
+                                                            {
+                                                                existingMeters.map((existedMeter, index) => {
+                                                                    const meter = convertToUIFormState(existedMeter)
+                                                                    const resource = resources.find(resource => resource.id === meter.resource)
+
+                                                                    return (
+                                                                        <Col span={24} key={existedMeter.id}>
+                                                                            <Form.Item
+                                                                                name={['existedMeters', index]}
+                                                                            >
+                                                                                <MeterCard
+                                                                                    meter={meter}
+                                                                                    resource={resource}
+                                                                                    name={['existedMeters', index]}
+                                                                                />
+                                                                            </Form.Item>
+                                                                        </Col>
+                                                                    )
+                                                                })
+                                                            }
+                                                        </Row>
+                                                    </Form.Item>
+                                                    <Form.List name={'newMeters'}>
+                                                        {(fields, operations) => {
+                                                            if (!meterFormListOperationsRef.current) setMeterFormListOperations(operations)
+
+                                                            return fields.map((field, index) => {
+                                                                const newMeter = form.getFieldValue(['newMeters', index])
+                                                                const resource = resources.find(resource => resource.id === newMeter.resource)
 
                                                                 return (
-                                                                    <Col span={24} key={existedMeter.id}>
+                                                                    <Col span={24} key={field.key}>
                                                                         <Form.Item
-                                                                            name={['existedMeters', index]}
+                                                                            {...field}
+                                                                            name={field.name}
+                                                                            noStyle
                                                                         >
                                                                             <MeterCard
-                                                                                meter={meter}
+                                                                                meter={newMeter}
                                                                                 resource={resource}
-                                                                                name={['existedMeters', index]}
+                                                                                name={field.name}
                                                                             />
                                                                         </Form.Item>
                                                                     </Col>
                                                                 )
                                                             })
-                                                        }
-                                                    </Row>
-                                                </Form.Item>
-                                                <Form.List name={'newMeters'}>
-                                                    {(fields, operations) => {
-                                                        if (!meterFormListOperationsRef.current) setMeterFormListOperations(operations)
-
-                                                        return fields.map((field, index) => {
-                                                            const newMeter = form.getFieldValue(['newMeters', index])
-                                                            const resource = resources.find(resource => resource.id === newMeter.resource)
-
-                                                            return (
-                                                                <Col span={24} key={field.key}>
-                                                                    <Form.Item
-                                                                        {...field}
-                                                                        name={field.name}
-                                                                        noStyle
-                                                                    >
-                                                                        <MeterCard
-                                                                            meter={newMeter}
-                                                                            resource={resource}
-                                                                            name={field.name}
-                                                                        />
-                                                                    </Form.Item>
-                                                                </Col>
-                                                            )
-                                                        })
-                                                    }}
-                                                </Form.List>
+                                                        }}
+                                                    </Form.List>
+                                                </Row>
                                             </Col>
                                         )
                             }
