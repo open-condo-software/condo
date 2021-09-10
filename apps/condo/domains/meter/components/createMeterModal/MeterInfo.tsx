@@ -42,6 +42,7 @@ export const MeterInfo = ({ resource }: MeterInfoProps) => {
     const InstallationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.InstallationDate' })
     const CommissioningDateMessage = intl.formatMessage({ id: 'pages.condo.meter.CommissioningDate' })
     const SealingDateMessage = intl.formatMessage({ id: 'pages.condo.meter.SealingDate' })
+    const VerificationDate = intl.formatMessage({ id: 'pages.condo.meter.VerificationDate' })
 
     const [isAdditionalFieldsCollapsed, setIsAdditionalFieldsCollapsed] = useState<boolean>(true)
 
@@ -107,6 +108,14 @@ export const MeterInfo = ({ resource }: MeterInfoProps) => {
                                     <Form.Item
                                         label={SealingDateMessage}
                                         name='sealingDate'
+                                    >
+                                        <DatePicker style={{ width: '100%' }} />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={METER_INFO_INPUT_COL_SPAN}>
+                                    <Form.Item
+                                        label={VerificationDate}
+                                        name='verificationDate'
                                     >
                                         <DatePicker style={{ width: '100%' }} />
                                     </Form.Item>
