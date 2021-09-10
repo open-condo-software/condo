@@ -15,6 +15,7 @@ const fieldsObj = {
     period: 'String',
     toPay: 'String',
     printableNumber: 'String',
+    resident: 'Resident',
 }
 
 
