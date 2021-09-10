@@ -7,7 +7,6 @@ const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchem
 const compact = require('lodash/compact')
 const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 const { Ticket: TicketGQL } = require('@condo/domains/ticket/gql')
-const { AnaliticsTicket: AnaliticsTicketGQL } = require('@condo/domains/ticket/gql')
 const { TicketStatus: TicketStatusGQL } = require('@condo/domains/ticket/gql')
 const { TicketChange: TicketChangeGQL } = require('@condo/domains/ticket/gql')
 const { TicketFile: TicketFileGQL } = require('@condo/domains/ticket/gql')
@@ -22,7 +21,6 @@ const { TicketSource: TicketSourceGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Ticket = generateServerUtils(TicketGQL)
-const AnaliticsTicket = generateServerUtils(AnaliticsTicketGQL)
 const TicketStatus = generateServerUtils(TicketStatusGQL)
 const TicketChange = generateServerUtils(TicketChangeGQL)
 const TicketFile = generateServerUtils(TicketFileGQL)
@@ -98,7 +96,6 @@ const loadTicketsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC
 
 module.exports = {
     Ticket,
-    AnaliticsTicket,
     TicketStatus,
     TicketChange,
     TicketFile,

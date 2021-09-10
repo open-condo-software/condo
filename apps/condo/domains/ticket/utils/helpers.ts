@@ -22,7 +22,7 @@ import {
 } from '../components/TicketChart'
 import { TICKET_REPORT_DAY_GROUP_STEPS } from '@condo/domains/ticket/constants/common'
 import { MAX_CHART_LEGEND_ELEMENTS, MAX_CHART_NAME_LENGTH } from '../constants/restrictions'
-import { CHART_COLOR_SET, fontSizes } from '@condo/domains/common/constants/style'
+import { fontSizes } from '@condo/domains/common/constants/style'
 import { EChartsOption, EChartsReactProps } from 'echarts-for-react'
 
 dayjs.extend(duration)
@@ -480,7 +480,8 @@ interface IGetChartOptions {
         axisData?: ChartConfigResult['axisData'],
         tooltip?: ChartConfigResult['tooltip'],
         series: ChartConfigResult['series'],
-        chartOptions: EChartsReactProps['opts']
+        chartOptions: EChartsReactProps['opts'],
+        color: string[]
     }): {
         option: EChartsOption,
         opts: unknown
@@ -494,10 +495,11 @@ export const getChartOptions: IGetChartOptions = ({
     animationEnabled,
     viewMode,
     legend,
-    chartOptions }) => {
+    chartOptions,
+    color }) => {
     const option = {
         animation: animationEnabled,
-        color: CHART_COLOR_SET,
+        color,
         grid: {
             left: 0,
             right: 0,

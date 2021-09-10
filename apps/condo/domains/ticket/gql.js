@@ -12,9 +12,6 @@ const THREE_LVL_CLASSIFIER_FIELDS = 'placeClassifier { id name } categoryClassif
 const TICKET_FIELDS = `{ organization { id name } property { id name address } unitName sectionName floorName status { id name type organization { id } colors { primary secondary additional } } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone contact { id name } operator { id name } assignee { id name } executor { id name } watchers { id name } classifier { id name } ${THREE_LVL_CLASSIFIER_FIELDS} details related { id details } isEmergency isPaid meta source { id name type } sourceMeta ${COMMON_FIELDS} }`
 const Ticket = generateGqlQueries('Ticket', TICKET_FIELDS)
 
-// TODO (sitozzz): @pahaz, @Dimitreee is it legal to do like this?
-const ANALITYCS_TICKET_FIELDS = '{ id createdAt property { id } status { id type } assignee { id } executor { id } }'
-const AnaliticsTicket = generateGqlQueries('Ticket', ANALITYCS_TICKET_FIELDS)
 const TICKET_STATUS_FIELDS = `{ organization { id } type name colors { primary secondary additional } ${COMMON_FIELDS} }`
 const TicketStatus = generateGqlQueries('TicketStatus', TICKET_STATUS_FIELDS)
 const TICKET_SOURCE_FIELDS = `{ organization { id } type name ${COMMON_FIELDS} }`
@@ -130,7 +127,7 @@ const TICKET_COMMENT_FIELDS = `{ ticket { id } user { id name } content ${COMMON
 const TicketComment = generateGqlQueries('TicketComment', TICKET_COMMENT_FIELDS)
 const TICKET_ANALYTICS_REPORT_QUERY = gql`
     query ticketAnalyticsReport ($data: TicketAnalyticsReportInput!) {
-        result: ticketAnalyticsReport(data: $data) { groups { count status property dayGroup } }
+        result: ticketAnalyticsReport(data: $data) { groups { count status property dayGroup } ticketLabels { color label } }
     }
 `
 const EXPORT_TICKET_ANALYTICS_TO_EXCEL = gql`
@@ -167,7 +164,6 @@ const GET_TICKET_WIDGET_REPORT_DATA = gql`
 `
 module.exports = {
     Ticket,
-    AnaliticsTicket,
     TicketStatus,
     TicketChange,
     TicketSource,
