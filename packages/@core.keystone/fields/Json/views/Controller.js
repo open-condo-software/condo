@@ -1,4 +1,5 @@
 import FieldController from '@keystonejs/fields/Controller'
+const { omitRecursively } = require('../utils/cleaner')
 
 class JsonController extends FieldController {
     constructor (config, ...args) {
@@ -12,7 +13,7 @@ class JsonController extends FieldController {
             // Forcibly return null if empty string
             return null
         }
-        return JSON.stringify(data[path])
+        return JSON.stringify(omitRecursively(data[path], '__typename'))
     }
 
     serialize = data => {
@@ -21,7 +22,7 @@ class JsonController extends FieldController {
             // Forcibly return null if empty string
             return null
         }
-        return JSON.parse(data[path])
+        return omitRecursively(JSON.parse(data[path]), '__typename')
     }
 
     getQueryFragment = () => {
