@@ -53,7 +53,7 @@ const createStatusRange = async (context, organizationWhereInput, labelKey = 'na
         return !statuses
             .find(organizationStatus => organizationStatus.organization !== null && organizationStatus.type === status.type)
     })
-    return sortStatusesByType(allStatuses).map(status => ({ label: status[labelKey], value: status.id }))
+    return sortStatusesByType(allStatuses).map(status => ({ label: status[labelKey], value: status.id, color: status.colors.primary }))
 }
 
 const getTicketCounts = async (context, where, groupBy, extraLabels = {}) => {
@@ -107,7 +107,7 @@ const getTicketCounts = async (context, where, groupBy, extraLabels = {}) => {
             return {
                 ...searchResult,
                 dayGroup: dayjs(dayGroup).format(DATE_DISPLAY_FORMAT),
-                count:parseInt(count),
+                count: parseInt(count),
             }
         })
         // This is hack to process old database records with tickets with user organization and property from another org
@@ -122,8 +122,9 @@ const getTicketCounts = async (context, where, groupBy, extraLabels = {}) => {
         ticketMap.set(mapKey, ticketCount)
     })
 
-    return Array.from(ticketMap.values()).sort((a, b) =>
+    const ticketCounts = Array.from(ticketMap.values()).sort((a, b) =>
         dayjs(a.dayGroup, DATE_DISPLAY_FORMAT).unix() - dayjs(b.dayGroup, DATE_DISPLAY_FORMAT).unix())
+    return { ticketCounts, translates }
 }
 
 const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportService', {
@@ -138,7 +139,11 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
         },
         {
             access: true,
-            type: 'type TicketAnalyticsReportOutput { groups: [TicketGroupedCounter!] }',
+            type: 'type TicketLabel { label: String!, color: String!, value: String! }',
+        },
+        {
+            access: true,
+            type: 'type TicketAnalyticsReportOutput { groups: [TicketGroupedCounter!], ticketLabels: [TicketLabel] }',
         },
         {
             access: true,
@@ -163,8 +168,9 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
             schema: 'ticketAnalyticsReport(data: TicketAnalyticsReportInput): TicketAnalyticsReportOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data: { where = {}, groupBy = [] } } = args
-                const groups = await getTicketCounts(context, where, groupBy)
-                return { groups }
+                const { ticketCounts: groups, translates } = await getTicketCounts(context, where, groupBy)
+                const ticketLabels = get(translates, 'status', [])
+                return { groups, ticketLabels }
             },
         },
         {
@@ -172,7 +178,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
             schema: 'exportTicketAnalyticsToExcel(data: ExportTicketAnalyticsToExcelInput): ExportTicketAnalyticsToExcelOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data: { where = {}, groupBy = [], translates = {} } } = args
-                const ticketCounts = await getTicketCounts(context, where, groupBy, { status: 'type' })
+                const { ticketCounts } = await getTicketCounts(context, where, groupBy, { status: 'type' })
                 const { result, groupKeys } = aggregateData(ticketCounts, groupBy)
                 const ticketAccessCheck = await Ticket.getAll(context, where, { first: 1 })
                 const [groupBy1, groupBy2] = groupKeys

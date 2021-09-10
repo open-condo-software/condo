@@ -38,7 +38,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
 }) => {
     const intl = useIntl()
     const NoData = intl.formatMessage({ id: 'NoData' })
-    let legend = [], axisData = null, tooltip = null
+    let legend = [], axisData = null, tooltip = null, color = CHART_COLOR_SET
     const [chartReadyCounter, setChartReadyCounter] = useState<number>(0)
     // Start from 1 because used as multiplier with TICKET_CHART_PAGE_SIZE
     const [pieChartPage, setPieChartPage] = useState(1)
@@ -57,6 +57,9 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
         legend = mapperResult.legend
         axisData = mapperResult.axisData
         tooltip = mapperResult.tooltip
+        if (mapperResult.color) {
+            color = mapperResult.color
+        }
     }
 
     useEffect(() => {
@@ -108,6 +111,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
             chartOptions,
             viewMode,
             animationEnabled,
+            color,
         })
 
         const isEmptyDataSet = Object.values(data).every(ticketStatus => {
@@ -176,7 +180,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
                     opts={{ renderer: 'svg' }}
                     notMerge
                     option={{
-                        color: CHART_COLOR_SET,
+                        color,
                         legend: {
                             data: legend,
                             top: 5,
@@ -215,6 +219,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
                                     viewMode,
                                     chartOptions,
                                     animationEnabled,
+                                    color,
                                 })
                                 return (
                                     <List.Item key={`pie-${index}`} style={{ width: 620 }}>

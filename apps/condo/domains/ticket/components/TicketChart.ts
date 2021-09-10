@@ -35,7 +35,8 @@ export type ChartConfigResult = {
     tooltip?: {
         trigger: string,
         axisPointer: { type: string }
-    }
+    },
+    color?: string[]
 }
 
 interface IGetChartConfig extends IGetBaseChartConfig<ViewModeTypes, TicketGroupedCounter[], ChartConfigResult>{
@@ -50,6 +51,7 @@ interface IGetChartConfig extends IGetBaseChartConfig<ViewModeTypes, TicketGroup
             trigger,
             axisPointer: { type }
         }
+        color?: string[]
     }
 }
 

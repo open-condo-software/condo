@@ -22807,6 +22807,7 @@ export type TicketAnalyticsReportInput = {
 export type TicketAnalyticsReportOutput = {
   __typename?: 'TicketAnalyticsReportOutput';
   groups?: Maybe<Array<TicketGroupedCounter>>;
+  ticketLabels?: Maybe<Array<Maybe<TicketLabel>>>;
 };
 
 /**  Describes what type of work needs to be done to fix incident  */
@@ -26498,6 +26499,13 @@ export type TicketHistoryRecordsCreateInput = {
 export type TicketHistoryRecordsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<TicketHistoryRecordUpdateInput>;
+};
+
+export type TicketLabel = {
+  __typename?: 'TicketLabel';
+  label: Scalars['String'];
+  color: Scalars['String'];
+  value: Scalars['String'];
 };
 
 /**  Describes where the incident occurred  */

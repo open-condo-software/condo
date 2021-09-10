@@ -40,7 +40,7 @@ import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderA
 import TicketChartView from '@condo/domains/ticket/components/analytics/TicketChartView'
 import TicketListView from '@condo/domains/ticket/components/analytics/TicketListView'
 import { DATE_DISPLAY_FORMAT, TICKET_REPORT_DAY_GROUP_STEPS } from '@condo/domains/ticket/constants/common'
-import { TicketGroupedCounter } from '../../../../schema'
+import { TicketGroupedCounter, TicketLabel } from '../../../../schema'
 
 dayjs.extend(quarterOfYear)
 
@@ -246,6 +246,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
 
     const filtersRef = useRef(null)
     const mapperInstanceRef = useRef(null)
+    const ticketLabelsRef = useRef<TicketLabel[]>([])
     const [groupTicketsBy, setGroupTicketsBy] = useState<GroupTicketsByTypes>('status')
     const [viewMode, setViewMode] = useState<ViewModeTypes>('line')
     const [analyticsData, setAnalyticsData] = useState<null | TicketGroupedCounter[]>(null)
@@ -262,7 +263,8 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
         },
         fetchPolicy: 'network-only',
         onCompleted: response => {
-            const { result: { groups } } = response
+            const { result: { groups, ticketLabels } } = response
+            ticketLabelsRef.current = ticketLabels
             setAnalyticsData(groups)
         },
     })
@@ -307,7 +309,11 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         })
                         const axisData = { yAxis: { type: 'value', data: null }, xAxis: { type: 'category', data: axisLabels } }
                         const tooltip = { trigger: 'axis', axisPointer: { type: 'line' } }
-                        return { series, legend, axisData, tooltip }
+                        const result = { series, legend, axisData, tooltip }
+                        if (groupBy[0] === 'status') {
+                            result['color'] = ticketLabelsRef.current.map(({ color }) => color)
+                        }
+                        return result
                     },
                     table: (viewMode, ticketGroupedCounter, restOptions) => {
                         const { groupBy } = filterToQuery(
@@ -365,7 +371,11 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         })
                         const axisData = { yAxis: { type: 'category', data: axisLabels }, xAxis: { type: 'value', data: null } }
                         const tooltip = { trigger: 'item', axisPointer: { type: 'line' }, borderColor: '#fff' }
-                        return { series, legend, axisData, tooltip }
+                        const result = { series, legend, axisData, tooltip }
+                        if (groupBy[0] === 'status') {
+                            result['color'] = ticketLabelsRef.current.map(({ color }) => color)
+                        }
+                        return result
                     },
                     table: (viewMode, ticketGroupedCounter, restOptions) => {
                         const { groupBy } = filterToQuery(
@@ -406,7 +416,6 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         }
                         return { dataSource, tableColumns }
                     },
-
                 },
                 pie: {
                     chart: (viewMode, ticketGroupedCounter) => {
@@ -417,11 +426,9 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         const series = []
 
                         const legend = [...new Set(Object.values(data).flatMap(e => Object.keys(e)))]
-                            .sort((a, b) => a.localeCompare(b))
                         Object.entries(data).forEach(([label, groupObject]) => {
                             const chartData = Object.entries(groupObject)
                                 .map(([name, value]) => ({ name, value }))
-                                .sort((a, b) => a.name.localeCompare(b.name))
                             if (chartData.map(({ value }) => value).some(value => value > 0)) {
                                 series.push({
                                     name: label,
@@ -471,7 +478,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                 })
                             }
                         })
-                        return { series, legend }
+                        return { series, legend, color: ticketLabelsRef.current.map(({ color }) => color) }
                     },
                     table: (viewMode, ticketGroupedCounter, restOptions) => {
                         const { groupBy } = filterToQuery(
