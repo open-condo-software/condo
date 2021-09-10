@@ -153,7 +153,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
     }
 
     const hasMore = pieChartPage * TICKET_CHART_PAGE_SIZE <= seriesRef.current.length
-    let infiniteScrollContainerHeight = seriesRef.current.length > 2 ? '640px' : '340px'
+    let infiniteScrollContainerHeight = seriesRef.current.length > 2 ? '660px' : '340px'
     // onChartReadyCallback is used only for pdf generation page to make sure that chart component was rendered at DOM
     if (onChartReady !== undefined) {
         infiniteScrollContainerHeight = '100%'
