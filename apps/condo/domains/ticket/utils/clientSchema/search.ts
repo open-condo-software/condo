@@ -148,7 +148,7 @@ export function searchEmployeeUser (organizationId, filter) {
             .filter(filter || Boolean)
             .filter(({ user }) => user)
             .map(object => {
-                return ({ text: object.name, value: object.user.id })
+                return ({ text: object.name, value: object.user.id, data: object })
             })
         return result
     }
