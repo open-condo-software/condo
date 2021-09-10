@@ -47,7 +47,7 @@ const SERVICES_GRAPHQL_TYPES = `
 `
 
 const ServiceToPayDetailsSchema = {
-    type: 'object',
+    type: ['object', 'null'],
     properties: Object.assign({},
         ...Object.keys(ServiceToPayDetailsFields).map((field) => ({ [field]: { type: ['string', 'null'] } })),
         { formula: { type: 'string' } },
