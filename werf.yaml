@@ -5,17 +5,26 @@ image: condo
 from: ubuntu:20.04
 
 git:
-- url: https://{{ env "PULL_USER" }}:{{ env "PULL_PERSONAL_ACCESS_KEY" }}@github.com/open-condo-software/condo
-  add: /
-  to: /home/app
-  tag: 'prod/v-1-16-0'
+- add: /
+  to: /app
+  stageDependencies:
+    setup:
+    - apps/*
+    - packages/*
+    - bin/*
+  excludePaths:
+  - .github
+  - .helm
+  - werf.yaml
+  - werf-giterminism.yaml
   owner: app
+  group: app
 
 shell:
   beforeInstall:
   - "export DEBIAN_FRONTEND=noninteractive"
   - "groupadd -r app --gid=999"
-  - "useradd --system --create-home --home /home/app --gid 999 --uid=999 --shell /bin/bash app"
+  - "useradd --system --create-home --home /app --gid 999 --uid=999 --shell /bin/bash app"
   - "apt update -qq"
   - "apt install -qq -y curl"
   - "curl -fsL https://deb.nodesource.com/setup_14.x | bash"
@@ -29,19 +38,19 @@ shell:
   - "pip3 install django>=3.0.6 psycopg2-binary>=2.8.5"
   - "npm install --global yarn"
   setup:
-  - "cd /home/app"
-  - "echo '# Build time .env config!' >> /home/app/.env"
-  - "echo 'COOKIE_SECRET=undefined' >> /home/app/.env"
-  - "echo 'DATABASE_URL=undefined' >> /home/app/.env"
-  - "echo 'WORKER_REDIS_URL=undefined' >> /home/app/.env"
-  - "echo 'NODE_ENV=production' >> /home/app/.env"
+  - "cd /app"
+  - "echo '# Build time .env config!' >> /app/.env"
+  - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
+  - "echo 'DATABASE_URL=undefined' >> /app/.env"
+  - "echo 'WORKER_REDIS_URL=undefined' >> /app/.env"
+  - "echo 'NODE_ENV=production' >> /app/.env"
   - "yarn install"
   - "yarn workspace @app/condo build"
   - "yarn cache clean"
-  - "rm -rf /home/app/.env"
-  - "rm -rf /home/app/.config"
-  - "rm -rf /home/app/.yarn"
-  - "rm -rf /home/app/.cache"
+  - "rm -rf /app/.env"
+  - "rm -rf /app/.config"
+  - "rm -rf /app/.yarn"
+  - "rm -rf /app/.cache"
 
 docker:
   ENV:
@@ -52,7 +61,7 @@ from: ubuntu:20.04
 git:
 - url: https://{{ env "PULL_USER" }}:{{ env "PULL_PERSONAL_ACCESS_KEY" }}@github.com/open-condo-software/condo
   add: /
-  to: /home/app
+  to: /app
   tag: 'prod/v-1-16-0'
   owner: app
 
@@ -60,7 +69,7 @@ shell:
   beforeInstall:
   - "export DEBIAN_FRONTEND=noninteractive"
   - "groupadd -r app --gid=999"
-  - "useradd --system --create-home --home /home/app --gid 999 --uid=999 --shell /bin/bash app"
+  - "useradd --system --create-home --home /app --gid 999 --uid=999 --shell /bin/bash app"
   - "apt update -qq"
   - "apt install -qq -y curl"
   - "curl -fsL https://deb.nodesource.com/setup_14.x | bash"
@@ -74,19 +83,19 @@ shell:
   - "pip3 install django>=3.0.6 psycopg2-binary>=2.8.5"
   - "npm install --global yarn"
   setup:
-  - "cd /home/app"
-  - "echo '# Build time .env config!' >> /home/app/.env"
-  - "echo 'COOKIE_SECRET=undefined' >> /home/app/.env"
-  - "echo 'DATABASE_URL=undefined' >> /home/app/.env"
-  - "echo 'WORKER_REDIS_URL=undefined' >> /home/app/.env"
-  - "echo 'NODE_ENV=production' >> /home/app/.env"
+  - "cd /app"
+  - "echo '# Build time .env config!' >> /app/.env"
+  - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
+  - "echo 'DATABASE_URL=undefined' >> /app/.env"
+  - "echo 'WORKER_REDIS_URL=undefined' >> /app/.env"
+  - "echo 'NODE_ENV=production' >> /app/.env"
   - "yarn install"
   - "yarn workspace @app/callcenter build"
   - "yarn cache clean"
-  - "rm -rf /home/app/.env"
-  - "rm -rf /home/app/.config"
-  - "rm -rf /home/app/.yarn"
-  - "rm -rf /home/app/.cache"
+  - "rm -rf /app/.env"
+  - "rm -rf /app/.config"
+  - "rm -rf /app/.yarn"
+  - "rm -rf /app/.cache"
 
 docker:
   ENV:
