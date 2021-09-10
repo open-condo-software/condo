@@ -14,10 +14,6 @@ jobs:
       PULL_USER: ${{ secrets.PULL_USER }}
       PULL_PERSONAL_ACCESS_KEY: ${{ secrets.PULL_PERSONAL_ACCESS_KEY }}
     steps:
-      - name: Start ssh
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-            ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: Checkout code
         uses: actions/checkout@v2
         with:
