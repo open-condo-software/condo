@@ -7,7 +7,7 @@ import { Button } from '../../common/components/Button'
 import { useCreateAccountModal } from './hooks/useCreateAccountModal'
 
 
-export const AccountNumberInput = ({ accountNumber, setAccountNumber, existingMeters }) => {
+export const AccountNumberInput = ({ form, existingMetersRef }) => {
     const intl = useIntl()
     const AccountNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.AccountNumber' })
     const NewAccountAlertMessage = intl.formatMessage({ id: 'pages.condo.meter.NewAccountAlert' })
@@ -17,21 +17,23 @@ export const AccountNumberInput = ({ accountNumber, setAccountNumber, existingMe
 
     const { CreateAccountModal, setIsCreateAccountModalVisible } = useCreateAccountModal()
 
-    return accountNumber ? (
+    useEffect(() => {
+        if (existingMetersRef.current.length > 0)
+            form.setFieldsValue({ accountNumber: existingMetersRef.current[0].accountNumber })
+    }, [existingMetersRef.current])
+
+    return form.getFieldValue('accountNumber') ? (
         <Col lg={14} md={24}>
             <Row gutter={[0, 10]}>
-                {/*<Form.Item*/}
-                {/*    name={'accountNumber'}*/}
-                {/*    label={AccountNumberMessage}*/}
-                {/*>*/}
-                <Input
-                    disabled={existingMeters.length > 0}
-                    onChange={e => setAccountNumber(e.target.value)}
-                    value={accountNumber}
-                />
-                {/*</Form.Item>*/}
+                <Form.Item
+                    label={AccountNumberMessage}
+                    name='accountNumber'
+                    required={true}
+                >
+                    <Input disabled={existingMetersRef.current.length > 0} />
+                </Form.Item>
                 {
-                    existingMeters.length === 0 ? (
+                    existingMetersRef.current.length === 0 ? (
                         <Alert showIcon type='warning' message={NewAccountAlertMessage}/>
                     ) : null
                 }
@@ -57,9 +59,10 @@ export const AccountNumberInput = ({ accountNumber, setAccountNumber, existingMe
                         </Button>
                     </BasicEmptyListView>
 
-                    <CreateAccountModal
-                        handleSubmit={({ accountNumber }) => { setAccountNumber(accountNumber) }}
-                    />
+                    <CreateAccountModal handleSubmit={({ accountNumber }) => {
+                        console.log('set acc num', accountNumber)
+                        form.setFieldsValue({ accountNumber: accountNumber })
+                    }} />
                 </Col>
             </Row>
         </Col>
