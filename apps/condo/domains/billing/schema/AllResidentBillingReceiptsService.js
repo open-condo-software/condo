@@ -9,6 +9,13 @@ const access = require('../access/AllResidentBillingReceipts')
 const { generateQuerySortBy } = require('@condo/domains/common/utils/codegeneration/generate.gql')
 const { generateQueryWhereInput } = require('@condo/domains/common/utils/codegeneration/generate.gql')
 const { pick, get } = require('lodash')
+const {
+    BILLING_RECEIPT_RECIPIENT_FIELD_NAME,
+    BILLING_RECEIPT_SERVICE_FIELD_NAME,
+    BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME,
+    BILLING_RECEIPT_SERVICES_FIELD,
+} = require('@condo/domains/billing/constants')
+const _ = require('lodash')
 
 const fieldsObj = {
     id: 'ID',
@@ -31,7 +38,7 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
         },
         {
             access: true,
-            type: 'type ResidentBillingReceiptOutput { dv: String!, recipient: JSON!, id: ID!, period: String!, toPay: String!, printableNumber: String, toPayDetails: JSON, services: JSON, serviceConsumer: ServiceConsumer! }',
+            type: `type ResidentBillingReceiptOutput { dv: String!, recipient: ${BILLING_RECEIPT_RECIPIENT_FIELD_NAME}!, id: ID!, period: String!, toPay: String!, printableNumber: String, toPayDetails: ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME}, services: ${BILLING_RECEIPT_SERVICES_FIELD}, serviceConsumer: ServiceConsumer! }`,
         },
     ],
     
@@ -66,7 +73,7 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
                 const billingReceipts = []
                 for (let i = 0; i < allServiceConsumers.length; ++i) {
                     const receiptsQuery = { ...receiptsWhere, ...{ account: { id: allServiceConsumers[i].billingAccount.id } } }
-                    
+
                     const billingReceiptsForConsumer = await BillingReceipt.getAll(
                         context,
                         receiptsQuery,
