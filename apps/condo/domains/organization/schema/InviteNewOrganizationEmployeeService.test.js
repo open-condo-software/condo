@@ -27,10 +27,12 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         phone: createTestPhone(),
                     }
                     const extraAttrs = {
-                        specializations: [
-                            { id: categoryClassifier1.id },
-                            { id: categoryClassifier2.id },
-                        ],
+                        specializations: {
+                            connect: [
+                                { id: categoryClassifier1.id },
+                                { id: categoryClassifier2.id },
+                            ],
+                        },
                     }
                     const client = await makeClientWithRegisteredOrganization()
                     const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs, extraAttrs)
