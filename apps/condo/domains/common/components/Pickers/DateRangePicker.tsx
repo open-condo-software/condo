@@ -10,6 +10,7 @@ import { RangePickerSharedProps } from 'rc-picker/lib/RangePicker'
 const rangePickerCss = css`
   & {
     background-color: ${colors.lightGrey[4]};
+    padding: 8px 12px 8px;
   }
   &.ant-picker-focused {
     border-color: unset;
