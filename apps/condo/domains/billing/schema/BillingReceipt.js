@@ -14,6 +14,7 @@ const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD
 const { TO_PAY_DETAILS_FIELD } = require('./fields/BillingReceipt/ToPayDetailsField')
 const { SERVICES_FIELD } = require('./fields/BillingReceipt/Services')
 const { RECIPIENT_FIELD } = require('./fields/BillingReceipt/Recipient')
+const { omitRecursively } = require('@condo/domains/common/utils/omitRecursively')
 const { get } = require('lodash')
 
 const BillingReceipt = new GQLListSchema('BillingReceipt', {
@@ -98,6 +99,16 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         auth: true,
     },
     hooks: {
+        resolveInput: ({ resolvedData, existingItem, operation }) => {
+            console.log(resolvedData)
+            if (!resolvedData) return
+            if (operation === 'create') {
+                return omitRecursively(resolvedData, '__typename')
+            } else if (operation === 'update') {
+                const a = { ...existingItem, ...resolvedData }
+                return omitRecursively({ ...existingItem, ...resolvedData }, '__typename')
+            }
+        },
         validateInput: ({ resolvedData, context, addValidationError }) => {
             if (!hasDvAndSenderFields( resolvedData, context, addValidationError)) return
             const { dv } = resolvedData

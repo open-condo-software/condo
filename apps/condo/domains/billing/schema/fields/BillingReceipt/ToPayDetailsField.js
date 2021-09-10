@@ -26,8 +26,7 @@ const ToPayDetailsSchema = {
     type: 'object',
     properties: Object.assign({},
         ...Object.keys(ToPayDetailsFields).map((field) => ({ [field]: { 'type': ['string', 'null'] } })),
-        { formula: { type: 'string' } },
-        { __typename: { type: 'string' } },
+        { formula: { type: 'string' } }
     ),
     required: ['formula'],
     additionalProperties: false,
@@ -44,6 +43,7 @@ const TO_PAY_DETAILS_FIELD = {
     schemaDoc: 'Sum to pay details. Detail level 2',
     type: Json,
     extendGraphQLTypes: [TO_PAY_DETAILS_GRAPHQL_TYPES],
+    graphQLInputType: BILLING_RECEIPT_TO_PAY_DETAILS_INPUT_NAME,
     graphQLReturnType: BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME,
     graphQLAdminFragment: `{ ${TO_PAY_DETAILS_QUERY_LIST} }`,
     isRequired: false,

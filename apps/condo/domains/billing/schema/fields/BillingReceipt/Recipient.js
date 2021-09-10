@@ -24,7 +24,6 @@ const RecipientSchema = {
     type: 'object',
     properties: Object.assign({},
         ...Object.keys(RecipientFields).map((field) => ({ [field]: { type: 'string' } })),
-        { __typename: { type: 'string' } },
     ),
     required: Object.keys(RecipientFields),
     additionalProperties: false,
