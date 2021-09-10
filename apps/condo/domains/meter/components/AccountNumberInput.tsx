@@ -7,7 +7,7 @@ import { Button } from '../../common/components/Button'
 import { useCreateAccountModal } from './hooks/useCreateAccountModal'
 
 
-export const AccountNumberInput = ({ form, existingMetersRef }) => {
+export const AccountNumberInput = ({ accountNumber, setAccountNumber, existingMeters }) => {
     const intl = useIntl()
     const AccountNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.AccountNumber' })
     const NewAccountAlertMessage = intl.formatMessage({ id: 'pages.condo.meter.NewAccountAlert' })
@@ -16,24 +16,39 @@ export const AccountNumberInput = ({ form, existingMetersRef }) => {
     const AddAccountMessage = intl.formatMessage({ id: 'pages.condo.meter.AddAccount' })
 
     const { CreateAccountModal, setIsCreateAccountModalVisible } = useCreateAccountModal()
+    // const [accountNumber, setAccountNumber] = useState<string>(null)
 
     useEffect(() => {
-        if (existingMetersRef.current.length > 0)
-            form.setFieldsValue({ accountNumber: existingMetersRef.current[0].accountNumber })
-    }, [existingMetersRef.current])
+        if (existingMeters.length > 0) {
+            // form.setFieldsValue({ accountNumber: existingMetersRef.current[0].accountNumber })
+            setAccountNumber(existingMeters[0].accountNumber)
+        }
+        // else {
+        //     setAccountNumber(null)
+        // }
+        // if (form.getFieldValue('accountNumber') && existingMetersRef.current.length === 0)
+        //     form.setFieldsValue({ accountNumber: null })
+    }, [existingMeters])
 
-    return form.getFieldValue('accountNumber') ? (
+    // console.log('accountNumber in AccountNumberInput', form.getFieldValue('accountNumber'))
+
+    return accountNumber ? (
         <Col lg={14} md={24}>
             <Row gutter={[0, 10]}>
-                <Form.Item
-                    label={AccountNumberMessage}
-                    name='accountNumber'
-                    required={true}
-                >
-                    <Input disabled={existingMetersRef.current.length > 0} />
-                </Form.Item>
+                {/*<Form.Item*/}
+                {/*    label={AccountNumberMessage}*/}
+                {/*    name='accountNumber'*/}
+                {/*    required={true}*/}
+                {/*>*/}
+                <Typography.Text type={'secondary'}>{AccountNumberMessage}</Typography.Text>
+                <Input
+                    disabled={existingMeters.length > 0}
+                    value={accountNumber}
+                    onChange={e => setAccountNumber(e.target.value)}
+                />
+                {/*</Form.Item>*/}
                 {
-                    existingMetersRef.current.length === 0 ? (
+                    existingMeters.length === 0 ? (
                         <Alert showIcon type='warning' message={NewAccountAlertMessage}/>
                     ) : null
                 }
@@ -59,10 +74,10 @@ export const AccountNumberInput = ({ form, existingMetersRef }) => {
                         </Button>
                     </BasicEmptyListView>
 
-                    <CreateAccountModal handleSubmit={({ accountNumber }) => {
-                        console.log('set acc num', accountNumber)
-                        form.setFieldsValue({ accountNumber: accountNumber })
-                    }} />
+                    <CreateAccountModal
+                        accountNumber={accountNumber}
+                        setAccountNumber={setAccountNumber}
+                    />
                 </Col>
             </Row>
         </Col>
