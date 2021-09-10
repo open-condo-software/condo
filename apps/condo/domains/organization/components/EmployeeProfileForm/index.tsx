@@ -1,6 +1,6 @@
 import { Col, Form, Input, Row, Space, Typography } from 'antd'
 import { useRouter } from 'next/router'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useIntl } from '@core/next/intl'
 import { useApolloClient } from '@core/next/apollo'
 import { Button } from '@condo/domains/common/components/Button'
@@ -45,7 +45,8 @@ export const EmployeeProfileForm = () => {
     const { query, push } = useRouter()
     const classifiersLoader = new ClassifiersQueryRemote(useApolloClient())
 
-    const [selectedRole, setSelectedRole] = useState('')
+    const [selectedRole, setSelectedRole] = useState<string>()
+    const selectedRoleRef = useRef<string>()
 
     const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject({ where: { id: String(get(query, 'id', '')) } }, {
         onCompleted: ()=> {
@@ -65,12 +66,16 @@ export const EmployeeProfileForm = () => {
 
     const searchClassifers = (_, input) => 
         classifiersLoader.search(input, TicketClassifierTypes.category)
-            .then(result=>result.map((classifier)=> ({ text: classifier.name, value: classifier.id })))
+            .then(result => result.map((classifier)=> ({ text: classifier.name, value: classifier.id })))
 
     useEffect(()=> {
         classifiersLoader.init()
         return () => classifiersLoader.clear()
-    }, [])
+    }, [])   
+
+    useEffect(()=> {
+        selectedRoleRef.current = selectedRole
+    }, [selectedRole])
 
     if (error) {
         return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null}/>
@@ -78,7 +83,6 @@ export const EmployeeProfileForm = () => {
     if (loading) {
         return <Loader />
     }
-
     const formAction = (formValues) => {
         return updateEmployeeAction(formValues, employee)
     }
@@ -87,6 +91,7 @@ export const EmployeeProfileForm = () => {
         role: get(employee, ['role', 'id']),
         position: get(employee, 'position'),
         email: get(employee, 'email'),
+        specializations: employee.specializations.map(spec => spec.id),
     }
 
     return (
@@ -95,17 +100,17 @@ export const EmployeeProfileForm = () => {
             initialValues={initialValues}
             layout={'horizontal'}
             validateTrigger={['onBlur', 'onSubmit']}
-            formValuesToMutationDataPreprocessor={(values) => {
+            formValuesToMutationDataPreprocessor={(values)=> {
                 const isRoleDeleted = !values.role && initialValues.role
-                const specializations = get(values, 'specializations')
-
+                const specializations = values.specializations
+        
                 if (isRoleDeleted) {
                     values.role = null
                 }
-
-                if (specializations) {
+                if (specializations && specializations.length && selectedRoleRef.current === TechnicianRoleName) {
                     values.specializations = { connect: specializations.map(id => ({ id })) }
                 }
+                else values.specializations = { disconnectAll: true }
                 return values
             }}
         >
@@ -132,7 +137,7 @@ export const EmployeeProfileForm = () => {
                                         name={'role'}
                                         label={RoleLabel}
                                     >
-                                        <EmployeeRoleSelect employee={employee} onSelect={(_, options)=> setSelectedRole(options.title)} />
+                                        <EmployeeRoleSelect employee={employee} onSelect={(_, option) => setSelectedRole(option.title)} />
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
