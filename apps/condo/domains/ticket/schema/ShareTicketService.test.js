@@ -8,11 +8,10 @@ describe('ShareTicketService', () => {
         it('can share ticked with same organization', async () => {
             const client = await makeClientWithProperty()
             const [ticket] = await createTestTicket(client, client.organization, client.property)
-
+            // TODO(zuch): add another employee, share ticket, check if Message appears in db
             const { data: { obj: { status } } } = await client.mutate(SHARE_TICKET_MUTATION, {
-                data: { sender: client.userAttrs.sender, users: [client.user.id], ticketId: ticket.id },
+                data: { sender: client.userAttrs.sender, employees: [client.user.id], ticketId: ticket.id },
             })
-
             expect(status).toBe('ok')
         })
 
