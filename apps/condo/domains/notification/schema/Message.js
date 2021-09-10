@@ -94,6 +94,15 @@ const Message = new GQLListSchema('Message', {
             isRequired: false,
         },
     },
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.CheckConstraint',
+                check: 'Q(user__isnull=False) | Q(phone__isnull=False) | Q(email__isnull=False)',
+                name: 'has_phone_or_email_or_user',
+            },
+        ],
+    },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadMessages,

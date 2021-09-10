@@ -95,7 +95,6 @@ const User = new GQLListSchema('User', {
             schemaDoc: 'Phone. In international E.164 format without spaces',
             type: Text,
             access: access.canAccessToPhoneField,
-            kmigratorOptions: { null: true, unique: false },
             hooks: {
                 resolveInput: ({ resolvedData }) => {
                     return normalizePhone(resolvedData['phone'])
@@ -130,6 +129,15 @@ const User = new GQLListSchema('User', {
             kmigratorOptions: { null: true, unique: true },
         },
 
+    },
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['type', 'phone'],
+                name: 'unique_type_and_phone',
+            },
+        ],
     },
     hooks: {
         afterChange: async ({ updatedItem, context, existingItem, operation }) => {
