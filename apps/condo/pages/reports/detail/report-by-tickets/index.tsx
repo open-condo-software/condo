@@ -16,6 +16,7 @@ import { useLazyQuery } from '@core/next/apollo'
 
 import dayjs, { Dayjs } from 'dayjs'
 import quarterOfYear from 'dayjs/plugin/quarterOfYear'
+import { fontSizes } from '@condo/domains/common/constants/style'
 
 import { BarChartIcon, LinearChartIcon, PieChartIcon } from '@condo/domains/common/components/icons/ChartIcons'
 import { Button } from '@condo/domains/common/components/Button'
@@ -437,21 +438,21 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                     labelLine: { show: false },
                                     label: {
                                         show: true,
-                                        fontSize: 14,
+                                        fontSize: fontSizes.content,
                                         overflow: 'none',
                                         formatter: [
                                             '{value|{b}} {percent|{d} %}',
                                         ].join('\n'),
                                         rich: {
                                             value: {
-                                                fontSize: 14,
+                                                fontSize: fontSizes.content,
                                                 align: 'left',
                                                 width: 100,
                                             },
                                             percent: {
                                                 align: 'left',
                                                 fontWeight: 700,
-                                                fontSize: 14,
+                                                fontSize: fontSizes.content,
                                                 width: 40,
                                             },
                                         },
