@@ -19,30 +19,34 @@ interface ISearchInputProps extends SelectProps<string> {
     disabled?: boolean
     autoFocus?: boolean
     initialValue?: string
-    formatLabel?: (option: { value: string, text: string, data?: any }) => JSX.Element
+    formatLabel?: (option: { value: string, text: string, data?: any }) => JSX.Element,
+    renderOptions?: (items: any[]) => JSX.Element,
 }
 
 export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
-    const { search, onSelect, formatLabel, autoClearSearchValue, ...restProps } = props
+    const { search, onSelect, formatLabel, renderOptions, autoClearSearchValue, ...restProps } = props
     const client = useApolloClient()
     const [selected, setSelected] = useState('')
     const [isLoading, setLoading] = useState(false)
     const [data, setData] = useState([])
     const [value, setValue] = useState('')
-    const options = data.map((option) => {
-        let optionLabel = option.text
 
-        if (formatLabel) {
-            optionLabel = formatLabel(option)
-        }
-        const value = ['string', 'number'].includes(typeof option.value) ? option.value : JSON.stringify(option)
+    const options = renderOptions
+        ? renderOptions(data)
+        : data.map((option) => {
+            let optionLabel = option.text
 
-        return (
-            <Select.Option key={option.key || value } value={value} title={option.text}>
-                {optionLabel}
-            </Select.Option>
-        )
-    })
+            if (formatLabel) {
+                optionLabel = formatLabel(option)
+            }
+            const value = ['string', 'number'].includes(typeof option.value) ? option.value : JSON.stringify(option)
+
+            return (
+                <Select.Option key={option.key || value } value={value} title={option.text}>
+                    {optionLabel}
+                </Select.Option>
+            )
+        })
 
     useEffect(() => {
         handleSearch('')
