@@ -5,6 +5,14 @@ import React, { useEffect, useState } from 'react'
 import { Select, SelectProps } from 'antd'
 import { ApolloClient } from '@apollo/client'
 
+type GraphQlSearchInputOption = {
+    value: string
+    text: string
+    data?: any
+}
+
+export type RenderOptionFunc = (option: GraphQlSearchInputOption) => JSX.Element
+
 // TODO: add apollo cache shape typings
 interface ISearchInputProps extends SelectProps<string> {
     search: (client: ApolloClient<Record<string, unknown>>, queryArguments: string) => Promise<Array<Record<string, unknown>>>
@@ -19,8 +27,8 @@ interface ISearchInputProps extends SelectProps<string> {
     disabled?: boolean
     autoFocus?: boolean
     initialValue?: string
-    formatLabel?: (option: { value: string, text: string, data?: any }) => JSX.Element,
-    renderOptions?: (items: any[]) => JSX.Element,
+    formatLabel?: (option: GraphQlSearchInputOption) => JSX.Element
+    renderOptions?: (items: any[], renderOption: RenderOptionFunc) => JSX.Element[]
 }
 
 export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
@@ -31,22 +39,24 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
     const [data, setData] = useState([])
     const [value, setValue] = useState('')
 
+    const renderOption = (option) => {
+        let optionLabel = option.text
+
+        if (formatLabel) {
+            optionLabel = formatLabel(option)
+        }
+        const value = ['string', 'number'].includes(typeof option.value) ? option.value : JSON.stringify(option)
+
+        return (
+            <Select.Option key={option.key || value } value={value} title={option.text}>
+                {optionLabel}
+            </Select.Option>
+        )
+    }
+
     const options = renderOptions
-        ? renderOptions(data)
-        : data.map((option) => {
-            let optionLabel = option.text
-
-            if (formatLabel) {
-                optionLabel = formatLabel(option)
-            }
-            const value = ['string', 'number'].includes(typeof option.value) ? option.value : JSON.stringify(option)
-
-            return (
-                <Select.Option key={option.key || value } value={value} title={option.text}>
-                    {optionLabel}
-                </Select.Option>
-            )
-        })
+        ? renderOptions(data, renderOption)
+        : data.map(renderOption)
 
     useEffect(() => {
         handleSearch('')

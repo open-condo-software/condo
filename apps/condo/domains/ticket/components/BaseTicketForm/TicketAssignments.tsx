@@ -1,12 +1,12 @@
 import { useIntl } from '@core/next/intl'
-import { find, get } from 'lodash'
+import { find, get, differenceBy, uniqBy } from 'lodash'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
-import { Col, Form, Row, Typography } from 'antd'
+import { Col, Form, Row, Select, Typography } from 'antd'
 import { AutoAssignerByDivisions } from './AutoAssignerByDivisions'
 import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { searchEmployeeUser } from '../../utils/clientSchema/search'
-import React from 'react'
+import React, { useState } from 'react'
 
 const TicketAssignments = ({ validations, organizationId, propertyId, disableUserInteraction, autoAssign, categoryClassifier, form }) => {
     const intl = useIntl()
@@ -16,7 +16,12 @@ const TicketAssignments = ({ validations, organizationId, propertyId, disableUse
     const ExecutorExtra = intl.formatMessage({ id: 'field.Executor.description' })
     const ResponsibleExtra = intl.formatMessage({ id: 'field.Responsible.description' })
 
+    const [divisions, setDivisions] = useState([])
+
     const formatUserFieldLabel = ({ text, value, data: employee }) => {
+        if (!employee) {
+            return null
+        }
         const matchedSpecialization = find(employee.specializations, { id: categoryClassifier })
         return (
             <UserNameField user={{ name: text, id: value }}>
@@ -36,6 +41,80 @@ const TicketAssignments = ({ validations, organizationId, propertyId, disableUse
         )
     }
 
+    const getTechniciansFrom = (division) => (
+        division.executors.filter(({ specializations }) => (
+            specializations.some(({ id }) => id === categoryClassifier)
+        ))
+    )
+
+    const convertToOption = (employee) => ({
+        text: employee.name,
+        value: employee.user.id,
+        data: employee,
+    })
+
+    /**
+     * Employees are grouped by following rules:
+     * 1. Technicians with matched specialization, belonging to matched division;
+     * 2. Technicians with matched specialization, belonging to other matched divisions;
+     * 3. Rest of employees.
+     */
+    const renderOptionGroups = (employeeOptions, renderOption) => {
+        const [currentDivision, ...otherDivisions] = divisions
+        let techniciansOnDivisionOptions = []
+        let techniciansOnOtherDivisionsOptions = []
+        let otherTechniciansOptions = []
+
+        if (currentDivision) {
+            const techniciansOnDivision = getTechniciansFrom(currentDivision)
+            techniciansOnDivisionOptions = techniciansOnDivision.map(convertToOption)
+
+            const techniciansOnOtherDivisions =
+                differenceBy(
+                    uniqBy(
+                        otherDivisions.reduce((acc, otherDivision) => ([
+                            ...acc,
+                            ...getTechniciansFrom(otherDivision),
+                        ]), []),
+                        'id',
+                    ),
+                    techniciansOnDivision,
+                    'id',
+                )
+
+
+            techniciansOnOtherDivisionsOptions = techniciansOnOtherDivisions.map(convertToOption)
+
+            otherTechniciansOptions = differenceBy(employeeOptions, [
+                ...techniciansOnDivisionOptions,
+                ...techniciansOnOtherDivisionsOptions,
+            ], 'value')
+        }
+        const result = []
+        if (techniciansOnDivisionOptions.length > 0) {
+            result.push(
+                <Select.OptGroup label="Техники на участке">
+                    {techniciansOnDivisionOptions.map(renderOption)}
+                </Select.OptGroup>
+            )
+        }
+        if (techniciansOnOtherDivisionsOptions.length > 0) {
+            result.push(
+                <Select.OptGroup label="Техники на других участках">
+                    {techniciansOnOtherDivisionsOptions.map(renderOption)}
+                </Select.OptGroup>
+            )
+        }
+        if (otherTechniciansOptions.length > 0) {
+            result.push(
+                <Select.OptGroup label="Остальные сотрудники">
+                    {otherTechniciansOptions.map(renderOption)}
+                </Select.OptGroup>
+            )
+        }
+        return result
+    }
+
     return (
         <Col span={24}>
             <Row justify={'space-between'} gutter={[0, 24]}>
@@ -48,6 +127,7 @@ const TicketAssignments = ({ validations, organizationId, propertyId, disableUse
                             organizationId={organizationId}
                             propertyId={propertyId}
                             categoryClassifier={categoryClassifier}
+                            onDivisionsFound={setDivisions}
                             form={form}
                         />
                     </Col>
@@ -66,6 +146,7 @@ const TicketAssignments = ({ validations, organizationId, propertyId, disableUse
                             allowClear={false}
                             showArrow={false}
                             disabled={disableUserInteraction}
+                            renderOptions={renderOptionGroups}
                         />
                     </Form.Item>
                 </Col>

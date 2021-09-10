@@ -4,6 +4,7 @@ import { useIntl } from '@core/next/intl'
 import { Alert, FormInstance } from 'antd'
 import { Division } from '@condo/domains/division/utils/clientSchema'
 import { formatAddressWithoutCityFrom } from '@condo/domains/property/utils/helpers'
+import { Division as DivisionSchema } from '../../../../schema'
 
 const getResponsibleAndExecutorFrom = (divisions, categoryClassifier) => {
     let responsible
@@ -29,10 +30,11 @@ interface ITicketAutoAssignment {
     organizationId: string,
     propertyId: string,
     categoryClassifier: string,
+    onDivisionsFound: (divisions: DivisionSchema[]) => void,
     form: FormInstance,
 }
 
-const AutoAssignerByDivisions: React.FC<ITicketAutoAssignment> = ({ organizationId, propertyId, categoryClassifier, form }) => {
+const AutoAssignerByDivisions: React.FC<ITicketAutoAssignment> = ({ organizationId, propertyId, categoryClassifier, onDivisionsFound, form }) => {
     const intl = useIntl()
     const FoundOneDivisionMessage = intl.formatMessage({ id: 'ticket.assignments.divisions.found.one' })
     const FoundManyDivisionsMessage = intl.formatMessage({ id: 'ticket.assignments.divisions.found.many' })
@@ -59,6 +61,7 @@ const AutoAssignerByDivisions: React.FC<ITicketAutoAssignment> = ({ organization
             assignee: responsibleUserId,
             executor: executorUserId,
         })
+        onDivisionsFound && onDivisionsFound(divisions || [])
     }, [responsibleUserId, executorUserId, form])
 
     if (loading || !divisions) {
