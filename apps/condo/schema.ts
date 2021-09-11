@@ -22617,7 +22617,7 @@ export type StartConfirmPhoneActionOutput = {
 };
 
 export type StartPasswordRecoveryInput = {
-  email: Scalars['String'];
+  phone: Scalars['String'];
   sender: SenderFieldInput;
   dv: Scalars['Int'];
 };
