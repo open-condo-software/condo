@@ -1,4 +1,4 @@
-import { Form, Input, Typography, Row, Col } from 'antd'
+import { Form, Typography, Row, Col } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import AuthLayout, { AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
 
@@ -17,9 +17,14 @@ import { LOCK_TIMEOUT } from '@condo/domains/user/constants/common'
 import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
 import { ButtonHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 
 const LINK_STYLE = { color: colors.sberPrimary[7] }
-const INPUT_STYLE = { width: '20em' }
+
+const FORM_LAYOUT = {
+    labelCol: { span: 10 },
+    wrapperCol: { span: 14 },
+}
 
 const ResetPage: AuthPage = () => {
     const [form] = Form.useForm()
@@ -27,17 +32,17 @@ const ResetPage: AuthPage = () => {
     const intl = useIntl()
     const RestorePasswordMsg = intl.formatMessage({ id: 'pages.auth.reset.RestorePasswordTitle' })
     const ResetTitle = intl.formatMessage({ id: 'pages.auth.ResetTitle' })
-    const EmailMsg = intl.formatMessage({ id: 'pages.auth.register.field.Email' })
     const InstructionsMsg = intl.formatMessage({ id: 'pages.auth.reset.ResetHelp' })
     const EmailIsNotRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsNotRegistered' })
-    const PleaseInputYourEmailMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourEmail' })
     const CheckEmailMsg = intl.formatMessage({ id: 'pages.auth.reset.CheckEmail' })
     const ReturnToLoginPage = intl.formatMessage({ id: 'pages.auth.reset.ReturnToLoginPage' })
-    const EmailPlaceholder = intl.formatMessage({ id: 'example.Email' })
+    const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
+    const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
 
     const [isLoading, setIsLoading] = useState(false)
     const [isSuccessMessage, setIsSuccessMessage] = useState(false)
     const [startPasswordRecovery] = useMutation(START_PASSWORD_RECOVERY_MUTATION)
+
     const ErrorToFormFieldMsgMapping = {
         [WRONG_EMAIL_ERROR]: {
             name: 'email',
@@ -45,9 +50,9 @@ const ResetPage: AuthPage = () => {
         },
     }
 
-    const { requiredValidator, emailValidator, changeMessage } = useValidations()
+    const { requiredValidator, phoneValidator } = useValidations()
     const validations = {
-        email: [changeMessage(requiredValidator, PleaseInputYourEmailMsg), emailValidator],
+        phone: [requiredValidator, phoneValidator],
     }
 
     if (isLoading) {
@@ -96,54 +101,58 @@ const ResetPage: AuthPage = () => {
         <Row gutter={[0, 40]}>
             <Col span={24}>
                 <Typography.Title style={{ textAlign: 'left' }}>{ResetTitle}</Typography.Title>
+            </Col>
+            <Col span={24}>
                 <Typography.Paragraph style={{ textAlign: 'left' }}>{InstructionsMsg}</Typography.Paragraph>
             </Col>
             <Col span={24}>
                 <Form
+                    {...FORM_LAYOUT}
                     form={form}
                     name='forgot-password'
                     validateTrigger={['onBlur', 'onSubmit']}
                     initialValues={initialValues}
                     colon={false}
+                    labelAlign='left'
                     requiredMark={false}
                 >
                     <Row gutter={[0, 60]}>
                         <Col span={24}>
                             <Form.Item
-                                name='email'
-                                label={EmailMsg}
-                                rules={validations.email}
-                                labelAlign='left'
-                                labelCol={{ flex: 1 }}
+                                name='phone'
+                                label={PhoneMsg}
+                                rules={validations.phone}
                             >
-                                <Input placeholder={EmailPlaceholder}  style={INPUT_STYLE}/>
+                                <PhoneInput placeholder={ExamplePhoneMsg} />
+                            </Form.Item>
+                        </Col>
+                        <Col span={24}>
+                            <Form.Item>
+                                <CountDownTimer action={forgotAction} id={'FORGOT_ACTION'} timeout={LOCK_TIMEOUT}>
+                                    {({ countdown, runAction }) => {
+                                        const isCountDownActive = countdown > 0
+                                        return (
+                                            <Button
+                                                onClick={() => {
+                                                    form.validateFields().then(() => {
+                                                        runAction()
+                                                    }).catch(_ => {
+                                                        // validation check failed - don't invoke runAction
+                                                    })
+                                                }}
+                                                type={isCountDownActive ? 'sberGrey' : 'sberPrimary'}
+                                                disabled={isCountDownActive}
+                                                loading={isLoading}
+                                                htmlType='submit'
+                                            >
+                                                {isCountDownActive ? `${RestorePasswordMsg} ${countdown}` : RestorePasswordMsg}
+                                            </Button>
+                                        )
+                                    }}
+                                </CountDownTimer>
                             </Form.Item>
                         </Col>
                     </Row>
-                    <Form.Item>
-                        <CountDownTimer action={forgotAction} id={'FORGOT_ACTION'} timeout={LOCK_TIMEOUT}>
-                            {({ countdown, runAction }) => {
-                                const isCountDownActive = countdown > 0
-                                return (
-                                    <Button
-                                        onClick={() => {
-                                            form.validateFields().then(() => {
-                                                runAction()
-                                            }).catch(_ => {
-                                                // validation check failed - don't invoke runAction
-                                            })
-                                        }}
-                                        type={isCountDownActive ? 'sberGrey' : 'sberPrimary'}
-                                        disabled={isCountDownActive}
-                                        loading={isLoading}
-                                        htmlType='submit'
-                                    >
-                                        {isCountDownActive ? `${RestorePasswordMsg} ${countdown}` : RestorePasswordMsg}
-                                    </Button>
-                                )
-                            }}
-                        </CountDownTimer>
-                    </Form.Item>
                 </Form>
             </Col>
         </Row>

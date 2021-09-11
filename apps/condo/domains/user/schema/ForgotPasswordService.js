@@ -1,14 +1,15 @@
 const { v4: uuid } = require('uuid')
 const conf = require('@core/config')
-const { WRONG_EMAIL_ERROR, MULTIPLE_ACCOUNTS_MATCHES, RESET_TOKEN_NOT_FOUND, PASSWORD_TOO_SHORT, TOKEN_EXPIRED_ERROR } = require('@condo/domains/user/constants/errors')
+const { WRONG_PHONE_ERROR, MULTIPLE_ACCOUNTS_MATCHES, RESET_TOKEN_NOT_FOUND, PASSWORD_TOO_SHORT, TOKEN_EXPIRED_ERROR } = require('@condo/domains/user/constants/errors')
 const { RESET_PASSWORD_MESSAGE_TYPE } = require('@condo/domains/notification/constants')
 const RESET_PASSWORD_TOKEN_EXPIRY = conf.USER__RESET_PASSWORD_TOKEN_EXPIRY || 1000 * 60 * 60 * 24
-const { MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
+const { MIN_PASSWORD_LENGTH, STAFF } = require('@condo/domains/user/constants/common')
 const { GQLCustomSchema, getById } = require('@core/keystone/schema')
 const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { ForgotPasswordAction: ForgotPasswordActionUtil, User } = require('@condo/domains/user/utils/serverSchema')
 const isEmpty = require('lodash/isEmpty')
+const { normalizePhone } = require('@condo/domains/common/utils/phone')
 
 const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
     types: [
@@ -22,7 +23,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
         },
         {
             access: true,
-            type: 'input StartPasswordRecoveryInput { email: String!, sender: SenderFieldInput!, dv: Int! }',
+            type: 'input StartPasswordRecoveryInput { phone: String!, sender: SenderFieldInput!, dv: Int! }',
         },
         {
             access: true,
@@ -62,7 +63,8 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
             access: true,
             schema: 'startPasswordRecovery(data: StartPasswordRecoveryInput!): StartPasswordRecoveryOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { data: { email, sender, dv } } = args
+                const { data: { phone: inputPhone, sender, dv } } = args
+                const phone = normalizePhone(inputPhone)
                 const extraToken = extra.extraToken || uuid()
                 const extraTokenExpiration = extra.extraTokenExpiration || parseInt(RESET_PASSWORD_TOKEN_EXPIRY)
                 const extraNowTimestamp = extra.extraNowTimestamp || Date.now()
@@ -71,11 +73,12 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 const expiresAt = new Date(extraNowTimestamp + extraTokenExpiration).toISOString()
 
                 const users = await User.getAll(context, {
-                    email,
+                    phone,
+                    type: STAFF,
                 })
 
                 if (isEmpty(users)) {
-                    throw new Error(`${WRONG_EMAIL_ERROR}] Unable to find user when trying to start password recovery`)
+                    throw new Error(`${WRONG_PHONE_ERROR}] Unable to find user when trying to start password recovery`)
                 }
 
                 if (users.length !== 1) {
