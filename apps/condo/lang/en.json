@@ -202,7 +202,7 @@
   "pages.auth.reset.CheckEmail": "Check your mailbox",
   "pages.auth.reset.CreateNewPasswordMsg": "Type new password",
   "pages.auth.reset.RegisterHelp": "You need to confirm your phone number. After you type it, we will send you sms with a validation code",
-  "pages.auth.reset.ResetHelp": "Type email address to recieve a letter with reset link",
+  "pages.auth.reset.ResetHelp": "Type your phone number to receive a message with reset link",
   "pages.auth.reset.ResetSuccessMessage": "We sent you a letter {email}. Read email and follow the instuctions.",
   "pages.auth.reset.RestorePasswordTitle": "Restore password",
   "pages.auth.reset.ReturnToLoginPage": "Back to signin page",
