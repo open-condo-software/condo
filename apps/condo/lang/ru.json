@@ -202,7 +202,7 @@
   "pages.auth.reset.CheckEmail": "Проверьте почту",
   "pages.auth.reset.CreateNewPasswordMsg": "Придумайте новый пароль",
   "pages.auth.reset.RegisterHelp": "После ввода номера телефона вам автоматически придёт СМС-код. Это нужно для обеспечения безопасности CRM.",
-  "pages.auth.reset.ResetHelp": "Введите эл. почту и вы получите письмо с инструкцией по восстановлению доступа к вашей учётной записи",
+  "pages.auth.reset.ResetHelp": "Введите номер телефона, чтобы получить инструкцию для восстановления доступа к вашей учётной записи",
   "pages.auth.reset.ResetSuccessMessage": "Отправили вам инструкцию на адрес {email}. Перейдите в вашу почту и следуйте инструкциям.",
   "pages.auth.reset.RestorePasswordTitle": "Восстановить пароль",
   "pages.auth.reset.ReturnToLoginPage": "Вернуться на форму входа",
