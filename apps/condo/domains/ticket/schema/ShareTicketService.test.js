@@ -9,9 +9,11 @@ describe('ShareTicketService', () => {
             const client = await makeClientWithProperty()
             const [ticket] = await createTestTicket(client, client.organization, client.property)
             // TODO(zuch): add another employee, share ticket, check if Message appears in db
-            const { data: { obj: { status } } } = await client.mutate(SHARE_TICKET_MUTATION, {
+            const mutationResult = await client.mutate(SHARE_TICKET_MUTATION, {
                 data: { sender: client.userAttrs.sender, employees: [client.user.id], ticketId: ticket.id },
             })
+            console.log('mutationResult', mutationResult)
+            const { data: { obj: { status } } } = mutationResult
             expect(status).toBe('ok')
         })
 
@@ -21,7 +23,7 @@ describe('ShareTicketService', () => {
             const [ticket] = await createTestTicket(client, client.organization, client.property)
 
             const { errors, data }  = await client1.mutate(SHARE_TICKET_MUTATION, {
-                data: { sender: client.userAttrs.sender, users: [client.user.id], ticketId: ticket.id },
+                data: { sender: client.userAttrs.sender, employees: [client.user.id], ticketId: ticket.id },
             })
 
             expect(errors).toHaveLength(1)
@@ -36,7 +38,7 @@ describe('ShareTicketService', () => {
             const [ticket] = await createTestTicket(client, client.organization, client.property)
 
             const { errors, data } = await client1.mutate(SHARE_TICKET_MUTATION, {
-                data: { sender: client.userAttrs.sender, users: [client.user.id], ticketId: ticket.id },
+                data: { sender: client.userAttrs.sender, employees: [client.user.id], ticketId: ticket.id },
             })
 
             expect(errors).toHaveLength(1)

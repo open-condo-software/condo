@@ -20099,7 +20099,7 @@ export type ServiceConsumersUpdateInput = {
 
 export type ShareTicketInput = {
   sender: SenderFieldInput;
-  users: Array<Scalars['ID']>;
+  employees: Array<Scalars['ID']>;
   ticketId: Scalars['ID'];
 };
 
