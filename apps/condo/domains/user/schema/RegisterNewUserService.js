@@ -89,12 +89,10 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     await ConfirmPhoneActionServerUtils.update(context, confirmPhoneActionId, { completedAt: new Date().toISOString() })
                 }
                 const sendChannels = [{
-                    transport: SMS_TRANSPORT,
                     to: { phone: userData.phone },
                 }]
                 if (!isEmpty(userData.email)) {
                     sendChannels.push({
-                        transport: EMAIL_TRANSPORT,
                         to: { email: userData.email },
                     })
                 }
@@ -109,7 +107,6 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                             },
                             ...channel.to,
                         },
-                        //transport: channel.transport,
                         type: REGISTER_NEW_USER_MESSAGE_TYPE,
                         meta: {
                             userPassword: userData.password,
