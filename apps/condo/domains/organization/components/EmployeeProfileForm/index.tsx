@@ -22,7 +22,6 @@ const INPUT_LAYOUT_PROPS = {
         span: 13,
     },
     style: {
-        paddingBottom: '24px',
         maxWidth: '453px',
     },
 }
@@ -30,9 +29,9 @@ const INPUT_LAYOUT_PROPS = {
 export const EmployeeProfileForm = () => {
     const intl = useIntl()
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
-    const ProfileUpdateTitle = intl.formatMessage({ id: 'profile.Employee.Update' })
+    const EmployeeUpdateTitle = intl.formatMessage({ id: 'profile.Employee.Update' })
     const RoleLabel = intl.formatMessage({ id: 'employee.Role' })
-    const EmailLabel = intl.formatMessage({ id: 'Email' })
+    const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
     const ExampleEmailMsg = intl.formatMessage({ id: 'example.Email' })
     const PositionLabel = intl.formatMessage({ id: 'employee.Position' })
     const UpdateEmployeeMessage = intl.formatMessage({ id: 'employee.UpdateTitle' })
@@ -41,7 +40,7 @@ export const EmployeeProfileForm = () => {
     const { query, push } = useRouter()
 
     const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject({ where: { id: String(get(query, 'id', '')) } })
-    const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => {
+    const updateEmployeeAction = OrganizationEmployee.useUpdate({}, (data) => {
         refetch().then(() => {
             push(`/employee/${get(query, 'id')}/`)
         })
@@ -97,7 +96,7 @@ export const EmployeeProfileForm = () => {
                                         level={1}
                                         style={{ margin: 0, fontWeight: 'bold' }}
                                     >
-                                        {ProfileUpdateTitle}
+                                        {EmployeeUpdateTitle}
                                     </Typography.Title>
                                 </Col>
                                 <Col span={24}>
@@ -109,6 +108,8 @@ export const EmployeeProfileForm = () => {
                                     >
                                         <EmployeeRoleSelect employee={employee}/>
                                     </Form.Item>
+                                </Col>
+                                <Col span={24}>
                                     <Form.Item
                                         {...INPUT_LAYOUT_PROPS}
                                         labelAlign={'left'}
@@ -117,6 +118,8 @@ export const EmployeeProfileForm = () => {
                                     >
                                         <Input/>
                                     </Form.Item>
+                                </Col>
+                                <Col span={24}>
                                     <Form.Item
                                         {...INPUT_LAYOUT_PROPS}
                                         labelAlign={'left'}
@@ -127,6 +130,8 @@ export const EmployeeProfileForm = () => {
                                     >
                                         <Input placeholder={ExampleEmailMsg}/>
                                     </Form.Item>
+                                </Col>
+                                <Col span={24}>
                                     <Space size={40} style={{ paddingTop: '36px' }}>
                                         <FormResetButton
                                             type={'sberPrimary'}
