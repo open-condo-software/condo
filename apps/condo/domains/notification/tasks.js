@@ -26,9 +26,8 @@ async function _sendMessageByAdapter (transport, adapter, messageContext) {
 
 
 
-
 async function _choseMessageTransport (message) {
-    const { phone, user, email, transport } = message
+    const { phone, user, email } = message
 
     if (!isEmpty(phone)) {
         return SMS_TRANSPORT
@@ -36,14 +35,13 @@ async function _choseMessageTransport (message) {
     if (!isEmpty(email)) {
         return EMAIL_TRANSPORT
     }
-    if (!isEmpty(transport)) {
-        return transport
-    }
-
     // TODO(pahaz): we should chose the best transport for the message.
     //  We can chose transport depends on the message.type?
     //  or use something like message.user.profile.preferredNotificationTransport if user want to get messages from TG
-    return EMAIL_TRANSPORT
+    if (!isEmpty(user.email)) {
+        return EMAIL_TRANSPORT
+    }
+    return SMS_TRANSPORT
 }
 
 async function deliveryMessage (messageId) {
