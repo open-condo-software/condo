@@ -11,7 +11,7 @@ const ShareTicketService = new GQLCustomSchema('ShareTicketService', {
     types: [
         {
             access: true,
-            type: 'input ShareTicketInput { sender: SenderFieldInput!, users: [ID!]!, ticketId: ID! }',
+            type: 'input ShareTicketInput { sender: SenderFieldInput!, employees: [ID!]!, ticketId: ID! }',
         },
         {
             access: true,
@@ -24,12 +24,12 @@ const ShareTicketService = new GQLCustomSchema('ShareTicketService', {
             schema: 'shareTicket(data: ShareTicketInput!): ShareTicketOutput',
             resolver: async (parent, args, context) => {
                 const { data } = args
-                const { users, ticketId, sender } = data
+                const { employees, ticketId, sender } = data
                 const [ticket] = await Ticket.getAll(context, { id: ticketId })
-                const employees = await OrganizationEmployee.getAll(context, { id_in: users })
+                const employeeUsers = await OrganizationEmployee.getAll(context, { id_in: employees })
                 const lang = COUNTRIES[RUSSIA_COUNTRY].locale
 
-                await Promise.all(employees.map( employee => {
+                await Promise.all(employeeUsers.map( employee => {
                     return sendMessage(context, {
                         lang,
                         to: {

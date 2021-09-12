@@ -1,30 +1,26 @@
 /** @jsx jsx */
-import { css, jsx } from '@emotion/core'
-import { EN_LOCALE } from '@condo/domains/common/constants/locale'
-import { Col, Row, Modal, Collapse, notification } from 'antd'
-import React, { useState } from 'react'
-import { ShareAltOutlined, RightOutlined, CloseCircleFilled } from '@ant-design/icons'
-import { Button } from '@condo/domains/common/components/Button'
-import { green } from '@ant-design/colors'
+import {css, jsx} from '@emotion/core'
+import {EN_LOCALE} from '@condo/domains/common/constants/locale'
+import {Col, Collapse, Modal, notification, Row} from 'antd'
+import React, {useState} from 'react'
+import {CloseCircleFilled, RightOutlined, ShareAltOutlined} from '@ant-design/icons'
+import {Button} from '@condo/domains/common/components/Button'
+import {green} from '@ant-design/colors'
 import Link from 'next/link'
-import { useIntl } from '@core/next/intl'
-import { useMutation } from '@core/next/apollo'
-import { SHARE_TICKET_MUTATION } from '@condo/domains/ticket/gql'
-import { getEmployeeWithEmail } from '@condo/domains/ticket/utils/clientSchema/search'
-import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
+import {useIntl} from '@core/next/intl'
+import {useMutation} from '@core/next/apollo'
+import {SHARE_TICKET_MUTATION} from '@condo/domains/ticket/gql'
+import {getEmployeeWithEmail} from '@condo/domains/ticket/utils/clientSchema/search'
+import {GraphQlSearchInput} from '@condo/domains/common/components/GraphQlSearchInput'
 import styled from '@emotion/styled'
-import { colors } from '@condo/domains/common/constants/style'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { useRouter } from 'next/router'
+import {colors} from '@condo/domains/common/constants/style'
+import {getClientSideSenderInfo} from '@condo/domains/common/utils/userid.utils'
+import {useRouter} from 'next/router'
 import crypto from 'crypto'
 import getConfig from 'next/config'
-import {
-    ALGORITHM,
-    SALT,
-    CRYPTOENCODING,
-} from '@condo/domains/ticket/constants/crypto'
-import { Organization } from '@core/keystone/schema'
-import { get, isEmpty } from 'lodash'
+import {ALGORITHM, CRYPTOENCODING, SALT,} from '@condo/domains/ticket/constants/crypto'
+import {Organization} from '@core/keystone/schema'
+import {get, isEmpty} from 'lodash'
 
 const collapse = css`
   border-radius: 8px;
@@ -220,8 +216,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
 
     const parseSelectValue = (selectedEmployees) => {
         try {
-            const employees = selectedEmployees.map(JSON.parse)
-            return employees
+            return selectedEmployees.map(JSON.parse)
         } catch (error) {
             console.error('Invalid format for employees in multiple select', selectedEmployees)
         }
@@ -240,7 +235,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
             variables: {
                 data: {
                     sender,
-                    users: parseSelectValue(chosenEmployees).filter(employee => get(employee, 'value.hasEmail')).map(employee => employee.id),
+                    employees: parseSelectValue(chosenEmployees).filter(employee => get(employee, 'value.hasEmail')).map(employee => employee.id),
                     ticketId: query.id,
                 },
             },
