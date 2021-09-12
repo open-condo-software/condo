@@ -105,7 +105,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                         lang,
                         to: {
                             user: {
-                                id: userId,
+                                id: user.id,
                             },
                             ...channel.to,
                         },
