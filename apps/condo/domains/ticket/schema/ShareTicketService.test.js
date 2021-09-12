@@ -5,7 +5,7 @@ const { makeClientWithProperty } = require('@condo/domains/property/utils/testSc
 
 describe('ShareTicketService', () => {
     describe('User', () => {
-        it('can share ticked with same organization', async () => {
+        it('can share ticket with same organization', async () => {
             const client = await makeClientWithProperty()
             const [ticket] = await createTestTicket(client, client.organization, client.property)
             // TODO(zuch): add another employee, share ticket, check if Message appears in db
@@ -15,7 +15,7 @@ describe('ShareTicketService', () => {
             expect(status).toBe('ok')
         })
 
-        it('can not share ticked with another organization', async () => {
+        it('can not share ticket with another organization', async () => {
             const client = await makeClientWithProperty()
             const client1 = await makeClientWithProperty()
             const [ticket] = await createTestTicket(client, client.organization, client.property)
@@ -30,7 +30,7 @@ describe('ShareTicketService', () => {
     })
 
     describe('Anonymous', () => {
-        it('can not share ticked', async () => {
+        it('can not share ticket', async () => {
             const client = await makeClientWithProperty()
             const client1 = await makeClient()
             const [ticket] = await createTestTicket(client, client.organization, client.property)
