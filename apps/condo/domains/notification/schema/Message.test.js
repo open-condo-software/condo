@@ -61,11 +61,12 @@ describe('Message', () => {
         const admin = await makeLoggedInAdminClient()
         const [obj, attrs] = await createTestMessage(admin, { user: { connect: { id: client.user.id } } })
 
-        const objs = await Message.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
+        const objs = await Message.getAll(client, {
+            type: obj.type,
+        }, { sortBy: ['updatedAt_DESC'] })
 
-        expect(objs[1].type).toEqual(REGISTER_NEW_USER_MESSAGE_TYPE)
         expect(objs[0].type).toEqual(INVITE_NEW_EMPLOYEE_MESSAGE_TYPE)
-        expect(objs).toHaveLength(2)
+        expect(objs).toHaveLength(1)
         expect(objs[0].id).toMatch(obj.id)
         expect(objs[0].dv).toEqual(1)
         expect(objs[0].sender).toEqual(attrs.sender)
