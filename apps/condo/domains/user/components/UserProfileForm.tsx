@@ -21,7 +21,6 @@ const INPUT_LAYOUT_PROPS = {
         span: 15,
     },
     style: {
-        paddingBottom: '24px',
         maxWidth: '453px',
     },
 }
@@ -97,6 +96,8 @@ export const UserProfileForm = () => {
                                     >
                                         <Input/>
                                     </Form.Item>
+                                </Col>
+                                <Col span={24}>
                                     <Form.Item
                                         {...INPUT_LAYOUT_PROPS}
                                         labelAlign={'left'}
@@ -106,9 +107,13 @@ export const UserProfileForm = () => {
                                     >
                                         <Input placeholder={ExampleEmailMessage}/>
                                     </Form.Item>
+                                </Col>
+                                <Col span={24}>
                                     <Form.Item {...INPUT_LAYOUT_PROPS} labelAlign={'left'} label={PasswordLabel}>
                                         <UserPasswordResetButton/>
                                     </Form.Item>
+                                </Col>
+                                <Col span={24}>
                                     <Space size={40} style={{ paddingTop: '36px' }}>
                                         <FormResetButton
                                             type={'sberPrimary'}

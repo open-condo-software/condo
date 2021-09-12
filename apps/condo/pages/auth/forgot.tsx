@@ -68,6 +68,8 @@ const ResetPage: AuthPage = () => {
                     <Typography.Paragraph>
                         <FormattedMessage id='pages.auth.reset.ResetSuccessMessage' values={{ phone: form.getFieldValue('phone') }} />
                     </Typography.Paragraph>
+                </Col>
+                <Col span={24}>
                     <Typography.Paragraph>
                         <a style={LINK_STYLE} onClick={() => Router.push('/auth/signin')}>{ReturnToLoginPage}</a>
                     </Typography.Paragraph>
