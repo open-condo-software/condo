@@ -11,7 +11,7 @@ import { FormattedMessage } from 'react-intl'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { useMutation } from '@core/next/apollo'
 import { START_PASSWORD_RECOVERY_MUTATION } from '@condo/domains/user/gql'
-import { WRONG_EMAIL_ERROR } from '@condo/domains/user/constants/errors'
+import { WRONG_PHONE_ERROR } from '@condo/domains/user/constants/errors'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { LOCK_TIMEOUT } from '@condo/domains/user/constants/common'
 import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
@@ -33,8 +33,8 @@ const ResetPage: AuthPage = () => {
     const RestorePasswordMsg = intl.formatMessage({ id: 'pages.auth.reset.RestorePasswordTitle' })
     const ResetTitle = intl.formatMessage({ id: 'pages.auth.ResetTitle' })
     const InstructionsMsg = intl.formatMessage({ id: 'pages.auth.reset.ResetHelp' })
-    const EmailIsNotRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsNotRegistered' })
-    const CheckEmailMsg = intl.formatMessage({ id: 'pages.auth.reset.CheckEmail' })
+    const PhoneIsNotRegisteredMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsNotRegistered' })
+    const CheckPhoneMsg = intl.formatMessage({ id: 'pages.auth.reset.CheckPhone' })
     const ReturnToLoginPage = intl.formatMessage({ id: 'pages.auth.reset.ReturnToLoginPage' })
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
@@ -44,9 +44,9 @@ const ResetPage: AuthPage = () => {
     const [startPasswordRecovery] = useMutation(START_PASSWORD_RECOVERY_MUTATION)
 
     const ErrorToFormFieldMsgMapping = {
-        [WRONG_EMAIL_ERROR]: {
-            name: 'email',
-            errors: [EmailIsNotRegisteredMsg],
+        [WRONG_PHONE_ERROR]: {
+            name: 'phone',
+            errors: [PhoneIsNotRegisteredMsg],
         },
     }
 
@@ -60,15 +60,19 @@ const ResetPage: AuthPage = () => {
     }
     if (isSuccessMessage) {
         return (
-            <div style={{ textAlign: 'left' }}>
-                <Typography.Title>{CheckEmailMsg}</Typography.Title>
-                <Typography.Paragraph>
-                    <FormattedMessage id='pages.auth.reset.ResetSuccessMessage' values={{ email: form.getFieldValue('email') }} />
-                </Typography.Paragraph>
-                <Typography.Paragraph>
-                    <a style={LINK_STYLE} onClick={() => Router.push('/auth/signin')}>{ReturnToLoginPage}</a>
-                </Typography.Paragraph>
-            </div>
+            <Row gutter={[0, 40]}>
+                <Col span={24}>
+                    <Typography.Title>{CheckPhoneMsg}</Typography.Title>
+                </Col>
+                <Col span={24}>
+                    <Typography.Paragraph>
+                        <FormattedMessage id='pages.auth.reset.ResetSuccessMessage' values={{ phone: form.getFieldValue('phone') }} />
+                    </Typography.Paragraph>
+                    <Typography.Paragraph>
+                        <a style={LINK_STYLE} onClick={() => Router.push('/auth/signin')}>{ReturnToLoginPage}</a>
+                    </Typography.Paragraph>
+                </Col>
+            </Row>
         )
     }
 
@@ -76,10 +80,7 @@ const ResetPage: AuthPage = () => {
         setIsLoading(true)
         const sender = getClientSideSenderInfo()
         const dv = 1
-        const values = { ...form.getFieldsValue(['email']), dv, sender }
-        if (values.email) {
-            values.email = values.email.toLowerCase().trim()
-        }
+        const values = { ...form.getFieldsValue(['phone']), dv, sender }
         return runMutation({
             mutation: startPasswordRecovery,
             variables: { data: values },
