@@ -94,12 +94,10 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 // we need to check if user has email
                 const { email } = await getById('User', users[0].id)
                 const sendChannels = [{
-                    transport: SMS_TRANSPORT,
                     to: { phone },
                 }]
                 if (!isEmpty(email)) {
                     sendChannels.push({
-                        transport: EMAIL_TRANSPORT,
                         to: { email },
                     })
                 }
@@ -113,7 +111,6 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                             },
                             ...channel.to,
                         },
-                        //transport: channel.transport,
                         type: RESET_PASSWORD_MESSAGE_TYPE,
                         meta: {
                             token: extraToken,
