@@ -23,7 +23,6 @@ const INPUT_LAYOUT_PROPS = {
         span: 13,
     },
     style: {
-        paddingBottom: '24px',
         maxWidth: '453px',
     },
 }
