@@ -26,10 +26,10 @@ const ShareTicketService = new GQLCustomSchema('ShareTicketService', {
                 const { data } = args
                 const { users, ticketId, sender } = data
                 const [ticket] = await Ticket.getAll(context, { id: ticketId })
-                const employess = await OrganizationEmployee.getAll(context, { id_in: users })
+                const employees = await OrganizationEmployee.getAll(context, { id_in: users })
                 const lang = COUNTRIES[RUSSIA_COUNTRY].locale
 
-                await Promise.all(employess.map( employee => {
+                await Promise.all(employees.map( employee => {
                     return sendMessage(context, {
                         lang,
                         to: {
