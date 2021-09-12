@@ -35,7 +35,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
         },
         {
             access: true,
-            type: 'type ChangePasswordWithTokenOutput { status: String!, email: String! }',
+            type: 'type ChangePasswordWithTokenOutput { status: String!, phone: String! }',
         },
 
     ],
@@ -113,7 +113,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                             },
                             ...channel.to,
                         },
-                        transport: channel.transport,
+                        //transport: channel.transport,
                         type: RESET_PASSWORD_MESSAGE_TYPE,
                         meta: {
                             token: extraToken,
@@ -147,7 +147,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 }
 
                 const userId = action.user.id
-                const { email } = await getById('User', userId)
+                const { phone } = await getById('User', userId)
                 const tokenId = action.id
 
                 // mark token as used
@@ -159,7 +159,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     password,
                 })
 
-                return { status: 'ok', email }
+                return { status: 'ok', phone }
             },
         },
     ],

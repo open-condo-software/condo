@@ -22,6 +22,7 @@ const DEFAULT_TEST_ADMIN_SECRET = conf.DEFAULT_TEST_ADMIN_SECRET || '3a74b3f0797
 const TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS = conf.TESTS_FAKE_CLIENT_MODE && conf.TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS
 const TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS = !conf.TESTS_FAKE_CLIENT_MODE && conf.TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS
 const TESTS_REAL_CLIENT_REMOTE_API_URL = conf.TESTS_REAL_CLIENT_REMOTE_API_URL || `http://127.0.0.1:3000${API_PATH}`
+const { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } = require('@condo/domains/user/gql.js')
 
 const SIGNIN_MUTATION = gql`
     mutation sigin($identity: String, $secret: String) {
@@ -241,19 +242,34 @@ const makeLoggedInClient = async (args) => {
             password: DEFAULT_TEST_USER_SECRET,
         }
     }
-    if (!args.email && !args.password) throw new Error('no credentials')
+    if (!(args.email || args.phone) && !args.password) throw new Error('no credentials')
     const client = await makeClient()
-    const { data, errors } = await client.mutate(SIGNIN_MUTATION, {
-        identity: args.email,
-        secret: args.password,
-    })
-    if (errors && errors.length > 0) {
-        throw new Error(errors[0].message)
-    }
-    client.user = {
-        email: args.email,
-        password: args.password,
-        id: data.auth.user.id,
+    if (args.email) {
+        const {data, errors} = await client.mutate(SIGNIN_MUTATION, {
+            identity: args.email,
+            secret: args.password,
+        })
+        if (errors && errors.length > 0) {
+            throw new Error(errors[0].message)
+        }
+        client.user = {
+            email: args.email,
+            password: args.password,
+            id: data.auth.user.id,
+        }
+    } else if (args.phone) {
+        const {data, errors} = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, {
+            phone: args.phone,
+            password: args.password,
+        })
+        if (errors && errors.length > 0) {
+            throw new Error(errors[0].message)
+        }
+        client.user = {
+            phone: args.phone,
+            password: args.password,
+            id: data.obj.item.id,
+        }
     }
     return client
 }
