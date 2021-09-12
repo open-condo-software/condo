@@ -1,5 +1,5 @@
 const { GQLCustomSchema } = require('@core/keystone/schema')
-const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/constants')
+const { REGISTER_NEW_USER_MESSAGE_TYPE, SMS_TRANSPORT, EMAIL_TRANSPORT } = require('@condo/domains/notification/constants')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
@@ -88,16 +88,28 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                 if (confirmPhoneActionToken) {
                     await ConfirmPhoneActionServerUtils.update(context, confirmPhoneActionId, { completedAt: new Date().toISOString() })
                 }
+                const sendChannels = [{
+                    transport: SMS_TRANSPORT,
+                    to: { phone: userData.phone },
+                }]
                 if (!isEmpty(userData.email)) {
-                    // TODO(Dimitreee): use locale from .env
-                    const lang = COUNTRIES[RUSSIA_COUNTRY].locale
+                    sendChannels.push({
+                        transport: EMAIL_TRANSPORT,
+                        to: { email: userData.email },
+                    })
+                }
+                // TODO(Dimitreee): use locale from .env
+                const lang = COUNTRIES[RUSSIA_COUNTRY].locale
+                await Promise.all(sendChannels.map(async channel => {
                     await sendMessage(context, {
                         lang,
                         to: {
                             user: {
-                                id: user.id,
+                                id: userId,
                             },
+                            ...channel.to,
                         },
+                        //transport: channel.transport,
                         type: REGISTER_NEW_USER_MESSAGE_TYPE,
                         meta: {
                             userPassword: userData.password,
@@ -106,7 +118,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                         },
                         sender: data.sender,
                     })
-                }
+                }))
                 return user
             },
         },
