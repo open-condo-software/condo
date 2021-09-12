@@ -4989,7 +4989,7 @@ export type ChangePasswordWithTokenInput = {
 export type ChangePasswordWithTokenOutput = {
   __typename?: 'ChangePasswordWithTokenOutput';
   status: Scalars['String'];
-  email: Scalars['String'];
+  phone: Scalars['String'];
 };
 
 export type ChangePhoneNumberResidentUserInput = {

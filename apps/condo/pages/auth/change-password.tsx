@@ -68,7 +68,7 @@ const ChangePasswordPage: AuthPage = () => {
             }),
         ],
     }
-    const { signInByEmail } = useContext(AuthLayoutContext)
+    const { signInByPhone } = useContext(AuthLayoutContext)
 
     const onFinish = (values: typeof initialValues) => {
         setIsSaving(true)
@@ -77,8 +77,8 @@ const ChangePasswordPage: AuthPage = () => {
             mutation: changePassword,
             variables: { data: { token, password } },
             onCompleted: async ({ data: { result } }) => {
-                await signInByEmail({
-                    email: result.email,
+                await signInByPhone({
+                    phone: result.phone,
                     password: form.getFieldValue('password'),
                 }, () => {
                     auth.refetch().then(() => {
@@ -134,9 +134,10 @@ const ChangePasswordPage: AuthPage = () => {
         <Row gutter={[0, 40]}>
             <Col span={24}>
                 <Typography.Title style={{ textAlign: 'left' }}>{ResetTitle}</Typography.Title>
+            </Col>
+            <Col span={24}>
                 <Typography.Paragraph style={{ textAlign: 'left' }} >{CreateNewPasswordMsg}</Typography.Paragraph>
             </Col>
-
             <Col span={24}>
                 <Form
                     {...FORM_LAYOUT}
@@ -145,6 +146,7 @@ const ChangePasswordPage: AuthPage = () => {
                     onFinish={onFinish}
                     initialValues={initialValues}
                     colon={false}
+                    labelAlign='left'
                     requiredMark={false}
                 >
                     <Row gutter={[0, 60]}>
@@ -157,7 +159,6 @@ const ChangePasswordPage: AuthPage = () => {
                                     <Form.Item
                                         name="password"
                                         label={PasswordMsg}
-                                        labelAlign='left'
                                         rules={validations.password}
                                     >
                                         <Input.Password />
@@ -167,7 +168,6 @@ const ChangePasswordPage: AuthPage = () => {
                                     <Form.Item
                                         name="confirm"
                                         label={ConfirmPasswordMsg}
-                                        labelAlign='left'
                                         dependencies={['password']}
                                         rules={validations.confirmPassword}
                                     >
