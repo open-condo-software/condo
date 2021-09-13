@@ -1,4 +1,4 @@
-import { Button, Col, DatePicker, Form, Input, Row, Select, Space, Typography } from 'antd'
+import { Button, Col, Form, Input, Row, Select, Space, Typography } from 'antd'
 import React, { useState } from 'react'
 import { IMeterResourceUIState } from '../../utils/clientSchema/MeterResource'
 import { useIntl } from '@core/next/intl'
@@ -6,6 +6,7 @@ import { ChevronIcon } from '@condo/domains/common/components/icons/ChevronIcon'
 import { ELECTRICITY_METER_RESOURCE_ID } from '../../constants/constants'
 import styled from '@emotion/styled'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 
 const { Option } = Select
 

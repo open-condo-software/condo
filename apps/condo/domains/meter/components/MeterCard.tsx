@@ -3,11 +3,11 @@ import styled from '@emotion/styled'
 import { Alert, Col, Divider, Form, Input, Row, Space, Typography } from 'antd'
 import { resourceIdToIcon } from '../utils/clientSchema'
 import React from 'react'
-import { css } from '@emotion/core'
 import { BillingAccountMeterReading } from '../../../schema'
 import { IMeterFormState } from '../utils/clientSchema/Meter'
 import dayjs from 'dayjs'
 import { useIntl } from '@core/next/intl'
+import { fontSizes } from '@condo/domains/common/constants/style'
 
 type MeterCardProps = {
     meter: IMeterFormState
@@ -36,9 +36,9 @@ export const MeterCard = ({ meter, resource, name, lastMeterBillingMeterReading 
                 <Col span={24}>
                     <Row justify={'space-between'}>
                         <Col>
-                            <Space style={{ fontSize: '20px' }}>
-                                <Icon css={css` width: 30px; height: 30px `} />
-                                <Typography.Text style={{ fontSize: '16px' }} strong={true}>
+                            <Space>
+                                <Icon style={{ fontSize: '20px' }} />
+                                <Typography.Text style={{ fontSize: fontSizes.content }} strong={true}>
                                     {resource.name}
                                 </Typography.Text>
                             </Space>
@@ -83,7 +83,7 @@ export const MeterCard = ({ meter, resource, name, lastMeterBillingMeterReading 
                                                 name={[name, `value${tariffNumber}`]}
                                                 label={
                                                     `№ ${meter.number} ${meter.place ? `(${meter.place})` : ''}
-                                                        ${numberOfTariffs > 1 ? `T-${tariffNumber}` : ''}`
+                                                        ${numberOfTariffs > 1 ? `T${tariffNumber}` : ''}`
                                                 }
                                             >
                                                 <Input
