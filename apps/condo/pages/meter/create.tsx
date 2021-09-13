@@ -5,7 +5,7 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { Typography, Row, Col } from 'antd'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
-import { CreateMeterReadingsForm } from '../../domains/meter/components/CreateMeterReadingsForm'
+import { CreateMeterReadingsForm } from '@condo/domains/meter/components/CreateMeterReadingsForm'
 import { useOrganization } from '@core/next/organization'
 
 interface ICreateContactPage extends React.FC {

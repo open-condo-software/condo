@@ -1,6 +1,6 @@
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import styled from '@emotion/styled'
-import { Alert, Col, Divider, Form, Input, Row, Space, Typography } from 'antd'
+import { Col, Divider, Form, Input, Row, Space, Typography } from 'antd'
 import { resourceIdToIcon } from '../utils/clientSchema'
 import React from 'react'
 import { css } from '@emotion/core'
