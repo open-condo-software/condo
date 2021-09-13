@@ -7,6 +7,8 @@ import { MeterInfo } from '../createMeterModal/MeterInfo'
 import { resourceIdToCreateMeterTitleId } from '../../utils/clientSchema'
 import { FormattedMessage } from 'react-intl'
 import { IMeterResourceUIState } from '../../utils/clientSchema/MeterResource'
+import { useValidations } from '../../../common/hooks/useValidations'
+import { Modal } from 'antd'
 
 type MeterInfoModalTitleProps = {
     resourceId: string
@@ -43,39 +45,43 @@ export const useCreateMeterModal = ()=> {
         setSelectedMeterResourceId(null)
     }, [isCreateMeterModalVisible])
 
-    const CreateMeterModal = ({ addMeterToFormAction, resources }: CreateMeterModalProps) => (
-        <BaseModalForm
-            visible={isCreateMeterModalVisible}
-            cancelModal={() => setIsCreateMeterModalVisible(false)}
-            ModalTitleMsg={
-                !selectedMeterResourceId ?
-                    ChooseServiceMessage :
-                    <MeterInfoModalTitle resourceId={selectedMeterResourceId} />
-            }
-            ModalSaveButtonLabelMsg={AddMessage}
-            showCancelButton={false}
-            validateTrigger={['onBlur', 'onSubmit']}
-            handleSubmit={
-                (values) => {
-                    addMeterToFormAction({ ...values, resource: selectedMeterResourceId })
-                    setIsCreateMeterModalVisible(false)
+    const CreateMeterModal = ({ addMeterToFormAction, resources }: CreateMeterModalProps) => {
+
+        return !selectedMeterResourceId ? (
+            <Modal
+                title={ChooseServiceMessage}
+                visible={isCreateMeterModalVisible}
+                centered={true}
+                footer={[]}
+                onCancel={() => setIsCreateMeterModalVisible(false)}
+            >
+                <ResourcesList
+                    resources={resources}
+                    setSelectedMeterResource={setSelectedMeterResourceId}
+                />
+            </Modal>
+        ) : (
+            <BaseModalForm
+                visible={isCreateMeterModalVisible}
+                cancelModal={() => setIsCreateMeterModalVisible(false)}
+                ModalTitleMsg={<MeterInfoModalTitle resourceId={selectedMeterResourceId}/>}
+                ModalSaveButtonLabelMsg={AddMessage}
+                showCancelButton={false}
+                validateTrigger={['onBlur', 'onSubmit']}
+                handleSubmit={
+                    (values) => {
+                        addMeterToFormAction({ ...values, resource: selectedMeterResourceId })
+                        setIsCreateMeterModalVisible(false)
+                    }
                 }
-            }
-        >
-            {
-                !selectedMeterResourceId ? (
-                    <ResourcesList
-                        resources={resources}
-                        setSelectedMeterResource={setSelectedMeterResourceId}
-                    />
-                ) : (
-                    <MeterInfo
-                        resource={resources.find(resource => resource.id === selectedMeterResourceId)}
-                    />
-                )
-            }
-        </BaseModalForm>
-    )
+            >
+
+                <MeterInfo
+                    resource={resources.find(resource => resource.id === selectedMeterResourceId)}
+                />
+            </BaseModalForm>
+        )
+    }
 
     return {
         CreateMeterModal,
