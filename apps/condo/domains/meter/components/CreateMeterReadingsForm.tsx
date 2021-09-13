@@ -25,6 +25,8 @@ import { MeterCard } from './MeterCard'
 import { convertToUIFormState, IMeterFormState } from '../utils/clientSchema/Meter'
 import { useRouter } from 'next/router'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { SortBillingAccountMeterReadingsBy } from '../../../schema'
+import { BillingAccountMeterReading } from '../../billing/utils/clientSchema'
 
 export const LAYOUT = {
     labelCol: { span: 8 },
@@ -191,10 +193,9 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         role,
     })
 
-    const {
-        obj: property,
-        loading: propertyLoading,
-    } = useObject({ where: { id: selectedPropertyId ? selectedPropertyId : null } })
+    const { obj: property, loading: propertyLoading } = useObject({
+        where: { id: selectedPropertyId ? selectedPropertyId : null },
+    })
 
     const { objs: existedMeters, loading: existedMetersLoading, refetch } = Meter.useObjects({
         where: {
@@ -203,18 +204,18 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         },
     })
 
+    const { objs: billingMeterReadings, loading: billingMeterReadingsLoading } = BillingAccountMeterReading.useObjects({
+        where: {
+            account: { number: accountNumber },
+        },
+        sortBy: [SortBillingAccountMeterReadingsBy.CreatedAtDesc],
+    })
+
+    console.log('billingMeterReadings', billingMeterReadings)
+
     const { objs: resources, loading: resourcesLoading } = MeterResource.useObjects({})
 
     const isNoExistedMetersInThisUnit = existedMeters.length === 0
-
-    // const existingMetersAccounts = existingMeters.map(meter => meter.accountNumber)
-
-    // const { objs: billingMeterReadings, loading: billingMeterReadingsLoading } = BillingAccountMeterReading.useObjects({
-    //     where: {
-    //         meter: { account: { number_in: existingMetersAccounts } },
-    //     },
-    //     sortBy: [SortBillingAccountMeterReadingsBy.CreatedAtDesc],
-    // })
 
     useEffect(() => {
         if (existedMeters.length > 0) {
@@ -384,7 +385,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                 </Row>
                             </Col>
                             {
-                                existedMetersLoading || resourcesLoading ? <Loader/> :
+                                existedMetersLoading || resourcesLoading || !billingMeterReadingsLoading ? <Loader/> :
                                     !selectedUnitName ? null :
                                         !accountNumber && !isAccountNumberIntroduced ?
                                             <EmptyAccountView
@@ -409,6 +410,9 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                                                 return existedMeters.map((existedMeter) => {
                                                                     const meter = convertToUIFormState(existedMeter)
                                                                     const resource = resources.find(resource => resource.id === meter.resource)
+                                                                    const lastMeterBillingMeterReading = billingMeterReadings.find(
+                                                                        meterReading => meterReading.meter.number === meter.number
+                                                                    )
 
                                                                     return (
                                                                         <Col span={24} key={existedMeter.id}>
@@ -416,6 +420,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                                                                 meter={meter}
                                                                                 resource={resource}
                                                                                 name={meter.id}
+                                                                                lastMeterBillingMeterReading={lastMeterBillingMeterReading}
                                                                             />
                                                                         </Col>
                                                                     )
