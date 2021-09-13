@@ -392,9 +392,15 @@ const BaseModalForm: FunctionComponent<IBaseModalFormProps> = ({
         footer={[
             ...modalExtraFooter,
             ...Buttons,
-            <Button key="submit" onClick={() => {
-                handleSaveRef.current()
-            }} type="sberPrimary" >{SaveMessage}</Button>,
+            <Button
+                key="submit"
+                onClick={() => {
+                    handleSaveRef.current()
+                }}
+                type="sberPrimary"
+            >
+                {SaveMessage}
+            </Button>,
         ]}
         centered
     >

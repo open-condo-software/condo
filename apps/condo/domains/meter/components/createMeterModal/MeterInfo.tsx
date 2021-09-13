@@ -5,6 +5,7 @@ import { useIntl } from '@core/next/intl'
 import { ChevronIcon } from '../../../common/components/icons/ChevronIcon'
 import { ELECTRICITY_METER_RESOURCE_ID } from '../../constants/constants'
 import styled from '@emotion/styled'
+import { useValidations } from '../../../common/hooks/useValidations'
 
 const { Option } = Select
 
@@ -44,6 +45,8 @@ export const MeterInfo = ({ resource }: MeterInfoProps) => {
     const SealingDateMessage = intl.formatMessage({ id: 'pages.condo.meter.SealingDate' })
     const VerificationDate = intl.formatMessage({ id: 'pages.condo.meter.VerificationDate' })
 
+    const validations = useValidations()
+
     const [isAdditionalFieldsCollapsed, setIsAdditionalFieldsCollapsed] = useState<boolean>(true)
 
     const isElectricityMeter = resource.id === ELECTRICITY_METER_RESOURCE_ID
@@ -56,7 +59,8 @@ export const MeterInfo = ({ resource }: MeterInfoProps) => {
                         <Form.Item
                             label={MeterNumberMessage}
                             name='number'
-                            required={true}
+                            // required={true}
+                            rules={[validations.requiredValidator]}
                         >
                             <Input />
                         </Form.Item>
@@ -73,7 +77,8 @@ export const MeterInfo = ({ resource }: MeterInfoProps) => {
                         isElectricityMeter ? (
                             <Col span={METER_INFO_INPUT_COL_SPAN}>
                                 <Form.Item
-                                    required={isElectricityMeter}
+                                    // required={isElectricityMeter}
+                                    rules={[validations.requiredValidator]}
                                     hidden={!isElectricityMeter}
                                     label={TariffsCountMessage}
                                     name='numberOfTariffs'
