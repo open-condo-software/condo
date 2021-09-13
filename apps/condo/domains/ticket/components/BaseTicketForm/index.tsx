@@ -9,6 +9,9 @@ import { FormWithAction } from '@condo/domains/common/components/containers/Form
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { UnitNameInput } from '@condo/domains/user/components/UnitNameInput'
+import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
+import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
+import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { useTicketValidations } from './useTicketValidations'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
@@ -21,6 +24,8 @@ import { InputWithCounter } from '@condo/domains/common/components/InputWithCoun
 import Prompt from '@condo/domains/common/components/Prompt'
 import { IOrganizationEmployeeRoleUIState } from '@condo/domains/organization/utils/clientSchema/OrganizationEmployeeRole'
 import { IOrganizationUIState } from '@condo/domains/organization/utils/clientSchema/Organization'
+import { AutoAssignerByDivisions } from './AutoAssignerByDivisions'
+import { UnitInfo } from '@condo/domains/common/components/UnitInfo'
 import { TicketAssignments } from './TicketAssignments'
 
 const { TabPane } = Tabs
@@ -28,64 +33,6 @@ const { TabPane } = Tabs
 export const LAYOUT = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
-}
-
-export const UnitInfo = ({ property, loading, setSelectedUnitName, form }) => {
-    const intl = useIntl()
-    const FlatNumberLabel = intl.formatMessage({ id: 'field.FlatNumber' })
-    const SectionNameLabel = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
-    const FloorNameLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
-
-    const updateSectionAndFloor = (form, unitName) => {
-        if (unitName) {
-            const sections = get(property, ['map', 'sections'], [])
-            for (const section of sections) {
-                for (const floor of section.floors) {
-                    for (const unit of floor.units) {
-                        if (unit.label === unitName) {
-                            return form.setFieldsValue({ sectionName: section.name, floorName: floor.name })
-                        }
-                    }
-                }
-            }
-        }
-        form.setFieldsValue({ sectionName: null, floorName: null })
-    }
-
-    return (
-        <Col span={16}>
-            <Row justify={'space-between'}>
-                <Col span={6}>
-                    <Form.Item name={'unitName'} label={FlatNumberLabel}>
-                        <UnitNameInput
-                            property={property}
-                            loading={loading}
-                            allowClear={true}
-                            onChange={(_, option) => {
-                                if (!option) {
-                                    setSelectedUnitName(null)
-                                    updateSectionAndFloor(form, null)
-                                } else {
-                                    setSelectedUnitName(option.key)
-                                    updateSectionAndFloor(form, option.key)
-                                }
-                            }}
-                        />
-                    </Form.Item>
-                </Col>
-                <Col span={6}>
-                    <Form.Item name={'sectionName'} label={SectionNameLabel}>
-                        <Input disabled/>
-                    </Form.Item>
-                </Col>
-                <Col span={6}>
-                    <Form.Item name={'floorName'} label={FloorNameLabel}>
-                        <Input disabled/>
-                    </Form.Item>
-                </Col>
-            </Row>
-        </Col>
-    )
 }
 
 export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, initialValues }) => {

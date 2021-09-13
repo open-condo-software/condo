@@ -11,14 +11,13 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
 import { Meter, MeterReading, MeterResource } from '../utils/clientSchema'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
-import { UnitInfo } from '@condo/domains/ticket/components/BaseTicketForm'
 import { get } from 'lodash'
 import {
     CALL_METER_READING_SOURCE_ID,
 } from '../constants/constants'
 import styled from '@emotion/styled'
 import { PlusCircleFilled } from '@ant-design/icons'
-import { AccountNumberInput, EmptyAccountView } from './AccountNumberInput'
+import { AccountNumberInput } from './AccountNumberInput'
 import { useCreateMeterModal } from './hooks/useCreateMeterModal'
 import { FormListOperation } from 'antd/lib/form/FormList'
 import { MeterCard } from './MeterCard'
@@ -28,6 +27,7 @@ import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { SortBillingAccountMeterReadingsBy } from '../../../schema'
 import { BillingAccountMeterReading } from '@condo/domains/billing/utils/clientSchema'
 import { IMeterReadingFormState } from '../utils/clientSchema/MeterReading'
+import { UnitInfo } from '../../common/components/UnitInfo'
 
 export const LAYOUT = {
     labelCol: { span: 8 },
