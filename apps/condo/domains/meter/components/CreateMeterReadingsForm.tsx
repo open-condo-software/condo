@@ -231,10 +231,10 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         canCreateContactRef.current = canCreateContact
     }, [canCreateContact])
 
-    const meterFormListOperationsRef = useRef(meterFormListOperations)
-    useEffect(() => {
-        meterFormListOperationsRef.current = meterFormListOperations
-    }, [meterFormListOperations])
+    // const meterFormListOperationsRef = useRef(meterFormListOperations)
+    // useEffect(() => {
+    //     meterFormListOperationsRef.current = meterFormListOperations
+    // }, [meterFormListOperations])
 
     const isNoExistingMetersInThisUnit = existingMeters.length === 0
 
@@ -414,7 +414,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                                     </Form.List>
                                                     <Form.List name={'newMeters'}>
                                                         {(fields, operations) => {
-                                                            if (!meterFormListOperationsRef.current) setMeterFormListOperations(operations)
+                                                            if (!meterFormListOperations) setMeterFormListOperations(operations)
 
                                                             return fields.map((field, index) => {
                                                                 const newMeter = form.getFieldValue(['newMeters', index])
@@ -447,8 +447,8 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
 
                     <CreateMeterModal
                         addMeterToFormAction={
-                            meterFormListOperationsRef.current ?
-                                meterFormListOperationsRef.current.add :
+                            meterFormListOperations ?
+                                meterFormListOperations.add :
                                 null
                         }
                         resources={resources}
