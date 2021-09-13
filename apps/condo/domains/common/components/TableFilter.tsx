@@ -44,8 +44,10 @@ export const getTextFilterDropdown = (columnName: string, setFiltersApplied: Rea
             showClearButton={selectedKeys && selectedKeys.length > 0}>
             <Input
                 placeholder={columnName}
+                // @ts-ignore
                 value={selectedKeys}
                 onChange={(e) => {
+                    // @ts-ignore
                     setSelectedKeys(e.target.value)
                     setFiltersApplied(true)
                     confirm({ closeDropdown: false })
