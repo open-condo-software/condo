@@ -231,17 +231,12 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         canCreateContactRef.current = canCreateContact
     }, [canCreateContact])
 
-    const existingMetersRef = useRef(existingMeters)
-    useEffect(() => {
-        existingMetersRef.current = existingMeters
-    }, [existingMeters])
-
     const meterFormListOperationsRef = useRef(meterFormListOperations)
     useEffect(() => {
         meterFormListOperationsRef.current = meterFormListOperations
     }, [meterFormListOperations])
 
-    const isNoExistingMetersInThisUnit = existingMetersRef.current.length === 0
+    const isNoExistingMetersInThisUnit = existingMeters.length === 0
 
     const createMeterAction = Meter.useCreate({}, () => {
         return
