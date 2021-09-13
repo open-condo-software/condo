@@ -38,16 +38,15 @@ export const FilterContainer: React.FC<IFilterContainerProps> = (props) => {
 export const getFilterIcon = filtered => <FilterFilled style={{ color: filtered ? colors.sberPrimary[5] : undefined }} />
 
 export const getTextFilterDropdown = (columnName: string, setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>) => {
-
     const TextFilterDropdown = ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: FilterDropdownProps) => (
         <FilterContainer
             clearFilters={clearFilters}
             showClearButton={selectedKeys && selectedKeys.length > 0}>
             <Input
                 placeholder={columnName}
-                value={selectedKeys[0]}
+                value={selectedKeys}
                 onChange={(e) => {
-                    setSelectedKeys(e.target.value ? [e.target.value] : [])
+                    setSelectedKeys(e.target.value)
                     setFiltersApplied(true)
                     confirm({ closeDropdown: false })
                 }}
