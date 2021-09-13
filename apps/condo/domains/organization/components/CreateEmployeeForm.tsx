@@ -224,32 +224,6 @@ export const CreateEmployeeForm: React.FC = () => {
                                                 </Form.Item>
                                             </Row>
                                         </Col>
-                                        <Col span={24}>
-                                            <Form.Item noStyle dependencies={['phone', 'email']}>
-                                                {
-                                                    ({ getFieldsValue }) => {
-                                                        const { phone } = getFieldsValue(['phone'])
-
-                                                        return (
-                                                            <Row gutter={[0, 24]}>
-                                                                <ErrorsContainer phone={phone}  />
-                                                                <Col span={24}>
-                                                                    <Button
-                                                                        key='submit'
-                                                                        onClick={handleSave}
-                                                                        type='sberPrimary'
-                                                                        loading={isLoading}
-                                                                        disabled={!phone}
-                                                                    >
-                                                                        {InviteEmployeeLabel}
-                                                                    </Button>
-                                                                </Col>
-                                                            </Row>
-                                                        )
-                                                    }
-                                                }
-                                            </Form.Item>
-                                        </Col>
                                     </Row>
                                 </Col>
                                 <Col span={10}>
