@@ -3,6 +3,7 @@ import { jsx } from '@emotion/core'
 import React, { createContext, CSSProperties, FunctionComponent, useContext, useState } from 'react'
 import { Layout, PageHeader as AntPageHeader, PageHeaderProps } from 'antd'
 import { useTopNotificationsHook, ITopNotification } from '@condo/domains/common/components/TopNotifications'
+import { detectMobileNavigator } from '@condo/domains/common/utils/navigator'
 import { SideMenu } from './components/SideMenu'
 import Router from 'next/router'
 import classnames from 'classnames'
@@ -35,13 +36,6 @@ interface IBaseLayoutProps {
     TopMenuItems?: React.FC<ITopMenuItemsProps>
     logoLocation?: string
     onLogoClick?: () => void
-}
-
-const detectMobileNavigator = () => {
-    return (
-        typeof window !== 'undefined'
-        && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(window.navigator.userAgent)
-    )
 }
 
 const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
