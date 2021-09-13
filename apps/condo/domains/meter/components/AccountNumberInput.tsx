@@ -57,7 +57,7 @@ export const AccountNumberInput = ({ accountNumber, setAccountNumber, existingMe
     ) : (
         <Col span={24}>
             <Row justify={'center'}>
-                <Col span={8} style={{ padding: '100px 0' }}>
+                <Col span={8} style={{ padding: '80px 0' }}>
                     <BasicEmptyListView>
                         <Typography.Title level={3}>
                             {NoAccountNumber}

@@ -22,7 +22,7 @@ export const useCreateAccountModal = ()=> {
             validateTrigger={['onBlur', 'onSubmit']}
             handleSubmit={
                 (values) => {
-                    console.log('values', values.accountNumber)
+                    console.log('values', values)
                     setAccountNumber(values.accountNumber)
                     setIsCreateAccountModalVisible(false)
                 }
