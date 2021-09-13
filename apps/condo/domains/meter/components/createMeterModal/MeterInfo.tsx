@@ -10,9 +10,10 @@ import { useValidations } from '@condo/domains/common/hooks/useValidations'
 const { Option } = Select
 
 const METER_INFO_INPUT_COL_SPAN = 11
+const TARIFFS_NUMBER = 4
 
 const getTariffNumberSelectOptions = () => {
-    return Array.from({ length: 4 }, (_, i) => i + 1)
+    return Array.from({ length: TARIFFS_NUMBER }, (_, i) => i + 1)
         .map(number => (
             <Option key={number} value={number}>
                 {number}
@@ -60,7 +61,12 @@ export const MeterInfo = ({ resource }: MeterInfoProps) => {
     const VerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.VerificationDate' })
     const NextVerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.NextVerificationDate' })
 
-    const validations = useValidations()
+    const { requiredValidator } = useValidations()
+
+    const validations = {
+        number: [requiredValidator],
+        numberOfTariffs: [requiredValidator],
+    }
 
     const [isAdditionalFieldsCollapsed, setIsAdditionalFieldsCollapsed] = useState<boolean>(true)
 
@@ -74,7 +80,7 @@ export const MeterInfo = ({ resource }: MeterInfoProps) => {
                         <Form.Item
                             label={MeterNumberMessage}
                             name='number'
-                            rules={[validations.requiredValidator]}
+                            rules={validations.number}
                         >
                             <Input />
                         </Form.Item>
@@ -91,7 +97,7 @@ export const MeterInfo = ({ resource }: MeterInfoProps) => {
                         isElectricityMeter ? (
                             <Col span={METER_INFO_INPUT_COL_SPAN}>
                                 <Form.Item
-                                    rules={[validations.requiredValidator]}
+                                    rules={validations.numberOfTariffs}
                                     hidden={!isElectricityMeter}
                                     label={TariffsCountMessage}
                                     name='numberOfTariffs'

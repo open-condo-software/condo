@@ -11,8 +11,7 @@ const ResourceCardContainer = styled(FocusContainer)`
   transition: ${transitions.allDefault};
   
     &:hover {
-      // TODO(nomerdvadcatpyat): change .hover to .elevated when pr #555 will be merged into master
-      box-shadow: ${shadows.hover};
+      box-shadow: ${shadows.elevated};
       
       span {
         transition: ${transitions.allDefault};

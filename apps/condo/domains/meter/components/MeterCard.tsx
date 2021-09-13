@@ -57,7 +57,7 @@ export const MeterCard = ({ meter, resource, name, lastMeterBillingMeterReading 
                                                     </Typography.Text>
                                                     &nbsp;
                                                     <Typography.Text strong={true} type={'warning'}>
-                                                        {dayjs(meter.nextVerificationDate).format('D.MM.YYYY')}
+                                                        {dayjs(meter.nextVerificationDate).format('DD.MM.YYYY')}
                                                     </Typography.Text>
                                                 </>
                                             }
