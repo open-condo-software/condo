@@ -70,14 +70,14 @@ describe('AllResidentBillingReceipts', () => {
             unitName: billingAccountAttrsA.unitName,
             accountNumber: billingAccountAttrsA.number,
         }
-        await registerServiceConsumerByTestClient(userClient, serviceConsumerPayloadA)
+        const [serviceConsumerA] = await registerServiceConsumerByTestClient(userClient, serviceConsumerPayloadA)
 
         const serviceConsumerPayloadA2 = {
             residentId: residentA.id,
             unitName: billingAccountAttrsA2.unitName,
             accountNumber: billingAccountAttrsA2.number,
         }
-        await registerServiceConsumerByTestClient(userClient, serviceConsumerPayloadA2)
+        const [serviceConsumerA2] = await registerServiceConsumerByTestClient(userClient, serviceConsumerPayloadA2)
 
         await createTestBillingReceipt(adminClient, contextA, billingPropertyA, billingAccountA)
         await createTestBillingReceipt(adminClient, contextA, billingPropertyA, billingAccountA2)
@@ -99,9 +99,9 @@ describe('AllResidentBillingReceipts', () => {
             unitName: billingAccountAttrsB.unitName,
             accountNumber: billingAccountAttrsB.number,
         }
-        await registerServiceConsumerByTestClient(userClient, payloadForServiceConsumerB)
+        const [serviceConsumerB] = await registerServiceConsumerByTestClient(userClient, payloadForServiceConsumerB)
 
-        await createTestBillingReceipt(adminClient, contextB, billingPropertyB, billingAccountB)
+        const [receipt] = await createTestBillingReceipt(adminClient, contextB, billingPropertyB, billingAccountB)
 
         // User get two receipts for his building A
         const objs = await ResidentBillingReceipt.getAll(userClient, { serviceConsumer: { resident: { id: residentA.id } } })

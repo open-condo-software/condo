@@ -42,7 +42,7 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { where, first, skip, sortBy } = args
 
-                const serviceConsumerWhere = get(where, 'serviceConsumer')
+                const serviceConsumerWhere = get(where, 'serviceConsumer', {})
                 const receiptsWhere = pick(where, ['id', 'period', 'toPay', 'printableNumber'])
 
                 const userId = get(context, ['authedItem', 'id'])
@@ -50,25 +50,15 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
                     throw new Error('Invalid user id!')
                 }
 
-                const { data: { allServiceConsumers }, errors: serviceConsumersQueryErrors } = await context.executeGraphQL({
-                    query: `
-                        query getAllServiceConsumer($where: ServiceConsumerWhereInput!) {
-                            allServiceConsumers(where: $where) {
-                                id
-                                billingAccount {
-                                    id
-                                }
-                            }     
-                        }
-                    `,
-                    variables: { where: serviceConsumerWhere },
-                })
-                if (serviceConsumersQueryErrors) {
-                    const msg = '[error] Can\'t get serviceConsumers for this user'
-                    throw new Error(msg)
+                // We can't really use getting service consumer with all access here, since we do not show billingAccount to our user
+                const GET_ONLY_OWN_SERVICE_CONSUMER_WHERE = { user: { id: userId } }
+                if (!serviceConsumerWhere.resident) {
+                    serviceConsumerWhere.resident = GET_ONLY_OWN_SERVICE_CONSUMER_WHERE
+                } else {
+                    serviceConsumerWhere.resident.user = GET_ONLY_OWN_SERVICE_CONSUMER_WHERE.user
                 }
 
-                // const allServiceConsumers = await ServiceConsumer.getAll({ ...serviceConsumerWhere, ...{ resident, } })
+                const allServiceConsumers = await ServiceConsumer.getAll(context, serviceConsumerWhere)
                 if (!Array.isArray(allServiceConsumers) || !allServiceConsumers.length) {
                     throw new Error('No serviceConsumers found for this user!')
                 }
