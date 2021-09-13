@@ -12,17 +12,22 @@ export type EchartsSeries = {
     stack?: string
     data: unknown[]
     label?: {
-        show: boolean
-        position: 'top' | 'bottom' | 'left' | 'right'
-        padding: number | number[]
-        width: number
-        height: number
+        show?: boolean
+        position?: 'top' | 'bottom' | 'left' | 'right'
+        padding?: number | number[]
+        width?: number
+        height?: number
     }
     emphasis?: {
         focus: string
         blurScope: string
     }
     symbol?: string
+    top?: number | string
+    left?: number | string
+    bottom?: number | string
+    right?: number | string
+    labelLayout?: unknown
 }
 
 export type ChartConfigResult = {

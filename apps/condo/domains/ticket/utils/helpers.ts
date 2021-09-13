@@ -477,11 +477,12 @@ interface IGetChartOptions {
         legend: string[],
         viewMode: ViewModeTypes,
         animationEnabled: boolean,
-        axisData?: ChartConfigResult['axisData'],
-        tooltip?: ChartConfigResult['tooltip'],
         series: ChartConfigResult['series'],
         chartOptions: EChartsReactProps['opts'],
-        color: string[]
+        color: string[],
+        axisData?: ChartConfigResult['axisData'],
+        tooltip?: ChartConfigResult['tooltip'],
+        showTitle?: boolean
     }): {
         option: EChartsOption,
         opts: unknown
@@ -496,7 +497,8 @@ export const getChartOptions: IGetChartOptions = ({
     viewMode,
     legend,
     chartOptions,
-    color }) => {
+    color,
+    showTitle = true }) => {
     const option = {
         animation: animationEnabled,
         color,
@@ -509,16 +511,27 @@ export const getChartOptions: IGetChartOptions = ({
         },
     }
     const opts = { ...chartOptions, renderer: 'svg' }
+    const legendLayout = {
+        x: 'left',
+        top: 10,
+        padding: [5, 135, 0, 0],
+        icon: 'circle',
+        itemWidth: 7,
+        itemHeight: 7,
+        textStyle: { fontSize: fontSizes.content },
+        itemGap: 28,
+        data: legend,
+    }
 
     const chartStyle = {}
 
     if (viewMode === 'pie') {
-        option['legend'] = { data: legend, show: false }
+        option['legend'] = showTitle ? { data: legend, show: false } : legendLayout
         option['tooltip'] = { trigger: 'item', borderColor: '#fff' }
 
         option['series'] = series
 
-        option['title'] = {
+        option['title'] = showTitle ? {
             show: true,
             text: formatPieChartName(series[0].name),
             left: 375,
@@ -530,19 +543,9 @@ export const getChartOptions: IGetChartOptions = ({
                 width: 160,
                 lineHeight: 20,
             },
-        }
+        } : { show: false }
     } else {
-        option['legend'] = {
-            data: legend,
-            x: 'left',
-            top: 10,
-            padding: [5, 135, 0, 0],
-            icon: 'circle',
-            itemWidth: 7,
-            itemHeight: 7,
-            textStyle: { fontSize: fontSizes.content },
-            itemGap: 28,
-        }
+        option['legend'] = legendLayout
         option['xAxis'] = axisData['xAxis']
         option['yAxis'] = axisData['yAxis']
         option['series'] = series
