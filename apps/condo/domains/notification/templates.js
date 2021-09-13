@@ -45,18 +45,31 @@ async function renderTemplate (transport, message) {
 
     if (message.type === DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE) {
         const { organizationName } = message.meta
-
-        if (message.lang === EN_LOCALE) {
-            return {
-                subject: 'You are invited to join organization as employee',
-                text: `Organization "${organizationName}" invited you as employee.\n` +
-                    `Click to the link to join: ${serverUrl}/auth/signin`,
+        if (transport === EMAIL_TRANSPORT) {
+            if (message.lang === EN_LOCALE) {
+                return {
+                    subject: 'You are invited to join organization as employee',
+                    text: `Organization "${organizationName}" invited you as employee.\n` +
+                        `Click to the link to join: ${serverUrl}/auth/signin`,
+                }
+            } else if (message.lang === RU_LOCALE) {
+                return {
+                    subject: 'Вас пригласили присоединиться к организации в качестве сотрудника',
+                    text: `Администратор организации "${organizationName}" приглашает вас в качестве сотрудника.\n` +
+                        `Перейдите по ссылке, чтобы присоединиться: ${serverUrl}/auth/signin`,
+                }
             }
-        } else if (message.lang === RU_LOCALE) {
-            return {
-                subject: 'Вас пригласили присоединиться к организации в качестве сотрудника',
-                text: `Администратор организации "${organizationName}" приглашает вас в качестве сотрудника.\n` +
-                    `Перейдите по ссылке, чтобы присоединиться: ${serverUrl}/auth/signin`,
+        } else if (transport === SMS_TRANSPORT) {
+            if (message.lang === EN_LOCALE) {
+                return {
+                    text: `Organization "${organizationName}" invited you as employee.\n` +
+                        `Click to the link to join: ${serverUrl}/auth/signin`,
+                }
+            } else if (message.lang === RU_LOCALE) {
+                return {
+                    text: `Организация "${organizationName}" приглашает вас в качестве сотрудника.\n` +
+                        `Перейдите по ссылке, чтобы присоединиться: ${serverUrl}/auth/signin`,
+                }
             }
         }
     }
@@ -91,6 +104,8 @@ async function renderTemplate (transport, message) {
                     text: `
                     Phone: ${userPhone}
                     Password: ${userPassword}
+
+                    Please follow link: ${serverUrl}/auth/signin
                 `,
                 }
             } else if (message.lang === RU_LOCALE) {
@@ -98,6 +113,8 @@ async function renderTemplate (transport, message) {
                     text: `
                     Номер телефона: ${userPhone}
                     Пароль: ${userPassword}
+
+                    Ссылка для авторизации: ${serverUrl}/auth/signin
                 `,
                 }
             }
@@ -187,11 +204,13 @@ async function renderTemplate (transport, message) {
         } else if (transport === SMS_TRANSPORT) {
             if (message.lang === 'en') {
                 return {
-                    text: `${serverUrl}/auth/change-password?token=${token}`,
+                    text: `Click to the link to set new password: ${serverUrl}/auth/change-password?token=${token}`,
                 }
             } else if (message.lang === 'ru') {
                 return {
-                    text: `${serverUrl}/auth/change-password?token=${token}`,
+                    text: `
+                        Перейдите по сслыке для изменения пароля: ${serverUrl}/auth/change-password?token=${token}
+                    `,
                 }
             }
         }
