@@ -152,6 +152,11 @@ const User = new GQLListSchema('User', {
                 fields: ['type', 'phone'],
                 name: 'unique_type_and_phone',
             },
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['type', 'email'],
+                name: 'unique_type_and_email',
+            },
         ],
     },
     hooks: {
