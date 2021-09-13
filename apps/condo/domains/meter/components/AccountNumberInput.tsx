@@ -7,7 +7,7 @@ import { Button } from '../../common/components/Button'
 import { useCreateAccountModal } from './hooks/useCreateAccountModal'
 
 
-export const EmptyAccountView = ({ setAccountNumber }) => {
+export const EmptyAccountView = ({ setIsAccountNumberIntroduced, setAccountNumber }) => {
     const intl = useIntl()
     const NoAccountNumber = intl.formatMessage({ id: 'pages.condo.meter.NoAccountNumber' })
     const AddAccountDescription = intl.formatMessage({ id: 'pages.condo.meter.AddAccountDescription' })
@@ -35,7 +35,10 @@ export const EmptyAccountView = ({ setAccountNumber }) => {
                         </Button>
                     </BasicEmptyListView>
 
-                    <CreateAccountModal setAccountNumber={setAccountNumber} />
+                    <CreateAccountModal
+                        setAccountNumber={setAccountNumber}
+                        setIsAccountNumberIntroduced={setIsAccountNumberIntroduced}
+                    />
                 </Col>
             </Row>
         </Col>
@@ -60,11 +63,13 @@ export const AccountNumberInput = ({ accountNumber, setAccountNumber, existingMe
                 {/*    required={true}*/}
                 {/*>*/}
                 <Typography.Text type={'secondary'}>{AccountNumberMessage}</Typography.Text>
-                <Input
-                    value={accountNumber}
-                    onChange={e => setAccountNumber(e.target.value)}
-                    disabled={existingMeters.length > 0}
-                />
+                <Col span={24}>
+                    <Input
+                        value={accountNumber}
+                        onChange={e => setAccountNumber(e.target.value)}
+                        disabled={existingMeters.length > 0}
+                    />
+                </Col>
                 {/*</Form.Item>*/}
                 {
                     existingMeters.length === 0 ? (
