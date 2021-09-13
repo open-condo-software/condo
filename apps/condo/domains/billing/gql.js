@@ -38,7 +38,7 @@ const BillingAccountMeterReading = generateGqlQueries('BillingAccountMeterReadin
 const BILLING_RECEIPT_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id, address } account { id, number } recipient period raw toPay printableNumber toPayDetails services ${COMMON_FIELDS} }`
 const BillingReceipt = generateGqlQueries('BillingReceipt', BILLING_RECEIPT_FIELDS)
 
-const RESIDENT_BILLING_RECEIPTS_FIELDS =  '{ id recipient period toPay toPayDetails services printableNumber serviceConsumer }'
+const RESIDENT_BILLING_RECEIPTS_FIELDS =  '{ id recipient period toPay toPayDetails services printableNumber serviceConsumer { id } }'
 const ResidentBillingReceipt = generateGqlQueries('ResidentBillingReceipt', RESIDENT_BILLING_RECEIPTS_FIELDS)
 
 const BILLING_CURRENCY_FIELDS = `{ code displayInfo ${COMMON_FIELDS} }`
