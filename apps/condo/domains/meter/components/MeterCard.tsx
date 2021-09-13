@@ -1,21 +1,16 @@
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import styled from '@emotion/styled'
-import { Col, Divider, Form, Input, Row, Space, Typography } from 'antd'
+import { Alert, Col, Divider, Form, Input, Row, Space, Typography } from 'antd'
 import { resourceIdToIcon } from '../utils/clientSchema'
 import React from 'react'
 import { css } from '@emotion/core'
 import { BillingAccountMeterReading } from '../../../schema'
+import { IMeterFormState } from '../utils/clientSchema/Meter'
+import dayjs from 'dayjs'
+import { useIntl } from '@core/next/intl'
 
 type MeterCardProps = {
-    meter: {
-        commissioningDate?: string
-        installationDate?: string
-        sealingDate?: string
-        number?: string
-        place?: string
-        resource?: string
-        numberOfTariffs?: number
-    }
+    meter: IMeterFormState
     resource: {
         id: string
         name: string
@@ -30,6 +25,8 @@ const MeterCardWrapper = styled(FocusContainer)`
 `
 
 export const MeterCard = ({ meter, resource, name, lastMeterBillingMeterReading }: MeterCardProps) => {
+    const intl = useIntl()
+    const VerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.VerificationDate' })
     const Icon = resource ? resourceIdToIcon[resource.id] : null
     const numberOfTariffs = meter.numberOfTariffs ? meter.numberOfTariffs : 1
 
@@ -46,6 +43,28 @@ export const MeterCard = ({ meter, resource, name, lastMeterBillingMeterReading 
                                 </Typography.Text>
                             </Space>
                         </Col>
+                        {
+                            meter.nextVerificationDate &&
+                            dayjs(meter.nextVerificationDate).diff(dayjs(), 'month') < 2 ? (
+                                    <Col>
+                                        <Alert
+                                            showIcon
+                                            type='warning'
+                                            message={
+                                                <>
+                                                    <Typography.Text type={'warning'}>
+                                                        {VerificationDateMessage}
+                                                    </Typography.Text>
+                                                    &nbsp;
+                                                    <Typography.Text strong={true} type={'warning'}>
+                                                        {dayjs(meter.nextVerificationDate).format('D.MM.YYYY')}
+                                                    </Typography.Text>
+                                                </>
+                                            }
+                                        />
+                                    </Col>
+                                ) : null
+                        }
                     </Row>
                 </Col>
                 {
