@@ -21,10 +21,17 @@ import { Button } from '@condo/domains/common/components/Button'
 import { getFilter, getPageIndexFromOffset, getSorterMap, parseQuery, QueryMeta } from '@condo/domains/common/utils/tables.utils'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { PropertyWhereInput } from '@app/condo/schema'
+import styled from '@emotion/styled'
 
 type BuildingTableProps = {
     onSearch?: (properties: Property.IPropertyUIState[]) => void
 }
+
+const CreateButtonsWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+`
 
 export default function BuildingsTable (props: BuildingTableProps) {
 
@@ -125,7 +132,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
                     defaultValue={filters.address}
                 />
             </Col>
-            <Col span={6} push={1}>
+            <Col span={6} offset={1}>
                 {downloadLink
                     ?
                     <Button
@@ -144,27 +151,29 @@ export default function BuildingsTable (props: BuildingTableProps) {
                         onClick={onExportToExcelButtonClicked}>{ExportAsExcel}
                     </Button>}
             </Col>
-            <Col span={6} push={6}>
+            <Col span={6} offset={5}>
                 {role?.canManageProperties ? (
-                    <Space size={16}>
-                        <ImportWrapper
-                            objectsName={PropertiesMessage}
-                            accessCheck={role?.canManageProperties}
-                            onFinish={refetch}
-                            columns={columns}
-                            rowNormalizer={propertyNormalizer}
-                            rowValidator={propertyValidator}
-                            objectCreator={propertyCreator}
-                        >
-                            <Button
-                                type={'sberPrimary'}
-                                icon={<DiffOutlined />}
-                                secondary />
-                        </ImportWrapper>
-                        <Button type='sberPrimary' onClick={() => router.push('/property/create')}>
-                            {CreateLabel}
-                        </Button>
-                    </Space>
+                    <CreateButtonsWrapper>
+                        <Space size={16}>
+                            <ImportWrapper
+                                objectsName={PropertiesMessage}
+                                accessCheck={role?.canManageProperties}
+                                onFinish={refetch}
+                                columns={columns}
+                                rowNormalizer={propertyNormalizer}
+                                rowValidator={propertyValidator}
+                                objectCreator={propertyCreator}
+                            >
+                                <Button
+                                    type={'sberPrimary'}
+                                    icon={<DiffOutlined />}
+                                    secondary />
+                            </ImportWrapper>
+                            <Button type='sberPrimary' onClick={() => router.push('/property/create')}>
+                                {CreateLabel}
+                            </Button>
+                        </Space>
+                    </CreateButtonsWrapper>
                 ) : null}
             </Col>
             <Col span={24}>
