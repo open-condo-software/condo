@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { Card, Col, Form, Input, Row } from 'antd'
 import { Rule } from 'rc-field-form/lib/interface'
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useEffect } from 'react'
 import { useOrganization } from '@core/next/organization'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
@@ -17,6 +17,7 @@ import {
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { ErrorsContainer } from '@condo/domains/organization/components/ErrorsContainer'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
+import { hasFeature } from '../../common/components/containers/FeatureFlag'
 import { EmployeeRoleSelect } from './EmployeeRoleSelect'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
@@ -100,10 +101,7 @@ export const CreateEmployeeForm: React.FC = () => {
         role: get(employeeRoles, [0, 'id'], ''),
     }
 
-    const [selectedRoleId, setSelectedRoleId] = useState(initialValues.role)
-    const selectedRole = useMemo(() => find(employeeRoles, { id: selectedRoleId }), [selectedRoleId])
-
-    const searchClassifers = (_, input) => 
+    const searchClassifers = (_, input) =>
         classifiersLoader.search(input, TicketClassifierTypes.category)
             .then(result=>result.map((classifier)=> ({ text: classifier.name, value: classifier.id })))
 
@@ -148,7 +146,6 @@ export const CreateEmployeeForm: React.FC = () => {
                                                         loading={loading}
                                                         error={Boolean(error)}
                                                         employeeRoles={employeeRoles}
-                                                        onSelect={(roleId)=> setSelectedRoleId(roleId)}
                                                     />
                                                 </Form.Item>
                                             </Col>
@@ -193,20 +190,33 @@ export const CreateEmployeeForm: React.FC = () => {
                                                     <Input />
                                                 </Form.Item>
                                             </Col>
-                                            {get(selectedRole, 'name') === TechnicianRoleName && (
-                                                <Col span={24}>
-                                                    <Form.Item
-                                                        name={'specializations'}
-                                                        label={SpecializationsLabel}
-                                                        labelAlign={'left'}
-                                                        required
-                                                        validateFirst
-                                                        {...INPUT_LAYOUT_PROPS}
-                                                    >
-                                                        <GraphQlSearchInput mode="multiple" search={searchClassifers} />
-                                                    </Form.Item>
-                                                </Col>
-                                            )}
+                                            <Form.Item noStyle dependencies={['role']}>
+                                                {
+                                                    ({ getFieldsValue }) => {
+                                                        const { role } = getFieldsValue(['role'])
+                                                        const selectedRole = find(employeeRoles, { id: role })
+
+                                                        const isDivisionsEnabled = hasFeature('division')
+
+                                                        return (
+                                                            isDivisionsEnabled && get(selectedRole, 'name') === TechnicianRoleName && (
+                                                                <Col span={24}>
+                                                                    <Form.Item
+                                                                        name={'specializations'}
+                                                                        label={SpecializationsLabel}
+                                                                        labelAlign={'left'}
+                                                                        required
+                                                                        validateFirst
+                                                                        {...INPUT_LAYOUT_PROPS}
+                                                                    >
+                                                                        <GraphQlSearchInput mode="multiple" search={searchClassifers} />
+                                                                    </Form.Item>
+                                                                </Col>
+                                                            )
+                                                        )
+                                                    }
+                                                }
+                                            </Form.Item>
                                         </Row>
                                     </Col>
                                     <Col span={24}>
