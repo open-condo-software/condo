@@ -18,7 +18,7 @@ module.exports = {
                 const words = headerMessage.split(' ')
                 const detailsPrompt = 'Please, provide more details about what was done'
                 const fixRegexp = new RegExp('fix', 'i')
-                if (words.length <= 3) {
+                if (words.length <= 2) {
                     if (header.match(fixRegexp)) {
                         const stopWords = ['review', 'bug', 'pr']
                         for (let stopWord of stopWords) {
