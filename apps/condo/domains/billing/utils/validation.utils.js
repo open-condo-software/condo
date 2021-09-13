@@ -39,7 +39,7 @@ function validateReport ({ resolvedData, fieldPath, addFieldValidationError }) {
 const DATA_FORMAT_SCHEMA = {
     type: 'object',
     properties: {
-        hasToPayDetail: { type: 'boolean' },    // True if billingReceipt has toPay detailization: e.g debt, recalculation utils
+        hasToPayDetail: { type: 'boolean' },    // True if billingReceipt has toPay detailization: e.g debt, recalculation fields
         hasServices: { type: 'boolean' },       // True if billingReceipt has services object: e.g cold water service
         hasServicesDetail: { type: 'boolean' }, // True if billingReceipt's services has detail: e.g debt and recalculation for cold water service
     },

@@ -42,7 +42,7 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
             isRequired: true,
         },
 
-        // TODO(pahaz): make a link to property domain utils
+        // TODO(pahaz): make a link to property domain fields
         unitName: {
             schemaDoc: 'Flat number / door number of an apartment building (property)',
             type: Text,
