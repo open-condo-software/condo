@@ -6,7 +6,6 @@ import { Menu } from 'antd'
 
 export const SIDE_MENU_WIDTH = 256
 
-
 // Ant inputs
 export const formInputFixCss = css`
   body {
@@ -90,27 +89,6 @@ export const TopMenuItem = styled.div`
   .avatar {
     margin-right: 8px;
   }
-
-  @media (max-width: 768px) {
-    padding: 0 12px;
-  }
-  @media (max-width: 480px) {
-    .name {
-      display: none;
-    }
-    .avatar {
-      margin-right: 0;
-    }
-    .tag {
-      display: none;
-    }
-    .ellipsable180 {
-      max-width: 180px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-  }
 `
 
 export const menuIconStyles = {
@@ -141,17 +119,20 @@ export const StyledMenuItem = styled(Menu.Item)`
     font-weight: 700;
   }
 `
+
 export const layoutCss = css`
   height: 100%;
   display: flex;
   align-items: stretch;
 `
+
 export const subLayoutCss = css`
   width: 100%;
   display: flex;
   align-items: stretch;
   background-color: ${colors.white};
 `
+
 export const topMenuCss = css`
   z-index: 9;
   background: ${colors.white};
@@ -163,34 +144,20 @@ export const topMenuCss = css`
   justify-content: flex-start;
   line-height: 100%;
 `
+
 export const pageWrapperCss = css`
   padding: 0 48px;
   margin: 0;
   height: 100%;
   display: flex;
   flex-direction: column;
-
-  @media (max-width: 768px) {
-    padding: 0 12px;
-    border-radius: 0;
-  }
-
-  @media (max-width: 480px) {
-    padding: 0 12px;
-    border-radius: 0;
-  }
 `
+
 export const pageHeaderCss = css`
   padding: 0 0 40px;
   background: ${colors.white};
-
-  @media (max-width: 768px) {
-    margin: 0 0 12px;
-  }
-  @media (max-width: 480px) {
-    margin: 0 0 12px;
-  }
 `
+
 export const pageContentCss = css`
   flex-grow: 1;
   max-width: 1200px;

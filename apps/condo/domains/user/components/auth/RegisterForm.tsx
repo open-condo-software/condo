@@ -125,7 +125,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                                         label={PhoneMsg}
                                         rules={validators.phone}
                                     >
-                                        <PhoneInput disabled={true} placeholder={ExamplePhoneMsg} style={{ width: '100%' }}/>
+                                        <PhoneInput disabled={true} placeholder={ExamplePhoneMsg} block/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
