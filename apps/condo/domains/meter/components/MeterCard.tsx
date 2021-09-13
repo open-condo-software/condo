@@ -64,8 +64,8 @@ export const MeterCard = ({ meter, resource, name }: MeterCardProps) => {
                                             <Form.Item
                                                 name={[name, `value${tariffNumber}`]}
                                                 label={
-                                                    `№ ${meter.number} (${meter.place}) ${numberOfTariffs > 1 ?
-                                                        `T-${tariffNumber}` : ''}`
+                                                    `№ ${meter.number} ${meter.place ? `(${meter.place})` : ''}
+                                                        ${numberOfTariffs > 1 ? `T-${tariffNumber}` : ''}`
                                                 }
                                             >
                                                 <Input addonAfter={resource.measure} />
