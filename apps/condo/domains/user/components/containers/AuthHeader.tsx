@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import React  from 'react'
 import { useAuth } from '@core/next/auth'
 import { Logo } from '@condo/domains/common/components/Logo'
-import { useResponsive } from '@condo/domains/common/hooks/useResponsove'
+import { useResponsive } from '@condo/domains/common/hooks/useResponsive'
 import { colors } from '@condo/domains/common/constants/style'
 import { ActionContainer, Header, MobileHeader } from './styles'
 
