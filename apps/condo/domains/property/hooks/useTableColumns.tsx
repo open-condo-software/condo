@@ -53,7 +53,7 @@ export const useTableColumns = (sorters: Sorters, filters: FiltersFromQueryType)
                 ellipsis: true,
                 dataIndex: 'ticketsInWork',
                 key: 'ticketsInWork',
-                width: 25,
+                width: '25%',
             },
         ]
         return columns
