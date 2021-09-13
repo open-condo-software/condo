@@ -26,7 +26,7 @@ import { convertToUIFormState, IMeterFormState } from '../utils/clientSchema/Met
 import { useRouter } from 'next/router'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { SortBillingAccountMeterReadingsBy } from '../../../schema'
-import { BillingAccountMeterReading } from '../../billing/utils/clientSchema'
+import { BillingAccountMeterReading } from '@condo/domains/billing/utils/clientSchema'
 
 export const LAYOUT = {
     labelCol: { span: 8 },
@@ -211,22 +211,13 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         sortBy: [SortBillingAccountMeterReadingsBy.CreatedAtDesc],
     })
 
-    console.log('billingMeterReadings', billingMeterReadings)
-
     const { objs: resources, loading: resourcesLoading } = MeterResource.useObjects({})
 
     const isNoExistedMetersInThisUnit = existedMeters.length === 0
 
     useEffect(() => {
-        if (existedMeters.length > 0) {
-            // form.setFieldsValue({ accountNumber: existingMetersRef.current[0].accountNumber })
+        if (existedMeters.length > 0)
             setAccountNumber(existedMeters[0].accountNumber)
-        }
-        // else {
-        //     setAccountNumber(null)
-        // }
-        // if (form.getFieldValue('accountNumber') && existingMetersRef.current.length === 0)
-        //     form.setFieldsValue({ accountNumber: null })
     }, [existedMeters])
 
     const selectPropertyIdRef = useRef(selectedPropertyId)
@@ -385,7 +376,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                 </Row>
                             </Col>
                             {
-                                existedMetersLoading || resourcesLoading || !billingMeterReadingsLoading ? <Loader/> :
+                                existedMetersLoading || resourcesLoading || billingMeterReadingsLoading ? <Loader/> :
                                     !selectedUnitName ? null :
                                         !accountNumber && !isAccountNumberIntroduced ?
                                             <EmptyAccountView

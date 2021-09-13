@@ -1,9 +1,9 @@
-import { Alert, Col, Form, Input, Row, Typography } from 'antd'
-import React, { useEffect, useRef, useState } from 'react'
+import { Alert, Col, Input, Row, Typography } from 'antd'
+import React from 'react'
 import { useIntl } from '@core/next/intl'
-import { BasicEmptyListView } from '../../common/components/EmptyListView'
-import { fontSizes } from '../../common/constants/style'
-import { Button } from '../../common/components/Button'
+import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { fontSizes } from '@condo/domains/common/constants/style'
+import { Button } from '@condo/domains/common/components/Button'
 import { useCreateAccountModal } from './hooks/useCreateAccountModal'
 
 

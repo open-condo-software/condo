@@ -7,7 +7,6 @@ import { MeterInfo } from '../createMeterModal/MeterInfo'
 import { resourceIdToCreateMeterTitleId } from '../../utils/clientSchema'
 import { FormattedMessage } from 'react-intl'
 import { IMeterResourceUIState } from '../../utils/clientSchema/MeterResource'
-import { useValidations } from '../../../common/hooks/useValidations'
 import { Modal } from 'antd'
 
 type MeterInfoModalTitleProps = {
