@@ -15,6 +15,9 @@ const TicketAssignments = ({ validations, organizationId, propertyId, disableUse
     const ResponsibleLabel = intl.formatMessage({ id: 'field.Responsible' })
     const ExecutorExtra = intl.formatMessage({ id: 'field.Executor.description' })
     const ResponsibleExtra = intl.formatMessage({ id: 'field.Responsible.description' })
+    const ExecutorsOnThisDivisionLabel = intl.formatMessage({ id: 'ticket.assignments.executor.OnThisDivision' })
+    const ExecutorsOnOtherDivisionsLabel = intl.formatMessage({ id: 'ticket.assignments.executor.OnOtherDivisions' })
+    const OtherExecutors = intl.formatMessage({ id: 'ticket.assignments.executor.Other' })
 
     const [divisions, setDivisions] = useState([])
 
@@ -93,21 +96,21 @@ const TicketAssignments = ({ validations, organizationId, propertyId, disableUse
         const result = []
         if (techniciansOnDivisionOptions.length > 0) {
             result.push(
-                <Select.OptGroup label="Техники на участке">
+                <Select.OptGroup label={ExecutorsOnThisDivisionLabel}>
                     {techniciansOnDivisionOptions.map(renderOption)}
                 </Select.OptGroup>
             )
         }
         if (techniciansOnOtherDivisionsOptions.length > 0) {
             result.push(
-                <Select.OptGroup label="Техники на других участках">
+                <Select.OptGroup label={ExecutorsOnOtherDivisionsLabel}>
                     {techniciansOnOtherDivisionsOptions.map(renderOption)}
                 </Select.OptGroup>
             )
         }
         if (otherTechniciansOptions.length > 0) {
             result.push(
-                <Select.OptGroup label="Остальные сотрудники">
+                <Select.OptGroup label={OtherExecutors}>
                     {otherTechniciansOptions.map(renderOption)}
                 </Select.OptGroup>
             )
