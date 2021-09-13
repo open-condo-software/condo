@@ -31,7 +31,7 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
         },
         {
             access: true,
-            type: 'type ResidentBillingReceiptOutput { dv: String!, recipient: JSON!, id: ID!, period: String!, toPay: String!, printableNumber: String, toPayDetails: JSON, services: JSON }',
+            type: 'type ResidentBillingReceiptOutput { dv: String!, recipient: JSON!, id: ID!, period: String!, toPay: String!, printableNumber: String, toPayDetails: JSON, services: JSON, serviceConsumer: ServiceConsumer! }',
         },
     ],
     
