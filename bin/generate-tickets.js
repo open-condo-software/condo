@@ -9,11 +9,13 @@ const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { demoProperties } = require('./constants')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const { User } = require('@condo/domains/user/utils/serverSchema')
-const moment = require('moment')
 const faker = require('faker')
 const path = require('path')
 const { Client } = require('pg')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
+const dayjs = require('dayjs')
+const utc = require('dayjs/plugin/utc')
+dayjs.extend(utc)
 
 const TICKET_OTHER_SOURCE_ID = '7da1e3be-06ba-4c9e-bba6-f97f278ac6e4'
 class TicketGenerator {
@@ -51,8 +53,8 @@ class TicketGenerator {
     }
 
     async generateTickets () {
-        const dayStart = moment().utc().startOf('year')
-        const dayEnd = moment().utc()
+        const dayStart = dayjs().startOf('year')
+        const dayEnd = dayjs()
         let current = dayStart.add(6, 'hours')
         let maxTickets = 10000
         let counter = 0
@@ -160,7 +162,7 @@ class TicketGenerator {
 
     async setCreatedAt (ticketId, date) {
         await this.pg.query(' Update "Ticket" SET "createdAt" = $1 WHERE id=$2 ', [
-            moment(date).utc().format('YYYY-MM-DD HH:mm:ss'),
+            dayjs(date).format('YYYY-MM-DD HH:mm:ss'),
             ticketId,
         ])
     }

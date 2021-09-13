@@ -1,5 +1,6 @@
 const conf = require('@core/config')
-const { format } = require('date-fns')
+const dayjs = require('dayjs')
+
 const { RU_LOCALE, EN_LOCALE, LOCALES } = require('@condo/domains/common/constants/locale')
 
 const {
@@ -10,6 +11,8 @@ const {
     RESET_PASSWORD_MESSAGE_TYPE,
     SMS_VERIFY_CODE_MESSAGE_TYPE,
     SHARE_TICKET_MESSAGE_TYPE,
+    EMAIL_TRANSPORT,
+    SMS_TRANSPORT,
 } = require('./constants')
 
 async function renderTemplate (transport, message) {
@@ -42,44 +45,78 @@ async function renderTemplate (transport, message) {
 
     if (message.type === DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE) {
         const { organizationName } = message.meta
-
-        if (message.lang === EN_LOCALE) {
-            return {
-                subject: 'You are invited to join organization as employee',
-                text: `Organization "${organizationName}" invited you as employee.\n` +
-                    `Click to the link to join: ${serverUrl}/auth/signin`,
+        if (transport === EMAIL_TRANSPORT) {
+            if (message.lang === EN_LOCALE) {
+                return {
+                    subject: 'You are invited to join organization as employee',
+                    text: `Organization "${organizationName}" invited you as employee.\n` +
+                        `Click to the link to join: ${serverUrl}/auth/signin`,
+                }
+            } else if (message.lang === RU_LOCALE) {
+                return {
+                    subject: 'Вас пригласили присоединиться к организации в качестве сотрудника',
+                    text: `Администратор организации "${organizationName}" приглашает вас в качестве сотрудника.\n` +
+                        `Перейдите по ссылке, чтобы присоединиться: ${serverUrl}/auth/signin`,
+                }
             }
-        } else if (message.lang === RU_LOCALE) {
-            return {
-                subject: 'Вас пригласили присоединиться к организации в качестве сотрудника',
-                text: `Администратор организации "${organizationName}" приглашает вас в качестве сотрудника.\n` +
-                    `Перейдите по ссылке, чтобы присоединиться: ${serverUrl}/auth/signin`,
+        } else if (transport === SMS_TRANSPORT) {
+            if (message.lang === EN_LOCALE) {
+                return {
+                    text: `Organization "${organizationName}" invited you as employee.\n` +
+                        `Click to the link to join: ${serverUrl}/auth/signin`,
+                }
+            } else if (message.lang === RU_LOCALE) {
+                return {
+                    text: `Организация "${organizationName}" приглашает вас в качестве сотрудника.\n` +
+                        `Перейдите по ссылке, чтобы присоединиться: ${serverUrl}/auth/signin`,
+                }
             }
         }
     }
 
     if (message.type === REGISTER_NEW_USER_MESSAGE_TYPE) {
         const { userPhone, userPassword } = message.meta
-
-        if (message.lang === EN_LOCALE) {
-            return {
-                subject: 'Your access data to doma.ai service.',
-                text: `
+        if (transport === EMAIL_TRANSPORT) {
+            if (message.lang === EN_LOCALE) {
+                return {
+                    subject: 'Your access data to doma.ai service.',
+                    text: `
                     Phone: ${userPhone}
                     Password: ${userPassword}
 
                     Please follow link: ${serverUrl}/auth/signin
                 `,
-            }
-        } else if (message.lang === RU_LOCALE) {
-            return {
-                subject: 'Ваши данные для доступа к сервису doma.ai.',
-                text: `
+                }
+            } else if (message.lang === RU_LOCALE) {
+                return {
+                    subject: 'Ваши данные для доступа к сервису doma.ai.',
+                    text: `
                     Номер телефона: ${userPhone}
                     Пароль: ${userPassword}
 
                     Ссылка для авторизации: ${serverUrl}/auth/signin
                 `,
+                }
+            }
+        } else if (transport === SMS_TRANSPORT) {
+            if (message.lang === EN_LOCALE) {
+                return {
+                    text: `
+                    Phone: ${userPhone}
+                    Password: ${userPassword}
+
+                    Please follow link: ${serverUrl}/auth/signin
+                `,
+                }
+            } else if (message.lang === RU_LOCALE) {
+                return {
+                    text: `
+                    Номер телефона: ${userPhone}
+                    Пароль: ${userPassword}
+
+                    Ссылка для авторизации: ${serverUrl}/auth/signin
+                `,
+                }
             }
         }
     }
@@ -101,7 +138,7 @@ async function renderTemplate (transport, message) {
                                 </tr>
                             </table>
                             <p style="font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif; font-size: 22px; font-weight: 400; line-height: 32px; text-align: left;">Hello!<br />
-                            Ticket #${ticketNumber} dated ${format(new Date(date), 'd MMMM Y', { locale: LOCALES[EN_LOCALE] })} has been shared with you.<br />
+                            Ticket #${ticketNumber} dated ${dayjs(date).locale(LOCALES[EN_LOCALE]).format('D MMMM YYYY')} has been shared with you.<br />
                             The text of the ticket: "${details}"</p>
                             <p>&nbsp;</p>
                             <div><!--[if mso]>
@@ -129,7 +166,7 @@ async function renderTemplate (transport, message) {
                                 </tr>
                             </table>
                             <p style="font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif; font-size: 22px; font-weight: 400; line-height: 32px; text-align: left;">Добрый день!<br />
-                            С вами поделились заявкой №${ticketNumber} от ${format(new Date(date), 'd MMMM Y', { locale: LOCALES[RU_LOCALE] })}.<br />
+                            С вами поделились заявкой №${ticketNumber} от ${dayjs(date).locale(LOCALES[RU_LOCALE]).format('D MMMM YYYY')})}.<br />
                             Текст заявки: «${details}»</p>
                             <p>&nbsp;</p>
                             <div><!--[if mso]>
@@ -148,20 +185,33 @@ async function renderTemplate (transport, message) {
 
     if (message.type === RESET_PASSWORD_MESSAGE_TYPE) {
         const { token } = message.meta
-
-        if (message.lang === 'en') {
-            return {
-                subject: 'You are trying to reset password',
-                text:  `Click to the link to set new password: ${serverUrl}/auth/change-password?token=${token}`,
-            }
-        } else if (message.lang === 'ru') {
-            return {
-                subject: 'Восстановление пароля',
-                text: `
+        if (transport === EMAIL_TRANSPORT) {
+            if (message.lang === 'en') {
+                return {
+                    subject: 'You are trying to reset password',
+                    text: `Click to the link to set new password: ${serverUrl}/auth/change-password?token=${token}`,
+                }
+            } else if (message.lang === 'ru') {
+                return {
+                    subject: 'Восстановление пароля',
+                    text: `
                     Добрый день! \n
                     Чтобы задать новый пароль к платформе Doma.ai, вам просто нужно перейти по сслыке.\n
                     ${serverUrl}/auth/change-password?token=${token}
                 `,
+                }
+            }
+        } else if (transport === SMS_TRANSPORT) {
+            if (message.lang === 'en') {
+                return {
+                    text: `Click to the link to set new password: ${serverUrl}/auth/change-password?token=${token}`,
+                }
+            } else if (message.lang === 'ru') {
+                return {
+                    text: `
+                        Перейдите по сслыке для изменения пароля: ${serverUrl}/auth/change-password?token=${token}
+                    `,
+                }
             }
         }
     }

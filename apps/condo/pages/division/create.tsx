@@ -38,7 +38,7 @@ const CreateDivisionPage: ICreateDivisionPage = () => {
     )
 }
 
-CreateDivisionPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllDivisions' }} path={'/division/'}/>
+CreateDivisionPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllDivisions' }} path={'/property/'}/>
 CreateDivisionPage.requiredAccess = OrganizationRequired
 
 export default CreateDivisionPage

@@ -41,6 +41,7 @@ export const CreateContactForm: React.FC = () => {
     const FullNameRequiredMessage = intl.formatMessage({ id: 'field.FullName.requiredError' })
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
     const ExamplePhoneMessage = intl.formatMessage({ id: 'example.Phone' })
+    const ExampleEmailMessage = intl.formatMessage({ id: 'example.Email' })
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
     const EmailErrorMessage = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
     const SubmitButtonLabel = intl.formatMessage({ id: 'AddContact' })
@@ -170,7 +171,7 @@ export const CreateContactForm: React.FC = () => {
                                             rules={validations.email}
                                             {...INPUT_LAYOUT_PROPS}
                                         >
-                                            <Input/>
+                                            <Input placeholder={ExampleEmailMessage}/>
                                         </Form.Item>
                                     </Col>
                                 </Row>

@@ -9,6 +9,7 @@ import React, { useRef, useEffect } from 'react'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import { MapEdit, MapView } from './MapConstructor'
 import { FullscreenFooter } from './Fullscreen'
+import { fontSizes } from '@condo/domains/common/constants/style'
 
 export const PropertyMapFloor: React.FC = ({ children }) => {
     return (
@@ -32,7 +33,7 @@ export const EmptyBuildingBlock: React.FC = () => {
     const EmptyPropertyBuildingDescription = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingDescription' })
     const descriptionStyle = {
         display: 'flex',
-        fontSize: '16px',
+        fontSize: fontSizes.content,
         maxWidth: '350px',
     }
     return (

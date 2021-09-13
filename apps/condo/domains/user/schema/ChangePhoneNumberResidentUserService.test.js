@@ -5,6 +5,7 @@ const { createTestUser, createTestConfirmPhoneAction, User: UserTestUtils } = re
 const {
     CONFIRM_PHONE_ACTION_EXPIRED,
 } = require('@condo/domains/user/constants/errors')
+const { STAFF, RESIDENT } = require('@condo/domains/user/constants/common')
 
 describe('ChangePhoneNumberResidentUserService', () => {
     describe('Anonymous', () => {
@@ -12,7 +13,7 @@ describe('ChangePhoneNumberResidentUserService', () => {
             const client = await makeClient()
             const admin = await makeLoggedInAdminClient()
             const [token] = await createTestConfirmPhoneAction(admin, { isPhoneVerified: true })
-            await createTestUser(admin, { phone: token.phone, type: 'resident' })
+            await createTestUser(admin, { phone: token.phone, type: RESIDENT })
             const data = {
                 dv: 1,
                 sender: { dv: 1, fingerprint: 'tests' },
@@ -28,7 +29,7 @@ describe('ChangePhoneNumberResidentUserService', () => {
             it('can change phone with token', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [token] = await createTestConfirmPhoneAction(admin, { isPhoneVerified: true })
-                const [createdUser, userAttrs] = await createTestUser(admin, { type: 'resident', isPhoneVerified: true })
+                const [createdUser, userAttrs] = await createTestUser(admin, { type: RESIDENT, isPhoneVerified: true })
                 const client = await makeLoggedInClient(userAttrs)
                 const data = {
                     dv: 1,
@@ -43,7 +44,7 @@ describe('ChangePhoneNumberResidentUserService', () => {
             it('can not change phone with expired token', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [token] = await createTestConfirmPhoneAction(admin, { isPhoneVerified: true, expiresAt: new Date().toISOString() })
-                const [_, userAttrs] = await createTestUser(admin, { phone: token.phone, type: 'resident', isPhoneVerified: true })
+                const [_, userAttrs] = await createTestUser(admin, { phone: token.phone, type: RESIDENT, isPhoneVerified: true })
                 const client = await makeLoggedInClient(userAttrs)
                 const data = {
                     dv: 1,
@@ -56,7 +57,7 @@ describe('ChangePhoneNumberResidentUserService', () => {
             it('can not change phone with used token', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [token] = await createTestConfirmPhoneAction(admin, { isPhoneVerified: true, completedAt: new Date().toISOString() })
-                const [_, userAttrs] = await createTestUser(admin, { phone: token.phone, type: 'resident', isPhoneVerified: true })
+                const [_, userAttrs] = await createTestUser(admin, { phone: token.phone, type: RESIDENT, isPhoneVerified: true })
                 const client = await makeLoggedInClient(userAttrs)
                 const data = {
                     dv: 1,
@@ -71,7 +72,7 @@ describe('ChangePhoneNumberResidentUserService', () => {
             it('can not change phone with token', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [token] = await createTestConfirmPhoneAction(admin, { isPhoneVerified: true })
-                const [_, userAttrs] = await createTestUser(admin, { phone: token.phone, type: 'staff', isPhoneVerified: true })
+                const [_, userAttrs] = await createTestUser(admin, { phone: token.phone, type: STAFF, isPhoneVerified: true })
                 const client = await makeLoggedInClient(userAttrs)
                 const data = {
                     dv: 1,
@@ -89,7 +90,7 @@ describe('ChangePhoneNumberResidentUserService', () => {
             it('can not change phone with token', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [token] = await createTestConfirmPhoneAction(admin, { isPhoneVerified: true })
-                const [_, userAttrs] = await createTestUser(admin, { phone: token.phone, type: 'resident', isPhoneVerified: false })
+                const [_, userAttrs] = await createTestUser(admin, { phone: token.phone, type: RESIDENT, isPhoneVerified: false })
                 const client = await makeLoggedInClient(userAttrs)
                 const data = {
                     dv: 1,
@@ -105,7 +106,7 @@ describe('ChangePhoneNumberResidentUserService', () => {
                 const client = await makeClient()
                 const admin = await makeLoggedInAdminClient()
                 const [token] = await createTestConfirmPhoneAction(admin, { isPhoneVerified: true })
-                await createTestUser(admin, { phone: token.phone, type: 'staff', isPhoneVerified: false })
+                await createTestUser(admin, { phone: token.phone, type: STAFF, isPhoneVerified: false })
                 const data = {
                     dv: 1,
                     sender: { dv: 1, fingerprint: 'tests' },

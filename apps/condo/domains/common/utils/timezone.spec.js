@@ -9,7 +9,7 @@ describe('normalizeTimeZone()', () => {
         expect(normalizeTimeZone('Foo/Bar')).toBeNull()
     })
 
-    it('should return not modified timeZone on valid timzone', () => {
+    it('should return not modified timeZone on valid timezone', () => {
         expect(normalizeTimeZone(DEFAULT_ORGANIZATION_TIMEZONE)).toEqual(DEFAULT_ORGANIZATION_TIMEZONE)
     })
 })

@@ -11,6 +11,7 @@ import { FormResetButton } from '@condo/domains/common/components/FormResetButto
 import { UserAvatar } from './UserAvatar'
 import { UserPasswordResetButton } from './UserPasswordResetButton'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { EMAIL_ALREADY_REGISTERED_ERROR } from '@condo/domains/user/constants/errors'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -20,7 +21,6 @@ const INPUT_LAYOUT_PROPS = {
         span: 15,
     },
     style: {
-        paddingBottom: '24px',
         maxWidth: '453px',
     },
 }
@@ -30,11 +30,12 @@ export const UserProfileForm = () => {
     const router = useRouter()
     const FullNameLabel = intl.formatMessage({ id: 'pages.auth.register.field.Name' })
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
+    const ExampleEmailMessage = intl.formatMessage({ id: 'example.Email' })
     const PasswordLabel = intl.formatMessage({ id: 'pages.auth.signin.field.Password' })
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
-    const PleaseInputYourEmailMessage = intl.formatMessage({ id: 'pages.auth.PleaseInputYourEmail' })
     const MinLengthError = intl.formatMessage({ id: 'field.ClientName.minLengthError' })
     const ProfileUpdateTitle = intl.formatMessage({ id: 'profile.Update' })
+    const EmailIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsAlreadyRegistered' })
 
     const { user } = useAuth()
     const updateUserAction = User.useUpdate({}, () => router.push('/user/'))
@@ -43,7 +44,7 @@ export const UserProfileForm = () => {
     const { requiredValidator, emailValidator, changeMessage, minLengthValidator } = useValidations()
     const minClientNameRule = changeMessage(minLengthValidator(2), MinLengthError)
     const validations = {
-        email: [changeMessage(requiredValidator, PleaseInputYourEmailMessage), emailValidator],
+        email: [emailValidator],
         name: [requiredValidator, minClientNameRule],
     }
 
@@ -52,12 +53,19 @@ export const UserProfileForm = () => {
         email: get(user, 'email'),
         avatar: get(user, 'avatar'),
     }
+    const ErrorToFormFieldMsgMapping = {
+        [EMAIL_ALREADY_REGISTERED_ERROR]: {
+            name: 'email',
+            errors: [EmailIsAlreadyRegisteredMsg],
+        },
+    }
 
     return (
         <FormWithAction
             action={formAction}
             initialValues={initialValues}
             layout={'horizontal'}
+            ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
             validateTrigger={['onBlur', 'onSubmit']}
         >
             {({ handleSave, isLoading }) => {
@@ -88,6 +96,8 @@ export const UserProfileForm = () => {
                                     >
                                         <Input/>
                                     </Form.Item>
+                                </Col>
+                                <Col span={24}>
                                     <Form.Item
                                         {...INPUT_LAYOUT_PROPS}
                                         labelAlign={'left'}
@@ -95,11 +105,15 @@ export const UserProfileForm = () => {
                                         label={EmailLabel}
                                         rules={validations.email}
                                     >
-                                        <Input/>
+                                        <Input placeholder={ExampleEmailMessage}/>
                                     </Form.Item>
+                                </Col>
+                                <Col span={24}>
                                     <Form.Item {...INPUT_LAYOUT_PROPS} labelAlign={'left'} label={PasswordLabel}>
                                         <UserPasswordResetButton/>
                                     </Form.Item>
+                                </Col>
+                                <Col span={24}>
                                     <Space size={40} style={{ paddingTop: '36px' }}>
                                         <FormResetButton
                                             type={'sberPrimary'}

@@ -9,6 +9,7 @@ import { PhoneLink } from '@condo/domains/common/components/PhoneLink'
 import { green } from '@ant-design/colors'
 import { MAX_DESCRIPTION_DISPLAY_LENGTH } from '@condo/domains/ticket/constants/restrictions'
 import { FormattedMessage } from 'react-intl'
+import { fontSizes } from '@condo/domains/common/constants/style'
 
 interface ITicketChangeProps {
     ticketChange: TicketChangeType
@@ -31,11 +32,11 @@ export const TicketChange: React.FC<ITicketChangeProps> = ({ ticketChange }) => 
     return (
         <Row gutter={[12, 12]}>
             <Col span={6}>
-                <Typography.Text style={{ fontSize: '16px' }}>{formatDate(intl, ticketChange.createdAt)}</Typography.Text>
+                <Typography.Text style={{ fontSize: fontSizes.content }}>{formatDate(intl, ticketChange.createdAt)}</Typography.Text>
             </Col>
             <Col span={18}>
                 {changedFieldMessages.map(({ field, message }) => (
-                    <Typography.Text key={field} style={{ fontSize: '16px' }}>
+                    <Typography.Text key={field} style={{ fontSize: fontSizes.content }}>
                         <Diff className={field}>
                             {message}
                         </Diff>

@@ -10,11 +10,14 @@ const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields'
 const { EMAIL_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/user/access/User')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { get, isEmpty } = require('lodash')
 
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-const { updateEmployeesRelatedToUser } = require('@condo/domains/user/utils/serverSchema')
+const { updateEmployeesRelatedToUser, User: UserAPI } = require('@condo/domains/user/utils/serverSchema')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const AVATAR_FILE_ADAPTER = new FileAdapter('avatars')
+const { STAFF, USER_TYPES } = require('@condo/domains/user/constants/common')
+const { EMAIL_ALREADY_REGISTERED_ERROR } = require('@condo/domains/user/constants/errors')
 
 const User = new GQLListSchema('User', {
     schemaDoc: 'Individual / person / service account / impersonal company account',
@@ -41,8 +44,8 @@ const User = new GQLListSchema('User', {
             schemaDoc: 'Field that allows you to distinguish CRM users from mobile app users',
             type: Select,
             dataType: 'enum',
-            options: ['staff', 'resident'],
-            defaultValue: 'staff',
+            options: USER_TYPES,
+            defaultValue: STAFF,
             isRequired: true,
         },
         // TODO(pahaz): useless! remove it or write auth checks!
@@ -71,14 +74,34 @@ const User = new GQLListSchema('User', {
             schemaDoc: 'Email. Transformed to lower case',
             type: Text,
             access: access.canAccessToEmailField,
-            kmigratorOptions: { null: true, unique: true },
+            kmigratorOptions: { null: true, unique: false },
             hooks: {
                 resolveInput: ({ resolvedData }) => {
+                    // If there is no email we need to set it to null
+                    // Empty string will not pass uniq constraints check
+                    if (isEmpty(resolvedData['email'])) {
+                        return null
+                    }
                     return normalizeEmail(resolvedData['email']) || resolvedData['email']
                 },
-                validateInput: async ({ resolvedData, addFieldValidationError }) => {
+                validateInput: async ({ context, operation, fieldPath, resolvedData, existingItem, addFieldValidationError }) => {
                     if (resolvedData['email'] && normalizeEmail(resolvedData['email']) !== resolvedData['email']) {
                         addFieldValidationError(`${EMAIL_WRONG_FORMAT_ERROR}mail] invalid format`)
+                    }
+                    if (resolvedData.email === null) {
+                        return
+                    }
+                    if (get(resolvedData, 'email', '').length) {
+                        let existedUsers = []
+                        const userType = resolvedData.type || STAFF
+                        if (operation === 'create') {
+                            existedUsers = await UserAPI.getAll(context, { email: resolvedData['email'], type: userType, deletedAt: null })
+                        } else if (operation === 'update' && resolvedData.email !== existingItem.email) {
+                            existedUsers = await UserAPI.getAll(context, { email: resolvedData['email'], type: userType, deletedAt: null })
+                        }
+                        if (existedUsers && existedUsers.length > 0) {
+                            addFieldValidationError(`${EMAIL_ALREADY_REGISTERED_ERROR}] user already exists`)
+                        }
                     }
                 },
             },
@@ -95,7 +118,6 @@ const User = new GQLListSchema('User', {
             schemaDoc: 'Phone. In international E.164 format without spaces',
             type: Text,
             access: access.canAccessToPhoneField,
-            kmigratorOptions: { null: true, unique: false },
             hooks: {
                 resolveInput: ({ resolvedData }) => {
                     return normalizePhone(resolvedData['phone'])
@@ -130,6 +152,20 @@ const User = new GQLListSchema('User', {
             kmigratorOptions: { null: true, unique: true },
         },
 
+    },
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['type', 'phone'],
+                name: 'unique_type_and_phone',
+            },
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['type', 'email'],
+                name: 'unique_type_and_email',
+            },
+        ],
     },
     hooks: {
         afterChange: async ({ updatedItem, context, existingItem, operation }) => {

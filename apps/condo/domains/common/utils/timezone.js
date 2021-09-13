@@ -1,11 +1,16 @@
-const moment = require('moment-timezone')
+const dayjs = require('dayjs')
+const utc = require('dayjs/plugin/utc')
+const timezone = require('dayjs/plugin/timezone')
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 const normalizeTimeZone = (timeZone) => {
-    const isValid = moment.tz.zone(timeZone) !== null
-    if (isValid) {
+    try {
+        dayjs().tz(timeZone)
         return timeZone
+    } catch (e) {
+        return null
     }
-    return null
 }
 
 module.exports = {

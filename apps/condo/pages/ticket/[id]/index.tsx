@@ -33,6 +33,8 @@ import { useOrganization } from '@core/next/organization'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { formatPhone } from '@condo/domains/common/utils/helpers'
 import { ShareTicketModal } from '@condo/domains/ticket/components/ShareTicketModal'
+import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
+import { fontSizes } from '@condo/domains/common/constants/style'
 
 // TODO(Dimitreee):move to global defs
 interface IUser {
@@ -117,33 +119,8 @@ export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) 
     )
 }
 
-interface ITicketFieldRowProps {
-    title: string
-    style?: React.CSSProperties
-    highlight?: boolean
-    children: React.ReactNode
-}
-
-export const TicketFieldRow: React.FC<ITicketFieldRowProps> = ({ title, children, highlight, style }) => {
-    return (
-        <>
-            <Col span={8} style={{ fontSize: '16px' }}>
-                {title}
-            </Col>
-            <Col span={16} style={{ fontSize: '16px' }}>
-                <Typography.Text
-                    type={highlight ? 'success' : null}
-                    style={{ wordWrap: 'break-word' }}
-                >
-                    {children}
-                </Typography.Text>
-            </Col>
-        </>
-    )
-}
-
 const TicketTag = styled(Tag)`
-  font-size: 16px;
+  font-size: ${fontSizes.content};
   line-height: 24px;
 `
 
@@ -175,7 +152,7 @@ const TicketContent = ({ ticket }) => {
     return (
         <Col span={24}>
             <Row style={{ rowGap: '1.6em' }}>
-                <TicketFieldRow title={AddressMessage} highlight>
+                <PageFieldRow title={AddressMessage} highlight>
                     {ticketAddress}
                     {ticketAddressExtra && (
                         <>
@@ -185,37 +162,37 @@ const TicketContent = ({ ticket }) => {
                             </Typography.Text>
                         </>
                     )}
-                </TicketFieldRow>
-                <TicketFieldRow title={ClientMessage} highlight>
+                </PageFieldRow>
+                <PageFieldRow title={ClientMessage} highlight>
                     <TicketUserInfoField
                         user={{
                             name: get(ticket, 'clientName'),
                             phone: get(ticket, 'clientPhone'),
                         }}
                     />
-                </TicketFieldRow>
-                <TicketFieldRow title={TicketInfoMessage}>
+                </PageFieldRow>
+                <PageFieldRow title={TicketInfoMessage}>
                     {ticket.details}
-                </TicketFieldRow>
+                </PageFieldRow>
                 {!isEmpty(files) && (
-                    <TicketFieldRow title={FilesFieldLabel}>
+                    <PageFieldRow title={FilesFieldLabel}>
                         <TicketFileList files={files} />
-                    </TicketFieldRow>
+                    </PageFieldRow>
                 )}
             </Row>
             <FocusContainer style={{ marginTop: '1.6em' }}>
                 <Row style={{ rowGap: '1.6em' }}>
-                    <TicketFieldRow title={ExecutorMessage} highlight>
+                    <PageFieldRow title={ExecutorMessage} highlight>
                         <TicketUserInfoField
                             user={get(ticket, ['executor'])}
                         />
-                    </TicketFieldRow>
-                    <TicketFieldRow title={AssigneeMessage} highlight>
+                    </PageFieldRow>
+                    <PageFieldRow title={AssigneeMessage} highlight>
                         <TicketUserInfoField
                             user={get(ticket, ['assignee'])}
                         />
-                    </TicketFieldRow>
-                    <TicketFieldRow title={ClassifierMessage}>
+                    </PageFieldRow>
+                    <PageFieldRow title={ClassifierMessage}>
                         <Breadcrumb separator="≫">
                             {
                                 compact([
@@ -231,7 +208,7 @@ const TicketContent = ({ ticket }) => {
                                 })
                             }
                         </Breadcrumb>
-                    </TicketFieldRow>
+                    </PageFieldRow>
                 </Row>
             </FocusContainer>
         </Col>

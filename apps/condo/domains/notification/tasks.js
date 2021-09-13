@@ -3,7 +3,7 @@ const { createTask } = require('@core/keystone/tasks')
 const { getSchemaCtx } = require('@core/keystone/schema')
 
 const { Message } = require('@condo/domains/notification/utils/serverSchema')
-
+const isEmpty = require('lodash/isEmpty')
 const sms = require('./transports/sms')
 const email = require('./transports/email')
 const { SMS_TRANSPORT, EMAIL_TRANSPORT, MESSAGE_SENDING_STATUS, MESSAGE_RESENDING_STATUS, MESSAGE_PROCESSING_STATUS, MESSAGE_ERROR_STATUS, MESSAGE_DELIVERED_STATUS } = require('./constants')
@@ -24,18 +24,24 @@ async function _sendMessageByAdapter (transport, adapter, messageContext) {
     return await adapter.send(messageContext)
 }
 
+
+
 async function _choseMessageTransport (message) {
     const { phone, user, email } = message
-    if (message.type.indexOf('SMS_') === 0) {
+
+    if (!isEmpty(phone)) {
         return SMS_TRANSPORT
     }
-    if (phone && !user && !email) {
-        return SMS_TRANSPORT
+    if (!isEmpty(email)) {
+        return EMAIL_TRANSPORT
     }
     // TODO(pahaz): we should chose the best transport for the message.
     //  We can chose transport depends on the message.type?
     //  or use something like message.user.profile.preferredNotificationTransport if user want to get messages from TG
-    return EMAIL_TRANSPORT
+    if (!isEmpty(user.email)) {
+        return EMAIL_TRANSPORT
+    }
+    return SMS_TRANSPORT
 }
 
 async function deliveryMessage (messageId) {

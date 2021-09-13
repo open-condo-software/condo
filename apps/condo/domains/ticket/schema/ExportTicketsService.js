@@ -1,12 +1,17 @@
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/ticket/access/ExportTicketsService')
 const { TicketStatus, loadTicketsForExcelExport } = require('@condo/domains/ticket/utils/serverSchema')
-const moment = require('moment')
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { EMPTY_DATA_EXPORT_ERROR } = require('@condo/domains/common/constants/errors')
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
+const dayjs = require('dayjs')
+const utc = require('dayjs/plugin/utc')
+const timezone = require('dayjs/plugin/timezone')
+dayjs.extend(utc)
+dayjs.extend(timezone)
+
 
 
 
@@ -29,7 +34,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { where, sortBy, timeZone: timeZoneFromUser } = args.data
                 const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
-                const formatDate = (date) => moment(date).tz(timeZone).format(DATE_FORMAT)
+                const formatDate = (date) => dayjs(date).tz(timeZone).format(DATE_FORMAT)
                 const statuses = await TicketStatus.getAll(context, {})
                 const indexedStatuses = Object.fromEntries(statuses.map(status => ([status.type, status.name])))
                 const allTickets = await loadTicketsForExcelExport({ where, sortBy })
@@ -65,7 +70,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                     }
                 })
                 const linkToFile = await createExportFile({
-                    fileName: `tickets_${moment().format('DD_MM')}.xlsx`,
+                    fileName: `tickets_${dayjs().format('DD_MM')}.xlsx`,
                     templatePath: './domains/ticket/templates/TicketsExportTemplate.xlsx',
                     replaces: { tickets: excelRows },
                     meta: {

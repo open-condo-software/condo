@@ -63,6 +63,29 @@ describe('Resident', () => {
             })
         })
 
+        it('throws error on create record with same set of fields: "address", "unitName" (in different case) for current user', async () => {
+            const userClient = await makeClientWithProperty()
+            const adminClient = await makeLoggedInAdminClient()
+            const fields = {
+                address: userClient.property.address,
+                unitName: '123a',
+            }
+            await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, fields)
+
+            const duplicatedFields = {
+                address: fields.address.toUpperCase(),
+                unitName: fields.unitName.toUpperCase(),
+            }
+
+            await catchErrorFrom(async () => {
+                await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, duplicatedFields)
+            }, ({ errors, data }) => {
+                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                expect(errors[0].data.messages[0]).toMatch('Cannot create resident, because another resident with the same provided "address" and "unitName" already exists for current user')
+                expect(data).toEqual({ 'obj': null })
+            })
+        })
+
         it('throws error on create record with same set of fields: "address", "unitName" for current user, ignoring flat part in "address"', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
@@ -183,7 +206,7 @@ describe('Resident', () => {
                 expect(obj.residentOrganization).toBeDefined()
                 expect(obj.residentOrganization.id).toEqual(userClient.organization.id)
                 expect(obj.residentOrganization.name).toEqual(userClient.organization.name)
-                expect(Object.keys(obj.residentOrganization).length).toEqual(2)
+                expect(Object.keys(obj.residentOrganization)).toHaveLength(2)
             })
 
             it('returns null if no related organization', async () => {
@@ -209,7 +232,7 @@ describe('Resident', () => {
                 expect(obj.residentProperty.id).toEqual(userClient.property.id)
                 expect(obj.residentProperty.name).toEqual(userClient.property.name)
                 expect(obj.residentProperty.address).toEqual(userClient.property.address)
-                expect(Object.keys(obj.residentProperty).length).toEqual(3)
+                expect(Object.keys(obj.residentProperty)).toHaveLength(3)
             })
 
             it('returns null if no related property', async () => {

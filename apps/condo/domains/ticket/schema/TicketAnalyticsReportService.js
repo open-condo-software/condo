@@ -4,7 +4,9 @@
 
 const { GQLCustomSchema, getByCondition } = require('@core/keystone/schema')
 const access = require('@condo/domains/ticket/access/TicketAnalyticsReportService')
-const moment = require('moment')
+
+const dayjs = require('dayjs')
+
 const {
     sortStatusesByType,
     aggregateData,
@@ -78,20 +80,20 @@ const getTicketCounts = async (context, where, groupBy, extraLabels = {}) => {
                 })
                 return {
                     ...searchResult,
-                    dayGroup: moment(dayGroup).format(DATE_DISPLAY_FORMAT),
+                    dayGroup: dayjs(dayGroup).format(DATE_DISPLAY_FORMAT),
                     count: parseInt(count),
                 }
             }
             return {
                 ...searchResult,
-                dayGroup: moment(dayGroup).format(DATE_DISPLAY_FORMAT),
+                dayGroup: dayjs(dayGroup).format(DATE_DISPLAY_FORMAT),
                 count:parseInt(count),
             }
         })
         // This is hack to process old database records with tickets with user organization and property from another org
         .filter(ticketCount => ticketCount.property !== null)
         .sort((a, b) =>
-            moment(a.dayGroup, DATE_DISPLAY_FORMAT).format('X') - moment(b.dayGroup, DATE_DISPLAY_FORMAT).format('X'))
+            dayjs(a.dayGroup, DATE_DISPLAY_FORMAT).unix() - dayjs(b.dayGroup, DATE_DISPLAY_FORMAT).unix())
 }
 
 const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportService', {
@@ -211,7 +213,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                 }
 
                 const link = await createExportFile({
-                    fileName: `ticket_analytics_${moment().format('DD_MM')}.xlsx`,
+                    fileName: `ticket_analytics_${dayjs().format('DD_MM')}.xlsx`,
                     templatePath: `./domains/ticket/templates/${organization.country}/TicketAnalyticsExportTemplate[${groupBy1}_${groupBy2}].xlsx`,
                     replaces: { tickets },
                     meta: {

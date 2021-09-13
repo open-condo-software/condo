@@ -40,7 +40,7 @@
     "@zeit/next-less": "^1.0.1",
     "antd": "^4.8.2",
     "classnames": "2.2.6",
-    "date-fns": "^2.20.1",
+    "dayjs": "^1.10.6",
     "emotion": "^10.0.27",
     "emotion-server": "^10.0.27",
     "express": "^4.17.1",

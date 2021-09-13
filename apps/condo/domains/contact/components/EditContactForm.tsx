@@ -23,7 +23,6 @@ const INPUT_LAYOUT_PROPS = {
         span: 13,
     },
     style: {
-        paddingBottom: '24px',
         maxWidth: '453px',
     },
 }
@@ -39,6 +38,7 @@ export const EditContactForm: React.FC = () => {
     const FullNamePlaceholderMessage = intl.formatMessage({ id:'field.FullName' })
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
     const ExamplePhoneMessage = intl.formatMessage({ id: 'example.Phone' })
+    const ExampleEmailMessage = intl.formatMessage({ id: 'example.Email' })
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
     const NoPermissionMessage = intl.formatMessage({ id: 'EditingContactNoPermission' })
@@ -160,7 +160,7 @@ export const EditContactForm: React.FC = () => {
                                                 validateFirst
                                                 rules={validations.email}
                                             >
-                                                <Input/>
+                                                <Input placeholder={ExampleEmailMessage}/>
                                             </Form.Item>
                                         </Col>
                                         <Space size={40} style={{ paddingTop: '36px' }}>

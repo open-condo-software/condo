@@ -1,5 +1,8 @@
+const { Relationship } = require('@keystonejs/fields')
+const { PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
+const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
-const { Integer } = require('@keystonejs/fields')
+const { Integer, Text } = require('@keystonejs/fields')
 const { Json } = require('@core/keystone/fields')
 const { JSON_UNKNOWN_VERSION_ERROR, REQUIRED_NO_VALUE_ERROR, JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/errors')
 const { ADDRESS_META_FIELD_GRAPHQL_TYPES } = require('@condo/domains/property/schema/fields/AddressMetaField')
@@ -64,8 +67,57 @@ const ADDRESS_META_FIELD = {
     },
 }
 
+const CLIENT_FIELD = {
+    schemaDoc: 'Inhabitant/customer/person who has a problem or want to improve/order something. Not null if we have a registered client',
+    type: Relationship,
+    ref: 'User',
+    kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+}
+
+const CONTACT_FIELD = {
+    schemaDoc: 'Contact, that reported issue, described in this ticket',
+    type: Relationship,
+    ref: 'Contact',
+    isRequired: false,
+    kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+}
+
+const CLIENT_NAME_FIELD = {
+    schemaDoc: 'Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it',
+    type: Text,
+}
+
+const CLIENT_EMAIL_FIELD = {
+    schemaDoc: 'Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it',
+    type: Text,
+}
+
+const CLIENT_PHONE_FIELD = {
+    schemaDoc: 'Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it',
+    type: Text,
+    hooks: {
+        resolveInput: async ({ resolvedData }) => {
+            if (!resolvedData['clientPhone']) return resolvedData['clientPhone']
+            const newValue = normalizePhone(resolvedData['clientPhone'])
+            return newValue || resolvedData['clientPhone']
+        },
+        validateInput: async ({ resolvedData, addFieldValidationError }) => {
+            const newValue = normalizePhone(resolvedData['clientPhone'])
+            if (resolvedData['clientPhone'] && newValue !== resolvedData['clientPhone']) {
+                addFieldValidationError(`${PHONE_WRONG_FORMAT_ERROR}phone] invalid format`)
+            }
+        },
+    },
+}
+
+
 module.exports = {
     DV_FIELD,
     SENDER_FIELD,
     ADDRESS_META_FIELD,
+    CLIENT_FIELD,
+    CONTACT_FIELD,
+    CLIENT_NAME_FIELD,
+    CLIENT_EMAIL_FIELD,
+    CLIENT_PHONE_FIELD,
 }

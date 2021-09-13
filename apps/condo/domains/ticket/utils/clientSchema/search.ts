@@ -1,4 +1,5 @@
 const { gql } = require('graphql-tag')
+const { isEmpty } = require('lodash')
 
 const GET_PROPERTY_BY_ID_QUERY = gql`
     query GetPropertyByIdQuery ($propertyId: ID!, $organizationId: ID) {
@@ -45,6 +46,12 @@ const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
             user {
                 id
             }
+            role {
+                id
+                name
+                canBeAssignedAsExecutor
+                canBeAssignedAsResponsible
+            }
         }
     }
 `
@@ -52,11 +59,11 @@ const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
 const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY_WITH_EMAIL = gql`
     query selectOrgarnizationEmployee ($value: String, $organizationId: ID) {
         objs: allOrganizationEmployees(where: {name_contains_i: $value, organization: { id: $organizationId } }) {
-            name
             id
+            name
+            email
             user {
                 id
-                hasEmail
             }
         }
     }
@@ -131,17 +138,23 @@ export async function searchTicketClassifier (client, value) {
     return []
 }
 
-export function searchEmployeeUser (organizationId) {
+export function searchEmployeeUser (organizationId, filter) {
     if (!organizationId) return
     return async function (client, value) {
         const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, organizationId })
         if (error) console.warn(error)
 
-        return data.objs.map(object => {
-            if (object.user) {
-                return ({ text: object.name, value: object.user.id })
-            }
-        }).filter(Boolean)
+        const withUser = ({ user }) => user
+
+        const result = data.objs
+            .filter(withUser)
+            .filter(filter || Boolean)
+            .map(object => {
+                if (object.user) {
+                    return ({ text: object.name, value: object.user.id })
+                }
+            })
+        return result
     }
 }
 
@@ -159,12 +172,12 @@ export function getEmployeeWithEmail (organizationId) {
     return async function (client, value) {
         const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY_WITH_EMAIL, { value, organizationId })
         if (error) console.warn(error)
-
-        return data.objs.map(object => {
+        const result = data.objs.map(object => {
             if (object.user) {
-                return ({ text: object.name, value: { id: object.user.id, hasEmail: object.user.hasEmail } })
+                return ({ text: object.name, id: object.id, value: { id: object.user.id, hasEmail: !isEmpty(object.email) } })
             }
         }).filter(Boolean)
+        return result
     }
 }
 

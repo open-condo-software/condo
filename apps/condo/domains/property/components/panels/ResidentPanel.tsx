@@ -3,6 +3,7 @@ import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListVi
 import { Col, Row, Typography, Space, Tooltip } from 'antd'
 import React from 'react'
 import { Button } from '@condo/domains/common/components/Button'
+import { fontSizes } from '@condo/domains/common/constants/style'
 
 const EmptyResidentBlock: React.FC = () => {
     const intl = useIntl()
@@ -16,7 +17,7 @@ const EmptyResidentBlock: React.FC = () => {
             <Typography.Title level={3}>
                 {EmptyResidentsTitle}
             </Typography.Title>
-            <Typography.Text  style={{ fontSize: '16px', maxWidth: '350px', display: 'flex' }}>
+            <Typography.Text style={{ fontSize: fontSizes.content, maxWidth: '350px', display: 'flex' }}>
                 {EmptyResidentsMessage}
             </Typography.Text>
             <Space style={{ marginTop: '24px' }}>

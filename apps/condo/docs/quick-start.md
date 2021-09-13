@@ -3,6 +3,12 @@ Quick start
 
 To spin-up your development project instance, do the following.
 
+Add Husky git hooks:
+
+```shell
+npx @husky/init
+```
+
 Declare environment variables:
 
 ```shell

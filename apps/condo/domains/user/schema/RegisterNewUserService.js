@@ -1,31 +1,29 @@
 const { GQLCustomSchema } = require('@core/keystone/schema')
-const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/constants')
+const { REGISTER_NEW_USER_MESSAGE_TYPE, SMS_TRANSPORT, EMAIL_TRANSPORT } = require('@condo/domains/notification/constants')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { MIN_PASSWORD_LENGTH_ERROR } = require('@condo/domains/user/constants/errors')
 const { MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
 const { ConfirmPhoneAction: ConfirmPhoneActionServerUtils, User: UserServerUtils } = require('@condo/domains/user/utils/serverSchema')
-const isEmpty = require('lodash/isEmpty')
 const {
     CONFIRM_PHONE_ACTION_EXPIRED,
 } = require('@condo/domains/user/constants/errors')
+const { STAFF } = require('@condo/domains/user/constants/common')
+const { isEmpty } = require('lodash')
 
 async function ensureNotExists (context, field, value) {
-    if (isEmpty(value)) {
-        throw new Error(`[error] Unable to check field ${field} uniques because the passed value is empty`)
-    }
-    const existed = await UserServerUtils.getAll(context, { [field]: value, type: 'staff' })
+    const existed = await UserServerUtils.getAll(context, { [field]: value, type: STAFF })
     if (existed.length !== 0) {
         throw new Error(`[unique:${field}:multipleFound] user with this ${field} is already exists`)
     }
 }
-
+// TODO(zuch): create registerStaffUserService, separate logic of creating employee, make confirmPhoneActionToken to be required, remove meta, args to UserInput
 const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
     types: [
         {
             access: true,
-            type: 'input RegisterNewUserInput { dv: Int!, sender: SenderFieldInput!, name: String!, email: String!, password: String!, confirmPhoneActionToken: String, phone: String, meta: JSON }',
+            type: 'input RegisterNewUserInput { dv: Int!, sender: SenderFieldInput!, name: String!, email: String, password: String!, confirmPhoneActionToken: String, phone: String, meta: JSON }',
         },
     ],
     mutations: [
@@ -37,7 +35,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                 const { confirmPhoneActionToken, ...restUserData } = data
                 const userData = {
                     ...restUserData,
-                    type: 'staff',
+                    type: STAFF,
                     isPhoneVerified: false,
                 }
                 let confirmPhoneActionId = null
@@ -57,9 +55,10 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     userData.phone = phone
                     userData.isPhoneVerified = isPhoneVerified
                 }
-
                 await ensureNotExists(context, 'phone', userData.phone)
-                await ensureNotExists(context, 'email', userData.email)
+                if (!isEmpty(userData.email)) {
+                    await ensureNotExists(context, 'email', userData.email)
+                }
 
                 if (userData.password.length < MIN_PASSWORD_LENGTH) {
                     throw new Error(`${MIN_PASSWORD_LENGTH_ERROR}] Password length less then ${MIN_PASSWORD_LENGTH} character`)
@@ -85,27 +84,38 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     const msg = '[error] Unable to create user'
                     throw new Error(msg)
                 }
-                // end
+                // end of TODO
                 if (confirmPhoneActionToken) {
                     await ConfirmPhoneActionServerUtils.update(context, confirmPhoneActionId, { completedAt: new Date().toISOString() })
                 }
+                const sendChannels = [{
+                    to: { phone: userData.phone },
+                }]
+                if (!isEmpty(userData.email)) {
+                    sendChannels.push({
+                        to: { email: userData.email },
+                    })
+                }
                 // TODO(Dimitreee): use locale from .env
                 const lang = COUNTRIES[RUSSIA_COUNTRY].locale
-                await sendMessage(context, {
-                    lang,
-                    to: {
-                        user: {
-                            id: user.id,
+                await Promise.all(sendChannels.map(async channel => {
+                    await sendMessage(context, {
+                        lang,
+                        to: {
+                            user: {
+                                id: user.id,
+                            },
+                            ...channel.to,
                         },
-                    },
-                    type: REGISTER_NEW_USER_MESSAGE_TYPE,
-                    meta: {
-                        userPassword: userData.password,
-                        userPhone: userData.phone,
-                        dv: 1,
-                    },
-                    sender: data.sender,
-                })
+                        type: REGISTER_NEW_USER_MESSAGE_TYPE,
+                        meta: {
+                            userPassword: userData.password,
+                            userPhone: userData.phone,
+                            dv: 1,
+                        },
+                        sender: data.sender,
+                    })
+                }))
                 return user
             },
         },

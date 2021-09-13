@@ -13,20 +13,18 @@ export const ErrorsWrapper = styled.div`
 
 interface IErrorsContainerProps {
     phone: string
-    email: string
 }
 
-export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ phone, email }) => {
+export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ phone }) => {
     const intl = useIntl()
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
-    const EmailLabel = intl.formatMessage({ id: 'Email' })
-
-    const disableUserInteraction = !phone || !email
+    const disableUserInteraction = !phone
 
     const getEmptyRequiredFields = () => {
-        if (!phone && !email) return PhoneLabel + ', ' + EmailLabel
-        return !phone ? PhoneLabel : EmailLabel
+        if (!phone ) {
+            return PhoneLabel
+        }
     }
 
     return (

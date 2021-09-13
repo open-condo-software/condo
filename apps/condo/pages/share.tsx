@@ -4,7 +4,7 @@ import Router from 'next/router'
 import Head from 'next/head'
 import getConfig from 'next/config'
 import { useIntl } from '@core/next/intl'
-import { format } from 'date-fns'
+import dayjs from 'dayjs'
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import {
     ALGORITHM,
@@ -12,6 +12,7 @@ import {
     CRYPTOENCODING,
 } from '@condo/domains/ticket/constants/crypto'
 import BaseLayout, { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import get from 'lodash/get'
 
 function RedirectToTicket ({ ticketId }) {
     const intl = useIntl()
@@ -42,7 +43,9 @@ interface IShareProps extends React.FC<ShareProps> {
 
 const Share: IShareProps = ({ date, number, details, id }) => {
     const intl = useIntl()
-    const dateFormatted = format(new Date(date || 0), 'd MMMM Y', { locale: LOCALES[intl.locale] })
+    const locale = get(LOCALES, intl.locale)
+    const localizedDate = locale ? dayjs(date || 0).locale(locale) : dayjs(date || 0)
+    const dateFormatted = localizedDate.format('D MMMM YYYY')
 
     const ShareTitleMessage = intl.formatMessage({ id: 'ticket.shareTitle' }, {
         date: dateFormatted,

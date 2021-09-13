@@ -24,7 +24,7 @@
     "axios-cookiejar-support": "^1.0.1",
     "connect-redis": "^6.0.0",
     "crypto": "^1.0.1",
-    "date-fns": "^2.20.1",
+    "dayjs": "^1.10.6",
     "emittery": "^0.7.1",
     "express-session": "^1.17.2",
     "faker": "^5.5.3",

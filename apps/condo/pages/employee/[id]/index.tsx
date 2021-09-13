@@ -1,4 +1,4 @@
-import { DeleteFilled, EditFilled } from '@ant-design/icons'
+import { EditFilled } from '@ant-design/icons'
 import { Button } from '@condo/domains/common/components/Button'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -12,14 +12,16 @@ import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
 import { Alert, Col, Row, Space, Switch, Tag, Typography } from 'antd'
-import Modal from 'antd/lib/modal/Modal'
 import Router from 'next/router'
 import get from 'lodash/get'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useState } from 'react'
+import React from 'react'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
+import { fontSizes } from '@condo/domains/common/constants/style'
+import { map } from 'lodash'
 
 const ReInviteActionAlert = ({ employee }) => {
     const intl = useIntl()
@@ -56,22 +58,17 @@ export const EmployeePageContent = ({
     const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
     const RoleMessage = intl.formatMessage({ id: 'employee.Role' })
+    const PositionMessage = intl.formatMessage({ id: 'employee.Position' })
+    const SpecializationsMessage = intl.formatMessage({ id: 'employee.Specializations' })
     const BlockUserMessage = intl.formatMessage({ id: 'employee.BlockUser' })
-    const DeletePropertyLabel = intl.formatMessage({ id: 'Delete' })
+    const ConfirmDeleteButtonLabel = intl.formatMessage({ id: 'Delete' })
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'employee.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'employee.ConfirmDeleteMessage' })
 
-    const [isConfirmVisible, setIsConfirmVisible] = useState(false)
     const isEmployeeBlocked = get(employee, 'isBlocked')
 
     const name = get(employee, 'name')
-
-    const showConfirm = () => setIsConfirmVisible(true)
-    const handleOk = () => {
-        setIsConfirmVisible(false)
-        softDeleteAction({}, employee)
-    }
-    const handleCancel = () => setIsConfirmVisible(false)
+    const email = get(employee, 'email')
 
     const handleEmployeeBlock = (blocked) => {
         if (!isEmployeeEditable) {
@@ -127,7 +124,7 @@ export const EmployeePageContent = ({
                                                             onChange={handleEmployeeBlock}
                                                             defaultChecked={isEmployeeBlocked}
                                                         />
-                                                        <Typography.Text type='danger' style={{ fontSize: '16px' }}>
+                                                        <Typography.Text type='danger' style={{ fontSize: fontSizes.content }}>
                                                             {BlockUserMessage}
                                                         </Typography.Text>
                                                     </Space>
@@ -137,21 +134,21 @@ export const EmployeePageContent = ({
                                         <Col span={24}>
                                             <FrontLayerContainer showLayer={isEmployeeBlocked}>
                                                 <Row gutter={[0, 24]}>
-                                                    <Col span={3}>
+                                                    <Col span={4}>
                                                         <Typography.Text type='secondary'>
                                                             {PhoneMessage}
                                                         </Typography.Text>
                                                     </Col>
-                                                    <Col span={19} push={2}>
+                                                    <Col span={18} push={1}>
                                                         <NotDefinedField value={get(employee, 'phone')}/>
                                                     </Col>
 
-                                                    <Col span={3}>
+                                                    <Col span={4}>
                                                         <Typography.Text type='secondary'>
                                                             {RoleMessage}
                                                         </Typography.Text>
                                                     </Col>
-                                                    <Col span={19} push={2}>
+                                                    <Col span={18} push={1}>
                                                         <NotDefinedField
                                                             value={get(employee, ['role', 'name'])}
                                                             render={
@@ -162,14 +159,51 @@ export const EmployeePageContent = ({
                                                         />
                                                     </Col>
 
-                                                    <Col span={3}>
+                                                    <Col span={4}>
                                                         <Typography.Text type='secondary'>
-                                                            {EmailMessage}
+                                                            {PositionMessage}
                                                         </Typography.Text>
                                                     </Col>
-                                                    <Col span={19} push={2}>
-                                                        <NotDefinedField value={get(employee, 'email')}/>
+                                                    <Col span={18} push={1}>
+                                                        <NotDefinedField
+                                                            value={get(employee, 'position')}
+                                                            render={
+                                                                (value) => (
+                                                                    <Tag color='default'>{value}</Tag>
+                                                                )
+                                                            }
+                                                        />
                                                     </Col>
+
+                                                    <Col span={4}>
+                                                        <Typography.Text type='secondary'>
+                                                            {SpecializationsMessage}
+                                                        </Typography.Text>
+                                                    </Col>
+                                                    <Col span={18} push={1}>
+                                                        <NotDefinedField
+                                                            value={get(employee, 'specializations')}
+                                                            render={
+                                                                (specializations) => (
+                                                                    <Typography.Text>
+                                                                        {map(specializations, 'name').join(', ')}
+                                                                    </Typography.Text>
+                                                                )
+                                                            }
+                                                        />
+                                                    </Col>
+                                                    {
+                                                        email && <>
+                                                            <Col span={4}>
+                                                                <Typography.Text type='secondary'>
+                                                                    {EmailMessage}
+                                                                </Typography.Text>
+                                                            </Col>
+                                                            <Col span={18} push={1}>
+                                                                <NotDefinedField value={email}/>
+                                                            </Col>
+                                                        </>
+                                                    }
                                                 </Row>
                                             </FrontLayerContainer>
                                         </Col>
@@ -186,12 +220,12 @@ export const EmployeePageContent = ({
                                                             {UpdateMessage}
                                                         </Button>
                                                     </Link>
-                                                    <Button
-                                                        type='sberDanger'
-                                                        secondary
-                                                        onClick={showConfirm}>
-                                                        <DeleteFilled />
-                                                    </Button>
+                                                    <DeleteButtonWithConfirmModal
+                                                        title={ConfirmDeleteTitle}
+                                                        message={ConfirmDeleteMessage}
+                                                        okButtonLabel={ConfirmDeleteButtonLabel}
+                                                        action={() => softDeleteAction({}, employee)}
+                                                    />
                                                 </Space>
                                             </Col>
                                         )}
@@ -200,30 +234,6 @@ export const EmployeePageContent = ({
                             </Row>
                         </Col>
                     </Row>
-                    <Modal
-                        title={
-                            <Typography.Title style={{ fontSize: '24px', lineHeight: '32px' }}>
-                                {ConfirmDeleteTitle}
-                            </Typography.Title>
-                        }
-                        visible={isConfirmVisible}
-                        onCancel={handleCancel}
-                        footer={[
-                            <Button
-                                key='submit'
-                                type='sberDanger'
-                                secondary
-                                onClick={handleOk}
-                                style={{ margin: '15px' }}
-                            >
-                                {DeletePropertyLabel}
-                            </Button>,
-                        ]}
-                    >
-                        <Typography.Text>
-                            {ConfirmDeleteMessage}
-                        </Typography.Text>
-                    </Modal>
                 </PageContent>
             </PageWrapper>
         </>

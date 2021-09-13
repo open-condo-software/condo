@@ -1,5 +1,6 @@
 import React from 'react'
-import { Table as DefaultTable } from 'antd'
+import { ColumnsType } from 'antd/es/table/interface'
+import { Table as DefaultTable, TableProps } from 'antd'
 import get from 'lodash/get'
 import { debounce } from 'lodash'
 import { useRouter } from 'next/router'
@@ -10,17 +11,19 @@ import {
     FiltersFromQueryType,
 } from '@condo/domains/common/utils/tables.utils'
 import qs from 'qs'
+import { isEqual } from 'lodash'
 
 export type TableRecord = any
 
-interface ITableProps {
+interface ITableProps extends TableProps<TableRecord> {
     loading: boolean
     totalRows: number
     dataSource: TableRecord[]
     pageSize?: number
     keyPath?: Array<string> | string
-    columns: Array<Record<string, unknown>>
+    columns: Array<Record<string, unknown>> | ColumnsType<TableRecord>
     onRow?: (record: TableRecord, index?: number) => React.HTMLAttributes<HTMLElement>
+    applyQuery?: (queryParams) => Promise<boolean>
 }
 
 export const DEFAULT_PAGE_SIZE = 10
@@ -33,6 +36,8 @@ export const Table: React.FC<ITableProps> = ({
     totalRows,
     pageSize,
     onRow,
+    applyQuery,
+    ...otherTableProps
 }) => {
     const rowsPerPage = pageSize || DEFAULT_PAGE_SIZE
     const rowKey = keyPath || 'id'
@@ -68,7 +73,7 @@ export const Table: React.FC<ITableProps> = ({
                 typedValue = tableFilterValue
             }
 
-            if (typedValue && (!oldFilterValue || oldFilterValue !== tableFilterValue)) {
+            if (typedValue && (!oldFilterValue || !isEqual(oldFilterValue, tableFilterValue))) {
                 shouldResetOffset = true
                 newFilters[tableFilterName] = typedValue
             }
@@ -85,14 +90,19 @@ export const Table: React.FC<ITableProps> = ({
 
         const newOffset = shouldResetOffset ? 0 : (current - 1) * rowsPerPage
 
+
         const queryParams = {
             filters: JSON.stringify(newFilters),
             offset: newOffset,
             sort: newSorters,
         }
-
-        const newQuery = qs.stringify({ ...queryParams }, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })
-        return router.push(router.route + newQuery)
+        if (applyQuery) {
+            return applyQuery(queryParams)
+        }
+        else {
+            const newQuery = qs.stringify({ ...queryParams }, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })
+            return router.push(router.route + newQuery)
+        }
     }, 400)
 
     return (
@@ -113,6 +123,7 @@ export const Table: React.FC<ITableProps> = ({
                     pageSize: rowsPerPage,
                     position: ['bottomLeft'],
                 }}
+                {...otherTableProps}
             />
         </>
     )

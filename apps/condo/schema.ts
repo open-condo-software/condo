@@ -101,7 +101,7 @@ export type AddressMetaDataField = {
   geo_lon?: Maybe<Scalars['String']>;
   beltway_hit?: Maybe<Scalars['String']>;
   beltway_distance?: Maybe<Scalars['String']>;
-  metro?: Maybe<Scalars['String']>;
+  metro?: Maybe<Array<Maybe<AddressMetaDataMetroField>>>;
   qc_geo?: Maybe<Scalars['String']>;
   qc_complete?: Maybe<Scalars['String']>;
   qc_house?: Maybe<Scalars['String']>;
@@ -188,7 +188,7 @@ export type AddressMetaDataFieldInput = {
   geo_lon?: Maybe<Scalars['String']>;
   beltway_hit?: Maybe<Scalars['String']>;
   beltway_distance?: Maybe<Scalars['String']>;
-  metro?: Maybe<Scalars['String']>;
+  metro?: Maybe<Array<Maybe<AddressMetaDataMetroFieldInput>>>;
   qc_geo?: Maybe<Scalars['String']>;
   qc_complete?: Maybe<Scalars['String']>;
   qc_house?: Maybe<Scalars['String']>;
@@ -196,6 +196,19 @@ export type AddressMetaDataFieldInput = {
   unparsed_parts?: Maybe<Scalars['String']>;
   source?: Maybe<Scalars['String']>;
   qc?: Maybe<Scalars['String']>;
+};
+
+export type AddressMetaDataMetroField = {
+  __typename?: 'AddressMetaDataMetroField';
+  name?: Maybe<Scalars['String']>;
+  line?: Maybe<Scalars['String']>;
+  distance?: Maybe<Scalars['String']>;
+};
+
+export type AddressMetaDataMetroFieldInput = {
+  name?: Maybe<Scalars['String']>;
+  line?: Maybe<Scalars['String']>;
+  distance?: Maybe<Scalars['String']>;
 };
 
 export type AddressMetaField = {
@@ -578,6 +591,8 @@ export type BillingAccountMeter = {
   property?: Maybe<BillingProperty>;
   /**  Billing account  */
   account?: Maybe<BillingAccount>;
+  /**  Number of resource meter, such as "А03 9908"  */
+  number?: Maybe<Scalars['String']>;
   /**  Meter resource types  */
   resource?: Maybe<BillingMeterResource>;
   /**  Structured metadata obtained from the `billing data source`. Some of this data is required for use in the `receipt template`. Examples of data keys: `sealing date`, `install date`, `verification date`, `serial number`, `units of measurement`  */
@@ -600,6 +615,7 @@ export type BillingAccountMeterCreateInput = {
   raw?: Maybe<Scalars['JSON']>;
   property?: Maybe<BillingPropertyRelateToOneInput>;
   account?: Maybe<BillingAccountRelateToOneInput>;
+  number?: Maybe<Scalars['String']>;
   resource?: Maybe<BillingMeterResourceRelateToOneInput>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -629,6 +645,7 @@ export type BillingAccountMeterHistoryRecord = {
   raw?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
   account?: Maybe<Scalars['String']>;
+  number?: Maybe<Scalars['String']>;
   resource?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
@@ -652,6 +669,7 @@ export type BillingAccountMeterHistoryRecordCreateInput = {
   raw?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
   account?: Maybe<Scalars['String']>;
+  number?: Maybe<Scalars['String']>;
   resource?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -680,6 +698,7 @@ export type BillingAccountMeterHistoryRecordUpdateInput = {
   raw?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
   account?: Maybe<Scalars['String']>;
+  number?: Maybe<Scalars['String']>;
   resource?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -743,6 +762,24 @@ export type BillingAccountMeterHistoryRecordWhereInput = {
   account_not?: Maybe<Scalars['String']>;
   account_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   account_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  number?: Maybe<Scalars['String']>;
+  number_not?: Maybe<Scalars['String']>;
+  number_contains?: Maybe<Scalars['String']>;
+  number_not_contains?: Maybe<Scalars['String']>;
+  number_starts_with?: Maybe<Scalars['String']>;
+  number_not_starts_with?: Maybe<Scalars['String']>;
+  number_ends_with?: Maybe<Scalars['String']>;
+  number_not_ends_with?: Maybe<Scalars['String']>;
+  number_i?: Maybe<Scalars['String']>;
+  number_not_i?: Maybe<Scalars['String']>;
+  number_contains_i?: Maybe<Scalars['String']>;
+  number_not_contains_i?: Maybe<Scalars['String']>;
+  number_starts_with_i?: Maybe<Scalars['String']>;
+  number_not_starts_with_i?: Maybe<Scalars['String']>;
+  number_ends_with_i?: Maybe<Scalars['String']>;
+  number_not_ends_with_i?: Maybe<Scalars['String']>;
+  number_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  number_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   resource?: Maybe<Scalars['String']>;
   resource_not?: Maybe<Scalars['String']>;
   resource_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -865,6 +902,8 @@ export type BillingAccountMeterReading = {
   value2?: Maybe<Scalars['Int']>;
   /**  Meter reading value of tariff 3  */
   value3?: Maybe<Scalars['Int']>;
+  /**  Meter reading value of tariff 4  */
+  value4?: Maybe<Scalars['Int']>;
   /**  Date of reading  */
   date?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -890,6 +929,7 @@ export type BillingAccountMeterReadingCreateInput = {
   value1?: Maybe<Scalars['Int']>;
   value2?: Maybe<Scalars['Int']>;
   value3?: Maybe<Scalars['Int']>;
+  value4?: Maybe<Scalars['Int']>;
   date?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -923,6 +963,7 @@ export type BillingAccountMeterReadingHistoryRecord = {
   value1?: Maybe<Scalars['Int']>;
   value2?: Maybe<Scalars['Int']>;
   value3?: Maybe<Scalars['Int']>;
+  value4?: Maybe<Scalars['Int']>;
   date?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -950,6 +991,7 @@ export type BillingAccountMeterReadingHistoryRecordCreateInput = {
   value1?: Maybe<Scalars['Int']>;
   value2?: Maybe<Scalars['Int']>;
   value3?: Maybe<Scalars['Int']>;
+  value4?: Maybe<Scalars['Int']>;
   date?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -982,6 +1024,7 @@ export type BillingAccountMeterReadingHistoryRecordUpdateInput = {
   value1?: Maybe<Scalars['Int']>;
   value2?: Maybe<Scalars['Int']>;
   value3?: Maybe<Scalars['Int']>;
+  value4?: Maybe<Scalars['Int']>;
   date?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -1080,6 +1123,14 @@ export type BillingAccountMeterReadingHistoryRecordWhereInput = {
   value3_gte?: Maybe<Scalars['Int']>;
   value3_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   value3_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value4?: Maybe<Scalars['Int']>;
+  value4_not?: Maybe<Scalars['Int']>;
+  value4_lt?: Maybe<Scalars['Int']>;
+  value4_lte?: Maybe<Scalars['Int']>;
+  value4_gt?: Maybe<Scalars['Int']>;
+  value4_gte?: Maybe<Scalars['Int']>;
+  value4_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value4_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   date?: Maybe<Scalars['String']>;
   date_not?: Maybe<Scalars['String']>;
   date_lt?: Maybe<Scalars['String']>;
@@ -1180,6 +1231,7 @@ export type BillingAccountMeterReadingUpdateInput = {
   value1?: Maybe<Scalars['Int']>;
   value2?: Maybe<Scalars['Int']>;
   value3?: Maybe<Scalars['Int']>;
+  value4?: Maybe<Scalars['Int']>;
   date?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -1267,6 +1319,14 @@ export type BillingAccountMeterReadingWhereInput = {
   value3_gte?: Maybe<Scalars['Int']>;
   value3_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   value3_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value4?: Maybe<Scalars['Int']>;
+  value4_not?: Maybe<Scalars['Int']>;
+  value4_lt?: Maybe<Scalars['Int']>;
+  value4_lte?: Maybe<Scalars['Int']>;
+  value4_gt?: Maybe<Scalars['Int']>;
+  value4_gte?: Maybe<Scalars['Int']>;
+  value4_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value4_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   date?: Maybe<Scalars['String']>;
   date_not?: Maybe<Scalars['String']>;
   date_lt?: Maybe<Scalars['String']>;
@@ -1349,6 +1409,7 @@ export type BillingAccountMeterUpdateInput = {
   raw?: Maybe<Scalars['JSON']>;
   property?: Maybe<BillingPropertyRelateToOneInput>;
   account?: Maybe<BillingAccountRelateToOneInput>;
+  number?: Maybe<Scalars['String']>;
   resource?: Maybe<BillingMeterResourceRelateToOneInput>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -1403,6 +1464,24 @@ export type BillingAccountMeterWhereInput = {
   property_is_null?: Maybe<Scalars['Boolean']>;
   account?: Maybe<BillingAccountWhereInput>;
   account_is_null?: Maybe<Scalars['Boolean']>;
+  number?: Maybe<Scalars['String']>;
+  number_not?: Maybe<Scalars['String']>;
+  number_contains?: Maybe<Scalars['String']>;
+  number_not_contains?: Maybe<Scalars['String']>;
+  number_starts_with?: Maybe<Scalars['String']>;
+  number_not_starts_with?: Maybe<Scalars['String']>;
+  number_ends_with?: Maybe<Scalars['String']>;
+  number_not_ends_with?: Maybe<Scalars['String']>;
+  number_i?: Maybe<Scalars['String']>;
+  number_not_i?: Maybe<Scalars['String']>;
+  number_contains_i?: Maybe<Scalars['String']>;
+  number_not_contains_i?: Maybe<Scalars['String']>;
+  number_starts_with_i?: Maybe<Scalars['String']>;
+  number_not_starts_with_i?: Maybe<Scalars['String']>;
+  number_ends_with_i?: Maybe<Scalars['String']>;
+  number_not_ends_with_i?: Maybe<Scalars['String']>;
+  number_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  number_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   resource?: Maybe<BillingMeterResourceWhereInput>;
   resource_is_null?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
@@ -4910,7 +4989,7 @@ export type ChangePasswordWithTokenInput = {
 export type ChangePasswordWithTokenOutput = {
   __typename?: 'ChangePasswordWithTokenOutput';
   status: Scalars['String'];
-  email: Scalars['String'];
+  phone: Scalars['String'];
 };
 
 export type ChangePhoneNumberResidentUserInput = {
@@ -6774,11 +6853,12 @@ export type InviteNewOrganizationEmployeeInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
   organization: OrganizationWhereUniqueInput;
-  email: Scalars['String'];
-  phone?: Maybe<Scalars['String']>;
+  email?: Maybe<Scalars['String']>;
+  phone: Scalars['String'];
   name?: Maybe<Scalars['String']>;
   role?: Maybe<OrganizationEmployeeWhereUniqueInput>;
   position?: Maybe<Scalars['String']>;
+  specializations?: Maybe<Array<TicketCategoryClassifierWhereInput>>;
 };
 
 
@@ -7339,6 +7419,1936 @@ export type MessagesCreateInput = {
 export type MessagesUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<MessageUpdateInput>;
+};
+
+/**  Resource meter at a certain place in the unitName  */
+export type Meter = {
+  __typename?: 'Meter';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the Meter List config, or
+   *  2. As an alias to the field set on 'labelField' in the Meter List config, or
+   *  3. As an alias to a 'name' field on the Meter List (if one exists), or
+   *  4. As an alias to the 'id' field on the Meter List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
+  organization?: Maybe<Organization>;
+  /**  Link to property which contains unit with this meter  */
+  property?: Maybe<Property>;
+  /**  Number of resource meter, such as "А03 9908"  */
+  number?: Maybe<Scalars['String']>;
+  numberOfTariffs?: Maybe<Scalars['Int']>;
+  /**  Date when the meter was installed  */
+  installationDate?: Maybe<Scalars['String']>;
+  /**  Date when the meter was commissioned  */
+  commissioningDate?: Maybe<Scalars['String']>;
+  /**  The date when the employee came and checked how accurately the meter counts the resource  */
+  verificationDate?: Maybe<Scalars['String']>;
+  /**  The date when the employee came and took readings from the meter  */
+  controlReadingsDate?: Maybe<Scalars['String']>;
+  /**  Client's billing account  */
+  accountNumber?: Maybe<Scalars['String']>;
+  /**  Unit with this meter  */
+  unitName?: Maybe<Scalars['String']>;
+  /**  Certain place in unit where meter is, such as kitchen  */
+  place?: Maybe<Scalars['String']>;
+  /**  Meter resource, such as hot water or electricity  */
+  resource?: Maybe<MeterResource>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<User>;
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+export type MeterCreateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  property?: Maybe<PropertyRelateToOneInput>;
+  number?: Maybe<Scalars['String']>;
+  numberOfTariffs?: Maybe<Scalars['Int']>;
+  installationDate?: Maybe<Scalars['String']>;
+  commissioningDate?: Maybe<Scalars['String']>;
+  verificationDate?: Maybe<Scalars['String']>;
+  controlReadingsDate?: Maybe<Scalars['String']>;
+  accountNumber?: Maybe<Scalars['String']>;
+  unitName?: Maybe<Scalars['String']>;
+  place?: Maybe<Scalars['String']>;
+  resource?: Maybe<MeterResourceRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+/**  A keystone list  */
+export type MeterHistoryRecord = {
+  __typename?: 'MeterHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the MeterHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the MeterHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the MeterHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the MeterHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  organization?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
+  number?: Maybe<Scalars['String']>;
+  numberOfTariffs?: Maybe<Scalars['Int']>;
+  installationDate?: Maybe<Scalars['String']>;
+  commissioningDate?: Maybe<Scalars['String']>;
+  verificationDate?: Maybe<Scalars['String']>;
+  controlReadingsDate?: Maybe<Scalars['String']>;
+  accountNumber?: Maybe<Scalars['String']>;
+  unitName?: Maybe<Scalars['String']>;
+  place?: Maybe<Scalars['String']>;
+  resource?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MeterHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type MeterHistoryRecordCreateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  organization?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
+  number?: Maybe<Scalars['String']>;
+  numberOfTariffs?: Maybe<Scalars['Int']>;
+  installationDate?: Maybe<Scalars['String']>;
+  commissioningDate?: Maybe<Scalars['String']>;
+  verificationDate?: Maybe<Scalars['String']>;
+  controlReadingsDate?: Maybe<Scalars['String']>;
+  accountNumber?: Maybe<Scalars['String']>;
+  unitName?: Maybe<Scalars['String']>;
+  place?: Maybe<Scalars['String']>;
+  resource?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MeterHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum MeterHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type MeterHistoryRecordUpdateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  organization?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
+  number?: Maybe<Scalars['String']>;
+  numberOfTariffs?: Maybe<Scalars['Int']>;
+  installationDate?: Maybe<Scalars['String']>;
+  commissioningDate?: Maybe<Scalars['String']>;
+  verificationDate?: Maybe<Scalars['String']>;
+  controlReadingsDate?: Maybe<Scalars['String']>;
+  accountNumber?: Maybe<Scalars['String']>;
+  unitName?: Maybe<Scalars['String']>;
+  place?: Maybe<Scalars['String']>;
+  resource?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MeterHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type MeterHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<MeterHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<MeterHistoryRecordWhereInput>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  property?: Maybe<Scalars['String']>;
+  property_not?: Maybe<Scalars['String']>;
+  property_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  property_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  number?: Maybe<Scalars['String']>;
+  number_not?: Maybe<Scalars['String']>;
+  number_contains?: Maybe<Scalars['String']>;
+  number_not_contains?: Maybe<Scalars['String']>;
+  number_starts_with?: Maybe<Scalars['String']>;
+  number_not_starts_with?: Maybe<Scalars['String']>;
+  number_ends_with?: Maybe<Scalars['String']>;
+  number_not_ends_with?: Maybe<Scalars['String']>;
+  number_i?: Maybe<Scalars['String']>;
+  number_not_i?: Maybe<Scalars['String']>;
+  number_contains_i?: Maybe<Scalars['String']>;
+  number_not_contains_i?: Maybe<Scalars['String']>;
+  number_starts_with_i?: Maybe<Scalars['String']>;
+  number_not_starts_with_i?: Maybe<Scalars['String']>;
+  number_ends_with_i?: Maybe<Scalars['String']>;
+  number_not_ends_with_i?: Maybe<Scalars['String']>;
+  number_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  number_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  numberOfTariffs?: Maybe<Scalars['Int']>;
+  numberOfTariffs_not?: Maybe<Scalars['Int']>;
+  numberOfTariffs_lt?: Maybe<Scalars['Int']>;
+  numberOfTariffs_lte?: Maybe<Scalars['Int']>;
+  numberOfTariffs_gt?: Maybe<Scalars['Int']>;
+  numberOfTariffs_gte?: Maybe<Scalars['Int']>;
+  numberOfTariffs_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  numberOfTariffs_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  installationDate?: Maybe<Scalars['String']>;
+  installationDate_not?: Maybe<Scalars['String']>;
+  installationDate_lt?: Maybe<Scalars['String']>;
+  installationDate_lte?: Maybe<Scalars['String']>;
+  installationDate_gt?: Maybe<Scalars['String']>;
+  installationDate_gte?: Maybe<Scalars['String']>;
+  installationDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  installationDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  commissioningDate?: Maybe<Scalars['String']>;
+  commissioningDate_not?: Maybe<Scalars['String']>;
+  commissioningDate_lt?: Maybe<Scalars['String']>;
+  commissioningDate_lte?: Maybe<Scalars['String']>;
+  commissioningDate_gt?: Maybe<Scalars['String']>;
+  commissioningDate_gte?: Maybe<Scalars['String']>;
+  commissioningDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  commissioningDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  verificationDate?: Maybe<Scalars['String']>;
+  verificationDate_not?: Maybe<Scalars['String']>;
+  verificationDate_lt?: Maybe<Scalars['String']>;
+  verificationDate_lte?: Maybe<Scalars['String']>;
+  verificationDate_gt?: Maybe<Scalars['String']>;
+  verificationDate_gte?: Maybe<Scalars['String']>;
+  verificationDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  verificationDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  controlReadingsDate?: Maybe<Scalars['String']>;
+  controlReadingsDate_not?: Maybe<Scalars['String']>;
+  controlReadingsDate_lt?: Maybe<Scalars['String']>;
+  controlReadingsDate_lte?: Maybe<Scalars['String']>;
+  controlReadingsDate_gt?: Maybe<Scalars['String']>;
+  controlReadingsDate_gte?: Maybe<Scalars['String']>;
+  controlReadingsDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  controlReadingsDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  accountNumber?: Maybe<Scalars['String']>;
+  accountNumber_not?: Maybe<Scalars['String']>;
+  accountNumber_contains?: Maybe<Scalars['String']>;
+  accountNumber_not_contains?: Maybe<Scalars['String']>;
+  accountNumber_starts_with?: Maybe<Scalars['String']>;
+  accountNumber_not_starts_with?: Maybe<Scalars['String']>;
+  accountNumber_ends_with?: Maybe<Scalars['String']>;
+  accountNumber_not_ends_with?: Maybe<Scalars['String']>;
+  accountNumber_i?: Maybe<Scalars['String']>;
+  accountNumber_not_i?: Maybe<Scalars['String']>;
+  accountNumber_contains_i?: Maybe<Scalars['String']>;
+  accountNumber_not_contains_i?: Maybe<Scalars['String']>;
+  accountNumber_starts_with_i?: Maybe<Scalars['String']>;
+  accountNumber_not_starts_with_i?: Maybe<Scalars['String']>;
+  accountNumber_ends_with_i?: Maybe<Scalars['String']>;
+  accountNumber_not_ends_with_i?: Maybe<Scalars['String']>;
+  accountNumber_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  accountNumber_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitName?: Maybe<Scalars['String']>;
+  unitName_not?: Maybe<Scalars['String']>;
+  unitName_contains?: Maybe<Scalars['String']>;
+  unitName_not_contains?: Maybe<Scalars['String']>;
+  unitName_starts_with?: Maybe<Scalars['String']>;
+  unitName_not_starts_with?: Maybe<Scalars['String']>;
+  unitName_ends_with?: Maybe<Scalars['String']>;
+  unitName_not_ends_with?: Maybe<Scalars['String']>;
+  unitName_i?: Maybe<Scalars['String']>;
+  unitName_not_i?: Maybe<Scalars['String']>;
+  unitName_contains_i?: Maybe<Scalars['String']>;
+  unitName_not_contains_i?: Maybe<Scalars['String']>;
+  unitName_starts_with_i?: Maybe<Scalars['String']>;
+  unitName_not_starts_with_i?: Maybe<Scalars['String']>;
+  unitName_ends_with_i?: Maybe<Scalars['String']>;
+  unitName_not_ends_with_i?: Maybe<Scalars['String']>;
+  unitName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  place?: Maybe<Scalars['String']>;
+  place_not?: Maybe<Scalars['String']>;
+  place_contains?: Maybe<Scalars['String']>;
+  place_not_contains?: Maybe<Scalars['String']>;
+  place_starts_with?: Maybe<Scalars['String']>;
+  place_not_starts_with?: Maybe<Scalars['String']>;
+  place_ends_with?: Maybe<Scalars['String']>;
+  place_not_ends_with?: Maybe<Scalars['String']>;
+  place_i?: Maybe<Scalars['String']>;
+  place_not_i?: Maybe<Scalars['String']>;
+  place_contains_i?: Maybe<Scalars['String']>;
+  place_not_contains_i?: Maybe<Scalars['String']>;
+  place_starts_with_i?: Maybe<Scalars['String']>;
+  place_not_starts_with_i?: Maybe<Scalars['String']>;
+  place_ends_with_i?: Maybe<Scalars['String']>;
+  place_not_ends_with_i?: Maybe<Scalars['String']>;
+  place_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  place_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  resource?: Maybe<Scalars['String']>;
+  resource_not?: Maybe<Scalars['String']>;
+  resource_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  resource_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<MeterHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<MeterHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<MeterHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<MeterHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type MeterHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type MeterHistoryRecordsCreateInput = {
+  data?: Maybe<MeterHistoryRecordCreateInput>;
+};
+
+export type MeterHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<MeterHistoryRecordUpdateInput>;
+};
+
+/**  Meter reading taken from a client or billing  */
+export type MeterReading = {
+  __typename?: 'MeterReading';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the MeterReading List config, or
+   *  2. As an alias to the field set on 'labelField' in the MeterReading List config, or
+   *  3. As an alias to a 'name' field on the MeterReading List (if one exists), or
+   *  4. As an alias to the 'id' field on the MeterReading List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
+  organization?: Maybe<Organization>;
+  /**  Date when the readings were taken  */
+  date?: Maybe<Scalars['String']>;
+  /**  Meter from which readings were taken  */
+  meter?: Maybe<Meter>;
+  /**  If the meter is single-tariff, then only this value will be filled in;If multi-tariff, then the value of the first tariff will be in this field  */
+  value1?: Maybe<Scalars['Int']>;
+  /**  If the meter is multi-tariff, then the value of the second tariff is stored here  */
+  value2?: Maybe<Scalars['Int']>;
+  /**  If the meter is multi-tariff, then the value of the third tariff is stored here  */
+  value3?: Maybe<Scalars['Int']>;
+  /**  If the meter is multi-tariff, then the value of the fourth tariff is stored here  */
+  value4?: Maybe<Scalars['Int']>;
+  /**  Inhabitant/customer/person who has a problem or want to improve/order something. Not null if we have a registered client  */
+  client?: Maybe<User>;
+  /**  Contact, that reported issue, described in this ticket  */
+  contact?: Maybe<Contact>;
+  /**  Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it  */
+  clientName?: Maybe<Scalars['String']>;
+  /**  Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it  */
+  clientEmail?: Maybe<Scalars['String']>;
+  /**  Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it  */
+  clientPhone?: Maybe<Scalars['String']>;
+  /**  Meter reading source channel/system. Examples: call, mobile_app, billing, ...  */
+  source?: Maybe<MeterReadingSource>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<User>;
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+export type MeterReadingCreateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  date?: Maybe<Scalars['String']>;
+  meter?: Maybe<MeterRelateToOneInput>;
+  value1?: Maybe<Scalars['Int']>;
+  value2?: Maybe<Scalars['Int']>;
+  value3?: Maybe<Scalars['Int']>;
+  value4?: Maybe<Scalars['Int']>;
+  client?: Maybe<UserRelateToOneInput>;
+  contact?: Maybe<ContactRelateToOneInput>;
+  clientName?: Maybe<Scalars['String']>;
+  clientEmail?: Maybe<Scalars['String']>;
+  clientPhone?: Maybe<Scalars['String']>;
+  source?: Maybe<MeterReadingSourceRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+/**  A keystone list  */
+export type MeterReadingHistoryRecord = {
+  __typename?: 'MeterReadingHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the MeterReadingHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the MeterReadingHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the MeterReadingHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the MeterReadingHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  organization?: Maybe<Scalars['String']>;
+  date?: Maybe<Scalars['String']>;
+  meter?: Maybe<Scalars['String']>;
+  value1?: Maybe<Scalars['Int']>;
+  value2?: Maybe<Scalars['Int']>;
+  value3?: Maybe<Scalars['Int']>;
+  value4?: Maybe<Scalars['Int']>;
+  client?: Maybe<Scalars['String']>;
+  contact?: Maybe<Scalars['String']>;
+  clientName?: Maybe<Scalars['String']>;
+  clientEmail?: Maybe<Scalars['String']>;
+  clientPhone?: Maybe<Scalars['String']>;
+  source?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MeterReadingHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type MeterReadingHistoryRecordCreateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  organization?: Maybe<Scalars['String']>;
+  date?: Maybe<Scalars['String']>;
+  meter?: Maybe<Scalars['String']>;
+  value1?: Maybe<Scalars['Int']>;
+  value2?: Maybe<Scalars['Int']>;
+  value3?: Maybe<Scalars['Int']>;
+  value4?: Maybe<Scalars['Int']>;
+  client?: Maybe<Scalars['String']>;
+  contact?: Maybe<Scalars['String']>;
+  clientName?: Maybe<Scalars['String']>;
+  clientEmail?: Maybe<Scalars['String']>;
+  clientPhone?: Maybe<Scalars['String']>;
+  source?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MeterReadingHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum MeterReadingHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type MeterReadingHistoryRecordUpdateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  organization?: Maybe<Scalars['String']>;
+  date?: Maybe<Scalars['String']>;
+  meter?: Maybe<Scalars['String']>;
+  value1?: Maybe<Scalars['Int']>;
+  value2?: Maybe<Scalars['Int']>;
+  value3?: Maybe<Scalars['Int']>;
+  value4?: Maybe<Scalars['Int']>;
+  client?: Maybe<Scalars['String']>;
+  contact?: Maybe<Scalars['String']>;
+  clientName?: Maybe<Scalars['String']>;
+  clientEmail?: Maybe<Scalars['String']>;
+  clientPhone?: Maybe<Scalars['String']>;
+  source?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MeterReadingHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type MeterReadingHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<MeterReadingHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<MeterReadingHistoryRecordWhereInput>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  date?: Maybe<Scalars['String']>;
+  date_not?: Maybe<Scalars['String']>;
+  date_lt?: Maybe<Scalars['String']>;
+  date_lte?: Maybe<Scalars['String']>;
+  date_gt?: Maybe<Scalars['String']>;
+  date_gte?: Maybe<Scalars['String']>;
+  date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  meter?: Maybe<Scalars['String']>;
+  meter_not?: Maybe<Scalars['String']>;
+  meter_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  meter_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  value1?: Maybe<Scalars['Int']>;
+  value1_not?: Maybe<Scalars['Int']>;
+  value1_lt?: Maybe<Scalars['Int']>;
+  value1_lte?: Maybe<Scalars['Int']>;
+  value1_gt?: Maybe<Scalars['Int']>;
+  value1_gte?: Maybe<Scalars['Int']>;
+  value1_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value1_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value2?: Maybe<Scalars['Int']>;
+  value2_not?: Maybe<Scalars['Int']>;
+  value2_lt?: Maybe<Scalars['Int']>;
+  value2_lte?: Maybe<Scalars['Int']>;
+  value2_gt?: Maybe<Scalars['Int']>;
+  value2_gte?: Maybe<Scalars['Int']>;
+  value2_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value2_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value3?: Maybe<Scalars['Int']>;
+  value3_not?: Maybe<Scalars['Int']>;
+  value3_lt?: Maybe<Scalars['Int']>;
+  value3_lte?: Maybe<Scalars['Int']>;
+  value3_gt?: Maybe<Scalars['Int']>;
+  value3_gte?: Maybe<Scalars['Int']>;
+  value3_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value3_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value4?: Maybe<Scalars['Int']>;
+  value4_not?: Maybe<Scalars['Int']>;
+  value4_lt?: Maybe<Scalars['Int']>;
+  value4_lte?: Maybe<Scalars['Int']>;
+  value4_gt?: Maybe<Scalars['Int']>;
+  value4_gte?: Maybe<Scalars['Int']>;
+  value4_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value4_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  client?: Maybe<Scalars['String']>;
+  client_not?: Maybe<Scalars['String']>;
+  client_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  client_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  contact?: Maybe<Scalars['String']>;
+  contact_not?: Maybe<Scalars['String']>;
+  contact_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  contact_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientName?: Maybe<Scalars['String']>;
+  clientName_not?: Maybe<Scalars['String']>;
+  clientName_contains?: Maybe<Scalars['String']>;
+  clientName_not_contains?: Maybe<Scalars['String']>;
+  clientName_starts_with?: Maybe<Scalars['String']>;
+  clientName_not_starts_with?: Maybe<Scalars['String']>;
+  clientName_ends_with?: Maybe<Scalars['String']>;
+  clientName_not_ends_with?: Maybe<Scalars['String']>;
+  clientName_i?: Maybe<Scalars['String']>;
+  clientName_not_i?: Maybe<Scalars['String']>;
+  clientName_contains_i?: Maybe<Scalars['String']>;
+  clientName_not_contains_i?: Maybe<Scalars['String']>;
+  clientName_starts_with_i?: Maybe<Scalars['String']>;
+  clientName_not_starts_with_i?: Maybe<Scalars['String']>;
+  clientName_ends_with_i?: Maybe<Scalars['String']>;
+  clientName_not_ends_with_i?: Maybe<Scalars['String']>;
+  clientName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientEmail?: Maybe<Scalars['String']>;
+  clientEmail_not?: Maybe<Scalars['String']>;
+  clientEmail_contains?: Maybe<Scalars['String']>;
+  clientEmail_not_contains?: Maybe<Scalars['String']>;
+  clientEmail_starts_with?: Maybe<Scalars['String']>;
+  clientEmail_not_starts_with?: Maybe<Scalars['String']>;
+  clientEmail_ends_with?: Maybe<Scalars['String']>;
+  clientEmail_not_ends_with?: Maybe<Scalars['String']>;
+  clientEmail_i?: Maybe<Scalars['String']>;
+  clientEmail_not_i?: Maybe<Scalars['String']>;
+  clientEmail_contains_i?: Maybe<Scalars['String']>;
+  clientEmail_not_contains_i?: Maybe<Scalars['String']>;
+  clientEmail_starts_with_i?: Maybe<Scalars['String']>;
+  clientEmail_not_starts_with_i?: Maybe<Scalars['String']>;
+  clientEmail_ends_with_i?: Maybe<Scalars['String']>;
+  clientEmail_not_ends_with_i?: Maybe<Scalars['String']>;
+  clientEmail_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientEmail_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientPhone?: Maybe<Scalars['String']>;
+  clientPhone_not?: Maybe<Scalars['String']>;
+  clientPhone_contains?: Maybe<Scalars['String']>;
+  clientPhone_not_contains?: Maybe<Scalars['String']>;
+  clientPhone_starts_with?: Maybe<Scalars['String']>;
+  clientPhone_not_starts_with?: Maybe<Scalars['String']>;
+  clientPhone_ends_with?: Maybe<Scalars['String']>;
+  clientPhone_not_ends_with?: Maybe<Scalars['String']>;
+  clientPhone_i?: Maybe<Scalars['String']>;
+  clientPhone_not_i?: Maybe<Scalars['String']>;
+  clientPhone_contains_i?: Maybe<Scalars['String']>;
+  clientPhone_not_contains_i?: Maybe<Scalars['String']>;
+  clientPhone_starts_with_i?: Maybe<Scalars['String']>;
+  clientPhone_not_starts_with_i?: Maybe<Scalars['String']>;
+  clientPhone_ends_with_i?: Maybe<Scalars['String']>;
+  clientPhone_not_ends_with_i?: Maybe<Scalars['String']>;
+  clientPhone_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientPhone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  source?: Maybe<Scalars['String']>;
+  source_not?: Maybe<Scalars['String']>;
+  source_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  source_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<MeterReadingHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<MeterReadingHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<MeterReadingHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<MeterReadingHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type MeterReadingHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type MeterReadingHistoryRecordsCreateInput = {
+  data?: Maybe<MeterReadingHistoryRecordCreateInput>;
+};
+
+export type MeterReadingHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<MeterReadingHistoryRecordUpdateInput>;
+};
+
+/**  Ticket source. Income call, mobile_app, ...  */
+export type MeterReadingSource = {
+  __typename?: 'MeterReadingSource';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the MeterReadingSource List config, or
+   *  2. As an alias to the field set on 'labelField' in the MeterReadingSource List config, or
+   *  3. As an alias to a 'name' field on the MeterReadingSource List (if one exists), or
+   *  4. As an alias to the 'id' field on the MeterReadingSource List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+  type?: Maybe<MeterReadingSourceTypeType>;
+  name?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<User>;
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+export type MeterReadingSourceCreateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+  type?: Maybe<MeterReadingSourceTypeType>;
+  name?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+/**  A keystone list  */
+export type MeterReadingSourceHistoryRecord = {
+  __typename?: 'MeterReadingSourceHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the MeterReadingSourceHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the MeterReadingSourceHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the MeterReadingSourceHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the MeterReadingSourceHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  type?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MeterReadingSourceHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type MeterReadingSourceHistoryRecordCreateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  type?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MeterReadingSourceHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum MeterReadingSourceHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type MeterReadingSourceHistoryRecordUpdateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  type?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MeterReadingSourceHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type MeterReadingSourceHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<MeterReadingSourceHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<MeterReadingSourceHistoryRecordWhereInput>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  type?: Maybe<Scalars['String']>;
+  type_not?: Maybe<Scalars['String']>;
+  type_contains?: Maybe<Scalars['String']>;
+  type_not_contains?: Maybe<Scalars['String']>;
+  type_starts_with?: Maybe<Scalars['String']>;
+  type_not_starts_with?: Maybe<Scalars['String']>;
+  type_ends_with?: Maybe<Scalars['String']>;
+  type_not_ends_with?: Maybe<Scalars['String']>;
+  type_i?: Maybe<Scalars['String']>;
+  type_not_i?: Maybe<Scalars['String']>;
+  type_contains_i?: Maybe<Scalars['String']>;
+  type_not_contains_i?: Maybe<Scalars['String']>;
+  type_starts_with_i?: Maybe<Scalars['String']>;
+  type_not_starts_with_i?: Maybe<Scalars['String']>;
+  type_ends_with_i?: Maybe<Scalars['String']>;
+  type_not_ends_with_i?: Maybe<Scalars['String']>;
+  type_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<MeterReadingSourceHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<MeterReadingSourceHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<MeterReadingSourceHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<MeterReadingSourceHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type MeterReadingSourceHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type MeterReadingSourceHistoryRecordsCreateInput = {
+  data?: Maybe<MeterReadingSourceHistoryRecordCreateInput>;
+};
+
+export type MeterReadingSourceHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<MeterReadingSourceHistoryRecordUpdateInput>;
+};
+
+export type MeterReadingSourceRelateToOneInput = {
+  create?: Maybe<MeterReadingSourceCreateInput>;
+  connect?: Maybe<MeterReadingSourceWhereUniqueInput>;
+  disconnect?: Maybe<MeterReadingSourceWhereUniqueInput>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
+export enum MeterReadingSourceTypeType {
+  Call = 'call',
+  MobileApp = 'mobile_app'
+}
+
+export type MeterReadingSourceUpdateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+  type?: Maybe<MeterReadingSourceTypeType>;
+  name?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+export type MeterReadingSourceWhereInput = {
+  AND?: Maybe<Array<Maybe<MeterReadingSourceWhereInput>>>;
+  OR?: Maybe<Array<Maybe<MeterReadingSourceWhereInput>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  type?: Maybe<MeterReadingSourceTypeType>;
+  type_not?: Maybe<MeterReadingSourceTypeType>;
+  type_in?: Maybe<Array<Maybe<MeterReadingSourceTypeType>>>;
+  type_not_in?: Maybe<Array<Maybe<MeterReadingSourceTypeType>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type MeterReadingSourceWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type MeterReadingSourcesCreateInput = {
+  data?: Maybe<MeterReadingSourceCreateInput>;
+};
+
+export type MeterReadingSourcesUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<MeterReadingSourceUpdateInput>;
+};
+
+export type MeterReadingUpdateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  date?: Maybe<Scalars['String']>;
+  meter?: Maybe<MeterRelateToOneInput>;
+  value1?: Maybe<Scalars['Int']>;
+  value2?: Maybe<Scalars['Int']>;
+  value3?: Maybe<Scalars['Int']>;
+  value4?: Maybe<Scalars['Int']>;
+  client?: Maybe<UserRelateToOneInput>;
+  contact?: Maybe<ContactRelateToOneInput>;
+  clientName?: Maybe<Scalars['String']>;
+  clientEmail?: Maybe<Scalars['String']>;
+  clientPhone?: Maybe<Scalars['String']>;
+  source?: Maybe<MeterReadingSourceRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+export type MeterReadingWhereInput = {
+  AND?: Maybe<Array<Maybe<MeterReadingWhereInput>>>;
+  OR?: Maybe<Array<Maybe<MeterReadingWhereInput>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
+  date?: Maybe<Scalars['String']>;
+  date_not?: Maybe<Scalars['String']>;
+  date_lt?: Maybe<Scalars['String']>;
+  date_lte?: Maybe<Scalars['String']>;
+  date_gt?: Maybe<Scalars['String']>;
+  date_gte?: Maybe<Scalars['String']>;
+  date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  meter?: Maybe<MeterWhereInput>;
+  meter_is_null?: Maybe<Scalars['Boolean']>;
+  value1?: Maybe<Scalars['Int']>;
+  value1_not?: Maybe<Scalars['Int']>;
+  value1_lt?: Maybe<Scalars['Int']>;
+  value1_lte?: Maybe<Scalars['Int']>;
+  value1_gt?: Maybe<Scalars['Int']>;
+  value1_gte?: Maybe<Scalars['Int']>;
+  value1_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value1_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value2?: Maybe<Scalars['Int']>;
+  value2_not?: Maybe<Scalars['Int']>;
+  value2_lt?: Maybe<Scalars['Int']>;
+  value2_lte?: Maybe<Scalars['Int']>;
+  value2_gt?: Maybe<Scalars['Int']>;
+  value2_gte?: Maybe<Scalars['Int']>;
+  value2_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value2_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value3?: Maybe<Scalars['Int']>;
+  value3_not?: Maybe<Scalars['Int']>;
+  value3_lt?: Maybe<Scalars['Int']>;
+  value3_lte?: Maybe<Scalars['Int']>;
+  value3_gt?: Maybe<Scalars['Int']>;
+  value3_gte?: Maybe<Scalars['Int']>;
+  value3_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value3_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value4?: Maybe<Scalars['Int']>;
+  value4_not?: Maybe<Scalars['Int']>;
+  value4_lt?: Maybe<Scalars['Int']>;
+  value4_lte?: Maybe<Scalars['Int']>;
+  value4_gt?: Maybe<Scalars['Int']>;
+  value4_gte?: Maybe<Scalars['Int']>;
+  value4_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  value4_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  client?: Maybe<UserWhereInput>;
+  client_is_null?: Maybe<Scalars['Boolean']>;
+  contact?: Maybe<ContactWhereInput>;
+  contact_is_null?: Maybe<Scalars['Boolean']>;
+  clientName?: Maybe<Scalars['String']>;
+  clientName_not?: Maybe<Scalars['String']>;
+  clientName_contains?: Maybe<Scalars['String']>;
+  clientName_not_contains?: Maybe<Scalars['String']>;
+  clientName_starts_with?: Maybe<Scalars['String']>;
+  clientName_not_starts_with?: Maybe<Scalars['String']>;
+  clientName_ends_with?: Maybe<Scalars['String']>;
+  clientName_not_ends_with?: Maybe<Scalars['String']>;
+  clientName_i?: Maybe<Scalars['String']>;
+  clientName_not_i?: Maybe<Scalars['String']>;
+  clientName_contains_i?: Maybe<Scalars['String']>;
+  clientName_not_contains_i?: Maybe<Scalars['String']>;
+  clientName_starts_with_i?: Maybe<Scalars['String']>;
+  clientName_not_starts_with_i?: Maybe<Scalars['String']>;
+  clientName_ends_with_i?: Maybe<Scalars['String']>;
+  clientName_not_ends_with_i?: Maybe<Scalars['String']>;
+  clientName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientEmail?: Maybe<Scalars['String']>;
+  clientEmail_not?: Maybe<Scalars['String']>;
+  clientEmail_contains?: Maybe<Scalars['String']>;
+  clientEmail_not_contains?: Maybe<Scalars['String']>;
+  clientEmail_starts_with?: Maybe<Scalars['String']>;
+  clientEmail_not_starts_with?: Maybe<Scalars['String']>;
+  clientEmail_ends_with?: Maybe<Scalars['String']>;
+  clientEmail_not_ends_with?: Maybe<Scalars['String']>;
+  clientEmail_i?: Maybe<Scalars['String']>;
+  clientEmail_not_i?: Maybe<Scalars['String']>;
+  clientEmail_contains_i?: Maybe<Scalars['String']>;
+  clientEmail_not_contains_i?: Maybe<Scalars['String']>;
+  clientEmail_starts_with_i?: Maybe<Scalars['String']>;
+  clientEmail_not_starts_with_i?: Maybe<Scalars['String']>;
+  clientEmail_ends_with_i?: Maybe<Scalars['String']>;
+  clientEmail_not_ends_with_i?: Maybe<Scalars['String']>;
+  clientEmail_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientEmail_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientPhone?: Maybe<Scalars['String']>;
+  clientPhone_not?: Maybe<Scalars['String']>;
+  clientPhone_contains?: Maybe<Scalars['String']>;
+  clientPhone_not_contains?: Maybe<Scalars['String']>;
+  clientPhone_starts_with?: Maybe<Scalars['String']>;
+  clientPhone_not_starts_with?: Maybe<Scalars['String']>;
+  clientPhone_ends_with?: Maybe<Scalars['String']>;
+  clientPhone_not_ends_with?: Maybe<Scalars['String']>;
+  clientPhone_i?: Maybe<Scalars['String']>;
+  clientPhone_not_i?: Maybe<Scalars['String']>;
+  clientPhone_contains_i?: Maybe<Scalars['String']>;
+  clientPhone_not_contains_i?: Maybe<Scalars['String']>;
+  clientPhone_starts_with_i?: Maybe<Scalars['String']>;
+  clientPhone_not_starts_with_i?: Maybe<Scalars['String']>;
+  clientPhone_ends_with_i?: Maybe<Scalars['String']>;
+  clientPhone_not_ends_with_i?: Maybe<Scalars['String']>;
+  clientPhone_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientPhone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  source?: Maybe<MeterReadingSourceWhereInput>;
+  source_is_null?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type MeterReadingWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type MeterReadingsCreateInput = {
+  data?: Maybe<MeterReadingCreateInput>;
+};
+
+export type MeterReadingsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<MeterReadingUpdateInput>;
+};
+
+export type MeterRelateToOneInput = {
+  create?: Maybe<MeterCreateInput>;
+  connect?: Maybe<MeterWhereUniqueInput>;
+  disconnect?: Maybe<MeterWhereUniqueInput>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
+/**  Kind of consumed resource, measured by meter  */
+export type MeterResource = {
+  __typename?: 'MeterResource';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the MeterResource List config, or
+   *  2. As an alias to the field set on 'labelField' in the MeterResource List config, or
+   *  3. As an alias to a 'name' field on the MeterResource List (if one exists), or
+   *  4. As an alias to the 'id' field on the MeterResource List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+  name?: Maybe<Scalars['String']>;
+  measure?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<User>;
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+export type MeterResourceCreateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+  name?: Maybe<Scalars['String']>;
+  measure?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+/**  A keystone list  */
+export type MeterResourceHistoryRecord = {
+  __typename?: 'MeterResourceHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the MeterResourceHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the MeterResourceHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the MeterResourceHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the MeterResourceHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  name?: Maybe<Scalars['String']>;
+  measure?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MeterResourceHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type MeterResourceHistoryRecordCreateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  name?: Maybe<Scalars['String']>;
+  measure?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MeterResourceHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum MeterResourceHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type MeterResourceHistoryRecordUpdateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  name?: Maybe<Scalars['String']>;
+  measure?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MeterResourceHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type MeterResourceHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<MeterResourceHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<MeterResourceHistoryRecordWhereInput>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  measure?: Maybe<Scalars['String']>;
+  measure_not?: Maybe<Scalars['String']>;
+  measure_contains?: Maybe<Scalars['String']>;
+  measure_not_contains?: Maybe<Scalars['String']>;
+  measure_starts_with?: Maybe<Scalars['String']>;
+  measure_not_starts_with?: Maybe<Scalars['String']>;
+  measure_ends_with?: Maybe<Scalars['String']>;
+  measure_not_ends_with?: Maybe<Scalars['String']>;
+  measure_i?: Maybe<Scalars['String']>;
+  measure_not_i?: Maybe<Scalars['String']>;
+  measure_contains_i?: Maybe<Scalars['String']>;
+  measure_not_contains_i?: Maybe<Scalars['String']>;
+  measure_starts_with_i?: Maybe<Scalars['String']>;
+  measure_not_starts_with_i?: Maybe<Scalars['String']>;
+  measure_ends_with_i?: Maybe<Scalars['String']>;
+  measure_not_ends_with_i?: Maybe<Scalars['String']>;
+  measure_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  measure_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<MeterResourceHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<MeterResourceHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<MeterResourceHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<MeterResourceHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type MeterResourceHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type MeterResourceHistoryRecordsCreateInput = {
+  data?: Maybe<MeterResourceHistoryRecordCreateInput>;
+};
+
+export type MeterResourceHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<MeterResourceHistoryRecordUpdateInput>;
+};
+
+export type MeterResourceRelateToOneInput = {
+  create?: Maybe<MeterResourceCreateInput>;
+  connect?: Maybe<MeterResourceWhereUniqueInput>;
+  disconnect?: Maybe<MeterResourceWhereUniqueInput>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
+export type MeterResourceUpdateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+  name?: Maybe<Scalars['String']>;
+  measure?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+export type MeterResourceWhereInput = {
+  AND?: Maybe<Array<Maybe<MeterResourceWhereInput>>>;
+  OR?: Maybe<Array<Maybe<MeterResourceWhereInput>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  measure?: Maybe<Scalars['String']>;
+  measure_not?: Maybe<Scalars['String']>;
+  measure_contains?: Maybe<Scalars['String']>;
+  measure_not_contains?: Maybe<Scalars['String']>;
+  measure_starts_with?: Maybe<Scalars['String']>;
+  measure_not_starts_with?: Maybe<Scalars['String']>;
+  measure_ends_with?: Maybe<Scalars['String']>;
+  measure_not_ends_with?: Maybe<Scalars['String']>;
+  measure_i?: Maybe<Scalars['String']>;
+  measure_not_i?: Maybe<Scalars['String']>;
+  measure_contains_i?: Maybe<Scalars['String']>;
+  measure_not_contains_i?: Maybe<Scalars['String']>;
+  measure_starts_with_i?: Maybe<Scalars['String']>;
+  measure_not_starts_with_i?: Maybe<Scalars['String']>;
+  measure_ends_with_i?: Maybe<Scalars['String']>;
+  measure_not_ends_with_i?: Maybe<Scalars['String']>;
+  measure_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  measure_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type MeterResourceWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type MeterResourcesCreateInput = {
+  data?: Maybe<MeterResourceCreateInput>;
+};
+
+export type MeterResourcesUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<MeterResourceUpdateInput>;
+};
+
+export type MeterUpdateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  property?: Maybe<PropertyRelateToOneInput>;
+  number?: Maybe<Scalars['String']>;
+  numberOfTariffs?: Maybe<Scalars['Int']>;
+  installationDate?: Maybe<Scalars['String']>;
+  commissioningDate?: Maybe<Scalars['String']>;
+  verificationDate?: Maybe<Scalars['String']>;
+  controlReadingsDate?: Maybe<Scalars['String']>;
+  accountNumber?: Maybe<Scalars['String']>;
+  unitName?: Maybe<Scalars['String']>;
+  place?: Maybe<Scalars['String']>;
+  resource?: Maybe<MeterResourceRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+export type MeterWhereInput = {
+  AND?: Maybe<Array<Maybe<MeterWhereInput>>>;
+  OR?: Maybe<Array<Maybe<MeterWhereInput>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
+  property?: Maybe<PropertyWhereInput>;
+  property_is_null?: Maybe<Scalars['Boolean']>;
+  number?: Maybe<Scalars['String']>;
+  number_not?: Maybe<Scalars['String']>;
+  number_contains?: Maybe<Scalars['String']>;
+  number_not_contains?: Maybe<Scalars['String']>;
+  number_starts_with?: Maybe<Scalars['String']>;
+  number_not_starts_with?: Maybe<Scalars['String']>;
+  number_ends_with?: Maybe<Scalars['String']>;
+  number_not_ends_with?: Maybe<Scalars['String']>;
+  number_i?: Maybe<Scalars['String']>;
+  number_not_i?: Maybe<Scalars['String']>;
+  number_contains_i?: Maybe<Scalars['String']>;
+  number_not_contains_i?: Maybe<Scalars['String']>;
+  number_starts_with_i?: Maybe<Scalars['String']>;
+  number_not_starts_with_i?: Maybe<Scalars['String']>;
+  number_ends_with_i?: Maybe<Scalars['String']>;
+  number_not_ends_with_i?: Maybe<Scalars['String']>;
+  number_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  number_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  numberOfTariffs?: Maybe<Scalars['Int']>;
+  numberOfTariffs_not?: Maybe<Scalars['Int']>;
+  numberOfTariffs_lt?: Maybe<Scalars['Int']>;
+  numberOfTariffs_lte?: Maybe<Scalars['Int']>;
+  numberOfTariffs_gt?: Maybe<Scalars['Int']>;
+  numberOfTariffs_gte?: Maybe<Scalars['Int']>;
+  numberOfTariffs_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  numberOfTariffs_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  installationDate?: Maybe<Scalars['String']>;
+  installationDate_not?: Maybe<Scalars['String']>;
+  installationDate_lt?: Maybe<Scalars['String']>;
+  installationDate_lte?: Maybe<Scalars['String']>;
+  installationDate_gt?: Maybe<Scalars['String']>;
+  installationDate_gte?: Maybe<Scalars['String']>;
+  installationDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  installationDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  commissioningDate?: Maybe<Scalars['String']>;
+  commissioningDate_not?: Maybe<Scalars['String']>;
+  commissioningDate_lt?: Maybe<Scalars['String']>;
+  commissioningDate_lte?: Maybe<Scalars['String']>;
+  commissioningDate_gt?: Maybe<Scalars['String']>;
+  commissioningDate_gte?: Maybe<Scalars['String']>;
+  commissioningDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  commissioningDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  verificationDate?: Maybe<Scalars['String']>;
+  verificationDate_not?: Maybe<Scalars['String']>;
+  verificationDate_lt?: Maybe<Scalars['String']>;
+  verificationDate_lte?: Maybe<Scalars['String']>;
+  verificationDate_gt?: Maybe<Scalars['String']>;
+  verificationDate_gte?: Maybe<Scalars['String']>;
+  verificationDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  verificationDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  controlReadingsDate?: Maybe<Scalars['String']>;
+  controlReadingsDate_not?: Maybe<Scalars['String']>;
+  controlReadingsDate_lt?: Maybe<Scalars['String']>;
+  controlReadingsDate_lte?: Maybe<Scalars['String']>;
+  controlReadingsDate_gt?: Maybe<Scalars['String']>;
+  controlReadingsDate_gte?: Maybe<Scalars['String']>;
+  controlReadingsDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  controlReadingsDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  accountNumber?: Maybe<Scalars['String']>;
+  accountNumber_not?: Maybe<Scalars['String']>;
+  accountNumber_contains?: Maybe<Scalars['String']>;
+  accountNumber_not_contains?: Maybe<Scalars['String']>;
+  accountNumber_starts_with?: Maybe<Scalars['String']>;
+  accountNumber_not_starts_with?: Maybe<Scalars['String']>;
+  accountNumber_ends_with?: Maybe<Scalars['String']>;
+  accountNumber_not_ends_with?: Maybe<Scalars['String']>;
+  accountNumber_i?: Maybe<Scalars['String']>;
+  accountNumber_not_i?: Maybe<Scalars['String']>;
+  accountNumber_contains_i?: Maybe<Scalars['String']>;
+  accountNumber_not_contains_i?: Maybe<Scalars['String']>;
+  accountNumber_starts_with_i?: Maybe<Scalars['String']>;
+  accountNumber_not_starts_with_i?: Maybe<Scalars['String']>;
+  accountNumber_ends_with_i?: Maybe<Scalars['String']>;
+  accountNumber_not_ends_with_i?: Maybe<Scalars['String']>;
+  accountNumber_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  accountNumber_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitName?: Maybe<Scalars['String']>;
+  unitName_not?: Maybe<Scalars['String']>;
+  unitName_contains?: Maybe<Scalars['String']>;
+  unitName_not_contains?: Maybe<Scalars['String']>;
+  unitName_starts_with?: Maybe<Scalars['String']>;
+  unitName_not_starts_with?: Maybe<Scalars['String']>;
+  unitName_ends_with?: Maybe<Scalars['String']>;
+  unitName_not_ends_with?: Maybe<Scalars['String']>;
+  unitName_i?: Maybe<Scalars['String']>;
+  unitName_not_i?: Maybe<Scalars['String']>;
+  unitName_contains_i?: Maybe<Scalars['String']>;
+  unitName_not_contains_i?: Maybe<Scalars['String']>;
+  unitName_starts_with_i?: Maybe<Scalars['String']>;
+  unitName_not_starts_with_i?: Maybe<Scalars['String']>;
+  unitName_ends_with_i?: Maybe<Scalars['String']>;
+  unitName_not_ends_with_i?: Maybe<Scalars['String']>;
+  unitName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  place?: Maybe<Scalars['String']>;
+  place_not?: Maybe<Scalars['String']>;
+  place_contains?: Maybe<Scalars['String']>;
+  place_not_contains?: Maybe<Scalars['String']>;
+  place_starts_with?: Maybe<Scalars['String']>;
+  place_not_starts_with?: Maybe<Scalars['String']>;
+  place_ends_with?: Maybe<Scalars['String']>;
+  place_not_ends_with?: Maybe<Scalars['String']>;
+  place_i?: Maybe<Scalars['String']>;
+  place_not_i?: Maybe<Scalars['String']>;
+  place_contains_i?: Maybe<Scalars['String']>;
+  place_not_contains_i?: Maybe<Scalars['String']>;
+  place_starts_with_i?: Maybe<Scalars['String']>;
+  place_not_starts_with_i?: Maybe<Scalars['String']>;
+  place_ends_with_i?: Maybe<Scalars['String']>;
+  place_not_ends_with_i?: Maybe<Scalars['String']>;
+  place_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  place_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  resource?: Maybe<MeterResourceWhereInput>;
+  resource_is_null?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type MeterWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type MetersCreateInput = {
+  data?: Maybe<MeterCreateInput>;
+};
+
+export type MetersUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<MeterUpdateInput>;
 };
 
 export type Mutation = {
@@ -8207,6 +10217,102 @@ export type Mutation = {
   deleteDivision?: Maybe<Division>;
   /**  Delete multiple Division items by ID.  */
   deleteDivisions?: Maybe<Array<Maybe<Division>>>;
+  /**  Create a single MeterResourceHistoryRecord item.  */
+  createMeterResourceHistoryRecord?: Maybe<MeterResourceHistoryRecord>;
+  /**  Create multiple MeterResourceHistoryRecord items.  */
+  createMeterResourceHistoryRecords?: Maybe<Array<Maybe<MeterResourceHistoryRecord>>>;
+  /**  Update a single MeterResourceHistoryRecord item by ID.  */
+  updateMeterResourceHistoryRecord?: Maybe<MeterResourceHistoryRecord>;
+  /**  Update multiple MeterResourceHistoryRecord items by ID.  */
+  updateMeterResourceHistoryRecords?: Maybe<Array<Maybe<MeterResourceHistoryRecord>>>;
+  /**  Delete a single MeterResourceHistoryRecord item by ID.  */
+  deleteMeterResourceHistoryRecord?: Maybe<MeterResourceHistoryRecord>;
+  /**  Delete multiple MeterResourceHistoryRecord items by ID.  */
+  deleteMeterResourceHistoryRecords?: Maybe<Array<Maybe<MeterResourceHistoryRecord>>>;
+  /**  Create a single MeterResource item.  */
+  createMeterResource?: Maybe<MeterResource>;
+  /**  Create multiple MeterResource items.  */
+  createMeterResources?: Maybe<Array<Maybe<MeterResource>>>;
+  /**  Update a single MeterResource item by ID.  */
+  updateMeterResource?: Maybe<MeterResource>;
+  /**  Update multiple MeterResource items by ID.  */
+  updateMeterResources?: Maybe<Array<Maybe<MeterResource>>>;
+  /**  Delete a single MeterResource item by ID.  */
+  deleteMeterResource?: Maybe<MeterResource>;
+  /**  Delete multiple MeterResource items by ID.  */
+  deleteMeterResources?: Maybe<Array<Maybe<MeterResource>>>;
+  /**  Create a single MeterReadingSourceHistoryRecord item.  */
+  createMeterReadingSourceHistoryRecord?: Maybe<MeterReadingSourceHistoryRecord>;
+  /**  Create multiple MeterReadingSourceHistoryRecord items.  */
+  createMeterReadingSourceHistoryRecords?: Maybe<Array<Maybe<MeterReadingSourceHistoryRecord>>>;
+  /**  Update a single MeterReadingSourceHistoryRecord item by ID.  */
+  updateMeterReadingSourceHistoryRecord?: Maybe<MeterReadingSourceHistoryRecord>;
+  /**  Update multiple MeterReadingSourceHistoryRecord items by ID.  */
+  updateMeterReadingSourceHistoryRecords?: Maybe<Array<Maybe<MeterReadingSourceHistoryRecord>>>;
+  /**  Delete a single MeterReadingSourceHistoryRecord item by ID.  */
+  deleteMeterReadingSourceHistoryRecord?: Maybe<MeterReadingSourceHistoryRecord>;
+  /**  Delete multiple MeterReadingSourceHistoryRecord items by ID.  */
+  deleteMeterReadingSourceHistoryRecords?: Maybe<Array<Maybe<MeterReadingSourceHistoryRecord>>>;
+  /**  Create a single MeterReadingSource item.  */
+  createMeterReadingSource?: Maybe<MeterReadingSource>;
+  /**  Create multiple MeterReadingSource items.  */
+  createMeterReadingSources?: Maybe<Array<Maybe<MeterReadingSource>>>;
+  /**  Update a single MeterReadingSource item by ID.  */
+  updateMeterReadingSource?: Maybe<MeterReadingSource>;
+  /**  Update multiple MeterReadingSource items by ID.  */
+  updateMeterReadingSources?: Maybe<Array<Maybe<MeterReadingSource>>>;
+  /**  Delete a single MeterReadingSource item by ID.  */
+  deleteMeterReadingSource?: Maybe<MeterReadingSource>;
+  /**  Delete multiple MeterReadingSource items by ID.  */
+  deleteMeterReadingSources?: Maybe<Array<Maybe<MeterReadingSource>>>;
+  /**  Create a single MeterReadingHistoryRecord item.  */
+  createMeterReadingHistoryRecord?: Maybe<MeterReadingHistoryRecord>;
+  /**  Create multiple MeterReadingHistoryRecord items.  */
+  createMeterReadingHistoryRecords?: Maybe<Array<Maybe<MeterReadingHistoryRecord>>>;
+  /**  Update a single MeterReadingHistoryRecord item by ID.  */
+  updateMeterReadingHistoryRecord?: Maybe<MeterReadingHistoryRecord>;
+  /**  Update multiple MeterReadingHistoryRecord items by ID.  */
+  updateMeterReadingHistoryRecords?: Maybe<Array<Maybe<MeterReadingHistoryRecord>>>;
+  /**  Delete a single MeterReadingHistoryRecord item by ID.  */
+  deleteMeterReadingHistoryRecord?: Maybe<MeterReadingHistoryRecord>;
+  /**  Delete multiple MeterReadingHistoryRecord items by ID.  */
+  deleteMeterReadingHistoryRecords?: Maybe<Array<Maybe<MeterReadingHistoryRecord>>>;
+  /**  Create a single MeterReading item.  */
+  createMeterReading?: Maybe<MeterReading>;
+  /**  Create multiple MeterReading items.  */
+  createMeterReadings?: Maybe<Array<Maybe<MeterReading>>>;
+  /**  Update a single MeterReading item by ID.  */
+  updateMeterReading?: Maybe<MeterReading>;
+  /**  Update multiple MeterReading items by ID.  */
+  updateMeterReadings?: Maybe<Array<Maybe<MeterReading>>>;
+  /**  Delete a single MeterReading item by ID.  */
+  deleteMeterReading?: Maybe<MeterReading>;
+  /**  Delete multiple MeterReading items by ID.  */
+  deleteMeterReadings?: Maybe<Array<Maybe<MeterReading>>>;
+  /**  Create a single MeterHistoryRecord item.  */
+  createMeterHistoryRecord?: Maybe<MeterHistoryRecord>;
+  /**  Create multiple MeterHistoryRecord items.  */
+  createMeterHistoryRecords?: Maybe<Array<Maybe<MeterHistoryRecord>>>;
+  /**  Update a single MeterHistoryRecord item by ID.  */
+  updateMeterHistoryRecord?: Maybe<MeterHistoryRecord>;
+  /**  Update multiple MeterHistoryRecord items by ID.  */
+  updateMeterHistoryRecords?: Maybe<Array<Maybe<MeterHistoryRecord>>>;
+  /**  Delete a single MeterHistoryRecord item by ID.  */
+  deleteMeterHistoryRecord?: Maybe<MeterHistoryRecord>;
+  /**  Delete multiple MeterHistoryRecord items by ID.  */
+  deleteMeterHistoryRecords?: Maybe<Array<Maybe<MeterHistoryRecord>>>;
+  /**  Create a single Meter item.  */
+  createMeter?: Maybe<Meter>;
+  /**  Create multiple Meter items.  */
+  createMeters?: Maybe<Array<Maybe<Meter>>>;
+  /**  Update a single Meter item by ID.  */
+  updateMeter?: Maybe<Meter>;
+  /**  Update multiple Meter items by ID.  */
+  updateMeters?: Maybe<Array<Maybe<Meter>>>;
+  /**  Delete a single Meter item by ID.  */
+  deleteMeter?: Maybe<Meter>;
+  /**  Delete multiple Meter items by ID.  */
+  deleteMeters?: Maybe<Array<Maybe<Meter>>>;
   registerNewUser?: Maybe<User>;
   authenticateUserWithPhoneAndPassword?: Maybe<AuthenticateUserWithPhoneAndPasswordOutput>;
   startPasswordRecovery?: Maybe<StartPasswordRecoveryOutput>;
@@ -10468,6 +12574,254 @@ export type MutationDeleteDivisionsArgs = {
 };
 
 
+export type MutationCreateMeterResourceHistoryRecordArgs = {
+  data?: Maybe<MeterResourceHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateMeterResourceHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<MeterResourceHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateMeterResourceHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<MeterResourceHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateMeterResourceHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<MeterResourceHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteMeterResourceHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteMeterResourceHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateMeterResourceArgs = {
+  data?: Maybe<MeterResourceCreateInput>;
+};
+
+
+export type MutationCreateMeterResourcesArgs = {
+  data?: Maybe<Array<Maybe<MeterResourcesCreateInput>>>;
+};
+
+
+export type MutationUpdateMeterResourceArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<MeterResourceUpdateInput>;
+};
+
+
+export type MutationUpdateMeterResourcesArgs = {
+  data?: Maybe<Array<Maybe<MeterResourcesUpdateInput>>>;
+};
+
+
+export type MutationDeleteMeterResourceArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteMeterResourcesArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateMeterReadingSourceHistoryRecordArgs = {
+  data?: Maybe<MeterReadingSourceHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateMeterReadingSourceHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<MeterReadingSourceHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateMeterReadingSourceHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<MeterReadingSourceHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateMeterReadingSourceHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<MeterReadingSourceHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteMeterReadingSourceHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteMeterReadingSourceHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateMeterReadingSourceArgs = {
+  data?: Maybe<MeterReadingSourceCreateInput>;
+};
+
+
+export type MutationCreateMeterReadingSourcesArgs = {
+  data?: Maybe<Array<Maybe<MeterReadingSourcesCreateInput>>>;
+};
+
+
+export type MutationUpdateMeterReadingSourceArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<MeterReadingSourceUpdateInput>;
+};
+
+
+export type MutationUpdateMeterReadingSourcesArgs = {
+  data?: Maybe<Array<Maybe<MeterReadingSourcesUpdateInput>>>;
+};
+
+
+export type MutationDeleteMeterReadingSourceArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteMeterReadingSourcesArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateMeterReadingHistoryRecordArgs = {
+  data?: Maybe<MeterReadingHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateMeterReadingHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<MeterReadingHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateMeterReadingHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<MeterReadingHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateMeterReadingHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<MeterReadingHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteMeterReadingHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteMeterReadingHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateMeterReadingArgs = {
+  data?: Maybe<MeterReadingCreateInput>;
+};
+
+
+export type MutationCreateMeterReadingsArgs = {
+  data?: Maybe<Array<Maybe<MeterReadingsCreateInput>>>;
+};
+
+
+export type MutationUpdateMeterReadingArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<MeterReadingUpdateInput>;
+};
+
+
+export type MutationUpdateMeterReadingsArgs = {
+  data?: Maybe<Array<Maybe<MeterReadingsUpdateInput>>>;
+};
+
+
+export type MutationDeleteMeterReadingArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteMeterReadingsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateMeterHistoryRecordArgs = {
+  data?: Maybe<MeterHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateMeterHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<MeterHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateMeterHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<MeterHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateMeterHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<MeterHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteMeterHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteMeterHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateMeterArgs = {
+  data?: Maybe<MeterCreateInput>;
+};
+
+
+export type MutationCreateMetersArgs = {
+  data?: Maybe<Array<Maybe<MetersCreateInput>>>;
+};
+
+
+export type MutationUpdateMeterArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<MeterUpdateInput>;
+};
+
+
+export type MutationUpdateMetersArgs = {
+  data?: Maybe<Array<Maybe<MetersUpdateInput>>>;
+};
+
+
+export type MutationDeleteMeterArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteMetersArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
 export type MutationRegisterNewUserArgs = {
   data: RegisterNewUserInput;
 };
@@ -11734,6 +14088,8 @@ export type OrganizationEmployeeHistoryRecord = {
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<Scalars['String']>;
   updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<OrganizationEmployeeHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -11758,6 +14114,8 @@ export type OrganizationEmployeeHistoryRecordCreateInput = {
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<Scalars['String']>;
   updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<OrganizationEmployeeHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -11788,6 +14146,8 @@ export type OrganizationEmployeeHistoryRecordUpdateInput = {
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<Scalars['String']>;
   updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<OrganizationEmployeeHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -11938,6 +14298,18 @@ export type OrganizationEmployeeHistoryRecordWhereInput = {
   updatedBy_not?: Maybe<Scalars['String']>;
   updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   history_date?: Maybe<Scalars['String']>;
   history_date_not?: Maybe<Scalars['String']>;
   history_date_lt?: Maybe<Scalars['String']>;
@@ -12010,6 +14382,7 @@ export type OrganizationEmployeeRole = {
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
+  canManageMeters?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageDivisions?: Maybe<Scalars['Boolean']>;
@@ -12036,6 +14409,7 @@ export type OrganizationEmployeeRoleCreateInput = {
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
+  canManageMeters?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageDivisions?: Maybe<Scalars['Boolean']>;
@@ -12072,6 +14446,7 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
+  canManageMeters?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageDivisions?: Maybe<Scalars['Boolean']>;
@@ -12102,6 +14477,7 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
+  canManageMeters?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageDivisions?: Maybe<Scalars['Boolean']>;
@@ -12137,6 +14513,7 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
+  canManageMeters?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageDivisions?: Maybe<Scalars['Boolean']>;
@@ -12224,6 +14601,8 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canManageProperties_not?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets_not?: Maybe<Scalars['Boolean']>;
+  canManageMeters?: Maybe<Scalars['Boolean']>;
+  canManageMeters_not?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageContacts_not?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
@@ -12322,6 +14701,7 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
+  canManageMeters?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageDivisions?: Maybe<Scalars['Boolean']>;
@@ -12400,6 +14780,8 @@ export type OrganizationEmployeeRoleWhereInput = {
   canManageProperties_not?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets_not?: Maybe<Scalars['Boolean']>;
+  canManageMeters?: Maybe<Scalars['Boolean']>;
+  canManageMeters_not?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageContacts_not?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
@@ -14431,6 +16813,70 @@ export type Query = {
   _allDivisionsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the Division list.  */
   _DivisionsMeta?: Maybe<_ListMeta>;
+  /**  Search for all MeterResourceHistoryRecord items which match the where clause.  */
+  allMeterResourceHistoryRecords?: Maybe<Array<Maybe<MeterResourceHistoryRecord>>>;
+  /**  Search for the MeterResourceHistoryRecord item with the matching ID.  */
+  MeterResourceHistoryRecord?: Maybe<MeterResourceHistoryRecord>;
+  /**  Perform a meta-query on all MeterResourceHistoryRecord items which match the where clause.  */
+  _allMeterResourceHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the MeterResourceHistoryRecord list.  */
+  _MeterResourceHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all MeterResource items which match the where clause.  */
+  allMeterResources?: Maybe<Array<Maybe<MeterResource>>>;
+  /**  Search for the MeterResource item with the matching ID.  */
+  MeterResource?: Maybe<MeterResource>;
+  /**  Perform a meta-query on all MeterResource items which match the where clause.  */
+  _allMeterResourcesMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the MeterResource list.  */
+  _MeterResourcesMeta?: Maybe<_ListMeta>;
+  /**  Search for all MeterReadingSourceHistoryRecord items which match the where clause.  */
+  allMeterReadingSourceHistoryRecords?: Maybe<Array<Maybe<MeterReadingSourceHistoryRecord>>>;
+  /**  Search for the MeterReadingSourceHistoryRecord item with the matching ID.  */
+  MeterReadingSourceHistoryRecord?: Maybe<MeterReadingSourceHistoryRecord>;
+  /**  Perform a meta-query on all MeterReadingSourceHistoryRecord items which match the where clause.  */
+  _allMeterReadingSourceHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the MeterReadingSourceHistoryRecord list.  */
+  _MeterReadingSourceHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all MeterReadingSource items which match the where clause.  */
+  allMeterReadingSources?: Maybe<Array<Maybe<MeterReadingSource>>>;
+  /**  Search for the MeterReadingSource item with the matching ID.  */
+  MeterReadingSource?: Maybe<MeterReadingSource>;
+  /**  Perform a meta-query on all MeterReadingSource items which match the where clause.  */
+  _allMeterReadingSourcesMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the MeterReadingSource list.  */
+  _MeterReadingSourcesMeta?: Maybe<_ListMeta>;
+  /**  Search for all MeterReadingHistoryRecord items which match the where clause.  */
+  allMeterReadingHistoryRecords?: Maybe<Array<Maybe<MeterReadingHistoryRecord>>>;
+  /**  Search for the MeterReadingHistoryRecord item with the matching ID.  */
+  MeterReadingHistoryRecord?: Maybe<MeterReadingHistoryRecord>;
+  /**  Perform a meta-query on all MeterReadingHistoryRecord items which match the where clause.  */
+  _allMeterReadingHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the MeterReadingHistoryRecord list.  */
+  _MeterReadingHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all MeterReading items which match the where clause.  */
+  allMeterReadings?: Maybe<Array<Maybe<MeterReading>>>;
+  /**  Search for the MeterReading item with the matching ID.  */
+  MeterReading?: Maybe<MeterReading>;
+  /**  Perform a meta-query on all MeterReading items which match the where clause.  */
+  _allMeterReadingsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the MeterReading list.  */
+  _MeterReadingsMeta?: Maybe<_ListMeta>;
+  /**  Search for all MeterHistoryRecord items which match the where clause.  */
+  allMeterHistoryRecords?: Maybe<Array<Maybe<MeterHistoryRecord>>>;
+  /**  Search for the MeterHistoryRecord item with the matching ID.  */
+  MeterHistoryRecord?: Maybe<MeterHistoryRecord>;
+  /**  Perform a meta-query on all MeterHistoryRecord items which match the where clause.  */
+  _allMeterHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the MeterHistoryRecord list.  */
+  _MeterHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all Meter items which match the where clause.  */
+  allMeters?: Maybe<Array<Maybe<Meter>>>;
+  /**  Search for the Meter item with the matching ID.  */
+  Meter?: Maybe<Meter>;
+  /**  Perform a meta-query on all Meter items which match the where clause.  */
+  _allMetersMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the Meter list.  */
+  _MetersMeta?: Maybe<_ListMeta>;
   /**  Retrieve the meta-data for all lists.  */
   _ksListsMeta?: Maybe<Array<Maybe<_ListMeta>>>;
   checkPasswordRecoveryToken?: Maybe<CheckPasswordRecoveryTokenOutput>;
@@ -16249,6 +18695,206 @@ export type Query_AllDivisionsMetaArgs = {
 };
 
 
+export type QueryAllMeterResourceHistoryRecordsArgs = {
+  where?: Maybe<MeterResourceHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMeterResourceHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryMeterResourceHistoryRecordArgs = {
+  where: MeterResourceHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllMeterResourceHistoryRecordsMetaArgs = {
+  where?: Maybe<MeterResourceHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMeterResourceHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllMeterResourcesArgs = {
+  where?: Maybe<MeterResourceWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMeterResourcesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryMeterResourceArgs = {
+  where: MeterResourceWhereUniqueInput;
+};
+
+
+export type Query_AllMeterResourcesMetaArgs = {
+  where?: Maybe<MeterResourceWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMeterResourcesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllMeterReadingSourceHistoryRecordsArgs = {
+  where?: Maybe<MeterReadingSourceHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMeterReadingSourceHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryMeterReadingSourceHistoryRecordArgs = {
+  where: MeterReadingSourceHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllMeterReadingSourceHistoryRecordsMetaArgs = {
+  where?: Maybe<MeterReadingSourceHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMeterReadingSourceHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllMeterReadingSourcesArgs = {
+  where?: Maybe<MeterReadingSourceWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMeterReadingSourcesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryMeterReadingSourceArgs = {
+  where: MeterReadingSourceWhereUniqueInput;
+};
+
+
+export type Query_AllMeterReadingSourcesMetaArgs = {
+  where?: Maybe<MeterReadingSourceWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMeterReadingSourcesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllMeterReadingHistoryRecordsArgs = {
+  where?: Maybe<MeterReadingHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMeterReadingHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryMeterReadingHistoryRecordArgs = {
+  where: MeterReadingHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllMeterReadingHistoryRecordsMetaArgs = {
+  where?: Maybe<MeterReadingHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMeterReadingHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllMeterReadingsArgs = {
+  where?: Maybe<MeterReadingWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMeterReadingsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryMeterReadingArgs = {
+  where: MeterReadingWhereUniqueInput;
+};
+
+
+export type Query_AllMeterReadingsMetaArgs = {
+  where?: Maybe<MeterReadingWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMeterReadingsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllMeterHistoryRecordsArgs = {
+  where?: Maybe<MeterHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMeterHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryMeterHistoryRecordArgs = {
+  where: MeterHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllMeterHistoryRecordsMetaArgs = {
+  where?: Maybe<MeterHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMeterHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllMetersArgs = {
+  where?: Maybe<MeterWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMetersBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryMeterArgs = {
+  where: MeterWhereUniqueInput;
+};
+
+
+export type Query_AllMetersMetaArgs = {
+  where?: Maybe<MeterWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMetersBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
 export type Query_KsListsMetaArgs = {
   where?: Maybe<_KsListsMetaInput>;
 };
@@ -16313,8 +18959,8 @@ export type ReInviteOrganizationEmployeeInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
   organization: OrganizationWhereUniqueInput;
-  email: Scalars['String'];
-  phone?: Maybe<Scalars['String']>;
+  email?: Maybe<Scalars['String']>;
+  phone: Scalars['String'];
 };
 
 export type RegisterNewOrganizationInput = {
@@ -16331,7 +18977,7 @@ export type RegisterNewUserInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
   name: Scalars['String'];
-  email: Scalars['String'];
+  email?: Maybe<Scalars['String']>;
   password: Scalars['String'];
   confirmPhoneActionToken?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
@@ -17453,7 +20099,7 @@ export type ServiceConsumersUpdateInput = {
 
 export type ShareTicketInput = {
   sender: SenderFieldInput;
-  users: Array<Scalars['ID']>;
+  employees: Array<Scalars['ID']>;
   ticketId: Scalars['ID'];
 };
 
@@ -17506,6 +20152,8 @@ export enum SortBillingAccountMeterHistoryRecordsBy {
   DvDesc = 'dv_DESC',
   ImportIdAsc = 'importId_ASC',
   ImportIdDesc = 'importId_DESC',
+  NumberAsc = 'number_ASC',
+  NumberDesc = 'number_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -17535,6 +20183,8 @@ export enum SortBillingAccountMeterReadingHistoryRecordsBy {
   Value2Desc = 'value2_DESC',
   Value3Asc = 'value3_ASC',
   Value3Desc = 'value3_DESC',
+  Value4Asc = 'value4_ASC',
+  Value4Desc = 'value4_DESC',
   DateAsc = 'date_ASC',
   DateDesc = 'date_DESC',
   IdAsc = 'id_ASC',
@@ -17574,6 +20224,8 @@ export enum SortBillingAccountMeterReadingsBy {
   Value2Desc = 'value2_DESC',
   Value3Asc = 'value3_ASC',
   Value3Desc = 'value3_DESC',
+  Value4Asc = 'value4_ASC',
+  Value4Desc = 'value4_DESC',
   DateAsc = 'date_ASC',
   DateDesc = 'date_DESC',
   IdAsc = 'id_ASC',
@@ -17603,6 +20255,8 @@ export enum SortBillingAccountMetersBy {
   PropertyDesc = 'property_DESC',
   AccountAsc = 'account_ASC',
   AccountDesc = 'account_DESC',
+  NumberAsc = 'number_ASC',
+  NumberDesc = 'number_DESC',
   ResourceAsc = 'resource_ASC',
   ResourceDesc = 'resource_DESC',
   IdAsc = 'id_ASC',
@@ -18323,6 +20977,258 @@ export enum SortMessagesBy {
   DeletedAtDesc = 'deletedAt_DESC'
 }
 
+export enum SortMeterHistoryRecordsBy {
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  NumberAsc = 'number_ASC',
+  NumberDesc = 'number_DESC',
+  NumberOfTariffsAsc = 'numberOfTariffs_ASC',
+  NumberOfTariffsDesc = 'numberOfTariffs_DESC',
+  InstallationDateAsc = 'installationDate_ASC',
+  InstallationDateDesc = 'installationDate_DESC',
+  CommissioningDateAsc = 'commissioningDate_ASC',
+  CommissioningDateDesc = 'commissioningDate_DESC',
+  VerificationDateAsc = 'verificationDate_ASC',
+  VerificationDateDesc = 'verificationDate_DESC',
+  ControlReadingsDateAsc = 'controlReadingsDate_ASC',
+  ControlReadingsDateDesc = 'controlReadingsDate_DESC',
+  AccountNumberAsc = 'accountNumber_ASC',
+  AccountNumberDesc = 'accountNumber_DESC',
+  UnitNameAsc = 'unitName_ASC',
+  UnitNameDesc = 'unitName_DESC',
+  PlaceAsc = 'place_ASC',
+  PlaceDesc = 'place_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortMeterReadingHistoryRecordsBy {
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  DateAsc = 'date_ASC',
+  DateDesc = 'date_DESC',
+  Value1Asc = 'value1_ASC',
+  Value1Desc = 'value1_DESC',
+  Value2Asc = 'value2_ASC',
+  Value2Desc = 'value2_DESC',
+  Value3Asc = 'value3_ASC',
+  Value3Desc = 'value3_DESC',
+  Value4Asc = 'value4_ASC',
+  Value4Desc = 'value4_DESC',
+  ClientNameAsc = 'clientName_ASC',
+  ClientNameDesc = 'clientName_DESC',
+  ClientEmailAsc = 'clientEmail_ASC',
+  ClientEmailDesc = 'clientEmail_DESC',
+  ClientPhoneAsc = 'clientPhone_ASC',
+  ClientPhoneDesc = 'clientPhone_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortMeterReadingSourceHistoryRecordsBy {
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  TypeAsc = 'type_ASC',
+  TypeDesc = 'type_DESC',
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortMeterReadingSourcesBy {
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  TypeAsc = 'type_ASC',
+  TypeDesc = 'type_DESC',
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC'
+}
+
+export enum SortMeterReadingsBy {
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
+  DateAsc = 'date_ASC',
+  DateDesc = 'date_DESC',
+  MeterAsc = 'meter_ASC',
+  MeterDesc = 'meter_DESC',
+  Value1Asc = 'value1_ASC',
+  Value1Desc = 'value1_DESC',
+  Value2Asc = 'value2_ASC',
+  Value2Desc = 'value2_DESC',
+  Value3Asc = 'value3_ASC',
+  Value3Desc = 'value3_DESC',
+  Value4Asc = 'value4_ASC',
+  Value4Desc = 'value4_DESC',
+  ClientAsc = 'client_ASC',
+  ClientDesc = 'client_DESC',
+  ContactAsc = 'contact_ASC',
+  ContactDesc = 'contact_DESC',
+  ClientNameAsc = 'clientName_ASC',
+  ClientNameDesc = 'clientName_DESC',
+  ClientEmailAsc = 'clientEmail_ASC',
+  ClientEmailDesc = 'clientEmail_DESC',
+  ClientPhoneAsc = 'clientPhone_ASC',
+  ClientPhoneDesc = 'clientPhone_DESC',
+  SourceAsc = 'source_ASC',
+  SourceDesc = 'source_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC'
+}
+
+export enum SortMeterResourceHistoryRecordsBy {
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  MeasureAsc = 'measure_ASC',
+  MeasureDesc = 'measure_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortMeterResourcesBy {
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  MeasureAsc = 'measure_ASC',
+  MeasureDesc = 'measure_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC'
+}
+
+export enum SortMetersBy {
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
+  PropertyAsc = 'property_ASC',
+  PropertyDesc = 'property_DESC',
+  NumberAsc = 'number_ASC',
+  NumberDesc = 'number_DESC',
+  NumberOfTariffsAsc = 'numberOfTariffs_ASC',
+  NumberOfTariffsDesc = 'numberOfTariffs_DESC',
+  InstallationDateAsc = 'installationDate_ASC',
+  InstallationDateDesc = 'installationDate_DESC',
+  CommissioningDateAsc = 'commissioningDate_ASC',
+  CommissioningDateDesc = 'commissioningDate_DESC',
+  VerificationDateAsc = 'verificationDate_ASC',
+  VerificationDateDesc = 'verificationDate_DESC',
+  ControlReadingsDateAsc = 'controlReadingsDate_ASC',
+  ControlReadingsDateDesc = 'controlReadingsDate_DESC',
+  AccountNumberAsc = 'accountNumber_ASC',
+  AccountNumberDesc = 'accountNumber_DESC',
+  UnitNameAsc = 'unitName_ASC',
+  UnitNameDesc = 'unitName_DESC',
+  PlaceAsc = 'place_ASC',
+  PlaceDesc = 'place_DESC',
+  ResourceAsc = 'resource_ASC',
+  ResourceDesc = 'resource_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC'
+}
+
 export enum SortOnBoardingHistoryRecordsBy {
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
@@ -18470,6 +21376,8 @@ export enum SortOrganizationEmployeeHistoryRecordsBy {
   CreatedAtDesc = 'createdAt_DESC',
   UpdatedAtAsc = 'updatedAt_ASC',
   UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
   HistoryDateAsc = 'history_date_ASC',
   HistoryDateDesc = 'history_date_DESC',
   HistoryActionAsc = 'history_action_ASC',
@@ -18495,6 +21403,8 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanManagePropertiesDesc = 'canManageProperties_DESC',
   CanManageTicketsAsc = 'canManageTickets_ASC',
   CanManageTicketsDesc = 'canManageTickets_DESC',
+  CanManageMetersAsc = 'canManageMeters_ASC',
+  CanManageMetersDesc = 'canManageMeters_DESC',
   CanManageContactsAsc = 'canManageContacts_ASC',
   CanManageContactsDesc = 'canManageContacts_DESC',
   CanManageTicketCommentsAsc = 'canManageTicketComments_ASC',
@@ -18542,6 +21452,8 @@ export enum SortOrganizationEmployeeRolesBy {
   CanManagePropertiesDesc = 'canManageProperties_DESC',
   CanManageTicketsAsc = 'canManageTickets_ASC',
   CanManageTicketsDesc = 'canManageTickets_DESC',
+  CanManageMetersAsc = 'canManageMeters_ASC',
+  CanManageMetersDesc = 'canManageMeters_DESC',
   CanManageContactsAsc = 'canManageContacts_ASC',
   CanManageContactsDesc = 'canManageContacts_DESC',
   CanManageTicketCommentsAsc = 'canManageTicketComments_ASC',
@@ -19705,7 +22617,7 @@ export type StartConfirmPhoneActionOutput = {
 };
 
 export type StartPasswordRecoveryInput = {
-  email: Scalars['String'];
+  phone: Scalars['String'];
   sender: SenderFieldInput;
   dv: Scalars['Int'];
 };

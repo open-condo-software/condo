@@ -2,6 +2,7 @@ import { Col, Row, Tooltip, Typography } from 'antd'
 import React from 'react'
 import { QuestionCircleFilled } from '@ant-design/icons'
 import { grey } from '@ant-design/colors'
+import { fontSizes } from '@condo/domains/common/constants/style'
 
 interface IFormSubheaderProps {
     title: string,
@@ -13,7 +14,7 @@ interface IFormSubheaderProps {
  */
 const FormSubheader: React.FC<IFormSubheaderProps> = ({ title, hint }) => {
     return (
-        <Typography.Title level={2} style={{ fontSize: '16px' }}>
+        <Typography.Title level={2} style={{ fontSize: fontSizes.content }}>
             {title}
             {hint && (
                 <>

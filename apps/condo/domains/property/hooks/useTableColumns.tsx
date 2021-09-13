@@ -1,17 +1,13 @@
-import { colors } from '@condo/domains/common/constants/style'
 import { FilterValue } from 'antd/es/table/interface'
 
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import { useIntl } from '@core/next/intl'
 
-import { createSorterMap, IFilters } from '../utils/helpers'
-import get from 'lodash/get'
 
-import { Typography } from 'antd'
-import { isEmpty } from 'lodash'
-import { Highliter } from '@condo/domains/common/components/Highliter'
-import { getTextFilterDropdown, getFilterIcon } from '@condo/domains/common/components/TableFilter'
-import { EmptyTableCell } from '@condo/domains/common/components/Table/EmptyTableCell'
+import { FiltersFromQueryType, Sorters } from '@condo/domains/common/utils/tables.utils'
+import { getTextFilterDropdown } from '@condo/domains/common/components/Table/Filters'
+import { get } from 'lodash'
+import { getTextRender } from '@condo/domains/common/components/Table/Renders'
 
 export interface ITableColumn {
     title: string,
@@ -26,47 +22,24 @@ export interface ITableColumn {
     filterIcon?: unknown
 }
 
-const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
-
-export const useTableColumns = (sort: Array<string>, filters: IFilters,
-    setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>): Array<ITableColumn> => {
+export const useTableColumns = (sorters: Sorters, filters: FiltersFromQueryType) => {
     const intl = useIntl()
-    const columns = useMemo(() => {
-        const AddressMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Address' })
-        const UnitsCountMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.UnitsCount' })
-        const TasksInWorkMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.TasksInWorkCount' })
-        const sorterMap = createSorterMap(sort)
-        const search = getFilteredValue(filters, 'search')
-        const render = (text) => {
-            let result = text
-            if (!isEmpty(search) && text) {
-                result = (
-                    <Highliter
-                        text={String(text)}
-                        search={String(search)}
-                        renderPart={(part) => (
-                            <Typography.Text style={{ backgroundColor: colors.markColor }}>
-                                {part}
-                            </Typography.Text>
-                        )}
-                    />
-                )
-            }
-            return (<EmptyTableCell>{result}</EmptyTableCell>)
-        }
-        return [
+    const AddressMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Address' })
+    const UnitsCountMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.UnitsCount' })
+    const TasksInWorkMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.TasksInWorkCount' })
+
+    return useMemo(() => {
+        const search = get(filters, 'name')
+        const columns = [
             {
                 title: AddressMessage,
                 ellipsis: true,
-                sortOrder: get(sorterMap, 'address'),
-                filteredValue: getFilteredValue(filters, 'address'),
                 dataIndex: 'address',
                 key: 'address',
                 sorter: true,
                 width: '50%',
-                render,
-                filterDropdown: getTextFilterDropdown(AddressMessage, setFiltersApplied),
-                filterIcon: getFilterIcon,
+                filterDropdown: getTextFilterDropdown(AddressMessage),
+                render: !Array.isArray(search) ? getTextRender(search) : undefined,
             },
             {
                 title: UnitsCountMessage,
@@ -80,10 +53,9 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 ellipsis: true,
                 dataIndex: 'ticketsInWork',
                 key: 'ticketsInWork',
-                width: '25%',
+                width: 25,
             },
         ]
-    }, [sort, filters, intl])
-
-    return columns
+        return columns
+    }, [filters, sorters])
 }

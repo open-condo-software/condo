@@ -23,7 +23,7 @@ export const CreateDivisionForm: React.FC = () => {
     }
 
     const handleComplete = () => {
-        router.push('/property/')
+        router.push('/property?tab=divisions')
     }
 
     const action = Division.useCreate(attrs, handleComplete)

@@ -1,4 +1,4 @@
-import moment, { Moment } from 'moment'
+import dayjs, { Dayjs } from 'dayjs'
 import {
     statusToQuery,
     createdAtToQuery,
@@ -52,7 +52,7 @@ describe('Helpers', () => {
 
         describe('createdAtToQuery', () => {
             it('should correctly generate query date range from createdAt', () => {
-                const date = moment()
+                const date = dayjs()
                 const minDate = date.startOf('day').toISOString()
                 const maxDate = date.endOf('day').toISOString()
 
@@ -118,7 +118,7 @@ describe('Helpers', () => {
         describe('filtersToQuery', () => {
             describe('it should correctly generate query if', () => {
                 it('all filters is defined', () => {
-                    const currentDate = moment(new Date())
+                    const currentDate = dayjs()
                     const status = ['1', '2']
                     const assignee = 'assignee'
                     const clientName = 'clientName'
@@ -169,7 +169,7 @@ describe('Helpers', () => {
 
                 describe('only filter', () => {
                     it('currentDate is defined', () => {
-                        const currentDate = moment(new Date())
+                        const currentDate = dayjs()
 
                         expect(filtersToQuery({ createdAt: currentDate.toISOString() })).toStrictEqual({
                             AND: [
@@ -475,7 +475,7 @@ describe('Helpers', () => {
                     id: randomUUID(),
                     value: 'property address',
                 }
-                const selectedRange: [Moment, Moment] = [moment().subtract(1, 'week').startOf('day'), moment().endOf('day')]
+                const selectedRange: [Dayjs, Dayjs] = [dayjs().subtract(1, 'week').startOf('day'), dayjs().endOf('day')]
 
                 it('filter contains property', () => {
                     const filter: ticketAnalyticsPageFilters = {

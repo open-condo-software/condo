@@ -11,6 +11,8 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { OrganizationEmployee } from '../../utils/clientSchema'
 import { EmployeeRoleSelect } from './EmployeeRoleSelect'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { Rule } from 'rc-field-form/lib/interface'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -20,7 +22,6 @@ const INPUT_LAYOUT_PROPS = {
         span: 13,
     },
     style: {
-        paddingBottom: '24px',
         maxWidth: '453px',
     },
 }
@@ -28,8 +29,10 @@ const INPUT_LAYOUT_PROPS = {
 export const EmployeeProfileForm = () => {
     const intl = useIntl()
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
-    const ProfileUpdateTitle = intl.formatMessage({ id: 'profile.Employee.Update' })
+    const EmployeeUpdateTitle = intl.formatMessage({ id: 'profile.Employee.Update' })
     const RoleLabel = intl.formatMessage({ id: 'employee.Role' })
+    const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
+    const ExampleEmailMsg = intl.formatMessage({ id: 'example.Email' })
     const PositionLabel = intl.formatMessage({ id: 'employee.Position' })
     const UpdateEmployeeMessage = intl.formatMessage({ id: 'employee.UpdateTitle' })
     const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
@@ -37,11 +40,15 @@ export const EmployeeProfileForm = () => {
     const { query, push } = useRouter()
 
     const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject({ where: { id: String(get(query, 'id', '')) } })
-    const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => {
+    const updateEmployeeAction = OrganizationEmployee.useUpdate({}, (data) => {
         refetch().then(() => {
             push(`/employee/${get(query, 'id')}/`)
         })
     })
+    const { emailValidator } = useValidations()
+    const validations: { [key: string]: Rule[] } = {
+        email: [emailValidator],
+    }
 
     if (error) {
         return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null}/>
@@ -57,6 +64,7 @@ export const EmployeeProfileForm = () => {
     const initialValues = {
         role: get(employee, ['role', 'id']),
         position: get(employee, 'position'),
+        email: get(employee, 'email'),
     }
 
     return (
@@ -88,7 +96,7 @@ export const EmployeeProfileForm = () => {
                                         level={1}
                                         style={{ margin: 0, fontWeight: 'bold' }}
                                     >
-                                        {ProfileUpdateTitle}
+                                        {EmployeeUpdateTitle}
                                     </Typography.Title>
                                 </Col>
                                 <Col span={24}>
@@ -100,6 +108,8 @@ export const EmployeeProfileForm = () => {
                                     >
                                         <EmployeeRoleSelect employee={employee}/>
                                     </Form.Item>
+                                </Col>
+                                <Col span={24}>
                                     <Form.Item
                                         {...INPUT_LAYOUT_PROPS}
                                         labelAlign={'left'}
@@ -108,6 +118,20 @@ export const EmployeeProfileForm = () => {
                                     >
                                         <Input/>
                                     </Form.Item>
+                                </Col>
+                                <Col span={24}>
+                                    <Form.Item
+                                        {...INPUT_LAYOUT_PROPS}
+                                        labelAlign={'left'}
+                                        name={'email'}
+                                        label={EmailLabel}
+                                        validateFirst
+                                        rules={validations.email}
+                                    >
+                                        <Input placeholder={ExampleEmailMsg}/>
+                                    </Form.Item>
+                                </Col>
+                                <Col span={24}>
                                     <Space size={40} style={{ paddingTop: '36px' }}>
                                         <FormResetButton
                                             type={'sberPrimary'}
