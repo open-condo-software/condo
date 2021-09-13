@@ -1,6 +1,6 @@
 import { Col, Row } from 'antd'
 import { useRouter } from 'next/router'
-import React  from 'react'
+import React, { useCallback } from 'react'
 import { useAuth } from '@core/next/auth'
 import { Logo } from '@condo/domains/common/components/Logo'
 import { useResponsive } from '@condo/domains/common/hooks/useResponsive'
@@ -16,13 +16,13 @@ export const AuthHeader: React.FC<IAuthHeaderProps> = ({ headerAction }) => {
     const router = useRouter()
     const { isAuthenticated } = useAuth()
 
-    const handleLogoClick = () => {
+    const handleLogoClick = useCallback(() => {
         if (isAuthenticated) {
             router.push('/')
         } else {
             router.push('/auth/signin')
         }
-    }
+    }, [isAuthenticated, router])
 
     return (
         isResponsive
