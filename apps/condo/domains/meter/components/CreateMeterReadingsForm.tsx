@@ -168,7 +168,11 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.HelpMessage' })
 
     const router = useRouter()
-    const validations = useValidations()
+    const { requiredValidator } = useValidations()
+
+    const validations = {
+        property: [requiredValidator],
+    }
 
     const { CreateMeterModal, setIsCreateMeterModalVisible } = useCreateMeterModal()
 
@@ -329,7 +333,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                 <Row justify={'space-between'} gutter={[0, 20]}>
                                     <Col span={24}>
                                         <Form.Item name={'property'} label={AddressLabel}
-                                            rules={[validations.requiredValidator]}>
+                                            rules={validations.property}>
                                             <PropertyAddressSearchInput
                                                 organization={organization}
                                                 autoFocus={true}

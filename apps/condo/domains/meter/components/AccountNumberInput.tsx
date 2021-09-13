@@ -63,11 +63,6 @@ export const AccountNumberInput = ({ accountNumber, setAccountNumber, selectedUn
     ) : (
         <Col lg={14} md={24}>
             <Row gutter={[0, 10]}>
-                {/*<Form.Item*/}
-                {/*    label={AccountNumberMessage}*/}
-                {/*    name='accountNumber'*/}
-                {/*    required={true}*/}
-                {/*>*/}
                 <Col span={24}>
                     <Typography.Text type={'secondary'}>{AccountNumberMessage}</Typography.Text>
                 </Col>
@@ -78,7 +73,6 @@ export const AccountNumberInput = ({ accountNumber, setAccountNumber, selectedUn
                         disabled={existingMeters.length > 0}
                     />
                 </Col>
-                {/*</Form.Item>*/}
                 {
                     existingMeters.length === 0 ? (
                         <Alert showIcon type='warning' message={NewAccountAlertMessage}/>
