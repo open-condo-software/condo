@@ -20,6 +20,13 @@ const getTariffNumberSelectOptions = () => {
         ))
 }
 
+const CreateMeterDatePicker = () => (
+    <DatePicker
+        format='DD.MM.YYYY'
+        style={{ width: '100%' }}
+    />
+)
+
 type ChevronIconWrapperProps = {
     direction: 'down' | 'up',
 }
@@ -43,7 +50,8 @@ export const MeterInfo = ({ resource }: MeterInfoProps) => {
     const InstallationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.InstallationDate' })
     const CommissioningDateMessage = intl.formatMessage({ id: 'pages.condo.meter.CommissioningDate' })
     const SealingDateMessage = intl.formatMessage({ id: 'pages.condo.meter.SealingDate' })
-    const VerificationDate = intl.formatMessage({ id: 'pages.condo.meter.VerificationDate' })
+    const VerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.VerificationDate' })
+    const NextVerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.NextVerificationDate' })
 
     const validations = useValidations()
 
@@ -97,7 +105,7 @@ export const MeterInfo = ({ resource }: MeterInfoProps) => {
                                         label={InstallationDateMessage}
                                         name='installationDate'
                                     >
-                                        <DatePicker style={{ width: '100%' }} />
+                                        <CreateMeterDatePicker />
                                     </Form.Item>
                                 </Col>
                                 <Col span={METER_INFO_INPUT_COL_SPAN}>
@@ -105,7 +113,7 @@ export const MeterInfo = ({ resource }: MeterInfoProps) => {
                                         label={CommissioningDateMessage}
                                         name='commissioningDate'
                                     >
-                                        <DatePicker style={{ width: '100%' }} />
+                                        <CreateMeterDatePicker />
                                     </Form.Item>
                                 </Col>
                                 <Col span={METER_INFO_INPUT_COL_SPAN}>
@@ -113,15 +121,23 @@ export const MeterInfo = ({ resource }: MeterInfoProps) => {
                                         label={SealingDateMessage}
                                         name='sealingDate'
                                     >
-                                        <DatePicker style={{ width: '100%' }} />
+                                        <CreateMeterDatePicker />
                                     </Form.Item>
                                 </Col>
                                 <Col span={METER_INFO_INPUT_COL_SPAN}>
                                     <Form.Item
-                                        label={VerificationDate}
+                                        label={VerificationDateMessage}
                                         name='verificationDate'
                                     >
-                                        <DatePicker style={{ width: '100%' }} />
+                                        <CreateMeterDatePicker />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={METER_INFO_INPUT_COL_SPAN}>
+                                    <Form.Item
+                                        label={NextVerificationDateMessage}
+                                        name='nextVerificationDate'
+                                    >
+                                        <CreateMeterDatePicker />
                                     </Form.Item>
                                 </Col>
                             </>
