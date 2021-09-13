@@ -77,7 +77,6 @@ export const MeterInfo = ({ resource }: MeterInfoProps) => {
                         isElectricityMeter ? (
                             <Col span={METER_INFO_INPUT_COL_SPAN}>
                                 <Form.Item
-                                    // required={isElectricityMeter}
                                     rules={[validations.requiredValidator]}
                                     hidden={!isElectricityMeter}
                                     label={TariffsCountMessage}

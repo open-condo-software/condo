@@ -1,5 +1,5 @@
 import { Alert, Col, Input, Row, Typography } from 'antd'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useIntl } from '@core/next/intl'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { fontSizes } from '@condo/domains/common/constants/style'
@@ -45,16 +45,22 @@ export const EmptyAccountView = ({ setIsAccountNumberIntroduced, setAccountNumbe
     )
 }
 
-export const AccountNumberInput = ({ accountNumber, setAccountNumber, existingMeters }) => {
+export const AccountNumberInput = ({ accountNumber, setAccountNumber, selectedUnitName, existingMeters }) => {
     const intl = useIntl()
     const AccountNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.AccountNumber' })
     const NewAccountAlertMessage = intl.formatMessage({ id: 'pages.condo.meter.NewAccountAlert' })
 
-    // const [accountNumber, setAccountNumber] = useState<string>(null)
+    const [isAccountNumberIntroduced, setIsAccountNumberIntroduced] = useState<boolean>(false)
+    useEffect(() => {
+        setIsAccountNumberIntroduced(false)
+    }, [selectedUnitName])
 
-    // console.log('accountNumber in AccountNumberInput', form.getFieldValue('accountNumber'))
-
-    return (
+    return !accountNumber && !isAccountNumberIntroduced ? (
+        <EmptyAccountView
+            setIsAccountNumberIntroduced={setIsAccountNumberIntroduced}
+            setAccountNumber={setAccountNumber}
+        />
+    ) : (
         <Col lg={14} md={24}>
             <Row gutter={[0, 10]}>
                 {/*<Form.Item*/}
