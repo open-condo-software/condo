@@ -43,6 +43,71 @@ describe('AllResidentBillingReceipts', () => {
         expect(objs[0].id).toEqual(receipt.id)
     })
 
+    test('user with valid serviceAccount can filter residentBillingReceipts by serviceConsumer', async () => {
+        // User has flats in building A and building B
+        // Each building has own BillingOrganizationIntegrationContext
+        // User is able to get receipts for both of his buildings
+
+        const userClient = await makeClientWithProperty()
+        const adminClient = await makeLoggedInAdminClient()
+
+        // User has two flats in building A:
+        const [integrationA] = await createTestBillingIntegration(adminClient)
+        const [contextA] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integrationA)
+        const [billingPropertyA] = await createTestBillingProperty(adminClient, contextA)
+        const [billingAccountA, billingAccountAttrsA] = await createTestBillingAccount(adminClient, contextA, billingPropertyA)
+        const [billingAccountA2, billingAccountAttrsA2] = await createTestBillingAccount(adminClient, contextA, billingPropertyA)
+
+        await addResidentAccess(userClient.user)
+        const [residentA] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
+            unitName: billingAccountAttrsA.unitName,
+        })
+
+        const serviceConsumerPayloadA = {
+            residentId: residentA.id,
+            unitName: billingAccountAttrsA.unitName,
+            accountNumber: billingAccountAttrsA.number,
+        }
+        await registerServiceConsumerByTestClient(userClient, serviceConsumerPayloadA)
+
+        const serviceConsumerPayloadA2 = {
+            residentId: residentA.id,
+            unitName: billingAccountAttrsA2.unitName,
+            accountNumber: billingAccountAttrsA2.number,
+        }
+        await registerServiceConsumerByTestClient(userClient, serviceConsumerPayloadA2)
+
+        await createTestBillingReceipt(adminClient, contextA, billingPropertyA, billingAccountA)
+        await createTestBillingReceipt(adminClient, contextA, billingPropertyA, billingAccountA2)
+
+        // User has one flat in building B:
+        const [integrationB] = await createTestBillingIntegration(adminClient)
+        const [contextB] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integrationB)
+        const [billingPropertyB] = await createTestBillingProperty(adminClient, contextB)
+        const [billingAccountB, billingAccountAttrsB] = await createTestBillingAccount(adminClient, contextB, billingPropertyB)
+
+        const [residentB] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
+            unitName: billingAccountAttrsB.unitName,
+        })
+
+        const payloadForServiceConsumerB = {
+            residentId: residentB.id,
+            unitName: billingAccountAttrsB.unitName,
+            accountNumber: billingAccountAttrsB.number,
+        }
+        await registerServiceConsumerByTestClient(userClient, payloadForServiceConsumerB)
+
+        await createTestBillingReceipt(adminClient, contextB, billingPropertyB, billingAccountB)
+
+        // User get two receipts for his building A
+        const objs = await ResidentBillingReceipt.getAll(userClient, { serviceConsumer: { resident: { id: residentA.id } } })
+        expect(objs).toHaveLength(2)
+
+        // User get one receipt for his building B
+        const objsForResident2 = await ResidentBillingReceipt.getAll(userClient, { serviceConsumer: { resident: { id: residentB.id } } })
+        expect(objsForResident2).toHaveLength(1)
+    })
+
     test('user with valid multiple serviceAccounts can read all his BillingReceipts without raw data', async () => {
         const userClient = await makeClientWithProperty()
         const adminClient = await makeLoggedInAdminClient()
