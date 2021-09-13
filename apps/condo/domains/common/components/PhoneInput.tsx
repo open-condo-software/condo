@@ -16,8 +16,8 @@ import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
 
 interface IPhoneInputProps extends InputProps {
-    block?:boolean
-    autoFormat?: boolean,
+    block?: boolean
+    autoFormat?: boolean
     /*
         Make this component compatible with `AutoComplete` component, when used as a custom input.
      */
