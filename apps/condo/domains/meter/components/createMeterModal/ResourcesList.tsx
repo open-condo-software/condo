@@ -3,7 +3,7 @@ import React from 'react'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { Col, Row, Space, Typography } from 'antd'
 import styled from '@emotion/styled'
-import { colors, shadows, transitions } from '@condo/domains/common/constants/style'
+import { colors, fontSizes, shadows, transitions } from '@condo/domains/common/constants/style'
 import { IMeterResourceUIState } from '../../utils/clientSchema/MeterResource'
 
 
@@ -33,7 +33,7 @@ const ResourceCard = ({ label, resourceId, onClick }: ResourceCardProps) => {
         <ResourceCardContainer onClick={onClick}>
             <Space>
                 <Icon />
-                <Typography.Text strong={true} style={{ fontSize: '16px' }}>{label}</Typography.Text>
+                <Typography.Text strong={true} style={{ fontSize: fontSizes.content }}>{label}</Typography.Text>
             </Space>
         </ResourceCardContainer>
     )
