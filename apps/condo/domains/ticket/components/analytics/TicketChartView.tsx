@@ -156,7 +156,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
     }
 
     return <Typography.Paragraph style={{ position: 'relative' }}>
-        {loading ? (
+        {(loading) ? (
             <Typography.Paragraph>
                 <BasicEmptyListView>
                     <Typography.Text>{NoData}</Typography.Text>
@@ -179,28 +179,17 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
                     }}
                     opts={{ renderer: 'svg' }}
                     notMerge
-                    option={{
-                        color,
-                        legend: {
-                            data: legend,
-                            top: 5,
-                            show: true,
-                            icon: 'circle',
-                            itemWidth: 7,
-                            itemHeight: 7,
-                            itemGap: 10,
-                            textStyle: {
-                                fontSize: 16,
-                            },
-                            x: 'left',
-                            width: '100%',
-                            backgroundColor: 'white',
-                        },
-                        series: [{ ...seriesRef.current[0], top: -1000, left: -1000, labelLayout: {}, label: { show: false } }],
-                        title: {
-                            display: false,
-                        },
-                    }}
+                    option={
+                        getChartOptions({
+                            legend,
+                            color,
+                            series: [{ ...seriesRef.current[0], top: -1000, left: -1000, labelLayout: {}, label: { show: false } }],
+                            viewMode: 'pie',
+                            animationEnabled,
+                            chartOptions: { renderer: 'svg' },
+                            showTitle: false,
+                        }).option
+                    }
                     style={{ height: 40, overflow: 'hidden' }}
                 />
                 <Typography.Paragraph style={{ marginTop: 60, paddingBottom: 0, height: infiniteScrollContainerHeight, overflow: 'auto' }}>

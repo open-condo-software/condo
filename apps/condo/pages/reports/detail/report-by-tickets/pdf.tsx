@@ -18,7 +18,7 @@ import { DATE_DISPLAY_FORMAT, PDF_REPORT_WIDTH } from '@condo/domains/ticket/con
 import { Logo } from '@condo/domains/common/components/Logo'
 import { colors } from '@condo/domains/common/constants/style'
 import TicketChart from '@condo/domains/ticket/components/TicketChart'
-import { TicketAnalyticsGroupBy, TicketGroupedCounter } from '../../../../schema'
+import { TicketAnalyticsGroupBy, TicketGroupedCounter, TicketLabel } from '../../../../schema'
 
 const PdfView = () => {
     const intl = useIntl()
@@ -34,6 +34,7 @@ const PdfView = () => {
     const queryParamsRef = useRef(null)
     const groupByRef = useRef<null | TicketAnalyticsGroupBy[]>(null)
     const mapperInstanceRef = useRef(null)
+    const ticketLabelsRef = useRef<TicketLabel[]>([])
 
     const [data, setData] = useState<null | TicketGroupedCounter[]>(null)
     // 2 different loading states by reason of it is 2 step page loading - 1st is data fetch, 2nd is wait for all charts to be rendered
@@ -54,7 +55,8 @@ const PdfView = () => {
         fetchPolicy: 'network-only',
         onCompleted: response => {
             setLoading(false)
-            const { result: { groups } } = response
+            const { result: { groups, ticketLabels } } = response
+            ticketLabelsRef.current = ticketLabels
             setData(groups)
         },
     })
@@ -110,7 +112,11 @@ const PdfView = () => {
                         })
                         const axisData = { yAxis: { type: 'value', data: null }, xAxis: { type: 'category', data: axisLabels } }
                         const tooltip = { trigger: 'axis', axisPointer: { type: 'line' } }
-                        return { series, legend, axisData, tooltip }
+                        const result = { series, legend, axisData, tooltip }
+                        if (groupByRef.current[0] === 'status') {
+                            result['color'] = ticketLabelsRef.current.map(({ color }) => color)
+                        }
+                        return result
                     },
                     table: (viewMode, ticketGroupedCounter, restOptions) => {
                         const data = getAggregatedData(ticketGroupedCounter, groupByRef.current)
@@ -162,7 +168,12 @@ const PdfView = () => {
                         })
                         const axisData = { yAxis: { type: 'category', data: axisLabels }, xAxis: { type: 'value', data: null } }
                         const tooltip = { trigger: 'item', axisPointer: { type: 'line' } }
-                        return { series, legend, axisData, tooltip }
+                        const result = { series, legend, axisData, tooltip }
+                        if (groupByRef.current[0] === 'status') {
+                            result['color'] = ticketLabelsRef.current.map(({ color }) => color)
+                        }
+                        return result
+
                     },
                     table: (viewMode, ticketGroupedCounter, restOptions) => {
                         const groupByCopy = [...groupByRef.current]
@@ -226,11 +237,9 @@ const PdfView = () => {
                         const series = []
 
                         const legend = [...new Set(Object.values(data).flatMap(e => Object.keys(e)))]
-                            .sort((a, b) => a.localeCompare(b))
                         Object.entries(data).forEach(([label, groupObject]) => {
                             const chartData = Object.entries(groupObject)
                                 .map(([name, value]) => ({ name, value }))
-                                .sort((a, b) => a.name.localeCompare(b.name))
                             if (chartData.map(({ value }) => value).some(value => value > 0)) {
                                 series.push({
                                     name: label,
@@ -280,7 +289,7 @@ const PdfView = () => {
                                 })
                             }
                         })
-                        return { series, legend }
+                        return { series, legend, color: ticketLabelsRef.current.map(({ color }) => color) }
                     },
                     table: (viewMode, ticketGroupedCounter, restOptions) => {
                         const queryParams = getQueryParams()
