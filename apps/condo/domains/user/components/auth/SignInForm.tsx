@@ -90,7 +90,7 @@ export const SignInForm = (): React.ReactElement => {
                                 label={PhoneMsg}
                                 rules={[{ required: true, message: FieldIsRequiredMsg }]}
                             >
-                                <PhoneInput placeholder={ExamplePhoneMsg} tabIndex={1} style={{ width: '100%' }}/>
+                                <PhoneInput placeholder={ExamplePhoneMsg} tabIndex={1} block/>
                             </Form.Item>
                         </Col>
                         <Col span={24}>
@@ -106,27 +106,32 @@ export const SignInForm = (): React.ReactElement => {
                     </Row>
                 </Col>
                 <Col span={24}>
-                    <Row justify={'space-between'} align={'middle'}>
-                        <Button
-                            key='submit'
-                            type='sberPrimary'
-                            htmlType='submit'
-                            loading={isLoading}
-                        >
-                            {SignInMsg}
-                        </Button>
-                        <Typography.Text type='secondary'>
-                            <FormattedMessage
-                                id='pages.auth.signin.ResetPasswordLink'
-                                values={{
-                                    link: (
-                                        <Button type={'inlineLink'} size={'small'} onClick={() => Router.push('/auth/forgot')}>
-                                            {ResetMsg}
-                                        </Button>
-                                    ),
-                                }}
-                            />
-                        </Typography.Text>
+                    <Row justify={'space-between'} align={'middle'} gutter={[0, 40]}>
+                        <Col lg={7} xs={24}>
+                            <Button
+                                key='submit'
+                                type='sberPrimary'
+                                htmlType='submit'
+                                loading={isLoading}
+                                block
+                            >
+                                {SignInMsg}
+                            </Button>
+                        </Col>
+                        <Col lg={14} xs={24}>
+                            <Typography.Text type='secondary'>
+                                <FormattedMessage
+                                    id='pages.auth.signin.ResetPasswordLink'
+                                    values={{
+                                        link: (
+                                            <Button type={'inlineLink'} size={'small'} onClick={() => Router.push('/auth/forgot')}>
+                                                {ResetMsg}
+                                            </Button>
+                                        ),
+                                    }}
+                                />
+                            </Typography.Text>
+                        </Col>
                     </Row>
                 </Col>
             </Row>

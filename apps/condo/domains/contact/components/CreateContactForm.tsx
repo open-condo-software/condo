@@ -159,7 +159,7 @@ export const CreateContactForm: React.FC = () => {
                                             rules={validations.phone}
                                             {...INPUT_LAYOUT_PROPS}
                                         >
-                                            <PhoneInput placeholder={ExamplePhoneMessage} style={{ width: '100%' }}/>
+                                            <PhoneInput placeholder={ExamplePhoneMessage} block/>
                                         </Form.Item>
                                     </Col>
                                     <Col span={18}>

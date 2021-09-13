@@ -16,6 +16,7 @@ import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
 
 interface IPhoneInputProps extends InputProps {
+    block?:boolean
     autoFormat?: boolean,
     /*
         Make this component compatible with `AutoComplete` component, when used as a custom input.
@@ -29,7 +30,7 @@ type PhoneInputRef = {
     } & ComponentProps<'input'>,
 }
 
-const getPhoneInputStyles = (style, size: SizeType) => {
+const getPhoneInputStyles = (style, size: SizeType, block?: boolean) => {
     let height = '32px'
 
     if (size === 'large') {
@@ -38,11 +39,17 @@ const getPhoneInputStyles = (style, size: SizeType) => {
         height = '22px'
     }
 
-    return { ...style, height }
+    let computedStyles = { ...style, height }
+
+    if (block) {
+        computedStyles = { ...computedStyles, width: '100%' }
+    }
+
+    return computedStyles
 }
 
 export const PhoneInput: React.FC<IPhoneInputProps> = forwardRef((props, ref) => {
-    const { value, placeholder, style, disabled, ...otherProps } = props
+    const { value, placeholder, style, disabled, block, ...otherProps } = props
     const configSize = useContext<SizeType>(ConfigProvider.SizeContext)
     const { organization } = useOrganization()
     const userOrganizationCountry = get(organization, 'country', 'ru')
@@ -84,8 +91,8 @@ export const PhoneInput: React.FC<IPhoneInputProps> = forwardRef((props, ref) =>
     }, [props.onChange])
 
     const inputStyles = useMemo(() => {
-        return getPhoneInputStyles(style, configSize)
-    }, [style, configSize])
+        return getPhoneInputStyles(style, configSize, block)
+    }, [style, configSize, block])
 
     return (
         <ReactPhoneInput

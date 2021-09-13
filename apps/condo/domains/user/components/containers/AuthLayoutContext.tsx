@@ -2,7 +2,6 @@ import React, { createContext, useCallback } from 'react'
 import { useMutation } from '@core/next/apollo'
 import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
-import { useAntdMediaQuery } from '@condo/domains/common/utils/mediaQuery.utils'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, SIGNIN_MUTATION } from '@condo/domains/user/gql'
 
@@ -10,6 +9,13 @@ interface IAuthLayoutContext {
     isMobile: boolean
     signInByEmail: ({ email, password }, onCompleted?: () => void) => Promise<unknown>,
     signInByPhone: ({ phone, password }, onCompleted?: () => void) => Promise<unknown>,
+}
+
+const detectMobileNavigator = () => {
+    return (
+        typeof window !== 'undefined'
+        && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(window.navigator.userAgent)
+    )
 }
 
 export const AuthLayoutContext = createContext<IAuthLayoutContext>({
@@ -20,12 +26,11 @@ export const AuthLayoutContext = createContext<IAuthLayoutContext>({
 
 export const AuthLayoutContextProvider: React.FC = (props) => {
     const intl = useIntl()
-    const colSize = useAntdMediaQuery()
-
     const { refetch } = useAuth()
 
     const [signinByPhoneMutation] = useMutation(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION)
     const [signinByEmailMutation] = useMutation(SIGNIN_MUTATION)
+    const isMobile = detectMobileNavigator()
 
     const signInByPhone = useCallback((variables, onCompleted) => {
         return runMutation({
@@ -61,7 +66,7 @@ export const AuthLayoutContextProvider: React.FC = (props) => {
 
     return (
         <AuthLayoutContext.Provider value={{
-            isMobile: colSize === 'xs',
+            isMobile,
             signInByEmail,
             signInByPhone,
         }}>

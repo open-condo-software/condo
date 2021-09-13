@@ -1,17 +1,13 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core'
 import React, { createContext, CSSProperties, FunctionComponent, useContext, useState } from 'react'
-import { ConfigProvider, Layout, PageHeader as AntPageHeader, PageHeaderProps } from 'antd'
+import { Layout, PageHeader as AntPageHeader, PageHeaderProps } from 'antd'
 import { useTopNotificationsHook, ITopNotification } from '@condo/domains/common/components/TopNotifications'
 import { SideMenu } from './components/SideMenu'
 import Router from 'next/router'
-import enUS from 'antd/lib/locale/en_US'
-import ruRU from 'antd/lib/locale/ru_RU'
 import classnames from 'classnames'
 import 'antd/dist/antd.less'
 import { ITopMenuItemsProps, TopMenuItems as BaseTopMenuItems } from './components/TopMenuItems'
-import { useIntl } from '@core/next/intl'
-import { useAntdMediaQuery } from '../../../utils/mediaQuery.utils'
 import { layoutCss, pageContentCss, pageHeaderCss, pageWrapperCss, subLayoutCss, topMenuCss } from './components/styles'
 import { ElementType } from 'react'
 import MenuItem from 'antd/lib/menu/MenuItem'
@@ -35,11 +31,17 @@ interface IBaseLayoutProps {
     menuData?: React.ElementType
     style?: CSSProperties
     className?: string
-    disableMobile?: boolean
     menuDataRender?: () => MenuItem[]
     TopMenuItems?: React.FC<ITopMenuItemsProps>
     logoLocation?: string
     onLogoClick?: () => void
+}
+
+const detectMobileNavigator = () => {
+    return (
+        typeof window !== 'undefined'
+        && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(window.navigator.userAgent)
+    )
 }
 
 const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
@@ -48,18 +50,17 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
         children,
         className,
         menuData,
-        disableMobile,
         headerAction,
         onLogoClick = () => Router.push('/'),
         TopMenuItems: TopMenuItemsFromProps,
     } = props
-    const colSize = useAntdMediaQuery()
+
     const {
         TopNotificationComponent,
         addNotification,
     } = useTopNotificationsHook()
-    // TODO(Dimitreee): add UA base isMobile detection
-    const isMobile = (colSize === 'xs') && !disableMobile
+
+    const isMobile = detectMobileNavigator()
     const [isSideMenuCollapsed, setIsSideMenuCollapsed] = useState(!isMobile)
     const menuDataClassNames = classnames(
         'layout',
