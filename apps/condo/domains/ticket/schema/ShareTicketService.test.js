@@ -12,7 +12,6 @@ describe('ShareTicketService', () => {
             const mutationResult = await client.mutate(SHARE_TICKET_MUTATION, {
                 data: { sender: client.userAttrs.sender, employees: [client.user.id], ticketId: ticket.id },
             })
-            console.log('mutationResult', mutationResult)
             const { data: { obj: { status } } } = mutationResult
             expect(status).toBe('ok')
         })
