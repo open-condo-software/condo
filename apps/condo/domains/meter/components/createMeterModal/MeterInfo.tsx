@@ -20,11 +20,18 @@ const getTariffNumberSelectOptions = () => {
         ))
 }
 
-const CreateMeterDatePicker = () => (
-    <DatePicker
-        format='DD.MM.YYYY'
-        style={{ width: '100%' }}
-    />
+const CreateMeterModalDatePicker = ({ label, name }) => (
+    <Col span={METER_INFO_INPUT_COL_SPAN}>
+        <Form.Item
+            label={label}
+            name={name}
+        >
+            <DatePicker
+                format='DD.MM.YYYY'
+                style={{ width: '100%' }}
+            />
+        </Form.Item>
+    </Col>
 )
 
 type ChevronIconWrapperProps = {
@@ -67,7 +74,6 @@ export const MeterInfo = ({ resource }: MeterInfoProps) => {
                         <Form.Item
                             label={MeterNumberMessage}
                             name='number'
-                            // required={true}
                             rules={[validations.requiredValidator]}
                         >
                             <Input />
@@ -100,46 +106,26 @@ export const MeterInfo = ({ resource }: MeterInfoProps) => {
                     {
                         !isAdditionalFieldsCollapsed ? (
                             <>
-                                <Col span={METER_INFO_INPUT_COL_SPAN}>
-                                    <Form.Item
-                                        label={InstallationDateMessage}
-                                        name='installationDate'
-                                    >
-                                        <CreateMeterDatePicker />
-                                    </Form.Item>
-                                </Col>
-                                <Col span={METER_INFO_INPUT_COL_SPAN}>
-                                    <Form.Item
-                                        label={CommissioningDateMessage}
-                                        name='commissioningDate'
-                                    >
-                                        <CreateMeterDatePicker />
-                                    </Form.Item>
-                                </Col>
-                                <Col span={METER_INFO_INPUT_COL_SPAN}>
-                                    <Form.Item
-                                        label={SealingDateMessage}
-                                        name='sealingDate'
-                                    >
-                                        <CreateMeterDatePicker />
-                                    </Form.Item>
-                                </Col>
-                                <Col span={METER_INFO_INPUT_COL_SPAN}>
-                                    <Form.Item
-                                        label={VerificationDateMessage}
-                                        name='verificationDate'
-                                    >
-                                        <CreateMeterDatePicker />
-                                    </Form.Item>
-                                </Col>
-                                <Col span={METER_INFO_INPUT_COL_SPAN}>
-                                    <Form.Item
-                                        label={NextVerificationDateMessage}
-                                        name='nextVerificationDate'
-                                    >
-                                        <CreateMeterDatePicker />
-                                    </Form.Item>
-                                </Col>
+                                <CreateMeterModalDatePicker
+                                    label={InstallationDateMessage}
+                                    name='installationDate'
+                                />
+                                <CreateMeterModalDatePicker
+                                    label={CommissioningDateMessage}
+                                    name='commissioningDate'
+                                />
+                                <CreateMeterModalDatePicker
+                                    label={SealingDateMessage}
+                                    name='sealingDate'
+                                />
+                                <CreateMeterModalDatePicker
+                                    label={VerificationDateMessage}
+                                    name='verificationDate'
+                                />
+                                <CreateMeterModalDatePicker
+                                    label={NextVerificationDateMessage}
+                                    name='nextVerificationDate'
+                                />
                             </>
                         ) : null
                     }
