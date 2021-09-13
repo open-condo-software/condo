@@ -75,6 +75,12 @@ const Meter = new GQLListSchema('Meter', {
             type: DateTimeUtc,
         },
 
+        nextVerificationDate: {
+            schemaDoc: 'The date of the next meter verification.' +
+                'For example, for a cold water meter - usually 6 years after the verification date',
+            type: DateTimeUtc,
+        },
+
         controlReadingsDate: {
             schemaDoc: 'The date when the employee came and took readings from the meter',
             type: DateTimeUtc,

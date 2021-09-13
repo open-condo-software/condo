@@ -7449,6 +7449,8 @@ export type Meter = {
   commissioningDate?: Maybe<Scalars['String']>;
   /**  The date when the employee came and checked how accurately the meter counts the resource  */
   verificationDate?: Maybe<Scalars['String']>;
+  /**  The date of the next meter verification.For example, for a cold water meter - usually 6 years after the verification date  */
+  nextVerificationDate?: Maybe<Scalars['String']>;
   /**  The date when the employee came and took readings from the meter  */
   controlReadingsDate?: Maybe<Scalars['String']>;
   /**  The date when meter was sealed.Sealing is the installation of a unique single-use device (directly a seal and a sealing rope)on the metering device, which is designed to control unauthorized access to the equipment.  */
@@ -7481,6 +7483,7 @@ export type MeterCreateInput = {
   installationDate?: Maybe<Scalars['String']>;
   commissioningDate?: Maybe<Scalars['String']>;
   verificationDate?: Maybe<Scalars['String']>;
+  nextVerificationDate?: Maybe<Scalars['String']>;
   controlReadingsDate?: Maybe<Scalars['String']>;
   sealingDate?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
@@ -7516,6 +7519,7 @@ export type MeterHistoryRecord = {
   installationDate?: Maybe<Scalars['String']>;
   commissioningDate?: Maybe<Scalars['String']>;
   verificationDate?: Maybe<Scalars['String']>;
+  nextVerificationDate?: Maybe<Scalars['String']>;
   controlReadingsDate?: Maybe<Scalars['String']>;
   sealingDate?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
@@ -7545,6 +7549,7 @@ export type MeterHistoryRecordCreateInput = {
   installationDate?: Maybe<Scalars['String']>;
   commissioningDate?: Maybe<Scalars['String']>;
   verificationDate?: Maybe<Scalars['String']>;
+  nextVerificationDate?: Maybe<Scalars['String']>;
   controlReadingsDate?: Maybe<Scalars['String']>;
   sealingDate?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
@@ -7579,6 +7584,7 @@ export type MeterHistoryRecordUpdateInput = {
   installationDate?: Maybe<Scalars['String']>;
   commissioningDate?: Maybe<Scalars['String']>;
   verificationDate?: Maybe<Scalars['String']>;
+  nextVerificationDate?: Maybe<Scalars['String']>;
   controlReadingsDate?: Maybe<Scalars['String']>;
   sealingDate?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
@@ -7670,6 +7676,14 @@ export type MeterHistoryRecordWhereInput = {
   verificationDate_gte?: Maybe<Scalars['String']>;
   verificationDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   verificationDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  nextVerificationDate?: Maybe<Scalars['String']>;
+  nextVerificationDate_not?: Maybe<Scalars['String']>;
+  nextVerificationDate_lt?: Maybe<Scalars['String']>;
+  nextVerificationDate_lte?: Maybe<Scalars['String']>;
+  nextVerificationDate_gt?: Maybe<Scalars['String']>;
+  nextVerificationDate_gte?: Maybe<Scalars['String']>;
+  nextVerificationDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  nextVerificationDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   controlReadingsDate?: Maybe<Scalars['String']>;
   controlReadingsDate_not?: Maybe<Scalars['String']>;
   controlReadingsDate_lt?: Maybe<Scalars['String']>;
@@ -9159,6 +9173,7 @@ export type MeterUpdateInput = {
   installationDate?: Maybe<Scalars['String']>;
   commissioningDate?: Maybe<Scalars['String']>;
   verificationDate?: Maybe<Scalars['String']>;
+  nextVerificationDate?: Maybe<Scalars['String']>;
   controlReadingsDate?: Maybe<Scalars['String']>;
   sealingDate?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
@@ -9243,6 +9258,14 @@ export type MeterWhereInput = {
   verificationDate_gte?: Maybe<Scalars['String']>;
   verificationDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   verificationDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  nextVerificationDate?: Maybe<Scalars['String']>;
+  nextVerificationDate_not?: Maybe<Scalars['String']>;
+  nextVerificationDate_lt?: Maybe<Scalars['String']>;
+  nextVerificationDate_lte?: Maybe<Scalars['String']>;
+  nextVerificationDate_gt?: Maybe<Scalars['String']>;
+  nextVerificationDate_gte?: Maybe<Scalars['String']>;
+  nextVerificationDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  nextVerificationDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   controlReadingsDate?: Maybe<Scalars['String']>;
   controlReadingsDate_not?: Maybe<Scalars['String']>;
   controlReadingsDate_lt?: Maybe<Scalars['String']>;
@@ -21013,6 +21036,8 @@ export enum SortMeterHistoryRecordsBy {
   CommissioningDateDesc = 'commissioningDate_DESC',
   VerificationDateAsc = 'verificationDate_ASC',
   VerificationDateDesc = 'verificationDate_DESC',
+  NextVerificationDateAsc = 'nextVerificationDate_ASC',
+  NextVerificationDateDesc = 'nextVerificationDate_DESC',
   ControlReadingsDateAsc = 'controlReadingsDate_ASC',
   ControlReadingsDateDesc = 'controlReadingsDate_DESC',
   SealingDateAsc = 'sealingDate_ASC',
@@ -21228,6 +21253,8 @@ export enum SortMetersBy {
   CommissioningDateDesc = 'commissioningDate_DESC',
   VerificationDateAsc = 'verificationDate_ASC',
   VerificationDateDesc = 'verificationDate_DESC',
+  NextVerificationDateAsc = 'nextVerificationDate_ASC',
+  NextVerificationDateDesc = 'nextVerificationDate_DESC',
   ControlReadingsDateAsc = 'controlReadingsDate_ASC',
   ControlReadingsDateDesc = 'controlReadingsDate_DESC',
   SealingDateAsc = 'sealingDate_ASC',
