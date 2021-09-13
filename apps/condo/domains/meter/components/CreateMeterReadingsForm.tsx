@@ -27,6 +27,7 @@ import { useRouter } from 'next/router'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { SortBillingAccountMeterReadingsBy } from '../../../schema'
 import { BillingAccountMeterReading } from '@condo/domains/billing/utils/clientSchema'
+import { IMeterReadingFormState } from '../utils/clientSchema/MeterReading'
 
 export const LAYOUT = {
     labelCol: { span: 8 },
@@ -153,19 +154,9 @@ const MetersDataTitle = ({ isNoExistingMetersInThisUnit, isNoNewMetersInThisUnit
 }
 
 type IMeterValues = { value1: string, value2?: string, value3?: string, value4?: string }
-type ICreateMeterReadingsFormVariables = {
-    property: string
+type ICreateMeterReadingsFormVariables = IMeterReadingFormState & {
     newMeters: (IMeterFormState & IMeterValues)[]
     existedMeters: { [meterId: string]: IMeterValues }
-    floorName: string
-    sectionName: string
-    unitName: string
-    contact?: string
-    client?: string
-    clientName?: string
-    clientEmail?: string
-    clientPhone?: string
-    accountNumber: string
 }
 
 export const CreateMeterReadingsForm = ({ organization, role }) => {

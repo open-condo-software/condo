@@ -86,7 +86,10 @@ export const MeterCard = ({ meter, resource, name, lastMeterBillingMeterReading 
                                                         ${numberOfTariffs > 1 ? `T-${tariffNumber}` : ''}`
                                                 }
                                             >
-                                                <Input addonAfter={resource.measure} />
+                                                <Input
+                                                    type={'number'}
+                                                    addonAfter={resource.measure}
+                                                />
                                             </Form.Item>
                                         </Col>
                                         {
