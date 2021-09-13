@@ -77,12 +77,15 @@ const User = new GQLListSchema('User', {
             kmigratorOptions: { null: true, unique: false },
             hooks: {
                 resolveInput: ({ resolvedData }) => {
-                    return normalizeEmail(resolvedData['email']) || resolvedData['email']
+                    // If there is no email we need to set it to null
+                    // Empty string will not pass uniq constraints check
+                    return normalizeEmail(resolvedData['email']) || resolvedData['email'] ? resolvedData['email'] : null
                 },
                 validateInput: async ({ context, operation, fieldPath, resolvedData, existingItem, addFieldValidationError }) => {
                     if (resolvedData['email'] && normalizeEmail(resolvedData['email']) !== resolvedData['email']) {
                         addFieldValidationError(`${EMAIL_WRONG_FORMAT_ERROR}mail] invalid format`)
                     }
+                    if (resolvedData['email'] === null) return
                     if (get(resolvedData, 'email', '').length) {
                         let existedUsers = []
                         const userType = resolvedData.type || STAFF
