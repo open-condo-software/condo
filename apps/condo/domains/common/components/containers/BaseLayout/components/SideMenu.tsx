@@ -17,7 +17,7 @@ import { Button } from '@condo/domains/common/components/Button'
 import styled from '@emotion/styled'
 import { AppealIcon } from '@condo/domains/common/components/icons/AppealIcon'
 import { MeterIcon } from '@condo/domains/common/components/icons/MeterIcon'
-import { MenuItem } from '../../../MenuItem'
+import { MenuItem } from '@condo/domains/common/components/MenuItem'
 
 interface ISideMenuProps {
     isMobile: boolean
@@ -33,26 +33,24 @@ export const StyledMenu = styled(Menu)`
   border-radius: 8px;
 `
 
+const ResidentAppealDropDownMenuItemWrapperProps = {
+    labelFontSize: '14px',
+    padding: '16px',
+    flexGap: '10px',
+}
+
 const ResidentAppealDropdownOverlay = () => {
     return (
         <StyledMenu>
             <MenuItem
-                menuItemWrapperProps={{
-                    labelFontSize: '14px',
-                    padding: '16px',
-                    flexGap: '10px',
-                }}
+                menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
                 path={'/ticket/create'}
                 icon={AppealIcon}
                 label={'CreateAppeal'}
             />
             <Divider style={{ margin: 0 }}/>
             <MenuItem
-                menuItemWrapperProps={{
-                    labelFontSize: '14px',
-                    padding: '16px',
-                    flexGap: '10px',
-                }}
+                menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
                 path={'/meter/create'}
                 icon={MeterIcon}
                 label={'CreateMeterReading'}

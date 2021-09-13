@@ -25,12 +25,16 @@ function convertToUIState (item: MeterReading): IMeterReadingUIState {
 export interface IMeterReadingFormState {
     id?: string
     organization?: string
+    property?: string,
+    accountNumber?: string,
     date?: Date
     meter?: string
     value1?: number
     value2?: number
     value3?: number
     value4?: number
+    floorName?: string,
+    sectionName?: string,
     unitName?: string
     contact?: string
     clientName?: string
