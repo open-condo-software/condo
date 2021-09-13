@@ -12,7 +12,7 @@ export const useCreateAccountModal = ()=> {
 
     const [isCreateAccountModalVisible, setIsCreateAccountModalVisible] = useState(false)
 
-    const CreateAccountModal = () => (
+    const CreateAccountModal = ({ setAccountNumber }) => (
         <BaseModalForm
             visible={isCreateAccountModalVisible}
             cancelModal={() => setIsCreateAccountModalVisible(false)}
@@ -22,7 +22,7 @@ export const useCreateAccountModal = ()=> {
             validateTrigger={['onBlur', 'onSubmit']}
             handleSubmit={
                 (values) => {
-                    // setAccountNumber(values.accountNumber)
+                    setAccountNumber(values.accountNumber)
                     setIsCreateAccountModalVisible(false)
                 }
             }
