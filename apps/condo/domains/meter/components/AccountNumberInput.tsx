@@ -68,8 +68,10 @@ export const AccountNumberInput = ({ accountNumber, setAccountNumber, selectedUn
                 {/*    name='accountNumber'*/}
                 {/*    required={true}*/}
                 {/*>*/}
-                <Typography.Text type={'secondary'}>{AccountNumberMessage}</Typography.Text>
                 <Col span={24}>
+                    <Typography.Text type={'secondary'}>{AccountNumberMessage}</Typography.Text>
+                </Col>
+                <Col span={10}>
                     <Input
                         value={accountNumber}
                         onChange={e => setAccountNumber(e.target.value)}
