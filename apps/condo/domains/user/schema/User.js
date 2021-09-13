@@ -10,7 +10,7 @@ const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields'
 const { EMAIL_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/user/access/User')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
-const get = require('lodash/get')
+const { get, isEmpty } = require('lodash')
 
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { updateEmployeesRelatedToUser, User: UserAPI } = require('@condo/domains/user/utils/serverSchema')
@@ -79,13 +79,18 @@ const User = new GQLListSchema('User', {
                 resolveInput: ({ resolvedData }) => {
                     // If there is no email we need to set it to null
                     // Empty string will not pass uniq constraints check
-                    return normalizeEmail(resolvedData['email']) || resolvedData['email'] ? resolvedData['email'] : null
+                    if (isEmpty(resolvedData['email'])) {
+                        return null
+                    }
+                    return normalizeEmail(resolvedData['email']) || resolvedData['email']
                 },
                 validateInput: async ({ context, operation, fieldPath, resolvedData, existingItem, addFieldValidationError }) => {
                     if (resolvedData['email'] && normalizeEmail(resolvedData['email']) !== resolvedData['email']) {
                         addFieldValidationError(`${EMAIL_WRONG_FORMAT_ERROR}mail] invalid format`)
                     }
-                    if (resolvedData['email'] === null) return
+                    if (resolvedData.email === null) {
+                        return
+                    }
                     if (get(resolvedData, 'email', '').length) {
                         let existedUsers = []
                         const userType = resolvedData.type || STAFF
