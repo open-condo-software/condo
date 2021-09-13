@@ -1,4 +1,4 @@
-import { Col, Form, Row, Space, Typography } from 'antd'
+import { Col, Form, FormInstance, Row, Space, Typography } from 'antd'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useIntl } from '@core/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
@@ -180,6 +180,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(null)
     const [selectedUnitName, setSelectedUnitName] = useState<string>(null)
     const [meterFormListOperations, setMeterFormListOperations] = useState<FormListOperation | null>(null)
+    const [formFromState, setFormFromState] = useState<FormInstance | null>(null)
     const [accountNumber, setAccountNumber] = useState<string>(null)
 
     const { createContact, canCreateContact, ContactsEditorComponent } = useContactsEditorHook({
@@ -222,17 +223,19 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         //     form.setFieldsValue({ accountNumber: null })
     }, [existingMeters])
 
-    console.log('accountNumber', accountNumber)
+    console.log('selectedPropertyId, selectedUnitName, accountNumber', selectedPropertyId, selectedUnitName, accountNumber)
 
     const selectPropertyIdRef = useRef(selectedPropertyId)
     useEffect(() => {
         selectPropertyIdRef.current = selectedPropertyId
+        setSelectedUnitName(null)
     }, [selectedPropertyId])
 
     const selectedUnitNameRef = useRef(selectedUnitName)
     useEffect(() => {
         selectedUnitNameRef.current = selectedUnitName
-        // setAccountNumber(null)
+        setAccountNumber(null)
+        formFromState && formFromState.setFieldsValue( { newMeters: null })
         refetch()
     }, [selectedUnitName])
 
@@ -381,7 +384,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                             {
                                 existingMetersLoading || resourcesLoading ? <Loader/> :
                                     !selectedUnitName ? null :
-                                        !accountNumber ? <EmptyAccountView /> : (
+                                        !accountNumber ? <EmptyAccountView setAccountNumber={setAccountNumber} /> : (
                                             <>
                                                 <AccountNumberInput
                                                     accountNumber={accountNumber}
@@ -417,9 +420,10 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                                         <Form.List name={'newMeters'}>
                                                             {(fields, operations) => {
                                                                 if (!meterFormListOperations) setMeterFormListOperations(operations)
+                                                                if (!formFromState) setFormFromState(form)
 
                                                                 return fields.map((field, index) => {
-                                                                    const newMeter = form.getFieldValue('newMeters', index)
+                                                                    const newMeter = form.getFieldValue(['newMeters', index])
                                                                     const resource = resources.find(resource => resource.id === newMeter.resource)
 
                                                                     return (

@@ -7,7 +7,7 @@ import { Button } from '../../common/components/Button'
 import { useCreateAccountModal } from './hooks/useCreateAccountModal'
 
 
-export const EmptyAccountView = () => {
+export const EmptyAccountView = ({ setAccountNumber }) => {
     const intl = useIntl()
     const NoAccountNumber = intl.formatMessage({ id: 'pages.condo.meter.NoAccountNumber' })
     const AddAccountDescription = intl.formatMessage({ id: 'pages.condo.meter.AddAccountDescription' })
@@ -35,7 +35,7 @@ export const EmptyAccountView = () => {
                         </Button>
                     </BasicEmptyListView>
 
-                    <CreateAccountModal />
+                    <CreateAccountModal setAccountNumber={setAccountNumber} />
                 </Col>
             </Row>
         </Col>
