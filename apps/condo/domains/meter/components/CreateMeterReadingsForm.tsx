@@ -182,6 +182,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const [meterFormListOperations, setMeterFormListOperations] = useState<FormListOperation | null>(null)
     const [formFromState, setFormFromState] = useState<FormInstance | null>(null)
     const [accountNumber, setAccountNumber] = useState<string>(null)
+    const [isAccountNumberIntroduced, setIsAccountNumberIntroduced] = useState<boolean>(false)
 
     const { createContact, canCreateContact, ContactsEditorComponent } = useContactsEditorHook({
         organization: organization.id,
@@ -201,6 +202,8 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     })
 
     const { objs: resources, loading: resourcesLoading } = MeterResource.useObjects({})
+
+    const isNoExistingMetersInThisUnit = existingMeters.length === 0
 
     // const existingMetersAccounts = existingMeters.map(meter => meter.accountNumber)
 
@@ -235,6 +238,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     useEffect(() => {
         selectedUnitNameRef.current = selectedUnitName
         setAccountNumber(null)
+        setIsAccountNumberIntroduced(false)
         formFromState && formFromState.setFieldsValue( { newMeters: null })
         refetch()
     }, [selectedUnitName])
@@ -248,8 +252,6 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     useEffect(() => {
         canCreateContactRef.current = canCreateContact
     }, [canCreateContact])
-
-    const isNoExistingMetersInThisUnit = existingMeters.length === 0
 
     const createMeterAction = Meter.useCreate({}, () => {
         return
@@ -384,15 +386,18 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                             {
                                 existingMetersLoading || resourcesLoading ? <Loader/> :
                                     !selectedUnitName ? null :
-                                        !accountNumber ? <EmptyAccountView setAccountNumber={setAccountNumber} /> : (
-                                            <>
-                                                <AccountNumberInput
-                                                    accountNumber={accountNumber}
-                                                    setAccountNumber={setAccountNumber}
-                                                    existingMeters={existingMeters}
-                                                />
+                                        !accountNumber && !isAccountNumberIntroduced ?
+                                            <EmptyAccountView
+                                                setAccountNumber={setAccountNumber}
+                                                setIsAccountNumberIntroduced={setIsAccountNumberIntroduced}
+                                            /> : (
                                                 <Col lg={14} md={24}>
                                                     <Row gutter={[0, 20]}>
+                                                        <AccountNumberInput
+                                                            accountNumber={accountNumber}
+                                                            setAccountNumber={setAccountNumber}
+                                                            existingMeters={existingMeters}
+                                                        />
                                                         <Col span={24}>
                                                             <MetersDataTitle
                                                                 isNoExistingMetersInThisUnit={isNoExistingMetersInThisUnit}
@@ -446,8 +451,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                                         </Form.List>
                                                     </Row>
                                                 </Col>
-                                            </>
-                                        )
+                                            )
                             }
                         </Row>
                     </Col>
