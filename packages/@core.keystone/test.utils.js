@@ -24,7 +24,7 @@ const TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS = !conf.TESTS_FAKE_CLIENT_MODE && co
 const TESTS_REAL_CLIENT_REMOTE_API_URL = conf.TESTS_REAL_CLIENT_REMOTE_API_URL || `http://127.0.0.1:3000${API_PATH}`
 const { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } = require('@condo/domains/user/gql.js')
 
-const SIGNIN_MUTATION = gql`
+const SIGNIN_BY_EMAIL_MUTATION = gql`
     mutation sigin($identity: String, $secret: String) {
         auth: authenticateUserWithPassword(email: $identity, password: $secret) {
             user: item {
@@ -103,9 +103,9 @@ const makeFakeClient = async (app) => {
 
     let customHeaders = {}
     /**
-     * 
-     * @param {import('supertest').Test} test 
-     * @returns 
+     *
+     * @param {import('supertest').Test} test
+     * @returns
      */
     function setupSupertest (test) {
         test = test.set(customHeaders)
@@ -245,7 +245,7 @@ const makeLoggedInClient = async (args) => {
     if (!(args.email || args.phone) && !args.password) throw new Error('no credentials')
     const client = await makeClient()
     if (args.email) {
-        const {data, errors} = await client.mutate(SIGNIN_MUTATION, {
+        const {data, errors} = await client.mutate(SIGNIN_BY_EMAIL_MUTATION, {
             identity: args.email,
             secret: args.password,
         })
