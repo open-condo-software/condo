@@ -10,6 +10,7 @@ const checkEmployeeExistency = async (context, organization, email, phone, user)
             email,
             organization: { id: organization.id },
             deletedAt: null,
+            isBlocked: false,
             isRejected: false,
         })
         if (employeesByEmail.length > 0) {
@@ -22,6 +23,7 @@ const checkEmployeeExistency = async (context, organization, email, phone, user)
         organization: { id: organization.id },
         deletedAt: null,
         isRejected: false,
+        isBlocked: false,
     })
 
     if (employeesByPhone.length > 0) {
@@ -34,6 +36,7 @@ const checkEmployeeExistency = async (context, organization, email, phone, user)
             organization: { id: organization.id },
             deletedAt: null,
             isRejected: false,
+            isBlocked: false,
         })
 
         if (employeesByUser.length > 0) {
