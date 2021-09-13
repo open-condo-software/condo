@@ -144,15 +144,11 @@ export function searchEmployeeUser (organizationId, filter) {
         const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, organizationId })
         if (error) console.warn(error)
 
-        const withUser = ({ user }) => user
-
         const result = data.objs
-            .filter(withUser)
             .filter(filter || Boolean)
+            .filter(({ user }) => user)
             .map(object => {
-                if (object.user) {
-                    return ({ text: object.name, value: object.user.id })
-                }
+                return ({ text: object.name, value: object.user.id })
             })
         return result
     }
