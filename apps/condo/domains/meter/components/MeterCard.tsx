@@ -4,12 +4,13 @@ import { Alert, Col, Divider, Form, Input, Row, Space, Typography } from 'antd'
 import { resourceIdToIcon } from '../utils/clientSchema'
 import React from 'react'
 import { css } from '@emotion/core'
+import { BillingAccountMeterReading } from '../../../schema'
 
 type MeterCardProps = {
     meter: {
-        commissioningDate?
-        installationDate?
-        sealingDate?
+        commissioningDate?: string
+        installationDate?: string
+        sealingDate?: string
         number?: string
         place?: string
         resource?: string
@@ -20,14 +21,15 @@ type MeterCardProps = {
         name: string
         measure: string
     }
-    name: any
+    name: string | number
+    lastMeterBillingMeterReading?: BillingAccountMeterReading
 }
 
 const MeterCardWrapper = styled(FocusContainer)`
   margin: 0;
 `
 
-export const MeterCard = ({ meter, resource, name }: MeterCardProps) => {
+export const MeterCard = ({ meter, resource, name, lastMeterBillingMeterReading }: MeterCardProps) => {
     const Icon = resource ? resourceIdToIcon[resource.id] : null
     const numberOfTariffs = meter.numberOfTariffs ? meter.numberOfTariffs : 1
 
@@ -43,9 +45,6 @@ export const MeterCard = ({ meter, resource, name }: MeterCardProps) => {
                                     {resource.name}
                                 </Typography.Text>
                             </Space>
-                        </Col>
-                        <Col>
-                            {/*<Alert showIcon type='warning' message={'тест'} />*/}
                         </Col>
                     </Row>
                 </Col>
@@ -71,12 +70,18 @@ export const MeterCard = ({ meter, resource, name }: MeterCardProps) => {
                                                 <Input addonAfter={resource.measure} />
                                             </Form.Item>
                                         </Col>
-                                        <Col span={8}>
-                                            {/*<Typography.Paragraph style={{ margin: 0 }} strong={true}>*/}
-                                            {/*    16 {resource.measure}*/}
-                                            {/*</Typography.Paragraph>*/}
-                                            {/*<Typography.Text type={'secondary'}>Звонок жителя 26.07</Typography.Text>*/}
-                                        </Col>
+                                        {
+                                            lastMeterBillingMeterReading ? (
+                                                <Col span={8}>
+                                                    <Typography.Paragraph style={{ margin: 0 }} strong={true}>
+                                                        {lastMeterBillingMeterReading[`value${tariffNumber}`]} {resource.measure}
+                                                    </Typography.Paragraph>
+                                                    <Typography.Text type={'secondary'}>
+                                                        ${lastMeterBillingMeterReading.date}
+                                                    </Typography.Text>
+                                                </Col>
+                                            ) : null
+                                        }
                                     </Row>
                                 </Col>
                             </React.Fragment>
