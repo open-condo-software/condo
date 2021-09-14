@@ -1,14 +1,6 @@
-import styled from '@emotion/styled'
 import { useIntl } from '@core/next/intl'
 import React from 'react'
-import { colors } from '@condo/domains/common/constants/style'
-
-const ErrorsWrapper = styled.div`
-  display: inline-block;
-  padding: 9px 16px;
-  border-radius: 8px;
-  background-color: ${colors.beautifulBlue[5]};
-`
+import { ErrorsWrapper } from '@condo/domains/common/components/ErrorsWrapper'
 
 interface IErrorsContainerProps {
     address: string
