@@ -647,6 +647,7 @@ describe('Helpers', () => {
 
         describe('getChartOptions', () => {
             describe('it should correctly generate chart options if', () => {
+                const color = ['#fff', '#000']
                 const axisData = {
                     xAxis: {
                         type: 'unset',
@@ -670,6 +671,7 @@ describe('Helpers', () => {
                         animationEnabled: false,
                         chartOptions: { renderer: 'svg' },
                         legend: ['label1', 'label2'],
+                        color,
                     })
 
                     expect(opts).toMatchObject({ renderer: 'svg', height: 'auto' })
@@ -693,6 +695,7 @@ describe('Helpers', () => {
                         animationEnabled: false,
                         chartOptions: { height: 200 },
                         legend: ['label1', 'label2'],
+                        color,
                     })
                     expect(opts).toMatchObject({  height: 200, renderer: 'svg' })
                     expect(Object.keys(option).sort()).toEqual([
@@ -715,6 +718,7 @@ describe('Helpers', () => {
                         animationEnabled: false,
                         chartOptions: { height: 'auto' },
                         legend: ['label1', 'label2'],
+                        color,
                     })
 
                     expect(opts).toMatchObject({ height: 'auto', renderer: 'svg' })
