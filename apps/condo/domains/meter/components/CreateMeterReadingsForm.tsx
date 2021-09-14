@@ -17,7 +17,7 @@ import {
 import styled from '@emotion/styled'
 import { PlusCircleFilled } from '@ant-design/icons'
 import { AccountNumberInput } from './AccountNumberInput'
-import { useCreateMeterModal } from './hooks/useCreateMeterModal'
+import { useCreateMeterModal } from '../hooks/useCreateMeterModal'
 import { FormListOperation } from 'antd/lib/form/FormList'
 import { MeterCard } from './MeterCard'
 import { convertToUIFormState, IMeterFormState } from '../utils/clientSchema/Meter'

@@ -2,11 +2,11 @@ import { BaseModalForm } from '@condo/domains/common/components/containers/FormL
 import React, { useEffect, useState } from 'react'
 import { StoreValue } from 'rc-field-form/lib/interface'
 import { useIntl } from '@core/next/intl'
-import { ResourcesList } from '../createMeterModal/ResourcesList'
-import { MeterInfo } from '../createMeterModal/MeterInfo'
-import { resourceIdToCreateMeterTitleId } from '../../utils/clientSchema'
+import { ResourcesList } from '../components/createMeterModal/ResourcesList'
+import { MeterInfo } from '../components/createMeterModal/MeterInfo'
+import { resourceIdToCreateMeterTitleId } from '../utils/clientSchema'
 import { FormattedMessage } from 'react-intl'
-import { IMeterResourceUIState } from '../../utils/clientSchema/MeterResource'
+import { IMeterResourceUIState } from '../utils/clientSchema/MeterResource'
 import { Modal } from 'antd'
 
 type MeterInfoModalTitleProps = {

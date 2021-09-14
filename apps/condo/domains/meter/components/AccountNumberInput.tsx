@@ -4,7 +4,7 @@ import { useIntl } from '@core/next/intl'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { Button } from '@condo/domains/common/components/Button'
-import { useCreateAccountModal } from './hooks/useCreateAccountModal'
+import { useCreateAccountModal } from '../hooks/useCreateAccountModal'
 
 
 export const EmptyAccountView = ({ setIsAccountNumberIntroduced, setAccountNumber }) => {
