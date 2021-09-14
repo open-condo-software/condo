@@ -29,7 +29,7 @@ export const resourceIds = [
     HEAT_SUPPLY_METER_RESOURCE_ID,
 ]
 
-export const resourceIdToIcon = {
+export const resourceIdIconMap = {
     [COLD_WATER_METER_RESOURCE_ID]: SnowflakeIcon,
     [HOT_WATER_METER_RESOURCE_ID]: FireIcon,
     [GAS_SUPPLY_METER_RESOURCE_ID]: StoveIcon,
@@ -37,7 +37,7 @@ export const resourceIdToIcon = {
     [HEAT_SUPPLY_METER_RESOURCE_ID]: RadiatorIcon,
 }
 
-export const resourceIdToCreateMeterTitleId = {
+export const resourceIdToCreateMeterTitleIdMap = {
     [COLD_WATER_METER_RESOURCE_ID]: 'pages.condo.meter.AddColdWaterMeterModalTitle',
     [HOT_WATER_METER_RESOURCE_ID]: 'pages.condo.meter.AddHotWaterMeterModalTitle',
     [GAS_SUPPLY_METER_RESOURCE_ID]: 'pages.condo.meter.AddGasSupplyMeterModalTitle',

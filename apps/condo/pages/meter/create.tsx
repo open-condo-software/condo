@@ -28,7 +28,7 @@ const CreateMeterPage: ICreateContactPage = () => {
                 <PageContent>
                     <Row gutter={[12, 40]}>
                         <Col span={24}>
-                            <Typography.Title level={1} style={{ margin: 0 }}>{PageTitle}</Typography.Title>
+                            <Typography.Title level={1}>{PageTitle}</Typography.Title>
                         </Col>
                         <Col span={24}>
                             <CreateMeterReadingsForm organization={organization} role={role} />
