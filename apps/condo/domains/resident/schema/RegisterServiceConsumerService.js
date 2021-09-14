@@ -10,13 +10,14 @@ const { ServiceConsumer, Resident } = require('../utils/serverSchema')
 const { NOT_FOUND_ERROR, REQUIRED_NO_VALUE_ERROR } = require('@condo/domains/common/constants/errors')
 
 
-async function _getAccountsFromOrganizationIntgration (context, resident, unitName, accountNumber) {
+async function _getAccountsFromOrganizationIntegration (context, resident, unitName, accountNumber) {
     const [userOrganization] = await Organization.getAll(context, { id : resident.organization.id })
     if (!userOrganization) {
         throw new Error(`${NOT_FOUND_ERROR}organization] Organization not found for this user`)
     }
 
-    const [billingContext] = await BillingIntegrationOrganizationContext.getAll(context, { organization: { id: resident.organization.id } })
+    const billingContexts = await BillingIntegrationOrganizationContext.getAll(context, { organization: { id: resident.organization.id } })
+    const billingContext = billingContexts[0]
     if (!billingContext) {
         throw new Error(`${NOT_FOUND_ERROR}context] BillingIntegrationOrganizationContext not found for this user`)
     }
@@ -64,7 +65,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     throw new Error(`${NOT_FOUND_ERROR}resident] Resident not found for this user`)
                 }
 
-                const applicableBillingAccounts = await _getAccountsFromOrganizationIntgration(context, resident, unitName, accountNumber)
+                const applicableBillingAccounts = await _getAccountsFromOrganizationIntegration(context, resident, unitName, accountNumber)
 
                 if (!Array.isArray(applicableBillingAccounts)) {
                     throw new Error(`${NOT_FOUND_ERROR}billingAccount] No suitable billing accounts found for this user`)
