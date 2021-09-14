@@ -7,6 +7,7 @@ const {
     INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION,
     REINVITE_ORGANIZATION_EMPLOYEE_MUTATION,
 } = require('@condo/domains/organization/gql')
+const { OrganizationEmployeeRole } = require('./index')
 
 async function createOrganizationEmployee (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -47,7 +48,10 @@ async function registerNewOrganization (client, extraAttrs = {}, { raw = false }
     })
     if (raw) return { data, errors }
     expect(errors).toEqual(undefined)
-    return [data.obj, attrs]
+    const roles = await OrganizationEmployeeRole.getAll(client, {
+        organization: { id: data.obj.id },
+    })
+    return [data.obj, attrs, roles]
 }
 
 async function inviteNewOrganizationEmployee (client, organization, user, extraAttrs = {}, { raw = false } = {}) {
@@ -55,6 +59,7 @@ async function inviteNewOrganizationEmployee (client, organization, user, extraA
     if (!organization) throw new Error('no organization')
     if (!user) throw new Error('no user')
     if (!user.email) throw new Error('no user.email')
+    if (!extraAttrs.role) throw new Error('no employee role')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
@@ -122,8 +127,9 @@ async function acceptOrRejectOrganizationInviteById (client, invite, extraAttrs 
 
 async function makeClientWithRegisteredOrganization () {
     const client = await makeClientWithNewRegisteredAndLoggedInUser()
-    const [organization] = await registerNewOrganization(client)
+    const [organization, attrs, roles] = await registerNewOrganization(client)
     client.organization = organization
+    client.organization.roles = roles
     return client
 }
 
