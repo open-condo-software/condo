@@ -3,14 +3,14 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React from 'react'
 import { useIntl } from '@core/next/intl'
+import { useOrganization } from '@core/next/organization'
 import { Button } from '@condo/domains/common/components/Button'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { FormResetButton } from '@condo/domains/common/components/FormResetButton'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { OrganizationEmployee } from '../../utils/clientSchema'
-import { EmployeeRoleSelect } from './EmployeeRoleSelect'
-import { Loader } from '@condo/domains/common/components/Loader'
+import { OrganizationEmployee, OrganizationEmployeeRole } from '../../utils/clientSchema'
+import { EmployeeRoleSelect } from '../EmployeeRoleSelect'
 import { Rule } from 'rc-field-form/lib/interface'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 
@@ -38,8 +38,13 @@ export const EmployeeProfileForm = () => {
     const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
 
     const { query, push } = useRouter()
+    const { organization } = useOrganization()
 
-    const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject({ where: { id: String(get(query, 'id', '')) } })
+    const { obj: employee, loading: employeeLoading, error: employeeError, refetch } = OrganizationEmployee.useObject({ where: { id: String(get(query, 'id', '')) } })
+    const { objs: employeeRoles, loading: employeeRoleLoading, error: employeeRoleError } = OrganizationEmployeeRole.useObjects(
+        { where: { organization: { id: get(organization, 'id') } } }
+    )
+
     const updateEmployeeAction = OrganizationEmployee.useUpdate({}, (data) => {
         refetch().then(() => {
             push(`/employee/${get(query, 'id')}/`)
@@ -50,11 +55,8 @@ export const EmployeeProfileForm = () => {
         email: [emailValidator],
     }
 
-    if (error) {
-        return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null}/>
-    }
-    if (loading) {
-        return <Loader />
+    if (employeeError || employeeRoleLoading || employeeError || employeeRoleError) {
+        return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={employeeLoading || employeeRoleLoading} error={(employeeError || employeeRoleLoading) ? ErrorMessage : null}/>
     }
 
     const formAction = (formValues) => {
@@ -106,7 +108,7 @@ export const EmployeeProfileForm = () => {
                                         name={'role'}
                                         label={RoleLabel}
                                     >
-                                        <EmployeeRoleSelect employee={employee}/>
+                                        <EmployeeRoleSelect employeeRoles={employeeRoles} />
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
