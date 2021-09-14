@@ -7,7 +7,6 @@ import { ErrorsContainer } from './ErrorsContainer'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
-import { Loader } from '@condo/domains/common/components/Loader'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
 import { Meter, MeterReading, MeterResource } from '../utils/clientSchema'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
@@ -27,7 +26,7 @@ import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { SortBillingAccountMeterReadingsBy } from '../../../schema'
 import { BillingAccountMeterReading } from '@condo/domains/billing/utils/clientSchema'
 import { IMeterReadingFormState } from '../utils/clientSchema/MeterReading'
-import { UnitInfo } from '../../common/components/UnitInfo'
+import { UnitInfo } from '@condo/domains/property/components/UnitInfo'
 
 export const LAYOUT = {
     labelCol: { span: 8 },
