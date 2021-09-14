@@ -107,8 +107,8 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     const updateUrlFilters = useCallback(() => {
         const [startDate, endDate] = dateRange
         router.push(`${router.route}?` + qs.stringify({
-            createdAt_lte: startDate.toISOString(),
-            createdAt_gte: endDate.toISOString(),
+            createdAt_lte: startDate.format(DATE_DISPLAY_FORMAT),
+            createdAt_gte: endDate.format(DATE_DISPLAY_FORMAT),
             specification,
             addressList: JSON.stringify(addressListRef.current),
             viewMode,
@@ -119,9 +119,9 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     useEffect(() => {
         const queryParams = getQueryParams()
         const addressList = JSON.parse(get(queryParams, 'addressList', '[]'))
-        const startDate = get(queryParams, 'createdAt_lte', dayjs().subtract(1, 'week').toISOString())
-        const endDate = get(queryParams, 'createdAt_gte', dayjs().toISOString())
-        const range = [dayjs(startDate), dayjs(endDate)] as [Dayjs, Dayjs]
+        const startDate = get(queryParams, 'createdAt_lte', dayjs().subtract(1, 'week').format(DATE_DISPLAY_FORMAT))
+        const endDate = get(queryParams, 'createdAt_gte', dayjs().format(DATE_DISPLAY_FORMAT))
+        const range = [dayjs(startDate, DATE_DISPLAY_FORMAT), dayjs(endDate, DATE_DISPLAY_FORMAT)] as [Dayjs, Dayjs]
         const specificationUrl = get(queryParams, 'specification')
         if (startDate && endDate && specificationUrl && addressList) {
             addressListRef.current = addressList
@@ -279,7 +279,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
             setExcelDownloadLink(link)
         },
     })
-    const getAnalyticsData = () => {
+    const getAnalyticsData = useCallback(() => {
         if (filtersRef.current !== null) {
             const { AND, groupBy } = filterToQuery(
                 { filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy }
@@ -543,7 +543,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
             const where = { organization: { id: userOrganizationId }, AND }
             loadTicketAnalytics({ variables: { data: { groupBy, where } } })
         }
-    }
+    }, [userOrganizationId, viewMode, ticketType, groupTicketsBy])
 
     useEffect(() => {
         const queryParams = getQueryParams()
