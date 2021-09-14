@@ -12,7 +12,7 @@ import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import sum from 'lodash/sum'
 import { EXPORT_TICKET_ANALYTICS_TO_EXCEL, TICKET_ANALYTICS_REPORT_QUERY } from '@condo/domains/ticket/gql'
-import { useLazyQuery } from '@core/next/apollo'
+import { useApolloClient, useLazyQuery } from '@core/next/apollo'
 
 import dayjs, { Dayjs } from 'dayjs'
 import quarterOfYear from 'dayjs/plugin/quarterOfYear'
@@ -35,13 +35,13 @@ import {
     ticketAnalyticsPageFilters,
 } from '@condo/domains/ticket/utils/helpers'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
-import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
+import { searchEmployeeUser, searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import TicketChartView from '@condo/domains/ticket/components/analytics/TicketChartView'
 import TicketListView from '@condo/domains/ticket/components/analytics/TicketListView'
 import { DATE_DISPLAY_FORMAT, TICKET_REPORT_DAY_GROUP_STEPS } from '@condo/domains/ticket/constants/common'
 import { TicketGroupedCounter, TicketLabel } from '../../../../schema'
-import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
+import { ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 
 dayjs.extend(quarterOfYear)
 
@@ -90,7 +90,13 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     const SpecificationDays = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.Specification.Days' })
     const SpecificationWeeks = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.Specification.Weeks' })
     const AllAddressesPlaceholder = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.AllAddressesPlaceholder' })
+    const AllClassifiersPlaceholder = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.AllClassifiersPlaceholder' })
+    const AllExecutorsPlaceholder = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.AllExecutorsPlaceholder' })
+    const AllResponsiblePlaceholder = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.AllResponsiblePlaceholder' })
     const AddressTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.AddressTitle' })
+    const ClassifierTitle = intl.formatMessage({ id: 'Classifier' })
+    const ExecutorTitle = intl.formatMessage({ id: 'field.Executor' })
+    const ResponsibleTitle = intl.formatMessage({ id: 'field.Responsible' })
     const ApplyButtonTitle = intl.formatMessage({ id: 'Show' })
     const PresetWeek = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.PeriodPreset.Week' })
     const PresetMonth = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.PeriodPreset.Month' })
@@ -102,7 +108,13 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>([dayjs().subtract(1, 'week'), dayjs()])
     const [dateRangePreset, setDateRangePreset] = useState<null | string>(null)
     const [addressList, setAddressList] = useState([])
+    const [classifierList, setClassifierList] = useState<string []>([])
+    const [executorList, setExecutorList] = useState<string []>([])
+    const [responsibleList, setResponsibleList] = useState<string []>([])
     const addressListRef = useRef([])
+    const classifierListRef = useRef([])
+    const executorListRef = useRef([])
+    const responsibleListRef = useRef([])
     const [specification, setSpecification] = useState<specificationTypes>(TICKET_REPORT_DAY_GROUP_STEPS[0] as specificationTypes)
 
     const updateUrlFilters = useCallback(() => {
@@ -120,6 +132,9 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     useEffect(() => {
         const queryParams = getQueryParams()
         const addressList = JSON.parse(get(queryParams, 'addressList', '[]'))
+        const classifierList = JSON.parse(get(queryParams, 'classifierList', '[]'))
+        const executorList = JSON.parse(get(queryParams, 'executorList', '[]'))
+        const responsibleList = JSON.parse(get(queryParams, 'responsibleList', '[]'))
         const startDate = get(queryParams, 'createdAt_lte', dayjs().subtract(1, 'week').format(DATE_DISPLAY_FORMAT))
         const endDate = get(queryParams, 'createdAt_gte', dayjs().format(DATE_DISPLAY_FORMAT))
         const range = [dayjs(startDate, DATE_DISPLAY_FORMAT), dayjs(endDate, DATE_DISPLAY_FORMAT)] as [Dayjs, Dayjs]
@@ -131,7 +146,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
             setSpecification(specificationUrl)
         }
         isEmpty(queryParams) && updateUrlFilters()
-        onChange({ range, specification, addressList })
+        onChange({ range, specification, addressList, classifierList, executorList, responsibleList })
     }, [])
 
     useEffect(() => {
@@ -145,8 +160,15 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
 
     const applyFilters = useCallback(() => {
         updateUrlFilters()
-        onChange({ range: dateRange, specification, addressList: addressListRef.current })
-    }, [dateRange, specification, addressList, viewMode, groupTicketsBy])
+        onChange({
+            range: dateRange,
+            specification,
+            addressList: addressListRef.current,
+            classifierList: classifierListRef.current,
+            executorList: executorListRef.current,
+            responsibleList: responsibleListRef.current,
+        })
+    }, [dateRange, specification, addressList, classifierList, executorList, responsibleList, viewMode, groupTicketsBy])
 
     const searchAddress = useCallback(
         (client, query) => {
@@ -164,6 +186,28 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
         setAddressList(labelsList as string[])
         addressListRef.current = [...searchObjectsList.map(({ key: id, title: value }) => ({ id, value }))]
     }, [addressList])
+
+    const classifiersLoader = new ClassifiersQueryRemote(useApolloClient())
+
+    const searchClassifiers = (_, input) =>
+        classifiersLoader.search(input, TicketClassifierTypes.category)
+            .then(result=>result.map((classifier)=> ({ text: classifier.name, value: classifier.id })))
+
+    const onClassifierChange = useCallback((idList, searchObjectsList) => {
+        setClassifierList(idList)
+        classifierListRef.current = [...searchObjectsList.map(({ key: id, title: value }) => ({ id, value }))]
+    }, [classifierList])
+
+    const onExecutorChange = useCallback((idList, searchObjectsList) => {
+        setExecutorList(idList)
+        executorListRef.current = [...searchObjectsList.map(({ key: id, title: value }) => ({ id, value }))]
+    }, [executorList])
+
+    const onAssigneeChange = useCallback((idList, searchObjectsList) => {
+        setResponsibleList(idList)
+        responsibleListRef.current = [...searchObjectsList.map(({ key: id, title: value }) => ({ id, value }))]
+    }, [responsibleList])
+
     const isDetailDisabled = groupTicketsBy === 'property' || viewMode === 'bar'
     return (
         <Form>
@@ -209,6 +253,57 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                         />
                     </Form.Item>
                 </Col>
+            </Row>
+            { groupTicketsBy === 'category' && (
+                <Row>
+                    <Form.Item label={ClassifierTitle} {...FORM_ITEM_STYLE}>
+                        <GraphQlSearchInput
+                            allowClear
+                            search={searchClassifiers}
+                            mode={'multiple'}
+                            value={classifierList}
+                            maxTagCount='responsive'
+                            onChange={onClassifierChange}
+                            placeholder={AllClassifiersPlaceholder}
+                        />
+                    </Form.Item>
+                </Row>
+            )}
+            { groupTicketsBy === 'user' && (
+                <Row>
+                    <Form.Item label={ExecutorTitle} {...FORM_ITEM_STYLE}>
+                        <GraphQlSearchInput
+                            allowClear
+                            search={searchEmployeeUser(userOrganizationId, ({ role }) => (
+                                get(role, 'canBeAssignedAsExecutor', false)
+                            ))}
+                            mode='multiple'
+                            value={executorList}
+                            onChange={onExecutorChange}
+                            maxTagCount='responsive'
+                            placeholder={AllExecutorsPlaceholder}
+                        />
+                    </Form.Item>
+                </Row>
+            )}
+            { groupTicketsBy === 'responsible' && (
+                <Row>
+                    <Form.Item label={ResponsibleTitle} {...FORM_ITEM_STYLE}>
+                        <GraphQlSearchInput
+                            allowClear
+                            search={searchEmployeeUser(userOrganizationId, ({ role }) => (
+                                get(role, 'canBeAssignedAsResponsible', false)
+                            ))}
+                            mode='multiple'
+                            value={responsibleList}
+                            onChange={onAssigneeChange}
+                            maxTagCount='responsive'
+                            placeholder={AllResponsiblePlaceholder}
+                        />
+                    </Form.Item>
+                </Row>
+            )}
+            <Row style={{ marginTop: 20 }}>
                 <Col span={24}>
                     <Button onClick={applyFilters} type={'sberPrimary'}>{ApplyButtonTitle}</Button>
                 </Col>
@@ -545,16 +640,10 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
             loadTicketAnalytics({ variables: { data: { groupBy, where } } })
         }
     }, [userOrganizationId, viewMode, ticketType, groupTicketsBy])
-    const propertyPageEnabled = hasFeature('analytics_property')
 
     useEffect(() => {
         const queryParams = getQueryParams()
-        // TODO(sitozzz): remove when analytics_property feature flag is removed
-        if (propertyPageEnabled) {
-            setGroupTicketsBy(get(queryParams, 'groupTicketsBy', 'status'))
-        } else {
-            setGroupTicketsBy('status')
-        }
+        setGroupTicketsBy(get(queryParams, 'groupTicketsBy', 'status'))
         setViewMode(get(queryParams, 'viewMode', 'line'))
     }, [])
 
@@ -651,14 +740,10 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                             }}
                         >
                             <Tabs.TabPane key='status' tab={StatusFilterLabel} />
-                            <Tabs.TabPane
-                                key='property'
-                                tab={PropertyFilterLabel}
-                                disabled={!propertyPageEnabled}
-                            />
-                            <Tabs.TabPane disabled key='category' tab={CategoryFilterLabel} />
-                            <Tabs.TabPane disabled key='user' tab={UserFilterLabel} />
-                            <Tabs.TabPane disabled key='responsible' tab={ResponsibleFilterLabel} />
+                            <Tabs.TabPane key='property' tab={PropertyFilterLabel} />
+                            <Tabs.TabPane key='category' tab={CategoryFilterLabel} />
+                            <Tabs.TabPane key='user' tab={UserFilterLabel} />
+                            <Tabs.TabPane key='responsible' tab={ResponsibleFilterLabel} />
                         </Tabs>
                     </Col>
                     <Col span={24}>

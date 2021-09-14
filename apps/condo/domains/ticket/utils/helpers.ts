@@ -386,9 +386,12 @@ export type addressPickerType = { id: string; value: string; }
 export type GroupTicketsByTypes = 'status' | 'property' | 'category' | 'user' | 'responsible'
 
 export type ticketAnalyticsPageFilters = {
-    range: [Dayjs, Dayjs];
-    specification: specificationTypes;
-    addressList: addressPickerType[];
+    range: [Dayjs, Dayjs]
+    specification: specificationTypes
+    addressList: addressPickerType[]
+    classifierList: addressPickerType[]
+    executorList: addressPickerType[]
+    responsibleList: addressPickerType[]
 }
 
 interface IFilterToQuery {
