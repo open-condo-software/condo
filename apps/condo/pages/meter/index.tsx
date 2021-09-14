@@ -6,7 +6,7 @@ import { MeterReading } from '@condo/domains/meter/utils/clientSchema'
 import { DatabaseFilled } from '@ant-design/icons'
 import { useIntl } from '@core/next/intl'
 import { useLazyQuery } from '@core/next/apollo'
-import { notification, Col, Row, Typography } from 'antd'
+import { notification, Col, Row, Typography, Form } from 'antd'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { get } from 'lodash'
@@ -30,43 +30,17 @@ import qs from 'qs'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { Dayjs } from 'dayjs'
 import { EXPORT_METER_READINGS } from '@condo/domains/meter/gql'
+import ActionBar from '../../domains/common/components/ActionBar'
 
 
-interface ITicketIndexPage extends React.FC {
-    headerAction?: JSX.Element
-    requiredAccess?: React.FC
-}
-
-export const MetersPageContent = ({
+export const ExportToExcelActionBar = ({
     searchMeterReadingsQuery,
-    tableColumns,
     sortBy,
 }) => {
     const intl = useIntl()
-    const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.meter.index.PageTitle' })
     const ExportAsExcel = intl.formatMessage({ id: 'ExportAsExcel' })
-    const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
-    const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
-    const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
     const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.ticket.id.DownloadExcelLabel' })
     const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
-
-    const router = useRouter()
-    const { filters, offset } = parseQuery(router.query)
-    const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
-
-    const {
-        loading,
-        count: total,
-        objs: meterReadings,
-    } = MeterReading.useObjects({
-        sortBy,
-        where: searchMeterReadingsQuery,
-        first: DEFAULT_PAGE_SIZE,
-        skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
-    }, {
-        fetchPolicy: 'network-only',
-    })
 
     const [downloadLink, setDownloadLink] = useState(null)
 
@@ -84,6 +58,69 @@ export const MetersPageContent = ({
             },
         },
     )
+
+    return (
+        <Form.Item noStyle>
+            <ActionBar>
+                {
+                    downloadLink
+                        ?
+                        <Button
+                            type={'inlineLink'}
+                            icon={<DatabaseFilled />}
+                            loading={isXlsLoading}
+                            target='_blank'
+                            href={downloadLink}
+                            rel='noreferrer'>{DownloadExcelLabel}
+                        </Button>
+                        :
+                        <Button
+                            type={'inlineLink'}
+                            icon={<DatabaseFilled />}
+                            loading={isXlsLoading}
+                            onClick={
+                                () => exportToExcel({ variables: { data: { where: searchMeterReadingsQuery, sortBy: sortBy, timeZone } } })
+                            }>{ExportAsExcel}
+                        </Button>
+                }
+            </ActionBar>
+        </Form.Item>
+    )
+}
+
+
+interface ITicketIndexPage extends React.FC {
+    headerAction?: JSX.Element
+    requiredAccess?: React.FC
+}
+
+export const MetersPageContent = ({
+    searchMeterReadingsQuery,
+    tableColumns,
+    sortBy,
+}) => {
+    const intl = useIntl()
+    const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.meter.index.PageTitle' })
+    const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
+    const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
+    const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
+
+    const router = useRouter()
+    const { filters, offset } = parseQuery(router.query)
+    const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
+
+    const {
+        loading,
+        count: total,
+        objs: meterReadings,
+    } = MeterReading.useObjects({
+        sortBy,
+        where: searchMeterReadingsQuery,
+        first: DEFAULT_PAGE_SIZE,
+        skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
+    }, {
+        fetchPolicy: 'network-only',
+    })
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -141,47 +178,6 @@ export const MetersPageContent = ({
                                         }}
                                     />
                                 </Col>
-                                <Col span={6} push={1}>
-                                    {
-                                        downloadLink
-                                            ?
-                                            <Button
-                                                type={'inlineLink'}
-                                                icon={<DatabaseFilled />}
-                                                loading={isXlsLoading}
-                                                target='_blank'
-                                                href={downloadLink}
-                                                rel='noreferrer'>{DownloadExcelLabel}
-                                            </Button>
-                                            :
-                                            <Button
-                                                type={'inlineLink'}
-                                                icon={<DatabaseFilled />}
-                                                loading={isXlsLoading}
-                                                onClick={
-                                                    () => exportToExcel({ variables: { data: { where: searchMeterReadingsQuery, sortBy: sortBy, timeZone } } })
-                                                }>{ExportAsExcel}
-                                            </Button>
-                                    }
-                                </Col>
-                                {/*<Col span={24}>*/}
-                                {/*    <Row>*/}
-                                {/*        <Col span={4}>*/}
-                                {/*            <Checkbox*/}
-                                {/*                onChange={handleEmergencyChange}*/}
-                                {/*                checked={emergency}*/}
-                                {/*                style={{ paddingLeft: '0px', fontSize: '16px' }}*/}
-                                {/*            >Звонок жителя</Checkbox>*/}
-                                {/*        </Col>*/}
-                                {/*        <Col span={6}>*/}
-                                {/*            <Checkbox*/}
-                                {/*                onChange={handleEmergencyChange}*/}
-                                {/*                checked={emergency}*/}
-                                {/*                style={{ paddingLeft: '0px', fontSize: '16px' }}*/}
-                                {/*            >Приложение жителя</Checkbox>*/}
-                                {/*        </Col>*/}
-                                {/*    </Row>*/}
-                                {/*</Col>*/}
                                 <Col span={24}>
                                     <Table
                                         totalRows={total}
@@ -191,6 +187,11 @@ export const MetersPageContent = ({
                                         onRow={handleRowAction}
                                     />
                                 </Col>
+
+                                <ExportToExcelActionBar
+                                    searchMeterReadingsQuery={searchMeterReadingsQuery}
+                                    sortBy={sortBy}
+                                />
                             </Row>
                     }
                 </PageContent>
