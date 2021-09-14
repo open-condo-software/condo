@@ -1,4 +1,4 @@
-import { BankOutlined, CheckOutlined, CreditCardFilled, ProfileFilled, WechatFilled } from '@ant-design/icons'
+import { BankOutlined, CheckOutlined, CreditCardFilled, ProfileFilled, WechatFilled, UngroupOutlined } from '@ant-design/icons'
 import get from 'lodash/get'
 import Router, { useRouter } from 'next/router'
 import React, { createContext, useContext, useEffect } from 'react'
@@ -14,6 +14,7 @@ import {
 } from '../../../schema'
 import { OrganizationEmployee as OrganizationEmployeeGql } from '@condo/domains/organization/gql'
 import { Property as PropertyGql } from '@condo/domains/property/gql'
+import { Division as DivisionGql } from '@condo/domains/division/gql'
 import { useFocusContext } from '@condo/domains/common/components/Focus/FocusContextProvider'
 import { useOnBoardingCompleteModal } from '@condo/domains/onboarding/hooks/useOnBoardingCompleeteModal'
 import {
@@ -43,6 +44,7 @@ const onBoardingIcons = {
     organization: BankOutlined,
     house: HouseIcon,
     user: UserIcon,
+    division: UngroupOutlined,
     chat: WechatFilled,
     billing: ProfileFilled,
     creditCard: CreditCardFilled,
@@ -90,6 +92,11 @@ export const OnBoardingProvider: React.FC = (props) => {
             query: OrganizationEmployeeGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
             resolver: (data) => get(data, 'objs', []).length > 1,
             action: () => Router.push('employee/create'),
+        },
+        'create.Division': {
+            query: DivisionGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
+            resolver: (data) => get(data, 'objs', []).length > 0,
+            action: () => Router.push('division/create'),
         },
     }
 

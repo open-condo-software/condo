@@ -553,6 +553,8 @@
   "onboarding.step.description.create.Property": "Это позволит легко находить нужную информацию по объектам и работать с шахматкой квартир.",
   "onboarding.step.title.create.OrganizationEmployee": "Добавление сотрудника",
   "onboarding.step.description.create.OrganizationEmployee": "Назначайте роли сотрудникам, чтобы они получили доступ к своим функциям.",
+  "onboarding.step.title.create.Division": "Создание участка",
+  "onboarding.step.description.create.Division": "Это позволит автоматически назначать заявкам исполнителей и ответственных",
   "onboarding.step.title.create.Squad": "Формирование команды",
   "onboarding.step.description.create.Squad": "Собирайте сотрудников в группы, отправляйте заявки и следите за их работой.",
   "onboarding.step.title.create.Billing": "Подключение биллинга",
