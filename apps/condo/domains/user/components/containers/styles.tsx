@@ -3,11 +3,11 @@ import { colors } from '@condo/domains/common/constants/style'
 import { Layout as AntLayout, PageHeader } from 'antd'
 
 interface IFooterProps {
-    isResponsive: boolean
+    isSmall: boolean
 }
 
 export const Footer = styled.div<IFooterProps>`
-  ${({ isResponsive }) => isResponsive
+  ${({ isSmall }) => isSmall
         ? 'padding: 20px 0 0;'
         : `
             position: absolute;
@@ -52,7 +52,7 @@ export const PosterWrapper = styled.div`
 `
 
 interface IContentProps {
-    isResponsive: boolean
+    isSmall: boolean
 }
 
 export const PageContent = styled.div<IContentProps>`
@@ -66,16 +66,16 @@ export const Layout = styled(AntLayout)`
 `
 
 interface IChildrenWrapperProps {
-    isResponsive: boolean
+    isSmall: boolean
 }
 
 export const ChildrenWrapper = styled.div<IChildrenWrapperProps>`
-  margin: ${({ isResponsive }) => isResponsive ? 'inherit' : 'auto'};
+  margin: ${({ isSmall }) => isSmall ? 'inherit' : 'auto'};
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: ${({ isResponsive }) => isResponsive ? 'flex-start' : 'center'};
-  min-height: ${({ isResponsive }) => '900px'};
-  padding: ${({ isResponsive }) => isResponsive ? '60px 20px 0' : '0 20px'};
+  justify-content: ${({ isSmall }) => isSmall ? 'flex-start' : 'center'};
+  min-height: ${({ isSmall }) => '900px'};
+  padding: ${({ isSmall }) => isSmall ? '60px 20px 0' : '0 20px'};
 `
