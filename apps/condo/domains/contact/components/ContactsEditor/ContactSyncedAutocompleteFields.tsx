@@ -125,7 +125,7 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
                     style={{ width: '100%' }}
                 >
                     <PhoneInput
-                        style={{ width: '100%', height: '40px' }}
+                        block
                         compatibilityWithAntAutoComplete={true}
                     />
                 </AutoComplete>

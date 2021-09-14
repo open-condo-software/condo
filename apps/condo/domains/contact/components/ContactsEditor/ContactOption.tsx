@@ -20,7 +20,7 @@ export const ContactOption: React.FC<IContactFieldsDisplayProps> = ({ contact, o
                 <PhoneInput
                     disabled
                     value={contact.phone}
-                    style={{ width: '100%', height: '40px' }}
+                    block
                 />
             </Col>
             <Col span={10}>

@@ -67,6 +67,7 @@ export const ButtonHeaderAction: React.FC<IRightButtonHeaderActionProps> = (prop
             type='sberPrimary'
             secondary={true}
             size={isMobile ? 'middle' : 'large'}
+            block
         >
             {ButtonMessage}
         </Button>

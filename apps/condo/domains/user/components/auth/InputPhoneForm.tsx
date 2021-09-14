@@ -116,7 +116,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
                                     }),
                                 ]}
                             >
-                                <PhoneInput placeholder={ExamplePhoneMsg} onChange={() => setSmsSendError(null)}/>
+                                <PhoneInput placeholder={ExamplePhoneMsg} onChange={() => setSmsSendError(null)} block/>
                             </Form.Item>
                         </Col>
                         <Col span={24}>

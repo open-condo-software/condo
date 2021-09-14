@@ -147,7 +147,7 @@ export const EditContactForm: React.FC = () => {
                                                 validateFirst
                                                 rules={validations.phone}
                                             >
-                                                <PhoneInput placeholder={ExamplePhoneMessage} style={{ width: '100%' }}/>
+                                                <PhoneInput placeholder={ExamplePhoneMessage} block/>
                                             </Form.Item>
                                         </Col>
                                         <Col span={24}>
