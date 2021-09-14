@@ -3,15 +3,17 @@
  */
 
 const { Text } = require('@keystonejs/fields')
-const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingReceipt')
-const { validatePaymentDetails, validateServices, validateRecipient } = require('../utils/validation.utils')
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { DV_UNKNOWN_VERSION_ERROR, WRONG_TEXT_FORMAT } = require('@condo/domains/common/constants/errors')
-const { INTEGRATION_CONTEXT_FIELD, RAW_DATA_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD, PERIOD_FIELD } = require('./fields')
+const { RAW_DATA_FIELD, PERIOD_FIELD } = require('./fields/common')
+const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD } = require('./fields/relations')
+const { TO_PAY_DETAILS_FIELD } = require('./fields/BillingReceipt/ToPayDetailsField')
+const { SERVICES_FIELD } = require('./fields/BillingReceipt/Services')
+const { RECIPIENT_FIELD } = require('./fields/BillingReceipt/Recipient')
 const { get } = require('lodash')
 
 const BillingReceipt = new GQLListSchema('BillingReceipt', {
@@ -81,32 +83,11 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             isRequired: true,
         },
 
-        toPayDetails: {
-            schemaDoc: 'Sum to pay details. Detail level 2',
-            type: Json,
-            isRequired: false,
-            hooks: {
-                validateInput: validatePaymentDetails,
-            },
-        },
+        toPayDetails: TO_PAY_DETAILS_FIELD,
 
-        services: {
-            schemaDoc: 'Services to pay for. Every service has id, name and toPay. Service may or may not have toPay detail. Detail level 3 and 4',
-            type: Json,
-            isRequired: false,
-            hooks: {
-                validateInput: validateServices,
-            },
-        },
+        services: SERVICES_FIELD,
 
-        recipient: {
-            schemaDoc: 'Billing account recipient. Should contain all meta information to identify the organization',
-            type: Json,
-            isRequired: true,
-            hooks: {
-                validateInput: validateRecipient,
-            },
-        },
+        recipient: RECIPIENT_FIELD,
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
@@ -117,7 +98,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         auth: true,
     },
     hooks: {
-        validateInput: ({ resolvedData, existingItem, context, addValidationError }) => {
+        validateInput: ({ resolvedData, context, addValidationError }) => {
             if (!hasDvAndSenderFields( resolvedData, context, addValidationError)) return
             const { dv } = resolvedData
             if (dv === 1) {

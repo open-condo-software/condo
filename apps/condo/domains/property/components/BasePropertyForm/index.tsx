@@ -11,10 +11,10 @@ import { PropertyPanels } from '../panels'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { AddressMetaField } from '../../../../schema'
 import { useState } from 'react'
-import { validHouseTypes, validSettlementTypes } from '@condo/domains/property/constants/property'
+import { validHouseTypes } from '@condo/domains/property/constants/property'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { PROPERTY_WITH_SAME_ADDRESS_EXIST } from '../../constants/errors'
-import { omitRecursively } from '@condo/domains/common/utils/omitRecursively'
+import { omitRecursively } from '@core/keystone/fields/Json/utils/cleaner'
 
 interface IOrganization {
     id: string

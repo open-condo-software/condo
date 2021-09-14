@@ -35,10 +35,14 @@ const BillingAccountMeter = generateGqlQueries('BillingAccountMeter', BILLING_AC
 const BILLING_ACCOUNT_METER_READING_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id } account { id } meter { id } period value1 value2 value3 date raw ${COMMON_FIELDS} }`
 const BillingAccountMeterReading = generateGqlQueries('BillingAccountMeterReading', BILLING_ACCOUNT_METER_READING_FIELDS)
 
-const BILLING_RECEIPT_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id, address } account { id, number } recipient period raw toPay printableNumber toPayDetails services ${COMMON_FIELDS} }`
+const BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS = 'toPayDetails { charge formula balance recalculation privilege penalty }'
+const BILLING_RECEIPT_SERVICE_TO_PAY_DETAILS_FIELDS = BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS.replace('}', 'volume tariff measure }')
+const BILLING_RECEIPT_SERVICE_FIELDS = `services { id name toPay ${BILLING_RECEIPT_SERVICE_TO_PAY_DETAILS_FIELDS} }`
+const BILLING_RECEIPT_RECIPIENT_FIELDS = 'recipient { tin iec bic bankAccount }'
+const BILLING_RECEIPT_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id, address } account { id, number } period raw toPay printableNumber ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS} ${BILLING_RECEIPT_SERVICE_FIELDS} ${BILLING_RECEIPT_RECIPIENT_FIELDS} ${COMMON_FIELDS} }`
 const BillingReceipt = generateGqlQueries('BillingReceipt', BILLING_RECEIPT_FIELDS)
 
-const RESIDENT_BILLING_RECEIPTS_FIELDS =  '{ id recipient period toPay toPayDetails services printableNumber serviceConsumer { id } }'
+const RESIDENT_BILLING_RECEIPTS_FIELDS =  `{ id ${BILLING_RECEIPT_RECIPIENT_FIELDS} period toPay ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS} ${BILLING_RECEIPT_SERVICE_FIELDS} printableNumber serviceConsumer { id } }`
 const ResidentBillingReceipt = generateGqlQueries('ResidentBillingReceipt', RESIDENT_BILLING_RECEIPTS_FIELDS)
 
 const BILLING_CURRENCY_FIELDS = `{ code displayInfo ${COMMON_FIELDS} }`
