@@ -216,21 +216,21 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         where: { id: selectedPropertyId ? selectedPropertyId : null },
     })
 
-    const { objs: existedMeters, loading: existedMetersLoading, refetch } = Meter.useObjects({
+    const { objs: existedMeters, refetch: refetchExistedMeters } = Meter.useObjects({
         where: {
             property: { id: selectedPropertyId ? selectedPropertyId : null },
             unitName: selectedUnitName ? selectedUnitName : null,
         },
     })
 
-    const { objs: billingMeterReadings, loading: billingMeterReadingsLoading } = BillingAccountMeterReading.useObjects({
+    const { objs: billingMeterReadings } = BillingAccountMeterReading.useObjects({
         where: {
             account: { number: accountNumber },
         },
         sortBy: [SortBillingAccountMeterReadingsBy.CreatedAtDesc],
     })
 
-    const { objs: resources, loading: resourcesLoading } = MeterResource.useObjects({})
+    const { objs: resources } = MeterResource.useObjects({})
 
     const isNoExistedMetersInThisUnit = existedMeters.length === 0
 
@@ -250,7 +250,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         selectedUnitNameRef.current = selectedUnitName
         setAccountNumber(null)
         formFromState && formFromState.setFieldsValue( { newMeters: null })
-        refetch()
+        refetchExistedMeters()
     }, [selectedUnitName])
 
     const accountNumberRef = useRef(accountNumber)
@@ -394,62 +394,60 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                 </Row>
                             </Col>
                             {
-                                existedMetersLoading || resourcesLoading || billingMeterReadingsLoading ? <Loader/> : (
-                                    <>
-                                        <AccountNumberInput
-                                            accountNumber={accountNumber}
-                                            setAccountNumber={setAccountNumber}
-                                            selectedUnitName={selectedUnitName}
-                                            existingMeters={existedMeters}
-                                        />
-                                        {
-                                            !selectedUnitName || !accountNumber ? null : (
-                                                <Col lg={14} md={24}>
-                                                    <Row gutter={[0, 20]}>
-                                                        <Col span={24}>
-                                                            <MetersDataTitle
-                                                                isNoExistingMetersInThisUnit={isNoExistedMetersInThisUnit}
-                                                                isNoNewMetersInThisUnit={!form.getFieldValue('newMeters')}
-                                                            />
-                                                        </Col>
-                                                        <ExistedMetersList
-                                                            existedMeters={existedMeters}
-                                                            resources={resources}
-                                                            billingMeterReadings={billingMeterReadings}
+                                <>
+                                    <AccountNumberInput
+                                        accountNumber={accountNumber}
+                                        setAccountNumber={setAccountNumber}
+                                        selectedUnitName={selectedUnitName}
+                                        existingMeters={existedMeters}
+                                    />
+                                    {
+                                        !selectedUnitName || !accountNumber ? null : (
+                                            <Col lg={14} md={24}>
+                                                <Row gutter={[0, 20]}>
+                                                    <Col span={24}>
+                                                        <MetersDataTitle
+                                                            isNoExistingMetersInThisUnit={isNoExistedMetersInThisUnit}
+                                                            isNoNewMetersInThisUnit={!form.getFieldValue('newMeters')}
                                                         />
-                                                        <Form.List name={'newMeters'}>
-                                                            {(fields, operations) => {
-                                                                if (!meterFormListOperations) setMeterFormListOperations(operations)
-                                                                if (!formFromState) setFormFromState(form)
+                                                    </Col>
+                                                    <ExistedMetersList
+                                                        existedMeters={existedMeters}
+                                                        resources={resources}
+                                                        billingMeterReadings={billingMeterReadings}
+                                                    />
+                                                    <Form.List name={'newMeters'}>
+                                                        {(fields, operations) => {
+                                                            if (!meterFormListOperations) setMeterFormListOperations(operations)
+                                                            if (!formFromState) setFormFromState(form)
 
-                                                                return fields.map((field, index) => {
-                                                                    const newMeter = form.getFieldValue(['newMeters', index])
-                                                                    const resource = resources.find(resource => resource.id === newMeter.resource)
+                                                            return fields.map((field, index) => {
+                                                                const newMeter = form.getFieldValue(['newMeters', index])
+                                                                const resource = resources.find(resource => resource.id === newMeter.resource)
 
-                                                                    return (
-                                                                        <Col span={24} key={field.key}>
-                                                                            <Form.Item
-                                                                                {...field}
+                                                                return (
+                                                                    <Col span={24} key={field.key}>
+                                                                        <Form.Item
+                                                                            {...field}
+                                                                            name={field.name}
+                                                                            noStyle
+                                                                        >
+                                                                            <MeterCard
+                                                                                meter={newMeter}
+                                                                                resource={resource}
                                                                                 name={field.name}
-                                                                                noStyle
-                                                                            >
-                                                                                <MeterCard
-                                                                                    meter={newMeter}
-                                                                                    resource={resource}
-                                                                                    name={field.name}
-                                                                                />
-                                                                            </Form.Item>
-                                                                        </Col>
-                                                                    )
-                                                                })
-                                                            }}
-                                                        </Form.List>
-                                                    </Row>
-                                                </Col>
-                                            )
-                                        }
-                                    </>
-                                )
+                                                                            />
+                                                                        </Form.Item>
+                                                                    </Col>
+                                                                )
+                                                            })
+                                                        }}
+                                                    </Form.List>
+                                                </Row>
+                                            </Col>
+                                        )
+                                    }
+                                </>
                             }
                         </Row>
                     </Col>
