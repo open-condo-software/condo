@@ -1,9 +1,8 @@
 /** @jsx jsx */
-import { css, jsx } from '@emotion/core'
+import { jsx } from '@emotion/core'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { MeterReading } from '@condo/domains/meter/utils/clientSchema'
-import { EXPORT_TICKETS_TO_EXCEL } from '@condo/domains/ticket/gql'
 import { DatabaseFilled } from '@ant-design/icons'
 import { useIntl } from '@core/next/intl'
 import { useLazyQuery } from '@core/next/apollo'
@@ -68,8 +67,6 @@ export const MetersPageContent = ({
     }, {
         fetchPolicy: 'network-only',
     })
-
-    console.log('meterReadings', meterReadings)
 
     const [downloadLink, setDownloadLink] = useState(null)
 
