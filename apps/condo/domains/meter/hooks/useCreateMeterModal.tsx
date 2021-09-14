@@ -45,7 +45,6 @@ export const useCreateMeterModal = ()=> {
     }, [isCreateMeterModalVisible])
 
     const CreateMeterModal = ({ addMeterToFormAction, resources }: CreateMeterModalProps) => {
-
         return !selectedMeterResourceId ? (
             <Modal
                 title={ChooseServiceMessage}
@@ -74,7 +73,6 @@ export const useCreateMeterModal = ()=> {
                     }
                 }
             >
-
                 <MeterInfo
                     resource={resources.find(resource => resource.id === selectedMeterResourceId)}
                 />

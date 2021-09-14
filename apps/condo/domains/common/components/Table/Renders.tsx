@@ -4,29 +4,75 @@ import { TextHighlighter } from '../TextHighlighter'
 import { Typography } from 'antd'
 import { colors } from '../../constants/style'
 import { EmptyTableCell } from './EmptyTableCell'
+import { get } from 'lodash'
+import { LOCALES } from '../../constants/locale'
+import dayjs from 'dayjs'
+import { Highliter } from '../Highliter'
+import { QueryArgType } from '../../utils/tables.utils'
 
 type RenderReturnType = string | React.ReactNode
 
 const DEFAULT_CURRENCY_SEPARATOR = '.'
 const MONEY_PARTS_SEPARATOR = ' '
 
-export const getTextRender = (search?: string) => {
+const getHighlightedText = (search: string, text: string) => {
+    let result: RenderReturnType = text
+    if (!isEmpty(search) && text) {
+        result = (
+            <TextHighlighter
+                text={String(text)}
+                search={search}
+                renderPart={(part, startIndex, marked) => (
+                    <Typography.Text style={marked ? { backgroundColor: colors.markColor } : {}}>
+                        {part}
+                    </Typography.Text>
+                )}
+            />
+        )
+    }
+    return (<EmptyTableCell>{result}</EmptyTableCell>)
+}
+
+export const getDateRender = (intl, search?: string) => {
+    return function render (stringDate: string): RenderReturnType {
+        const locale = get(LOCALES, intl.locale)
+        const date = locale ? dayjs(stringDate).locale(locale) : dayjs(stringDate)
+        return getHighlightedText(search, date.format('DD MMMM YYYY'))
+    }
+}
+
+export const getAddressRender = (search?: QueryArgType, unitPrefix?: string) => {
     return function render (text: string): RenderReturnType {
-        let result: RenderReturnType = text
-        if (!isEmpty(search) && text) {
-            result = (
-                <TextHighlighter
-                    text={String(text)}
-                    search={search}
-                    renderPart={(part, startIndex, marked) => (
-                        <Typography.Text style={marked ? { backgroundColor: colors.markColor } : {}}>
-                            {part}
-                        </Typography.Text>
-                    )}
-                />
+        if (!isEmpty(search)) {
+            return (
+                <>
+                    <Highliter
+                        text={text}
+                        search={String(search)}
+                        renderPart={(part) => (
+                            <Typography.Text style={{ backgroundColor: colors.markColor }}>
+                                {part}
+                            </Typography.Text>
+                        )}
+                    />
+                    {` ${unitPrefix}`}
+                </>
             )
         }
-        return (<EmptyTableCell>{result}</EmptyTableCell>)
+        return `${text} ${unitPrefix}`
+    }
+}
+
+export const getTextRender = (search?: string) => {
+    return function render (text: string): RenderReturnType {
+        return getHighlightedText(search, text)
+    }
+}
+
+export const getReadingRender = (search?: string) => {
+    return function render (reading: string): RenderReturnType {
+        const text = reading.substring(0, reading.length - 2)
+        return getHighlightedText(search, text)
     }
 }
 

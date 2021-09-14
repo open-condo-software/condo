@@ -63,7 +63,7 @@ export const MeterCard = ({ meter, resource, name, lastMeterBillingMeterReading 
                             <Space>
                                 <Icon style={{ fontSize: '20px' }} />
                                 <Typography.Text style={{ fontSize: fontSizes.content }} strong>
-                                    {resource.name}
+                                    {resource && resource.name}
                                 </Typography.Text>
                             </Space>
                         </Col>

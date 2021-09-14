@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { CSSProperties } from 'react'
 import get from 'lodash/get'
 import { ParsedUrlQuery } from 'querystring'
 import {
@@ -12,14 +12,14 @@ import { getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { TableRecord } from '@condo/domains/common/components/Table/Index'
 import { preciseFloor } from './helpers'
 import { FilterDropdownProps } from 'antd/es/table/interface'
-import dayjs from 'dayjs'
+import dayjs  from 'dayjs'
 
 export type DataIndexType = string | Array<string>
 export type QueryArgType = string | Array<string>
 export type FiltersFromQueryType = { [key: string]: QueryArgType }
 type OptionWhereArgumentType = Array<string> | Array<number>
 type WhereArgumentType = string | number | boolean | OptionWhereArgumentType
-export type WhereType = { [key: string]: WhereArgumentType | WhereType }
+export type WhereType = { [key: string]: WhereArgumentType | Array<WhereArgumentType> | WhereType | Array<WhereType> }
 // TODO(mrfoxpro): make type generic
 export type FilterType<F = WhereType> = (search: QueryArgType) => F
 export type ArgumentType = 'single' | 'array'
@@ -179,6 +179,23 @@ export const getDayLteFilter: (dataIndex: DataIndexType) => FilterType = (dataIn
         const date = dayjs(search)
         if (!date.isValid()) return
         return filter(date.endOf('day').toISOString())
+    }
+}
+
+export const getDayRangeFilter: (dataIndex: DataIndexType) => FilterType = (dataIndex) => {
+    const gte = getDayGteFilter(dataIndex)
+    const lte = getDayLteFilter(dataIndex)
+    return function searchRange (search) {
+        if (!Array.isArray(search) || search.length !== 2) return
+        const gteWhere = gte(search[0])
+        const lteWhere = lte(search[1])
+        if (!gteWhere || !lteWhere) return
+        return {
+            AND: [
+                gteWhere,
+                lteWhere,
+            ],
+        }
     }
 }
 
