@@ -3,6 +3,7 @@
  */
 const access = require('@core/keystone/access')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const canAccessToImportField = readByAnyUpdateByAdminField
 
 async function canReadUsers ({ authentication: { item: user } }) {
     if (!user || !user.id) return false
@@ -71,4 +72,5 @@ module.exports = {
     canAccessToIsPhoneVerifiedField,
     canAccessToImportIdField,
     canAccessToStaffUserField,
+    canAccessToImportField,
 }
