@@ -2,12 +2,13 @@ import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import styled from '@emotion/styled'
 import { Alert, Col, Divider, Form, Input, Row, Space, Typography } from 'antd'
 import { resourceIdToIcon } from '../utils/clientSchema'
-import React from 'react'
+import React, { useState } from 'react'
 import { BillingAccountMeterReading } from '../../../schema'
 import { IMeterFormState } from '../utils/clientSchema/Meter'
 import dayjs from 'dayjs'
 import { useIntl } from '@core/next/intl'
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { useValidations } from '../../common/hooks/useValidations'
 
 type MeterCardProps = {
     meter: IMeterFormState
@@ -27,6 +28,12 @@ const MeterCardWrapper = styled(FocusContainer)`
 export const MeterCard = ({ meter, resource, name, lastMeterBillingMeterReading }: MeterCardProps) => {
     const intl = useIntl()
     const VerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.VerificationDate' })
+
+    const { numberValidator } = useValidations()
+    const validations = {
+        readingValue: [numberValidator],
+    }
+
     const Icon = resource ? resourceIdToIcon[resource.id] : null
     const numberOfTariffs = meter.numberOfTariffs ? meter.numberOfTariffs : 1
 
@@ -85,9 +92,9 @@ export const MeterCard = ({ meter, resource, name, lastMeterBillingMeterReading 
                                                     `№ ${meter.number} ${meter.place ? `(${meter.place})` : ''}
                                                         ${numberOfTariffs > 1 ? `T${tariffNumber}` : ''}`
                                                 }
+                                                rules={validations.readingValue}
                                             >
                                                 <Input
-                                                    type={'number'}
                                                     addonAfter={resource.measure}
                                                 />
                                             </Form.Item>
