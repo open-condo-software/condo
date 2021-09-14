@@ -103,7 +103,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
             </BasicEmptyListView>
         )
     }
-
+    console.log(receipts)
     return (
         <>
             <Row gutter={[0, 40]}>

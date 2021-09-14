@@ -11,7 +11,6 @@ const { generateQueryWhereInput } = require('@condo/domains/common/utils/codegen
 const { pick, get } = require('lodash')
 const {
     BILLING_RECEIPT_RECIPIENT_FIELD_NAME,
-    BILLING_RECEIPT_SERVICE_FIELD_NAME,
     BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME,
     BILLING_RECEIPT_SERVICES_FIELD,
 } = require('@condo/domains/billing/constants')

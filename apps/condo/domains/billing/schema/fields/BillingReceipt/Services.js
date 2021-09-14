@@ -5,6 +5,8 @@ const {
     BILLING_RECEIPT_SERVICE_TO_PAY_DETAILS_INPUT_NAME,
     BILLING_RECEIPT_SERVICE_FIELD_NAME,
     BILLING_RECEIPT_SERVICE_INPUT_NAME,
+    BILLING_RECEIPT_SERVICES_FIELD,
+    BILLING_RECEIPT_SERVICES_INPUT,
 } = require('@condo/domains/billing/constants')
 const { render, getValidator } = require('@condo/domains/billing/schema/fields/utils/json.utils')
 const { Json } = require('@core/keystone/fields')
@@ -82,8 +84,8 @@ const SERVICES_FIELD = {
     type: Json,
     isRequired: false,
     extendGraphQLTypes: [SERVICES_GRAPHQL_TYPES],
-    graphQLInputType: `[${BILLING_RECEIPT_SERVICE_INPUT_NAME}!]`,
-    graphQLReturnType: `[${BILLING_RECEIPT_SERVICE_FIELD_NAME}!]`,
+    graphQLInputType: BILLING_RECEIPT_SERVICES_INPUT,
+    graphQLReturnType: BILLING_RECEIPT_SERVICES_FIELD,
     graphQLAdminFragment: `{ ${SERVICES_QUERY_LIST} }`,
     hooks: {
         validateInput: validateServices,
