@@ -25,6 +25,7 @@ import { colors, shadows } from '@condo/domains/common/constants/style'
 import { css, jsx } from '@emotion/core'
 import { ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 import ActionBar from '@condo/domains/common/components/ActionBar'
+import LoadingOrErrorPage from '../../common/components/containers/LoadingOrErrorPage'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -60,6 +61,7 @@ export const CreateEmployeeForm: React.FC = () => {
     const PhoneIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
     const UserAlreadyInListMsg = intl.formatMessage({ id: 'pages.users.UserIsAlreadyInList' })
     const TechnicianRoleName = intl.formatMessage({ id: 'employee.role.Technician.name' })
+    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
 
     const classifiersLoader = new ClassifiersQueryRemote(useApolloClient())
     const { organization } = useOrganization()
@@ -102,19 +104,22 @@ export const CreateEmployeeForm: React.FC = () => {
         router.push('/employee/')
     })
 
-    const initialValues = {
-        role: get(employeeRoles, [0, 'id'], ''),
-    }
-
     const searchClassifers = (_, input) =>
         classifiersLoader.search(input, TicketClassifierTypes.category)
             .then(result=>result.map((classifier)=> ({ text: classifier.name, value: classifier.id })))
-
+        
     useEffect(()=> {
         classifiersLoader.init()
         return () => classifiersLoader.clear()
     }, [])
 
+    if (loading || error) 
+        return <LoadingOrErrorPage title={InviteEmployeeLabel} loading={loading} error={error ? ServerErrorMsg : null} />
+
+    const initialValues = {
+        role: get(employeeRoles, [0, 'id'], ''),
+    }
+   
     return (
         <FormWithAction
             action={action}
@@ -149,8 +154,6 @@ export const CreateEmployeeForm: React.FC = () => {
                                                 <Col span={24}>
                                                     <Form.Item name={'role'} label={RoleLabel} {...INPUT_LAYOUT_PROPS} labelAlign={'left'} >
                                                         <EmployeeRoleSelect
-                                                            loading={loading}
-                                                            error={Boolean(error)}
                                                             employeeRoles={employeeRoles}
                                                         />
                                                     </Form.Item>
