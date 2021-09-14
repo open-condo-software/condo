@@ -28,7 +28,7 @@ interface IAuthLayoutProps {
 
 const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
     const intl = useIntl()
-    const { isResponsive } = useResponsive()
+    const { isSmall } = useResponsive()
 
     return (
         <GoogleReCaptchaProvider
@@ -44,7 +44,7 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
             <Layout>
                 <AuthHeader headerAction={headerAction}/>
                 <Row align={'stretch'}>
-                    <Col lg={11} md={24} hidden={isResponsive}>
+                    <Col lg={11} md={24} hidden={isSmall}>
                         <PosterWrapper>
                             <Poster
                                 src={'/authPoster.png'}
@@ -54,18 +54,18 @@ const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
                         </PosterWrapper>
                     </Col>
                     <Col lg={13} md={24}>
-                        <PageContent isResponsive={isResponsive}>
-                            <ChildrenWrapper isResponsive={isResponsive}>
+                        <PageContent isSmall={isSmall}>
+                            <ChildrenWrapper isSmall={isSmall}>
                                 <Row>
-                                    <Col lg={14} md={24} push={isResponsive ? 0 : 4} pull={isResponsive ? 0 : 6}>
+                                    <Col lg={14} md={24} push={isSmall ? 0 : 4} pull={isSmall ? 0 : 6}>
                                         <AuthLayoutContextProvider>
                                             {children}
                                         </AuthLayoutContextProvider>
                                     </Col>
                                 </Row>
-                                <Footer isResponsive={isResponsive}>
+                                <Footer isSmall={isSmall}>
                                     <Row>
-                                        <Col lg={14} md={24} push={isResponsive ? 0 : 4} pull={isResponsive ? 0 : 6}>
+                                        <Col lg={14} md={24} push={isSmall ? 0 : 4} pull={isSmall ? 0 : 6}>
                                             <FormattedMessage
                                                 id='pages.auth.FooterText'
                                                 values={{
