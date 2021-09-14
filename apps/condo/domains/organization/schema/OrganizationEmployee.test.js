@@ -292,7 +292,11 @@ describe('OrganizationEmployee', () => {
         const client1 = await makeClientWithRegisteredOrganization()
         const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
 
-        const [invitedEmployee] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs)
+        const [invitedEmployee] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs, {
+            role: {
+                id: client1.organization.roles[0].id,
+            },
+        })
 
         const email = createTestEmail()
         const phone = createTestPhone()
@@ -311,7 +315,11 @@ describe('OrganizationEmployee', () => {
         const client1 = await makeClientWithRegisteredOrganization()
         const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
 
-        const [invitedEmployee] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs)
+        const [invitedEmployee] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs, {
+            role: {
+                id: client1.organization.roles[0].id,
+            },
+        })
         await acceptOrRejectOrganizationInviteById(client2, invitedEmployee)
 
         const email = createTestEmail()
@@ -331,7 +339,11 @@ describe('OrganizationEmployee', () => {
         const client1 = await makeClientWithRegisteredOrganization()
         const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
 
-        const [invitedEmployee] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs)
+        const [invitedEmployee] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs, {
+            role: {
+                id: client1.organization.roles[0].id,
+            },
+        })
         await acceptOrRejectOrganizationInviteById(client2, invitedEmployee, {
             isAccepted: false,
             isRejected: true,

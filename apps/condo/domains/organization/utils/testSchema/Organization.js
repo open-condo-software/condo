@@ -2,12 +2,12 @@ const faker = require('faker')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const {
     OrganizationEmployee,
+    OrganizationEmployeeRole,
     REGISTER_NEW_ORGANIZATION_MUTATION,
     ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION,
     INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION,
     REINVITE_ORGANIZATION_EMPLOYEE_MUTATION,
 } = require('@condo/domains/organization/gql')
-const { OrganizationEmployeeRole } = require('./index')
 
 async function createOrganizationEmployee (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -48,8 +48,10 @@ async function registerNewOrganization (client, extraAttrs = {}, { raw = false }
     })
     if (raw) return { data, errors }
     expect(errors).toEqual(undefined)
-    const roles = await OrganizationEmployeeRole.getAll(client, {
-        organization: { id: data.obj.id },
+    const roles = await client.query(OrganizationEmployeeRole.GET_ALL_OBJS_QUERY, {
+        data: {
+            organization: { id: data.obj.id },
+        }
     })
     return [data.obj, attrs, roles]
 }
