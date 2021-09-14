@@ -8,7 +8,6 @@ import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticke
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
-import { UnitNameInput } from '@condo/domains/user/components/UnitNameInput'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
@@ -25,7 +24,7 @@ import Prompt from '@condo/domains/common/components/Prompt'
 import { IOrganizationEmployeeRoleUIState } from '@condo/domains/organization/utils/clientSchema/OrganizationEmployeeRole'
 import { IOrganizationUIState } from '@condo/domains/organization/utils/clientSchema/Organization'
 import { AutoAssignerByDivisions } from './AutoAssignerByDivisions'
-import { UnitInfo } from '@condo/domains/common/components/UnitInfo'
+import { UnitInfo } from '@condo/domains/property/components/UnitInfo'
 import { TicketAssignments } from './TicketAssignments'
 
 const { TabPane } = Tabs
