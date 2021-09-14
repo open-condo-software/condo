@@ -6,11 +6,11 @@ import { MeterReading } from '@condo/domains/meter/utils/clientSchema'
 import { DatabaseFilled } from '@ant-design/icons'
 import { useIntl } from '@core/next/intl'
 import { useLazyQuery } from '@core/next/apollo'
-import { notification, Col, Row, Typography, Form } from 'antd'
+import { notification, Col, Row, Typography, Form, Input } from 'antd'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { get } from 'lodash'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Button } from '@condo/domains/common/components/Button'
 import { useOrganization } from '@core/next/organization'
@@ -26,11 +26,10 @@ import {
 import { useTableColumns } from '../../domains/meter/hooks/useTableColumns'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { useQueryMappers } from '../../domains/common/hooks/useQueryMappers'
-import qs from 'qs'
-import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
-import { Dayjs } from 'dayjs'
 import { EXPORT_METER_READINGS } from '@condo/domains/meter/gql'
 import ActionBar from '@condo/domains/common/components/ActionBar'
+import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
+import { useSearch } from '../../domains/common/hooks/useSearch'
 
 
 export const ExportToExcelActionBar = ({
@@ -104,6 +103,7 @@ export const MetersPageContent = ({
     const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
     const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
+    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
 
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
@@ -121,6 +121,8 @@ export const MetersPageContent = ({
     }, {
         fetchPolicy: 'network-only',
     })
+
+    const [search, handleSearchChange] = useSearch(loading)
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -145,9 +147,17 @@ export const MetersPageContent = ({
                                 message={EmptyListMessage}
                                 createRoute='/ticket/create'
                                 createLabel={CreateTicket} />
-                            : <Row gutter={[0, 40]} align={'middle'}>
-                                <Col span={24}>
-
+                            : <Row gutter={[0, 40]} align={'middle'} justify={'center'}>
+                                <Col span={23}>
+                                    <FocusContainer style={{ padding: '16px' }}>
+                                        <Col span={7}>
+                                            <Input
+                                                placeholder={SearchPlaceholder}
+                                                onChange={(e) => {handleSearchChange(e.target.value)}}
+                                                value={search}
+                                            />
+                                        </Col>
+                                    </FocusContainer>
                                 </Col>
                                 <Col span={24}>
                                     <Table
@@ -175,7 +185,7 @@ const MetersPage: ITicketIndexPage = () => {
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
-    const addressFilter = getStringContainsFilter(['property', 'address'])
+    const addressFilter = getStringContainsFilter(['meter', 'property', 'address'])
     const placeFilter = getStringContainsFilter(['meter', 'place'])
     const numberFilter = getStringContainsFilter(['meter', 'number'])
     const clientNameFilter = getStringContainsFilter('clientName')
@@ -194,6 +204,7 @@ const MetersPage: ITicketIndexPage = () => {
         { keyword: 'createdAt_lte', filters: [readingDateLteFilter] },
         { keyword: 'source', filters: [sourceFilter] },
         { keyword: 'resource', filters: [resourceFilter] },
+        { keyword: 'search', filters: [addressFilter, placeFilter, numberFilter, clientNameFilter], combineType: 'OR' },
     ]
 
     const sortableProperties = ['date', 'address', 'resource', 'number', 'place', 'value1', 'clientName', 'source']
