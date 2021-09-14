@@ -553,6 +553,8 @@
   "onboarding.step.description.create.Property": "This will make it easy to find the necessary information on objects and work with the chess of apartments.",
   "onboarding.step.title.create.OrganizationEmployee": "Adding an employee",
   "onboarding.step.description.create.OrganizationEmployee": "Assign roles to employees so they can access their functions.",
+  "onboarding.step.title.create.Division": "Adding division",
+  "onboarding.step.description.create.Division": "It will allow to automatically assign executors and responsible to tickets",
   "onboarding.step.title.create.Squad": "Team building",
   "onboarding.step.description.create.Squad": "Gather employees into groups, send applications and follow their work.",
   "onboarding.step.title.create.Billing": "Billing connection",

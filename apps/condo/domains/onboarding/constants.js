@@ -14,33 +14,41 @@ const DEFAULT_ADMINISTRATOR_ONBOADRING_STEPS = [
     },
     {
         icon: 'house',
+        required: true,
         action: 'create',
         entity: 'Property',
         order: 2,
     },
     {
         icon: 'user',
+        required: true,
         action: 'create',
         entity: 'OrganizationEmployee',
         order: 3,
     },
     {
+        icon: 'division',
+        action: 'create',
+        entity: 'Division',
+        order: 4,
+    },
+    {
         icon: 'chat',
         action: 'create',
         entity: 'Squad', // should be renamed
-        order: 4,
+        order: 5,
     },
     {
         icon: 'billing',
         action: 'create',
         entity: 'BillingAccount',
-        order: 5,
+        order: 6,
     },
     {
         icon: 'creditCard',
         action: 'create',
         entity: 'Acquiring',
-        order: 6,
+        order: 7,
     },
 ]
 
@@ -50,7 +58,10 @@ const DEFAULT_ADMINISTRATOR_STEPS_TRANSITION = {
         'create.OrganizationEmployee',
     ],
     'create.Property': [],
-    'create.OrganizationEmployee': [],
+    'create.OrganizationEmployee': [
+        'create.Division',
+    ],
+    'create.Division': [],
 }
 
 const ONBOARDING_STEPS = {
