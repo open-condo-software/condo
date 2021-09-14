@@ -52,6 +52,7 @@
   "Table": "Таблица",
   "Emergency": "Аварийная",
   "EnterPhoneNumber": "Введите номер телефона",
+  "EnterDate": "Введите дату",
   "EnterVerificationCode": "Введите код подтверждения",
   "errors.fileUploadError": "При загрузке файла произошла ошибка, попробуйте повторить попытку",
   "errors.fileUploadSuccess": "Файл успешно загружен",

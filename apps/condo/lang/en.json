@@ -52,6 +52,7 @@
   "Table": "Table",
   "Emergency": "Emergency",
   "EnterPhoneNumber": "Enter phone number",
+  "EnterDate": "Enter date",
   "EnterVerificationCode": "Enter verification code",
   "errors.fileUploadError": "An error occurred while uploading the file, please try again",
   "errors.fileUploadSuccess": "File uploaded successfully",
