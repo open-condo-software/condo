@@ -30,7 +30,7 @@ import qs from 'qs'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { Dayjs } from 'dayjs'
 import { EXPORT_METER_READINGS } from '@condo/domains/meter/gql'
-import ActionBar from '../../domains/common/components/ActionBar'
+import ActionBar from '@condo/domains/common/components/ActionBar'
 
 
 export const ExportToExcelActionBar = ({
@@ -130,30 +130,6 @@ export const MetersPageContent = ({
         }
     }, [])
 
-    const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>()
-
-    const updateUrlDateRangeFilters = useCallback(() => {
-        if (!dateRange) return
-
-        const [startDate, endDate] = dateRange
-        const newFilters = {
-            ...filters,
-            createdAt_gte: startDate.toISOString(),
-            createdAt_lte: endDate.toISOString(),
-        }
-        const query = {
-            ...router.query,
-            filters: JSON.stringify(newFilters),
-        }
-
-        const newQuery = qs.stringify({ ...query }, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })
-        router.push(router.route + newQuery)
-    }, [dateRange])
-
-    useEffect(() => {
-        updateUrlDateRangeFilters()
-    }, [dateRange])
-
     return (
         <>
             <Head>
@@ -170,13 +146,8 @@ export const MetersPageContent = ({
                                 createRoute='/ticket/create'
                                 createLabel={CreateTicket} />
                             : <Row gutter={[0, 40]} align={'middle'}>
-                                <Col span={6}>
-                                    <DateRangePicker
-                                        value={dateRange}
-                                        onChange={(range) => {
-                                            setDateRange(range)
-                                        }}
-                                    />
+                                <Col span={24}>
+
                                 </Col>
                                 <Col span={24}>
                                     <Table
