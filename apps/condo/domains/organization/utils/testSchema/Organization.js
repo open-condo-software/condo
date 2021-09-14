@@ -48,7 +48,7 @@ async function registerNewOrganization (client, extraAttrs = {}, { raw = false }
     })
     if (raw) return { data, errors }
     expect(errors).toEqual(undefined)
-    const roles = await client.query(OrganizationEmployeeRole.GET_ALL_OBJS_QUERY, {
+    const { data: { objs: roles } } = await client.query(OrganizationEmployeeRole.GET_ALL_OBJS_QUERY, {
         data: {
             organization: { id: data.obj.id },
         }
