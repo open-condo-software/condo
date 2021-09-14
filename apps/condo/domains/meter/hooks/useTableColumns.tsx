@@ -5,20 +5,19 @@ import React, { useMemo } from 'react'
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import {
     getFilterIcon,
-    getOptionFilterDropdown,
-    getTextFilterDropdown,
 } from '@condo/domains/common/components/Table/Filters'
-import { getDateFilterDropdown } from '../../common/components/Table/Filters'
 import { useRouter } from 'next/router'
-import { getSorterMap, parseQuery } from '../../common/utils/tables.utils'
-import { getTextRender } from '../../common/components/Table/Renders'
-import { MeterReadingSource, MeterResource } from '../utils/clientSchema'
+import {
+    getSorterMap,
+    parseQuery,
+} from '@condo/domains/common/utils/tables.utils'
+import { getAddressRender, getDateRender, getReadingRender, getTextRender } from '../../common/components/Table/Renders'
 import dayjs from 'dayjs'
-
+import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 
 const getFilteredValue = (filters, key: string | Array<string>): FilterValue => get(filters, key, null)
 
-export const useTableColumns = () => {
+export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const intl = useIntl()
     const ClientNameMessage = intl.formatMessage({ id: 'Contact' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
@@ -35,13 +34,10 @@ export const useTableColumns = () => {
     const { filters, sorters } = parseQuery(router.query)
     const sorterMap = getSorterMap(sorters)
 
-    const { objs: sources, loading: sourcesLoading } = MeterReadingSource.useObjects({})
-    const sourcesOptions = sources.map(source => ({ label: source.name, value: source.id }))
-
-    const { objs: resources, loading: resourcesLoading } = MeterResource.useObjects({})
-    const resourcesOptions = resources.map(resource => ({ label: resource.name, value: resource.id }))
-
     return useMemo(() => {
+        let search = get(filters, 'search')
+        search = Array.isArray(search) ? null : search
+
         return [
             {
                 title: MeterReadingDateMessage,
@@ -50,13 +46,9 @@ export const useTableColumns = () => {
                 dataIndex: 'date',
                 key: 'date',
                 sorter: true,
-                width: '10%',
-                render: (createdAt) => {
-                    const locale = get(LOCALES, intl.locale)
-                    const date = locale ? dayjs(createdAt).locale(locale) : dayjs(createdAt)
-                    return date.format('DD MMMM')
-                },
-                filterDropdown: getDateFilterDropdown(),
+                width: '8%',
+                render: getDateRender(intl, search),
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'date'),
             },
             {
                 title: AddressMessage,
@@ -65,16 +57,17 @@ export const useTableColumns = () => {
                 filteredValue: getFilteredValue(filters, 'address'),
                 key: 'address',
                 sorter: true,
-                width: '12%',
+                width: '10%',
                 render: (record) => {
-                    const unitName = get(record, 'unitName')
                     const property = get(record, ['meter', 'property'])
+                    const unitName = get(record, ['meter', 'unitName'])
                     const text = get(property, 'address')
                     const unitPrefix = unitName ? `${ShortFlatNumber} ${unitName}` : ''
 
-                    return `${text} ${unitPrefix}`
+                    const render = getAddressRender(search, unitPrefix)
+                    return render(text)
                 },
-                filterDropdown: getTextFilterDropdown(AddressMessage),
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'address'),
                 filterIcon: getFilterIcon,
             },
             {
@@ -85,9 +78,9 @@ export const useTableColumns = () => {
                 dataIndex: ['meter', 'resource', 'name'],
                 key: 'resource',
                 sorter: true,
-                width: '12%',
-                filterDropdown: getOptionFilterDropdown(resourcesOptions, resourcesLoading),
-                render: getTextRender(),
+                width: '10%',
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'resource'),
+                render: getTextRender(search),
                 filterIcon: getFilterIcon,
             },
             {
@@ -98,33 +91,31 @@ export const useTableColumns = () => {
                 key: 'number',
                 sorter: true,
                 width: '10%',
-                filterDropdown: getTextFilterDropdown(MeterNumberMessage),
-                render: getTextRender(),
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'number'),
+                render: getTextRender(search),
                 filterIcon: getFilterIcon,
             },
             {
                 title: PlaceMessage,
-                ellipsis: true,
                 sortOrder: get(sorterMap, 'place'),
                 filteredValue: getFilteredValue(filters, 'place'),
                 dataIndex: ['meter', 'place'],
                 key: 'place',
                 sorter: true,
-                width: '9%',
-                filterDropdown: getTextFilterDropdown(PlaceMessage),
-                render: getTextRender(),
+                width: '6%',
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'place'),
+                render: getTextRender(search),
                 filterIcon: getFilterIcon,
             },
             {
                 title: MeterReadingMessage,
                 ellipsis: true,
                 sortOrder: get(sorterMap, 'value1'),
-                filteredValue: getFilteredValue(filters, 'value1'),
                 dataIndex: 'value1',
                 key: 'value1',
                 sorter: true,
-                width: '10%',
-                render: getTextRender(),
+                width: '9%',
+                render: getReadingRender(search),
             },
             {
                 title: ClientNameMessage,
@@ -135,7 +126,7 @@ export const useTableColumns = () => {
                 key: 'clientName',
                 sorter: true,
                 width: '10%',
-                filterDropdown: getTextFilterDropdown(UserNameMessage),
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'clientName'),
                 render: getTextRender(),
                 filterIcon: getFilterIcon,
             },
@@ -147,10 +138,92 @@ export const useTableColumns = () => {
                 key: 'source',
                 sorter: true,
                 width: '10%',
-                filterDropdown: getOptionFilterDropdown(sourcesOptions, sourcesLoading),
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'source'),
                 render: getTextRender(),
                 filterIcon: getFilterIcon,
             },
         ]
     }, [filters])
 }
+
+export const useMeterInfoModalTableColumns = () => {
+    const intl = useIntl()
+    const InstallationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.InstallationDate' })
+    const CommissioningDateMessage = intl.formatMessage({ id: 'pages.condo.meter.CommissioningDate' })
+    const SealingDateMessage = intl.formatMessage({ id: 'pages.condo.meter.SealingDate' })
+    const VerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.VerificationDate' })
+    const NextVerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.NextVerificationDate' })
+    const ControlReadingsDateMessage = intl.formatMessage({ id: 'pages.condo.meter.ControlReadingsDate' })
+
+    return useMemo(() => {
+        return [
+            {
+                title: InstallationDateMessage,
+                dataIndex: 'installationDate',
+                key: 'installationDate',
+                width: '17%',
+                render: (createdAt) => {
+                    const locale = get(LOCALES, intl.locale)
+                    const date = locale ? dayjs(createdAt).locale(locale) : dayjs(createdAt)
+                    return createdAt ? date.format('DD.MM.YYYY') : '-'
+                },
+            },
+            {
+                title: CommissioningDateMessage,
+                dataIndex: 'commissioningDate',
+                key: 'commissioningDate',
+                width: '21%',
+                render: (createdAt) => {
+                    const locale = get(LOCALES, intl.locale)
+                    const date = locale ? dayjs(createdAt).locale(locale) : dayjs(createdAt)
+                    return createdAt ? date.format('DD.MM.YYYY') : '-'
+                },
+            },
+            {
+                title: SealingDateMessage,
+                dataIndex: 'sealingDate',
+                key: 'sealingDate',
+                width: '20%',
+                render: (createdAt) => {
+                    const locale = get(LOCALES, intl.locale)
+                    const date = locale ? dayjs(createdAt).locale(locale) : dayjs(createdAt)
+                    return createdAt ? date.format('DD.MM.YYYY') : '-'
+                },
+            },
+            {
+                title: VerificationDateMessage,
+                dataIndex: 'verificationDate',
+                key: 'verificationDate',
+                width: '17%',
+                render: (createdAt) => {
+                    const locale = get(LOCALES, intl.locale)
+                    const date = locale ? dayjs(createdAt).locale(locale) : dayjs(createdAt)
+                    return createdAt ? date.format('DD.MM.YYYY') : '-'
+                },
+            },
+            {
+                title: NextVerificationDateMessage,
+                dataIndex: 'nextVerificationDate',
+                key: 'nextVerificationDate',
+                width: '18%',
+                render: (createdAt) => {
+                    const locale = get(LOCALES, intl.locale)
+                    const date = locale ? dayjs(createdAt).locale(locale) : dayjs(createdAt)
+                    return createdAt ? date.format('DD.MM.YYYY') : '-'
+                },
+            },
+            {
+                title: ControlReadingsDateMessage,
+                dataIndex: 'controlReadingsDate',
+                key: 'controlReadingsDate',
+                width: '20%',
+                render: (createdAt) => {
+                    const locale = get(LOCALES, intl.locale)
+                    const date = locale ? dayjs(createdAt).locale(locale) : dayjs(createdAt)
+                    return createdAt ? date.format('DD.MM.YYYY') : '-'
+                },
+            },
+        ]
+    }, [])
+}
+

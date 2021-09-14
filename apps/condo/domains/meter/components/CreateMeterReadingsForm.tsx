@@ -144,8 +144,8 @@ const MetersDataTitle = ({ isNoExistingMetersInThisUnit, isNoNewMetersInThisUnit
         </>
     ) : (
         <Typography.Paragraph
-            strong={true}
-            style={{ fontSize: '20px', marginBottom: 0 }}
+            strong
+            style={{ fontSize: '20px' }}
         >
             {MeterDataTitle}
         </Typography.Paragraph>
