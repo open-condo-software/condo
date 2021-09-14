@@ -32,7 +32,7 @@ const ResourceCard = ({ label, resourceId, onClick }: ResourceCardProps) => {
     return (
         <ResourceCardContainer onClick={onClick}>
             <Space>
-                <Icon />
+                <Icon style={{ fontSize: '25px' }} />
                 <Typography.Text strong={true} style={{ fontSize: fontSizes.content }}>
                     {label}
                 </Typography.Text>

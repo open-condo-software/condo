@@ -22,19 +22,25 @@ const getTariffNumberSelectOptions = () => {
         ))
 }
 
-const CreateMeterModalDatePicker = ({ label, name }) => (
-    <Col span={METER_INFO_INPUT_COL_SPAN}>
-        <Form.Item
-            label={label}
-            name={name}
-        >
-            <DatePicker
-                format='DD.MM.YYYY'
-                style={{ width: '100%' }}
-            />
-        </Form.Item>
-    </Col>
-)
+const CreateMeterModalDatePicker = ({ label, name }) => {
+    const intl = useIntl()
+    const EnterDatePlaceHolder = intl.formatMessage({ id: 'EnterDate' })
+
+    return (
+        <Col span={METER_INFO_INPUT_COL_SPAN}>
+            <Form.Item
+                label={label}
+                name={name}
+            >
+                <DatePicker
+                    placeholder={EnterDatePlaceHolder}
+                    format='DD.MM.YYYY'
+                    style={{ width: '100%' }}
+                />
+            </Form.Item>
+        </Col>
+    )
+}
 
 type ChevronIconWrapperProps = {
     direction: 'down' | 'up',
