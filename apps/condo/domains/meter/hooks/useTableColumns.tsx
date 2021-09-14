@@ -1,5 +1,4 @@
 import { FilterValue } from 'antd/es/table/interface'
-import { format } from 'date-fns'
 import { get } from 'lodash'
 import { useIntl } from '@core/next/intl'
 import React, { useMemo } from 'react'
@@ -14,6 +13,7 @@ import { useRouter } from 'next/router'
 import { getSorterMap, parseQuery } from '../../common/utils/tables.utils'
 import { getTextRender } from '../../common/components/Table/Renders'
 import { MeterReadingSource, MeterResource } from '../utils/clientSchema'
+import dayjs from 'dayjs'
 
 
 const getFilteredValue = (filters, key: string | Array<string>): FilterValue => get(filters, key, null)
@@ -51,13 +51,11 @@ export const useTableColumns = () => {
                 key: 'date',
                 sorter: true,
                 width: '10%',
-                render: (createdAt) => (
-                    format(
-                        new Date(createdAt),
-                        'dd MMMM yyyy',
-                        { locale: LOCALES[intl.locale] }
-                    )
-                ),
+                render: (createdAt) => {
+                    const locale = get(LOCALES, intl.locale)
+                    const date = locale ? dayjs(createdAt).locale(locale) : dayjs(createdAt)
+                    return date.format('DD MMMM')
+                },
                 filterDropdown: getDateFilterDropdown(),
             },
             {
@@ -70,7 +68,7 @@ export const useTableColumns = () => {
                 width: '12%',
                 render: (record) => {
                     const unitName = get(record, 'unitName')
-                    const property = get(record, 'property')
+                    const property = get(record, ['meter', 'property'])
                     const text = get(property, 'address')
                     const unitPrefix = unitName ? `${ShortFlatNumber} ${unitName}` : ''
 

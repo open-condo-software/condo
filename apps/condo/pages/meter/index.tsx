@@ -67,6 +67,8 @@ export const MetersPageContent = ({
         fetchPolicy: 'network-only',
     })
 
+    console.log('meterReadings', meterReadings)
+
     const [downloadLink, setDownloadLink] = useState(null)
 
     const [
