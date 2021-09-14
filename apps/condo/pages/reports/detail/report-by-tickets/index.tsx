@@ -502,8 +502,9 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                             Object.entries(data).forEach((rowEntry) => {
                                 const [ticketType, dataObj] = rowEntry
                                 const counts = Object.values(dataObj) as number[]
-                                restTableColumns[ticketType] = ((sum(counts) / totalCount) * 100)
-                                    .toFixed(2) + ' %'
+                                restTableColumns[ticketType] = totalCount > 0
+                                    ? ((sum(counts) / totalCount) * 100).toFixed(2) + ' %'
+                                    : totalCount
                             })
                             dataSource.push({
                                 key: 0,
@@ -528,8 +529,9 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                     const counts = Object.entries(dataObj)
                                         .filter(obj => obj[0] === address).map(e => e[1]) as number[]
                                     const totalPropertyCount = sum(counts)
-                                    tableRow[ticketType] = (totalPropertyCount / totalCounts[address] * 100)
-                                        .toFixed(2) + ' %'
+                                    tableRow[ticketType] = totalCounts[address] > 0
+                                        ? (totalPropertyCount / totalCounts[address] * 100).toFixed(2) + ' %'
+                                        : totalCounts[address]
                                 })
                                 dataSource.push(tableRow)
                             })

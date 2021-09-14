@@ -1,7 +1,6 @@
 import React, { useRef, useEffect, useState, useCallback, useLayoutEffect } from 'react'
 import { useIntl } from '@core/next/intl'
 import { Skeleton, Typography, List } from 'antd'
-import isEmpty from 'lodash/isEmpty'
 import get from 'lodash/get'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import ReactECharts from 'echarts-for-react'
@@ -12,6 +11,8 @@ import { colors } from '@condo/domains/common/constants/style'
 import InfiniteScroll from 'react-infinite-scroller'
 import { TICKET_CHART_PAGE_SIZE } from '@condo/domains/ticket/constants/restrictions'
 import { getChartOptions } from '@condo/domains/ticket/utils/helpers'
+import styled from '@emotion/styled'
+
 export interface ITicketAnalyticsPageWidgetProps {
     data: null | TicketGroupedCounter[]
     viewMode: ViewModeTypes
@@ -26,6 +27,19 @@ interface ITicketAnalyticsPageChartProps extends ITicketAnalyticsPageWidgetProps
         chartOptions?: ReactECharts['props']['opts']
     }
 }
+
+const ChartViewContainer = styled.div`
+    & {
+      position: relative;
+    }
+`
+
+const ScrollContainer = styled.div<{ height: string }>`
+  margin-top: 60px;
+  padding-bottom: 0;
+  overflow: auto;
+  height: ${({ height }) => height};
+`
 
 const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
     children,
@@ -101,6 +115,8 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
         return <Skeleton loading={loading} active paragraph={{ rows: 12 }} />
     }
     const { animationEnabled, chartOptions } = chartConfig
+    const isEmptyDataSet = data.every(ticketStatus => ticketStatus.count === 0)
+
 
     if (viewMode !== 'pie') {
         const { opts, option } = getChartOptions({
@@ -113,26 +129,19 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
             animationEnabled,
             color,
         })
-
-        const isEmptyDataSet = Object.values(data).every(ticketStatus => {
-            if (viewMode === 'line') {
-                return isEmpty(ticketStatus)
-            }
-            return Object.values(ticketStatus).every(count => count === 0)
-        }) && !loading
         const chartHeight = get(chartOptions, 'height', false) || get(opts, 'height', 'auto')
         const chartStyle = {
             height: chartHeight,
         }
 
-        return <Typography.Paragraph style={{ position: 'relative' }}>
+        return <ChartViewContainer style={{ position: 'relative' }}>
             {isEmptyDataSet ? (
-                <Typography.Paragraph>
+                <>
                     <BasicEmptyListView>
                         <Typography.Text>{NoData}</Typography.Text>
                     </BasicEmptyListView>
                     {children}
-                </Typography.Paragraph>
+                </>
             ) : (
                 <>
                     <ReactECharts
@@ -144,8 +153,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
                     {children}
                 </>
             )}
-
-        </Typography.Paragraph>
+        </ChartViewContainer>
     }
 
     const hasMore = pieChartPage * TICKET_CHART_PAGE_SIZE <= seriesRef.current.length
@@ -155,14 +163,14 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
         infiniteScrollContainerHeight = '100%'
     }
 
-    return <Typography.Paragraph style={{ position: 'relative' }}>
-        {(loading) ? (
-            <Typography.Paragraph>
+    return <ChartViewContainer>
+        {isEmptyDataSet ? (
+            <>
                 <BasicEmptyListView>
                     <Typography.Text>{NoData}</Typography.Text>
                 </BasicEmptyListView>
                 {children}
-            </Typography.Paragraph>
+            </>
         ) : (
             <>
                 <ReactECharts
@@ -192,7 +200,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
                     }
                     style={{ height: 40, overflow: 'hidden' }}
                 />
-                <Typography.Paragraph style={{ marginTop: 60, paddingBottom: 0, height: infiniteScrollContainerHeight, overflow: 'auto' }}>
+                <ScrollContainer height={infiniteScrollContainerHeight}>
                     <InfiniteScroll
                         initialLoad={false}
                         loadMore={loadMore}
@@ -230,11 +238,11 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
                             style={{ paddingRight: 20, minWidth: 1080 }}
                         />
                     </InfiniteScroll>
-                </Typography.Paragraph>
+                </ScrollContainer>
                 {children}
             </>
         )}
-    </Typography.Paragraph>
+    </ChartViewContainer>
 }
 
 export default TicketChartView
