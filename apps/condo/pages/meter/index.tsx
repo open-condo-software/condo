@@ -3,7 +3,7 @@ import { jsx } from '@emotion/core'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { MeterReading } from '@condo/domains/meter/utils/clientSchema'
-import { DatabaseFilled } from '@ant-design/icons'
+import { DatabaseFilled, FilterFilled } from '@ant-design/icons'
 import { useIntl } from '@core/next/intl'
 import { useLazyQuery } from '@core/next/apollo'
 import { notification, Col, Row, Typography, Form, Input } from 'antd'
@@ -29,7 +29,7 @@ import { useQueryMappers } from '../../domains/common/hooks/useQueryMappers'
 import { EXPORT_METER_READINGS } from '@condo/domains/meter/gql'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
-import { useSearch } from '../../domains/common/hooks/useSearch'
+import { useSearch } from '@condo/domains/common/hooks/useSearch'
 
 
 export const ExportToExcelActionBar = ({
@@ -74,7 +74,8 @@ export const ExportToExcelActionBar = ({
                         </Button>
                         :
                         <Button
-                            type={'inlineLink'}
+                            type={'sberPrimary'}
+                            secondary
                             icon={<DatabaseFilled />}
                             loading={isXlsLoading}
                             onClick={
@@ -104,6 +105,7 @@ export const MetersPageContent = ({
     const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
     const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
+    const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
 
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
@@ -150,13 +152,21 @@ export const MetersPageContent = ({
                             : <Row gutter={[0, 40]} align={'middle'} justify={'center'}>
                                 <Col span={23}>
                                     <FocusContainer style={{ padding: '16px' }}>
-                                        <Col span={7}>
-                                            <Input
-                                                placeholder={SearchPlaceholder}
-                                                onChange={(e) => {handleSearchChange(e.target.value)}}
-                                                value={search}
-                                            />
-                                        </Col>
+                                        <Row justify={'space-between'}>
+                                            <Col span={7}>
+                                                <Input
+                                                    placeholder={SearchPlaceholder}
+                                                    onChange={(e) => {handleSearchChange(e.target.value)}}
+                                                    value={search}
+                                                />
+                                            </Col>
+                                            <Col>
+                                                <Button secondary type={'sberPrimary'}>
+                                                    <FilterFilled/>
+                                                    {FiltersButtonLabel}
+                                                </Button>
+                                            </Col>
+                                        </Row>
                                     </FocusContainer>
                                 </Col>
                                 <Col span={24}>

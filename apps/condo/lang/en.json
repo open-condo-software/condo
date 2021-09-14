@@ -66,6 +66,7 @@
   "example.Name": "Jon Johnson",
   "example.Phone": "+1 (300) 300 22 22",
   "ExportAsExcel": "Export to Excel",
+  "FiltersLabel": "Filters",
   "field.AccountNumberShort": "Account Number",
   "field.TotalPayment": "TOTAL payable",
   "field.Address": "Address",
