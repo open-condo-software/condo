@@ -1,4 +1,4 @@
-import { resourceIdToIcon } from '../../utils/clientSchema'
+import { resourceIdIconMap } from '../../utils/clientSchema'
 import React from 'react'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { Col, Row, Space, Typography } from 'antd'
@@ -27,7 +27,7 @@ type ResourceCardProps = {
 }
 
 const ResourceCard = ({ label, resourceId, onClick }: ResourceCardProps) => {
-    const Icon = resourceIdToIcon[resourceId]
+    const Icon = resourceIdIconMap[resourceId]
 
     return (
         <ResourceCardContainer onClick={onClick}>

@@ -1,7 +1,7 @@
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import styled from '@emotion/styled'
 import { Alert, Col, Divider, Form, Input, Row, Space, Typography } from 'antd'
-import { resourceIdToIcon } from '../utils/clientSchema'
+import { resourceIdIconMap } from '../utils/clientSchema'
 import React, { useState } from 'react'
 import { BillingAccountMeterReading } from '../../../schema'
 import { IMeterFormState } from '../utils/clientSchema/Meter'
@@ -34,7 +34,7 @@ export const MeterCard = ({ meter, resource, name, lastMeterBillingMeterReading 
         readingValue: [numberValidator],
     }
 
-    const Icon = resource ? resourceIdToIcon[resource.id] : null
+    const Icon = resource ? resourceIdIconMap[resource.id] : null
     const numberOfTariffs = meter.numberOfTariffs ? meter.numberOfTariffs : 1
 
     return (
@@ -45,7 +45,7 @@ export const MeterCard = ({ meter, resource, name, lastMeterBillingMeterReading 
                         <Col>
                             <Space>
                                 <Icon style={{ fontSize: '20px' }} />
-                                <Typography.Text style={{ fontSize: fontSizes.content }} strong={true}>
+                                <Typography.Text style={{ fontSize: fontSizes.content }} strong>
                                     {resource.name}
                                 </Typography.Text>
                             </Space>

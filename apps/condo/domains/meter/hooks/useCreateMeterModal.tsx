@@ -4,7 +4,7 @@ import { StoreValue } from 'rc-field-form/lib/interface'
 import { useIntl } from '@core/next/intl'
 import { ResourcesList } from '../components/createMeterModal/ResourcesList'
 import { MeterInfo } from '../components/createMeterModal/MeterInfo'
-import { resourceIdToCreateMeterTitleId } from '../utils/clientSchema'
+import { resourceIdToCreateMeterTitleIdMap } from '../utils/clientSchema'
 import { FormattedMessage } from 'react-intl'
 import { IMeterResourceUIState } from '../utils/clientSchema/MeterResource'
 import { Modal } from 'antd'
@@ -15,7 +15,7 @@ type MeterInfoModalTitleProps = {
 
 const MeterInfoModalTitle = ({ resourceId }: MeterInfoModalTitleProps) => {
     const intl = useIntl()
-    const ResourceTitle = intl.formatMessage({ id: resourceIdToCreateMeterTitleId[resourceId] })
+    const ResourceTitle = intl.formatMessage({ id: resourceIdToCreateMeterTitleIdMap[resourceId] })
 
     return (
         <FormattedMessage

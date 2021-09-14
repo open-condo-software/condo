@@ -8,11 +8,11 @@ import { searchContacts } from '@condo/domains/ticket/utils/clientSchema/search'
 import { Labels } from './Labels'
 import { ContactSyncedAutocompleteFields } from './ContactSyncedAutocompleteFields'
 import { ContactOption } from './ContactOption'
-import { ErrorsWrapper } from '@condo/domains/ticket/components/BaseTicketForm/ErrorsContainer'
 import { Button } from '@condo/domains/common/components/Button'
 import { green } from '@ant-design/colors'
 import styled from '@emotion/styled'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { ErrorsWrapper } from '@condo/domains/common/components/ErrorsWrapper'
 
 /**
  * Displays validation error, but hides form input

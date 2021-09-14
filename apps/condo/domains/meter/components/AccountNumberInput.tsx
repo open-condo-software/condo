@@ -18,7 +18,7 @@ export const EmptyAccountView = ({ setIsAccountNumberIntroduced, setAccountNumbe
     return (
         <Col span={24}>
             <Row justify={'center'}>
-                <Col span={8} style={{ padding: '80px 0' }}>
+                <Col span={8}>
                     <BasicEmptyListView>
                         <Typography.Title level={3}>
                             {NoAccountNumber}
@@ -55,7 +55,7 @@ export const AccountNumberInput = ({ accountNumber, setAccountNumber, selectedUn
         setIsAccountNumberIntroduced(false)
     }, [selectedUnitName])
 
-    return !accountNumber && !isAccountNumberIntroduced ? (
+    return selectedUnitName && !accountNumber && !isAccountNumberIntroduced ? (
         <EmptyAccountView
             setIsAccountNumberIntroduced={setIsAccountNumberIntroduced}
             setAccountNumber={setAccountNumber}
