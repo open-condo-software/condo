@@ -91,6 +91,12 @@ const MenuItems: React.FC = () => {
                 label={'menu.Employees'}
                 disabled={!link}
             />
+            <MenuItem
+                path={'/meter'}
+                icon={ApiFilled}
+                label={'menu.Meters'}
+                disabled={!link}
+            />
             <FeatureFlagRequired name={'billing'}>
                 <MenuItem
                     path={'/billing'}
