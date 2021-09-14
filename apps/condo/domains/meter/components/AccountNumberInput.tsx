@@ -55,7 +55,7 @@ export const AccountNumberInput = ({ accountNumber, setAccountNumber, selectedUn
         setIsAccountNumberIntroduced(false)
     }, [selectedUnitName])
 
-    return selectedUnitName && !accountNumber && !isAccountNumberIntroduced ? (
+    return !accountNumber && !isAccountNumberIntroduced ? (
         <EmptyAccountView
             setIsAccountNumberIntroduced={setIsAccountNumberIntroduced}
             setAccountNumber={setAccountNumber}
