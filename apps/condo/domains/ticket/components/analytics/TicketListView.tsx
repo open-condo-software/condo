@@ -18,6 +18,8 @@ const TicketListView: React.FC<ITicketAnalyticsPageListViewProps> = ({
     const DateTitle = intl.formatMessage({ id: 'Date' })
     const AddressTitle = intl.formatMessage({ id: 'field.Address' })
     const AllAddressTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllAddresses' })
+    const CategoryClassifierTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.Classifier' })
+    const AllCategoryClassifiersTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllClassifiers' })
     if (data === null || filters === null || loading) {
         return <Skeleton loading={loading} active paragraph={{ rows: 10 }} />
     }
@@ -25,10 +27,13 @@ const TicketListView: React.FC<ITicketAnalyticsPageListViewProps> = ({
         translations: {
             date: DateTitle,
             address: AddressTitle,
+            categoryClassifier: CategoryClassifierTitle,
+            allCategoryClassifiers: AllCategoryClassifiersTitle,
             allAddresses: AllAddressTitle,
         },
         filters: {
             addresses: filters.addressList.map(({ value }) => value),
+            categoryClassifiers: filters.classifierList.map(({ value }) => value),
         },
     }
     const { tableColumns, dataSource } = mapperInstance.getTableConfig(viewMode, data, restOptions)

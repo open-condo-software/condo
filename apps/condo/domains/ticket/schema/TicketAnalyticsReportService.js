@@ -56,6 +56,39 @@ const createStatusRange = async (context, organizationWhereInput, labelKey = 'na
     return sortStatusesByType(allStatuses).map(status => ({ label: status[labelKey], value: status.id, color: status.colors.primary }))
 }
 
+const createCategoryClassifierRange = async (organizationWhereInput) => {
+    const categoryClassifierLoader = new GqlWithKnexLoadList({
+        listKey: 'TicketCategoryClassifier',
+        fields: 'id name organization',
+    })
+    const classifiers = await categoryClassifierLoader.load()
+    return classifiers.map(classifier => ({ label: classifier.name, value: classifier.id }))
+}
+
+// TODO(sitozzz): filter by executor role
+const createExecutorRange = async (organizationWhereInput) => {
+    const executorLoader = new GqlWithKnexLoadList({
+        listKey: 'OrganizationEmployee',
+        fields: 'id name',
+        where: { organization: organizationWhereInput },
+    })
+
+    const executors = await executorLoader.load()
+    return executors.map(executor => ({ label: executor.name, value: executor.id }))
+}
+
+// TODO(sitozzz): filter by assignee role
+const createAssigneeRange = async (organizationWhereInput) => {
+    const assigneeLoader = new GqlWithKnexLoadList({
+        listKey: 'OrganizationEmployee',
+        fields: 'id name',
+        where: { organization: organizationWhereInput },
+    })
+
+    const assignees = await assigneeLoader.load()
+    return assignees.map(assignee => ({ label: assignee.name, value: assignee.id }))
+}
+
 const getTicketCounts = async (context, where, groupBy, extraLabels = {}) => {
     const ticketGqlToKnexAdapter = new TicketGqlToKnexAdapter(where, groupBy)
     await ticketGqlToKnexAdapter.loadData()
@@ -64,6 +97,9 @@ const getTicketCounts = async (context, where, groupBy, extraLabels = {}) => {
     const options = {
         count: [0],
         property: [null],
+        categoryClassifier: [null],
+        executor: [null],
+        assignee: [null],
         dayGroup: [dayjs().format('DD.MM.YYYY')],
     }
 
@@ -82,6 +118,18 @@ const getTicketCounts = async (context, where, groupBy, extraLabels = {}) => {
             case 'day':
             case 'week':
                 options['dayGroup'] = enumerateDaysBetweenDates(ticketGqlToKnexAdapter.dateRange.from, ticketGqlToKnexAdapter.dateRange.to, group)
+                break
+            case 'categoryClassifier':
+                translates[group] = await createCategoryClassifierRange(where.organization)
+                options[group] = translates[group].map(({ label }) => label)
+                break
+            case 'executor':
+                translates[group] = await createExecutorRange(where.organization)
+                options[group] = translates[group].map(({ label }) => label)
+                break
+            case 'assignee':
+                translates[group] = await createAssigneeRange(where.organization)
+                options[group] = translates[group].map(({ label }) => label)
                 break
             default:
                 break
@@ -131,7 +179,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
     types: [
         {
             access: true,
-            type: 'enum TicketAnalyticsGroupBy { day week month status property }',
+            type: 'enum TicketAnalyticsGroupBy { day week month status property categoryClassifier executor assignee }',
         },
         {
             access: true,
@@ -147,7 +195,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
         },
         {
             access: true,
-            type: 'type TicketGroupedCounter { count: Int!, status: String, property: String, dayGroup: String!  }',
+            type: 'type TicketGroupedCounter { count: Int!, status: String, property: String, dayGroup: String!, categoryClassifier: String, executor: String, assignee: String  }',
         },
         {
             access: true,

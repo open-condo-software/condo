@@ -126,8 +126,11 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
             addressList: JSON.stringify(addressListRef.current),
             viewMode,
             groupTicketsBy,
+            classifierList: JSON.stringify(classifierListRef.current),
+            executorList: JSON.stringify(executorListRef.current),
+            responsibleList: JSON.stringify(responsibleListRef.current),
         }))
-    }, [dateRange, specification, addressList, viewMode, groupTicketsBy])
+    }, [dateRange, specification, addressList, responsibleList, responsibleList, classifierList, viewMode, groupTicketsBy])
 
     useEffect(() => {
         const queryParams = getQueryParams()
@@ -142,6 +145,9 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
         if (startDate && endDate && specificationUrl && addressList) {
             addressListRef.current = addressList
             setAddressList(addressList.length ? addressList.map(e => e.value) : [])
+            setClassifierList(classifierList.length ? classifierList.map(e => e.value) : [])
+            setExecutorList(executorList.length ? executorList.map(e => e.value) : [])
+            setResponsibleList(responsibleList.length ? responsibleList.map(e => e.value) : [])
             setDateRange(range)
             setSpecification(specificationUrl)
         }
@@ -254,53 +260,59 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                     </Form.Item>
                 </Col>
             </Row>
-            { groupTicketsBy === 'category' && (
+            { groupTicketsBy === 'categoryClassifier' && (
                 <Row>
-                    <Form.Item label={ClassifierTitle} {...FORM_ITEM_STYLE}>
-                        <GraphQlSearchInput
-                            allowClear
-                            search={searchClassifiers}
-                            mode={'multiple'}
-                            value={classifierList}
-                            maxTagCount='responsive'
-                            onChange={onClassifierChange}
-                            placeholder={AllClassifiersPlaceholder}
-                        />
-                    </Form.Item>
+                    <Col flex={1}>
+                        <Form.Item label={ClassifierTitle} {...FORM_ITEM_STYLE}>
+                            <GraphQlSearchInput
+                                allowClear
+                                search={searchClassifiers}
+                                mode={'multiple'}
+                                value={classifierList}
+                                maxTagCount='responsive'
+                                onChange={onClassifierChange}
+                                placeholder={AllClassifiersPlaceholder}
+                            />
+                        </Form.Item>
+                    </Col>
                 </Row>
             )}
-            { groupTicketsBy === 'user' && (
+            { groupTicketsBy === 'executor' && (
                 <Row>
-                    <Form.Item label={ExecutorTitle} {...FORM_ITEM_STYLE}>
-                        <GraphQlSearchInput
-                            allowClear
-                            search={searchEmployeeUser(userOrganizationId, ({ role }) => (
-                                get(role, 'canBeAssignedAsExecutor', false)
-                            ))}
-                            mode='multiple'
-                            value={executorList}
-                            onChange={onExecutorChange}
-                            maxTagCount='responsive'
-                            placeholder={AllExecutorsPlaceholder}
-                        />
-                    </Form.Item>
+                    <Col flex={1}>
+                        <Form.Item label={ExecutorTitle} {...FORM_ITEM_STYLE}>
+                            <GraphQlSearchInput
+                                allowClear
+                                search={searchEmployeeUser(userOrganizationId, ({ role }) => (
+                                    get(role, 'canBeAssignedAsExecutor', false)
+                                ))}
+                                mode='multiple'
+                                value={executorList}
+                                onChange={onExecutorChange}
+                                maxTagCount='responsive'
+                                placeholder={AllExecutorsPlaceholder}
+                            />
+                        </Form.Item>
+                    </Col>
                 </Row>
             )}
-            { groupTicketsBy === 'responsible' && (
+            { groupTicketsBy === 'assignee' && (
                 <Row>
-                    <Form.Item label={ResponsibleTitle} {...FORM_ITEM_STYLE}>
-                        <GraphQlSearchInput
-                            allowClear
-                            search={searchEmployeeUser(userOrganizationId, ({ role }) => (
-                                get(role, 'canBeAssignedAsResponsible', false)
-                            ))}
-                            mode='multiple'
-                            value={responsibleList}
-                            onChange={onAssigneeChange}
-                            maxTagCount='responsive'
-                            placeholder={AllResponsiblePlaceholder}
-                        />
-                    </Form.Item>
+                    <Col flex={1}>
+                        <Form.Item label={ResponsibleTitle} {...FORM_ITEM_STYLE}>
+                            <GraphQlSearchInput
+                                allowClear
+                                search={searchEmployeeUser(userOrganizationId, ({ role }) => (
+                                    get(role, 'canBeAssignedAsResponsible', false)
+                                ))}
+                                mode='multiple'
+                                value={responsibleList}
+                                onChange={onAssigneeChange}
+                                maxTagCount='responsive'
+                                placeholder={AllResponsiblePlaceholder}
+                            />
+                        </Form.Item>
+                    </Col>
                 </Row>
             )}
             <Row style={{ marginTop: 20 }}>
@@ -484,9 +496,19 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                             { title: translations['address'], dataIndex: 'address', key: 'address', sorter: (a, b) => a['address'] - b['address'] },
                             ...Object.entries(data).map(([key]) => ({ title: key, dataIndex: key, key, sorter: (a, b) => a[key] - b[key] })),
                         ]
+
+                        switch (groupBy[1]) {
+                            case 'categoryClassifier':
+                                tableColumns.unshift({ title: translations['categoryClassifier'], dataIndex: 'categoryClassifier', key: 'categoryClassifier', sorter: (a, b) => a['categoryClassifier'] - b['categoryClassifier'] })
+                                break
+                            default:
+                                break
+                        }
+
                         const restTableColumns = {}
-                        const addressList = get(filters, 'addresses')
-                        const aggregateSummary = addressList !== undefined && addressList.length === 0
+                        const addressList = get(filters, 'addresses', [])
+                        const categoryClassifierList = get(filters, 'categoryClassifiers', [])
+                        const aggregateSummary = addressList.length === 0 || categoryClassifierList.length === 0
                         if (aggregateSummary) {
                             Object.entries(data).forEach((rowEntry) => {
                                 const [ticketType, dataObj] = rowEntry
@@ -496,6 +518,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                             dataSource.push({
                                 key: 0,
                                 address: translations['allAddresses'],
+                                categoryClassifier: translations['allCategoryClassifiers'],
                                 ...restTableColumns,
                             })
                         } else {
@@ -741,9 +764,9 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         >
                             <Tabs.TabPane key='status' tab={StatusFilterLabel} />
                             <Tabs.TabPane key='property' tab={PropertyFilterLabel} />
-                            <Tabs.TabPane key='category' tab={CategoryFilterLabel} />
-                            <Tabs.TabPane key='user' tab={UserFilterLabel} />
-                            <Tabs.TabPane key='responsible' tab={ResponsibleFilterLabel} />
+                            <Tabs.TabPane key='categoryClassifier' tab={CategoryFilterLabel} />
+                            <Tabs.TabPane key='executor' tab={UserFilterLabel} />
+                            <Tabs.TabPane key='assignee' tab={ResponsibleFilterLabel} />
                         </Tabs>
                     </Col>
                     <Col span={24}>
@@ -765,7 +788,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                             size='small'
                             buttonStyle='outline'
                             onChange={(e) => setViewMode(e.target.value)}>
-                            {groupTicketsBy !== 'property' && (
+                            {groupTicketsBy === 'status' && (
                                 <Radio.Button value='line'>
                                     <LinearChartIcon height={32} width={24} />
                                 </Radio.Button>
@@ -773,7 +796,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                             <Radio.Button value='bar'>
                                 <BarChartIcon height={32} width={24} />
                             </Radio.Button>
-                            {groupTicketsBy === 'property' && (
+                            {groupTicketsBy !== 'status' && (
                                 <Radio.Button value='pie'>
                                     <PieChartIcon height={32} width={24} />
                                 </Radio.Button>

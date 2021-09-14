@@ -14579,7 +14579,9 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageDivisions?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
+  /**  Allows employees with this role to be assigned to tickets as responsible  */
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
+  /**  Allows employees with this role to be assigned to tickets as executor  */
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -22909,7 +22911,10 @@ export enum TicketAnalyticsGroupBy {
   Week = 'week',
   Month = 'month',
   Status = 'status',
-  Property = 'property'
+  Property = 'property',
+  CategoryClassifier = 'categoryClassifier',
+  Executor = 'executor',
+  Assignee = 'assignee'
 }
 
 export type TicketAnalyticsReportInput = {
@@ -26130,6 +26135,9 @@ export type TicketGroupedCounter = {
   status?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
   dayGroup: Scalars['String'];
+  categoryClassifier?: Maybe<Scalars['String']>;
+  executor?: Maybe<Scalars['String']>;
+  assignee?: Maybe<Scalars['String']>;
 };
 
 /**  A keystone list  */
