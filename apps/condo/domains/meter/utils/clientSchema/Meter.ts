@@ -35,6 +35,7 @@ export interface IMeterFormState {
     installationDate?: string
     commissioningDate?: string
     verificationDate?: string
+    nextVerificationDate?: string
     controlReadingsDate?: string
 }
 

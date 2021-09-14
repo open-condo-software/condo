@@ -60,12 +60,13 @@ const Meter = new GQLListSchema('Meter', {
         },
 
         installationDate: {
-            schemaDoc: 'Date when the meter was installed',
+            schemaDoc: 'Date when the meter was installed in the unit',
             type: DateTimeUtc,
         },
 
         commissioningDate: {
-            schemaDoc: 'Date when the meter was commissioned',
+            schemaDoc: 'Date when the meter was commissioned.' +
+                'Commissioning - documentation of the meter as a billing meter',
             type: DateTimeUtc,
         },
 
@@ -74,8 +75,21 @@ const Meter = new GQLListSchema('Meter', {
             type: DateTimeUtc,
         },
 
+        nextVerificationDate: {
+            schemaDoc: 'The date of the next meter verification.' +
+                'For example, for a cold water meter - usually 6 years after the verification date',
+            type: DateTimeUtc,
+        },
+
         controlReadingsDate: {
             schemaDoc: 'The date when the employee came and took readings from the meter',
+            type: DateTimeUtc,
+        },
+
+        sealingDate: {
+            schemaDoc: 'The date when meter was sealed.' +
+                'Sealing is the installation of a unique single-use device (directly a seal and a sealing rope)' +
+                'on the metering device, which is designed to control unauthorized access to the equipment.',
             type: DateTimeUtc,
         },
 

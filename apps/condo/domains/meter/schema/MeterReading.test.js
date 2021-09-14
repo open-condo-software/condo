@@ -44,6 +44,49 @@ describe('MeterReading', () => {
             expect(meterReading.id).toMatch(UUID_RE)
         })
 
+        test('employee with "canManageMeters" role: can create MeterReadings with float number value', async () => {
+            const client = await makeEmployeeUserClientWithAbilities({
+                canManageMeters: true,
+            })
+            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+            const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
+            const [meter] = await createTestMeter(client, client.organization, client.property, resource, {
+                numberOfTariffs: 2,
+            })
+
+            const numberValue1 = String(faker.random.float())
+            const numberValue2 = String(faker.random.float())
+
+            const [meterReading] = await createTestMeterReading(client, meter, client.organization, source, {
+                value1: numberValue1,
+                value2: numberValue2,
+            })
+
+            expect(meterReading.id).toMatch(UUID_RE)
+        })
+
+        test('employee with "canManageMeters" role: cannot create MeterReadings with string value', async () => {
+            const client = await makeEmployeeUserClientWithAbilities({
+                canManageMeters: true,
+            })
+            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+            const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
+            const [meter] = await createTestMeter(client, client.organization, client.property, resource, {
+                numberOfTariffs: 2,
+            })
+
+            const stringValue = faker.random.alphaNumeric(8)
+
+            await catchErrorFrom(async () => {
+                await createTestMeterReading(client, meter, client.organization, source, {
+                    value1: stringValue,
+                })
+            }, ({ errors, data }) => {
+                expect(errors[0].message).toContain(`invalid input syntax for type numeric: "${stringValue}"`)
+                expect(data).toEqual({ 'obj': null })
+            })
+        })
+
         test('employee with "canManageMeters" role: cannot create MeterReadings with wrong "sender" field', async () => {
             const client = await makeEmployeeUserClientWithAbilities({
                 canManageMeters: true,
@@ -150,7 +193,7 @@ describe('MeterReading', () => {
                 number: meterNumber,
             })
             await createTestBillingAccountMeterReading(admin, context, billingProperty, billingAccount, billingMeter, {
-                value1,
+                value1: value1,
             })
 
             const [property] = await createTestProperty(admin, organization)
@@ -172,7 +215,7 @@ describe('MeterReading', () => {
 
             await catchErrorFrom(async () => {
                 await createTestMeterReading(client, meter, organization, source, {
-                    value1: value1 - 10,
+                    value1: String(value1 - 10),
                 })
             }, ({ errors, data }) => {
                 expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
@@ -474,8 +517,8 @@ describe('MeterReading', () => {
             const [meter] = await createTestMeter(adminClient, organization, property, resource, {})
             const [meterReading] = await createTestMeterReading(adminClient, meter, organization, source)
 
-            const oldValue = meterReading.value1
-            const newValue = oldValue + 100
+            const oldValue = Number(meterReading.value1)
+            const newValue = String(oldValue + 100.1234)
             const [updatedMeterReading] = await updateTestMeterReading(adminClient, meterReading.id, {
                 value1: newValue,
             })
