@@ -64,7 +64,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         phone: createTestPhone(),
                     }
                     const client = await makeClientWithRegisteredOrganization()
-
+                    const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
                     const [reInvitedEmployee] = await reInviteNewOrganizationEmployee(client, client.organization, userAttrs)
 
                     expect(reInvitedEmployee.id).toStrictEqual(employee.id)
