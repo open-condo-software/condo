@@ -19,6 +19,7 @@ import {
 } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 import { find, get } from 'lodash'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
+import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -160,29 +161,30 @@ export const UpdateEmployeeForm = () => {
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
-                                    <Form.Item noStyle dependencies={['role']}>
-                                        {
-                                            ({ getFieldValue })=> {
-                                                const role = getFieldValue('role')
-                                                const selectedRole = find(employeeRoles, { id: role })
+                                    {hasFeature('division') && (
+                                        <Form.Item noStyle dependencies={['role']}>
+                                            {
+                                                ({ getFieldValue })=> {
+                                                    const role = getFieldValue('role')
+                                                    const selectedRole = find(employeeRoles, { id: role })
 
-                                                if (selectedRole.name === TechnicianRoleName)
-                                                    return (<Col span={24}>
-                                                        <Form.Item
-                                                            name={'specializations'}
-                                                            label={SpecializationsLabel}
-                                                            labelAlign={'left'}
-                                                            required
-                                                            validateFirst
-                                                            {...INPUT_LAYOUT_PROPS}
-                                                        >
-                                                            <GraphQlSearchInput mode="multiple" search={searchClassifers} />
-                                                        </Form.Item>
-                                                    </Col>)
+                                                    if (selectedRole.name === TechnicianRoleName)
+                                                        return (<Col span={24}>
+                                                            <Form.Item
+                                                                name={'specializations'}
+                                                                label={SpecializationsLabel}
+                                                                labelAlign={'left'}
+                                                                required
+                                                                validateFirst
+                                                                {...INPUT_LAYOUT_PROPS}
+                                                            >
+                                                                <GraphQlSearchInput mode="multiple" search={searchClassifers} />
+                                                            </Form.Item>
+                                                        </Col>)
+                                                }
                                             }
-                                        }
-                                        
-                                    </Form.Item>
+                                        </Form.Item>
+                                    )}
                                     <Space size={40} style={{ paddingTop: '36px' }}>
                                         <FormResetButton
                                             type={'sberPrimary'}
