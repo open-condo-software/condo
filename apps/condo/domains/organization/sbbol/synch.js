@@ -65,11 +65,11 @@ class SbbolOrganization {
             importRemoteSystem: this.userInfo.importRemoteSystem,
         }
         const existedUsers = await getItems({ ...this.context, listKey: 'User', where: {
-                OR: [
-                    { phone: this.userInfo.phone },
-                    { AND: importFields },
-                ],
-            } })
+            OR: [
+                { phone: this.userInfo.phone },
+                { AND: importFields },
+            ],
+        } })
         if (existedUsers.length > 1) {
             throw new Error(`${MULTIPLE_ACCOUNTS_MATCHES}] importId and phone conflict on user import`)
         }
@@ -91,12 +91,12 @@ class SbbolOrganization {
                 user.email = email
             }
             this.user = await updateItem({ listKey: 'User', item: {
-                    id: user.id,
-                    data: {
-                        ...update,
-                        ...importFields,
-                    },
-                }, returnFields: 'id', ...this.context })
+                id: user.id,
+                data: {
+                    ...update,
+                    ...importFields,
+                },
+            }, returnFields: 'id', ...this.context })
             return
         }
         this.user = user
@@ -104,8 +104,8 @@ class SbbolOrganization {
 
     async getUserOrganizations () {
         const links = await getItems({ ...this.context, listKey: 'OrganizationEmployee', where: {
-                user: { id: this.user.id },
-            }, returnFields: 'organization { id meta }' })
+            user: { id: this.user.id },
+        }, returnFields: 'organization { id meta }' })
         return uniqBy(links.map(link => link.organization), 'id')
     }
 
@@ -121,15 +121,15 @@ class SbbolOrganization {
             const existed = userOrganizations.find(organization => organization.meta.inn === this.organizationInfo.meta.inn)
             if (existed) {
                 await updateItem({ listKey: 'Organization', item: {
-                        id: existed.id,
-                        data: {
-                            ...importInfo,
-                            meta: {
-                                ...existed.meta,
-                                ...this.organizationInfo.meta,
-                            },
+                    id: existed.id,
+                    data: {
+                        ...importInfo,
+                        meta: {
+                            ...existed.meta,
+                            ...this.organizationInfo.meta,
                         },
-                    }, returnFields: 'id', ...this.context })
+                    },
+                }, returnFields: 'id', ...this.context })
                 this.organization = { id: existed.id }
                 return
             }
@@ -141,11 +141,11 @@ class SbbolOrganization {
                 return
             }
             const allRoles = await getItems({ ...this.context, listKey: 'OrganizationEmployeeRole', where: {
-                    organization: {
-                        id: organization.id,
-                    },
-                    name: 'employee.role.Administrator.name',
-                }, returnFields: 'id' })
+                organization: {
+                    id: organization.id,
+                },
+                name: 'employee.role.Administrator.name',
+            }, returnFields: 'id' })
             await createConfirmedEmployee(this.adminContext, organization, {
                 ...this.userInfo,
                 ...this.user,
@@ -157,12 +157,12 @@ class SbbolOrganization {
         const organizationId = get(this.organization, 'id')
         if (organizationId) {
             await updateItem({ listKey: 'Organization', item: {
-                    id: organizationId,
-                    data: {
-                        sbbolRefreshToken: refresh_token,
-                        sbbolRefreshTokenExpiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL * 1000).toISOString()
-                    },
-                }, ...this.context })
+                id: organizationId,
+                data: {
+                    sbbolRefreshToken: refresh_token,
+                    sbbolRefreshTokenExpiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL * 1000).toISOString(),
+                },
+            }, ...this.context })
         }
     }
 
