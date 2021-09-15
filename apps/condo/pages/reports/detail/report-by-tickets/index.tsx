@@ -39,7 +39,11 @@ import { searchEmployeeUser, searchProperty } from '@condo/domains/ticket/utils/
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import TicketChartView from '@condo/domains/ticket/components/analytics/TicketChartView'
 import TicketListView from '@condo/domains/ticket/components/analytics/TicketListView'
-import { DATE_DISPLAY_FORMAT, TICKET_REPORT_DAY_GROUP_STEPS } from '@condo/domains/ticket/constants/common'
+import {
+    DATE_DISPLAY_FORMAT,
+    TICKET_REPORT_DAY_GROUP_STEPS,
+    TICKET_REPORT_TABLE_MAIN_GROUP,
+} from '@condo/domains/ticket/constants/common'
 import { TicketGroupedCounter, TicketLabel } from '../../../../schema'
 import { ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 
@@ -464,9 +468,9 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         const series = []
                         const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
                         const legend = Object.keys(data)
-                        Object.entries(data).map(([groupBy, dataObj]) => {
+                        Object.entries(data).map(([name, dataObj]) => {
                             series.push({
-                                name: groupBy,
+                                name,
                                 type: viewMode,
                                 symbol: 'none',
                                 stack: 'total',
@@ -497,18 +501,22 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                             ...Object.entries(data).map(([key]) => ({ title: key, dataIndex: key, key, sorter: (a, b) => a[key] - b[key] })),
                         ]
 
-                        switch (groupBy[1]) {
-                            case 'categoryClassifier':
-                                tableColumns.unshift({ title: translations['categoryClassifier'], dataIndex: 'categoryClassifier', key: 'categoryClassifier', sorter: (a, b) => a['categoryClassifier'] - b['categoryClassifier'] })
-                                break
-                            default:
-                                break
+                        if (['categoryClassifier', 'executor', 'assignee'].includes(groupBy[1])) {
+                            tableColumns.unshift({
+                                title: translations[groupBy[1]],
+                                dataIndex: groupBy[1],
+                                key: groupBy[1],
+                                sorter: (a, b) => a[groupBy[1]] - b[groupBy[1]],
+                            })
                         }
 
                         const restTableColumns = {}
-                        const addressList = get(filters, 'addresses', [])
-                        const categoryClassifierList = get(filters, 'categoryClassifiers', [])
-                        const aggregateSummary = addressList.length === 0 || categoryClassifierList.length === 0
+                        const addressList = get(filters, 'address', [])
+                        const categoryClassifierList = get(filters, 'categoryClassifier', [])
+                        const executorList = get(filters, 'executor', [])
+                        const assigneeList = get(filters, 'assignee', [])
+                        const aggregateSummary = [addressList, categoryClassifierList, executorList, assigneeList]
+                            .every(filterList => filterList.length === 0)
                         if (aggregateSummary) {
                             Object.entries(data).forEach((rowEntry) => {
                                 const [ticketType, dataObj] = rowEntry
@@ -519,19 +527,39 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                 key: 0,
                                 address: translations['allAddresses'],
                                 categoryClassifier: translations['allCategoryClassifiers'],
+                                executor: translations['allExecutors'],
+                                assignee: translations['allAssignees'],
                                 ...restTableColumns,
                             })
                         } else {
-                            addressList.forEach((address, key) => {
-                                const tableRow = { key, address }
-                                Object.entries(data).forEach(rowEntry => {
-                                    const [ticketType, dataObj] = rowEntry
-                                    const counts = Object.entries(dataObj)
-                                        .filter(obj => obj[0] === address).map(e => e[1]) as number[]
-                                    tableRow[ticketType] = sum(counts)
+                            const mainAggregation = TICKET_REPORT_TABLE_MAIN_GROUP.includes(groupBy[1]) ? get(filters, groupBy[1], []) : null
+                            // TODO(sitozzz): find clean solution for aggregation by 2 id_in fields
+                            if (mainAggregation === null) {
+                                addressList.forEach((address, key) => {
+                                    const tableRow = { key, address }
+                                    Object.entries(data).forEach(rowEntry => {
+                                        const [ticketType, dataObj] = rowEntry
+                                        const counts = Object.entries(dataObj)
+                                            .filter(obj => obj[0] === address).map(e => e[1]) as number[]
+                                        tableRow[ticketType] = sum(counts)
+                                    })
+                                    dataSource.push(tableRow)
                                 })
-                                dataSource.push(tableRow)
-                            })
+                            } else {
+                                mainAggregation.forEach((aggregateField, key) => {
+                                    const tableRow = { key, [groupBy[1]]: aggregateField }
+                                    tableRow['address'] = addressList.length
+                                        ? addressList.join(', ')
+                                        : translations['allAddresses']
+                                    Object.entries(data).forEach(rowEntry => {
+                                        const [ticketType, dataObj] = rowEntry
+                                        const counts = Object.entries(dataObj)
+                                            .filter(obj => obj[0] === aggregateField).map(e => e[1]) as number[]
+                                        tableRow[ticketType] = sum(counts)
+                                    })
+                                    dataSource.push(tableRow)
+                                })
+                            }
                         }
                         return { dataSource, tableColumns }
                     },
@@ -612,7 +640,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         ]
 
                         const restTableColumns = {}
-                        const addressList = get(filters, 'addresses', [])
+                        const addressList = get(filters, 'address', [])
                         const aggregateSummary = addressList !== undefined && addressList.length === 0
                         if (aggregateSummary) {
                             const totalCount = Object.values(data)

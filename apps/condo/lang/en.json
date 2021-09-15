@@ -409,6 +409,8 @@
   "pages.condo.analytics.TicketAnalyticsPage.tableColumns.Classifier": "Category",
   "pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllAddresses": "All addresses",
   "pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllClassifiers": "All categories",
+  "pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllExecutors": "All executors",
+  "pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllAssignees": "All responsible",
   "pages.condo.analytics.TicketAnalyticsPage.AllAddresses": "for all addresses",
   "pages.condo.analytics.TicketAnalyticsPage.ManyAddresses": "for many addresses",
   "pages.condo.analytics.TicketAnalyticsPage.SingleAddress": "at",
