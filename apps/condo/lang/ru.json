@@ -426,6 +426,8 @@
   "pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllAddresses": "Все адреса",
   "pages.condo.analytics.TicketAnalyticsPage.tableColumns.Classifier": "Категория",
   "pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllClassifiers": "Все категории",
+  "pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllExecutors": "Все исполнители",
+  "pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllAssignees": "Все ответственные",
   "pages.condo.analytics.TicketAnalyticsPage.AllAddresses": "по всем адресам",
   "pages.condo.analytics.TicketAnalyticsPage.ManyAddresses": "по нескольким адресам",
   "pages.condo.analytics.TicketAnalyticsPage.SingleAddress": "по адресу",
