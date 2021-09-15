@@ -59,11 +59,20 @@ docker:
 image: callcenter
 from: ubuntu:20.04
 git:
-- url: https://{{ env "PULL_USER" }}:{{ env "PULL_PERSONAL_ACCESS_KEY" }}@github.com/open-condo-software/condo
-  add: /
+- add: /
   to: /app
-  tag: 'prod/v-1-16-0'
+  stageDependencies:
+    setup:
+    - apps/*
+    - packages/*
+    - bin/*
+  excludePaths:
+  - .github
+  - .helm
+  - werf.yaml
+  - werf-giterminism.yaml
   owner: app
+  group: app
 
 shell:
   beforeInstall:
