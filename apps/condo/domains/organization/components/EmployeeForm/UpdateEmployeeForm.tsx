@@ -135,7 +135,7 @@ export const UpdateEmployeeForm = () => {
                                         name={'role'}
                                         label={RoleLabel}
                                     >
-                                        <EmployeeRoleSelect employeeRoles={employeeRoles} error={employeeRolesError ? ErrorMessage : undefined} />
+                                        <EmployeeRoleSelect employeeRoles={employeeRoles} />
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
