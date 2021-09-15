@@ -102,6 +102,12 @@ const CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION = gql`
         result: changePhoneNumberResidentUser(data: $data) { status }
     }
 `
+const SIGNIN_AS_USER_MUTATION = gql`
+    mutation signinAsUser ($data: SigninAsUserInput!) {
+        result: signinAsUser(data: $data) { user { id } token }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -122,5 +128,7 @@ module.exports = {
     CHECK_PASSWORD_RECOVERY_TOKEN,
     SIGNIN_RESIDENT_USER_MUTATION,
     CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION,
+    SIGNIN_AS_USER_MUTATION,
+
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

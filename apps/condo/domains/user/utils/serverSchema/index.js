@@ -10,17 +10,31 @@ const faker = require('faker')
 const {
     SMS_CODE_LENGTH,
 } = require('@condo/domains/user/constants/common')
-
+const { execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 
 const { User: UserGQL } = require('@condo/domains/user/gql')
 const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@condo/domains/user/gql')
 const { ForgotPasswordAction: ForgotPasswordActionGQL } = require('@condo/domains/user/gql')
+const { SIGNIN_AS_USER_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateServerUtils(UserGQL)
 const ConfirmPhoneAction = generateServerUtils(ConfirmPhoneActionGQL)
 const ForgotPasswordAction = generateServerUtils(ForgotPasswordActionGQL)
+async function signinAsUser (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    if (!data.id)  throw new Error('no data.id')
+    return await execGqlWithoutAccess(context, {
+        query: SIGNIN_AS_USER_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to signinAsUser',
+        dataPath: 'result',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const conf = require('@core/config')
@@ -59,5 +73,6 @@ module.exports = {
     generateSmsCode,
     ForgotPasswordAction,
     updateEmployeesRelatedToUser,
+    signinAsUser,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
