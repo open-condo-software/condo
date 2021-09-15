@@ -26,7 +26,7 @@ const { BillingReceipt: BillingReceiptGQL } = require('@condo/domains/billing/gq
 const { BillingOrganization: BillingOrganizationGQL } = require('@condo/domains/billing/gql')
 const { ResidentBillingReceipt: ResidentBillingReceiptGQL } = require('@condo/domains/billing/gql')
 const { BillingCurrency: BillingCurrencyGQL } = require('@condo/domains/billing/gql')
-const { CHECK_ORGANIZATION_INTEGRATION_CONTEXT_EXIST_MUTATION } = require('@condo/domains/billing/gql')
+const { CHECK_ORGANIZATION_INTEGRATION_CONTEXT_EXIST_QUERY } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateGQLTestUtils(BillingIntegrationGQL)
@@ -50,7 +50,7 @@ async function checkOrganizationIntegrationContextExistByTestClient(client, extr
     const attrs = {
         ...extraAttrs,
     }
-    const { data, errors } = await client.query(CHECK_ORGANIZATION_INTEGRATION_CONTEXT_EXIST_MUTATION, { data: attrs })
+    const { data, errors } = await client.query(CHECK_ORGANIZATION_INTEGRATION_CONTEXT_EXIST_QUERY, { data: attrs })
     throwIfError(data, errors)
     return [data.result, attrs]
 }

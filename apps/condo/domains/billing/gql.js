@@ -50,9 +50,9 @@ const BillingCurrency = generateGqlQueries('BillingCurrency', BILLING_CURRENCY_F
 
 const { gql } = require('graphql-tag')
  
-const CHECK_ORGANIZATION_INTEGRATION_CONTEXT_EXIST_BY_ID_QUERY = gql`
-    query getCheckOrganizationIntegrationContextExistById ($data: CheckOrganizationIntegrationContextExistInput!) {
-        obj: CheckOrganizationIntegrationContextExist(data: $data) { isFound } 
+const CHECK_ORGANIZATION_INTEGRATION_CONTEXT_EXIST_QUERY = gql`
+    query checkOrganizationIntegrationContextExist ($data: CheckOrganizationIntegrationContextExistInput!) {
+        result: checkOrganizationIntegrationContextExist (data: $data) { isFound } 
     }
 `
 
@@ -72,6 +72,6 @@ module.exports = {
     ResidentBillingReceipt,
     BillingCurrency,
 
-    CHECK_ORGANIZATION_INTEGRATION_CONTEXT_EXIST_BY_ID_QUERY,
+    CHECK_ORGANIZATION_INTEGRATION_CONTEXT_EXIST_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

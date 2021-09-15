@@ -25,7 +25,7 @@ const CheckOrganizationIntegrationContextExistService = new GQLCustomSchema('Che
     queries: [
         {
             access: access.canCheckOrganizationIntegrationContextExist,
-            schema: 'executeCheckOrganizationIntegrationContextExist (data: CheckOrganizationIntegrationContextExistInput!): CheckOrganizationIntegrationContextExistOutput',
+            schema: 'checkOrganizationIntegrationContextExist (data: CheckOrganizationIntegrationContextExistInput!): CheckOrganizationIntegrationContextExistOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data: inputData } = args
                 const { organizationId } = inputData
