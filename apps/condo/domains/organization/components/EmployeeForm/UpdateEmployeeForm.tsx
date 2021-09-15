@@ -167,7 +167,6 @@ export const UpdateEmployeeForm = () => {
                                                 ({ getFieldValue })=> {
                                                     const role = getFieldValue('role')
                                                     const selectedRole = find(employeeRoles, { id: role })
-                                                    console.debug(selectedRole)
 
                                                     if (get(selectedRole, 'canBeAssignedAsExecutor'))
                                                         return (<Col span={24}>

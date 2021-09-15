@@ -207,7 +207,6 @@ export const CreateEmployeeForm: React.FC = () => {
                                                             const selectedRole = find(employeeRoles, { id: role })
 
                                                             const isDivisionsEnabled = hasFeature('division')
-                                                            console.debug(selectedRole)
 
                                                             return (
                                                                 isDivisionsEnabled && get(selectedRole, 'canBeAssignedAsExecutor') && (
