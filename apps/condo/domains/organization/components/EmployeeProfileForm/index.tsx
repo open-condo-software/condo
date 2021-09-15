@@ -8,13 +8,13 @@ import { FormWithAction } from '@condo/domains/common/components/containers/Form
 import { FormResetButton } from '@condo/domains/common/components/FormResetButton'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
-import { EmployeeRoleSelect } from './EmployeeRoleSelect'
+import { OrganizationEmployee, OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
+import { EmployeeRoleSelect } from '../EmployeeRoleSelect'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { Rule } from 'rc-field-form/lib/interface'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
-import { get } from 'lodash'
+import { find, get } from 'lodash'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 
 const INPUT_LAYOUT_PROPS = {
@@ -45,14 +45,8 @@ export const EmployeeProfileForm = () => {
     const { query, push } = useRouter()
     const classifiersLoader = new ClassifiersQueryRemote(useApolloClient())
 
-    const [selectedRole, setSelectedRole] = useState<string>()
-    const selectedRoleRef = useRef<string>()
-
-    const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject({ where: { id: String(get(query, 'id', '')) } }, {
-        onCompleted: ()=> {
-            setSelectedRole(employee.role.name)
-        },
-    })
+    const { obj: employee, loading: employeeLoading, error: employeeError, refetch } = OrganizationEmployee.useObject({ where: { id: String(get(query, 'id', '')) } })
+    const { objs: employeeRoles, loading: employeeRolesLoading, error: employeeRolesError } = OrganizationEmployeeRole.useObjects({ where: { organization: { id:  get(employee, ['organization', 'id']) } } })
     const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => {
         refetch().then(() => {
             push(`/employee/${get(query, 'id')}/`)
@@ -73,9 +67,8 @@ export const EmployeeProfileForm = () => {
         return () => classifiersLoader.clear()
     }, [])   
 
-    useEffect(()=> {
-        selectedRoleRef.current = selectedRole
-    }, [selectedRole])
+    const error = employeeError || employeeRolesError
+    const loading = employeeLoading || employeeRolesLoading
 
     if (error) {
         return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null}/>
@@ -102,15 +95,14 @@ export const EmployeeProfileForm = () => {
             validateTrigger={['onBlur', 'onSubmit']}
             formValuesToMutationDataPreprocessor={(values)=> {
                 const isRoleDeleted = !values.role && initialValues.role
-                const specializations = values.specializations
-        
+                const role = values.role
+                const selectedRole = find(employeeRoles, { id: role })
+                if (selectedRole.name !== TechnicianRoleName) {
+                    values.specializations = null
+                }
                 if (isRoleDeleted) {
                     values.role = null
                 }
-                if (specializations && specializations.length && selectedRoleRef.current === TechnicianRoleName) {
-                    values.specializations = { connect: specializations.map(id => ({ id })) }
-                }
-                else values.specializations = { disconnectAll: true }
                 return values
             }}
         >
@@ -137,7 +129,7 @@ export const EmployeeProfileForm = () => {
                                         name={'role'}
                                         label={RoleLabel}
                                     >
-                                        <EmployeeRoleSelect employee={employee} onSelect={(_, option) => setSelectedRole(option.title)} />
+                                        <EmployeeRoleSelect employeeRoles={employeeRoles} error={employeeRolesError ? ErrorMessage : undefined} />
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
@@ -163,6 +155,29 @@ export const EmployeeProfileForm = () => {
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
+                                    <Form.Item noStyle dependencies={['role']}>
+                                        {
+                                            ({ getFieldValue })=> {
+                                                const role = getFieldValue('role')
+                                                const selectedRole = find(employeeRoles, { id: role })
+
+                                                if (selectedRole.name === TechnicianRoleName)
+                                                    return (<Col span={24}>
+                                                        <Form.Item
+                                                            name={'specializations'}
+                                                            label={SpecializationsLabel}
+                                                            labelAlign={'left'}
+                                                            required
+                                                            validateFirst
+                                                            {...INPUT_LAYOUT_PROPS}
+                                                        >
+                                                            <GraphQlSearchInput mode="multiple" search={searchClassifers} />
+                                                        </Form.Item>
+                                                    </Col>)
+                                            }
+                                        }
+                                        
+                                    </Form.Item>
                                     <Space size={40} style={{ paddingTop: '36px' }}>
                                         <FormResetButton
                                             type={'sberPrimary'}
