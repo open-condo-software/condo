@@ -9,7 +9,7 @@ import { FormWithAction } from '@condo/domains/common/components/containers/Form
 import { FormResetButton } from '@condo/domains/common/components/FormResetButton'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { OrganizationEmployee, OrganizationEmployeeRole } from '../../utils/clientSchema'
+import { OrganizationEmployee, OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
 import { EmployeeRoleSelect } from '../EmployeeRoleSelect'
 import { Rule } from 'rc-field-form/lib/interface'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'

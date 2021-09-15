@@ -25,7 +25,7 @@ import { colors, shadows } from '@condo/domains/common/constants/style'
 import { css, jsx } from '@emotion/core'
 import { ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 import ActionBar from '@condo/domains/common/components/ActionBar'
-import LoadingOrErrorPage from '../../common/components/containers/LoadingOrErrorPage'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
