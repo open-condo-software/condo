@@ -6,7 +6,7 @@ const { TICKET_ANALYTICS_REPORT_QUERY, EXPORT_TICKET_ANALYTICS_TO_EXCEL } = requ
 const dayjs = require('dayjs')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestUser, makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
-const { createTestTicket, makeClientWithTicket } = require('@condo/domains/ticket/utils/testSchema')
+const { createTestTicket, makeClientWithTicket, createTestTicketCategoryClassifier } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const isObsConfigured = require('@condo/domains/ticket/utils/testSchema/isObsConfigured')
 
@@ -92,6 +92,41 @@ describe('TicketAnalyticsReportService', () => {
             expect(groups.length).toBeGreaterThanOrEqual(1)
             expect(groups[0].count).toEqual(1)
             expect(groups[0].property).toEqual(client.property.address)
+        })
+
+        it('can read TicketAnalyticsReportService with property and categoryClassifier filter', async () => {
+            // TODO(sitozzz): check filter is working
+            const admin = await makeLoggedInAdminClient()
+            const client = await makeClientWithProperty()
+            const [categoryClassifier] = await createTestTicketCategoryClassifier(admin)
+
+            await createTestTicket(client, client.organization, client.property)
+            await createTestTicket(client, client.organization, client.property, { isPaid: true })
+            await createTestTicket(client, client.organization, client.property, { isEmergency: true })
+
+            const dateStart = dayjs().startOf('week')
+            const dateEnd = dayjs().endOf('week')
+
+            const { data: { result: groups } } = await client.query(TICKET_ANALYTICS_REPORT_QUERY, {
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'tests' },
+                data: {
+                    where: {
+                        organization: { id: client.organization.id },
+                        AND: [
+                            { createdAt_gte: dateStart.toISOString() },
+                            { createdAt_lte: dateEnd.toISOString() },
+                            { property: { id_in: [ client.property.id ] } },
+                            { categoryClassifier: { id_in: [ categoryClassifier.id ] } },
+                            { isPaid: false },
+                            { isEmergency: false },
+                        ],
+                    },
+                    groupBy: [ 'categoryClassifier', 'status' ],
+                },
+            })
+            expect(groups).toBeDefined()
+            expect(groups.length).toBeGreaterThanOrEqual(1)
         })
 
         it('can not read TicketAnalyticsReportService from another organization', async () => {

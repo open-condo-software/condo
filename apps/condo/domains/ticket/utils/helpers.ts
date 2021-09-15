@@ -430,11 +430,14 @@ export const filterToQuery: IFilterToQuery = ({ filter, viewMode, ticketType, ma
 
     if (filter.addressList.length) {
         AND.push({ property: { id_in: filter.addressList.map(({ id }) => id) } })
-    } else if (filter.classifierList.length) {
+    }
+    if (filter.classifierList.length) {
         AND.push({ categoryClassifier: { id_in: filter.classifierList.map(({ id }) => id) } })
-    } else if (filter.executorList.length) {
+    }
+    if (filter.executorList.length) {
         AND.push({ executor: { id_in: filter.executorList.map(({ id }) => id) } })
-    } else if (filter.responsibleList.length) {
+    }
+    if (filter.responsibleList.length) {
         AND.push({ assignee: { id_in: filter.responsibleList.map(({ id }) => id) } })
     }
 
