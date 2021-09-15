@@ -154,13 +154,15 @@ export function searchEmployeeUser (organizationId, filter = null) {
     }
 }
 
-export function searchEmployee (organizationId) {
+export function searchEmployee (organizationId, filter) {
     if (!organizationId) return
     return async function (client, value) {
         const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, organizationId })
         if (error) console.warn(error)
 
-        return data.objs.map(({ name, id }) => ({ text: name, value: id }))
+        return data.objs
+            .filter(filter || Boolean)
+            .map(({ name, id }) => ({ text: name, value: id }))
     }
 }
 
