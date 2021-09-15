@@ -3,7 +3,7 @@ import React from 'react'
 import { useIntl } from '@core/next/intl'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { EmployeeProfileForm } from '@condo/domains/organization/components/EmployeeProfileForm'
+import { UpdateEmployeeForm } from '@condo/domains/organization/components/EmployeeForm/UpdateEmployeeForm'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
 export const EmployeeUpdatePage = () => {
@@ -17,7 +17,7 @@ export const EmployeeUpdatePage = () => {
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <EmployeeProfileForm/>
+                    <UpdateEmployeeForm/>
                 </PageContent>
             </PageWrapper>
         </>

@@ -5,7 +5,7 @@ import React from 'react'
 import { useIntl } from 'react-intl'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { CreateEmployeeForm } from '@condo/domains/organization/components/CreateEmployeeForm'
+import { CreateEmployeeForm } from '@condo/domains/organization/components/EmployeeForm/CreateEmployeeForm'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { jsx } from '@emotion/core'
 
