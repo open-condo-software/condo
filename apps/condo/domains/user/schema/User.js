@@ -144,12 +144,17 @@ const User = new GQLListSchema('User', {
             // TODO(pahaz): we should check the structure!
         },
 
-        // TODO(pahaz): should we also add remote system?
+        importRemoteSystem: {
+            schemaDoc: 'External provider for users',
+            type: Text,
+            access: access.canAccessToImportField,
+            kmigratorOptions: { null: true, unique: false },
+        },
         importId: {
             schemaDoc: 'External system user id. Used for integrations',
             type: Text,
-            access: access.canAccessToImportIdField,
-            kmigratorOptions: { null: true, unique: true },
+            access: access.canAccessToImportField,
+            kmigratorOptions: { null: true, unique: false },
         },
 
     },
@@ -164,6 +169,11 @@ const User = new GQLListSchema('User', {
                 type: 'models.UniqueConstraint',
                 fields: ['type', 'email'],
                 name: 'unique_type_and_email',
+            },
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['importId', 'importRemoteSystem'],
+                name: 'unique_user_importid_and_importremotesystem',
             },
         ],
     },
