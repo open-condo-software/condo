@@ -2,7 +2,6 @@ const faker = require('faker')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const {
     OrganizationEmployee,
-    OrganizationEmployeeRole,
     REGISTER_NEW_ORGANIZATION_MUTATION,
     ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION,
     INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION,
@@ -48,12 +47,7 @@ async function registerNewOrganization (client, extraAttrs = {}, { raw = false }
     })
     if (raw) return { data, errors }
     expect(errors).toEqual(undefined)
-    const { data: { objs: roles } } = await client.query(OrganizationEmployeeRole.GET_ALL_OBJS_QUERY, {
-        data: {
-            organization: { id: data.obj.id },
-        }
-    })
-    return [data.obj, attrs, roles]
+    return [data.obj, attrs]
 }
 
 async function inviteNewOrganizationEmployee (client, organization, user, extraAttrs = {}, { raw = false } = {}) {
@@ -61,7 +55,6 @@ async function inviteNewOrganizationEmployee (client, organization, user, extraA
     if (!organization) throw new Error('no organization')
     if (!user) throw new Error('no user')
     if (!user.email) throw new Error('no user.email')
-    if (!extraAttrs.role) throw new Error('no employee role')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
@@ -129,9 +122,8 @@ async function acceptOrRejectOrganizationInviteById (client, invite, extraAttrs 
 
 async function makeClientWithRegisteredOrganization () {
     const client = await makeClientWithNewRegisteredAndLoggedInUser()
-    const [organization, attrs, roles] = await registerNewOrganization(client)
+    const [organization] = await registerNewOrganization(client)
     client.organization = organization
-    client.organization.roles = roles
     return client
 }
 

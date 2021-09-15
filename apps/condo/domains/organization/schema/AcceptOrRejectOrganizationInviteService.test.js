@@ -12,11 +12,7 @@ describe('AcceptOrRejectOrganizationInviteService', () => {
         const client1 = await makeClientWithRegisteredOrganization()
         const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
 
-        const [invite] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs, {
-            role: {
-                id: client1.organization.roles[0].id,
-            },
-        })
+        const [invite] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs)
         const [accepted] = await acceptOrRejectOrganizationInviteById(client2, invite)
 
         expect(accepted).toEqual(expect.objectContaining({
