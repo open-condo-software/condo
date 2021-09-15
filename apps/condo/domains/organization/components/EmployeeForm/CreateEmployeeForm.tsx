@@ -60,7 +60,6 @@ export const CreateEmployeeForm: React.FC = () => {
     const ExampleEmailMsg = intl.formatMessage({ id: 'example.Email' })
     const PhoneIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
     const UserAlreadyInListMsg = intl.formatMessage({ id: 'pages.users.UserIsAlreadyInList' })
-    const TechnicianRoleName = intl.formatMessage({ id: 'employee.role.Technician.name' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
 
     const classifiersLoader = new ClassifiersQueryRemote(useApolloClient())
@@ -208,9 +207,10 @@ export const CreateEmployeeForm: React.FC = () => {
                                                             const selectedRole = find(employeeRoles, { id: role })
 
                                                             const isDivisionsEnabled = hasFeature('division')
+                                                            console.debug(selectedRole)
 
                                                             return (
-                                                                isDivisionsEnabled && get(selectedRole, 'name') === TechnicianRoleName && (
+                                                                isDivisionsEnabled && get(selectedRole, 'canBeAssignedAsExecutor') && (
                                                                     <Col span={24}>
                                                                         <Form.Item
                                                                             name={'specializations'}
