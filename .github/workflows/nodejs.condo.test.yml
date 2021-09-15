@@ -81,6 +81,8 @@ jobs:
 
           yarn jest ./packages/@core.keystone
 
+          yarn workspace @app/condo lint-schema
+
         env:
           DATABASE_URL: ${{ matrix.database }}
           NODE_ENV: development
