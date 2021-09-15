@@ -4,6 +4,8 @@ import { TextHighlighter } from '../TextHighlighter'
 import { Typography } from 'antd'
 import { colors } from '../../constants/style'
 import { EmptyTableCell } from './EmptyTableCell'
+import { TableRecord } from './Index'
+import get from 'lodash/get'
 
 type RenderReturnType = string | React.ReactNode
 
@@ -105,5 +107,31 @@ export const getMoneyRender = (search: string, currencyMark = '₽', partSeparat
                 {currencyMark}
             </>
         )
+    }
+}
+
+export const getAddressRender = (unitNamePrefix: string, search?: string) => {
+    return function render (record: TableRecord): React.ReactNode {
+        const unitName = get(record, 'unitName')
+        const address = get(record, 'address')
+        const unitPrefix = unitName ? `${unitNamePrefix} ${unitName}` : ''
+
+        if (!isEmpty(search)) {
+            return (
+                <>
+                    <TextHighlighter
+                        text={address}
+                        search={String(search)}
+                        renderPart={(part, index, marked) => (
+                            <Typography.Text style={{ backgroundColor:  marked ? colors.markColor : 'transparent' }}>
+                                {part}
+                            </Typography.Text>
+                        )}
+                    />
+                    {`, ${unitPrefix}`}
+                </>
+            )
+        }
+        return `${address}, ${unitPrefix}`
     }
 }
