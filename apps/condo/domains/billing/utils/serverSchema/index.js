@@ -19,6 +19,7 @@ const { BillingReceipt: BillingReceiptGQL } = require('@condo/domains/billing/gq
 const { BillingOrganization: BillingOrganizationGQL } = require('@condo/domains/billing/gql')
 const { ResidentBillingReceipt: ResidentBillingReceiptGQL } = require('@condo/domains/billing/gql')
 const { BillingCurrency: BillingCurrencyGQL } = require('@condo/domains/billing/gql')
+const { CHECK_ORGANIZATION_INTEGRATION_CONTEXT_EXIST_MUTATION } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateServerUtils(BillingIntegrationGQL)
@@ -36,6 +37,20 @@ const ResidentBillingReceipt = generateServerUtils(ResidentBillingReceiptGQL)
 
 
 const BillingCurrency = generateServerUtils(BillingCurrencyGQL)
+async function checkOrganizationIntegrationContextExist (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    // TODO(codegen): write checkOrganizationIntegrationContextExist serverSchema guards
+
+    return await execGqlWithoutAccess(context, {
+        query: CHECK_ORGANIZATION_INTEGRATION_CONTEXT_EXIST_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to checkOrganizationIntegrationContextExist',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -52,5 +67,6 @@ module.exports = {
     BillingOrganization,
     ResidentBillingReceipt,
     BillingCurrency,
+    checkOrganizationIntegrationContextExist,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

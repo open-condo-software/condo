@@ -25,6 +25,7 @@ const { BillingReceipt: BillingReceiptGQL } = require('@condo/domains/billing/gq
 const { BillingOrganization: BillingOrganizationGQL } = require('@condo/domains/billing/gql')
 const { ResidentBillingReceipt: ResidentBillingReceiptGQL } = require('@condo/domains/billing/gql')
 const { BillingCurrency: BillingCurrencyGQL } = require('@condo/domains/billing/gql')
+const { CHECK_ORGANIZATION_INTEGRATION_CONTEXT_EXIST_MUTATION } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateGQLTestUtils(BillingIntegrationGQL)
@@ -547,6 +548,7 @@ module.exports = {
     BillingOrganization, createTestBillingOrganization, updateTestBillingOrganization,
     ResidentBillingReceipt,
     BillingCurrency, createTestBillingCurrency, updateTestBillingCurrency,
+checkOrganizationIntegrationContextExistByTestClient
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 

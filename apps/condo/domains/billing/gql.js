@@ -48,6 +48,14 @@ const ResidentBillingReceipt = generateGqlQueries('ResidentBillingReceipt', RESI
 const BILLING_CURRENCY_FIELDS = `{ code displayInfo ${COMMON_FIELDS} }`
 const BillingCurrency = generateGqlQueries('BillingCurrency', BILLING_CURRENCY_FIELDS)
 
+// TODO(codegen): write return type result!
+ 
+const CHECK_ORGANIZATION_INTEGRATION_CONTEXT_EXIST_BY_ID_QUERY = gql`
+    query getCheckOrganizationIntegrationContextExistById ($data: CheckOrganizationIntegrationContextExistInput!) {
+        obj: CheckOrganizationIntegrationContextExist(where: {id: $id}) ${COMMON_FIELDS}
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -64,5 +72,8 @@ module.exports = {
     ResidentBillingReceipt,
     RESIDENT_BILLING_RECEIPTS_FIELDS,
     BillingCurrency,
+ 
+    CHECK_ORGANIZATION_INTEGRATION_CONTEXT_EXIST_BY_ID_QUERY,
+
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
