@@ -22,6 +22,7 @@ const { SIGNIN_AS_USER_MUTATION } = require('@condo/domains/user/gql')
 const User = generateServerUtils(UserGQL)
 const ConfirmPhoneAction = generateServerUtils(ConfirmPhoneActionGQL)
 const ForgotPasswordAction = generateServerUtils(ForgotPasswordActionGQL)
+
 async function signinAsUser (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
