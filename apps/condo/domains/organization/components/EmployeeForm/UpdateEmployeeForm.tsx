@@ -29,7 +29,7 @@ const INPUT_LAYOUT_PROPS = {
     },
 }
 
-export const EmployeeProfileForm = () => {
+export const UpdateEmployeeForm = () => {
     const intl = useIntl()
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
     const EmployeeUpdateTitle = intl.formatMessage({ id: 'profile.Employee.Update' })
