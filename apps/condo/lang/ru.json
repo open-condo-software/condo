@@ -117,6 +117,7 @@
   "menu.Billing": "Биллинг",
   "menu.TicketAnalytics": "Аналитика по заявкам",
   "menu.ContactCenter": "Контакт центр",
+  "menu.PaymentsRegister": "Реестр оплат",
   "RolesAndAccess": "Роли и доступы",
   "OneBillingWarning": "Внимание! Нельзя одновременно интегрироваться более чем с одним биллингом",
   "NoPermissionToSettings": "У вас нет прав для просмотра и редактирования данных настроек...",
