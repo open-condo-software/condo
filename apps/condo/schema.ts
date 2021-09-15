@@ -10442,6 +10442,7 @@ export type Mutation = {
   completeConfirmPhoneAction?: Maybe<CompleteConfirmPhoneActionOutput>;
   signinResidentUser?: Maybe<SigninResidentUserOutput>;
   changePhoneNumberResidentUser?: Maybe<ChangePhoneNumberResidentUserOutput>;
+  signinAsUser?: Maybe<SigninAsUserOutput>;
   registerNewOrganization?: Maybe<Organization>;
   inviteNewOrganizationEmployee?: Maybe<OrganizationEmployee>;
   reInviteOrganizationEmployee?: Maybe<OrganizationEmployee>;
@@ -12984,6 +12985,11 @@ export type MutationSigninResidentUserArgs = {
 
 export type MutationChangePhoneNumberResidentUserArgs = {
   data: ChangePhoneNumberResidentUserInput;
+};
+
+
+export type MutationSigninAsUserArgs = {
+  data: SigninAsUserInput;
 };
 
 
@@ -20231,6 +20237,18 @@ export type ShareTicketInput = {
 export type ShareTicketOutput = {
   __typename?: 'ShareTicketOutput';
   status: Scalars['String'];
+};
+
+export type SigninAsUserInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  id: Scalars['ID'];
+};
+
+export type SigninAsUserOutput = {
+  __typename?: 'SigninAsUserOutput';
+  user?: Maybe<User>;
+  token: Scalars['String'];
 };
 
 export type SigninResidentUserInput = {

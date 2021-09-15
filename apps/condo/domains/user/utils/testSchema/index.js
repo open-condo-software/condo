@@ -6,11 +6,12 @@
 const faker = require('faker')
 const { v4: uuid } = require('uuid')
 const { getRandomString, makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
-const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
+const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 const { User: UserGQL, UserAdmin: UserAdminGQL, REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
 const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@condo/domains/user/gql')
 const { generateSmsCode } = require('@condo/domains/user/utils/serverSchema')
 const { ForgotPasswordAction: ForgotPasswordActionGQL } = require('@condo/domains/user/gql')
+const { SIGNIN_AS_USER_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateGQLTestUtils(UserGQL)
@@ -18,7 +19,6 @@ const UserAdmin = generateGQLTestUtils(UserAdminGQL)
 
 const createTestEmail = () => ('test.' + getRandomString() + '@example.com').toLowerCase()
 const createTestPhone = () => '+18170' + String(Math.random()).slice(2).slice(-6)
-
 
 const {
     SMS_CODE_TTL,
@@ -218,6 +218,20 @@ async function updateTestForgotPasswordAction (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function signinAsUserByTestClient(client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    if (!id) throw new Error('No user id passed')
+    const attrs = {
+        dv: 1,
+        sender,
+        id,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(SIGNIN_AS_USER_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -225,5 +239,6 @@ module.exports = {
     makeClientWithNewRegisteredAndLoggedInUser, addAdminAccess, addSupportAccess, addResidentAccess, addStaffAccess, createTestEmail, createTestPhone,
     ConfirmPhoneAction, createTestConfirmPhoneAction, updateTestConfirmPhoneAction,
     ForgotPasswordAction, createTestForgotPasswordAction, updateTestForgotPasswordAction,
+signinAsUserByTestClient
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
