@@ -67,7 +67,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                     const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs, {
                         role: {
                             id: client.organization.roles[0].id,
-                        }
+                        },
                     })
                     const [reInvitedEmployee] = await reInviteNewOrganizationEmployee(client, client.organization, userAttrs)
 
