@@ -8,11 +8,6 @@ const { Resident: ResidentServerUtils } = require('@condo/domains/resident/utils
 const { get, uniq, compact } = require('lodash')
 const access = require('@core/keystone/access')
 
-const readByAnyUpdateByAdminField = {
-    read: true,
-    create: access.userIsAdmin,
-    update: access.userIsAdmin,
-}
 
 async function canReadOrganizations ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
@@ -53,7 +48,11 @@ async function canManageOrganizations ({ authentication: { item: user }, origina
     return false
 }
 
-const canAccessToImportField = readByAnyUpdateByAdminField
+const canAccessToImportField = {
+    read: access.userIsNotResidentUser,
+    create: access.userIsAdmin,
+    update: access.userIsAdmin,
+}
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
   all or no items are available) or a set of filters that limit the available items.
