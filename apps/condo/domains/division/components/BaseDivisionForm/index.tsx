@@ -121,7 +121,9 @@ const BaseDivisionForm: React.FC<IBaseDivisionFormProps> = (props) => {
                             required
                         >
                             <GraphQlSearchInput
-                                search={searchEmployee(organizationId)}
+                                search={searchEmployee(organizationId, ({ role }) => (
+                                    get(role, 'canBeAssignedAsResponsible', false)
+                                ))}
                                 showArrow={false}
                             />
                         </Form.Item>
@@ -140,7 +142,9 @@ const BaseDivisionForm: React.FC<IBaseDivisionFormProps> = (props) => {
                             {...INPUT_LAYOUT_PROPS}
                         >
                             <GraphQlSearchInput
-                                search={searchEmployee(organizationId)}
+                                search={searchEmployee(organizationId, ({ role }) => (
+                                    get(role, 'canBeAssignedAsExecutor', false)
+                                ))}
                                 showArrow={false}
                                 mode="multiple"
                             />
