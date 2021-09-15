@@ -4435,11 +4435,11 @@ export type BillingReceipt = {
   /**  Total sum to pay. Usually counts as the sum of all services. Stored like this: "123.30" Detail level 1.  */
   toPay?: Maybe<Scalars['String']>;
   /**  Sum to pay details. Detail level 2  */
-  toPayDetails?: Maybe<Scalars['JSON']>;
+  toPayDetails?: Maybe<BillingReceiptToPayDetailsField>;
   /**  Services to pay for. Every service has id, name and toPay. Service may or may not have toPay detail. Detail level 3 and 4  */
-  services?: Maybe<Scalars['JSON']>;
+  services?: Maybe<Array<BillingReceiptServiceField>>;
   /**  Billing account recipient. Should contain all meta information to identify the organization  */
-  recipient?: Maybe<Scalars['JSON']>;
+  recipient?: Maybe<BillingReceiptsRecipientField>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -4461,9 +4461,9 @@ export type BillingReceiptCreateInput = {
   printableNumber?: Maybe<Scalars['String']>;
   raw?: Maybe<Scalars['JSON']>;
   toPay?: Maybe<Scalars['String']>;
-  toPayDetails?: Maybe<Scalars['JSON']>;
-  services?: Maybe<Scalars['JSON']>;
-  recipient?: Maybe<Scalars['JSON']>;
+  toPayDetails?: Maybe<BillingReceiptToPayDetailsFieldInput>;
+  services?: Maybe<Array<BillingReceiptServiceFieldInput>>;
+  recipient?: Maybe<BillingReceiptsRecipientFieldInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -4752,6 +4752,65 @@ export type BillingReceiptHistoryRecordsUpdateInput = {
   data?: Maybe<BillingReceiptHistoryRecordUpdateInput>;
 };
 
+export type BillingReceiptServiceField = {
+  __typename?: 'BillingReceiptServiceField';
+  id?: Maybe<Scalars['String']>;
+  name: Scalars['String'];
+  toPay: Scalars['String'];
+  toPayDetails?: Maybe<BillingReceiptServiceToPayDetailsField>;
+};
+
+export type BillingReceiptServiceFieldInput = {
+  id?: Maybe<Scalars['String']>;
+  name: Scalars['String'];
+  toPay: Scalars['String'];
+  toPayDetails?: Maybe<BillingReceiptServiceToPayDetailsFieldInput>;
+};
+
+export type BillingReceiptServiceToPayDetailsField = {
+  __typename?: 'BillingReceiptServiceToPayDetailsField';
+  formula: Scalars['String'];
+  charge?: Maybe<Scalars['String']>;
+  balance?: Maybe<Scalars['String']>;
+  recalculation?: Maybe<Scalars['String']>;
+  privilege?: Maybe<Scalars['String']>;
+  penalty?: Maybe<Scalars['String']>;
+  volume?: Maybe<Scalars['String']>;
+  tariff?: Maybe<Scalars['String']>;
+  measure?: Maybe<Scalars['String']>;
+};
+
+export type BillingReceiptServiceToPayDetailsFieldInput = {
+  formula: Scalars['String'];
+  charge?: Maybe<Scalars['String']>;
+  balance?: Maybe<Scalars['String']>;
+  recalculation?: Maybe<Scalars['String']>;
+  privilege?: Maybe<Scalars['String']>;
+  penalty?: Maybe<Scalars['String']>;
+  volume?: Maybe<Scalars['String']>;
+  tariff?: Maybe<Scalars['String']>;
+  measure?: Maybe<Scalars['String']>;
+};
+
+export type BillingReceiptToPayDetailsField = {
+  __typename?: 'BillingReceiptToPayDetailsField';
+  formula: Scalars['String'];
+  charge?: Maybe<Scalars['String']>;
+  balance?: Maybe<Scalars['String']>;
+  recalculation?: Maybe<Scalars['String']>;
+  privilege?: Maybe<Scalars['String']>;
+  penalty?: Maybe<Scalars['String']>;
+};
+
+export type BillingReceiptToPayDetailsFieldInput = {
+  formula: Scalars['String'];
+  charge?: Maybe<Scalars['String']>;
+  balance?: Maybe<Scalars['String']>;
+  recalculation?: Maybe<Scalars['String']>;
+  privilege?: Maybe<Scalars['String']>;
+  penalty?: Maybe<Scalars['String']>;
+};
+
 export type BillingReceiptUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
@@ -4763,9 +4822,9 @@ export type BillingReceiptUpdateInput = {
   printableNumber?: Maybe<Scalars['String']>;
   raw?: Maybe<Scalars['JSON']>;
   toPay?: Maybe<Scalars['String']>;
-  toPayDetails?: Maybe<Scalars['JSON']>;
-  services?: Maybe<Scalars['JSON']>;
-  recipient?: Maybe<Scalars['JSON']>;
+  toPayDetails?: Maybe<BillingReceiptToPayDetailsFieldInput>;
+  services?: Maybe<Array<BillingReceiptServiceFieldInput>>;
+  recipient?: Maybe<BillingReceiptsRecipientFieldInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -4862,18 +4921,18 @@ export type BillingReceiptWhereInput = {
   toPay_not_ends_with_i?: Maybe<Scalars['String']>;
   toPay_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   toPay_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  toPayDetails?: Maybe<Scalars['JSON']>;
-  toPayDetails_not?: Maybe<Scalars['JSON']>;
-  toPayDetails_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  toPayDetails_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  services?: Maybe<Scalars['JSON']>;
-  services_not?: Maybe<Scalars['JSON']>;
-  services_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  services_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  recipient?: Maybe<Scalars['JSON']>;
-  recipient_not?: Maybe<Scalars['JSON']>;
-  recipient_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  recipient_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  toPayDetails?: Maybe<BillingReceiptToPayDetailsFieldInput>;
+  toPayDetails_not?: Maybe<BillingReceiptToPayDetailsFieldInput>;
+  toPayDetails_in?: Maybe<Array<Maybe<BillingReceiptToPayDetailsFieldInput>>>;
+  toPayDetails_not_in?: Maybe<Array<Maybe<BillingReceiptToPayDetailsFieldInput>>>;
+  services?: Maybe<Array<BillingReceiptServiceFieldInput>>;
+  services_not?: Maybe<Array<BillingReceiptServiceFieldInput>>;
+  services_in?: Maybe<Array<Maybe<Array<BillingReceiptServiceFieldInput>>>>;
+  services_not_in?: Maybe<Array<Maybe<Array<BillingReceiptServiceFieldInput>>>>;
+  recipient?: Maybe<BillingReceiptsRecipientFieldInput>;
+  recipient_not?: Maybe<BillingReceiptsRecipientFieldInput>;
+  recipient_in?: Maybe<Array<Maybe<BillingReceiptsRecipientFieldInput>>>;
+  recipient_not_in?: Maybe<Array<Maybe<BillingReceiptsRecipientFieldInput>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -4926,6 +4985,21 @@ export type BillingReceiptWhereUniqueInput = {
 
 export type BillingReceiptsCreateInput = {
   data?: Maybe<BillingReceiptCreateInput>;
+};
+
+export type BillingReceiptsRecipientField = {
+  __typename?: 'BillingReceiptsRecipientField';
+  tin: Scalars['String'];
+  iec: Scalars['String'];
+  bic: Scalars['String'];
+  bankAccount: Scalars['String'];
+};
+
+export type BillingReceiptsRecipientFieldInput = {
+  tin: Scalars['String'];
+  iec: Scalars['String'];
+  bic: Scalars['String'];
+  bankAccount: Scalars['String'];
 };
 
 export type BillingReceiptsUpdateInput = {
@@ -6853,12 +6927,12 @@ export type InviteNewOrganizationEmployeeInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
   organization: OrganizationWhereUniqueInput;
-  email?: Maybe<Scalars['String']>;
+  email: Scalars['String'];
   phone: Scalars['String'];
   name?: Maybe<Scalars['String']>;
-  role?: Maybe<OrganizationEmployeeWhereUniqueInput>;
+  role?: Maybe<OrganizationEmployeeRoleWhereUniqueInput>;
   position?: Maybe<Scalars['String']>;
-  specializations?: Maybe<Array<TicketCategoryClassifierWhereInput>>;
+  specializations?: Maybe<TicketCategoryClassifierRelateToManyInput>;
 };
 
 
@@ -14433,7 +14507,9 @@ export type OrganizationEmployeeRole = {
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageDivisions?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
+  /**  Allows employees with this role to be assigned to tickets as responsible  */
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
+  /**  Allows employees with this role to be assigned to tickets as executor  */
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -19113,13 +19189,14 @@ export type Resident = {
 export type ResidentBillingReceiptOutput = {
   __typename?: 'ResidentBillingReceiptOutput';
   dv: Scalars['String'];
-  recipient: Scalars['JSON'];
+  recipient: BillingReceiptsRecipientField;
   id: Scalars['ID'];
   period: Scalars['String'];
   toPay: Scalars['String'];
   printableNumber?: Maybe<Scalars['String']>;
-  toPayDetails?: Maybe<Scalars['JSON']>;
-  services?: Maybe<Scalars['JSON']>;
+  toPayDetails?: Maybe<BillingReceiptToPayDetailsField>;
+  services?: Maybe<Array<BillingReceiptServiceField>>;
+  serviceConsumer: ServiceConsumer;
 };
 
 export type ResidentBillingReceiptWhereInput = {
@@ -19177,6 +19254,8 @@ export type ResidentBillingReceiptWhereInput = {
   printableNumber_not_starts_with_i?: Maybe<Scalars['String']>;
   printableNumber_ends_with_i?: Maybe<Scalars['String']>;
   printableNumber_not_ends_with_i?: Maybe<Scalars['String']>;
+  serviceConsumer?: Maybe<ServiceConsumerWhereInput>;
+  serviceConsumer_is_null?: Maybe<Scalars['Boolean']>;
 };
 
 export type ResidentCreateInput = {
@@ -21735,7 +21814,9 @@ export enum SortResidentBillingReceiptsBy {
   ToPayAsc = 'toPay_ASC',
   ToPayDesc = 'toPay_DESC',
   PrintableNumberAsc = 'printableNumber_ASC',
-  PrintableNumberDesc = 'printableNumber_DESC'
+  PrintableNumberDesc = 'printableNumber_DESC',
+  ServiceConsumerAsc = 'serviceConsumer_ASC',
+  ServiceConsumerDesc = 'serviceConsumer_DESC'
 }
 
 export enum SortResidentHistoryRecordsBy {
