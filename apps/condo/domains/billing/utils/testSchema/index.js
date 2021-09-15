@@ -7,6 +7,7 @@ const { makeLoggedInAdminClient } = require("@core/keystone/test.utils");
 const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require("@condo/domains/organization/utils/testSchema");
 const { makeClientWithNewRegisteredAndLoggedInUser } = require("@condo/domains/user/utils/testSchema");
 const faker = require('faker')
+const { throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 const { makeClient } = require('@core/keystone/test.utils')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { createTestOrganization } = require("@condo/domains/organization/utils/testSchema");
@@ -42,6 +43,17 @@ const BillingOrganization = generateGQLTestUtils(BillingOrganizationGQL)
 const ResidentBillingReceipt = generateGQLTestUtils(ResidentBillingReceiptGQL)
 const BillingCurrency = generateGQLTestUtils(BillingCurrencyGQL)
 /* AUTOGENERATE MARKER <CONST> */
+
+async function checkOrganizationIntegrationContextExistByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+
+    const attrs = {
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.query(CHECK_ORGANIZATION_INTEGRATION_CONTEXT_EXIST_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 
 async function createTestBillingCurrency (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -506,6 +518,8 @@ async function makeClientWithIntegrationAccess () {
     return client
 }
 
+
+
 /**
  * Simplifies creating series of instances
  */
@@ -548,7 +562,7 @@ module.exports = {
     BillingOrganization, createTestBillingOrganization, updateTestBillingOrganization,
     ResidentBillingReceipt,
     BillingCurrency, createTestBillingCurrency, updateTestBillingCurrency,
-checkOrganizationIntegrationContextExistByTestClient
+    checkOrganizationIntegrationContextExistByTestClient
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
