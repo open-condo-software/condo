@@ -24,7 +24,7 @@ const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV 
 // NOTE: should be disabled in production: https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/
 // WARN: https://github.com/graphql/graphql-playground/tree/main/packages/graphql-playground-html/examples/xss-attack
 const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND === 'true'
-
+const { SbbolRoutes } = require('@condo/domains/organization/sbbol/routes')
 
 if (IS_ENABLE_DD_TRACE) {
     require('dd-trace').init({
@@ -85,9 +85,19 @@ const authStrategy = keystone.createAuthStrategy({
 })
 
 class OBSFilesMiddleware {
-    prepareMiddleware ({ keystone, dev, distDir }) {
+    prepareMiddleware ({ keystone }) {
         const app = express()
         app.use('/api/files/:file(*)', obsRouterHandler({ keystone }))
+        return app
+    }
+}
+
+class SberBuisnessOnlineMiddleware {
+    prepareMiddleware () {
+        const Auth = new SbbolRoutes()
+        const app = express()
+        app.get('/api/sbbol/auth', Auth.startAuth())
+        app.get('/api/sbbol/auth/callback',  Auth.completeAuth())
         return app
     }
 }
@@ -118,6 +128,7 @@ module.exports = {
             },
         }),
         new OBSFilesMiddleware(),
+        new SberBuisnessOnlineMiddleware(),
         new AdminUIApp({
             adminPath: '/admin',
             isAccessAllowed: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport)),
