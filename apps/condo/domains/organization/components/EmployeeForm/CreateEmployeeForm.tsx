@@ -105,7 +105,10 @@ export const CreateEmployeeForm: React.FC = () => {
     })
 
     const searchClassifers = (_, input) =>
-        classifiersLoader.search(input, TicketClassifierTypes.category)
+        // When user will try to select classifier items from existing list and will not type search query,
+        // not all classifier items will be presented and it will seem to user, like they are missing.
+        // Load all of them.
+        classifiersLoader.search(input, TicketClassifierTypes.category, { first: undefined })
             .then(result=>result.map((classifier)=> ({ text: classifier.name, value: classifier.id })))
         
     useEffect(()=> {
