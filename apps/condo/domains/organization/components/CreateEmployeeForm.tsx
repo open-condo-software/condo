@@ -136,7 +136,7 @@ export const CreateEmployeeForm: React.FC = () => {
                     values.role = { id: String(role) }
                 }
                 if (specializations) {
-                    values.specializations = { connect: specializations.map(id => ({ id })) }
+                    values.specializations = specializations.map(id => ({ id }))
                 }
                 return values
             }}
