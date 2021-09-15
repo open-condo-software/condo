@@ -13,7 +13,10 @@ import { EmployeeRoleSelect } from '../EmployeeRoleSelect'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { Rule } from 'rc-field-form/lib/interface'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
+import {
+    ClassifiersQueryRemote,
+    TicketClassifierTypes,
+} from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 import { find, get } from 'lodash'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 
@@ -58,8 +61,10 @@ export const UpdateEmployeeForm = () => {
     }
 
 
-    const searchClassifers = (_, input) => 
-        classifiersLoader.search(input, TicketClassifierTypes.category)
+    const searchClassifers = (_, input) =>
+        // We need to load all classifier items to have them pre-selected if a user have some classifier items,
+        // that are out of range, queried by ClassifiersQueryRemote with default variables
+        classifiersLoader.search(input, TicketClassifierTypes.category, { first: undefined })
             .then(result => result.map((classifier)=> ({ text: classifier.name, value: classifier.id })))
 
     useEffect(()=> {

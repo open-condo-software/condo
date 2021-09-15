@@ -6,7 +6,7 @@ import { useOrganization } from '@core/next/organization'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
 import { useApolloClient } from '@core/next/apollo'
-import { get, find, isEmpty } from 'lodash'
+import { get, find, isEmpty, first } from 'lodash'
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 import { Button } from '@condo/domains/common/components/Button'
 import {

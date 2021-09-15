@@ -7,6 +7,7 @@ import {
 } from '@condo/domains/ticket/gql'
 import { ApolloClient } from '@core/next/apollo'
 import { sortBy, isEmpty, filter } from 'lodash'
+import { QueryAllTicketCategoryClassifiersArgs, TicketCategoryClassifierWhereInput } from '../../../../schema'
 
 const MAX_SEARCH_COUNT = 20
 
@@ -24,7 +25,7 @@ export interface IClassifiersSearch {
     init: () => Promise<void>
     rulesToOptions: (rules: ITicketClassifierRuleUIState[], type: string) => Options[]
     findRules: (query: ITicketClassifierRuleWhereInput) => Promise<ITicketClassifierRuleUIState[]>
-    search: (input: string, type: string) => Promise<Options[]>
+    search: (input: string, type: string, variables: QueryAllTicketCategoryClassifiersArgs) => Promise<Options[]>
 }
 
 interface ILoadClassifierRulesVariables {
@@ -112,7 +113,7 @@ export class ClassifiersQueryLocal implements IClassifiersSearch {
 
 // We do not load all rules to client but load them on request (looks a little bit slow)
 
-async function searchClassifiers (client: ApolloClient, query, input: string) {
+async function searchClassifiers (client: ApolloClient, query, input: string, variables: any) {
     const data = await client.query({
         query,
         variables: {
@@ -121,21 +122,22 @@ async function searchClassifiers (client: ApolloClient, query, input: string) {
             },
             first: MAX_SEARCH_COUNT,
             sortBy: 'name_ASC',
+            ...variables,
         },
     })
     return data.data.objs
 }
-async function searchPlaceClassifiers (client: ApolloClient, input: string): Promise<Options[]> {
-    const result = await searchClassifiers(client, TicketPlaceClassifierGQL.GET_ALL_OBJS_QUERY, input)
+async function searchPlaceClassifiers (client: ApolloClient, input: string, variables: QueryAllTicketCategoryClassifiersArgs): Promise<Options[]> {
+    const result = await searchClassifiers(client, TicketPlaceClassifierGQL.GET_ALL_OBJS_QUERY, input, variables)
     return result
 }
-async function searchCategoryClassifiers (client: ApolloClient, input: string): Promise<Options[]> {
-    const result = await searchClassifiers(client, TicketCategoryClassifierGQL.GET_ALL_OBJS_QUERY, input)
+async function searchCategoryClassifiers (client: ApolloClient, input: string, variables: QueryAllTicketCategoryClassifiersArgs): Promise<Options[]> {
+    const result = await searchClassifiers(client, TicketCategoryClassifierGQL.GET_ALL_OBJS_QUERY, input, variables)
     return result
 }
 
-async function searchProblemClassifiers (client: ApolloClient, input: string): Promise<Options[]> {
-    const result = await searchClassifiers(client, TicketProblemClassifierGQL.GET_ALL_OBJS_QUERY, input)
+async function searchProblemClassifiers (client: ApolloClient, input: string, variables: QueryAllTicketCategoryClassifiersArgs): Promise<Options[]> {
+    const result = await searchClassifiers(client, TicketProblemClassifierGQL.GET_ALL_OBJS_QUERY, input, variables)
     return result
 }
 
@@ -177,8 +179,8 @@ export class ClassifiersQueryRemote implements IClassifiersSearch {
         return filtered
     }
 
-    public async search (input: string, type: string): Promise<Options[]> {
-        const result = await searchClassifiersByType[type](this.client, input)
+    public async search (input: string, type: string, variables: QueryAllTicketCategoryClassifiersArgs): Promise<Options[]> {
+        const result = await searchClassifiersByType[type](this.client, input, variables)
         return result
     }
 
