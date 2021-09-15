@@ -3,7 +3,7 @@ import JiraApi from 'jira-client'
 const octokit = new Octokit({
     auth: process.env.NOTIFICATION_BOT_CONFIG && JSON.parse(process.env.NOTIFICATION_BOT_CONFIG)?.github_auth_key,
 })
-const AVAILABLE_TASK_TYPES = ['SBERDOMA']
+const AVAILABLE_TASK_TYPES = ['SBERDOMA', 'DOMA']
 
 export const getPullRequestMessage = (link, userName, users) => (`
 ---------------------------------
