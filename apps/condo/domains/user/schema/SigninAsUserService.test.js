@@ -19,7 +19,7 @@ describe('SigninAsUserService', () => {
             const { data: { user } } = await supportClient.query(GET_MY_USERINFO)
             expect(user.id).toEqual(userClient.user.id)
         })
-        it('can not signin as admin user', async () => {
+        it('can not signin as an admin user', async () => {
             const supportClient = await makeClientWithSupportUser()
             const userClient = await makeClientWithSupportUser()
             await catchErrorFrom(async () => {
@@ -29,7 +29,7 @@ describe('SigninAsUserService', () => {
                 expect(data).toEqual({ 'result': null })
             })
         })
-        it('can not signin as support user', async () => {
+        it('can not signin as a support user', async () => {
             const supportClient = await makeClientWithSupportUser()
             const userClient = await makeLoggedInAdminClient()
             await catchErrorFrom(async () => {
@@ -41,7 +41,7 @@ describe('SigninAsUserService', () => {
         })
     })
     describe('User', () => {
-        it('can not signin as a another user', async () => {
+        it('can not signin as another user', async () => {
             const userClient = await makeLoggedInClient()
             const anotherUserClient = await makeLoggedInClient()
             await expectToThrowAccessDeniedErrorToResult(async () => {
