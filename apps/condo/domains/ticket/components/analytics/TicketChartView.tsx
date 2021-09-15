@@ -134,7 +134,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
             height: chartHeight,
         }
 
-        return <ChartViewContainer style={{ position: 'relative' }}>
+        return <ChartViewContainer>
             {isEmptyDataSet ? (
                 <>
                     <BasicEmptyListView>
