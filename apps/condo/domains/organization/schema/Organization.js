@@ -101,6 +101,27 @@ const Organization = new GQLListSchema('Organization', {
                 read: coreAccess.userIsNotResidentUser,
             },
         },
+        importRemoteSystem: {
+            schemaDoc: 'External provider for organization',
+            type: Text,
+            access: access.canAccessToImportField,
+            kmigratorOptions: { null: true, unique: false },
+        },
+        importId: {
+            schemaDoc: 'External system organization id. Used for integrations',
+            type: Text,
+            access: access.canAccessToImportField,
+            kmigratorOptions: { null: true, unique: false },
+        },
+    },
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['importId', 'importRemoteSystem'],
+                name: 'unique_organization_importid_and_importremotesystem',
+            },
+        ],
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
