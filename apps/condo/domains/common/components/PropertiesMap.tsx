@@ -14,8 +14,8 @@ export default function PropertiesMap ({ properties, ...mapGLProps }: Properties
 
     const propertyMapper = (property: PropertyType) => {
         const { geo_lat, geo_lon } = property.addressMeta.data
-        const geo_latNumber = parseInt(geo_lat) || 0
-        const geo_lonNumber = parseInt(geo_lon) || 0
+        const geo_latNumber = parseFloat(geo_lat) || 0
+        const geo_lonNumber = parseFloat(geo_lon) || 0
         return {
             title: property.name,
             text: property.address,
