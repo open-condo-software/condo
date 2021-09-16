@@ -1,4 +1,4 @@
-import { BankOutlined, CheckOutlined, CreditCardFilled, ProfileFilled, WechatFilled, UngroupOutlined } from '@ant-design/icons'
+import { BankOutlined, CheckOutlined, CreditCardFilled, ProfileFilled, WechatFilled } from '@ant-design/icons'
 import get from 'lodash/get'
 import Router, { useRouter } from 'next/router'
 import React, { createContext, useContext, useEffect } from 'react'
@@ -23,6 +23,7 @@ import {
     getStepType,
 } from '@condo/domains/onboarding/utils/stepUtils'
 import { OnBoardingStepType } from './OnBoardingStepItem'
+import { DivisionIcon } from '@condo/domains/common/components/icons/DivisionIcon'
 
 interface IDecoratedOnBoardingStepType extends Omit<IOnBoardingStep, 'action'> {
     stepAction: () => void,
@@ -44,7 +45,7 @@ const onBoardingIcons = {
     organization: BankOutlined,
     house: HouseIcon,
     user: UserIcon,
-    division: UngroupOutlined,
+    division: DivisionIcon,
     chat: WechatFilled,
     billing: ProfileFilled,
     creditCard: CreditCardFilled,
