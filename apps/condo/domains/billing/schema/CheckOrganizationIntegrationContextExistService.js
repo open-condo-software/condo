@@ -24,6 +24,7 @@ const CheckOrganizationIntegrationContextExistService = new GQLCustomSchema('Che
     
     queries: [
         {
+            schemaDoc: 'checks whether organization has set up and ready to use billing integration',
             access: access.canCheckOrganizationIntegrationContextExist,
             schema: 'checkOrganizationIntegrationContextExist (data: CheckOrganizationIntegrationContextExistInput!): CheckOrganizationIntegrationContextExistOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
@@ -34,6 +35,7 @@ const CheckOrganizationIntegrationContextExistService = new GQLCustomSchema('Che
 
                 const count = await BillingIntegrationOrganizationContext.count(context, {
                     organization: { id: organizationId },
+                    status: 'finished',
                 })
                 return {
                     isFound: count > 0,

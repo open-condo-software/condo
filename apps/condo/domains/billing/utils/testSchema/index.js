@@ -530,7 +530,7 @@ async function createContextWithOrganizationAndIntegrationAsAdmin() {
     const [organization] = await registerNewOrganization(admin)
     const [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
 
-    return { context, integration, organization }
+    return { admin, context, integration, organization }
 }
 
 async function createOrganizationIntegrationManager() {
