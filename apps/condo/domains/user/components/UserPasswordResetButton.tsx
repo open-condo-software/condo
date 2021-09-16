@@ -26,7 +26,7 @@ export const UserPasswordResetButton = () => {
             mutation: startPasswordRecovery,
             variables: {
                 data: {
-                    email: get(user, 'email'),
+                    phone: get(user, 'phone'),
                     ...meta,
                 },
             },
