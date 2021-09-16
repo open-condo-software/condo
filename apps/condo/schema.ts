@@ -6927,7 +6927,7 @@ export type InviteNewOrganizationEmployeeInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
   organization: OrganizationWhereUniqueInput;
-  email: Scalars['String'];
+  email?: Maybe<Scalars['String']>;
   phone: Scalars['String'];
   name?: Maybe<Scalars['String']>;
   role?: Maybe<OrganizationEmployeeRoleWhereUniqueInput>;
