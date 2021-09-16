@@ -7,7 +7,6 @@ import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { searchEmployeeUser } from '../../utils/clientSchema/search'
 import React, { useState } from 'react'
-import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 
 const TicketAssignments = ({ validations, organizationId, propertyId, disableUserInteraction, autoAssign, categoryClassifier, form }) => {
     const intl = useIntl()
@@ -119,31 +118,13 @@ const TicketAssignments = ({ validations, organizationId, propertyId, disableUse
         return result
     }
 
-    const executorEmployeeSelectorProps = hasFeature('division') ? {
-        formatLabel: formatUserFieldLabel,
-        renderOptions: renderOptionGroups,
-        search: searchEmployeeUser(organizationId, ({ role }) => (
-            get(role, 'canBeAssignedAsExecutor', false)
-        )),
-    } : {
-        search: searchEmployeeUser(organizationId),
-    }
-
-    const responsibleEmployeeSelectorProps =  hasFeature('division') ? {
-        search:searchEmployeeUser(organizationId, ({ role }) => (
-            get(role, 'canBeAssignedAsResponsible', false)
-        )),
-    } : {
-        search: searchEmployeeUser(organizationId),
-    }
-
     return (
         <Col span={24}>
             <Row justify={'space-between'} gutter={[0, 24]}>
                 <Col span={24}>
                     <Typography.Title level={5} style={{ margin: '0' }}>{TicketAssignmentTitle}</Typography.Title>
                 </Col>
-                {hasFeature('division') && autoAssign && propertyId && (
+                {autoAssign && propertyId && (
                     <Col span={24}>
                         <AutoAssignerByDivisions
                             organizationId={organizationId}
@@ -164,7 +145,11 @@ const TicketAssignments = ({ validations, organizationId, propertyId, disableUse
                             allowClear={false}
                             showArrow={false}
                             disabled={disableUserInteraction}
-                            {...executorEmployeeSelectorProps}
+                            formatLabel={formatUserFieldLabel}
+                            renderOptions={renderOptionGroups}
+                            search={searchEmployeeUser(organizationId, ({ role }) => (
+                                get(role, 'canBeAssignedAsExecutor', false)
+                            ))}
                         />
                     </Form.Item>
                 </Col>
@@ -179,7 +164,9 @@ const TicketAssignments = ({ validations, organizationId, propertyId, disableUse
                             allowClear={false}
                             showArrow={false}
                             disabled={disableUserInteraction}
-                            {...responsibleEmployeeSelectorProps}
+                            search={searchEmployeeUser(organizationId, ({ role }) => (
+                                get(role, 'canBeAssignedAsResponsible', false)
+                            ))}
                         />
                     </Form.Item>
                 </Col>

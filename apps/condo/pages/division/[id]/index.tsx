@@ -18,8 +18,6 @@ import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListVi
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { useObject, useSoftDelete } from '@condo/domains/division/utils/clientSchema/Division'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
-import Error from 'next/error'
-import { FeatureFlagRequired } from '@condo/domains/common/components/containers/FeatureFlag'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useTableColumns } from '@condo/domains/division/hooks/useTechniciansTableColumns'
@@ -156,7 +154,7 @@ function DivisionPage () {
     }
 
     return (
-        <FeatureFlagRequired name={'division'} fallback={<Error statusCode={404} />}>
+        <>
             <Head>
                 <title>{PageTitleMsg}</title>
             </Head>
@@ -186,7 +184,7 @@ function DivisionPage () {
                     </ActionBar>
                 </PageContent>
             </PageWrapper>
-        </FeatureFlagRequired>
+        </>
     )
 }
 
