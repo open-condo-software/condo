@@ -17,7 +17,6 @@ import {
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { ErrorsContainer } from '@condo/domains/organization/components/ErrorsContainer'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
-import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import { EmployeeRoleSelect } from '../EmployeeRoleSelect'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
@@ -206,10 +205,8 @@ export const CreateEmployeeForm: React.FC = () => {
                                                             const { role } = getFieldsValue(['role'])
                                                             const selectedRole = find(employeeRoles, { id: role })
 
-                                                            const isDivisionsEnabled = hasFeature('division')
-
                                                             return (
-                                                                isDivisionsEnabled && get(selectedRole, 'canBeAssignedAsExecutor') && (
+                                                                get(selectedRole, 'canBeAssignedAsExecutor') && (
                                                                     <Col span={24}>
                                                                         <Form.Item
                                                                             name={'specializations'}
