@@ -10,7 +10,7 @@ const { ServiceConsumer, Resident } = require('../utils/serverSchema')
 const { NOT_FOUND_ERROR, REQUIRED_NO_VALUE_ERROR } = require('@condo/domains/common/constants/errors')
 
 
-async function _getAccountsFromOrganizationIntegration (context, resident, unitName, accountNumber) {
+async function getAccountsFromOrganizationIntegration (context, resident, unitName, accountNumber) {
     const [userOrganization] = await Organization.getAll(context, { id : resident.organization.id })
     if (!userOrganization) {
         throw new Error(`${NOT_FOUND_ERROR}organization] Organization not found for this user`)
@@ -65,9 +65,17 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     throw new Error(`${NOT_FOUND_ERROR}resident] Resident not found for this user`)
                 }
 
-                const applicableBillingAccounts = await _getAccountsFromOrganizationIntegration(context, resident, unitName, accountNumber)
+                let applicableBillingAccounts
 
-                if (!Array.isArray(applicableBillingAccounts)) {
+
+                if (resident.organization) {
+                    applicableBillingAccounts = await getAccountsFromOrganizationIntegration(context, resident, unitName, accountNumber)
+                } else {
+                    // todo (toplenboren) learn what to do if there is B2C integration (like Unified Payment Service)
+                    applicableBillingAccounts = []
+                }
+
+                if (!Array.isArray(applicableBillingAccounts) || (applicableBillingAccounts.length === 0)) {
                     throw new Error(`${NOT_FOUND_ERROR}billingAccount] No suitable billing accounts found for this user`)
                 }
 
