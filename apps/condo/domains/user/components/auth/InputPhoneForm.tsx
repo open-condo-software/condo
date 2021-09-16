@@ -12,6 +12,8 @@ import Router from 'next/router'
 import React, { useCallback, useContext, useMemo, useState } from 'react'
 import { FormattedMessage } from 'react-intl'
 import { RegisterContext } from './RegisterContextProvider'
+import { FeatureFlagRequired, hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
+
 
 const FORM_LAYOUT = {
     labelCol: { span: 10 },
@@ -146,15 +148,16 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
                             </Button>
                         </Col>
                         <Col lg={24} xl={11}>
-                            <Tooltip title={NotImplementedYetMessage}>
+                            <FeatureFlagRequired name="sbbol_auth" >
                                 <Button
                                     secondary
                                     key='submit'
                                     type='sberPrimary'
+                                    href={hasFeature('sbbol_auth') ? '/api/sbbol/auth' : ''}
                                 >
                                     {SberIdRegisterMsg}
                                 </Button>
-                            </Tooltip>
+                            </FeatureFlagRequired>
                         </Col>
                     </Row>
                 </Col>
