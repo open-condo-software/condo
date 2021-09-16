@@ -7,6 +7,7 @@ import React  from 'react'
 import { useIntl } from '@core/next/intl'
 import { colors } from '../constants/style'
 import { transitions } from '@condo/domains/common/constants/style'
+import { ClientRenderedIcon } from './icons/ClientRenderedIcon'
 
 const IconWrapper = styled.div``
 
@@ -63,7 +64,7 @@ interface IMenuItemProps {
 }
 
 export const MenuItem: React.FC<IMenuItemProps> = (props) => {
-    const { path, icon: Icon, label, hideInMenu, disabled } = props
+    const { path, icon, label, hideInMenu, disabled } = props
     const { route } = useRouter()
     const intl = useIntl()
 
@@ -80,7 +81,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         <Link href={path}>
             <MenuItemWrapper className={menuItemClassNames}>
                 <IconWrapper className='icon'>
-                    <Icon/>
+                    <ClientRenderedIcon icon={icon}/>
                 </IconWrapper>
                 <Typography.Text className='label'>
                     {intl.formatMessage({ id: label })}
