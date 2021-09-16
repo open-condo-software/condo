@@ -18,6 +18,7 @@ const TicketAssignments = ({ validations, organizationId, propertyId, disableUse
     const ExecutorsOnThisDivisionLabel = intl.formatMessage({ id: 'ticket.assignments.executor.OnThisDivision' })
     const ExecutorsOnOtherDivisionsLabel = intl.formatMessage({ id: 'ticket.assignments.executor.OnOtherDivisions' })
     const OtherExecutors = intl.formatMessage({ id: 'ticket.assignments.executor.Other' })
+    const AllExecutors = intl.formatMessage({ id: 'ticket.assignments.executor.All' })
 
     const [divisions, setDivisions] = useState([])
 
@@ -112,6 +113,14 @@ const TicketAssignments = ({ validations, organizationId, propertyId, disableUse
             result.push(
                 <Select.OptGroup label={OtherExecutors}>
                     {otherTechniciansOptions.map(renderOption)}
+                </Select.OptGroup>
+            )
+        }
+        // TODO(antonal): check for component behaviour when no divisions is set and no classifiers attached to employees
+        if (!result.length) {
+            result.push(
+                <Select.OptGroup label={AllExecutors}>
+                    {employeeOptions.map(renderOption)}
                 </Select.OptGroup>
             )
         }

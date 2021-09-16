@@ -523,6 +523,7 @@
   "ticket.assignments.executor.OnThisDivision": "Employees on this division",
   "ticket.assignments.executor.OnOtherDivisions": "Employees on other divisions",
   "ticket.assignments.executor.Other": "Other employees",
+  "ticket.assignments.executor.All": "All employees",
   "OK": "OK",
   "Title": "Title",
   "profile.Update": "Editing my profile",
