@@ -82,11 +82,14 @@ const createExecutorRange = async (organizationWhereInput) => {
     const executorLoader = new GqlWithKnexLoadList({
         listKey: 'OrganizationEmployee',
         fields: 'id name',
+        singleRelations: [
+            ['User', 'user', 'id'],
+        ],
         where: { organization: organizationWhereInput },
     })
 
     const executors = await executorLoader.load()
-    return executors.map(executor => ({ label: executor.name, value: executor.id }))
+    return executors.map(executor => ({ label: executor.name, value: executor.user }))
 }
 
 // TODO(sitozzz): filter by assignee role
@@ -94,11 +97,14 @@ const createAssigneeRange = async (organizationWhereInput) => {
     const assigneeLoader = new GqlWithKnexLoadList({
         listKey: 'OrganizationEmployee',
         fields: 'id name',
+        singleRelations: [
+            ['User', 'user', 'id'],
+        ],
         where: { organization: organizationWhereInput },
     })
 
     const assignees = await assigneeLoader.load()
-    return assignees.map(assignee => ({ label: assignee.name, value: assignee.id }))
+    return assignees.map(assignee => ({ label: assignee.name, value: assignee.user }))
 }
 
 const getTicketCounts = async (context, where, groupBy, extraLabels = {}) => {
