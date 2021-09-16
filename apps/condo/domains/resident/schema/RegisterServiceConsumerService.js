@@ -10,7 +10,7 @@ const { ServiceConsumer, Resident } = require('../utils/serverSchema')
 const { NOT_FOUND_ERROR, REQUIRED_NO_VALUE_ERROR } = require('@condo/domains/common/constants/errors')
 
 
-async function _getAccountsFromOrganizationIntegration (context, resident, unitName, accountNumber) {
+async function getAccountsFromOrganizationIntegration (context, resident, unitName, accountNumber) {
     const [userOrganization] = await Organization.getAll(context, { id : resident.organization.id })
     if (!userOrganization) {
         throw new Error(`${NOT_FOUND_ERROR}organization] Organization not found for this user`)
@@ -65,10 +65,15 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     throw new Error(`${NOT_FOUND_ERROR}resident] Resident not found for this user`)
                 }
 
-                const applicableBillingAccounts = await _getAccountsFromOrganizationIntegration(context, resident, unitName, accountNumber)
+                let applicableBillingAccounts
 
-                if (!Array.isArray(applicableBillingAccounts)) {
-                    throw new Error(`${NOT_FOUND_ERROR}billingAccount] No suitable billing accounts found for this user`)
+                // todo(toplenboren) remove this once B2C integration case is ready
+                if (resident.organization) {
+                    applicableBillingAccounts = await getAccountsFromOrganizationIntegration(context, resident, unitName, accountNumber)
+                }
+
+                if (!Array.isArray(applicableBillingAccounts) || applicableBillingAccounts.length === 0) {
+                    throw new Error(`${NOT_FOUND_ERROR}account] BillingAccounts not found for this user`)
                 }
 
                 const attrs = {
