@@ -501,7 +501,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                             ...Object.entries(data).map(([key]) => ({ title: key, dataIndex: key, key, sorter: (a, b) => a[key] - b[key] })),
                         ]
 
-                        if (['categoryClassifier', 'executor', 'assignee'].includes(groupBy[1])) {
+                        if (TICKET_REPORT_TABLE_MAIN_GROUP.includes(groupBy[1])) {
                             tableColumns.unshift({
                                 title: translations[groupBy[1]],
                                 dataIndex: groupBy[1],
@@ -639,9 +639,22 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                             ...Object.entries(data).map(([key]) => ({ title: key, dataIndex: key, key, sorter: (a, b) => a[key] - b[key] })),
                         ]
 
+                        if (TICKET_REPORT_TABLE_MAIN_GROUP.includes(groupBy[1])) {
+                            tableColumns.unshift({
+                                title: translations[groupBy[1]],
+                                dataIndex: groupBy[1],
+                                key: groupBy[1],
+                                sorter: (a, b) => a[groupBy[1]] - b[groupBy[1]],
+                            })
+                        }
+
                         const restTableColumns = {}
                         const addressList = get(filters, 'address', [])
-                        const aggregateSummary = addressList !== undefined && addressList.length === 0
+                        const categoryClassifierList = get(filters, 'categoryClassifier', [])
+                        const executorList = get(filters, 'executor', [])
+                        const assigneeList = get(filters, 'assignee', [])
+                        const aggregateSummary = [addressList, categoryClassifierList, executorList, assigneeList]
+                            .every(filterList => filterList.length === 0)
                         if (aggregateSummary) {
                             const totalCount = Object.values(data)
                                 .reduce((prev, curr) => prev + sum(Object.values(curr)), 0)
@@ -656,32 +669,56 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                             dataSource.push({
                                 key: 0,
                                 address: translations['allAddresses'],
+                                categoryClassifier: translations['allCategoryClassifiers'],
+                                executor: translations['allExecutors'],
+                                assignee: translations['allAssignees'],
                                 ...restTableColumns,
                             })
                         } else {
                             const totalCounts = {}
                             Object.values(data).forEach((dataObj) => {
-                                Object.entries(dataObj).forEach(([propertyAddress, count]) => {
-                                    if (get(totalCounts, propertyAddress, false)) {
-                                        totalCounts[propertyAddress] += count
+                                Object.entries(dataObj).forEach(([aggregationField, count]) => {
+                                    if (get(totalCounts, aggregationField, false)) {
+                                        totalCounts[aggregationField] += count
                                     } else {
-                                        totalCounts[propertyAddress] = count
+                                        totalCounts[aggregationField] = count
                                     }
                                 })
                             })
-                            addressList.forEach((address, key) => {
-                                const tableRow = { key, address }
-                                Object.entries(data).forEach(rowEntry => {
-                                    const [ticketType, dataObj] = rowEntry
-                                    const counts = Object.entries(dataObj)
-                                        .filter(obj => obj[0] === address).map(e => e[1]) as number[]
-                                    const totalPropertyCount = sum(counts)
-                                    tableRow[ticketType] = totalCounts[address] > 0
-                                        ? (totalPropertyCount / totalCounts[address] * 100).toFixed(2) + ' %'
-                                        : totalCounts[address]
+                            const mainAggregation = TICKET_REPORT_TABLE_MAIN_GROUP.includes(groupBy[1]) ? get(filters, groupBy[1], []) : null
+                            // TODO(sitozzz): find clean solution for aggregation by 2 id_in fields
+                            if (mainAggregation === null) {
+                                addressList.forEach((address, key) => {
+                                    const tableRow = { key, address }
+                                    Object.entries(data).forEach(rowEntry => {
+                                        const [ticketType, dataObj] = rowEntry
+                                        const counts = Object.entries(dataObj)
+                                            .filter(obj => obj[0] === address).map(e => e[1]) as number[]
+                                        const totalPropertyCount = sum(counts)
+                                        tableRow[ticketType] = totalCounts[address] > 0
+                                            ? (totalPropertyCount / totalCounts[address] * 100).toFixed(2) + ' %'
+                                            : totalCounts[address]
+                                    })
+                                    dataSource.push(tableRow)
                                 })
-                                dataSource.push(tableRow)
-                            })
+                            } else {
+                                mainAggregation.forEach((aggregateField, key) => {
+                                    const tableRow = { key, [groupBy[1]]: aggregateField }
+                                    tableRow['address'] = addressList.length
+                                        ? addressList.join(', ')
+                                        : translations['allAddresses']
+                                    Object.entries(data).forEach(rowEntry => {
+                                        const [ticketType, dataObj] = rowEntry
+                                        const counts = Object.entries(dataObj)
+                                            .filter(obj => obj[0] === aggregateField).map(e => e[1]) as number[]
+                                        const totalPropertyCount = sum(counts)
+                                        tableRow[ticketType] = totalCounts[aggregateField] > 0
+                                            ? (totalPropertyCount / totalCounts[aggregateField] * 100).toFixed(2) + ' %'
+                                            : totalCounts[aggregateField]
+                                    })
+                                    dataSource.push(tableRow)
+                                })
+                            }
                         }
                         return { dataSource, tableColumns }
                     },

@@ -53,8 +53,7 @@ class TicketGqlToKnexAdapter extends GqlToKnexBaseAdapter {
                 ))
             )
         })
-        const whereInObject = {}
-        // TODO(sitozzz): add support for n groups of id_in filter
+        this.whereIn = {}
         // create whereIn structure [['property_id', 'user_id'], [['some_property_id', 'some_user_id'], ...]]
         this.where.filter(this.isWhereInCondition).reduce((filter, currentFilter) => {
             const [groupName, groupCondition] = Object.entries(currentFilter)[0]
@@ -63,7 +62,7 @@ class TicketGqlToKnexAdapter extends GqlToKnexBaseAdapter {
             if (!this.aggregateBy.includes(groupName)) {
                 this.aggregateBy.push(groupName)
             }
-            whereInObject[groupName] = groupIdArray.map(id => [id])
+            this.whereIn[groupName] = groupIdArray.map(id => [id])
             filterEntities.push(groupName)
             filterValues.push(...groupIdArray.map(id => [id]))
             return filter
@@ -76,18 +75,18 @@ class TicketGqlToKnexAdapter extends GqlToKnexBaseAdapter {
             query.select(knex.raw(`date_trunc('${this.dayGroup}',  "createdAt") as "dayGroup"`))
         }
 
-        switch (Object.keys(whereInObject).length) {
+        switch (Object.keys(this.whereIn).length) {
             case 2:
                 this.result = await query.groupBy(this.aggregateBy)
                     .where(where.reduce((acc, current) => ({ ...acc, ...current }), {}))
-                    .whereIn([Object.keys(whereInObject)[0]], Object.values(whereInObject)[0])
-                    .whereIn([Object.keys(whereInObject)[1]], Object.values(whereInObject)[1])
+                    .whereIn([Object.keys(this.whereIn)[0]], Object.values(this.whereIn)[0])
+                    .whereIn([Object.keys(this.whereIn)[1]], Object.values(this.whereIn)[1])
                     .whereBetween('createdAt', [this.dateRange.from, this.dateRange.to])
                 break
             case 1:
                 this.result = await query.groupBy(this.aggregateBy)
                     .where(where.reduce((acc, current) => ({ ...acc, ...current }), {}))
-                    .whereIn(Object.keys(whereInObject), Object.values(whereInObject)[0])
+                    .whereIn(Object.keys(this.whereIn), Object.values(this.whereIn)[0])
                     .whereBetween('createdAt', [this.dateRange.from, this.dateRange.to])
                 break
             default:
@@ -95,17 +94,6 @@ class TicketGqlToKnexAdapter extends GqlToKnexBaseAdapter {
                     .where(where.reduce((acc, current) => ({ ...acc, ...current }), {}))
                     .whereBetween('createdAt', [this.dateRange.from, this.dateRange.to])
         }
-
-        // if (whereIn[0].length && whereIn[1].length) {
-        //     this.result = await query.groupBy(this.aggregateBy)
-        //         .where(where.reduce((acc, current) => ({ ...acc, ...current }), {}))
-        //         .whereIn(whereIn[0], whereIn[1])
-        //         .whereBetween('createdAt', [this.dateRange.from, this.dateRange.to])
-        // } else {
-        //     this.result = await query.groupBy(this.aggregateBy)
-        //         .where(where.reduce((acc, current) => ({ ...acc, ...current }), {}))
-        //         .whereBetween('createdAt', [this.dateRange.from, this.dateRange.to])
-        // }
     }
 }
 
