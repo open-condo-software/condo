@@ -29,12 +29,17 @@ const propertySummaryPercentDataMapper = require('@condo/domains/ticket/utils/se
 
 const PERCENT_AGGREGATION_TOKENS = ['property-status']
 
-const createPropertyRange = async (organizationWhereInput) => {
-    const propertyLoader = new GqlWithKnexLoadList({
+const createPropertyRange = async (organizationWhereInput, whereIn) => {
+    const gqlLoaderOptions = {
         listKey: 'Property',
         fields: 'id address',
-        where: { organization: organizationWhereInput },
-    })
+        where: { organization: organizationWhereInput, deletedAt: null },
+    }
+    const propertyFilter = get(whereIn, 'property', false)
+    if (propertyFilter) {
+        gqlLoaderOptions['where']['id_in'] = propertyFilter.flatMap(id => id)
+    }
+    const propertyLoader = new GqlWithKnexLoadList(gqlLoaderOptions)
     const properties = await propertyLoader.load()
     return properties.map( property => ({ label: property.address, value: property.id }))
 }
@@ -56,11 +61,18 @@ const createStatusRange = async (context, organizationWhereInput, labelKey = 'na
     return sortStatusesByType(allStatuses).map(status => ({ label: status[labelKey], value: status.id, color: status.colors.primary }))
 }
 
-const createCategoryClassifierRange = async (organizationWhereInput) => {
-    const categoryClassifierLoader = new GqlWithKnexLoadList({
+const createCategoryClassifierRange = async (organizationWhereInput, whereIn) => {
+    const gqlLoaderOptions = {
         listKey: 'TicketCategoryClassifier',
         fields: 'id name organization',
-    })
+    }
+    const categoryClassifierFilter = get(whereIn, 'categoryClassifier', false)
+    if (categoryClassifierFilter) {
+        gqlLoaderOptions['where'] = {
+            id_in: categoryClassifierFilter.flatMap(id => id),
+        }
+    }
+    const categoryClassifierLoader = new GqlWithKnexLoadList(gqlLoaderOptions)
     const classifiers = await categoryClassifierLoader.load()
     return classifiers.map(classifier => ({ label: classifier.name, value: classifier.id }))
 }
@@ -106,7 +118,7 @@ const getTicketCounts = async (context, where, groupBy, extraLabels = {}) => {
     for (const group of groupBy) {
         switch (group) {
             case 'property':
-                translates[group] = await createPropertyRange(where.organization)
+                translates[group] = await createPropertyRange(where.organization, ticketGqlToKnexAdapter.whereIn)
                 options[group] = translates[group].map(({ label }) => label)
                 break
             case 'status':
@@ -120,7 +132,7 @@ const getTicketCounts = async (context, where, groupBy, extraLabels = {}) => {
                 options['dayGroup'] = enumerateDaysBetweenDates(ticketGqlToKnexAdapter.dateRange.from, ticketGqlToKnexAdapter.dateRange.to, group)
                 break
             case 'categoryClassifier':
-                translates[group] = await createCategoryClassifierRange(where.organization)
+                translates[group] = await createCategoryClassifierRange(where.organization,  ticketGqlToKnexAdapter.whereIn)
                 options[group] = translates[group].map(({ label }) => label)
                 break
             case 'executor':

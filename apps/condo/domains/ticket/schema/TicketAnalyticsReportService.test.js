@@ -95,7 +95,6 @@ describe('TicketAnalyticsReportService', () => {
         })
 
         it('can read TicketAnalyticsReportService with property and categoryClassifier filter', async () => {
-            // TODO(sitozzz): check filter is working
             const admin = await makeLoggedInAdminClient()
             const client = await makeClientWithProperty()
             const [categoryClassifier] = await createTestTicketCategoryClassifier(admin)
@@ -107,7 +106,7 @@ describe('TicketAnalyticsReportService', () => {
             const dateStart = dayjs().startOf('week')
             const dateEnd = dayjs().endOf('week')
 
-            const { data: { result: groups } } = await client.query(TICKET_ANALYTICS_REPORT_QUERY, {
+            const { data: { result: { groups } } } = await client.query(TICKET_ANALYTICS_REPORT_QUERY, {
                 dv: 1,
                 sender: { dv: 1, fingerprint: 'tests' },
                 data: {
@@ -127,6 +126,7 @@ describe('TicketAnalyticsReportService', () => {
             })
             expect(groups).toBeDefined()
             expect(groups.length).toBeGreaterThanOrEqual(1)
+            expect(groups.every(group => group.categoryClassifier === categoryClassifier.name)).toBeTruthy()
         })
 
         it('can not read TicketAnalyticsReportService from another organization', async () => {
