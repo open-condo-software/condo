@@ -8,14 +8,13 @@ const { Property: PropertyAPI } = require('@condo/domains/property/utils/serverS
 const { EMPTY_DATA_EXPORT_ERROR } = require('@condo/domains/common/constants/errors')
 const dayjs = require('dayjs')
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
+const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema/')
 
-// as we have limits in query we need to fetch all properties by chunks
-const CHUNK_SIZE = 50
 
 // TODO(zuch): use workers for export
 const ExportPropertiesToExcelService = new GQLCustomSchema('ExportPropertiesToExcelService', {
     types: [
-        { 
+        {
             access: true,
             type: 'input ExportPropertiesToExcelInput { where: PropertyWhereInput!, sortBy: [SortPropertiesBy!] }',
         },
@@ -24,22 +23,19 @@ const ExportPropertiesToExcelService = new GQLCustomSchema('ExportPropertiesToEx
             type: 'type ExportPropertiesToExcelOutput { status: String!, linkToFile: String!  }',
         },
     ],
-    
+
     queries: [
         {
             access: access.canExportPropertiesToExcel,
             schema: 'exportPropertiesToExcel (data: ExportPropertiesToExcelInput!): ExportPropertiesToExcelOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { where, sortBy } = args.data
-                let skip = 0
-                let iterationsLimit = 1000
-                let newchunk = []
-                let allProperties = []
-                do {
-                    newchunk = await PropertyAPI.getAll(context, where, { sortBy, first: CHUNK_SIZE, skip: skip })
-                    allProperties = allProperties.concat(newchunk)
-                    skip += newchunk.length
-                } while (--iterationsLimit > 0 && newchunk.length)
+                const allProperties = await loadListByChunks({
+                    context,
+                    list: PropertyAPI,
+                    where,
+                    sortBy,
+                })
                 if (allProperties.length === 0) {
                     throw new Error(`${EMPTY_DATA_EXPORT_ERROR}] empty export file`)
                 }
@@ -65,7 +61,7 @@ const ExportPropertiesToExcelService = new GQLCustomSchema('ExportPropertiesToEx
             },
         },
     ],
-    
+
 })
 
 module.exports = {

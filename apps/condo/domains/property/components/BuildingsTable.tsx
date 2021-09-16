@@ -101,7 +101,14 @@ export default function BuildingsTable (props: BuildingTableProps) {
     )
 
     const [columns, propertyNormalizer, propertyValidator, propertyCreator] = useImporterFunctions()
-    const filtersWithOrganizations = useMemo(() => ({ ...filtersToWhere(filters), organization: { id: organization.id } }), [filters, filtersToWhere, organization.id])
+
+    // TODO(zuch): find out why we need to pass deletedAt: null to exclude deleted objects
+    const filtersWithOrganizations = useMemo(() => ({
+        ...filtersToWhere(filters),
+        deletedAt: null,
+        organization: { id: organization.id },
+    }), [filters, filtersToWhere, organization.id])
+
     // TODO(mrfoxpro): move to common
     const applyFiltersToQuery = (newFilters) => {
         const query = { ...router.query, filters: JSON.stringify(newFilters) }
