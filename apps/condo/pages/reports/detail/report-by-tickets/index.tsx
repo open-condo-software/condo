@@ -41,6 +41,7 @@ import TicketChartView from '@condo/domains/ticket/components/analytics/TicketCh
 import TicketListView from '@condo/domains/ticket/components/analytics/TicketListView'
 import { DATE_DISPLAY_FORMAT, TICKET_REPORT_DAY_GROUP_STEPS } from '@condo/domains/ticket/constants/common'
 import { TicketGroupedCounter, TicketLabel } from '../../../../schema'
+import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 
 dayjs.extend(quarterOfYear)
 
@@ -544,10 +545,16 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
             loadTicketAnalytics({ variables: { data: { groupBy, where } } })
         }
     }, [userOrganizationId, viewMode, ticketType, groupTicketsBy])
+    const propertyPageEnabled = hasFeature('analytics_property')
 
     useEffect(() => {
         const queryParams = getQueryParams()
-        setGroupTicketsBy(get(queryParams, 'groupTicketsBy', 'status'))
+        // TODO(sitozzz): remove when analytics_property feature flag is removed
+        if (propertyPageEnabled) {
+            setGroupTicketsBy(get(queryParams, 'groupTicketsBy', 'status'))
+        } else {
+            setGroupTicketsBy('status')
+        }
         setViewMode(get(queryParams, 'viewMode', 'line'))
     }, [])
 
@@ -644,7 +651,11 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                             }}
                         >
                             <Tabs.TabPane key='status' tab={StatusFilterLabel} />
-                            <Tabs.TabPane key='property' tab={PropertyFilterLabel} />
+                            <Tabs.TabPane
+                                key='property'
+                                tab={PropertyFilterLabel}
+                                disabled={!propertyPageEnabled}
+                            />
                             <Tabs.TabPane disabled key='category' tab={CategoryFilterLabel} />
                             <Tabs.TabPane disabled key='user' tab={UserFilterLabel} />
                             <Tabs.TabPane disabled key='responsible' tab={ResponsibleFilterLabel} />
