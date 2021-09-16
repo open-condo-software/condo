@@ -18,7 +18,6 @@ const TicketAssignments = ({ validations, organizationId, propertyId, disableUse
     const ExecutorsOnThisDivisionLabel = intl.formatMessage({ id: 'ticket.assignments.executor.OnThisDivision' })
     const ExecutorsOnOtherDivisionsLabel = intl.formatMessage({ id: 'ticket.assignments.executor.OnOtherDivisions' })
     const OtherExecutors = intl.formatMessage({ id: 'ticket.assignments.executor.Other' })
-    const AllExecutors = intl.formatMessage({ id: 'ticket.assignments.executor.All' })
 
     const [divisions, setDivisions] = useState([])
 
@@ -67,7 +66,6 @@ const TicketAssignments = ({ validations, organizationId, propertyId, disableUse
         const [currentDivision, ...otherDivisions] = divisions
         let techniciansOnDivisionOptions = []
         let techniciansOnOtherDivisionsOptions = []
-        let otherTechniciansOptions = []
 
         if (currentDivision) {
             const techniciansOnDivision = getTechniciansFrom(currentDivision)
@@ -86,44 +84,41 @@ const TicketAssignments = ({ validations, organizationId, propertyId, disableUse
                     'id',
                 )
 
-
             techniciansOnOtherDivisionsOptions = techniciansOnOtherDivisions.map(convertToOption)
+        }
 
-            otherTechniciansOptions = differenceBy(employeeOptions, [
-                ...techniciansOnDivisionOptions,
-                ...techniciansOnOtherDivisionsOptions,
-            ], 'value')
-        }
+        const otherTechniciansOptions = differenceBy(employeeOptions, [
+            ...techniciansOnDivisionOptions,
+            ...techniciansOnOtherDivisionsOptions,
+        ], 'value')
+
         const result = []
-        if (techniciansOnDivisionOptions.length > 0) {
-            result.push(
-                <Select.OptGroup label={ExecutorsOnThisDivisionLabel}>
-                    {techniciansOnDivisionOptions.map(renderOption)}
-                </Select.OptGroup>
-            )
+        if (!currentDivision || techniciansOnDivisionOptions.length === 0 && techniciansOnOtherDivisionsOptions.length === 0) {
+            result.push(otherTechniciansOptions.map(renderOption))
+        } else {
+            if (techniciansOnDivisionOptions.length > 0) {
+                result.push(
+                    <Select.OptGroup label={ExecutorsOnThisDivisionLabel}>
+                        {techniciansOnDivisionOptions.map(renderOption)}
+                    </Select.OptGroup>
+                )
+            }
+            if (techniciansOnOtherDivisionsOptions.length > 0) {
+                result.push(
+                    <Select.OptGroup label={ExecutorsOnOtherDivisionsLabel}>
+                        {techniciansOnOtherDivisionsOptions.map(renderOption)}
+                    </Select.OptGroup>
+                )
+            }
+            if (otherTechniciansOptions.length > 0) {
+                result.push(
+                    <Select.OptGroup label={OtherExecutors}>
+                        {otherTechniciansOptions.map(renderOption)}
+                    </Select.OptGroup>
+                )
+            }
         }
-        if (techniciansOnOtherDivisionsOptions.length > 0) {
-            result.push(
-                <Select.OptGroup label={ExecutorsOnOtherDivisionsLabel}>
-                    {techniciansOnOtherDivisionsOptions.map(renderOption)}
-                </Select.OptGroup>
-            )
-        }
-        if (otherTechniciansOptions.length > 0) {
-            result.push(
-                <Select.OptGroup label={OtherExecutors}>
-                    {otherTechniciansOptions.map(renderOption)}
-                </Select.OptGroup>
-            )
-        }
-        // TODO(antonal): check for component behaviour when no divisions is set and no classifiers attached to employees
-        if (!result.length) {
-            result.push(
-                <Select.OptGroup label={AllExecutors}>
-                    {employeeOptions.map(renderOption)}
-                </Select.OptGroup>
-            )
-        }
+
         return result
     }
 
