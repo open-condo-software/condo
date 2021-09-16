@@ -18,7 +18,7 @@ const User = generateGQLTestUtils(UserGQL)
 const UserAdmin = generateGQLTestUtils(UserAdminGQL)
 
 const createTestEmail = () => ('test.' + getRandomString() + '@example.com').toLowerCase()
-const createTestPhone = () => '+18170' + String(Math.random()).slice(2).slice(-6)
+const createTestPhone = () => faker.phone.phoneNumber('+79#########')
 
 const {
     SMS_CODE_TTL,
