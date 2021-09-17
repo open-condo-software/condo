@@ -153,16 +153,36 @@ class SbbolOrganization {
         }
     }
 
-    async updateOrganizationRefreshToken ({ refresh_token }) {
-        const organizationId = get(this.organization, 'id')
-        if (organizationId) {
-            await updateItem({ listKey: 'Organization', item: {
-                id: organizationId,
-                data: {
-                    sbbolRefreshToken: refresh_token,
-                    sbbolRefreshTokenExpiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL * 1000).toISOString(),
-                },
-            }, ...this.context })
+    async updateTokens (info) {
+        const { access_token, expires_at, refresh_token } = info
+        const owner = {
+            organization: {
+                id: get(this.organization, 'id'),
+            },
+            user: {
+                id: get(this.user, 'id'),
+            },
+        }
+        console.log('===== getItems > Start')
+        const [currentTokenSetId] = await getItems({ ...this.context, listKey: 'TokenSet', where: { ...owner }, returnFields: 'id' })
+        console.log('===== getItems > End')
+        const item = {
+            organization: owner.organization.id,
+            user: { id: owner.user.id },
+            accessToken: access_token,
+            refreshToken: refresh_token,
+            accessTokenExpiresAt: new Date(Date.now() + expires_at).toISOString(),
+            refreshTokenExpiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL * 1000).toISOString(),
+        }
+        console.log('item is item', item)
+        if (currentTokenSetId) {
+            console.log('===== updateItem > Start')
+            await updateItem({ listKey: 'TokenSet', item, ...this.context })
+            console.log('===== updateItem > End')
+        } else {
+            console.log('===== createItem > Start')
+            await createItem({ listKey: 'TokenSet', item, ...this.context })
+            console.log('===== createItem > End')
         }
     }
 
