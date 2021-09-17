@@ -77,34 +77,42 @@ const createCategoryClassifierRange = async (organizationWhereInput, whereIn) =>
     return classifiers.map(classifier => ({ label: classifier.name, value: classifier.id }))
 }
 
-// TODO(sitozzz): filter by executor role
-const createExecutorRange = async (organizationWhereInput) => {
-    const executorLoader = new GqlWithKnexLoadList({
+const createExecutorRange = async (organizationWhereInput, whereIn) => {
+    const gqlLoaderOptions = {
         listKey: 'OrganizationEmployee',
         fields: 'id name',
-        singleRelations: [
-            ['User', 'user', 'id'],
-        ],
-        where: { organization: organizationWhereInput },
-    })
-
+        singleRelations: [['User', 'user', 'id']],
+        where: { organization: organizationWhereInput, role: { canBeAssignedAsExecutor: true } },
+    }
+    const executorFilter = get(whereIn, 'executor', false)
+    const executorLoader = new GqlWithKnexLoadList(gqlLoaderOptions)
     const executors = await executorLoader.load()
-    return executors.map(executor => ({ label: executor.name, value: executor.user }))
+    const executorLambda = (executor) => ({ label: executor.name, value: executor.user })
+
+    if (executorFilter) {
+        const executorIds = executorFilter.flatMap(id => id)
+        return executors.filter(executor => executorIds.includes(executor.user)).map(executorLambda)
+    }
+    return executors.map(executorLambda)
 }
 
-// TODO(sitozzz): filter by assignee role
-const createAssigneeRange = async (organizationWhereInput) => {
-    const assigneeLoader = new GqlWithKnexLoadList({
+const createAssigneeRange = async (organizationWhereInput, whereIn) => {
+    const gqlLoaderOptions = {
         listKey: 'OrganizationEmployee',
         fields: 'id name',
-        singleRelations: [
-            ['User', 'user', 'id'],
-        ],
-        where: { organization: organizationWhereInput },
-    })
-
+        singleRelations: [['User', 'user', 'id']],
+        where: { organization: organizationWhereInput, role: { canBeAssignedAsResponsible: true } },
+    }
+    const assigneeFilter = get(whereIn, 'assignee', false)
+    const assigneeLoader = new GqlWithKnexLoadList(gqlLoaderOptions)
     const assignees = await assigneeLoader.load()
-    return assignees.map(assignee => ({ label: assignee.name, value: assignee.user }))
+    const assigneeLambda = (assignee) => ({ label: assignee.name, value: assignee.user })
+
+    if (assigneeFilter) {
+        const assigneeIds = assigneeFilter.flatMap(id => id)
+        return assignees.filter(assignee => assigneeIds.includes(assignee.user)).map(assigneeLambda)
+    }
+    return assignees.map(assigneeLambda)
 }
 
 const getTicketCounts = async (context, where, groupBy, extraLabels = {}) => {
@@ -135,18 +143,22 @@ const getTicketCounts = async (context, where, groupBy, extraLabels = {}) => {
                 break
             case 'day':
             case 'week':
-                options['dayGroup'] = enumerateDaysBetweenDates(ticketGqlToKnexAdapter.dateRange.from, ticketGqlToKnexAdapter.dateRange.to, group)
+                options['dayGroup'] = enumerateDaysBetweenDates(
+                    ticketGqlToKnexAdapter.dateRange.from, ticketGqlToKnexAdapter.dateRange.to, group
+                )
                 break
             case 'categoryClassifier':
-                translates[group] = await createCategoryClassifierRange(where.organization,  ticketGqlToKnexAdapter.whereIn)
+                translates[group] = await createCategoryClassifierRange(
+                    where.organization,  ticketGqlToKnexAdapter.whereIn
+                )
                 options[group] = translates[group].map(({ label }) => label)
                 break
             case 'executor':
-                translates[group] = await createExecutorRange(where.organization)
+                translates[group] = await createExecutorRange(where.organization, ticketGqlToKnexAdapter.whereIn)
                 options[group] = translates[group].map(({ label }) => label)
                 break
             case 'assignee':
-                translates[group] = await createAssigneeRange(where.organization)
+                translates[group] = await createAssigneeRange(where.organization, ticketGqlToKnexAdapter.whereIn)
                 options[group] = translates[group].map(({ label }) => label)
                 break
             default:
