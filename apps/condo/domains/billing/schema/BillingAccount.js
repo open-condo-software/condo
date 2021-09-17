@@ -34,7 +34,6 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
             type: Text,
             isRequired: false,
             kmigratorOptions: {
-                unique: false,
                 null: true,
             },
         },
