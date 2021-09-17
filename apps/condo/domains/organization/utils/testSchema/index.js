@@ -279,7 +279,8 @@ module.exports = {
     updateTestOrganizationEmployee, createTestOrganizationWithAccessToAnotherOrganization,
     OrganizationLink, createTestOrganizationLink, updateTestOrganizationLink,
     makeEmployeeUserClientWithAbilities,
+    TokenSet, createTestTokenSet, updateTestTokenSet,
 }
 
-        TokenSet, createTestTokenSet, updateTestTokenSet,
+
 /* AUTOGENERATE MARKER <EXPORTS> */
