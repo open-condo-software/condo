@@ -6,13 +6,14 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { FeatureFlagRequired } from '@condo/domains/common/components/containers/FeatureFlag'
 import { Typography } from 'antd'
+import { PaymentsRegisterTable } from '@condo/domains/billing/components/PaymentsPageContent/PaymentsRegisterTable'
 
 const PaymentsRegisterPage = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'menu.PaymentsRegister' })
 
     return (
-        <FeatureFlagRequired name={'paymentsRegistry'}>
+        <FeatureFlagRequired name={'paymentsRegister'}>
             <Head>
                 <title>
                     {PageTitle}
@@ -21,7 +22,8 @@ const PaymentsRegisterPage = () => {
             <PageWrapper>
                 <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitle}</Typography.Title>}/>
                 <PageContent>
-                    CONTENT WILL BE HERE
+                    {/*TODO (savelevMatthew): write wrapper for access / state checks*/}
+                    <PaymentsRegisterTable/>
                 </PageContent>
             </PageWrapper>
         </FeatureFlagRequired>

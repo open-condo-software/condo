@@ -30,7 +30,7 @@ export const usePaymentsTableColumns = (currencyMark: string, currencyDivider: s
         // TODO (savelevMatthew): Check filters / sorters / dataIndexes
         const dateDataIndex = 'date'
         const accountNumberDataIndex = ['account', 'number']
-        const propertyDataIndex = ['property', 'address']
+        const propertyDataIndex = ['property']
         const typeDataIndex = 'type'
         const transactionDataIndex = ['transaction']
         const toPayDataIndex = 'toPay'
@@ -111,6 +111,7 @@ export const usePaymentsTableColumns = (currencyMark: string, currencyDivider: s
                 filterIcon: getFilterIcon,
                 filterDropdown: getTextFilterDropdown(AmountTitle),
                 render: getMoneyRender(searchValue, currencyMark, currencyDivider),
+                align: 'right',
             },
         ]
     }, [

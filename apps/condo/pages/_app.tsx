@@ -96,7 +96,7 @@ const MenuItems: React.FC = () => {
                     disabled={!link}
                 />
             </FeatureFlagRequired>
-            <FeatureFlagRequired name={'paymentsRegistry'}>
+            <FeatureFlagRequired name={'paymentsRegister'}>
                 <MenuItem
                     path={'/payments'}
                     icon={WalletFilled}
