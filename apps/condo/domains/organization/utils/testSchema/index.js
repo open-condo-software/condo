@@ -14,12 +14,14 @@ const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegenera
 const { Organization: OrganizationGQL, OrganizationEmployee: OrganizationEmployeeGQL, OrganizationEmployeeRole: OrganizationEmployeeRoleGQL } = require('@condo/domains/organization/gql')
 const { OrganizationLink: OrganizationLinkGQL } = require('@condo/domains/organization/gql');
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
+const { TokenSet: TokenSetGQL } = require('@condo/domains/organization/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OrganizationEmployeeRole = generateGQLTestUtils(OrganizationEmployeeRoleGQL)
 const Organization = generateGQLTestUtils(OrganizationGQL)
 const OrganizationEmployee = generateGQLTestUtils(OrganizationEmployeeGQL)
 const OrganizationLink = generateGQLTestUtils(OrganizationLinkGQL)
+const TokenSet = generateGQLTestUtils(TokenSetGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestOrganization (client, extraAttrs = {}) {
@@ -227,6 +229,41 @@ async function makeEmployeeUserClientWithAbilities (abilities = {}) {
     return userClient
 }
 
+async function createTestTokenSet (client, user, organization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!user || !user.id) throw new Error('no user.id')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestTokenSet logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        user: { connect: { id: user.id } },
+        organization: { connect: { id: organization.id } },
+        ...extraAttrs,
+    }
+    const obj = await TokenSet.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestTokenSet (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestTokenSet logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await TokenSet.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -244,4 +281,5 @@ module.exports = {
     makeEmployeeUserClientWithAbilities,
 }
 
-    /* AUTOGENERATE MARKER <EXPORTS> */
+        TokenSet, createTestTokenSet, updateTestTokenSet,
+/* AUTOGENERATE MARKER <EXPORTS> */
