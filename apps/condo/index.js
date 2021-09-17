@@ -96,8 +96,9 @@ class SberBuisnessOnlineMiddleware {
     prepareMiddleware () {
         const Auth = new SbbolRoutes()
         const app = express()
-        app.get('/api/sbbol/auth', Auth.startAuth)
-        app.get('/api/sbbol/auth/callback',  Auth.completeAuth)
+        // TODO(zuch): find a way to remove bind
+        app.get('/api/sbbol/auth', Auth.startAuth.bind(Auth))
+        app.get('/api/sbbol/auth/callback',  Auth.completeAuth.bind(Auth))
         return app
     }
 }
