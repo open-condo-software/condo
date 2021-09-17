@@ -347,6 +347,10 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     const AllAddressTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllAddresses' })
     const SingleAddress = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.SingleAddress' })
     const AllCategories = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.AllCategories' })
+    const AllCategoryClassifiersTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllClassifiers' })
+    const AllExecutorsTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllExecutors' })
+    const AllAssigneesTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllAssignees' })
+
     const TableTitle = intl.formatMessage({ id: 'Table' })
     const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
     const PrintTitle = intl.formatMessage({ id: 'Print' })
@@ -356,7 +360,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
-    const filtersRef = useRef(null)
+    const filtersRef = useRef<null | ticketAnalyticsPageFilters>(null)
     const mapperInstanceRef = useRef(null)
     const ticketLabelsRef = useRef<TicketLabel[]>([])
     const [groupTicketsBy, setGroupTicketsBy] = useState<GroupTicketsByTypes>('status')
@@ -509,6 +513,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         }
 
                         const restTableColumns = {}
+                        // TODO(sitozzz): clear filter on tab change or get current array
                         const addressList = get(filters, 'address', [])
                         const categoryClassifierList = get(filters, 'categoryClassifier', [])
                         const executorList = get(filters, 'executor', [])
@@ -776,10 +781,20 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
         () => {
             const { AND, groupBy } = filterToQuery({ filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy })
             const where = { organization: { id: userOrganizationId }, AND }
+            const filters = filtersRef.current
             const translates = {
-                property: filtersRef.current.addressList.length ?
-                    filtersRef.current.addressList.map(({ value }) => value).join('@')
+                property: filters.addressList.length
+                    ? filters.addressList.map(({ value }) => value).join('@')
                     : AllAddressTitle,
+                categoryClassifier: filters.classifierList
+                    ? filters.classifierList.map(({ value }) => value).join('@')
+                    : AllCategoryClassifiersTitle,
+                executors: filters.executorList.length
+                    ? filters.executorList.map(({ value }) => value).join('@')
+                    : AllExecutorsTitle,
+                assignee: filters.responsibleList.length
+                    ? filters.responsibleList.map(({ value }) => value).join('@')
+                    : AllAssigneesTitle,
             }
 
             exportTicketAnalyticsToExcel({ variables: { data: { groupBy, where, translates } } })
@@ -909,7 +924,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                 filters={filtersRef.current}
                                 mapperInstance={mapperInstanceRef.current}
                             />
-                        ), [analyticsData, loading, viewMode, ticketType, userOrganizationId])}
+                        ), [analyticsData, loading, viewMode, ticketType, userOrganizationId, groupTicketsBy])}
                     </Col>
                     <ActionBar fullscreen>
                         <Button disabled={isControlsDisabled || isEmpty(analyticsData)} onClick={printPdf} icon={<FilePdfFilled />} type='sberPrimary' secondary>
