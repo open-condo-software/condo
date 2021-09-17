@@ -28,7 +28,10 @@ const BillingProperty = new GQLListSchema('BillingProperty', {
             schemaDoc: 'A well-known universal identifier that allows you to identify the same objects in different systems. It may differ in different countries. Example: for Russia, the FIAS ID is used',
             type: Text,
             isRequired: true,
-            kmigratorOptions: { unique: true, null: false },
+            kmigratorOptions: {
+                unique: false,
+                null: false,
+            },
         },
 
         address: {
@@ -52,6 +55,15 @@ const BillingProperty = new GQLListSchema('BillingProperty', {
         update: access.canManageBillingProperties,
         delete: false,
         auth: true,
+    },
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['context', 'globalId'],
+                name: 'unique_context_and_fias_id',
+            },
+        ],
     },
 })
 
