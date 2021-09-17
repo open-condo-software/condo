@@ -30,6 +30,9 @@ import { OnBoardingProvider } from '../domains/onboarding/components/OnBoardingC
 import { FeatureFlagRequired } from '@condo/domains/common/components/containers/FeatureFlag'
 import { FocusContextProvider } from '../domains/common/components/Focus/FocusContextProvider'
 import { OnBoardingProgressIconContainer } from '@condo/domains/onboarding/components/OnBoardingProgressIconContainer'
+import {
+    BILLING_RECEIPT_SERVICES_FIELD,
+} from '@condo/domains/billing/constants'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
@@ -151,7 +154,14 @@ async function messagesImporter (locale) {
     For those items, we need to set `concatPagination` strategy.
     https://www.apollographql.com/docs/react/pagination/core-api/
  */
-const apolloCacheConfig = {}
+const apolloCacheConfig = {
+    typePolicies: {
+        [BILLING_RECEIPT_SERVICES_FIELD]: {
+            // avoiding of building cache from ID on client, since Service ID is not UUID and will be repeated
+            keyFields: false,
+        },
+    },
+}
 
 const apolloClientConfig = {
     defaultOptions: {
