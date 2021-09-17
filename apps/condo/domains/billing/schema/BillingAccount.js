@@ -33,7 +33,10 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
                 'Example: for Russia, the dom.gosuslugi.ru account number is used',
             type: Text,
             isRequired: false,
-            kmigratorOptions: { unique: true, null: true },
+            kmigratorOptions: {
+                unique: false,
+                null: true,
+            },
         },
 
         number: {
@@ -88,6 +91,15 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
                 return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
             }
         },
+    },
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['context', 'globalId'],
+                name: 'unique_context_and_id',
+            },
+        ],
     },
 })
 
