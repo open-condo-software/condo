@@ -17,7 +17,6 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { CREATE_ONBOARDING_MUTATION } from '@condo/domains/onboarding/gql'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
-
 const RegisterPage: AuthPage = () => {
     const intl = useIntl()
     const RegistrationTitleMsg = intl.formatMessage({ id: 'pages.auth.RegistrationTitle' })

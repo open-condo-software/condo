@@ -31,7 +31,7 @@ class SbbolOauth2Api {
     createClient () {
         this.createIssuer()
         const client = new this.issuer.Client({
-            client_id: this.clientId + '',
+            client_id: String(this.clientId),
             client_secret: this.clientSecret,
             redirect_uris: [this.redirectUrl],
             response_types: ['code'],
@@ -51,8 +51,7 @@ class SbbolOauth2Api {
         }
         // we override standart JWT validation as we do not have JWK from oauth provider
         client.validateJWT = async (jwt) => {
-            const [ header, payload ] = [jwtDecode(jwt, { header: true }), jwtDecode(jwt)]
-            return { protected: header, payload }
+            return { protected: jwtDecode(jwt, { header: true }), payload: jwtDecode(jwt) }
         }
         this.client = client
     }
@@ -129,38 +128,17 @@ class SbbolOauth2Api {
     get protectedUrl () {
         return `${this.protectedHost}:${this.port}`
     }
-    // Subscriptions
-    // Получение сведений о клиентах, подключенных к подпискам и пакетам услуг [GET]
+
+    // TODO(antonal): next urls are not tested
     get advanceAcceptancesUrl () {
         return `${this.protectedUrl}/v1/partner-info/advance-acceptances`
     }
-    // Получения сведений о клиентах, подключенных к пакетам услуг с небанковскими сервисами [GET]
     get packageOfServicesUrl () {
         return `${this.protectedUrl}/v1/partner-info/package-of-services`
     }
-    // Реестр подключенных к сервису пользователей [GET]
     get offersUrl () {
         return `${this.protectedUrl}/v1/partner-info/offers`
     }
-
-    // Отправка информации по тарифу за используемый клиентом сервис [PUT]
-    // get sendPriceUrl () {
-    //    return `${this.protectedUrl}/v1/client-tariffs`
-    // }
-    // Платежное требование в адрес клиента [POST]
-    // get sendInvoiceUrl () {
-    //    return `${this.protectedUrl}/v1/payment-requests/outgoing`
-    // }
-    // Создание начисления [POST]
-    // get sendPaymentUrl () {
-    //    return `${this.protectedUrl}/v1/client-accruals`
-    // }
-    // GET /v1/payment-requests/outgoing/{externalId}/state - Статус платежного требования
-    // GET /v1/client-accruals/{externalId} - Получение документа
-    // No access to this API
-    // get organizationInfoUrl () {
-    //    return `${this.protectedUrl}/fintech/api/v1/client-info`
-    // }
 
 }
 
