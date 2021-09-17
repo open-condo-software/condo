@@ -159,7 +159,7 @@ import { Onboarding } from '@condo/domains/onboarding/utils/clientSchema'
 type WelcomeProps = PropsWithChildren<{
     text: string
 }>
-export function Welcome ({ text }: HelloWorldProps) {
+export function Welcome ({ text }: WelcomeProps) {
 
     /* First block: intl */
     const intl = useIntl()
