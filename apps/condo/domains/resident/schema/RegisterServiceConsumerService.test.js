@@ -147,31 +147,31 @@ describe('RegisterServiceConsumerService', () => {
         await catchErrorFrom(async () => {
             await registerServiceConsumerByTestClient(userClient, payloadWithNullishAccountName)
         }, (e) => {
-            expect(e.errors[0].message).toContain('BillingAccounts not found')
+            expect(e.errors[0].message).toContain('Account number null or empty')
         })
 
         const payloadWithNullishUnitName = {
             residentId: resident.id,
-            unitName: billingAccountAttrs.unitName,
-            accountNumber: '',
+            unitName: '',
+            accountNumber: billingAccountAttrs.number,
         }
 
         await catchErrorFrom(async () => {
             await registerServiceConsumerByTestClient(userClient, payloadWithNullishUnitName)
         }, (e) => {
-            expect(e.message).not.toEqual(undefined)
+            expect(e.errors[0].message).toContain('Unit name null or empty')
         })
 
         const payloadWithNullishUnitNameAndAccountName = {
             residentId: resident.id,
-            unitName: billingAccountAttrs.unitName,
-            accountNumber: '',
+            unitName: '',
+            accountNumber: billingAccountAttrs.number,
         }
 
         await catchErrorFrom(async () => {
             await registerServiceConsumerByTestClient(userClient, payloadWithNullishUnitNameAndAccountName)
         }, (e) => {
-            expect(e.errors[0].message).toContain('BillingAccounts not found')
+            expect(e.errors[0].message).toContain('Unit name null or empty')
         })
     })
 
