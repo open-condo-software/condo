@@ -44,14 +44,14 @@ describe('BillingAccount', () => {
             
             const [property2] = await createTestBillingProperty(admin, context)
             
-            catchErrorFrom(
+            await catchErrorFrom(
                 async () =>
                     await createTestBillingAccount(admin, context, property2, {
                         globalId: 'cat',
                     }),
                 (e) => {
                     expect(e.errors).toBeDefined()
-                } 
+                }
             )
         })
     })
