@@ -10,7 +10,6 @@ const access = require('@condo/domains/organization/access/TokenSet')
 
 
 const TokenSet = new GQLListSchema('TokenSet', {
-    // TODO(codegen): write doc for the TokenSet domain model!
     schemaDoc: 'Set of oauth tokens from remote systems',
     fields: {
         dv: DV_FIELD,
@@ -22,7 +21,7 @@ const TokenSet = new GQLListSchema('TokenSet', {
             ref: 'User',
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.SET_NULL' },
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
 
         organization: {
@@ -31,7 +30,7 @@ const TokenSet = new GQLListSchema('TokenSet', {
             ref: 'Organization',
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.SET_NULL' },
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
 
         importRemoteSystem: {
