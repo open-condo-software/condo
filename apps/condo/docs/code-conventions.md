@@ -1,7 +1,7 @@
 Code conventions
 =
 We are following some convention about project structure and code style to make it easier to maintain the repository. 
-## Frontend
+## React components
 Theese are main tools we are using for development:
 - Typescript 
 - Next.JS
@@ -21,12 +21,11 @@ path: /pages/division/[id]/update
 url: /pages/division/c43d9f9c-7b29-4f59-96d4-4da90148c37e/update
 ```
 
-### React components
 React components placed in related to its' usage domains. For example, EmployeeRoleSelect.tsx is located under `organization` domain, beacuse employee related to `organization` domain.
 
 All React components should be implemented as reusable modules. 
 
-**Files structure rules**:
+### Files structure rules:
 - There must be one component per file.
 - Component's file should be named the same as component name.
 - All independent components should be in their own subfolder (except simple ones, like icons).
@@ -81,7 +80,7 @@ export function HelloWorldTable () {
 ```
 
 Imports in components should be in special readable order.
-**Imports order**:
+### Imports order:
 1. React import
 2. External dependencies (from node_modules, @core deps treated as external too)
 3. Dependencies from another domains
@@ -187,7 +186,7 @@ export function Welcome ({ text }: HelloWorldProps) {
 ```
 
 
-### Pages
+## Pages
 Every folder and page file should be named **lowercase**
 *Example:*
 
@@ -246,6 +245,7 @@ Every folder and page file should be named **lowercase**
 </tr>
 </table>
 
-
+All rules from [React Component section](#react-components) is applied to pages, except:
+React component in page should be exported **as default**
 ## Backend 
 WIP
