@@ -16,7 +16,7 @@ const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 
 describe('BillingAccount', () => {
     describe('Constraints', () => {
-        test('cant create two BillingAccount with same globalId in one context', async () => {
+        test('can create two BillingAccount with same globalId in different contexts', async () => {
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property] = await createTestBillingProperty(admin, context)
@@ -34,7 +34,7 @@ describe('BillingAccount', () => {
             expect(billingAccount.globalId).toEqual(billingAccount2.globalId)
         })
 
-        test('can create two BillingAccount with same globalId in different contexts', async () => {
+        test('cant create two BillingAccount with same globalId in single context', async () => {
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property] = await createTestBillingProperty(admin, context)
