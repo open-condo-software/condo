@@ -25,6 +25,12 @@ React components placed in related to its' usage domains. For example, EmployeeR
 
 All React components should be implemented as reusable modules. 
 
+Rules blocks:
+- [Files structure rules](#files-structure-rules)
+- [Imports rules](#imports-order)
+- [Component rules](#component-rules)
+- [Component structure rules](#component-structure-rules)
+
 ### Files structure rules:
 - There must be one component per file.
 - Component's file should be named the same as component name.
@@ -97,7 +103,7 @@ import { Onboarding } from '@condo/domains/onboarding/utils/clientSchema'
 import { getFilter } from './filters'
 ```
 
-**Component rules**:
+### Component rules:
 - Component should be named in CamelCase.
 - Component should be defined as function.
 - Component should be exported as named export.
@@ -138,7 +144,7 @@ export function ColoredHelloWorld ({ textColor, text, children }: HelloWorldWrap
     </HelloWorld>
 }
 ```
-**Component structure rules**:
+### Component structure rules:
 - Component's props should be defined right before component defenition.
 - Component implementation should be divided in logical blocks.
 
