@@ -486,6 +486,9 @@ describe('Helpers', () => {
                         range: selectedRange,
                         addressList: [property],
                         specification: 'day',
+                        responsibleList: [],
+                        executorList: [],
+                        classifierList: [],
                     }
                     const expectedResult = {
                         AND: [
@@ -506,6 +509,9 @@ describe('Helpers', () => {
                         range: selectedRange,
                         specification: 'day',
                         addressList: [],
+                        classifierList: [],
+                        executorList: [],
+                        responsibleList: [],
                     }
                     const expectedResult = {
                         AND: [
@@ -524,6 +530,9 @@ describe('Helpers', () => {
                         range: selectedRange,
                         specification: 'day',
                         addressList: [],
+                        responsibleList: [],
+                        executorList: [],
+                        classifierList: [],
                     }
                     const expectedResult = {
                         AND: [
@@ -544,6 +553,9 @@ describe('Helpers', () => {
                         range: selectedRange,
                         specification: 'day',
                         addressList: [],
+                        classifierList: [],
+                        executorList: [],
+                        responsibleList: [],
                     }
                     const expectedResult = {
                         AND: [

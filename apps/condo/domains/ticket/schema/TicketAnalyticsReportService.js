@@ -27,7 +27,7 @@ const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchem
 const propertyPercentDataMapper = require('@condo/domains/ticket/utils/serverSchema/propertyPercentDataMapper')
 const propertySummaryPercentDataMapper = require('@condo/domains/ticket/utils/serverSchema/propertySummaryPercentDataMapper')
 
-const PERCENT_AGGREGATION_TOKENS = ['property-status']
+const PERCENT_AGGREGATION_TOKENS = ['property-status', 'categoryClassifier-status', 'assignee-status', 'executor-status']
 
 const createPropertyRange = async (organizationWhereInput, whereIn) => {
     const gqlLoaderOptions = {
@@ -269,6 +269,10 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                 let rowColumns = []
                 const groupByToken = groupBy.join('-')
                 const address = get(translates, 'property', '')
+                const categoryClassifier = get(translates, 'categoryClassifier', '')
+                const assignee = get(translates, 'assignee', '')
+                const executor = get(translates, 'executor', '')
+
                 switch (groupByToken) {
                     case 'status-day':
                     case 'status-week':
@@ -277,6 +281,18 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                     case 'status-property':
                     case 'property-status':
                         rowColumns = address.includes('@') ? address.split('@') : []
+                        break
+                    case 'status-categoryClassifier':
+                    case 'categoryClassifier-status':
+                        rowColumns = categoryClassifier.includes('@') ? categoryClassifier.split('@') : []
+                        break
+                    case 'status-executor':
+                    case 'executor-status':
+                        rowColumns = executor.includes('@') ? executor.split('@') : []
+                        break
+                    case 'status-assignee':
+                    case 'assignee-status':
+                        rowColumns = assignee.includes('@') ? assignee.split('@') : []
                         break
                     default:
                         throw new Error('unsupported filter')
