@@ -65,20 +65,20 @@ class SbbolOrganization {
             importId: this.userInfo.importId,
             importRemoteSystem: this.userInfo.importRemoteSystem,
         }
-        const existedUsers = await getItems({ ...this.context, listKey: 'User', where: {
+        const existingUsers = await getItems({ ...this.context, listKey: 'User', where: {
             OR: [
                 { phone: this.userInfo.phone },
                 { AND: importFields },
             ],
         } })
-        if (existedUsers.length > 1) {
+        if (existingUsers.length > 1) {
             throw new Error(`${MULTIPLE_ACCOUNTS_MATCHES}] importId and phone conflict on user import`)
         }
-        if (existedUsers.length === 0) {
+        if (existingUsers.length === 0) {
             this.user = await createItem({ listKey: 'User', item: this.userInfo, returnFields: 'id phone name', ...this.context })
             return
         }
-        const [user] = existedUsers
+        const [user] = existingUsers
         if (!user.importId) {
             const { email, phone } = this.userInfo
             const update = {}
@@ -119,19 +119,19 @@ class SbbolOrganization {
         const [organization] = await getItems({ ...this.context, returnFields: 'id country', listKey: 'Organization', where: importInfo })
         if (!organization) {
             // we need to check if user has registered organization with a same tin
-            const existed = userOrganizations.find(organization => organization.meta.inn === this.organizationInfo.meta.inn)
-            if (existed) {
+            const existingOrganization = userOrganizations.find(organization => organization.meta.inn === this.organizationInfo.meta.inn)
+            if (existingOrganization) {
                 await updateItem({ listKey: 'Organization', item: {
-                    id: existed.id,
+                    id: existingOrganization.id,
                     data: {
                         ...importInfo,
                         meta: {
-                            ...existed.meta,
+                            ...existingOrganization.meta,
                             ...this.organizationInfo.meta,
                         },
                     },
                 }, returnFields: 'id', ...this.context })
-                this.organization = { id: existed.id }
+                this.organization = { id: existingOrganization.id }
                 return
             }
             this.organization = await this.createOrganization()
