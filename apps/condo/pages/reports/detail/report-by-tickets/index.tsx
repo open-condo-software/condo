@@ -375,6 +375,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
         },
         fetchPolicy: 'network-only',
         onCompleted: response => {
+            setAnalyticsData(null)
             const { result: { groups, ticketLabels } } = response
             ticketLabelsRef.current = ticketLabels
             setAnalyticsData(groups)
@@ -393,9 +394,6 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     })
     const getAnalyticsData = useCallback(() => {
         if (filtersRef.current !== null) {
-            const { AND, groupBy } = filterToQuery(
-                { filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy }
-            )
             mapperInstanceRef.current = new TicketChart({
                 line: {
                     chart: (viewMode, ticketGroupedCounter) => {
@@ -724,6 +722,11 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                     },
                 },
             })
+
+            const { AND, groupBy } = filterToQuery(
+                { filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy }
+            )
+
             const where = { organization: { id: userOrganizationId }, AND }
             loadTicketAnalytics({ variables: { data: { groupBy, where } } })
         }
@@ -786,12 +789,21 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     const onFilterChange: ITicketAnalyticsPageFilterProps['onChange'] = useCallback((filters) => {
         filtersRef.current = filters
         getAnalyticsData()
-    }, [viewMode, ticketType, userOrganizationId])
+    }, [viewMode, ticketType, userOrganizationId, groupTicketsBy, dateFrom, dateTo])
 
     let addressFilterTitle = selectedAddresses.length === 0 ? AllAddresses : `${SingleAddress} «${selectedAddresses[0].value}»`
     if (selectedAddresses.length > 1) {
         addressFilterTitle = ManyAddresses
     }
+
+    const onTabChange = useCallback((key: GroupTicketsByTypes) => {
+        setGroupTicketsBy(key)
+        if (key === 'status') {
+            setViewMode('line')
+        } else {
+            setViewMode('bar')
+        }
+    }, [viewMode, groupTicketsBy])
 
     const isControlsDisabled = loading || isXSLXLoading || filtersRef.current === null
     return <>
@@ -818,14 +830,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                             css={tabsCss}
                             defaultActiveKey='status'
                             activeKey={groupTicketsBy}
-                            onChange={(key: GroupTicketsByTypes) => {
-                                setGroupTicketsBy(key)
-                                if (key === 'status') {
-                                    setViewMode('line')
-                                } else {
-                                    setViewMode('bar')
-                                }
-                            }}
+                            onChange={onTabChange}
                         >
                             <Tabs.TabPane key='status' tab={StatusFilterLabel} />
                             <Tabs.TabPane key='property' tab={PropertyFilterLabel} />
@@ -892,7 +897,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                     <Select.Option value='emergency'>{TicketTypeEmergency}</Select.Option>
                                 </Select>
                             </TicketChartView>
-                        ), [analyticsData, loading, viewMode, ticketType, userOrganizationId])}
+                        ), [analyticsData, loading, viewMode, ticketType, userOrganizationId, groupTicketsBy])}
                     </Col>
                     <Col span={24}>
                         <Typography.Title level={4} style={{ marginBottom: 20 }}>{TableTitle}</Typography.Title>
