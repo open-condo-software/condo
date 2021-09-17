@@ -80,7 +80,7 @@ export function HelloWorldTable () {
 }
 ```
 
-Imports in components should be in order:
+Imports in components should be in special readable order.
 **Imports order**:
 1. React import
 2. External dependencies (from node_modules, @core deps treated as external too)
@@ -101,11 +101,11 @@ import { getFilter } from './filters'
 **Component rules**:
 - Component should be named in CamelCase.
 - Component should be defined as function.
+- Component should be exported as named export.
+- Component JSX shouldn't contain plain HTML tags, only React components (when possible).
 - Component's props should be defined in same file.
 - Component's props should be defined as type.
 - Component props shouldn't be exported.
-- Component should be exported as named export.
-- Component JSX shouldn't contain plain HTML tags, only React components (when possible).
 
 **Example:**
 ```tsx
