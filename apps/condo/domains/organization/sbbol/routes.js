@@ -32,7 +32,7 @@ class SbbolRoutes {
             try {
                 const tokenSet = await this.helper.fetchTokens(req, SBBOL_SESSION_KEY)
                 const { keystone } = await getSchemaCtx('User')
-                const { access_token, refresh_token } = tokenSet
+                const { access_token } = tokenSet
                 const userInfo = await this.helper.fetchUserInfo(access_token)
                 if (!SbbolUserInfoJSONValidation(userInfo)) {
                     throw new Error(`${JSON_SCHEMA_VALIDATION_ERROR}] invalid json structure for userInfo`)
@@ -43,7 +43,7 @@ class SbbolRoutes {
                 const userId = Sync.user.id
                 keystone._sessionManager.startAuthedSession(req, { item: { id: userId }, list: keystone.lists['User'] })
                 await Sync.syncOrganization()
-                await Sync.updateOrganizationRefreshToken({ refresh_token })
+                await Sync.updateTokens(tokenSet)
                 delete req.session[SBBOL_SESSION_KEY]
                 await req.session.save()
                 return res.redirect('/')
