@@ -9,7 +9,7 @@ import { Loader } from '../Loader'
 
 const DEBOUNCE_TIMEOUT = 800
 
-interface ISearchInput<S> extends Omit<SelectProps<S>, 'onSelect'> {
+type SearchInput<S> = Omit<SelectProps<S>, 'onSelect'> & {
     loadOptionsOnFocus?: boolean
     renderOption: (dataItem, value) => React.ReactElement
     // TODO(Dimtireee): remove any
@@ -18,7 +18,7 @@ interface ISearchInput<S> extends Omit<SelectProps<S>, 'onSelect'> {
     onSelect?: (value: string, option: OptionProps) => void
 }
 
-export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
+export function BaseSearchInput<S extends string> (props: SearchInput<S>) {
     const intl = useIntl()
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
     const NotFoundMessage = intl.formatMessage({ id: 'NotFound' })

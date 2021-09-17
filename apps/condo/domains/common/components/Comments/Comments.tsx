@@ -64,7 +64,7 @@ type ActionsForComment = {
     deleteAction?: (formValues: ITicketCommentFormState, obj: ITicketCommentUIState) => Promise<ITicketCommentUIState>,
 }
 
-interface ICommentsListProps {
+type CommentsListProps = {
     comments: TComment[],
     createAction?: (formValues) => Promise<void>,
     // Place for abilities check. If action of given type is not returned, appropriate button will not be displayed
@@ -72,12 +72,12 @@ interface ICommentsListProps {
     canCreateComments: boolean,
 }
 
-const Comments: React.FC<ICommentsListProps> = ({
+export function Comments ({
     comments,
     createAction,
     canCreateComments,
     actionsFor,
-}) => {
+}: CommentsListProps) {
     const intl = useIntl()
     const TitleMessage = intl.formatMessage({ id: 'Comments.title' })
     const PromptTitleMessage = intl.formatMessage({ id: 'Comments.prompt.title' })
@@ -142,5 +142,3 @@ const Comments: React.FC<ICommentsListProps> = ({
 Comments.defaultProps = {
     comments: [],
 }
-
-export { Comments }

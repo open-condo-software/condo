@@ -1,18 +1,18 @@
 import { useRouter } from 'next/router'
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 
-interface IFocusContext {
+type FocusContext = {
     isFocusVisible?: boolean
     showFocusTooltip?: () => void
 }
 
-const FocusContext = React.createContext<IFocusContext>({})
+const FocusContext = React.createContext<FocusContext>({})
 
-export const useFocusContext = () => useContext<IFocusContext>(FocusContext)
+export const useFocusContext = () => useContext<FocusContext>(FocusContext)
 
 const DEFAULT_FOCUS_TIMEOUT = 8000
 
-export const FocusContextProvider: React.FC = (props) => {
+export function FocusContextProvider (props) {
     const router = useRouter()
     const [isFocusVisible, setIsFocusVisible] = useState(false)
     const timeoutId = useRef(null)

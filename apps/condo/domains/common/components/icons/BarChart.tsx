@@ -2,7 +2,7 @@ import Icon from '@ant-design/icons'
 import { CustomIconComponentProps } from '@ant-design/icons/lib/components/Icon'
 import React from 'react'
 
-const BarChartSvg: React.FC<CustomIconComponentProps> = (props) => {
+function BarChartSvg (props: CustomIconComponentProps) {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" {...props}>
             <path d="M16 21.7a.3.3 0 00.3.3h5.4a.3.3 0 00.3-.3V2.3a.3.3 0 00-.3-.3h-5.4a.3.3 0 00-.3.3v19.4z"/>
@@ -12,7 +12,7 @@ const BarChartSvg: React.FC<CustomIconComponentProps> = (props) => {
     )
 }
 
-export const BarChartIcon: React.FC = (props) => {
+export const ReportIcon: React.FC = (props) => {
     return (
         <Icon component={BarChartSvg} {...props} width='26' height='26' viewBox="0 0 24 24"/>
     )

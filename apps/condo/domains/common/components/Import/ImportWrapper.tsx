@@ -1,4 +1,6 @@
 import React, { useCallback, useRef } from 'react'
+import { Modal, Popover } from 'antd'
+import { useIntl } from '@core/next/intl'
 import {
     Columns,
     RowNormalizer,
@@ -6,9 +8,7 @@ import {
     ObjectCreator,
     ProcessedRow,
 } from '@condo/domains/common/utils/importer'
-import { Modal, Popover, Typography, Space } from 'antd'
 import { useImporter } from '@condo/domains/common/hooks/useImporter'
-import { useIntl } from '@core/next/intl'
 import {
     ModalContext,
     getUploadSuccessModalConfig,
@@ -17,13 +17,9 @@ import {
     getPartlyLoadedModalConfig,
 } from './ModalConfigs'
 import { DataImporter } from '../DataImporter'
-import styled from '@emotion/styled'
+import { ColumnsInfoBox } from './ColumnsInfoBox'
 
-interface IColumnsInfoBoxProps {
-    columns: Columns
-}
-
-interface IImportProps {
+type ImportProps = React.PropsWithChildren<{
     objectsName: string
     accessCheck: boolean
     onFinish(): void
@@ -31,54 +27,9 @@ interface IImportProps {
     rowNormalizer: RowNormalizer
     rowValidator: RowValidator
     objectCreator: ObjectCreator
-}
+}>
 
-const InfoBoxContainer = styled.div`
-  max-width: 300px;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-`
-
-const ColumnsInfoBox: React.FC<IColumnsInfoBoxProps> = ({ columns }) => {
-    const intl = useIntl()
-    const ColumnsFormatMessage = intl.formatMessage({ id: 'ImportRequiredColumnsFormat' })
-    const RequiredFieldsMessage = intl.formatMessage({ id: 'ImportRequiredFields' })
-    return (
-        <Space direction={'vertical'} size={10}>
-            <Typography.Text>
-                {ColumnsFormatMessage}
-            </Typography.Text>
-            <InfoBoxContainer>
-                {
-                    columns.map((column, index) => {
-                        return (
-                            <>
-                                {index !== 0 && ', '}
-                                <Typography.Text keyboard key={column.name}>
-                                    {column.required && (
-                                        <Typography.Text type={'danger'} style={{ marginRight: 3 }}>
-                                            <sup>*</sup>
-                                        </Typography.Text>
-                                    )}
-                                    {column.name}
-                                </Typography.Text>
-                            </>
-                        )
-                    })
-                }
-            </InfoBoxContainer>
-            <Typography.Text>
-                <Typography.Text type={'danger'} style={{ marginRight: 3 }}>
-                    <sup>*</sup>
-                </Typography.Text>
-                {` - ${RequiredFieldsMessage}`}
-            </Typography.Text>
-        </Space>
-    )
-}
-
-export const ImportWrapper: React.FC<IImportProps> = (props) => {
+export function ImportWrapper (props: ImportProps)  {
     const {
         objectsName,
         accessCheck,

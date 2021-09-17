@@ -25,7 +25,7 @@ import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { Button } from '@condo/domains/common/components/Button'
 import { SortContactsBy } from '../../schema'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
-import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
+import { ImportWrapper } from '@condo/domains/common/components/Import'
 import { DiffOutlined } from '@ant-design/icons'
 import { useImporterFunctions } from '@condo/domains/contact/hooks/useImporterFunctions'
 

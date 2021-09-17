@@ -50,7 +50,7 @@ const FocusWrapper = styled.div`
   }
 `
 
-export const FocusElement: React.FC = ({ children }) => {
+export function FocusElement ({ children }){
     const intl = useIntl()
     const Title = intl.formatMessage({ id: 'focus.tooltipText' })
 

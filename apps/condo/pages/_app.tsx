@@ -21,11 +21,9 @@ import BaseLayout from '@condo/domains/common/components/containers/BaseLayout'
 import GlobalErrorBoundary from '@condo/domains/common/components/containers/GlobalErrorBoundery'
 import { extractReqLocale } from '@condo/domains/common/utils/locale'
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
-import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
+import { UserIcon, ReportIcon, OnBoardingProgress } from '@condo/domains/common/components/icons'
 import { MenuItem } from '@condo/domains/common/components/MenuItem'
-import { FocusElement } from '@condo/domains/common/components/Focus/FocusElement'
-import { BarChartIcon } from '@condo/domains/common/components/icons/BarChart'
-import { OnBoardingProgress } from '@condo/domains/common/components/icons/OnBoardingProgress'
+import { FocusElement } from '@condo/domains/common/components/Focus'
 import { OnBoardingProvider } from '../domains/onboarding/components/OnBoardingContext'
 import { FeatureFlagRequired } from '@condo/domains/common/components/containers/FeatureFlag'
 import { FocusContextProvider } from '../domains/common/components/Focus/FocusContextProvider'
@@ -60,7 +58,7 @@ const MenuItems: React.FC = () => {
             </FocusElement>
             <MenuItem
                 path={'/reports'}
-                icon={BarChartIcon}
+                icon={ReportIcon}
                 label={'menu.Analytics'}
                 disabled={!link}
             />

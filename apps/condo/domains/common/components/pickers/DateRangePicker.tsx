@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import React from 'react'
 import { css, jsx } from '@emotion/core'
-import DatePicker from './DatePicker'
+import { DatePicker } from './DatePicker'
 import dayjs, { Dayjs } from 'dayjs'
 import { DownOutlined, MinusOutlined } from '@ant-design/icons'
 import { colors } from '../../constants/style'
@@ -22,7 +22,7 @@ const rangePickerCss = css`
   }
 `
 
-const DateRangePicker: React.FC<RangePickerSharedProps<Dayjs>> = (props) => {
+export function DateRangePicker (props: RangePickerSharedProps<Dayjs>) {
     return (
         <DatePicker.RangePicker
             css={rangePickerCss}
@@ -35,5 +35,3 @@ const DateRangePicker: React.FC<RangePickerSharedProps<Dayjs>> = (props) => {
         />
     )
 }
-
-export default DateRangePicker

@@ -1,10 +1,9 @@
 import React from 'react'
 
-interface IEmptyTableCellProps {
+type EmptyTableCellProps = React.PropsWithChildren<{
     emptySymbol?: string
+}>
+
+export function EmptyTableCell ({ children, emptySymbol = '—' }: EmptyTableCellProps) { 
+    return <>{children || emptySymbol}</>
 }
-
-export const EmptyTableCell: React.FC<IEmptyTableCellProps> = ({ children, emptySymbol = '—' }) => (
-    <>{children || emptySymbol}</>
-)
-

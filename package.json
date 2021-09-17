@@ -152,7 +152,8 @@
         {
           "int32Hint": false
         }
-      ]
+      ],
+      "@typescript-eslint/explicit-module-boundary-types": "off"
     }
   },
   "dependencies": {
