@@ -3,16 +3,15 @@
  */
 
 const faker = require('faker')
+const dayjs = require('dayjs')
 const { cloneDeep } = require('lodash')
+
+const { createTestBillingIntegrationOrganizationContext, createTestBillingIntegration, createTestBillingAccount, createTestBillingProperty, makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
 const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
-const { createTestProperty, makeClientWithResidentUserAndProperty } = require('@condo/domains/property/utils/testSchema')
+const { createTestProperty, makeClientWithResidentUserAndProperty, makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
-const { createTestBillingAccount } = require('@condo/domains/billing/utils/testSchema')
-const { createTestBillingProperty } = require('@condo/domains/billing/utils/testSchema')
-const { makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
-const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 
 const { Resident, createTestResident, updateTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
@@ -250,6 +249,69 @@ describe('Resident', () => {
                 await addResidentAccess(userClient.user)
                 const [obj] = await Resident.getAll(userClient, { id })
                 expect(obj.residentProperty).toBeNull()
+            })
+        })
+
+        describe('organizationFeatures', () => {
+            it('correctly sets the hasBillingData if billing data is available', async () => {
+                const userClient = await makeClientWithProperty()
+                const adminClient = await makeLoggedInAdminClient()
+
+                const [integration] = await createTestBillingIntegration(adminClient)
+                const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration, {
+                    lastReport: {
+                        period: '2021-09-01',
+                        finishTime: dayjs().toISOString(),
+                        totalReceipts: 3141592,
+                    },
+                })
+
+                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+                await addResidentAccess(userClient.user)
+                const [obj] = await Resident.getAll(userClient, { id })
+
+                expect(obj.organizationFeatures.hasBillingData).toBe(true)
+            })
+
+            it('correctly sets the hasBillingData if no context available', async () => {
+                const userClient = await makeClientWithProperty()
+                const adminClient = await makeLoggedInAdminClient()
+
+                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+                await addResidentAccess(userClient.user)
+                const [obj] = await Resident.getAll(userClient, { id })
+
+                expect(obj.organizationFeatures.hasBillingData).toBe(false)
+            })
+
+            it('correctly sets the hasBillingData if no billing data available', async () => {
+                const userClient = await makeClientWithProperty()
+                const adminClient = await makeLoggedInAdminClient()
+
+                const [integration] = await createTestBillingIntegration(adminClient)
+                const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
+
+                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+                await addResidentAccess(userClient.user)
+                const [obj] = await Resident.getAll(userClient, { id })
+
+                expect(obj.organizationFeatures.hasBillingData).toBe(false)
+            })
+
+            it('returns null if no organization', async () => {
+                const userClient = await makeClientWithProperty()
+                const adminClient = await makeLoggedInAdminClient()
+
+                const address = faker.lorem.words()
+                const attrs = {
+                    address,
+                    addressMeta: buildFakeAddressMeta(address),
+                }
+
+                const [{ id }] = await createTestResident(adminClient, userClient.user, null, null, attrs)
+                await addResidentAccess(userClient.user)
+                const [obj] = await Resident.getAll(userClient, { id })
+                expect(obj.organizationFeatures).toBeNull()
             })
         })
     })
