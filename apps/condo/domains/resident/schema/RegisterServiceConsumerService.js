@@ -26,8 +26,8 @@ async function getAccountsFromOrganizationIntegration (context, resident, unitNa
         context: { id: billingContext.id },
         unitName: unitName,
     })
-    if (!Array.isArray(applicableBillingAccounts) || applicableBillingAccounts.length === 0) {
-        throw new Error(`${NOT_FOUND_ERROR}account] BillingAccounts not found for this user`)
+    if (!Array.isArray(applicableBillingAccounts)) {
+        return [] // No accounts are found for this user
     }
 
     applicableBillingAccounts = applicableBillingAccounts.filter(
