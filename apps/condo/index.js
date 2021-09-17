@@ -96,8 +96,8 @@ class SberBuisnessOnlineMiddleware {
     prepareMiddleware () {
         const Auth = new SbbolRoutes()
         const app = express()
-        app.get('/api/sbbol/auth', Auth.startAuth())
-        app.get('/api/sbbol/auth/callback',  Auth.completeAuth())
+        app.get('/api/sbbol/auth', Auth.startAuth)
+        app.get('/api/sbbol/auth/callback',  Auth.completeAuth)
         return app
     }
 }
