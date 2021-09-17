@@ -15161,6 +15161,11 @@ export type OrganizationEmployeesUpdateInput = {
   data?: Maybe<OrganizationEmployeeUpdateInput>;
 };
 
+export type OrganizationFeatures = {
+  __typename?: 'OrganizationFeatures';
+  hasBillingData: Scalars['Boolean'];
+};
+
 /**  A keystone list  */
 export type OrganizationHistoryRecord = {
   __typename?: 'OrganizationHistoryRecord';
@@ -19176,6 +19181,8 @@ export type Resident = {
   property?: Maybe<Property>;
   /**  Property data, that is returned for current resident in mobile client  */
   residentProperty?: Maybe<ResidentProperty>;
+  /**  Contains features that are enabled for user organization  */
+  organizationFeatures?: Maybe<OrganizationFeatures>;
   /**  Normalized address  */
   address?: Maybe<Scalars['String']>;
   /**  Property address components  */
@@ -19300,6 +19307,7 @@ export type ResidentHistoryRecord = {
   residentOrganization?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
   residentProperty?: Maybe<Scalars['JSON']>;
+  organizationFeatures?: Maybe<Scalars['JSON']>;
   address?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
   unitName?: Maybe<Scalars['String']>;
@@ -19324,6 +19332,7 @@ export type ResidentHistoryRecordCreateInput = {
   residentOrganization?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
   residentProperty?: Maybe<Scalars['JSON']>;
+  organizationFeatures?: Maybe<Scalars['JSON']>;
   address?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
   unitName?: Maybe<Scalars['String']>;
@@ -19353,6 +19362,7 @@ export type ResidentHistoryRecordUpdateInput = {
   residentOrganization?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
   residentProperty?: Maybe<Scalars['JSON']>;
+  organizationFeatures?: Maybe<Scalars['JSON']>;
   address?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
   unitName?: Maybe<Scalars['String']>;
@@ -19403,6 +19413,10 @@ export type ResidentHistoryRecordWhereInput = {
   residentProperty_not?: Maybe<Scalars['JSON']>;
   residentProperty_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   residentProperty_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  organizationFeatures?: Maybe<Scalars['JSON']>;
+  organizationFeatures_not?: Maybe<Scalars['JSON']>;
+  organizationFeatures_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  organizationFeatures_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   address?: Maybe<Scalars['String']>;
   address_not?: Maybe<Scalars['String']>;
   address_contains?: Maybe<Scalars['String']>;
