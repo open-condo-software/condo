@@ -129,6 +129,120 @@ describe('TicketAnalyticsReportService', () => {
             expect(groups.every(group => group.categoryClassifier === categoryClassifier.name)).toBeTruthy()
         })
 
+        it('can read TicketAnalyticsReportService grouped counts [status, executor]', async () => {
+            const client = await makeClientWithProperty()
+            await createTestTicket(client, client.organization, client.property, {
+                executor: { connect: { id: client.user.id } },
+            })
+
+            const dateStart = dayjs().startOf('week')
+            const dateEnd = dayjs().endOf('week')
+
+            const { data: { result: { groups } } } = await client.query(TICKET_ANALYTICS_REPORT_QUERY, {
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'tests' },
+                data: {
+                    where: {
+                        organization: { id: client.organization.id },
+                        AND: [
+                            { createdAt_gte: dateStart.toISOString() },
+                            { createdAt_lte: dateEnd.toISOString() },
+                        ],
+                    },
+                    groupBy: [ 'status', 'executor' ],
+                },
+            })
+            expect(groups).toBeDefined()
+            expect(groups.length).toBeGreaterThanOrEqual(1)
+            expect(groups.filter(group => group.count === 1)).toHaveLength(1)
+        })
+
+        it('can read TicketAnalyticsReportService [status, executor] with id_in filter', async () => {
+            const client = await makeClientWithProperty()
+            await createTestTicket(client, client.organization, client.property, {
+                executor: { connect: { id: client.user.id } },
+            })
+
+            const dateStart = dayjs().startOf('week')
+            const dateEnd = dayjs().endOf('week')
+
+            const { data: { result: { groups } } } = await client.query(TICKET_ANALYTICS_REPORT_QUERY, {
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'tests' },
+                data: {
+                    where: {
+                        organization: { id: client.organization.id },
+                        AND: [
+                            { createdAt_gte: dateStart.toISOString() },
+                            { createdAt_lte: dateEnd.toISOString() },
+                            { executor: { id_in: [client.user.id] } },
+                        ],
+                    },
+                    groupBy: [ 'status', 'executor' ],
+                },
+            })
+            expect(groups).toBeDefined()
+            expect(groups.length).toBeGreaterThanOrEqual(1)
+            expect(groups.filter(group => group.count === 1)).toHaveLength(1)
+        })
+
+        it('can read TicketAnalyticsReportService grouped counts [status, assignee]', async () => {
+            const client = await makeClientWithProperty()
+            await createTestTicket(client, client.organization, client.property, {
+                assignee: { connect: { id: client.user.id } },
+            })
+
+            const dateStart = dayjs().startOf('week')
+            const dateEnd = dayjs().endOf('week')
+
+            const { data: { result: { groups } } } = await client.query(TICKET_ANALYTICS_REPORT_QUERY, {
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'tests' },
+                data: {
+                    where: {
+                        organization: { id: client.organization.id },
+                        AND: [
+                            { createdAt_gte: dateStart.toISOString() },
+                            { createdAt_lte: dateEnd.toISOString() },
+                        ],
+                    },
+                    groupBy: [ 'status', 'assignee' ],
+                },
+            })
+            expect(groups).toBeDefined()
+            expect(groups.length).toBeGreaterThanOrEqual(1)
+            expect(groups.filter(group => group.count === 1)).toHaveLength(1)
+        })
+
+        it('can read TicketAnalyticsReportService [status, assignee] with id_in filter', async () => {
+            const client = await makeClientWithProperty()
+            await createTestTicket(client, client.organization, client.property, {
+                assignee: { connect: { id: client.user.id } },
+            })
+
+            const dateStart = dayjs().startOf('week')
+            const dateEnd = dayjs().endOf('week')
+
+            const { data: { result: { groups } } } = await client.query(TICKET_ANALYTICS_REPORT_QUERY, {
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'tests' },
+                data: {
+                    where: {
+                        organization: { id: client.organization.id },
+                        AND: [
+                            { createdAt_gte: dateStart.toISOString() },
+                            { createdAt_lte: dateEnd.toISOString() },
+                            { assignee: { id_in: [client.user.id] } },
+                        ],
+                    },
+                    groupBy: [ 'status', 'assignee' ],
+                },
+            })
+            expect(groups).toBeDefined()
+            expect(groups.length).toBeGreaterThanOrEqual(1)
+            expect(groups.filter(group => group.count === 1)).toHaveLength(1)
+        })
+
         it('can not read TicketAnalyticsReportService from another organization', async () => {
             const client = await makeClientWithProperty()
             await createTestTicket(client, client.organization, client.property)
