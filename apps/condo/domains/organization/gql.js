@@ -73,6 +73,9 @@ const ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_CODE_MUTATION = gql`
     }
 `
 
+const TOKEN_SET_FIELDS = `{ user { id } organization { id } importRemoteSystem accessToken accessTokenExpiresAt refreshToken refreshTokenExpiresAt ${COMMON_FIELDS} }`
+const TokenSet = generateGqlQueries('TokenSet', TOKEN_SET_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -80,6 +83,7 @@ module.exports = {
     OrganizationEmployeeRole,
     OrganizationEmployee,
     OrganizationLink,
+    TokenSet,
     GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
     UPDATE_ORGANIZATION_BY_ID_MUTATION,
     GET_ALL_EMPLOYEE_ORGANIZATIONS_QUERY,
