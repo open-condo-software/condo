@@ -3,6 +3,7 @@ const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries.js
 const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/sbbol/common')
 const { MULTIPLE_ACCOUNTS_MATCHES } = require('@condo/domains/user/constants/errors')
 const { getItems, createItem, updateItem } = require('@keystonejs/server-side-graphql-client')
+const { TokenSet: TokenSetAPI } = require('@condo/domains/organization/utils/serverSchema')
 const { createConfirmedEmployee, createOrganization, createDefaultRoles } = require('@condo/domains/organization/utils/serverSchema/Organization')
 const { uniqBy, get } = require('lodash')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
@@ -163,26 +164,27 @@ class SbbolOrganization {
                 id: get(this.user, 'id'),
             },
         }
-        console.log('===== getItems > Start')
-        const [currentTokenSetId] = await getItems({ ...this.context, listKey: 'TokenSet', where: { ...owner }, returnFields: 'id' })
-        console.log('===== getItems > End')
+        const connectOwner = {
+            organization: {
+                connect: { id: owner.organization.id },
+            },
+            user: {
+                connect: { id: owner.user.id },
+            },
+        }
+        const [currentTokenSet] = await getItems({ ...this.context, listKey: 'TokenSet', where: { ...owner }, returnFields: 'id' })
         const item = {
-            organization: owner.organization.id,
-            user: { id: owner.user.id },
+            ...this.dvSenderFields,
+            importRemoteSystem: SBBOL_IMPORT_NAME,
             accessToken: access_token,
             refreshToken: refresh_token,
             accessTokenExpiresAt: new Date(Date.now() + expires_at).toISOString(),
             refreshTokenExpiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL * 1000).toISOString(),
         }
-        console.log('item is item', item)
-        if (currentTokenSetId) {
-            console.log('===== updateItem > Start')
-            await updateItem({ listKey: 'TokenSet', item, ...this.context })
-            console.log('===== updateItem > End')
+        if (currentTokenSet) {
+            await TokenSetAPI.update(this.adminContext, currentTokenSet.id, item)
         } else {
-            console.log('===== createItem > Start')
-            await createItem({ listKey: 'TokenSet', item, ...this.context })
-            console.log('===== createItem > End')
+            await TokenSetAPI.create(this.adminContext, { ...connectOwner, ...item })
         }
     }
 
