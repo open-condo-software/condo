@@ -1,7 +1,7 @@
 const { generators } = require('openid-client') // certified openid client will all checks
 const { SbbolUserInfoJSONValidation, SBBOL_SESSION_KEY } = require('@condo/domains/organization/sbbol/common')
 const { SbbolOauth2Api } = require('@condo/domains/organization/sbbol/oauth2')
-const { SbbolOrganization } = require('@condo/domains/organization/sbbol/synch')
+const { SbbolOrganization } = require('@condo/domains/organization/sbbol/sync')
 const { JSON_SCHEMA_VALIDATION_ERROR } = require('@condo/domains/common/constants/errors')
 const { getSchemaCtx } = require('@core/keystone/schema')
 
