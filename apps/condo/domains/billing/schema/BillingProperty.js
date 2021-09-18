@@ -29,7 +29,6 @@ const BillingProperty = new GQLListSchema('BillingProperty', {
             type: Text,
             isRequired: true,
             kmigratorOptions: {
-                unique: false,
                 null: false,
             },
         },
