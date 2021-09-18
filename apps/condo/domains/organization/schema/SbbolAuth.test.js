@@ -1,5 +1,5 @@
 const { SbbolOrganization } = require('@condo/domains/organization/sbbol/sync')
-const { EXAMPLE_USER_INFO, SBBOL_IMPORT_NAME } = require('@condo/domains/organization/sbbol/common')
+const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/sbbol/common')
 const faker = require('faker')
 const { v4: uuid } = require('uuid')
 const { INN_LENGTH } = require('@condo/domains/organization/constants/common')
