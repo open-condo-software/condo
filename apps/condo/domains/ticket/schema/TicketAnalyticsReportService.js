@@ -26,6 +26,8 @@ const dayGroupDataMapper = require('@condo/domains/ticket/utils/serverSchema/day
 const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
 const propertyPercentDataMapper = require('@condo/domains/ticket/utils/serverSchema/propertyPercentDataMapper')
 const propertySummaryPercentDataMapper = require('@condo/domains/ticket/utils/serverSchema/propertySummaryPercentDataMapper')
+const categoryClassifierSingleDataMapper = require('@condo/domains/ticket/utils/serverSchema/categoryClassifierSingleDataMapper')
+const categoryClassifierSummaryDataMapper = require('@condo/domains/ticket/utils/serverSchema/categoryClassifierSummaryDataMapper')
 
 const PERCENT_AGGREGATION_TOKENS = ['property-status', 'categoryClassifier-status', 'assignee-status', 'executor-status']
 
@@ -229,7 +231,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
         },
         {
             access: true,
-            type: 'input ExportTicketAnalyticsToExcelTranslates { property: String }',
+            type: 'input ExportTicketAnalyticsToExcelTranslates { property: String, assignee: String, executor: String, categoryClassifier: String }',
         },
         {
             access: true,
@@ -315,7 +317,11 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                         })
                     } else {
                         Object.entries(result).forEach(([ticketType, dataObject]) => {
-                            const { rows } = propertySummaryDataMapper({ row: dataObject, constants: { address } })
+                            const mapperData = {
+                                row: dataObject, constants: { address, categoryClassifier, assignee, executor },
+                            }
+
+                            const { rows } = propertySummaryDataMapper(mapperData)
                             tableColumns[ticketType] = rows[ticketType]()
                             tableColumns.address = rows.address()
                         })

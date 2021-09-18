@@ -6483,6 +6483,9 @@ export type ExportTicketAnalyticsToExcelOutput = {
 
 export type ExportTicketAnalyticsToExcelTranslates = {
   property?: Maybe<Scalars['String']>;
+  assignee?: Maybe<Scalars['String']>;
+  executor?: Maybe<Scalars['String']>;
+  categoryClassifier?: Maybe<Scalars['String']>;
 };
 
 export type ExportTicketsToExcelInput = {
