@@ -44,7 +44,7 @@ import {
     TICKET_REPORT_DAY_GROUP_STEPS,
     TICKET_REPORT_TABLE_MAIN_GROUP,
 } from '@condo/domains/ticket/constants/common'
-import { TicketGroupedCounter, TicketLabel } from '../../../../schema'
+import { ExportTicketAnalyticsToExcelTranslates, TicketGroupedCounter, TicketLabel } from '../../../../schema'
 import { ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 
 dayjs.extend(quarterOfYear)
@@ -782,14 +782,14 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
             const { AND, groupBy } = filterToQuery({ filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy })
             const where = { organization: { id: userOrganizationId }, AND }
             const filters = filtersRef.current
-            const translates = {
+            const translates: ExportTicketAnalyticsToExcelTranslates = {
                 property: filters.addressList.length
                     ? filters.addressList.map(({ value }) => value).join('@')
                     : AllAddressTitle,
                 categoryClassifier: filters.classifierList
                     ? filters.classifierList.map(({ value }) => value).join('@')
                     : AllCategoryClassifiersTitle,
-                executors: filters.executorList.length
+                executor: filters.executorList.length
                     ? filters.executorList.map(({ value }) => value).join('@')
                     : AllExecutorsTitle,
                 assignee: filters.responsibleList.length
