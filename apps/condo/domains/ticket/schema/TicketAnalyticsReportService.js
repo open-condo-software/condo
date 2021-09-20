@@ -28,6 +28,17 @@ const propertyPercentDataMapper = require('@condo/domains/ticket/utils/serverSch
 const propertySummaryPercentDataMapper = require('@condo/domains/ticket/utils/serverSchema/propertySummaryPercentDataMapper')
 const categoryClassifierSingleDataMapper = require('@condo/domains/ticket/utils/serverSchema/categoryClassifierSingleDataMapper')
 const categoryClassifierSummaryDataMapper = require('@condo/domains/ticket/utils/serverSchema/categoryClassifierSummaryDataMapper')
+const categoryClassifierPercentSingleDataMapper = require('@condo/domains/ticket/utils/serverSchema/categoryClassifierPercentSingleDataMapper')
+const categoryClassifierPercentSummaryDataMapper = require('@condo/domains/ticket/utils/serverSchema/categoryClassifierPercentSummaryDataMapper')
+const executorSingleDataMapper = require('@condo/domains/ticket/utils/serverSchema/executorSingleDataMapper')
+const executorSummaryDataMapper = require('@condo/domains/ticket/utils/serverSchema/executorSummaryDataMapper')
+const executorPercentSingleDataMapper = require('@condo/domains/ticket/utils/serverSchema/executorPercentSingleDataMapper')
+const executorPercentSummaryDataMapper = require('@condo/domains/ticket/utils/serverSchema/executorPercentSummaryDataMapper')
+const assigneeSingleDataMapper = require('@condo/domains/ticket/utils/serverSchema/assigneeSingleDataMapper')
+const assigneeSummaryDataMapper = require('@condo/domains/ticket/utils/serverSchema/assigneeSummaryDataMapper')
+const assigneePercentSingleDataMapper = require('@condo/domains/ticket/utils/serverSchema/assigneePercentSingleDataMapper')
+const assigneePercentSummaryDataMapper = require('@condo/domains/ticket/utils/serverSchema/assigneePercentSummaryDataMapper')
+
 
 const PERCENT_AGGREGATION_TOKENS = ['property-status', 'categoryClassifier-status', 'assignee-status', 'executor-status']
 
@@ -301,6 +312,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                 }
 
                 const tickets = []
+                // TODO(sitozzz): simplify logic
                 if (rowColumns.length === 0) {
                     const tableColumns = {}
                     if (PERCENT_AGGREGATION_TOKENS.includes(groupByToken)) {
@@ -309,19 +321,65 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                                 previousCount + sum(Object.values(currentAggregateObject)), 0)
 
                         Object.entries(result).forEach(([ticketType, dataObject]) => {
-                            const { rows } = propertySummaryPercentDataMapper(
-                                { row: dataObject, constants: { address, totalCount } }
-                            )
+                            let rows = null
+                            switch (groupBy[0]) {
+                                case 'property':
+                                    rows = propertySummaryPercentDataMapper(
+                                        { row: dataObject, constants: { address, totalCount } }
+                                    ).rows
+                                    break
+                                case 'categoryClassifier':
+                                    rows = categoryClassifierPercentSummaryDataMapper(
+                                        { row: dataObject, constants: { address, totalCount, categoryClassifier } }
+                                    ).rows
+                                    tableColumns.categoryClassifier = rows.categoryClassifier()
+                                    break
+                                case 'executor':
+                                    rows = executorPercentSummaryDataMapper(
+                                        { row: dataObject, constants: { address, totalCount, executor } }
+                                    ).rows
+                                    tableColumns.executor = rows.executor()
+                                    break
+                                case 'assignee':
+                                    rows = assigneePercentSummaryDataMapper(
+                                        { row: dataObject, constants: { address, totalCount, assignee } }
+                                    ).rows
+                                    tableColumns.assignee = rows.assignee()
+                                    break
+                                default:
+                                    throw new Error('unknown filter' + groupBy[1])
+                            }
+
                             tableColumns[ticketType] = rows[ticketType]()
                             tableColumns.address = rows.address()
                         })
                     } else {
                         Object.entries(result).forEach(([ticketType, dataObject]) => {
+                            let rows = null
                             const mapperData = {
                                 row: dataObject, constants: { address, categoryClassifier, assignee, executor },
                             }
 
-                            const { rows } = propertySummaryDataMapper(mapperData)
+                            switch (groupBy1) {
+                                case 'status':
+                                case 'property':
+                                    rows = propertySummaryDataMapper(mapperData).rows
+                                    break
+                                case 'categoryClassifier':
+                                    rows = categoryClassifierSummaryDataMapper(mapperData).rows
+                                    tableColumns.categoryClassifier = rows.categoryClassifier()
+                                    break
+                                case 'executor':
+                                    rows = executorSummaryDataMapper(mapperData).rows
+                                    tableColumns.executor = rows.executor()
+                                    break
+                                case 'assignee':
+                                    rows = assigneeSummaryDataMapper(mapperData).rows
+                                    tableColumns.assignee = rows.assignee()
+                                    break
+                                default:
+                                    throw new Error('unknown filter ' + groupBy1)
+                            }
                             tableColumns[ticketType] = rows[ticketType]()
                             tableColumns.address = rows.address()
                         })
@@ -331,6 +389,9 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                     switch (groupBy[1]) {
                         case 'status':
                         case 'property':
+                        case 'categoryClassifier':
+                        case 'executor':
+                        case 'assignee':
                             if (PERCENT_AGGREGATION_TOKENS.includes(groupByToken)) {
                                 const totalCounts = {}
                                 Object.values(result).forEach((dataObj) => {
@@ -344,9 +405,38 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                                     const tableRow = {}
                                     Object.entries(result).forEach(rowEntry => {
                                         const [ticketType, dataObj] = rowEntry
-                                        const { rows } = propertyPercentDataMapper({
-                                            row: dataObj, constants: { address: rowAddress, totalCounts },
-                                        })
+                                        let rows = null
+                                        switch (groupBy2) {
+                                            case 'property':
+                                                rows = propertyPercentDataMapper({
+                                                    row: dataObj, constants: { address: rowAddress, totalCounts },
+                                                }).rows
+                                                break
+                                            case 'categoryClassifier':
+                                                rows = categoryClassifierPercentSingleDataMapper({
+                                                    row: dataObj,
+                                                    constants: { address, totalCounts, categoryClassifier: rowAddress },
+                                                }).rows
+                                                tableRow.categoryClassifier = rows.categoryClassifier()
+                                                break
+                                            case 'executor':
+                                                rows = executorPercentSingleDataMapper({
+                                                    row: dataObj,
+                                                    constants: { address, totalCounts, executor: rowAddress },
+                                                }).rows
+                                                tableRow.executor = rows.executor()
+                                                break
+                                            case 'assignee':
+                                                rows = assigneePercentSingleDataMapper({
+                                                    row: dataObj,
+                                                    constants: { address, totalCounts, assignee: rowAddress },
+                                                }).rows
+                                                tableRow.assignee = rows.assignee()
+                                                break
+                                            default:
+                                                throw new Error('unknown filter ' + groupBy[1])
+                                        }
+
                                         tableRow[ticketType] = rows[ticketType]()
                                         tableRow.address = rows.address()
                                     })
@@ -356,9 +446,35 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                                 rowColumns.forEach((rowAddress) => {
                                     const tableRow = {}
                                     Object.entries(result).forEach(([ticketType, dataObject]) => {
-                                        const { rows } = propertySingleDataMapper(
-                                            { row: dataObject, constants: { address: rowAddress } }
-                                        )
+                                        let rows = null
+                                        switch (groupBy[1]) {
+                                            case 'property':
+                                                rows = propertySingleDataMapper(
+                                                    { row: dataObject, constants: { address: rowAddress } }
+                                                ).rows
+                                                break
+                                            case 'categoryClassifier':
+                                                rows = categoryClassifierSingleDataMapper({
+                                                    row: dataObject, constants: { address, categoryClassifier: rowAddress },
+                                                }).rows
+                                                tableRow.categoryClassifier = rows.categoryClassifier()
+                                                break
+                                            case 'executor':
+                                                rows = executorSingleDataMapper({
+                                                    row: dataObject, constants: { address, executor: rowAddress },
+                                                }).rows
+                                                tableRow.executor = rows.executor()
+                                                break
+                                            case 'assignee':
+                                                rows = assigneeSingleDataMapper({
+                                                    row: dataObject, constants: { address, assignee: rowAddress },
+                                                }).rows
+                                                tableRow.assignee = rows.assignee()
+                                                break
+                                            default:
+                                                throw new Error('unknown filter ' + groupBy1)
+                                        }
+
                                         tableRow[ticketType] = rows[ticketType]()
                                         tableRow.address = rows.address()
                                     })

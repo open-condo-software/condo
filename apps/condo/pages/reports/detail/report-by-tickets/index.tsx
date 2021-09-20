@@ -786,7 +786,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                 property: filters.addressList.length
                     ? filters.addressList.map(({ value }) => value).join('@')
                     : AllAddressTitle,
-                categoryClassifier: filters.classifierList
+                categoryClassifier: filters.classifierList.length
                     ? filters.classifierList.map(({ value }) => value).join('@')
                     : AllCategoryClassifiersTitle,
                 executor: filters.executorList.length
