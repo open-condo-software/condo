@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useState } from 'react'
 import { Modal, Typography } from 'antd'
 import { get } from 'lodash'
 import { useMeterInfoModalTableColumns } from './useTableColumns'
@@ -36,7 +36,6 @@ export const useMeterInfoModal = () => {
 
         const address = get(meter, ['property', 'address'])
         const meterNumber = get(meter, 'number')
-        console.log('meterNumber', meterNumber)
 
         const columns = useMeterInfoModalTableColumns()
 
