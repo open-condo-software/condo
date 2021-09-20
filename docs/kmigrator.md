@@ -147,6 +147,7 @@ Some examples for `Q` queries:
  - `Q(age__gte=18)` -- Ensures the age field is never less than 18, SQL: `id >= 18`
  - `Q(age__gt=18)` -- Ensures the age field is greater than 18, SQL: `id > 18`
  - `Q(age__lt=18)` -- Ensures the age field is less than 18, SQL: `id < 18`
+ - `Q(startAt__lt=models.F("finishAt"))` ensures, that `startAt < finishAt`
  - `Q(id__exact=14)` -- Exact match, SQL: `id = 14`
  - `Q(id__exact=None)` -- If the value provided for comparison is None, it will be interpreted as an SQL NULL, SQL: `id IS NULL`
  - `Q(name__iexact='beatles blog')` -- Case-insensitive exact match
