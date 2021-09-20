@@ -65,6 +65,7 @@ registerSchemas(keystone, [
     require('@condo/domains/onboarding/schema'),
     require('@condo/domains/division/schema'),
     require('@condo/domains/meter/schema'),
+    require('@condo/domains/subscription/schema'),
 ])
 
 registerTasks([
