@@ -1,36 +1,59 @@
 import { Input, Space } from 'antd'
-import React from 'react'
+import React, { CSSProperties } from 'react'
 import { useIntl } from '@core/next/intl'
 import { Button } from './Button'
 import { FilterFilled } from '@ant-design/icons'
 import { colors } from '../constants/style'
 import { FilterDropdownProps } from 'antd/lib/table/interface'
 
-interface IFilterContainerProps {
+export interface IFilterContainerProps {
     clearFilters: () => void
     showClearButton?: boolean
+    style?: CSSProperties
 }
 
-export const FilterContainer: React.FC<IFilterContainerProps> = (props) => {
+const FilterContainerContent: React.FC<IFilterContainerProps> = (props) => {
     const intl = useIntl()
     const ResetLabel = intl.formatMessage({ id: 'filters.Reset' })
 
     return (
+        <>
+            {props.children}
+            {
+                props.showClearButton && (
+                    <Button
+                        size={'small'}
+                        onClick={() => props.clearFilters()}
+                        type={'inlineLink'}
+                    >
+                        {ResetLabel}
+                    </Button>
+                )
+            }
+        </>
+    )
+}
+
+export const FilterContainer: React.FC<IFilterContainerProps> = (props) => {
+    return (
         <div style={{ padding: 16 }}>
             <Space size={8} direction={'vertical'} align={'center'}>
-                {props.children}
-                {
-                    props.showClearButton && (
-                        <Button
-                            size={'small'}
-                            onClick={() => props.clearFilters()}
-                            type={'inlineLink'}
-                        >
-                            {ResetLabel}
-                        </Button>
-                    )
-                }
+                <FilterContainerContent {...props}/>
             </Space>
+        </div>
+    )
+}
+
+export const SelectFilterContainer: React.FC<IFilterContainerProps> = (props) => {
+    return (
+        <div style={{
+            padding: 16,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-end',
+            gap: '10px',
+            ...props.style }}>
+            <FilterContainerContent {...props}/>
         </div>
     )
 }

@@ -14,7 +14,7 @@ type GraphQlSearchInputOption = {
 export type RenderOptionFunc = (option: GraphQlSearchInputOption) => JSX.Element
 
 // TODO: add apollo cache shape typings
-interface ISearchInputProps extends SelectProps<string> {
+export interface ISearchInputProps extends SelectProps<string> {
     search: (client: ApolloClient<Record<string, unknown>>, queryArguments: string) => Promise<Array<Record<string, unknown>>>
     onSelect?: (...args: Array<unknown>) => void
     onChange?: (...args: Array<unknown>) => void
