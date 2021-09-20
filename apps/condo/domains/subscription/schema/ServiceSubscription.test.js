@@ -26,10 +26,55 @@ describe('ServiceSubscription', () => {
 
             await catchErrorFrom(async () => {
                 await createTestServiceSubscription(adminClient, organization, attrs)
-            }, ({errors, data}) => {
+            }, ({ errors, data }) => {
                 expect(errors[0].message).toMatch('violates check constraint "startAt_is_before_finishAt"')
                 expect(data).toEqual({ 'obj': null })
             })
+        })
+
+        it('cannot overlap existing records', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(adminClient)
+
+            const [firstSubscription] = await createTestServiceSubscription(adminClient, organization, {
+                startAt: dayjs(),
+                finishAt: dayjs().add(15, 'days'),
+            })
+
+            await catchErrorFrom(async () => {
+                await createTestServiceSubscription(adminClient, organization, {
+                    startAt: dayjs().subtract(1, 'day'),
+                    finishAt: dayjs().add(14, 'days'),
+                })
+            }, ({ errors, data }) => {
+                expect(errors[0].data.messages[0]).toMatch('[overlapping]')
+                expect(data).toEqual({ 'obj': null })
+            })
+
+            const [secondSubscription] = await createTestServiceSubscription(adminClient, organization, {
+                startAt: dayjs().add(15, 'days'),
+                finishAt: dayjs().add(30, 'days'),
+            })
+
+            expect(secondSubscription).toBeDefined()
+
+            const overlappingPayload = {
+                startAt: dayjs(firstSubscription.finishAt).subtract(1, 'day'),
+            }
+
+            await catchErrorFrom(async () => {
+                await updateTestServiceSubscription(adminClient, secondSubscription.id, overlappingPayload)
+            }, ({ errors, data }) => {
+                expect(errors[0].data.messages[0]).toMatch('[overlapping]')
+                expect(data).toEqual({ 'obj': null })
+            })
+
+            const nonOverlappingPayload = {
+                startAt: dayjs(firstSubscription.finishAt).add(1, 'day'),
+            }
+
+            const [updatedSecondSubscription] = await updateTestServiceSubscription(adminClient, secondSubscription.id, nonOverlappingPayload)
+            expect(updatedSecondSubscription.startAt).toEqual(nonOverlappingPayload.startAt.toISOString())
         })
     })
 

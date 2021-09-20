@@ -8,6 +8,9 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/subscription/access/ServiceSubscription')
 const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
+const { ServiceSubscription: ServiceSubscriptionAPI } = require('../utils/serverSchema')
+const get = require('lodash/get')
+const { OVERLAPPING_ERROR } = require('../constants/errors')
 
 
 const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
@@ -52,6 +55,28 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
                 name: 'startAt_is_before_finishAt',
             },
         ],
+    },
+    hooks: {
+        validateInput: async ({ resolvedData, operation, existingItem, addValidationError, context }) => {
+            // It makes no sense:
+            // - To create subscription in past
+            let organizationId
+            if (operation === 'create') {
+                organizationId = get(resolvedData, 'organization')
+            } else if (operation === 'update') {
+                organizationId = get(existingItem, 'organization')
+            }
+            if (!organizationId) {
+                throw new Error('No organization set for ServiceSubscription')
+            }
+            const overlappedSubscriptionsCount = await ServiceSubscriptionAPI.count(context, {
+                startAt_gte: resolvedData.startAt,
+                organization: { id: organizationId },
+            })
+            if (overlappedSubscriptionsCount > 0) {
+                return addValidationError(`${OVERLAPPING_ERROR} subscription for current organization overlaps already existing by its time period`)
+            }
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
