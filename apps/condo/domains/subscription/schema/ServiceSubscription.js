@@ -51,6 +51,11 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
         constraints: [
             {
                 type: 'models.CheckConstraint',
+                check: 'Q(type__in=["default", "sbbol"])',
+                name: 'type_values_check',
+            },
+            {
+                type: 'models.CheckConstraint',
                 check: 'Q(startAt__lt=models.F("finishAt"))',
                 name: 'startAt_is_before_finishAt',
             },
