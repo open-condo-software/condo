@@ -99,7 +99,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 dataIndex: ['meter', 'place'],
                 key: 'place',
                 sorter: true,
-                width: '6%',
+                width: '8%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'place'),
                 render: getTextRender(search),
                 filterIcon: getFilterIcon,

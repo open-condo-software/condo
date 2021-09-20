@@ -256,7 +256,7 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
                     },
                 },
             },
-            { keyword: 'search', filters: [addressFilter, accountNumberFilter, placeFilter], combineType: 'OR' },
+            { keyword: 'search', filters: [accountNumberFilter, placeFilter], combineType: 'OR' },
         ]
     }, [sources, resources])
 }
