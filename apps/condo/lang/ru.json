@@ -389,6 +389,7 @@
   "pages.condo.meter.AddHeatSupplyMeterModalTitle": "теплоснабжения",
   "pages.condo.meter.MeterNumber": "№ прибора учета",
   "pages.condo.meter.MeterPlace": "Место установки счетчика",
+  "pages.condo.meter.NumberOfMeter": "Прибор учета номер",
   "pages.condo.meter.MeterIsExistMessage": "Прибор учета с таким номером уже существует в организации",
   "pages.condo.meter.TariffsNumber": "Количество тарифов",
   "pages.condo.meter.InstallationDate": "Дата установки",

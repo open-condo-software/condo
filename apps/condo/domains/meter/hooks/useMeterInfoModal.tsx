@@ -1,12 +1,27 @@
-import React, { useState } from 'react'
-import { Modal } from 'antd'
+import React, { useCallback, useState } from 'react'
+import { Modal, Typography } from 'antd'
 import { get } from 'lodash'
 import { useMeterInfoModalTableColumns } from './useTableColumns'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { Meter } from '../utils/clientSchema'
+import { useIntl } from '@core/next/intl'
 
 type IMeterInfoModalProps = {
     meterId: string
+}
+
+const MeterTitle = ({ address, meterNumber }) => {
+    const intl = useIntl()
+    const MeterNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.NumberOfMeter' })
+
+    return (
+        <>
+            <Typography.Title level={3}>{address}</Typography.Title>
+            <Typography.Text type={'secondary'} style={{ fontSize: '14px' }}>
+                {MeterNumberMessage} {meterNumber}
+            </Typography.Text>
+        </>
+    )
 }
 
 export const useMeterInfoModal = () => {
@@ -20,11 +35,14 @@ export const useMeterInfoModal = () => {
         })
 
         const address = get(meter, ['property', 'address'])
+        const meterNumber = get(meter, 'number')
+        console.log('meterNumber', meterNumber)
+
         const columns = useMeterInfoModalTableColumns()
 
         return (
             <Modal
-                title={address}
+                title={<MeterTitle address={address} meterNumber={meterNumber} />}
                 visible={isMeterInfoModalVisible}
                 centered
                 footer={null}

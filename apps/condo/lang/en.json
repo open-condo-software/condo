@@ -388,6 +388,7 @@
   "pages.condo.meter.AddHeatSupplyMeterModalTitle": "heat supply",
   "pages.condo.meter.MeterNumber": "Meter number",
   "pages.condo.meter.MeterPlace": "Meter place",
+  "pages.condo.meter.NumberOfMeter": "Number of meter device",
   "pages.condo.meter.MeterIsExistMessage": "Meter with same number exist in organization",
   "pages.condo.meter.TariffsNumber": "Number of tariffs",
   "pages.condo.meter.InstallationDate": "Date of installation",

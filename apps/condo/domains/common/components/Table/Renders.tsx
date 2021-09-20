@@ -80,7 +80,7 @@ export const renderMeterReading = (values: string[], measure: string) => {
     const stringValues = values.reduce((acc, value, index) => {
         if (!value) return acc
         if (index !== 0) acc += ', '
-        return acc += `T-${index + 1} - ${getIntegerPartOfreading(value)} ${measure}`
+        return acc += `T${index + 1} - ${getIntegerPartOfreading(value)} ${measure}`
     }, '')
 
     console.log(stringValues)
