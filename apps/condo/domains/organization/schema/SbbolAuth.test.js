@@ -59,15 +59,21 @@ const tryCreateSync = async (userInfo) => {
     return Sync
 }
 
+const sleep = (seconds) => new Promise(resolve => {
+    setTimeout(resolve, seconds * 1000)
+})
+
 const createSync = async (userInfo) => {
     const retries = 10
-    new Array(retries).fill('').map(async () => {
+    new Array(retries).fill('').map(async (_, idx) => {
+        console.log('CreateSync retry ', idx)
         try {
             const sync = await tryCreateSync(userInfo)
             return sync
         } catch (err) {
             console.log('Failed to create sync')
         }
+        await sleep(5)
     })
 }
 
