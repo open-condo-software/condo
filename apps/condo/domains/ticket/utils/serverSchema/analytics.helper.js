@@ -101,6 +101,7 @@ const aggregateData = (data, groupByDependencyList) => {
     let groupByFilter = [...groupByDependencyList]
     switch (groupByDependencyList[0]) {
         case 'property':
+        case 'categoryClassifier':
             groupByFilter = groupByFilter.reverse()
             break
         default:
