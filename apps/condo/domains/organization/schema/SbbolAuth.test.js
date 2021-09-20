@@ -61,7 +61,7 @@ const tryCreateSync = async (userInfo) => {
 
 const createSync = async (userInfo) => {
     const retries = 10
-    new Array(retries).fill('').map(() => {
+    new Array(retries).fill('').map(async () => {
         try {
             const sync = await tryCreateSync(userInfo)
             return sync
