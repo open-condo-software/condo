@@ -108,6 +108,7 @@ export function getFilterDropdownByKey <T> (filterMetas: Array<FiltersMeta<T>>, 
 
         case ComponentType.Select: {
             const options = get(component, 'options')
+            console.log('options', options)
             const loading = get(component, 'loading')
             const mode = get(component, ['props', 'mode'])
             return getSelectFilterDropdown(options, loading, mode, columnFilterComponentWrapperStyles)

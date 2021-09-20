@@ -2,7 +2,7 @@
 import { jsx } from '@emotion/core'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { MeterReading, MeterReadingSource, MeterResource } from '@condo/domains/meter/utils/clientSchema'
+import { MeterReading } from '@condo/domains/meter/utils/clientSchema'
 import { DatabaseFilled, FilterFilled } from '@ant-design/icons'
 import { useIntl } from '@core/next/intl'
 import { useLazyQuery } from '@core/next/apollo'
@@ -14,29 +14,21 @@ import React, { useCallback, useState } from 'react'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Button } from '@condo/domains/common/components/Button'
 import { useOrganization } from '@core/next/organization'
-import { MeterReadingWhereInput, SortMeterReadingsBy } from '../../schema'
+import { SortMeterReadingsBy } from '../../schema'
 import {
-    getDayGteFilter,
-    getDayLteFilter,
-    getDayRangeFilter,
-    getFilter,
     getPageIndexFromOffset,
-    getStringContainsFilter,
     parseQuery,
 } from '@condo/domains/common/utils/tables.utils'
-import { useTableColumns } from '../../domains/meter/hooks/useTableColumns'
+import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
-import { useQueryMappers } from '../../domains/common/hooks/useQueryMappers'
+import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { EXPORT_METER_READINGS } from '@condo/domains/meter/gql'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { useMeterInfoModal } from '../../domains/meter/hooks/useMeterInfoModal'
-import { useMultipleFiltersModal } from '../../domains/common/hooks/useMultipleFiltersModal'
-import { searchOrganizationProperty } from '../../domains/ticket/utils/clientSchema/search'
-import { ComponentType, FilterComponentSize, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
-import { useFilters } from '../../domains/meter/hooks/useFilters'
-
+import { useMeterInfoModal } from '@condo/domains/meter/hooks/useMeterInfoModal'
+import { useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultipleFiltersModal'
+import { useFilters } from '@condo/domains/meter/hooks/useFilters'
 
 export const ExportToExcelActionBar = ({
     searchMeterReadingsQuery,
