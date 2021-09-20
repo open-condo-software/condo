@@ -771,6 +771,9 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                 ticketType,
                 viewMode,
                 addressList: JSON.stringify(filtersRef.current.addressList),
+                executorList: JSON.stringify(filtersRef.current.executorList),
+                assigneeList: JSON.stringify(filtersRef.current.responsibleList),
+                categoryClassifierList: JSON.stringify(filtersRef.current.classifierList),
                 specification: filtersRef.current.specification,
             }))
         },

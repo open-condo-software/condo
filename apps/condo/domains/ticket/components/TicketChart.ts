@@ -40,6 +40,7 @@ export type ChartConfigResult = {
     tooltip?: {
         trigger: string,
         axisPointer: { type: string }
+        show?: boolean
     },
     color?: string[]
 }
@@ -54,7 +55,8 @@ interface IGetChartConfig extends IGetBaseChartConfig<ViewModeTypes, TicketGroup
         },
         tooltip?: {
             trigger,
-            axisPointer: { type }
+            axisPointer: { type },
+            show?: boolean
         }
         color?: string[]
     }
