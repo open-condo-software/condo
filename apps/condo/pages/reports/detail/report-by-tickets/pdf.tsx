@@ -10,16 +10,20 @@ import { TICKET_ANALYTICS_REPORT_QUERY } from '@condo/domains/ticket/gql'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
+import sum from 'lodash/sum'
 import { createPdfWithPageBreaks } from '@condo/domains/common/utils/pdf'
 import dayjs from 'dayjs'
 import { filterToQuery, getAggregatedData } from '@condo/domains/ticket/utils/helpers'
 import { Loader } from '@condo/domains/common/components/Loader'
-import { DATE_DISPLAY_FORMAT, PDF_REPORT_WIDTH } from '@condo/domains/ticket/constants/common'
+import {
+    DATE_DISPLAY_FORMAT,
+    PDF_REPORT_WIDTH,
+    TICKET_REPORT_TABLE_MAIN_GROUP,
+} from '@condo/domains/ticket/constants/common'
 import { Logo } from '@condo/domains/common/components/Logo'
 import { colors } from '@condo/domains/common/constants/style'
 import TicketChart from '@condo/domains/ticket/components/TicketChart'
 import { TicketAnalyticsGroupBy, TicketGroupedCounter, TicketLabel } from '../../../../schema'
-import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 
 const PdfView = () => {
     const intl = useIntl()
@@ -43,7 +47,6 @@ const PdfView = () => {
     const [chartLoading, setChartLoading] = useState(true)
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
-    const propertyPageEnabled = hasFeature('analytics_property')
 
     const [loadTicketAnalyticsData] = useLazyQuery(TICKET_ANALYTICS_REPORT_QUERY, {
         onError: error => {
@@ -68,7 +71,10 @@ const PdfView = () => {
         const dateFrom = get(queryParams, 'dateFrom', dayjs().subtract(1, 'week'))
         const dateTo = get(queryParams, 'dateTo', dayjs())
         const addressList = JSON.parse(get(queryParams, 'addressList', '[]'))
-        const mainGroup = propertyPageEnabled ? get(queryParams, 'groupBy', 'status') : 'status'
+        const classifierList = JSON.parse(get(queryParams, 'categoryClassifierList', '[]'))
+        const executorList = JSON.parse(get(queryParams, 'executorList', '[]'))
+        const assigneeList = JSON.parse(get(queryParams, 'assigneeList', '[]'))
+        const mainGroup = get(queryParams, 'groupBy', 'status')
         const specification = get(queryParams, 'specification', 'day')
         const viewMode = get(queryParams, 'viewMode', 'line')
         const ticketType = get(queryParams, 'ticketType', 'all')
@@ -79,6 +85,9 @@ const PdfView = () => {
                 range: [dayjs(dateFrom), dayjs(dateTo)],
                 addressList,
                 specification,
+                classifierList,
+                executorList,
+                responsibleList: assigneeList,
             },
             mainGroup,
         })
@@ -169,7 +178,7 @@ const PdfView = () => {
                             })
                         })
                         const axisData = { yAxis: { type: 'category', data: axisLabels }, xAxis: { type: 'value', data: null } }
-                        const tooltip = { trigger: 'item', axisPointer: { type: 'line' } }
+                        const tooltip = { trigger: 'item', axisPointer: { type: 'line' }, show: false }
                         const result = { series, legend, axisData, tooltip }
                         if (groupByRef.current[0] === 'status') {
                             result['color'] = ticketLabelsRef.current.map(({ color }) => color)
@@ -186,31 +195,67 @@ const PdfView = () => {
                             { title: translations['address'], dataIndex: 'address', key: 'address', sorter: (a, b) => a['address'] - b['address'] },
                             ...Object.entries(data).map(([key]) => ({ title: key, dataIndex: key, key, sorter: (a, b) => a[key] - b[key] })),
                         ]
+
+                        if (TICKET_REPORT_TABLE_MAIN_GROUP.includes(groupByRef.current[1])) {
+                            tableColumns.unshift({
+                                title: translations[groupByRef.current[1]],
+                                dataIndex: groupByRef.current[1],
+                                key: groupByRef.current[1],
+                                sorter: (a, b) => a[groupByRef.current[1]] - b[groupByRef.current[1]],
+                            })
+                        }
+
                         const restTableColumns = {}
-                        const addressList = get(filters, 'addresses')
-                        const aggregateSummary = addressList !== undefined && addressList.length === 0
+                        // TODO(sitozzz): clear filter on tab change or get current array
+                        const addressList = get(filters, 'address', [])
+                        const categoryClassifierList = get(filters, 'categoryClassifier', [])
+                        const executorList = get(filters, 'executor', [])
+                        const assigneeList = get(filters, 'assignee', [])
+                        const aggregateSummary = [addressList, categoryClassifierList, executorList, assigneeList]
+                            .every(filterList => filterList.length === 0)
                         if (aggregateSummary) {
                             Object.entries(data).forEach((rowEntry) => {
                                 const [ticketType, dataObj] = rowEntry
                                 const counts = Object.values(dataObj) as number[]
-                                restTableColumns[ticketType] = counts.reduce((a, b) => a + b, 0)
+                                restTableColumns[ticketType] = sum(counts)
                             })
                             dataSource.push({
                                 key: 0,
                                 address: translations['allAddresses'],
+                                categoryClassifier: translations['allCategoryClassifiers'],
+                                executor: translations['allExecutors'],
+                                assignee: translations['allAssignees'],
                                 ...restTableColumns,
                             })
                         } else {
-                            addressList.forEach((address, key) => {
-                                const tableRow = { key, address }
-                                Object.entries(data).forEach(rowEntry => {
-                                    const [ticketType, dataObj] = rowEntry
-                                    const counts = Object.entries(dataObj)
-                                        .filter(obj => obj[0] === address).map(e => e[1]) as number[]
-                                    tableRow[ticketType] = counts.reduce((a, b) => a + b, 0)
+                            const mainAggregation = TICKET_REPORT_TABLE_MAIN_GROUP.includes(groupByRef.current[1]) ? get(filters, groupByRef.current[1], []) : null
+                            // TODO(sitozzz): find clean solution for aggregation by 2 id_in fields
+                            if (mainAggregation === null) {
+                                addressList.forEach((address, key) => {
+                                    const tableRow = { key, address }
+                                    Object.entries(data).forEach(rowEntry => {
+                                        const [ticketType, dataObj] = rowEntry
+                                        const counts = Object.entries(dataObj)
+                                            .filter(obj => obj[0] === address).map(e => e[1]) as number[]
+                                        tableRow[ticketType] = sum(counts)
+                                    })
+                                    dataSource.push(tableRow)
                                 })
-                                dataSource.push(tableRow)
-                            })
+                            } else {
+                                mainAggregation.forEach((aggregateField, key) => {
+                                    const tableRow = { key, [groupByRef.current[1]]: aggregateField }
+                                    tableRow['address'] = addressList.length
+                                        ? addressList.join(', ')
+                                        : translations['allAddresses']
+                                    Object.entries(data).forEach(rowEntry => {
+                                        const [ticketType, dataObj] = rowEntry
+                                        const counts = Object.entries(dataObj)
+                                            .filter(obj => obj[0] === aggregateField).map(e => e[1]) as number[]
+                                        tableRow[ticketType] = sum(counts)
+                                    })
+                                    dataSource.push(tableRow)
+                                })
+                            }
                         }
                         return { dataSource, tableColumns }
                     },
@@ -222,6 +267,9 @@ const PdfView = () => {
                         const dateFrom = get(queryParams, 'dateFrom', dayjs().subtract(1, 'week'))
                         const dateTo = get(queryParams, 'dateTo', dayjs())
                         const addressList = JSON.parse(get(queryParams, 'addressList', '[]'))
+                        const classifierList = JSON.parse(get(queryParams, 'categoryClassifierList', '[]'))
+                        const executorList = JSON.parse(get(queryParams, 'executorList', '[]'))
+                        const assigneeList = JSON.parse(get(queryParams, 'assigneeList', '[]'))
                         const mainGroup = get(queryParams, 'groupBy', 'status')
                         const specification = get(queryParams, 'specification', 'day')
                         const ticketType = get(queryParams, 'ticketType', 'all')
@@ -232,6 +280,9 @@ const PdfView = () => {
                                 range: [dayjs(dateFrom), dayjs(dateTo)],
                                 addressList,
                                 specification,
+                                executorList: executorList,
+                                classifierList,
+                                responsibleList: assigneeList,
                             },
                             mainGroup,
                         })
@@ -297,7 +348,6 @@ const PdfView = () => {
                         const queryParams = getQueryParams()
                         const dateFrom = get(queryParams, 'dateFrom', dayjs().subtract(1, 'week'))
                         const dateTo = get(queryParams, 'dateTo', dayjs())
-                        const addressList = JSON.parse(get(queryParams, 'addressList', '[]'))
                         const mainGroup = get(queryParams, 'groupBy', 'status')
                         const specification = get(queryParams, 'specification', 'day')
                         const ticketType = get(queryParams, 'ticketType', 'all')
@@ -306,8 +356,11 @@ const PdfView = () => {
                             ticketType,
                             filter: {
                                 range: [dayjs(dateFrom), dayjs(dateTo)],
-                                addressList,
+                                addressList: JSON.parse(get(queryParams, 'addressList', '[]')),
                                 specification,
+                                classifierList: JSON.parse(get(queryParams, 'categoryClassifierList', '[]')),
+                                executorList: JSON.parse(get(queryParams, 'executorList', '[]')),
+                                responsibleList: JSON.parse(get(queryParams, 'assigneeList', '[]')),
                             },
                             mainGroup,
                         })
@@ -319,50 +372,86 @@ const PdfView = () => {
                             ...Object.entries(data).map(([key]) => ({ title: key, dataIndex: key, key, sorter: (a, b) => a[key] - b[key] })),
                         ]
 
+                        if (TICKET_REPORT_TABLE_MAIN_GROUP.includes(groupBy[1])) {
+                            tableColumns.unshift({
+                                title: translations[groupBy[1]],
+                                dataIndex: groupBy[1],
+                                key: groupBy[1],
+                                sorter: (a, b) => a[groupBy[1]] - b[groupBy[1]],
+                            })
+                        }
+
                         const restTableColumns = {}
-                        const addressListRows = get(filters, 'addresses', [])
-                        const aggregateSummary = addressListRows !== undefined && addressListRows.length === 0
+                        const addressList = get(filters, 'addresses', [])
+                        const categoryClassifierList = get(filters, 'categoryClassifier', [])
+                        const executorListRows = get(filters, 'executor', [])
+                        const assigneeListRows = get(filters, 'assignee', [])
+                        const aggregateSummary = [addressList, categoryClassifierList, executorListRows, assigneeListRows]
+                            .every(filterList => filterList.length === 0)
                         if (aggregateSummary) {
                             const totalCount = Object.values(data)
-                                .reduce((prev, curr) => prev + Object.values(curr)
-                                    .reduce((a, b) => a + b, 0), 0)
+                                .reduce((prev, curr) => prev + sum(Object.values(curr)), 0)
 
                             Object.entries(data).forEach((rowEntry) => {
                                 const [ticketType, dataObj] = rowEntry
                                 const counts = Object.values(dataObj) as number[]
-                                const percentString = ((counts
-                                    .reduce((a, b) => a + b, 0) / totalCount) * 100)
-                                    .toFixed(2) + ' %'
-                                restTableColumns[ticketType] = percentString
+                                restTableColumns[ticketType] = totalCount > 0
+                                    ? ((sum(counts) / totalCount) * 100).toFixed(2) + ' %'
+                                    : totalCount
                             })
                             dataSource.push({
                                 key: 0,
                                 address: translations['allAddresses'],
+                                categoryClassifier: translations['allCategoryClassifiers'],
+                                executor: translations['allExecutors'],
+                                assignee: translations['allAssignees'],
                                 ...restTableColumns,
                             })
                         } else {
                             const totalCounts = {}
                             Object.values(data).forEach((dataObj) => {
-                                Object.entries(dataObj).forEach(([propertyAddress, count]) => {
-                                    if (get(totalCounts, propertyAddress, false)) {
-                                        totalCounts[propertyAddress] += count
+                                Object.entries(dataObj).forEach(([aggregationField, count]) => {
+                                    if (get(totalCounts, aggregationField, false)) {
+                                        totalCounts[aggregationField] += count
                                     } else {
-                                        totalCounts[propertyAddress] = count
+                                        totalCounts[aggregationField] = count
                                     }
                                 })
                             })
-                            addressListRows.forEach((address, key) => {
-                                const tableRow = { key, address }
-                                Object.entries(data).forEach(rowEntry => {
-                                    const [ticketType, dataObj] = rowEntry
-                                    const counts = Object.entries(dataObj)
-                                        .filter(obj => obj[0] === address).map(e => e[1]) as number[]
-                                    const totalPropertyCount = counts.reduce((a, b) => a + b, 0)
-                                    tableRow[ticketType] = (totalPropertyCount / totalCounts[address] * 100)
-                                        .toFixed(2) + ' %'
+                            const mainAggregation = TICKET_REPORT_TABLE_MAIN_GROUP.includes(groupBy[1]) ? get(filters, groupBy[1], []) : null
+
+                            if (mainAggregation === null) {
+                                addressList.forEach((address, key) => {
+                                    const tableRow = { key, address }
+                                    Object.entries(data).forEach(rowEntry => {
+                                        const [ticketType, dataObj] = rowEntry
+                                        const counts = Object.entries(dataObj)
+                                            .filter(obj => obj[0] === address).map(e => e[1]) as number[]
+                                        const totalPropertyCount = sum(counts)
+                                        tableRow[ticketType] = totalCounts[address] > 0
+                                            ? (totalPropertyCount / totalCounts[address] * 100).toFixed(2) + ' %'
+                                            : totalCounts[address]
+                                    })
+                                    dataSource.push(tableRow)
                                 })
-                                dataSource.push(tableRow)
-                            })
+                            } else {
+                                mainAggregation.forEach((aggregateField, key) => {
+                                    const tableRow = { key, [groupBy[1]]: aggregateField }
+                                    tableRow['address'] = addressList.length
+                                        ? addressList.join(', ')
+                                        : translations['allAddresses']
+                                    Object.entries(data).forEach(rowEntry => {
+                                        const [ticketType, dataObj] = rowEntry
+                                        const counts = Object.entries(dataObj)
+                                            .filter(obj => obj[0] === aggregateField).map(e => e[1]) as number[]
+                                        const totalPropertyCount = sum(counts)
+                                        tableRow[ticketType] = totalCounts[aggregateField] > 0
+                                            ? (totalPropertyCount / totalCounts[aggregateField] * 100).toFixed(2) + ' %'
+                                            : totalCounts[aggregateField]
+                                    })
+                                    dataSource.push(tableRow)
+                                })
+                            }
                         }
                         return { dataSource, tableColumns }
                     },
@@ -384,7 +473,9 @@ const PdfView = () => {
         return null
     }
     let ticketTypeTitle = DefaultTickets
-    const { dateFrom, dateTo, viewMode, ticketType, addressList, specification } = queryParamsRef.current
+    const {
+        dateFrom, dateTo, viewMode, ticketType, addressList, specification, executorList, assigneeList, categoryClassifierList,
+    } = queryParamsRef.current
     ticketType === 'paid' && (ticketTypeTitle = PaidTickets)
     ticketType === 'emergency' && (ticketTypeTitle = EmergencyTickets)
     const addressListParsed = JSON.parse(addressList)
@@ -425,6 +516,9 @@ const PdfView = () => {
                         range: [dateFrom, dateTo],
                         addressList: addressListParsed,
                         specification: specification,
+                        classifierList: JSON.parse(categoryClassifierList),
+                        executorList: JSON.parse(executorList),
+                        responsibleList: JSON.parse(assigneeList),
                     }}
                 />
             </Col>
