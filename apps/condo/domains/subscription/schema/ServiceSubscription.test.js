@@ -8,13 +8,31 @@ const { ServiceSubscription, createTestServiceSubscription, updateTestServiceSub
 const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
-    expectToThrowAuthenticationErrorToObj,
+    expectToThrowAuthenticationErrorToObj, catchErrorFrom,
 } = require('../../common/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const dayjs = require('dayjs')
 
 describe('ServiceSubscription', () => {
+    describe('Validations', () => {
+        it('cannot have `startAt` after `finishAt`', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(adminClient)
+            const attrs = {
+                startAt: dayjs(),
+                finishAt: dayjs().subtract(1, 'day'),
+            }
+
+            await catchErrorFrom(async () => {
+                await createTestServiceSubscription(adminClient, organization, attrs)
+            }, ({errors, data}) => {
+                expect(errors[0].message).toMatch('violates check constraint "startAt_is_before_finishAt"')
+                expect(data).toEqual({ 'obj': null })
+            })
+        })
+    })
+
     describe('Create', () => {
         it('can be created by admin', async () => {
             const adminClient = await makeLoggedInAdminClient()
