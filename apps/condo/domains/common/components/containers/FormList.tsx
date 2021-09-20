@@ -1,6 +1,18 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import { Dropdown, Form, FormInstance, Input, List, Menu, Modal, Popconfirm, Skeleton, Typography } from 'antd'
+import {
+    Dropdown,
+    Form,
+    FormInstance,
+    Input,
+    List,
+    Menu,
+    Modal,
+    ModalProps,
+    Popconfirm,
+    Skeleton,
+    Typography,
+} from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import { DownOutlined, PlusOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
@@ -364,6 +376,7 @@ interface IBaseModalFormProps<TRecordFormState, TRecordUIState> extends IFormWit
     ModalCancelButtonLabelMsg?: string
     ModalSaveButtonLabelMsg?: string
     modalExtraFooter?: JSX.Element[]
+    modalProps?: ModalProps,
 }
 
 const BaseModalForm: FunctionComponent<IBaseModalFormProps> = ({
@@ -375,6 +388,7 @@ const BaseModalForm: FunctionComponent<IBaseModalFormProps> = ({
     ModalSaveButtonLabelMsg,
     modalExtraFooter = [],
     children,
+    modalProps,
     ...props
 }) => {
     const intl = useIntl()
@@ -403,14 +417,15 @@ const BaseModalForm: FunctionComponent<IBaseModalFormProps> = ({
             </Button>,
         ]}
         centered
+        {...modalProps}
     >
         <FormWithAction {...props}>
             {
-                ({ handleSave }) => {
+                ({ handleSave, form }) => {
                     handleSaveRef.current = handleSave
                     return (
                         <>
-                            {children}
+                            {typeof children === 'function' ? children(form) : children}
                         </>
                     )
                 }
