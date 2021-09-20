@@ -8,6 +8,7 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/subscription/access/ServiceSubscription')
+const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 
 
 const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
@@ -29,15 +30,7 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
             isRequired: true,
         },
 
-        organization: {
-            // TODO(codegen): write doc for Subscription.organization field!
-            schemaDoc: 'TODO DOC!',
-            type: Relationship,
-            ref: 'Organization',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-        },
+        organization: ORGANIZATION_OWNED_FIELD,
 
         startAt: {
             schemaDoc: 'When subscription was started',
