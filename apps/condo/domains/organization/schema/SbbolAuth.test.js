@@ -52,12 +52,26 @@ const userInfo = () => {
     }
 }
 
-const createSync = async (userInfo) => {
+const tryCreateSync = async (userInfo) => {
     const { keystone } = await getSchemaCtx('User')
     const Sync = new SbbolOrganization({ keystone, userInfo })
     await Sync.init()
     return Sync
 }
+
+const createSync = async (userInfo) => {
+    const retries = 10
+    new Array(retries).fill('').map(() => {
+        try {
+            const sync = await tryCreateSync(userInfo)
+            return sync
+        } catch (err) {
+            console.log('Failed to create sync')
+        }
+    })
+}
+
+
 
 describe('Sbbol sync scenarios', () => {
     describe('User not exists, Organization not exists', () => {
