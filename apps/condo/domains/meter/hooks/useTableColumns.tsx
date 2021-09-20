@@ -11,7 +11,7 @@ import {
     getSorterMap,
     parseQuery,
 } from '@condo/domains/common/utils/tables.utils'
-import { getAddressRender, getDateRender, getReadingRender, getTextRender } from '../../common/components/Table/Renders'
+import { getAddressRender, getDateRender, renderMeterReading, getTextRender } from '../../common/components/Table/Renders'
 import dayjs from 'dayjs'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 
@@ -21,7 +21,6 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const intl = useIntl()
     const ClientNameMessage = intl.formatMessage({ id: 'Contact' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
-    const UserNameMessage = intl.formatMessage({ id: 'filters.UserName' })
     const ShortFlatNumber = intl.formatMessage({ id: 'field.FlatNumber' })
     const MeterReadingDateMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReadingDate' })
     const ServiceMessage = intl.formatMessage({ id: 'pages.condo.meter.Service' })
@@ -109,13 +108,18 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
             },
             {
                 title: MeterReadingMessage,
-                ellipsis: true,
-                sortOrder: get(sorterMap, 'value1'),
-                dataIndex: 'value1',
-                key: 'value1',
-                sorter: true,
-                width: '9%',
-                render: getReadingRender(search),
+                ellipsis: false,
+                key: 'value',
+                width: '10%',
+                render: (record) => {
+                    const value1 = get(record, 'value1')
+                    const value2 = get(record, 'value2')
+                    const value3 = get(record, 'value3')
+                    const value4 = get(record, 'value4')
+                    const measure = get(record, ['meter', 'resource', 'measure'])
+
+                    return renderMeterReading([value1, value2, value3, value4], measure)
+                },
             },
             {
                 title: ClientNameMessage,

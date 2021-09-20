@@ -16,9 +16,6 @@ import { Button } from '@condo/domains/common/components/Button'
 import { useOrganization } from '@core/next/organization'
 import { MeterReadingWhereInput, SortMeterReadingsBy } from '../../schema'
 import {
-    ComponentType,
-    FilterComponentSize,
-    FiltersMeta,
     getDayGteFilter,
     getDayLteFilter,
     getDayRangeFilter,
@@ -26,7 +23,7 @@ import {
     getPageIndexFromOffset,
     getStringContainsFilter,
     parseQuery,
-} from '../../domains/common/utils/tables.utils'
+} from '@condo/domains/common/utils/tables.utils'
 import { useTableColumns } from '../../domains/meter/hooks/useTableColumns'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { useQueryMappers } from '../../domains/common/hooks/useQueryMappers'
@@ -37,6 +34,7 @@ import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { useMeterInfoModal } from '../../domains/meter/hooks/useMeterInfoModal'
 import { useMultipleFiltersModal } from '../../domains/common/hooks/useMultipleFiltersModal'
 import { searchOrganizationProperty } from '../../domains/ticket/utils/clientSchema/search'
+import { ComponentType, FilterComponentSize, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 
 
 export const ExportToExcelActionBar = ({
@@ -225,7 +223,6 @@ const MetersPage: ITicketIndexPage = () => {
     const readingDateGteFilter = getDayGteFilter('date')
     const readingDateLteFilter = getDayLteFilter('date')
     const readingDateRangeFilter = getDayRangeFilter('date')
-    const value1Filter = getStringContainsFilter('value1')
     // const installationDateFilter = getDayRangeFilter(['meter', 'installationDate'])
     const sourceFilter = getFilter(['source', 'id'], 'array', 'string', 'in')
     const resourceFilter = getFilter(['meter', 'resource', 'id'], 'array', 'string', 'in')
@@ -342,16 +339,6 @@ const MetersPage: ITicketIndexPage = () => {
                 modalFilterComponentWrapper: {
                     label: 'Место',
                     size: FilterComponentSize.Medium,
-                },
-            },
-        },
-        {
-            keyword: 'value1',
-            filters: [value1Filter],
-            component: {
-                type: ComponentType.Input,
-                props: {
-                    placeholder: 'Показание прибора',
                 },
             },
         },

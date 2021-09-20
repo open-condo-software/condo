@@ -69,11 +69,23 @@ export const getTextRender = (search?: string) => {
     }
 }
 
-export const getReadingRender = (search?: string) => {
-    return function render (reading: string): RenderReturnType {
-        const text = reading.substring(0, reading.length - 2)
-        return getHighlightedText(search, text)
-    }
+const getIntegerPartOfreading = (value: string) => value.split('.')[0]
+
+export const renderMeterReading = (values: string[], measure: string) => {
+    // 1-tariff meter
+    if (values[0] && !(values[1] || values[2] || values[3]))
+        return `${getIntegerPartOfreading(values[0])} ${measure}`
+
+    // multi-tariff meter
+    const stringValues = values.reduce((acc, value, index) => {
+        if (!value) return acc
+        if (index !== 0) acc += ', '
+        return acc += `T-${index + 1} - ${getIntegerPartOfreading(value)} ${measure}`
+    }, '')
+
+    console.log(stringValues)
+
+    return stringValues
 }
 
 const fillMoneyWithSpaces = (substring: string, startIndex: number, spaces: Array<number>) => {
@@ -92,7 +104,7 @@ const fillMoneyWithSpaces = (substring: string, startIndex: number, spaces: Arra
 const recolorMoney = (
     text: string, startIndex: number, separatorIndex: number, spaces: Array<number>, extraStyles: React.CSSProperties
 ) => {
-    if (separatorIndex === - 1 || startIndex + text.length <= separatorIndex) {
+    if (separatorIndex === -1 || startIndex + text.length <= separatorIndex) {
         return (
             <Typography.Text style={extraStyles}>
                 {fillMoneyWithSpaces(text, startIndex, spaces)}
