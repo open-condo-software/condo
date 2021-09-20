@@ -181,10 +181,8 @@ async function getSchemaCtx (schemaObjOrName) {
     } else {
         throw new Error('unexpected type')
     }
-    if (!SCHEMAS.has(name)) {
-        console.error('Debug broken tests: ', SCHEMAS, schemaObjOrName)
-        throw new Error(`Schema ${name} is not registered yet`)
-    }
+
+    if (!SCHEMAS.has(name)) throw new Error(`Schema ${name} is not registered yet`)
     const schema = SCHEMAS.get(name)
     return {
         name: schema.name,
