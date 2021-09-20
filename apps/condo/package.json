@@ -80,6 +80,7 @@
     "next": "^9.5.2",
     "next-transpile-modules": "^7.0.0",
     "numeral": "2.0.6",
+    "open": "^8.2.1",
     "phone": "^2.4.21",
     "qs": "^6.9.6",
     "rc-queue-anim": "^1.8.5",

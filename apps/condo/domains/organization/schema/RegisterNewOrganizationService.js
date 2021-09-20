@@ -2,6 +2,9 @@ const { createConfirmedEmployee, createOrganization, createDefaultRoles } = requ
 const { getById, GQLCustomSchema } = require('@core/keystone/schema')
 const { rules } = require('../../../access')
 
+const { amocrmInstance } = require('@condo/domains/common/utils/amocrm')
+
+
 const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizationService', {
     types: [
         {
@@ -21,6 +24,7 @@ const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizat
                 const defaultRoles = await createDefaultRoles(context, organization, extraData)
                 const adminRole = defaultRoles.Administrator
                 await createConfirmedEmployee(context, organization, context.authedItem, adminRole, extraData)
+                await amocrmInstance.addLead()
                 return await getById('Organization', organization.id)
             },
         },
