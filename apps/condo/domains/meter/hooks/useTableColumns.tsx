@@ -2,7 +2,6 @@ import { FilterValue } from 'antd/es/table/interface'
 import { get } from 'lodash'
 import { useIntl } from '@core/next/intl'
 import React, { useMemo } from 'react'
-import { LOCALES } from '@condo/domains/common/constants/locale'
 import {
     getFilterIcon,
 } from '@condo/domains/common/components/Table/Filters'
@@ -11,8 +10,7 @@ import {
     getSorterMap,
     parseQuery,
 } from '@condo/domains/common/utils/tables.utils'
-import { getAddressRender, getDateRender, renderMeterReading, getTextRender } from '../../common/components/Table/Renders'
-import dayjs from 'dayjs'
+import { getAddressRender, getDateRender, renderMeterReading, getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 
 const getFilteredValue = (filters, key: string | Array<string>): FilterValue => get(filters, key, null)
@@ -166,66 +164,42 @@ export const useMeterInfoModalTableColumns = () => {
                 dataIndex: 'installationDate',
                 key: 'installationDate',
                 width: '17%',
-                render: (createdAt) => {
-                    const locale = get(LOCALES, intl.locale)
-                    const date = locale ? dayjs(createdAt).locale(locale) : dayjs(createdAt)
-                    return createdAt ? date.format('DD.MM.YYYY') : '-'
-                },
+                render: getDateRender(intl),
             },
             {
                 title: CommissioningDateMessage,
                 dataIndex: 'commissioningDate',
                 key: 'commissioningDate',
                 width: '21%',
-                render: (createdAt) => {
-                    const locale = get(LOCALES, intl.locale)
-                    const date = locale ? dayjs(createdAt).locale(locale) : dayjs(createdAt)
-                    return createdAt ? date.format('DD.MM.YYYY') : '-'
-                },
+                render: getDateRender(intl),
             },
             {
                 title: SealingDateMessage,
                 dataIndex: 'sealingDate',
                 key: 'sealingDate',
                 width: '20%',
-                render: (createdAt) => {
-                    const locale = get(LOCALES, intl.locale)
-                    const date = locale ? dayjs(createdAt).locale(locale) : dayjs(createdAt)
-                    return createdAt ? date.format('DD.MM.YYYY') : '-'
-                },
+                render: getDateRender(intl),
             },
             {
                 title: VerificationDateMessage,
                 dataIndex: 'verificationDate',
                 key: 'verificationDate',
                 width: '17%',
-                render: (createdAt) => {
-                    const locale = get(LOCALES, intl.locale)
-                    const date = locale ? dayjs(createdAt).locale(locale) : dayjs(createdAt)
-                    return createdAt ? date.format('DD.MM.YYYY') : '-'
-                },
+                render: getDateRender(intl),
             },
             {
                 title: NextVerificationDateMessage,
                 dataIndex: 'nextVerificationDate',
                 key: 'nextVerificationDate',
                 width: '18%',
-                render: (createdAt) => {
-                    const locale = get(LOCALES, intl.locale)
-                    const date = locale ? dayjs(createdAt).locale(locale) : dayjs(createdAt)
-                    return createdAt ? date.format('DD.MM.YYYY') : '-'
-                },
+                render: getDateRender(intl),
             },
             {
                 title: ControlReadingsDateMessage,
                 dataIndex: 'controlReadingsDate',
                 key: 'controlReadingsDate',
                 width: '20%',
-                render: (createdAt) => {
-                    const locale = get(LOCALES, intl.locale)
-                    const date = locale ? dayjs(createdAt).locale(locale) : dayjs(createdAt)
-                    return createdAt ? date.format('DD.MM.YYYY') : '-'
-                },
+                render: getDateRender(intl),
             },
         ]
     }, [])

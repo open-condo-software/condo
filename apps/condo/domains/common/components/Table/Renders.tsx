@@ -35,6 +35,8 @@ const getHighlightedText = (search: string, text: string) => {
 
 export const getDateRender = (intl, search?: string) => {
     return function render (stringDate: string): RenderReturnType {
+        if (!stringDate) return '—'
+
         const locale = get(LOCALES, intl.locale)
         const date = locale ? dayjs(stringDate).locale(locale) : dayjs(stringDate)
         return getHighlightedText(search, date.format('DD MMMM YYYY'))
@@ -82,8 +84,6 @@ export const renderMeterReading = (values: string[], measure: string) => {
         if (index !== 0) acc += ', '
         return acc += `T${index + 1} - ${getIntegerPartOfreading(value)} ${measure}`
     }, '')
-
-    console.log(stringValues)
 
     return stringValues
 }
