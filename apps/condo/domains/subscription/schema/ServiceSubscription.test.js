@@ -5,128 +5,192 @@
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
 const { ServiceSubscription, createTestServiceSubscription, updateTestServiceSubscription } = require('@condo/domains/subscription/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
+const {
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAuthenticationErrorToObj,
+} = require('../../common/utils/testSchema')
+const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+const dayjs = require('dayjs')
 
 describe('ServiceSubscription', () => {
-    test('user: create ServiceSubscription', async () => {
-        const client = await makeClient()  // TODO(codegen): use truly useful client!
+    describe('Create', () => {
+        it('can be created by admin', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(adminClient)
 
-        const [obj, attrs] = await createTestServiceSubscription(client)  // TODO(codegen): write 'user: create ServiceSubscription' test
-        expect(obj.id).toMatch(UUID_RE)
-        expect(obj.dv).toEqual(1)
-        expect(obj.sender).toEqual(attrs.sender)
-        expect(obj.v).toEqual(1)
-        expect(obj.newId).toEqual(null)
-        expect(obj.deletedAt).toEqual(null)
-        expect(obj.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
-        expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
-        expect(obj.createdAt).toMatch(DATETIME_RE)
-        expect(obj.updatedAt).toMatch(DATETIME_RE)
-    })
+            const [obj, attrs] = await createTestServiceSubscription(adminClient, organization)
+            expect(obj.id).toMatch(UUID_RE)
+            expect(obj.dv).toEqual(1)
+            expect(obj.sender).toEqual(attrs.sender)
+            expect(obj.v).toEqual(1)
+            expect(obj.newId).toEqual(null)
+            expect(obj.deletedAt).toEqual(null)
+            expect(obj.createdBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+            expect(obj.updatedBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+            expect(obj.createdAt).toMatch(DATETIME_RE)
+            expect(obj.updatedAt).toMatch(DATETIME_RE)
+            expect(obj.organization.id).toEqual(organization.id)
+        })
 
-    test('anonymous: create ServiceSubscription', async () => {
-        const client = await makeClient()
-        await expectToThrowAuthenticationErrorToObjects(async () => {
-            await createTestServiceSubscription(client)  // TODO(codegen): check the 'anonymous: create ServiceSubscription' test!
+        it('cannot be created by user', async () => {
+            const userClient = await makeClientWithRegisteredOrganization()
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestServiceSubscription(userClient, userClient.organization)
+            })
+        })
+
+        it('cannot be created by anonymous', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(adminClient)
+            const anonymousClient = await makeClient()
+            await expectToThrowAuthenticationErrorToObj(async () => {
+                await createTestServiceSubscription(anonymousClient, organization)
+            })
         })
     })
 
-    test('user: read ServiceSubscription', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const [obj, attrs] = await createTestServiceSubscription(admin)  // TODO(codegen): check create function!
+    describe('Read', () => {
+        it('can be read by admin', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(adminClient)
 
-        const client = await makeClient()  // TODO(codegen): use truly useful client!
-        const objs = await ServiceSubscription.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
+            const [obj, attrs] = await createTestServiceSubscription(adminClient, organization)
 
-        // TODO(codegen): check 'user: read ServiceSubscription' test!
-        expect(objs).toHaveLength(1)
-        // expect(objs.length >= 1).toBeTruthy()
-        expect(objs[0].id).toMatch(obj.id)
-        expect(objs[0].dv).toEqual(1)
-        expect(objs[0].sender).toEqual(attrs.sender)
-        expect(objs[0].v).toEqual(1)
-        expect(objs[0].newId).toEqual(null)
-        expect(objs[0].deletedAt).toEqual(null)
-        expect(objs[0].createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
-        expect(objs[0].updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
-        expect(objs[0].createdAt).toMatch(obj.createdAt)
-        expect(objs[0].updatedAt).toMatch(obj.updatedAt)
-    })
+            const objs = await ServiceSubscription.getAll(adminClient, {}, { sortBy: ['updatedAt_DESC'] })
+            expect(objs.length >= 1).toBeTruthy()
+            expect(objs[0].id).toMatch(obj.id)
+            expect(objs[0].dv).toEqual(1)
+            expect(objs[0].sender).toEqual(attrs.sender)
+            expect(objs[0].v).toEqual(1)
+            expect(objs[0].newId).toEqual(null)
+            expect(objs[0].deletedAt).toEqual(null)
+            expect(objs[0].createdBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+            expect(objs[0].updatedBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+            expect(objs[0].createdAt).toMatch(obj.createdAt)
+            expect(objs[0].updatedAt).toMatch(obj.updatedAt)
+        })
 
-    test('anonymous: read ServiceSubscription', async () => {
-        const client = await makeClient()
+        it('can be read by user from the same organization', async () => {
+            const userClient = await makeClientWithRegisteredOrganization()
+            const adminClient = await makeLoggedInAdminClient()
+            const [obj] = await createTestServiceSubscription(adminClient, userClient.organization)
 
-        await expectToThrowAccessDeniedErrorToObjects(async () => {
-            await ServiceSubscription.getAll(client)
-})
-    })
+            const userClientFromAnotherOrganization = await makeClientWithRegisteredOrganization()
 
-    test('user: update ServiceSubscription', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const [objCreated] = await createTestServiceSubscription(admin)  // TODO(codegen): check create function!
+            let objs
+            objs = await ServiceSubscription.getAll(userClient, {}, { sortBy: ['updatedAt_DESC'] })
+            expect(objs).toHaveLength(1)
+            expect(objs[0].id).toMatch(obj.id)
 
-        const client = await makeClient()  // TODO(codegen): use truly useful client!
-        const payload = {}  // TODO(codegen): change the 'user: update ServiceSubscription' payload
-        const [objUpdated, attrs] = await updateTestServiceSubscription(client, objCreated.id, payload)
+            objs = await ServiceSubscription.getAll(userClientFromAnotherOrganization, {}, { sortBy: ['updatedAt_DESC'] })
+            expect(objs).toHaveLength(0)
+        })
 
-        // TODO(codegen): white checks for 'user: update ServiceSubscription' test
-        expect(objUpdated.id).toEqual(objCreated.id)
-        expect(objUpdated.dv).toEqual(1)
-        expect(objUpdated.sender).toEqual(attrs.sender)
-        expect(objUpdated.v).toEqual(2)
-        expect(objUpdated.newId).toEqual(null)
-        expect(objUpdated.deletedAt).toEqual(null)
-        expect(objUpdated.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
-        expect(objUpdated.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
-        expect(objUpdated.createdAt).toMatch(DATETIME_RE)
-        expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
-        expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
-    })
-
-    test('anonymous: update ServiceSubscription', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const [objCreated] = await createTestServiceSubscription(admin)  // TODO(codegen): check create function!
-
-        const client = await makeClient()
-        const payload = {}  // TODO(codegen): change the 'anonymous: update ServiceSubscription' payload
-        await expectToThrowAuthenticationErrorToObjects(async () => {
-            await updateTestServiceSubscription(client, objCreated.id, payload)
-})
-    })
-
-    test('user: delete ServiceSubscription', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const [objCreated] = await createTestServiceSubscription(admin)  // TODO(codegen): check create function!
-
-        const client = await makeClient()  // TODO(codegen): use truly useful client!
-        try {
-            // TODO(codegen): check 'user: delete ServiceSubscription' test!
-            await ServiceSubscription.delete(client, objCreated.id)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
+        it('cannot be read by anonymous', async () => {
+            const anonymousClient = await makeClient()
+            const adminClient = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(adminClient)
+            await createTestServiceSubscription(adminClient, organization)
+            await expectToThrowAuthenticationErrorToObjects(async () => {
+                await ServiceSubscription.getAll(anonymousClient, {}, { sortBy: ['updatedAt_DESC'] })
             })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
     })
 
-    test('anonymous: delete ServiceSubscription', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const [objCreated] = await createTestServiceSubscription(admin)  // TODO(codegen): check create function!
+    describe('Update', () => {
+        it('can be updated by admin', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(adminClient)
 
-        const client = await makeClient()
-        try {
-            // TODO(codegen): check 'anonymous: delete ServiceSubscription' test!
-            await ServiceSubscription.delete(client, objCreated.id)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
+            const [objCreated] = await createTestServiceSubscription(adminClient, organization)
+
+            const payload = {
+                isTrial: !objCreated.isTrial,
+                type: 'sbbol',
+                startAt: dayjs().add(1, 'day'),
+                finishAt: dayjs().add(16, 'days'),
+            }
+            const [objUpdated, attrs] = await updateTestServiceSubscription(adminClient, objCreated.id, payload)
+
+            expect(objUpdated.id).toEqual(objCreated.id)
+            expect(objUpdated.dv).toEqual(1)
+            expect(objUpdated.sender).toEqual(attrs.sender)
+            expect(objUpdated.v).toEqual(2)
+            expect(objUpdated.newId).toEqual(null)
+            expect(objUpdated.deletedAt).toEqual(null)
+            expect(objUpdated.createdBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+            expect(objUpdated.updatedBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+            expect(objUpdated.createdAt).toMatch(DATETIME_RE)
+            expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
+            expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
+            expect(objUpdated.isTrial).toEqual(payload.isTrial)
+            expect(objUpdated.type).toEqual(payload.type)
+            expect(objUpdated.startAt).toEqual(payload.startAt.toISOString())
+            expect(objUpdated.finishAt).toEqual(payload.finishAt.toISOString())
+        })
+
+        it('cannot be updated by user', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(adminClient)
+            const userClient = await makeClientWithRegisteredOrganization()
+
+            const [objCreated] = await createTestServiceSubscription(adminClient, organization)
+
+            const payload = {
+                isTrial: !objCreated.isTrial,
+                type: 'sbbol',
+                startAt: dayjs().add(1, 'day'),
+                finishAt: dayjs().add(16, 'days'),
+            }
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestServiceSubscription(userClient, objCreated.id, payload)
             })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+        })
+
+        it('cannot be updated by anonymous', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(adminClient)
+            await createTestServiceSubscription(adminClient, organization)
+            const anonymousClient = await makeClient()
+            await expectToThrowAuthenticationErrorToObj(async () => {
+                await createTestServiceSubscription(anonymousClient, organization)
+            })
+        })
+    })
+
+    describe('Delete', () => {
+        it('cannot be deleted by admin', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(adminClient)
+
+            const [obj] = await createTestServiceSubscription(adminClient, organization)
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await ServiceSubscription.delete(adminClient, obj.id)
+            })
+        })
+
+        it('cannot be deleted by user', async () => {
+            const userClient = await makeClientWithRegisteredOrganization()
+            const adminClient = await makeLoggedInAdminClient()
+            const [obj] = await createTestServiceSubscription(adminClient, userClient.organization)
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await ServiceSubscription.delete(userClient, obj.id)
+            })
+        })
+
+        it('cannot be deleted by anonymous', async () => {
+            const anonymousClient = await makeClient()
+            const userClient = await makeClientWithRegisteredOrganization()
+            const adminClient = await makeLoggedInAdminClient()
+            const [obj] = await createTestServiceSubscription(adminClient, userClient.organization)
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await ServiceSubscription.delete(anonymousClient, obj.id)
+            })
+        })
     })
 })
