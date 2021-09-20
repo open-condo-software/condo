@@ -52,38 +52,20 @@ const userInfo = () => {
     }
 }
 
-const tryCreateSync = async (userInfo) => {
+const createSync = async (userInfo) => {
     const { keystone } = await getSchemaCtx('User')
+    console.log('keystone', keystone)
     const Sync = new SbbolOrganization({ keystone, userInfo })
     await Sync.init()
     return Sync
 }
-
-const sleep = (seconds) => new Promise(resolve => {
-    setTimeout(resolve, seconds * 1000)
-})
-
-const createSync = async (userInfo) => {
-    const retries = 10
-    new Array(retries).fill('').map(async (_, idx) => {
-        console.log('CreateSync retry ', idx)
-        try {
-            const sync = await tryCreateSync(userInfo)
-            return sync
-        } catch (err) {
-            console.log('Failed to create sync')
-        }
-        await sleep(5)
-    })
-}
-
-
 
 describe('Sbbol sync scenarios', () => {
     describe('User not exists, Organization not exists', () => {
         it('should create User, Organization, Employee with role', async () => {
             const info = userInfo()
             const Sync = await createSync(info)
+            expect(Sync.keystone.defaultAccess).toBeDefined()
             await Sync.syncUser()
             await Sync.syncOrganization()
             const admin = await makeLoggedInAdminClient()
