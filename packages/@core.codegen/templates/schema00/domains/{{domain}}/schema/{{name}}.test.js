@@ -5,7 +5,7 @@
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
 const { {{name}}, createTest{{name}}, updateTest{{name}} } = require('@condo/domains/{{domain}}/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
 
 describe('{{name}}', () => {
     test('user: create {{name}}', async () => {
