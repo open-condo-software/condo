@@ -18,7 +18,7 @@ const nextCookie = require('next-cookies')
 const { makeId } = require('@condo/domains/common/utils/makeid.utils')
 const { formatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
-const { amocrmMiddlewareHandler } = require('@condo/domains/common/utils/amocrm')
+const { amoCRMMiddlewareHandler } = require('@condo/domains/common/utils/amocrm')
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production'
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
@@ -107,7 +107,7 @@ class CustomBodyParserMiddleware {
 class AMOCRMIntegrationMiddleware {
     prepareMiddleware (options) {
         const app = express()
-        app.use('/amocrm', amocrmMiddlewareHandler)
+        app.use('/amocrm', amoCRMMiddlewareHandler)
         return app
     }
 }

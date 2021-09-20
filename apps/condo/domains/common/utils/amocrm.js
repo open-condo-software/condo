@@ -8,10 +8,10 @@ class AMOCRMIntegration {
     constructor ({ client_id, client_secret }) {
         this.client_id = client_id
         this.client_secret = client_secret
-        this.redirect_uri = 'https://v1.doma.ai/amocrm'
+        this.redirect_uri = `${conf.NGROK_URL}/amocrm`
         this.expiresAt = Date.now()
         this.axios = axios.create({
-            baseURL: 'https://tuningiposadka.amocrm.ru',
+            baseURL: conf.AMOCRM_URL,
         })
         this.askAuthorize()
     }
@@ -19,7 +19,7 @@ class AMOCRMIntegration {
         return `https://www.amocrm.ru/oauth?client_id=${this.client_id}&mode=popup`
     }
     askAuthorize () {
-        console.log('Please, authorize for amoCRM integration with url:', this.integrationLink)
+        console.log('👉 Please, authorize for amoCRM integration with url:', this.integrationLink)
     }
     async getToken () {
         if (!this.code) {
@@ -27,7 +27,7 @@ class AMOCRMIntegration {
                 this.askAuthorize()
                 await open(this.integrationLink)
             }
-            return
+            throw new Error('Not authorized in amoCRM')
         }
         try {
             const response = await this.axios.post('/oauth2/access_token', {
@@ -52,6 +52,9 @@ class AMOCRMIntegration {
             await this.getToken()
         }
         try {
+            this.axios.defaults.headers = {
+                'Authorization': `Bearer ${this.access_token}`,
+            }
             return await query()
         }
         catch (e) {
@@ -60,7 +63,7 @@ class AMOCRMIntegration {
         }
     }
     async addLead () {
-        const query = this.axios.post('/api/v4/leads', [
+        const query = () => this.axios.post('/api/v4/leads', [
             {
                 'name': 'Сделка для примера 1',
                 'created_by': 0,
@@ -97,18 +100,19 @@ class AMOCRMIntegration {
 }
 
 const amocrmInstance = new AMOCRMIntegration({
-    client_id: 'dd7c6692-75ec-44b8-aafa-932dc98c9494',
-    client_secret: '05SPvzTmKE6LKu5KL1OH7hfHXpIqTB53Rj9VicTYjYRwsjZBMg9JAThxB310N80J',
+    client_id: conf.AMOCRM_CLIENT_ID,
+    client_secret: conf.AMOCRM_CLIENT_SECRET,
 })
 
-function amocrmMiddlewareHandler (req, res, next) {
+/** @type {import('express').Handler} */
+function amoCRMMiddlewareHandler (req, res, next) {
     const { query } = url.parse(req.url, true)
     const { code, state } = query
     amocrmInstance._setCode(code)
-    next()
+    res.redirect(conf.SERVER_URL)
 }
 module.exports = {
     amocrmInstance,
-    amocrmMiddlewareHandler,
+    amoCRMMiddlewareHandler,
     AMOCRMIntegration,
 }
