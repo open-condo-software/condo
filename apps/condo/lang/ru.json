@@ -131,6 +131,7 @@
   "NoMoreIntegrationsAllowed": "Нельзя одновременно интегрироваться с более чем одним биллингом. Свяжитесь с тех. поддержкой «{company}».",
   "CompanyName": "Домá",
   "ContactSupportToCancelIntegration": "Чтобы отключить интеграцию свяжитесь с тех. поддержкой «{company}».",
+  "ClearAllFilters": "Сбросить все фильтры",
   "ClickToSeeMore": "Нажмите, чтобы посмотреть подробнее",
   "component.uploadlist.AttachedFilesLabel": "Прикреплённые файлы",
   "component.uploadlist.AddFileLabel": "Добавить файл",

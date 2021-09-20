@@ -131,6 +131,7 @@
   "CompanyName": "Domá",
   "ContactSupportToCancelIntegration": "To cancel integration contact support of «{company}».",
   "ClickToSeeMore": "Click to see more information",
+  "ClearAllFilters": "Clear all filters",
   "menu.ContactCenter": "Contact Center",
   "component.uploadlist.AttachedFilesLabel": "Files list",
   "component.uploadlist.AddFileLabel": "Add file",
