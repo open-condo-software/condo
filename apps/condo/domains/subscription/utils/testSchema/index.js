@@ -10,6 +10,7 @@ const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/co
 const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
 const { ServiceSubscription: ServiceSubscriptionGQL } = require('@condo/domains/subscription/gql')
+const dayjs = require('dayjs')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const ServiceSubscription = generateGQLTestUtils(ServiceSubscriptionGQL)
@@ -20,11 +21,18 @@ async function createTestServiceSubscription (client, organization, extraAttrs =
     if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestServiceSubscription logic for generate fields
+    const type = 'default'
+    const isTrial = true
+    const startAt = dayjs()
+    const finishAt = dayjs().add(15, 'days')
 
     const attrs = {
         dv: 1,
         sender,
+        type,
+        isTrial,
+        startAt,
+        finishAt,
         organization: { connect: { id: organization.id } },
         ...extraAttrs,
     }
