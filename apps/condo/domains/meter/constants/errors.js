@@ -1,7 +1,7 @@
 const VALUE_LESS_THAN_PREVIOUS_ERROR = '[value:lessThanPrevious:'
-const EXISTING_METER_NUMBER = '[unique:alreadyExists:number]'
+const EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION = '[unique:alreadyExists:number]'
 
 module.exports = {
     VALUE_LESS_THAN_PREVIOUS_ERROR,
-    EXISTING_METER_NUMBER,
+    EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION,
 }
