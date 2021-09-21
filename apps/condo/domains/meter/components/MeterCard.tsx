@@ -8,7 +8,7 @@ import { IMeterFormState } from '../utils/clientSchema/Meter'
 import dayjs from 'dayjs'
 import { useIntl } from '@core/next/intl'
 import { fontSizes } from '@condo/domains/common/constants/style'
-import { useValidations } from '../../common/hooks/useValidations'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
 
 type MeterCardProps = {
     meter: IMeterFormState
