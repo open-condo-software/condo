@@ -2,7 +2,7 @@ import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import styled from '@emotion/styled'
 import { Alert, Col, Divider, Form, Input, Row, Space, Typography } from 'antd'
 import { resourceIdIconMap } from '../utils/clientSchema'
-import React, { useState } from 'react'
+import React  from 'react'
 import { BillingAccountMeterReading } from '../../../schema'
 import { IMeterFormState } from '../utils/clientSchema/Meter'
 import dayjs from 'dayjs'
@@ -21,6 +21,8 @@ type MeterCardProps = {
     lastMeterBillingMeterReading?: BillingAccountMeterReading
 }
 
+const MAX_METER_READING_LENGTH = 14
+
 const MeterCardWrapper = styled(FocusContainer)`
   margin: 0;
 `
@@ -29,9 +31,10 @@ export const MeterCard = ({ meter, resource, name, lastMeterBillingMeterReading 
     const intl = useIntl()
     const VerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.VerificationDate' })
 
-    const { numberValidator } = useValidations()
+    const { numberValidator, maxLengthValidator } = useValidations()
+    const maxLength = maxLengthValidator(MAX_METER_READING_LENGTH)
     const validations = {
-        readingValue: [numberValidator],
+        readingValue: [numberValidator, maxLength],
     }
 
     const Icon = resource ? resourceIdIconMap[resource.id] : null

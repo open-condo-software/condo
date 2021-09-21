@@ -609,6 +609,7 @@
   "UpdateTicket": "Обновить заявку",
   "UploadFile": "Загрузить файл",
   "ValueIsTooShort": "Значение слишком короткое",
+  "ValueIsTooLong": "Значение слишком длинное",
   "NumberIsNotValid": "Пожалуйста, введите корректное число",
   "VerificationCodeHasBeenSentToYourPhone": "Код подтверждения был отправлен на телефон",
   "WeAreStillDevelopingThisPage": "Мы еще **разрабатываем** эту страницу, она пока недоступна",
