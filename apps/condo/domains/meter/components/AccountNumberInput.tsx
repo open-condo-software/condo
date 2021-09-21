@@ -45,21 +45,24 @@ export const EmptyAccountView = ({ setIsAccountNumberIntroduced, setAccountNumbe
     )
 }
 
-export const AccountNumberInput = ({ accountNumber, setAccountNumber, selectedUnitName, existingMeters }) => {
+export const AccountNumberInput = ({
+    accountNumber,
+    setAccountNumber,
+    existingMeters,
+    isAccountNumberIntroduced,
+    setIsAccountNumberIntroduced,
+}) => {
     const intl = useIntl()
     const AccountNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.AccountNumber' })
     const NewAccountAlertMessage = intl.formatMessage({ id: 'pages.condo.meter.NewAccountAlert' })
 
-    const [isAccountNumberIntroduced, setIsAccountNumberIntroduced] = useState<boolean>(false)
-    useEffect(() => {
-        setIsAccountNumberIntroduced(false)
-    }, [selectedUnitName])
-
     return !accountNumber && !isAccountNumberIntroduced ? (
-        <EmptyAccountView
-            setIsAccountNumberIntroduced={setIsAccountNumberIntroduced}
-            setAccountNumber={setAccountNumber}
-        />
+        <Col span={24}>
+            <EmptyAccountView
+                setIsAccountNumberIntroduced={setIsAccountNumberIntroduced}
+                setAccountNumber={setAccountNumber}
+            />
+        </Col>
     ) : (
         <Col lg={14} md={24}>
             <Row gutter={[0, 10]}>

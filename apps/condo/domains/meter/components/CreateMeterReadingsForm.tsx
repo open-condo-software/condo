@@ -206,6 +206,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const [meterFormListOperations, setMeterFormListOperations] = useState<FormListOperation | null>(null)
     const [formFromState, setFormFromState] = useState<FormInstance | null>(null)
     const [accountNumber, setAccountNumber] = useState<string>(null)
+    const [isAccountNumberIntroduced, setIsAccountNumberIntroduced] = useState<boolean>(false)
 
     const { createContact, canCreateContact, ContactsEditorComponent } = useContactsEditorHook({
         organization: organization.id,
@@ -233,6 +234,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const { objs: resources } = MeterResource.useObjects({})
 
     const isNoExistedMetersInThisUnit = existedMeters.length === 0
+    const verticalGutter = accountNumber || isAccountNumberIntroduced ? 40 : 80
 
     useEffect(() => {
         if (existedMeters.length > 0)
@@ -262,6 +264,10 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     useEffect(() => {
         canCreateContactRef.current = canCreateContact
     }, [canCreateContact])
+
+    useEffect(() => {
+        setIsAccountNumberIntroduced(false)
+    }, [selectedUnitName])
 
     const createMeterAction = Meter.useCreate({}, () => {
         return
@@ -361,7 +367,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                         </Typography.Paragraph>
                     </Prompt>
                     <Col span={24}>
-                        <Row gutter={[0, 40]}>
+                        <Row gutter={[0, verticalGutter]}>
                             <Col lg={14} md={24}>
                                 <Row justify={'space-between'} gutter={[0, 20]}>
                                     <Col span={24}>
@@ -407,7 +413,8 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                         <AccountNumberInput
                                             accountNumber={accountNumber}
                                             setAccountNumber={setAccountNumber}
-                                            selectedUnitName={selectedUnitName}
+                                            isAccountNumberIntroduced={isAccountNumberIntroduced}
+                                            setIsAccountNumberIntroduced={setIsAccountNumberIntroduced}
                                             existingMeters={existedMeters}
                                         />
                                         {
@@ -459,6 +466,19 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                     </>
                                 )
                             }
+                            {
+                                accountNumber || isAccountNumberIntroduced ? (
+                                    <Col span={24}>
+                                        <CreateMeterReadingsActionBar
+                                            accountNumber={accountNumber}
+                                            existedMeters={existedMeters}
+                                            handleSave={handleSave}
+                                            handleAddMeterButtonClick={() => setIsCreateMeterModalVisible(true)}
+                                            isLoading={isLoading}
+                                        />
+                                    </Col>
+                                ) : null
+                            }
                         </Row>
                     </Col>
 
@@ -469,14 +489,6 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                 null
                         }
                         resources={resources}
-                    />
-
-                    <CreateMeterReadingsActionBar
-                        accountNumber={accountNumber}
-                        existedMeters={existedMeters}
-                        handleSave={handleSave}
-                        handleAddMeterButtonClick={() => setIsCreateMeterModalVisible(true)}
-                        isLoading={isLoading}
                     />
                 </>
             )}
