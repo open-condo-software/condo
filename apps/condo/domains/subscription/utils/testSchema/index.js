@@ -11,6 +11,7 @@ const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/ut
 
 const { ServiceSubscription: ServiceSubscriptionGQL } = require('@condo/domains/subscription/gql')
 const dayjs = require('dayjs')
+const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const ServiceSubscription = generateGQLTestUtils(ServiceSubscriptionGQL)
@@ -56,9 +57,18 @@ async function updateTestServiceSubscription (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function expectOverlappingFor (client, organization, interval) {
+    await catchErrorFrom(async () => {
+        await createTestServiceSubscription(client, organization, interval)
+    }, ({ errors, data }) => {
+        expect(errors[0].data.messages[0]).toMatch('[overlapping]')
+        expect(data).toEqual({ 'obj': null })
+    })
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    ServiceSubscription, createTestServiceSubscription, updateTestServiceSubscription,
+    ServiceSubscription, createTestServiceSubscription, updateTestServiceSubscription, expectOverlappingFor,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
