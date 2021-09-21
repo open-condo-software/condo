@@ -4,9 +4,9 @@ import { Affix, Space } from 'antd'
 import React from 'react'
 import { css, jsx } from '@emotion/core'
 
-
 const actionBar = css`
     position: relative;
+    left: -24px;
     padding: 24px;
     transition: box-shadow 0.6s ease-out;
 
