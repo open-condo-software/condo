@@ -66,20 +66,27 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
             // It makes no sense:
             // - To create subscription in past
             let organizationId
-            if (operation === 'create') {
-                organizationId = get(resolvedData, 'organization')
-            } else if (operation === 'update') {
-                organizationId = get(existingItem, 'organization')
-            }
-            if (!organizationId) {
-                throw new Error('No organization set for ServiceSubscription')
-            }
-            const overlappedSubscriptionsCount = await ServiceSubscriptionAPI.count(context, {
+            let overlappedSubscriptionsCount
+            const ovelappingConditions = {
                 OR: [
                     { startAt_gte: resolvedData.startAt },
                     { finishAt_gte: resolvedData.startAt },
                 ],
-                organization: { id: organizationId },
+            }
+            const scopeConditions = {}
+            if (operation === 'create') {
+                organizationId = get(resolvedData, 'organization')
+            } else if (operation === 'update') {
+                organizationId = get(existingItem, 'organization')
+                scopeConditions.id_not = existingItem.id
+            }
+            if (!organizationId) {
+                throw new Error('No organization set for ServiceSubscription')
+            }
+            scopeConditions.organization = { id: organizationId }
+            overlappedSubscriptionsCount = await ServiceSubscriptionAPI.count(context, {
+                ...ovelappingConditions,
+                ...scopeConditions,
             })
             if (overlappedSubscriptionsCount > 0) {
                 return addValidationError(`${OVERLAPPING_ERROR} subscription for current organization overlaps already existing by its time period`)
