@@ -513,12 +513,8 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         }
 
                         const restTableColumns = {}
-                        // TODO(sitozzz): clear filter on tab change or get current array
                         const addressList = get(filters, 'address', [])
-                        const categoryClassifierList = get(filters, 'categoryClassifier', [])
-                        const executorList = get(filters, 'executor', [])
-                        const assigneeList = get(filters, 'assignee', [])
-                        const aggregateSummary = [addressList, categoryClassifierList, executorList, assigneeList]
+                        const aggregateSummary = [addressList, get(filters, groupBy[1], [])]
                             .every(filterList => filterList.length === 0)
                         if (aggregateSummary) {
                             Object.entries(data).forEach((rowEntry) => {
@@ -653,10 +649,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
 
                         const restTableColumns = {}
                         const addressList = get(filters, 'address', [])
-                        const categoryClassifierList = get(filters, 'categoryClassifier', [])
-                        const executorList = get(filters, 'executor', [])
-                        const assigneeList = get(filters, 'assignee', [])
-                        const aggregateSummary = [addressList, categoryClassifierList, executorList, assigneeList]
+                        const aggregateSummary = [addressList, get(filters, groupBy[1], [])]
                             .every(filterList => filterList.length === 0)
                         if (aggregateSummary) {
                             const totalCount = Object.values(data)
