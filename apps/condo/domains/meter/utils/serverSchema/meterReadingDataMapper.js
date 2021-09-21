@@ -7,7 +7,7 @@ const meterReadingDataMapper = ({ row = {}, constants = {} }) => ({
     },
     rows: {
         date: () => row.date,
-        address: () => row.property.address,
+        address: () => row.meter.property.address,
         unitName: () => row.meter.unitName,
         resource: () => row.meter.resource.name,
         number: () => row.meter.number,
