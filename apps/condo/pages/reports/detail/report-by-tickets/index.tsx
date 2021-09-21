@@ -200,7 +200,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     const classifiersLoader = new ClassifiersQueryRemote(useApolloClient())
 
     const searchClassifiers = (_, input) =>
-        classifiersLoader.search(input, TicketClassifierTypes.category)
+        classifiersLoader.search(input, TicketClassifierTypes.category, { first: undefined })
             .then(result=>result.map((classifier)=> ({ text: classifier.name, value: classifier.id })))
 
     const onClassifierChange = useCallback((idList, searchObjectsList) => {
