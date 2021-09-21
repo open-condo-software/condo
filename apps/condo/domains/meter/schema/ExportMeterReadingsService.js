@@ -9,6 +9,7 @@ const { createExportFile } = require('@condo/domains/common/utils/createExportFi
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { MeterReading } = require('../utils/serverSchema/index')
 const dayjs = require('dayjs')
+const { EMPTY_DATA_EXPORT_ERROR } = require('@condo/domains/common/constants/errors')
 
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
 
@@ -37,6 +38,10 @@ const ExportMeterReadingsService = new GQLCustomSchema('ExportMeterReadingsServi
                 })
 
                 const meterReadings = await MeterReading.getAll(context, where, { sortBy })
+                if (meterReadings.length === 0) {
+                    throw new Error(`${EMPTY_DATA_EXPORT_ERROR}] empty export file`)
+                }
+
                 const excelRows = meterReadings.map(meterReading => ({
                     date: formatDate(meterReading.date),
                     address: meterReading.meter.property.address,
