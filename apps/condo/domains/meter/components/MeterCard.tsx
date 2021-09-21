@@ -48,7 +48,7 @@ export const MeterCard = ({ meter, resource, name, lastMeterBillingMeterReading 
                     GreaterThanPreviousMessage,
                     GREATER_METER_READING_DELTA,
                 ),
-        ]
+        ].filter(Boolean)
     }
 
     const Icon = resource ? resourceIdIconMap[resource.id] : null
