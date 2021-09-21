@@ -32,7 +32,7 @@ describe('ServiceSubscription', () => {
             })
         })
 
-        it('cannot overlap existing records', async () => {
+        it('cannot overlap existing records for given organization', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(adminClient)
 
@@ -75,6 +75,24 @@ describe('ServiceSubscription', () => {
 
             const [updatedSecondSubscription] = await updateTestServiceSubscription(adminClient, secondSubscription.id, nonOverlappingPayload)
             expect(updatedSecondSubscription.startAt).toEqual(nonOverlappingPayload.startAt.toISOString())
+        })
+
+        it('can overlap existing records for another organization', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const [organization1] = await createTestOrganization(adminClient)
+            const [organization2] = await createTestOrganization(adminClient)
+
+            const [firstSubscription] = await createTestServiceSubscription(adminClient, organization1, {
+                startAt: dayjs(),
+                finishAt: dayjs().add(15, 'days'),
+            })
+
+            const [secondSubscription] = await createTestServiceSubscription(adminClient, organization2, {
+                startAt: dayjs(firstSubscription.startAt).subtract(3, 'days'),
+                finishAt: dayjs(firstSubscription.finishAt).subtract(3, 'days'),
+            })
+
+            expect(secondSubscription).toBeDefined()
         })
     })
 
