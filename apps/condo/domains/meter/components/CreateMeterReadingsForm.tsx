@@ -158,6 +158,7 @@ const ExistedMetersList = ({ existedMeters, resources, billingMeterReadings }) =
             return existedMeters.map((existedMeter) => {
                 const meter = convertToUIFormState(existedMeter)
                 const resource = resources.find(resource => resource.id === meter.resource)
+
                 const lastMeterBillingMeterReading = billingMeterReadings.find(
                     meterReading => meterReading.meter.number === meter.number
                 )
@@ -227,6 +228,11 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const { objs: billingMeterReadings } = BillingAccountMeterReading.useObjects({
         where: {
             account: { number: accountNumber },
+            context: {
+                organization: {
+                    id: organization.id,
+                },
+            },
         },
         sortBy: [SortBillingAccountMeterReadingsBy.CreatedAtDesc],
     })
