@@ -9,6 +9,7 @@ const { createExportFile } = require('@condo/domains/common/utils/createExportFi
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { MeterReading } = require('../utils/serverSchema/index')
 const dayjs = require('dayjs')
+const meterReadingDataMapper = require('../utils/serverSchema/meterReadingDataMapper')
 const { EMPTY_DATA_EXPORT_ERROR } = require('@condo/domains/common/constants/errors')
 
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
@@ -42,16 +43,23 @@ const ExportMeterReadingsService = new GQLCustomSchema('ExportMeterReadingsServi
                     throw new Error(`${EMPTY_DATA_EXPORT_ERROR}] empty export file`)
                 }
 
-                const excelRows = meterReadings.map(meterReading => ({
-                    date: formatDate(meterReading.date),
-                    address: meterReading.meter.property.address,
-                    resource: meterReading.meter.resource.name,
-                    number: meterReading.meter.number,
-                    place: meterReading.meter.place,
-                    value1: meterReading.value1,
-                    clientName: meterReading.clientName,
-                    source: meterReading.source.name,
-                }))
+                const excelRows = meterReadings.map(meterReading => {
+                    const { rows } = meterReadingDataMapper({ row: meterReading })
+                    return {
+                        date: formatDate(rows.date()),
+                        address: rows.address(),
+                        unitName: rows.unitName(),
+                        resource: rows.resource(),
+                        number: rows.number(),
+                        place: rows.place(),
+                        value1: rows.value1(),
+                        value2: rows.value2(),
+                        value3: rows.value3(),
+                        value4: rows.value4(),
+                        clientName: rows.clientName(),
+                        source: rows.source(),
+                    }
+                })
 
                 const linkToFile = await createExportFile({
                     fileName: `tickets_${dayjs().format('DD_MM')}.xlsx`,
