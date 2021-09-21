@@ -41,7 +41,6 @@ const MeterReading = new GQLListSchema('MeterReading', {
             schemaDoc: 'If the meter is single-tariff, then only this value will be filled in;' +
                 'If multi-tariff, then the value of the first tariff will be in this field',
             type: Decimal,
-            isRequired: true,
             hooks: {
                 validateInput: async ({ context, operation, resolvedData, fieldPath, addFieldValidationError }) => {
                     if (operation === 'create') {
