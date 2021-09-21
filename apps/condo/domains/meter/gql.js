@@ -20,8 +20,6 @@ const Meter = generateGqlQueries('Meter', METER_FIELDS)
 const METER_READING_FIELDS = `{ value1 value2 value3 value4 date meter { id accountNumber unitName number resource { name measure } place property { address } } organization { id } client { id } clientName clientEmail clientPhone contact { id } source { id name } ${COMMON_FIELDS} }`
 const MeterReading = generateGqlQueries('MeterReading', METER_READING_FIELDS)
 
-// TODO(codegen): write return type result!
- 
 const EXPORT_METER_READINGS = gql`
     query exportMeterReadings ($data: ExportMeterReadingsInput!) {
         result: exportMeterReadings (data: $data) { status, linkToFile }
