@@ -534,7 +534,7 @@ export const getChartOptions: IGetChartOptions = ({
         option['title'] = showTitle ? {
             show: true,
             text: formatPieChartName(series[0].name),
-            left: 375,
+            left: 335,
             top: 30,
             textStyle: {
                 fontSize: fontSizes.content,

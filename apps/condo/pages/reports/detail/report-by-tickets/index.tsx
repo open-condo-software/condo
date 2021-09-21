@@ -437,7 +437,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                     selectedMode: false,
                                     type: viewMode,
                                     radius: [60, 120],
-                                    center: ['30%', '50%'],
+                                    center: ['25%', '50%'],
                                     symbol: 'none',
                                     emphasis: {
                                         focus: 'self',
@@ -470,7 +470,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                         const elementYOffset = 25 * dataIndex
                                         const yOffset = 75 + 250 * Math.floor(seriesIndex / 2) + 10 + elementYOffset
                                         return {
-                                            x: 380,
+                                            x: 340,
                                             y: yOffset,
                                             align: 'left',
                                             verticalAlign: 'top',
