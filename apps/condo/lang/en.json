@@ -608,6 +608,7 @@
   "UpdateTicket": "Update ticket",
   "UploadFile": "Upload file",
   "ValueIsTooShort": "The value is too short",
+  "ValueIsTooLong": "The value is too long",
   "NumberIsNotValid": "Please enter the correct number",
   "VerificationCodeHasBeenSentToYourPhone": "Verification code has been sent to your phone",
   "WeAreStillDevelopingThisPage": "We are still **developing** this page, it is not **yet** available",

@@ -9,6 +9,7 @@ type ValidatorTypes = {
     emailValidator: Rule
     trimValidator: Rule
     minLengthValidator: (length: number) => Rule
+    maxLengthValidator: (length: number) => Rule
     numberValidator: Rule
 }
 
@@ -22,6 +23,7 @@ export const useValidations: () => ValidatorTypes = () => {
     const PhoneIsNotValidMessage = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
     const EmailErrorMessage = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
     const FieldIsTooShortMessage = intl.formatMessage({ id: 'ValueIsTooShort' })
+    const FieldIsTooLongMessage = intl.formatMessage({ id: 'ValueIsTooLong' })
     const NumberIsNotValidMessage = intl.formatMessage({ id: 'NumberIsNotValid' })
 
     const requiredValidator: Rule = {
@@ -57,6 +59,13 @@ export const useValidations: () => ValidatorTypes = () => {
         }
     }
 
+    const maxLengthValidator: (length: number) => Rule = (length) => {
+        return {
+            max: length,
+            message: FieldIsTooLongMessage,
+        }
+    }
+
     const numberValidator: Rule = {
         pattern: /^\d+(\.?\d+)?$/g,
         message: NumberIsNotValidMessage,
@@ -69,6 +78,7 @@ export const useValidations: () => ValidatorTypes = () => {
         emailValidator,
         trimValidator,
         minLengthValidator,
+        maxLengthValidator,
         numberValidator,
     }
 }

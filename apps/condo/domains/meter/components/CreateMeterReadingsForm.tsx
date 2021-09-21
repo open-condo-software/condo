@@ -322,11 +322,13 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                     accountNumber,
                 })
                     .then(
-                        newMeter => (
-                            createMeterReadingAction({
+                        newMeter => {
+                            if (!value1) return
+
+                            return createMeterReadingAction({
                                 ...getNewMeterReadingVariables({ ...newMeterFromForm, id: newMeter.id }),
                             })
-                        )
+                        }
                     )
             })
         }
