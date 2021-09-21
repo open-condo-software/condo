@@ -32,6 +32,23 @@ describe('ServiceSubscription', () => {
             })
         })
 
+        it('does not allows strings to be saved to unitPrice', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(adminClient)
+
+            const attrs = {
+                unitsCount: 9,
+                unitPrice: 'asdf',
+            }
+
+            await catchErrorFrom(async () => {
+                await createTestServiceSubscription(adminClient, organization, attrs)
+            }, ({ errors, data }) => {
+                expect(errors[0].message).toMatch('invalid input syntax for type numeric')
+                expect(data).toEqual({ 'obj': null })
+            })
+        })
+
         describe('overlapping', () => {
             describe('for create', () => {
                 it('cannot match same interval as in existing record for given organization', async () => {
@@ -198,6 +215,23 @@ describe('ServiceSubscription', () => {
         })
     })
 
+    describe('Price calculation', () => {
+        it('calculates totalPrice', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(adminClient)
+
+            const attrs = {
+                unitsCount: 9,
+                // Keystone's GraphQL accepts and returns decimal numbers as strings,
+                // but they are casted to numbers for calculations in DB and JavaScript
+                unitPrice: '1.11',
+            }
+
+            const [obj] = await createTestServiceSubscription(adminClient, organization, attrs)
+            expect(obj.totalPrice).toEqual('9.99')
+        })
+    })
+
     describe('Create', () => {
         it('can be created by admin', async () => {
             const adminClient = await makeLoggedInAdminClient()
@@ -215,6 +249,8 @@ describe('ServiceSubscription', () => {
             expect(obj.createdAt).toMatch(DATETIME_RE)
             expect(obj.updatedAt).toMatch(DATETIME_RE)
             expect(obj.organization.id).toEqual(organization.id)
+            expect(obj.unitsCount).toEqual(attrs.unitsCount)
+            expect(obj.unitPrice).toEqual(attrs.unitPrice.toString())
         })
 
         it('cannot be created by user', async () => {
