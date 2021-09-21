@@ -69,15 +69,26 @@ export const useValidations: () => ValidatorTypes = () => {
     }
 
     const numberValidator: Rule = {
-        pattern: /^\d+(\.?\d+)?$/g,
-        message: NumberIsNotValidMessage,
+        validator: (_, value: string) => {
+            const normalizedValue = value?.replace(',', '.')
+            if (normalizedValue && !normalizedValue.match(/^\d+(\.?\d+)?$/g))
+                return Promise.reject(NumberIsNotValidMessage)
+
+            return Promise.resolve()
+        },
     }
 
     const lessThanValidator: (comparedValue: number, errorMessage: string) => Rule =
         (comparedValue, errorMessage) => {
             return {
-                validator: (_, value: number | string) => {
-                    if (value !== '' && value < comparedValue) return Promise.reject(errorMessage)
+                validator: (_, value: string | number) => {
+                    let normalizedValue = value
+                    if (typeof value === 'string')
+                        normalizedValue = value.replace(',', '.')
+
+                    if (value !== '' && Number(normalizedValue) < Number(comparedValue))
+                        return Promise.reject(errorMessage)
+
                     return Promise.resolve()
                 },
             }
@@ -87,7 +98,13 @@ export const useValidations: () => ValidatorTypes = () => {
         (comparedValue, errorMessage, delta = 0) => {
             return {
                 validator: (_, value: number | string) => {
-                    if (value !== '' && value > comparedValue + delta) return Promise.reject(errorMessage)
+                    let normalizedValue = value
+                    if (typeof value === 'string')
+                        normalizedValue = value.replace(',', '.')
+
+                    if (value !== '' && Number(normalizedValue) > comparedValue + delta)
+                        return Promise.reject(errorMessage)
+
                     return Promise.resolve()
                 },
             }

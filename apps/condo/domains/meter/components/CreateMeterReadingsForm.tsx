@@ -27,7 +27,7 @@ import { SortBillingAccountMeterReadingsBy } from '../../../schema'
 import { BillingAccountMeterReading } from '@condo/domains/billing/utils/clientSchema'
 import { IMeterReadingFormState } from '../utils/clientSchema/MeterReading'
 import { UnitInfo } from '@condo/domains/property/components/UnitInfo'
-import { EXISTING_METER_NUMBER } from '../constants/errors'
+import { EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION } from '../constants/errors'
 
 export const LAYOUT = {
     labelCol: { span: 8 },
@@ -290,15 +290,17 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
             createdContact = await createContact(organization.id, selectPropertyIdRef.current, selectedUnitNameRef.current)
         }
 
+        const normalizeReading = (reading) => reading?.replace(',', '.')
+
         const { property, accountNumber, newMeters, existedMeters, floorName, sectionName, unitName, ...clientInfo } = variables
         const getNewMeterReadingVariables = (meterReading) => {
             return {
                 organization: organization.id,
                 contact: get(createdContact, 'id') || variables.contact,
-                value1: meterReading.value1,
-                value2: meterReading.value2,
-                value3: meterReading.value3,
-                value4: meterReading.value4,
+                value1: normalizeReading(meterReading.value1),
+                value2: normalizeReading(meterReading.value2),
+                value3: normalizeReading(meterReading.value3),
+                value4: normalizeReading(meterReading.value4),
                 meter: meterReading.id,
                 date: new Date(),
                 ...clientInfo,
@@ -308,6 +310,9 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         let existingMetersCreateActions = []
         if (existedMeters) {
             existingMetersCreateActions = Object.entries(existedMeters).map(([meterId, values]) => {
+                const { value1, value2, value3, value4 } = values
+                if (!value1 && ! value2 && !value3 && !value4) return
+
                 return createMeterReadingAction({
                     ...getNewMeterReadingVariables({ id: meterId, ...values }),
                 })
@@ -329,7 +334,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                 })
                     .then(
                         newMeter => {
-                            if (!value1) return
+                            if (!value1 && !value2 && !value3 && !value4) return
 
                             return createMeterReadingAction({
                                 ...getNewMeterReadingVariables({ ...newMeterFromForm, id: newMeter.id }),
@@ -344,7 +349,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     }, [])
 
     const ErrorToFormFieldMsgMapping = {
-        [EXISTING_METER_NUMBER]: {
+        [EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION]: {
             name: 'newMeters',
             errors: [MeterIsExistMessage],
         },
