@@ -10,7 +10,7 @@ import { get } from 'lodash'
 import {
     getDateFilterDropdown,
     getDateRangeFilterDropdown, getGQLSelectFilterDropdown,
-    getOptionFilterDropdown,
+    getOptionFilterDropdown, getSelectFilterDropdown,
     getTextFilterDropdown,
 } from '../components/Table/Filters'
 
@@ -92,7 +92,6 @@ export function getFilterDropdownByKey <T> (filterMetas: Array<FiltersMeta<T>>, 
         case ComponentType.Input: {
             const placeholder = get(props, 'placeholder')
             return getTextFilterDropdown(placeholder, columnFilterComponentWrapperStyles)
-
         }
 
         case ComponentType.Date:
@@ -110,7 +109,8 @@ export function getFilterDropdownByKey <T> (filterMetas: Array<FiltersMeta<T>>, 
         case ComponentType.Select: {
             const options = get(component, 'options')
             const loading = get(component, 'loading')
-            return getOptionFilterDropdown(options, loading, columnFilterComponentWrapperStyles)
+            const mode = get(component, ['props', 'mode'])
+            return getSelectFilterDropdown(options, loading, mode, columnFilterComponentWrapperStyles)
         }
 
         case ComponentType.GQLSelect: {

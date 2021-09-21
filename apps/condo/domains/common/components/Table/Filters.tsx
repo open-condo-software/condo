@@ -1,7 +1,7 @@
 import { FilterFilled } from '@ant-design/icons'
 import { colors } from '@condo/domains/common/constants/style'
 import React, { CSSProperties } from 'react'
-import { Checkbox, Input } from 'antd'
+import { Checkbox, Input, Select } from 'antd'
 import DatePicker from '../Pickers/DatePicker'
 import { FilterContainer, SelectFilterContainer } from '../TableFilter'
 import { OptionType, QueryArgType } from '../../utils/tables.utils'
@@ -58,6 +58,31 @@ export const getOptionFilterDropdown = (options: Array<OptionType>, loading: boo
                     }}
                 />
             </FilterContainer>
+        )
+    }
+}
+
+export const getSelectFilterDropdown = (options: Array<OptionType>, loading: boolean, mode?: 'multiple' | 'tags', containerStyles?: CSSProperties) => {
+    return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+        return (
+            <SelectFilterContainer
+                clearFilters={clearFilters}
+                showClearButton={selectedKeys && selectedKeys.length > 0}
+                style={containerStyles}
+            >
+                <Select
+                    disabled={loading}
+                    mode={mode}
+                    options={options}
+                    showArrow
+                    style={{ display: 'flex', flexDirection: 'column', width: '200px' }}
+                    value={selectedKeys}
+                    onChange={(e) => {
+                        setSelectedKeys(e)
+                        confirm({ closeDropdown: false })
+                    }}
+                />
+            </SelectFilterContainer>
         )
     }
 }

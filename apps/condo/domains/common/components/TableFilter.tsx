@@ -12,12 +12,42 @@ export interface IFilterContainerProps {
     style?: CSSProperties
 }
 
-const FilterContainerContent: React.FC<IFilterContainerProps> = (props) => {
+export const FilterContainer: React.FC<IFilterContainerProps> = (props) => {
     const intl = useIntl()
     const ResetLabel = intl.formatMessage({ id: 'filters.Reset' })
 
     return (
-        <>
+        <div style={{ padding: 16 }}>
+            <Space size={8} direction={'vertical'} align={'center'}>
+                {props.children}
+                {
+                    props.showClearButton && (
+                        <Button
+                            size={'small'}
+                            onClick={() => props.clearFilters()}
+                            type={'inlineLink'}
+                        >
+                            {ResetLabel}
+                        </Button>
+                    )
+                }
+            </Space>
+        </div>
+    )
+}
+
+export const SelectFilterContainer: React.FC<IFilterContainerProps> = (props) => {
+    const intl = useIntl()
+    const ResetLabel = intl.formatMessage({ id: 'filters.Reset' })
+
+    return (
+        <div style={{
+            padding: 16,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-end',
+            gap: '10px',
+            ...props.style }}>
             {props.children}
             {
                 props.showClearButton && (
@@ -30,30 +60,6 @@ const FilterContainerContent: React.FC<IFilterContainerProps> = (props) => {
                     </Button>
                 )
             }
-        </>
-    )
-}
-
-export const FilterContainer: React.FC<IFilterContainerProps> = (props) => {
-    return (
-        <div style={{ padding: 16 }}>
-            <Space size={8} direction={'vertical'} align={'center'}>
-                <FilterContainerContent {...props}/>
-            </Space>
-        </div>
-    )
-}
-
-export const SelectFilterContainer: React.FC<IFilterContainerProps> = (props) => {
-    return (
-        <div style={{
-            padding: 16,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'flex-end',
-            gap: '10px',
-            ...props.style }}>
-            <FilterContainerContent {...props}/>
         </div>
     )
 }
