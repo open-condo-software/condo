@@ -54,7 +54,6 @@ const userInfo = () => {
 
 const createSync = async (userInfo) => {
     const { keystone } = await getSchemaCtx('User')
-    console.log('keystone', keystone)
     const Sync = new SbbolOrganization({ keystone, userInfo })
     await Sync.init()
     return Sync
