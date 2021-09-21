@@ -32,74 +32,169 @@ describe('ServiceSubscription', () => {
             })
         })
 
-        it('cannot match same interval as in existing record for given organization', async () => {
-            const period = 15
-            const adminClient = await makeLoggedInAdminClient()
-            const [organization] = await createTestOrganization(adminClient)
+        describe('overlapping', () => {
+            describe('for create', () => {
+                it('cannot match same interval as in existing record for given organization', async () => {
+                    const period = 15
+                    const adminClient = await makeLoggedInAdminClient()
+                    const [organization] = await createTestOrganization(adminClient)
 
-            const [existingSubscription] = await createTestServiceSubscription(adminClient, organization, {
-                startAt: dayjs(),
-                finishAt: dayjs().add(period, 'days'),
+                    const [existingSubscription] = await createTestServiceSubscription(adminClient, organization, {
+                        startAt: dayjs(),
+                        finishAt: dayjs().add(period, 'days'),
+                    })
+
+                    const sameInterval = {
+                        startAt: dayjs(existingSubscription.startAt),
+                        finishAt: dayjs(existingSubscription.finishAt),
+                    }
+                    await expectOverlappingFor(createTestServiceSubscription, adminClient, organization, sameInterval)
+                })
+
+                it('cannot overlap existing records for given organization', async () => {
+                    const period = 15
+                    const adminClient = await makeLoggedInAdminClient()
+                    const [organization] = await createTestOrganization(adminClient)
+
+                    const [existingSubscription] = await createTestServiceSubscription(adminClient, organization, {
+                        startAt: dayjs(),
+                        finishAt: dayjs().add(period, 'days'),
+                    })
+
+                    const overlappingIntervalNearStartAt = {
+                        startAt: dayjs(existingSubscription.startAt).subtract(period + 1, 'days'),
+                        finishAt: dayjs(existingSubscription.startAt).add(1, 'second'),
+                    }
+                    await expectOverlappingFor(createTestServiceSubscription, adminClient, organization, overlappingIntervalNearStartAt)
+
+                    const overlappingIntervalNearFinishAt = {
+                        startAt: dayjs(existingSubscription.finishAt).subtract(1, 'second'),
+                        finishAt: dayjs(existingSubscription.finishAt).add(period, 'days'),
+                    }
+                    await expectOverlappingFor(createTestServiceSubscription, adminClient, organization, overlappingIntervalNearFinishAt)
+
+                    const overlappingIntervalAround = {
+                        startAt: dayjs(existingSubscription.startAt).subtract(1, 'second'),
+                        finishAt: dayjs(existingSubscription.finishAt).add(1, 'second'),
+                    }
+                    await expectOverlappingFor(createTestServiceSubscription, adminClient, organization, overlappingIntervalAround)
+
+                    const overlappingIntervalInside = {
+                        startAt: dayjs(existingSubscription.startAt).add(1, 'second'),
+                        finishAt: dayjs(existingSubscription.finishAt).subtract(1, 'second'),
+                    }
+                    await expectOverlappingFor(createTestServiceSubscription, adminClient, organization, overlappingIntervalInside)
+                })
+
+                it('can overlap existing records for another organization', async () => {
+                    const adminClient = await makeLoggedInAdminClient()
+                    const [organization1] = await createTestOrganization(adminClient)
+                    const [organization2] = await createTestOrganization(adminClient)
+
+                    const [firstSubscription] = await createTestServiceSubscription(adminClient, organization1, {
+                        startAt: dayjs(),
+                        finishAt: dayjs().add(15, 'days'),
+                    })
+
+                    const [secondSubscription] = await createTestServiceSubscription(adminClient, organization2, {
+                        startAt: dayjs(firstSubscription.startAt).subtract(3, 'days'),
+                        finishAt: dayjs(firstSubscription.finishAt).subtract(3, 'days'),
+                    })
+
+                    expect(secondSubscription).toBeDefined()
+                })
             })
 
-            const sameInterval = {
-                startAt: dayjs(existingSubscription.startAt),
-                finishAt: dayjs(existingSubscription.finishAt),
-            }
-            await expectOverlappingFor(createTestServiceSubscription, adminClient, organization, sameInterval)
-        })
+            describe('for update', () => {
+                it('cannot match same interval as in existing record for given organization', async () => {
+                    const period = 15
+                    const adminClient = await makeLoggedInAdminClient()
+                    const [organization] = await createTestOrganization(adminClient)
 
-        it('cannot overlap existing records for given organization', async () => {
-            const period = 15
-            const adminClient = await makeLoggedInAdminClient()
-            const [organization] = await createTestOrganization(adminClient)
+                    const [existingSubscription] = await createTestServiceSubscription(adminClient, organization, {
+                        startAt: dayjs(),
+                        finishAt: dayjs().add(period, 'days'),
+                    })
 
-            const [existingSubscription] = await createTestServiceSubscription(adminClient, organization, {
-                startAt: dayjs(),
-                finishAt: dayjs().add(period, 'days'),
+                    const [subjectSubscription] = await createTestServiceSubscription(adminClient, organization, {
+                        startAt: dayjs(existingSubscription.finishAt).add(1, 'day'),
+                        finishAt: dayjs(existingSubscription.finishAt).add(period + 1, 'days'),
+                    })
+
+                    const sameInterval = {
+                        startAt: dayjs(existingSubscription.startAt),
+                        finishAt: dayjs(existingSubscription.finishAt),
+                    }
+                    await expectOverlappingFor(updateTestServiceSubscription, adminClient, subjectSubscription.id, sameInterval)
+                })
+
+                it('cannot overlap existing records for given organization', async () => {
+                    const period = 15
+                    const adminClient = await makeLoggedInAdminClient()
+                    const [organization] = await createTestOrganization(adminClient)
+
+                    const [existingSubscription] = await createTestServiceSubscription(adminClient, organization, {
+                        startAt: dayjs(),
+                        finishAt: dayjs().add(period, 'days'),
+                    })
+
+                    const [subjectSubscription] = await createTestServiceSubscription(adminClient, organization, {
+                        startAt: dayjs(existingSubscription.finishAt).add(1, 'day'),
+                        finishAt: dayjs(existingSubscription.finishAt).add(period + 1, 'days'),
+                    })
+
+                    const overlappingIntervalNearStartAt = {
+                        startAt: dayjs(existingSubscription.startAt).subtract(period + 1, 'days'),
+                        finishAt: dayjs(existingSubscription.startAt).add(1, 'second'),
+                    }
+                    await expectOverlappingFor(updateTestServiceSubscription, adminClient, subjectSubscription.id, overlappingIntervalNearStartAt)
+
+                    const overlappingIntervalNearFinishAt = {
+                        startAt: dayjs(existingSubscription.finishAt).subtract(1, 'second'),
+                        finishAt: dayjs(existingSubscription.finishAt).add(period, 'days'),
+                    }
+                    await expectOverlappingFor(updateTestServiceSubscription, adminClient, subjectSubscription.id, overlappingIntervalNearFinishAt)
+
+                    const overlappingIntervalAround = {
+                        startAt: dayjs(existingSubscription.startAt).subtract(1, 'second'),
+                        finishAt: dayjs(existingSubscription.finishAt).add(1, 'second'),
+                    }
+                    await expectOverlappingFor(updateTestServiceSubscription, adminClient, subjectSubscription.id, overlappingIntervalAround)
+
+                    const overlappingIntervalInside = {
+                        startAt: dayjs(existingSubscription.startAt).add(1, 'second'),
+                        finishAt: dayjs(existingSubscription.finishAt).subtract(1, 'second'),
+                    }
+                    await expectOverlappingFor(updateTestServiceSubscription, adminClient, subjectSubscription.id, overlappingIntervalInside)
+                })
+
+                it('can overlap existing records for another organization', async () => {
+                    const period = 15
+                    const adminClient = await makeLoggedInAdminClient()
+                    const [organization1] = await createTestOrganization(adminClient)
+                    const [organization2] = await createTestOrganization(adminClient)
+
+                    const [existingSubscription] = await createTestServiceSubscription(adminClient, organization1, {
+                        startAt: dayjs(),
+                        finishAt: dayjs().add(15, 'days'),
+                    })
+
+                    const [subjectSubscription] = await createTestServiceSubscription(adminClient, organization2, {
+                        startAt: dayjs(existingSubscription.finishAt).add(1, 'day'),
+                        finishAt: dayjs(existingSubscription.finishAt).add(period + 1, 'days'),
+                    })
+
+                    const overlappingInterval = {
+                        startAt: dayjs(existingSubscription.startAt).subtract(3, 'days'),
+                        finishAt: dayjs(existingSubscription.finishAt).subtract(3, 'days'),
+                    }
+
+                    const [objUpdated] = await updateTestServiceSubscription(adminClient, subjectSubscription.id, overlappingInterval)
+
+                    expect(objUpdated.startAt).toEqual(overlappingInterval.startAt.toISOString())
+                    expect(objUpdated.finishAt).toEqual(overlappingInterval.finishAt.toISOString())
+                })
             })
-
-            const overlappingIntervalNearStartAt = {
-                startAt: dayjs(existingSubscription.startAt).subtract(period + 1, 'days'),
-                finishAt: dayjs(existingSubscription.startAt).add(1, 'second'),
-            }
-            await expectOverlappingFor(createTestServiceSubscription, adminClient, organization, overlappingIntervalNearStartAt)
-
-            const overlappingIntervalNearFinishAt = {
-                startAt: dayjs(existingSubscription.finishAt).subtract(1, 'second'),
-                finishAt: dayjs(existingSubscription.finishAt).add(period, 'days'),
-            }
-            await expectOverlappingFor(createTestServiceSubscription, adminClient, organization, overlappingIntervalNearFinishAt)
-
-            const overlappingIntervalAround = {
-                startAt: dayjs(existingSubscription.startAt).subtract(1, 'second'),
-                finishAt: dayjs(existingSubscription.finishAt).add(1, 'second'),
-            }
-            await expectOverlappingFor(createTestServiceSubscription, adminClient, organization, overlappingIntervalAround)
-
-            const overlappingIntervalInside = {
-                startAt: dayjs(existingSubscription.startAt).add(1, 'second'),
-                finishAt: dayjs(existingSubscription.finishAt).subtract(1, 'second'),
-            }
-            await expectOverlappingFor(createTestServiceSubscription, adminClient, organization, overlappingIntervalInside)
-        })
-
-        it('can overlap existing records for another organization', async () => {
-            const adminClient = await makeLoggedInAdminClient()
-            const [organization1] = await createTestOrganization(adminClient)
-            const [organization2] = await createTestOrganization(adminClient)
-
-            const [firstSubscription] = await createTestServiceSubscription(adminClient, organization1, {
-                startAt: dayjs(),
-                finishAt: dayjs().add(15, 'days'),
-            })
-
-            const [secondSubscription] = await createTestServiceSubscription(adminClient, organization2, {
-                startAt: dayjs(firstSubscription.startAt).subtract(3, 'days'),
-                finishAt: dayjs(firstSubscription.finishAt).subtract(3, 'days'),
-            })
-
-            expect(secondSubscription).toBeDefined()
         })
     })
 
