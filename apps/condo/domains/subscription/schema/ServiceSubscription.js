@@ -75,7 +75,10 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
                 throw new Error('No organization set for ServiceSubscription')
             }
             const overlappedSubscriptionsCount = await ServiceSubscriptionAPI.count(context, {
-                startAt_gte: resolvedData.startAt,
+                OR: [
+                    { startAt_gte: resolvedData.startAt },
+                    { finishAt_gte: resolvedData.startAt },
+                ],
                 organization: { id: organizationId },
             })
             if (overlappedSubscriptionsCount > 0) {
