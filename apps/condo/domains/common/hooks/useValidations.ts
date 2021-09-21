@@ -10,6 +10,8 @@ type ValidatorTypes = {
     trimValidator: Rule
     minLengthValidator: (length: number) => Rule
     maxLengthValidator: (length: number) => Rule
+    lessThanValidator: (comparedValue: number, errorMessage: string) => Rule
+    greaterThanValidator: (comparedValue: number, errorMessage: string, delta?: number) => Rule
     numberValidator: Rule
 }
 
@@ -71,12 +73,34 @@ export const useValidations: () => ValidatorTypes = () => {
         message: NumberIsNotValidMessage,
     }
 
+    const lessThanValidator: (comparedValue: number, errorMessage: string) => Rule =
+        (comparedValue, errorMessage) => {
+            return {
+                validator: (_, value: number | string) => {
+                    if (value !== '' && value < comparedValue) return Promise.reject(errorMessage)
+                    return Promise.resolve()
+                },
+            }
+        }
+
+    const greaterThanValidator: (comparedValue: number, errorMessage: string, delta?: number) => Rule =
+        (comparedValue, errorMessage, delta = 0) => {
+            return {
+                validator: (_, value: number | string) => {
+                    if (value !== '' && value > comparedValue + delta) return Promise.reject(errorMessage)
+                    return Promise.resolve()
+                },
+            }
+        }
+
     return {
         changeMessage,
         requiredValidator,
         phoneValidator,
         emailValidator,
         trimValidator,
+        lessThanValidator,
+        greaterThanValidator,
         minLengthValidator,
         maxLengthValidator,
         numberValidator,

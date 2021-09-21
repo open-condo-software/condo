@@ -22,6 +22,7 @@ type MeterCardProps = {
 }
 
 const MAX_METER_READING_LENGTH = 14
+const GREATER_METER_READING_DELTA = 100
 
 const MeterCardWrapper = styled(FocusContainer)`
   margin: 0;
@@ -30,11 +31,24 @@ const MeterCardWrapper = styled(FocusContainer)`
 export const MeterCard = ({ meter, resource, name, lastMeterBillingMeterReading }: MeterCardProps) => {
     const intl = useIntl()
     const VerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.VerificationDate' })
+    const LessThanPreviousMessage = intl.formatMessage({ id: 'pages.condo.meter.LessThanPrevious' })
+    const GreaterThanPreviousMessage = intl.formatMessage({ id: 'pages.condo.meter.GreaterThanPrevious' })
 
-    const { numberValidator, maxLengthValidator } = useValidations()
+    const { numberValidator, maxLengthValidator, lessThanValidator, greaterThanValidator } = useValidations()
     const maxLength = maxLengthValidator(MAX_METER_READING_LENGTH)
-    const validations = {
-        readingValue: [numberValidator, maxLength],
+    const getMeterReadingInputValidations = (tariffNumber: number) => {
+        return [
+            numberValidator,
+            maxLength,
+            lastMeterBillingMeterReading &&
+                lessThanValidator(lastMeterBillingMeterReading[`value${tariffNumber}`], LessThanPreviousMessage),
+            lastMeterBillingMeterReading &&
+                greaterThanValidator(
+                    lastMeterBillingMeterReading[`value${tariffNumber}`],
+                    GreaterThanPreviousMessage,
+                    GREATER_METER_READING_DELTA,
+                ),
+        ]
     }
 
     const Icon = resource ? resourceIdIconMap[resource.id] : null
@@ -95,7 +109,7 @@ export const MeterCard = ({ meter, resource, name, lastMeterBillingMeterReading 
                                                     `№ ${meter.number} ${meter.place ? `(${meter.place})` : ''}
                                                         ${numberOfTariffs > 1 ? `T${tariffNumber}` : ''}`
                                                 }
-                                                rules={validations.readingValue}
+                                                rules={getMeterReadingInputValidations(tariffNumber)}
                                             >
                                                 <Input
                                                     addonAfter={resource.measure}
@@ -109,7 +123,7 @@ export const MeterCard = ({ meter, resource, name, lastMeterBillingMeterReading 
                                                         {lastMeterBillingMeterReading[`value${tariffNumber}`]} {resource.measure}
                                                     </Typography.Paragraph>
                                                     <Typography.Text type={'secondary'}>
-                                                        ${lastMeterBillingMeterReading.date}
+                                                        {dayjs(lastMeterBillingMeterReading.date).format('DD.MM.YYYY')}
                                                     </Typography.Text>
                                                 </Col>
                                             ) : null

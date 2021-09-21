@@ -388,6 +388,8 @@
   "pages.condo.meter.NextVerificationDate": "Дата следующей поверки",
   "pages.condo.meter.SealingDate": "Дата опломбирования",
   "pages.condo.meter.ControlReadingsDate": "Дата контрольных показаний",
+  "pages.condo.meter.LessThanPrevious": "Новые показания не могут быть меньше предыдущих",
+  "pages.condo.meter.GreaterThanPrevious": "Расход сильно превышает значение за предыдущий месяц",
   "pages.index.PageTitle": "Аналитика",
   "pages.organizations.CreateOrganizationMessage": "Давайте создадим вашу управляющую компанию",
   "pages.condo.analytics.index.PageTitle": "Аналитика",
