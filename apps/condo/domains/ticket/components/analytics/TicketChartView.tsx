@@ -207,7 +207,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
                         hasMore={hasMore}
                         useWindow={false}>
                         <List
-                            grid={{ gutter: 24, xs: 1, sm: 1, md: 1, lg: 1, xl: 1, xxl: 2 }}
+                            grid={{ gutter: 24, xs: 1, sm: 1, md: 1, lg: 1, xl: 2, xxl: 2 }}
                             dataSource={seriesRef.current}
                             renderItem={(chartSeries, index) => {
                                 const { option, opts } = getChartOptions({
@@ -235,7 +235,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
                                     </List.Item>
                                 )
                             }}
-                            style={{ paddingRight: 20, minWidth: 1080 }}
+                            style={{ paddingRight: 20, width: '100%' }}
                         />
                     </InfiniteScroll>
                 </ScrollContainer>
