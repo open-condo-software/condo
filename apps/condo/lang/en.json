@@ -117,6 +117,7 @@
   "menu.Billing": "Billing",
   "menu.TicketAnalytics": "Ticket analytics",
   "RolesAndAccess": "Roles and accesses",
+  "Subscription": "Subscription",
   "OneBillingWarning": "Attention! It's impossible to integrate with more than one billing",
   "NoPermissionToSettings": "You have no permission to view this tab content...",
   "NoPermissionToPage": "You have no permission to view this page",
