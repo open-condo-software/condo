@@ -562,8 +562,8 @@ export const getChartOptions: IGetChartOptions = ({
         option['yAxis'] = axisData['yAxis']
         option['series'] = series
         option['tooltip'] = tooltip
-        const legendItemGap = 56
-        option['grid']['top'] = legend.length / MAX_CHART_LEGEND_ELEMENTS * legendItemGap
+        const legendItemGap = 46
+        option['grid']['top'] = 30 + legend.length / MAX_CHART_LEGEND_ELEMENTS * legendItemGap
 
         const chartHeight = get(chartOptions, 'height', 'auto')
         opts['height'] = chartHeight
