@@ -327,7 +327,7 @@ const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
     const throttledValidateFields = throttle((field) => {
         const item = form.getFieldsError().find(item => item.name[0] === field)
 
-        errors[field] = errors[field] || Boolean(item.errors.length)
+        errors[field] = errors[field] || Boolean(item && item.errors.length)
         errors[field] && form.validateFields([field])
     }, 400)
 
