@@ -15,6 +15,7 @@ const generateCustomColorPalette = (primaryColor, secondaryColor) => {
 const sberBlue = '#5EB1FC'
 const sberSecondaryBlue = '#3899F1'
 const sberGreen = '#4CD174'
+const sberDarkGreen = '#1B7F8B'
 const sberSecondaryGreen = '#22BB50'
 const sberRed = '#FF4D4F'
 const white = '#fff'
@@ -43,6 +44,7 @@ const CHART_COLOR_SET = [blue[5], green[5], red[4], gold[5], volcano[5], purple[
 const colors = {
     sberDefault: generateCustomColorPalette(sberBlue, sberSecondaryBlue),
     sberPrimary: generateCustomColorPalette(sberGreen, sberSecondaryGreen),
+    sberAction: generateCustomColorPalette(sberDarkGreen, sberDarkGreen),
     sberDanger: generate(sberRed),
     sberGrey: generate(sberGrey),
     defaultWhite: generate(white),

@@ -98,6 +98,8 @@ const MenuItems: React.FC = () => {
                     label={'menu.Billing'}
                     disabled={!link}
                 />
+            </FeatureFlagRequired>
+            <FeatureFlagRequired name={'subscription'}>
                 <MenuItem
                     path={'/settings'}
                     icon={SettingFilled}
