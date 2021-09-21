@@ -218,6 +218,43 @@ const getTicketCounts = async (context, where, groupBy, extraLabels = {}) => {
     return { ticketCounts, translates }
 }
 
+const getXLSXDataMapper = (groupByToken, isSummary = false) => {
+    let dataMapper = null
+    switch (groupByToken) {
+        case 'status-day':
+        case 'status-week':
+            dataMapper = dayGroupDataMapper
+            break
+        case 'status-property':
+            dataMapper = isSummary ? propertySummaryDataMapper : propertySingleDataMapper
+            break
+        case 'property-status':
+            dataMapper = isSummary ? propertySummaryPercentDataMapper : propertyPercentDataMapper
+            break
+        case 'status-categoryClassifier':
+            dataMapper = isSummary ? categoryClassifierSummaryDataMapper : categoryClassifierSingleDataMapper
+            break
+        case 'categoryClassifier-status':
+            dataMapper = isSummary ? categoryClassifierPercentSummaryDataMapper : categoryClassifierPercentSingleDataMapper
+            break
+        case 'status-executor':
+            dataMapper = isSummary ? executorSummaryDataMapper : executorSingleDataMapper
+            break
+        case 'executor-status':
+            dataMapper = isSummary ? executorPercentSummaryDataMapper : executorPercentSingleDataMapper
+            break
+        case 'status-assignee':
+            dataMapper = isSummary ? assigneeSummaryDataMapper : assigneeSingleDataMapper
+            break
+        case 'assignee-status':
+            dataMapper = isSummary ? assigneePercentSummaryDataMapper : assigneePercentSingleDataMapper
+            break
+        default:
+            throw new Error('Unknown groupBy token ' + groupByToken)
+    }
+    return dataMapper
+}
+
 const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportService', {
     types: [
         {
@@ -312,194 +349,73 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                 }
 
                 const tickets = []
-                // TODO(sitozzz): simplify logic
-                if (rowColumns.length === 0) {
+                const totalCount = Object.values(result)
+                    .reduce((prevCount, currentAggregateObject) =>
+                        prevCount + sum(Object.values(currentAggregateObject)), 0)
+
+                const isSummary = rowColumns.length === 0
+                const mapperInstance = getXLSXDataMapper(groupByToken, isSummary)
+                if (isSummary) {
                     const tableColumns = {}
-                    if (PERCENT_AGGREGATION_TOKENS.includes(groupByToken)) {
-                        const totalCount = Object.values(result)
-                            .reduce((previousCount, currentAggregateObject) =>
-                                previousCount + sum(Object.values(currentAggregateObject)), 0)
-
-                        Object.entries(result).forEach(([ticketType, dataObject]) => {
-                            let rows = null
-                            switch (groupBy[0]) {
-                                case 'property':
-                                    rows = propertySummaryPercentDataMapper(
-                                        { row: dataObject, constants: { address, totalCount } }
-                                    ).rows
-                                    break
-                                case 'categoryClassifier':
-                                    rows = categoryClassifierPercentSummaryDataMapper(
-                                        { row: dataObject, constants: { address, totalCount, categoryClassifier } }
-                                    ).rows
-                                    tableColumns.categoryClassifier = rows.categoryClassifier()
-                                    break
-                                case 'executor':
-                                    rows = executorPercentSummaryDataMapper(
-                                        { row: dataObject, constants: { address, totalCount, executor } }
-                                    ).rows
-                                    tableColumns.executor = rows.executor()
-                                    break
-                                case 'assignee':
-                                    rows = assigneePercentSummaryDataMapper(
-                                        { row: dataObject, constants: { address, totalCount, assignee } }
-                                    ).rows
-                                    tableColumns.assignee = rows.assignee()
-                                    break
-                                default:
-                                    throw new Error('unknown filter' + groupBy[1])
-                            }
-
-                            tableColumns[ticketType] = rows[ticketType]()
-                            tableColumns.address = rows.address()
+                    Object.entries(result).forEach(([ticketType, dataObject]) => {
+                        const { rows } = mapperInstance({
+                            row: dataObject,
+                            constants: { totalCount, address, categoryClassifier, executor, assignee },
                         })
-                    } else {
-                        Object.entries(result).forEach(([ticketType, dataObject]) => {
-                            let rows = null
-                            const mapperData = {
-                                row: dataObject, constants: { address, categoryClassifier, assignee, executor },
-                            }
-
-                            switch (groupBy1) {
-                                case 'status':
-                                case 'property':
-                                    rows = propertySummaryDataMapper(mapperData).rows
-                                    break
-                                case 'categoryClassifier':
-                                    rows = categoryClassifierSummaryDataMapper(mapperData).rows
-                                    tableColumns.categoryClassifier = rows.categoryClassifier()
-                                    break
-                                case 'executor':
-                                    rows = executorSummaryDataMapper(mapperData).rows
-                                    tableColumns.executor = rows.executor()
-                                    break
-                                case 'assignee':
-                                    rows = assigneeSummaryDataMapper(mapperData).rows
-                                    tableColumns.assignee = rows.assignee()
-                                    break
-                                default:
-                                    throw new Error('unknown filter ' + groupBy1)
-                            }
-                            tableColumns[ticketType] = rows[ticketType]()
-                            tableColumns.address = rows.address()
+                        Object.entries(rows).filter(([rowType]) => rowType === ticketType).forEach(([tableRow, getValue]) => {
+                            tableColumns[tableRow] = getValue()
                         })
-                    }
+                        tableColumns.address = rows.address()
+                        tableColumns.executor = rows.executor !== undefined ? rows.executor() : ''
+                        tableColumns.assignee = rows.assignee !== undefined ? rows.assignee() : ''
+                        tableColumns.categoryClassifier = rows.categoryClassifier !== undefined ? rows.categoryClassifier() : ''
+                    })
                     tickets.push(tableColumns)
                 } else {
-                    switch (groupBy[1]) {
-                        case 'status':
-                        case 'property':
-                        case 'categoryClassifier':
-                        case 'executor':
-                        case 'assignee':
-                            if (PERCENT_AGGREGATION_TOKENS.includes(groupByToken)) {
-                                const totalCounts = {}
-                                Object.values(result).forEach((dataObj) => {
-                                    Object.entries(dataObj).forEach(([propertyAddress, count]) => {
-                                        get(totalCounts, propertyAddress, false)
-                                            ? (totalCounts[propertyAddress] += count)
-                                            : (totalCounts[propertyAddress] = count)
-                                    })
-                                })
-                                rowColumns.forEach(rowAddress => {
-                                    const tableRow = {}
-                                    Object.entries(result).forEach(rowEntry => {
-                                        const [ticketType, dataObj] = rowEntry
-                                        let rows = null
-                                        switch (groupBy2) {
-                                            case 'property':
-                                                rows = propertyPercentDataMapper({
-                                                    row: dataObj, constants: { address: rowAddress, totalCounts },
-                                                }).rows
-                                                break
-                                            case 'categoryClassifier':
-                                                rows = categoryClassifierPercentSingleDataMapper({
-                                                    row: dataObj,
-                                                    constants: { address, totalCounts, categoryClassifier: rowAddress },
-                                                }).rows
-                                                tableRow.categoryClassifier = rows.categoryClassifier()
-                                                break
-                                            case 'executor':
-                                                rows = executorPercentSingleDataMapper({
-                                                    row: dataObj,
-                                                    constants: { address, totalCounts, executor: rowAddress },
-                                                }).rows
-                                                tableRow.executor = rows.executor()
-                                                break
-                                            case 'assignee':
-                                                rows = assigneePercentSingleDataMapper({
-                                                    row: dataObj,
-                                                    constants: { address, totalCounts, assignee: rowAddress },
-                                                }).rows
-                                                tableRow.assignee = rows.assignee()
-                                                break
-                                            default:
-                                                throw new Error('unknown filter ' + groupBy[1])
-                                        }
-
-                                        tableRow[ticketType] = rows[ticketType]()
-                                        tableRow.address = rows.address()
-                                    })
-                                    tickets.push(tableRow)
-                                })
-                            } else {
-                                rowColumns.forEach((rowAddress) => {
-                                    const tableRow = {}
-                                    Object.entries(result).forEach(([ticketType, dataObject]) => {
-                                        let rows = null
-                                        switch (groupBy[1]) {
-                                            case 'property':
-                                                rows = propertySingleDataMapper(
-                                                    { row: dataObject, constants: { address: rowAddress } }
-                                                ).rows
-                                                break
-                                            case 'categoryClassifier':
-                                                rows = categoryClassifierSingleDataMapper({
-                                                    row: dataObject, constants: { address, categoryClassifier: rowAddress },
-                                                }).rows
-                                                tableRow.categoryClassifier = rows.categoryClassifier()
-                                                break
-                                            case 'executor':
-                                                rows = executorSingleDataMapper({
-                                                    row: dataObject, constants: { address, executor: rowAddress },
-                                                }).rows
-                                                tableRow.executor = rows.executor()
-                                                break
-                                            case 'assignee':
-                                                rows = assigneeSingleDataMapper({
-                                                    row: dataObject, constants: { address, assignee: rowAddress },
-                                                }).rows
-                                                tableRow.assignee = rows.assignee()
-                                                break
-                                            default:
-                                                throw new Error('unknown filter ' + groupBy1)
-                                        }
-
-                                        tableRow[ticketType] = rows[ticketType]()
-                                        tableRow.address = rows.address()
-                                    })
-                                    tickets.push(tableRow)
-                                })
+                    const totalCounts = {}
+                    Object.values(result).forEach((dataObj) => {
+                        Object.entries(dataObj).forEach(([groupByField, count]) => {
+                            get(totalCounts, groupByField, false)
+                                ? (totalCounts[groupByField] += count)
+                                : (totalCounts[groupByField] = count)
+                        })
+                    })
+                    rowColumns.forEach(filterColumn => {
+                        const tableColumns = {}
+                        Object.entries(result).forEach(([ticketType, dataObj]) => {
+                            const mapperData = { row: dataObj, constants: { totalCounts, address } }
+                            switch (groupBy2) {
+                                case 'status':
+                                case 'property':
+                                    mapperData['constants']['address'] = filterColumn
+                                    break
+                                case 'categoryClassifier':
+                                    mapperData['constants']['categoryClassifier'] = filterColumn
+                                    break
+                                case 'executor':
+                                    mapperData['constants']['executor'] = filterColumn
+                                    break
+                                case 'assignee':
+                                    mapperData['constants']['assignee'] = filterColumn
+                                    break
+                                case 'dayGroup':
+                                    mapperData['row'] = result
+                                    mapperData['constants']['date'] = filterColumn
+                                    break
+                                default:
+                                    throw new Error('Unknown filter ' + groupBy2)
                             }
-                            break
-                        case 'day':
-                        case 'week':
-                            rowColumns.forEach((date) => {
-                                const tableColumns = {}
-                                let addressRow = ''
-                                let dateRow = ''
-                                Object.keys(result).forEach(ticketType => {
-                                    const { rows } = dayGroupDataMapper({ row: result, constants: { date, address } })
-                                    tableColumns[ticketType] = rows[ticketType]()
-                                    addressRow = rows.address()
-                                    dateRow = rows.date()
-                                })
-                                tickets.push({ address: addressRow, date: dateRow, ...tableColumns })
-                            })
-                            break
-                        default:
-                            throw new Error('unsupported filter')
-                    }
+                            const { rows } = mapperInstance(mapperData)
+
+                            tableColumns.address = rows.address()
+                            tableColumns.date = rows.date !== undefined ? rows.date() : ''
+                            tableColumns.executor = rows.executor !== undefined ? rows.executor() : ''
+                            tableColumns.assignee = rows.assignee !== undefined ? rows.assignee() : ''
+                            tableColumns.categoryClassifier = rows.categoryClassifier !== undefined ? rows.categoryClassifier() : ''
+                            tableColumns[ticketType] = rows[ticketType]()
+                        })
+                        tickets.push(tableColumns)
+                    })
                 }
 
                 const link = await createExportFile({
