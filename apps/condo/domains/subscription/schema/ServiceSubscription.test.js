@@ -46,7 +46,7 @@ describe('ServiceSubscription', () => {
                 startAt: dayjs(existingSubscription.startAt),
                 finishAt: dayjs(existingSubscription.finishAt),
             }
-            await expectOverlappingFor(adminClient, organization, sameInterval)
+            await expectOverlappingFor(createTestServiceSubscription, adminClient, organization, sameInterval)
         })
 
         it('cannot overlap existing records for given organization', async () => {
@@ -63,25 +63,25 @@ describe('ServiceSubscription', () => {
                 startAt: dayjs(existingSubscription.startAt).subtract(period + 1, 'days'),
                 finishAt: dayjs(existingSubscription.startAt).add(1, 'second'),
             }
-            await expectOverlappingFor(adminClient, organization, overlappingIntervalNearStartAt)
+            await expectOverlappingFor(createTestServiceSubscription, adminClient, organization, overlappingIntervalNearStartAt)
 
             const overlappingIntervalNearFinishAt = {
                 startAt: dayjs(existingSubscription.finishAt).subtract(1, 'second'),
                 finishAt: dayjs(existingSubscription.finishAt).add(period, 'days'),
             }
-            await expectOverlappingFor(adminClient, organization, overlappingIntervalNearFinishAt)
+            await expectOverlappingFor(createTestServiceSubscription, adminClient, organization, overlappingIntervalNearFinishAt)
 
             const overlappingIntervalAround = {
                 startAt: dayjs(existingSubscription.startAt).subtract(1, 'second'),
                 finishAt: dayjs(existingSubscription.finishAt).add(1, 'second'),
             }
-            await expectOverlappingFor(adminClient, organization, overlappingIntervalAround)
+            await expectOverlappingFor(createTestServiceSubscription, adminClient, organization, overlappingIntervalAround)
 
             const overlappingIntervalInside = {
                 startAt: dayjs(existingSubscription.startAt).add(1, 'second'),
                 finishAt: dayjs(existingSubscription.finishAt).subtract(1, 'second'),
             }
-            await expectOverlappingFor(adminClient, organization, overlappingIntervalInside)
+            await expectOverlappingFor(createTestServiceSubscription, adminClient, organization, overlappingIntervalInside)
         })
 
         it('can overlap existing records for another organization', async () => {

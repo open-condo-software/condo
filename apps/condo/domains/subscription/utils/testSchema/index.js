@@ -57,14 +57,14 @@ async function updateTestServiceSubscription (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function expectOverlappingFor (client, organization, interval) {
+const expectOverlappingFor = async (action, ...args) => (
     await catchErrorFrom(async () => {
-        await createTestServiceSubscription(client, organization, interval)
+        await action(...args)
     }, ({ errors, data }) => {
         expect(errors[0].data.messages[0]).toMatch('[overlapping]')
         expect(data).toEqual({ 'obj': null })
     })
-}
+)
 
 /* AUTOGENERATE MARKER <FACTORY> */
 
