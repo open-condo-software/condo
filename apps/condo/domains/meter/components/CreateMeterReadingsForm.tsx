@@ -27,6 +27,7 @@ import { SortBillingAccountMeterReadingsBy } from '../../../schema'
 import { BillingAccountMeterReading } from '@condo/domains/billing/utils/clientSchema'
 import { IMeterReadingFormState } from '../utils/clientSchema/MeterReading'
 import { UnitInfo } from '@condo/domains/property/components/UnitInfo'
+import { EXISTING_METER_NUMBER } from '../constants/errors'
 
 export const LAYOUT = {
     labelCol: { span: 8 },
@@ -110,7 +111,6 @@ export const CreateMeterReadingsActionBar = ({
                                 <Button
                                     onClick={handleAddMeterButtonClick}
                                     type='sberPrimary'
-                                    loading={isLoading}
                                     disabled={!property || !accountNumber}
                                     icon={<PlusCircleFilled/>}
                                     secondary
@@ -190,6 +190,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.HelpMessage' })
+    const MeterIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterIsExistMessage' })
 
     const router = useRouter()
     const { requiredValidator } = useValidations()
@@ -328,6 +329,13 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         await router.push('/meter')
     }, [])
 
+    const ErrorToFormFieldMsgMapping = {
+        [EXISTING_METER_NUMBER]: {
+            name: 'newMeters',
+            errors: [MeterIsExistMessage],
+        },
+    }
+
     return (
         <FormWithAction
             {...LAYOUT}
@@ -339,6 +347,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                 values.accountNumber = accountNumberRef.current
                 return values
             }}
+            ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
         >
             {({ handleSave, isLoading, form }) => (
                 <>
