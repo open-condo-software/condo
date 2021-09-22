@@ -7,6 +7,10 @@ import { ELECTRICITY_METER_RESOURCE_ID } from '../../constants/constants'
 import styled from '@emotion/styled'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
+import { Rule } from 'rc-field-form/lib/interface'
+import { useOrganization } from '@core/next/organization'
+import { Meter } from '../../utils/clientSchema'
+import { IMeterFormState } from '../../utils/clientSchema/Meter'
 
 const { Option } = Select
 
@@ -53,9 +57,10 @@ const ChevronIconWrapper = styled.div<ChevronIconWrapperProps>`
 
 type MeterInfoProps = {
     resource: IMeterResourceUIState
+    newMeters: IMeterFormState[]
 }
 
-export const MeterInfo = ({ resource }: MeterInfoProps) => {
+export const MeterInfo = ({ resource, newMeters }: MeterInfoProps) => {
     const intl = useIntl()
     const MeterNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterNumber' })
     const MeterPlaceMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterPlace' })
@@ -67,11 +72,35 @@ export const MeterInfo = ({ resource }: MeterInfoProps) => {
     const SealingDateMessage = intl.formatMessage({ id: 'pages.condo.meter.SealingDate' })
     const VerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.VerificationDate' })
     const NextVerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.NextVerificationDate' })
+    const MeterIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterIsExistMessage' })
+
+    const { organization } = useOrganization()
+
+    const { objs: metersWithSameNumber, refetch } = Meter.useObjects({
+        where: {
+            organization: null,
+        },
+    })
+
+    const meterWithSameNumberValidator: Rule = {
+        validator: async (_, value) => {
+            await refetch({
+                where: {
+                    organization: { id: organization && organization.id },
+                    number: value,
+                },
+            })
+
+            if (metersWithSameNumber.length > 0 || (newMeters && newMeters.find(newMeter => newMeter.number === value)))
+                return Promise.reject(MeterIsExistMessage)
+            return Promise.resolve()
+        },
+    }
 
     const { requiredValidator } = useValidations()
 
     const validations = {
-        number: [requiredValidator],
+        number: [requiredValidator, meterWithSameNumberValidator],
         numberOfTariffs: [requiredValidator],
     }
 
@@ -88,6 +117,7 @@ export const MeterInfo = ({ resource }: MeterInfoProps) => {
                             label={MeterNumberMessage}
                             name='number'
                             rules={validations.number}
+                            validateTrigger={['onBlur', 'onSubmit']}
                         >
                             <Input />
                         </Form.Item>
