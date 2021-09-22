@@ -5,6 +5,7 @@ import { Button } from './Button'
 import { FilterFilled } from '@ant-design/icons'
 import { colors } from '../constants/style'
 import { FilterDropdownProps } from 'antd/lib/table/interface'
+import styled from '@emotion/styled'
 
 export interface IFilterContainerProps {
     clearFilters: () => void
@@ -36,18 +37,20 @@ export const FilterContainer: React.FC<IFilterContainerProps> = (props) => {
     )
 }
 
+const StyledSelectFilterContainer = styled.div`
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+`
+
 export const SelectFilterContainer: React.FC<IFilterContainerProps> = (props) => {
     const intl = useIntl()
     const ResetLabel = intl.formatMessage({ id: 'filters.Reset' })
 
     return (
-        <div style={{
-            padding: 16,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'flex-end',
-            gap: '10px',
-            ...props.style }}>
+        <StyledSelectFilterContainer style={props.style}>
             {props.children}
             {
                 props.showClearButton && (
@@ -60,7 +63,7 @@ export const SelectFilterContainer: React.FC<IFilterContainerProps> = (props) =>
                     </Button>
                 )
             }
-        </div>
+        </StyledSelectFilterContainer>
     )
 }
 
