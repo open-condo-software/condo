@@ -8,6 +8,7 @@ import { resourceIdToCreateMeterTitleIdMap } from '../utils/clientSchema'
 import { FormattedMessage } from 'react-intl'
 import { IMeterResourceUIState } from '../utils/clientSchema/MeterResource'
 import { Modal } from 'antd'
+import { IMeterFormState } from '../utils/clientSchema/Meter'
 
 type MeterInfoModalTitleProps = {
     resourceId: string
@@ -30,6 +31,7 @@ const MeterInfoModalTitle = ({ resourceId }: MeterInfoModalTitleProps) => {
 type CreateMeterModalProps = {
     addMeterToFormAction: (defaultValue?: StoreValue, insertIndex?: number) => void
     resources: IMeterResourceUIState[]
+    newMeters: IMeterFormState[]
 }
 
 export const useCreateMeterModal = ()=> {
@@ -44,7 +46,7 @@ export const useCreateMeterModal = ()=> {
         setSelectedMeterResourceId(null)
     }, [isCreateMeterModalVisible])
 
-    const CreateMeterModal = ({ addMeterToFormAction, resources }: CreateMeterModalProps) => {
+    const CreateMeterModal = ({ addMeterToFormAction, resources, newMeters }: CreateMeterModalProps) => {
         return !selectedMeterResourceId ? (
             <Modal
                 title={ChooseServiceMessage}
@@ -74,6 +76,7 @@ export const useCreateMeterModal = ()=> {
                 }
             >
                 <MeterInfo
+                    newMeters={newMeters}
                     resource={resources.find(resource => resource.id === selectedMeterResourceId)}
                 />
             </BaseModalForm>

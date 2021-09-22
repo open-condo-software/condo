@@ -465,6 +465,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                                                                     meter={newMeter}
                                                                                     resource={resource}
                                                                                     name={field.name}
+                                                                                    removeAction={operations.remove}
                                                                                 />
                                                                             </Form.Item>
                                                                         </Col>
@@ -502,6 +503,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                 null
                         }
                         resources={resources}
+                        newMeters={form.getFieldValue('newMeters')}
                     />
                 </>
             )}
