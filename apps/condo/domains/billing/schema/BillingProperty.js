@@ -60,7 +60,7 @@ const BillingProperty = new GQLListSchema('BillingProperty', {
             {
                 type: 'models.UniqueConstraint',
                 fields: ['context', 'globalId'],
-                name: 'unique_context_and_fias_id',
+                name: 'unique_context_globalId',
             },
         ],
     },
