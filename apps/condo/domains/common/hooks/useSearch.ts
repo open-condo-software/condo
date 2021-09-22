@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import qs from 'qs'
 import { pickBy, get, debounce } from 'lodash'
@@ -9,6 +9,12 @@ export const useSearch = <F>(loading): [string, (search: string) => void] => {
     const filtersFromQuery = getFiltersFromQuery<F>(router.query)
     const searchValue = get(filtersFromQuery, 'search')
     const [search, setSearch] = useState(searchValue)
+
+    useEffect(() => {
+        if (!searchValue) {
+            setSearch('')
+        }
+    }, [searchValue])
 
     const searchChange = useCallback(debounce((e) => {
         if ('offset' in router.query) router.query['offset'] = '0'
