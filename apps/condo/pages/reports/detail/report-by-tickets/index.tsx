@@ -223,7 +223,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     const isDetailDisabled = groupTicketsBy === 'property' || viewMode === 'bar'
     return (
         <Form>
-            <Row gutter={[44, 12]}>
+            <Row gutter={[44, 12]} wrap={false}>
                 <Col flex={0}>
                     <Form.Item label={PeriodTitle} {...FORM_ITEM_STYLE} style={{ width: 240 }}>
                         <DateRangePicker
@@ -252,7 +252,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                         </Select>
                     </Form.Item>
                 </Col>
-                <Col flex={1} style={{ maxWidth: 746 }}>
+                <Col flex={1}>
                     <Form.Item label={AddressTitle} {...FORM_ITEM_STYLE}>
                         <GraphQlSearchInput
                             allowClear
