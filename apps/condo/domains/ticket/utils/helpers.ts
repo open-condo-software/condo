@@ -552,7 +552,7 @@ export const getChartOptions: IGetChartOptions = ({
                 fontSize: fontSizes.content,
                 fontWeight: 700,
                 overflow: 'breakAll',
-                width: 160,
+                width: 185,
                 lineHeight: 20,
             },
         } : { show: false }
