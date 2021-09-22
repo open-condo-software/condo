@@ -143,25 +143,32 @@ function getModalComponents <T> (filters, filterMetas: Array<FiltersMeta<T>>): R
 }
 
 export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>) {
-    const intl = useIntl()
-    const FiltersModalTitle = intl.formatMessage({ id: 'FiltersLabel' })
-    const ShowMessage = intl.formatMessage({ id: 'Show' })
-    const ClearAllFiltersMessage = intl.formatMessage({ id: 'ClearAllFilters' })
-
     const [isMultipleFiltersModalVisible, setIsMultipleFiltersModalVisible] = useState<boolean>()
-    const router = useRouter()
-    const { filters } = parseQuery(router.query)
 
     const MultipleFiltersModal = () => {
         const [form, setForm] = useState<FormInstance>(null)
+        const intl = useIntl()
+        const FiltersModalTitle = intl.formatMessage({ id: 'FiltersLabel' })
+        const ShowMessage = intl.formatMessage({ id: 'Show' })
+        const ClearAllFiltersMessage = intl.formatMessage({ id: 'ClearAllFilters' })
 
-        const resetFields = useCallback(() => {
+        const router = useRouter()
+        const { filters } = parseQuery(router.query)
+
+        const resetFields = useCallback(async () => {
             const resetFields = {}
             const formKeys = Object.keys(form.getFieldsValue())
             formKeys.forEach(key => {
                 resetFields[key] = undefined
             })
             form.setFieldsValue(resetFields)
+
+            const query = qs.stringify(
+                { ...router.query, filters: JSON.stringify({ ...filters, ...resetFields }) },
+                { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
+            )
+
+            await router.push(router.route + query)
         }, [form])
 
         return (
