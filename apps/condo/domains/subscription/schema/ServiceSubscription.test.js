@@ -123,8 +123,8 @@ describe('ServiceSubscription', () => {
             expect(obj.updatedAt).toMatch(DATETIME_RE)
             expect(obj.organization.id).toEqual(organization.id)
             expect(obj.unitsCount).toEqual(unitsCount)
-            expect(obj.unitPrice).toEqual(String(unitPrice))
-            expect(obj.totalPrice).toEqual(String(totalPrice))
+            expect(parseFloat(obj.unitPrice)).toBeCloseTo(unitPrice, 2)
+            expect(parseFloat(obj.totalPrice)).toBeCloseTo(totalPrice, 2)
             expect(obj.currency).toEqual('RUB')
         })
 
@@ -340,7 +340,7 @@ describe('ServiceSubscription', () => {
             }
 
             const [obj] = await createTestServiceSubscription(adminClient, organization, attrs)
-            expect(obj.totalPrice).toEqual('9.99')
+            expect(parseFloat(obj.totalPrice)).toBeCloseTo(9.99, 2)
         })
     })
 
@@ -350,6 +350,8 @@ describe('ServiceSubscription', () => {
             const [organization] = await createTestOrganization(adminClient)
 
             const [obj, attrs] = await createTestServiceSubscription(adminClient, organization)
+            console.debug('obj.unitPrice', obj.unitPrice)
+            console.debug('attrs.unitPrice', attrs.unitPrice)
             expect(obj.id).toMatch(UUID_RE)
             expect(obj.dv).toEqual(1)
             expect(obj.sender).toEqual(attrs.sender)
@@ -362,7 +364,7 @@ describe('ServiceSubscription', () => {
             expect(obj.updatedAt).toMatch(DATETIME_RE)
             expect(obj.organization.id).toEqual(organization.id)
             expect(obj.unitsCount).toEqual(attrs.unitsCount)
-            expect(obj.unitPrice).toEqual(attrs.unitPrice.toString())
+            expect(parseFloat(obj.unitPrice)).toBeCloseTo(parseFloat(attrs.unitPrice), 2)
             expect(obj.currency).toEqual('RUB')
         })
 
