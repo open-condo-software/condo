@@ -251,6 +251,7 @@ describe('ServiceSubscription', () => {
             expect(obj.organization.id).toEqual(organization.id)
             expect(obj.unitsCount).toEqual(attrs.unitsCount)
             expect(obj.unitPrice).toEqual(attrs.unitPrice.toString())
+            expect(obj.currency).toEqual('RUB')
         })
 
         it('cannot be created by user', async () => {
