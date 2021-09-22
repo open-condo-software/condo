@@ -40,6 +40,7 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
     const addressFilter = getFilter(['meter', 'property', 'id'], 'array', 'string', 'in')
+    const addressStringContainsFilter = getStringContainsFilter(['meter', 'property', 'address'])
     const accountNumberFilter = getStringContainsFilter(['meter', 'accountNumber'])
     const placeFilter = getStringContainsFilter(['meter', 'place'])
     const numberFilter = getStringContainsFilter(['meter', 'number'])
@@ -256,7 +257,14 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
                     },
                 },
             },
-            { keyword: 'search', filters: [accountNumberFilter, placeFilter], combineType: 'OR' },
+            { keyword: 'search', filters:
+                    [
+                        addressStringContainsFilter,
+                        placeFilter,
+                        accountNumberFilter,
+                        clientNameFilter,
+                    ],
+            combineType: 'OR' },
         ]
     }, [sources, resources])
 }
