@@ -102,12 +102,26 @@ export const UpdateEmployeeForm = () => {
                 const isRoleDeleted = !values.role && initialValues.role
                 const role = values.role
                 const selectedRole = find(employeeRoles, { id: role })
-                if (selectedRole.name !== TechnicianRoleName) {
-                    values.specializations = null
-                }
+                const specializations = values.specializations
+
                 if (isRoleDeleted) {
                     values.role = null
                 }
+
+                if (specializations && specializations.length) {
+                    values.specializations = specializations.map(id => id)
+                } else {
+                    values.specializations = null
+                }
+
+                if (selectedRole.name !== TechnicianRoleName) {
+                    values.specializations = null
+                }
+
+                if (isRoleDeleted) {
+                    values.role = null
+                }
+
                 return values
             }}
         >
