@@ -86,12 +86,6 @@ export const ExportToExcelActionBar = ({
     )
 }
 
-
-interface ITicketIndexPage extends React.FC {
-    headerAction?: JSX.Element
-    requiredAccess?: React.FC
-}
-
 export const MetersPageContent = ({
     searchMeterReadingsQuery,
     tableColumns,
@@ -204,7 +198,12 @@ export const MetersPageContent = ({
     )
 }
 
-const MetersPage: ITicketIndexPage = () => {
+interface IMeterIndexPage extends React.FC {
+    headerAction?: JSX.Element
+    requiredAccess?: React.FC
+}
+
+const MetersPage: IMeterIndexPage = () => {
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
@@ -230,7 +229,6 @@ const MetersPage: ITicketIndexPage = () => {
     )
 }
 
-// MetersPage.headerAction = <TitleHeaderAction descriptor={{ id: 'menu.ControlRoom' }}/>
 MetersPage.requiredAccess = OrganizationRequired
 
 export default MetersPage

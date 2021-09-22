@@ -126,7 +126,6 @@ export default function DivisionTable (props: BuildingTableProps) {
         <Row align={'middle'} gutter={[0, 40]}>
             <Col span={6}>
                 <Input
-
                     placeholder={SearchPlaceholder}
                     onChange={(e) => debouncedSearch(e.target.value)}
                     defaultValue={filters.address}

@@ -33,6 +33,7 @@ import { OnBoardingProgressIconContainer } from '@condo/domains/onboarding/compo
 import {
     BILLING_RECEIPT_SERVICES_FIELD,
 } from '@condo/domains/billing/constants'
+import { MeterLog } from '../domains/common/components/icons/MeterLogIcon'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
@@ -93,7 +94,7 @@ const MenuItems: React.FC = () => {
             />
             <MenuItem
                 path={'/meter'}
-                icon={ApiFilled}
+                icon={MeterLog}
                 label={'menu.Meters'}
                 disabled={!link}
             />
