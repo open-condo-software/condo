@@ -261,7 +261,7 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
                     [
                         addressStringContainsFilter,
                         placeFilter,
-                        accountNumberFilter,
+                        numberFilter,
                         clientNameFilter,
                     ],
             combineType: 'OR' },
