@@ -11,6 +11,8 @@ const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 const { ServiceSubscription: ServiceSubscriptionAPI } = require('../utils/serverSchema')
 const get = require('lodash/get')
 const { OVERLAPPING_ERROR } = require('../constants/errors')
+const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
+const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 
 
 const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
@@ -91,6 +93,14 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
     },
     hooks: {
         validateInput: async ({ resolvedData, operation, existingItem, addValidationError, context }) => {
+            if (!hasDvAndSenderFields( resolvedData, context, addValidationError)) return
+            const { dv } = resolvedData
+            if (dv === 1) {
+                // NOTE: version 1 specific translations. Don't optimize this logic
+            } else {
+                return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
+            }
+
             // It makes no sense:
             // - To create subscription in past
             let organizationId
