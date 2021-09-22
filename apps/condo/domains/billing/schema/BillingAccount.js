@@ -96,7 +96,7 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
             {
                 type: 'models.UniqueConstraint',
                 fields: ['context', 'globalId'],
-                name: 'unique_context_and_id',
+                name: 'unique_context_globalId',
             },
         ],
     },
