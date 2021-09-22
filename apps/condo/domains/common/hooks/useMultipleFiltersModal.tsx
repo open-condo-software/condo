@@ -59,9 +59,15 @@ function FilterComponent<T> ({
     )
 }
 
+const FILTERS_POPUP_CONTAINER_ID = 'filtersPopupContainer'
+
 export const getModalFilterComponentByMeta = (filters, name, component: FilterComponentInfo): React.ReactElement => {
     const type = get(component, 'type')
-    const props = get(component, 'props')
+    const props = {
+        // It is necessary so that dropdowns do not go along with the screen when scrolling the modal window
+        getPopupContainer: () => document.getElementById(FILTERS_POPUP_CONTAINER_ID),
+        ...get(component, 'props', {}),
+    }
 
     switch (type) {
         case ComponentType.Input:
@@ -98,8 +104,9 @@ export const getModalFilterComponentByMeta = (filters, name, component: FilterCo
             )
         }
         case ComponentType.GQLSelect: {
-            const { search, ...otherProps } = props
-            return <GraphQlSearchInput search={search} {...otherProps} />
+            return <GraphQlSearchInput
+                {...props}
+            />
         }
 
         default: return
@@ -164,7 +171,7 @@ export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>)
             form.setFieldsValue(resetFields)
 
             const query = qs.stringify(
-                { ...router.query, filters: JSON.stringify({ ...filters, ...resetFields }) },
+                { ...router.query, filters: JSON.stringify({}) },
                 { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
             )
 
@@ -209,7 +216,7 @@ export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>)
                         setForm(form)
 
                         return (
-                            <Row justify={'space-between'} gutter={[24, 12]}>
+                            <Row justify={'space-between'} gutter={[24, 12]} id={FILTERS_POPUP_CONTAINER_ID}>
                                 {getModalComponents(filters, filterMetas)}
                             </Row>
                         )
