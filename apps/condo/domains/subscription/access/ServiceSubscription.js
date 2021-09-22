@@ -7,7 +7,7 @@ const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/ut
 
 async function canReadServiceSubscriptions ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin) return {}
+    if (user.isAdmin || user.isSupport) return {}
     return {
         organization: queryOrganizationEmployeeFor(user.id),
     }
