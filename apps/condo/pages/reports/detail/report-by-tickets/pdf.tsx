@@ -503,7 +503,7 @@ const PdfView = () => {
                     mapperInstance={mapperInstanceRef.current}
                     chartConfig={{
                         animationEnabled: false,
-                        chartOptions: { renderer: 'svg' },
+                        chartOptions: { renderer: 'svg', height: viewMode === 'line' ? 400 : 'auto' },
                     }}
                 />
             </Col>
