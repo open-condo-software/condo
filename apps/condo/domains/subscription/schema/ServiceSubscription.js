@@ -88,7 +88,7 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
             {
                 type: 'models.CheckConstraint',
                 check: 'Q(type__in=["default", "sbbol"])',
-                name: 'type_values_check',
+                name: 'type_check',
             },
             {
                 type: 'models.CheckConstraint',
@@ -98,7 +98,7 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
             {
                 type: 'models.CheckConstraint',
                 check: 'Q(currency__in=["RUB"])',
-                name: 'currency_values_check',
+                name: 'currency_check',
             },
         ],
     },
