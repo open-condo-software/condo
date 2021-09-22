@@ -46,6 +46,8 @@ import {
 } from '@condo/domains/ticket/constants/common'
 import { ExportTicketAnalyticsToExcelTranslates, TicketGroupedCounter, TicketLabel } from '../../../../schema'
 import { ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
+import { useTicketWarningModal } from '@condo/domains/ticket/hooks/useTicketWarningModal'
+import { MAX_FILTERED_ELEMENTS } from '@condo/domains/ticket/constants/restrictions'
 
 dayjs.extend(quarterOfYear)
 
@@ -371,6 +373,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     const [dateFrom, dateTo] = filtersRef.current !== null ? filtersRef.current.range : []
     const selectedPeriod = filtersRef.current !== null ? filtersRef.current.range.map(e => e.format(DATE_DISPLAY_FORMAT)).join(' - ') : ''
     const selectedAddresses = filtersRef.current !== null ? filtersRef.current.addressList : []
+    const { TicketWarningModal, setIsVisible } = useTicketWarningModal(groupTicketsBy)
 
     const [loadTicketAnalytics, { loading }] = useLazyQuery(TICKET_ANALYTICS_REPORT_QUERY, {
         onError: error => {
@@ -757,20 +760,46 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
 
     const printPdf = useCallback(
         () => {
-            router.push(router.route + '/pdf?' + qs.stringify({
-                dateFrom: dateFrom.toISOString(),
-                dateTo: dateTo.toISOString(),
-                groupBy: groupTicketsBy,
-                ticketType,
-                viewMode,
-                addressList: JSON.stringify(filtersRef.current.addressList),
-                executorList: JSON.stringify(filtersRef.current.executorList),
-                assigneeList: JSON.stringify(filtersRef.current.responsibleList),
-                categoryClassifierList: JSON.stringify(filtersRef.current.classifierList),
-                specification: filtersRef.current.specification,
-            }))
+            let currentFilter
+            switch (groupTicketsBy) {
+                case 'property':
+                    currentFilter = filtersRef.current.addressList
+                    break
+                case 'categoryClassifier':
+                    currentFilter = filtersRef.current.classifierList
+                    break
+                case 'executor':
+                    currentFilter = filtersRef.current.executorList
+                    break
+                case 'assignee':
+                    currentFilter = filtersRef.current.responsibleList
+                    break
+                default:
+                    currentFilter = null
+            }
+
+            const uniqueDataSets = Array.from(new Set(analyticsData.map(ticketCounter => ticketCounter[groupTicketsBy])))
+            const isPdfAvailable = currentFilter === null
+                || uniqueDataSets.length < MAX_FILTERED_ELEMENTS
+                || (currentFilter.length !== 0 && currentFilter.length < MAX_FILTERED_ELEMENTS)
+            if (isPdfAvailable) {
+                router.push(router.route + '/pdf?' + qs.stringify({
+                    dateFrom: dateFrom.toISOString(),
+                    dateTo: dateTo.toISOString(),
+                    groupBy: groupTicketsBy,
+                    ticketType,
+                    viewMode,
+                    addressList: JSON.stringify(filtersRef.current.addressList),
+                    executorList: JSON.stringify(filtersRef.current.executorList),
+                    assigneeList: JSON.stringify(filtersRef.current.responsibleList),
+                    categoryClassifierList: JSON.stringify(filtersRef.current.classifierList),
+                    specification: filtersRef.current.specification,
+                }))
+            } else {
+                setIsVisible(true)
+            }
         },
-        [ticketType, viewMode, dateFrom, dateTo, groupTicketsBy, userOrganizationId],
+        [ticketType, viewMode, dateFrom, dateTo, groupTicketsBy, userOrganizationId, analyticsData],
     )
 
     const downloadExcel = useCallback(
@@ -929,6 +958,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         <Button disabled={isControlsDisabled || isEmpty(analyticsData)} onClick={downloadExcel} loading={isXSLXLoading} icon={<EditFilled />} type='sberPrimary' secondary>{ExcelTitle}</Button>
                     </ActionBar>
                 </Row>
+                <TicketWarningModal />
             </PageContent>
         </PageWrapper>
     </>
