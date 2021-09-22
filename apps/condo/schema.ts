@@ -20442,6 +20442,14 @@ export type ServiceSubscription = {
   startAt?: Maybe<Scalars['String']>;
   /**  When subscription should be ended  */
   finishAt?: Maybe<Scalars['String']>;
+  /**  How much units are payed for this subscription  */
+  unitsCount?: Maybe<Scalars['Int']>;
+  /**  How much one unit cost in Rubles for this subscription  */
+  unitPrice?: Maybe<Scalars['String']>;
+  /**  Total price of this subscription, calculated as unitCost * unitsPayed  */
+  totalPrice?: Maybe<Scalars['String']>;
+  /**  Currency of values for all price fields  */
+  currency?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -20460,6 +20468,10 @@ export type ServiceSubscriptionCreateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   startAt?: Maybe<Scalars['String']>;
   finishAt?: Maybe<Scalars['String']>;
+  unitsCount?: Maybe<Scalars['Int']>;
+  unitPrice?: Maybe<Scalars['String']>;
+  totalPrice?: Maybe<Scalars['String']>;
+  currency?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -20487,6 +20499,10 @@ export type ServiceSubscriptionHistoryRecord = {
   organization?: Maybe<Scalars['String']>;
   startAt?: Maybe<Scalars['String']>;
   finishAt?: Maybe<Scalars['String']>;
+  unitsCount?: Maybe<Scalars['Int']>;
+  unitPrice?: Maybe<Scalars['String']>;
+  totalPrice?: Maybe<Scalars['String']>;
+  currency?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -20508,6 +20524,10 @@ export type ServiceSubscriptionHistoryRecordCreateInput = {
   organization?: Maybe<Scalars['String']>;
   startAt?: Maybe<Scalars['String']>;
   finishAt?: Maybe<Scalars['String']>;
+  unitsCount?: Maybe<Scalars['Int']>;
+  unitPrice?: Maybe<Scalars['String']>;
+  totalPrice?: Maybe<Scalars['String']>;
+  currency?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -20534,6 +20554,10 @@ export type ServiceSubscriptionHistoryRecordUpdateInput = {
   organization?: Maybe<Scalars['String']>;
   startAt?: Maybe<Scalars['String']>;
   finishAt?: Maybe<Scalars['String']>;
+  unitsCount?: Maybe<Scalars['Int']>;
+  unitPrice?: Maybe<Scalars['String']>;
+  totalPrice?: Maybe<Scalars['String']>;
+  currency?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -20601,6 +20625,48 @@ export type ServiceSubscriptionHistoryRecordWhereInput = {
   finishAt_gte?: Maybe<Scalars['String']>;
   finishAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   finishAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitsCount?: Maybe<Scalars['Int']>;
+  unitsCount_not?: Maybe<Scalars['Int']>;
+  unitsCount_lt?: Maybe<Scalars['Int']>;
+  unitsCount_lte?: Maybe<Scalars['Int']>;
+  unitsCount_gt?: Maybe<Scalars['Int']>;
+  unitsCount_gte?: Maybe<Scalars['Int']>;
+  unitsCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  unitsCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  unitPrice?: Maybe<Scalars['String']>;
+  unitPrice_not?: Maybe<Scalars['String']>;
+  unitPrice_lt?: Maybe<Scalars['String']>;
+  unitPrice_lte?: Maybe<Scalars['String']>;
+  unitPrice_gt?: Maybe<Scalars['String']>;
+  unitPrice_gte?: Maybe<Scalars['String']>;
+  unitPrice_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitPrice_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  totalPrice?: Maybe<Scalars['String']>;
+  totalPrice_not?: Maybe<Scalars['String']>;
+  totalPrice_lt?: Maybe<Scalars['String']>;
+  totalPrice_lte?: Maybe<Scalars['String']>;
+  totalPrice_gt?: Maybe<Scalars['String']>;
+  totalPrice_gte?: Maybe<Scalars['String']>;
+  totalPrice_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  totalPrice_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  currency?: Maybe<Scalars['String']>;
+  currency_not?: Maybe<Scalars['String']>;
+  currency_contains?: Maybe<Scalars['String']>;
+  currency_not_contains?: Maybe<Scalars['String']>;
+  currency_starts_with?: Maybe<Scalars['String']>;
+  currency_not_starts_with?: Maybe<Scalars['String']>;
+  currency_ends_with?: Maybe<Scalars['String']>;
+  currency_not_ends_with?: Maybe<Scalars['String']>;
+  currency_i?: Maybe<Scalars['String']>;
+  currency_not_i?: Maybe<Scalars['String']>;
+  currency_contains_i?: Maybe<Scalars['String']>;
+  currency_not_contains_i?: Maybe<Scalars['String']>;
+  currency_starts_with_i?: Maybe<Scalars['String']>;
+  currency_not_starts_with_i?: Maybe<Scalars['String']>;
+  currency_ends_with_i?: Maybe<Scalars['String']>;
+  currency_not_ends_with_i?: Maybe<Scalars['String']>;
+  currency_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  currency_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -20693,6 +20759,10 @@ export type ServiceSubscriptionUpdateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   startAt?: Maybe<Scalars['String']>;
   finishAt?: Maybe<Scalars['String']>;
+  unitsCount?: Maybe<Scalars['Int']>;
+  unitPrice?: Maybe<Scalars['String']>;
+  totalPrice?: Maybe<Scalars['String']>;
+  currency?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -20741,6 +20811,48 @@ export type ServiceSubscriptionWhereInput = {
   finishAt_gte?: Maybe<Scalars['String']>;
   finishAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   finishAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitsCount?: Maybe<Scalars['Int']>;
+  unitsCount_not?: Maybe<Scalars['Int']>;
+  unitsCount_lt?: Maybe<Scalars['Int']>;
+  unitsCount_lte?: Maybe<Scalars['Int']>;
+  unitsCount_gt?: Maybe<Scalars['Int']>;
+  unitsCount_gte?: Maybe<Scalars['Int']>;
+  unitsCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  unitsCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  unitPrice?: Maybe<Scalars['String']>;
+  unitPrice_not?: Maybe<Scalars['String']>;
+  unitPrice_lt?: Maybe<Scalars['String']>;
+  unitPrice_lte?: Maybe<Scalars['String']>;
+  unitPrice_gt?: Maybe<Scalars['String']>;
+  unitPrice_gte?: Maybe<Scalars['String']>;
+  unitPrice_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitPrice_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  totalPrice?: Maybe<Scalars['String']>;
+  totalPrice_not?: Maybe<Scalars['String']>;
+  totalPrice_lt?: Maybe<Scalars['String']>;
+  totalPrice_lte?: Maybe<Scalars['String']>;
+  totalPrice_gt?: Maybe<Scalars['String']>;
+  totalPrice_gte?: Maybe<Scalars['String']>;
+  totalPrice_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  totalPrice_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  currency?: Maybe<Scalars['String']>;
+  currency_not?: Maybe<Scalars['String']>;
+  currency_contains?: Maybe<Scalars['String']>;
+  currency_not_contains?: Maybe<Scalars['String']>;
+  currency_starts_with?: Maybe<Scalars['String']>;
+  currency_not_starts_with?: Maybe<Scalars['String']>;
+  currency_ends_with?: Maybe<Scalars['String']>;
+  currency_not_ends_with?: Maybe<Scalars['String']>;
+  currency_i?: Maybe<Scalars['String']>;
+  currency_not_i?: Maybe<Scalars['String']>;
+  currency_contains_i?: Maybe<Scalars['String']>;
+  currency_not_contains_i?: Maybe<Scalars['String']>;
+  currency_starts_with_i?: Maybe<Scalars['String']>;
+  currency_not_starts_with_i?: Maybe<Scalars['String']>;
+  currency_ends_with_i?: Maybe<Scalars['String']>;
+  currency_not_ends_with_i?: Maybe<Scalars['String']>;
+  currency_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  currency_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -22553,6 +22665,14 @@ export enum SortServiceSubscriptionHistoryRecordsBy {
   StartAtDesc = 'startAt_DESC',
   FinishAtAsc = 'finishAt_ASC',
   FinishAtDesc = 'finishAt_DESC',
+  UnitsCountAsc = 'unitsCount_ASC',
+  UnitsCountDesc = 'unitsCount_DESC',
+  UnitPriceAsc = 'unitPrice_ASC',
+  UnitPriceDesc = 'unitPrice_DESC',
+  TotalPriceAsc = 'totalPrice_ASC',
+  TotalPriceDesc = 'totalPrice_DESC',
+  CurrencyAsc = 'currency_ASC',
+  CurrencyDesc = 'currency_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -22582,6 +22702,14 @@ export enum SortServiceSubscriptionsBy {
   StartAtDesc = 'startAt_DESC',
   FinishAtAsc = 'finishAt_ASC',
   FinishAtDesc = 'finishAt_DESC',
+  UnitsCountAsc = 'unitsCount_ASC',
+  UnitsCountDesc = 'unitsCount_DESC',
+  UnitPriceAsc = 'unitPrice_ASC',
+  UnitPriceDesc = 'unitPrice_DESC',
+  TotalPriceAsc = 'totalPrice_ASC',
+  TotalPriceDesc = 'totalPrice_DESC',
+  CurrencyAsc = 'currency_ASC',
+  CurrencyDesc = 'currency_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
