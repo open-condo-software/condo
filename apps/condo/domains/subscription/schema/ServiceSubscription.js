@@ -68,7 +68,11 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
                 scale: 2,
             },
             hooks: {
-                resolveInput: async ({ resolvedData }) => {
+                resolveInput: async ({ operation, resolvedData, existingItem }) => {
+                    const isTrial = operation === 'create' ? resolvedData.isTrial : existingItem.isTrial
+                    if (isTrial) {
+                        return null
+                    }
                     const unitPrice = resolvedData.unitPrice
                     const unitsCount = resolvedData.unitsCount
                     return unitPrice * unitsCount
@@ -79,7 +83,10 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
         currency: {
             schemaDoc: 'Currency of values for all price fields',
             type: Text,
-            defaultValue: 'RUB',
+            // There is possible a bug in Knex, that creates `NOT NULL` constraint if `defaultValue` field config is provided
+            // Because it does not needs to be required, the line below is commented
+            // defaultValue: 'RUB',
+            isRequired: false,
         },
 
     },
@@ -99,6 +106,11 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
                 type: 'models.CheckConstraint',
                 check: 'Q(currency__in=["RUB"])',
                 name: 'currency_check',
+            },
+            {
+                type: 'models.CheckConstraint',
+                check: '(Q(isTrial=True) & Q(unitsCount__isnull=True) & Q(unitPrice__isnull=True) & Q(totalPrice__isnull=True) & Q(currency__isnull=True)) | (Q(isTrial=False) & Q(unitsCount__isnull=False) & Q(unitPrice__isnull=False) & Q(totalPrice__isnull=False) & Q(currency__isnull=False))',
+                name: 'prices_null_check',
             },
         ],
     },

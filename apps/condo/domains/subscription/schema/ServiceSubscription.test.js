@@ -13,9 +13,106 @@ const {
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const dayjs = require('dayjs')
+const faker = require('faker')
 
 describe('ServiceSubscription', () => {
     describe('Validations', () => {
+        it('should have null prices if is trial', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(adminClient)
+
+            const unitsCount = faker.datatype.number()
+            const unitPrice = faker.datatype.float().toString()
+            const totalPrice = (unitPrice * unitsCount).toString()
+            const wrongValues = {
+                isTrial: true,
+                unitsCount,
+                unitPrice,
+                totalPrice,
+                currency: 'RUB',
+            }
+
+            await catchErrorFrom(async () => {
+                await createTestServiceSubscription(adminClient, organization, wrongValues)
+            }, ({ errors, data }) => {
+                expect(errors[0].message).toMatch('violates check constraint "prices_null_check"')
+                expect(data).toEqual({ 'obj': null })
+            })
+
+            const correctValues = {
+                isTrial: true,
+                unitsCount: null,
+                unitPrice: null,
+                totalPrice: null,
+                currency: null,
+            }
+
+            const [obj, attrs] = await createTestServiceSubscription(adminClient, organization, correctValues)
+            expect(obj.id).toMatch(UUID_RE)
+            expect(obj.dv).toEqual(1)
+            expect(obj.sender).toEqual(attrs.sender)
+            expect(obj.v).toEqual(1)
+            expect(obj.newId).toEqual(null)
+            expect(obj.deletedAt).toEqual(null)
+            expect(obj.createdBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+            expect(obj.updatedBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+            expect(obj.createdAt).toMatch(DATETIME_RE)
+            expect(obj.updatedAt).toMatch(DATETIME_RE)
+            expect(obj.organization.id).toEqual(organization.id)
+            expect(obj.unitsCount).toBeNull()
+            expect(obj.unitPrice).toBeNull()
+            expect(obj.totalPrice).toBeNull()
+            expect(obj.currency).toBeNull()
+        })
+
+        it('should have specified prices if is not trial', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(adminClient)
+
+            const wrongValues = {
+                isTrial: false,
+                unitsCount: null,
+                unitPrice: null,
+                totalPrice: null,
+                currency: null,
+            }
+
+            await catchErrorFrom(async () => {
+                await createTestServiceSubscription(adminClient, organization, wrongValues)
+            }, ({ errors, data }) => {
+                expect(errors[0].message).toMatch('violates check constraint "prices_null_check"')
+                expect(data).toEqual({ 'obj': null })
+            })
+
+            const unitsCount = faker.datatype.number()
+            const unitPrice = String(faker.datatype.float())
+            const totalPrice = String(unitPrice * unitsCount)
+            const correctValues = {
+                isTrial: false,
+                unitsCount,
+                unitPrice,
+                totalPrice,
+                currency: 'RUB',
+            }
+
+            const [obj, attrs] = await createTestServiceSubscription(adminClient, organization, correctValues)
+            expect(obj.id).toMatch(UUID_RE)
+            expect(obj.dv).toEqual(1)
+            expect(obj.sender).toEqual(attrs.sender)
+            expect(obj.v).toEqual(1)
+            expect(obj.newId).toEqual(null)
+            expect(obj.deletedAt).toEqual(null)
+            expect(obj.createdBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+            expect(obj.updatedBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+            expect(obj.createdAt).toMatch(DATETIME_RE)
+            expect(obj.updatedAt).toMatch(DATETIME_RE)
+            expect(obj.organization.id).toEqual(organization.id)
+            expect(obj.unitsCount).toEqual(unitsCount)
+            expect(obj.unitPrice).toEqual(unitPrice)
+            expect(obj.totalPrice).toEqual(totalPrice)
+            expect(obj.currency).toEqual('RUB')
+        })
+
         it('cannot have `startAt` after `finishAt`', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(adminClient)
@@ -327,7 +424,6 @@ describe('ServiceSubscription', () => {
             const [objCreated] = await createTestServiceSubscription(adminClient, organization)
 
             const payload = {
-                isTrial: !objCreated.isTrial,
                 type: 'sbbol',
                 startAt: dayjs().add(1, 'day'),
                 finishAt: dayjs().add(16, 'days'),
@@ -345,7 +441,6 @@ describe('ServiceSubscription', () => {
             expect(objUpdated.createdAt).toMatch(DATETIME_RE)
             expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
             expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
-            expect(objUpdated.isTrial).toEqual(payload.isTrial)
             expect(objUpdated.type).toEqual(payload.type)
             expect(objUpdated.startAt).toEqual(payload.startAt.toISOString())
             expect(objUpdated.finishAt).toEqual(payload.finishAt.toISOString())

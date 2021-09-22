@@ -23,11 +23,12 @@ async function createTestServiceSubscription (client, organization, extraAttrs =
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const type = 'default'
-    const isTrial = true
+    const isTrial = false
     const startAt = dayjs()
     const finishAt = dayjs().add(15, 'days')
     const unitsCount = faker.datatype.number()
     const unitPrice = faker.datatype.float().toString()
+    const currency = 'RUB'
 
     const attrs = {
         dv: 1,
@@ -38,6 +39,7 @@ async function createTestServiceSubscription (client, organization, extraAttrs =
         finishAt,
         unitsCount,
         unitPrice,
+        currency,
         organization: { connect: { id: organization.id } },
         ...extraAttrs,
     }
