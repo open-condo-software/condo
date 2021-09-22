@@ -109,8 +109,8 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
             },
             {
                 type: 'models.CheckConstraint',
-                check: '(Q(isTrial=True) & Q(unitsCount__isnull=True) & Q(unitPrice__isnull=True) & Q(totalPrice__isnull=True) & Q(currency__isnull=True)) | (Q(isTrial=False) & Q(unitsCount__isnull=False) & Q(unitPrice__isnull=False) & Q(totalPrice__isnull=False) & Q(currency__isnull=False))',
-                name: 'prices_null_check',
+                check: '(Q(isTrial=True) & Q(unitsCount__isnull=True) & Q(unitPrice__isnull=True) & Q(totalPrice__isnull=True) & Q(currency__isnull=True)) | (Q(isTrial=False) & Q(unitsCount__isnull=False) & Q(unitsCount__gt=0) & Q(unitPrice__isnull=False) & Q(unitPrice__gt=0) & Q(totalPrice__isnull=False) & Q(totalPrice__gt=0) & Q(currency__isnull=False))',
+                name: 'prices_check',
             },
         ],
     },
