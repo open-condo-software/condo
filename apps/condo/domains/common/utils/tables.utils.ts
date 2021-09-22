@@ -12,7 +12,7 @@ import { getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { TableRecord } from '@condo/domains/common/components/Table/Index'
 import { preciseFloor } from './helpers'
 import { FilterDropdownProps } from 'antd/es/table/interface'
-import dayjs  from 'dayjs'
+import dayjs from 'dayjs'
 
 export type DataIndexType = string | Array<string>
 export type QueryArgType = string | Array<string>

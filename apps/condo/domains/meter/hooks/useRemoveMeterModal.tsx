@@ -1,5 +1,5 @@
 import Modal from 'antd/lib/modal/Modal'
-import { Typography } from 'antd'
+import { Col, Row, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import React, { useCallback, useState } from 'react'
 import { useIntl } from '@core/next/intl'
@@ -21,29 +21,31 @@ export const useRemoveMeterModal = () => {
     const RemoveModal = ({ removeAction }) => (
         <Modal
             title={
-                <Typography.Title style={{ fontSize: '24px', lineHeight: '32px' }}>
+                <Typography.Title level={3}>
                     {ConfirmDeleteTitle}
                 </Typography.Title>
             }
             visible={isRemoveModalVisible}
             onCancel={handleCancel}
             footer={[
-                <Button
-                    key="submit"
-                    type='sberPrimary'
-                    onClick={() => setIsRemoveModalVisible(false)}
-                    style={{ margin: '15px' }}
-                >
-                    {DontDeleteLabel}
-                </Button>,
-                <Button
-                    key="submit"
-                    type='sberDanger'
-                    onClick={removeAction}
-                    style={{ margin: '15px' }}
-                >
-                    {DeleteLabel}
-                </Button>,
+                <Row key="footer" justify={'end'} gutter={[15, 0]}>
+                    <Col>
+                        <Button
+                            type='sberPrimary'
+                            onClick={() => setIsRemoveModalVisible(false)}
+                        >
+                            {DontDeleteLabel}
+                        </Button>
+                    </Col>
+                    <Col>
+                        <Button
+                            type='sberDanger'
+                            onClick={removeAction}
+                        >
+                            {DeleteLabel}
+                        </Button>
+                    </Col>
+                </Row>,
             ]}
         >
             <Typography.Text>
