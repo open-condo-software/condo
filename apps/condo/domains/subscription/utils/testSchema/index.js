@@ -4,6 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
+const { has } = require('lodash')
 
 const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 
@@ -27,7 +28,7 @@ async function createTestServiceSubscription (client, organization, extraAttrs =
     const startAt = dayjs()
     const finishAt = dayjs().add(15, 'days')
     const unitsCount = faker.datatype.number()
-    const unitPrice = faker.datatype.float().toString()
+    const unitPrice = faker.datatype.float({ precision: 0.01 }).toString()
     const currency = 'RUB'
 
     const attrs = {

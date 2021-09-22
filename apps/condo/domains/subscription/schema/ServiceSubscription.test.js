@@ -22,7 +22,7 @@ describe('ServiceSubscription', () => {
             const [organization] = await createTestOrganization(adminClient)
 
             const unitsCount = faker.datatype.number()
-            const unitPrice = faker.datatype.float().toString()
+            const unitPrice = faker.datatype.float({ precision: 0.01 }).toString()
             const totalPrice = (unitPrice * unitsCount).toString()
             const wrongValues = {
                 isTrial: true,
@@ -35,7 +35,7 @@ describe('ServiceSubscription', () => {
             await catchErrorFrom(async () => {
                 await createTestServiceSubscription(adminClient, organization, wrongValues)
             }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('violates check constraint "prices_null_check"')
+                expect(errors[0].message).toMatch('violates check constraint "prices_check"')
                 expect(data).toEqual({ 'obj': null })
             })
 
@@ -65,7 +65,7 @@ describe('ServiceSubscription', () => {
             expect(obj.currency).toBeNull()
         })
 
-        it('should have specified prices if is not trial', async () => {
+        it('should have positive prices if is not trial', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(adminClient)
 
@@ -80,18 +80,33 @@ describe('ServiceSubscription', () => {
             await catchErrorFrom(async () => {
                 await createTestServiceSubscription(adminClient, organization, wrongValues)
             }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('violates check constraint "prices_null_check"')
+                expect(errors[0].message).toMatch('violates check constraint "prices_check"')
+                expect(data).toEqual({ 'obj': null })
+            })
+
+            const wrongValuesWithZeroPrices = {
+                isTrial: false,
+                unitsCount: 0,
+                unitPrice: '0',
+                totalPrice: '0',
+                currency: 'RUB',
+            }
+
+            await catchErrorFrom(async () => {
+                await createTestServiceSubscription(adminClient, organization, wrongValuesWithZeroPrices)
+            }, ({ errors, data }) => {
+                expect(errors[0].message).toMatch('violates check constraint "prices_check"')
                 expect(data).toEqual({ 'obj': null })
             })
 
             const unitsCount = faker.datatype.number()
-            const unitPrice = String(faker.datatype.float())
-            const totalPrice = String(unitPrice * unitsCount)
+            const unitPrice = faker.datatype.float({ precision: 0.01 })
+            const totalPrice = unitPrice * unitsCount
             const correctValues = {
                 isTrial: false,
                 unitsCount,
-                unitPrice,
-                totalPrice,
+                unitPrice: String(unitPrice),
+                totalPrice: String(totalPrice),
                 currency: 'RUB',
             }
 
@@ -108,8 +123,8 @@ describe('ServiceSubscription', () => {
             expect(obj.updatedAt).toMatch(DATETIME_RE)
             expect(obj.organization.id).toEqual(organization.id)
             expect(obj.unitsCount).toEqual(unitsCount)
-            expect(obj.unitPrice).toEqual(unitPrice)
-            expect(obj.totalPrice).toEqual(totalPrice)
+            expect(obj.unitPrice).toEqual(String(unitPrice))
+            expect(obj.totalPrice).toEqual(String(totalPrice))
             expect(obj.currency).toEqual('RUB')
         })
 
