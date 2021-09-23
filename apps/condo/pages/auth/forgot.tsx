@@ -112,7 +112,7 @@ function ResetPageView () {
         return (
             <>
                 <Col span={24}>
-                    <Typography.Title style={{ textAlign: 'left' }}>{ResetTitle}</Typography.Title>
+                    <Typography.Title data-cy={'forgot-success-message'} style={{ textAlign: 'left' }}>{ResetTitle}</Typography.Title>
                 </Col>
                 <Col span={24}>
                     <Typography.Paragraph style={{ textAlign: 'left' }}>{InstructionsMsg}</Typography.Paragraph>
@@ -134,6 +134,7 @@ function ResetPageView () {
                                     name='phone'
                                     label={PhoneMsg}
                                     rules={validations.phone}
+                                    data-cy={'forgot-phone-item'}
                                 >
                                     <PhoneInput placeholder={ExamplePhoneMsg} />
                                 </Form.Item>
@@ -156,6 +157,7 @@ function ResetPageView () {
                                                     disabled={isCountDownActive}
                                                     loading={isLoading}
                                                     htmlType='submit'
+                                                    data-cy={'forgot-button'}
                                                 >
                                                     {isCountDownActive ? `${RestorePasswordMsg} ${countdown}` : RestorePasswordMsg}
                                                 </Button>

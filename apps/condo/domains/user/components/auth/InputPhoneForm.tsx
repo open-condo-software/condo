@@ -111,6 +111,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
                             <Form.Item
                                 name='phone'
                                 label={PhoneMsg}
+                                data-cy={'register-phone-item'}
                                 rules={[
                                     {
                                         required: true,
@@ -154,6 +155,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
                                 type='sberPrimary'
                                 htmlType='submit'
                                 loading={isLoading}
+                                data-cy={'register-button'}
                                 block={isSmall}
                                 disabled={!agreed}
                             >

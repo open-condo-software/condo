@@ -167,6 +167,7 @@ const ChangePasswordPage: AuthPage = () => {
                                         name="password"
                                         label={PasswordMsg}
                                         rules={validations.password}
+                                        data-cy={'changepassword-password-item'}
                                     >
                                         <Input.Password />
                                     </Form.Item>
@@ -177,6 +178,7 @@ const ChangePasswordPage: AuthPage = () => {
                                         label={ConfirmPasswordMsg}
                                         dependencies={['password']}
                                         rules={validations.confirmPassword}
+                                        data-cy={'changepassword-confirm-item'}
                                     >
                                         <Input.Password />
                                     </Form.Item>
@@ -190,6 +192,7 @@ const ChangePasswordPage: AuthPage = () => {
                                     type='sberPrimary'
                                     loading={isSaving}
                                     htmlType="submit"
+                                    data-cy={'changepassword-button'}
                                 >
                                     {SaveMsg}
                                 </Button>
