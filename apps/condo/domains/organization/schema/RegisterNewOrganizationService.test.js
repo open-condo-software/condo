@@ -1,6 +1,5 @@
 const faker = require('faker')
 
-const { find } = require('lodash')
 const { makeLoggedInClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { createTestUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -87,6 +86,7 @@ describe('RegisterNewOrganizationService', () => {
             canManageProperties: true,
             canManageTickets: true,
             canManageContacts: true,
+            canManageMeters: true,
             canManageTicketComments: true,
             canManageDivisions: false,
             canShareTickets: true,
@@ -128,7 +128,7 @@ describe('RegisterNewOrganizationService', () => {
             canManageContacts: false,
             canManageTicketComments: true,
             canManageDivisions: false,
-            canManageMeters: false,
+            canManageMeters: true,
             canShareTickets: true,
             canBeAssignedAsResponsible: true,
             canBeAssignedAsExecutor: true,
@@ -136,7 +136,7 @@ describe('RegisterNewOrganizationService', () => {
 
         const [technicianRole] = await OrganizationEmployeeRole.getAll(admin, {
             organization: { id: org.id },
-            name_contains_i: 'foreman',
+            name_contains_i: 'technician',
         })
         expect(technicianRole).toMatchObject({
             canManageOrganization: false,
