@@ -11,11 +11,9 @@
   ],
   "scripts": {
     "lint": "yarn run eslint . --ext .js,.jsx,.ts,.tsx",
-    "lintq": "yarn lint --quiet",
-    "lintf": "yarn lint --quiet --fix",
     "createapp": "node ./bin/createapp",
     "prepare": "husky install",
-    "docker-start": "docker-compose up -d postgresdb redis"
+    "lintI18nTranslations": "node ./bin/lintI18nTranslations.js"
   },
   "devDependencies": {
     "@commitlint/cli": "^13.1.0",
