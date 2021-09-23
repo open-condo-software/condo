@@ -33,7 +33,7 @@ describe('ServiceSubscription', () => {
             await catchErrorFrom(async () => {
                 await createTestServiceSubscription(adminClient, organization, wrongValues)
             }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('violates check constraint "prices_check"')
+                expect(errors[0].message).toMatch('violates check constraint "trial_and_prices_check"')
                 expect(data).toEqual({ 'obj': null })
             })
 
@@ -76,20 +76,7 @@ describe('ServiceSubscription', () => {
             await catchErrorFrom(async () => {
                 await createTestServiceSubscription(adminClient, organization, wrongValues)
             }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('violates check constraint "prices_check"')
-                expect(data).toEqual({ 'obj': null })
-            })
-
-            const wrongValuesWithZeroPrice = {
-                isTrial: false,
-                totalPrice: '0',
-                currency: null,
-            }
-
-            await catchErrorFrom(async () => {
-                await createTestServiceSubscription(adminClient, organization, wrongValuesWithZeroPrice)
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('violates check constraint "prices_check"')
+                expect(errors[0].message).toMatch('violates check constraint "trial_and_prices_check"')
                 expect(data).toEqual({ 'obj': null })
             })
 
@@ -120,6 +107,50 @@ describe('ServiceSubscription', () => {
             expect(parseFloat(obj.unitPrice)).toBeCloseTo(unitPrice, 2)
             expect(parseFloat(obj.totalPrice)).toBeCloseTo(totalPrice, 2)
             expect(obj.currency).toEqual('RUB')
+        })
+
+        it('should have positive prices and `unitsCount` if they are set', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(adminClient)
+
+            const wrongValuesWithZeroUnitsCount = {
+                isTrial: false,
+                unitsCount: 0,
+                currency: 'RUB',
+            }
+
+            await catchErrorFrom(async () => {
+                await createTestServiceSubscription(adminClient, organization, wrongValuesWithZeroUnitsCount)
+            }, ({ errors, data }) => {
+                expect(errors[0].message).toMatch('violates check constraint "positive_unitsCount_check"')
+                expect(data).toEqual({ 'obj': null })
+            })
+
+            const wrongValuesWithZeroUnitPrice = {
+                isTrial: false,
+                unitPrice: '0',
+                currency: 'RUB',
+            }
+
+            await catchErrorFrom(async () => {
+                await createTestServiceSubscription(adminClient, organization, wrongValuesWithZeroUnitPrice)
+            }, ({ errors, data }) => {
+                expect(errors[0].message).toMatch('violates check constraint "positive_unitPrice_check"')
+                expect(data).toEqual({ 'obj': null })
+            })
+
+            const wrongValuesWithZeroTotalPrice = {
+                isTrial: false,
+                totalPrice: '0',
+                currency: 'RUB',
+            }
+
+            await catchErrorFrom(async () => {
+                await createTestServiceSubscription(adminClient, organization, wrongValuesWithZeroTotalPrice)
+            }, ({ errors, data }) => {
+                expect(errors[0].message).toMatch('violates check constraint "positive_totalPrice_check"')
+                expect(data).toEqual({ 'obj': null })
+            })
         })
 
         it('cannot have `startAt` after `finishAt`', async () => {
