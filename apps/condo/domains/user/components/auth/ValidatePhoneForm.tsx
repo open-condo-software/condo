@@ -169,6 +169,7 @@ export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IVa
                     <Form.Item
                         name='smsCode'
                         label={SmsCodeTitle}
+                        data-cy={'register-smscode-item'}
                         rules={[
                             {
                                 required: true,
