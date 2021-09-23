@@ -86,7 +86,7 @@ export const MeterCard = ({
 
     return (
         <MeterCardWrapper>
-            <Row gutter={[0, 10]}>
+            <Row gutter={[10, 10]}>
                 <Col span={22}>
                     <Row gutter={[10, 0]}>
                         <Col span={24}>
