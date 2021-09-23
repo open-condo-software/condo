@@ -106,7 +106,7 @@ const MenuItems: React.FC = () => {
                     disabled={!link}
                 />
             </FeatureFlagRequired>
-            <FeatureFlagRequired name={'subscription'}>
+            <FeatureFlagRequired name={'settings'}>
                 <MenuItem
                     path={'/settings'}
                     icon={SettingFilled}
