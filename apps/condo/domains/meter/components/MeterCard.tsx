@@ -70,6 +70,14 @@ export const MeterCard = ({
     }
 
     const getNameInArray = (name) => Array.isArray(name) ? name : [name]
+    const isLessThenTwoMonthsUntilNextVerification: (nextVerificationDate: string) => boolean = (nextVerificationDate) => {
+        return nextVerificationDate &&
+        dayjs(nextVerificationDate).diff(dayjs(), 'month') < 2
+    }
+    const getMeterLabel = (meter: IMeterFormState, tariffNumber: number) => {
+        return `№ ${meter.number} ${meter.place ? `(${meter.place})` : ''}
+                                                        ${numberOfTariffs > 1 ? `T${tariffNumber}` : ''}`
+    }
     const Icon = resource ? resourceIdIconMap[resource.id] : null
     const numberOfTariffs = meter.numberOfTariffs ? meter.numberOfTariffs : 1
     const measure = get(resource, 'measure')
@@ -90,26 +98,25 @@ export const MeterCard = ({
                                     </Space>
                                 </Col>
                                 {
-                                    meter.nextVerificationDate &&
-                                    dayjs(meter.nextVerificationDate).diff(dayjs(), 'month') < 2 ? (
-                                            <Col>
-                                                <Alert
-                                                    showIcon
-                                                    type='warning'
-                                                    message={
-                                                        <>
-                                                            <Typography.Text type={'warning'}>
-                                                                {VerificationDateMessage}
-                                                            </Typography.Text>
+                                    isLessThenTwoMonthsUntilNextVerification(meter.nextVerificationDate) ? (
+                                        <Col>
+                                            <Alert
+                                                showIcon
+                                                type='warning'
+                                                message={
+                                                    <>
+                                                        <Typography.Text type={'warning'}>
+                                                            {VerificationDateMessage}
+                                                        </Typography.Text>
                                                         &nbsp;
-                                                            <Typography.Text strong={true} type={'warning'}>
-                                                                {dayjs(meter.nextVerificationDate).format('DD.MM.YYYY')}
-                                                            </Typography.Text>
-                                                        </>
-                                                    }
-                                                />
-                                            </Col>
-                                        ) : null
+                                                        <Typography.Text strong={true} type={'warning'}>
+                                                            {dayjs(meter.nextVerificationDate).format('DD.MM.YYYY')}
+                                                        </Typography.Text>
+                                                    </>
+                                                }
+                                            />
+                                        </Col>
+                                    ) : null
                                 }
                             </Row>
                         </Col>
@@ -127,10 +134,7 @@ export const MeterCard = ({
                                                 <Col span={14}>
                                                     <Form.Item
                                                         name={[...getNameInArray(name), `value${tariffNumber}`]}
-                                                        label={
-                                                            `№ ${meter.number} ${meter.place ? `(${meter.place})` : ''}
-                                                        ${numberOfTariffs > 1 ? `T${tariffNumber}` : ''}`
-                                                        }
+                                                        label={getMeterLabel(meter, tariffNumber)}
                                                         rules={getMeterReadingInputValidations(tariffNumber)}
                                                     >
                                                         <Input
