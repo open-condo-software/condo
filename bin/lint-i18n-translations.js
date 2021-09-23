@@ -1,15 +1,15 @@
+/*
+    Validating i18n translation keys
+    Translation files should match following rules:
+    1. All supported languages should have the same set of keys
+    2. Each key should be on the same line in JSON-file for each language
+*/
 const fs = require('fs')
 const { diffLinesUnified, diffLinesRaw } = require('jest-diff')
 
 const langDir = 'apps/condo/lang'
 
 const translations = []
-
-console.log(
-    'Validating i18n translation keys\n' +
-    '1. All supported languages should have the same set of keys\n' +
-    '2. Each key should be on the same line in JSON-file for each language'
-)
 
 fs.readdirSync(langDir).map(fileName => {
     const lang = fileName.match(/(\w+)\.json/)[1]
