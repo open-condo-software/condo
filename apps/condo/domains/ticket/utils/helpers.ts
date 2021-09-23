@@ -552,7 +552,7 @@ export const getChartOptions: IGetChartOptions = ({
                 fontSize: fontSizes.content,
                 fontWeight: 700,
                 overflow: 'breakAll',
-                width: 185,
+                width: 160,
                 lineHeight: 20,
             },
         } : { show: false }
@@ -562,7 +562,7 @@ export const getChartOptions: IGetChartOptions = ({
         option['yAxis'] = axisData['yAxis']
         option['series'] = series
         option['tooltip'] = tooltip
-        const legendItemGap = 46
+        const legendItemGap = 42
         option['grid']['top'] = 30 + legend.length / MAX_CHART_LEGEND_ELEMENTS * legendItemGap
 
         const chartHeight = get(chartOptions, 'height', 'auto')
