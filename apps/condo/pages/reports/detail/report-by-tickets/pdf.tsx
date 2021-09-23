@@ -24,6 +24,7 @@ import { Logo } from '@condo/domains/common/components/Logo'
 import { colors } from '@condo/domains/common/constants/style'
 import TicketChart from '@condo/domains/ticket/components/TicketChart'
 import { TicketAnalyticsGroupBy, TicketGroupedCounter, TicketLabel } from '../../../../schema'
+import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 
 const PdfView = () => {
     const intl = useIntl()
@@ -48,6 +49,8 @@ const PdfView = () => {
     const [chartLoading, setChartLoading] = useState(true)
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
+    const nonStatusTabsEnabled = hasFeature('analytics_property')
+
 
     const [loadTicketAnalyticsData] = useLazyQuery(TICKET_ANALYTICS_REPORT_QUERY, {
         onError: error => {
@@ -75,7 +78,7 @@ const PdfView = () => {
         const classifierList = JSON.parse(get(queryParams, 'categoryClassifierList', '[]'))
         const executorList = JSON.parse(get(queryParams, 'executorList', '[]'))
         const assigneeList = JSON.parse(get(queryParams, 'assigneeList', '[]'))
-        const mainGroup = get(queryParams, 'groupBy', 'status')
+        const mainGroup = nonStatusTabsEnabled ? get(queryParams, 'groupBy', 'status') : 'status'
         const specification = get(queryParams, 'specification', 'day')
         const viewMode = get(queryParams, 'viewMode', 'line')
         const ticketType = get(queryParams, 'ticketType', 'all')
