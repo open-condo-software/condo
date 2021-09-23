@@ -28,6 +28,7 @@ import { BillingAccountMeterReading } from '@condo/domains/billing/utils/clientS
 import { IMeterReadingFormState } from '../utils/clientSchema/MeterReading'
 import { UnitInfo } from '@condo/domains/property/components/UnitInfo'
 import { EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION } from '../constants/errors'
+import { Loader } from '@condo/domains/common/components/Loader'
 
 export const LAYOUT = {
     labelCol: { span: 8 },
@@ -237,7 +238,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         sortBy: [SortBillingAccountMeterReadingsBy.CreatedAtDesc],
     })
 
-    const { objs: resources } = MeterResource.useObjects({})
+    const { objs: resources, loading: resourcesLoading } = MeterResource.useObjects({})
 
     const isNoExistedMetersInThisUnit = existedMeters.length === 0
     const verticalGutter = accountNumber || isAccountNumberIntroduced ? 40 : 80
@@ -440,39 +441,45 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                                                 isNoNewMetersInThisUnit={!form.getFieldValue('newMeters')}
                                                             />
                                                         </Col>
-                                                        <ExistedMetersList
-                                                            existedMeters={existedMeters}
-                                                            resources={resources}
-                                                            billingMeterReadings={billingMeterReadings}
-                                                        />
-                                                        <Form.List name={'newMeters'}>
-                                                            {(fields, operations) => {
-                                                                if (!meterFormListOperations) setMeterFormListOperations(operations)
-                                                                if (!formFromState) setFormFromState(form)
+                                                        {
+                                                            resourcesLoading ? <Loader /> : (
+                                                                <>
+                                                                    <ExistedMetersList
+                                                                        existedMeters={existedMeters}
+                                                                        resources={resources}
+                                                                        billingMeterReadings={billingMeterReadings}
+                                                                    />
+                                                                    <Form.List name={'newMeters'}>
+                                                                        {(fields, operations) => {
+                                                                            if (!meterFormListOperations) setMeterFormListOperations(operations)
+                                                                            if (!formFromState) setFormFromState(form)
 
-                                                                return fields.map((field, index) => {
-                                                                    const newMeter = form.getFieldValue(['newMeters', index])
-                                                                    const resource = resources.find(resource => resource.id === newMeter.resource)
+                                                                            return fields.map((field, index) => {
+                                                                                const newMeter = form.getFieldValue(['newMeters', index])
+                                                                                const resource = resources.find(resource => resource.id === newMeter.resource)
 
-                                                                    return (
-                                                                        <Col span={24} key={field.key}>
-                                                                            <Form.Item
-                                                                                {...field}
-                                                                                name={field.name}
-                                                                                noStyle
-                                                                            >
-                                                                                <MeterCard
-                                                                                    meter={newMeter}
-                                                                                    resource={resource}
-                                                                                    name={field.name}
-                                                                                    removeAction={operations.remove}
-                                                                                />
-                                                                            </Form.Item>
-                                                                        </Col>
-                                                                    )
-                                                                })
-                                                            }}
-                                                        </Form.List>
+                                                                                return (
+                                                                                    <Col span={24} key={field.key}>
+                                                                                        <Form.Item
+                                                                                            {...field}
+                                                                                            name={field.name}
+                                                                                            noStyle
+                                                                                        >
+                                                                                            <MeterCard
+                                                                                                meter={newMeter}
+                                                                                                resource={resource}
+                                                                                                name={field.name}
+                                                                                                removeAction={operations.remove}
+                                                                                            />
+                                                                                        </Form.Item>
+                                                                                    </Col>
+                                                                                )
+                                                                            })
+                                                                        }}
+                                                                    </Form.List>
+                                                                </>
+                                                            )
+                                                        }
                                                     </Row>
                                                 </Col>
                                             )

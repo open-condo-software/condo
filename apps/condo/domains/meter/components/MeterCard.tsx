@@ -95,7 +95,7 @@ export const MeterCard = ({
                                     <Space>
                                         <Icon style={{ fontSize: '20px' }} />
                                         <Typography.Text style={{ fontSize: fontSizes.content }} strong>
-                                            {resource && get(resource, 'name')}
+                                            {get(resource, 'name')}
                                         </Typography.Text>
                                     </Space>
                                 </Col>
