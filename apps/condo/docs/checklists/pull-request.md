@@ -7,6 +7,12 @@ Apply linter:
 yarn lint --quiet
 ```
 
+Lint i18n translation files:
+
+```shell
+yarn run -W lintI18nTranslations
+```
+
 Look at errors, reported by TypeScript project-wide in IDE, you are using.
 
 Sync database schema with schemas in Keystone:
