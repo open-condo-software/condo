@@ -43,9 +43,11 @@ translations.map(([lang, keys], i) => {
     // Individual item of `diff` array is not an array ;)
     const diffCount = diff.filter(d => d[0] !== 0).length
     if (diffCount > 0) {
+        console.log('Keys in i18n translation files are invalid!')
         console.log(`Found ${diffCount} differences between ${prevLang} and ${lang}:`)
         const visualDiff = diffLinesUnified(prevKeys, keys, { contextLines: 1, expand: false })
         console.log(visualDiff)
+        process.exit(1)
     } else {
         console.log(`✔︎ I18 keys for ${prevLang} and ${lang} are identical`)
     }
