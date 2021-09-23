@@ -62,7 +62,8 @@ async function canManageMeterReadings ({ authentication: { item: user }, origina
         if (!meter)
             return false
 
-        const organizationPermission = await checkPermissionInUserOrganizationOrRelatedOrganization(context, user.id, organizationIdFromMeterReading, 'canManageMeters')
+        const organizationPermission =
+            await checkPermissionInUserOrganizationOrRelatedOrganization(context, user.id, organizationIdFromMeterReading, 'canManageMeterReadings')
         if (organizationPermission)
             return true
 

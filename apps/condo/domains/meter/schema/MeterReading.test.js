@@ -31,9 +31,9 @@ const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSc
 
 describe('MeterReading', () => {
     describe('Create', () => {
-        test('employee with "canManageMeters" role: can create MeterReadings', async () => {
+        test('employee with "canManageMeterReadings" role: can create MeterReadings', async () => {
             const client = await makeEmployeeUserClientWithAbilities({
-                canManageMeters: true,
+                canManageMeterReadings: true,
             })
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
             const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
@@ -44,9 +44,9 @@ describe('MeterReading', () => {
             expect(meterReading.id).toMatch(UUID_RE)
         })
 
-        test('employee with "canManageMeters" role: can create MeterReadings with float number value', async () => {
+        test('employee with "canManageMeterReadings" role: can create MeterReadings with float number value', async () => {
             const client = await makeEmployeeUserClientWithAbilities({
-                canManageMeters: true,
+                canManageMeterReadings: true,
             })
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
             const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
@@ -65,9 +65,9 @@ describe('MeterReading', () => {
             expect(meterReading.id).toMatch(UUID_RE)
         })
 
-        test('employee with "canManageMeters" role: cannot create MeterReadings with string value', async () => {
+        test('employee with "canManageMeterReadings" role: cannot create MeterReadings with string value', async () => {
             const client = await makeEmployeeUserClientWithAbilities({
-                canManageMeters: true,
+                canManageMeterReadings: true,
             })
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
             const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
@@ -87,9 +87,9 @@ describe('MeterReading', () => {
             })
         })
 
-        test('employee with "canManageMeters" role: cannot create MeterReadings with wrong "sender" field', async () => {
+        test('employee with "canManageMeterReadings" role: cannot create MeterReadings with wrong "sender" field', async () => {
             const client = await makeEmployeeUserClientWithAbilities({
-                canManageMeters: true,
+                canManageMeterReadings: true,
             })
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
             const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
@@ -108,7 +108,9 @@ describe('MeterReading', () => {
 
         test('employee without "canManageMeters" role: cannot create MeterReadings', async () => {
             const admin = await makeLoggedInAdminClient()
-            const client = await makeEmployeeUserClientWithAbilities()
+            const client = await makeEmployeeUserClientWithAbilities({
+                canManageMeterReadings: false,
+            })
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
             const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
             const [meter] = await createTestMeter(admin, client.organization, client.property, resource, {})
@@ -118,11 +120,11 @@ describe('MeterReading', () => {
             })
         })
 
-        test('employee from "from" related organization with "canManageMeters" role: can create MeterReadings', async () => {
+        test('employee from "from" related organization with "canManageMeterReadings" role: can create MeterReadings', async () => {
             const admin = await makeLoggedInAdminClient()
             const { clientFrom, employeeFrom, organizationFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
             const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
-                canManageMeters: true,
+                canManageMeterReadings: true,
             })
             await updateTestOrganizationEmployee(admin, employeeFrom.id, {
                 role: { connect: { id: role.id } },
@@ -136,12 +138,19 @@ describe('MeterReading', () => {
             expect(meterReading.id).toMatch(UUID_RE)
         })
 
-        test('employee from "from" related organization without "canManageMeters" role: cannot create MeterReadings', async () => {
+        test('employee from "from" related organization without "canManageMeterReadings" role: cannot create MeterReadings', async () => {
             const admin = await makeLoggedInAdminClient()
-            const { clientFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
+            const { clientFrom, employeeFrom, organizationFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
             const [resource] = await MeterResource.getAll(clientFrom, { id: COLD_WATER_METER_RESOURCE_ID })
             const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
             const [meter] = await createTestMeter(admin, organizationTo, propertyTo, resource, {})
+
+            const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
+                canManageMeterReadings: false,
+            })
+            await updateTestOrganizationEmployee(admin, employeeFrom.id, {
+                role: { connect: { id: role.id } },
+            })
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await createTestMeterReading(clientFrom, meter, organizationTo, source)
@@ -377,9 +386,9 @@ describe('MeterReading', () => {
         })
     })
     describe('Update', () => {
-        test('employee with canManageMeters role: cannot update MeterReadings', async () => {
+        test('employee with "canManageMeterReadings" role: cannot update MeterReadings', async () => {
             const client = await makeEmployeeUserClientWithAbilities({
-                canManageMeters: true,
+                canManageMeterReadings: true,
             })
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
             const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
@@ -396,9 +405,11 @@ describe('MeterReading', () => {
             })
         })
 
-        test('employee without "canManageMeters" role: cannot update MeterReadings', async () => {
+        test('employee without "canManageMeterReadings" role: cannot update MeterReadings', async () => {
             const admin = await makeLoggedInAdminClient()
-            const client = await makeEmployeeUserClientWithAbilities()
+            const client = await makeEmployeeUserClientWithAbilities({
+                canManageMeterReadings: false,
+            })
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
             const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
             const [meter] = await createTestMeter(admin, client.organization, client.property, resource, {})
@@ -418,7 +429,7 @@ describe('MeterReading', () => {
             const admin = await makeLoggedInAdminClient()
             const { clientFrom, employeeFrom, organizationFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
             const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
-                canManageMeters: true,
+                canManageMeterReadings: true,
             })
             await updateTestOrganizationEmployee(admin, employeeFrom.id, {
                 role: { connect: { id: role.id } },
