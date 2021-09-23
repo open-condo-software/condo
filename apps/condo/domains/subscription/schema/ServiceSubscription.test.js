@@ -321,23 +321,6 @@ describe('ServiceSubscription', () => {
         })
     })
 
-    describe('Price calculation', () => {
-        it('calculates totalPrice', async () => {
-            const adminClient = await makeLoggedInAdminClient()
-            const [organization] = await createTestOrganization(adminClient)
-
-            const attrs = {
-                unitsCount: 9,
-                // Keystone's GraphQL accepts and returns decimal numbers as strings,
-                // but they are casted to numbers for calculations in DB and JavaScript
-                unitPrice: '1.11',
-            }
-
-            const [obj] = await createTestServiceSubscription(adminClient, organization, attrs)
-            expect(parseFloat(obj.totalPrice)).toBeCloseTo(9.99, 2)
-        })
-    })
-
     describe('Create', () => {
         it('can be created by admin', async () => {
             const adminClient = await makeLoggedInAdminClient()

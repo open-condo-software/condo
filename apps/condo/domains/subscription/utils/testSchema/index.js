@@ -29,6 +29,7 @@ async function createTestServiceSubscription (client, organization, extraAttrs =
     const finishAt = dayjs().add(15, 'days')
     const unitsCount = faker.datatype.number()
     const unitPrice = faker.datatype.float({ precision: 0.01 }).toString()
+    const totalPrice = unitsCount * unitPrice
     const currency = 'RUB'
 
     const attrs = {
@@ -39,7 +40,8 @@ async function createTestServiceSubscription (client, organization, extraAttrs =
         startAt,
         finishAt,
         unitsCount,
-        unitPrice,
+        unitPrice: String(unitPrice),
+        totalPrice: String(totalPrice),
         currency,
         organization: { connect: { id: organization.id } },
         ...extraAttrs,
