@@ -1,9 +1,8 @@
 import React from 'react'
 import { useRouter } from 'next/router'
-import { debounce } from 'lodash'
 import qs from 'qs'
 
-import { PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
+import { IFilters, PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
 import { useTableColumns } from '@condo/domains/division/hooks/useTableColumns'
 import { useOrganization } from '@core/next/organization'
 import { useIntl } from '@core/next/intl'
@@ -19,6 +18,7 @@ import { Division } from '@condo/domains/division/utils/clientSchema'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { colors } from '@condo/domains/common/constants/style'
 import { DivisionWhereInput, SortDivisionsBy } from '@app/condo/schema'
+import { useSearch } from '@condo/domains/common/hooks/useSearch'
 
 
 type BuildingTableProps = {
@@ -106,17 +106,7 @@ export default function DivisionTable (props: BuildingTableProps) {
         }
     }
 
-    // TODO(mrfoxpro): move to common
-    const applyFiltersToQuery = (newFilters) => {
-        const query = { ...router.query, filters: JSON.stringify(newFilters) }
-        const newQuery = qs.stringify({ ...query }, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })
-        router.push(router.route + newQuery)
-    }
-
-    const debouncedSearch = debounce((text) => {
-        filters.search = text
-        applyFiltersToQuery(filters)
-    }, 400)
+    const [search, handleSearchChange] = useSearch<IFilters>(loading)
 
     if (error) {
         return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null} />
@@ -127,8 +117,8 @@ export default function DivisionTable (props: BuildingTableProps) {
             <Col span={6}>
                 <Input
                     placeholder={SearchPlaceholder}
-                    onChange={(e) => debouncedSearch(e.target.value)}
-                    defaultValue={filters.address}
+                    onChange={(e) => {handleSearchChange(e.target.value)}}
+                    value={search}
                 />
             </Col>
             <Col span={6} push={1}>

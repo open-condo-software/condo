@@ -1,10 +1,8 @@
 import React, { useMemo, useState } from 'react'
 import { useRouter } from 'next/router'
-import { debounce } from 'lodash'
-import qs from 'qs'
 import { useLazyQuery } from '@apollo/client'
 
-import { PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
+import { IFilters, PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
 import { useTableColumns } from '@condo/domains/property/hooks/useTableColumns'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { useOrganization } from '@core/next/organization'
@@ -22,6 +20,7 @@ import { getFilter, getPageIndexFromOffset, getSorterMap, parseQuery, QueryMeta 
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { PropertyWhereInput } from '@app/condo/schema'
 import styled from '@emotion/styled'
+import { useSearch } from '@condo/domains/common/hooks/useSearch'
 
 type BuildingTableProps = {
     onSearch?: (properties: Property.IPropertyUIState[]) => void
@@ -109,17 +108,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
         organization: { id: organization.id },
     }), [filters, filtersToWhere, organization.id])
 
-    // TODO(mrfoxpro): move to common
-    const applyFiltersToQuery = (newFilters) => {
-        const query = { ...router.query, filters: JSON.stringify(newFilters) }
-        const newQuery = qs.stringify({ ...query }, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })
-        router.replace(router.route + newQuery)
-    }
-
-    const debouncedSearch = debounce((text) => {
-        filters.search = text
-        applyFiltersToQuery(filters)
-    }, 400)
+    const [search, handleSearchChange] = useSearch<IFilters>(loading)
 
     function onExportToExcelButtonClicked () {
         exportToExcel({ variables: { data: { where: filtersWithOrganizations, sortBy: sortersToSortBy(sorters) } } })
@@ -134,8 +123,8 @@ export default function BuildingsTable (props: BuildingTableProps) {
             <Col span={6}>
                 <Input
                     placeholder={SearchPlaceholder}
-                    onChange={(e) => debouncedSearch(e.target.value)}
-                    defaultValue={filters.address}
+                    onChange={(e) => {handleSearchChange(e.target.value)}}
+                    value={search}
                 />
             </Col>
             <Col span={6} offset={1}>
