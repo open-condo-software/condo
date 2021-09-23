@@ -71,15 +71,17 @@ export const MeterCard = ({
 
     const getNameInArray = (name) => Array.isArray(name) ? name : [name]
     const isLessThenTwoMonthsUntilNextVerification: (nextVerificationDate: string) => boolean = (nextVerificationDate) => {
-        return nextVerificationDate &&
-        dayjs(nextVerificationDate).diff(dayjs(), 'month') < 2
+        return nextVerificationDate && dayjs(nextVerificationDate).diff(dayjs(), 'month') < 2
     }
     const getMeterLabel = (meter: IMeterFormState, tariffNumber: number) => {
         return `№ ${meter.number} ${meter.place ? `(${meter.place})` : ''}
                                                         ${numberOfTariffs > 1 ? `T${tariffNumber}` : ''}`
     }
+    const getLastMeterBillingMeterReadingTariffValue = (tariffNumber: number) => {
+        return lastMeterBillingMeterReading[`value${tariffNumber}`]
+    }
     const Icon = resource ? resourceIdIconMap[resource.id] : null
-    const numberOfTariffs = meter.numberOfTariffs ? meter.numberOfTariffs : 1
+    const numberOfTariffs = get(meter, 'numberOfTariffs', 1)
     const measure = get(resource, 'measure')
 
     return (
@@ -93,12 +95,12 @@ export const MeterCard = ({
                                     <Space>
                                         <Icon style={{ fontSize: '20px' }} />
                                         <Typography.Text style={{ fontSize: fontSizes.content }} strong>
-                                            {resource && resource.name}
+                                            {resource && get(resource, 'name')}
                                         </Typography.Text>
                                     </Space>
                                 </Col>
                                 {
-                                    isLessThenTwoMonthsUntilNextVerification(meter.nextVerificationDate) ? (
+                                    isLessThenTwoMonthsUntilNextVerification(get(meter, 'nextVerificationDate')) ? (
                                         <Col>
                                             <Alert
                                                 showIcon
@@ -145,11 +147,14 @@ export const MeterCard = ({
                                                 {
                                                     lastMeterBillingMeterReading ? (
                                                         <Col span={8}>
-                                                            <Typography.Paragraph style={{ margin: 0 }} strong={true}>
-                                                                {lastMeterBillingMeterReading[`value${tariffNumber}`]} {measure}
+                                                            <Typography.Paragraph style={{ margin: 0 }} strong>
+                                                                {getLastMeterBillingMeterReadingTariffValue(tariffNumber)} {measure}
                                                             </Typography.Paragraph>
                                                             <Typography.Text type={'secondary'}>
-                                                                {dayjs(lastMeterBillingMeterReading.date).format('DD.MM.YYYY')}
+                                                                {
+                                                                    dayjs(get(lastMeterBillingMeterReading, 'date'))
+                                                                        .format('DD.MM.YYYY')
+                                                                }
                                                             </Typography.Text>
                                                         </Col>
                                                     ) : null
