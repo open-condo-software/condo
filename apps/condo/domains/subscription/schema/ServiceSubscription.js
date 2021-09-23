@@ -67,17 +67,6 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
             knexOptions: {
                 scale: 2,
             },
-            hooks: {
-                resolveInput: async ({ operation, resolvedData, existingItem }) => {
-                    const isTrial = operation === 'create' ? resolvedData.isTrial : existingItem.isTrial
-                    if (isTrial) {
-                        return null
-                    }
-                    const unitPrice = resolvedData.unitPrice
-                    const unitsCount = resolvedData.unitsCount
-                    return unitPrice * unitsCount
-                },
-            },
         },
 
         currency: {
