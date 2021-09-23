@@ -65,7 +65,7 @@ const ResetPage: AuthPage = () => {
                     <Typography.Title>{CheckPhoneMsg}</Typography.Title>
                 </Col>
                 <Col span={24}>
-                    <Typography.Paragraph>
+                    <Typography.Paragraph data-cy={'forgot-success-message'}>
                         <FormattedMessage id='pages.auth.reset.ResetSuccessMessage' values={{ phone: form.getFieldValue('phone') }} />
                     </Typography.Paragraph>
                 </Col>
@@ -125,6 +125,7 @@ const ResetPage: AuthPage = () => {
                                 name='phone'
                                 label={PhoneMsg}
                                 rules={validations.phone}
+                                data-cy={'forgot-phone-item'}
                             >
                                 <PhoneInput placeholder={ExamplePhoneMsg} />
                             </Form.Item>
@@ -147,6 +148,7 @@ const ResetPage: AuthPage = () => {
                                                 disabled={isCountDownActive}
                                                 loading={isLoading}
                                                 htmlType='submit'
+                                                data-cy={'forgot-button'}
                                             >
                                                 {isCountDownActive ? `${RestorePasswordMsg} ${countdown}` : RestorePasswordMsg}
                                             </Button>

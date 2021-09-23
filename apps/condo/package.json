@@ -57,6 +57,7 @@
     "bull-repl": "^0.26.3",
     "carbone": "3.2.3",
     "classnames": "^2.2.6",
+    "cypress": "8.2.0",
     "dayjs": "^1.10.6",
     "dd-trace": "^0.32.0",
     "echarts": "^5.1.2",

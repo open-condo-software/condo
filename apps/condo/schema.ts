@@ -14680,9 +14680,7 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageDivisions?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
-  /**  Allows employees with this role to be assigned to tickets as responsible  */
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
-  /**  Allows employees with this role to be assigned to tickets as executor  */
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;

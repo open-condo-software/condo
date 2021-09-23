@@ -89,6 +89,7 @@ export const SignInForm = (): React.ReactElement => {
                                 name='phone'
                                 label={PhoneMsg}
                                 rules={[{ required: true, message: FieldIsRequiredMsg }]}
+                                data-cy={'signin-phone-item'}
                             >
                                 <PhoneInput placeholder={ExamplePhoneMsg} tabIndex={1} block/>
                             </Form.Item>
@@ -99,6 +100,7 @@ export const SignInForm = (): React.ReactElement => {
                                 label={PasswordMsg}
                                 labelAlign='left'
                                 rules={[{ required: true, message: FieldIsRequiredMsg }]}
+                                data-cy={'signin-password-item'}
                             >
                                 <Input.Password tabIndex={2} />
                             </Form.Item>
@@ -113,6 +115,7 @@ export const SignInForm = (): React.ReactElement => {
                                 type='sberPrimary'
                                 htmlType='submit'
                                 loading={isLoading}
+                                data-cy={'signin-button'}
                                 block
                             >
                                 {SignInMsg}
