@@ -30,6 +30,7 @@ const PdfView = () => {
     const PageTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.PageTitle' })
     const AllAddresses = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.AllAddresses' })
     const SingleAddress = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.SingleAddress' })
+    const ManyAddresses = intl.formatMessage({ id:'pages.condo.analytics.TicketAnalyticsPage.ManyAddresses' })
     const AllCategories = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.AllCategories' })
     const DefaultTickets = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.DefaultTickets' })
     const PaidTickets = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.PaidTickets' })
@@ -206,12 +207,8 @@ const PdfView = () => {
                         }
 
                         const restTableColumns = {}
-                        // TODO(sitozzz): clear filter on tab change or get current array
                         const addressList = get(filters, 'address', [])
-                        const categoryClassifierList = get(filters, 'categoryClassifier', [])
-                        const executorList = get(filters, 'executor', [])
-                        const assigneeList = get(filters, 'assignee', [])
-                        const aggregateSummary = [addressList, categoryClassifierList, executorList, assigneeList]
+                        const aggregateSummary = [addressList, get(filters, groupByRef.current[1], [])]
                             .every(filterList => filterList.length === 0)
                         if (aggregateSummary) {
                             Object.entries(data).forEach((rowEntry) => {
@@ -333,7 +330,7 @@ const PdfView = () => {
                                         const elementYOffset = 25 * dataIndex
                                         const yOffset = 75 + 250 * Math.floor(seriesIndex / 2) + 10 + elementYOffset
                                         return {
-                                            x: 380,
+                                            x: 340,
                                             y: yOffset,
                                             align: 'left',
                                             verticalAlign: 'top',
@@ -382,11 +379,8 @@ const PdfView = () => {
                         }
 
                         const restTableColumns = {}
-                        const addressList = get(filters, 'addresses', [])
-                        const categoryClassifierList = get(filters, 'categoryClassifier', [])
-                        const executorListRows = get(filters, 'executor', [])
-                        const assigneeListRows = get(filters, 'assignee', [])
-                        const aggregateSummary = [addressList, categoryClassifierList, executorListRows, assigneeListRows]
+                        const addressList = get(filters, 'address', [])
+                        const aggregateSummary = [addressList, get(filters, groupBy[1], [])]
                             .every(filterList => filterList.length === 0)
                         if (aggregateSummary) {
                             const totalCount = Object.values(data)
@@ -479,10 +473,17 @@ const PdfView = () => {
     ticketType === 'paid' && (ticketTypeTitle = PaidTickets)
     ticketType === 'emergency' && (ticketTypeTitle = EmergencyTickets)
     const addressListParsed = JSON.parse(addressList)
-    const addressFilterTitle = addressListParsed.length ? `${SingleAddress} «${addressListParsed[0].value}»` : AllAddresses
+    let addressFilterTitle = addressListParsed.length ? `${SingleAddress} «${addressListParsed[0].value}»` : AllAddresses
+    if (addressListParsed.length > 1) {
+        addressFilterTitle = ManyAddresses
+    }
     return <>
         {loading && <Loader fill spinning tip={LoadingTip} /> }
-        <Row ref={containerRef} gutter={[0, 40]} style={{ width: PDF_REPORT_WIDTH, paddingLeft: 80, paddingRight: 120 }}>
+        <Row
+            ref={containerRef}
+            gutter={[0, 40]}
+            style={{ width: PDF_REPORT_WIDTH, paddingLeft: 80, paddingRight: 120, pointerEvents: 'none' }}
+        >
             <Col flex={1} style={{ visibility: loading ? 'hidden' : 'visible', position: 'relative' }}>
                 <Typography.Paragraph style={{ position: 'absolute', top: 0, right: 0 }}>
                     <Logo onClick={undefined} fillColor={colors.lightGrey[6]} />
