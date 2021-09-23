@@ -26,8 +26,6 @@ describe('ServiceSubscription', () => {
             const totalPrice = (unitPrice * unitsCount).toString()
             const wrongValues = {
                 isTrial: true,
-                unitsCount,
-                unitPrice,
                 totalPrice,
                 currency: 'RUB',
             }
@@ -65,14 +63,12 @@ describe('ServiceSubscription', () => {
             expect(obj.currency).toBeNull()
         })
 
-        it('should have positive prices if is not trial', async () => {
+        it('should have positive `totalPrice` if is not trial', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(adminClient)
 
             const wrongValues = {
                 isTrial: false,
-                unitsCount: null,
-                unitPrice: null,
                 totalPrice: null,
                 currency: null,
             }
@@ -84,16 +80,14 @@ describe('ServiceSubscription', () => {
                 expect(data).toEqual({ 'obj': null })
             })
 
-            const wrongValuesWithZeroPrices = {
+            const wrongValuesWithZeroPrice = {
                 isTrial: false,
-                unitsCount: 0,
-                unitPrice: '0',
                 totalPrice: '0',
-                currency: 'RUB',
+                currency: null,
             }
 
             await catchErrorFrom(async () => {
-                await createTestServiceSubscription(adminClient, organization, wrongValuesWithZeroPrices)
+                await createTestServiceSubscription(adminClient, organization, wrongValuesWithZeroPrice)
             }, ({ errors, data }) => {
                 expect(errors[0].message).toMatch('violates check constraint "prices_check"')
                 expect(data).toEqual({ 'obj': null })
