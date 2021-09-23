@@ -99,7 +99,22 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
             {
                 type: 'models.CheckConstraint',
                 check: '(Q(isTrial=True) & Q(unitsCount__isnull=True) & Q(unitPrice__isnull=True) & Q(totalPrice__isnull=True) & Q(currency__isnull=True)) | (Q(isTrial=False) & Q(totalPrice__isnull=False) & Q(currency__isnull=False))',
-                name: 'prices_check',
+                name: 'trial_and_prices_check',
+            },
+            {
+                type: 'models.CheckConstraint',
+                check: 'Q(unitsCount__gt=0)',
+                name: 'positive_unitsCount_check',
+            },
+            {
+                type: 'models.CheckConstraint',
+                check: 'Q(unitPrice__gt=0)',
+                name: 'positive_unitPrice_check',
+            },
+            {
+                type: 'models.CheckConstraint',
+                check: 'Q(totalPrice__gt=0)',
+                name: 'positive_totalPrice_check',
             },
         ],
     },
