@@ -382,7 +382,6 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
         },
         fetchPolicy: 'network-only',
         onCompleted: response => {
-            setAnalyticsData(null)
             const { result: { groups, ticketLabels } } = response
             ticketLabelsRef.current = ticketLabels
             setAnalyticsData(groups)
@@ -479,6 +478,9 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                 type: viewMode,
                                 symbol: 'none',
                                 stack: 'total',
+                                sampling: 'sum',
+                                large: true,
+                                largeThreshold: 200,
                                 data: Object.values(dataObj),
                                 emphasis: {
                                     focus: 'self',
@@ -740,6 +742,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     }, [])
 
     useEffect(() => {
+        setAnalyticsData(null)
         getAnalyticsData()
     }, [groupTicketsBy, userOrganizationId, ticketType, viewMode])
 
@@ -756,7 +759,6 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
             setExcelDownloadLink(null)
         }
     }, [excelDownloadLink, isXSLXLoading])
-
 
     const printPdf = useCallback(
         () => {
@@ -827,6 +829,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
         [ticketType, viewMode, dateFrom, dateTo, groupTicketsBy, userOrganizationId],
     )
     const onFilterChange: ITicketAnalyticsPageFilterProps['onChange'] = useCallback((filters) => {
+        setAnalyticsData(null)
         filtersRef.current = filters
         getAnalyticsData()
     }, [viewMode, ticketType, userOrganizationId, groupTicketsBy, dateFrom, dateTo])
@@ -837,6 +840,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     }
 
     const onTabChange = useCallback((key: GroupTicketsByTypes) => {
+        setAnalyticsData(null)
         setGroupTicketsBy(key)
         if (key === 'status') {
             setViewMode('line')
