@@ -14611,6 +14611,7 @@ export type OrganizationEmployeeRole = {
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageMeters?: Maybe<Scalars['Boolean']>;
+  canManageMeterReadings?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageDivisions?: Maybe<Scalars['Boolean']>;
@@ -14640,6 +14641,7 @@ export type OrganizationEmployeeRoleCreateInput = {
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageMeters?: Maybe<Scalars['Boolean']>;
+  canManageMeterReadings?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageDivisions?: Maybe<Scalars['Boolean']>;
@@ -14677,6 +14679,7 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageMeters?: Maybe<Scalars['Boolean']>;
+  canManageMeterReadings?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageDivisions?: Maybe<Scalars['Boolean']>;
@@ -14708,6 +14711,7 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageMeters?: Maybe<Scalars['Boolean']>;
+  canManageMeterReadings?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageDivisions?: Maybe<Scalars['Boolean']>;
@@ -14744,6 +14748,7 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageMeters?: Maybe<Scalars['Boolean']>;
+  canManageMeterReadings?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageDivisions?: Maybe<Scalars['Boolean']>;
@@ -14833,6 +14838,8 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canManageTickets_not?: Maybe<Scalars['Boolean']>;
   canManageMeters?: Maybe<Scalars['Boolean']>;
   canManageMeters_not?: Maybe<Scalars['Boolean']>;
+  canManageMeterReadings?: Maybe<Scalars['Boolean']>;
+  canManageMeterReadings_not?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageContacts_not?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
@@ -14932,6 +14939,7 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageMeters?: Maybe<Scalars['Boolean']>;
+  canManageMeterReadings?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageDivisions?: Maybe<Scalars['Boolean']>;
@@ -15012,6 +15020,8 @@ export type OrganizationEmployeeRoleWhereInput = {
   canManageTickets_not?: Maybe<Scalars['Boolean']>;
   canManageMeters?: Maybe<Scalars['Boolean']>;
   canManageMeters_not?: Maybe<Scalars['Boolean']>;
+  canManageMeterReadings?: Maybe<Scalars['Boolean']>;
+  canManageMeterReadings_not?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageContacts_not?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
@@ -22239,6 +22249,8 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanManageTicketsDesc = 'canManageTickets_DESC',
   CanManageMetersAsc = 'canManageMeters_ASC',
   CanManageMetersDesc = 'canManageMeters_DESC',
+  CanManageMeterReadingsAsc = 'canManageMeterReadings_ASC',
+  CanManageMeterReadingsDesc = 'canManageMeterReadings_DESC',
   CanManageContactsAsc = 'canManageContacts_ASC',
   CanManageContactsDesc = 'canManageContacts_DESC',
   CanManageTicketCommentsAsc = 'canManageTicketComments_ASC',
@@ -22288,6 +22300,8 @@ export enum SortOrganizationEmployeeRolesBy {
   CanManageTicketsDesc = 'canManageTickets_DESC',
   CanManageMetersAsc = 'canManageMeters_ASC',
   CanManageMetersDesc = 'canManageMeters_DESC',
+  CanManageMeterReadingsAsc = 'canManageMeterReadings_ASC',
+  CanManageMeterReadingsDesc = 'canManageMeterReadings_DESC',
   CanManageContactsAsc = 'canManageContacts_ASC',
   CanManageContactsDesc = 'canManageContacts_DESC',
   CanManageTicketCommentsAsc = 'canManageTicketComments_ASC',
