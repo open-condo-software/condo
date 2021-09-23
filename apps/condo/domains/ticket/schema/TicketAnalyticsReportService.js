@@ -39,8 +39,7 @@ const assigneeSummaryDataMapper = require('@condo/domains/ticket/utils/serverSch
 const assigneePercentSingleDataMapper = require('@condo/domains/ticket/utils/serverSchema/assigneePercentSingleDataMapper')
 const assigneePercentSummaryDataMapper = require('@condo/domains/ticket/utils/serverSchema/assigneePercentSummaryDataMapper')
 
-
-const PERCENT_AGGREGATION_TOKENS = ['property-status', 'categoryClassifier-status', 'assignee-status', 'executor-status']
+const NULLABLE_GROUP_KEYS = ['categoryClassifier', 'executor', 'assignee']
 
 const createPropertyRange = async (organizationWhereInput, whereIn) => {
     const gqlLoaderOptions = {
@@ -213,8 +212,21 @@ const getTicketCounts = async (context, where, groupBy, extraLabels = {}) => {
         ticketMap.set(mapKey, ticketCount)
     })
 
-    const ticketCounts = Array.from(ticketMap.values()).sort((a, b) =>
-        dayjs(a.dayGroup, DATE_DISPLAY_FORMAT).unix() - dayjs(b.dayGroup, DATE_DISPLAY_FORMAT).unix())
+    const ticketCounts = Array.from(ticketMap.values())
+        .map(ticketCount => {
+            if (groupBy.some(group => NULLABLE_GROUP_KEYS.includes(group))) {
+                // TODO(sitozzz): add translations from client, executor & assignee keys replaces
+                const categoryClassifier = ticketCount.categoryClassifier !== null ? ticketCount.categoryClassifier : 'No category'
+                return {
+                    ...ticketCount,
+                    categoryClassifier,
+                }
+            }
+            return ticketCount
+        })
+        .sort((a, b) =>
+            dayjs(a.dayGroup, DATE_DISPLAY_FORMAT).unix() - dayjs(b.dayGroup, DATE_DISPLAY_FORMAT).unix()
+        )
     return { ticketCounts, translates }
 }
 
