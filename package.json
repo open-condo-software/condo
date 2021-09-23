@@ -11,9 +11,9 @@
   ],
   "scripts": {
     "lint": "yarn run eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint-i18n-translations": "node ./bin/lint-i18n-translations.js",
     "createapp": "node ./bin/createapp",
-    "prepare": "husky install",
-    "lint-i18n-translations": "node ./bin/lint-i18n-translations.js"
+    "prepare": "husky install"
   },
   "devDependencies": {
     "@commitlint/cli": "^13.1.0",
