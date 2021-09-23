@@ -1,0 +1,5 @@
+const SUBSCRIPTION_TRIAL_PERIOD_DAYS = 15
+
+module.exports = {
+    SUBSCRIPTION_TRIAL_PERIOD_DAYS,
+}

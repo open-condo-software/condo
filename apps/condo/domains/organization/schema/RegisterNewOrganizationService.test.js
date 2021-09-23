@@ -6,6 +6,7 @@ const { createTestUser } = require('@condo/domains/user/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 
 const { OrganizationEmployee, OrganizationEmployeeRole } = require('../utils/testSchema')
+const { ServiceSubscription } = require('@condo/domains/subscription/utils/testSchema')
 
 describe('RegisterNewOrganizationService', () => {
     test('registerNewOrganization() by user', async () => {
@@ -158,5 +159,23 @@ describe('RegisterNewOrganizationService', () => {
             canBeAssignedAsResponsible: true,
             canBeAssignedAsExecutor: true,
         })
+    })
+
+    it('creates trial subscription', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const [organization] = await registerNewOrganization(admin)
+
+        const [subscription] = await ServiceSubscription.getAll(admin, {
+            organization: {
+                id: organization.id,
+            },
+        })
+
+        expect(subscription).toBeDefined()
+        expect(subscription.organization.id).toEqual(organization.id)
+        expect(subscription.isTrial).toBeTruthy()
+        expect(subscription.unitsCount).toBeNull()
+        expect(subscription.unitPrice).toBeNull()
+        expect(subscription.totalPrice).toBeNull()
     })
 })
