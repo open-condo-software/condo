@@ -151,7 +151,7 @@ export const MetersPageContent = ({
                             (
                                 <Row gutter={[0, 40]} align={'middle'} justify={'center'}>
                                     <Col span={23}>
-                                        <FocusContainer style={{ padding: '16px' }}>
+                                        <FocusContainer padding={'16px'}>
                                             <Row justify={'space-between'}>
                                                 <Col span={7}>
                                                     <Input
