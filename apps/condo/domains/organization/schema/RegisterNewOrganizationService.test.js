@@ -177,5 +177,7 @@ describe('RegisterNewOrganizationService', () => {
         expect(subscription.unitsCount).toBeNull()
         expect(subscription.unitPrice).toBeNull()
         expect(subscription.totalPrice).toBeNull()
+        expect(subscription.startAt).toBeDefined()
+        expect(subscription.finishAt).toBeDefined()
     })
 })
