@@ -74,7 +74,7 @@ describe('RegisterResidentService', () => {
         expect(obj.organization.id).toEqual(organization.id)
     })
 
-    it('connects to deleted property with matched address to resident', async () => {
+    it('does not connects to deleted property with matched address to resident', async () => {
         const adminClient = await makeLoggedInAdminClient()
 
         const [organization] = await registerNewOrganization(adminClient)
