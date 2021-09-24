@@ -10,6 +10,12 @@ const { createTestTicket, makeClientWithTicket, createTestTicketCategoryClassifi
 const { makeClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const isObsConfigured = require('@condo/domains/ticket/utils/testSchema/isObsConfigured')
 
+const NULL_REPLACES = {
+    categoryClassifier: 'categoryClassifier not set',
+    executor: 'executor not set',
+    assignee: 'assignee not set',
+}
+
 describe('TicketAnalyticsReportService', () => {
     describe('User', () => {
         it('can read TicketAnalyticsReportService grouped counts [day, status]', async () => {
@@ -29,6 +35,7 @@ describe('TicketAnalyticsReportService', () => {
                         ],
                     },
                     groupBy: [ 'day', 'status' ],
+                    nullReplaces: NULL_REPLACES,
                 },
             })
             expect(groups).toBeDefined()
@@ -56,6 +63,7 @@ describe('TicketAnalyticsReportService', () => {
                         ],
                     },
                     groupBy: [ 'status', 'day' ],
+                    nullReplaces: NULL_REPLACES,
                 },
             })
             expect(groups).toBeDefined()
@@ -86,6 +94,7 @@ describe('TicketAnalyticsReportService', () => {
                         ],
                     },
                     groupBy: [ 'property', 'status' ],
+                    nullReplaces: NULL_REPLACES,
                 },
             })
             expect(groups).toBeDefined()
@@ -122,6 +131,7 @@ describe('TicketAnalyticsReportService', () => {
                         ],
                     },
                     groupBy: [ 'categoryClassifier', 'status' ],
+                    nullReplaces: NULL_REPLACES,
                 },
             })
             expect(groups).toBeDefined()
@@ -150,11 +160,101 @@ describe('TicketAnalyticsReportService', () => {
                         ],
                     },
                     groupBy: [ 'status', 'executor' ],
+                    nullReplaces: NULL_REPLACES,
                 },
             })
             expect(groups).toBeDefined()
             expect(groups.length).toBeGreaterThanOrEqual(1)
             expect(groups.filter(group => group.count === 1)).toHaveLength(1)
+        })
+
+        it('can read TicketAnalyticsReportService with null assignee', async () => {
+            const client = await makeClientWithProperty()
+            await createTestTicket(client, client.organization, client.property)
+
+            const dateStart = dayjs().startOf('week')
+            const dateEnd = dayjs().endOf('week')
+
+            const { data: { result: { groups } } } = await client.query(TICKET_ANALYTICS_REPORT_QUERY, {
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'tests' },
+                data: {
+                    where: {
+                        organization: { id: client.organization.id },
+                        AND: [
+                            { createdAt_gte: dateStart.toISOString() },
+                            { createdAt_lte: dateEnd.toISOString() },
+                        ],
+                    },
+                    groupBy: [ 'status', 'assignee' ],
+                    nullReplaces: NULL_REPLACES,
+                },
+            })
+            expect(groups).toBeDefined()
+            expect(groups.length).toBeGreaterThanOrEqual(1)
+            expect(groups.filter(group => group.count === 1)).toHaveLength(1)
+            expect(groups.every(group => group.assignee !== null)).toBeTruthy()
+            expect(groups.filter(group => group.count === 1)[0].assignee).toStrictEqual(NULL_REPLACES['assignee'])
+        })
+
+        it('can read TicketAnalyticsReportService with null categoryClassifier', async () => {
+            const client = await makeClientWithProperty()
+            await createTestTicket(client, client.organization, client.property)
+
+            const dateStart = dayjs().startOf('week')
+            const dateEnd = dayjs().endOf('week')
+
+            const { data: { result: { groups } } } = await client.query(TICKET_ANALYTICS_REPORT_QUERY, {
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'tests' },
+                data: {
+                    where: {
+                        organization: { id: client.organization.id },
+                        AND: [
+                            { createdAt_gte: dateStart.toISOString() },
+                            { createdAt_lte: dateEnd.toISOString() },
+                        ],
+                    },
+                    groupBy: [ 'status', 'categoryClassifier' ],
+                    nullReplaces: NULL_REPLACES,
+                },
+            })
+            expect(groups).toBeDefined()
+            expect(groups.length).toBeGreaterThanOrEqual(1)
+            expect(groups.filter(group => group.count === 1)).toHaveLength(1)
+            expect(groups.every(group => group.categoryClassifier !== null)).toBeTruthy()
+            expect(groups.filter(group => group.count === 1)[0].categoryClassifier)
+                .toStrictEqual(NULL_REPLACES['categoryClassifier'])
+        })
+
+        it('can read TicketAnalyticsReportService with null executor', async () => {
+            const client = await makeClientWithProperty()
+            await createTestTicket(client, client.organization, client.property)
+
+            const dateStart = dayjs().startOf('week')
+            const dateEnd = dayjs().endOf('week')
+
+            const { data: { result: { groups } } } = await client.query(TICKET_ANALYTICS_REPORT_QUERY, {
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'tests' },
+                data: {
+                    where: {
+                        organization: { id: client.organization.id },
+                        AND: [
+                            { createdAt_gte: dateStart.toISOString() },
+                            { createdAt_lte: dateEnd.toISOString() },
+                        ],
+                    },
+                    groupBy: [ 'status', 'executor' ],
+                    nullReplaces: NULL_REPLACES,
+                },
+            })
+            expect(groups).toBeDefined()
+            expect(groups.length).toBeGreaterThanOrEqual(1)
+            expect(groups.filter(group => group.count === 1)).toHaveLength(1)
+            expect(groups.every(group => group.executor !== null)).toBeTruthy()
+            expect(groups.filter(group => group.count === 1)[0].executor)
+                .toStrictEqual(NULL_REPLACES['executor'])
         })
 
         it('can read TicketAnalyticsReportService [status, executor] with id_in filter', async () => {
@@ -179,6 +279,7 @@ describe('TicketAnalyticsReportService', () => {
                         ],
                     },
                     groupBy: [ 'status', 'executor' ],
+                    nullReplaces: NULL_REPLACES,
                 },
             })
             expect(groups).toBeDefined()
@@ -207,6 +308,7 @@ describe('TicketAnalyticsReportService', () => {
                         ],
                     },
                     groupBy: [ 'status', 'assignee' ],
+                    nullReplaces: NULL_REPLACES,
                 },
             })
             expect(groups).toBeDefined()
@@ -236,6 +338,7 @@ describe('TicketAnalyticsReportService', () => {
                         ],
                     },
                     groupBy: [ 'status', 'assignee' ],
+                    nullReplaces: NULL_REPLACES,
                 },
             })
             expect(groups).toBeDefined()
@@ -261,6 +364,7 @@ describe('TicketAnalyticsReportService', () => {
                         ],
                     },
                     groupBy: [ 'day', 'status' ],
+                    nullReplaces: NULL_REPLACES,
                 },
             })
 
@@ -276,6 +380,7 @@ describe('TicketAnalyticsReportService', () => {
                         ],
                     },
                     groupBy: [ 'day', 'status' ],
+                    nullReplaces: NULL_REPLACES,
                 },
             })
 
@@ -306,6 +411,7 @@ describe('TicketAnalyticsReportService', () => {
                         translates: {
                             property: client.property.address,
                         },
+                        nullReplaces: NULL_REPLACES,
                     },
                 })
                 expect(link).not.toHaveLength(0)
@@ -335,6 +441,7 @@ describe('TicketAnalyticsReportService', () => {
                     translates: {
                         property: client.property.address,
                     },
+                    nullReplaces: NULL_REPLACES,
                 },
             })
 
@@ -361,6 +468,7 @@ describe('TicketAnalyticsReportService', () => {
                         ],
                     },
                     groupBy: [ 'day', 'status' ],
+                    nullReplaces: NULL_REPLACES,
                 },
             })
             expect(result).toBeNull()
@@ -387,6 +495,7 @@ describe('TicketAnalyticsReportService', () => {
                     translates: {
                         property: client.property.address,
                     },
+                    nullReplaces: NULL_REPLACES,
                 },
             })
 

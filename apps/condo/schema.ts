@@ -6486,6 +6486,7 @@ export type ExportTicketAnalyticsToExcelInput = {
   where: TicketWhereInput;
   groupBy?: Maybe<Array<TicketAnalyticsGroupBy>>;
   translates: ExportTicketAnalyticsToExcelTranslates;
+  nullReplaces: TicketAnalyticsNullReplaces;
 };
 
 export type ExportTicketAnalyticsToExcelOutput = {
@@ -23655,9 +23656,16 @@ export enum TicketAnalyticsGroupBy {
   Assignee = 'assignee'
 }
 
+export type TicketAnalyticsNullReplaces = {
+  categoryClassifier: Scalars['String'];
+  executor: Scalars['String'];
+  assignee: Scalars['String'];
+};
+
 export type TicketAnalyticsReportInput = {
   where: TicketWhereInput;
   groupBy?: Maybe<Array<TicketAnalyticsGroupBy>>;
+  nullReplaces: TicketAnalyticsNullReplaces;
 };
 
 export type TicketAnalyticsReportOutput = {
