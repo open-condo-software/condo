@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import Router, { useRouter } from 'next/router'
 import { ServiceSubscription } from '../../../schema'
 import { Modal, Typography } from 'antd'
 import { useIntl } from '@core/next/intl'
@@ -58,6 +59,12 @@ interface ISubscriptionProvider {
 
 export const SubscriptionProvider: React.FC<ISubscriptionProvider> = ({ organizationId, children }) => {
     const { subscription, isExpired } = useServiceSubscription()
+    const { route } = useRouter()
+    useEffect(() => {
+        if (isExpired && route !== '/settings') {
+            Router.push('/settings')
+        }
+    }, [route, isExpired])
     if (!subscription) {
         return children
     }
