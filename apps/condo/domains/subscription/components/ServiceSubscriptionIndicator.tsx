@@ -35,7 +35,7 @@ export const ServiceSubscriptionIndicator = () => {
             </div>
             {isExpired ? (
                 <TrialExpiredMessage/>
-            ): (
+            ) : (
                 <TrialActiveMessage daysLeftHumanized={daysLeftHumanized}/>
             )}
         </StyledPanel>
