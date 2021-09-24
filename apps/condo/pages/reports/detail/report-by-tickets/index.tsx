@@ -170,6 +170,11 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
         updateUrlFilters()
     }, [viewMode, groupTicketsBy])
 
+    useEffect(() => {
+        if (dateRange[1].diff(dateRange[0], 'quarter') > 0) {
+            setSpecification('week')
+        }
+    }, [dateRange])
 
     const applyFilters = useCallback(() => {
         updateUrlFilters()
@@ -221,7 +226,6 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
         responsibleListRef.current = [...searchObjectsList.map(({ key: id, title: value }) => ({ id, value }))]
     }, [responsibleList])
 
-    const isDetailDisabled = groupTicketsBy === 'property' || viewMode === 'bar'
     return (
         <Form>
             <Row gutter={[44, 12]} wrap={false}>
@@ -247,8 +251,11 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                 </Col>
                 <Col flex={0}>
                     <Form.Item label={SpecificationTitle} {...FORM_ITEM_STYLE} style={{ width: 170 }}>
-                        <Select value={specification} onChange={(e) => setSpecification(e)} disabled={isDetailDisabled}>
-                            <Select.Option value={'day'}>{SpecificationDays}</Select.Option>
+                        <Select value={specification} onChange={(e) => setSpecification(e)}>
+                            <Select.Option
+                                disabled={dateRange[1].diff(dateRange[0], 'quarter') > 0}
+                                value={'day'}
+                            >{SpecificationDays}</Select.Option>
                             <Select.Option value={'week'}>{SpecificationWeeks}</Select.Option>
                         </Select>
                     </Form.Item>
