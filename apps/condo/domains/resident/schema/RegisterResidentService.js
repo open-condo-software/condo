@@ -36,18 +36,24 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                     unitName,
                     user: { id: context.authedItem.id },
                 })
+
+                const [property] = await Property.getAll(context, { address, deletedAt: null })
+                if (property) {
+                    attrs.property = { connect: { id: property.id } }
+                    attrs.organization = { connect: { id: property.organization.id } }
+                }
+
                 let id
                 if (existingResident) {
                     await ResidentAPI.update(context, existingResident.id, {
+                        ...attrs,
                         deletedAt: null,
+                        address: undefined,
+                        addressMeta: undefined,
+                        unitName: undefined,
                     })
                     id = existingResident.id
                 } else {
-                    const [property] = await Property.getAll(context, { address, deletedAt: null })
-                    if (property) {
-                        attrs.property = { connect: { id: property.id } }
-                        attrs.organization = { connect: { id: property.organization.id } }
-                    }
                     const resident = await Resident.create(context, attrs)
                     id = resident.id
                 }
