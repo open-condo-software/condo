@@ -136,7 +136,7 @@ const Resident = new GQLListSchema('Resident', {
                     return addValidationError('Cannot create resident, because another resident with the same provided "address" and "unitName" already exists for current user')
                 }
             } else if (operation === 'update') {
-                if (property || address || addressMeta || unitName) {
+                if (address || addressMeta || unitName) {
                     return addValidationError('Changing of address, addressMeta, unitName or property is not allowed for already existing Resident')
                 }
             }
