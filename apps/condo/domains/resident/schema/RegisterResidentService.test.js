@@ -10,6 +10,7 @@ const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@core/keystone
 const { expectToThrowAuthenticationError, expectToThrowAccessDeniedErrorToResult } = require('@condo/domains/common/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
 const { registerResidentByTestClient, Resident } = require('@condo/domains/resident/utils/testSchema')
+const { Property } = require('@condo/domains/property/utils/testSchema')
 
 describe('RegisterResidentService', () => {
     test('can be executed by user with "resident" type', async () => {
@@ -30,14 +31,14 @@ describe('RegisterResidentService', () => {
             await registerResidentByTestClient(userClient)
         }, 'result')
     })
- 
+
     test('anonymous: execute', async () => {
         const client = await makeClient()
         await expectToThrowAuthenticationError(async () => {
             await registerResidentByTestClient(client)
         }, 'result')
     })
- 
+
     test('admin: execute', async () => {
         const adminClient = await makeLoggedInAdminClient()
         const [obj, attrs] = await registerResidentByTestClient(adminClient)
@@ -71,6 +72,28 @@ describe('RegisterResidentService', () => {
         expect(obj.user.id).toEqual(adminClient.user.id)
         expect(obj.property.id).toEqual(property.id)
         expect(obj.organization.id).toEqual(organization.id)
+    })
+
+    it('connects to deleted property with matched address to resident', async () => {
+        const adminClient = await makeLoggedInAdminClient()
+
+        const [organization] = await registerNewOrganization(adminClient)
+        const [property] = await createTestProperty(adminClient, organization, { map: buildingMapJson })
+        await Property.softDelete(adminClient, property.id)
+
+        const payload = {
+            address: property.address,
+            addressMeta: property.addressMeta,
+        }
+
+        const [obj, attrs] = await registerResidentByTestClient(adminClient, payload)
+        await Property.softDelete(adminClient, property.id, { deletedAt: null })
+
+        expect(obj.address).toEqual(attrs.address)
+        expect(obj.addressMeta).toStrictEqual(attrs.addressMeta)
+        expect(obj.user.id).toEqual(adminClient.user.id)
+        expect(obj.property).toEqual(null)
+        expect(obj.organization).toEqual(null)
     })
 
     test('cannot be executed for staff', async () => {
