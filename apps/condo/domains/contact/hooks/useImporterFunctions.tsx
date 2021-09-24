@@ -5,6 +5,7 @@ import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import get from 'lodash/get'
 import { Contact } from '../utils/clientSchema'
 import { searchProperty, searchContacts } from '@condo/domains/ticket/utils/clientSchema/search'
+import { useIntl } from '@core/next/intl'
 
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
@@ -23,6 +24,15 @@ const parsePhones = (phones: string) => {
 }
 
 export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, ObjectCreator] => {
+    const intl = useIntl()
+    const IncorrectRowFormatMessage = intl.formatMessage({ id: 'errors.import.IncorrectRowFormat' })
+    const PropertyDuplicateMessage = intl.formatMessage({ id: 'errors.import.AddressNotFound' })
+    const IncorrectContactNameMessage = intl.formatMessage({ id: 'errors.import.IncorrectContactName' })
+    const IncorrectUnitNameMessage = intl.formatMessage({ id: 'errors.import.EmptyUnitName' })
+    const IncorrectEmailMessage = intl.formatMessage({ id: 'errors.import.IncorrectEmailFormat' })
+    const IncorrectPhonesMessage = intl.formatMessage({ id: 'errors.import.IncorrectPhonesFormat' })
+
+
     const userOrganization = useOrganization()
     const client = useApolloClient()
     const { addressApi } = useAddressApi()
@@ -57,34 +67,38 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                 return searchProperty(client, where, undefined).then((res) => {
                     addons.property = res.length > 0 ? res[0].value : null
                     addons.phones = parsePhones(String(phones.value))
-                    addons.fullName = String(fullName.value).trim()
+                    addons.fullName = String(get(fullName, 'value', '')).trim()
                     addons.email = normalizeEmail(email.value)
                     return { row, addons }
                 })
             }
             addons.phones = parsePhones(String(phones.value))
-            addons.fullName = String(fullName.value).trim()
+            addons.fullName = String(get(fullName, 'value', '')).trim()
             addons.email = normalizeEmail(email.value)
             return { row, addons }
         })
     }
 
     const contactValidator: RowValidator = (row) => {
-        if (!row || !row.addons) return Promise.resolve(false)
-        if (!row.addons.property) return Promise.resolve(false)
-        if (!row.addons.fullName) return Promise.resolve(false)
+        const errors = []
+        if (!row || !row.addons) errors.push(IncorrectRowFormatMessage)
+        if (!get(row, ['addons', 'property'])) errors.push(PropertyDuplicateMessage)
+        if (!get(row, ['addons', 'fullName']).length) errors.push(IncorrectContactNameMessage)
 
-        const rowEmail = get(row.row, ['4', 'value'])
-        if (rowEmail && !row.addons.email) {
-            return Promise.resolve(false)
+        const rowEmail = get(row, ['row', '4', 'value'])
+        if (rowEmail && !get(row, ['addons', 'email'])) {
+            errors.push(IncorrectEmailMessage)
         }
 
-        const unitName = get(row.row, ['1', 'value'])
-        if (!unitName || String(unitName).trim().length === 0) return Promise.resolve(false)
+        const unitName = get(row, ['row', '1', 'value'], '')
+        if (!unitName || String(unitName).trim().length === 0) errors.push(IncorrectUnitNameMessage)
 
-        const phones = get(row.addons, ['phones'], []).filter(phone => phone)
-        if (!phones || phones.length === 0) return Promise.resolve(false)
-
+        const phones = get(row, ['addons', 'phones'], []).filter(Boolean)
+        if (!phones || phones.length === 0) errors.push(IncorrectPhonesMessage)
+        if (errors.length) {
+            row.errors = errors
+            return Promise.resolve(false)
+        }
         return Promise.resolve(true)
     }
 

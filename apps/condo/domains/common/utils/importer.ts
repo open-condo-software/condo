@@ -6,6 +6,7 @@ export type ProcessedRow = {
     row: TableRow
     addons?: { [id: string]: any }
     shouldBeReported?: boolean
+    errors?: Array<string>
 }
 
 export type ProgressUpdateHandler = (progress: number) => void
@@ -20,6 +21,7 @@ export type Columns = Array<ColumnInfo>
 export type ImporterErrorMessages = {
     invalidColumns: string
     tooManyRows: string
+    invalidTypes: string
 }
 
 interface IImporter {
@@ -170,7 +172,7 @@ export class Importer implements IImporter {
 
         if (!this.isRowValid(row)) {
             if (this.failProcessingHandler) {
-                this.failProcessingHandler({ row })
+                this.failProcessingHandler({ row, errors: [this.errors.invalidTypes] })
             }
             return this.createRecord(table, index++)
         }

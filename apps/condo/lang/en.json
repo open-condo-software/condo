@@ -730,5 +730,12 @@
   "Tariff": "Tariff",
   "Privileges": "Privileges",
   "Recalculation": "Recalculation",
-  "errors.LoadingError": "Sorry, an error has occurred, please try refreshing the page"
+  "errors.LoadingError": "Sorry, an error has occurred, please try refreshing the page",
+  "errors.import.IncorrectRowFormat": "Incorrect row format",
+  "errors.import.AddressNotFound": "Property with this address is not found",
+  "errors.import.IncorrectContactName": "Incorrect contact name",
+  "errors.import.EmptyUnitName": "Unit name should not be empty",
+  "errors.import.IncorrectEmailFormat": "Wrong email format",
+  "errors.import.IncorrectPhonesFormat": "None of the phones are in a valid format",
+  "errors.import.InvalidColumnTypes": "Required columns were empty or column's data types did not match required"
 }

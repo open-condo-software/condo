@@ -29,6 +29,7 @@ export const useImporter = (columns: Columns,
     const InvalidRowsErrorMessage = intl.formatMessage({ id: 'TableHasInvalidHeaders' }, {
         value: columns.map(column => `"${column.name}"`).join(', '),
     })
+    const NotValidRowTypesMessage = intl.formatMessage({ id:'errors.import.InvalidColumnTypes' })
     const [progress, setProgress] = useState(0)
     const [error, setError] = useState(null)
     const [isImported, setIsImported] = useState(false)
@@ -36,6 +37,7 @@ export const useImporter = (columns: Columns,
     const errors: ImporterErrorMessages = {
         tooManyRows: TooManyRowsErrorMessage,
         invalidColumns: InvalidRowsErrorMessage,
+        invalidTypes: NotValidRowTypesMessage,
     }
 
     const importData = useCallback((data) => {
