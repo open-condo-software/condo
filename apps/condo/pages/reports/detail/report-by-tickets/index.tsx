@@ -353,6 +353,9 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     const AllCategoryClassifiersTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllClassifiers' })
     const AllExecutorsTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllExecutors' })
     const AllAssigneesTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllAssignees' })
+    const EmptyCategoryClassifierTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.NullReplaces.CategoryClassifier' })
+    const EmptyExecutorTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.NullReplaces.Executor' })
+    const EmptyAssigneeTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.NullReplaces.Assignee' })
 
     const TableTitle = intl.formatMessage({ id: 'Table' })
     const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
@@ -375,6 +378,11 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     const selectedPeriod = filtersRef.current !== null ? filtersRef.current.range.map(e => e.format(DATE_DISPLAY_FORMAT)).join(' - ') : ''
     const selectedAddresses = filtersRef.current !== null ? filtersRef.current.addressList : []
     const { TicketWarningModal, setIsVisible } = useTicketWarningModal(groupTicketsBy)
+    const nullReplaces = {
+        categoryClassifier: EmptyCategoryClassifierTitle,
+        executor: EmptyExecutorTitle,
+        assignee: EmptyAssigneeTitle,
+    }
 
     const [loadTicketAnalytics, { loading }] = useLazyQuery(TICKET_ANALYTICS_REPORT_QUERY, {
         onError: error => {
@@ -732,7 +740,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
             )
 
             const where = { organization: { id: userOrganizationId }, AND }
-            loadTicketAnalytics({ variables: { data: { groupBy, where } } })
+            loadTicketAnalytics({ variables: { data: { groupBy, where, nullReplaces } } })
         }
     }, [userOrganizationId, viewMode, ticketType, groupTicketsBy])
 
@@ -831,7 +839,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                     : AllAssigneesTitle,
             }
 
-            exportTicketAnalyticsToExcel({ variables: { data: { groupBy, where, translates } } })
+            exportTicketAnalyticsToExcel({ variables: { data: { groupBy, where, translates, nullReplaces } } })
         },
         [ticketType, viewMode, dateFrom, dateTo, groupTicketsBy, userOrganizationId],
     )

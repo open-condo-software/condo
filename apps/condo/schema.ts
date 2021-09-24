@@ -6486,6 +6486,7 @@ export type ExportTicketAnalyticsToExcelInput = {
   where: TicketWhereInput;
   groupBy?: Maybe<Array<TicketAnalyticsGroupBy>>;
   translates: ExportTicketAnalyticsToExcelTranslates;
+  nullReplaces: TicketAnalyticsNullReplaces;
 };
 
 export type ExportTicketAnalyticsToExcelOutput = {
@@ -14594,9 +14595,7 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageDivisions?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
-  /**  Allows employees with this role to be assigned to tickets as responsible  */
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
-  /**  Allows employees with this role to be assigned to tickets as executor  */
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -22938,9 +22937,16 @@ export enum TicketAnalyticsGroupBy {
   Assignee = 'assignee'
 }
 
+export type TicketAnalyticsNullReplaces = {
+  categoryClassifier: Scalars['String'];
+  executor: Scalars['String'];
+  assignee: Scalars['String'];
+};
+
 export type TicketAnalyticsReportInput = {
   where: TicketWhereInput;
   groupBy?: Maybe<Array<TicketAnalyticsGroupBy>>;
+  nullReplaces: TicketAnalyticsNullReplaces;
 };
 
 export type TicketAnalyticsReportOutput = {

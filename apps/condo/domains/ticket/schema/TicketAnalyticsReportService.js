@@ -127,7 +127,7 @@ const createAssigneeRange = async (organizationWhereInput, whereIn) => {
     return assignees.map(assigneeLambda)
 }
 
-const getTicketCounts = async (context, where, groupBy, extraLabels = {}) => {
+const getTicketCounts = async ({ context, where, groupBy, extraLabels = {}, nullReplaces = {} }) => {
     const ticketGqlToKnexAdapter = new TicketGqlToKnexAdapter(where, groupBy)
     await ticketGqlToKnexAdapter.loadData()
 
@@ -215,11 +215,16 @@ const getTicketCounts = async (context, where, groupBy, extraLabels = {}) => {
     const ticketCounts = Array.from(ticketMap.values())
         .map(ticketCount => {
             if (groupBy.some(group => NULLABLE_GROUP_KEYS.includes(group))) {
-                // TODO(sitozzz): add translations from client, executor & assignee keys replaces
-                const categoryClassifier = ticketCount.categoryClassifier !== null ? ticketCount.categoryClassifier : 'No category'
+                const categoryClassifier = ticketCount.categoryClassifier !== null
+                    ? ticketCount.categoryClassifier
+                    : get(nullReplaces, 'categoryClassifier')
+                const executor = ticketCount.executor !== null ? ticketCount.executor : get(nullReplaces, 'executor')
+                const assignee = ticketCount.assignee !== null ? ticketCount.assignee : get(nullReplaces, 'assignee')
                 return {
                     ...ticketCount,
                     categoryClassifier,
+                    executor,
+                    assignee,
                 }
             }
             return ticketCount
@@ -275,7 +280,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
         },
         {
             access: true,
-            type: 'input TicketAnalyticsReportInput { where: TicketWhereInput!, groupBy: [TicketAnalyticsGroupBy!] }',
+            type: 'input TicketAnalyticsReportInput { where: TicketWhereInput!, groupBy: [TicketAnalyticsGroupBy!], nullReplaces: TicketAnalyticsNullReplaces! }',
         },
         {
             access: true,
@@ -291,11 +296,15 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
         },
         {
             access: true,
+            type: 'input TicketAnalyticsNullReplaces { categoryClassifier: String!, executor: String!, assignee: String! }',
+        },
+        {
+            access: true,
             type: 'input ExportTicketAnalyticsToExcelTranslates { property: String, assignee: String, executor: String, categoryClassifier: String }',
         },
         {
             access: true,
-            type: 'input ExportTicketAnalyticsToExcelInput { where: TicketWhereInput!, groupBy: [TicketAnalyticsGroupBy!], translates: ExportTicketAnalyticsToExcelTranslates! }',
+            type: 'input ExportTicketAnalyticsToExcelInput { where: TicketWhereInput!, groupBy: [TicketAnalyticsGroupBy!], translates: ExportTicketAnalyticsToExcelTranslates!, nullReplaces: TicketAnalyticsNullReplaces! }',
         },
         {
             access: true,
@@ -307,8 +316,10 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
             access: access.canReadTicketAnalyticsReport,
             schema: 'ticketAnalyticsReport(data: TicketAnalyticsReportInput): TicketAnalyticsReportOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { data: { where = {}, groupBy = [] } } = args
-                const { ticketCounts: groups, translates } = await getTicketCounts(context, where, groupBy)
+                const { data: { where = {}, groupBy = [], nullReplaces = {} } } = args
+                const { ticketCounts: groups, translates } = await getTicketCounts({
+                    context, where, groupBy, nullReplaces,
+                })
                 const ticketLabels = get(translates, 'status', [])
                 return { groups, ticketLabels }
             },
@@ -317,8 +328,10 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
             access: access.canReadExportTicketAnalyticsToExcel,
             schema: 'exportTicketAnalyticsToExcel(data: ExportTicketAnalyticsToExcelInput): ExportTicketAnalyticsToExcelOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { data: { where = {}, groupBy = [], translates = {} } } = args
-                const { ticketCounts } = await getTicketCounts(context, where, groupBy, { status: 'type' })
+                const { data: { where = {}, groupBy = [], translates = {}, nullReplaces } } = args
+                const { ticketCounts } = await getTicketCounts({
+                    context, where, groupBy, nullReplaces, extraLabels: { status: 'type' },
+                })
                 const { result, groupKeys } = aggregateData(ticketCounts, groupBy)
                 const ticketAccessCheck = await Ticket.getAll(context, where, { first: 1 })
                 const [groupBy1, groupBy2] = groupKeys
