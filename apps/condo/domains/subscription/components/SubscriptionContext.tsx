@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { ServiceSubscription } from '../../../schema'
-import { isExpired } from '../utils/helpers'
 import { Modal, Typography } from 'antd'
 import { useIntl } from '@core/next/intl'
 import dayjs from 'dayjs'
@@ -58,13 +57,13 @@ interface ISubscriptionProvider {
 }
 
 export const SubscriptionProvider: React.FC<ISubscriptionProvider> = ({ organizationId, children }) => {
-    const { subscription } = useServiceSubscription()
+    const { subscription, isExpired } = useServiceSubscription()
     if (!subscription) {
         return children
     }
     return (
         <SubscriptionContext.Provider value={subscription}>
-            {isExpired(subscription) && (
+            {isExpired && (
                 <ExpiredModal subscription={subscription}/>
             )}
             {children}
