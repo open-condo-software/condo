@@ -97,7 +97,7 @@ export const getPartlyLoadedModalConfig = (
     content: string,
     okText: string,
     cancelText: string,
-    errors: Array<ProcessedRow>,
+    erroredRows: Array<ProcessedRow>,
     columns: Columns) => {
     return {
         title: title,
@@ -114,9 +114,10 @@ export const getPartlyLoadedModalConfig = (
         onOk: () => {
             return new Promise<void>((resolve, reject) => {
                 try {
-                    const data = [columns.map(column => column.name)]
-                    for (let i = 0; i < errors.length; i++) {
-                        const line = errors[i].row.map(cell => cell.value ? String(cell.value) : null)
+                    const data = [columns.map(column => column.name).concat(['Errors'])]
+                    for (let i = 0; i < erroredRows.length; i++) {
+                        const line = erroredRows[i].row.map(cell => cell.value ? String(cell.value) : null)
+                        line.push(erroredRows[i].errors ? erroredRows[i].errors.join(', \n') : null)
                         data.push(line)
                     }
                     const wb = XLSX.utils.book_new()
