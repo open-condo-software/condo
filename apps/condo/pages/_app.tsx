@@ -36,6 +36,7 @@ import {
 import { MeterLog } from '../domains/common/components/icons/MeterLogIcon'
 import { SubscriptionProvider } from '../domains/subscription/components/SubscriptionContext'
 import dayjs from 'dayjs'
+import { useServiceSubscription } from '../domains/subscription/hooks/useServiceSubscription'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
@@ -52,7 +53,8 @@ const ANT_DEFAULT_LOCALE = enUS
 
 const MenuItems: React.FC = () => {
     const { link } = useOrganization()
-
+    const { isExpired } = useServiceSubscription()
+    const disabled = !link || isExpired
     return (
         <>
             <FocusElement>
@@ -68,44 +70,44 @@ const MenuItems: React.FC = () => {
                 path={'/reports'}
                 icon={BarChartIcon}
                 label={'menu.Analytics'}
-                disabled={!link}
+                disabled={disabled}
             />
             <MenuItem
                 path={'/ticket'}
                 icon={ThunderboltFilled}
                 label={'menu.ControlRoom'}
-                disabled={!link}
+                disabled={disabled}
             />
             <MenuItem
                 path={'/property'}
                 icon={HomeFilled}
                 label={'menu.Property'}
-                disabled={!link}
+                disabled={disabled}
             />
             <MenuItem
                 path={'/contact'}
                 icon={UserIcon}
                 label={'menu.Contacts'}
-                disabled={!link}
+                disabled={disabled}
             />
             <MenuItem
                 path={'/employee'}
                 icon={UserIcon}
                 label={'menu.Employees'}
-                disabled={!link}
+                disabled={disabled}
             />
             <MenuItem
                 path={'/meter'}
                 icon={MeterLog}
                 label={'menu.Meters'}
-                disabled={!link}
+                disabled={disabled}
             />
             <FeatureFlagRequired name={'billing'}>
                 <MenuItem
                     path={'/billing'}
                     icon={ApiFilled}
                     label={'menu.Billing'}
-                    disabled={!link}
+                    disabled={disabled}
                 />
             </FeatureFlagRequired>
             <FeatureFlagRequired name={'settings'}>
