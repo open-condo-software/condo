@@ -11,6 +11,7 @@ const { expectToThrowAuthenticationError, expectToThrowAccessDeniedErrorToResult
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
 const { registerResidentByTestClient, Resident } = require('@condo/domains/resident/utils/testSchema')
 const { Property } = require('@condo/domains/property/utils/testSchema')
+const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 
 describe('RegisterResidentService', () => {
     test('can be executed by user with "resident" type', async () => {
@@ -94,6 +95,48 @@ describe('RegisterResidentService', () => {
         expect(obj.user.id).toEqual(adminClient.user.id)
         expect(obj.property).toEqual(null)
         expect(obj.organization).toEqual(null)
+    })
+
+    it('does not connects to old deleted property with matched address', async () => {
+        const adminClient = await makeLoggedInAdminClient()
+        const { address, addressMeta } = buildFakeAddressAndMeta(false)
+
+        const [organization1] = await registerNewOrganization(adminClient)
+        const [organization2] = await registerNewOrganization(adminClient)
+        const [property1] = await createTestProperty(adminClient, organization1, { address, addressMeta, map: buildingMapJson })
+        const [property2] = await createTestProperty(adminClient, organization2, { address, addressMeta, map: buildingMapJson })
+
+        await Property.softDelete(adminClient, property1.id)
+
+        const payload = { address, addressMeta }
+
+        const [obj, attrs] = await registerResidentByTestClient(adminClient, payload)
+
+        expect(obj.address).toEqual(attrs.address)
+        expect(obj.addressMeta).toStrictEqual(attrs.addressMeta)
+        expect(obj.user.id).toEqual(adminClient.user.id)
+        expect(obj.property.id).toEqual(property2.id)
+        expect(obj.organization.id).toEqual(organization2.id)
+    })
+
+    it('does not connects to new property with matched address', async () => {
+        const adminClient = await makeLoggedInAdminClient()
+        const { address, addressMeta } = buildFakeAddressAndMeta(false)
+
+        const [organization1] = await registerNewOrganization(adminClient)
+        const [organization2] = await registerNewOrganization(adminClient)
+        const [property1] = await createTestProperty(adminClient, organization1, { address, addressMeta, map: buildingMapJson })
+        await createTestProperty(adminClient, organization2, { address, addressMeta, map: buildingMapJson })
+
+        const payload = { address, addressMeta }
+
+        const [obj, attrs] = await registerResidentByTestClient(adminClient, payload)
+
+        expect(obj.address).toEqual(attrs.address)
+        expect(obj.addressMeta).toStrictEqual(attrs.addressMeta)
+        expect(obj.user.id).toEqual(adminClient.user.id)
+        expect(obj.property.id).toEqual(property1.id)
+        expect(obj.organization.id).toEqual(organization1.id)
     })
 
     test('cannot be executed for staff', async () => {
