@@ -188,6 +188,16 @@ const Property = new GQLListSchema('Property', {
         create: access.canManageProperties,
         update: access.canManageProperties,
     },
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['organization', 'address'],
+                condition: 'Q(deletedAt__isnull=True)',
+                name: 'property_unique_organization_and_address',
+            },
+        ],
+    },
     hooks: {
         validateInput: ({ resolvedData, existingItem, context, addValidationError }) => {
             if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
