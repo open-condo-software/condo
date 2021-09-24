@@ -18,6 +18,7 @@ import styled from '@emotion/styled'
 import { AppealIcon } from '@condo/domains/common/components/icons/AppealIcon'
 import { MeterIcon } from '@condo/domains/common/components/icons/MeterIcon'
 import { MenuItem } from '@condo/domains/common/components/MenuItem'
+import { ServiceSubscriptionIndicator } from '@condo/domains/subscription/components/ServiceSubscriptionIndicator'
 
 interface ISideMenuProps {
     onLogoClick: (...args) => void
@@ -101,6 +102,7 @@ export const SideMenu: React.FC<ISideMenuProps> = (props) => {
                         {menuData}
                     </MenuItemsContainer>
                 </MenuItemsContainer>
+                <ServiceSubscriptionIndicator/>
             </Layout.Sider>
             {menuData && <div css={substrateDesktopCss} className='side-menu-substrate' />}
         </>

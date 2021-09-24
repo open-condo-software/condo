@@ -34,6 +34,7 @@ import {
     BILLING_RECEIPT_SERVICES_FIELD,
 } from '@condo/domains/billing/constants'
 import { MeterLog } from '../domains/common/components/icons/MeterLogIcon'
+import { SubscriptionProvider } from '../domains/subscription/components/SubscriptionContext'
 import dayjs from 'dayjs'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
@@ -135,11 +136,13 @@ const MyApp = ({ Component, pageProps }) => {
                     <GlobalStyle/>
                     <FocusContextProvider>
                         <OnBoardingProvider>
-                            <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                <RequiredAccess>
-                                    <Component {...pageProps} />
-                                </RequiredAccess>
-                            </LayoutComponent>
+                            <SubscriptionProvider>
+                                <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                    <RequiredAccess>
+                                        <Component {...pageProps} />
+                                    </RequiredAccess>
+                                </LayoutComponent>
+                            </SubscriptionProvider>
                         </OnBoardingProvider>
                     </FocusContextProvider>
                     <GoogleAnalytics/>
