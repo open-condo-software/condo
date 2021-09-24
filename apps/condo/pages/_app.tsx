@@ -34,6 +34,7 @@ import {
     BILLING_RECEIPT_SERVICES_FIELD,
 } from '@condo/domains/billing/constants'
 import { MeterLog } from '../domains/common/components/icons/MeterLogIcon'
+import dayjs from 'dayjs'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
@@ -120,6 +121,7 @@ const MenuItems: React.FC = () => {
 
 const MyApp = ({ Component, pageProps }) => {
     const intl = useIntl()
+    dayjs.locale(intl.locale)
 
     const LayoutComponent = Component.container || BaseLayout
     // TODO(Dimitreee): remove this mess later
