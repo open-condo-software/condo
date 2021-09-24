@@ -34,6 +34,7 @@ const getFakeCreator: (storage: Array<ProcessedRow | null>) => ObjectCreator = (
 const defaultErrors: ImporterErrorMessages = {
     tooManyRows: 'too many rows',
     invalidColumns: 'invalid columns',
+    invalidTypes: 'invalid types',
 }
 
 const testColumns: Columns = [
