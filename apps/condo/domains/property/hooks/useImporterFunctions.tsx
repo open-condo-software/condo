@@ -7,6 +7,7 @@ import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 import { MapEdit } from '../components/panels/Builder/MapConstructor'
 import { BuildingMapEntityType } from '../../../schema'
 import { TableRow, Columns, RowNormalizer, RowValidator, ObjectCreator } from '@condo/domains/common/utils/importer'
+import { useIntl } from '@core/next/intl'
 
 const createPropertyUnitsMap = (units, sections, floors) => {
     const unitsOnFloor = Math.floor(units / (floors * sections))
@@ -37,6 +38,10 @@ const createPropertyUnitsMap = (units, sections, floors) => {
 }
 
 export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, ObjectCreator] => {
+    const intl = useIntl()
+    const AddressNotFoundMessage = intl.formatMessage({ id: 'errors.import.AddressNotFound' })
+    const PropertyDuplicateMessage = intl.formatMessage({ id: 'errors.import.PropertyDuplicate' })
+
     const userOrganization = useOrganization()
     const client = useApolloClient()
     const { addressApi } = useAddressApi()
@@ -64,15 +69,23 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
     const propertyValidator: RowValidator = (row) => {
         if (!row ) return Promise.resolve(false)
-        const address = get(row.addons, ['suggestion', 'value'])
-        if (!address) return Promise.resolve(false)
+        const address = get(row, ['addons', 'suggestion', 'value'])
+        if (!address) {
+            row.errors = [AddressNotFoundMessage]
+            return Promise.resolve(false)
+        }
+
         const where = {
             address: address,
             organization: { id: userOrganizationId },
         }
         return searchProperty(client, where, undefined)
             .then((res) => {
-                return res.length === 0
+                if (res.length > 0) {
+                    row.errors = [PropertyDuplicateMessage]
+                    return false
+                }
+                return true
             })
     }
 

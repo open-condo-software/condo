@@ -26,7 +26,8 @@ const parsePhones = (phones: string) => {
 export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, ObjectCreator] => {
     const intl = useIntl()
     const IncorrectRowFormatMessage = intl.formatMessage({ id: 'errors.import.IncorrectRowFormat' })
-    const PropertyDuplicateMessage = intl.formatMessage({ id: 'errors.import.AddressNotFound' })
+    const AddressNotFoundMessage = intl.formatMessage({ id: 'errors.import.AddressNotFound' })
+    const PropertyNotFoundMessage = intl.formatMessage({ id: 'errors.import.PropertyNotFound' })
     const IncorrectContactNameMessage = intl.formatMessage({ id: 'errors.import.IncorrectContactName' })
     const IncorrectUnitNameMessage = intl.formatMessage({ id: 'errors.import.EmptyUnitName' })
     const IncorrectEmailMessage = intl.formatMessage({ id: 'errors.import.IncorrectEmailFormat' })
@@ -80,10 +81,12 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     }
 
     const contactValidator: RowValidator = (row) => {
+        if (!row) return Promise.resolve(false)
         const errors = []
-        if (!row || !row.addons) errors.push(IncorrectRowFormatMessage)
-        if (!get(row, ['addons', 'property'])) errors.push(PropertyDuplicateMessage)
-        if (!get(row, ['addons', 'fullName']).length) errors.push(IncorrectContactNameMessage)
+        if (!row.addons) errors.push(IncorrectRowFormatMessage)
+        if (!get(row, ['addons', 'address'])) errors.push(AddressNotFoundMessage)
+        if (!get(row, ['addons', 'property'])) errors.push(PropertyNotFoundMessage)
+        if (!get(row, ['addons', 'fullName', 'length'])) errors.push(IncorrectContactNameMessage)
 
         const rowEmail = get(row, ['row', '4', 'value'])
         if (rowEmail && !get(row, ['addons', 'email'])) {
