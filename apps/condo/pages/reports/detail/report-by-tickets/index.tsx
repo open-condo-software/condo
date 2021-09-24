@@ -47,7 +47,7 @@ import {
 import { ExportTicketAnalyticsToExcelTranslates, TicketGroupedCounter, TicketLabel } from '../../../../schema'
 import { ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 import { useTicketWarningModal } from '@condo/domains/ticket/hooks/useTicketWarningModal'
-import { MAX_FILTERED_ELEMENTS } from '@condo/domains/ticket/constants/restrictions'
+import { MAX_FILTERED_ELEMENTS, MAX_TAG_TEXT_LENGTH } from '@condo/domains/ticket/constants/restrictions'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 
 dayjs.extend(quarterOfYear)
@@ -262,6 +262,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                             value={addressList}
                             onChange={onAddressChange}
                             maxTagCount='responsive'
+                            maxTagTextLength={MAX_TAG_TEXT_LENGTH}
                             placeholder={AllAddressesPlaceholder}
                         />
                     </Form.Item>
