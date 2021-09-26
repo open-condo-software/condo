@@ -146,7 +146,7 @@ describe('RegisterResidentService', () => {
         })
     })
 
-    it('clears `deletedAt` when a Resident with same address and unitName already exists for this user', async () => {
+    it('restore deleted Resident for the same address and unitName (property not exists)', async () => {
         const userClient = await makeClientWithResidentUserAndProperty()
         const [resident, attrs] = await registerResidentByTestClient(userClient)
         const [softDeletedResident] = await Resident.softDelete(userClient, resident.id)
@@ -157,5 +157,35 @@ describe('RegisterResidentService', () => {
         })
         expect(restoredResident.id).toEqual(softDeletedResident.id)
         expect(restoredResident.deletedAt).toBeNull()
+        expect(restoredResident.organization).toBeNull()
+        expect(restoredResident.property).toBeNull()
+    })
+
+    it('restore deleted Resident for the same address and unitName (property exists)', async () => {
+        const adminClient = await makeLoggedInAdminClient()
+        const userClient = await makeClientWithResidentUserAndProperty()
+
+        const [resident, attrs] = await registerResidentByTestClient(userClient)
+        const [deletedResident] = await Resident.softDelete(userClient, resident.id)
+        expect(deletedResident.id).toEqual(resident.id)
+        expect(deletedResident.deletedAt).not.toBeNull()
+        expect(deletedResident.organization).toEqual(null)
+        expect(deletedResident.property).toEqual(null)
+
+        const [organization] = await registerNewOrganization(adminClient)
+        const [property] = await createTestProperty(adminClient, organization, {
+            address: attrs.address,
+            addressMeta: attrs.addressMeta,
+            map: buildingMapJson,
+        })
+
+        const [restoredResident] = await registerResidentByTestClient(userClient, {
+            address: attrs.address,
+            unitName: attrs.unitName,
+        })
+        expect(restoredResident.id).toEqual(resident.id)
+        expect(restoredResident.deletedAt).toBeNull()
+        expect(restoredResident.organization.id).toEqual(organization.id)
+        expect(restoredResident.property.id).toEqual(property.id)
     })
 })
