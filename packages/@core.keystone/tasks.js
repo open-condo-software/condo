@@ -18,6 +18,8 @@ const taskQueue = new Queue('tasks', WORKER_REDIS_URL)
 const taskLogger = pino({ name: 'worker', enabled: falsey(process.env.DISABLE_LOGGING) })
 const globalTaskOptions = {}
 const TASKS = new Map()
+const CRON_TASKS = new Map()
+const REMOVE_CRON_TASKS = []
 let isWorkerCreated = false
 
 function createTask (name, fn, opts = {}) {
@@ -27,6 +29,22 @@ function createTask (name, fn, opts = {}) {
     if (TASKS.has(name)) throw new Error(`Task with name ${name} is already registered`)
     TASKS.set(name, fn)
     return createTaskWrapper(name, fn, opts)
+}
+
+function createCronTask (name, cron, fn, opts = {}) {
+    if (typeof fn !== 'function') throw new Error('unsupported fn argument type. Function expected')
+    if (!name) throw new Error('no name')
+    if (!cron) throw new Error('no cron string')
+
+    const taskOpts = { repeat: { cron }, ...opts }
+    const task = createTask(name, fn, taskOpts)
+    CRON_TASKS.set(name, taskOpts)
+    return task
+}
+
+function removeCronTask (name, cron, opts = {}) {
+    const taskOpts = { repeat: { cron }, ...opts }
+    REMOVE_CRON_TASKS.push([name, taskOpts])
 }
 
 async function awaitResult (jobId) {
@@ -155,11 +173,28 @@ async function createWorker (keystoneModule) {
 
     await taskQueue.isReady()
     taskLogger.info({ message: 'Worker: ready to work!' })
+    const cronTasksNames = [...CRON_TASKS.keys()]
+    if (cronTasksNames.length > 0) {
+        taskLogger.info({ message: 'Worker: add repeatable tasks!', names: cronTasksNames })
+        cronTasksNames.forEach((name) => {
+            const fn = TASKS.get(name)
+            fn.delay()
+        })
+    }
+    const removeTasksNames = REMOVE_CRON_TASKS.map(x => x[0])
+    if (removeTasksNames.length > 0) {
+        taskLogger.info({ message: 'Worker: remove tasks!', names: removeTasksNames })
+        REMOVE_CRON_TASKS.forEach(([name, opts]) => {
+            taskQueue.removeRepeatable(name, opts.repeat)
+        })
+    }
 }
 
 module.exports = {
     taskQueue,
     createTask,
+    createCronTask,
+    removeCronTask,
     registerTasks,
     createWorker,
 }
