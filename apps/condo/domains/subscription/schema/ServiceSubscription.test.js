@@ -16,6 +16,12 @@ const dayjs = require('dayjs')
 const faker = require('faker')
 
 describe('ServiceSubscription', () => {
+
+    // NOTE: `registerNewOrganization` mutation creates new ServiceSubscription
+    // See test 'creates trial subscription' in RegisterNewOrganizationService.test.js
+    // Be careful with `makeClientWithRegisteredOrganization`, because new `ServiceSubscription`
+    // will be implicitly created
+
     describe('Validations', () => {
         it('should have null prices if is trial', async () => {
             const adminClient = await makeLoggedInAdminClient()
@@ -415,19 +421,18 @@ describe('ServiceSubscription', () => {
         })
 
         it('can be read by user from the same organization', async () => {
+            // NOTE: `registerNewOrganization` mutation creates new ServiceSubscription
             const userClient = await makeClientWithRegisteredOrganization()
-            const adminClient = await makeLoggedInAdminClient()
-            const [obj] = await createTestServiceSubscription(adminClient, userClient.organization)
-
             const userClientFromAnotherOrganization = await makeClientWithRegisteredOrganization()
 
             let objs
             objs = await ServiceSubscription.getAll(userClient, {}, { sortBy: ['updatedAt_DESC'] })
             expect(objs).toHaveLength(1)
-            expect(objs[0].id).toMatch(obj.id)
+            expect(objs[0].organization.id).toEqual(userClient.organization.id)
 
             objs = await ServiceSubscription.getAll(userClientFromAnotherOrganization, {}, { sortBy: ['updatedAt_DESC'] })
-            expect(objs).toHaveLength(0)
+            expect(objs).toHaveLength(1)
+            expect(objs[0].organization.id).toEqual(userClientFromAnotherOrganization.organization.id)
         })
 
         it('cannot be read by anonymous', async () => {
@@ -514,9 +519,7 @@ describe('ServiceSubscription', () => {
 
         it('cannot be deleted by user', async () => {
             const userClient = await makeClientWithRegisteredOrganization()
-            const adminClient = await makeLoggedInAdminClient()
-            const [obj] = await createTestServiceSubscription(adminClient, userClient.organization)
-
+            const [obj] = await ServiceSubscription.getAll(userClient, {}, { sortBy: ['updatedAt_DESC'] })
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await ServiceSubscription.delete(userClient, obj.id)
             })
@@ -525,8 +528,7 @@ describe('ServiceSubscription', () => {
         it('cannot be deleted by anonymous', async () => {
             const anonymousClient = await makeClient()
             const userClient = await makeClientWithRegisteredOrganization()
-            const adminClient = await makeLoggedInAdminClient()
-            const [obj] = await createTestServiceSubscription(adminClient, userClient.organization)
+            const [obj] = await ServiceSubscription.getAll(userClient, {}, { sortBy: ['updatedAt_DESC'] })
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await ServiceSubscription.delete(anonymousClient, obj.id)
