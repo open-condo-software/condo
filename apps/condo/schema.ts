@@ -23,6 +23,690 @@ export type AcceptOrRejectOrganizationInviteInput = {
   isAccepted?: Maybe<Scalars['Boolean']>;
 };
 
+/**  Information about `acquiring component` which will generate `billing receipts` and `payments`  */
+export type AcquiringIntegration = {
+  __typename?: 'AcquiringIntegration';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the AcquiringIntegration List config, or
+   *  2. As an alias to the field set on 'labelField' in the AcquiringIntegration List config, or
+   *  3. As an alias to a 'name' field on the AcquiringIntegration List (if one exists), or
+   *  4. As an alias to the 'id' field on the AcquiringIntegration List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+  /**  Name of `acquiring component`, which is set up by developer  */
+  name?: Maybe<Scalars['String']>;
+  accessRights: Array<AcquiringIntegrationAccessRight>;
+  _accessRightsMeta?: Maybe<_QueryMeta>;
+  /**  Can multiple receipts be united through this acquiring  */
+  canGroupReceipts?: Maybe<Scalars['Boolean']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<User>;
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+
+/**  Information about `acquiring component` which will generate `billing receipts` and `payments`  */
+export type AcquiringIntegrationAccessRightsArgs = {
+  where?: Maybe<AcquiringIntegrationAccessRightWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortAcquiringIntegrationAccessRightsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+/**  Information about `acquiring component` which will generate `billing receipts` and `payments`  */
+export type AcquiringIntegration_AccessRightsMetaArgs = {
+  where?: Maybe<AcquiringIntegrationAccessRightWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortAcquiringIntegrationAccessRightsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+/**  Link between Acquiring integration and user, the existence of this connection means that this user has the rights to perform actions on behalf of the integration  */
+export type AcquiringIntegrationAccessRight = {
+  __typename?: 'AcquiringIntegrationAccessRight';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the AcquiringIntegrationAccessRight List config, or
+   *  2. As an alias to the field set on 'labelField' in the AcquiringIntegrationAccessRight List config, or
+   *  3. As an alias to a 'name' field on the AcquiringIntegrationAccessRight List (if one exists), or
+   *  4. As an alias to the 'id' field on the AcquiringIntegrationAccessRight List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+  /**  Acquiring Integration  */
+  integration?: Maybe<AcquiringIntegration>;
+  /**  User  */
+  user?: Maybe<User>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<User>;
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+export type AcquiringIntegrationAccessRightCreateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+  integration?: Maybe<AcquiringIntegrationRelateToOneInput>;
+  user?: Maybe<UserRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+/**  A keystone list  */
+export type AcquiringIntegrationAccessRightHistoryRecord = {
+  __typename?: 'AcquiringIntegrationAccessRightHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the AcquiringIntegrationAccessRightHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the AcquiringIntegrationAccessRightHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the AcquiringIntegrationAccessRightHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the AcquiringIntegrationAccessRightHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  integration?: Maybe<Scalars['String']>;
+  user?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<AcquiringIntegrationAccessRightHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type AcquiringIntegrationAccessRightHistoryRecordCreateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  integration?: Maybe<Scalars['String']>;
+  user?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<AcquiringIntegrationAccessRightHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum AcquiringIntegrationAccessRightHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type AcquiringIntegrationAccessRightHistoryRecordUpdateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  integration?: Maybe<Scalars['String']>;
+  user?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<AcquiringIntegrationAccessRightHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type AcquiringIntegrationAccessRightHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<AcquiringIntegrationAccessRightHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<AcquiringIntegrationAccessRightHistoryRecordWhereInput>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  integration?: Maybe<Scalars['String']>;
+  integration_not?: Maybe<Scalars['String']>;
+  integration_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  integration_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  user?: Maybe<Scalars['String']>;
+  user_not?: Maybe<Scalars['String']>;
+  user_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  user_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<AcquiringIntegrationAccessRightHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<AcquiringIntegrationAccessRightHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<AcquiringIntegrationAccessRightHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<AcquiringIntegrationAccessRightHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type AcquiringIntegrationAccessRightHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type AcquiringIntegrationAccessRightHistoryRecordsCreateInput = {
+  data?: Maybe<AcquiringIntegrationAccessRightHistoryRecordCreateInput>;
+};
+
+export type AcquiringIntegrationAccessRightHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<AcquiringIntegrationAccessRightHistoryRecordUpdateInput>;
+};
+
+export type AcquiringIntegrationAccessRightRelateToManyInput = {
+  create?: Maybe<Array<Maybe<AcquiringIntegrationAccessRightCreateInput>>>;
+  connect?: Maybe<Array<Maybe<AcquiringIntegrationAccessRightWhereUniqueInput>>>;
+  disconnect?: Maybe<Array<Maybe<AcquiringIntegrationAccessRightWhereUniqueInput>>>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
+export type AcquiringIntegrationAccessRightUpdateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+  integration?: Maybe<AcquiringIntegrationRelateToOneInput>;
+  user?: Maybe<UserRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+export type AcquiringIntegrationAccessRightWhereInput = {
+  AND?: Maybe<Array<Maybe<AcquiringIntegrationAccessRightWhereInput>>>;
+  OR?: Maybe<Array<Maybe<AcquiringIntegrationAccessRightWhereInput>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  integration?: Maybe<AcquiringIntegrationWhereInput>;
+  integration_is_null?: Maybe<Scalars['Boolean']>;
+  user?: Maybe<UserWhereInput>;
+  user_is_null?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type AcquiringIntegrationAccessRightWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type AcquiringIntegrationAccessRightsCreateInput = {
+  data?: Maybe<AcquiringIntegrationAccessRightCreateInput>;
+};
+
+export type AcquiringIntegrationAccessRightsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<AcquiringIntegrationAccessRightUpdateInput>;
+};
+
+export type AcquiringIntegrationCreateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+  name?: Maybe<Scalars['String']>;
+  accessRights?: Maybe<AcquiringIntegrationAccessRightRelateToManyInput>;
+  canGroupReceipts?: Maybe<Scalars['Boolean']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+/**  A keystone list  */
+export type AcquiringIntegrationHistoryRecord = {
+  __typename?: 'AcquiringIntegrationHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the AcquiringIntegrationHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the AcquiringIntegrationHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the AcquiringIntegrationHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the AcquiringIntegrationHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  name?: Maybe<Scalars['String']>;
+  canGroupReceipts?: Maybe<Scalars['Boolean']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<AcquiringIntegrationHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type AcquiringIntegrationHistoryRecordCreateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  name?: Maybe<Scalars['String']>;
+  canGroupReceipts?: Maybe<Scalars['Boolean']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<AcquiringIntegrationHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum AcquiringIntegrationHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type AcquiringIntegrationHistoryRecordUpdateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  name?: Maybe<Scalars['String']>;
+  canGroupReceipts?: Maybe<Scalars['Boolean']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<AcquiringIntegrationHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type AcquiringIntegrationHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<AcquiringIntegrationHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<AcquiringIntegrationHistoryRecordWhereInput>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  canGroupReceipts?: Maybe<Scalars['Boolean']>;
+  canGroupReceipts_not?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<AcquiringIntegrationHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<AcquiringIntegrationHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<AcquiringIntegrationHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<AcquiringIntegrationHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type AcquiringIntegrationHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type AcquiringIntegrationHistoryRecordsCreateInput = {
+  data?: Maybe<AcquiringIntegrationHistoryRecordCreateInput>;
+};
+
+export type AcquiringIntegrationHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<AcquiringIntegrationHistoryRecordUpdateInput>;
+};
+
+export type AcquiringIntegrationRelateToOneInput = {
+  create?: Maybe<AcquiringIntegrationCreateInput>;
+  connect?: Maybe<AcquiringIntegrationWhereUniqueInput>;
+  disconnect?: Maybe<AcquiringIntegrationWhereUniqueInput>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
+export type AcquiringIntegrationUpdateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+  name?: Maybe<Scalars['String']>;
+  accessRights?: Maybe<AcquiringIntegrationAccessRightRelateToManyInput>;
+  canGroupReceipts?: Maybe<Scalars['Boolean']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+export type AcquiringIntegrationWhereInput = {
+  AND?: Maybe<Array<Maybe<AcquiringIntegrationWhereInput>>>;
+  OR?: Maybe<Array<Maybe<AcquiringIntegrationWhereInput>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  /**  condition must be true for all nodes  */
+  accessRights_every?: Maybe<AcquiringIntegrationAccessRightWhereInput>;
+  /**  condition must be true for at least 1 node  */
+  accessRights_some?: Maybe<AcquiringIntegrationAccessRightWhereInput>;
+  /**  condition must be false for all nodes  */
+  accessRights_none?: Maybe<AcquiringIntegrationAccessRightWhereInput>;
+  canGroupReceipts?: Maybe<Scalars['Boolean']>;
+  canGroupReceipts_not?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type AcquiringIntegrationWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type AcquiringIntegrationsCreateInput = {
+  data?: Maybe<AcquiringIntegrationCreateInput>;
+};
+
+export type AcquiringIntegrationsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<AcquiringIntegrationUpdateInput>;
+};
+
 export type AddressMetaDataField = {
   __typename?: 'AddressMetaDataField';
   postal_code?: Maybe<Scalars['String']>;
@@ -10499,6 +11183,54 @@ export type Mutation = {
   deleteServiceSubscription?: Maybe<ServiceSubscription>;
   /**  Delete multiple ServiceSubscription items by ID.  */
   deleteServiceSubscriptions?: Maybe<Array<Maybe<ServiceSubscription>>>;
+  /**  Create a single AcquiringIntegrationHistoryRecord item.  */
+  createAcquiringIntegrationHistoryRecord?: Maybe<AcquiringIntegrationHistoryRecord>;
+  /**  Create multiple AcquiringIntegrationHistoryRecord items.  */
+  createAcquiringIntegrationHistoryRecords?: Maybe<Array<Maybe<AcquiringIntegrationHistoryRecord>>>;
+  /**  Update a single AcquiringIntegrationHistoryRecord item by ID.  */
+  updateAcquiringIntegrationHistoryRecord?: Maybe<AcquiringIntegrationHistoryRecord>;
+  /**  Update multiple AcquiringIntegrationHistoryRecord items by ID.  */
+  updateAcquiringIntegrationHistoryRecords?: Maybe<Array<Maybe<AcquiringIntegrationHistoryRecord>>>;
+  /**  Delete a single AcquiringIntegrationHistoryRecord item by ID.  */
+  deleteAcquiringIntegrationHistoryRecord?: Maybe<AcquiringIntegrationHistoryRecord>;
+  /**  Delete multiple AcquiringIntegrationHistoryRecord items by ID.  */
+  deleteAcquiringIntegrationHistoryRecords?: Maybe<Array<Maybe<AcquiringIntegrationHistoryRecord>>>;
+  /**  Create a single AcquiringIntegration item.  */
+  createAcquiringIntegration?: Maybe<AcquiringIntegration>;
+  /**  Create multiple AcquiringIntegration items.  */
+  createAcquiringIntegrations?: Maybe<Array<Maybe<AcquiringIntegration>>>;
+  /**  Update a single AcquiringIntegration item by ID.  */
+  updateAcquiringIntegration?: Maybe<AcquiringIntegration>;
+  /**  Update multiple AcquiringIntegration items by ID.  */
+  updateAcquiringIntegrations?: Maybe<Array<Maybe<AcquiringIntegration>>>;
+  /**  Delete a single AcquiringIntegration item by ID.  */
+  deleteAcquiringIntegration?: Maybe<AcquiringIntegration>;
+  /**  Delete multiple AcquiringIntegration items by ID.  */
+  deleteAcquiringIntegrations?: Maybe<Array<Maybe<AcquiringIntegration>>>;
+  /**  Create a single AcquiringIntegrationAccessRightHistoryRecord item.  */
+  createAcquiringIntegrationAccessRightHistoryRecord?: Maybe<AcquiringIntegrationAccessRightHistoryRecord>;
+  /**  Create multiple AcquiringIntegrationAccessRightHistoryRecord items.  */
+  createAcquiringIntegrationAccessRightHistoryRecords?: Maybe<Array<Maybe<AcquiringIntegrationAccessRightHistoryRecord>>>;
+  /**  Update a single AcquiringIntegrationAccessRightHistoryRecord item by ID.  */
+  updateAcquiringIntegrationAccessRightHistoryRecord?: Maybe<AcquiringIntegrationAccessRightHistoryRecord>;
+  /**  Update multiple AcquiringIntegrationAccessRightHistoryRecord items by ID.  */
+  updateAcquiringIntegrationAccessRightHistoryRecords?: Maybe<Array<Maybe<AcquiringIntegrationAccessRightHistoryRecord>>>;
+  /**  Delete a single AcquiringIntegrationAccessRightHistoryRecord item by ID.  */
+  deleteAcquiringIntegrationAccessRightHistoryRecord?: Maybe<AcquiringIntegrationAccessRightHistoryRecord>;
+  /**  Delete multiple AcquiringIntegrationAccessRightHistoryRecord items by ID.  */
+  deleteAcquiringIntegrationAccessRightHistoryRecords?: Maybe<Array<Maybe<AcquiringIntegrationAccessRightHistoryRecord>>>;
+  /**  Create a single AcquiringIntegrationAccessRight item.  */
+  createAcquiringIntegrationAccessRight?: Maybe<AcquiringIntegrationAccessRight>;
+  /**  Create multiple AcquiringIntegrationAccessRight items.  */
+  createAcquiringIntegrationAccessRights?: Maybe<Array<Maybe<AcquiringIntegrationAccessRight>>>;
+  /**  Update a single AcquiringIntegrationAccessRight item by ID.  */
+  updateAcquiringIntegrationAccessRight?: Maybe<AcquiringIntegrationAccessRight>;
+  /**  Update multiple AcquiringIntegrationAccessRight items by ID.  */
+  updateAcquiringIntegrationAccessRights?: Maybe<Array<Maybe<AcquiringIntegrationAccessRight>>>;
+  /**  Delete a single AcquiringIntegrationAccessRight item by ID.  */
+  deleteAcquiringIntegrationAccessRight?: Maybe<AcquiringIntegrationAccessRight>;
+  /**  Delete multiple AcquiringIntegrationAccessRight items by ID.  */
+  deleteAcquiringIntegrationAccessRights?: Maybe<Array<Maybe<AcquiringIntegrationAccessRight>>>;
   registerNewUser?: Maybe<User>;
   authenticateUserWithPhoneAndPassword?: Maybe<AuthenticateUserWithPhoneAndPasswordOutput>;
   startPasswordRecovery?: Maybe<StartPasswordRecoveryOutput>;
@@ -13129,6 +13861,130 @@ export type MutationDeleteServiceSubscriptionArgs = {
 
 
 export type MutationDeleteServiceSubscriptionsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateAcquiringIntegrationHistoryRecordArgs = {
+  data?: Maybe<AcquiringIntegrationHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateAcquiringIntegrationHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<AcquiringIntegrationHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateAcquiringIntegrationHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<AcquiringIntegrationHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateAcquiringIntegrationHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<AcquiringIntegrationHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteAcquiringIntegrationHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteAcquiringIntegrationHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateAcquiringIntegrationArgs = {
+  data?: Maybe<AcquiringIntegrationCreateInput>;
+};
+
+
+export type MutationCreateAcquiringIntegrationsArgs = {
+  data?: Maybe<Array<Maybe<AcquiringIntegrationsCreateInput>>>;
+};
+
+
+export type MutationUpdateAcquiringIntegrationArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<AcquiringIntegrationUpdateInput>;
+};
+
+
+export type MutationUpdateAcquiringIntegrationsArgs = {
+  data?: Maybe<Array<Maybe<AcquiringIntegrationsUpdateInput>>>;
+};
+
+
+export type MutationDeleteAcquiringIntegrationArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteAcquiringIntegrationsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateAcquiringIntegrationAccessRightHistoryRecordArgs = {
+  data?: Maybe<AcquiringIntegrationAccessRightHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateAcquiringIntegrationAccessRightHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<AcquiringIntegrationAccessRightHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateAcquiringIntegrationAccessRightHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<AcquiringIntegrationAccessRightHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateAcquiringIntegrationAccessRightHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<AcquiringIntegrationAccessRightHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteAcquiringIntegrationAccessRightHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteAcquiringIntegrationAccessRightHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateAcquiringIntegrationAccessRightArgs = {
+  data?: Maybe<AcquiringIntegrationAccessRightCreateInput>;
+};
+
+
+export type MutationCreateAcquiringIntegrationAccessRightsArgs = {
+  data?: Maybe<Array<Maybe<AcquiringIntegrationAccessRightsCreateInput>>>;
+};
+
+
+export type MutationUpdateAcquiringIntegrationAccessRightArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<AcquiringIntegrationAccessRightUpdateInput>;
+};
+
+
+export type MutationUpdateAcquiringIntegrationAccessRightsArgs = {
+  data?: Maybe<Array<Maybe<AcquiringIntegrationAccessRightsUpdateInput>>>;
+};
+
+
+export type MutationDeleteAcquiringIntegrationAccessRightArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteAcquiringIntegrationAccessRightsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -17328,6 +18184,38 @@ export type Query = {
   _allServiceSubscriptionsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the ServiceSubscription list.  */
   _ServiceSubscriptionsMeta?: Maybe<_ListMeta>;
+  /**  Search for all AcquiringIntegrationHistoryRecord items which match the where clause.  */
+  allAcquiringIntegrationHistoryRecords?: Maybe<Array<Maybe<AcquiringIntegrationHistoryRecord>>>;
+  /**  Search for the AcquiringIntegrationHistoryRecord item with the matching ID.  */
+  AcquiringIntegrationHistoryRecord?: Maybe<AcquiringIntegrationHistoryRecord>;
+  /**  Perform a meta-query on all AcquiringIntegrationHistoryRecord items which match the where clause.  */
+  _allAcquiringIntegrationHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the AcquiringIntegrationHistoryRecord list.  */
+  _AcquiringIntegrationHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all AcquiringIntegration items which match the where clause.  */
+  allAcquiringIntegrations?: Maybe<Array<Maybe<AcquiringIntegration>>>;
+  /**  Search for the AcquiringIntegration item with the matching ID.  */
+  AcquiringIntegration?: Maybe<AcquiringIntegration>;
+  /**  Perform a meta-query on all AcquiringIntegration items which match the where clause.  */
+  _allAcquiringIntegrationsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the AcquiringIntegration list.  */
+  _AcquiringIntegrationsMeta?: Maybe<_ListMeta>;
+  /**  Search for all AcquiringIntegrationAccessRightHistoryRecord items which match the where clause.  */
+  allAcquiringIntegrationAccessRightHistoryRecords?: Maybe<Array<Maybe<AcquiringIntegrationAccessRightHistoryRecord>>>;
+  /**  Search for the AcquiringIntegrationAccessRightHistoryRecord item with the matching ID.  */
+  AcquiringIntegrationAccessRightHistoryRecord?: Maybe<AcquiringIntegrationAccessRightHistoryRecord>;
+  /**  Perform a meta-query on all AcquiringIntegrationAccessRightHistoryRecord items which match the where clause.  */
+  _allAcquiringIntegrationAccessRightHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the AcquiringIntegrationAccessRightHistoryRecord list.  */
+  _AcquiringIntegrationAccessRightHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all AcquiringIntegrationAccessRight items which match the where clause.  */
+  allAcquiringIntegrationAccessRights?: Maybe<Array<Maybe<AcquiringIntegrationAccessRight>>>;
+  /**  Search for the AcquiringIntegrationAccessRight item with the matching ID.  */
+  AcquiringIntegrationAccessRight?: Maybe<AcquiringIntegrationAccessRight>;
+  /**  Perform a meta-query on all AcquiringIntegrationAccessRight items which match the where clause.  */
+  _allAcquiringIntegrationAccessRightsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the AcquiringIntegrationAccessRight list.  */
+  _AcquiringIntegrationAccessRightsMeta?: Maybe<_ListMeta>;
   /**  Retrieve the meta-data for all lists.  */
   _ksListsMeta?: Maybe<Array<Maybe<_ListMeta>>>;
   checkPasswordRecoveryToken?: Maybe<CheckPasswordRecoveryTokenOutput>;
@@ -19447,6 +20335,106 @@ export type Query_AllServiceSubscriptionsMetaArgs = {
 };
 
 
+export type QueryAllAcquiringIntegrationHistoryRecordsArgs = {
+  where?: Maybe<AcquiringIntegrationHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortAcquiringIntegrationHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAcquiringIntegrationHistoryRecordArgs = {
+  where: AcquiringIntegrationHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllAcquiringIntegrationHistoryRecordsMetaArgs = {
+  where?: Maybe<AcquiringIntegrationHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortAcquiringIntegrationHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllAcquiringIntegrationsArgs = {
+  where?: Maybe<AcquiringIntegrationWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortAcquiringIntegrationsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAcquiringIntegrationArgs = {
+  where: AcquiringIntegrationWhereUniqueInput;
+};
+
+
+export type Query_AllAcquiringIntegrationsMetaArgs = {
+  where?: Maybe<AcquiringIntegrationWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortAcquiringIntegrationsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllAcquiringIntegrationAccessRightHistoryRecordsArgs = {
+  where?: Maybe<AcquiringIntegrationAccessRightHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortAcquiringIntegrationAccessRightHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAcquiringIntegrationAccessRightHistoryRecordArgs = {
+  where: AcquiringIntegrationAccessRightHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllAcquiringIntegrationAccessRightHistoryRecordsMetaArgs = {
+  where?: Maybe<AcquiringIntegrationAccessRightHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortAcquiringIntegrationAccessRightHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllAcquiringIntegrationAccessRightsArgs = {
+  where?: Maybe<AcquiringIntegrationAccessRightWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortAcquiringIntegrationAccessRightsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAcquiringIntegrationAccessRightArgs = {
+  where: AcquiringIntegrationAccessRightWhereUniqueInput;
+};
+
+
+export type Query_AllAcquiringIntegrationAccessRightsMetaArgs = {
+  where?: Maybe<AcquiringIntegrationAccessRightWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortAcquiringIntegrationAccessRightsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
 export type Query_KsListsMetaArgs = {
   where?: Maybe<_KsListsMetaInput>;
 };
@@ -21195,6 +22183,96 @@ export type SigninResidentUserOutput = {
   user?: Maybe<User>;
   token: Scalars['String'];
 };
+
+export enum SortAcquiringIntegrationAccessRightHistoryRecordsBy {
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortAcquiringIntegrationAccessRightsBy {
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  IntegrationAsc = 'integration_ASC',
+  IntegrationDesc = 'integration_DESC',
+  UserAsc = 'user_ASC',
+  UserDesc = 'user_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC'
+}
+
+export enum SortAcquiringIntegrationHistoryRecordsBy {
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  CanGroupReceiptsAsc = 'canGroupReceipts_ASC',
+  CanGroupReceiptsDesc = 'canGroupReceipts_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortAcquiringIntegrationsBy {
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  AccessRightsAsc = 'accessRights_ASC',
+  AccessRightsDesc = 'accessRights_DESC',
+  CanGroupReceiptsAsc = 'canGroupReceipts_ASC',
+  CanGroupReceiptsDesc = 'canGroupReceipts_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC'
+}
 
 export enum SortBillingAccountHistoryRecordsBy {
   DvAsc = 'dv_ASC',
