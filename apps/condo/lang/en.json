@@ -405,7 +405,6 @@
   "pages.condo.meter.MeterPlace": "Meter place",
   "pages.condo.meter.NumberOfMeter": "Number of meter device",
   "pages.condo.meter.MeterWithSameNumberIsExistMessage": "Meter with same number exist in organization",
-  "pages.condo.meter.MeterWithSameAccountNumberIsExistMessage": "Meter with same account number exist in organization",
   "pages.condo.meter.TariffsNumber": "Number of tariffs",
   "pages.condo.meter.InstallationDate": "Date of installation",
   "pages.condo.meter.CommissioningDate": "Date of commissioning",
