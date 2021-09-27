@@ -26,7 +26,8 @@ import { SortBillingAccountMeterReadingsBy } from '../../../schema'
 import { BillingAccountMeterReading } from '@condo/domains/billing/utils/clientSchema'
 import { IMeterReadingFormState } from '../utils/clientSchema/MeterReading'
 import { UnitInfo } from '@condo/domains/property/components/UnitInfo'
-import { EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION } from '../constants/errors'
+import { EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION,
+    EXISTING_METER_ACCOUNT_NUMBER_IN_SAME_ORGANIZATION } from '../constants/errors'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { ContactsInfo } from '@condo/domains/ticket/components/BaseTicketForm'
 
@@ -148,8 +149,9 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.HelpMessage' })
-    const MeterIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterIsExistMessage' })
     const ClientInfoMessage = intl.formatMessage({ id: 'ClientInfo' })
+    const MeterIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterWithSameNumberIsExistMessage' })
+    const AccountNumberIsExistInOrganizationMessage = intl.formatMessage({ id: 'pages.condo.meter.AccountNumberIsExistInOrganization' })
 
     const router = useRouter()
     const { requiredValidator } = useValidations()
@@ -310,6 +312,10 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         [EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION]: {
             name: 'newMeters',
             errors: [MeterIsExistMessage],
+        },
+        [EXISTING_METER_ACCOUNT_NUMBER_IN_SAME_ORGANIZATION]: {
+            name: 'accountNumber',
+            errors: [AccountNumberIsExistInOrganizationMessage],
         },
     }
 
