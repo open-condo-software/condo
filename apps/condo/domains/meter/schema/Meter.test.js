@@ -66,6 +66,47 @@ describe('Meter', () => {
             })
         })
 
+        test('employee with "canManageMeters" role: cannot create Meter if Meter with same accountNumber exist in organization', async () => {
+            const client = await makeEmployeeUserClientWithAbilities({
+                canManageMeters: true,
+            })
+            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+            const accountNumber = faker.lorem.word()
+
+            await createTestMeter(client, client.organization, client.property, resource, {
+                accountNumber,
+            })
+
+            await catchErrorFrom(async () => {
+                await createTestMeter(client, client.organization, client.property, resource, { accountNumber })
+            }, ({ errors, data }) => {
+                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                expect(errors[0].data.messages[0]).toContain('Meter with same account number exist in current organization')
+                expect(data).toEqual({ 'obj': null })
+            })
+        })
+
+        test('employee with "canManageMeters" role: can create Meter if Meter with same accountNumber exist in other organization', async () => {
+            const client = await makeEmployeeUserClientWithAbilities({
+                canManageMeters: true,
+            })
+            const client2 = await makeEmployeeUserClientWithAbilities({
+                canManageMeters: true,
+            })
+            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+            const accountNumber = faker.lorem.word()
+
+            await createTestMeter(client, client.organization, client.property, resource, {
+                accountNumber,
+            })
+
+            const [meter] = await createTestMeter(client2, client2.organization, client2.property, resource, {
+                accountNumber,
+            })
+
+            expect(meter.id).toMatch(UUID_RE)
+        })
+
         test('employee from another organization with "canManageMeters" role: cannot create Meter', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const client = await makeEmployeeUserClientWithAbilities({

@@ -97,6 +97,38 @@ const Meter = new GQLListSchema('Meter', {
             schemaDoc: 'Client\'s billing account',
             type: Text,
             isRequired: true,
+            hooks: {
+                validateInput: async ({ context, operation, existingItem, resolvedData, fieldPath, addFieldValidationError }) => {
+                    const value = resolvedData[fieldPath]
+                    let metersWithSameAccountNumberInOrganization
+                    if (operation === 'create') {
+                        metersWithSameAccountNumberInOrganization = await MeterApi.getAll(context, {
+                            accountNumber: value,
+                            organization: { id: resolvedData.organization },
+                            deletedAt: null,
+                            OR: [
+                                { unitName_not: value },
+                                { property: { id_not: resolvedData.property } },
+                            ],
+                        })
+                    }
+                    else if (operation === 'update' && resolvedData.accountNumber !== existingItem.accountNumber) {
+                        metersWithSameAccountNumberInOrganization = await MeterApi.getAll(context, {
+                            accountNumber: value,
+                            organization: { id: existingItem.organization },
+                            deletedAt: null,
+                            OR: [
+                                { unitName_not: value },
+                                { property: { id_not: existingItem.property } },
+                            ],
+                        })
+                    }
+
+                    if (metersWithSameAccountNumberInOrganization && metersWithSameAccountNumberInOrganization.length > 0) {
+                        addFieldValidationError(`${UNIQUE_ALREADY_EXISTS_ERROR}${fieldPath}] Meter with same account number exist in current organization`)
+                    }
+                },
+            },
         },
 
         unitName: {
