@@ -4,7 +4,6 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { execGqlWithoutAccess } = require('@condo/domains/organization/utils/serverSchema/utils')
 const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 const { BillingIntegration: BillingIntegrationGQL } = require('@condo/domains/billing/gql')
 const { BillingIntegrationAccessRight: BillingIntegrationAccessRightGQL } = require('@condo/domains/billing/gql')
