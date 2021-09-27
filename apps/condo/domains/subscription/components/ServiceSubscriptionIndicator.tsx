@@ -4,7 +4,7 @@ import { useIntl } from '@core/next/intl'
 import styled from '@emotion/styled'
 import { colors } from '@condo/domains/common/constants/style'
 import { green, grey } from '@ant-design/colors'
-import { useServiceSubscription } from '../hooks/useServiceSubscription'
+import { useServiceSubscriptionContext } from './SubscriptionContext'
 
 const StyledPanel = styled.div`
   margin-left: -25px;
@@ -15,7 +15,7 @@ const StyledPanel = styled.div`
 `
 
 export const ServiceSubscriptionIndicator = () => {
-    const { subscription, daysLeft, daysLeftHumanized, isExpired } = useServiceSubscription()
+    const { subscription, daysLeft, daysLeftHumanized, isExpired } = useServiceSubscriptionContext()
     if (!subscription || !subscription.isTrial) {
         return null
     }
