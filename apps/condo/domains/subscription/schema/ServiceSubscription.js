@@ -128,10 +128,12 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
                 return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
             }
 
-            // It makes no sense:
-            // - To create subscription in past
             let organizationId
             let overlappedSubscriptionsCount
+            // It makes no sense:
+            // - To create subscription in past
+            // - To have two subscription simultaneously
+            // This simple condition detects both of above conditions.
             const ovelappingConditions = {
                 OR: [
                     { startAt_gte: resolvedData.startAt },
