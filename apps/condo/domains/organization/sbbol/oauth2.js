@@ -50,7 +50,17 @@ class SbbolOauth2Api {
             return withCertificate
         }
         // we override standart JWT validation as we do not have JWK from oauth provider
-        client.validateJWT = async (jwt) => {
+        const _validateJWT = client.validateJWT
+        client.validateJWT = async (jwt, expectedAlg, required) => {
+            try {
+                await _validateJWT.call(client, jwt, expectedAlg, required)
+            } catch (error) {
+                if (error.message === 'failed to validate JWT signature') {
+                    //TODO(zuch): find a way to force jose validate gost algorithm
+                } else {
+                    throw error
+                }
+            }
             return { protected: jwtDecode(jwt, { header: true }), payload: jwtDecode(jwt) }
         }
         this.client = client
@@ -65,6 +75,7 @@ class SbbolOauth2Api {
             revocation_endpoint: this.revokeUrl,
         })
         // turn off JWKS storage as it's not workin with sbbol
+        // TODO(zuch): Find a way to turn on jwks
         sbbolIssuer.keystore = async () => null
         sbbolIssuer.queryKeyStore = async () => null
         this.issuer = sbbolIssuer

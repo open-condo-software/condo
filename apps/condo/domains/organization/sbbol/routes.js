@@ -40,6 +40,8 @@ class SbbolRoutes {
             keystone._sessionManager.startAuthedSession(req, { item: { id: userId }, list: keystone.lists['User'] })
             await Sync.syncOrganization()
             await Sync.updateTokens(tokenSet)
+            const organizationLinkId = await Sync.getOrganizationEmployeeLinkId()
+            res.cookie('organizationLinkId', organizationLinkId)
             delete req.session[SBBOL_SESSION_KEY]
             await req.session.save()
             return res.redirect('/')
