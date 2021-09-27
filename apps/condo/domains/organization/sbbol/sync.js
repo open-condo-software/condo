@@ -154,6 +154,17 @@ class SbbolOrganization {
         }
     }
 
+    async getOrganizationEmployeeLinkId () {
+        const [link] = await getItems({ ...this.context, listKey: 'OrganizationEmployee', where: {
+            user: { id: this.user.id },
+            organization: { id: this.organization.id },
+        }, returnFields: 'id' })
+        if (!link) {
+            throw new Error('Failed to bind user to organization')
+        }
+        return link.id
+    }
+
     async updateTokens (info) {
         const { access_token, expires_at, refresh_token } = info
         const owner = {
