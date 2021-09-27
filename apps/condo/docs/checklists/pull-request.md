@@ -7,10 +7,10 @@ Apply linter:
 yarn lint --quiet
 ```
 
-Lint i18n translation files:
+Try to build:
 
 ```shell
-yarn run -W lint-i18n-translations
+yarn workspace @app/condo build
 ```
 
 Look at errors, reported by TypeScript project-wide in IDE, you are using.
