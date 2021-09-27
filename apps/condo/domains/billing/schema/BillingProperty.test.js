@@ -31,10 +31,11 @@ describe('BillingProperty', () => {
             expect(billingAccount.globalId).toEqual(billingAccount2.globalId)
         })
 
-        test('cant create two BillingReceipts with same globalId in one context', async () => {
+        test('cant create two BillingProperties with same globalId in one context', async () => {
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             await createTestBillingProperty(admin, context)
+
             await createTestBillingProperty(admin, context, {
                 globalId: 'cat',
             })
