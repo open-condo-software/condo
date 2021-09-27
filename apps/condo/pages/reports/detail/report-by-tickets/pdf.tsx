@@ -37,6 +37,10 @@ const PdfView = () => {
     const PaidTickets = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.PaidTickets' })
     const EmergencyTickets = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.EmergencyTickets' })
     const LoadingTip = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.PDF.LoadingTip' })
+    const EmptyCategoryClassifierTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.NullReplaces.CategoryClassifier' })
+    const EmptyExecutorTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.NullReplaces.Executor' })
+    const EmptyAssigneeTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.NullReplaces.Assignee' })
+
     const containerRef = useRef<null | HTMLDivElement>(null)
     const queryParamsRef = useRef(null)
     const groupByRef = useRef<null | TicketAnalyticsGroupBy[]>(null)
@@ -51,6 +55,11 @@ const PdfView = () => {
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
     const nonStatusTabsEnabled = hasFeature('analytics_property')
 
+    const nullReplaces = {
+        categoryClassifier: EmptyCategoryClassifierTitle,
+        executor: EmptyExecutorTitle,
+        assignee: EmptyAssigneeTitle,
+    }
 
     const [loadTicketAnalyticsData] = useLazyQuery(TICKET_ANALYTICS_REPORT_QUERY, {
         onError: error => {
@@ -98,7 +107,7 @@ const PdfView = () => {
         groupByRef.current = groupBy
         const where = { organization: { id: userOrganizationId }, AND }
 
-        loadTicketAnalyticsData({ variables: { data: { groupBy, where } } })
+        loadTicketAnalyticsData({ variables: { data: { groupBy, where, nullReplaces } } })
 
     }, [userOrganizationId])
 
