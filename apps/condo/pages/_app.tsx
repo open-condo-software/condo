@@ -1,7 +1,7 @@
 import { ConfigProvider } from 'antd'
 import enUS from 'antd/lib/locale/en_US'
 import ruRU from 'antd/lib/locale/ru_RU'
-import React from 'react'
+import React, { useContext } from 'react'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
 import getConfig from 'next/config'
@@ -34,9 +34,11 @@ import {
     BILLING_RECEIPT_SERVICES_FIELD,
 } from '@condo/domains/billing/constants'
 import { MeterLog } from '../domains/common/components/icons/MeterLogIcon'
-import { SubscriptionProvider } from '../domains/subscription/components/SubscriptionContext'
+import {
+    SubscriptionProvider,
+    useServiceSubscriptionContext
+} from '../domains/subscription/components/SubscriptionContext'
 import dayjs from 'dayjs'
-import { useServiceSubscription } from '../domains/subscription/hooks/useServiceSubscription'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
@@ -53,7 +55,7 @@ const ANT_DEFAULT_LOCALE = enUS
 
 const MenuItems: React.FC = () => {
     const { link } = useOrganization()
-    const { isExpired } = useServiceSubscription()
+    const { isExpired } = useServiceSubscriptionContext()
     const disabled = !link || isExpired
     return (
         <>
