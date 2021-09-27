@@ -12,9 +12,6 @@ const timezone = require('dayjs/plugin/timezone')
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
-
-
-
 // TODO(zuch): if we add timeZone and locale to organization settings use organization timeZone instead of client's timezone
 const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
     types: [
@@ -67,6 +64,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                         executor: ticket.executor || '',
                         assignee: ticket.assignee || '',
                         comments: ticket.TicketComment.join('\n'),
+                        source: ticket.source || '',
                     }
                 })
                 const linkToFile = await createExportFile({
