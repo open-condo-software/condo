@@ -3,13 +3,11 @@
  */
 const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
+const { addResidentAccess, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestBillingIntegration, createTestBillingReceipt, updateTestBillingReceipt, ResidentBillingReceipt } = require('../utils/testSchema')
-const { registerServiceConsumerByTestClient, createTestResident } = require('@condo/domains/resident/utils/testSchema')
-const { createTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
-const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { createTestBillingAccount, createTestBillingProperty } = require('@condo/domains/billing/utils/testSchema')
+const { registerServiceConsumerByTestClient, createTestResident, ServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
+const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { createTestBillingAccount, createTestBillingProperty, createTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 
 describe('AllResidentBillingReceipts', () => {
@@ -43,6 +41,65 @@ describe('AllResidentBillingReceipts', () => {
         expect(objs).toHaveLength(1)
         expect(objs[0].raw).toEqual(undefined)
         expect(objs[0].id).toEqual(receipt.id)
+    })
+
+    test('user with valid serviceAccount can read BillingReceipt without raw data even if there are other Resident with this service consumer', async () => {
+        /**
+         * Story: Husband and Wife live in the same flat,
+         *        They have the same accountNumber and unitName, but different Residents and serviceConsumers
+         *        Both Wife and Husband should be able to read BillingReceipts
+         */
+
+        const adminClient = await makeLoggedInAdminClient()
+        const [organization] = await createTestOrganization(adminClient)
+        const [property] = await createTestProperty(adminClient, organization)
+
+        const husbandClient = await makeClientWithResidentUser()
+        const wifeClient = await makeClientWithResidentUser()
+
+        // Create billing integration and billing entities
+        const [integration] = await createTestBillingIntegration(adminClient)
+        const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, organization, integration)
+        const [billingProperty] = await createTestBillingProperty(adminClient, context)
+        const [billingAccount, billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
+        const [billingAccount2] = await createTestBillingAccount(adminClient, context, billingProperty)
+        const [receipt] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount)
+        await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount2)
+
+        const [residentHusband] = await createTestResident(adminClient, husbandClient.user, organization, property, {
+            unitName: billingAccountAttrs.unitName,
+        })
+        const [serviceConsumerHusband] = await registerServiceConsumerByTestClient(husbandClient, {
+            residentId: residentHusband.id,
+            unitName: billingAccountAttrs.unitName,
+            accountNumber: billingAccountAttrs.number,
+        })
+        // you can't read billingAccount field as resident, so we should get true serviceConsumer here to further check
+        const [serviceConsumerHusbandWithAccount] = await ServiceConsumer.getAll(adminClient, { id: serviceConsumerHusband.id })
+
+        const [residentWife] = await createTestResident(adminClient, wifeClient.user, organization, property, {
+            unitName: billingAccountAttrs.unitName,
+        })
+        const [serviceConsumerWife] = await registerServiceConsumerByTestClient(wifeClient, {
+            residentId: residentWife.id,
+            unitName: billingAccountAttrs.unitName,
+            accountNumber: billingAccountAttrs.number,
+        })
+        // you can't read billingAccount field as resident, so we should get true serviceConsumer here to further check
+        const [serviceConsumerWifeWithAccount] = await ServiceConsumer.getAll(adminClient, { id: serviceConsumerWife.id })
+
+        expect(serviceConsumerHusbandWithAccount.billingAccount.id).toEqual(serviceConsumerWifeWithAccount.billingAccount.id)
+        expect(serviceConsumerHusbandWithAccount.billingAccount.id).toEqual(billingAccount.id)
+
+        const objsHusband = await ResidentBillingReceipt.getAll(husbandClient)
+        expect(objsHusband).toHaveLength(1)
+        expect(objsHusband[0].raw).toEqual(undefined)
+        expect(objsHusband[0].id).toEqual(receipt.id)
+
+        const objsWife = await ResidentBillingReceipt.getAll(wifeClient)
+        expect(objsWife).toHaveLength(1)
+        expect(objsWife[0].raw).toEqual(undefined)
+        expect(objsWife[0].id).toEqual(receipt.id)
     })
 
     test('user with valid serviceAccount can filter residentBillingReceipts by serviceConsumer', async () => {
