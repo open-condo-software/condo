@@ -182,7 +182,7 @@ export const MeterInfo = ({ resource, newMeters }: MeterInfoProps) => {
                         padding: 0,
                     }}
                 >
-                    <Typography.Text type={'success'} strong={true}>
+                    <Typography.Text type={'success'} strong>
                         <Space direction={'horizontal'} align={'center'}>
                             {isAdditionalFieldsCollapsed ? MoreParametersMessage : LessParametersMessage}
                             <ChevronIconWrapper direction={isAdditionalFieldsCollapsed ? 'down' : 'up'}>
