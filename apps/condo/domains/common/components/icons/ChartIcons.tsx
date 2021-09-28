@@ -1,6 +1,6 @@
 import React from 'react'
 interface IChartIcon {
-    ({ width, height, color }: { width: number, height: number, color: string }): React.ReactElement
+    ({ width, height, color }: { width: number, height: number, color?: string }): React.ReactElement
 }
 
 const LinearChartIcon: IChartIcon = ({ width = 20, height = 20, color = 'white' }) => (
