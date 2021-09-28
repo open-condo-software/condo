@@ -61,7 +61,8 @@ class SbbolOauth2Api {
                 if (error.message === 'failed to validate JWT signature') {
                     //TODO(zuch): find a way to force jose validate gost algorithm
                 } else {
-                    throw error
+                    // throw error
+                    console.log(error)
                 }
             }
             return { protected: jwtDecode(jwt, { header: true }), payload: jwtDecode(jwt) }
@@ -145,7 +146,9 @@ class SbbolOauth2Api {
 
     // TODO(antonal): next urls are not tested
     get advanceAcceptancesUrl () {
-        return `${this.protectedUrl}/v1/partner-info/advance-acceptances`
+        // Try to send params
+        const params = `clientId=${this.clientId}&date=2021-10-28`
+        return `${this.protectedUrl}/v1/partner-info/advance-acceptances?${params}`
     }
     get packageOfServicesUrl () {
         return `${this.protectedUrl}/v1/partner-info/package-of-services`
