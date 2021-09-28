@@ -68,7 +68,7 @@ export const AccountNumberInput = ({
         <>
             <Col lg={13} md={24}>
                 <Row justify={'space-between'} gutter={[0, 15]}>
-                    <Col>
+                    <Col span={24}>
                         <Typography.Title level={5}>
                             {AccountMessage}
                         </Typography.Title>

@@ -31,7 +31,10 @@ const CreateMeterPage: ICreateContactPage = () => {
                             <Typography.Title level={1}>{PageTitle}</Typography.Title>
                         </Col>
                         <Col span={24}>
-                            <CreateMeterReadingsForm organization={organization} role={role} />
+                            <CreateMeterReadingsForm
+                                organization={organization}
+                                role={role}
+                            />
                         </Col>
                     </Row>
                 </PageContent>
