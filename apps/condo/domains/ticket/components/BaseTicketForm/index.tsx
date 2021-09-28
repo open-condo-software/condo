@@ -162,7 +162,7 @@ export interface ITicketFormProps {
 
 export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const intl = useIntl()
-    const UserInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.ClientInfo' })
+    const UserInfoTitle = intl.formatMessage({ id: 'ClientInfo' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.Address' })
     const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })

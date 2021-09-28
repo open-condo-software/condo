@@ -79,7 +79,7 @@ const PdfView = () => {
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const TicketInfoMessage = intl.formatMessage({ id: 'Problem' })
     const TicketAuthorMessage = intl.formatMessage({ id: 'Author' })
-    const ClientInfoMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.ClientInfo' })
+    const ClientInfoMessage = intl.formatMessage({ id: 'ClientInfo' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
     const FullNameMessage = intl.formatMessage({ id: 'field.FullName' })
     const SourceMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.Source' })
