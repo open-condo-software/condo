@@ -113,6 +113,27 @@ class SbbolRoutes {
                 })
             }
 
+            /*
+                Following algorithm is to be implemented:
+                ```
+                if active `ServiceSubscription` is not present in condo
+                    fetch signed offers from SBBOL API
+                    if offer from SBBOL is signed by client
+                       create `ServiceSubscription`
+                    else
+                        put new offer (for our subscription) to SBBOL API
+                        redirect to offer sign page
+                        if callback for signing offer is technically available (likely they don't have it)
+                            wait for callback with signing of offer
+                                create `ServiceSubscription`
+                        else
+                            poll SBBOL API
+                                fetch signed offers from SBBOL API
+                                if signed offer is present
+                                    create `ServiceSubscription`
+                ```
+             */
+
             return res.redirect('/')
         } catch (error) {
             return next(error)
