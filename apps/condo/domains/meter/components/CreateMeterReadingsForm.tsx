@@ -176,7 +176,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         where: { id: selectedPropertyId ? selectedPropertyId : null },
     })
 
-    const { objs: existedMeters, refetch: refetchExistedMeters } = Meter.useObjects({
+    const { objs: existedMeters, loading: existedMetersLoading, refetch: refetchExistedMeters } = Meter.useObjects({
         where: {
             property: { id: selectedPropertyId ? selectedPropertyId : null },
             unitName: selectedUnitName ? selectedUnitName : null,
@@ -203,7 +203,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     useEffect(() => {
         if (existedMeters.length > 0)
             setAccountNumber(existedMeters[0].accountNumber)
-    }, [existedMeters])
+    }, [existedMetersLoading])
 
     const selectPropertyIdRef = useRef(selectedPropertyId)
     useEffect(() => {
