@@ -142,6 +142,7 @@ export const ContactsPageContent = ({
                                                         rowNormalizer={contactNormalizer}
                                                         rowValidator={contactValidator}
                                                         objectCreator={contactCreator}
+                                                        exampleTemplateLink={'/contact-import-example.xlsx'}
                                                     >
                                                         <Button
                                                             type={'sberPrimary'}

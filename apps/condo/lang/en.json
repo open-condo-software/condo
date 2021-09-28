@@ -696,6 +696,7 @@
   "TableHasInvalidHeaders": "Your table contains invalid columns. We expect it to be: {value}",
   "ImportRequiredFields": "required fields",
   "ConnectionInProgress": "Connection in progress",
+  "ImportDownloadExampleTitle": "Download file example",
   "Connected": "Connected",
   "StartIntegration": "Start integration",
   "Instruction": "Instruction",

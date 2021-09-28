@@ -18,9 +18,12 @@ import {
 } from './ModalConfigs'
 import { DataImporter } from '../DataImporter'
 import styled from '@emotion/styled'
+import { Button } from '../Button'
+import { DownloadOutlined } from '@ant-design/icons'
 
 interface IColumnsInfoBoxProps {
     columns: Columns
+    exampleTemplateLink?: string | null
 }
 
 interface IImportProps {
@@ -31,6 +34,7 @@ interface IImportProps {
     rowNormalizer: RowNormalizer
     rowValidator: RowValidator
     objectCreator: ObjectCreator
+    exampleTemplateLink?: string | null
 }
 
 const InfoBoxContainer = styled.div`
@@ -40,10 +44,26 @@ const InfoBoxContainer = styled.div`
   flex-wrap: wrap;
 `
 
-const ColumnsInfoBox: React.FC<IColumnsInfoBoxProps> = ({ columns }) => {
+const ColumnsInfoBox: React.FC<IColumnsInfoBoxProps> = ({ columns, exampleTemplateLink }) => {
     const intl = useIntl()
     const ColumnsFormatMessage = intl.formatMessage({ id: 'ImportRequiredColumnsFormat' })
     const RequiredFieldsMessage = intl.formatMessage({ id: 'ImportRequiredFields' })
+    const DownloadExampleTitle = intl.formatMessage({ id: 'ImportDownloadExampleTitle' })
+
+    const downloadExample = useCallback(
+        (event) => {
+            event.stopPropagation()
+            const link = document.createElement('a')
+            link.href = exampleTemplateLink
+            link.target = '_blank'
+            link.hidden = true
+            document.body.appendChild(link)
+            link.click()
+            link.parentNode.removeChild(link)
+        },
+        [exampleTemplateLink],
+    )
+
     return (
         <Space direction={'vertical'} size={10}>
             <Typography.Text>
@@ -74,6 +94,15 @@ const ColumnsInfoBox: React.FC<IColumnsInfoBoxProps> = ({ columns }) => {
                 </Typography.Text>
                 {` - ${RequiredFieldsMessage}`}
             </Typography.Text>
+            {
+                exampleTemplateLink !== null && (
+                    <Button
+                        onClick={downloadExample}
+                        icon={<DownloadOutlined />}
+                        type={'inlineLink'}
+                    >{DownloadExampleTitle}</Button>
+                )
+            }
         </Space>
     )
 }
@@ -87,6 +116,7 @@ export const ImportWrapper: React.FC<IImportProps> = (props) => {
         rowValidator,
         objectCreator,
         onFinish,
+        exampleTemplateLink = null,
     } = props
     const intl = useIntl()
     const ImportTitle = intl.formatMessage({ id:'Import' })
@@ -167,9 +197,10 @@ export const ImportWrapper: React.FC<IImportProps> = (props) => {
         accessCheck && (
             <ModalContext.Provider value={{ progress, error, isImported }}>
                 <DataImporter onUpload={handleUpload}>
-                    <Popover title={ImportPopoverTitle} content={<ColumnsInfoBox columns={columns}/>}>
-                        {props.children}
-                    </Popover>
+                    <Popover
+                        title={<Typography.Text style={{ fontWeight: 'bold' }}>{ImportPopoverTitle}</Typography.Text>}
+                        content={<ColumnsInfoBox columns={columns} exampleTemplateLink={exampleTemplateLink}/>}
+                    >{props.children}</Popover>
                 </DataImporter>
                 {contextHolder}
             </ModalContext.Provider>
