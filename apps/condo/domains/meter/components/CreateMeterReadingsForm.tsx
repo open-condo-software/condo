@@ -14,7 +14,6 @@ import { get } from 'lodash'
 import {
     CALL_METER_READING_SOURCE_ID,
 } from '../constants/constants'
-import styled from '@emotion/styled'
 import { PlusCircleFilled } from '@ant-design/icons'
 import { AccountNumberInput } from './AccountNumberInput'
 import { useCreateMeterModal } from '../hooks/useCreateMeterModal'
@@ -29,51 +28,11 @@ import { IMeterReadingFormState } from '../utils/clientSchema/MeterReading'
 import { UnitInfo } from '@condo/domains/property/components/UnitInfo'
 import { EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION } from '../constants/errors'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { ContactsInfo } from '@condo/domains/ticket/components/BaseTicketForm'
 
 export const LAYOUT = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
-}
-
-export const DisabledWrapper = styled.div`
-  &.disabled {
-    opacity: 0.5;
-    pointer-events: none;
-  }
-`
-
-const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, initialValues }) => {
-    return (
-        <Col span={24}>
-            <Form.Item shouldUpdate noStyle>
-                {({ getFieldsValue }) => {
-                    const { unitName } = getFieldsValue(['unitName'])
-
-                    const value = {
-                        id: get(initialValues, ['contact', 'id']),
-                        name: get(initialValues, 'clientName'),
-                        phone: get(initialValues, 'clientPhone'),
-                    }
-
-                    return (
-                        <DisabledWrapper className={!unitName ? 'disabled' : ''}>
-                            <ContactsEditorComponent
-                                form={form}
-                                fields={{
-                                    id: 'contact',
-                                    phone: 'clientPhone',
-                                    name: 'clientName',
-                                }}
-                                value={value}
-                                property={selectedPropertyId}
-                                unitName={unitName}
-                            />
-                        </DisabledWrapper>
-                    )
-                }}
-            </Form.Item>
-        </Col>
-    )
 }
 
 export const CreateMeterReadingsActionBar = ({
@@ -144,12 +103,9 @@ const MetersDataTitle = ({ isNoExistingMetersInThisUnit, isNoNewMetersInThisUnit
             </Typography.Paragraph>
         </>
     ) : (
-        <Typography.Paragraph
-            strong
-            style={{ fontSize: '20px' }}
-        >
+        <Typography.Title level={5}>
             {MeterDataTitle}
-        </Typography.Paragraph>
+        </Typography.Title>
     )
 }
 
@@ -193,6 +149,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.HelpMessage' })
     const MeterIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterIsExistMessage' })
+    const ClientInfoMessage = intl.formatMessage({ id: 'ClientInfo' })
 
     const router = useRouter()
     const { requiredValidator } = useValidations()
@@ -382,34 +339,47 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                     </Prompt>
                     <Col span={24}>
                         <Row gutter={[0, verticalGutter]}>
-                            <Col lg={14} md={24}>
-                                <Row justify={'space-between'} gutter={[0, 20]}>
+                            <Col lg={13} md={24}>
+                                <Row gutter={[0, 40]}>
                                     <Col span={24}>
-                                        <Form.Item name={'property'} label={AddressLabel}
-                                            rules={validations.property}>
-                                            <PropertyAddressSearchInput
-                                                organization={organization}
-                                                autoFocus={true}
-                                                onSelect={(_, option) => {
-                                                    form.setFieldsValue({
-                                                        unitName: null,
-                                                        sectionName: null,
-                                                        floorName: null,
-                                                    })
-                                                    setSelectedPropertyId(String(option.key))
-                                                }}
-                                                placeholder={AddressPlaceholder}
-                                                notFoundContent={AddressNotFoundContent}
-                                            />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={24}>
-                                        <UnitInfo
-                                            property={property}
-                                            loading={propertyLoading}
-                                            setSelectedUnitName={setSelectedUnitName}
-                                            form={form}
-                                        />
+                                        <Row justify={'space-between'} gutter={[0, 15]}>
+                                            <Col span={24}>
+                                                <Typography.Title level={5}>
+                                                    {ClientInfoMessage}
+                                                </Typography.Title>
+                                            </Col>
+                                            <Col span={24}>
+                                                <Form.Item name={'property'} label={AddressLabel}
+                                                    rules={validations.property}>
+                                                    <PropertyAddressSearchInput
+                                                        organization={organization}
+                                                        autoFocus={true}
+                                                        onSelect={(_, option) => {
+                                                            form.setFieldsValue({
+                                                                unitName: null,
+                                                                sectionName: null,
+                                                                floorName: null,
+                                                            })
+                                                            setSelectedPropertyId(String(option.key))
+                                                        }}
+                                                        placeholder={AddressPlaceholder}
+                                                        notFoundContent={AddressNotFoundContent}
+                                                    />
+                                                </Form.Item>
+                                            </Col>
+                                            {
+                                                selectedPropertyId && (
+                                                    <Col span={24}>
+                                                        <UnitInfo
+                                                            property={property}
+                                                            loading={propertyLoading}
+                                                            setSelectedUnitName={setSelectedUnitName}
+                                                            form={form}
+                                                        />
+                                                    </Col>
+                                                )
+                                            }
+                                        </Row>
                                     </Col>
                                     <Col span={24}>
                                         <ContactsInfo
@@ -433,7 +403,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                         />
                                         {
                                             !accountNumber ? null : (
-                                                <Col lg={14} md={24}>
+                                                <Col lg={13} md={24}>
                                                     <Row gutter={[0, 20]}>
                                                         <Col span={24}>
                                                             <MetersDataTitle
