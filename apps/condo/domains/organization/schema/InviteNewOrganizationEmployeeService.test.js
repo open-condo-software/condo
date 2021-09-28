@@ -176,6 +176,28 @@ describe('InviteNewOrganizationEmployeeService', () => {
 
                         expect(JSON.stringify(errors)).toContain(ALREADY_EXISTS_ERROR)
                     })
+
+                    test('Employee with duplicate User (priority user->phone->email)', async () => {
+                        const admin = await makeLoggedInAdminClient()
+                        const [categoryClassifier1] = await createTestTicketCategoryClassifier(admin)
+                        const client = await makeClientWithRegisteredOrganization()
+                        const inviteClient = await makeClientWithRegisteredOrganization()
+
+                        const userAttrs = {
+                            name: client.userAttrs.name,
+                            email: client.userAttrs.email,
+                            phone: inviteClient.userAttrs.phone,
+                        }
+                        const extraAttrs = {
+                            specializations: {
+                                connect: [
+                                    { id: categoryClassifier1.id },
+                                ],
+                            },
+                        }
+                        const { errors } = await inviteNewOrganizationEmployee(inviteClient, inviteClient.organization, userAttrs, extraAttrs, { raw: true } )
+                        expect(JSON.stringify(errors)).toContain(ALREADY_EXISTS_ERROR)
+                    })
                 })
 
                 describe('reinvite', () => {
