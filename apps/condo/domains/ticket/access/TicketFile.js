@@ -12,7 +12,7 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 
 async function canReadTicketFiles ({ authentication: { item: user }, originalInput }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin) {
+    if (user.isAdmin || user.isSupport) {
         return {}
     }
     if (user.type === RESIDENT) {

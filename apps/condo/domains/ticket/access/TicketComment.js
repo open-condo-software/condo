@@ -12,7 +12,7 @@ const { checkRelatedOrganizationPermission } = require('@condo/domains/organizat
 
 async function canReadTicketComments ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin) return {}
+    if (user.isAdmin || user.isSupport) return {}
     const userId = user.id
     return {
         ticket: {

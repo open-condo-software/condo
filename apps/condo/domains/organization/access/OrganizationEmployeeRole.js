@@ -6,7 +6,7 @@ const { throwAuthenticationError } = require('../../common/utils/apolloErrorForm
 
 async function canReadOrganizationEmployeeRoles ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin) return {}
+    if (user.isAdmin || user.isSupport) return {}
     return {
         // user is inside employee list
         organization: { employees_some: { user: { id: user.id } } },

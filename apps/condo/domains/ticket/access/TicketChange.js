@@ -7,7 +7,7 @@ const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/ut
 
 async function canReadTicketChanges ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin) return {}
+    if (user.isAdmin || user.isSupport) return {}
     const userId = user.id
     return {
         ticket: {

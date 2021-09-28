@@ -14,7 +14,7 @@ const { uniq, compact } = require('lodash')
 
 async function canReadProperties ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin) return {}
+    if (user.isAdmin || user.isSupport) return {}
     const userId = user.id
     if (user.type === RESIDENT) {
         const residents = await Resident.getAll(context, { user: { id: userId } })

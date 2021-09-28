@@ -13,7 +13,7 @@ const { get } = require('lodash')
 
 async function canReadMeterReadings ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin) return {}
+    if (user.isAdmin || user.isSupport) return {}
 
     const userId = user.id
     if (user.type === RESIDENT) {

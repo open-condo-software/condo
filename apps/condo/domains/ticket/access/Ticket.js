@@ -13,7 +13,7 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 async function canReadTickets ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin) {
+    if (user.isAdmin || user.isSupport) {
         return {}
     }
     if (user.type === RESIDENT) {
