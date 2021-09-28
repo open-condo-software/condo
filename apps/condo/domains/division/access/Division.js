@@ -9,7 +9,7 @@ const { Division } = require('../utils/serverSchema')
 
 async function canReadDivisions ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin) return {}
+    if (user.isAdmin || user.isSupport) return {}
     const userId = user.id
     return {
         organization: { ...queryOrganizationEmployeeFor(userId) },

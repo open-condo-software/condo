@@ -6,7 +6,7 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 
 async function canReadTicketStatuses ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin) return true
+    if (user.isAdmin || user.isSupport) return true
     return {}
 }
 
