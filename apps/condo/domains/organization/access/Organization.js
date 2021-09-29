@@ -5,6 +5,7 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { queryOrganizationEmployeeFromRelatedOrganizationFor, queryOrganizationEmployeeFor } = require('../utils/accessSchema')
 const { Resident: ResidentServerUtils } = require('@condo/domains/resident/utils/serverSchema')
+const { AcquiringIntegrationAccessRight } = require('@condo/domains/acquiring/utils/serverSchema')
 const { get, uniq, compact } = require('lodash')
 const access = require('@core/keystone/access')
 
@@ -26,6 +27,11 @@ async function canReadOrganizations ({ authentication: { item: user }, context }
         }
         return false
     }
+    // Check if user account is acquiring integration
+    // TODO (savelevMatthew): set access only to selected fields?
+    const accessRights = await AcquiringIntegrationAccessRight.getAll(context, { user: { id: userId } })
+    if (accessRights && accessRights.length > 0) return true
+
     return {
         OR: [
             queryOrganizationEmployeeFor(userId),
@@ -34,7 +40,7 @@ async function canReadOrganizations ({ authentication: { item: user }, context }
     }
 }
 
-async function canManageOrganizations ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageOrganizations ({ authentication: { item: user }, operation }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     if (operation === 'create') {

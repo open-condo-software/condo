@@ -5,4 +5,5 @@
 
 export * as AcquiringIntegration from './AcquiringIntegration'
 export * as AcquiringIntegrationAccessRight from './AcquiringIntegrationAccessRight'
+export * as AcquiringIntegrationContext from './AcquiringIntegrationContext'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

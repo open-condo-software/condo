@@ -9,10 +9,12 @@ const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegenera
 
 const { AcquiringIntegration: AcquiringIntegrationGQL } = require('@condo/domains/acquiring/gql')
 const { AcquiringIntegrationAccessRight: AcquiringIntegrationAccessRightGQL } = require('@condo/domains/acquiring/gql')
+const { AcquiringIntegrationContext: AcquiringIntegrationContextGQL } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
 const AcquiringIntegrationAccessRight = generateGQLTestUtils(AcquiringIntegrationAccessRightGQL)
+const AcquiringIntegrationContext = generateGQLTestUtils(AcquiringIntegrationContextGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestAcquiringIntegration (client, extraAttrs = {}) {
@@ -73,10 +75,46 @@ async function updateTestAcquiringIntegrationAccessRight (client, id, extraAttrs
     return [obj, attrs]
 }
 
+async function createTestAcquiringIntegrationContext (client, organization, integration, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    if (!integration || !integration.id) throw new Error('no integration.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const settings = { dv: 1 }
+    const state = { dv: 1 }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        integration: { connect: { id: integration.id } },
+        organization: { connect: { id: organization.id } },
+        settings,
+        state,
+        ...extraAttrs,
+    }
+    const obj = await AcquiringIntegrationContext.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestAcquiringIntegrationContext (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await AcquiringIntegrationContext.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     AcquiringIntegration, createTestAcquiringIntegration, updateTestAcquiringIntegration,
     AcquiringIntegrationAccessRight, createTestAcquiringIntegrationAccessRight, updateTestAcquiringIntegrationAccessRight,
+    AcquiringIntegrationContext, createTestAcquiringIntegrationContext, updateTestAcquiringIntegrationContext,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
