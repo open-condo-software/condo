@@ -1,7 +1,5 @@
 import { Space, Form } from 'antd'
 import React from 'react'
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
 import BaseDivisionForm from '../BaseDivisionForm'
@@ -35,11 +33,12 @@ export const CreateDivisionForm: React.FC = () => {
         >
             {({ handleSave, isLoading }) => {
                 return (
-                    <Form.Item noStyle dependencies={['properties', 'responsible']}>
+                    <Form.Item noStyle dependencies={['properties', 'responsible', 'executors']}>
                         {
                             ({ getFieldsValue }) => {
-                                const { properties, responsible } = getFieldsValue(['properties', 'responsible'])
-
+                                const { name, properties, responsible, executors } = getFieldsValue(
+                                    ['name', 'properties', 'responsible', 'executors']
+                                )
                                 return (
                                     <ActionBar>
                                         <Space size={12}>
@@ -48,13 +47,14 @@ export const CreateDivisionForm: React.FC = () => {
                                                 onClick={handleSave}
                                                 type='sberPrimary'
                                                 loading={isLoading}
-                                                disabled={properties && properties.length === 0 || !responsible}
                                             >
                                                 {CreateDivisionMessage}
                                             </Button>
                                             <ErrorsContainer
+                                                name={name || ''}
                                                 properties={properties}
                                                 responsible={responsible}
+                                                executors={executors}
                                             />
                                         </Space>
                                     </ActionBar>

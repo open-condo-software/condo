@@ -45,8 +45,10 @@ const BaseDivisionForm: React.FC<IBaseDivisionFormProps> = (props) => {
     const ResponsibleLabel = intl.formatMessage({ id: 'division.field.responsible' })
     const ExecutorsLabel = intl.formatMessage({ id: 'division.field.executors' })
     const PropertiesLabel = intl.formatMessage({ id: 'division.field.properties' })
+    const NameRequiredErrorMessage = intl.formatMessage({ id: 'division.validation.name.required' })
     const PropertiesRequiredErrorMessage = intl.formatMessage({ id: 'division.validation.properties.required' })
     const ResponsibleRequiredErrorMessage = intl.formatMessage({ id: 'division.validation.responsible.required' })
+    const ExecutorsRequiredErrorMessage = intl.formatMessage({ id: 'division.validation.executors.required' })
     const ResponsibleHintTitleMessage = intl.formatMessage({ id: 'division.form.hint.responsible.title' })
     const ResponsibleHintDescriptionMessage = intl.formatMessage({ id: 'division.form.hint.responsible.description' })
     const ExecutorsHintTitleMessage = intl.formatMessage({ id: 'division.form.hint.executors.title' })
@@ -54,8 +56,10 @@ const BaseDivisionForm: React.FC<IBaseDivisionFormProps> = (props) => {
 
     const { changeMessage, requiredValidator } = useValidations()
     const validations: { [key: string]: Rule[] } = {
+        name: [changeMessage(requiredValidator, NameRequiredErrorMessage)],
         properties: [changeMessage(requiredValidator, PropertiesRequiredErrorMessage)],
         responsible: [changeMessage(requiredValidator, ResponsibleRequiredErrorMessage)],
+        executors: [changeMessage(requiredValidator, ExecutorsRequiredErrorMessage)],
     }
 
     const organizationId = get(props.organization, 'id')
@@ -84,6 +88,8 @@ const BaseDivisionForm: React.FC<IBaseDivisionFormProps> = (props) => {
                             name={'name'}
                             label={NameLabel}
                             labelAlign={'left'}
+                            rules={validations.name}
+                            required
                             {...INPUT_LAYOUT_PROPS}
                         >
                             <Input/>
@@ -117,6 +123,7 @@ const BaseDivisionForm: React.FC<IBaseDivisionFormProps> = (props) => {
                             name={'responsible'}
                             label={ResponsibleLabel}
                             labelAlign={'left'}
+                            rules={validations.responsible}
                             {...INPUT_LAYOUT_PROPS}
                             required
                         >
@@ -139,7 +146,9 @@ const BaseDivisionForm: React.FC<IBaseDivisionFormProps> = (props) => {
                             name={'executors'}
                             label={ExecutorsLabel}
                             labelAlign={'left'}
+                            rules={validations.executors}
                             {...INPUT_LAYOUT_PROPS}
+                            required
                         >
                             <GraphQlSearchInput
                                 search={searchEmployee(organizationId, ({ role }) => (
