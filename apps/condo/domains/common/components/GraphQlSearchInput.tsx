@@ -29,7 +29,12 @@ export interface ISearchInputProps extends SelectProps<string> {
     initialValue?: string
     formatLabel?: (option: GraphQlSearchInputOption) => JSX.Element
     renderOptions?: (items: any[], renderOption: RenderOptionFunc) => JSX.Element[]
-    searchAgainDependencies?: any[]
+    /**
+        searchAgainDependencies - Dependencies that should cause objects to be searched again in GraphQlSearchInput.
+        This may be necessary, for example, when an argument is passed to the search function that may change.
+        If we pass this argument to the searchAgainDependencies array, then the search will be repeated with a new argument.
+     */
+    searchAgainDependencies?: unknown[]
 }
 
 export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
