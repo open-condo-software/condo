@@ -56,7 +56,9 @@ export const UpdateDivisionForm: React.FC<IUpdateDivisionForm> = ({ id }) => {
                     <Form.Item noStyle dependencies={['properties', 'responsible']}>
                         {
                             ({ getFieldsValue }) => {
-                                const { properties, responsible } = getFieldsValue(['properties', 'responsible'])
+                                const { name, properties, responsible, executors } = getFieldsValue(
+                                    ['name', 'properties', 'responsible', 'executors']
+                                )
                                 return (
                                     <>
                                         <ActionBar>
@@ -75,8 +77,10 @@ export const UpdateDivisionForm: React.FC<IUpdateDivisionForm> = ({ id }) => {
                                                     {ApplyChangesLabel}
                                                 </Button>
                                                 <ErrorsContainer
+                                                    name={name || ''}
                                                     properties={properties}
                                                     responsible={responsible}
+                                                    executors={executors}
                                                 />
                                             </Space>
                                         </ActionBar>
