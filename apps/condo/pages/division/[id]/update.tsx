@@ -41,7 +41,7 @@ const UpdateDivisionPage: IUpdateDivisionPage = () => {
 UpdateDivisionPage.headerAction = (
     <ReturnBackHeaderAction
         descriptor={{ id: 'menu.AllDivisions' }}
-        path={'/division/'}
+        path={'/property?tab=divisions'}
     />
 )
 UpdateDivisionPage.requiredAccess = OrganizationRequired

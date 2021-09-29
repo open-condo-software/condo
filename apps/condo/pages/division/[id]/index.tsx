@@ -132,7 +132,7 @@ function DivisionPage () {
 
     const { loading, obj: division, error } = useObject({
         where: {
-            id: typeof id === 'string' ? id : undefined, 
+            id: typeof id === 'string' ? id : undefined,
         },
         skip: (currentPageIndex - 1) * EXECUTORS_PAGE_SIZE,
     })
@@ -188,7 +188,7 @@ function DivisionPage () {
     )
 }
 
-DivisionPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllProperties' }} path={'/property/'} />
+DivisionPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllDivisions' }} path={'/property?tab=divisions'} />
 DivisionPage.requiredAccess = OrganizationRequired
 
 export default DivisionPage
