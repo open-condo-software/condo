@@ -1,11 +1,9 @@
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/router'
 import { useLazyQuery } from '@apollo/client'
 
 import { IFilters, PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
-import { useTableColumns } from '@condo/domains/property/hooks/useTableColumns'
 import { Property } from '@condo/domains/property/utils/clientSchema'
-import { useOrganization } from '@core/next/organization'
 import { useIntl } from '@core/next/intl'
 
 import { EXPORT_PROPERTIES_TO_EXCEL } from '@condo/domains/property/gql'
@@ -16,13 +14,17 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { DatabaseFilled, DiffOutlined } from '@ant-design/icons'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { Button } from '@condo/domains/common/components/Button'
-import { getFilter, getPageIndexFromOffset, getSorterMap, parseQuery, QueryMeta } from '@condo/domains/common/utils/tables.utils'
-import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
-import { PropertyWhereInput } from '@app/condo/schema'
+import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { OrganizationEmployeeRole, PropertyWhereInput, SortPropertiesBy } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { ColumnsType } from 'antd/lib/table'
 
 type BuildingTableProps = {
+    role: OrganizationEmployeeRole
+    searchPropertiesQuery: PropertyWhereInput
+    tableColumns: ColumnsType
+    sortBy: string[]
     onSearch?: (properties: Property.IPropertyUIState[]) => void
 }
 
@@ -33,7 +35,6 @@ const CreateButtonsWrapper = styled.div`
 `
 
 export default function BuildingsTable (props: BuildingTableProps) {
-
     const intl = useIntl()
 
     const ExportAsExcel = intl.formatMessage({ id: 'ExportAsExcel' })
@@ -45,29 +46,15 @@ export default function BuildingsTable (props: BuildingTableProps) {
     const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.property.id.DownloadExcelLabel' })
     const PropertyTitle = intl.formatMessage({ id: 'pages.condo.property.ImportTitle' })
 
+    const { role, searchPropertiesQuery, tableColumns, sortBy } = props
+
     const router = useRouter()
-
-    const { organization, link: { role } } = useOrganization()
-
-    const addressFilter = getFilter('address', 'single', 'string', 'contains_i')
-    const unitsCountFilter = getFilter('unitsCount', 'single', 'number')
-
-    const queryMetas: QueryMeta<PropertyWhereInput>[] = [
-        { keyword: 'address', filters: [addressFilter] },
-        { keyword: 'search', filters: [addressFilter, unitsCountFilter], combineType: 'OR' },
-    ]
-
-    const { filters, sorters, offset } = parseQuery(router.query)
-
+    const { offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, PROPERTY_PAGE_SIZE)
 
-    const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, ['address'])
-    const sorterMap = getSorterMap(sorters)
-
-    const tableColumns = useTableColumns(sorterMap, filters)
     const { loading, error, refetch, objs: properties, count: total } = Property.useObjects({
-        sortBy: sortersToSortBy(sorters),
-        where: { ...filtersToWhere(filters), organization: { id: organization.id } },
+        sortBy,
+        where: { ...searchPropertiesQuery },
         skip: (currentPageIndex - 1) * PROPERTY_PAGE_SIZE,
         first: PROPERTY_PAGE_SIZE,
     }, {
@@ -102,17 +89,17 @@ export default function BuildingsTable (props: BuildingTableProps) {
 
     const [columns, propertyNormalizer, propertyValidator, propertyCreator] = useImporterFunctions()
 
-    // TODO(zuch): find out why we need to pass deletedAt: null to exclude deleted objects
-    const filtersWithOrganizations = useMemo(() => ({
-        ...filtersToWhere(filters),
-        deletedAt: null,
-        organization: { id: organization.id },
-    }), [filters, filtersToWhere, organization.id])
-
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
 
     function onExportToExcelButtonClicked () {
-        exportToExcel({ variables: { data: { where: filtersWithOrganizations, sortBy: sortersToSortBy(sorters) } } })
+        exportToExcel({
+            variables: {
+                data: {
+                    where: { ...searchPropertiesQuery },
+                    sortBy,
+                },
+            },
+        })
     }
 
     if (error) {

@@ -3,11 +3,12 @@ import { FilterValue } from 'antd/es/table/interface'
 import { useMemo } from 'react'
 import { useIntl } from '@core/next/intl'
 
-
-import { FiltersFromQueryType, Sorters } from '@condo/domains/common/utils/tables.utils'
-import { getTextFilterDropdown } from '@condo/domains/common/components/Table/Filters'
+import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { get } from 'lodash'
 import { getTextRender } from '@condo/domains/common/components/Table/Renders'
+import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
+import { useRouter } from 'next/router'
+import { PropertyWhereInput } from '../../../schema'
 
 export interface ITableColumn {
     title: string,
@@ -22,14 +23,19 @@ export interface ITableColumn {
     filterIcon?: unknown
 }
 
-export const useTableColumns = (sorters: Sorters, filters: FiltersFromQueryType) => {
+export const useTableColumns = (filterMetas: FiltersMeta<PropertyWhereInput>[]) => {
     const intl = useIntl()
     const AddressMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Address' })
     const UnitsCountMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.UnitsCount' })
     const TasksInWorkMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.TasksInWorkCount' })
 
+    const router = useRouter()
+    const { filters, sorters } = parseQuery(router.query)
+
     return useMemo(() => {
-        const search = get(filters, 'name')
+        let search = get(filters, 'search')
+        search = Array.isArray(search) ? null : search
+
         const columns = [
             {
                 title: AddressMessage,
@@ -38,7 +44,7 @@ export const useTableColumns = (sorters: Sorters, filters: FiltersFromQueryType)
                 key: 'address',
                 sorter: true,
                 width: '50%',
-                filterDropdown: getTextFilterDropdown(AddressMessage),
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'address'),
                 render: !Array.isArray(search) ? getTextRender(search) : undefined,
             },
             {

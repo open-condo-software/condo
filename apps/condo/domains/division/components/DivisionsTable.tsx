@@ -1,10 +1,9 @@
 import React from 'react'
 import { useRouter } from 'next/router'
 import qs from 'qs'
+import { ColumnsType } from 'antd/lib/table'
 
 import { IFilters, PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
-import { useTableColumns } from '@condo/domains/division/hooks/useTableColumns'
-import { useOrganization } from '@core/next/organization'
 import { useIntl } from '@core/next/intl'
 
 import { Col, Input, Row, Space, Typography } from 'antd'
@@ -12,16 +11,19 @@ import { Table } from '@condo/domains/common/components/Table/Index'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { DatabaseFilled, DiffOutlined } from '@ant-design/icons'
 import { Button } from '@condo/domains/common/components/Button'
-import {  getFilter, getPageIndexFromOffset, getSorterMap, parseQuery, QueryMeta } from '@condo/domains/common/utils/tables.utils'
-import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
+import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { Division } from '@condo/domains/division/utils/clientSchema'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { colors } from '@condo/domains/common/constants/style'
-import { DivisionWhereInput, SortDivisionsBy } from '@app/condo/schema'
+import { DivisionWhereInput, OrganizationEmployeeRole, SortDivisionsBy } from '@app/condo/schema'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 
 
 type BuildingTableProps = {
+    role: OrganizationEmployeeRole
+    searchDivisionsQuery: DivisionWhereInput
+    tableColumns: ColumnsType
+    sortBy: string[]
     onSearch?: (properties: Division.IDivisionUIState[]) => void
 }
 
@@ -35,59 +37,15 @@ export default function DivisionTable (props: BuildingTableProps) {
     const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
     const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.property.id.DownloadExcelLabel' })
 
+    const { role, searchDivisionsQuery, tableColumns, sortBy } = props
+
     const router = useRouter()
-
-    const { organization, link: { role } } = useOrganization()
-
-    const nameFilter = getFilter('name', 'single', 'string', 'contains_i')
-    const propertiesFilter = (search: string) => ({
-        properties_some: {
-            OR: [
-                {
-                    address_contains_i: search,
-                },
-                {
-                    name_contains_i: search,
-                },
-            ],
-        },
-    })
-    const responsibleFilter = (search: string) => ({
-        responsible: {
-            name_contains_i: search,
-        },
-    })
-    const executorsFilter = (search: string) => ({
-        executors_some: {
-            name_contains_i: search,
-        },
-    })
-
-    const queryMetas: QueryMeta<DivisionWhereInput>[] = [
-        { keyword: 'name', filters: [nameFilter] },
-        {
-            keyword: 'search',
-            filters: [
-                nameFilter,
-                propertiesFilter,
-                responsibleFilter,
-                executorsFilter,
-            ],
-            combineType: 'OR',
-        },
-    ]
-
-    const { filters, sorters, offset } = parseQuery(router.query)
-
+    const { offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, PROPERTY_PAGE_SIZE)
 
-    const { filtersToWhere, sortersToSortBy } = useQueryMappers<DivisionWhereInput>(queryMetas, ['name'])
-    const sorterMap = getSorterMap(sorters)
-
-    const tableColumns = useTableColumns(sorterMap, filters)
     const { loading, error, objs: divisions, count: total } = Division.useObjects({
-        sortBy: sortersToSortBy(sorters) as SortDivisionsBy[],
-        where: { ...filtersToWhere(filters), organization: { id: organization.id } },
+        sortBy: sortBy as SortDivisionsBy[],
+        where: { ...searchDivisionsQuery },
         skip: (currentPageIndex - 1) * PROPERTY_PAGE_SIZE,
         first: PROPERTY_PAGE_SIZE,
     }, {
@@ -96,7 +54,6 @@ export default function DivisionTable (props: BuildingTableProps) {
             props.onSearch && props.onSearch(divisions)
         },
     })
-
 
     const handleRowAction = (record) => {
         return {

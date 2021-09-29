@@ -3,7 +3,7 @@
  */
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
-const { checkOrganizationPermission, queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
+const { checkOrganizationPermission, queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const get = require('lodash/get')
 const { Division } = require('../utils/serverSchema')
 
@@ -11,8 +11,14 @@ async function canReadDivisions ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin || user.isSupport) return {}
     const userId = user.id
+
     return {
-        organization: { ...queryOrganizationEmployeeFor(userId) },
+        organization: {
+            OR: [
+                queryOrganizationEmployeeFor(userId),
+                queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
+            ],
+        },
     }
 }
 
