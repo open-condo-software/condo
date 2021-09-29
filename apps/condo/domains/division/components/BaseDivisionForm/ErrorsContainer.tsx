@@ -26,11 +26,11 @@ export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ name, propert
     if (name.length === 0) {
         errors.push(NameLabel)
     }
-    if (properties && properties.length === 0)
+    if (!properties || properties && properties.length === 0)
         errors.push(PropertiesLabel)
     if (!responsible)
         errors.push(ResponsibleLabel)
-    if (executors && executors.length === 0) {
+    if (!executors || executors && executors.length === 0) {
         errors.push(ExecutorLabel)
     }
 
