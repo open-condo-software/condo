@@ -29,10 +29,11 @@ export interface ISearchInputProps extends SelectProps<string> {
     initialValue?: string
     formatLabel?: (option: GraphQlSearchInputOption) => JSX.Element
     renderOptions?: (items: any[], renderOption: RenderOptionFunc) => JSX.Element[]
+    searchAgainDependencies?: any[]
 }
 
 export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
-    const { search, onSelect, formatLabel, renderOptions, autoClearSearchValue, ...restProps } = props
+    const { search, onSelect, formatLabel, renderOptions, autoClearSearchValue, searchAgainDependencies = [], ...restProps } = props
     const client = useApolloClient()
     const [selected, setSelected] = useState('')
     const [isLoading, setLoading] = useState(false)
@@ -59,8 +60,9 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         : data.map(renderOption)
 
     useEffect(() => {
+        console.log('search')
         handleSearch('')
-    }, [])
+    }, [...searchAgainDependencies])
 
     async function handleSearch (value) {
         if (!search) return
@@ -72,6 +74,9 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
                 ? selected + ' ' + value
                 : value,
         )
+
+        console.log('data', data)
+
         setLoading(false)
         if (data.length) setData(data)
         setValue(value)
