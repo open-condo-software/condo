@@ -4,6 +4,9 @@
 [submodule "apps/callcenter"]
 	path = apps/callcenter
 	url = ../condo_call_center.git
+[submodule "apps/eps"]
+	path = apps/eps
+	url = ../condo_eps.git
 [submodule "infrastructure/helm"]
 	path = .helm
 	url = ../infrastructure-condo.git
