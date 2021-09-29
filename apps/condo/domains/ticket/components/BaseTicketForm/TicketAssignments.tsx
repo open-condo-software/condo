@@ -1,14 +1,35 @@
 import { useIntl } from '@core/next/intl'
 import { find, get, differenceBy, uniqBy } from 'lodash'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
-import { Col, Form, Row, Select, Typography } from 'antd'
+import { Col, Form, FormInstance, Row, Select, Typography } from 'antd'
 import { AutoAssignerByDivisions } from './AutoAssignerByDivisions'
 import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { searchEmployeeUser } from '../../utils/clientSchema/search'
 import React, { useState } from 'react'
+import { Rule } from 'rc-field-form/lib/interface'
 
-const TicketAssignments = ({ validations, organizationId, propertyId, disableUserInteraction, autoAssign, categoryClassifier, form }) => {
+type TicketAssignmentsProps = {
+    validations: { [key: string]: Rule[] },
+    organizationId: string,
+    propertyId: string,
+    disableUserInteraction: boolean,
+    autoAssign: boolean,
+    categoryClassifier: string,
+    form: FormInstance
+    searchEmployeesAgainDependencies?: any[]
+}
+
+const TicketAssignments = ({
+    validations,
+    organizationId,
+    propertyId,
+    disableUserInteraction,
+    autoAssign,
+    categoryClassifier,
+    form,
+    searchEmployeesAgainDependencies,
+}: TicketAssignmentsProps) => {
     const intl = useIntl()
     const TicketAssignmentTitle = intl.formatMessage({ id: 'TicketAssignment' })
     const ExecutorLabel = intl.formatMessage({ id: 'field.Executor' })
@@ -154,6 +175,7 @@ const TicketAssignments = ({ validations, organizationId, propertyId, disableUse
                             search={searchEmployeeUser(organizationId, ({ role }) => (
                                 get(role, 'canBeAssignedAsExecutor', false)
                             ))}
+                            searchAgainDependencies={searchEmployeesAgainDependencies}
                         />
                     </Form.Item>
                 </Col>
@@ -171,6 +193,7 @@ const TicketAssignments = ({ validations, organizationId, propertyId, disableUse
                             search={searchEmployeeUser(organizationId, ({ role }) => (
                                 get(role, 'canBeAssignedAsResponsible', false)
                             ))}
+                            searchAgainDependencies={searchEmployeesAgainDependencies}
                         />
                     </Form.Item>
                 </Col>
