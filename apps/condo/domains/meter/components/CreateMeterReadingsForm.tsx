@@ -149,7 +149,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.HelpMessage' })
-    const MeterIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterWithSameNumberIsExist' })
+    const MeterWithSameNumberIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterWithSameNumberIsExist' })
     const AccountNumberIsExistInOtherUnitMessage = intl.formatMessage({ id: 'pages.condo.meter.AccountNumberIsExistInOtherUnit' })
     const ClientInfoMessage = intl.formatMessage({ id: 'ClientInfo' })
 
@@ -311,7 +311,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const ErrorToFormFieldMsgMapping = {
         [EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION]: {
             name: 'newMeters',
-            errors: [MeterIsExistMessage],
+            errors: [MeterWithSameNumberIsExistMessage],
         },
         [EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT]: {
             name: 'accountNumber',

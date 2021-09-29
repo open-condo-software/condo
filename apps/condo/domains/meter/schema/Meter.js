@@ -39,16 +39,29 @@ const Meter = new GQLListSchema('Meter', {
                 validateInput: async ({ context, operation, existingItem, resolvedData, fieldPath, addFieldValidationError }) => {
                     // should be unique inside organization
                     const value = resolvedData[fieldPath]
-                    let metersWithSameNumberInOrganization
+                    let metersWithSameResourceAndNumberInOrganization
                     if (operation === 'create') {
-                        metersWithSameNumberInOrganization = await MeterApi.getAll(context, { number: value, organization: { id: resolvedData.organization }, deletedAt: null })
+                        metersWithSameResourceAndNumberInOrganization = await MeterApi.getAll(context, {
+                            number: value,
+                            organization: { id: resolvedData.organization },
+                            resource: { id: resolvedData.resource },
+                            deletedAt: null,
+                        })
                     }
                     else if (operation === 'update' && resolvedData.number !== existingItem.number) {
-                        metersWithSameNumberInOrganization = await MeterApi.getAll(context, { number: value, organization: { id: existingItem.organization }, deletedAt: null })
+                        const organization = resolvedData.organization ? resolvedData.organization : existingItem.organization
+                        const resource = resolvedData.resource ? resolvedData.resource : existingItem.resource
+
+                        metersWithSameResourceAndNumberInOrganization = await MeterApi.getAll(context, {
+                            number: value,
+                            organization: { id: organization },
+                            resource: { id: resource },
+                            deletedAt: null,
+                        })
                     }
 
-                    if (metersWithSameNumberInOrganization && metersWithSameNumberInOrganization.length > 0) {
-                        addFieldValidationError(`${UNIQUE_ALREADY_EXISTS_ERROR}${fieldPath}] Meter with same number exist in current organization`)
+                    if (metersWithSameResourceAndNumberInOrganization && metersWithSameResourceAndNumberInOrganization.length > 0) {
+                        addFieldValidationError(`${UNIQUE_ALREADY_EXISTS_ERROR}${fieldPath}] Meter with same number and resource exist in current organization`)
                     }
                 },
             },
@@ -160,7 +173,7 @@ const Meter = new GQLListSchema('Meter', {
         constraints: [
             {
                 type: 'models.UniqueConstraint',
-                fields: ['organization', 'number'],
+                fields: ['organization', 'number', 'resource'],
                 condition: 'Q(deletedAt__isnull=True)',
                 name: 'meter_unique_organization_and_number',
             },
