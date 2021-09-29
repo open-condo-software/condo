@@ -60,7 +60,6 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         : data.map(renderOption)
 
     useEffect(() => {
-        console.log('search')
         handleSearch('')
     }, [...searchAgainDependencies])
 
@@ -74,8 +73,6 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
                 ? selected + ' ' + value
                 : value,
         )
-
-        console.log('data', data)
 
         setLoading(false)
         if (data.length) setData(data)
