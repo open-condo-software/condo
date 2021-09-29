@@ -1,18 +1,20 @@
-
 import { useMemo } from 'react'
 import { useIntl } from '@core/next/intl'
 
 import { ColumnType, FilterValue } from 'antd/es/table/interface'
 
-import { FiltersFromQueryType, Sorters } from '@condo/domains/common/utils/tables.utils'
+import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { get, isEmpty } from 'lodash'
 import { EmptyTableCell } from '@condo/domains/common/components/Table/EmptyTableCell'
 import { Typography } from 'antd'
 import { Highliter } from '@condo/domains/common/components/Highliter'
 import { colors } from '@condo/domains/common/constants/style'
 import { Division } from '../utils/clientSchema'
-import { getFilterValue, getTextFilterDropdown } from '@condo/domains/common/components/Table/Filters'
+import { getFilterValue } from '@condo/domains/common/components/Table/Filters'
 import { getTextRender } from '@condo/domains/common/components/Table/Renders'
+import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
+import { DivisionWhereInput } from '../../../schema'
+import { useRouter } from 'next/router'
 
 export interface ITableColumn {
     title: string,
@@ -27,30 +29,16 @@ export interface ITableColumn {
     filterIcon?: unknown
 }
 
-export const useTableColumns = (sorters: Sorters, filters: FiltersFromQueryType) => {
+export const useTableColumns = (filterMetas: FiltersMeta<DivisionWhereInput>[]) => {
     const intl = useIntl()
     const DivisionTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Division' })
     const BuildingsTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Buildings' })
     const ForemanTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Foreman' })
     const TechniciansTitleMessage  = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Technicians' })
-    const { search } = filters
-    const render = (text, isArray = false) => {
-        let result = text
-        if (!isEmpty(search) && text) {
-            result = (
-                <Highliter
-                    text={String(text)}
-                    search={String(search)}
-                    renderPart={(part) => (
-                        <Typography.Text style={{ backgroundColor: colors.markColor }}>
-                            {part}
-                        </Typography.Text>
-                    )}
-                />
-            )
-        }
-        return (<EmptyTableCell>{result}{isArray && <br />}</EmptyTableCell>)
-    }
+
+    const router = useRouter()
+    const { filters, sorters } = parseQuery(router.query)
+
     return useMemo(() => {
         type ColumnTypes = [
             ColumnType<string>,
@@ -58,7 +46,28 @@ export const useTableColumns = (sorters: Sorters, filters: FiltersFromQueryType)
             ColumnType<Division.IDivisionUIState['responsible']>,
             ColumnType<Division.IDivisionUIState['executors']>,
         ]
-        const search = get(filters, 'search')
+
+        let search = get(filters, 'search')
+        search = Array.isArray(search) ? null : search
+
+        const render = (text, isArray = false) => {
+            let result = text
+            if (!isEmpty(search) && text) {
+                result = (
+                    <Highliter
+                        text={String(text)}
+                        search={String(search)}
+                        renderPart={(part) => (
+                            <Typography.Text style={{ backgroundColor: colors.markColor }}>
+                                {part}
+                            </Typography.Text>
+                        )}
+                    />
+                )
+            }
+            return (<EmptyTableCell>{result}{isArray && <br />}</EmptyTableCell>)
+        }
+
         const columns: ColumnTypes = [
             {
                 title: DivisionTitleMessage,
@@ -66,11 +75,9 @@ export const useTableColumns = (sorters: Sorters, filters: FiltersFromQueryType)
                 dataIndex: 'name',
                 key: 'name',
                 sorter: true,
-                filterDropdown: getTextFilterDropdown(DivisionTitleMessage),
-                filteredValue: getFilterValue('name', filters),
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'name'),
                 width: '25%',
                 render: !Array.isArray(search) ? getTextRender(search) : undefined,
-                sortOrder: get(sorters, 'name'),
             },
             {
                 title: BuildingsTitleMessage,
@@ -98,5 +105,5 @@ export const useTableColumns = (sorters: Sorters, filters: FiltersFromQueryType)
             },
         ]
         return columns
-    }, [filters, sorters, render])
+    }, [filters, sorters])
 }
