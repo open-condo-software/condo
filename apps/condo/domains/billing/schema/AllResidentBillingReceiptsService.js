@@ -60,13 +60,15 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
                 const GET_ONLY_OWN_SERVICE_CONSUMER_WHERE = { user: { id: userId } }
                 if (!serviceConsumerWhere.resident) {
                     serviceConsumerWhere.resident = GET_ONLY_OWN_SERVICE_CONSUMER_WHERE
+                    serviceConsumerWhere.deletedAt = null
                 } else {
                     serviceConsumerWhere.resident.user = GET_ONLY_OWN_SERVICE_CONSUMER_WHERE.user
+                    serviceConsumerWhere.deletedAt = null
                 }
 
                 const allServiceConsumers = await ServiceConsumer.getAll(context, serviceConsumerWhere)
                 if (!Array.isArray(allServiceConsumers) || !allServiceConsumers.length) {
-                    throw new Error('No serviceConsumers found for this user!')
+                    return []
                 }
 
                 const billingReceipts = []

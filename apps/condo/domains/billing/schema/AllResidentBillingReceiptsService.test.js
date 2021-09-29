@@ -5,7 +5,7 @@ const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { addResidentAccess, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestBillingIntegration, createTestBillingReceipt, updateTestBillingReceipt, ResidentBillingReceipt } = require('../utils/testSchema')
-const { registerServiceConsumerByTestClient, createTestResident, ServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
+const { registerServiceConsumerByTestClient, updateTestServiceConsumer, createTestResident, ServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestBillingAccount, createTestBillingProperty, createTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
@@ -91,15 +91,62 @@ describe('AllResidentBillingReceipts', () => {
         expect(serviceConsumerHusbandWithAccount.billingAccount.id).toEqual(serviceConsumerWifeWithAccount.billingAccount.id)
         expect(serviceConsumerHusbandWithAccount.billingAccount.id).toEqual(billingAccount.id)
 
-        const objsHusband = await ResidentBillingReceipt.getAll(husbandClient)
+        const objsHusband = await ResidentBillingReceipt.getAll(husbandClient, { serviceConsumer: { resident: { id: residentHusband.id } } })
         expect(objsHusband).toHaveLength(1)
         expect(objsHusband[0].raw).toEqual(undefined)
         expect(objsHusband[0].id).toEqual(receipt.id)
 
-        const objsWife = await ResidentBillingReceipt.getAll(wifeClient)
+        const objsWife = await ResidentBillingReceipt.getAll(wifeClient, { serviceConsumer: { resident: { id: residentWife.id } } })
         expect(objsWife).toHaveLength(1)
         expect(objsWife[0].raw).toEqual(undefined)
         expect(objsWife[0].id).toEqual(receipt.id)
+    })
+
+    test('user with valid serviceAccount and with deleted service account can read BillingReceipt without raw data', async () => {
+        /**
+         * Story: Nikolay deleted the service consumer by accident and registered new
+         *        Nikolay should be able to get all receipts!
+         */
+
+        const adminClient = await makeLoggedInAdminClient()
+        const [organization] = await createTestOrganization(adminClient)
+        const [property] = await createTestProperty(adminClient, organization)
+
+        const client = await makeClientWithResidentUser()
+
+        // Create billing integration and billing entities
+        const [integration] = await createTestBillingIntegration(adminClient)
+        const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, organization, integration)
+        const [billingProperty] = await createTestBillingProperty(adminClient, context)
+        const [billingAccount, billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
+        const [billingAccount2] = await createTestBillingAccount(adminClient, context, billingProperty)
+        const [receipt] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount)
+        await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount2)
+
+        const [resident] = await createTestResident(adminClient, client.user, organization, property, {
+            unitName: billingAccountAttrs.unitName,
+        })
+        const [firstServiceConsumer] = await registerServiceConsumerByTestClient(client, {
+            residentId: resident.id,
+            unitName: billingAccountAttrs.unitName,
+            accountNumber: billingAccountAttrs.number,
+        })
+        const [updatedServiceConsumer] = await updateTestServiceConsumer(client, firstServiceConsumer.id, { deletedAt: 'true' })
+        expect(updatedServiceConsumer.deletedAt).not.toBeNull()
+
+        const objsFirst = await ResidentBillingReceipt.getAll(client, { serviceConsumer: { resident: { id: resident.id } } })
+        expect(objsFirst).toHaveLength(0)
+
+        await registerServiceConsumerByTestClient(client, {
+            residentId: resident.id,
+            unitName: billingAccountAttrs.unitName,
+            accountNumber: billingAccountAttrs.number,
+        })
+
+        const objsSecond = await ResidentBillingReceipt.getAll(client, { serviceConsumer: { resident: { id: resident.id } } })
+        expect(objsSecond).toHaveLength(1)
+        expect(objsSecond[0].raw).toEqual(undefined)
+        expect(objsSecond[0].id).toEqual(receipt.id)
     })
 
     test('user with valid serviceAccount can filter residentBillingReceipts by serviceConsumer', async () => {
@@ -291,17 +338,14 @@ describe('AllResidentBillingReceipts', () => {
         const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
         const [billingProperty] = await createTestBillingProperty(adminClient, context)
         const [billingAccount, billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
-        const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
+        await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
             unitName: billingAccountAttrs.unitName,
         })
         await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount)
         await addResidentAccess(userClient.user)
 
-        await catchErrorFrom(async () => {
-            await ResidentBillingReceipt.getAll(userClient, { toPay: '100.50' })
-        }, (err) => {
-            expect(err).toBeDefined()
-        } )
+        const objs = await ResidentBillingReceipt.getAll(userClient)
+        expect(objs).toHaveLength(0)
     })
 
     test('user without valid resident cant read BillingReceipt', async () => {
@@ -311,15 +355,12 @@ describe('AllResidentBillingReceipts', () => {
         const [integration] = await createTestBillingIntegration(adminClient)
         const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
         const [billingProperty] = await createTestBillingProperty(adminClient, context)
-        const [billingAccount, billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
+        const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
 
         await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount)
         await addResidentAccess(userClient.user)
 
-        await catchErrorFrom(async () => {
-            await ResidentBillingReceipt.getAll(userClient, { toPay: '100.50' })
-        }, (err) => {
-            expect(err).toBeDefined()
-        } )
+        const objs = await ResidentBillingReceipt.getAll(userClient)
+        expect(objs).toHaveLength(0)
     })
 })
