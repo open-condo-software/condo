@@ -8,14 +8,17 @@ const { generateServerUtils } = require('@condo/domains/common/utils/codegenerat
 
 const { AcquiringIntegration: AcquiringIntegrationGQL } = require('@condo/domains/acquiring/gql')
 const { AcquiringIntegrationAccessRight: AcquiringIntegrationAccessRightGQL } = require('@condo/domains/acquiring/gql')
+const { AcquiringIntegrationContext: AcquiringIntegrationContextGQL } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateServerUtils(AcquiringIntegrationGQL)
 const AcquiringIntegrationAccessRight = generateServerUtils(AcquiringIntegrationAccessRightGQL)
+const AcquiringIntegrationContext = generateServerUtils(AcquiringIntegrationContextGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     AcquiringIntegration,
     AcquiringIntegrationAccessRight,
+    AcquiringIntegrationContext,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
