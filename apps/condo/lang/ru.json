@@ -571,6 +571,8 @@
   "division.form.hint.executors.description": "Выполняют «руками» работы на выбранных домах",
   "division.validation.responsible.required": "Выберите сотрудника, который будет ответственным за данный участок",
   "division.validation.properties.required": "Выберите дома, которые будут входить в данный участок",
+  "division.validation.name.required": "Введите название участка",
+  "division.validation.executors.required": "Выберите исполнителей для этого участка",
   "division.action.delete.confirm.title": "Точно удалить участок?",
   "division.action.delete.confirm.message": "После удаления участка пропадёт возможность автоматического назначения ответственных и исполнителей для создаваемых заявок на указанные в участке дома. Сотрудники и дома удалены не будут.",
   "division.action.delete.confirm.ok": "Удалить участок",

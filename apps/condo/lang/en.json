@@ -569,6 +569,8 @@
   "division.form.hint.executors.description": "Do work «by hands» in selected properties",
   "division.validation.responsible.required": "Select employee, that will be responsible for this division",
   "division.validation.properties.required": "Select properties for this division",
+  "division.validation.name.required": "Type division name",
+  "division.validation.executors.required": "Select executors for this division",
   "division.action.delete.confirm.title": "Are you sure to delete division?",
   "division.action.delete.confirm.message": "After deleting the division the system will be unable to automatically assign responsible and executor for next tickets, being created on specified properties in division. Employees and properties will not be deleted.",
   "division.action.delete.confirm.ok": "Delete division",
