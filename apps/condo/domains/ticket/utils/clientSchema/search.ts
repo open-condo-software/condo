@@ -141,7 +141,6 @@ export async function searchTicketClassifier (client, value) {
 export function searchEmployeeUser (organizationId, filter = null) {
     if (!organizationId) return
     return async function (client, value) {
-        console.log('search employee org id', organizationId)
         const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, organizationId })
         if (error) console.warn(error)
 
@@ -151,8 +150,6 @@ export function searchEmployeeUser (organizationId, filter = null) {
             .map(object => {
                 return ({ text: object.name, value: object.user.id, data: object })
             })
-
-        console.log('result in searchEmployeeUser', result)
 
         return result
     }
