@@ -65,6 +65,34 @@ describe('InviteNewOrganizationEmployeeService', () => {
 
                     expect(reInvitedEmployee.id).toStrictEqual(employee.id)
                 })
+
+                test('invite priority (phone -> email)', async () => {
+                    const admin = await makeLoggedInAdminClient()
+                    const [categoryClassifier1] = await createTestTicketCategoryClassifier(admin)
+                    const client = await makeClientWithRegisteredOrganization()
+                    const client1 = await makeClientWithRegisteredOrganization()
+
+                    const inviteClient = await makeClientWithRegisteredOrganization()
+
+                    const userAttrs = {
+                        name: client.userAttrs.name,
+                        email: client1.userAttrs.email,
+                        phone: client.userAttrs.phone,
+                    }
+                    const extraAttrs = {
+                        specializations: {
+                            connect: [
+                                { id: categoryClassifier1.id },
+                            ],
+                        },
+                    }
+                    const [employee] = await inviteNewOrganizationEmployee(inviteClient, inviteClient.organization, userAttrs, extraAttrs)
+                    expect(employee.email).toEqual(client1.userAttrs.email)
+                    expect(employee.user.id).toEqual(client.user.id)
+                    expect(employee.phone).toEqual(client.userAttrs.phone)
+                    expect(employee.name).toEqual(client.userAttrs.name)
+                })
+
             })
 
             describe('employee already registered User by Phone', () => {
