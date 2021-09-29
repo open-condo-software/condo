@@ -156,6 +156,16 @@ const Meter = new GQLListSchema('Meter', {
         },
 
     },
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['organization', 'number'],
+                condition: 'Q(deletedAt__isnull=True)',
+                name: 'meter_unique_organization_and_number',
+            },
+        ],
+    },
     hooks: {
         validateInput: ({ resolvedData, context, addValidationError }) => {
             if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
