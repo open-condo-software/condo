@@ -100,32 +100,36 @@ const Meter = new GQLListSchema('Meter', {
             hooks: {
                 validateInput: async ({ context, operation, existingItem, resolvedData, fieldPath, addFieldValidationError }) => {
                     const value = resolvedData[fieldPath]
-                    let metersWithSameAccountNumberInOrganization
+                    let metersWithSameAccountNumberInOtherUnit
                     if (operation === 'create') {
-                        metersWithSameAccountNumberInOrganization = await MeterApi.getAll(context, {
+                        metersWithSameAccountNumberInOtherUnit = await MeterApi.getAll(context, {
                             accountNumber: value,
                             organization: { id: resolvedData.organization },
                             deletedAt: null,
                             OR: [
-                                { unitName_not: value },
+                                { unitName_not: resolvedData.unitName },
                                 { property: { id_not: resolvedData.property } },
                             ],
                         })
                     }
                     else if (operation === 'update' && resolvedData.accountNumber !== existingItem.accountNumber) {
-                        metersWithSameAccountNumberInOrganization = await MeterApi.getAll(context, {
+                        const organization = resolvedData.organization ? resolvedData.organization : existingItem.organization
+                        const property = resolvedData.property ? resolvedData.property : existingItem.property
+                        const unitName = resolvedData.unitName ? resolvedData.unitName : existingItem.unitName
+
+                        metersWithSameAccountNumberInOtherUnit = await MeterApi.getAll(context, {
                             accountNumber: value,
-                            organization: { id: existingItem.organization },
+                            organization: { id: organization },
                             deletedAt: null,
                             OR: [
-                                { unitName_not: value },
-                                { property: { id_not: existingItem.property } },
+                                { unitName_not: unitName },
+                                { property: { id_not: property } },
                             ],
                         })
                     }
 
-                    if (metersWithSameAccountNumberInOrganization && metersWithSameAccountNumberInOrganization.length > 0) {
-                        addFieldValidationError(`${UNIQUE_ALREADY_EXISTS_ERROR}${fieldPath}] Meter with same account number exist in current organization`)
+                    if (metersWithSameAccountNumberInOtherUnit && metersWithSameAccountNumberInOtherUnit.length > 0) {
+                        addFieldValidationError(`${UNIQUE_ALREADY_EXISTS_ERROR}${fieldPath}] Meter with same account number exist in current organization in other unit`)
                     }
                 },
             },

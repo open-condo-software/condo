@@ -72,7 +72,7 @@ export const MeterInfo = ({ resource, newMeters }: MeterInfoProps) => {
     const SealingDateMessage = intl.formatMessage({ id: 'pages.condo.meter.SealingDate' })
     const VerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.VerificationDate' })
     const NextVerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.NextVerificationDate' })
-    const MeterIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterIsExistMessage' })
+    const MeterWithSameNumberIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterWithSameNumberIsExist' })
 
     const { organization } = useOrganization()
 
@@ -92,7 +92,7 @@ export const MeterInfo = ({ resource, newMeters }: MeterInfoProps) => {
             })
 
             if (metersWithSameNumber.length > 0 || (newMeters && newMeters.find(newMeter => newMeter.number === value)))
-                return Promise.reject(MeterIsExistMessage)
+                return Promise.reject(MeterWithSameNumberIsExistMessage)
             return Promise.resolve()
         },
     }
