@@ -24,7 +24,7 @@ const { createTestBillingProperty } = require('@condo/domains/billing/utils/test
 const { makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
-const { COLD_WATER_METER_RESOURCE_ID } = require('../constants/constants')
+const { COLD_WATER_METER_RESOURCE_ID, HOT_WATER_METER_RESOURCE_ID } = require('../constants/constants')
 
 describe('Meter', () => {
     describe('Create', () => {
@@ -196,7 +196,22 @@ describe('Meter', () => {
             })
         })
 
-        test('employee with "canManageMeters" role: cannot create Meter if another Meter with same number exist in user organization', async () => {
+        test('employee with "canManageMeters" role: can create Meter if another Meter with same number and other resource exist in user organization', async () => {
+            const client = await makeEmployeeUserClientWithAbilities({
+                canManageMeters: true,
+            })
+            const [resource1] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+            const [resource2] = await MeterResource.getAll(client, { id: HOT_WATER_METER_RESOURCE_ID })
+
+            const number = faker.random.alphaNumeric(5)
+            await createTestMeter(client, client.organization, client.property, resource1, { number })
+
+            const [meter] = await createTestMeter(client, client.organization, client.property, resource2, { number })
+
+            expect(meter.id).toMatch(UUID_RE)
+        })
+
+        test('employee with "canManageMeters" role: cannot create Meter if another Meter with same number and resource exist in user organization', async () => {
             const client = await makeEmployeeUserClientWithAbilities({
                 canManageMeters: true,
             })
@@ -209,7 +224,7 @@ describe('Meter', () => {
                 await createTestMeter(client, client.organization, client.property, resource, { number })
             }, ({ errors, data }) => {
                 expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toContain('Meter with same number exist in current organization')
+                expect(errors[0].data.messages[0]).toContain('Meter with same number and resource exist in current organization')
                 expect(data).toEqual({ 'obj': null })
             })
         })
