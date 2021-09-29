@@ -19,6 +19,8 @@ const DEFAULT_ROLES = {
         'canShareTickets': true,
         'canBeAssignedAsResponsible': true,
         'canBeAssignedAsExecutor': true,
+        'canManagePayments': true,
+        'canManageBillingReceipts': true,
     },
     'Dispatcher': {
         'name': 'employee.role.Dispatcher.name',
@@ -37,6 +39,8 @@ const DEFAULT_ROLES = {
         'canManageMeterReadings': true,
         'canBeAssignedAsResponsible': true,
         'canBeAssignedAsExecutor': true,
+        'canManagePayments': true,
+        'canManageBillingReceipts': true,
     },
     'Manager': {
         'name': 'employee.role.Manager.name',
@@ -55,6 +59,8 @@ const DEFAULT_ROLES = {
         'canShareTickets': true,
         'canBeAssignedAsResponsible': true,
         'canBeAssignedAsExecutor': true,
+        'canManagePayments': false,
+        'canManageBillingReceipts': false,
     },
     'Foreman': {
         'name': 'employee.role.Foreman.name',
@@ -73,6 +79,8 @@ const DEFAULT_ROLES = {
         'canShareTickets': true,
         'canBeAssignedAsResponsible': true,
         'canBeAssignedAsExecutor': true,
+        'canManagePayments': false,
+        'canManageBillingReceipts': false,
     },
     'Technician': {
         'name': 'employee.role.Technician.name',
@@ -91,6 +99,8 @@ const DEFAULT_ROLES = {
         'canShareTickets': true,
         'canBeAssignedAsResponsible': true,
         'canBeAssignedAsExecutor': true,
+        'canManagePayments': false,
+        'canManageBillingReceipts': false,
     },
 }
 module.exports = {

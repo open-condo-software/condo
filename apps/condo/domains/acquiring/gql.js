@@ -14,10 +14,14 @@ const AcquiringIntegration = generateGqlQueries('AcquiringIntegration', ACQUIRIN
 const ACQUIRING_INTEGRATION_ACCESS_RIGHT_FIELDS = `{ user { id } integration { id } ${COMMON_FIELDS} }`
 const AcquiringIntegrationAccessRight = generateGqlQueries('AcquiringIntegrationAccessRight', ACQUIRING_INTEGRATION_ACCESS_RIGHT_FIELDS)
 
+const ACQUIRING_INTEGRATION_CONTEXT_FIELDS = `{ integration { id } organization { id } state settings ${COMMON_FIELDS} }`
+const AcquiringIntegrationContext = generateGqlQueries('AcquiringIntegrationContext', ACQUIRING_INTEGRATION_CONTEXT_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     AcquiringIntegration,
     AcquiringIntegrationAccessRight,
+    AcquiringIntegrationContext,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

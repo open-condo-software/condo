@@ -10,7 +10,7 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 
 async function canReadBillingIntegrationOrganizationContexts ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin) return true
+    if (user.isAdmin || user.isSupport) return true
     return {
         OR: [
             { organization: { employees_some: { user: { id: user.id }, role: { canManageIntegrations: true }, isBlocked: false } } },
@@ -22,6 +22,7 @@ async function canReadBillingIntegrationOrganizationContexts ({ authentication: 
 async function canManageBillingIntegrationOrganizationContexts ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
+    if (user.isSupport && !get(originalInput, ['organization', 'connect', 'id'])) return true
     let organizationId
     let integrationId
     if (operation === 'create') {

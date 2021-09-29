@@ -5,10 +5,12 @@
 
 const { AcquiringIntegration } = require('./AcquiringIntegration')
 const { AcquiringIntegrationAccessRight } = require('./AcquiringIntegrationAccessRight')
+const { AcquiringIntegrationContext } = require('./AcquiringIntegrationContext')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     AcquiringIntegration,
     AcquiringIntegrationAccessRight,
+    AcquiringIntegrationContext,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
