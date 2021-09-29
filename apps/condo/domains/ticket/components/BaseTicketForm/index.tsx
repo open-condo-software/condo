@@ -211,7 +211,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         if (role.canManageContacts && canCreateContactRef.current) {
             createdContact = await createContact(organization.id, selectPropertyIdRef.current, selectedUnitNameRef.current)
         }
-        console.log('otherVariables', otherVariables)
         const result = await _action({
             ...otherVariables,
             details: normalizeText(details),
