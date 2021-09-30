@@ -9,6 +9,7 @@ import { LOCALES } from '../../constants/locale'
 import dayjs from 'dayjs'
 import { Highliter } from '../Highliter'
 import { QueryArgType } from '../../utils/tables.utils'
+import { ELECTRICITY_METER_RESOURCE_ID } from '@condo/domains/meter/constants/constants'
 
 type RenderReturnType = string | React.ReactNode
 
@@ -71,21 +72,21 @@ export const getTextRender = (search?: string) => {
     }
 }
 
-const getIntegerPartOfreading = (value: string) => value.split('.')[0]
+const getIntegerPartOfReading = (value: string) => value?.split('.')[0]
 
-export const renderMeterReading = (values: string[], measure: string) => {
-    // 1-tariff meter
-    if (values[0] && !(values[1] || values[2] || values[3]))
-        return `${getIntegerPartOfreading(values[0])} ${measure}`
+export const renderMeterReading = (values: string[], resourceId: string, measure: string) => {
+    // ELECTRICITY multi-tariff meter
+    if (resourceId === ELECTRICITY_METER_RESOURCE_ID) {
+        const stringValues = values.reduce((acc, value, index) => {
+            if (!value) return acc
+            return acc += `, T${index + 1} - ${getIntegerPartOfReading(value)} ${measure}`
+        }, '')
 
-    // multi-tariff meter
-    const stringValues = values.reduce((acc, value, index) => {
-        if (!value) return acc
-        if (index !== 0) acc += ', '
-        return acc += `T${index + 1} - ${getIntegerPartOfreading(value)} ${measure}`
-    }, '')
+        return stringValues?.substr(2)
+    }
 
-    return stringValues
+    // other resource 1-tariff meter
+    return `${getIntegerPartOfReading(values[0])} ${measure}`
 }
 
 const fillMoneyWithSpaces = (substring: string, startIndex: number, spaces: Array<number>) => {
