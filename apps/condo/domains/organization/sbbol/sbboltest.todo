@@ -1,3 +1,4 @@
+/*
 const { SbbolOrganization } = require('@condo/domains/organization/sbbol/sync')
 const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/sbbol/common')
 const faker = require('faker')
@@ -172,3 +173,4 @@ describe('Sbbol sync scenarios', () => {
         })
     })
 })
+*/
