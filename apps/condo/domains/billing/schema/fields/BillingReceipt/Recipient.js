@@ -4,6 +4,7 @@ const { BILLING_RECEIPT_RECIPIENT_FIELD_NAME, BILLING_RECEIPT_RECIPIENT_INPUT_NA
 const { Json } = require('@core/keystone/fields')
 
 const RecipientFields = {
+    name: 'String',
     tin: 'String!',
     iec: 'String!',
     bic: 'String!',
