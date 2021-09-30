@@ -463,7 +463,7 @@
   "pages.condo.analytics.TicketAnalyticsPage.NullReplaces.CategoryClassifier": "Empty category",
   "pages.condo.analytics.TicketAnalyticsPage.NullReplaces.Executor": "Executor is not set",
   "pages.condo.analytics.TicketAnalyticsPage.NullReplaces.Assignee": "Assignee is not set",
-  "pages.organizations.CreateOrganizationButtonLabel": "Create new organization",
+  "pages.organizations.CreateOrganizationButtonLabel": "Create organization",
   "pages.organizations.CreateOrganizationModalTitle": "New organization form",
   "pages.organizations.EditOrganizationModalTitle": "Edit organization form",
   "pages.organizations.OrganizationName": "Name",

@@ -51,7 +51,7 @@ const optionStyle: React.CSSProperties = {
 
 export const OrganizationSelect: React.FC = () => {
     const intl = useIntl()
-    const LoadingMessage = intl.formatMessage({ id: 'Loading' })
+    const EmptyMessage = intl.formatMessage({ id: 'Select' })
     const AddOrganizationTitle = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationButtonLabel' })
 
     const { user } = useAuth()
@@ -86,7 +86,7 @@ export const OrganizationSelect: React.FC = () => {
     }, [selectLink])
 
     const isOptionsEmpty = !options.length
-    const selectValue = isOptionsEmpty ? LoadingMessage : get(link, 'id')
+    const selectValue = isOptionsEmpty ? EmptyMessage : get(link, 'id')
     const selectOptionsProps = {
         value: selectValue,
         onChange: chooseOrganizationByLinkId,
