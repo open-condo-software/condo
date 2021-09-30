@@ -81,6 +81,9 @@ export const getSelectFilterDropdown = (options: Array<OptionType>, loading: boo
                         setSelectedKeys(e)
                         confirm({ closeDropdown: false })
                     }}
+                    filterOption={(input, option: { value: string, label: string }) =>
+                        option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                    }
                 />
             </SelectFilterContainer>
         )
