@@ -1,7 +1,5 @@
-const { Relationship, Integer } = require('@keystonejs/fields')
-const { Json } = require('@core/keystone/fields')
+const { Relationship } = require('@keystonejs/fields')
 
-const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 
 const ORGANIZATION_OWNED_FIELD = {
     schemaDoc: 'Ref to the organization. The object will be deleted if the organization ceases to exist',
