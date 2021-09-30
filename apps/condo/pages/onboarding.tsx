@@ -8,6 +8,11 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import { OnBoardingStepItem } from '@condo/domains/onboarding/components/OnBoardingStepItem'
 import { useIntl } from '@core/next/intl'
 import { useOnBoardingContext } from '@condo/domains/onboarding/components/OnBoardingContext'
+import { useSubscriberFirstLoginModal } from '../domains/subscription/hooks/useSubscriberFirstLoginModal'
+import { ServiceSubscription } from '../domains/subscription/utils/clientSchema'
+import { ServiceSubscriptionTypeType } from '../schema'
+import { useOrganization } from '@core/next/organization'
+import dayjs from 'dayjs'
 
 interface IOnBoardingIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -20,6 +25,29 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
     const Title = intl.formatMessage({ id: 'onboarding.title' })
     const SubTitle = intl.formatMessage({ id: 'onboarding.subtitle' })
     const { onBoardingSteps = [], onBoarding, refetchOnBoarding } = useOnBoardingContext()
+    const {
+        SubscriberFirstLoginModal,
+        isSubscriberFirstLoginModalVisible,
+        setIsSubscriberFirstLoginModalVisible,
+    } = useSubscriberFirstLoginModal()
+
+    const { organization } = useOrganization()
+
+    const today = dayjs().startOf('day').toISOString()
+
+    const { objs: subscriptions, loading: subscriptionsLoading } = ServiceSubscription.useObjects({
+        where: {
+            organization: { id: organization && organization.id },
+            type: ServiceSubscriptionTypeType.Sbbol,
+            isTrial: true,
+            finishAt_gte: today,
+        },
+    })
+
+    useEffect(() => {
+        if (subscriptions.length > 0 && !subscriptionsLoading && !isSubscriberFirstLoginModalVisible)
+            setIsSubscriberFirstLoginModalVisible(true)
+    }, [subscriptionsLoading])
 
     useEffect(() => {
         refetchOnBoarding()
@@ -86,6 +114,13 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
                     </PageContent>
                 </AuthRequired>
             </PageWrapper>
+            {
+                isSubscriberFirstLoginModalVisible && (
+                    <SubscriberFirstLoginModal
+                        subscription={subscriptions ? subscriptions[0] : null}
+                    />
+                )
+            }
         </>
     )
 }

@@ -34,6 +34,12 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
             isRequired: true,
         },
 
+        // isSubscriberFirstLogin: {
+        //     schemaDoc: 'Subscriber\'s first login to the service',
+        //     type: Checkbox,
+        //     isRequired: true,
+        // },
+
         organization: ORGANIZATION_OWNED_FIELD,
 
         startAt: {
