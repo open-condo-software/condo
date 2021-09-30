@@ -1,4 +1,5 @@
 const faker = require('faker')
+const dayjs = require('dayjs')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries.js')
 const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/sbbol/common')
 const { MULTIPLE_ACCOUNTS_MATCHES } = require('@condo/domains/user/constants/errors')
@@ -7,6 +8,7 @@ const { TokenSet: TokenSetAPI } = require('@condo/domains/organization/utils/ser
 const { createConfirmedEmployee } = require('@condo/domains/organization/utils/serverSchema/Organization')
 const { uniqBy, get } = require('lodash')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { ServiceSubscription } = require('@condo/domains/subscription/utils/serverSchema')
 const REFRESH_TOKEN_TTL = 30 * 24 * 60 * 60 // its real TTL is 180 days bit we need to update it earlier
 const {
     REGISTER_NEW_ORGANIZATION_MUTATION,
@@ -14,6 +16,9 @@ const {
 const {
     CREATE_ONBOARDING_MUTATION,
 } = require('@condo/domains/onboarding/gql.js')
+
+const conf = process.env
+const SBBOL_CONFIG = conf.SBBOL_CONFIG ? JSON.parse(conf.SBBOL_CONFIG) : {}
 
 class SbbolOrganization {
     constructor ({ keystone, userInfo }){
@@ -158,6 +163,61 @@ class SbbolOrganization {
                 ...this.userInfo,
                 ...this.user,
             }, allRoles[0], this.dvSenderFields)
+        }
+    }
+
+    async syncSubscriptions (accessToken, helper) {
+        console.log('Checking, whether the user have ServiceSubscription items')
+        const subscriptions = await getItems( {
+            ...this.context,
+            listKey: 'ServiceSubscription',
+            where: {
+                organization: {
+                    id: this.organization.id,
+                },
+            },
+            returnFields: 'id',
+        })
+
+        if (subscriptions.length > 0) {
+            console.log('User already have subscriptions')
+        } else {
+            console.log('No subscriptions found')
+            console.log('> fetchAdvanceAcceptances')
+
+            const inn = this.organizationInfo.meta.inn
+            const today = dayjs().format('YYYY-MM-DD')
+            const advanceAcceptancesIncomingMessage = await helper.fetchAdvanceAcceptances(accessToken, { date: today, clientId: SBBOL_CONFIG.client_id })
+            advanceAcceptancesIncomingMessage.on('data', async (data) => {
+                const advanceAcceptances = data
+                if (!Array.isArray(advanceAcceptances)) {
+                    console.error('Cannot parse advanceAcceptances')
+                } else {
+                    const userAcceptance = advanceAcceptances.find(({ payerInn }) => (
+                        payerInn === inn
+                    ))
+                    if (!userAcceptance) {
+                        console.error(`No acceptance found for organization(inn=${inn})`)
+                    } else {
+                        if (userAcceptance.active) {
+                            console.log(`User from organization(inn=${inn}) has accepted our offer in SBBOL`)
+                            // Дома: Создаём клиенту личный кабинет в системе Дома по условиям оферты
+                            // Создаём пробную подписку `ServiceSubscription`  на 15 дней
+                            const now = dayjs()
+                            const trialServiceSubscription = await ServiceSubscription.create(this.context, {
+                                type: 'sbbol',
+                                isTrial: true,
+                                organization: { connect: { id: this.organization.id } },
+                                startAt: now,
+                                finishAt: now.add(15, 'days'),
+                            })
+                            console.debug('Created trial subscription for SBBOL', trialServiceSubscription)
+                        } else {
+                            console.log(`User from organization(inn=${inn}) has not accepted our offer in SBBOL, do nothing`)
+                        }
+                    }
+                }
+            })
         }
     }
 
