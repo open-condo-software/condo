@@ -36,6 +36,7 @@ export interface ColumnInfo {
     name: string
     type: 'string' | 'number'
     required: boolean
+    label: string
 }
 
 const SLEEP_INTERVAL_BEFORE_QUERIES = 300

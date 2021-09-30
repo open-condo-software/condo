@@ -43,6 +43,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const PropertiesMessage = intl.formatMessage({ id: 'menu.Property' })
     const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.property.id.DownloadExcelLabel' })
+    const PropertyTitle = intl.formatMessage({ id: 'pages.condo.property.ImportTitle' })
 
     const router = useRouter()
 
@@ -157,6 +158,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
                                 columns={columns}
                                 rowNormalizer={propertyNormalizer}
                                 rowValidator={propertyValidator}
+                                domainTranslate={PropertyTitle}
                                 objectCreator={propertyCreator}
                             >
                                 <Button

@@ -17,12 +17,12 @@ import {
     getPartlyLoadedModalConfig,
 } from './ModalConfigs'
 import { DataImporter } from '../DataImporter'
-import styled from '@emotion/styled'
 import { Button } from '../Button'
 import { DownloadOutlined } from '@ant-design/icons'
 
 interface IColumnsInfoBoxProps {
     columns: Columns
+    domainTranslate: string
     exampleTemplateLink?: string | null
 }
 
@@ -34,19 +34,15 @@ interface IImportProps {
     rowNormalizer: RowNormalizer
     rowValidator: RowValidator
     objectCreator: ObjectCreator
+    domainTranslate: string
     exampleTemplateLink?: string | null
 }
 
-const InfoBoxContainer = styled.div`
-  max-width: 300px;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-`
-
-const ColumnsInfoBox: React.FC<IColumnsInfoBoxProps> = ({ columns, exampleTemplateLink }) => {
+const ColumnsInfoBox: React.FC<IColumnsInfoBoxProps> = ({ columns, domainTranslate, exampleTemplateLink }) => {
     const intl = useIntl()
-    const ColumnsFormatMessage = intl.formatMessage({ id: 'ImportRequiredColumnsFormat' })
+    const ColumnsFormatMessage = intl.formatMessage({ id: 'ImportRequiredColumnsFormat' }, {
+        domain: domainTranslate,
+    })
     const RequiredFieldsMessage = intl.formatMessage({ id: 'ImportRequiredFields' })
     const DownloadExampleTitle = intl.formatMessage({ id: 'ImportDownloadExampleTitle' })
 
@@ -64,36 +60,14 @@ const ColumnsInfoBox: React.FC<IColumnsInfoBoxProps> = ({ columns, exampleTempla
         [exampleTemplateLink],
     )
 
+    const fieldsString = columns.filter(({ required }) => required).map(column => column.label).join(', ')
+
     return (
-        <Space direction={'vertical'} size={10}>
+        <Space direction={'vertical'} size={10} style={{ maxWidth: 300 }}>
             <Typography.Text>
                 {ColumnsFormatMessage}
             </Typography.Text>
-            <InfoBoxContainer>
-                {
-                    columns.map((column, index) => {
-                        return (
-                            <>
-                                {index !== 0 && ', '}
-                                <Typography.Text keyboard key={column.name}>
-                                    {column.required && (
-                                        <Typography.Text type={'danger'} style={{ marginRight: 3 }}>
-                                            <sup>*</sup>
-                                        </Typography.Text>
-                                    )}
-                                    {column.name}
-                                </Typography.Text>
-                            </>
-                        )
-                    })
-                }
-            </InfoBoxContainer>
-            <Typography.Text>
-                <Typography.Text type={'danger'} style={{ marginRight: 3 }}>
-                    <sup>*</sup>
-                </Typography.Text>
-                {` - ${RequiredFieldsMessage}`}
-            </Typography.Text>
+            <Typography.Text>{RequiredFieldsMessage}: {fieldsString}</Typography.Text>
             {
                 exampleTemplateLink !== null && (
                     <Button
@@ -116,6 +90,7 @@ export const ImportWrapper: React.FC<IImportProps> = (props) => {
         rowValidator,
         objectCreator,
         onFinish,
+        domainTranslate,
         exampleTemplateLink = null,
     } = props
     const intl = useIntl()
@@ -199,7 +174,11 @@ export const ImportWrapper: React.FC<IImportProps> = (props) => {
                 <DataImporter onUpload={handleUpload}>
                     <Popover
                         title={<Typography.Text style={{ fontWeight: 'bold' }}>{ImportPopoverTitle}</Typography.Text>}
-                        content={<ColumnsInfoBox columns={columns} exampleTemplateLink={exampleTemplateLink}/>}
+                        content={<ColumnsInfoBox
+                            columns={columns}
+                            exampleTemplateLink={exampleTemplateLink}
+                            domainTranslate={domainTranslate}
+                        />}
                     >{props.children}</Popover>
                 </DataImporter>
                 {contextHolder}

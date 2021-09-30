@@ -32,7 +32,11 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const IncorrectUnitNameMessage = intl.formatMessage({ id: 'errors.import.EmptyUnitName' })
     const IncorrectEmailMessage = intl.formatMessage({ id: 'errors.import.IncorrectEmailFormat' })
     const IncorrectPhonesMessage = intl.formatMessage({ id: 'errors.import.IncorrectPhonesFormat' })
-
+    const AddressTitle = intl.formatMessage({ id: 'field.Address' })
+    const UnitTitle = intl.formatMessage({ id: 'field.Unit' })
+    const PhoneTitle = intl.formatMessage({ id: 'Phone' })
+    const NameTitle = intl.formatMessage({ id: 'field.FullName.short' })
+    const EmailTitle = intl.formatMessage({ id: 'field.EMail' })
 
     const userOrganization = useOrganization()
     const client = useApolloClient()
@@ -45,11 +49,11 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         () => Promise.resolve())
 
     const columns: Columns = [
-        { name: 'Address', type: 'string', required: true },
-        { name: 'Unit Name', type: 'string', required: true },
-        { name: 'Phones', type: 'string', required: true },
-        { name: 'Full Name', type: 'string', required: true },
-        { name: 'Email', type: 'string', required: false },
+        { name: 'Address', type: 'string', required: true, label: AddressTitle },
+        { name: 'Unit Name', type: 'string', required: true, label: UnitTitle },
+        { name: 'Phones', type: 'string', required: true, label: PhoneTitle },
+        { name: 'Full Name', type: 'string', required: true, label: NameTitle },
+        { name: 'Email', type: 'string', required: false, label: EmailTitle },
     ]
 
     const contactNormalizer: RowNormalizer = (row) => {
