@@ -6,13 +6,68 @@ const { makeClient } = require('@core/keystone/test.utils')
 const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { updateTestUser } = require('@condo/domains/user/utils/testSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { createTestBillingProperty, createTestBillingAccount, createTestBillingIntegration, createTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
-const { registerServiceConsumerByTestClient } = require('@condo/domains/resident/utils/testSchema')
+const { registerServiceConsumerByTestClient, updateTestServiceConsumer, createTestResident } = require('@condo/domains/resident/utils/testSchema')
  
 describe('RegisterServiceConsumerService', () => {
+    it('does not create same service consumer twice', async () => {
+
+        const userClient = await makeClientWithProperty()
+        const adminClient = await makeLoggedInAdminClient()
+
+        const [integration] = await createTestBillingIntegration(adminClient)
+        const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
+        const [billingProperty] = await createTestBillingProperty(adminClient, context)
+        const [billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
+
+        await updateTestUser(adminClient, userClient.user.id, { type: RESIDENT })
+        const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
+            unitName: billingAccountAttrs.unitName,
+        })
+
+        const payload = {
+            residentId: resident.id,
+            unitName: billingAccountAttrs.unitName,
+            accountNumber: billingAccountAttrs.number,
+        }
+        const out = await registerServiceConsumerByTestClient(userClient, payload)
+        expect(out).not.toEqual(undefined)
+
+        const out2 = await registerServiceConsumerByTestClient(userClient, payload)
+        expect(out2.id).toEqual(out.id)
+    })
+
+    it('can create, delete and create service consumer', async () => {
+
+        const userClient = await makeClientWithProperty()
+        const adminClient = await makeLoggedInAdminClient()
+
+        const [integration] = await createTestBillingIntegration(adminClient)
+        const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
+        const [billingProperty] = await createTestBillingProperty(adminClient, context)
+        const [billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
+
+        await updateTestUser(adminClient, userClient.user.id, { type: RESIDENT })
+        const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
+            unitName: billingAccountAttrs.unitName,
+        })
+
+        const payload = {
+            residentId: resident.id,
+            unitName: billingAccountAttrs.unitName,
+            accountNumber: billingAccountAttrs.number,
+        }
+        const [out] = await registerServiceConsumerByTestClient(userClient, payload)
+        expect(out).not.toEqual(undefined)
+
+        await updateTestServiceConsumer(userClient, out.id, { deletedAt: 'true' })
+
+        const [out2] = await registerServiceConsumerByTestClient(userClient, payload)
+        expect(out2.id).toEqual(out.id)
+    })
+
     it('creates b2b-integration serviceConsumer for valid input as resident', async () => {
 
         const userClient = await makeClientWithProperty()
