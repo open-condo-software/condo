@@ -250,7 +250,7 @@ export type BillingAccount = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Integration context  */
   context?: Maybe<BillingIntegrationOrganizationContext>;
@@ -579,7 +579,7 @@ export type BillingAccountMeter = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Integration context  */
   context?: Maybe<BillingIntegrationOrganizationContext>;
@@ -880,7 +880,7 @@ export type BillingAccountMeterReading = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Integration context  */
   context?: Maybe<BillingIntegrationOrganizationContext>;
@@ -1754,7 +1754,7 @@ export type BillingCurrency = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  International currency code, like RUB or USD  */
   code?: Maybe<Scalars['String']>;
@@ -2089,7 +2089,7 @@ export type BillingIntegration = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  The name of the `integration component` that the developer remembers  */
   name?: Maybe<Scalars['String']>;
@@ -2160,7 +2160,7 @@ export type BillingIntegrationAccessRight = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Integration  */
   integration?: Maybe<BillingIntegration>;
@@ -2797,7 +2797,7 @@ export type BillingIntegrationLog = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Integration context  */
   context?: Maybe<BillingIntegrationOrganizationContext>;
@@ -2978,7 +2978,7 @@ export type BillingIntegrationOrganizationContext = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  ID of the integration that is configured to receive data for the organization  */
   integration?: Maybe<BillingIntegration>;
@@ -3629,7 +3629,7 @@ export type BillingMeterResource = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  The name of the `resource types`  */
   name?: Maybe<Scalars['String']>;
@@ -3967,7 +3967,7 @@ export type BillingProperty = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Integration context  */
   context?: Maybe<BillingIntegrationOrganizationContext>;
@@ -4416,7 +4416,7 @@ export type BillingReceipt = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Integration context  */
   context?: Maybe<BillingIntegrationOrganizationContext>;
@@ -4989,6 +4989,7 @@ export type BillingReceiptsCreateInput = {
 
 export type BillingReceiptsRecipientField = {
   __typename?: 'BillingReceiptsRecipientField';
+  name?: Maybe<Scalars['String']>;
   tin: Scalars['String'];
   iec: Scalars['String'];
   bic: Scalars['String'];
@@ -4996,6 +4997,7 @@ export type BillingReceiptsRecipientField = {
 };
 
 export type BillingReceiptsRecipientFieldInput = {
+  name?: Maybe<Scalars['String']>;
   tin: Scalars['String'];
   iec: Scalars['String'];
   bic: Scalars['String'];
@@ -5120,7 +5122,7 @@ export type ConfirmPhoneAction = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Phone. In international E.164 format without spaces  */
   phone?: Maybe<Scalars['String']>;
@@ -5567,7 +5569,7 @@ export type Contact = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
@@ -6058,7 +6060,7 @@ export type Division = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Display name of this division  */
   name?: Maybe<Scalars['String']>;
@@ -6537,7 +6539,7 @@ export type ForgotPasswordAction = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Ref to the user. The object will be deleted if the user ceases to exist  */
   user?: Maybe<User>;
@@ -6965,7 +6967,7 @@ export type Message = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  This message is related to some organization. Organization can manage their messages  */
   organization?: Maybe<Organization>;
@@ -7524,7 +7526,7 @@ export type Meter = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
@@ -7940,7 +7942,7 @@ export type MeterReading = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
@@ -8325,7 +8327,7 @@ export type MeterReadingSource = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   type?: Maybe<MeterReadingSourceTypeType>;
   name?: Maybe<Scalars['String']>;
@@ -8896,7 +8898,7 @@ export type MeterResource = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   name?: Maybe<Scalars['String']>;
   measure?: Maybe<Scalars['String']>;
@@ -13272,7 +13274,7 @@ export type OnBoarding = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**
    *  Primary Attribute of user guide what we need to watch for.
@@ -13530,7 +13532,7 @@ export type OnBoardingStep = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Icon string definition of step.  */
   icon?: Maybe<Scalars['String']>;
@@ -14184,7 +14186,7 @@ export type Organization = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Country level specific  */
   country?: Maybe<OrganizationCountryType>;
@@ -14301,7 +14303,7 @@ export type OrganizationEmployee = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
@@ -14688,7 +14690,7 @@ export type OrganizationEmployeeRole = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
@@ -15658,7 +15660,7 @@ export type OrganizationLink = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Organization that gets access  */
   from?: Maybe<Organization>;
@@ -16177,7 +16179,7 @@ export type Property = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
@@ -19591,7 +19593,7 @@ export type Resident = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Mobile user account  */
   user?: Maybe<User>;
@@ -20329,7 +20331,7 @@ export type ServiceConsumer = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Resident object  */
   resident?: Maybe<Resident>;
@@ -20677,7 +20679,7 @@ export type ServiceSubscription = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  System, from where subscription was created (our or external)  */
   type?: Maybe<ServiceSubscriptionTypeType>;
@@ -23874,7 +23876,7 @@ export type Ticket = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
@@ -24013,7 +24015,7 @@ export type TicketCategoryClassifier = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Ref to the organization. If this ref is null the object is common for all organizations  */
   organization?: Maybe<Organization>;
@@ -24362,7 +24364,7 @@ export type TicketChange = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Related ticket, whose change is logged in this entity  */
   ticket?: Maybe<Ticket>;
@@ -25801,7 +25803,7 @@ export type TicketClassifier = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Ref to the organization. If this ref is null the object is common for all organizations  */
   organization?: Maybe<Organization>;
@@ -26054,7 +26056,7 @@ export type TicketClassifierRule = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Ref to the organization. If this ref is null the object is common for all organizations  */
   organization?: Maybe<Organization>;
@@ -26503,7 +26505,7 @@ export type TicketComment = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Related ticket of the comment  */
   ticket?: Maybe<Ticket>;
@@ -26894,7 +26896,7 @@ export type TicketFile = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
@@ -27714,7 +27716,7 @@ export type TicketPlaceClassifier = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Ref to the organization. If this ref is null the object is common for all organizations  */
   organization?: Maybe<Organization>;
@@ -28056,7 +28058,7 @@ export type TicketProblemClassifier = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Ref to the organization. If this ref is null the object is common for all organizations  */
   organization?: Maybe<Organization>;
@@ -28431,7 +28433,7 @@ export type TicketSource = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Ref to the organization. If this ref is null the object is common for all organizations  */
   organization?: Maybe<Organization>;
@@ -28813,7 +28815,7 @@ export type TicketStatus = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Ref to the organization. If this ref is null the object is common for all organizations  */
   organization?: Maybe<Organization>;
@@ -30023,7 +30025,7 @@ export type User = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  Name. If impersonal account should be a company name  */
   name?: Maybe<Scalars['String']>;
