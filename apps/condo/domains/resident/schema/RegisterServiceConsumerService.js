@@ -76,20 +76,36 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     throw new Error(`${NOT_FOUND_ERROR}account] BillingAccounts not found for this user`)
                 }
 
+                // todo (toplenboren) learn what to do if there are a lot of applicable billing accounts
+                const billingAccountId = applicableBillingAccounts[0].id
+
                 const attrs = {
                     dv,
                     sender,
                     resident: { connect: { id: residentId } },
                     accountNumber: accountNumber,
+                    billingAccount: { connect: { id: billingAccountId } },
                 }
 
-                // todo (toplenboren) learn what to do if there are a lot of applicable billing accounts
-                attrs.billingAccount = { connect: { id: applicableBillingAccounts[0].id } }
+                const [existingServiceConsumer] = await ServiceConsumer.getAll(context, {
+                    resident: { id: residentId },
+                    billingAccount: { id: billingAccountId },
+                })
 
-                const serviceConsumer = await ServiceConsumer.create(context, attrs)
+                let id
+                if (existingServiceConsumer) {
+                    await ServiceConsumer.update(context, existingServiceConsumer.id, {
+                        ...attrs,
+                        deletedAt: null,
+                    })
+                    id = existingServiceConsumer.id
+                } else {
+                    const serviceConsumer = await ServiceConsumer.create(context, attrs)
+                    id = serviceConsumer.id
+                }
 
                 // Hack that helps to resolve all subfields in result of this mutation
-                return await getById('ServiceConsumer', serviceConsumer.id)
+                return await getById('ServiceConsumer', id)
             },
         },
     ],
