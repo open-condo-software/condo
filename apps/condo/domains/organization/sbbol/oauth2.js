@@ -1,6 +1,7 @@
 // Todo(zuch): need to write JWT verification
 
 const conf = process.env
+const qs = require('qs')
 
 const { Issuer, custom } = require('openid-client') // certified openid client will all checks
 const jwtDecode = require('jwt-decode') // decode jwt without validation
@@ -120,6 +121,14 @@ class SbbolOauth2Api {
         return result
     }
 
+    async fetchAdvanceAcceptances (accessToken, { clientId, date }) {
+        const result = await this.client.requestResource(
+            this.advanceAcceptancesUrl({ clientId, date }),
+            accessToken
+        )
+        return result
+    }
+
     get userInfoUrl () {
         return `${this.protectedUrl}/ic/sso/api/v1/oauth/user-info`
     }
@@ -144,10 +153,8 @@ class SbbolOauth2Api {
         return `${this.protectedHost}:${this.port}`
     }
 
-    // TODO(antonal): next urls are not tested
-    get advanceAcceptancesUrl () {
-        // Try to send params
-        const params = `clientId=${this.clientId}&date=2021-10-28`
+    advanceAcceptancesUrl ({ clientId, date }) {
+        const params = qs.stringify({ clientId, date })
         return `${this.protectedUrl}/v1/partner-info/advance-acceptances?${params}`
     }
     get packageOfServicesUrl () {
