@@ -41,6 +41,10 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const intl = useIntl()
     const AddressNotFoundMessage = intl.formatMessage({ id: 'errors.import.AddressNotFound' })
     const PropertyDuplicateMessage = intl.formatMessage({ id: 'errors.import.PropertyDuplicate' })
+    const AddressLabel = intl.formatMessage({ id: 'field.Address' })
+    const UnitLabel = intl.formatMessage({ id: 'field.Unit' })
+    const SectionLabel = intl.formatMessage({ id: 'field.Section' })
+    const FloorLabel = intl.formatMessage({ id: 'field.Floor' })
 
     const userOrganization = useOrganization()
     const client = useApolloClient()
@@ -53,10 +57,10 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     }, () => Promise.resolve())
 
     const columns: Columns = [
-        { name: 'address', type: 'string', required: true },
-        { name: 'units', type: 'number', required: true },
-        { name: 'sections', type: 'number', required: true },
-        { name: 'floors', type: 'number', required: true },
+        { name: 'address', type: 'string', required: true, label: AddressLabel },
+        { name: 'units', type: 'number', required: true, label: UnitLabel },
+        { name: 'sections', type: 'number', required: true, label: SectionLabel },
+        { name: 'floors', type: 'number', required: true, label: FloorLabel },
     ]
 
     const propertyNormalizer: RowNormalizer = (row: TableRow) => {

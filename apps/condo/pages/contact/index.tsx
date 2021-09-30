@@ -47,6 +47,7 @@ export const ContactsPageContent = ({
     const EmptyListMessage = intl.formatMessage({ id: 'contact.EmptyList.title' })
     const CreateContact = intl.formatMessage({ id: 'AddContact' })
     const ContactsMessage = intl.formatMessage({ id: 'menu.Contacts' })
+    const ContactTitle = intl.formatMessage({ id: 'pages.condo.contact.ImportTitle' })
 
     const router = useRouter()
     const offsetFromQuery = getPageIndexFromQuery(router.query)
@@ -106,6 +107,7 @@ export const ContactsPageContent = ({
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
     const [columns, contactNormalizer, contactValidator, contactCreator] = useImporterFunctions()
 
+
     return (
         <>
             <Head>
@@ -142,6 +144,7 @@ export const ContactsPageContent = ({
                                                         rowNormalizer={contactNormalizer}
                                                         rowValidator={contactValidator}
                                                         objectCreator={contactCreator}
+                                                        domainTranslate={ContactTitle}
                                                         exampleTemplateLink={'/contact-import-example.xlsx'}
                                                     >
                                                         <Button

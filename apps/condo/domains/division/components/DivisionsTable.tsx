@@ -142,10 +142,12 @@ export default function DivisionTable (props: BuildingTableProps) {
             <Col span={6} push={6}>
                 {role?.canManageProperties ? (
                     <Space size={16}>
-                        <Button
-                            type={'sberPrimary'}
-                            icon={<DiffOutlined />}
-                            secondary />
+                        <Tooltip title={NotImplementedYetMessage}>
+                            <Button
+                                type={'sberPrimary'}
+                                icon={<DiffOutlined />}
+                                secondary />
+                        </Tooltip>
                         <Button type='sberPrimary' onClick={() => router.push('/division/create')}>
                             {CreateLabel}
                         </Button>
@@ -161,7 +163,7 @@ export default function DivisionTable (props: BuildingTableProps) {
                     columns={tableColumns}
                     pageSize={PROPERTY_PAGE_SIZE}
                     applyQuery={(queryParams)=> {
-                        queryParams['tab'] = router.query['tab'] 
+                        queryParams['tab'] = router.query['tab']
                         const newQuery = qs.stringify({ ...queryParams }, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })
                         return router.push(router.route + newQuery)
                     }}
