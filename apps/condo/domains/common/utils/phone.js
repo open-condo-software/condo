@@ -1,11 +1,9 @@
-const phone = require('phone')
+const { phone } = require('phone')
 
-function normalizePhone (data) {
-    if (!data) return
-    if (!data.startsWith('+')) return
-    const result = phone(data)
-    if (result.length !== 2) return
-    return result[0]
+function normalizePhone (data, allowLandLine = false) {
+    if (!data || !data.startsWith('+')) return
+    const result = phone(data, { validateMobilePrefix: !allowLandLine, strictDetection: true })
+    if (result.isValid) return result.phoneNumber
 }
 
 module.exports = {

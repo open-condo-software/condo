@@ -1,6 +1,12 @@
 import { Rule } from 'rc-field-form/lib/interface'
 import { useIntl } from '@core/next/intl'
 
+const NON_DIGITS_REGEXP = /\D/g
+
+// TODO: @akarjakin - move to apropriate place and add imports
+const MAX_PHONE_LENGTH = 15
+const MIN_PHONE_LENGTH = 11
+
 type IFormFieldsRuleMap = {
     [key: string]: Rule[]
 }
@@ -37,9 +43,9 @@ export function useTicketValidations (): IFormFieldsRuleMap {
             },
             {
                 validator: (_, value) => {
-                    const phone = value.replace(/\D/g, '')
+                    const phone = value.replace(NON_DIGITS_REGEXP, '')
 
-                    if (phone.length > 15) {
+                    if (phone.length > MAX_PHONE_LENGTH || phone.length < MIN_PHONE_LENGTH) {
                         return Promise.reject(new Error(intl.formatMessage({ id: 'field.Phone.lengthError' })))
                     }
 

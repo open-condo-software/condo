@@ -8,6 +8,7 @@ interface IContactsEditorHookArgs {
     // Organization scope for contacts autocomplete and new contact, that can be created
     organization: string,
     role?: IOrganizationEmployeeRoleUIState,
+    allowLandLine?: boolean,
 }
 
 interface IContactsEditorHookResult {
@@ -17,7 +18,7 @@ interface IContactsEditorHookResult {
     canCreateContact: boolean,
 }
 
-export const useContactsEditorHook = ({ organization, role }: IContactsEditorHookArgs): IContactsEditorHookResult => {
+export const useContactsEditorHook = ({ organization, role, allowLandLine }: IContactsEditorHookArgs): IContactsEditorHookResult => {
     // Field value will be initialized only on user interaction.
     // In case of no interaction, no create action will be performed
     // @ts-ignore
@@ -76,6 +77,7 @@ export const useContactsEditorHook = ({ organization, role }: IContactsEditorHoo
                 role={role}
                 organization={organization}
                 onChange={handleChangeContact}
+                allowLandLine={allowLandLine}
             />
         )
         return ContactsEditorWrapper
