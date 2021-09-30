@@ -11,6 +11,7 @@ import { useOrganization } from '@core/next/organization'
 import { useObjects } from '../utils/clientSchema/ServiceSubscription'
 import { get } from 'lodash'
 import { isExpired } from '../utils/helpers'
+import { hasFeature } from '../../common/components/containers/FeatureFlag'
 
 dayjs.extend(relativeTime)
 dayjs.extend(duration)
@@ -93,7 +94,7 @@ interface ISubscriptionProviderProps {
     children: JSX.Element
 }
 
-export const SubscriptionProvider: React.FC<ISubscriptionProviderProps> = ({ children }) => {
+const SubscriptionContextProvider: React.FC<ISubscriptionProviderProps> = ({ children }) => {
     const { subscription, isExpired, daysLeft, daysLeftHumanized } = useServiceSubscriptionLoader()
     const { route } = useRouter()
     useEffect(() => {
@@ -111,5 +112,16 @@ export const SubscriptionProvider: React.FC<ISubscriptionProviderProps> = ({ chi
             )}
             {children}
         </SubscriptionContext.Provider>
+    )
+}
+
+export const SubscriptionProvider: React.FC<ISubscriptionProviderProps> = ({ children }) => {
+    const hasSubscriptionFeature = hasFeature('subscription')
+    return hasSubscriptionFeature ? (
+        <SubscriptionContextProvider>
+            {children}
+        </SubscriptionContextProvider>
+    ) : (
+        children
     )
 }

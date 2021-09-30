@@ -27,7 +27,7 @@ import { FocusElement } from '@condo/domains/common/components/Focus/FocusElemen
 import { BarChartIcon } from '@condo/domains/common/components/icons/BarChart'
 import { OnBoardingProgress } from '@condo/domains/common/components/icons/OnBoardingProgress'
 import { OnBoardingProvider } from '../domains/onboarding/components/OnBoardingContext'
-import { FeatureFlagRequired } from '@condo/domains/common/components/containers/FeatureFlag'
+import { FeatureFlagRequired, hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import { FocusContextProvider } from '../domains/common/components/Focus/FocusContextProvider'
 import { OnBoardingProgressIconContainer } from '@condo/domains/onboarding/components/OnBoardingProgressIconContainer'
 import {
@@ -56,7 +56,8 @@ const ANT_DEFAULT_LOCALE = enUS
 const MenuItems: React.FC = () => {
     const { link } = useOrganization()
     const { isExpired } = useServiceSubscriptionContext()
-    const disabled = !link || isExpired
+    const hasSubscriptionFeature = hasFeature('subscription')
+    const disabled = !link || (hasSubscriptionFeature && isExpired)
     return (
         <>
             <FocusElement>
