@@ -464,7 +464,7 @@
   "pages.condo.analytics.TicketAnalyticsPage.NullReplaces.CategoryClassifier": "Без категории",
   "pages.condo.analytics.TicketAnalyticsPage.NullReplaces.Executor": "Исполнитель не назначен",
   "pages.condo.analytics.TicketAnalyticsPage.NullReplaces.Assignee": "Ответственный не назначен",
-  "pages.organizations.CreateOrganizationButtonLabel": "Создать новую организацию",
+  "pages.organizations.CreateOrganizationButtonLabel": "Создать организацию",
   "pages.organizations.CreateOrganizationModalTitle": "Форма создания новой организации",
   "pages.organizations.EditOrganizationModalTitle": "Форма редактирования организации",
   "pages.organizations.OrganizationName": "Название",
