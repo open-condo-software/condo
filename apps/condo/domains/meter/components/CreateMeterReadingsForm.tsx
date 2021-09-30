@@ -217,9 +217,9 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     useEffect(() => {
         selectedUnitNameRef.current = selectedUnitName
         setAccountNumber(null)
-        formFromState && formFromState.setFieldsValue( { newMeters: null })
+        formFromState && formFromState.setFieldsValue( { newMeters: null, existedMeters: null })
         refetchExistedMeters()
-    }, [selectedUnitName])
+    }, [selectedPropertyId, selectedUnitName])
 
     const accountNumberRef = useRef(accountNumber)
     useEffect(() => {
