@@ -52,11 +52,7 @@ const useServiceSubscriptionLoader = (): ISubscriptionContext => {
     }
 }
 
-interface IExpiredModal {
-    subscription: ServiceSubscription
-}
-
-const ExpiredModal: React.FC<IExpiredModal> = ({ subscription }) => {
+const ExpiredModal: React.FC = () => {
     const intl = useIntl()
     const ExpiredTitleMessage = intl.formatMessage({ id: 'subscription.modal.expired.title' })
     const ExpiredDescriptionPromptMessage = intl.formatMessage({ id: 'subscription.modal.expired.description.prompt' })
@@ -108,7 +104,7 @@ const SubscriptionContextProvider: React.FC<ISubscriptionProviderProps> = ({ chi
     return (
         <SubscriptionContext.Provider value={{ subscription, isExpired, daysLeft, daysLeftHumanized }}>
             {isExpired && (
-                <ExpiredModal subscription={subscription}/>
+                <ExpiredModal/>
             )}
             {children}
         </SubscriptionContext.Provider>

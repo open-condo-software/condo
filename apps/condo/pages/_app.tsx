@@ -1,7 +1,7 @@
 import { ConfigProvider } from 'antd'
 import enUS from 'antd/lib/locale/en_US'
 import ruRU from 'antd/lib/locale/ru_RU'
-import React, { useContext } from 'react'
+import React from 'react'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
 import getConfig from 'next/config'
@@ -36,7 +36,7 @@ import {
 import { MeterLog } from '../domains/common/components/icons/MeterLogIcon'
 import {
     SubscriptionProvider,
-    useServiceSubscriptionContext
+    useServiceSubscriptionContext,
 } from '../domains/subscription/components/SubscriptionContext'
 import dayjs from 'dayjs'
 

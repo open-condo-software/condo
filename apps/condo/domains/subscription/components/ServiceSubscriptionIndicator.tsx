@@ -14,7 +14,7 @@ const StyledPanel = styled.div`
   border-radius: 8px;
 `
 
-export const ServiceSubscriptionIndicator = () => {
+export const ServiceSubscriptionIndicator: React.FC = () => {
     const { subscription, daysLeft, daysLeftHumanized, isExpired } = useServiceSubscriptionContext()
     if (!subscription || !subscription.isTrial) {
         return null
@@ -48,7 +48,7 @@ const textStyle = {
     lineHeight: '12px',
 }
 
-const TrialExpiredMessage = () => {
+const TrialExpiredMessage: React.FC = () => {
     const intl = useIntl()
     const InfoMessage = intl.formatMessage({ id: 'subscription.indicator.trial.expired.info' })
     const PromptMessage = intl.formatMessage({ id: 'subscription.indicator.trial.expired.prompt' })
@@ -65,7 +65,12 @@ const TrialExpiredMessage = () => {
     )
 }
 
-const TrialActiveMessage = ({ daysLeftHumanized }) => {
+
+interface ITrialActiveMessage {
+    daysLeftHumanized: string
+}
+
+const TrialActiveMessage: React.FC<ITrialActiveMessage> = ({ daysLeftHumanized }) => {
     const intl = useIntl()
     const TrialActiveMessage = intl.formatMessage({ id: 'subscription.indicator.trial.active' })
     const [before, after] = TrialActiveMessage.split('{days}')
