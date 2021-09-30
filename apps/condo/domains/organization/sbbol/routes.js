@@ -63,7 +63,7 @@ class SbbolRoutes {
             } else {
                 console.log('No subscriptions found')
                 console.log('Fetching subscribers and offers from SBBOL')
-                const sbbolSubscribersInfo = await this.helper.fetchSubscribers(access_token);
+                const sbbolSubscribersInfo = await this.helper.fetchSubscribers(access_token)
                 sbbolSubscribersInfo.offers.on('data', data => {
                     console.log('Reading `offers` response')
                     console.debug(data)
