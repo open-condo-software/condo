@@ -8,7 +8,7 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import duration from 'dayjs/plugin/duration'
 import { Button } from '@condo/domains/common/components/Button'
 import { useOrganization } from '@core/next/organization'
-import { useObjects } from '../utils/clientSchema/ServiceSubscription'
+import { ServiceSubscription as ServiceSubscriptionUtil } from '../utils/clientSchema'
 import { get } from 'lodash'
 import { isExpired } from '../utils/helpers'
 import { hasFeature } from '../../common/components/containers/FeatureFlag'
@@ -29,7 +29,7 @@ export const useServiceSubscriptionContext = () => useContext(SubscriptionContex
 
 const useServiceSubscriptionLoader = (): ISubscriptionContext => {
     const { organization } = useOrganization()
-    const { objs } = useObjects({
+    const { objs } = ServiceSubscriptionUtil.useObjects({
         where: {
             organization: { id: get(organization, 'id') },
         },
