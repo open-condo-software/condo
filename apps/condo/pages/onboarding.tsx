@@ -8,6 +8,12 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import { OnBoardingStepItem } from '@condo/domains/onboarding/components/OnBoardingStepItem'
 import { useIntl } from '@core/next/intl'
 import { useOnBoardingContext } from '@condo/domains/onboarding/components/OnBoardingContext'
+import { useServiceSubscriptionWelcomePopup } from '../domains/subscription/hooks/useServiceSubscriptionWelcomePopup'
+import { ServiceSubscription } from '../domains/subscription/utils/clientSchema'
+import { ServiceSubscriptionTypeType } from '../schema'
+import { useOrganization } from '@core/next/organization'
+import dayjs from 'dayjs'
+import cookie from 'js-cookie'
 
 interface IOnBoardingIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -20,6 +26,35 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
     const Title = intl.formatMessage({ id: 'onboarding.title' })
     const SubTitle = intl.formatMessage({ id: 'onboarding.subtitle' })
     const { onBoardingSteps = [], onBoarding, refetchOnBoarding } = useOnBoardingContext()
+    const {
+        ServiceSubscriptionWelcomePopup,
+        setIsServiceSubscriptionWelcomePopupVisible,
+        isServiceSubscriptionWelcomePopupVisible,
+    } = useServiceSubscriptionWelcomePopup()
+
+    const { organization } = useOrganization()
+
+    const thisMinute = dayjs().startOf('minute').toISOString()
+    const isSubscriberFirstLoginPopupConfirmed = cookie.get('isSubscriberFirstLoginPopupConfirmed')
+
+    const { objs: subscriptions, loading: subscriptionsLoading } = ServiceSubscription.useObjects({
+        where: {
+            organization: { id: organization && organization.id },
+            type: ServiceSubscriptionTypeType.Sbbol,
+            isTrial: true,
+            finishAt_gte: thisMinute,
+        },
+    })
+
+    useEffect(() => {
+        if (
+            subscriptions.length > 0 &&
+            !subscriptionsLoading &&
+            !isServiceSubscriptionWelcomePopupVisible &&
+            !isSubscriberFirstLoginPopupConfirmed
+        )
+            setIsServiceSubscriptionWelcomePopupVisible(true)
+    }, [subscriptionsLoading])
 
     useEffect(() => {
         refetchOnBoarding()
@@ -86,6 +121,13 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
                     </PageContent>
                 </AuthRequired>
             </PageWrapper>
+            {
+                isServiceSubscriptionWelcomePopupVisible && (
+                    <ServiceSubscriptionWelcomePopup
+                        subscription={subscriptions ? subscriptions[0] : null}
+                    />
+                )
+            }
         </>
     )
 }
