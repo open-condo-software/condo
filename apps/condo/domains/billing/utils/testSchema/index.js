@@ -413,6 +413,7 @@ async function createTestBillingReceipt (client, context, property, account, ext
         importId: faker.random.alphaNumeric(8),
         toPay: faker.datatype.number().toString(),
         recipient: {
+            name: faker.random.boolean ? faker.vehicle.manufacturer() : undefined,
             tin: faker.datatype.number().toString(),
             iec: faker.datatype.number().toString(),
             bic: faker.datatype.number().toString(),
