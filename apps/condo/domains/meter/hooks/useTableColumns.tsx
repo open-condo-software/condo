@@ -115,8 +115,9 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                     const value3 = get(record, 'value3')
                     const value4 = get(record, 'value4')
                     const measure = get(record, ['meter', 'resource', 'measure'])
+                    const resourceId = get(record, ['meter', 'resource', 'id'])
 
-                    return renderMeterReading([value1, value2, value3, value4], measure)
+                    return renderMeterReading([value1, value2, value3, value4], resourceId, measure)
                 },
             },
             {
