@@ -14,7 +14,6 @@ const {
     BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME,
     BILLING_RECEIPT_SERVICES_FIELD,
 } = require('@condo/domains/billing/constants')
-const _ = require('lodash')
 
 const fieldsObj = {
     id: 'ID',
@@ -45,7 +44,7 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
         {
             access: access.canGetAllResidentBillingReceipts,
             schema: 'allResidentBillingReceipts (where: ResidentBillingReceiptWhereInput, first: Int, skip: Int, sortBy: [SortResidentBillingReceiptsBy!]): [ResidentBillingReceiptOutput]',
-            resolver: async (parent, args, context, info, extra = {}) => {
+            resolver: async (parent, args, context = {}) => {
                 const { where, first, skip, sortBy } = args
 
                 const serviceConsumerWhere = get(where, 'serviceConsumer', {})
