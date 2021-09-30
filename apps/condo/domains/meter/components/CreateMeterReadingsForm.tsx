@@ -246,7 +246,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
 
     const action = useCallback(async (variables: ICreateMeterReadingsFormVariables) => {
         let createdContact
-        if (role.canManageContacts && canCreateContactRef.current) {
+        if (role && role.canManageContacts && canCreateContactRef.current) {
             createdContact = await createContact(organization.id, selectPropertyIdRef.current, selectedUnitNameRef.current)
         }
 
