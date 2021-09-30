@@ -97,7 +97,7 @@ export default function DivisionTable (props: BuildingTableProps) {
 
             </Col>
             <Col span={6} push={6}>
-                {role?.canManageProperties ? (
+                {role?.canManageDivisions ? (
                     <Space size={16}>
                         <Tooltip title={NotImplementedYetMessage}>
                             <Button
