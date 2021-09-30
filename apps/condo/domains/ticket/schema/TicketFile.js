@@ -6,8 +6,8 @@ const { Relationship, File } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
+const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketFile')
-const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 

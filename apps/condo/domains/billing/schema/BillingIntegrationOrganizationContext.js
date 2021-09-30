@@ -7,6 +7,7 @@ const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
+const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/fields')
 const access = require('@condo/domains/billing/access/BillingIntegrationOrganizationContext')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 const { validateReport } = require('@condo/domains/billing/utils/validation.utils')
@@ -15,8 +16,6 @@ const {
     BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IN_PROGRESS_STATUS,
 } = require('../constants')
 
-// TODO(pahaz): move if after Organization refactoring
-const { ORGANIZATION_OWNED_FIELD } = require('../../../schema/_common')
 
 const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrationOrganizationContext', {
     schemaDoc: 'Integration state and settings for all organizations. The existence of this object means that there is a configured integration between the `billing data source` and `this API`',
