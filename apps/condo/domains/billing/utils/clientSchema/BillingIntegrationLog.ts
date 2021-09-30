@@ -8,7 +8,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { BillingIntegrationLog as BillingIntegrationLogGQL } from '@condo/domains/billing/gql'
-import { BillingIntegrationLog, BillingIntegrationLogUpdateInput, QueryAllBillingIntegrationLogsArgs } from '../../../../schema'
+import { BillingIntegrationLog, BillingIntegrationLogUpdateInput, QueryAllBillingIntegrationLogsArgs } from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'context', 'type', 'message', 'meta']
 const RELATIONS = ['context']

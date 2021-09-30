@@ -13,7 +13,7 @@ import { Division } from '../utils/clientSchema'
 import { getFilterValue } from '@condo/domains/common/components/Table/Filters'
 import { getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
-import { DivisionWhereInput } from '../../../schema'
+import { DivisionWhereInput } from '@app/condo/schema'
 import { useRouter } from 'next/router'
 
 export interface ITableColumn {

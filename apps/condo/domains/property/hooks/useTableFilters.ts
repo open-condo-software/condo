@@ -1,6 +1,6 @@
 import { getFilter } from '@condo/domains/common/utils/tables.utils'
 import { ComponentType, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
-import { PropertyWhereInput } from '../../../schema'
+import { PropertyWhereInput } from '@app/condo/schema'
 import { useIntl } from '@core/next/intl'
 
 

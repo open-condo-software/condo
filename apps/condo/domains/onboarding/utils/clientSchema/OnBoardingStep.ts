@@ -8,7 +8,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { OnBoardingStep as OnBoardingStepGQL } from '@condo/domains/onboarding/gql'
-import { OnBoardingStep, OnBoardingStepUpdateInput, QueryAllOnBoardingStepsArgs } from '../../../../schema'
+import { OnBoardingStep, OnBoardingStepUpdateInput, QueryAllOnBoardingStepsArgs } from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'icon', 'title', 'description', 'action', 'entity', 'onBoarding', 'completed', 'order', 'required']
 const RELATIONS = ['onBoarding']

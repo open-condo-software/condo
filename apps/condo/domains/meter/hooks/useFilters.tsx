@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { ComponentType, FilterComponentSize, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
-import { MeterReadingWhereInput } from '../../../schema'
+import { MeterReadingWhereInput } from '@app/condo/schema'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 import { get } from 'lodash'
 import {

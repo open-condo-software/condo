@@ -8,7 +8,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { OrganizationLink as OrganizationLinkGQL } from '@condo/domains/organization/gql'
-import { OrganizationLink, OrganizationLinkUpdateInput, QueryAllOrganizationLinksArgs } from '../../../../schema'
+import { OrganizationLink, OrganizationLinkUpdateInput, QueryAllOrganizationLinksArgs } from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'from', 'to']
 const RELATIONS = ['from', 'to']

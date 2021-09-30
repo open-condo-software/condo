@@ -5,7 +5,7 @@ import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { useIntl } from '@core/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
 import { useAuth } from '@core/next/auth'
-import { OrganizationEmployee as OrganizationEmployeeType } from '../../../schema'
+import { OrganizationEmployee as OrganizationEmployeeType } from '@app/condo/schema'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { fontSizes } from '@condo/domains/common/constants/style'
 

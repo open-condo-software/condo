@@ -8,7 +8,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { BillingReceipt as BillingReceiptGQL } from '@condo/domains/billing/gql'
-import { BillingReceipt, BillingReceiptUpdateInput, QueryAllBillingReceiptsArgs } from '../../../../schema'
+import { BillingReceipt, BillingReceiptUpdateInput, QueryAllBillingReceiptsArgs } from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'context', 'importId', 'property', 'account', 'period', 'raw', 'toPay', 'services', 'meta', 'toPayDetails']
 const RELATIONS = ['context', 'property', 'account']

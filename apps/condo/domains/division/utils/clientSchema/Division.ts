@@ -14,7 +14,7 @@ import {
     OrganizationEmployee,
     Property,
     QueryAllDivisionsArgs,
-} from '../../../../schema'
+} from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'name', 'organization', 'responsible', 'executors', 'properties']
 const RELATIONS = ['organization', 'properties', 'responsible', 'executors']

@@ -8,7 +8,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { TicketStatus as TicketStatusGQL } from '@condo/domains/ticket/gql'
-import { TicketStatus, TicketStatusUpdateInput, QueryAllTicketStatusesArgs } from '../../../../schema'
+import { TicketStatus, TicketStatusUpdateInput, QueryAllTicketStatusesArgs } from '@app/condo/schema'
 
 const FIELDS = ['id', 'type', 'name', 'colors']
 const RELATIONS = []

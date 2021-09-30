@@ -1,6 +1,6 @@
 import getConfig from 'next/config'
 import get from 'lodash/get'
-import { AddressMetaField } from '../../../schema'
+import { AddressMetaField } from '@app/condo/schema'
 
 type SuggestionsResponse = Promise<{ suggestions: Array<AddressMetaField> }>
 

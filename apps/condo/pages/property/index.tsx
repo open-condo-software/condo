@@ -20,7 +20,7 @@ import { useTableFilters as usePropertyTableFilters } from '@condo/domains/prope
 import PropertiesMap from '@condo/domains/common/components/PropertiesMap'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { Division } from '@condo/domains/division/utils/clientSchema'
-import { DivisionWhereInput, OrganizationEmployeeRole, PropertyWhereInput } from '../../schema'
+import { DivisionWhereInput, OrganizationEmployeeRole, PropertyWhereInput } from '@app/condo/schema'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useTableColumns as useDivisionsTableColumns } from '@condo/domains/division/hooks/useTableColumns'
 import { ColumnsType } from 'antd/lib/table'

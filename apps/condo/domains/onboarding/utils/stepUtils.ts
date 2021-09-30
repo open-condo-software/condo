@@ -1,6 +1,6 @@
 import { CheckOutlined } from '@ant-design/icons'
 import get from 'lodash/get'
-import { OnBoarding, OnBoardingStep, OnBoardingStep as OnBoardingStepInterface } from '../../../schema'
+import { OnBoarding, OnBoardingStep, OnBoardingStep as OnBoardingStepInterface } from '@app/condo/schema'
 import { OnBoardingStepType } from '@condo/domains/onboarding/components/OnBoardingStepItem'
 
 export const getStepKey = (step: OnBoardingStepInterface) => `${step.action}.${step.entity}`

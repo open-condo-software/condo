@@ -13,7 +13,7 @@ import {
     TicketStatus,
     TicketStatusWhereInput,
     TicketWhereInput,
-} from '../../../schema'
+} from '@app/condo/schema'
 import {
     AnalyticsDataType,
     ChartConfigResult,

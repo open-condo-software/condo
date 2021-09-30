@@ -11,7 +11,7 @@ import { OnBoarding as OnBoardingHooks, OnBoardingStep as OnBoardingStepHooks } 
 import {
     OnBoarding as IOnBoarding,
     OnBoardingStep as IOnBoardingStep,
-} from '../../../schema'
+} from '@app/condo/schema'
 import { OrganizationEmployee as OrganizationEmployeeGql } from '@condo/domains/organization/gql'
 import { Property as PropertyGql } from '@condo/domains/property/gql'
 import { Division as DivisionGql } from '@condo/domains/division/gql'

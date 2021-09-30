@@ -12,7 +12,7 @@ import { Property, PropertyUpdateInput, QueryAllPropertiesArgs } from '@condo/do
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'name', 'address', 'addressMeta', 'type', 'map', 'ticketsInWork', 'ticketsClosed', 'unitsCount']
 const RELATIONS = ['organization']
-import { BuildingMap, AddressMetaField } from '../../../../schema'
+import { BuildingMap, AddressMetaField } from '@app/condo/schema'
 
 export interface IPropertyUIState extends Property {
     id: string

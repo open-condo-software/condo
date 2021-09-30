@@ -44,7 +44,7 @@ import {
     TICKET_REPORT_DAY_GROUP_STEPS,
     TICKET_REPORT_TABLE_MAIN_GROUP,
 } from '@condo/domains/ticket/constants/common'
-import { ExportTicketAnalyticsToExcelTranslates, TicketGroupedCounter, TicketLabel } from '../../../../schema'
+import { ExportTicketAnalyticsToExcelTranslates, TicketGroupedCounter, TicketLabel } from '@app/condo/schema'
 import { ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 import { useTicketWarningModal } from '@condo/domains/ticket/hooks/useTicketWarningModal'
 import { MAX_FILTERED_ELEMENTS, MAX_TAG_TEXT_LENGTH } from '@condo/domains/ticket/constants/restrictions'

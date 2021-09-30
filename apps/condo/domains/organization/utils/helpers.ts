@@ -6,7 +6,7 @@ import {
     OrganizationEmployeeRoleWhereInput,
     OrganizationEmployeeWhereInput,
     SortOrganizationEmployeesBy,
-} from '../../../schema'
+} from '@app/condo/schema'
 
 export interface IFilters extends Pick<OrganizationEmployee, 'name' | 'phone' | 'email'> {
     name?: string

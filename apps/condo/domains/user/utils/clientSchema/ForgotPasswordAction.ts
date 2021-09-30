@@ -8,7 +8,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { ForgotPasswordAction as ForgotPasswordActionGQL } from '@condo/domains/user/gql'
-import { ForgotPasswordAction, ForgotPasswordActionUpdateInput, QueryAllForgotPasswordActionsArgs } from '../../../../schema'
+import { ForgotPasswordAction, ForgotPasswordActionUpdateInput, QueryAllForgotPasswordActionsArgs } from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'user', 'token', 'requestedAt', 'expiresAt', 'usedAt']
 const RELATIONS = ['user']

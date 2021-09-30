@@ -8,7 +8,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { OrganizationEmployeeRole as OrganizationEmployeeRoleGQL } from '@condo/domains/organization/gql'
-import { OrganizationEmployeeRole, OrganizationEmployeeRoleUpdateInput, QueryAllOrganizationEmployeeRolesArgs } from '../../../../schema'
+import { OrganizationEmployeeRole, OrganizationEmployeeRoleUpdateInput, QueryAllOrganizationEmployeeRolesArgs } from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'name', 'description', 'statusTransitions', 'canManageOrganization', 'canManageEmployees', 'canManageRoles', 'canManageIntegrations', 'canManageProperties', 'canManageTickets', 'canManageTicketComments', 'canShareTickets', 'canBeAssignedAsResponsible', 'canBeAssignedAsExecutor']
 const RELATIONS = ['organization']

@@ -8,7 +8,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { ServiceSubscription as ServiceSubscriptionGQL } from '@condo/domains/subscription/gql'
-import { ServiceSubscription, ServiceSubscriptionUpdateInput, QueryAllServiceSubscriptionsArgs } from '../../../../schema'
+import { ServiceSubscription, ServiceSubscriptionUpdateInput, QueryAllServiceSubscriptionsArgs } from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'type', 'isTrial', 'organization', 'startAt', 'finishAt', 'unitsCount', 'unitPrice', 'totalPrice', 'currency']
 const RELATIONS = ['organization']

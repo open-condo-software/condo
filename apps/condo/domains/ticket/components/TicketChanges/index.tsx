@@ -3,7 +3,7 @@ import { TicketChange } from './TicketChange'
 import { Col, Row, Typography, Button, Skeleton } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { green } from '@ant-design/colors'
-import { TicketChange as TicketChangeType } from '../../../../schema'
+import { TicketChange as TicketChangeType } from '@app/condo/schema'
 // TODO(antonal): fix "Module not found: Can't resolve '@condo/schema'"
 // import { SortTicketChangesBy } from '@condo/schema'
 import { FormattedMessage } from 'react-intl'

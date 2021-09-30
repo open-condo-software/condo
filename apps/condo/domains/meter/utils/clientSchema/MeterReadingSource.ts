@@ -8,7 +8,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { MeterReadingSource as MeterReadingSourceGQL } from '@condo/domains/meter/gql'
-import { MeterReadingSource, MeterReadingSourceUpdateInput, QueryAllMeterReadingSourcesArgs } from '../../../../schema'
+import { MeterReadingSource, MeterReadingSourceUpdateInput, QueryAllMeterReadingSourcesArgs } from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'type', 'name']
 const RELATIONS = []

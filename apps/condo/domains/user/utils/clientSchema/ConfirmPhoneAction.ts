@@ -8,7 +8,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { ConfirmPhoneAction as ConfirmPhoneActionGQL } from '@condo/domains/user/gql'
-import { ConfirmPhoneAction, ConfirmPhoneActionUpdateInput, QueryAllConfirmPhoneActionsArgs } from '../../../../schema'
+import { ConfirmPhoneAction, ConfirmPhoneActionUpdateInput, QueryAllConfirmPhoneActionsArgs } from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'phone', 'token', 'smsCode', 'smsCodeRequestedAt', 'smsCodeExpiresAt', 'retries', 'isPhoneVerified', 'requestedAt', 'expiresAt', 'completedAt']
 const RELATIONS = []

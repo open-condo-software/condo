@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'
 import { Select, SelectProps } from 'antd'
 import { OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
-import { OrganizationEmployeeRole as IOrganizationEmployeeRole  } from '../../../schema'
+import { OrganizationEmployeeRole as IOrganizationEmployeeRole  } from '@app/condo/schema'
 
 interface IEmployeeRoleSelectProps extends SelectProps<string> {
     employeeRoles: Array<IOrganizationEmployeeRole>

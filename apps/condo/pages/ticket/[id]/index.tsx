@@ -34,7 +34,7 @@ import { ShareTicketModal } from '@condo/domains/ticket/components/ShareTicketMo
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { useResponsive } from '@condo/domains/common/hooks/useResponsive'
-import { User } from '../../../schema'
+import { User } from '@app/condo/schema'
 
 interface ITicketFileListProps {
     files?: TicketFile.ITicketFileUIState[]

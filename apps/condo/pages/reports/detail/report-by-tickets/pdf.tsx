@@ -23,7 +23,7 @@ import {
 import { Logo } from '@condo/domains/common/components/Logo'
 import { colors } from '@condo/domains/common/constants/style'
 import TicketChart from '@condo/domains/ticket/components/TicketChart'
-import { TicketAnalyticsGroupBy, TicketGroupedCounter, TicketLabel } from '../../../../schema'
+import { TicketAnalyticsGroupBy, TicketGroupedCounter, TicketLabel } from '@app/condo/schema'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 
 const PdfView = () => {
