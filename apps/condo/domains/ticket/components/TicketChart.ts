@@ -1,6 +1,6 @@
 import { TableColumnsType, TableProps } from 'antd'
 import BaseChart, { IGetBaseChartConfig, IGetBaseTableConfig } from '@condo/domains/common/components/BaseChart'
-import { TicketGroupedCounter } from '../../../schema'
+import { TicketGroupedCounter } from '@app/condo/schema'
 export type TicketSelectTypes = 'all' | 'default' | 'paid' | 'emergency'
 export type ViewModeTypes = 'bar' | 'line' | 'pie'
 

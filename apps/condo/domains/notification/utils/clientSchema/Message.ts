@@ -8,7 +8,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { Message as MessageGQL } from '@condo/domains/notification/gql'
-import { Message, MessageUpdateInput, QueryAllMessagesArgs } from '../../../../schema'
+import { Message, MessageUpdateInput, QueryAllMessagesArgs } from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'property', 'ticket', 'user', 'type', 'meta', 'channels', 'status', 'deliveredAt']
 const RELATIONS = ['organization', 'property', 'ticket', 'user']

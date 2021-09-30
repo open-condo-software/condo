@@ -12,7 +12,7 @@ import {
     searchOrganizationProperty,
 } from '@condo/domains/ticket/utils/clientSchema/search'
 import { FormWithAction, IFormWithActionChildren } from '@condo/domains/common/components/containers/FormList'
-import { Organization } from '../../../../schema'
+import { Organization } from '@app/condo/schema'
 
 const LAYOUT = {
     layout: 'horizontal',

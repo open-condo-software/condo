@@ -14,7 +14,7 @@ import React, { useCallback, useState } from 'react'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Button } from '@condo/domains/common/components/Button'
 import { useOrganization } from '@core/next/organization'
-import { SortMeterReadingsBy } from '../../schema'
+import { SortMeterReadingsBy } from '@app/condo/schema'
 import {
     getPageIndexFromOffset,
     parseQuery,

@@ -21,7 +21,7 @@ import {
 } from './helpers'
 import { EN_LOCALE, RU_LOCALE } from '../../common/constants/locale'
 import { randomUUID } from 'crypto'
-import { TicketAnalyticsGroupBy, TicketGroupedCounter } from '../../../schema'
+import { TicketAnalyticsGroupBy, TicketGroupedCounter } from '@app/condo/schema'
 
 describe('Helpers', () => {
     describe('queryUtils', () => {

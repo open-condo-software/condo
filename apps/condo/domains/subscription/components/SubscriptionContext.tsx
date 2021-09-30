@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState, createContext } from 'react'
 import Router, { useRouter } from 'next/router'
-import { ServiceSubscription, SortServiceSubscriptionsBy } from '../../../schema'
+import { ServiceSubscription, SortServiceSubscriptionsBy } from '@app/condo/schema'
 import { Modal, Typography } from 'antd'
 import { useIntl } from '@core/next/intl'
 import dayjs from 'dayjs'

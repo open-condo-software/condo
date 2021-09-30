@@ -8,7 +8,7 @@ import {
     BuildingMapEntityType,
     BuildingUnit,
     BuildingSection,
-} from '../../../../../schema'
+} from '@app/condo/schema'
 
 const ajv = new Ajv()
 const validator = ajv.compile(MapSchemaJSON)

@@ -6,7 +6,7 @@ import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListVi
 import ReactECharts from 'echarts-for-react'
 import TicketChart, { EchartsSeries, ViewModeTypes } from '@condo/domains/ticket/components/TicketChart'
 import { CHART_COLOR_SET } from '@condo/domains/common/constants/style'
-import { TicketGroupedCounter } from '../../../../schema'
+import { TicketGroupedCounter } from '@app/condo/schema'
 import { colors } from '@condo/domains/common/constants/style'
 import InfiniteScroll from 'react-infinite-scroller'
 import { TICKET_CHART_PAGE_SIZE } from '@condo/domains/ticket/constants/restrictions'

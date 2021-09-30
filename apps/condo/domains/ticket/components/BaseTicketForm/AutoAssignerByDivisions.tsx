@@ -4,7 +4,7 @@ import { useIntl } from '@core/next/intl'
 import { Alert, FormInstance } from 'antd'
 import { Division } from '@condo/domains/division/utils/clientSchema'
 import { formatAddressWithoutCityFrom } from '@condo/domains/property/utils/helpers'
-import { Division as DivisionSchema } from '../../../../schema'
+import { Division as DivisionSchema } from '@app/condo/schema'
 
 const getResponsibleAndExecutorFrom = (divisions, categoryClassifier) => {
     let responsible

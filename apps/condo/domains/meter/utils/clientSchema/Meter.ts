@@ -8,7 +8,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { Meter as MeterGQL } from '@condo/domains/meter/gql'
-import { Meter, MeterUpdateInput, QueryAllMetersArgs } from '../../../../schema'
+import { Meter, MeterUpdateInput, QueryAllMetersArgs } from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'number', 'numberOfTariffs', 'installationDate', 'commissioningDate', 'verificationDate', 'nextVerificationDate', 'sealingDate', 'controlReadingsDate', 'accountNumber', 'organization', 'property', 'unitName', 'place', 'resource']
 const RELATIONS = ['organization', 'property', 'resource']

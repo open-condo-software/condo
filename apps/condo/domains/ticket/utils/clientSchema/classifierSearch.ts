@@ -7,7 +7,7 @@ import {
 } from '@condo/domains/ticket/gql'
 import { ApolloClient } from '@core/next/apollo'
 import { sortBy, isEmpty, filter } from 'lodash'
-import { QueryAllTicketCategoryClassifiersArgs, TicketCategoryClassifierWhereInput } from '../../../../schema'
+import { QueryAllTicketCategoryClassifiersArgs, TicketCategoryClassifierWhereInput } from '@app/condo/schema'
 
 const MAX_SEARCH_COUNT = 20
 

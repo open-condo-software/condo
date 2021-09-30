@@ -18,7 +18,7 @@ import {
     BuildingMap,
     BuildingUnit,
     BuildingSection,
-} from '../../../../../schema'
+} from '@app/condo/schema'
 import { FullscreenWrapper, FullscreenHeader } from './Fullscreen'
 
 import ScrollContainer from 'react-indiana-drag-scroll'

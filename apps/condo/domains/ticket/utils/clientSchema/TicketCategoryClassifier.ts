@@ -8,7 +8,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { TicketCategoryClassifier as TicketCategoryClassifierGQL } from '@condo/domains/ticket/gql'
-import { TicketCategoryClassifier, TicketCategoryClassifierUpdateInput, QueryAllTicketCategoryClassifiersArgs } from '../../../../schema'
+import { TicketCategoryClassifier, TicketCategoryClassifierUpdateInput, QueryAllTicketCategoryClassifiersArgs } from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'name']
 const RELATIONS = ['organization']

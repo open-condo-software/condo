@@ -12,7 +12,7 @@ import {
     Organization,
     OrganizationUpdateInput,
     QueryAllOrganizationsArgs,
-} from '../../../../schema'
+} from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'country', 'name', 'description', 'avatar', 'meta', 'employees', 'statusTransitions', 'defaultEmployeeRoleStatusTransitions']
 const RELATIONS = []

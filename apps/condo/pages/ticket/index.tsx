@@ -27,7 +27,7 @@ import { useEmergencySearch } from '@condo/domains/ticket/hooks/useEmergencySear
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { Button } from '@condo/domains/common/components/Button'
 import { useOrganization } from '@core/next/organization'
-import { SortTicketsBy } from '../../schema'
+import { SortTicketsBy } from '@app/condo/schema'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { fontSizes } from '@condo/domains/common/constants/style'
 

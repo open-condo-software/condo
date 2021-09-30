@@ -7,7 +7,7 @@ import { UploadOutlined, DeleteFilled } from '@ant-design/icons'
 import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
 
 import { UploadRequestOption } from 'rc-upload/lib/interface'
-import { File } from '../../../schema'
+import { File } from '@app/condo/schema'
 import { UploadFile, UploadFileStatus } from 'antd/lib/upload/interface'
 import { isEmpty } from 'lodash'
 

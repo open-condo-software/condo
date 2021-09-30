@@ -11,7 +11,7 @@ import {
     OrganizationEmployee,
     OrganizationEmployeeUpdateInput,
     QueryAllOrganizationEmployeesArgs,
-} from '../../../../schema'
+} from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'isBlocked', 'updatedBy', 'organization', 'user', 'inviteCode', 'name', 'email', 'phone', 'role', 'position', 'isAccepted', 'isRejected', 'specializations']
 const RELATIONS = ['organization', 'user', 'role', 'specializations']

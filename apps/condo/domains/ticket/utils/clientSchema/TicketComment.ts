@@ -8,7 +8,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { TicketComment as TicketCommentGQL } from '@condo/domains/ticket/gql'
-import { TicketComment, TicketCommentUpdateInput, QueryAllTicketCommentsArgs } from '../../../../schema'
+import { TicketComment, TicketCommentUpdateInput, QueryAllTicketCommentsArgs } from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'ticket', 'user', 'content']
 const RELATIONS = ['ticket', 'user']

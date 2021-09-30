@@ -7,7 +7,7 @@ import React, { useCallback } from 'react'
 import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInput'
 import { useApolloClient } from '@core/next/apollo'
 import { searchProperty, searchSingleProperty } from '@condo/domains/ticket/utils/clientSchema/search'
-import { Organization, Property } from '../../../schema'
+import { Organization, Property } from '@app/condo/schema'
 import { Highliter } from '@condo/domains/common/components/Highliter'
 import { colors } from '@condo/domains/common/constants/style'
 

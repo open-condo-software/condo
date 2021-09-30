@@ -1,7 +1,7 @@
 import { BuildingPanelView } from './Builder/BuildingPanelView'
 import { BuildingPanelEdit } from './Builder/BuildingPanelEdit'
 import { ResidentPanelEdit, ResidentPanelView } from './ResidentPanel'
-import { BuildingMap } from '../../../../schema'
+import { BuildingMap } from '@app/condo/schema'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { Tabs } from 'antd'
 

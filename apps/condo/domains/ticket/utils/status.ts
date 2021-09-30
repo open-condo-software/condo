@@ -1,4 +1,4 @@
-import { TicketStatus } from '../../../schema'
+import { TicketStatus } from '@app/condo/schema'
 import get from 'lodash/get'
 import intersection from 'lodash/intersection'
 

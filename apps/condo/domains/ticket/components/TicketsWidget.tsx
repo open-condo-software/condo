@@ -9,7 +9,7 @@ import { GET_TICKET_WIDGET_REPORT_DATA } from '@condo/domains/ticket/gql'
 import { useLazyQuery } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { TicketReportData } from '../../../schema'
+import { TicketReportData } from '@app/condo/schema'
 
 export const TicketsWidget = () => {
     const intl = useIntl()

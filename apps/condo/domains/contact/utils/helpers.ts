@@ -5,7 +5,7 @@ import {
     Contact,
     ContactWhereInput,
     SortContactsBy,
-} from '../../../schema'
+} from '@app/condo/schema'
 
 export interface IFilters extends Pick<Contact, 'name' | 'phone' | 'email'> {
     search?: string

@@ -8,7 +8,7 @@ import { get } from 'lodash'
 import { getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { useRouter } from 'next/router'
-import { PropertyWhereInput } from '../../../schema'
+import { PropertyWhereInput } from '@app/condo/schema'
 
 export interface ITableColumn {
     title: string,
