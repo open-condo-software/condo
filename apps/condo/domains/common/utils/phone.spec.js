@@ -11,9 +11,17 @@ describe('normalizePhone()', () => {
 
     test('real phone +7', () => {
         expect(normalizePhone('+7 (906) 808 88 88')).toEqual('+79068088888')
+        expect(normalizePhone('+7 (906) 808 88 88', true)).toEqual('+79068088888')
         expect(normalizePhone('(906) 808 88 88')).toBeUndefined()
         expect(normalizePhone('8 (906) 808 88 88')).toBeUndefined()
         expect(normalizePhone('+7 (343) 808 88 88')).toBeUndefined()
+    })
+
+    test('real phone +7 landline', () => {
+        expect(normalizePhone('+7 (34345) 5 88 88', true)).toEqual('+73434558888')
+        expect(normalizePhone('+7 (343) 808 88 88', true)).toEqual('+73438088888')
+        expect(normalizePhone('(34345) 5 88 88', true)).toBeUndefined()
+        expect(normalizePhone('8 (34345) 5 88 88', true)).toBeUndefined()
     })
 
     test('real phone +1', () => {

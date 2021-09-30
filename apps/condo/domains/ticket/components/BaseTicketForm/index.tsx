@@ -206,6 +206,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const { createContact, canCreateContact, ContactsEditorComponent } = useContactsEditorHook({
         organization: organization.id,
         role,
+        allowLandLine: true,
     })
 
     const canCreateContactRef = useRef(canCreateContact)
@@ -217,18 +218,23 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const action = async (variables, ...args) => {
         const { details, ...otherVariables } = variables
         let createdContact
+
         if (role.canManageContacts && canCreateContactRef.current) {
             createdContact = await createContact(organization.id, selectPropertyIdRef.current, selectedUnitNameRef.current)
         }
+
         const result = await _action({
             ...otherVariables,
             details: normalizeText(details),
             contact: get(createdContact, 'id') || variables.contact,
         }, ...args)
+
         await syncModifiedFiles(result.id)
+
         if (afterActionCompleted) {
             return afterActionCompleted(result)
         }
+
         return result
     }
 

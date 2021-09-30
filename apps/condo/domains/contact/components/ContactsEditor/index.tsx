@@ -50,6 +50,7 @@ export interface IContactEditorProps {
     role?: Record<string, boolean>,
     property?: string,
     unitName?: string,
+    allowLandLine?: boolean;
 }
 
 export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
@@ -60,7 +61,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const AnotherContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AnotherContact' })
     const CannotCreateContactMessage = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.CannotCreateContact' })
 
-    const { form, fields, value: initialValue, onChange, organization, role, property, unitName } = props
+    const { form, fields, value: initialValue, onChange, organization, role, property, unitName, allowLandLine } = props
 
     const [contacts, setContacts] = useState([])
     const [loading, setLoading] = useState(true)
@@ -87,7 +88,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const [manuallyTypedContact, setManuallyTypedContact] = useState()
     const [displayEditableContactFields, setDisplayEditableContactFields] = useState(false)
 
-    const { phoneValidator } = useValidations()
+    const { phoneValidator } = useValidations({ allowLandLine })
     const validations = {
         phone: [phoneValidator],
     }

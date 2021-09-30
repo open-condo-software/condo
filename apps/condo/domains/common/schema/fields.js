@@ -92,24 +92,35 @@ const CLIENT_EMAIL_FIELD = {
     type: Text,
 }
 
+const getClientPhoneResolver = (allowLandLine = false) => async ({ resolvedData }) => {
+    if (!resolvedData['clientPhone']) return resolvedData['clientPhone']
+    const newValue = normalizePhone(resolvedData['clientPhone'], allowLandLine)
+    return newValue || resolvedData['clientPhone']
+}
+
+const getClientPhoneValidator = (allowLandLine = false) => async ({ resolvedData, addFieldValidationError }) => {
+    const newValue = normalizePhone(resolvedData['clientPhone'], allowLandLine)
+    if (resolvedData['clientPhone'] && newValue !== resolvedData['clientPhone']) {
+        addFieldValidationError(`${PHONE_WRONG_FORMAT_ERROR}phone] invalid format [Common] ${allowLandLine ? 'allowLandLine' : 'mobileOnly'}`)
+    }
+}
+
 const CLIENT_PHONE_FIELD = {
     schemaDoc: 'Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it',
     type: Text,
     hooks: {
-        resolveInput: async ({ resolvedData }) => {
-            if (!resolvedData['clientPhone']) return resolvedData['clientPhone']
-            const newValue = normalizePhone(resolvedData['clientPhone'])
-            return newValue || resolvedData['clientPhone']
-        },
-        validateInput: async ({ resolvedData, addFieldValidationError }) => {
-            const newValue = normalizePhone(resolvedData['clientPhone'])
-            if (resolvedData['clientPhone'] && newValue !== resolvedData['clientPhone']) {
-                addFieldValidationError(`${PHONE_WRONG_FORMAT_ERROR}phone] invalid format`)
-            }
-        },
+        resolveInput: getClientPhoneResolver(),
+        validateInput: getClientPhoneValidator(),
     },
 }
 
+const TICKET_CLIENT_PHONE_FIELD = {
+    ...CLIENT_PHONE_FIELD,
+    hooks: {
+        resolveInput: getClientPhoneResolver(true),
+        validateInput: getClientPhoneValidator(true),
+    },
+}
 
 module.exports = {
     DV_FIELD,
@@ -120,4 +131,5 @@ module.exports = {
     CLIENT_NAME_FIELD,
     CLIENT_EMAIL_FIELD,
     CLIENT_PHONE_FIELD,
+    TICKET_CLIENT_PHONE_FIELD,
 }

@@ -7,7 +7,7 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { Json, AutoIncrementInteger } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
-const { SENDER_FIELD, DV_FIELD, CLIENT_PHONE_FIELD, CLIENT_EMAIL_FIELD, CLIENT_NAME_FIELD, CONTACT_FIELD, CLIENT_FIELD } = require('@condo/domains/common/schema/fields')
+const { SENDER_FIELD, DV_FIELD, TICKET_CLIENT_PHONE_FIELD, CLIENT_EMAIL_FIELD, CLIENT_NAME_FIELD, CONTACT_FIELD, CLIENT_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/ticket/access/Ticket')
 const { triggersManager } = require('@core/triggers')
@@ -71,7 +71,7 @@ const Ticket = new GQLListSchema('Ticket', {
         contact: CONTACT_FIELD,
         clientName: CLIENT_NAME_FIELD,
         clientEmail:  CLIENT_EMAIL_FIELD,
-        clientPhone: CLIENT_PHONE_FIELD,
+        clientPhone: TICKET_CLIENT_PHONE_FIELD,
 
         operator: {
             schemaDoc: 'Staff/person who created the issue (submitter). This may be a call center operator or an employee who speaks to a inhabitant/client and filled out an issue for him',

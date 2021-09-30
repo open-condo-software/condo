@@ -65,11 +65,11 @@ const Contact = new GQLListSchema('Contact', {
             isRequired: true,
             hooks: {
                 resolveInput: async ({ resolvedData }) => {
-                    const newValue = normalizePhone(resolvedData['phone'])
+                    const newValue = normalizePhone(resolvedData['phone'], true)
                     return newValue || resolvedData['phone']
                 },
                 validateInput: async ({ resolvedData, addFieldValidationError }) => {
-                    const newValue = normalizePhone(resolvedData['phone'])
+                    const newValue = normalizePhone(resolvedData['phone'], true)
                     if (resolvedData['phone'] && newValue !== resolvedData['phone']) {
                         addFieldValidationError(`${PHONE_WRONG_FORMAT_ERROR}phone] invalid format`)
                     }

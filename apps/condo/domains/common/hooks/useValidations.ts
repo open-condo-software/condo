@@ -19,7 +19,13 @@ const changeMessage = (rule: Rule, message: string) => {
     return { ...rule, message }
 }
 
-export const useValidations: () => ValidatorTypes = () => {
+type ValidationSettings = {
+    allowLandLine?: boolean;
+}
+
+type UseValidations = (settings?: ValidationSettings) => ValidatorTypes
+
+export const useValidations: UseValidations = (settings) => {
     const intl = useIntl()
     const ThisFieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
     const PhoneIsNotValidMessage = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
@@ -27,6 +33,7 @@ export const useValidations: () => ValidatorTypes = () => {
     const FieldIsTooShortMessage = intl.formatMessage({ id: 'ValueIsTooShort' })
     const FieldIsTooLongMessage = intl.formatMessage({ id: 'ValueIsTooLong' })
     const NumberIsNotValidMessage = intl.formatMessage({ id: 'NumberIsNotValid' })
+    const { allowLandLine } = settings ?? {}
 
     const requiredValidator: Rule = {
         required: true,
@@ -36,7 +43,7 @@ export const useValidations: () => ValidatorTypes = () => {
     const phoneValidator: Rule = {
         validator: (_, value) => {
             if (!value) return Promise.resolve()
-            const v = normalizePhone(value)
+            const v = normalizePhone(value, allowLandLine)
             if (!v) return Promise.reject(PhoneIsNotValidMessage)
             return Promise.resolve()
         },
