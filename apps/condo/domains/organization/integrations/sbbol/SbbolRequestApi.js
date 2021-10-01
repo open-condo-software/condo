@@ -32,13 +32,16 @@ class SbbolRequestApi {
         }
         this.accessToken = accessToken
     }
-    async request ({ method, path, body = null }){
+    async request ({ method, path: basePath, body = null }){
         return new Promise((resolve, reject) => {
+            const path = method === 'GET' && body ? `${basePath}?${querystring.stringify(body)}` : basePath
             debugMessage(`fetching ${ path }`)
-            const requestOptions = { ...this.options, ...{
+            debugMessage('with request body', body)
+            const requestOptions = {
+                ...this.options,
                 method,
-                path: method === 'GET' && body ? `${path}?${querystring.stringify(body)}` : path,
-            } }
+                path,
+            }
             requestOptions.headers.Authorization = `Bearer ${this.accessToken}`
             const request = https.request(requestOptions, response => {
                 let answer = ''
