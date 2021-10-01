@@ -195,6 +195,8 @@ class SbbolOrganization {
                 payerInn === inn
             ))
             if (!organizationAcceptance) {
+                // This is an errored case, because organization cannot be redirected
+                // to callback url without accepting offer
                 console.error(`No acceptance found for organization(inn=${inn})`)
             } else {
                 if (organizationAcceptance.active) {
