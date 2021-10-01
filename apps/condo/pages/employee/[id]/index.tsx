@@ -22,6 +22,7 @@ import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderA
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { map } from 'lodash'
+import { useAuth } from '@core/next/auth'
 
 const ReInviteActionAlert = ({ employee }) => {
     const intl = useIntl()
@@ -61,10 +62,16 @@ export const EmployeePageContent = ({
     const PositionMessage = intl.formatMessage({ id: 'employee.Position' })
     const SpecializationsMessage = intl.formatMessage({ id: 'employee.Specializations' })
     const BlockUserMessage = intl.formatMessage({ id: 'employee.BlockUser' })
+    const CanNotBlockYourselfMessage = intl.formatMessage({ id: 'employee.CanNotBlockYourself' })
     const ConfirmDeleteButtonLabel = intl.formatMessage({ id: 'Delete' })
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'employee.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'employee.ConfirmDeleteMessage' })
 
+    const { user } = useAuth()
+
+    const userId = get(user, 'id')
+    const employeeUserId = get(employee, 'user.id')
+    const isMyEmployee = userId && employeeUserId && userId === employeeUserId
     const isEmployeeBlocked = get(employee, 'isBlocked')
 
     const name = get(employee, 'name')
@@ -123,10 +130,19 @@ export const EmployeePageContent = ({
                                                         <Switch
                                                             onChange={handleEmployeeBlock}
                                                             defaultChecked={isEmployeeBlocked}
+                                                            disabled={isMyEmployee}
                                                         />
                                                         <Typography.Text type='danger' style={{ fontSize: fontSizes.content }}>
                                                             {BlockUserMessage}
                                                         </Typography.Text>
+                                                        {
+                                                            (isMyEmployee) ?
+                                                                <Typography.Text style={{ fontSize: fontSizes.content }}>
+                                                                    {CanNotBlockYourselfMessage}
+                                                                </Typography.Text>
+                                                                :
+                                                                null
+                                                        }
                                                     </Space>
                                                 </label>
                                             </Col>

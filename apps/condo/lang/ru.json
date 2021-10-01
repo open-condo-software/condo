@@ -625,6 +625,7 @@
   "employee.RetryInvite": "Отправить приглашение",
   "employee.EmployeeDidntEntered": "Пользователь не заходил в CRM.",
   "employee.BlockUser": "Заблокировать пользователя",
+  "employee.CanNotBlockYourself": "(вы не можете заблокировать себя)",
   "employee.EmptyList.header": "Список сотрудников пока пуст",
   "employee.EmptyList.title": "Добавьте первого, это просто",
   "contact.EmptyList.header": "Список жителей пока пуст",
