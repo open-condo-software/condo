@@ -1,11 +1,8 @@
 import { Rule } from 'rc-field-form/lib/interface'
 import { useIntl } from '@core/next/intl'
+import { MAX_PHONE_LENGTH, MIN_PHONE_LENGTH } from '../../constants/restrictions'
 
-const NON_DIGITS_REGEXP = /\D/g
-
-// TODO: @akarjakin - move to apropriate place and add imports
-const MAX_PHONE_LENGTH = 15
-const MIN_PHONE_LENGTH = 11
+export const NON_DIGITS_REGEXP = /\D/g
 
 type IFormFieldsRuleMap = {
     [key: string]: Rule[]

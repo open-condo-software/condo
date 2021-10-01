@@ -25,7 +25,7 @@ type ValidationSettings = {
 
 type UseValidations = (settings?: ValidationSettings) => ValidatorTypes
 
-export const useValidations: UseValidations = (settings) => {
+export const useValidations: UseValidations = (settings = {}) => {
     const intl = useIntl()
     const ThisFieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
     const PhoneIsNotValidMessage = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
@@ -33,7 +33,7 @@ export const useValidations: UseValidations = (settings) => {
     const FieldIsTooShortMessage = intl.formatMessage({ id: 'ValueIsTooShort' })
     const FieldIsTooLongMessage = intl.formatMessage({ id: 'ValueIsTooLong' })
     const NumberIsNotValidMessage = intl.formatMessage({ id: 'NumberIsNotValid' })
-    const { allowLandLine } = settings ?? {}
+    const { allowLandLine } = settings
 
     const requiredValidator: Rule = {
         required: true,
