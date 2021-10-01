@@ -4,7 +4,10 @@ on:
   workflow_dispatch:
     branches:
       - '*'
-
+  push:
+    branches:
+      - '*'
+      - '!master'
 jobs:
   converge:
     name: "Deploy to development"

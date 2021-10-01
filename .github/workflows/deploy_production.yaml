@@ -1,8 +1,8 @@
 name: Deploy to Production
 
 on:
-  workflow_dispatch:
-    branches:
+  push:
+    tags:
       - '*'
 
 jobs:
