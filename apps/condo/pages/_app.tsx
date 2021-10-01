@@ -105,22 +105,18 @@ const MenuItems: React.FC = () => {
                 label={'menu.Meters'}
                 disabled={disabled}
             />
-            <FeatureFlagRequired name={'billing'}>
-                <MenuItem
-                    path={'/billing'}
-                    icon={ApiFilled}
-                    label={'menu.Billing'}
-                    disabled={disabled}
-                />
-            </FeatureFlagRequired>
-            <FeatureFlagRequired name={'settings'}>
-                <MenuItem
-                    path={'/settings'}
-                    icon={SettingFilled}
-                    label={'menu.Settings'}
-                    disabled={!link}
-                />
-            </FeatureFlagRequired>
+            <MenuItem
+                path={'/billing'}
+                icon={ApiFilled}
+                label={'menu.Billing'}
+                disabled={disabled}
+            />
+            <MenuItem
+                path={'/settings'}
+                icon={SettingFilled}
+                label={'menu.Settings'}
+                disabled={!link}
+            />
         </>
     )
 }

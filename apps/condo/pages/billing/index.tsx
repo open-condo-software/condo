@@ -38,7 +38,7 @@ const BillingPage = () => {
     const PageTitle = get(currentContext, ['integration', 'billingPageTitle'], BillingTitle)
 
     return (
-        <FeatureFlagRequired name={'billing'} fallback={<Error statusCode={404}/>}>
+        <>
             <Head>
                 <title>
                     {BillingTitle}
@@ -55,7 +55,7 @@ const BillingPage = () => {
                     />
                 </PageContent>
             </PageWrapper>
-        </FeatureFlagRequired>
+        </>
     )
 }
 
