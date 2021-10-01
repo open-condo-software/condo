@@ -73,6 +73,7 @@ export const MeterInfo = ({ resource, newMeters }: MeterInfoProps) => {
     const VerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.VerificationDate' })
     const NextVerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.NextVerificationDate' })
     const MeterWithSameNumberIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterWithSameNumberIsExist' })
+    const ControlReadingsDateMessage = intl.formatMessage({ id: 'pages.condo.meter.ControlReadingsDate' })
 
     const { organization } = useOrganization()
 
@@ -168,6 +169,10 @@ export const MeterInfo = ({ resource, newMeters }: MeterInfoProps) => {
                                 <CreateMeterModalDatePicker
                                     label={NextVerificationDateMessage}
                                     name='nextVerificationDate'
+                                />
+                                <CreateMeterModalDatePicker
+                                    label={ControlReadingsDateMessage}
+                                    name='controlReadingsDate'
                                 />
                             </>
                         ) : null
