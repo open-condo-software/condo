@@ -4,10 +4,16 @@ const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/sbbol/common'
 const { MULTIPLE_ACCOUNTS_MATCHES } = require('@condo/domains/user/constants/errors')
 const { getItems, createItem, updateItem } = require('@keystonejs/server-side-graphql-client')
 const { TokenSet: TokenSetAPI } = require('@condo/domains/organization/utils/serverSchema')
-const { createConfirmedEmployee, createOrganization, createDefaultRoles } = require('@condo/domains/organization/utils/serverSchema/Organization')
+const { createConfirmedEmployee } = require('@condo/domains/organization/utils/serverSchema/Organization')
 const { uniqBy, get } = require('lodash')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const REFRESH_TOKEN_TTL = 30 * 24 * 60 * 60 // its real TTL is 180 days bit we need to update it earlier
+const {
+    REGISTER_NEW_ORGANIZATION_MUTATION,
+} = require('@condo/domains/organization/gql.js')
+const {
+    CREATE_ONBOARDING_MUTATION,
+} = require('@condo/domains/onboarding/gql.js')
 
 class SbbolOrganization {
     constructor ({ keystone, userInfo }){
@@ -76,6 +82,7 @@ class SbbolOrganization {
         }
         if (existingUsers.length === 0) {
             this.user = await createItem({ listKey: 'User', item: this.userInfo, returnFields: 'id phone name', ...this.context })
+            await this.createOnboarding()
             return
         }
         const [user] = existingUsers
@@ -199,16 +206,58 @@ class SbbolOrganization {
         }
     }
 
-    async createOrganization () {
-        const organization = await createOrganization(this.adminContext, this.organizationInfo)
-        const defaultRoles = await createDefaultRoles(this.adminContext, organization, this.dvSenderFields)
-        await createConfirmedEmployee(this.adminContext, organization, {
-            ...this.userInfo,
-            id: this.user.id,
-        }, defaultRoles.Administrator, this.dvSenderFields)
-        return organization
+    async createOnboarding () {
+        const userContext = await this.keystone.createContext({
+            authentication: {
+                item: this.user,
+                listKey: 'User',
+            },
+        })
+        await userContext.executeGraphQL({
+            context: userContext,
+            query: CREATE_ONBOARDING_MUTATION,
+            variables: {
+                data: {
+                    ...this.dvSenderFields,
+                    type: 'ADMINISTRATOR',
+                    userId: this.user.id,
+                },
+            },
+        })
     }
 
+    async createOrganization () {
+        const importInfo = {
+            importId: this.organizationInfo.importId,
+            importRemoteSystem: this.organizationInfo.importRemoteSystem,
+        }
+        const userContext = await this.keystone.createContext({
+            authentication: {
+                item: this.user,
+                listKey: 'User',
+            },
+        })
+        const { data } = await userContext.executeGraphQL({
+            context: userContext,
+            query: REGISTER_NEW_ORGANIZATION_MUTATION,
+            variables: {
+                data: {
+                    ...this.dvSenderFields,
+                    country: this.organizationInfo.country,
+                    name: this.organizationInfo.name,
+                    meta: this.organizationInfo.meta,
+                },
+            },
+        })
+        this.organization = data.obj
+        await updateItem({ listKey: 'Organization', item: {
+            id: this.organization.id,
+            data: {
+                ...importInfo,
+            },
+        }, returnFields: 'id', ...this.context })
+        return data.obj
+    }
 }
 
 
