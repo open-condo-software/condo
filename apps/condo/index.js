@@ -24,7 +24,7 @@ const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV 
 // NOTE: should be disabled in production: https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/
 // WARN: https://github.com/graphql/graphql-playground/tree/main/packages/graphql-playground-html/examples/xss-attack
 const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND === 'true'
-const { SbbolRoutes } = require('@condo/domains/organization/sbbol/routes')
+const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/routes')
 
 if (IS_ENABLE_DD_TRACE) {
     require('dd-trace').init({

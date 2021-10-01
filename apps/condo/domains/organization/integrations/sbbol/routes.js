@@ -1,10 +1,9 @@
 const { generators } = require('openid-client') // certified openid client will all checks
-const { SbbolUserInfoJSONValidation, SBBOL_SESSION_KEY } = require('@condo/domains/organization/sbbol/common')
-const { SbbolOauth2Api } = require('@condo/domains/organization/sbbol/oauth2')
-const { SbbolOrganization } = require('@condo/domains/organization/sbbol/sync')
-const { JSON_SCHEMA_VALIDATION_ERROR } = require('@condo/domains/common/constants/errors')
 const { getSchemaCtx } = require('@core/keystone/schema')
-const { getItems } = require('@keystonejs/server-side-graphql-client')
+const { JSON_SCHEMA_VALIDATION_ERROR } = require('@condo/domains/common/constants/errors')
+const { SbbolUserInfoJSONValidation, SBBOL_SESSION_KEY } = require('./common')
+const { SbbolOauth2Api } = require('./oauth2')
+const { SbbolOrganization } = require('./sync')
 
 class SbbolRoutes {
     constructor () {
