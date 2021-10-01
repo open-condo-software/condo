@@ -50,6 +50,7 @@ const Head = styled.div`
   font-weight: bold;
   font-size: 20px;
   line-height: 28px;
+  margin-bottom: -24px;
 `
 const Body = styled.div`
   overflow-y: scroll;
