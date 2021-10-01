@@ -77,7 +77,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 sorter: true,
                 width: '10%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'resource'),
-                render: getTextRender(),
+                render: getTextRender(search),
                 filterIcon: getFilterIcon,
             },
             {
@@ -142,7 +142,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 sorter: true,
                 width: '10%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'source'),
-                render: getTextRender(),
+                render: getTextRender(search),
                 filterIcon: getFilterIcon,
             },
         ]

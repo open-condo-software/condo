@@ -1,4 +1,4 @@
-import { Button, Col, Form, Input, Row, Select, Space, Typography } from 'antd'
+import { Button, Col, Form, FormInstance, Input, Row, Select, Space, Typography } from 'antd'
 import React, { useState } from 'react'
 import { IMeterResourceUIState } from '../../utils/clientSchema/MeterResource'
 import { useIntl } from '@core/next/intl'
@@ -11,6 +11,7 @@ import { Rule } from 'rc-field-form/lib/interface'
 import { useOrganization } from '@core/next/organization'
 import { Meter } from '../../utils/clientSchema'
 import { IMeterFormState } from '../../utils/clientSchema/Meter'
+import dependencies from 'ajv/lib/vocabularies/applicator/dependencies'
 
 const { Option } = Select
 
@@ -26,7 +27,14 @@ const getTariffNumberSelectOptions = () => {
         ))
 }
 
-const CreateMeterModalDatePicker = ({ label, name }) => {
+interface ICreateMeterModalDatePickerProps {
+    label: string,
+    name: string,
+    rules?: Rule[],
+    dependencies: string[]
+}
+
+const CreateMeterModalDatePicker = ({ label, name, rules, dependencies }: ICreateMeterModalDatePickerProps) => {
     const intl = useIntl()
     const EnterDatePlaceHolder = intl.formatMessage({ id: 'EnterDate' })
 
@@ -35,6 +43,9 @@ const CreateMeterModalDatePicker = ({ label, name }) => {
             <Form.Item
                 label={label}
                 name={name}
+                rules={rules}
+                validateTrigger={['onBlur', 'onSubmit']}
+                dependencies={dependencies}
             >
                 <DatePicker
                     placeholder={EnterDatePlaceHolder}
@@ -56,11 +67,12 @@ const ChevronIconWrapper = styled.div<ChevronIconWrapperProps>`
 `
 
 type MeterInfoProps = {
+    form: FormInstance,
     resource: IMeterResourceUIState
     newMeters: IMeterFormState[]
 }
 
-export const MeterInfo = ({ resource, newMeters }: MeterInfoProps) => {
+export const MeterInfo = ({ form, resource, newMeters }: MeterInfoProps) => {
     const intl = useIntl()
     const MeterNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterNumber' })
     const MeterPlaceMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterPlace' })
@@ -74,6 +86,8 @@ export const MeterInfo = ({ resource, newMeters }: MeterInfoProps) => {
     const NextVerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.NextVerificationDate' })
     const MeterWithSameNumberIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterWithSameNumberIsExist' })
     const ControlReadingsDateMessage = intl.formatMessage({ id: 'pages.condo.meter.ControlReadingsDate' })
+    const CanNotBeEarlierThanInstallationMessage = intl.formatMessage({ id: 'pages.condo.meter.СanNotBeEarlierThanInstallation' })
+    const CanNotBeEarlierThanFirstVerificationMessage = intl.formatMessage({ id: 'pages.condo.meter.CanNotBeEarlierThanFirstVerification' })
 
     const { organization } = useOrganization()
 
@@ -82,6 +96,34 @@ export const MeterInfo = ({ resource, newMeters }: MeterInfoProps) => {
             organization: null,
         },
     })
+
+    const earlierThanInstallationValidator: Rule = {
+        validator: async (_, value) => {
+            if (!value || !form.getFieldValue('installationDate'))
+                return Promise.resolve()
+
+            const installationDate = form.getFieldValue('installationDate')
+            if (value.toDate() < installationDate.toDate()) {
+                return Promise.reject(CanNotBeEarlierThanInstallationMessage)
+            }
+
+            return Promise.resolve()
+        },
+    }
+
+    const earlierThanFirstVerificationDateValidator: Rule = {
+        validator: async (_, value) => {
+            if (!value || !form.getFieldValue('verificationDate'))
+                return Promise.resolve()
+
+            const installationDate = form.getFieldValue('verificationDate')
+            if (value.toDate() < installationDate.toDate()) {
+                return Promise.reject(CanNotBeEarlierThanFirstVerificationMessage)
+            }
+
+            return Promise.resolve()
+        },
+    }
 
     const meterWithSameNumberValidator: Rule = {
         validator: async (_, value) => {
@@ -103,6 +145,11 @@ export const MeterInfo = ({ resource, newMeters }: MeterInfoProps) => {
     const validations = {
         number: [requiredValidator, meterWithSameNumberValidator],
         numberOfTariffs: [requiredValidator],
+        commissioningDate: [earlierThanInstallationValidator],
+        sealingDate: [earlierThanInstallationValidator],
+        verificationDate: [earlierThanInstallationValidator],
+        nextVerificationDate: [earlierThanInstallationValidator, earlierThanFirstVerificationDateValidator],
+        controlReadingsDate: [earlierThanInstallationValidator],
     }
 
     const [isAdditionalFieldsCollapsed, setIsAdditionalFieldsCollapsed] = useState<boolean>(true)
@@ -141,7 +188,7 @@ export const MeterInfo = ({ resource, newMeters }: MeterInfoProps) => {
                                     name='numberOfTariffs'
                                 >
                                     <Select>
-                                        { getTariffNumberSelectOptions() }
+                                        {getTariffNumberSelectOptions()}
                                     </Select>
                                 </Form.Item>
                             </Col>
@@ -157,22 +204,32 @@ export const MeterInfo = ({ resource, newMeters }: MeterInfoProps) => {
                                 <CreateMeterModalDatePicker
                                     label={CommissioningDateMessage}
                                     name='commissioningDate'
+                                    rules={validations.commissioningDate}
+                                    dependencies={['installationDate']}
                                 />
                                 <CreateMeterModalDatePicker
                                     label={SealingDateMessage}
                                     name='sealingDate'
+                                    rules={validations.sealingDate}
+                                    dependencies={['installationDate']}
                                 />
                                 <CreateMeterModalDatePicker
                                     label={VerificationDateMessage}
                                     name='verificationDate'
+                                    rules={validations.verificationDate}
+                                    dependencies={['installationDate']}
                                 />
                                 <CreateMeterModalDatePicker
                                     label={NextVerificationDateMessage}
                                     name='nextVerificationDate'
+                                    rules={validations.nextVerificationDate}
+                                    dependencies={['installationDate', 'verificationDate']}
                                 />
                                 <CreateMeterModalDatePicker
                                     label={ControlReadingsDateMessage}
                                     name='controlReadingsDate'
+                                    rules={validations.controlReadingsDate}
+                                    dependencies={['installationDate']}
                                 />
                             </>
                         ) : null

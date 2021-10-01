@@ -401,6 +401,8 @@
   "pages.condo.meter.AddGasSupplyMeterModalTitle": "газоснобжения",
   "pages.condo.meter.AddElectricityMeterModalTitle": "электроэнергии",
   "pages.condo.meter.AddHeatSupplyMeterModalTitle": "теплоснабжения",
+  "pages.condo.meter.СanNotBeEarlierThanInstallation": "Дата не может быть раньше даты установки",
+  "pages.condo.meter.CanNotBeEarlierThanFirstVerification": "Дата следующей поверки не может быть раньше предыдущей",
   "pages.condo.meter.MeterNumber": "№ прибора учета",
   "pages.condo.meter.MeterPlace": "Место установки счетчика",
   "pages.condo.meter.NumberOfMeter": "Прибор учета номер",

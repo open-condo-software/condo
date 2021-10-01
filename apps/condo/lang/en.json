@@ -401,6 +401,8 @@
   "pages.condo.meter.AddGasSupplyMeterModalTitle": "gas supply",
   "pages.condo.meter.AddElectricityMeterModalTitle": "electricity",
   "pages.condo.meter.AddHeatSupplyMeterModalTitle": "heat supply",
+  "pages.condo.meter.СanNotBeEarlierThanInstallation": "Date cannot be earlier than installation date",
+  "pages.condo.meter.CanNotBeEarlierThanFirstVerification": "Next verification date cannot be earlier than verification date",
   "pages.condo.meter.MeterNumber": "Meter number",
   "pages.condo.meter.MeterPlace": "Meter place",
   "pages.condo.meter.NumberOfMeter": "Number of meter device",
