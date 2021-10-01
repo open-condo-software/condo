@@ -107,10 +107,7 @@ export const EmployeesPageContent = ({
 
     const dropDownMenu = (
         <Menu>
-            <Menu.Item key="1" onClick={handleAddEmployee}>
-                {AddItemUsingFormLabel}
-            </Menu.Item>
-            <Menu.Item key="2">
+            <Menu.Item key="1">
                 <Tooltip title={NotImplementedYetMessage}>
                     {AddItemUsingUploadLabel}
                 </Tooltip>
@@ -152,7 +149,7 @@ export const EmployeesPageContent = ({
                                                             key='left'
                                                             type={'sberPrimary'}
                                                             style={{ borderRight: '1px solid white' }}
-                                                            onClick={() => router.push(ADD_EMPLOYEE_ROUTE)}
+                                                            onClick={handleAddEmployee}
                                                         >
                                                             {CreateEmployee}
                                                         </Button>,
