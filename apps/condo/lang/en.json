@@ -625,6 +625,7 @@
   "employee.RetryInvite": "Send invitation",
   "employee.EmployeeDidntEntered": "User has not logged into CRM.",
   "employee.BlockUser": "Block user",
+  "employee.CanNotBlockYourself": "(you can't block yourself)",
   "employee.EmptyList.header": "The list of employees is still empty",
   "employee.EmptyList.title": "Create the first one, it's simple",
   "contact.EmptyList.header": "The list of contacts is still empty",
