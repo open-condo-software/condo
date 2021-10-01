@@ -10,7 +10,7 @@ const REQUEST_TIMEOUT_ERROR = '[request:timeout:expires'
 
 
 class SbbolRequestApi {
-    constructor () {
+    constructor (accessToken) {
         const { protected_host: hostname, port } = SBBOL_CONFIG
         let { host } = new URL(hostname)
         this.options = {
@@ -29,6 +29,7 @@ class SbbolRequestApi {
                 'Accept-Charset': 'UTF-8',
             },
         }
+        this.accessToken = accessToken
     }
     async request ({ method, path, authToken, body = null }){
         return new Promise((resolve, reject) => {
@@ -36,7 +37,7 @@ class SbbolRequestApi {
                 method,
                 path: method === 'GET' && body ? `${path}?${querystring.stringify(body)}` : path,
             } }
-            requestOptions.headers.Authorization = `Bearer ${authToken}`
+            requestOptions.headers.Authorization = `Bearer ${this.accessToken}`
             const request = https.request(requestOptions, response => {
                 let answer = ''
                 response.on('data', data => {
