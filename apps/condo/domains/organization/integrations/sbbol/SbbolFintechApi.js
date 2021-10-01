@@ -22,11 +22,12 @@ class SbbolFintechApi extends SbbolRequestApi {
     async fetchAdvanceAcceptances ({ clientId, date }) {
         const params = qs.stringify({ clientId, date })
         const path = `${this.advanceAcceptancesPath}?${params}`
-        const result = await this.request({
+        const jsonResult = await this.request({
             method: 'GET',
             path,
             body: { clientId, date },
         })
+        const result = JSON.parse(jsonResult)
         if (get(result, 'cause') === SBBOL_API_RESPONSE.DATA_NOT_FOUND_EXCEPTION) {
             return []
         }
