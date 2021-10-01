@@ -19,15 +19,13 @@ const { SBBOL_API_RESPONSE } = require('./common')
  */
 class SbbolFintechApi extends SbbolRequestApi {
 
-    async fetchAdvanceAcceptances ({ clientId, date }) {
-        const params = qs.stringify({ clientId, date })
-        const path = `${this.advanceAcceptancesPath}?${params}`
-        const jsonResult = await this.request({
+    async fetchAdvanceAcceptances ({ date, clientId }) {
+        const jsonResultString = await this.request({
             method: 'GET',
-            path,
+            path: this.advanceAcceptancesPath,
             body: { clientId, date },
         })
-        const result = JSON.parse(jsonResult)
+        const result = JSON.parse(jsonResultString)
         if (get(result, 'cause') === SBBOL_API_RESPONSE.DATA_NOT_FOUND_EXCEPTION) {
             return []
         }

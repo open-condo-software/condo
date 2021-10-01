@@ -190,7 +190,7 @@ class SbbolOrganization {
             const { inn } = this.organizationInfo.meta
             const today = dayjs().format('YYYY-MM-DD')
 
-            const advanceAcceptances = await fintechApi.fetchAdvanceAcceptances({ date: today, clientId: SBBOL_CONFIG.client_id })
+            const advanceAcceptances = await fintechApi.fetchAdvanceAcceptances({ date: today, clientId: SBBOL_CONFIG.fintech_client_id })
             const organizationAcceptance = advanceAcceptances.find(({ payerInn }) => (
                 payerInn === inn
             ))
