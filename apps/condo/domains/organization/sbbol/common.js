@@ -1,4 +1,6 @@
 const Ajv = require('ajv')
+const conf = process.env
+
 const SBBOL_IMPORT_NAME = 'sbbol'
 const SBBOL_SESSION_KEY = 'sbbol'
 
@@ -26,8 +28,15 @@ const SbbolUserInfoSchema = {
 
 const SbbolUserInfoJSONValidation = new Ajv().compile(SbbolUserInfoSchema)
 
+const debugMessage = (...arguments) => {
+    if (conf.SBBOL_DEBUG) {
+        console.debug(...arguments)
+    }
+}
+
 module.exports = {
     SbbolUserInfoJSONValidation,
     SBBOL_IMPORT_NAME,
     SBBOL_SESSION_KEY,
+    debugMessage,
 }
