@@ -19,6 +19,7 @@ const UserAdmin = generateGQLTestUtils(UserAdminGQL)
 
 const createTestEmail = () => ('test.' + getRandomString() + '@example.com').toLowerCase()
 const createTestPhone = () => faker.phone.phoneNumber('+79#########')
+const createTestLandlineNumber = () => faker.phone.phoneNumber('+7343#######')
 
 const {
     SMS_CODE_TTL,
@@ -69,7 +70,7 @@ async function registerNewUser (client, extraAttrs = {}, { raw = false } = {}) {
     const name = faker.name.firstName()
     const email = createTestEmail()
     const password = getRandomString()
-    const phone = createTestPhone()
+    const phone = extraAttrs.landlinePhone ? createTestLandlineNumber() : createTestPhone()
     const meta = {
         dv: 1, city: faker.address.city(), county: faker.address.county(),
     }

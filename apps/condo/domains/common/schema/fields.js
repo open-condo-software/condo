@@ -114,7 +114,7 @@ const CLIENT_PHONE_FIELD = {
     },
 }
 
-const TICKET_CLIENT_PHONE_FIELD = {
+const CLIENT_PHONE_LANDLINE_FIELD = {
     ...CLIENT_PHONE_FIELD,
     hooks: {
         resolveInput: getClientPhoneResolver(true),
@@ -131,5 +131,5 @@ module.exports = {
     CLIENT_NAME_FIELD,
     CLIENT_EMAIL_FIELD,
     CLIENT_PHONE_FIELD,
-    TICKET_CLIENT_PHONE_FIELD,
+    CLIENT_PHONE_LANDLINE_FIELD,
 }
