@@ -120,7 +120,7 @@ const BillingIntegrationDetailsPage = () => {
     const disabledIntegration = !!currentContext
     const shouldNotifyWithAlert = !!currentContext && currentContext.integration.id !== integrationId
     return (
-        <FeatureFlagRequired name={'billing'} fallback={<Error statusCode={404}/>}>
+        <>
             <Head>
                 <title>{pageTitle}</title>
             </Head>
@@ -203,7 +203,7 @@ const BillingIntegrationDetailsPage = () => {
                     }
                 </OrganizationRequired>
             </PageWrapper>
-        </FeatureFlagRequired>
+        </>
     )
 }
 
