@@ -2,7 +2,7 @@
 import { css, jsx } from '@emotion/core'
 import { Card, Col, Form, Input, Row, Space, Typography } from 'antd'
 import { useRouter } from 'next/router'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useIntl } from '@core/next/intl'
 import { useApolloClient } from '@core/next/apollo'
 import { Button } from '@condo/domains/common/components/Button'
@@ -11,6 +11,7 @@ import { FormResetButton } from '@condo/domains/common/components/FormResetButto
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { OrganizationEmployee, OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
+import { useAuth } from '@core/next/auth'
 import { EmployeeRoleSelect } from '../EmployeeRoleSelect'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { Rule } from 'rc-field-form/lib/interface'
@@ -68,6 +69,10 @@ export const UpdateEmployeeForm = () => {
         email: [emailValidator],
     }
 
+    const { user } = useAuth()
+    const userId = get(user, 'id')
+    const employeeUserId = get(employee, 'user.id')
+    const isMyEmployee = userId && employeeUserId && userId === employeeUserId
 
     const searchClassifers = (_, input) =>
         // We need to load all classifier items to have them pre-selected if a user have some classifier items,
@@ -156,7 +161,7 @@ export const UpdateEmployeeForm = () => {
                                         name={'role'}
                                         label={RoleLabel}
                                     >
-                                        <EmployeeRoleSelect employeeRoles={employeeRoles} />
+                                        <EmployeeRoleSelect employeeRoles={employeeRoles} disabled={isMyEmployee} />
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>

@@ -236,12 +236,14 @@ export const EmployeePageContent = ({
                                                             {UpdateMessage}
                                                         </Button>
                                                     </Link>
-                                                    <DeleteButtonWithConfirmModal
-                                                        title={ConfirmDeleteTitle}
-                                                        message={ConfirmDeleteMessage}
-                                                        okButtonLabel={ConfirmDeleteButtonLabel}
-                                                        action={() => softDeleteAction({}, employee)}
-                                                    />
+                                                    {(!isMyEmployee) ?
+                                                        <DeleteButtonWithConfirmModal
+                                                            title={ConfirmDeleteTitle}
+                                                            message={ConfirmDeleteMessage}
+                                                            okButtonLabel={ConfirmDeleteButtonLabel}
+                                                            action={() => softDeleteAction({}, employee)}
+                                                        />
+                                                        : null}
                                                 </Space>
                                             </Col>
                                         )}
