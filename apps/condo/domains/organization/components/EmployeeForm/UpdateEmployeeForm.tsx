@@ -1,4 +1,6 @@
-import { Col, Form, Input, Row, Space, Typography } from 'antd'
+/** @jsx jsx */
+import { css, jsx } from '@emotion/core'
+import { Card, Col, Form, Input, Row, Space, Typography } from 'antd'
 import { useRouter } from 'next/router'
 import React, { useEffect, useRef, useState } from 'react'
 import { useIntl } from '@core/next/intl'
@@ -19,6 +21,7 @@ import {
 } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 import { find, get } from 'lodash'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
+import { colors, shadows } from '@condo/domains/common/constants/style'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -31,6 +34,11 @@ const INPUT_LAYOUT_PROPS = {
         maxWidth: '453px',
     },
 }
+const CardCss = css`
+    width: 300px;
+    height: fit-content;
+    box-shadow: ${shadows.elevated};
+`
 
 export const UpdateEmployeeForm = () => {
     const intl = useIntl()
@@ -131,7 +139,7 @@ export const UpdateEmployeeForm = () => {
                         <Col span={3}>
                             <UserAvatar borderRadius={24} isBlocked={get(employee, 'isBlocked')}/>
                         </Col>
-                        <Col span={20} push={1}>
+                        <Col span={12} offset={1}>
                             <Row gutter={[0, 40]}>
                                 <Col span={24}>
                                     <Typography.Title
@@ -186,7 +194,6 @@ export const UpdateEmployeeForm = () => {
                                                             name={'specializations'}
                                                             label={SpecializationsLabel}
                                                             labelAlign={'left'}
-                                                            required
                                                             validateFirst
                                                             {...INPUT_LAYOUT_PROPS}
                                                         >
@@ -212,6 +219,29 @@ export const UpdateEmployeeForm = () => {
                                     </Space>
                                 </Col>
                             </Row>
+                        </Col>
+                        <Col span={8} style={{ alignSelf: 'center' }}> 
+                            <Form.Item dependencies={['role']}>
+                                {({ getFieldValue }) => {
+                                    const roleId = getFieldValue('role')
+                                    const role = employeeRoles.find(x => x.id === roleId)
+                                    if (!role) return null
+                                    return (
+                                        <Card
+                                            title={role.name}
+                                            bordered={false}
+                                            css={CardCss}
+                                            headStyle={{
+                                                color: colors.lightGrey[10],
+                                                fontSize: 24,
+                                                fontWeight: 'bold',
+                                            }}
+                                        >
+                                            {role.description}
+                                        </Card>
+                                    )
+                                }}
+                            </Form.Item>
                         </Col>
                     </Row>
                 )
