@@ -1,6 +1,7 @@
 const https = require('https')
 const querystring = require('querystring')
 const { URL } = require('url')
+const { debugMessage } = require('./common')
 const conf = process.env
 const SBBOL_CONFIG = conf.SBBOL_CONFIG ? JSON.parse(conf.SBBOL_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
@@ -31,8 +32,9 @@ class SbbolRequestApi {
         }
         this.accessToken = accessToken
     }
-    async request ({ method, path, authToken, body = null }){
+    async request ({ method, path, body = null }){
         return new Promise((resolve, reject) => {
+            debugMessage(`fetching ${ path }`)
             const requestOptions = { ...this.options, ...{
                 method,
                 path: method === 'GET' && body ? `${path}?${querystring.stringify(body)}` : path,
@@ -44,6 +46,7 @@ class SbbolRequestApi {
                     answer += data
                 })
                 response.on('end', () => {
+                    debugMessage('response', answer)
                     return resolve(answer)
                 })
             })
