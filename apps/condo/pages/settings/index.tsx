@@ -6,7 +6,7 @@ import { TitleHeaderAction } from '@condo/domains/common/components/HeaderAction
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { useIntl } from '@core/next/intl'
 import { BillingChooser } from '@condo/domains/billing/components/Settings/BillingChooser'
-import { FeatureFlagRequired, hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
+import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { SubscriptionPane } from '@condo/domains/subscription/components/SubscriptionPane'
 
@@ -18,11 +18,10 @@ const SettingsPage = () => {
     const RolesAndAccessesTitle = intl.formatMessage({ id: 'RolesAndAccess' })
     const SubscriptionTitle = intl.formatMessage({ id: 'Subscription' })
 
-    const hasBillingFeature = hasFeature('billing')
     const hasSubscriptionFeature = hasFeature('subscription')
 
     return (
-        <FeatureFlagRequired name={'settings'} fallback={<Error statusCode={404}/>}>
+        <>
             <Head>
                 <title>
                     {PageTitle}
@@ -48,17 +47,12 @@ const SettingsPage = () => {
                                         </Tabs.TabPane>
                                     )
                                 }
-                                {
-                                    hasBillingFeature && (
-                                        <Tabs.TabPane
-                                            key={'billingChooser'}
-                                            tab={BillingTitle}
-                                        >
-                                            <BillingChooser/>
-                                        </Tabs.TabPane>
-                                    )
-                                }
-
+                                <Tabs.TabPane
+                                    key={'billingChooser'}
+                                    tab={BillingTitle}
+                                >
+                                    <BillingChooser/>
+                                </Tabs.TabPane>
                                 <Tabs.TabPane
                                     key="rolesAndAccess"
                                     tab={(
@@ -73,7 +67,7 @@ const SettingsPage = () => {
                     </PageContent>
                 </OrganizationRequired>
             </PageWrapper>
-        </FeatureFlagRequired>
+        </>
     )
 }
 
