@@ -141,6 +141,7 @@ export const MeterCard = ({
                                                     >
                                                         <Input
                                                             addonAfter={measure}
+                                                            type={'number'}
                                                         />
                                                     </Form.Item>
                                                 </Col>

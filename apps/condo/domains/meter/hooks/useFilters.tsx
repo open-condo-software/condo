@@ -44,6 +44,7 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
     const accountNumberFilter = getStringContainsFilter(['meter', 'accountNumber'])
     const placeFilter = getStringContainsFilter(['meter', 'place'])
     const numberFilter = getStringContainsFilter(['meter', 'number'])
+    const resourceStringContainsFilter = getStringContainsFilter(['meter', 'resource', 'name'])
     const clientNameFilter = getStringContainsFilter('clientName')
     const readingDateRangeFilter = getDayRangeFilter('date')
     const verificationDateRangeFilter = getDayRangeFilter(['meter', 'verificationDate'])
@@ -257,14 +258,17 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
                     },
                 },
             },
-            { keyword: 'search', filters:
-                    [
-                        addressStringContainsFilter,
-                        placeFilter,
-                        numberFilter,
-                        clientNameFilter,
-                    ],
-            combineType: 'OR' },
+            {
+                keyword: 'search',
+                filters: [
+                    addressStringContainsFilter,
+                    resourceStringContainsFilter,
+                    placeFilter,
+                    numberFilter,
+                    clientNameFilter,
+                ],
+                combineType: 'OR',
+            },
         ]
     }, [sources, resources])
 }

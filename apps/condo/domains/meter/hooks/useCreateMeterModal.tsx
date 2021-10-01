@@ -75,10 +75,13 @@ export const useCreateMeterModal = ()=> {
                     }
                 }
             >
-                <MeterInfo
-                    newMeters={newMeters}
-                    resource={resources.find(resource => resource.id === selectedMeterResourceId)}
-                />
+                {(form) => (
+                    <MeterInfo
+                        form={form}
+                        newMeters={newMeters}
+                        resource={resources.find(resource => resource.id === selectedMeterResourceId)}
+                    />
+                )}
             </BaseModalForm>
         )
     }
