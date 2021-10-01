@@ -6,7 +6,6 @@ import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
 import getConfig from 'next/config'
 import { ThunderboltFilled, HomeFilled, SettingFilled, ApiFilled } from '@ant-design/icons'
-
 import whyDidYouRender from '@welldone-software/why-did-you-render'
 
 import { withApollo } from '@core/next/apollo'
@@ -39,6 +38,9 @@ import {
     useServiceSubscriptionContext,
 } from '../domains/subscription/components/SubscriptionContext'
 import dayjs from 'dayjs'
+import { useEndTrialSubscriptionReminderPopup } from '../domains/subscription/hooks/useEndTrialSubscriptionReminderPopup'
+import { ServiceSubscription } from '../domains/subscription/utils/clientSchema'
+import { ServiceSubscriptionTypeType } from '../schema'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
@@ -134,6 +136,11 @@ const MyApp = ({ Component, pageProps }) => {
     const HeaderAction = Component.headerAction
     const RequiredAccess = Component.requiredAccess || React.Fragment
 
+    const {
+        EndTrialSubscriptionReminderPopup,
+        isEndTrialSubscriptionReminderPopupVisible,
+    } = useEndTrialSubscriptionReminderPopup()
+
     return (
         <GlobalErrorBoundary>
             <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize={'large'}>
@@ -145,6 +152,11 @@ const MyApp = ({ Component, pageProps }) => {
                                 <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
                                     <RequiredAccess>
                                         <Component {...pageProps} />
+                                        {
+                                            isEndTrialSubscriptionReminderPopupVisible && (
+                                                <EndTrialSubscriptionReminderPopup/>
+                                            )
+                                        }
                                     </RequiredAccess>
                                 </LayoutComponent>
                             </SubscriptionProvider>
@@ -163,6 +175,7 @@ async function messagesImporter (locale) {
     const locale_data = await import(`../lang/${locale}`)
     return { ...locale_data.default }
 }
+
 /*
     Configuration for `InMemoryCache` of Apollo
     Add fields, related to pagination strategies of Apollo.

@@ -664,6 +664,7 @@
   "subscription.modal.complete.action": "Хорошо",
   "subscription.modal.complete.description": "Мы свяжемся с вами в ближайшее время, для уточнения числа помещений и расчёта стоимости подписки.\nПредварительное количество помещений 25.",
   "subscription.modal.complete.title": "Запрос на выставлени счёта принят",
+  "subscription.modal.endTrialReminder.daysToEndTrial": "Напоминаем, что осталось {days} бесплатного периода, после будет первое списание абонентской платы.",
   "subscription.modal.expired.title": "Пробный период закончился",
   "subscription.modal.expired.description.prompt": "Пожалуйста, свяжитесь с нами",
   "subscription.modal.expired.description.link": "help@doma.ai",
