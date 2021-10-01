@@ -664,6 +664,7 @@
   "subscription.modal.complete.action": "OK",
   "subscription.modal.complete.description": "We will contact you as soon as possible to clarify the number of premises and calculate the cost of the subscription.\nThe preliminary number of rooms is 25.",
   "subscription.modal.complete.title": "Invoicing request accepted",
+  "subscription.modal.endTrialReminder.daysToEndTrial": "We remind you that there are {days} of the free period left, after which there will be the first debit of the subscription fee.",
   "subscription.modal.expired.title": "Trial mode expired",
   "subscription.modal.expired.description.prompt": "Please, contact us",
   "subscription.modal.expired.description.link": "help@doma.ai",

@@ -61,6 +61,7 @@ export const useServiceSubscriptionWelcomePopup = (): IServiceSubscriptionWelcom
                 setIsServiceSubscriptionWelcomePopupVisible(false)
                 cookie.set('isSubscriberFirstLoginPopupConfirmed', true)
             }}
+            centered
             width={600}
             bodyStyle={{ padding: '30px' }}
             footer={[
