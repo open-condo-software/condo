@@ -212,7 +212,6 @@ export const CreateEmployeeForm: React.FC = () => {
                                                                             name={'specializations'}
                                                                             label={SpecializationsLabel}
                                                                             labelAlign={'left'}
-                                                                            required
                                                                             validateFirst
                                                                             {...INPUT_LAYOUT_PROPS}
                                                                         >
