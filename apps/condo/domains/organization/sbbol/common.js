@@ -28,6 +28,10 @@ const SbbolUserInfoSchema = {
 
 const SbbolUserInfoJSONValidation = new Ajv().compile(SbbolUserInfoSchema)
 
+const SBBOL_API_RESPONSE = {
+    DATA_NOT_FOUND_EXCEPTION: 'DATA_NOT_FOUND_EXCEPTION',
+}
+
 const debugMessage = (...arguments) => {
     if (conf.SBBOL_DEBUG) {
         console.debug(...arguments)
@@ -38,5 +42,6 @@ module.exports = {
     SbbolUserInfoJSONValidation,
     SBBOL_IMPORT_NAME,
     SBBOL_SESSION_KEY,
+    SBBOL_API_RESPONSE,
     debugMessage,
 }
