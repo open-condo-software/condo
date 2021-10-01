@@ -147,23 +147,31 @@ const TicketContent = ({ ticket }) => {
         <Col span={24}>
             <Row gutter={[0, 8]}>
                 <PageFieldRow title={AddressMessage} highlight>
-                    {ticketAddress}
-                    {ticketAddressExtra && (
-                        <>
-                            <br/>
-                            <Typography.Text>
-                                {ticketAddressExtra}
-                            </Typography.Text>
-                        </>
-                    )}
+                    <Link href={`/property/${get(ticket, ['property', 'id'])}`}>
+                        <Typography.Link>
+                            {ticketAddress}
+                            {ticketAddressExtra && (
+                                <>
+                                    <br/>
+                                    <Typography.Text>
+                                        {ticketAddressExtra}
+                                    </Typography.Text>
+                                </>
+                            )}
+                        </Typography.Link>
+                    </Link>
                 </PageFieldRow>
                 <PageFieldRow title={ClientMessage} highlight>
-                    <TicketUserInfoField
-                        user={{
-                            name: get(ticket, 'clientName'),
-                            phone: get(ticket, 'clientPhone'),
-                        }}
-                    />
+                    <Link href={`/contact/${get(ticket, ['contact', 'id'])}`}>
+                        <Typography.Link>
+                            <TicketUserInfoField
+                                user={{
+                                    name: get(ticket, 'clientName'),
+                                    phone: get(ticket, 'clientPhone'),
+                                }}
+                            />
+                        </Typography.Link>
+                    </Link>
                 </PageFieldRow>
                 <PageFieldRow title={TicketInfoMessage}>
                     {ticket.details}
@@ -176,10 +184,10 @@ const TicketContent = ({ ticket }) => {
             </Row>
             <FocusContainer style={{ marginTop: '1.6em' }} margin={isSmall ? '0' :  '0 -24px'}>
                 <Row gutter={[0, 8]}>
-                    <PageFieldRow title={ExecutorMessage} highlight>
+                    <PageFieldRow title={ExecutorMessage}>
                         <TicketUserInfoField user={get(ticket, ['executor'])}/>
                     </PageFieldRow>
-                    <PageFieldRow title={AssigneeMessage} highlight>
+                    <PageFieldRow title={AssigneeMessage}>
                         <TicketUserInfoField user={get(ticket, ['assignee'])}/>
                     </PageFieldRow>
                     <PageFieldRow title={ClassifierMessage}>
