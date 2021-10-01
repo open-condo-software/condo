@@ -31,7 +31,7 @@ interface ICreateMeterModalDatePickerProps {
     label: string,
     name: string,
     rules?: Rule[],
-    dependencies: string[]
+    dependencies?: string[]
 }
 
 const CreateMeterModalDatePicker = ({ label, name, rules, dependencies }: ICreateMeterModalDatePickerProps) => {

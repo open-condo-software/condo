@@ -138,10 +138,10 @@ export const MeterCard = ({
                                                         name={[...getNameInArray(name), `value${tariffNumber}`]}
                                                         label={getMeterLabel(meter, tariffNumber)}
                                                         rules={getMeterReadingInputValidations(tariffNumber)}
+                                                        validateTrigger={['onBlur', 'onSubmit']}
                                                     >
                                                         <Input
                                                             addonAfter={measure}
-                                                            type={'number'}
                                                         />
                                                     </Form.Item>
                                                 </Col>
