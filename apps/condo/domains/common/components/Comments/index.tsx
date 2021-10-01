@@ -103,7 +103,7 @@ const Comments: React.FC<ICommentsListProps> = ({
 
     const scrollToBottom = () => {
         if (bodyRef.current) {
-            bodyRef.current.scrollTop = bodyRef.current.scrollHeight
+            bodyRef.current.scrollTop = 0
         }
     }
 

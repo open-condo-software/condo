@@ -1,7 +1,7 @@
 import { Col, Row, Space, Typography, Tag, Affix, Breadcrumb } from 'antd'
 import UploadList from 'antd/lib/upload/UploadList/index'
 import { get, isEmpty, compact } from 'lodash'
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { EditFilled, FilePdfFilled } from '@ant-design/icons'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -35,6 +35,8 @@ import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { useResponsive } from '@condo/domains/common/hooks/useResponsive'
 import { User } from '@app/condo/schema'
+
+const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
 
 interface ITicketFileListProps {
     files?: TicketFile.ITicketFileUIState[]
@@ -256,6 +258,13 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const canShareTickets = get(employee, 'role.canShareTickets')
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
     const TicketCreationDate = useMemo(() => getTicketCreateMessage(intl, ticket), [ticket])
+
+    useEffect(() => {
+        const handler = setInterval(refetchComments, COMMENT_RE_FETCH_INTERVAL)
+        return () => {
+            clearInterval(handler)
+        }
+    })
 
     if (!ticket) {
         return (
