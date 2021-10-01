@@ -121,14 +121,6 @@ class SbbolOauth2Api {
         return result
     }
 
-    async fetchAdvanceAcceptances (accessToken, { clientId, date }) {
-        const result = await this.client.requestResource(
-            this.advanceAcceptancesUrl({ clientId, date }),
-            accessToken
-        )
-        return result
-    }
-
     get userInfoUrl () {
         return `${this.protectedUrl}/ic/sso/api/v1/oauth/user-info`
     }
@@ -153,10 +145,6 @@ class SbbolOauth2Api {
         return `${this.protectedHost}:${this.port}`
     }
 
-    advanceAcceptancesUrl ({ clientId, date }) {
-        const params = qs.stringify({ clientId, date })
-        return `${this.protectedUrl}/v1/partner-info/advance-acceptances?${params}`
-    }
     get packageOfServicesUrl () {
         return `${this.protectedUrl}/v1/partner-info/package-of-services`
     }
