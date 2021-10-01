@@ -11,7 +11,6 @@ import { Rule } from 'rc-field-form/lib/interface'
 import { useOrganization } from '@core/next/organization'
 import { Meter } from '../../utils/clientSchema'
 import { IMeterFormState } from '../../utils/clientSchema/Meter'
-import dependencies from 'ajv/lib/vocabularies/applicator/dependencies'
 
 const { Option } = Select
 
