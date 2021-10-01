@@ -28,33 +28,8 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
     const { onBoardingSteps = [], onBoarding, refetchOnBoarding } = useOnBoardingContext()
     const {
         ServiceSubscriptionWelcomePopup,
-        setIsServiceSubscriptionWelcomePopupVisible,
         isServiceSubscriptionWelcomePopupVisible,
     } = useServiceSubscriptionWelcomePopup()
-
-    const { organization } = useOrganization()
-
-    const thisMinute = dayjs().startOf('minute').toISOString()
-    const isSubscriberFirstLoginPopupConfirmed = cookie.get('isSubscriberFirstLoginPopupConfirmed')
-
-    const { objs: subscriptions, loading: subscriptionsLoading } = ServiceSubscription.useObjects({
-        where: {
-            organization: { id: organization && organization.id },
-            type: ServiceSubscriptionTypeType.Sbbol,
-            isTrial: true,
-            finishAt_gte: thisMinute,
-        },
-    })
-
-    useEffect(() => {
-        if (
-            subscriptions.length > 0 &&
-            !subscriptionsLoading &&
-            !isServiceSubscriptionWelcomePopupVisible &&
-            !isSubscriberFirstLoginPopupConfirmed
-        )
-            setIsServiceSubscriptionWelcomePopupVisible(true)
-    }, [subscriptionsLoading])
 
     useEffect(() => {
         refetchOnBoarding()
@@ -123,9 +98,7 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
             </PageWrapper>
             {
                 isServiceSubscriptionWelcomePopupVisible && (
-                    <ServiceSubscriptionWelcomePopup
-                        subscription={subscriptions ? subscriptions[0] : null}
-                    />
+                    <ServiceSubscriptionWelcomePopup />
                 )
             }
         </>

@@ -1,20 +1,19 @@
-import React, { useState, Dispatch, SetStateAction } from 'react'
+import React, { useState, Dispatch, SetStateAction, useEffect } from 'react'
 import { Col, Modal, Row, Typography } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
 import styled from '@emotion/styled'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { FormattedMessage } from 'react-intl'
-import { ServiceSubscription } from '../../../schema'
 import dayjs from 'dayjs'
 import cookie from 'js-cookie'
+import { useOrganization } from '@core/next/organization'
+import { ServiceSubscription } from '../utils/clientSchema'
+import { ServiceSubscriptionTypeType } from '@app/condo/schema'
 
-interface IServiceSubscriptionWelcomePopupProps {
-    subscription: ServiceSubscription
-}
 
 interface IServiceSubscriptionWelcomePopup {
-    ServiceSubscriptionWelcomePopup: React.FC<IServiceSubscriptionWelcomePopupProps>
+    ServiceSubscriptionWelcomePopup: React.FC
     setIsServiceSubscriptionWelcomePopupVisible: Dispatch<SetStateAction<boolean>>
     isServiceSubscriptionWelcomePopupVisible: boolean
 }
@@ -27,10 +26,35 @@ const ServiceSubscriptionWelcomePopupParagraph = styled(Typography.Paragraph)`
 
 export const useServiceSubscriptionWelcomePopup = (): IServiceSubscriptionWelcomePopup => {
     const intl = useIntl()
+    const { organization } = useOrganization()
 
     const [isServiceSubscriptionWelcomePopupVisible, setIsServiceSubscriptionWelcomePopupVisible] = useState<boolean>(false)
 
-    const ServiceSubscriptionWelcomePopup = ({ subscription }: IServiceSubscriptionWelcomePopupProps) => (
+    const thisMinute = dayjs().startOf('minute').toISOString()
+    const isSubscriberFirstLoginPopupConfirmed = cookie.get('isSubscriberFirstLoginPopupConfirmed')
+
+    const { objs: subscriptions, loading: subscriptionsLoading } = ServiceSubscription.useObjects({
+        where: {
+            organization: { id: organization && organization.id },
+            type: ServiceSubscriptionTypeType.Sbbol,
+            isTrial: true,
+            finishAt_gte: thisMinute,
+        },
+    })
+
+    useEffect(() => {
+        if (
+            subscriptions.length > 0 &&
+            !subscriptionsLoading &&
+            !isServiceSubscriptionWelcomePopupVisible &&
+            !isSubscriberFirstLoginPopupConfirmed
+        )
+            setIsServiceSubscriptionWelcomePopupVisible(true)
+    }, [subscriptionsLoading])
+
+    const subscription = subscriptions && subscriptions.length > 0 && subscriptions[0]
+
+    const ServiceSubscriptionWelcomePopup = () => (
         <Modal
             visible={isServiceSubscriptionWelcomePopupVisible}
             onCancel={() => {
