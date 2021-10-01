@@ -1,7 +1,6 @@
 const faker = require('faker')
 const dayjs = require('dayjs')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries.js')
-const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/sbbol/common')
 const { MULTIPLE_ACCOUNTS_MATCHES } = require('@condo/domains/user/constants/errors')
 const { getItems, createItem, updateItem } = require('@keystonejs/server-side-graphql-client')
 const { TokenSet: TokenSetAPI } = require('@condo/domains/organization/utils/serverSchema')
@@ -10,8 +9,8 @@ const { uniqBy, get } = require('lodash')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { ServiceSubscription } = require('@condo/domains/subscription/utils/serverSchema')
 const { SbbolFintechApi } = require('./SbbolFintechApi')
+const { SBBOL_IMPORT_NAME, debugMessage } = require('./common')
 const { SUBSCRIPTION_TRIAL_PERIOD_DAYS } = require('@condo/domains/subscription/constants')
-const { debugMessage } = require('./common')
 const REFRESH_TOKEN_TTL = 30 * 24 * 60 * 60 // its real TTL is 180 days bit we need to update it earlier
 const {
     REGISTER_NEW_ORGANIZATION_MUTATION,
