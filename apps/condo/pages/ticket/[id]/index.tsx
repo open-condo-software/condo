@@ -241,10 +241,12 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const { objs: comments, refetch: refetchComments } = TicketComment.useObjects({
         where: { ticket: { id } },
         // @ts-ignore
-        sortBy: ['createdAt_ASC'],
+        sortBy: ['createdAt_DESC'],
     })
     const updateComment = TicketComment.useUpdate({})
-    const deleteComment = TicketComment.useSoftDelete({})
+    const deleteComment = TicketComment.useSoftDelete({}, () => {
+        refetchComments()
+    })
 
     const createCommentAction = TicketComment.useCreate({
         ticket: id,
