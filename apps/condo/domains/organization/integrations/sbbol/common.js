@@ -32,6 +32,7 @@ const SBBOL_API_RESPONSE = {
     DATA_NOT_FOUND_EXCEPTION: 'DATA_NOT_FOUND_EXCEPTION',
 }
 
+// eslint-disable-next-line no-shadow-restricted-names
 const debugMessage = (...arguments) => {
     if (conf.SBBOL_DEBUG) {
         console.debug(...arguments)
