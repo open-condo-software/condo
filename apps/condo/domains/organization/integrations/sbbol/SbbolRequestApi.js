@@ -51,13 +51,13 @@ class SbbolRequestApi {
         const { keystone } = await getSchemaCtx('TokenSet')
         const adminContext = await keystone.createContext({ skipAccessControl: true })
         const [tokenSet] = await TokenSetApi.getAll(adminContext, { organization: { importId: organizationImportId, importRemoteSystem: SBBOL_IMPORT_NAME } })
-        const tokenExpiredError = new Error(`[tokens:expired] for organization ${organizationImportId}`)
+        const instructionsMessage = 'Please, login through SBBOL for this organization, so its accessToken and refreshToken will be obtained and saved in TokenSet table for further renewals'
         if (!tokenSet) {
-            throw tokenExpiredError
+            throw new Error(`[tokens:expired] record from TokenSet was not found for organization ${organizationImportId}. ${instructionsMessage}`)
         }
         const isRefreshTokenExpired = dayjs(dayjs()).isAfter(tokenSet.refreshTokenExpiresAt)
         if (isRefreshTokenExpired) {
-            throw tokenExpiredError
+            throw new Error(`[tokens:expired] refreshToken is expired for organization ${organizationImportId}. ${instructionsMessage}`)
         }
         const isAccessTokenExpired = dayjs(dayjs()).isAfter(tokenSet.accessTokenExpiresAt)
         if (isAccessTokenExpired) {
