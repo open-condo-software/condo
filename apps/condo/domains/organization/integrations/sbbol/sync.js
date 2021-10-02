@@ -18,6 +18,7 @@ const {
 const {
     CREATE_ONBOARDING_MUTATION,
 } = require('@condo/domains/onboarding/gql.js')
+const { SbbolRequestApi } = require('./SbbolRequestApi')
 
 const conf = process.env
 const SBBOL_CONFIG = conf.SBBOL_CONFIG ? JSON.parse(conf.SBBOL_CONFIG) : {}
@@ -168,8 +169,17 @@ class SbbolOrganization {
         }
     }
 
-    async syncSubscriptions (accessToken) {
-        const fintechApi = new SbbolFintechApi(accessToken)
+    async syncSubscriptions () {
+        let ourOrganizationAccessToken
+        try {
+            // `service_organization_hashOrgId` is a `userInfo.HashOrgId` from SBBOL, that used to obtain accessToken
+            // for organization, that will be queried in SBBOL using `SbbolFintechApi`.
+            ourOrganizationAccessToken = await SbbolRequestApi.getOrganizationAccessToken(SBBOL_CONFIG.service_organization_hashOrgId)
+        } catch (e) {
+            console.error(e.message)
+            return
+        }
+        const fintechApi = new SbbolFintechApi(ourOrganizationAccessToken)
         debugMessage('Checking, whether the user have ServiceSubscription items')
         const subscriptions = await getItems( {
             ...this.context,
@@ -190,14 +200,16 @@ class SbbolOrganization {
             const { inn } = this.organizationInfo.meta
             const today = dayjs().format('YYYY-MM-DD')
 
-            const advanceAcceptances = await fintechApi.fetchAdvanceAcceptances({ date: today, clientId: SBBOL_CONFIG.fintech_client_id })
+            // `clientId` here, and accessToken, used for initialization of `fintechApi` should be
+            // for the same organization
+            const advanceAcceptances = await fintechApi.fetchAdvanceAcceptances({ date: today, clientId: SBBOL_CONFIG.client_id })
             const organizationAcceptance = advanceAcceptances.find(({ payerInn }) => (
                 payerInn === inn
             ))
             if (!organizationAcceptance) {
                 // This is an errored case, because organization cannot be redirected
                 // to callback url without accepting offer
-                console.error(`No acceptance found for organization(inn=${inn})`)
+                console.error(`No offers found for organization(inn=${inn})`)
             } else {
                 if (organizationAcceptance.active) {
                     debugMessage(`User from organization(inn=${inn}) has accepted our offer in SBBOL`)
