@@ -212,6 +212,8 @@ class SbbolOrganization {
                 console.error(`No offers found for organization(inn=${inn})`)
             } else {
                 if (organizationAcceptance.active) {
+                    // TODO: add trial for additional day when client accepts previously revoked (after accepting) offer
+
                     debugMessage(`User from organization(inn=${inn}) has accepted our offer in SBBOL`)
                     // Дома: Создаём клиенту личный кабинет в системе Дома по условиям оферты
                     // Создаём пробную подписку `ServiceSubscription`  на 15 дней
@@ -226,6 +228,7 @@ class SbbolOrganization {
                     debugMessage('Created trial subscription for SBBOL', trialServiceSubscription)
                 } else {
                     debugMessage(`User from organization(inn=${inn}) has not accepted our offer in SBBOL, do nothing`)
+                    // TODO: cancel `ServiceSubscription` if exist
                 }
             }
         }
