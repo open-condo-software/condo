@@ -1,13 +1,22 @@
 const https = require('https')
 const querystring = require('querystring')
 const { URL } = require('url')
-const { debugMessage } = require('./common')
+const { debugMessage, SBBOL_IMPORT_NAME } = require('./common')
+const { getSchemaCtx } = require('@core/keystone/schema')
+const { TokenSet: TokenSetApi } = require('@condo/domains/organization/utils/serverSchema')
 const conf = process.env
 const SBBOL_CONFIG = conf.SBBOL_CONFIG ? JSON.parse(conf.SBBOL_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
+const { SbbolOauth2Api } = require('./oauth2')
 
 const REQUEST_TIMEOUT = 10 * 1000
 const REQUEST_TIMEOUT_ERROR = '[request:timeout:expires'
+
+const dayjs = require('dayjs')
+const utc = require('dayjs/plugin/utc')
+dayjs.extend(utc)
+// TODO(zuch): move all constants to constants
+const REFRESH_TOKEN_TTL = 30 * 24 * 60 * 60 // its real TTL is 180 days bit we need to update it earlier
 
 
 class SbbolRequestApi {
@@ -32,6 +41,40 @@ class SbbolRequestApi {
         }
         this.accessToken = accessToken
     }
+
+    static async getServiceOrganizationAccessToken () {
+        const accessToken = await SbbolRequestApi.getOrganizationAccessToken(SBBOL_CONFIG.service_organization_id)
+        return accessToken
+    }
+
+    static async getOrganizationAccessToken (organizationImportId) {
+        const { keystone } = await getSchemaCtx('TokenSet')
+        const adminContext = await keystone.createContext({ skipAccessControl: true })
+        const [tokenSet] = await TokenSetApi.getAll(adminContext, { organization: { importId: organizationImportId, importRemoteSystem: SBBOL_IMPORT_NAME } })
+        const tokenExpiredError = new Error(`[tokens:expired] for organization ${organizationImportId}`)
+        if (!tokenSet) {
+            throw tokenExpiredError
+        }
+        const isRefreshTokenExpired = dayjs(dayjs()).isAfter(tokenSet.refreshTokenExpiresAt)
+        if (isRefreshTokenExpired) {
+            throw tokenExpiredError
+        }
+        const isAccessTokenExpired = dayjs(dayjs()).isAfter(tokenSet.accessTokenExpiresAt)
+        if (isAccessTokenExpired) {
+            const oauth2 = new SbbolOauth2Api()
+            const { access_token, refresh_token, expires_at } = await oauth2.refreshToken(tokenSet.refreshToken)
+            await TokenSetApi.update(adminContext, tokenSet.id, {
+                accessToken: access_token,
+                refreshToken: refresh_token,
+                accessTokenExpiresAt: new Date(Date.now() + expires_at).toISOString(),
+                refreshTokenExpiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL * 1000).toISOString(),
+            })
+            return access_token
+        } else {
+            return tokenSet.accessToken
+        }
+    }
+
     async request ({ method, path: basePath, body = null }){
         return new Promise((resolve, reject) => {
             const path = method === 'GET' && body ? `${basePath}?${querystring.stringify(body)}` : basePath

@@ -21,7 +21,7 @@
     "generate-billings": "node ./../../bin/generate-billings.js",
     "generate-excel-template": "node ./../../bin/create-xlsx-template.js",
     "lint-schema": "NODE_ENV=test node ./../../bin/lint-schema.js",
-    "fix-property-maps": "node ./../../bin/fix-chessboards.js"
+    "refresh-sbbol-tokens": "node ./../../bin/sbbol.js"
   },
   "dependencies": {
     "@2gis/mapgl": "^1.12.0",

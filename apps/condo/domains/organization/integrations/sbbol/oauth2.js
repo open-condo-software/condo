@@ -107,6 +107,12 @@ class SbbolOauth2Api {
         return tokenSet
     }
 
+    async refreshToken ( refreshToken ) {
+        const tokenSet = await this.client.refresh(refreshToken)
+        return tokenSet
+    }
+
+
     async fetchUserInfo (accessToken) {
         const userInfo = await this.client.userinfo(accessToken)
         return userInfo
