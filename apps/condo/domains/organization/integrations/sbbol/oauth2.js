@@ -10,6 +10,56 @@ const SBBOL_CONFIG = conf.SBBOL_CONFIG ? JSON.parse(conf.SBBOL_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
 const JWT_ALG = 'gost34.10-2012'
 
+// When this scope will be added, an error "Invalid scope" will be returned
+const SCOPE_FOR_SUBSCRIPTION = 'PAYMENT_SUBSCRIPTION'
+
+// When this scope will be added, an error "Invalid scope" will be returned,
+// in case of '/ic/sso/api/v2/oauth/authorize' authorization endpoint
+const SCOPE_FOR_SERVICE_ID = SBBOL_CONFIG.service_id
+
+const ADDITIONAL_SCOPES = [
+    'ACCOUNTING_EVENTS',
+    'ACCOUNTING_EVENT_ORG',
+    'ACCOUNTING_NOTIFICATION',
+    'ESTATE_FEED',
+    'GET_ADVANCE_ACCEPTANCES',
+    'PAY_DOC_RU',
+    'inn',
+    'email',
+    'phone_number',
+    'orgKpp',
+    'orgFullName',
+    'OrgName',
+    'offerSmartCredit',
+    'summOfferSmartCredit',
+    'orgLawForm',
+    'orgLawFormShort',
+    'orgOgrn',
+    'orgActualAddress',
+    'orgJuridicalAddress',
+    'accounts',
+    'userPosition',
+    'terBank',
+    'regDateINN',
+    'regDateOGRN',
+    'orgBusinessSegmentName',
+    'userSignatureType',
+    'userCryptoType',
+    'userGroups',
+    'individualExecutiveAgency',
+    'orgOktmo',
+    'isIdentified',
+    'inquiryOrder',
+    'userGuid',
+];
+
+const SCOPES = [
+    'openid',
+    ...ADDITIONAL_SCOPES,
+    // SCOPE_FOR_SUBSCRIPTION,
+    // SCOPE_FOR_SERVICE_ID,
+]
+
 class SbbolOauth2Api {
     constructor () {
         this.host = SBBOL_CONFIG.host
@@ -89,7 +139,7 @@ class SbbolOauth2Api {
     authorizationUrlWithParams (checks) {
         return this.client.authorizationUrl({
             response_type: 'code',
-            scope: `openid ${this.serviceId}`,
+            scope: SCOPES.join(' '),
             ...checks,
         })
     }
@@ -136,7 +186,7 @@ class SbbolOauth2Api {
     }
 
     get authUrl () {
-        return `${this.url}/ic/sso/api/oauth/authorize`
+        return `${this.url}/ic/sso/api/v2/oauth/authorize`
     }
 
     get revokeUrl () {
