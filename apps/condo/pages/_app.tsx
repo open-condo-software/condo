@@ -26,7 +26,7 @@ import { FocusElement } from '@condo/domains/common/components/Focus/FocusElemen
 import { BarChartIcon } from '@condo/domains/common/components/icons/BarChart'
 import { OnBoardingProgress } from '@condo/domains/common/components/icons/OnBoardingProgress'
 import { OnBoardingProvider } from '../domains/onboarding/components/OnBoardingContext'
-import { FeatureFlagRequired, hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
+import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import { FocusContextProvider } from '../domains/common/components/Focus/FocusContextProvider'
 import { OnBoardingProgressIconContainer } from '@condo/domains/onboarding/components/OnBoardingProgressIconContainer'
 import {
@@ -39,8 +39,6 @@ import {
 } from '../domains/subscription/components/SubscriptionContext'
 import dayjs from 'dayjs'
 import { useEndTrialSubscriptionReminderPopup } from '../domains/subscription/hooks/useEndTrialSubscriptionReminderPopup'
-import { ServiceSubscription } from '../domains/subscription/utils/clientSchema'
-import { ServiceSubscriptionTypeType } from '../schema'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
