@@ -17,11 +17,15 @@ const AcquiringIntegrationAccessRight = generateGqlQueries('AcquiringIntegration
 const ACQUIRING_INTEGRATION_CONTEXT_FIELDS = `{ integration { id } organization { id } state settings ${COMMON_FIELDS} }`
 const AcquiringIntegrationContext = generateGqlQueries('AcquiringIntegrationContext', ACQUIRING_INTEGRATION_CONTEXT_FIELDS)
 
+const MULTI_PAYMENT_FIELDS = `{ amount commission time cardNumber serviceCategory ${COMMON_FIELDS} }`
+const MultiPayment = generateGqlQueries('MultiPayment', MULTI_PAYMENT_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     AcquiringIntegration,
     AcquiringIntegrationAccessRight,
     AcquiringIntegrationContext,
+    MultiPayment,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

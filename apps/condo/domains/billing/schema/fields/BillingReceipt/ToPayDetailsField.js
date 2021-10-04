@@ -53,7 +53,9 @@ const TO_PAY_DETAILS_FIELD = {
 }
 
 module.exports = {
+    TO_PAY_DETAILS_GRAPHQL_TYPES,
     TO_PAY_DETAILS_FIELD,
     TO_PAY_DETAILS_QUERY_LIST,
     ToPayDetailsFields,
+    ToPayDetailsSchema,
 }

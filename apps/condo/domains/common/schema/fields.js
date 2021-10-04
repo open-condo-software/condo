@@ -1,11 +1,11 @@
-const { Relationship } = require('@keystonejs/fields')
+const { Relationship, Select, Integer, Text } = require('@keystonejs/fields')
 const { PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
-const { Integer, Text } = require('@keystonejs/fields')
 const { Json } = require('@core/keystone/fields')
 const { JSON_UNKNOWN_VERSION_ERROR, REQUIRED_NO_VALUE_ERROR, JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/errors')
 const { ADDRESS_META_FIELD_GRAPHQL_TYPES } = require('@condo/domains/property/schema/fields/AddressMetaField')
+const { ISO_CODES } = require('../constants/currencies')
 
 const DV_FIELD = {
     type: Integer,
@@ -122,6 +122,15 @@ const CLIENT_PHONE_LANDLINE_FIELD = {
     },
 }
 
+const CURRENCY_CODE_FIELD = {
+    schemaDoc: 'Code of currency in ISO-4217 format',
+    isRequired: true,
+    type: Select,
+    dataType: 'string',
+    options: ISO_CODES,
+}
+
+
 module.exports = {
     DV_FIELD,
     SENDER_FIELD,
@@ -132,4 +141,5 @@ module.exports = {
     CLIENT_EMAIL_FIELD,
     CLIENT_PHONE_FIELD,
     CLIENT_PHONE_LANDLINE_FIELD,
+    CURRENCY_CODE_FIELD,
 }

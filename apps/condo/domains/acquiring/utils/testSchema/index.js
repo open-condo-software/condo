@@ -4,18 +4,32 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
+const dayjs = require('dayjs')
+const {makeClientWithNewRegisteredAndLoggedInUser} = require("@condo/domains/user/utils/testSchema");
+const {createTestOrganizationEmployee, createTestOrganizationEmployeeRole} = require("@condo/domains/organization/utils/testSchema");
 
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
+const { MULTIPAYMENT_DONE_STATUS } = require('../../constants')
+const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/organization')
 
 const { AcquiringIntegration: AcquiringIntegrationGQL } = require('@condo/domains/acquiring/gql')
 const { AcquiringIntegrationAccessRight: AcquiringIntegrationAccessRightGQL } = require('@condo/domains/acquiring/gql')
 const { AcquiringIntegrationContext: AcquiringIntegrationContextGQL } = require('@condo/domains/acquiring/gql')
+const { MultiPayment: MultiPaymentGQL } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
 const AcquiringIntegrationAccessRight = generateGQLTestUtils(AcquiringIntegrationAccessRightGQL)
 const AcquiringIntegrationContext = generateGQLTestUtils(AcquiringIntegrationContextGQL)
+const MultiPayment = generateGQLTestUtils(MultiPaymentGQL)
 /* AUTOGENERATE MARKER <CONST> */
+
+function getRandomHiddenCard() {
+    const prefix = Math.floor(Math.random() * 9000 + 1000)
+    const suffix = Math.floor(Math.random() * 9000 + 1000)
+    return `${prefix}********${suffix}`
+}
 
 async function createTestAcquiringIntegration (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -110,11 +124,98 @@ async function updateTestAcquiringIntegrationContext (client, id, extraAttrs = {
     return [obj, attrs]
 }
 
+async function makeAcquiringContext () {
+    const admin = await makeLoggedInAdminClient()
+    const [integration] = await createTestAcquiringIntegration(admin)
+    const [organization] = await registerNewOrganization(admin)
+    const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
+    return context
+}
+
+async function makeAcquiringContextAndIntegrationManager() {
+    const admin = await makeLoggedInAdminClient()
+    const [integration] = await createTestAcquiringIntegration(admin)
+    const [organization] = await registerNewOrganization(admin)
+    const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
+    const client = await makeClientWithNewRegisteredAndLoggedInUser()
+    const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+        canManageIntegrations: true,
+    })
+    await createTestOrganizationEmployee(admin, organization, client.user, role)
+
+    return {
+        context,
+        client
+    }
+}
+
+async function makeAcquiringContextAndIntegrationAccount() {
+    const admin = await makeLoggedInAdminClient()
+    const [integration] = await createTestAcquiringIntegration(admin)
+    const [organization] = await registerNewOrganization(admin)
+    const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
+    const client = await makeClientWithNewRegisteredAndLoggedInUser()
+    await createTestAcquiringIntegrationAccessRight(admin, integration, client.user)
+    return {
+        context,
+        client
+    }
+}
+
+async function createTestMultiPayment (client, receipts, resident, context, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!receipts) throw new Error('no receipts')
+    if (!resident) throw new Error('no resident')
+    if (!context) throw new Error('no integration context')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const amount = receipts.reduce((acc, cur) => acc + parseFloat(cur.toPay), 0)
+    const commission = Math.floor(Math.random() * 100) / 2
+    const cardNumber = getRandomHiddenCard()
+
+    const attrs = {
+        dv: 1,
+        sender,
+        amount,
+        commission,
+        currencyCode: 'RUB',
+        time: dayjs().toISOString(),
+        cardNumber,
+        paymentWay: 'CARD',
+        serviceCategory: 'TEST DOCUMENT',
+        transactionId: faker.datatype.uuid(),
+        status: MULTIPAYMENT_DONE_STATUS,
+        resident: { connect: resident.id },
+        receipts: receipts.map(receipt => ({connect: receipt.id})),
+        context: { connect: context.id },
+        ...extraAttrs,
+    }
+    const obj = await MultiPayment.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestMultiPayment (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await MultiPayment.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     AcquiringIntegration, createTestAcquiringIntegration, updateTestAcquiringIntegration,
     AcquiringIntegrationAccessRight, createTestAcquiringIntegrationAccessRight, updateTestAcquiringIntegrationAccessRight,
     AcquiringIntegrationContext, createTestAcquiringIntegrationContext, updateTestAcquiringIntegrationContext,
+    MultiPayment, createTestMultiPayment, updateTestMultiPayment,
+    makeAcquiringContext,
+    makeAcquiringContextAndIntegrationAccount,
+    makeAcquiringContextAndIntegrationManager
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

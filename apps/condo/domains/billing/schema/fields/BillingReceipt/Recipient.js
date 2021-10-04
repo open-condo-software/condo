@@ -51,6 +51,8 @@ const RECIPIENT_FIELD = {
 }
 
 module.exports = {
+    RECIPIENT_GRAPHQL_TYPES,
     RECIPIENT_FIELD,
     RECIPIENT_QUERY_LIST,
+    RecipientSchema,
 }
