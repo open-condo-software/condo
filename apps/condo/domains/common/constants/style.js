@@ -36,8 +36,8 @@ const scampi = '#525FA8'
 const zircon = '#F1F3FF'
 
 const CHART_COLOR_SET = [blue[5], green[5], red[4], gold[5], volcano[5], purple[5],
-    lime[7], sberGrey[7], magenta[5], blue[4], gold[6], cyan[6],
-    blue[7], volcano[6], green[5], geekblue[7], sberGrey[7], gold[7],
+    lime[7], sberGrey, magenta[5], blue[4], gold[6], cyan[6],
+    blue[7], volcano[6], green[5], geekblue[7], gold[7],
     magenta[7], yellow[5], lime[7], blue[8], cyan[5], yellow[6],
     purple[7], lime[8], red[6]]
 
