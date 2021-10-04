@@ -9,11 +9,6 @@ import { OnBoardingStepItem } from '@condo/domains/onboarding/components/OnBoard
 import { useIntl } from '@core/next/intl'
 import { useOnBoardingContext } from '@condo/domains/onboarding/components/OnBoardingContext'
 import { useServiceSubscriptionWelcomePopup } from '../domains/subscription/hooks/useServiceSubscriptionWelcomePopup'
-import { ServiceSubscription } from '../domains/subscription/utils/clientSchema'
-import { ServiceSubscriptionTypeType } from '../schema'
-import { useOrganization } from '@core/next/organization'
-import dayjs from 'dayjs'
-import cookie from 'js-cookie'
 
 interface IOnBoardingIndexPage extends React.FC {
     headerAction?: JSX.Element
