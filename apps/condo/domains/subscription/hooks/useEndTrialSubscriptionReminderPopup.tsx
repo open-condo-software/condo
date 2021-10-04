@@ -79,8 +79,11 @@ export const useEndTrialSubscriptionReminderPopup = (): IEndTrialSubscriptionRem
         const newCookieSubscriberFirstLoginPopupConfirmedInfo = Array.isArray(endTrialSubscriptionReminderPopupConfirmedInfo) ?
             [...endTrialSubscriptionReminderPopupConfirmedInfo, newConfirmedInfo] : [newConfirmedInfo]
 
+        // expires - 1 day
         cookie.set('endTrialSubscriptionReminderPopupConfirmedInfo',
-            JSON.stringify(newCookieSubscriberFirstLoginPopupConfirmedInfo))
+            JSON.stringify(newCookieSubscriberFirstLoginPopupConfirmedInfo), {
+                expires: 1,
+            })
     }
 
     const EndTrialSubscriptionReminderPopup = () => (
