@@ -65,14 +65,14 @@ export const useServiceSubscriptionWelcomePopup = (): IServiceSubscriptionWelcom
 
     const subscription = subscriptions && subscriptions.length > 0 && subscriptions[0]
 
-    const handleCancelModal = () => {
+    const handleCloseModal = () => {
         setIsServiceSubscriptionWelcomePopupVisible(false)
         const newConfirmedInfo = {
             organization: organization && organization.id,
             user: user && user.id,
         }
-        const newCookieSubscriberFirstLoginPopupConfirmedInfo = Array.isArray(cookieSubscriberFirstLoginPopupConfirmedInfo) ?
-            [...cookieSubscriberFirstLoginPopupConfirmedInfo, newConfirmedInfo] : [newConfirmedInfo]
+        const newCookieSubscriberFirstLoginPopupConfirmedInfo = Array.isArray(subscriberFirstLoginPopupConfirmedInfo) ?
+            [...subscriberFirstLoginPopupConfirmedInfo, newConfirmedInfo] : [newConfirmedInfo]
 
         cookie.set('subscriberFirstLoginPopupConfirmedInfo', JSON.stringify(newCookieSubscriberFirstLoginPopupConfirmedInfo))
     }
@@ -80,7 +80,7 @@ export const useServiceSubscriptionWelcomePopup = (): IServiceSubscriptionWelcom
     const ServiceSubscriptionWelcomePopup = () => (
         <Modal
             visible={isServiceSubscriptionWelcomePopupVisible}
-            onCancel={handleCancelModal}
+            onCancel={handleCloseModal}
             centered
             width={600}
             bodyStyle={{ padding: '30px' }}
@@ -89,7 +89,7 @@ export const useServiceSubscriptionWelcomePopup = (): IServiceSubscriptionWelcom
                     size='large'
                     key='submit'
                     type='sberPrimary'
-                    onClick={handleCancelModal}
+                    onClick={handleCloseModal}
                 >
                     {CompleteActionMessage}
                 </Button>,
