@@ -10,6 +10,9 @@ import dayjs from 'dayjs'
 import cookie from 'js-cookie'
 import { useOrganization } from '@core/next/organization'
 import { ServiceSubscription } from '../utils/clientSchema'
+import { useAuth } from '@core/next/auth'
+import { get } from 'lodash'
+
 
 interface IEndTrialSubscriptionReminderPopup {
     EndTrialSubscriptionReminderPopup: React.FC
@@ -25,20 +28,32 @@ const EndTrialSubscriptionReminderPopupParagraph = styled(Typography.Paragraph)`
 
 export const useEndTrialSubscriptionReminderPopup = (): IEndTrialSubscriptionReminderPopup => {
     const intl = useIntl()
+    const ServiceDisconnectMessage = intl.formatMessage({ id: 'subscription.modal.newClient.serviceDisconnect' })
+    const GratitudeMessage = intl.formatMessage({ id: 'subscription.modal.newClient.gratitude' })
+    const CompleteActionMessage = intl.formatMessage({ id: 'subscription.modal.complete.action' })
 
     const [isEndTrialSubscriptionReminderPopupVisible, setIsSEndTrialSubscriptionReminderPopupVisible] = useState<boolean>(false)
 
-    const { organization } = useOrganization()
+    const organizationInfo = useOrganization()
+    const userInfo = useAuth()
+
+    const organizationId = get(organizationInfo, ['organization', 'id'])
+    const userId = get(userInfo, ['user', 'id'])
 
     const threeDaysLater = dayjs().startOf('hour').add(3, 'days').toISOString()
-    const isEndTrialSubscriptionReminderPopupConfirmed = cookie.get('isEndTrialSubscriptionReminderPopupConfirmed')
+    const thisMinute = dayjs().startOf('minute').toISOString()
+
+    const cookieEndTrialSubscriptionReminderPopupConfirmedInfo = cookie.get('endTrialSubscriptionReminderPopupConfirmedInfo')
+    const endTrialSubscriptionReminderPopupConfirmedInfo = cookieEndTrialSubscriptionReminderPopupConfirmedInfo ?
+        JSON.parse(cookieEndTrialSubscriptionReminderPopupConfirmedInfo) : []
 
     const { objs: subscriptions, loading: subscriptionsLoading } = ServiceSubscription.useObjects({
         where: {
-            organization: { id: organization && organization.id },
+            organization: { id: organizationId },
             type: ServiceSubscriptionTypeType.Sbbol,
             isTrial: true,
             finishAt_lte: threeDaysLater,
+            finishAt_gte: thisMinute,
         },
     })
 
@@ -47,20 +62,31 @@ export const useEndTrialSubscriptionReminderPopup = (): IEndTrialSubscriptionRem
             subscriptions.length > 0 &&
             !subscriptionsLoading &&
             !isEndTrialSubscriptionReminderPopupVisible &&
-            !isEndTrialSubscriptionReminderPopupConfirmed
+            !endTrialSubscriptionReminderPopupConfirmedInfo.find(info =>
+                info.organization === organizationId && info.user === userId)
         )
             setIsSEndTrialSubscriptionReminderPopupVisible(true)
     }, [subscriptionsLoading])
 
     const subscription = subscriptions && subscriptions.length > 0 && subscriptions[0]
 
+    const handleCloseModal = () => {
+        setIsSEndTrialSubscriptionReminderPopupVisible(false)
+        const newConfirmedInfo = {
+            organization: organizationId,
+            user: userId,
+        }
+        const newCookieSubscriberFirstLoginPopupConfirmedInfo = Array.isArray(endTrialSubscriptionReminderPopupConfirmedInfo) ?
+            [...endTrialSubscriptionReminderPopupConfirmedInfo, newConfirmedInfo] : [newConfirmedInfo]
+
+        cookie.set('endTrialSubscriptionReminderPopupConfirmedInfo',
+            JSON.stringify(newCookieSubscriberFirstLoginPopupConfirmedInfo))
+    }
+
     const EndTrialSubscriptionReminderPopup = () => (
         <Modal
             visible={isEndTrialSubscriptionReminderPopupVisible}
-            onCancel={() => {
-                setIsSEndTrialSubscriptionReminderPopupVisible(false)
-                cookie.set('isEndTrialSubscriptionReminderPopupConfirmed', true)
-            }}
+            onCancel={handleCloseModal}
             centered
             width={600}
             bodyStyle={{ padding: '30px' }}
@@ -69,19 +95,16 @@ export const useEndTrialSubscriptionReminderPopup = (): IEndTrialSubscriptionRem
                     size='large'
                     key='submit'
                     type='sberPrimary'
-                    onClick={() => {
-                        setIsSEndTrialSubscriptionReminderPopupVisible(false)
-                        cookie.set('isEndTrialSubscriptionReminderPopupConfirmed', true)
-                    }}
+                    onClick={handleCloseModal}
                 >
-                    {intl.formatMessage({ id: 'subscription.modal.complete.action' })}
+                    {CompleteActionMessage}
                 </Button>,
             ]}
         >
             <Row gutter={[0, 40]}>
                 <Col span={24}>
                     <EndTrialSubscriptionReminderPopupParagraph strong>
-                        {intl.formatMessage({ id: 'subscription.modal.newClient.gratitude' })}
+                        {GratitudeMessage}
                     </EndTrialSubscriptionReminderPopupParagraph>
                     <EndTrialSubscriptionReminderPopupParagraph>
                         <FormattedMessage
@@ -92,7 +115,7 @@ export const useEndTrialSubscriptionReminderPopup = (): IEndTrialSubscriptionRem
                         />
                     </EndTrialSubscriptionReminderPopupParagraph>
                     <EndTrialSubscriptionReminderPopupParagraph>
-                        {intl.formatMessage({ id: 'subscription.modal.newClient.serviceDisconnect' })}
+                        {ServiceDisconnectMessage}
                     </EndTrialSubscriptionReminderPopupParagraph>
                 </Col>
             </Row>
