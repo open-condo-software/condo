@@ -13,6 +13,7 @@ import React, { useCallback, useContext, useMemo, useState } from 'react'
 import { FormattedMessage } from 'react-intl'
 import { RegisterContext } from './RegisterContextProvider'
 import { FeatureFlagRequired, hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
+import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
 
 
 const FORM_LAYOUT = {
@@ -152,6 +153,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
                                 <Button
                                     key='submit'
                                     type='sberAction'
+                                    icon={<SberIconWithoutLabel/>}
                                     href={hasFeature('sbbol_auth') ? '/api/sbbol/auth' : ''}
                                 >
                                     {SberIdRegisterMsg}
