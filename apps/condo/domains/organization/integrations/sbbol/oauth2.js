@@ -168,15 +168,6 @@ class SbbolOauth2Api {
         return userInfo
     }
 
-    async fetchSubscribers (accessToken) {
-        const result = {
-            offers:  await this.client.requestResource(this.offersUrl, accessToken),
-            advanceAcceptances: await this.client.requestResource(this.advanceAcceptancesUrl, accessToken),
-            packageOfServices:  await this.client.requestResource(this.packageOfServicesUrl, accessToken),
-        }
-        return result
-    }
-
     get userInfoUrl () {
         return `${this.protectedUrl}/ic/sso/api/v1/oauth/user-info`
     }
@@ -199,13 +190,6 @@ class SbbolOauth2Api {
 
     get protectedUrl () {
         return `${this.protectedHost}:${this.port}`
-    }
-
-    get packageOfServicesUrl () {
-        return `${this.protectedUrl}/v1/partner-info/package-of-services`
-    }
-    get offersUrl () {
-        return `${this.protectedUrl}/v1/partner-info/offers`
     }
 
     /**
