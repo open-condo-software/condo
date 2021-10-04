@@ -10,7 +10,7 @@ import cookie from 'js-cookie'
 import { useOrganization } from '@core/next/organization'
 import { ServiceSubscription } from '../utils/clientSchema'
 import { ServiceSubscriptionTypeType } from '@app/condo/schema'
-
+import { useAuth } from '@core/next/auth'
 
 interface IServiceSubscriptionWelcomePopup {
     ServiceSubscriptionWelcomePopup: React.FC
@@ -26,12 +26,22 @@ const ServiceSubscriptionWelcomePopupParagraph = styled(Typography.Paragraph)`
 
 export const useServiceSubscriptionWelcomePopup = (): IServiceSubscriptionWelcomePopup => {
     const intl = useIntl()
+    const CompleteActionMessage = intl.formatMessage({ id: 'subscription.modal.complete.action' })
+    const GratitudeMessage = intl.formatMessage({ id: 'subscription.modal.newClient.gratitude' })
+    const TrialTimeMessage = intl.formatMessage({ id: 'subscription.modal.newClient.trialTime' })
+    const DebitsInfoMessage = intl.formatMessage({ id: 'subscription.modal.newClient.debitsInfo' })
+    const CurrentTariffMessage = intl.formatMessage({ id: 'subscription.modal.newClient.currentTariff' })
+    const ServiceDisconnectMessage = intl.formatMessage({ id: 'subscription.modal.newClient.serviceDisconnect' })
+
     const { organization } = useOrganization()
+    const { user } = useAuth()
 
     const [isServiceSubscriptionWelcomePopupVisible, setIsServiceSubscriptionWelcomePopupVisible] = useState<boolean>(false)
 
     const thisMinute = dayjs().startOf('minute').toISOString()
-    const isSubscriberFirstLoginPopupConfirmed = cookie.get('isSubscriberFirstLoginPopupConfirmed')
+    const cookieSubscriberFirstLoginPopupConfirmedInfo = cookie.get('subscriberFirstLoginPopupConfirmedInfo')
+    const subscriberFirstLoginPopupConfirmedInfo = cookieSubscriberFirstLoginPopupConfirmedInfo ?
+        JSON.parse(cookieSubscriberFirstLoginPopupConfirmedInfo) : []
 
     const { objs: subscriptions, loading: subscriptionsLoading } = ServiceSubscription.useObjects({
         where: {
@@ -47,20 +57,30 @@ export const useServiceSubscriptionWelcomePopup = (): IServiceSubscriptionWelcom
             subscriptions.length > 0 &&
             !subscriptionsLoading &&
             !isServiceSubscriptionWelcomePopupVisible &&
-            !isSubscriberFirstLoginPopupConfirmed
+            !subscriberFirstLoginPopupConfirmedInfo.find(info =>
+                info.organization === organization.id && info.user === user.id)
         )
             setIsServiceSubscriptionWelcomePopupVisible(true)
     }, [subscriptionsLoading])
 
     const subscription = subscriptions && subscriptions.length > 0 && subscriptions[0]
 
+    const handleCancelModal = () => {
+        setIsServiceSubscriptionWelcomePopupVisible(false)
+        const newConfirmedInfo = {
+            organization: organization && organization.id,
+            user: user && user.id,
+        }
+        const newCookieSubscriberFirstLoginPopupConfirmedInfo = Array.isArray(cookieSubscriberFirstLoginPopupConfirmedInfo) ?
+            [...cookieSubscriberFirstLoginPopupConfirmedInfo, newConfirmedInfo] : [newConfirmedInfo]
+
+        cookie.set('subscriberFirstLoginPopupConfirmedInfo', JSON.stringify(newCookieSubscriberFirstLoginPopupConfirmedInfo))
+    }
+
     const ServiceSubscriptionWelcomePopup = () => (
         <Modal
             visible={isServiceSubscriptionWelcomePopupVisible}
-            onCancel={() => {
-                setIsServiceSubscriptionWelcomePopupVisible(false)
-                cookie.set('isSubscriberFirstLoginPopupConfirmed', true)
-            }}
+            onCancel={handleCancelModal}
             centered
             width={600}
             bodyStyle={{ padding: '30px' }}
@@ -69,28 +89,25 @@ export const useServiceSubscriptionWelcomePopup = (): IServiceSubscriptionWelcom
                     size='large'
                     key='submit'
                     type='sberPrimary'
-                    onClick={() => {
-                        setIsServiceSubscriptionWelcomePopupVisible(false)
-                        cookie.set('isSubscriberFirstLoginPopupConfirmed', true)
-                    }}
+                    onClick={handleCancelModal}
                 >
-                    {intl.formatMessage({ id: 'subscription.modal.complete.action' })}
+                    {CompleteActionMessage}
                 </Button>,
             ]}
         >
             <Row gutter={[0, 40]}>
                 <Col span={24}>
                     <ServiceSubscriptionWelcomePopupParagraph strong>
-                        {intl.formatMessage({ id: 'subscription.modal.newClient.gratitude' })}
+                        {GratitudeMessage}
                     </ServiceSubscriptionWelcomePopupParagraph>
                     <ServiceSubscriptionWelcomePopupParagraph>
-                        {intl.formatMessage({ id: 'subscription.modal.newClient.trialTime' })}
+                        {TrialTimeMessage}
                     </ServiceSubscriptionWelcomePopupParagraph>
                     <ServiceSubscriptionWelcomePopupParagraph>
-                        {intl.formatMessage({ id: 'subscription.modal.newClient.debitsInfo' })}
+                        {DebitsInfoMessage}
                     </ServiceSubscriptionWelcomePopupParagraph>
                     <ServiceSubscriptionWelcomePopupParagraph>
-                        {intl.formatMessage({ id: 'subscription.modal.newClient.currentTariff' })}
+                        {CurrentTariffMessage}
                     </ServiceSubscriptionWelcomePopupParagraph>
                     <ServiceSubscriptionWelcomePopupParagraph>
                         <FormattedMessage
@@ -101,7 +118,7 @@ export const useServiceSubscriptionWelcomePopup = (): IServiceSubscriptionWelcom
                         />
                     </ServiceSubscriptionWelcomePopupParagraph>
                     <ServiceSubscriptionWelcomePopupParagraph>
-                        {intl.formatMessage({ id: 'subscription.modal.newClient.serviceDisconnect' })}
+                        {ServiceDisconnectMessage}
                     </ServiceSubscriptionWelcomePopupParagraph>
                 </Col>
             </Row>
