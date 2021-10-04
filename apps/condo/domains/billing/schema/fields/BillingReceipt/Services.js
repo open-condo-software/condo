@@ -93,6 +93,8 @@ const SERVICES_FIELD = {
 }
 
 module.exports = {
+    SERVICES_GRAPHQL_TYPES,
     SERVICES_FIELD,
     SERVICES_QUERY_LIST,
+    ServicesSchema,
 }
