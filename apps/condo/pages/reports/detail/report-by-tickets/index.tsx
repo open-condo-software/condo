@@ -946,6 +946,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                 data={analyticsData}
                                 loading={loading}
                                 viewMode={viewMode}
+                                mainGroup={groupTicketsBy}
                                 chartConfig={{
                                     animationEnabled: true,
                                     chartOptions: { renderer: 'svg', height: viewMode === 'line' ? 440 : 'auto' },
