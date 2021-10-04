@@ -533,6 +533,8 @@ export const getChartOptions: IGetChartOptions = ({
         textStyle: { fontSize: fontSizes.content },
         itemGap: 28,
         data: legend,
+        type: animationEnabled ? 'scroll' : 'plain',
+        pageButtonPosition: 'start',
     }
 
     const chartStyle = {}
@@ -563,7 +565,9 @@ export const getChartOptions: IGetChartOptions = ({
         option['series'] = series
         option['tooltip'] = tooltip
         const legendItemGap = 42
-        option['grid']['top'] = 30 + legend.length / MAX_CHART_LEGEND_ELEMENTS * legendItemGap
+        option['grid']['top'] = animationEnabled
+            ? 56
+            : 30 + legend.length / MAX_CHART_LEGEND_ELEMENTS * legendItemGap
 
         const chartHeight = get(chartOptions, 'height', 'auto')
         opts['height'] = chartHeight
