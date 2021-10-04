@@ -25,8 +25,7 @@ export const SignInForm = (): React.ReactElement => {
     const PasswordMsg = intl.formatMessage({ id: 'pages.auth.signin.field.Password' })
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
     const ResetMsg = intl.formatMessage({ id: 'pages.auth.signin.ResetPasswordLinkTitle' })
-    const UserNotFound = intl.formatMessage({ id: 'pages.auth.UserIsNotFound' })
-    const PasswordMismatch = intl.formatMessage({ id: 'pages.auth.WrongPassword' })
+    const PasswordOrPhoneMismatch = intl.formatMessage({ id: 'pages.auth.WrongPhoneOrPassword' })
 
     const [form] = Form.useForm()
     const { next } = getQueryParams()
@@ -36,12 +35,12 @@ export const SignInForm = (): React.ReactElement => {
     const ErrorToFormFieldMsgMapping = useMemo(() => {
         return {
             [WRONG_PHONE_ERROR]: {
-                name: 'phone',
-                errors: [UserNotFound],
+                name: 'signinError',
+                errors: [PasswordOrPhoneMismatch],
             },
             [WRONG_PASSWORD_ERROR]: {
-                name: 'password',
-                errors: [PasswordMismatch],
+                name: 'signinError',
+                errors: [PasswordOrPhoneMismatch],
             },
         }
     }, [intl])
@@ -81,7 +80,7 @@ export const SignInForm = (): React.ReactElement => {
             colon={false}
             requiredMark={false}
         >
-            <Row gutter={[0, 60]}>
+            <Row gutter={[0, 30]}>
                 <Col span={24} >
                     <Row gutter={[0, 24]}>
                         <Col span={24}>
