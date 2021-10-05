@@ -143,6 +143,26 @@ const buttonGradientCss = css`
       }
     `
 
+const buttonGhostCss = css`
+  & {
+    color: ${green[5]};
+    font-weight: bold;
+    border-width: 2px;
+    box-shadow: none;
+  }
+
+  &:hover, &:focus {
+    border-color: ${green[5]};
+    color: ${green[6]};
+  }
+
+  &:disabled, &:hover:disabled {
+    color: ${green[5]};
+    opacity: 60%;
+    background-color: transparent;
+  }
+`
+
 export interface CustomButtonProps extends Omit<ButtonProps, 'type'>{
     type?: 'sberDefault' | 'sberGradient' | 'sberPrimary' | 'inlineLink' | 'sberDanger' | 'sberGrey' | 'sberAction' | ButtonProps['type'],
     secondary?: boolean
@@ -156,7 +176,8 @@ export const Button: React.FC<CustomButtonProps> = ({ type, secondary, ...restPr
         type !== 'sberAction' &&
         type !== 'sberDanger' &&
         type !== 'sberGrey' &&
-        type !== 'inlineLink'
+        type !== 'inlineLink' &&
+        type !== 'ghost'
     ) {
         return <DefaultButton {...{ ...restProps, type }}/>
     } else {
@@ -166,6 +187,8 @@ export const Button: React.FC<CustomButtonProps> = ({ type, secondary, ...restPr
             buttonStyles = buttonGradientCss
         } else if (type === 'inlineLink') {
             buttonStyles = buttonLinkCss
+        } else if (type === 'ghost') {
+            buttonStyles = buttonGhostCss
         } else {
             buttonStyles = secondary ? buttonSecondaryCss(colors[type]) : buttonCss(colors[type])
         }
