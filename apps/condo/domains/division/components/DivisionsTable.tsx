@@ -71,45 +71,42 @@ export default function DivisionTable (props: BuildingTableProps) {
 
     return (
         <Row align={'middle'} gutter={[0, 40]}>
-            <Col span={6}>
-                <Input
-                    placeholder={SearchPlaceholder}
-                    onChange={(e) => {handleSearchChange(e.target.value)}}
-                    value={search}
-                />
-            </Col>
-            <Col span={6} push={1}>
-                <Tooltip title={NotImplementedYetMessage} >
-                    <Typography.Text
-                        style={{
-                            opacity: 70,
-                            color: colors.sberGrey[4],
-                        }}
-                    >
-                        <Button
-                            type={'inlineLink'}
-                            icon={<DatabaseFilled />}
-                            target='_blank'
-                            rel='noreferrer'>{DownloadExcelLabel}
-                        </Button>
-                    </Typography.Text>
-                </Tooltip>
-
-            </Col>
-            <Col span={6} push={6}>
-                {role?.canManageDivisions ? (
-                    <Space size={16}>
-                        <Tooltip title={NotImplementedYetMessage}>
-                            <Button
-                                type={'sberPrimary'}
-                                icon={<DiffOutlined />}
-                                secondary />
-                        </Tooltip>
-                        <Button type='sberPrimary' onClick={() => router.push('/division/create')}>
-                            {CreateLabel}
-                        </Button>
-                    </Space>
-                ) : null}
+            <Col span={24}>
+                <Row justify={'space-between'}>
+                    <Col span={10}>
+                        <Row justify={'space-between'} align={'middle'}>
+                            <Col span={14}>
+                                <Input
+                                    placeholder={SearchPlaceholder}
+                                    onChange={(e) => {handleSearchChange(e.target.value)}}
+                                    value={search}
+                                />
+                            </Col>
+                            <Tooltip title={NotImplementedYetMessage} >
+                                <Typography.Text
+                                    style={{
+                                        opacity: 70,
+                                        color: colors.sberGrey[4],
+                                    }}
+                                >
+                                    <Button
+                                        type={'inlineLink'}
+                                        icon={<DatabaseFilled />}
+                                        target='_blank'
+                                        rel='noreferrer'>{DownloadExcelLabel}
+                                    </Button>
+                                </Typography.Text>
+                            </Tooltip>
+                        </Row>
+                    </Col>
+                    <Col>
+                        {role?.canManageDivisions ? (
+                            <Button type='sberPrimary' onClick={() => router.push('/division/create')}>
+                                {CreateLabel}
+                            </Button>
+                        ) : null}
+                    </Col>
+                </Row>
             </Col>
             <Col span={24}>
                 <Table
