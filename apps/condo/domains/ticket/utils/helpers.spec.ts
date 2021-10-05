@@ -654,6 +654,27 @@ describe('Helpers', () => {
                         property2: { open: 2, closed: 1 },
                     })
                 })
+
+                it('receive non enumerable prop injectSummaryInfo', () => {
+                    const groupBy = ['status', 'property'] as TicketAnalyticsGroupBy[]
+                    const data = getAggregatedData(ticketGroupedCounter, groupBy, true)
+                    expect(data).toMatchObject({
+                        open: { property1: 1, property2: 2 },
+                        closed: { property1: 3, property2: 1 },
+                    })
+                    expect(data).toHaveProperty('summary')
+                    expect(data.summary).toMatchObject({ property1: 4, property2: 3 })
+                })
+
+                it('not receive injectSummaryInfo by default', () => {
+                    const groupBy = ['status', 'property'] as TicketAnalyticsGroupBy[]
+                    const data = getAggregatedData(ticketGroupedCounter, groupBy)
+                    expect(data).toMatchObject({
+                        open: { property1: 1, property2: 2 },
+                        closed: { property1: 3, property2: 1 },
+                    })
+                    expect(data).not.toHaveProperty('summary')
+                })
             })
         })
 
