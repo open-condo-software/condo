@@ -9,7 +9,17 @@ import { Division as DivisionSchema } from '@app/condo/schema'
 const getResponsibleAndExecutorFrom = (divisions, categoryClassifier) => {
     let responsible
     let executor
-    const division = divisions[0]
+    const division = find(divisions, {
+        executors: [
+            {
+                specializations: [
+                    {
+                        id: categoryClassifier,
+                    },
+                ],
+            },
+        ],
+    }) || divisions[0]
     if (division) {
         responsible = division.responsible
         if (categoryClassifier) {
@@ -43,7 +53,7 @@ const AutoAssignerByDivisions: React.FC<ITicketAutoAssignment> = ({ organization
     const SelectCategoryClassifierToAssignExecutorMessage = intl.formatMessage({ id: 'ticket.assignments.divisions.selectCategoryClassifier' })
     const NotAssignedExecutorMessage = intl.formatMessage({ id: 'ticket.assignments.divisions.assigned.executor.notFound' })
 
-    const { loading, error, objs: divisions } = Division.useObjects({
+    const { loading, error, objs: divisions, refetch } = Division.useObjects({
         where: {
             organization: { id: organizationId },
             properties_some: {
@@ -63,6 +73,10 @@ const AutoAssignerByDivisions: React.FC<ITicketAutoAssignment> = ({ organization
         })
         onDivisionsFound && onDivisionsFound(divisions || [])
     }, [responsibleUserId, executorUserId, form])
+
+    useEffect(()=> {
+        refetch()
+    }, [categoryClassifier])
 
     if (loading || !divisions) {
         return null
