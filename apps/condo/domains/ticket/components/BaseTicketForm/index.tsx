@@ -1,16 +1,13 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { useIntl } from '@core/next/intl'
-import { Checkbox, Col, Form, Input, Row, Typography, Tooltip, Tabs } from 'antd'
+import { Checkbox, Col, Form, Input, Row, Typography, Tooltip, Tabs, Alert, Button } from 'antd'
 import { get } from 'lodash'
 import React, { useEffect, useRef, useState } from 'react'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
-import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
-import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
-import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { useTicketValidations } from './useTicketValidations'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
@@ -23,9 +20,10 @@ import { InputWithCounter } from '@condo/domains/common/components/InputWithCoun
 import Prompt from '@condo/domains/common/components/Prompt'
 import { IOrganizationEmployeeRoleUIState } from '@condo/domains/organization/utils/clientSchema/OrganizationEmployeeRole'
 import { IOrganizationUIState } from '@condo/domains/organization/utils/clientSchema/Organization'
-import { AutoAssignerByDivisions } from './AutoAssignerByDivisions'
 import { UnitInfo } from '@condo/domains/property/components/UnitInfo'
 import { TicketAssignments } from './TicketAssignments'
+import { useRouter } from 'next/router'
+import { Property } from '@condo/domains/property/utils/clientSchema'
 
 const { TabPane } = Tabs
 
@@ -169,10 +167,18 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.HelpMessage' })
 
+    const router = useRouter()
+
     const { action: _action, initialValues, organization, role, afterActionCompleted, files, autoAssign } = props
     const validations = useTicketValidations()
     const [selectedPropertyId, setSelectedPropertyId] = useState(get(initialValues, 'property'))
     const selectPropertyIdRef = useRef(selectedPropertyId)
+
+    const { loading: organizationPropertiesLoading, objs: organizationProperties } = Property.useObjects({
+        where: {
+            organization: { id: organization ? organization.id : null },
+        },
+    })
 
     const { loading, obj: property } = useObject({ where: { id: selectedPropertyId ? selectedPropertyId : null } })
 
@@ -255,6 +261,23 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                             <Typography.Title level={5}
                                                 style={{ margin: '0' }}>{UserInfoTitle}</Typography.Title>
                                         </Col>
+                                        {
+                                            !organizationPropertiesLoading && organizationProperties.length === 0 ? (
+                                                <Col span={24}>
+                                                    <Button
+                                                        type='text'
+                                                        style={{ padding: 0 }}
+                                                        onClick={() => router.push('/property/create')}
+                                                    >
+                                                        <Alert
+                                                            showIcon
+                                                            type='warning'
+                                                            message={'Чтобы создать заявку, нужно добавить хотябы один адрес в разделе «Дома и участки»'}
+                                                        />
+                                                    </Button>
+                                                </Col>
+                                            ) : null
+                                        }
                                         <Col span={24}>
                                             <Form.Item name={'property'} label={AddressLabel}
                                                 rules={validations.property}>
