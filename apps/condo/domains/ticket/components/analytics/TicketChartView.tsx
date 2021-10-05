@@ -16,9 +16,7 @@ import InfiniteScroll from 'react-infinite-scroller'
 import { TICKET_CHART_PAGE_SIZE } from '@condo/domains/ticket/constants/restrictions'
 import { getChartOptions, GroupTicketsByTypes } from '@condo/domains/ticket/utils/helpers'
 import styled from '@emotion/styled'
-import { css } from '@emotion/core'
 import { Button } from '@condo/domains/common/components/Button'
-import { green } from '@ant-design/colors'
 import { DownOutlined } from '@ant-design/icons'
 
 export interface ITicketAnalyticsPageWidgetProps {
@@ -48,21 +46,6 @@ const ScrollContainer = styled.div<{ height: string }>`
   padding-bottom: 0;
   overflow: auto;
   height: ${({ height }) => height};
-`
-
-const ghostButtonCss = css`
-  & {
-    color: ${green[5]};
-    font-weight: bold;
-    border-width: 2px;
-    box-shadow: none;
-    width: 100%;
-    margin-top: 16px;
-  }
-  &:hover, &:focus {
-    border-color: ${green[5]};
-    color: ${green[6]};
-  }
 `
 
 const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
@@ -120,7 +103,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
             }
             chartRefs.current = chartRefs.current.slice(0, seriesRef.current.length)
         }
-    }, [data])
+    }, [data, viewMode])
 
     // Way to await moment when all pie chart instance were rendered (needed for client side pdf generation)
     useLayoutEffect(() => {
@@ -192,7 +175,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
                         style={{ ...chartStyle }}
                         option={option}/>
                     {barChartPagedRenderEnabled ? (
-                        <Button css={ghostButtonCss} type={'ghost'} onClick={loadMore}>
+                        <Button style={{ width: '100%', marginTop: 16 }} type={'ghost'} onClick={loadMore}>
                             {LoadMoreTitle} <DownOutlined />
                         </Button>
                     ) : null}
