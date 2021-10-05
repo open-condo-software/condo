@@ -173,17 +173,22 @@ const PdfView = () => {
                 },
                 bar: {
                     chart: (viewMode, ticketGroupedCounter) => {
-                        const data = getAggregatedData(ticketGroupedCounter, groupByRef.current)
+                        const data = getAggregatedData(ticketGroupedCounter, groupByRef.current, true)
                         const series = []
-                        const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
+                        const axisLabels = Object.keys(data.summary)
+                            .sort((firstLabel, secondLabel) => data.summary[firstLabel] - data.summary[secondLabel])
                         const legend = Object.keys(data)
                         Object.entries(data).map(([groupBy, dataObj]) => {
+                            const seriesData = []
+                            axisLabels.forEach(axisLabel => {
+                                seriesData.push(dataObj[axisLabel])
+                            })
                             series.push({
                                 name: groupBy,
                                 type: viewMode,
                                 symbol: 'none',
                                 stack: 'total',
-                                data: Object.values(dataObj),
+                                data: seriesData,
                                 emphasis: {
                                     focus: 'self',
                                     blurScope: 'self',

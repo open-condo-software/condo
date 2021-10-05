@@ -135,13 +135,16 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
     const isEmptyDataSet = data.every(ticketStatus => ticketStatus.count === 0)
 
     if (viewMode !== 'pie') {
+        const pieChartDataStep = chartPage * TICKET_CHART_PAGE_SIZE
         const axisData = axisDataRef.current
-        const hasMore = axisData !== null
-            && chartPage * TICKET_CHART_PAGE_SIZE < get(axisData, 'yAxis.data.length', 0)
+        const hasMore = axisData !== null && pieChartDataStep < get(axisData, 'yAxis.data.length', 0)
         const barChartPagedRenderEnabled = animationEnabled && hasMore && viewMode === 'bar'
 
         if (barChartPagedRenderEnabled) {
-            axisData['yAxis']['data'] = get(axisData, 'yAxis.data', []).slice(0, TICKET_CHART_PAGE_SIZE * chartPage)
+            axisData['yAxis']['data'] = get(axisData, 'yAxis.data', []).slice(-pieChartDataStep)
+            seriesCacheRef.current.forEach(series => {
+                series.data = series.data.slice(-pieChartDataStep)
+            })
         }
         const { opts, option } = getChartOptions({
             legend,
