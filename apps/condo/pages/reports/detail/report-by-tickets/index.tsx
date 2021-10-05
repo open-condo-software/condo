@@ -485,11 +485,16 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         const { groupBy } = filterToQuery(
                             { filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy }
                         )
-                        const data = getAggregatedData(ticketGroupedCounter, groupBy)
+                        const data = getAggregatedData(ticketGroupedCounter, groupBy, true)
                         const series = []
-                        const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
+                        const axisLabels = Object.keys(data.summary)
+                            .sort((firstLabel, secondLabel) => data.summary[firstLabel] - data.summary[secondLabel])
                         const legend = Object.keys(data)
                         Object.entries(data).map(([name, dataObj]) => {
+                            const seriesData = []
+                            axisLabels.forEach(axisLabel => {
+                                seriesData.push(dataObj[axisLabel])
+                            })
                             series.push({
                                 name,
                                 type: viewMode,
@@ -498,7 +503,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                 sampling: 'sum',
                                 large: true,
                                 largeThreshold: 200,
-                                data: Object.values(dataObj),
+                                data: seriesData,
                                 emphasis: {
                                     focus: 'self',
                                     blurScope: 'self',

@@ -452,20 +452,29 @@ export const filterToQuery: IFilterToQuery = ({ filter, viewMode, ticketType, ma
 }
 
 interface IGetAggregatedData {
-    (data: TicketGroupedCounter[], groupBy: TicketAnalyticsGroupBy[]): AnalyticsDataType
+    (data: TicketGroupedCounter[], groupBy: TicketAnalyticsGroupBy[], injectSummaryInfo?: boolean): AnalyticsDataType
 }
 
-export const getAggregatedData: IGetAggregatedData = (data, groupByFilter) => {
+export const getAggregatedData: IGetAggregatedData = (data, groupByFilter, injectSummaryInfo = false) => {
     const [axisGroupKey] = groupByFilter
     const labelsGroupKey = TICKET_REPORT_DAY_GROUP_STEPS.includes(groupByFilter[1]) ? 'dayGroup' : groupByFilter[1]
     const groupedResult = groupBy(data, axisGroupKey)
     const result = {}
+    injectSummaryInfo && Object.defineProperty(result, 'summary', { enumerable: false, writable: true, value: {} })
+
     Object.entries(groupedResult).forEach(([filter, dataObject]) => {
-        result[filter] = Object.fromEntries(
-            Object.entries(
-                groupBy(dataObject, labelsGroupKey)
-            ).map(([labelsGroupTitle, resultObject]) => [labelsGroupTitle, resultObject[0].count])
-        )
+        const filterEntries = Object.entries(
+            groupBy(dataObject, labelsGroupKey)
+        ).map(([labelsGroupTitle, resultObject]) => [labelsGroupTitle, resultObject[0].count])
+
+        injectSummaryInfo && filterEntries.forEach(([label, count]) => {
+            if (label in result['summary']) {
+                result['summary'][label] += count
+            } else {
+                result['summary'][label] = count
+            }
+        })
+        result[filter] = Object.fromEntries(filterEntries)
     })
     return result
 }
