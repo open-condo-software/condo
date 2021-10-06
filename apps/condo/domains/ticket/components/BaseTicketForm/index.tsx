@@ -166,6 +166,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.HelpMessage' })
+    const NoPropertiesMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.NoProperties' })
 
     const router = useRouter()
 
@@ -272,7 +273,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                         <Alert
                                                             showIcon
                                                             type='warning'
-                                                            message={'Чтобы создать заявку, нужно добавить хотябы один адрес в разделе «Дома и участки»'}
+                                                            message={NoPropertiesMessage}
                                                         />
                                                     </Button>
                                                 </Col>
