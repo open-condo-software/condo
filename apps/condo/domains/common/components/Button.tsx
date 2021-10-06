@@ -3,7 +3,7 @@ import React from 'react'
 import { css, jsx } from '@emotion/core'
 import { green } from '@ant-design/colors'
 import { Button as DefaultButton, ButtonProps } from 'antd'
-import { colors } from '../constants/style'
+import { colors, gradients } from '../constants/style'
 
 const buttonCss = (color) => {
     // Ant returns an array of hue-separated colors, check them out here
@@ -114,7 +114,7 @@ const buttonLinkCss = css`
 `
 
 const buttonGradientCss = css`
-      background: linear-gradient(115deg, #4CD174 16%, #6DB8F2 84%);
+      background: ${gradients.sberActionGradient};
       border-radius: 8px;
       color: ${colors.defaultWhite[5]};
       box-shadow: none;
@@ -125,7 +125,7 @@ const buttonGradientCss = css`
 
       &:hover, &:focus {
         color: ${colors.defaultWhite[5]};
-        background: linear-gradient(115deg, #4CD174 16%, #6DB8F2 84%);
+        background: ${gradients.sberActionGradient};
       }
 
       &:active {

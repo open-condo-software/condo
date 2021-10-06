@@ -7,6 +7,7 @@ import { Button } from '@condo/domains/common/components/Button'
 import { AppealIcon } from '@condo/domains/common/components/icons/AppealIcon'
 import { MeterIcon } from '@condo/domains/common/components/icons/MeterIcon'
 import { MenuItem } from '@condo/domains/common/components/MenuItem'
+import { fontSizes } from '@condo/domains/common/constants/style'
 
 export const StyledMenu = styled(Menu)`
   width: 225px;
@@ -15,7 +16,7 @@ export const StyledMenu = styled(Menu)`
 `
 
 const ResidentAppealDropDownMenuItemWrapperProps = {
-    labelFontSize: '14px',
+    labelFontSize: fontSizes.label,
     padding: '16px',
     flexGap: '10px',
 }
