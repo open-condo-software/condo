@@ -91,7 +91,7 @@ const MULTIPAYMENT_REQUIRED_FIELDS = {
 }
 
 // Fields that cannot be changed by anyone (except admin) when switching from selected status
-const MULTIPAYMENT_FROZEN_BY_DEFAULT_FIELDS = ['resident', 'receipts', 'integration', 'amount', 'currencyCode']
+const MULTIPAYMENT_FROZEN_BY_DEFAULT_FIELDS = ['user', 'receipts', 'integration', 'amount', 'currencyCode']
 const MULTIPAYMENT_FROZEN_FIELDS = {
     [MULTIPAYMENT_INIT_STATUS]: MULTIPAYMENT_FROZEN_BY_DEFAULT_FIELDS,
     // TODO (savelevMatthew) same as DONE?

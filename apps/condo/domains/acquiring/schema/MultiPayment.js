@@ -3,10 +3,12 @@
  */
 
 const { Text, DateTimeUtc, Decimal, Select, Relationship } = require('@keystonejs/fields')
+const { getById } = require('@core/keystone/schema')
 const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD, CURRENCY_CODE_FIELD } = require('@condo/domains/common/schema/fields')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
 const {
     AVAILABLE_PAYMENT_METHODS,
     MULTIPAYMENT_STATUSES,
@@ -93,13 +95,28 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
             defaultValue: MULTIPAYMENT_INIT_STATUS,
         },
 
-        resident: {
-            schemaDoc: 'Link to payer\'s resident',
+        user: {
+            schemaDoc: 'Link to user',
             type: Relationship,
-            ref: 'Resident',
+            ref: 'User',
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+            hooks: {
+                validateInput: async ({ operation, resolvedData, fieldPath, addFieldValidationError }) => {
+                    if (operation === 'create') {
+                        const userId = get(resolvedData, fieldPath)
+                        if (!userId) {
+                            addFieldValidationError('No user specified')
+                            return
+                        }
+                        const user = await getById('User', userId)
+                        if (get(user, 'type') !== RESIDENT) {
+                            addFieldValidationError('Cannot create Multipayment to non-resident type of user')
+                        }
+                    }
+                },
+            },
         },
 
         receipts: {

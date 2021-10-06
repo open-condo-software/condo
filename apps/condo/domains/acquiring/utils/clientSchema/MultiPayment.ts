@@ -11,7 +11,7 @@ import { MultiPayment as MultiPaymentGQL } from '@condo/domains/acquiring/gql'
 import { MultiPayment, MultiPaymentUpdateInput, QueryAllMultiPaymentsArgs } from '../../../../schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'amount', 'commission', 'currencyCode', 'time', 'cardNumber', 'serviceCategory', 'paymentWay', 'payerEmail', 'transactionId', 'meta', 'status']
-const RELATIONS = ['resident', 'billingReceipts', 'integration']
+const RELATIONS = ['resident', 'billingReceipts', 'user']
 
 export interface IMultiPaymentUIState extends MultiPayment {
     id: string
