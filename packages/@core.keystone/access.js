@@ -1,6 +1,7 @@
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { get } = require('lodash')
+const { canReadBillingEntity } = require('@condo/domains/billing/utils/accessSchema')
 
 const userIsAuthenticated = ({ authentication: { item: user } }) => Boolean(user && user.id)
 
