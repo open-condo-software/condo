@@ -31,6 +31,7 @@ const ADDITIONAL_SCOPES = [
     'orgKpp',
     'orgFullName',
     'OrgName',
+    'HashOrgId',
     // 'offerSmartCredit',
     // 'summOfferSmartCredit',
     'orgLawForm',
