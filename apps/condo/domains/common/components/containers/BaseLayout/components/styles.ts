@@ -42,7 +42,14 @@ export const formInputFixCss = css`
   }
 `
 
-export const sideMenuStyles = css`
+export const mobileSideNavStyles = css`
+  padding: 16px 0 60px;
+  box-sizing: border-box;
+  height: 100vh;
+  z-index: 10;
+`
+
+export const sideNavStyles = css`
   position: fixed;
   padding: 40px 0 60px;
   box-sizing: border-box;
@@ -53,10 +60,30 @@ export const sideMenuStyles = css`
   border-style: solid;
 `
 
+export const MobileSideNavHeader = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: stretch;
+  align-items: center;
+  padding: 0 22px 40px;
+`
+
+export const OrganizationSelectWrapper = styled.div`
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+`
+
 export const MenuItemsContainer = styled.div`
     overflow-x: hidden;
     height: 100%;
     padding: 0 34px 100px;
+`
+
+export const MobileMenuItemsContainer = styled.div`
+  padding: 0 22px 100px;
 `
 
 export const LogoContainer = styled.div`

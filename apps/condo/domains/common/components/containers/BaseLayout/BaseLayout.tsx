@@ -3,7 +3,7 @@ import { jsx } from '@emotion/core'
 import React, { CSSProperties, FunctionComponent } from 'react'
 import { Layout, PageHeader as AntPageHeader, PageHeaderProps } from 'antd'
 import { useLayoutContext } from '../../LayoutContext'
-import { SideMenu } from './components/SideMenu'
+import { DesktopSideNav, MobileSideNav } from './components/SideNav'
 import Router from 'next/router'
 import classnames from 'classnames'
 import 'antd/dist/antd.less'
@@ -35,9 +35,15 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
         TopMenuItems,
     } = props
 
+    const { isSmall } = useLayoutContext()
+
     return (
         <Layout className={className} style={style} css={layoutCss} >
-            <SideMenu onLogoClick={onLogoClick} menuData={menuData}/>
+            {
+                isSmall
+                    ? <MobileSideNav menuData={menuData}/>
+                    : <DesktopSideNav onLogoClick={onLogoClick} menuData={menuData}/>
+            }
             <Layout css={subLayoutCss}>
                 <Header headerAction={headerAction} TopMenuItems={TopMenuItems} />
                 {children}

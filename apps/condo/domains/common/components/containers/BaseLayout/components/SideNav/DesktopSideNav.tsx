@@ -9,23 +9,23 @@ import { ResidentActions } from '@condo/domains/common/components/ResidentAction
 import { ServiceSubscriptionIndicator } from '@condo/domains/subscription/components/ServiceSubscriptionIndicator'
 import { Logo } from '@condo/domains/common/components/Logo'
 import { LeftOutlined, RightOutlined } from '@ant-design/icons'
-import { Button } from '../../../Button'
+import { Button } from '../../../../Button'
 import {
     LayoutTriggerWrapper,
     LogoContainer,
-    sideMenuStyles,
+    sideNavStyles,
     ActionsContainer,
     MenuItemsContainer,
     SIDE_MENU_WIDTH,
     COLLAPSED_SIDE_MENU_WIDTH,
-} from './styles'
+} from '../styles'
 
-interface ISideMenuProps {
+interface ISideNavProps {
     onLogoClick: (...args) => void
     menuData?: React.ElementType
 }
 
-export const SideMenu: React.FC<ISideMenuProps> = (props) => {
+export const DesktopSideNav: React.FC<ISideNavProps> = (props) => {
     const { onLogoClick, menuData } = props
     const { link } = useOrganization()
     const { isSmall, toggleCollapsed, isCollapsed } = useLayoutContext()
@@ -46,7 +46,7 @@ export const SideMenu: React.FC<ISideMenuProps> = (props) => {
             <Layout.Sider
                 collapsed={isCollapsed}
                 theme='light'
-                css={sideMenuStyles}
+                css={sideNavStyles}
                 width={SIDE_MENU_WIDTH}
                 collapsedWidth={COLLAPSED_SIDE_MENU_WIDTH}
             >

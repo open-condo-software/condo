@@ -1,31 +1,22 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 import styled from '@emotion/styled'
-// @ts-nocheck
-import { Dropdown, Tag, Space, Menu } from 'antd'
-import { EnvironmentFilled, RestFilled } from '@ant-design/icons'
+import { Dropdown, Space, Menu } from 'antd'
+import { RestFilled } from '@ant-design/icons'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import {
     TopMenuItem,
     StyledMenuItem,
     menuIconStyles,
 } from '@condo/domains/common/components/containers/BaseLayout/components/styles'
-import React from 'react'
+import React, { useMemo } from 'react'
 import Router from 'next/router'
 import { useAuth } from '@core/next/auth'
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import { useIntl } from '@core/next/intl'
-import get from 'lodash/get'
-import { useOrganization } from '@core/next/organization'
 import { green } from '@ant-design/colors'
 import { Button } from '@condo/domains/common/components/Button'
+import { User } from '../../../schema'
 
 function goToSignin () {
     Router.push('/auth/signin')
-}
-
-function goToOrganization () {
-    Router.push('/organizations')
 }
 
 function goToUserProfile () {
@@ -67,18 +58,34 @@ const UserMenuContainer = styled.div`
   box-sizing: border-box;
 `
 
-export const UserMenu = () => {
+interface IUserMenuProps {
+    showUserName?: boolean
+}
+
+export const UserMenu: React.FC<IUserMenuProps> = (props) => {
     const intl = useIntl()
     const SignInMessage = intl.formatMessage({ id: 'SignIn' })
     const GuestUsernameMessage = intl.formatMessage({ id: 'baselayout.menuheader.GuestUsername' })
     const SignOutMessage = intl.formatMessage({ id: 'SignOut' })
     const auth = useAuth()
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+
+    const { showUserName = true } = props
+
+    const userName = useMemo(() => {
+        if (showUserName) {
+            if (auth.user) {
+                return formatUserName(auth.user.name)
+            } else {
+                return GuestUsernameMessage
+            }
+        } else {
+            return null
+        }
+    }, [auth.user, showUserName])
 
     const DropdownOverlay = (
         <StyledMenu>
-            <StyledMenuItem key="signout" onClick={auth.signout}>
+            <StyledMenuItem key='signout' onClick={auth.signout}>
                 <Space size={16}>
                     <RestFilled style={menuIconStyles}/>
                     {SignOutMessage}
@@ -103,7 +110,7 @@ export const UserMenu = () => {
                                         <AvatarContainer>
                                             <UserAvatar iconSize={'6px'}/>
                                         </AvatarContainer>
-                                        {auth.user ? formatUserName(auth.user.name) : GuestUsernameMessage}
+                                        {userName}
                                     </Space>
                                 </Button>
                             </UserMenuContainer>
