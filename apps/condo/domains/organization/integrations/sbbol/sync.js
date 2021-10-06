@@ -188,12 +188,13 @@ class SbbolOrganization {
                 organization: {
                     id: this.organization.id,
                 },
+                finishAt_gt: dayjs().toISOString(),
             },
             returnFields: 'id',
         })
 
-        if (subscriptions.length > 0) {
-            debugMessage('User already have subscriptions')
+        if (subscriptions.length > 0 && subscriptions[0].type === 'sbbol') {
+            debugMessage('User already have active SBBOL subscription')
         } else {
             debugMessage('No subscriptions found')
 
@@ -218,6 +219,16 @@ class SbbolOrganization {
                     // Дома: Создаём клиенту личный кабинет в системе Дома по условиям оферты
                     // Создаём пробную подписку `ServiceSubscription`  на 15 дней
                     const now = dayjs()
+
+                    // Default trial subscription will be created in `registerOrganization`.
+                    // In case of ongoing SBBOL subscription, other non-SBBOL subscriptions makes no sense.
+                    // If active one is present, cut it's period until now.
+                    const existingSubscription = subscriptions[0]
+                    if (existingSubscription) {
+                        await ServiceSubscription.update(this.context, existingSubscription.id, {
+                            finishAt: dayjs(),
+                        })
+                    }
                     const trialServiceSubscription = await ServiceSubscription.create(this.context, {
                         type: 'sbbol',
                         isTrial: true,
