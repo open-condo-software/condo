@@ -3,8 +3,7 @@ const { getSchemaCtx } = require('@core/keystone/schema')
 const { JSON_SCHEMA_VALIDATION_ERROR } = require('@condo/domains/common/constants/errors')
 const { SbbolUserInfoJSONValidation, SBBOL_SESSION_KEY } = require('./common')
 const { SbbolOauth2Api } = require('./oauth2')
-const { SbbolOrganization } = require('./sync')
-const { SbbolSubscriptions } = require('./SbbolSubscriptions')
+const sync = require('./sync')
 
 class SbbolRoutes {
     constructor () {
@@ -27,32 +26,25 @@ class SbbolRoutes {
 
     async completeAuth (req, res, next) {
         try {
+            console.log('> completeAuth')
             const tokenSet = await this.helper.fetchTokens(req, SBBOL_SESSION_KEY)
             const { keystone } = await getSchemaCtx('User')
             const { access_token } = tokenSet
             const userInfo = await this.helper.fetchUserInfo(access_token)
+            console.debug('userInfo', userInfo)
             if (!SbbolUserInfoJSONValidation(userInfo)) {
                 throw new Error(`${JSON_SCHEMA_VALIDATION_ERROR}] invalid json structure for userInfo`)
             }
-            const Sync = new SbbolOrganization({ keystone, userInfo })
-            console.log('> completeAuth')
-            console.debug('userInfo', userInfo)
-            await Sync.init()
-            await Sync.syncUser()
-            const userId = Sync.user.id
-            keystone._sessionManager.startAuthedSession(req, { item: { id: userId }, list: keystone.lists['User'] })
-            await Sync.syncOrganization()
-            await Sync.updateTokens(tokenSet)
-            const organizationLinkId = await Sync.getOrganizationEmployeeLinkId()
-            res.cookie('organizationLinkId', organizationLinkId)
+
+            const {
+                user,
+                organizationEmployee,
+            } = await sync({ keystone, userInfo })
+
+            keystone._sessionManager.startAuthedSession(req, { item: { id: user.id }, list: keystone.lists['User'] })
+            res.cookie('organizationLinkId', organizationEmployee.id)
             delete req.session[SBBOL_SESSION_KEY]
             await req.session.save()
-
-            console.debug('Sync.organization', Sync.organization)
-            await SbbolSubscriptions.sync(Sync.context, {
-                ...Sync.organization,
-                ...Sync.organizationInfo,
-            })
 
             return res.redirect('/')
         } catch (error) {
