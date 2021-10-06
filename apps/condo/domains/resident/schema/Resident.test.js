@@ -382,7 +382,7 @@ describe('Resident', () => {
                 const userClient = await makeClientWithProperty()
                 const adminClient = await makeLoggedInAdminClient()
 
-                const [{ id }] = await createTestResident(adminClient, userClient.user, null, null)
+                const [{ id }] = await createTestResident(adminClient, userClient.user, null, userClient.property)
                 await addResidentAccess(userClient.user)
                 const [obj] = await Resident.getAll(userClient, { id })
 
