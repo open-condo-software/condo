@@ -10543,10 +10543,10 @@ export type MultiPayment = {
   transactionId?: Maybe<Scalars['String']>;
   /**  Additional acquiring-specific information  */
   meta?: Maybe<Scalars['JSON']>;
-  /**  Status of payment. Can be: "CREATED", "DONE", "DECLINED", "PROCESSING", "ERROR"  */
+  /**  Status of payment. Can be: "CREATED", "DONE", "PROCESSING", "ERROR"  */
   status?: Maybe<Scalars['String']>;
-  /**  Link to payer's resident  */
-  resident?: Maybe<Resident>;
+  /**  Link to user  */
+  user?: Maybe<User>;
   /**  List of all billing receipts, that make up MultiPayment. Created using mutation. Displaying all needed information to resolve conflicts. Mainly used by support team  */
   receipts?: Maybe<Scalars['JSON']>;
   /**  Link to acquiring integration  */
@@ -10575,7 +10575,7 @@ export type MultiPaymentCreateInput = {
   transactionId?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
-  resident?: Maybe<ResidentRelateToOneInput>;
+  user?: Maybe<UserRelateToOneInput>;
   receipts?: Maybe<Scalars['JSON']>;
   integration?: Maybe<AcquiringIntegrationRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
@@ -10611,7 +10611,7 @@ export type MultiPaymentHistoryRecord = {
   transactionId?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
-  resident?: Maybe<Scalars['String']>;
+  user?: Maybe<Scalars['String']>;
   receipts?: Maybe<Scalars['JSON']>;
   integration?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -10641,7 +10641,7 @@ export type MultiPaymentHistoryRecordCreateInput = {
   transactionId?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
-  resident?: Maybe<Scalars['String']>;
+  user?: Maybe<Scalars['String']>;
   receipts?: Maybe<Scalars['JSON']>;
   integration?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -10676,7 +10676,7 @@ export type MultiPaymentHistoryRecordUpdateInput = {
   transactionId?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
-  resident?: Maybe<Scalars['String']>;
+  user?: Maybe<Scalars['String']>;
   receipts?: Maybe<Scalars['JSON']>;
   integration?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -10860,10 +10860,10 @@ export type MultiPaymentHistoryRecordWhereInput = {
   status_not_ends_with_i?: Maybe<Scalars['String']>;
   status_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   status_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  resident?: Maybe<Scalars['String']>;
-  resident_not?: Maybe<Scalars['String']>;
-  resident_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  resident_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  user?: Maybe<Scalars['String']>;
+  user_not?: Maybe<Scalars['String']>;
+  user_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  user_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   receipts?: Maybe<Scalars['JSON']>;
   receipts_not?: Maybe<Scalars['JSON']>;
   receipts_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -10965,7 +10965,7 @@ export type MultiPaymentUpdateInput = {
   transactionId?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
-  resident?: Maybe<ResidentRelateToOneInput>;
+  user?: Maybe<UserRelateToOneInput>;
   receipts?: Maybe<Scalars['JSON']>;
   integration?: Maybe<AcquiringIntegrationRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
@@ -11104,8 +11104,8 @@ export type MultiPaymentWhereInput = {
   status_not?: Maybe<Scalars['String']>;
   status_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   status_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  resident?: Maybe<ResidentWhereInput>;
-  resident_is_null?: Maybe<Scalars['Boolean']>;
+  user?: Maybe<UserWhereInput>;
+  user_is_null?: Maybe<Scalars['Boolean']>;
   receipts?: Maybe<Scalars['JSON']>;
   receipts_not?: Maybe<Scalars['JSON']>;
   receipts_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -24817,8 +24817,8 @@ export enum SortMultiPaymentsBy {
   TransactionIdDesc = 'transactionId_DESC',
   StatusAsc = 'status_ASC',
   StatusDesc = 'status_DESC',
-  ResidentAsc = 'resident_ASC',
-  ResidentDesc = 'resident_DESC',
+  UserAsc = 'user_ASC',
+  UserDesc = 'user_DESC',
   IntegrationAsc = 'integration_ASC',
   IntegrationDesc = 'integration_DESC',
   IdAsc = 'id_ASC',
