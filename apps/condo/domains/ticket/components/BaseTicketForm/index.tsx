@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { useIntl } from '@core/next/intl'
-import { Checkbox, Col, Form, Input, Row, Typography, Tooltip, Tabs, Alert, Button } from 'antd'
+import { Checkbox, Col, Form, Input, Row, Typography, Tooltip, Tabs, Alert } from 'antd'
 import { get } from 'lodash'
 import React, { useEffect, useRef, useState } from 'react'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
@@ -22,8 +22,9 @@ import { IOrganizationEmployeeRoleUIState } from '@condo/domains/organization/ut
 import { IOrganizationUIState } from '@condo/domains/organization/utils/clientSchema/Organization'
 import { UnitInfo } from '@condo/domains/property/components/UnitInfo'
 import { TicketAssignments } from './TicketAssignments'
-import { useRouter } from 'next/router'
 import { Property } from '@condo/domains/property/utils/clientSchema'
+import { Button } from '@condo/domains/common/components/Button'
+import { useRouter } from 'next/router'
 
 const { TabPane } = Tabs
 
@@ -160,13 +161,14 @@ export interface ITicketFormProps {
 
 export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const intl = useIntl()
-    const UserInfoTitle = intl.formatMessage({ id: 'ClientInfo' })
+    const AddMessage = intl.formatMessage({ id: 'Add' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.Address' })
     const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.HelpMessage' })
     const NoPropertiesMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.NoProperties' })
+    const UserInfoTitle = intl.formatMessage({ id: 'ClientInfo' })
 
     const router = useRouter()
 
@@ -265,17 +267,21 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                         {
                                             !organizationPropertiesLoading && organizationProperties.length === 0 ? (
                                                 <Col span={24}>
-                                                    <Button
-                                                        type='text'
-                                                        style={{ padding: 0 }}
-                                                        onClick={() => router.push('/property/create')}
-                                                    >
-                                                        <Alert
-                                                            showIcon
-                                                            type='warning'
-                                                            message={NoPropertiesMessage}
-                                                        />
-                                                    </Button>
+                                                    <Alert
+                                                        showIcon
+                                                        type='warning'
+                                                        message={
+                                                            <>
+                                                                {NoPropertiesMessage}&nbsp;
+                                                                <Button
+                                                                    type={'inlineLink'}
+                                                                    onClick={() => router.push('/property/create')}
+                                                                >
+                                                                    {AddMessage}
+                                                                </Button>
+                                                            </>
+                                                        }
+                                                    />
                                                 </Col>
                                             ) : null
                                         }
