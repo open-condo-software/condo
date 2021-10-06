@@ -13,6 +13,11 @@ const { buildingMapJson } = require('@condo/domains/property/constants/property'
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
+const { createTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
+const { createTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
+const { DEFAULT_ACQUIRING_INTEGRATION_NAME } = require('@condo/domains/acquiring/constants')
+const { DEFAULT_BILLING_INTEGRATION_NAME } = require('@condo/domains/billing/constants')
+
 const { Resident, createTestResident, updateTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
 const { buildFakeAddressMeta } = require('@condo/domains/property/utils/testSchema/factories')
@@ -316,24 +321,76 @@ describe('Resident', () => {
         })
 
         describe('paymentCategories', () => {
-            it('correctly sets the hasBillingData if billing data is available', async () => {
+            it('correctly sets the paymentCategories if resident.org has everything', async () => {
                 const userClient = await makeClientWithProperty()
                 const adminClient = await makeLoggedInAdminClient()
 
-                const [integration] = await createTestBillingIntegration(adminClient)
-                await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration, {
-                    lastReport: {
-                        period: '2021-09-01',
-                        finishTime: dayjs().toISOString(),
-                        totalReceipts: 3141592,
-                    },
-                })
+                const [billingIntegration] = await createTestBillingIntegration(adminClient)
+                await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, billingIntegration)
+
+                const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient)
+                await createTestAcquiringIntegrationContext(adminClient, userClient.organization, acquiringIntegration)
 
                 const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
                 await addResidentAccess(userClient.user)
                 const [obj] = await Resident.getAll(userClient, { id })
 
-                expect(obj.organizationFeatures.paymentCategories).toBeDefined()
+                expect(obj.paymentCategories).toBeDefined()
+                expect(obj.paymentCategories[0].billingName).toEqual(billingIntegration.name)
+                expect(obj.paymentCategories[0].acquiringName).toEqual(acquiringIntegration.name)
+                expect(obj.paymentCategories[1].billingName).toEqual(DEFAULT_BILLING_INTEGRATION_NAME)
+                expect(obj.paymentCategories[1].acquiringName).toEqual(DEFAULT_ACQUIRING_INTEGRATION_NAME)
+            })
+
+            it('correctly sets the paymentCategories if resident.org has no acquiring', async () => {
+                const userClient = await makeClientWithProperty()
+                const adminClient = await makeLoggedInAdminClient()
+
+                const [billingIntegration] = await createTestBillingIntegration(adminClient)
+                await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, billingIntegration)
+
+                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+                await addResidentAccess(userClient.user)
+                const [obj] = await Resident.getAll(userClient, { id })
+
+                expect(obj.paymentCategories).toBeDefined()
+                expect(obj.paymentCategories[0].billingName).toEqual(billingIntegration.name)
+                expect(obj.paymentCategories[0].acquiringName).toEqual(DEFAULT_ACQUIRING_INTEGRATION_NAME)
+                expect(obj.paymentCategories[1].billingName).toEqual(DEFAULT_BILLING_INTEGRATION_NAME)
+                expect(obj.paymentCategories[1].acquiringName).toEqual(DEFAULT_ACQUIRING_INTEGRATION_NAME)
+            })
+
+            it('correctly sets the paymentCategories if resident.org has no billing', async () => {
+                const userClient = await makeClientWithProperty()
+                const adminClient = await makeLoggedInAdminClient()
+
+                const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient)
+                await createTestAcquiringIntegrationContext(adminClient, userClient.organization, acquiringIntegration)
+
+                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+                await addResidentAccess(userClient.user)
+                const [obj] = await Resident.getAll(userClient, { id })
+
+                expect(obj.paymentCategories).toBeDefined()
+                expect(obj.paymentCategories[0].billingName).toEqual(DEFAULT_BILLING_INTEGRATION_NAME)
+                expect(obj.paymentCategories[0].acquiringName).toEqual(acquiringIntegration.name)
+                expect(obj.paymentCategories[1].billingName).toEqual(DEFAULT_BILLING_INTEGRATION_NAME)
+                expect(obj.paymentCategories[1].acquiringName).toEqual(DEFAULT_ACQUIRING_INTEGRATION_NAME)
+            })
+
+            it('correctly sets the paymentCategories if resident has no org', async () => {
+                const userClient = await makeClientWithProperty()
+                const adminClient = await makeLoggedInAdminClient()
+
+                const [{ id }] = await createTestResident(adminClient, userClient.user, null, null)
+                await addResidentAccess(userClient.user)
+                const [obj] = await Resident.getAll(userClient, { id })
+
+                expect(obj.paymentCategories).toBeDefined()
+                expect(obj.paymentCategories[0].billingName).toEqual(DEFAULT_BILLING_INTEGRATION_NAME)
+                expect(obj.paymentCategories[0].acquiringName).toEqual(DEFAULT_ACQUIRING_INTEGRATION_NAME)
+                expect(obj.paymentCategories[1].billingName).toEqual(DEFAULT_BILLING_INTEGRATION_NAME)
+                expect(obj.paymentCategories[1].acquiringName).toEqual(DEFAULT_ACQUIRING_INTEGRATION_NAME)
             })
         })
     })
