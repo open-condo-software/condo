@@ -17,8 +17,10 @@ const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { getAddressUpToBuildingFrom } = require('@condo/domains/property/utils/serverSchema/helpers')
 
 const { BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/serverSchema')
-const { DEFAULT_ACQUIRING_INTEGRATION_NAME } = require('@condo/domains/acquiring/constants')
 const { DEFAULT_BILLING_INTEGRATION_NAME } = require('@condo/domains/billing/constants')
+
+const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
+const { DEFAULT_ACQUIRING_INTEGRATION_NAME } = require('@condo/domains/acquiring/constants')
 
 
 const Resident = new GQLListSchema('Resident', {
@@ -143,7 +145,10 @@ const Resident = new GQLListSchema('Resident', {
                     }
 
                     if (category.canGetAcquiringFromOrganization && item.organization) {
-
+                        const [acquiringCtx] = await AcquiringIntegrationContext.getAll(
+                            context, { organization: { id: item.organization } }
+                        )
+                        acquiringName = get(acquiringCtx, ['integration', 'name'], DEFAULT_ACQUIRING_INTEGRATION_NAME)
                     }
 
                     return {
