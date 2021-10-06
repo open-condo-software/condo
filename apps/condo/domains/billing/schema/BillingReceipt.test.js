@@ -208,6 +208,25 @@ describe('BillingReceipt', () => {
             expect(obj.id).toEqual(objUpdated.id)
             expect(objUpdated.period).toEqual('2011-12-01')
         })
+
+        test('toPay and commission is Decimal', async () => {
+            const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
+            const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
+            const [property] = await createTestBillingProperty(managerUserClient, context)
+            const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
+            const [obj] = await createTestBillingReceipt(managerUserClient, context, property, billingAccount)
+
+            const payload = {
+                toPay: '22.922',
+                commission: '20.10000',
+            }
+
+            const [objUpdated] = await updateTestBillingReceipt(managerUserClient, obj.id, payload)
+
+            expect(obj.id).toEqual(objUpdated.id)
+            expect(objUpdated.toPay).toEqual('22.92')
+            expect(objUpdated.commission).toEqual('20.10')
+        })
     })
 
     describe('Constrains', async () => {
