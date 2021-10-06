@@ -5,6 +5,7 @@ const qs = require('qs')
 
 const { Issuer, custom } = require('openid-client') // certified openid client will all checks
 const jwtDecode = require('jwt-decode') // decode jwt without validation
+const dayjs = require('dayjs')
 
 const SBBOL_CONFIG = conf.SBBOL_CONFIG ? JSON.parse(conf.SBBOL_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
@@ -201,6 +202,7 @@ class SbbolOauth2Api {
             hooks: {
                 beforeRequest: [
                     (options) => {
+                        console.debug(dayjs().format('YYYY-MM-DD HH:mm:ssZ[Z]'))
                         console.log('--> %s %s', options.method.toUpperCase(), options.url.href)
                         console.log('--> HEADERS %o', options.headers)
                         if (options.body) {
@@ -210,6 +212,7 @@ class SbbolOauth2Api {
                 ],
                 afterResponse: [
                     (response) => {
+                        console.debug(dayjs().format('YYYY-MM-DD HH:mm:ssZ[Z]'))
                         console.log('<-- %i FROM %s %s', response.statusCode, response.request.options.method.toUpperCase(), response.request.options.url.href)
                         console.log('<-- HEADERS %o', response.headers)
                         if (response.body) {

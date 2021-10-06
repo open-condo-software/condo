@@ -1,5 +1,6 @@
 const Ajv = require('ajv')
 const conf = process.env
+const dayjs = require('dayjs')
 
 const SBBOL_IMPORT_NAME = 'sbbol'
 const SBBOL_SESSION_KEY = 'sbbol'
@@ -35,6 +36,7 @@ const SBBOL_API_RESPONSE = {
 // eslint-disable-next-line no-shadow-restricted-names
 const debugMessage = (...arguments) => {
     if (conf.SBBOL_DEBUG) {
+        console.debug(dayjs().format('YYYY-MM-DD HH:mm:ssZ[Z]'))
         console.debug(...arguments)
     }
 }
