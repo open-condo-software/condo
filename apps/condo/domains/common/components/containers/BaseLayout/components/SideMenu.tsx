@@ -4,17 +4,21 @@ import { Layout } from 'antd'
 import get from 'lodash/get'
 import React from 'react'
 import { useOrganization } from '@core/next/organization'
-import { useResponsive } from '@condo/domains/common/hooks/useResponsive'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { ResidentActions } from '@condo/domains/common/components/ResidentActions/ResidentActions'
+import { ServiceSubscriptionIndicator } from '@condo/domains/subscription/components/ServiceSubscriptionIndicator'
 import { Logo } from '@condo/domains/common/components/Logo'
+import { LeftOutlined, RightOutlined } from '@ant-design/icons'
+import { Button } from '../../../Button'
 import {
+    LayoutTriggerWrapper,
+    LogoContainer,
+    sideMenuStyles,
+    ActionsContainer,
     MenuItemsContainer,
     SIDE_MENU_WIDTH,
-    sideMenuDesktopCss,
-    substrateDesktopCss,
+    COLLAPSED_SIDE_MENU_WIDTH,
 } from './styles'
-
-import { ServiceSubscriptionIndicator } from '@condo/domains/subscription/components/ServiceSubscriptionIndicator'
 
 interface ISideMenuProps {
     onLogoClick: (...args) => void
@@ -24,7 +28,8 @@ interface ISideMenuProps {
 export const SideMenu: React.FC<ISideMenuProps> = (props) => {
     const { onLogoClick, menuData } = props
     const { link } = useOrganization()
-    const { isSmall } = useResponsive()
+    const { isSmall, toggleCollapsed, isCollapsed } = useLayoutContext()
+
     const isEmployeeBlocked = get(link, 'isBlocked', false)
 
     if (isEmployeeBlocked) {
@@ -39,21 +44,36 @@ export const SideMenu: React.FC<ISideMenuProps> = (props) => {
     return (
         <>
             <Layout.Sider
+                collapsed={isCollapsed}
                 theme='light'
-                css={sideMenuDesktopCss}
+                css={sideMenuStyles}
                 width={SIDE_MENU_WIDTH}
-                className='side-menu'
+                collapsedWidth={COLLAPSED_SIDE_MENU_WIDTH}
             >
-                <Logo onClick={onLogoClick} />
+                <LogoContainer>
+                    <Logo onClick={onLogoClick} minified={isCollapsed}/>
+                </LogoContainer>
+                <LayoutTriggerWrapper>
+                    <Button
+                        onClick={toggleCollapsed}
+                        size={'small'}
+                        shape={'circle'}
+                        icon={isCollapsed ? <RightOutlined style={{ fontSize: '10px' }} /> : <LeftOutlined style={{ fontSize: '10px' }}/>}
+                    />
+                </LayoutTriggerWrapper>
+                <ActionsContainer minified={isCollapsed}>
+                    <ResidentActions minified={isCollapsed}/>
+                </ActionsContainer>
                 <MenuItemsContainer>
-                    <ResidentActions/>
-                    <MenuItemsContainer>
-                        {menuData}
-                    </MenuItemsContainer>
+                    {menuData}
                 </MenuItemsContainer>
                 <ServiceSubscriptionIndicator/>
             </Layout.Sider>
-            {menuData && <div css={substrateDesktopCss} className='side-menu-substrate' />}
+            <Layout.Sider
+                collapsed={isCollapsed}
+                width={SIDE_MENU_WIDTH}
+                collapsedWidth={COLLAPSED_SIDE_MENU_WIDTH}
+            />
         </>
     )
 }

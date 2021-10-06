@@ -33,7 +33,7 @@ import { formatPhone } from '@condo/domains/common/utils/helpers'
 import { ShareTicketModal } from '@condo/domains/ticket/components/ShareTicketModal'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { fontSizes } from '@condo/domains/common/constants/style'
-import { useResponsive } from '@condo/domains/common/hooks/useResponsive'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { User } from '@app/condo/schema'
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
@@ -143,7 +143,7 @@ const TicketContent = ({ ticket }) => {
     }, {
         fetchPolicy: 'network-only',
     })
-    const { isSmall } = useResponsive()
+    const { isSmall } = useLayoutContext()
 
     return (
         <Col span={24}>
@@ -227,7 +227,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
 
     const router = useRouter()
     const auth = useAuth() as { user: { id: string } }
-    const { isSmall } = useResponsive()
+    const { isSmall } = useLayoutContext()
 
     // NOTE: cast `string | string[]` to `string`
     const { query: { id } } = router as { query: { [key: string]: string } }

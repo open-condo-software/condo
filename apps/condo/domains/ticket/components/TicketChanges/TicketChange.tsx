@@ -3,7 +3,7 @@ import { Row, Col, Typography, Tooltip } from 'antd'
 import { has } from 'lodash'
 import styled from '@emotion/styled'
 import { TicketChange as TicketChangeType } from '@app/condo/schema'
-import { useResponsive } from '@condo/domains/common/hooks/useResponsive'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { formatDate } from '../../utils/helpers'
 import { useIntl } from '@core/next/intl'
 import { PhoneLink } from '@condo/domains/common/components/PhoneLink'
@@ -30,7 +30,7 @@ enum TicketChangeFieldMessageType {
 export const TicketChange: React.FC<ITicketChangeProps> = ({ ticketChange }) => {
     const intl = useIntl()
     const changedFieldMessages = useChangedFieldMessagesOf(ticketChange)
-    const { isSmall } = useResponsive()
+    const { isSmall } = useLayoutContext()
 
     return (
         <Row gutter={[12, 12]}>

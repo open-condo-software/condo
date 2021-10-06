@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 import { useAuth } from '@core/next/auth'
 import { Logo } from '@condo/domains/common/components/Logo'
-import { useResponsive } from '@condo/domains/common/hooks/useResponsive'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { colors } from '@condo/domains/common/constants/style'
 import { ActionContainer, Header, MobileHeader } from './styles'
 
@@ -12,7 +12,7 @@ interface IAuthHeaderProps {
 }
 
 export const AuthHeader: React.FC<IAuthHeaderProps> = ({ headerAction }) => {
-    const { isSmall } = useResponsive()
+    const { isSmall } = useLayoutContext()
     const router = useRouter()
     const { isAuthenticated } = useAuth()
 

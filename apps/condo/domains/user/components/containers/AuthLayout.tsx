@@ -10,7 +10,7 @@ import getConfig from 'next/config'
 import { Poster } from '@condo/domains/common/components/Poster'
 import { Button } from '@condo/domains/common/components/Button'
 import { colors } from '@condo/domains/common/constants/style'
-import { useResponsive } from '@condo/domains/common/hooks/useResponsive'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { AuthHeader } from './AuthHeader'
 import { AuthLayoutContextProvider } from './AuthLayoutContext'
 import { ChildrenWrapper, Footer, Layout, PageContent, PosterWrapper } from './styles'
@@ -28,7 +28,7 @@ interface IAuthLayoutProps {
 
 const AuthLayout: React.FC<IAuthLayoutProps> = ({ children, headerAction }) => {
     const intl = useIntl()
-    const { isSmall } = useResponsive()
+    const { isSmall } = useLayoutContext()
 
     return (
         <GoogleReCaptchaProvider

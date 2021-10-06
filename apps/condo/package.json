@@ -87,6 +87,7 @@
     "qs": "^6.9.6",
     "rc-queue-anim": "^1.8.5",
     "react": "^16.13.1",
+    "react-custom-scrollbars": "^4.2.1",
     "react-dom": "^16.13.1",
     "react-fittext": "^1.0.0",
     "react-google-recaptcha-v3": "1.9.4",

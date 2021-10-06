@@ -16,7 +16,7 @@ import { useOrganization, withOrganization } from '@core/next/organization'
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
 import GoogleAnalytics from '@condo/domains/common/components/containers/GoogleAnalytics'
 import BehaviorRecorder from '@condo/domains/common/components/containers/BehaviorRecorder'
-import BaseLayout from '@condo/domains/common/components/containers/BaseLayout'
+import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import GlobalErrorBoundary from '@condo/domains/common/components/containers/GlobalErrorBoundery'
 import { extractReqLocale } from '@condo/domains/common/utils/locale'
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
@@ -25,9 +25,10 @@ import { MenuItem } from '@condo/domains/common/components/MenuItem'
 import { FocusElement } from '@condo/domains/common/components/Focus/FocusElement'
 import { BarChartIcon } from '@condo/domains/common/components/icons/BarChart'
 import { OnBoardingProgress } from '@condo/domains/common/components/icons/OnBoardingProgress'
-import { OnBoardingProvider } from '../domains/onboarding/components/OnBoardingContext'
+import { OnBoardingProvider } from '@condo/domains/onboarding/components/OnBoardingContext'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
-import { FocusContextProvider } from '../domains/common/components/Focus/FocusContextProvider'
+import { FocusContextProvider } from '@condo/domains/common/components/Focus/FocusContextProvider'
+import { LayoutContextProvider } from '@condo/domains/common/components/LayoutContext'
 import { OnBoardingProgressIconContainer } from '@condo/domains/onboarding/components/OnBoardingProgressIconContainer'
 import {
     BILLING_RECEIPT_SERVICES_FIELD,
@@ -58,6 +59,8 @@ const MenuItems: React.FC = () => {
     const { isExpired } = useServiceSubscriptionContext()
     const hasSubscriptionFeature = hasFeature('subscription')
     const disabled = !link || (hasSubscriptionFeature && isExpired)
+    const { isCollapsed } = useLayoutContext()
+
     return (
         <>
             <FocusElement>
@@ -66,6 +69,7 @@ const MenuItems: React.FC = () => {
                         path={'/onboarding'}
                         icon={OnBoardingProgress}
                         label={'menu.OnBoarding'}
+                        isCollapsed={isCollapsed}
                     />
                 </OnBoardingProgressIconContainer>
             </FocusElement>
@@ -74,48 +78,56 @@ const MenuItems: React.FC = () => {
                 icon={BarChartIcon}
                 label={'menu.Analytics'}
                 disabled={disabled}
+                isCollapsed={isCollapsed}
             />
             <MenuItem
                 path={'/ticket'}
                 icon={ThunderboltFilled}
                 label={'menu.ControlRoom'}
                 disabled={disabled}
+                isCollapsed={isCollapsed}
             />
             <MenuItem
                 path={'/property'}
                 icon={HomeFilled}
                 label={'menu.Property'}
                 disabled={disabled}
+                isCollapsed={isCollapsed}
             />
             <MenuItem
                 path={'/contact'}
                 icon={UserIcon}
                 label={'menu.Contacts'}
                 disabled={disabled}
+                isCollapsed={isCollapsed}
             />
             <MenuItem
                 path={'/employee'}
                 icon={UserIcon}
                 label={'menu.Employees'}
                 disabled={disabled}
+                isCollapsed={isCollapsed}
             />
             <MenuItem
                 path={'/meter'}
                 icon={MeterLog}
                 label={'menu.Meters'}
                 disabled={disabled}
+                isCollapsed={isCollapsed}
             />
             <MenuItem
                 path={'/billing'}
                 icon={ApiFilled}
                 label={'menu.Billing'}
                 disabled={disabled}
+                isCollapsed={isCollapsed}
             />
             <MenuItem
                 path={'/settings'}
                 icon={SettingFilled}
                 label={'menu.Settings'}
                 disabled={!link}
+                isCollapsed={isCollapsed}
             />
         </>
     )
@@ -143,16 +155,18 @@ const MyApp = ({ Component, pageProps }) => {
                     <FocusContextProvider>
                         <OnBoardingProvider>
                             <SubscriptionProvider>
-                                <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                    <RequiredAccess>
-                                        <Component {...pageProps} />
-                                        {
-                                            isEndTrialSubscriptionReminderPopupVisible && (
-                                                <EndTrialSubscriptionReminderPopup/>
-                                            )
-                                        }
-                                    </RequiredAccess>
-                                </LayoutComponent>
+                                <LayoutContextProvider>
+                                    <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                        <RequiredAccess>
+                                            <Component {...pageProps} />
+                                            {
+                                                isEndTrialSubscriptionReminderPopupVisible && (
+                                                    <EndTrialSubscriptionReminderPopup/>
+                                                )
+                                            }
+                                        </RequiredAccess>
+                                    </LayoutComponent>
+                                </LayoutContextProvider>
                             </SubscriptionProvider>
                         </OnBoardingProvider>
                     </FocusContextProvider>

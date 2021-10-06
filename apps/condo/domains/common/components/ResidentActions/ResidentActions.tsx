@@ -1,3 +1,4 @@
+import { PlusOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import { Divider, Dropdown, Menu } from 'antd'
 import React from 'react'
@@ -39,17 +40,28 @@ const ResidentAppealDropdownOverlay = () => {
     )
 }
 
-export const ResidentActions: React.FC = () => {
+interface IResidentActionsProps {
+    minified: boolean
+}
+
+export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
     const intl = useIntl()
+    const { minified } = props
 
     return (
         <Dropdown
             overlay={ResidentAppealDropdownOverlay}
-            placement={'bottomCenter'}
+            placement={minified ? 'bottomRight' : 'bottomCenter'}
         >
-            <Button type='sberDefault' style={{ position: 'relative', left: '-10px' }}>
-                {intl.formatMessage({ id: 'ResidentAppeal' })}
-            </Button>
+            {
+                minified
+                    ? (<Button type={'sberGradient'} icon={<PlusOutlined />} shape={'circle'}/>)
+                    : (
+                        <Button type={'sberGradient'} icon={<PlusOutlined />}>
+                            {intl.formatMessage({ id: 'ResidentAppeal' })}
+                        </Button>
+                    )
+            }
         </Dropdown>
     )
 }

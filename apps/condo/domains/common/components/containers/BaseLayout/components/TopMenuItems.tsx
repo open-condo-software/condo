@@ -1,11 +1,9 @@
 import React from 'react'
 import { Space } from 'antd'
-import { BellFilled } from '@ant-design/icons'
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
 import { OrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
 import { useOrganizationInvites } from '@condo/domains/organization/hooks/useOrganizationInvites'
-import { menuIconStyles } from './styles'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
 import { Loader } from '@condo/domains/common/components/Loader'
 

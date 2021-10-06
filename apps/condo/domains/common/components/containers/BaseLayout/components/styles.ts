@@ -1,10 +1,11 @@
-import { colors } from '@condo/domains/common/constants/style'
+import { colors, shadows } from '@condo/domains/common/constants/style'
 const { red } = require('@ant-design/colors')
 import { css } from '@emotion/core'
 import styled from '@emotion/styled'
 import { Layout, Menu } from 'antd'
 
 export const SIDE_MENU_WIDTH = 256
+export const COLLAPSED_SIDE_MENU_WIDTH = 92
 
 // Ant inputs
 export const formInputFixCss = css`
@@ -41,25 +42,41 @@ export const formInputFixCss = css`
   }
 `
 
-export const sideMenuDesktopCss = css`
-  padding: 40px 20px 0 40px;
-  box-sizing: border-box;
-  width: ${SIDE_MENU_WIDTH}px;
-  height: 100%;
+export const sideMenuStyles = css`
   position: fixed;
+  padding: 40px 0 60px;
+  box-sizing: border-box;
+  height: 100vh;
   z-index: 10;
   border-width: 0 1px 0 0;
   border-color: ${colors.lightGrey[5]};
   border-style: solid;
 `
 
-export const substrateDesktopCss = css`
-  width: ${SIDE_MENU_WIDTH}px;
-  min-height: 100%;
+export const MenuItemsContainer = styled.div`
+    overflow-x: hidden;
+    height: 100%;
+    padding: 0 34px 100px;
 `
 
-export const MenuItemsContainer = styled.div`
-  padding-top: 42px;
+export const LogoContainer = styled.div`
+  margin: 0 auto;
+  padding: 0 34px 40px;
+`
+
+export const ActionsContainer = styled.div<{ minified: boolean }>`
+  display: flex;
+  justify-content: center;
+  padding: 0 34px 38px;
+`
+
+export const LayoutTriggerWrapper = styled.div`
+  position: absolute;
+  border-radius: 50%;
+  box-shadow: ${shadows.elevated};
+  font-size: 10px;
+  top: 32px;
+  right: -12px;
 `
 
 export const TopMenuItem = styled.div`
