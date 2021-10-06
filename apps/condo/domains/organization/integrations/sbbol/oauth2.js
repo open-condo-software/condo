@@ -58,7 +58,7 @@ const ADDITIONAL_SCOPES = [
 const SCOPES = [
     'openid',
     ...ADDITIONAL_SCOPES,
-    // SCOPE_FOR_SUBSCRIPTION,
+    SCOPE_FOR_SUBSCRIPTION,
     // SCOPE_FOR_SERVICE_ID,
 ]
 
