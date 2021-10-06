@@ -80,6 +80,7 @@ const colors = {
 
 const fontSizes = {
     content: '16px',
+    label: '14px',
 }
 
 const shadows = {
@@ -94,6 +95,7 @@ const transitions = {
 
 const gradients = {
     onboardingIconGradient: 'linear-gradient(120deg, #00F260, #0575E6, #00F260)',
+    sberActionGradient: 'linear-gradient(115deg, #4CD174 16%, #6DB8F2 84%)',
 }
 
 const DEFAULT_BORDER_WIDTH = '2px'
