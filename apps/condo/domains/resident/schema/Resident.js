@@ -118,6 +118,37 @@ const Resident = new GQLListSchema('Resident', {
             access: true,
         },
 
+        paymentCategories: {
+            schemaDoc: 'Contains billing and acquiring integration names that are enabled for this resident per category',
+            type: Virtual,
+            extendGraphQLTypes: ['type PaymentCategory { categoryName: String!, billingName: String! acquiringName: String! }'],
+            graphQLReturnType: '[PaymentCategory]',
+            resolver: async (item, _, context) => {
+                return PAYMENT_CATEGORIES_META.map(async category => {
+
+                    let billingName = DEFAULT_BILLING_INTEGRATION_NAME
+                    let acquiringName = DEFAULT_ACQUIRING_INTEGRATION_NAME
+
+                    if (category.canGetBillingFromOrganization && item.organization) {
+                        const [billingCtx] = await BillingIntegrationOrganizationContext.getAll(
+                            context, { organization: { id: item.organization } }
+                        )
+                        billingName = get(billingCtx, ['integration', 'name'], DEFAULT_BILLING_INTEGRATION_NAME)
+                    }
+
+                    if (category.canGetAcquiringFromOrganization && item.organization) {
+
+                    }
+
+                    return {
+                        categoryName: category.name,
+                        billingName: billingName,
+                        acquiringName: acquiringName,
+                    }
+                })
+            },
+        },
+
         address: {
             schemaDoc: 'Normalized address',
             type: Text,
@@ -141,7 +172,7 @@ const Resident = new GQLListSchema('Resident', {
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     hooks: {
         validateInput: async ({ resolvedData, operation, existingItem, addValidationError, context }) => {
-            const { property, address, addressMeta, unitName, user: userId } = resolvedData
+            const { address, addressMeta, unitName, user: userId } = resolvedData
             if (operation === 'create') {
                 const addressUpToBuilding = getAddressUpToBuildingFrom(addressMeta)
                 const [resident] = await ResidentAPI.getAll(context, {

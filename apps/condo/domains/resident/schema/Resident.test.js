@@ -314,6 +314,28 @@ describe('Resident', () => {
                 expect(obj.organizationFeatures).toBeNull()
             })
         })
+
+        describe('paymentCategories', () => {
+            it('correctly sets the hasBillingData if billing data is available', async () => {
+                const userClient = await makeClientWithProperty()
+                const adminClient = await makeLoggedInAdminClient()
+
+                const [integration] = await createTestBillingIntegration(adminClient)
+                await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration, {
+                    lastReport: {
+                        period: '2021-09-01',
+                        finishTime: dayjs().toISOString(),
+                        totalReceipts: 3141592,
+                    },
+                })
+
+                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+                await addResidentAccess(userClient.user)
+                const [obj] = await Resident.getAll(userClient, { id })
+
+                expect(obj.organizationFeatures.paymentCategories).toBeDefined()
+            })
+        })
     })
 
     describe('Create', () => {
