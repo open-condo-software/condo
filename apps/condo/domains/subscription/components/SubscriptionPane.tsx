@@ -3,7 +3,7 @@ import { Alert, Col, Row, Table, Typography } from 'antd'
 import React from 'react'
 import { Button } from '@condo/domains/common/components/Button'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
-import { useResponsive } from '@condo/domains/common/hooks/useResponsive'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { useIntl } from '@core/next/intl'
 import { SberIcon } from '@condo/domains/common/components/icons/SberIcon'
 import { colors } from '@condo/domains/common/constants/style'
@@ -70,7 +70,7 @@ const getActiveSubscriptionData = (intl) => {
 }
 
 export const SubscriptionPane: React.FC = () => {
-    const { isSmall } = useResponsive()
+    const { isSmall } = useLayoutContext()
     const intl = useIntl()
 
     const { isVisible, setIsVisible, SubscriptionPaymentModal } = useSubscriptionPaymentModal()

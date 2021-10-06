@@ -3,7 +3,7 @@ import { Layout } from 'antd'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 import { colors } from '@condo/domains/common/constants/style'
-import { useResponsive } from '@condo/domains/common/hooks/useResponsive'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { useAuth } from '@core/next/auth'
 import { Logo } from '../../Logo'
 import { ITopMenuItemsProps, TopMenuItems as BaseTopMenuItems } from './components/TopMenuItems'
@@ -13,7 +13,6 @@ const DesktopHeader = styled(Layout.Header)`
   background: ${colors.white};
   width: 100%;
   padding: 20px 48px;
-  height: auto;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -34,7 +33,7 @@ interface IHeaderProps {
 }
 
 export const Header: React.FC<IHeaderProps> = (props) => {
-    const { isSmall } = useResponsive()
+    const { isSmall } = useLayoutContext()
     const router = useRouter()
     const { isAuthenticated } = useAuth()
 

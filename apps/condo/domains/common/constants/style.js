@@ -1,6 +1,4 @@
-const {
-    generate, grey, green, gold, blue, red, volcano, purple, lime, magenta, cyan, geekblue, yellow, orange,
-} = require('@ant-design/colors')
+const { generate, grey, green, gold, blue, red, volcano, purple, lime, magenta, cyan, geekblue, yellow, orange } = require('@ant-design/colors')
 
 const generateCustomColorPalette = (primaryColor, secondaryColor) => {
     const colorPalette = generate(primaryColor)
@@ -34,6 +32,7 @@ const turquoiseBlue = '#6BEAC7'
 const selago = '#F1F3FE'
 const scampi = '#525FA8'
 const zircon = '#F1F3FF'
+const logoPurple = '#525FAB'
 
 const CHART_COLOR_SET = [blue[5], green[5], red[4], gold[5], volcano[5], purple[5],
     lime[7], sberGrey[7], magenta[5], blue[4], gold[6], cyan[6],
@@ -76,6 +75,7 @@ const colors = {
     selago,
     scampi,
     zircon,
+    logoPurple,
 }
 
 const fontSizes = {

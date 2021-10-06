@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react'
 import styled from '@emotion/styled'
 import { useIntl } from '@core/next/intl'
 import { Empty, Typography } from 'antd'
-import { useResponsive } from '../../hooks/useResponsive'
+import { useLayoutContext } from '../LayoutContext'
 import { Comment } from './Comment'
 import { CommentForm } from './CommentForm'
 import { colors } from '@condo/domains/common/constants/style'
@@ -99,7 +99,7 @@ const Comments: React.FC<ICommentsListProps> = ({
     const CannotCreateCommentsMessage = intl.formatMessage({ id: 'Comments.cannotCreateComments' })
 
     const bodyRef = useRef(null)
-    const { isSmall } = useResponsive()
+    const { isSmall } = useLayoutContext()
 
     const scrollToBottom = () => {
         if (bodyRef.current) {

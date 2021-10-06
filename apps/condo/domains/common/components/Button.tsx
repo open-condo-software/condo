@@ -113,14 +113,45 @@ const buttonLinkCss = css`
   }
 `
 
+const buttonGradientCss = css`
+      background: linear-gradient(115deg, #4CD174 16%, #6DB8F2 84%);
+      border-radius: 8px;
+      color: ${colors.defaultWhite[5]};
+      box-shadow: none;
+      padding: 12px 14px;
+      height: auto;
+      font-weight: 700;
+      transition: none;
+
+      &:hover, &:focus {
+        color: ${colors.defaultWhite[5]};
+        background: linear-gradient(115deg, #4CD174 16%, #6DB8F2 84%);
+      }
+
+      &:active {
+        color: ${colors.defaultWhite[5]};
+        opacity: 70%;
+      }
+
+      &:disabled, &:hover:disabled {
+        color: ${colors.lightGrey[1]};
+        opacity: 70%;
+
+        & span {
+          opacity: 70%;
+        }
+      }
+    `
+
 export interface CustomButtonProps extends Omit<ButtonProps, 'type'>{
-    type: 'sberDefault' | 'sberPrimary' | 'inlineLink' | 'sberDanger' | 'sberGrey' | 'sberAction' | ButtonProps['type'],
+    type?: 'sberDefault' | 'sberGradient' | 'sberPrimary' | 'inlineLink' | 'sberDanger' | 'sberGrey' | 'sberAction' | ButtonProps['type'],
     secondary?: boolean
 }
 
 export const Button: React.FC<CustomButtonProps> = ({ type, secondary, ...restProps }) => {
     if (
         type !== 'sberDefault' &&
+        type !== 'sberGradient' &&
         type !== 'sberPrimary' &&
         type !== 'sberAction' &&
         type !== 'sberDanger' &&
@@ -130,7 +161,10 @@ export const Button: React.FC<CustomButtonProps> = ({ type, secondary, ...restPr
         return <DefaultButton {...{ ...restProps, type }}/>
     } else {
         let buttonStyles
-        if (type === 'inlineLink') {
+
+        if (type === 'sberGradient') {
+            buttonStyles = buttonGradientCss
+        } else if (type === 'inlineLink') {
             buttonStyles = buttonLinkCss
         } else {
             buttonStyles = secondary ? buttonSecondaryCss(colors[type]) : buttonCss(colors[type])
