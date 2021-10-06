@@ -1,7 +1,7 @@
 import React from 'react'
 import { Col, Typography } from 'antd'
 import { fontSizes } from '@condo/domains/common/constants/style'
-import { useResponsive } from '../hooks/useResponsive'
+import { useLayoutContext } from './LayoutContext'
 
 interface IPageFieldRowProps {
     title: string
@@ -11,7 +11,7 @@ interface IPageFieldRowProps {
 }
 
 const PageFieldRow: React.FC<IPageFieldRowProps> = (props) => {
-    const { isSmall } = useResponsive()
+    const { isSmall } = useLayoutContext()
     const { labelSpan = 8, title, children, highlight } = props
 
     return (

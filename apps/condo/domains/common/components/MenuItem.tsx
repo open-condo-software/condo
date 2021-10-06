@@ -8,29 +8,33 @@ import { useIntl } from '@core/next/intl'
 import { colors } from '../constants/style'
 import { transitions } from '@condo/domains/common/constants/style'
 import { ClientRenderedIcon } from './icons/ClientRenderedIcon'
+import { useLayoutContext } from './LayoutContext'
+import { Tooltip } from './Tooltip'
 
 const IconWrapper = styled.div``
 
 interface IMenuItemWrapperProps {
     padding?: string
+    isCollapsed?: boolean
     labelFontSize?: string
     flexGap?: string
 }
 
 const MenuItemWrapper = styled.span<IMenuItemWrapperProps>`
   cursor: pointer;
-  padding: ${props => props.padding ? props.padding : '16px 0'};
+  padding: ${props => props.padding ? props.padding : '12px 0'};
   display: flex;
   border-radius: 8px;
   flex-direction: row;
   gap: ${props => props.flexGap ? props.flexGap : '20px'};
   align-items: center;
-  justify-content: flex-start;
+  justify-content: ${({ isCollapsed }) => isCollapsed ? 'center' : 'flex-start'};
   vertical-align: center;
-  
+
   .label {
     font-size: ${props => props.labelFontSize ? props.labelFontSize : '16px'};
     transition: ${transitions.allDefault};
+    white-space: nowrap;
   }
 
   .icon {
@@ -54,7 +58,7 @@ const MenuItemWrapper = styled.span<IMenuItemWrapperProps>`
       color: ${colors.black};
     }
   }
-  
+
   &.disabled {
     opacity: 0.4;
     pointer-events: none;
@@ -68,10 +72,11 @@ interface IMenuItemProps {
     disabled?: boolean
     hideInMenu?: boolean
     menuItemWrapperProps?: IMenuItemWrapperProps
+    isCollapsed?: boolean
 }
 
 export const MenuItem: React.FC<IMenuItemProps> = (props) => {
-    const { path, icon, label, hideInMenu, disabled, menuItemWrapperProps } = props
+    const { path, icon, label, hideInMenu, disabled, menuItemWrapperProps, isCollapsed } = props
     const { route } = useRouter()
     const intl = useIntl()
 
@@ -79,10 +84,26 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         return null
     }
 
+    const Message = intl.formatMessage({ id: label })
+
     const menuItemClassNames = classnames({
         'active': path === '/' ? route === path : route.includes(path),
         'disabled': disabled,
     })
+
+    if (isCollapsed) {
+        return (
+            <Link href={path}>
+                <MenuItemWrapper className={menuItemClassNames} isCollapsed {...menuItemWrapperProps}>
+                    <Tooltip title={Message} placement={'right'} color={colors.black}>
+                        <IconWrapper className='icon'>
+                            <ClientRenderedIcon icon={icon}/>
+                        </IconWrapper>
+                    </Tooltip>
+                </MenuItemWrapper>
+            </Link>
+        )
+    }
 
     return (
         <Link href={path}>
@@ -91,7 +112,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
                     <ClientRenderedIcon icon={icon}/>
                 </IconWrapper>
                 <Typography.Text className='label'>
-                    {intl.formatMessage({ id: label })}
+                    {Message}
                 </Typography.Text>
             </MenuItemWrapper>
         </Link>

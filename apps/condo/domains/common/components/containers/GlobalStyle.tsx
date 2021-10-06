@@ -291,10 +291,6 @@ const inputControlCss = css`
 `
 
 const page = css`
-  .top-menu-only-layout .side-menu {display: none}
-  .top-menu-only-layout .side-menu-substrate {display: none}
-  .top-menu-only-layout .page-header {display: none}
-  .top-menu-only-layout .top-menu-side-menu-toggle {display: none}
   .top-menu-only-layout .page-wrapper {
     flex: auto;
     align-self: center;
@@ -327,9 +323,5 @@ const page = css`
     align-self: center;
     max-width: 600px;
     min-width: initial;
-  }
-
-  .hided-side-menu .side-menu {
-    display: none
   }
 `
