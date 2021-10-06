@@ -1,12 +1,15 @@
 import styled from '@emotion/styled'
-import { Layout } from 'antd'
+import { Layout, Space } from 'antd'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 import { colors } from '@condo/domains/common/constants/style'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { useAuth } from '@core/next/auth'
+import { UserMenu } from '../../../../user/components/UserMenu'
 import { Logo } from '../../Logo'
+import { ResidentActions } from '../../ResidentActions/ResidentActions'
 import { ITopMenuItemsProps, TopMenuItems as BaseTopMenuItems } from './components/TopMenuItems'
+import { MenuOutlined } from '@ant-design/icons'
 
 const DesktopHeader = styled(Layout.Header)`
   z-index: 9;
@@ -22,8 +25,10 @@ const DesktopHeader = styled(Layout.Header)`
 const MobileHeader = styled(Layout.Header)`
   display: flex;
   flex-direction: row;
+  padding: 0 22px;
   background: ${colors.white};
-  justify-content: center;
+  justify-content: space-between;
+  align-items: center;
   border-bottom: 1px solid ${colors.lightGrey[5]};
 `
 
@@ -33,7 +38,7 @@ interface IHeaderProps {
 }
 
 export const Header: React.FC<IHeaderProps> = (props) => {
-    const { isSmall } = useLayoutContext()
+    const { isSmall, toggleCollapsed } = useLayoutContext()
     const router = useRouter()
     const { isAuthenticated } = useAuth()
 
@@ -51,7 +56,12 @@ export const Header: React.FC<IHeaderProps> = (props) => {
         isSmall
             ? (
                 <MobileHeader>
-                    <Logo fillColor={colors.black} onClick={handleLogoClick}/>
+                    <Space size={22}>
+                        <MenuOutlined onClick={toggleCollapsed}/>
+                        <ResidentActions minified/>
+                    </Space>
+                    <Logo fillColor={colors.logoPurple} onClick={handleLogoClick} minified/>
+                    <UserMenu showUserName={false}/>
                 </MobileHeader>
             )
             : (
