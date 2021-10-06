@@ -3,23 +3,20 @@
  */
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
-const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { AcquiringIntegration } = require('@condo/domains/acquiring/utils/serverSchema')
 const { getById } = require('@core/keystone/schema')
 const get = require('lodash/get')
 
 
-async function canReadMultiPayments ({ authentication: { item: user }, context }) {
+async function canReadMultiPayments ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin || user.isSupport) return {}
     const userId = user.id
-    // Resident can get only it's own MultiPayments
+    // User can get only it's own MultiPayments
     if (user.type === RESIDENT) {
-        const residents = await Resident.getAll(context, { user: { id: userId } })
-        const resident_ids = residents.map(resident => resident.id)
         return {
-            resident: { id_in: resident_ids },
+            user: { id: userId },
         }
     }
     // Acquiring integration account can get only MultiPayments linked to this integration

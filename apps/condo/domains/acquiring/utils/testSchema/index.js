@@ -5,7 +5,6 @@
  */
 const faker = require('faker')
 const {createTestProperty} = require("@condo/domains/property/utils/testSchema");
-const { createTestResident } = require("@condo/domains/resident/utils/testSchema");
 const {
     createTestBillingIntegration,
     createTestBillingIntegrationOrganizationContext,
@@ -170,10 +169,10 @@ async function makeAcquiringContextAndIntegrationAccount() {
     }
 }
 
-async function createTestMultiPayment (client, receipts, resident, integration, extraAttrs = {}) {
+async function createTestMultiPayment (client, receipts, user, integration, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!receipts) throw new Error('no receipts')
-    if (!resident) throw new Error('no resident')
+    if (!user) throw new Error('no user')
     if (!integration) throw new Error('no integration')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const amount = String(receipts.reduce((acc, cur) => acc + parseFloat(cur.toPay), 0))
@@ -187,7 +186,7 @@ async function createTestMultiPayment (client, receipts, resident, integration, 
         currencyCode: 'RUB',
         serviceCategory: 'TEST DOCUMENT',
         status: MULTIPAYMENT_INIT_STATUS,
-        resident: { connect: { id: resident.id } },
+        user: { connect: { id: user.id } },
         receipts: receipts,
         integration: { connect: { id: integration.id } },
         ...extraAttrs,
@@ -231,8 +230,6 @@ async function makePayerFromClient (client, receiptsAmount = 1) {
         billingReceipts.push(receipt)
     }
 
-    const [resident] = await createTestResident(admin, client.user, organization, property)
-
     return {
         organization,
         property,
@@ -243,7 +240,6 @@ async function makePayerFromClient (client, receiptsAmount = 1) {
         billingProperty,
         billingAccount,
         billingReceipts,
-        resident
     }
 }
 
