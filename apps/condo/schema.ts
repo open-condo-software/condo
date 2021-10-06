@@ -5632,6 +5632,8 @@ export type BillingReceipt = {
   raw?: Maybe<Scalars['JSON']>;
   /**  Total sum to pay. Usually counts as the sum of all services. Stored like this: "123.30" Detail level 1.  */
   toPay?: Maybe<Scalars['String']>;
+  /**  Total commission sum to pay.  */
+  commission?: Maybe<Scalars['String']>;
   /**  Sum to pay details. Detail level 2  */
   toPayDetails?: Maybe<BillingReceiptToPayDetailsField>;
   /**  Services to pay for. Every service has id, name and toPay. Service may or may not have toPay detail. Detail level 3 and 4  */
@@ -5659,6 +5661,7 @@ export type BillingReceiptCreateInput = {
   printableNumber?: Maybe<Scalars['String']>;
   raw?: Maybe<Scalars['JSON']>;
   toPay?: Maybe<Scalars['String']>;
+  commission?: Maybe<Scalars['String']>;
   toPayDetails?: Maybe<BillingReceiptToPayDetailsFieldInput>;
   services?: Maybe<Array<BillingReceiptServiceFieldInput>>;
   recipient?: Maybe<BillingReceiptsRecipientFieldInput>;
@@ -5692,6 +5695,7 @@ export type BillingReceiptHistoryRecord = {
   printableNumber?: Maybe<Scalars['String']>;
   raw?: Maybe<Scalars['JSON']>;
   toPay?: Maybe<Scalars['String']>;
+  commission?: Maybe<Scalars['String']>;
   toPayDetails?: Maybe<Scalars['JSON']>;
   services?: Maybe<Scalars['JSON']>;
   recipient?: Maybe<Scalars['JSON']>;
@@ -5719,6 +5723,7 @@ export type BillingReceiptHistoryRecordCreateInput = {
   printableNumber?: Maybe<Scalars['String']>;
   raw?: Maybe<Scalars['JSON']>;
   toPay?: Maybe<Scalars['String']>;
+  commission?: Maybe<Scalars['String']>;
   toPayDetails?: Maybe<Scalars['JSON']>;
   services?: Maybe<Scalars['JSON']>;
   recipient?: Maybe<Scalars['JSON']>;
@@ -5751,6 +5756,7 @@ export type BillingReceiptHistoryRecordUpdateInput = {
   printableNumber?: Maybe<Scalars['String']>;
   raw?: Maybe<Scalars['JSON']>;
   toPay?: Maybe<Scalars['String']>;
+  commission?: Maybe<Scalars['String']>;
   toPayDetails?: Maybe<Scalars['JSON']>;
   services?: Maybe<Scalars['JSON']>;
   recipient?: Maybe<Scalars['JSON']>;
@@ -5843,22 +5849,20 @@ export type BillingReceiptHistoryRecordWhereInput = {
   raw_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   toPay?: Maybe<Scalars['String']>;
   toPay_not?: Maybe<Scalars['String']>;
-  toPay_contains?: Maybe<Scalars['String']>;
-  toPay_not_contains?: Maybe<Scalars['String']>;
-  toPay_starts_with?: Maybe<Scalars['String']>;
-  toPay_not_starts_with?: Maybe<Scalars['String']>;
-  toPay_ends_with?: Maybe<Scalars['String']>;
-  toPay_not_ends_with?: Maybe<Scalars['String']>;
-  toPay_i?: Maybe<Scalars['String']>;
-  toPay_not_i?: Maybe<Scalars['String']>;
-  toPay_contains_i?: Maybe<Scalars['String']>;
-  toPay_not_contains_i?: Maybe<Scalars['String']>;
-  toPay_starts_with_i?: Maybe<Scalars['String']>;
-  toPay_not_starts_with_i?: Maybe<Scalars['String']>;
-  toPay_ends_with_i?: Maybe<Scalars['String']>;
-  toPay_not_ends_with_i?: Maybe<Scalars['String']>;
+  toPay_lt?: Maybe<Scalars['String']>;
+  toPay_lte?: Maybe<Scalars['String']>;
+  toPay_gt?: Maybe<Scalars['String']>;
+  toPay_gte?: Maybe<Scalars['String']>;
   toPay_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   toPay_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  commission?: Maybe<Scalars['String']>;
+  commission_not?: Maybe<Scalars['String']>;
+  commission_lt?: Maybe<Scalars['String']>;
+  commission_lte?: Maybe<Scalars['String']>;
+  commission_gt?: Maybe<Scalars['String']>;
+  commission_gte?: Maybe<Scalars['String']>;
+  commission_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  commission_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   toPayDetails?: Maybe<Scalars['JSON']>;
   toPayDetails_not?: Maybe<Scalars['JSON']>;
   toPayDetails_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -6027,6 +6031,7 @@ export type BillingReceiptUpdateInput = {
   printableNumber?: Maybe<Scalars['String']>;
   raw?: Maybe<Scalars['JSON']>;
   toPay?: Maybe<Scalars['String']>;
+  commission?: Maybe<Scalars['String']>;
   toPayDetails?: Maybe<BillingReceiptToPayDetailsFieldInput>;
   services?: Maybe<Array<BillingReceiptServiceFieldInput>>;
   recipient?: Maybe<BillingReceiptsRecipientFieldInput>;
@@ -6110,22 +6115,20 @@ export type BillingReceiptWhereInput = {
   raw_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   toPay?: Maybe<Scalars['String']>;
   toPay_not?: Maybe<Scalars['String']>;
-  toPay_contains?: Maybe<Scalars['String']>;
-  toPay_not_contains?: Maybe<Scalars['String']>;
-  toPay_starts_with?: Maybe<Scalars['String']>;
-  toPay_not_starts_with?: Maybe<Scalars['String']>;
-  toPay_ends_with?: Maybe<Scalars['String']>;
-  toPay_not_ends_with?: Maybe<Scalars['String']>;
-  toPay_i?: Maybe<Scalars['String']>;
-  toPay_not_i?: Maybe<Scalars['String']>;
-  toPay_contains_i?: Maybe<Scalars['String']>;
-  toPay_not_contains_i?: Maybe<Scalars['String']>;
-  toPay_starts_with_i?: Maybe<Scalars['String']>;
-  toPay_not_starts_with_i?: Maybe<Scalars['String']>;
-  toPay_ends_with_i?: Maybe<Scalars['String']>;
-  toPay_not_ends_with_i?: Maybe<Scalars['String']>;
+  toPay_lt?: Maybe<Scalars['String']>;
+  toPay_lte?: Maybe<Scalars['String']>;
+  toPay_gt?: Maybe<Scalars['String']>;
+  toPay_gte?: Maybe<Scalars['String']>;
   toPay_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   toPay_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  commission?: Maybe<Scalars['String']>;
+  commission_not?: Maybe<Scalars['String']>;
+  commission_lt?: Maybe<Scalars['String']>;
+  commission_lte?: Maybe<Scalars['String']>;
+  commission_gt?: Maybe<Scalars['String']>;
+  commission_gte?: Maybe<Scalars['String']>;
+  commission_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  commission_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   toPayDetails?: Maybe<BillingReceiptToPayDetailsFieldInput>;
   toPayDetails_not?: Maybe<BillingReceiptToPayDetailsFieldInput>;
   toPayDetails_in?: Maybe<Array<Maybe<BillingReceiptToPayDetailsFieldInput>>>;
@@ -25855,6 +25858,8 @@ export enum SortBillingReceiptHistoryRecordsBy {
   PrintableNumberDesc = 'printableNumber_DESC',
   ToPayAsc = 'toPay_ASC',
   ToPayDesc = 'toPay_DESC',
+  CommissionAsc = 'commission_ASC',
+  CommissionDesc = 'commission_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -25888,6 +25893,8 @@ export enum SortBillingReceiptsBy {
   PrintableNumberDesc = 'printableNumber_DESC',
   ToPayAsc = 'toPay_ASC',
   ToPayDesc = 'toPay_DESC',
+  CommissionAsc = 'commission_ASC',
+  CommissionDesc = 'commission_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
