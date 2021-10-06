@@ -58,7 +58,7 @@ export const SideMenu: React.FC<ISideMenuProps> = (props) => {
                         onClick={toggleCollapsed}
                         size={'small'}
                         shape={'circle'}
-                        icon={isCollapsed ? <RightOutlined style={{ fontSize: '10px' }} /> : <LeftOutlined style={{ fontSize: '10px' }}/>}
+                        icon={isCollapsed ? <RightOutlined style={{ fontSize: '13px' }} /> : <LeftOutlined style={{ fontSize: '13px' }}/>}
                     />
                 </LayoutTriggerWrapper>
                 <ActionsContainer minified={isCollapsed}>
