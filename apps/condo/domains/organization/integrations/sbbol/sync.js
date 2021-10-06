@@ -1,5 +1,4 @@
 const faker = require('faker')
-const dayjs = require('dayjs')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries.js')
 const { MULTIPLE_ACCOUNTS_MATCHES } = require('@condo/domains/user/constants/errors')
 const { getItems, createItem, updateItem } = require('@keystonejs/server-side-graphql-client')
@@ -7,10 +6,7 @@ const { TokenSet: TokenSetAPI } = require('@condo/domains/organization/utils/ser
 const { createConfirmedEmployee } = require('@condo/domains/organization/utils/serverSchema/Organization')
 const { uniqBy, get } = require('lodash')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
-const { ServiceSubscription } = require('@condo/domains/subscription/utils/serverSchema')
-const { SbbolFintechApi } = require('./SbbolFintechApi')
-const { SBBOL_IMPORT_NAME, debugMessage } = require('./common')
-const { SUBSCRIPTION_TRIAL_PERIOD_DAYS } = require('@condo/domains/subscription/constants')
+const { SBBOL_IMPORT_NAME } = require('./common')
 const REFRESH_TOKEN_TTL = 30 * 24 * 60 * 60 // its real TTL is 180 days bit we need to update it earlier
 const {
     REGISTER_NEW_ORGANIZATION_MUTATION,
@@ -18,10 +14,7 @@ const {
 const {
     CREATE_ONBOARDING_MUTATION,
 } = require('@condo/domains/onboarding/gql.js')
-const { SbbolRequestApi } = require('./SbbolRequestApi')
 
-const conf = process.env
-const SBBOL_CONFIG = conf.SBBOL_CONFIG ? JSON.parse(conf.SBBOL_CONFIG) : {}
 
 class SbbolOrganization {
     constructor ({ keystone, userInfo }){
@@ -72,6 +65,14 @@ class SbbolOrganization {
             keystone: this.keystone,
             context: this.adminContext,
         })
+    }
+
+    get organization () {
+        return this._organization
+    }
+
+    set organization (value) {
+        this._organization = value
     }
 
     async syncUser () {
@@ -146,12 +147,12 @@ class SbbolOrganization {
                         },
                     },
                 }, returnFields: 'id', ...this.context })
-                this.organization = { id: existingOrganization.id }
+                this._organization = existingOrganization
                 return
             }
-            this.organization = await this.createOrganization()
+            this._organization = await this.createOrganization()
         } else  {
-            this.organization = organization
+            this._organization = organization
             const isAlreadyEmployee = userOrganizations.find(org => org.id === organization.id)
             if (isAlreadyEmployee) {
                 return
@@ -169,86 +170,10 @@ class SbbolOrganization {
         }
     }
 
-    async syncSubscriptions () {
-        let ourOrganizationAccessToken
-        try {
-            // `service_organization_hashOrgId` is a `userInfo.HashOrgId` from SBBOL, that used to obtain accessToken
-            // for organization, that will be queried in SBBOL using `SbbolFintechApi`.
-            ourOrganizationAccessToken = await SbbolRequestApi.getOrganizationAccessToken(SBBOL_CONFIG.service_organization_hashOrgId)
-        } catch (e) {
-            console.error(e.message)
-            return
-        }
-        const fintechApi = new SbbolFintechApi(ourOrganizationAccessToken)
-        debugMessage('Checking, whether the user have ServiceSubscription items')
-        const subscriptions = await getItems( {
-            ...this.context,
-            listKey: 'ServiceSubscription',
-            where: {
-                organization: {
-                    id: this.organization.id,
-                },
-                finishAt_gt: dayjs().toISOString(),
-            },
-            returnFields: 'id',
-        })
-
-        if (subscriptions.length > 0 && subscriptions[0].type === 'sbbol') {
-            debugMessage('User already have active SBBOL subscription')
-        } else {
-            debugMessage('No subscriptions found')
-
-            const { inn } = this.organizationInfo.meta
-            const today = dayjs().format('YYYY-MM-DD')
-
-            // `clientId` here, and accessToken, used for initialization of `fintechApi` should be
-            // for the same organization
-            const advanceAcceptances = await fintechApi.fetchAdvanceAcceptances({ date: today, clientId: SBBOL_CONFIG.client_id })
-            const organizationAcceptance = advanceAcceptances.find(({ payerInn }) => (
-                payerInn === inn
-            ))
-            if (!organizationAcceptance) {
-                // This is an errored case, because organization cannot be redirected
-                // to callback url without accepting offer
-                console.error(`No offers found for organization(inn=${inn})`)
-            } else {
-                if (organizationAcceptance.active) {
-                    // TODO: add trial for additional day when client accepts previously revoked (after accepting) offer
-
-                    debugMessage(`User from organization(inn=${inn}) has accepted our offer in SBBOL`)
-                    // Дома: Создаём клиенту личный кабинет в системе Дома по условиям оферты
-                    // Создаём пробную подписку `ServiceSubscription`  на 15 дней
-                    const now = dayjs()
-
-                    // Default trial subscription will be created in `registerOrganization`.
-                    // In case of ongoing SBBOL subscription, other non-SBBOL subscriptions makes no sense.
-                    // If active one is present, cut it's period until now.
-                    const existingSubscription = subscriptions[0]
-                    if (existingSubscription) {
-                        await ServiceSubscription.update(this.context, existingSubscription.id, {
-                            finishAt: dayjs(),
-                        })
-                    }
-                    const trialServiceSubscription = await ServiceSubscription.create(this.context, {
-                        type: 'sbbol',
-                        isTrial: true,
-                        organization: { connect: { id: this.organization.id } },
-                        startAt: now,
-                        finishAt: now.add(SUBSCRIPTION_TRIAL_PERIOD_DAYS, 'days'),
-                    })
-                    debugMessage('Created trial subscription for SBBOL', trialServiceSubscription)
-                } else {
-                    debugMessage(`User from organization(inn=${inn}) has not accepted our offer in SBBOL, do nothing`)
-                    // TODO: cancel `ServiceSubscription` if exist
-                }
-            }
-        }
-    }
-
     async getOrganizationEmployeeLinkId () {
         const [link] = await getItems({ ...this.context, listKey: 'OrganizationEmployee', where: {
             user: { id: this.user.id },
-            organization: { id: this.organization.id },
+            organization: { id: this._organization.id },
         }, returnFields: 'id' })
         if (!link) {
             throw new Error('Failed to bind user to organization')
@@ -260,7 +185,7 @@ class SbbolOrganization {
         const { access_token, expires_at, refresh_token } = info
         const owner = {
             organization: {
-                id: get(this.organization, 'id'),
+                id: get(this._organization, 'id'),
             },
             user: {
                 id: get(this.user, 'id'),
@@ -333,9 +258,9 @@ class SbbolOrganization {
                 },
             },
         })
-        this.organization = data.obj
+        this._organization = data.obj
         await updateItem({ listKey: 'Organization', item: {
-            id: this.organization.id,
+            id: this._organization.id,
             data: {
                 ...importInfo,
             },

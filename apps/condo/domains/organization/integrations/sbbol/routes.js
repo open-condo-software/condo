@@ -4,6 +4,7 @@ const { JSON_SCHEMA_VALIDATION_ERROR } = require('@condo/domains/common/constant
 const { SbbolUserInfoJSONValidation, SBBOL_SESSION_KEY } = require('./common')
 const { SbbolOauth2Api } = require('./oauth2')
 const { SbbolOrganization } = require('./sync')
+const { SbbolSubscriptions } = require('./SbbolSubscriptions')
 
 class SbbolRoutes {
     constructor () {
@@ -34,6 +35,8 @@ class SbbolRoutes {
                 throw new Error(`${JSON_SCHEMA_VALIDATION_ERROR}] invalid json structure for userInfo`)
             }
             const Sync = new SbbolOrganization({ keystone, userInfo })
+            console.log('> completeAuth')
+            console.debug('userInfo', userInfo)
             await Sync.init()
             await Sync.syncUser()
             const userId = Sync.user.id
@@ -45,7 +48,11 @@ class SbbolRoutes {
             delete req.session[SBBOL_SESSION_KEY]
             await req.session.save()
 
-            await Sync.syncSubscriptions(access_token, this.helper)
+            console.debug('Sync.organization', Sync.organization)
+            await SbbolSubscriptions.sync(Sync.context, {
+                ...Sync.organization,
+                ...Sync.organizationInfo,
+            })
 
             return res.redirect('/')
         } catch (error) {
