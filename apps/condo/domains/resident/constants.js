@@ -40,6 +40,7 @@
  * }
  *  
  * todo: @toplenboren - when we sort this out on business side, move this hardcode to the model!
+ * todo: @toplenboren - don't forget to add i18n when this hardcode is moved to model!
  */
 const PAYMENT_CATEGORIES_META = [
     {
@@ -49,6 +50,51 @@ const PAYMENT_CATEGORIES_META = [
     },
     {
         name: 'Интернет, ТВ, домашний телефон',
+        canGetBillingFromOrganization: false,
+        canGetAcquiringFromOrganization: false,
+    },
+    {
+        name: 'Свет',
+        canGetBillingFromOrganization: false,
+        canGetAcquiringFromOrganization: false,
+    },
+    {
+        name: 'Газ',
+        canGetBillingFromOrganization: false,
+        canGetAcquiringFromOrganization: false,
+    },
+    {
+        name: 'Вода',
+        canGetBillingFromOrganization: false,
+        canGetAcquiringFromOrganization: false,
+    },
+    {
+        name: 'Тепло',
+        canGetBillingFromOrganization: false,
+        canGetAcquiringFromOrganization: false,
+    },
+    {
+        name: 'Твердые отходы',
+        canGetBillingFromOrganization: false,
+        canGetAcquiringFromOrganization: false,
+    },
+    {
+        name: 'Охрана и домофон',
+        canGetBillingFromOrganization: false,
+        canGetAcquiringFromOrganization: false,
+    },
+    {
+        name: 'Капремонт',
+        canGetBillingFromOrganization: false,
+        canGetAcquiringFromOrganization: false,
+    },
+    {
+        name: 'Дача',
+        canGetBillingFromOrganization: false,
+        canGetAcquiringFromOrganization: false,
+    },
+    {
+        name: 'Страхование',
         canGetBillingFromOrganization: false,
         canGetAcquiringFromOrganization: false,
     },
