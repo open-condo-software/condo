@@ -48,6 +48,7 @@ interface IResidentActionsProps {
 export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
     const intl = useIntl()
     const { minified } = props
+    const ResidentAppealMessage = intl.formatMessage({ id: 'ResidentAppeal' })
 
     return (
         <Dropdown
@@ -59,7 +60,7 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
                     ? (<Button type={'sberGradient'} icon={<PlusOutlined />} shape={'circle'}/>)
                     : (
                         <Button type={'sberGradient'} icon={<PlusOutlined />}>
-                            {intl.formatMessage({ id: 'ResidentAppeal' })}
+                            {ResidentAppealMessage}
                         </Button>
                     )
             }
