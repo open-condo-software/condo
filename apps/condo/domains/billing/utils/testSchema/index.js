@@ -519,26 +519,6 @@ async function createContextWithOrganizationAndIntegrationAsAdmin() {
     return { context, integration, organization }
 }
 
-async function makeMultipleBillingReceipts(amount = 1) {
-    const admin = await makeLoggedInAdminClient()
-    const {integration, context, organization} = createContextWithOrganizationAndIntegrationAsAdmin()
-    const [property] = await createTestBillingProperty(admin)
-    const [account] = await createTestBillingAccount(admin, context, property)
-    const receipts = []
-    for (let i = 0; i < amount; i++) {
-        const [receipt] = await createTestBillingReceipt(admin, context, property, account)
-        receipts.push(receipt)
-    }
-    return {
-        organization,
-        integration,
-        context,
-        property,
-        account,
-        receipts,
-    }
-}
-
 async function createOrganizationIntegrationManager() {
     const admin = await makeLoggedInAdminClient()
     const [organization] = await createTestOrganization(admin)
@@ -568,7 +548,6 @@ module.exports = {
     BillingOrganization, createTestBillingOrganization, updateTestBillingOrganization,
     ResidentBillingReceipt,
     BillingCurrency, createTestBillingCurrency, updateTestBillingCurrency,
-    makeMultipleBillingReceipts,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 

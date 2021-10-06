@@ -621,13 +621,6 @@ export type AcquiringIntegrationContextHistoryRecordsUpdateInput = {
   data?: Maybe<AcquiringIntegrationContextHistoryRecordUpdateInput>;
 };
 
-export type AcquiringIntegrationContextRelateToOneInput = {
-  create?: Maybe<AcquiringIntegrationContextCreateInput>;
-  connect?: Maybe<AcquiringIntegrationContextWhereUniqueInput>;
-  disconnect?: Maybe<AcquiringIntegrationContextWhereUniqueInput>;
-  disconnectAll?: Maybe<Scalars['Boolean']>;
-};
-
 export type AcquiringIntegrationContextUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
@@ -5778,13 +5771,6 @@ export type BillingReceiptHistoryRecordsUpdateInput = {
   data?: Maybe<BillingReceiptHistoryRecordUpdateInput>;
 };
 
-export type BillingReceiptRelateToManyInput = {
-  create?: Maybe<Array<Maybe<BillingReceiptCreateInput>>>;
-  connect?: Maybe<Array<Maybe<BillingReceiptWhereUniqueInput>>>;
-  disconnect?: Maybe<Array<Maybe<BillingReceiptWhereUniqueInput>>>;
-  disconnectAll?: Maybe<Scalars['Boolean']>;
-};
-
 export type BillingReceiptServiceField = {
   __typename?: 'BillingReceiptServiceField';
   id?: Maybe<Scalars['String']>;
@@ -10557,15 +10543,14 @@ export type MultiPayment = {
   transactionId?: Maybe<Scalars['String']>;
   /**  Additional acquiring-specific information  */
   meta?: Maybe<Scalars['JSON']>;
-  /**  Status of payment. Can be: "DONE", "DECLINED", "PROCESSING", "ERROR"  */
+  /**  Status of payment. Can be: "CREATED", "DONE", "DECLINED", "PROCESSING", "ERROR"  */
   status?: Maybe<Scalars['String']>;
   /**  Link to payer's resident  */
   resident?: Maybe<Resident>;
-  /**  Link to billingReceipts, which is payed by this multipayment. Using together with `createdAt` to restore receipts details  */
-  receipts: Array<BillingReceipt>;
-  _receiptsMeta?: Maybe<_QueryMeta>;
-  /**  Link to acquiring context  */
-  context?: Maybe<AcquiringIntegrationContext>;
+  /**  List of all billing receipts, that make up MultiPayment. Created using mutation. Displaying all needed information to resolve conflicts. Mainly used by support team  */
+  receipts?: Maybe<Scalars['JSON']>;
+  /**  Link to acquiring integration  */
+  integration?: Maybe<AcquiringIntegration>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -10574,28 +10559,6 @@ export type MultiPayment = {
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
-};
-
-
-/**  Information about resident's payment for single or multiple services/receipts  */
-export type MultiPaymentReceiptsArgs = {
-  where?: Maybe<BillingReceiptWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortBillingReceiptsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-/**  Information about resident's payment for single or multiple services/receipts  */
-export type MultiPayment_ReceiptsMetaArgs = {
-  where?: Maybe<BillingReceiptWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortBillingReceiptsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
 };
 
 export type MultiPaymentCreateInput = {
@@ -10613,8 +10576,8 @@ export type MultiPaymentCreateInput = {
   meta?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
   resident?: Maybe<ResidentRelateToOneInput>;
-  receipts?: Maybe<BillingReceiptRelateToManyInput>;
-  context?: Maybe<AcquiringIntegrationContextRelateToOneInput>;
+  receipts?: Maybe<Scalars['JSON']>;
+  integration?: Maybe<AcquiringIntegrationRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -10649,7 +10612,8 @@ export type MultiPaymentHistoryRecord = {
   meta?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
   resident?: Maybe<Scalars['String']>;
-  context?: Maybe<Scalars['String']>;
+  receipts?: Maybe<Scalars['JSON']>;
+  integration?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -10678,7 +10642,8 @@ export type MultiPaymentHistoryRecordCreateInput = {
   meta?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
   resident?: Maybe<Scalars['String']>;
-  context?: Maybe<Scalars['String']>;
+  receipts?: Maybe<Scalars['JSON']>;
+  integration?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -10712,7 +10677,8 @@ export type MultiPaymentHistoryRecordUpdateInput = {
   meta?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
   resident?: Maybe<Scalars['String']>;
-  context?: Maybe<Scalars['String']>;
+  receipts?: Maybe<Scalars['JSON']>;
+  integration?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -10898,10 +10864,14 @@ export type MultiPaymentHistoryRecordWhereInput = {
   resident_not?: Maybe<Scalars['String']>;
   resident_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   resident_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  context?: Maybe<Scalars['String']>;
-  context_not?: Maybe<Scalars['String']>;
-  context_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  context_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  receipts?: Maybe<Scalars['JSON']>;
+  receipts_not?: Maybe<Scalars['JSON']>;
+  receipts_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  receipts_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  integration?: Maybe<Scalars['String']>;
+  integration_not?: Maybe<Scalars['String']>;
+  integration_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  integration_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -10996,8 +10966,8 @@ export type MultiPaymentUpdateInput = {
   meta?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
   resident?: Maybe<ResidentRelateToOneInput>;
-  receipts?: Maybe<BillingReceiptRelateToManyInput>;
-  context?: Maybe<AcquiringIntegrationContextRelateToOneInput>;
+  receipts?: Maybe<Scalars['JSON']>;
+  integration?: Maybe<AcquiringIntegrationRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -11136,14 +11106,12 @@ export type MultiPaymentWhereInput = {
   status_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   resident?: Maybe<ResidentWhereInput>;
   resident_is_null?: Maybe<Scalars['Boolean']>;
-  /**  condition must be true for all nodes  */
-  receipts_every?: Maybe<BillingReceiptWhereInput>;
-  /**  condition must be true for at least 1 node  */
-  receipts_some?: Maybe<BillingReceiptWhereInput>;
-  /**  condition must be false for all nodes  */
-  receipts_none?: Maybe<BillingReceiptWhereInput>;
-  context?: Maybe<AcquiringIntegrationContextWhereInput>;
-  context_is_null?: Maybe<Scalars['Boolean']>;
+  receipts?: Maybe<Scalars['JSON']>;
+  receipts_not?: Maybe<Scalars['JSON']>;
+  receipts_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  receipts_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  integration?: Maybe<AcquiringIntegrationWhereInput>;
+  integration_is_null?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -24851,10 +24819,8 @@ export enum SortMultiPaymentsBy {
   StatusDesc = 'status_DESC',
   ResidentAsc = 'resident_ASC',
   ResidentDesc = 'resident_DESC',
-  ReceiptsAsc = 'receipts_ASC',
-  ReceiptsDesc = 'receipts_DESC',
-  ContextAsc = 'context_ASC',
-  ContextDesc = 'context_DESC',
+  IntegrationAsc = 'integration_ASC',
+  IntegrationDesc = 'integration_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
