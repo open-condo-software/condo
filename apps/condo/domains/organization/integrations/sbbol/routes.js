@@ -39,10 +39,13 @@ class SbbolRoutes {
                 organizationEmployeeId,
             } = await sync({ keystone, userInfo, tokenSet })
             await keystone._sessionManager.startAuthedSession(req, { item: { id: user.id }, list: keystone.lists['User'] })
-            res.cookie('organizationLinkId', organizationEmployeeId)
+            if (organizationEmployeeId) {
+                res.cookie('organizationLinkId', organizationEmployeeId)
+            } else {
+                throw new Error('Organization employee create failed')
+            }
             delete req.session[SBBOL_SESSION_KEY]
             await req.session.save()
-
             return res.redirect('/')
         } catch (error) {
             return next(error)
