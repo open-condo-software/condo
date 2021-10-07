@@ -1,18 +1,35 @@
 const { SbbolRequestApi } = require('../SbbolRequestApi')
 const { SbbolFintechApi } = require('../SbbolFintechApi')
 const { debugMessage } = require('../common')
-const { getItems } = require('@keystonejs/server-side-graphql-client')
 const dayjs = require('dayjs')
 const { ServiceSubscription } = require('@condo/domains/subscription/utils/serverSchema')
-const { SUBSCRIPTION_TRIAL_PERIOD_DAYS } = require('@condo/domains/subscription/constants')
+const { SUBSCRIPTION_TRIAL_PERIOD_DAYS, SUBSCRIPTION_TYPE } = require('@condo/domains/subscription/constants')
+const { dvSenderFields } = require('../constants')
 
 const conf = process.env
 const SBBOL_CONFIG = conf.SBBOL_CONFIG ? JSON.parse(conf.SBBOL_CONFIG) : {}
 
-const syncSubscriptions = async ({ context, organization }) => {
+async function stop (subscription, context) {
+    debugMessage('Stopping subscription', subscription)
+    return await ServiceSubscription.update(context.keystone, subscription.id, {
+        ...dvSenderFields,
+        finishAt: dayjs().toISOString(),
+    })
+}
+
+/**
+ * Fetches changes in subscriptions from SBBOL for specified date and creates or stops
+ * ServiceSubscriptions, accordingly.
+ *
+ * @param {KeystoneContext} context
+ * @param organization
+ * @return {Promise<void>}
+ */
+const syncSubscriptions = async ({ context, organization, date }) => {
     if (!organization) {
         console.error('organization param is not defined')
     }
+
     let ourOrganizationAccessToken
     try {
         // `service_organization_hashOrgId` is a `userInfo.HashOrgId` from SBBOL, that used to obtain accessToken
@@ -25,65 +42,56 @@ const syncSubscriptions = async ({ context, organization }) => {
     console.debug('ourOrganizationAccessToken', ourOrganizationAccessToken)
     const fintechApi = new SbbolFintechApi(ourOrganizationAccessToken)
     debugMessage('Checking, whether the user have ServiceSubscription items')
-    const subscriptions = await getItems( {
-        ...context,
-        listKey: 'ServiceSubscription',
-        where: {
-            organization: {
-                id: organization.id,
-            },
-            finishAt_gt: dayjs().toISOString(),
+
+    const existingSubscriptions = await ServiceSubscription.getAll(context.keystone, {
+        organization: {
+            id: organization.id,
         },
-        returnFields: 'id',
+        finishAt_gt: dayjs().toISOString(),
     })
+    const existingSubscription = existingSubscriptions[0]
 
-    if (subscriptions.length > 0 && subscriptions[0].type === 'sbbol') {
-        debugMessage('User already have active SBBOL subscription')
+    const { inn } = organization.meta
+
+    const advanceAcceptances = await fintechApi.fetchAdvanceAcceptances({ date, clientId: SBBOL_CONFIG.client_id })
+    const organizationAcceptance = advanceAcceptances.find(({ payerInn }) => (
+        payerInn === inn
+    ))
+
+    if (!organizationAcceptance) {
+        // This is an errored case, because organization cannot be redirected
+        // to callback url without accepting offer
+        debugMessage(`SBBOL returned no changes in offers for organization(inn=${inn}), do nothing`)
     } else {
-        debugMessage('No subscriptions found')
+        // Client has accepted our offer
+        if (organizationAcceptance.active) {
+            // TODO: add trial for additional day when client accepts previously revoked (after accepting) offer
 
-        const { inn } = organization.meta
-        const today = dayjs().subtract(1, 'day').format('YYYY-MM-DD')
+            debugMessage(`User from organization(inn=${inn}) has accepted our offer in SBBOL`)
 
-        // `clientId` here, and accessToken, used for initialization of `fintechApi` should be
-        // for the same organization
-        const advanceAcceptances = await fintechApi.fetchAdvanceAcceptances({ date: today, clientId: SBBOL_CONFIG.client_id })
-        const organizationAcceptance = advanceAcceptances.find(({ payerInn }) => (
-            payerInn === inn
-        ))
-        if (!organizationAcceptance) {
-            // This is an errored case, because organization cannot be redirected
-            // to callback url without accepting offer
-            console.error(`No offers found for organization(inn=${inn})`)
+            // In case of accepted SBBOL offer new subscription should be started and all current subscriptions will make no sense.
+            // If active one is present, stop it by cutting it's period until now.
+            // It covers following cases:
+            // - When new organization was created and trial default subscription was created
+            // - When user has default subscription (trial or not)
+            if (existingSubscription) {
+                await stop(existingSubscription, context)
+            }
+
+            const now = dayjs()
+            const trialServiceSubscription = await ServiceSubscription.create(context.keystone, {
+                ...dvSenderFields,
+                type: SUBSCRIPTION_TYPE.SBBOL,
+                isTrial: true,
+                organization: { connect: { id: organization.id } },
+                startAt: now.toISOString(),
+                finishAt: now.add(SUBSCRIPTION_TRIAL_PERIOD_DAYS, 'days').toISOString(),
+            })
+            debugMessage('Created trial subscription for SBBOL', trialServiceSubscription)
         } else {
-            if (organizationAcceptance.active) {
-                // TODO: add trial for additional day when client accepts previously revoked (after accepting) offer
-
-                debugMessage(`User from organization(inn=${inn}) has accepted our offer in SBBOL`)
-                // Дома: Создаём клиенту личный кабинет в системе Дома по условиям оферты
-                // Создаём пробную подписку `ServiceSubscription`  на 15 дней
-                const now = dayjs()
-
-                // Default trial subscription will be created in `registerOrganization`.
-                // In case of ongoing SBBOL subscription, other non-SBBOL subscriptions makes no sense.
-                // If active one is present, cut it's period until now.
-                const existingSubscription = subscriptions[0]
-                if (existingSubscription) {
-                    await ServiceSubscription.update(context, existingSubscription.id, {
-                        finishAt: dayjs(),
-                    })
-                }
-                const trialServiceSubscription = await ServiceSubscription.create(context, {
-                    type: 'sbbol',
-                    isTrial: true,
-                    organization: { connect: { id: organization.id } },
-                    startAt: now,
-                    finishAt: now.add(SUBSCRIPTION_TRIAL_PERIOD_DAYS, 'days'),
-                })
-                debugMessage('Created trial subscription for SBBOL', trialServiceSubscription)
-            } else {
-                debugMessage(`User from organization(inn=${inn}) has not accepted our offer in SBBOL, do nothing`)
-                // TODO: cancel `ServiceSubscription` if exist
+            debugMessage(`User from organization(inn=${inn}) has declined our offer in SBBOL`)
+            if (existingSubscription.type === SUBSCRIPTION_TYPE.SBBOL) {
+                await stop(existingSubscription, context)
             }
         }
     }
