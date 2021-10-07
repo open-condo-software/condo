@@ -25,7 +25,7 @@ async function stop (subscription, context) {
  * @return {Promise<void>}
  */
 const syncSubscriptionsFor = async ({ payerInn, active }, context) => {
-        // GraphQL from Keystone does not supports querying of database fields of type JSON.
+    // GraphQL from Keystone does not supports querying of database fields of type JSON.
     const knex = context.keystone.adapter.knex
     const result = await knex('Organization')
         .whereRaw('meta->>\'inn\' = ?', [payerInn])
@@ -95,6 +95,8 @@ const syncSubscriptionsFor = async ({ payerInn, active }, context) => {
  * @return {Promise<void>}
  */
 const syncSubscriptions = async ({ context, date }) => {
+    if (!context) throw new Error('context is not specified')
+    if (!date) throw new Error('date is not specified')
 
     let ourOrganizationAccessToken
     try {

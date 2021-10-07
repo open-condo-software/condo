@@ -4,6 +4,7 @@ const { prepareKeystoneExpressApp, setFakeClientMode } = require('@core/keystone
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { find } = require('lodash')
+const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const { SUBSCRIPTION_TYPE, SUBSCRIPTION_TRIAL_PERIOD_DAYS } = require('@condo/domains/subscription/constants')
 const dayjs = require('dayjs')
 
@@ -35,6 +36,31 @@ describe('syncSubscriptions', () => {
     beforeAll(async () => {
         const result = await prepareKeystoneExpressApp(require.resolve('../../../../../index'))
         keystone = result.keystone
+    })
+
+
+    describe('arguments validation', () => {
+        it('throws error if "context" argument is not specified', async () => {
+            await catchErrorFrom(async () => {
+                await syncSubscriptions({ })
+            }, (error) => {
+                expect(error.message).toEqual('context is not specified')
+            })
+        })
+
+        it('throws error if "date" argument is not specified', async () => {
+            const adminContext = await keystone.createContext({ skipAccessControl: true })
+            const context = {
+                keystone,
+                context: adminContext,
+            }
+
+            await catchErrorFrom(async () => {
+                await syncSubscriptions({ context })
+            }, (error) => {
+                expect(error.message).toEqual('date is not specified')
+            })
+        })
     })
 
     describe('Fintech API returns active offer for current organization', () => {
