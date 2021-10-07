@@ -8,7 +8,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { TokenSet as TokenSetGQL } from '@condo/domains/organization/gql'
-import { TokenSet, TokenSetUpdateInput, QueryAllTokenSetsArgs } from '../../../../schema'
+import { TokenSet, TokenSetUpdateInput, QueryAllTokenSetsArgs } from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'user', 'organization', 'importRemoteSystem', 'accessToken', 'accessTokenExpiresAt', 'refreshToken', 'refreshTokenExpiresAt']
 const RELATIONS = ['user', 'organization']
