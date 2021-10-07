@@ -9,7 +9,6 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { Json } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
-const { rules } = require('../../../access')
 const access = require('@condo/domains/organization/access/Organization')
 const coreAccess = require('@core/keystone/access')
 const userAccess = require('@condo/domains/user/access/User')
@@ -79,11 +78,6 @@ const Organization = new GQLListSchema('Organization', {
 
                 return COUNTRY_RELATED_STATUS_TRANSITIONS[organizationCountry]
             },
-            access: {
-                update: rules.canUpdateTicketStatusTransitions,
-                create: rules.canUpdateTicketStatusTransitions,
-                read: coreAccess.userIsNotResidentUser,
-            },
         },
         defaultEmployeeRoleStatusTransitions: {
             schemaDoc: 'Default employee role status transitions map which will be used as fallback for status transition validation' +
@@ -94,11 +88,6 @@ const Organization = new GQLListSchema('Organization', {
                 const organizationCountry = get(organization, 'country', 'en')
 
                 return COUNTRY_RELATED_STATUS_TRANSITIONS[organizationCountry]
-            },
-            access: {
-                update: rules.canUpdateTicketStatusTransitions,
-                create: rules.canUpdateTicketStatusTransitions,
-                read: coreAccess.userIsNotResidentUser,
             },
         },
         importRemoteSystem: {
