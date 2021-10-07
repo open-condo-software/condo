@@ -1,5 +1,5 @@
 import styled from '@emotion/styled'
-import { Typography } from 'antd'
+import { Space, Typography } from 'antd'
 import classnames from 'classnames'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -17,7 +17,6 @@ interface IMenuItemWrapperProps {
     padding?: string
     isCollapsed?: boolean
     labelFontSize?: string
-    flexGap?: string
 }
 
 const MenuItemWrapper = styled.span<IMenuItemWrapperProps>`
@@ -26,7 +25,6 @@ const MenuItemWrapper = styled.span<IMenuItemWrapperProps>`
   display: flex;
   border-radius: 8px;
   flex-direction: row;
-  gap: ${props => props.flexGap ? props.flexGap : '20px'};
   align-items: center;
   justify-content: ${({ isCollapsed }) => isCollapsed ? 'center' : 'flex-start'};
   vertical-align: center;
@@ -108,12 +106,14 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
     return (
         <Link href={path}>
             <MenuItemWrapper className={menuItemClassNames} {...menuItemWrapperProps}>
-                <IconWrapper className='icon'>
-                    <ClientRenderedIcon icon={icon}/>
-                </IconWrapper>
-                <Typography.Text className='label'>
-                    {Message}
-                </Typography.Text>
+                <Space size={14}>
+                    <IconWrapper className='icon'>
+                        <ClientRenderedIcon icon={icon}/>
+                    </IconWrapper>
+                    <Typography.Text className='label'>
+                        {Message}
+                    </Typography.Text>
+                </Space>
             </MenuItemWrapper>
         </Link>
     )

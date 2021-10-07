@@ -18,7 +18,6 @@ export const StyledMenu = styled(Menu)`
 const ResidentAppealDropDownMenuItemWrapperProps = {
     labelFontSize: fontSizes.label,
     padding: '16px',
-    flexGap: '10px',
 }
 
 const ResidentAppealDropdownOverlay = () => {
