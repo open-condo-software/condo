@@ -9,7 +9,6 @@ const { historical, versioned, uuided, tracked } = require('@core/keystone/plugi
 const { Organization } = require('../utils/serverSchema')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
-const { rules } = require('../../../access')
 const access = require('@condo/domains/organization/access/OrganizationEmployeeRole')
 const get = require('lodash/get')
 
@@ -48,11 +47,6 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
 
                 const organizationCountry = get(organization, 'country', 'en')
                 return COUNTRY_RELATED_STATUS_TRANSITIONS[organizationCountry]
-            },
-            access: {
-                update: rules.canUpdateTicketStatusTransitions,
-                create: rules.canUpdateTicketStatusTransitions,
-                read: true,
             },
         },
 
