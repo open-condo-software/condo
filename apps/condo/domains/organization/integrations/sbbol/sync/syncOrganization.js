@@ -2,6 +2,7 @@ const { REGISTER_NEW_ORGANIZATION_MUTATION } = require('@condo/domains/organizat
 const { updateItem, getItems } = require('@keystonejs/server-side-graphql-client')
 const { createConfirmedEmployee } = require('@condo/domains/organization/utils/serverSchema/Organization')
 const { uniqBy } = require('lodash')
+const { dvSenderFields } = require('../constants')
 
 const getUserOrganizations = async ({ context, user }) => {
     const links = await getItems({
@@ -16,7 +17,7 @@ const getUserOrganizations = async ({ context, user }) => {
 }
 
 
-const createOrganization = async ({ context, user, organizationInfo, dvSenderFields }) => {
+const createOrganization = async ({ context, user, organizationInfo }) => {
     const importInfo = {
         importId: organizationInfo.importId,
         importRemoteSystem: organizationInfo.importRemoteSystem,

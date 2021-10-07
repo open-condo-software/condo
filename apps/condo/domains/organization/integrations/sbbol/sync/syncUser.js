@@ -1,8 +1,9 @@
 const { CREATE_ONBOARDING_MUTATION } = require('@condo/domains/onboarding/gql.js')
 const { getItems, createItem, updateItem } = require('@keystonejs/server-side-graphql-client')
 const { MULTIPLE_ACCOUNTS_MATCHES } = require('@condo/domains/user/constants/errors')
+const { dvSenderFields } = require('../constants')
 
-const createOnboarding = async ({ keystone, user, dvSenderFields }) => {
+const createOnboarding = async ({ keystone, user }) => {
     const userContext = await keystone.createContext({
         authentication: {
             item: user,
@@ -30,8 +31,7 @@ const createOnboarding = async ({ keystone, user, dvSenderFields }) => {
  * @param dvSenderFields
  * @return {Promise<{importId}|*>}
  */
-const syncUser = async ({ context, userInfo, dvSenderFields }) => {
-    const returnFields = 'id phone name importId importRemoteSystem'
+const syncUser = async ({ context, userInfo }) => {
     const importFields = {
         importId: userInfo.importId,
         importRemoteSystem: userInfo.importRemoteSystem,
@@ -45,7 +45,6 @@ const syncUser = async ({ context, userInfo, dvSenderFields }) => {
                 { AND: importFields },
             ],
         },
-        returnFields,
     })
 
     if (existingUsers.length > 1) {
@@ -56,7 +55,7 @@ const syncUser = async ({ context, userInfo, dvSenderFields }) => {
         const user = await createItem({
             listKey: 'User',
             item: userInfo,
-            returnFields,
+            returnFields: 'id phone name',
             ...context,
         })
         await createOnboarding({ keystone: context.keystone, user, dvSenderFields })
@@ -86,12 +85,14 @@ const syncUser = async ({ context, userInfo, dvSenderFields }) => {
                     ...importFields,
                 },
             },
-            returnFields: returnFields,
+            returnFields: 'id',
             ...context,
         })
         return updatedUser
     }
+
     await createOnboarding( { keystone: context.keystone, user, dvSenderFields })
+
     return user
 }
 
