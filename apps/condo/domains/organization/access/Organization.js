@@ -3,7 +3,7 @@
  */
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { queryOrganizationEmployeeFromRelatedOrganizationFor, queryOrganizationEmployeeFor } = require('../utils/accessSchema')
+const { queryOrganizationEmployeeFromRelatedOrganizationFor, queryOrganizationEmployeeFor, queryAcquiringIntegrationAccount } = require('../utils/accessSchema')
 const { Resident: ResidentServerUtils } = require('@condo/domains/resident/utils/serverSchema')
 const { AcquiringIntegrationAccessRight } = require('@condo/domains/acquiring/utils/serverSchema')
 const { get, uniq, compact } = require('lodash')
@@ -27,8 +27,7 @@ async function canReadOrganizations ({ authentication: { item: user }, context }
         }
         return false
     }
-    // Check if user account is acquiring integration
-    // TODO (savelevMatthew): set access only to selected fields?
+    // Check if user account is acquiring integration and organization has this acquiring
     const accessRights = await AcquiringIntegrationAccessRight.getAll(context, { user: { id: userId } })
     if (accessRights && accessRights.length > 0) return true
 
@@ -36,6 +35,7 @@ async function canReadOrganizations ({ authentication: { item: user }, context }
         OR: [
             queryOrganizationEmployeeFor(userId),
             queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
+            queryAcquiringIntegrationAccount(userId),
         ],
     }
 }
