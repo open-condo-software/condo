@@ -94,15 +94,15 @@ const sync = async ({ keystone, userInfo, tokenSet }) => {
     await syncSubscriptions({ context, organization })
     await syncTokens({ context, tokenInfoFromOAuth: tokenSet, organization, user, dvSenderFields })
 
-    const organizationEmployee = await getOrganizationEmployee({ context, user, organization })
-    if (!organizationEmployee) {
+    const organizationEmployeeId = await getOrganizationEmployee({ context, user, organization })
+    if (!organizationEmployeeId) {
         throw new Error('Failed to bind user to organization')
     }
 
     return {
         user,
         organization,
-        organizationEmployee,
+        organizationEmployeeId,
     }
 }
 
