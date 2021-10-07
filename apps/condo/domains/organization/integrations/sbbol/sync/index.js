@@ -7,6 +7,8 @@ const { syncOrganization } = require('./syncOrganization')
 const { syncSubscriptions } = require('./syncSubscriptions')
 const { syncTokens } = require('./syncTokens')
 const { getOrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema/OrganizationEmployee')
+const dayjs = require('dayjs')
+const { dvSenderFields } = require('../constants')
 
 /**
  * Params for direct execution of GraphQL queries and mutations using Keystone
@@ -55,10 +57,6 @@ const sync = async ({ keystone, userInfo, tokenSet }) => {
         keystone,
         context: adminContext,
     }
-    const dvSenderFields = {
-        dv: 1,
-        sender: { dv: 1, fingerprint: `import-${SBBOL_IMPORT_NAME}` },
-    }
     const organizationInfo = {
         ...dvSenderFields,
         name: userInfo.OrgName,
@@ -89,10 +87,12 @@ const sync = async ({ keystone, userInfo, tokenSet }) => {
         password: faker.internet.password(),
     }
 
-    const user = await syncUser({ context, userInfo: userData, dvSenderFields })
-    const organization = await syncOrganization({ context, user, userInfo, organizationInfo, dvSenderFields })
-    await syncSubscriptions({ context, organization })
-    await syncTokens({ context, tokenInfoFromOAuth: tokenSet, organization, user, dvSenderFields })
+    const user = await syncUser({ context, userInfo: userData })
+    const organization = await syncOrganization({ context, user, userInfo, organizationInfo })
+
+    const today = dayjs().format('YYYY-MM-DD')
+    await syncSubscriptions({ context, organization, date: today })
+    await syncTokens({ context, tokenInfoFromOAuth: tokenSet, organization, user })
 
     const organizationEmployeeId = await getOrganizationEmployee({ context, user, organization })
     if (!organizationEmployeeId) {
