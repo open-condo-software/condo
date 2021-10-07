@@ -25,10 +25,15 @@ async function stop (subscription, context) {
  * @return {Promise<void>}
  */
 const syncSubscriptionsFor = async ({ payerInn, active }, context) => {
-    const [organization] = await Organization.getAll(context.keystone, {
-        // TODO: find by JSON property of `meta` field: `{ meta: { inn: payerInn } }`
         // GraphQL from Keystone does not supports querying of database fields of type JSON.
-    })
+    const knex = context.keystone.adapter.knex
+    const result = await knex('Organization')
+        .whereRaw('meta->>\'inn\' = ?', [payerInn])
+        .orderBy('createdAt', 'desc')
+        .select('id', 'meta')
+
+    const [organization] = result
+
     if (!organization) {
         debugMessage(`Not found organization with inn=${payerInn} to sync SBBOL subscriptions for`)
         return
