@@ -14,6 +14,25 @@ const { SBBOL_API_RESPONSE } = require('./common')
  */
 
 /**
+ * Advance acceptance record, returned by Fintech API
+ *
+ * @typedef AdvanceAcceptance
+ * @property {String} payerInn
+ * @property {String} payerAccount
+ * @property {String} payerBankBic
+ * @property {String} payerBankCorrAccount
+ * @property {String} purpose
+ * @property {String} payerOrgIdHash
+ * @property {String} payerName
+ * @property {String} sinceDate
+ * @property {String} untilDate
+ * @property {Boolean} active
+ * @property bundles
+ * @example
+ * {"payerInn":"5034800639","payerAccount":"40702810840147579127","payerBankBic":"044525225","payerBankCorrAccount":"30101810400000000225","purpose":"оплата подпики за сервис по договору ХХХ от 22.22.2222","payerOrgIdHash":"340f51b2defe28355c0655febc03ac26b7f78b07f0be7704ec2ec1cdb5905e4c","payerName":"ООО \"ПАРТНЕР-626\"","sinceDate":"2021-10-07","untilDate":null,"active":true,"bundles":null}
+ */
+
+/**
  * Offers access to only some set of methods
  * Requires separate `clientId` and secret (differs from authentication)
  */
@@ -28,7 +47,7 @@ class SbbolFintechApi extends SbbolRequestApi {
      *
      * @param date
      * @param clientId
-     * @return {Promise<*[]|any>}
+     * @return {Promise<AdvanceAcceptance[]|FintechErrorResponse>}
      */
     async fetchAdvanceAcceptances ({ date, clientId }) {
         const jsonResultString = await this.request({
