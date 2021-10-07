@@ -13,9 +13,8 @@ import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketSta
 import { createSorterMap, IFilters } from '../utils/helpers'
 import { TicketStatus } from '../utils/clientSchema'
 import { Highliter } from '@condo/domains/common/components/Highliter'
-import { EmptyTableCell } from '@condo/domains/common/components/Table/EmptyTableCell'
 import { getTextFilterDropdown, getFilterIcon, FilterContainer } from '@condo/domains/common/components/TableFilter'
-
+import getRenderer from '@condo/domains/common/components/helpers/tableCellRenderer'
 
 const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
 
@@ -40,22 +39,81 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
     const { loading, objs: ticketStatuses } = TicketStatus.useObjects({})
     const search = getFilteredValue(filters, 'search')
 
-    const render = (text) => {
-        let result = text
-        if (!isEmpty(search) && text) {
-            result = (
-                <Highliter
-                    text={String(text)}
-                    search={String(search)}
-                    renderPart={(part) => (
-                        <Typography.Text style={{ backgroundColor: colors.markColor }}>
-                            {part}
+    const renderStatus = (status, record) => {
+        const { primary: color, secondary: backgroundColor } = status.colors
+
+        return (
+            <Space direction='vertical' size={7}>
+                <Tag color={backgroundColor}>
+                    <Typography.Text style={{ color }}>
+                        {isEmpty(status.name)
+                            ? status.name
+                            : (
+                                <Highliter
+                                    text={status.name}
+                                    search={String(search)}
+                                    renderPart={(part) => (
+                                        <Typography.Text style={{ backgroundColor: colors.markColor }}>
+                                            {part}
+                                        </Typography.Text>
+                                    )}
+                                />
+                            )
+                        }
+                    </Typography.Text>
+                </Tag>
+                {record.isEmergency &&
+                    <Tag color={EMERGENCY_TAG_COLOR.background}>
+                        <Typography.Text style={{ color: EMERGENCY_TAG_COLOR.text }}>
+                            {EmergencyMessage}
                         </Typography.Text>
-                    )}
+                    </Tag>
+                }
+                {record.isPaid &&
+                    <Tag color={'orange'}>
+                        {PaidMessage}
+                    </Tag>
+                }
+            </Space>
+        )
+    }
+
+    const renderStatusFilterDropdown = ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+        const adaptedStatuses = ticketStatuses.map(convertGQLItemToFormSelectState).filter(identity)
+
+        return (
+            <FilterContainer
+                clearFilters={clearFilters}
+                showClearButton={selectedKeys && selectedKeys.length > 0}
+            >
+                <Checkbox.Group
+                    disabled={loading}
+                    options={adaptedStatuses}
+                    style={{ display: 'flex', flexDirection: 'column' }}
+                    value={selectedKeys}
+                    onChange={(e) => {
+                        setSelectedKeys(e)
+                        setFiltersApplied(true)
+                        confirm({ closeDropdown: false })
+                    }}
                 />
-            )
-        }
-        return (<EmptyTableCell>{result}</EmptyTableCell>)
+            </FilterContainer>
+        )
+    }
+
+    const renderAddress = (record) => {
+        const property = get(record, 'property')
+        const unitName = get(record, 'unitName')
+        const text = get(property, 'address')
+        const unitPrefix = unitName ? `${ShortFlatNumber} ${unitName}` : ''
+
+        return getRenderer(search, true, unitPrefix)(text)
+    }
+
+    const renderDate = (createdAt) => {
+        const locale = get(LOCALES, intl.locale)
+        const date = locale ? dayjs(createdAt).locale(locale) : dayjs(createdAt)
+        return date.format('DD MMM')
     }
 
     return useMemo(() => {
@@ -68,9 +126,10 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 key: 'number',
                 sorter: true,
                 width: '7%',
-                render,
                 filterDropdown: getTextFilterDropdown(NumberMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
+                render: getRenderer(search),
+                align: 'right',
             },
             {
                 title: DateMessage,
@@ -79,12 +138,9 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 dataIndex: 'createdAt',
                 key: 'createdAt',
                 sorter: true,
-                width: '10%',
-                render: (createdAt) => {
-                    const locale = get(LOCALES, intl.locale)
-                    const date = locale ? dayjs(createdAt).locale(locale) : dayjs(createdAt)
-                    return date.format('DD MMMM')
-                },
+                width: '8%',
+                ellipsis: true,
+                render: renderDate,
                 filterDropdown: getDateFilterDropdown(),
                 filterIcon: getFilterIcon,
             },
@@ -92,76 +148,23 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 title: StatusMessage,
                 sortOrder: get(sorterMap, 'status'),
                 filteredValue: getFilteredValue(filters, 'status'),
-                render: (status, record) => {
-                    const { primary: color, secondary: backgroundColor } = status.colors
-                    return (
-                        <Space direction='vertical' size={7}>
-                            <Tag color={backgroundColor}>
-                                <Typography.Text style={{ color }}>{
-                                    isEmpty(status.name)
-                                        ? status.name
-                                        : (
-                                            <Highliter
-                                                text={status.name}
-                                                search={String(search)}
-                                                renderPart={(part) => (
-                                                    <Typography.Text style={{ backgroundColor: colors.markColor }}>
-                                                        {part}
-                                                    </Typography.Text>
-                                                )}
-                                            />
-                                        )}</Typography.Text>
-                            </Tag>
-                            {record.isEmergency &&
-                            <Tag color={EMERGENCY_TAG_COLOR.background}>
-                                <Typography.Text
-                                    style={{ color: EMERGENCY_TAG_COLOR.text }}>{EmergencyMessage}</Typography.Text>
-                            </Tag>}
-                            { record.isPaid &&
-                            <Tag color={'orange'}>
-                                { PaidMessage }
-                            </Tag> }
-                        </Space>
-                    )
-                },
+                render: renderStatus,
                 dataIndex: 'status',
                 key: 'status',
                 sorter: true,
                 width: '10%',
-                filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
-                    const adaptedStatuses = ticketStatuses.map(convertGQLItemToFormSelectState).filter(identity)
-
-                    return (
-                        <FilterContainer
-                            clearFilters={clearFilters}
-                            showClearButton={selectedKeys && selectedKeys.length > 0}
-                        >
-                            <Checkbox.Group
-                                disabled={loading}
-                                options={adaptedStatuses}
-                                style={{ display: 'flex', flexDirection: 'column' }}
-                                value={selectedKeys}
-                                onChange={(e) => {
-                                    setSelectedKeys(e)
-                                    setFiltersApplied(true)
-                                    confirm({ closeDropdown: false })
-                                }}
-                            />
-                        </FilterContainer>
-                    )
-                },
+                filterDropdown: renderStatusFilterDropdown,
                 filterIcon: getFilterIcon,
             },
             {
                 title: DescriptionMessage,
-                ellipsis: true,
                 dataIndex: 'details',
                 filteredValue: getFilteredValue(filters, 'details'),
                 key: 'details',
                 width: '18%',
-                render,
                 filterDropdown: getTextFilterDropdown(FindWordMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
+                render: getRenderer(search,true),
             },
             {
                 title: AddressMessage,
@@ -171,36 +174,12 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 key: 'property',
                 sorter: true,
                 width: '12%',
-                render: (record) => {
-                    const unitName = get(record, 'unitName')
-                    const property = get(record, 'property')
-                    const text = get(property, 'address')
-                    const unitPrefix = unitName ? `${ShortFlatNumber} ${unitName}` : ''
-
-                    if (!isEmpty(search)) {
-                        return (
-                            <>
-                                <Highliter
-                                    text={text}
-                                    search={String(search)}
-                                    renderPart={(part) => (
-                                        <Typography.Text style={{ backgroundColor: colors.markColor }}>
-                                            {part}
-                                        </Typography.Text>
-                                    )}
-                                />
-                                {` ${unitPrefix}`}
-                            </>
-                        )
-                    }
-                    return `${text} ${unitPrefix}`
-                },
+                render: renderAddress,
                 filterDropdown: getTextFilterDropdown(AddressMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
             },
             {
                 title: ClientNameMessage,
-                ellipsis: true,
                 sortOrder: get(sorterMap, 'clientName'),
                 filteredValue: getFilteredValue(filters, 'clientName'),
                 dataIndex: 'clientName',
@@ -208,32 +187,30 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 sorter: true,
                 width: '12%',
                 filterDropdown: getTextFilterDropdown(ClientNameMessage, setFiltersApplied),
-                render,
+                render: getRenderer(search),
                 filterIcon: getFilterIcon,
             },
             {
                 title: ExecutorMessage,
-                ellipsis: true,
                 sortOrder: get(sorterMap, 'executor'),
                 filteredValue: getFilteredValue(filters, 'executor'),
                 dataIndex: 'executor',
                 key: 'executor',
                 sorter: true,
-                width: '16%',
-                render: (executor) => render(get(executor, ['name'])),
+                width: '15%',
+                render: (executor) => getRenderer(search)(get(executor, ['name'])),
                 filterDropdown: getTextFilterDropdown(UserNameMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
             },
             {
                 title: ResponsibleMessage,
-                ellipsis: true,
                 sortOrder: get(sorterMap, 'assignee'),
                 filteredValue: getFilteredValue(filters, 'assignee'),
                 dataIndex: 'assignee',
                 key: 'assignee',
                 sorter: true,
                 width: '18%',
-                render: (assignee) => render(get(assignee, ['name'])),
+                render: (assignee) => getRenderer(search)(get(assignee, ['name'])),
                 filterDropdown: getTextFilterDropdown(UserNameMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
             },
