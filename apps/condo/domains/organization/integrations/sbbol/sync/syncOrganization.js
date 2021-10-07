@@ -71,13 +71,13 @@ const syncOrganization = async ({ context, user, userInfo, organizationInfo, dvS
     }
     const returnFields = 'id country meta importId importRemoteSystem'
     const userOrganizations = await getUserOrganizations({ context, user })
-    const [organization] = await getItems({
+    const [importedOrganization] = await getItems({
         ...context,
         returnFields: returnFields,
         listKey: 'Organization',
         where: importInfo,
     })
-    if (!organization) {
+    if (!importedOrganization) {
         // Organization was not imported from SBBOL, but maybe, it was created before with the same TIN
         const existingOrganization = userOrganizations.find(({ meta }) => meta.inn === organizationInfo.meta.inn)
         if (!existingOrganization) {
@@ -102,27 +102,27 @@ const syncOrganization = async ({ context, user, userInfo, organizationInfo, dvS
             return updatedOrganization
         }
     } else {
-        const isAlreadyEmployee = userOrganizations.find(org => org.id === organization.id)
+        const isAlreadyEmployee = userOrganizations.find(org => org.id === importedOrganization.id)
         if (!isAlreadyEmployee) {
             const allRoles = await getItems({
                 ...context,
                 listKey: 'OrganizationEmployeeRole',
                 where: {
                     organization: {
-                        id: organization.id,
+                        id: importedOrganization.id,
                     },
                     name: 'employee.role.Administrator.name',
                 },
                 returnFields: returnFields,
             })
             const { context: adminContext } = context
-            await createConfirmedEmployee(adminContext, organization, {
+            await createConfirmedEmployee(adminContext, importedOrganization, {
                 ...userInfo,
                 ...user,
             }, allRoles[0], dvSenderFields)
         }
     }
-    return organization
+    return importedOrganization
 }
 
 module.exports = {
