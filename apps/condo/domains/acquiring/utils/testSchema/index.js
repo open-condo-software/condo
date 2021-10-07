@@ -4,6 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
+const get = require('lodash/get')
 const {createTestProperty} = require("@condo/domains/property/utils/testSchema");
 const {
     createTestBillingIntegration,
@@ -18,18 +19,23 @@ const {createTestOrganizationEmployee, createTestOrganizationEmployeeRole} = req
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 const { MULTIPAYMENT_INIT_STATUS } = require('../../constants')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/organization')
 
 const { AcquiringIntegration: AcquiringIntegrationGQL } = require('@condo/domains/acquiring/gql')
 const { AcquiringIntegrationAccessRight: AcquiringIntegrationAccessRightGQL } = require('@condo/domains/acquiring/gql')
 const { AcquiringIntegrationContext: AcquiringIntegrationContextGQL } = require('@condo/domains/acquiring/gql')
 const { MultiPayment: MultiPaymentGQL } = require('@condo/domains/acquiring/gql')
+const { Payment: PaymentGQL } = require('@condo/domains/acquiring/gql')
+
+const dayjs = require('dayjs')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
 const AcquiringIntegrationAccessRight = generateGQLTestUtils(AcquiringIntegrationAccessRightGQL)
 const AcquiringIntegrationContext = generateGQLTestUtils(AcquiringIntegrationContextGQL)
 const MultiPayment = generateGQLTestUtils(MultiPaymentGQL)
+const Payment = generateGQLTestUtils(PaymentGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 function getRandomHiddenCard() {
@@ -209,9 +215,49 @@ async function updateTestMultiPayment (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestPayment (client, receipt, multiPayment, context, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!receipt || !receipt.id) throw new Error('no receipts.id')
+    if (!multiPayment || !multiPayment.id) throw new Error('no multiPayment.id')
+    if (!context || !context.id) throw new Error('no context.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const amount = get(receipt, 'toPay', '100.00')
+
+    const attrs = {
+        dv: 1,
+        sender,
+        amount,
+        currencyCode: 'RUB',
+        time: dayjs().toISOString(),
+        accountNumber: String(faker.datatype.number()),
+        receipt: { connect: { id: receipt.id } },
+        multiPayment: { connect: { id: multiPayment.id } },
+        context: { connect: { id: context.id } },
+        ...extraAttrs,
+    }
+    const obj = await Payment.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestPayment (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await Payment.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+/* AUTOGENERATE MARKER <FACTORY> */
+
 // Utils used to generate bunch of entities for working with MultiPayments
-async function makePayerFromClient (client, receiptsAmount = 1) {
-    if (!client) throw new Error('No client')
+async function makePayer (receiptsAmount = 1) {
+    const client = await makeClientWithResidentUser()
     const admin = await makeLoggedInAdminClient()
 
     const [organization] = await registerNewOrganization(admin)
@@ -231,6 +277,8 @@ async function makePayerFromClient (client, receiptsAmount = 1) {
     }
 
     return {
+        admin,
+        client,
         organization,
         property,
         acquiringIntegration,
@@ -243,7 +291,12 @@ async function makePayerFromClient (client, receiptsAmount = 1) {
     }
 }
 
-/* AUTOGENERATE MARKER <FACTORY> */
+async function makePayerWithMultiPayment (receiptsAmount = 1) {
+    const data = await makePayer(receiptsAmount)
+    const { admin, billingReceipts, acquiringIntegration, client } = data
+    const [multiPayment] = await createTestMultiPayment(admin, billingReceipts, client.user, acquiringIntegration)
+    return {...data, multiPayment}
+}
 
 module.exports = {
     AcquiringIntegration, createTestAcquiringIntegration, updateTestAcquiringIntegration,
@@ -253,7 +306,9 @@ module.exports = {
     makeAcquiringContext,
     makeAcquiringContextAndIntegrationAccount,
     makeAcquiringContextAndIntegrationManager,
-    makePayerFromClient,
-    getRandomHiddenCard
+    Payment, createTestPayment, updateTestPayment,
+    makePayer,
+    makePayerWithMultiPayment,
+    getRandomHiddenCard,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

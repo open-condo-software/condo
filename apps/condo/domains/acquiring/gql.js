@@ -20,6 +20,9 @@ const AcquiringIntegrationContext = generateGqlQueries('AcquiringIntegrationCont
 const MULTI_PAYMENT_FIELDS = `{ amount commission currencyCode time cardNumber paymentWay serviceCategory payerEmail serviceCategory transactionId meta status receipts integration { id } ${COMMON_FIELDS} }`
 const MultiPayment = generateGqlQueries('MultiPayment', MULTI_PAYMENT_FIELDS)
 
+const PAYMENT_FIELDS = `{ amount currencyCode time accountNumber purpose receipt { id } multiPayment { id } context { id } ${COMMON_FIELDS} }`
+const Payment = generateGqlQueries('Payment', PAYMENT_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -27,5 +30,6 @@ module.exports = {
     AcquiringIntegrationAccessRight,
     AcquiringIntegrationContext,
     MultiPayment,
+    Payment,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
