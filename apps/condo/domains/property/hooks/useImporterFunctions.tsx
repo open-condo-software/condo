@@ -10,8 +10,6 @@ import { TableRow, Columns, RowNormalizer, RowValidator, ObjectCreator } from '@
 import { useIntl } from '@core/next/intl'
 
 const createPropertyUnitsMap = (units, sections, floors) => {
-    console.log('units, sections, floors', units, sections, floors)
-
     const unitsOnFloor = Math.floor(units / (floors * sections))
     if (!unitsOnFloor) {
         return
@@ -97,7 +95,6 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
     const propertyCreator: ObjectCreator = (row) => {
         if (!row) return Promise.resolve()
-        console.log('propertyCreator row', row)
         const [, units, sections, floors] = row.row
         const property = get(row.addons, ['suggestion'])
         const value = get(property, 'value')
