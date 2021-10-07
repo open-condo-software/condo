@@ -3,10 +3,12 @@
  */
 
 const { Text, Relationship, DateTimeUtc, Decimal } = require('@keystonejs/fields')
+const { getById } = require('@core/keystone/schema')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD, CURRENCY_CODE_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/acquiring/access/Payment')
+const get = require('lodash/get')
 
 
 const Payment = new GQLListSchema('Payment', {
@@ -57,6 +59,18 @@ const Payment = new GQLListSchema('Payment', {
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+            hooks: {
+                validateInput: async ({ resolvedData,  fieldPath, addFieldValidationError  }) => {
+                    const multiPaymentId = get(resolvedData, fieldPath)
+                    if (!multiPaymentId) addFieldValidationError('MultiPayment id is not provided')
+                    const multipayment =  await getById('MultiPayment', multiPaymentId)
+                    if (!multiPaymentId) addFieldValidationError('MultiPayment with this id is not exist')
+                    const receipts = get(multipayment, 'receipts', [])
+                    const receiptsIds = receipts.map(receipt => receipt.id)
+                    const receiptId = get(resolvedData, 'receipt')
+                    if (!receiptsIds.includes(receiptId)) addFieldValidationError('This MultiPayment does not contains this billing receipt with this id')
+                },
+            },
         },
 
         context: {
