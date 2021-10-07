@@ -69,10 +69,11 @@ const syncOrganization = async ({ context, user, userInfo, organizationInfo, dvS
         importId: organizationInfo.importId,
         importRemoteSystem: organizationInfo.importRemoteSystem,
     }
+    const returnFields = 'id country meta importId importRemoteSystem'
     const userOrganizations = await getUserOrganizations({ context, user })
     const [organization] = await getItems({
         ...context,
-        returnFields: 'id country',
+        returnFields: returnFields,
         listKey: 'Organization',
         where: importInfo,
     })
@@ -95,7 +96,7 @@ const syncOrganization = async ({ context, user, userInfo, organizationInfo, dvS
                         },
                     },
                 },
-                returnFields: 'id',
+                returnFields: returnFields,
                 ...context,
             })
             return updatedOrganization
@@ -112,7 +113,7 @@ const syncOrganization = async ({ context, user, userInfo, organizationInfo, dvS
                     },
                     name: 'employee.role.Administrator.name',
                 },
-                returnFields: 'id',
+                returnFields: returnFields,
             })
             const { context: adminContext } = context
             await createConfirmedEmployee(adminContext, organization, {
