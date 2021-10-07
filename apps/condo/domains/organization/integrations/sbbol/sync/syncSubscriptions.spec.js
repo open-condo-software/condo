@@ -42,6 +42,7 @@ describe('syncSubscriptions', () => {
             mockResponseFromFintechApi.advanceAcceptances = () => mockActiveSubscriptionResponse.activeSubscription(firstInn)
         })
         it('creates new subscription and stops already active one', async () => {
+            const today = dayjs()
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const [organization] = await registerNewOrganization(userClient, {
                 meta: {
@@ -60,9 +61,7 @@ describe('syncSubscriptions', () => {
                 organization: { id: organization.id },
             }, { sortBy: ['updatedAt_DESC'] })
 
-            await syncSubscriptions({ context, organization })
-
-            const today = dayjs()
+            await syncSubscriptions({ context, date: today.format('YYYY-MM-DD') })
 
             const subscriptions = await ServiceSubscription.getAll(adminContext, {
                 organization: { id: organization.id },
@@ -85,6 +84,7 @@ describe('syncSubscriptions', () => {
         })
 
         it('does nothing', async () => {
+            const today = dayjs()
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const [organization] = await registerNewOrganization(userClient, {
                 meta: {
@@ -103,7 +103,7 @@ describe('syncSubscriptions', () => {
                 organization: { id: organization.id },
             }, { sortBy: ['updatedAt_DESC'] })
 
-            await syncSubscriptions({ context, organization })
+            await syncSubscriptions({ context, date: today.format('YYYY-MM-DD') })
 
             const subscriptions = await ServiceSubscription.getAll(adminContext, {
                 organization: { id: organization.id },
@@ -116,6 +116,7 @@ describe('syncSubscriptions', () => {
 
     describe('Fintech API returns not active offer for current organization', () => {
         it('deactivates current sbbol subscription', async () => {
+            const today = dayjs()
             mockResponseFromFintechApi.advanceAcceptances = () => mockActiveSubscriptionResponse.activeSubscription(firstInn)
 
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -131,7 +132,7 @@ describe('syncSubscriptions', () => {
                 context: adminContext,
             }
 
-            await syncSubscriptions({ context, organization })
+            await syncSubscriptions({ context, date: today.format('YYYY-MM-DD') })
 
             const [currentSbbolSubscription] = await ServiceSubscription.getAll(adminContext, {
                 type: SUBSCRIPTION_TYPE.SBBOL,
@@ -142,14 +143,12 @@ describe('syncSubscriptions', () => {
 
             mockResponseFromFintechApi.advanceAcceptances = () => mockActiveSubscriptionResponse.canceledSubscription(firstInn)
 
-            await syncSubscriptions({ context, organization })
+            await syncSubscriptions({ context, date: today.format('YYYY-MM-DD') })
 
             const [changedSbbolSubscription] = await ServiceSubscription.getAll(adminContext, {
                 type: SUBSCRIPTION_TYPE.SBBOL,
                 organization: { id: organization.id },
             }, { sortBy: ['updatedAt_DESC'] })
-
-            const today = dayjs()
 
             expect(currentSbbolSubscription.id).toEqual(changedSbbolSubscription.id)
             expect(dayjs(changedSbbolSubscription.finishAt).isSame(today, 'minute')).toBeTruthy()
@@ -158,6 +157,7 @@ describe('syncSubscriptions', () => {
 
     describe('Fintech API returns not active offer for another organization', () => {
         it('does nothing with subscription of current organization', async () => {
+            const today = dayjs()
             mockResponseFromFintechApi.advanceAcceptances = () => mockActiveSubscriptionResponse.activeSubscription(firstInn)
 
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -173,7 +173,7 @@ describe('syncSubscriptions', () => {
                 context: adminContext,
             }
 
-            await syncSubscriptions({ context, organization })
+            await syncSubscriptions({ context, date: today.format('YYYY-MM-DD') })
 
             const [currentSbbolSubscription] = await ServiceSubscription.getAll(adminContext, {
                 type: SUBSCRIPTION_TYPE.SBBOL,
@@ -184,7 +184,7 @@ describe('syncSubscriptions', () => {
 
             mockResponseFromFintechApi.advanceAcceptances = () => mockActiveSubscriptionResponse.canceledSubscription(secondInn)
 
-            await syncSubscriptions({ context, organization })
+            await syncSubscriptions({ context, date: today.format('YYYY-MM-DD') })
 
             const [sbbolSubscriptionAfterSync] = await ServiceSubscription.getAll(adminContext, {
                 type: SUBSCRIPTION_TYPE.SBBOL,
