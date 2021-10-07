@@ -3,6 +3,7 @@ const { red } = require('@ant-design/colors')
 import { css } from '@emotion/core'
 import styled from '@emotion/styled'
 import { Layout, Menu } from 'antd'
+import { gradients } from '@condo/domains/common/constants/style'
 
 export const SIDE_MENU_WIDTH = 256
 export const COLLAPSED_SIDE_MENU_WIDTH = 92
@@ -94,9 +95,19 @@ export const LogoContainer = styled.div`
 `
 
 export const ActionsContainer = styled.div<{ minified: boolean }>`
+  position: relative;
   display: flex;
   justify-content: center;
   padding: 0 34px 38px;
+
+  &:after {
+    bottom: -18px;
+    content: '';
+    width: 100%;
+    position: absolute;
+    height: 24px;
+    background: ${gradients.fadeOutGradient};
+  }
 `
 
 export const LayoutTriggerWrapper = styled.div`
@@ -104,7 +115,7 @@ export const LayoutTriggerWrapper = styled.div`
   border-radius: 50%;
   box-shadow: ${shadows.elevated};
   font-size: 10px;
-  top: 32px;
+  top: 38px;
   right: -12px;
 `
 
