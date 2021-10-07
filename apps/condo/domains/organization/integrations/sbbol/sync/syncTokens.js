@@ -46,7 +46,7 @@ const syncTokens = async ({ context, tokenInfoFromOAuth, organization, user, dvS
         importRemoteSystem: SBBOL_IMPORT_NAME,
         accessToken: access_token,
         refreshToken: refresh_token,
-        accessTokenExpiresAt: new Date(Date.now() + expires_at).toISOString(),
+        accessTokenExpiresAt: new Date(Number(expires_at) * 1000).toISOString(),
         refreshTokenExpiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL * 1000).toISOString(),
     }
     const { context: adminContext } = context
