@@ -1,5 +1,11 @@
 const SUBSCRIPTION_TRIAL_PERIOD_DAYS = 15
 
+const SUBSCRIPTION_TYPE = {
+    DEFAULT: 'default',
+    SBBOL: 'sbbol',
+}
+
 module.exports = {
+    SUBSCRIPTION_TYPE,
     SUBSCRIPTION_TRIAL_PERIOD_DAYS,
 }
