@@ -11,6 +11,8 @@ const {
     MultiPayment,
     createTestMultiPayment,
     updateTestMultiPayment,
+    createTestPayment,
+    updateTestPayment,
     createTestAcquiringIntegration,
     createTestAcquiringIntegrationAccessRight,
 } = require('@condo/domains/acquiring/utils/testSchema')
@@ -293,12 +295,12 @@ describe('MultiPayment', () => {
                 })
                 test('Should specify required fields in transition', async () => {
                     const admin = await makeLoggedInAdminClient()
-                    const { billingReceipts, acquiringIntegration, client } = await makePayer()
+                    const { billingReceipts, acquiringIntegration, client, acquiringContext } = await makePayer()
                     const integrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
                     await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
 
                     const [multiPayment] = await createTestMultiPayment(admin, billingReceipts, client.user, acquiringIntegration)
-
+                    await createTestPayment(integrationClient, billingReceipts[0], multiPayment, acquiringContext)
                     await expectToThrowValidationFailureError(async () => {
                         await updateTestMultiPayment(integrationClient, multiPayment.id, {
                             status: MULTIPAYMENT_DONE_STATUS,
@@ -314,6 +316,64 @@ describe('MultiPayment', () => {
                     const [updatedMultiPayment] = await updateTestMultiPayment(integrationClient, multiPayment.id, payload)
                     expect(updatedMultiPayment).toBeDefined()
                     expect(updatedMultiPayment).toEqual(expect.objectContaining(payload))
+                })
+                describe('When switching to done status', () => {
+                    test('Receipts from payments should match with receipts in multipayments', async () => {
+                        const { admin, billingReceipts, acquiringIntegration, client, acquiringContext } = await makePayer()
+                        const integrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                        await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
+
+                        const [multiPayment] = await createTestMultiPayment(admin, billingReceipts, client.user, acquiringIntegration)
+                        const payload = {
+                            status: MULTIPAYMENT_DONE_STATUS,
+                            time: dayjs().toISOString(),
+                            paymentWay: 'CARD',
+                            payerEmail: 'example@domain.com',
+                            cardNumber: getRandomHiddenCard(),
+                            transactionId: faker.datatype.uuid(),
+                        }
+
+                        await expectToThrowValidationFailureError(async () => {
+                            await updateTestMultiPayment(integrationClient, multiPayment.id, payload)
+                        })
+
+                        await createTestPayment(integrationClient, billingReceipts[0], multiPayment, acquiringContext)
+
+                        const [updated] = await updateTestMultiPayment(integrationClient, multiPayment.id, payload)
+                        expect(updated).toBeDefined()
+                        expect(updated).toHaveProperty('status', MULTIPAYMENT_DONE_STATUS)
+                    })
+                    test('Total amount from payments should match with amount in multipayment', async () => {
+                        const { admin, billingReceipts, acquiringIntegration, client, acquiringContext } = await makePayer()
+                        const integrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                        await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
+
+                        const [multiPayment] = await createTestMultiPayment(admin, billingReceipts, client.user, acquiringIntegration)
+                        const payload = {
+                            status: MULTIPAYMENT_DONE_STATUS,
+                            time: dayjs().toISOString(),
+                            paymentWay: 'CARD',
+                            payerEmail: 'example@domain.com',
+                            cardNumber: getRandomHiddenCard(),
+                            transactionId: faker.datatype.uuid(),
+                        }
+
+                        const [payment] = await createTestPayment(integrationClient, billingReceipts[0], multiPayment, acquiringContext, {
+                            amount: '0.00',
+                        })
+
+                        await expectToThrowValidationFailureError(async () => {
+                            await updateTestMultiPayment(integrationClient, multiPayment.id, payload)
+                        })
+
+                        await updateTestPayment(admin, payment.id, {
+                            amount: billingReceipts[0].toPay,
+                        })
+
+                        const [updated] = await updateTestMultiPayment(integrationClient, multiPayment.id, payload)
+                        expect(updated).toBeDefined()
+                        expect(updated).toHaveProperty('status', MULTIPAYMENT_DONE_STATUS)
+                    })
                 })
             })
             describe('valid flow', () => {
@@ -341,7 +401,7 @@ describe('MultiPayment', () => {
                     })
                     test('Completed at the end', async () => {
                         const admin = await makeLoggedInAdminClient()
-                        const { billingReceipts, acquiringIntegration, client } = await makePayer()
+                        const { billingReceipts, acquiringIntegration, client, acquiringContext } = await makePayer()
                         const integrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
                         await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
 
@@ -352,7 +412,9 @@ describe('MultiPayment', () => {
                         })
                         expect(firstStage).toBeDefined()
                         expect(firstStage).toHaveProperty('status', MULTIPAYMENT_PROCESSING_STATUS)
-                        // Integration guide user through payment process, and then additional info to payment
+                        // In process, integration creates some payments
+                        await createTestPayment(integrationClient, billingReceipts[0], multiPayment, acquiringContext)
+                        // At the end integration moves MultiPayment to DONE status, filling in additional info
                         const payload = {
                             status: MULTIPAYMENT_DONE_STATUS,
                             time: dayjs().toISOString(),
@@ -383,13 +445,14 @@ describe('MultiPayment', () => {
                     })
                     test('Completed', async () => {
                         const admin = await makeLoggedInAdminClient()
-                        const { billingReceipts, acquiringIntegration, client } = await makePayer()
+                        const { billingReceipts, acquiringIntegration, client, acquiringContext } = await makePayer()
                         const integrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
                         await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
 
                         const [multiPayment] = await createTestMultiPayment(admin, billingReceipts, client.user, acquiringIntegration)
 
-                        // Integration guide user through payment process, and then move MultiPayment directly to done
+                        // Integration guide user through payment process, and creating payments
+                        await createTestPayment(integrationClient, billingReceipts[0], multiPayment, acquiringContext)
                         const payload = {
                             status: MULTIPAYMENT_DONE_STATUS,
                             time: dayjs().toISOString(),

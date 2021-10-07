@@ -11,12 +11,15 @@ const {
     createTestPayment,
     updateTestPayment,
     makePayerWithMultiPayment,
+    makePayer,
     createTestAcquiringIntegrationAccessRight,
+    createTestMultiPayment,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAuthenticationErrorToObj,
+    expectToThrowValidationFailureError,
 } = require('@condo/domains/common/utils/testSchema')
 
 describe('Payment', () => {
@@ -243,6 +246,16 @@ describe('Payment', () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await Payment.delete(anonymousClient, payment.id)
                 })
+            })
+        })
+    })
+    describe('validation tests', () => {
+        test('cannot link to multipayment, if it\'s not containing billing receipts', async () => {
+            const { admin, billingReceipts, acquiringContext, client, acquiringIntegration } = await makePayer(2)
+            const [multiPayment] = await createTestMultiPayment(admin, [billingReceipts[0]], client.user, acquiringIntegration)
+
+            await expectToThrowValidationFailureError(async () => {
+                await createTestPayment(admin, billingReceipts[1], multiPayment, acquiringContext)
             })
         })
     })

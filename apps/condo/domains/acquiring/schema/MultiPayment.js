@@ -3,7 +3,7 @@
  */
 
 const { Text, DateTimeUtc, Decimal, Select, Relationship } = require('@keystonejs/fields')
-const { getById } = require('@core/keystone/schema')
+const { getById, find } = require('@core/keystone/schema')
 const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
@@ -13,9 +13,11 @@ const {
     AVAILABLE_PAYMENT_METHODS,
     MULTIPAYMENT_STATUSES,
     MULTIPAYMENT_INIT_STATUS,
+    MULTIPAYMENT_DONE_STATUS,
     MULTIPAYMENT_FROZEN_FIELDS,
     MULTIPAYMENT_TRANSITIONS,
     MULTIPAYMENT_REQUIRED_FIELDS,
+    AMOUNT_PRECISION_DIFFERENCE,
 } = require('../constants')
 const { ACQUIRING_INTEGRATION_FIELD } = require('./fields/relations')
 const access = require('@condo/domains/acquiring/access/MultiPayment')
@@ -155,7 +157,25 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                 if (missingFields.length) {
                     addValidationError(`Missing required fields for this status or it's values are nulls: [ ${missingFields.join(', ')} ]`)
                 }
-                // TODO (savelevMatthew): Add payments checking in DONE status
+                if (afterStatus === MULTIPAYMENT_DONE_STATUS) {
+                    const id = get(newObject, 'id')
+                    const receipts = get(newObject, 'receipts')
+                    const amount = get(newObject, 'amount')
+
+                    const payments = await find('Payment', {
+                        multiPayment: { id },
+                    })
+                    const receiptsIds = new Set(payments.map(payment => payment.receipt))
+                    if (receiptsIds.size !== receipts.length) {
+                        const missingReceiptsIds = receipts.map(receipt => receipt.id).filter(rId => !receiptsIds.has(rId))
+                        addValidationError(`Cannot move MultiPayment to done because not all receipts got theirs payments.
+                        Missing receipts: [ ${missingReceiptsIds.join(', ')} ]`)
+                    }
+                    const totalAmount = payments.reduce((acc, cur) => acc + parseFloat(cur.amount), 0)
+                    if (Math.abs(totalAmount - amount) > AMOUNT_PRECISION_DIFFERENCE) {
+                        addValidationError(`Total amount from payments (${totalAmount}) does not match amount from multiPayment (${amount})`)
+                    }
+                }
             }
         },
     },
