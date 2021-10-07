@@ -39,6 +39,12 @@ const syncSubscriptionsFor = async ({ payerInn, active }, context) => {
         return
     }
 
+    // TODO: What to do with multiple organizations with same inn?
+    // Tests will always trigger this error after several passes over the same database
+    // if (result.length > 1) {
+    //     throw new Error('Multiple organizations with the same inn exists. Its unknown, for what specific organization to create SBBOL subscription')
+    // }
+
     const existingSubscriptions = await ServiceSubscription.getAll(context.keystone, {
         organization: {
             id: organization.id,
