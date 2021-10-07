@@ -2,7 +2,7 @@
 import { jsx } from '@emotion/core'
 import React, { CSSProperties, FunctionComponent } from 'react'
 import { Layout, PageHeader as AntPageHeader, PageHeaderProps } from 'antd'
-import { useLayoutContext } from '../../LayoutContext'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { SideNav } from './components/SideNav'
 import Router from 'next/router'
 import classnames from 'classnames'
