@@ -7,7 +7,7 @@ import Router from 'next/router'
 import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
-import { UserOutlined } from '@ant-design/icons';
+import { UserOutlined } from '@ant-design/icons'
 
 function goToSignin () {
     Router.push('/auth/signin')
