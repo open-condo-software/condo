@@ -25,7 +25,7 @@ const DesktopHeader = styled(Layout.Header)`
 const MobileHeader = styled(Layout.Header)`
   display: flex;
   flex-direction: row;
-  padding: 0 22px;
+  padding: 12px 22px;
   background: ${colors.white};
   justify-content: space-between;
   align-items: center;
@@ -61,7 +61,7 @@ export const Header: React.FC<IHeaderProps> = (props) => {
                         <ResidentActions minified/>
                     </Space>
                     <Logo fillColor={colors.logoPurple} onClick={handleLogoClick} minified/>
-                    <UserMenu showUserName={false}/>
+                    <UserMenu/>
                 </MobileHeader>
             )
             : (

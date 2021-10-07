@@ -31,25 +31,23 @@ export const MobileSideNav: React.FC<ISideNavProps> = (props) => {
     }
 
     return (
-        <>
-            <Layout.Sider
-                collapsed={isCollapsed}
-                theme='light'
-                css={mobileSideNavStyles}
-                width={'100%'}
-                collapsedWidth={0}
-            >
-                <MobileSideNavHeader>
-                    <CloseOutlined onClick={toggleCollapsed}/>
-                    <OrganizationSelectWrapper>
-                        <OrganizationSelect/>
-                    </OrganizationSelectWrapper>
-                </MobileSideNavHeader>
-                <ServiceSubscriptionIndicator/>
-                <MobileMenuItemsContainer>
-                    {menuData}
-                </MobileMenuItemsContainer>
-            </Layout.Sider>
-        </>
+        <Layout.Sider
+            collapsed={isCollapsed}
+            theme='light'
+            css={mobileSideNavStyles}
+            width={'100%'}
+            collapsedWidth={0}
+        >
+            <MobileSideNavHeader>
+                <CloseOutlined onClick={toggleCollapsed}/>
+                <OrganizationSelectWrapper>
+                    <OrganizationSelect/>
+                </OrganizationSelectWrapper>
+            </MobileSideNavHeader>
+            <ServiceSubscriptionIndicator/>
+            <MobileMenuItemsContainer>
+                {menuData}
+            </MobileMenuItemsContainer>
+        </Layout.Sider>
     )
 }
