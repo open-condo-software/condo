@@ -31,6 +31,7 @@ const createOnboarding = async ({ keystone, user, dvSenderFields }) => {
  * @return {Promise<{importId}|*>}
  */
 const syncUser = async ({ context, userInfo, dvSenderFields }) => {
+    const returnFields = 'id phone name importId importRemoteSystem'
     const importFields = {
         importId: userInfo.importId,
         importRemoteSystem: userInfo.importRemoteSystem,
@@ -44,6 +45,7 @@ const syncUser = async ({ context, userInfo, dvSenderFields }) => {
                 { AND: importFields },
             ],
         },
+        returnFields,
     })
 
     if (existingUsers.length > 1) {
@@ -54,7 +56,7 @@ const syncUser = async ({ context, userInfo, dvSenderFields }) => {
         const user = await createItem({
             listKey: 'User',
             item: userInfo,
-            returnFields: 'id phone name',
+            returnFields,
             ...context,
         })
         await createOnboarding({ keystone: context.keystone, user, dvSenderFields })
@@ -84,14 +86,12 @@ const syncUser = async ({ context, userInfo, dvSenderFields }) => {
                     ...importFields,
                 },
             },
-            returnFields: 'id',
+            returnFields: returnFields,
             ...context,
         })
         return updatedUser
     }
-
     await createOnboarding( { keystone: context.keystone, user, dvSenderFields })
-
     return user
 }
 
