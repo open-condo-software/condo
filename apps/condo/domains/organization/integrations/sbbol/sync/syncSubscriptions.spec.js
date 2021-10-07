@@ -18,7 +18,7 @@ const mockActiveSubscriptionResponse = {
 }
 
 const mockResponseFromFintechApi = {
-    advanceAcceptances: () => {},
+    advanceAcceptances: () => { throw Error('Please, implement a mock for this function, before using it')},
 }
 
 jest.mock('../SbbolRequestApi')
