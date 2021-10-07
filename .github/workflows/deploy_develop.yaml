@@ -6,8 +6,7 @@ on:
       - '*'
   push:
     branches:
-      - '*'
-      - '!master'
+      - 'master'
 jobs:
   converge:
     name: "Deploy to development"
