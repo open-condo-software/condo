@@ -19,6 +19,17 @@ const { SBBOL_API_RESPONSE } = require('./common')
  */
 class SbbolFintechApi extends SbbolRequestApi {
 
+    /**
+     * Fetches changes in subscription for given date.
+     * According to official comments from Fintech API representatives, `/v1/partner-info/advance-acceptances` method returns data **changes** only for current day.
+     * It does not just returns all subscriptions for services of our organization, It's even not possible ;)
+     * If active subscriptions are present in response, then it means, that offer was accepted at given date.
+     * If not active subscriptions are present, then it means, that offer was declined at given date.
+     *
+     * @param date
+     * @param clientId
+     * @return {Promise<*[]|any>}
+     */
     async fetchAdvanceAcceptances ({ date, clientId }) {
         const jsonResultString = await this.request({
             method: 'GET',
