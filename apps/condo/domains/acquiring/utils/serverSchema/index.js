@@ -10,12 +10,14 @@ const { AcquiringIntegration: AcquiringIntegrationGQL } = require('@condo/domain
 const { AcquiringIntegrationAccessRight: AcquiringIntegrationAccessRightGQL } = require('@condo/domains/acquiring/gql')
 const { AcquiringIntegrationContext: AcquiringIntegrationContextGQL } = require('@condo/domains/acquiring/gql')
 const { MultiPayment: MultiPaymentGQL } = require('@condo/domains/acquiring/gql')
+const { Payment: PaymentGQL } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateServerUtils(AcquiringIntegrationGQL)
 const AcquiringIntegrationAccessRight = generateServerUtils(AcquiringIntegrationAccessRightGQL)
 const AcquiringIntegrationContext = generateServerUtils(AcquiringIntegrationContextGQL)
 const MultiPayment = generateServerUtils(MultiPaymentGQL)
+const Payment = generateServerUtils(PaymentGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -23,5 +25,6 @@ module.exports = {
     AcquiringIntegrationAccessRight,
     AcquiringIntegrationContext,
     MultiPayment,
+    Payment,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
