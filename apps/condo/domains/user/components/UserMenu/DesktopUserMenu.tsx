@@ -13,7 +13,6 @@ import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
 import { green } from '@ant-design/colors'
 import { Button } from '@condo/domains/common/components/Button'
-import { User } from '../../../../schema'
 
 function goToSignin () {
     Router.push('/auth/signin')
