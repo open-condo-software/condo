@@ -1,0 +1,125 @@
+const faker = require('faker')
+const { v4: uuid } = require('uuid')
+const { INN_LENGTH } = require('@condo/domains/organization/constants/common')
+
+const EXAMPLE_USER_INFO = {
+    sub: 'f164e8c81fa7b5cd43d5d03164cf74764b2402d6314c67daa0964d8e691fd543',
+    iss: 'https://edupirfintech.sberbank.ru:9443',
+    inn: '7784523718',
+    orgJuridicalAddress: '121222, Россия, г.Москва, г. Москва, ул.Космонавтов, д.1, корп./стр.1, кв.1',
+    orgFullName: 'Общество с ограниченной ответственностью ТО-Партнер-626-01"',
+    OrgName: 'ООО "ТО-Партнер-626-01"',
+    userGuid: 'c429a86d-38fc-3ac3-e054-00144ffb59b5',
+    individualExecutiveAgency: 0,
+    terBank: 'Московский Банк Сбербанка РФ',
+    userSignatureType: 'Единственная подпись',
+    aud: '111286',
+    userCryptoType: 'SMS',
+    userGroups: 'Руководитель',
+    orgLawFormShort: 'ООО',
+    HashOrgId: '8c80ef870028888bc444c27ba90873619cc7a6c99febd89f0e9fee155219b752',
+    orgOgrn: '1137746216261',
+    isIdentified: false,
+    inquiryOrder: true,
+    phone_number: '+79057362611',
+    orgLawForm: 'Общество с ограниченной ответственностью',
+    accounts: [
+        {
+            corrAccountNumber: '30101810400000000225',
+            accountNumber: '40702810538833411733',
+            bic: '044525225',
+        },
+        {
+            corrAccountNumber: '30101810400000000225',
+            accountNumber: '40702810738203653934',
+            bic: '044525225',
+        },
+        {
+            corrAccountNumber: '30101810400000000225',
+            accountNumber: '40702840238454404334',
+            bic: '044525225',
+        },
+        {
+            corrAccountNumber: '30101810400000000225',
+            accountNumber: '40702840738350644756',
+            bic: '044525225',
+        },
+    ],
+    email: 'Client_Test62611@test.ru',
+}
+const EXAMPLE_TOKEN_SET = {
+    scope: 'openid PAYROLL name',
+    access_token: 'c76fb018-27c9-43f7-a751-62646eda7e1a-1',
+    token_type: 'Bearer',
+    expires_in: 3600,
+    refresh_token: '03e0be32-e72e-47ec-b740-a00b333a8ac4-1',
+    id_token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJnb3N0MzQuMTAtMjAxMiJ9.eyJzdWIiOiI2ODM4ZjM1MmI0YzQ0YjZjOGFmYTY0ZTFlZDJmNjg1NzM0MjE4NDAwNjZiZTU3MTgxZjNiN2IyYjc1NThkYmJlIiwiYXVkIjoiMTAwMTMiLCJhY3IiOiJsb2EtMyIsImF6cCI6IjEwMDEzIiwiYXV0aF90aW1lIjoxNTgyMzcwNDk5LCJhbXIiOiJ7cHdkLCBtY2EsIG1mYSwgb3RwLCBzbXN9IiwiaXNzIjoiaHR0cDovL3NidC1vYWZzLTYzODo5MDgwL2ljZGsiLCJleHAiOjE1ODIzNzA4MDEsImlhdCI6MTU4MjM3MDUwMSwibm9uY2UiOiI3YmU2NmFjOS1kMDdjLTQ5NjctYWRlZC1jYTI3MGEyN2U5ZTgiLCJ1c2wiOiJQYXJ0bmVyMzMyMiJ9.IWCyZzOk5nT0GWfhi9n3Nqy8Ii8mJ1eeFS7YRoE-l74lqo6BLksCuaVXt2ErMZYmDyyZscu7ISm0n-YsSrgZPQ',
+}
+
+class MockSbbolServer {
+
+    getUserInfo () {
+        const inn = faker.datatype.number({
+            min: Math.pow(10, INN_LENGTH - 1) + 1,
+            max: Math.pow(10, INN_LENGTH) - 1,
+        })
+        return {
+            ...EXAMPLE_USER_INFO,
+            inn,
+            phone_number: faker.phone.phoneNumber('+792########'),
+            email: faker.internet.email(),
+            HashOrgId: uuid(),
+            userGuid: uuid(),
+        }
+    }
+
+    getTokenSet () {
+        return {
+            ...EXAMPLE_TOKEN_SET,
+            access_token: uuid(),
+            refresh_token: uuid(),
+        }
+    }
+
+    async get (path, query) {
+        return this.request('GET', path, query = {})
+    }
+
+    async post (path, body) {
+        return this.request('POST', path, body = {})
+    }
+
+    wrongMethodForPath (method, path) {
+        throw new Error(`wrong request method: ${method} for path ${path}`)
+    }
+
+    async request (method, path, query) {
+        switch (path) {
+            case '/v1/oauth/user-info':
+                if (method === 'GET') {
+                    return this.getUserInfo()
+                }
+                this.wrongMethodForPath(method, path)
+                break
+            case '/v2/oauth/token':
+                if (method === 'POST') {
+                    return this.getTokenSet()
+                }
+                this.wrongMethodForPath(method, path)
+                break
+            case '/v2/oauth/authorize':
+                if (method === 'GET') {
+                    return {}
+                }
+                this.wrongMethodForPath(method, path)
+                break
+            default:
+                throw new Error('wrong path is called')
+        }
+    }
+
+}
+
+module.exports = {
+    MockSbbolServer,
+}
