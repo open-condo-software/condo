@@ -151,6 +151,8 @@ const antGlobalVariables = {
     '@link-active-color': colors.sberPrimary[6],
 }
 
+const ELLIPSIS_ROWS = 3
+
 module.exports = {
     colors,
     gradients,
@@ -161,4 +163,5 @@ module.exports = {
     DEFAULT_BORDER_WIDTH,
     DEFAULT_STRONG_TEXT_FONT_WEIGHT,
     fontSizes,
+    ELLIPSIS_ROWS,
 }

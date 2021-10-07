@@ -1,14 +1,10 @@
-import { isEmpty } from 'lodash'
-import { Typography } from 'antd'
 import { FilterValue } from 'antd/es/table/interface'
 import get from 'lodash/get'
 import { useIntl } from '@core/next/intl'
 import React, { useMemo } from 'react'
 import { createSorterMap, IFilters } from '../utils/helpers'
 import { getTextFilterDropdown, getFilterIcon } from '@condo/domains/common/components/TableFilter'
-import { Highliter } from '@condo/domains/common/components/Highliter'
-import { colors } from '@condo/domains/common/constants/style'
-import { EmptyTableCell } from '@condo/domains/common/components/Table/EmptyTableCell'
+import getRenderer from '@condo/domains/common/components/helpers/tableCellRenderer'
 
 const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
 
@@ -21,25 +17,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
     const AddressMessage = intl.formatMessage({ id: 'pages.condo.property.field.Address' })
 
     const sorterMap = createSorterMap(sort)
-
     const search = getFilteredValue(filters, 'search')
-    const render = (text) => {
-        let result = text
-        if (!isEmpty(search) && text) {
-            result = (
-                <Highliter
-                    text={String(text)}
-                    search={String(search)}
-                    renderPart={(part) => (
-                        <Typography.Text style={{ backgroundColor: colors.markColor }}>
-                            {part}
-                        </Typography.Text>
-                    )}
-                />
-            )
-        }
-        return (<EmptyTableCell>{result}</EmptyTableCell>)
-    }
 
     return useMemo(() => {
         return [
@@ -50,23 +28,23 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 dataIndex: 'name',
                 key: 'name',
                 sorter: true,
-                width: '25%',
+                width: '20%',
                 filterDropdown: getTextFilterDropdown(NameMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
-                render,
+                render: getRenderer(search),
+                ellipsis: true,
             },
             {
                 title: AddressMessage,
-                ellipsis: true,
                 sortOrder: get(sorterMap, 'address'),
                 filteredValue: getFilteredValue(filters, 'address'),
                 dataIndex: ['property', 'address'],
                 key: 'address',
                 sorter: false,
-                width: '35%',
+                width: '45%',
                 filterDropdown: getTextFilterDropdown(AddressMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
-                render,
+                render: getRenderer(search, true),
             },
             {
                 title: PhoneMessage,
@@ -75,10 +53,10 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 dataIndex: 'phone',
                 key: 'phone',
                 sorter: true,
-                width: '20%',
+                width: '15%',
                 filterDropdown: getTextFilterDropdown(PhoneMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
-                render,
+                render: getRenderer(search),
             },
             {
                 title: EmailMessage,
@@ -91,7 +69,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 width: '20%',
                 filterDropdown: getTextFilterDropdown(EmailMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
-                render,
+                render: getRenderer(search),
             },
         ]
     }, [sort, filters])
