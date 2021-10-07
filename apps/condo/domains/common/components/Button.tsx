@@ -118,14 +118,16 @@ const buttonGradientCss = css`
       border-radius: 8px;
       color: ${colors.defaultWhite[5]};
       box-shadow: none;
-      padding: 12px 14px;
+      padding: 12px 18px;
       height: auto;
       font-weight: 700;
       transition: none;
+      outline: none;
+      border: none;
 
       &:hover, &:focus {
         color: ${colors.defaultWhite[5]};
-        background: ${gradients.sberActionGradient};
+        background: ${gradients.sberActionInversed};
       }
 
       &:active {
