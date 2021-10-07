@@ -48,11 +48,13 @@ async function createTestAcquiringIntegration (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const name = faker.company.companyName().replace(/ /, '-').toUpperCase() + ' TEST ACQUIRING'
+    const url = faker.internet.url()
     const attrs = {
         dv: 1,
         sender,
         name,
         ...extraAttrs,
+        callbackUrl: url
     }
     const obj = await AcquiringIntegration.create(client, attrs)
     return [obj, attrs]
