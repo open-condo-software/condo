@@ -15,6 +15,7 @@ async function canReadBillingReceipts ({ authentication: { item: user } }) {
         OR: [
             { context: { organization: { employees_some: { user: { id: user.id }, role: { canManageIntegrations: true }, deletedAt: null, isBlocked: false } } } },
             { context: { integration: { accessRights_some: { user: { id: user.id } } } } },
+            { context: { organization: { acquiringContext: { integration: { accessRights_some: { user: { id: user.id } } } } } } },
         ],
     }
 }
