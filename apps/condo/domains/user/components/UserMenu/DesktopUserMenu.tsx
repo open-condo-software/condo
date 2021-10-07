@@ -13,7 +13,7 @@ import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
 import { green } from '@ant-design/colors'
 import { Button } from '@condo/domains/common/components/Button'
-import { User } from '../../../schema'
+import { User } from '../../../../schema'
 
 function goToSignin () {
     Router.push('/auth/signin')
@@ -58,30 +58,20 @@ const UserMenuContainer = styled.div`
   box-sizing: border-box;
 `
 
-interface IUserMenuProps {
-    showUserName?: boolean
-}
-
-export const UserMenu: React.FC<IUserMenuProps> = (props) => {
+export const DesktopUserMenu: React.FC = () => {
     const intl = useIntl()
     const SignInMessage = intl.formatMessage({ id: 'SignIn' })
     const GuestUsernameMessage = intl.formatMessage({ id: 'baselayout.menuheader.GuestUsername' })
     const SignOutMessage = intl.formatMessage({ id: 'SignOut' })
     const auth = useAuth()
 
-    const { showUserName = true } = props
-
     const userName = useMemo(() => {
-        if (showUserName) {
-            if (auth.user) {
-                return formatUserName(auth.user.name)
-            } else {
-                return GuestUsernameMessage
-            }
+        if (auth.user) {
+            return formatUserName(auth.user.name)
         } else {
-            return null
+            return GuestUsernameMessage
         }
-    }, [auth.user, showUserName])
+    }, [auth.user])
 
     const DropdownOverlay = (
         <StyledMenu>

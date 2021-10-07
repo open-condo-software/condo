@@ -43,8 +43,10 @@ export const formInputFixCss = css`
 `
 
 export const mobileSideNavStyles = css`
+  position: fixed;
   padding: 16px 0 60px;
   box-sizing: border-box;
+  overflow-y: scroll;
   height: 100vh;
   z-index: 10;
 `
