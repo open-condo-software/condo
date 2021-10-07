@@ -46,7 +46,7 @@ class SbbolRoutes {
             }
             delete req.session[SBBOL_SESSION_KEY]
             await req.session.save()
-            return res.redirect('/')
+            return res.redirect('/onboarding')
         } catch (error) {
             return next(error)
         }
