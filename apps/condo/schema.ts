@@ -44,6 +44,8 @@ export type AcquiringIntegration = {
   _accessRightsMeta?: Maybe<_QueryMeta>;
   /**  Can multiple receipts be united through this acquiring  */
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
+  /**  Url to acquiring integration service. Mobile devices will use it to pass MultiPayment ID and start payment process  */
+  callbackUrl?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -736,6 +738,7 @@ export type AcquiringIntegrationCreateInput = {
   name?: Maybe<Scalars['String']>;
   accessRights?: Maybe<AcquiringIntegrationAccessRightRelateToManyInput>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
+  callbackUrl?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -760,6 +763,7 @@ export type AcquiringIntegrationHistoryRecord = {
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
+  callbackUrl?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -778,6 +782,7 @@ export type AcquiringIntegrationHistoryRecordCreateInput = {
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
+  callbackUrl?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -801,6 +806,7 @@ export type AcquiringIntegrationHistoryRecordUpdateInput = {
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
+  callbackUrl?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -848,6 +854,24 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   canGroupReceipts_not?: Maybe<Scalars['Boolean']>;
+  callbackUrl?: Maybe<Scalars['String']>;
+  callbackUrl_not?: Maybe<Scalars['String']>;
+  callbackUrl_contains?: Maybe<Scalars['String']>;
+  callbackUrl_not_contains?: Maybe<Scalars['String']>;
+  callbackUrl_starts_with?: Maybe<Scalars['String']>;
+  callbackUrl_not_starts_with?: Maybe<Scalars['String']>;
+  callbackUrl_ends_with?: Maybe<Scalars['String']>;
+  callbackUrl_not_ends_with?: Maybe<Scalars['String']>;
+  callbackUrl_i?: Maybe<Scalars['String']>;
+  callbackUrl_not_i?: Maybe<Scalars['String']>;
+  callbackUrl_contains_i?: Maybe<Scalars['String']>;
+  callbackUrl_not_contains_i?: Maybe<Scalars['String']>;
+  callbackUrl_starts_with_i?: Maybe<Scalars['String']>;
+  callbackUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  callbackUrl_ends_with_i?: Maybe<Scalars['String']>;
+  callbackUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  callbackUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  callbackUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -940,6 +964,7 @@ export type AcquiringIntegrationUpdateInput = {
   name?: Maybe<Scalars['String']>;
   accessRights?: Maybe<AcquiringIntegrationAccessRightRelateToManyInput>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
+  callbackUrl?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -990,6 +1015,24 @@ export type AcquiringIntegrationWhereInput = {
   accessRights_none?: Maybe<AcquiringIntegrationAccessRightWhereInput>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   canGroupReceipts_not?: Maybe<Scalars['Boolean']>;
+  callbackUrl?: Maybe<Scalars['String']>;
+  callbackUrl_not?: Maybe<Scalars['String']>;
+  callbackUrl_contains?: Maybe<Scalars['String']>;
+  callbackUrl_not_contains?: Maybe<Scalars['String']>;
+  callbackUrl_starts_with?: Maybe<Scalars['String']>;
+  callbackUrl_not_starts_with?: Maybe<Scalars['String']>;
+  callbackUrl_ends_with?: Maybe<Scalars['String']>;
+  callbackUrl_not_ends_with?: Maybe<Scalars['String']>;
+  callbackUrl_i?: Maybe<Scalars['String']>;
+  callbackUrl_not_i?: Maybe<Scalars['String']>;
+  callbackUrl_contains_i?: Maybe<Scalars['String']>;
+  callbackUrl_not_contains_i?: Maybe<Scalars['String']>;
+  callbackUrl_starts_with_i?: Maybe<Scalars['String']>;
+  callbackUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  callbackUrl_ends_with_i?: Maybe<Scalars['String']>;
+  callbackUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  callbackUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  callbackUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -24261,6 +24304,8 @@ export enum SortAcquiringIntegrationHistoryRecordsBy {
   NameDesc = 'name_DESC',
   CanGroupReceiptsAsc = 'canGroupReceipts_ASC',
   CanGroupReceiptsDesc = 'canGroupReceipts_DESC',
+  CallbackUrlAsc = 'callbackUrl_ASC',
+  CallbackUrlDesc = 'callbackUrl_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -24286,6 +24331,8 @@ export enum SortAcquiringIntegrationsBy {
   AccessRightsDesc = 'accessRights_DESC',
   CanGroupReceiptsAsc = 'canGroupReceipts_ASC',
   CanGroupReceiptsDesc = 'canGroupReceipts_DESC',
+  CallbackUrlAsc = 'callbackUrl_ASC',
+  CallbackUrlDesc = 'callbackUrl_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

@@ -34,6 +34,12 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             knexOptions: { isNotNullable: false },
             isRequired: true,
         },
+        
+        callbackUrl: {
+            schemaDoc: 'Url to acquiring integration service. Mobile devices will use it to pass MultiPayment ID and start payment process',
+            type: Text,
+            isRequired: true,
+        },
 
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
