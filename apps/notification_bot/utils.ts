@@ -13,6 +13,13 @@ ${users.map(([userName]) => `@${userName}`).join(', ')}
 ---------------------------------
 `)
 
+export const getServiceMessage = (service: string, message: string) => (`
+---------------------------------
+Service ${service}:
+Message: ${message}.
+---------------------------------
+`)
+
 const extractTasksFromCommits = (commits) => {
     const relevantCommits = commits
         .map(({ message }) => {

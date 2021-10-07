@@ -5,7 +5,7 @@ import express from 'express'
 import cors from 'cors'
 
 import { BotController } from './botController'
-import { getPullRequestMessage } from './utils'
+import { getPullRequestMessage, getServiceMessage } from './utils'
 
 const app = express()
 
@@ -50,6 +50,15 @@ app.post('/pullRequestUpdate/', (req, res) => {
     const message = getPullRequestMessage(pullRequest._links.html.href, pullRequest.user.login, bot.getUsers())
     bot.sendMessage(message)
     res.send('OK')
+})
+
+app.post('/notify', (req, res)=> {
+    if (req.body?.message && req.body?.service) {
+        const message = getServiceMessage(req.body.service, req.body.message)
+        bot.sendMessage(message)
+        return res.send('OK')
+    }
+    return res.status(403).send()
 })
 
 // get from env
