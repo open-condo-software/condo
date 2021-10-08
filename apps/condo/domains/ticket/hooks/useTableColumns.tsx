@@ -164,7 +164,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 width: '18%',
                 filterDropdown: getTextFilterDropdown(FindWordMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
-                render: getRenderer(search,true),
+                render: getRenderer(search, true),
             },
             {
                 title: AddressMessage,
