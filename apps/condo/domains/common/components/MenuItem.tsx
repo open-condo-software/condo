@@ -92,29 +92,33 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
     if (isCollapsed) {
         return (
             <Link href={path}>
-                <MenuItemWrapper className={menuItemClassNames} isCollapsed {...menuItemWrapperProps}>
-                    <Tooltip title={Message} placement={'right'} color={colors.black}>
-                        <IconWrapper className='icon'>
-                            <ClientRenderedIcon icon={icon}/>
-                        </IconWrapper>
-                    </Tooltip>
-                </MenuItemWrapper>
+                <a>
+                    <MenuItemWrapper className={menuItemClassNames} isCollapsed {...menuItemWrapperProps}>
+                        <Tooltip title={Message} placement={'right'} color={colors.black}>
+                            <IconWrapper className='icon'>
+                                <ClientRenderedIcon icon={icon}/>
+                            </IconWrapper>
+                        </Tooltip>
+                    </MenuItemWrapper>
+                </a>
             </Link>
         )
     }
 
     return (
         <Link href={path}>
-            <MenuItemWrapper className={menuItemClassNames} {...menuItemWrapperProps}>
-                <Space size={14}>
-                    <IconWrapper className='icon'>
-                        <ClientRenderedIcon icon={icon}/>
-                    </IconWrapper>
-                    <Typography.Text className='label'>
-                        {Message}
-                    </Typography.Text>
-                </Space>
-            </MenuItemWrapper>
+            <a>
+                <MenuItemWrapper className={menuItemClassNames} {...menuItemWrapperProps}>
+                    <Space size={14}>
+                        <IconWrapper className='icon'>
+                            <ClientRenderedIcon icon={icon}/>
+                        </IconWrapper>
+                        <Typography.Text className='label'>
+                            {Message}
+                        </Typography.Text>
+                    </Space>
+                </MenuItemWrapper>
+            </a>
         </Link>
     )
 }
