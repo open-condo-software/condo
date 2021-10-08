@@ -1,6 +1,8 @@
 const faker = require('faker')
 const { v4: uuid } = require('uuid')
 const { INN_LENGTH } = require('@condo/domains/organization/constants/common')
+const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/integrations/sbbol/common')
+const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries.js')
 
 const EXAMPLE_USER_INFO = {
     sub: 'f164e8c81fa7b5cd43d5d03164cf74764b2402d6314c67daa0964d8e691fd543',
@@ -56,9 +58,9 @@ const EXAMPLE_TOKEN_SET = {
     id_token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJnb3N0MzQuMTAtMjAxMiJ9.eyJzdWIiOiI2ODM4ZjM1MmI0YzQ0YjZjOGFmYTY0ZTFlZDJmNjg1NzM0MjE4NDAwNjZiZTU3MTgxZjNiN2IyYjc1NThkYmJlIiwiYXVkIjoiMTAwMTMiLCJhY3IiOiJsb2EtMyIsImF6cCI6IjEwMDEzIiwiYXV0aF90aW1lIjoxNTgyMzcwNDk5LCJhbXIiOiJ7cHdkLCBtY2EsIG1mYSwgb3RwLCBzbXN9IiwiaXNzIjoiaHR0cDovL3NidC1vYWZzLTYzODo5MDgwL2ljZGsiLCJleHAiOjE1ODIzNzA4MDEsImlhdCI6MTU4MjM3MDUwMSwibm9uY2UiOiI3YmU2NmFjOS1kMDdjLTQ5NjctYWRlZC1jYTI3MGEyN2U5ZTgiLCJ1c2wiOiJQYXJ0bmVyMzMyMiJ9.IWCyZzOk5nT0GWfhi9n3Nqy8Ii8mJ1eeFS7YRoE-l74lqo6BLksCuaVXt2ErMZYmDyyZscu7ISm0n-YsSrgZPQ',
 }
 
-class MockSbbolServer {
+class MockSbbolResponses {
 
-    getUserInfo () {
+    static getUserInfo () {
         const inn = faker.datatype.number({
             min: Math.pow(10, INN_LENGTH - 1) + 1,
             max: Math.pow(10, INN_LENGTH) - 1,
@@ -73,53 +75,53 @@ class MockSbbolServer {
         }
     }
 
-    getTokenSet () {
+    static getUserAndOrganizationInfo () {
+        const userInfo = MockSbbolResponses.getUserInfo()
+        if (!userInfo.phone_number.startsWith('+')) {
+            userInfo.phone_number = `+${userInfo.phone_number}`
+        }
+        const dvSenderFields = {
+            dv: 1,
+            sender: { dv: 1, fingerprint: `test-${SBBOL_IMPORT_NAME}` },
+        }
+        const organizationData = {
+            ...dvSenderFields,
+            name: userInfo.OrgName,
+            country: RUSSIA_COUNTRY,
+            meta: {
+                inn: userInfo.inn,
+                kpp: userInfo.orgKpp,
+                ogrn: userInfo.orgOgrn,
+                address: userInfo.orgJuridicalAddress,
+                fullname: userInfo.orgFullName,
+                bank: userInfo.terBank,
+            },
+            importRemoteSystem: SBBOL_IMPORT_NAME,
+            importId: userInfo.HashOrgId,
+        }
+        const userData = {
+            ...dvSenderFields,
+            name: userInfo.OrgName,
+            importId: userInfo.userGuid,
+            importRemoteSystem: SBBOL_IMPORT_NAME,
+            email: userInfo.email,
+            phone: userInfo.phone_number,
+            isPhoneVerified: true,
+            isEmailVerified: true,
+            password: faker.internet.password(),
+        }
+        return { organizationData, userData, dvSenderFields }
+    }
+
+    static getTokenSet () {
         return {
             ...EXAMPLE_TOKEN_SET,
             access_token: uuid(),
             refresh_token: uuid(),
         }
     }
-
-    async get (path, query) {
-        return this.request('GET', path, query = {})
-    }
-
-    async post (path, body) {
-        return this.request('POST', path, body = {})
-    }
-
-    wrongMethodForPath (method, path) {
-        throw new Error(`wrong request method: ${method} for path ${path}`)
-    }
-
-    async request (method, path, query) {
-        switch (path) {
-            case '/v1/oauth/user-info':
-                if (method === 'GET') {
-                    return this.getUserInfo()
-                }
-                this.wrongMethodForPath(method, path)
-                break
-            case '/v2/oauth/token':
-                if (method === 'POST') {
-                    return this.getTokenSet()
-                }
-                this.wrongMethodForPath(method, path)
-                break
-            case '/v2/oauth/authorize':
-                if (method === 'GET') {
-                    return {}
-                }
-                this.wrongMethodForPath(method, path)
-                break
-            default:
-                throw new Error('wrong path is called')
-        }
-    }
-
 }
 
 module.exports = {
-    MockSbbolServer,
+    MockSbbolResponses,
 }
