@@ -32,6 +32,7 @@ const createOnboarding = async ({ keystone, user }) => {
  * @return {Promise<{importId}|*>}
  */
 const syncUser = async ({ context, userInfo }) => {
+    const returnFields = 'id phone name importId importRemoteSystem'
     const importFields = {
         importId: userInfo.importId,
         importRemoteSystem: userInfo.importRemoteSystem,
@@ -45,25 +46,22 @@ const syncUser = async ({ context, userInfo }) => {
                 { AND: importFields },
             ],
         },
+        returnFields,
     })
-
     if (existingUsers.length > 1) {
         throw new Error(`${MULTIPLE_ACCOUNTS_MATCHES}] importId and phone conflict on user import`)
     }
-
     if (existingUsers.length === 0) {
         const user = await createItem({
             listKey: 'User',
             item: userInfo,
-            returnFields: 'id phone name',
+            returnFields,
             ...context,
         })
         await createOnboarding({ keystone: context.keystone, user, dvSenderFields })
         return user
     }
-
     const [user] = existingUsers
-
     if (!user.importId) {
         const { email, phone } = userInfo
         const update = {}
@@ -85,14 +83,11 @@ const syncUser = async ({ context, userInfo }) => {
                     ...importFields,
                 },
             },
-            returnFields: 'id',
+            returnFields,
             ...context,
         })
         return updatedUser
     }
-
-    await createOnboarding( { keystone: context.keystone, user, dvSenderFields })
-
     return user
 }
 

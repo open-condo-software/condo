@@ -53,7 +53,7 @@ const ADDITIONAL_SCOPES = [
     'isIdentified',
     'inquiryOrder',
     'userGuid',
-];
+]
 
 const SCOPES = [
     'openid',
