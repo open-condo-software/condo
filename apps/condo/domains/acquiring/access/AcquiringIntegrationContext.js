@@ -11,10 +11,11 @@ const get = require('lodash/get')
 
 async function canReadAcquiringIntegrationContexts ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
     return {
         OR: [
-            { organization: { employees_some: { user: { id: user.id }, role: { canManagePayments: true }, isBlocked: false } } },
+            { organization: { employees_some: { user: { id: user.id }, role: { canManagePayments: true }, isBlocked: false, deletedAt: null } } },
             { integration: { accessRights_some: { user: { id: user.id } } } },
         ],
     }
@@ -22,6 +23,7 @@ async function canReadAcquiringIntegrationContexts ({ authentication: { item: us
 
 async function canManageAcquiringIntegrationContexts ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
     if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
     if (user.isAdmin) return true
     let organizationId
     let integrationId

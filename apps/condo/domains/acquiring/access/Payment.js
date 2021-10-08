@@ -8,6 +8,7 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 
 async function canReadPayments ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
     // User can get only it's own payments
     if (user.type === RESIDENT) {
@@ -27,6 +28,7 @@ async function canReadPayments ({ authentication: { item: user } }) {
 
 async function canManagePayments ({ authentication: { item: user }, operation, context }) {
     if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
     if (user.isAdmin) return true
     if (operation === 'create') {
         // Acquiring integration can create payments, linked to own context and own MultiPayments
