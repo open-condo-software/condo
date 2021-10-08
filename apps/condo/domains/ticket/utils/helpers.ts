@@ -1,11 +1,12 @@
-import { SortOrder } from 'antd/es/table/interface'
 import get from 'lodash/get'
 import groupBy from 'lodash/groupBy'
-import { LOCALES } from '@condo/domains/common/constants/locale'
 import dayjs, { Dayjs } from 'dayjs'
+import { ParsedUrlQuery } from 'querystring'
+import { FilterValue, SortOrder } from 'antd/es/table/interface'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import duration from 'dayjs/plugin/duration'
-import { ParsedUrlQuery } from 'querystring'
+import { EChartsOption, EChartsReactProps } from 'echarts-for-react'
+
 import {
     Ticket,
     TicketAnalyticsGroupBy,
@@ -14,16 +15,18 @@ import {
     TicketStatusWhereInput,
     TicketWhereInput,
 } from '@app/condo/schema'
+
+import { LOCALES } from '@condo/domains/common/constants/locale'
+import { TICKET_REPORT_DAY_GROUP_STEPS } from '@condo/domains/ticket/constants/common'
+import { fontSizes } from '@condo/domains/common/constants/style'
+
 import {
     AnalyticsDataType,
     ChartConfigResult,
     TicketSelectTypes,
     ViewModeTypes,
 } from '../components/TicketChart'
-import { TICKET_REPORT_DAY_GROUP_STEPS } from '@condo/domains/ticket/constants/common'
 import { MAX_CHART_LEGEND_ELEMENTS, MAX_CHART_NAME_LENGTH } from '../constants/restrictions'
-import { fontSizes } from '@condo/domains/common/constants/style'
-import { EChartsOption, EChartsReactProps } from 'echarts-for-react'
 
 dayjs.extend(duration)
 dayjs.extend(relativeTime)

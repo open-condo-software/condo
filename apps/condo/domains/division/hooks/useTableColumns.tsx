@@ -1,20 +1,20 @@
-import { useMemo } from 'react'
-import { useIntl } from '@core/next/intl'
-
+import React, { useMemo } from 'react'
+import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import { ColumnType, FilterValue } from 'antd/es/table/interface'
+import { useRouter } from 'next/router'
+
+import { useIntl } from '@core/next/intl'
+import { DivisionWhereInput } from '@app/condo/schema'
 
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { get, isEmpty } from 'lodash'
-import { EmptyTableCell } from '@condo/domains/common/components/Table/EmptyTableCell'
-import { Typography } from 'antd'
-import { Highliter } from '@condo/domains/common/components/Highliter'
-import { colors } from '@condo/domains/common/constants/style'
-import { Division } from '../utils/clientSchema'
-import { getFilterValue } from '@condo/domains/common/components/Table/Filters'
-import { getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
-import { DivisionWhereInput } from '@app/condo/schema'
-import { useRouter } from 'next/router'
+import { EmptyTableCell } from '@condo/domains/common/components/Table/EmptyTableCell'
+import { renderHighlightedPart } from '@condo/domains/common/components/Table/Renders'
+import { TextHighlighter } from '@condo/domains/common/components/TextHighlighter'
+import { getTextRender } from '@condo/domains/common/components/Table/Renders'
+
+import { Division } from '../utils/clientSchema'
 
 export interface ITableColumn {
     title: string,
@@ -52,19 +52,17 @@ export const useTableColumns = (filterMetas: FiltersMeta<DivisionWhereInput>[]) 
 
         const render = (text, isArray = false) => {
             let result = text
+
             if (!isEmpty(search) && text) {
                 result = (
-                    <Highliter
+                    <TextHighlighter
                         text={String(text)}
                         search={String(search)}
-                        renderPart={(part) => (
-                            <Typography.Text style={{ backgroundColor: colors.markColor }}>
-                                {part}
-                            </Typography.Text>
-                        )}
+                        renderPart={renderHighlightedPart}
                     />
                 )
             }
+
             return (<EmptyTableCell>{result}{isArray && <br />}</EmptyTableCell>)
         }
 

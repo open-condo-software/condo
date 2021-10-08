@@ -1,34 +1,42 @@
 /** @jsx jsx */
+import React, { useCallback, useState } from 'react'
+import { notification, Col, Input, Row, Table, Typography, Checkbox } from 'antd'
+import { TablePaginationConfig } from 'antd/lib/table/interface'
+import { Gutter } from 'antd/lib/grid/row'
+import Head from 'next/head'
+import { useRouter } from 'next/router'
+import qs from 'qs'
+import { pickBy, get, debounce } from 'lodash'
+
 import { css, jsx } from '@emotion/core'
-import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { SortTicketsBy } from '@app/condo/schema'
+import { DatabaseFilled } from '@ant-design/icons'
+import { useIntl } from '@core/next/intl'
+import { useOrganization } from '@core/next/organization'
+import { useLazyQuery } from '@core/next/apollo'
+
+import { getFiltersFromQuery, getId } from '@condo/domains/common/utils/helpers'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { EXPORT_TICKETS_TO_EXCEL } from '@condo/domains/ticket/gql'
-import { DatabaseFilled } from '@ant-design/icons'
 import {
     filtersToQuery,
     getPageIndexFromQuery,
     getSortStringFromQuery,
     sorterToQuery, queryToSorter, getPageSizeFromQuery,
+    IFilters,
 } from '@condo/domains/ticket/utils/helpers'
-import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
-import { IFilters } from '@condo/domains/ticket/utils/helpers'
-import { useIntl } from '@core/next/intl'
-import { useLazyQuery } from '@core/next/apollo'
-import { notification, Col, Input, Row, Table, Typography, Checkbox } from 'antd'
-import Head from 'next/head'
-import { useRouter } from 'next/router'
-import qs from 'qs'
-import { pickBy, get, debounce } from 'lodash'
-import React, { useCallback, useState } from 'react'
-import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
+
 import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { useEmergencySearch } from '@condo/domains/ticket/hooks/useEmergencySearch'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
+
+import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Button } from '@condo/domains/common/components/Button'
-import { useOrganization } from '@core/next/organization'
-import { SortTicketsBy } from '@app/condo/schema'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
+
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+
 import { fontSizes } from '@condo/domains/common/constants/style'
 
 interface ITicketIndexPage extends React.FC {
@@ -41,6 +49,11 @@ const verticalAlign = css`
         vertical-align: baseline;
     }
 `
+
+const EXPORT_ICON = (<DatabaseFilled />)
+const EMERGENCY_CHECKBOX_STYLES = { paddingLeft: '0px', fontSize: fontSizes.content }
+const PAGE_HEADER_TITLE_STYLES = { margin: 0 }
+const ROW_GUTTER: [Gutter, Gutter] = [0, 40]
 
 export const TicketsPageContent = ({
     searchTicketsQuery,
@@ -64,7 +77,7 @@ export const TicketsPageContent = ({
     const router = useRouter()
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
     const offsetFromQuery = getPageIndexFromQuery(router.query)
-    const pagesizeFromQuey: number = getPageSizeFromQuery(router.query)
+    const pagesizeFromQuery: number = getPageSizeFromQuery(router.query)
 
     searchTicketsQuery = { ...searchTicketsQuery, ...{ deletedAt: null } }
 
@@ -76,18 +89,15 @@ export const TicketsPageContent = ({
     } = Ticket.useObjects({
         sortBy: sortBy as SortTicketsBy[],
         where: searchTicketsQuery,
-        skip: (offsetFromQuery * pagesizeFromQuey) - pagesizeFromQuey,
-        first: pagesizeFromQuey,
+        skip: (offsetFromQuery * pagesizeFromQuery) - pagesizeFromQuery,
+        first: pagesizeFromQuery,
     }, {
         fetchPolicy: 'network-only',
     })
 
     const [downloadLink, setDownloadLink] = useState(null)
 
-    const [
-        exportToExcel,
-        { loading: isXlsLoading },
-    ] = useLazyQuery(
+    const [exportToExcel, { loading: isXlsLoading }] = useLazyQuery(
         EXPORT_TICKETS_TO_EXCEL,
         {
             onError: error => {
@@ -99,13 +109,11 @@ export const TicketsPageContent = ({
         },
     )
 
-    const handleRowAction = useCallback((record) => {
-        return {
-            onClick: () => {
-                router.push(`/ticket/${record.id}/`)
-            },
-        }
-    }, [])
+    const handleRowAction = useCallback((record) => ({
+        onClick: () => {
+            router.push(`/ticket/${record.id}/`)
+        },
+    }), [])
 
     const handleTableChange = useCallback(debounce((...tableChangeArguments) => {
         const [nextPagination, nextFilters, nextSorter] = tableChangeArguments
@@ -113,7 +121,9 @@ export const TicketsPageContent = ({
         const offset = filtersApplied ? 0 : current * pageSize - pageSize
         const sort = sorterToQuery(nextSorter)
         const filters = filtersToQuery(nextFilters)
+
         setFiltersApplied(false)
+
         if (!loading) {
             fetchMore({
                 // @ts-ignore
@@ -140,13 +150,38 @@ export const TicketsPageContent = ({
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
     const [emergency, handleEmergencyChange] = useEmergencySearch<IFilters>(loading)
 
+    const handleExport = React.useCallback(() => {
+        return exportToExcel({
+            variables: {
+                data: {
+                    where: searchTicketsQuery,
+                    sortBy: sortBy,
+                    timeZone,
+                },
+            },
+        })
+    }, [searchTicketsQuery, sortBy, timeZone])
+
+    const paginationParams = React.useMemo<TablePaginationConfig>(() =>
+        ({
+            showSizeChanger: false,
+            total,
+            current: offsetFromQuery,
+            pageSize: pagesizeFromQuery,
+            position: ['bottomLeft'],
+        }),
+    [total, offsetFromQuery, pagesizeFromQuery]
+    )
+
+    const handleSearchInputChange = React.useCallback((e) => { handleSearchChange(e.target.value) }, [])
+
     return (
         <>
             <Head>
                 <title>{PageTitleMessage}</title>
             </Head>
             <PageWrapper>
-                <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>}/>
+                <PageHeader title={<Typography.Title style={PAGE_HEADER_TITLE_STYLES}>{PageTitleMessage}</Typography.Title>}/>
                 <PageContent>
                     {
                         !tickets.length && !filtersFromQuery
@@ -155,11 +190,11 @@ export const TicketsPageContent = ({
                                 message={EmptyListMessage}
                                 createRoute='/ticket/create'
                                 createLabel={CreateTicket} />
-                            : <Row gutter={[0, 40]} align={'middle'}>
+                            : <Row gutter={ROW_GUTTER} align={'middle'}>
                                 <Col span={6}>
                                     <Input
                                         placeholder={SearchPlaceholder}
-                                        onChange={(e)=>{handleSearchChange(e.target.value)}}
+                                        onChange={handleSearchInputChange}
                                         value={search}
                                     />
                                 </Col>
@@ -167,8 +202,10 @@ export const TicketsPageContent = ({
                                     <Checkbox
                                         onChange={handleEmergencyChange}
                                         checked={emergency}
-                                        style={{ paddingLeft: '0px', fontSize: fontSizes.content }}
-                                    >{EmergencyLabel}</Checkbox>
+                                        style={EMERGENCY_CHECKBOX_STYLES}
+                                    >
+                                        {EmergencyLabel}
+                                    </Checkbox>
                                 </Col>
                                 <Col span={6} push={1}>
                                     {
@@ -176,20 +213,22 @@ export const TicketsPageContent = ({
                                             ?
                                             <Button
                                                 type={'inlineLink'}
-                                                icon={<DatabaseFilled />}
+                                                icon={EXPORT_ICON}
                                                 loading={isXlsLoading}
                                                 target='_blank'
                                                 href={downloadLink}
-                                                rel='noreferrer'>{DownloadExcelLabel}
+                                                rel='noreferrer'
+                                            >
+                                                {DownloadExcelLabel}
                                             </Button>
                                             :
                                             <Button
                                                 type={'inlineLink'}
-                                                icon={<DatabaseFilled />}
+                                                icon={EXPORT_ICON}
                                                 loading={isXlsLoading}
-                                                onClick={
-                                                    () => exportToExcel({ variables: { data: { where: searchTicketsQuery, sortBy: sortBy, timeZone } } })
-                                                }>{ExportAsExcel}
+                                                onClick={handleExport}
+                                            >
+                                                {ExportAsExcel}
                                             </Button>
                                     }
                                 </Col>
@@ -203,14 +242,8 @@ export const TicketsPageContent = ({
                                         columns={tableColumns}
                                         onRow={handleRowAction}
                                         onChange={handleTableChange}
-                                        rowKey={record => record.id}
-                                        pagination={{
-                                            showSizeChanger: false,
-                                            total,
-                                            current: offsetFromQuery,
-                                            pageSize: pagesizeFromQuey,
-                                            position: ['bottomLeft'],
-                                        }}
+                                        rowKey={getId}
+                                        pagination={paginationParams}
                                     />
                                 </Col>
                             </Row>
@@ -232,7 +265,9 @@ const TicketsPage: ITicketIndexPage = () => {
     const [filtersApplied, setFiltersApplied] = useState(false)
 
     const tableColumns = useTableColumns(sortFromQuery, filtersFromQuery, setFiltersApplied)
-    const searchTicketsQuery = { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } }
+    const searchTicketsQuery = React.useMemo(() => (
+        { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } }
+    ), [filtersFromQuery, userOrganizationId])
 
     return (
         <TicketsPageContent
@@ -246,7 +281,9 @@ const TicketsPage: ITicketIndexPage = () => {
     )
 }
 
-TicketsPage.headerAction = <TitleHeaderAction descriptor={{ id: 'menu.ControlRoom' }}/>
+const PAGE_HEADER_ACTION_DESCRIPTOR = { id: 'menu.ControlRoom' }
+
+TicketsPage.headerAction = <TitleHeaderAction descriptor={PAGE_HEADER_ACTION_DESCRIPTOR}/>
 TicketsPage.requiredAccess = OrganizationRequired
 
 export default TicketsPage

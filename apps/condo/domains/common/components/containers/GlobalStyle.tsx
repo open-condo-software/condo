@@ -175,7 +175,7 @@ export default function GlobalStyle () {
                 font-weight: ${DEFAULT_STRONG_TEXT_FONT_WEIGHT};
               }
               .ant-typography mark {
-                background-color: ${colors.sberPrimary[5]};
+                background-color: ${colors.markColor};
               }
               .ant-alert-info > .ant-alert-content > .ant-alert-message {
                 color: ${colors.blue[6]}

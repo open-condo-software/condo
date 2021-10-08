@@ -1,19 +1,37 @@
+import React, { useMemo } from 'react'
 import { FilterValue } from 'antd/es/table/interface'
 import { get } from 'lodash'
-import { useIntl } from '@core/next/intl'
-import { useMemo } from 'react'
-import {
-    getFilterIcon,
-} from '@condo/domains/common/components/Table/Filters'
 import { useRouter } from 'next/router'
-import {
-    getSorterMap,
-    parseQuery,
-} from '@condo/domains/common/utils/tables.utils'
-import { getAddressRender, getDateRender, renderMeterReading, getTextRender } from '@condo/domains/common/components/Table/Renders'
-import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 
+import { useIntl } from '@core/next/intl'
+
+import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
+import { getAddressDetails } from '@condo/domains/common/utils/helpers'
+import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { getFilterIcon } from '@condo/domains/common/components/Table/Filters'
+import {
+    getAddressRender,
+    getDateRender,
+    renderMeterReading,
+    getTextRender,
+    getTableCellRenderer,
+} from '@condo/domains/common/components/Table/Renders'
+
+/**
+ * TODO: replace with getFilteredValue from @condo/domains/common/utils/helpers (needs IFilters to be defined)
+ */
 const getFilteredValue = (filters, key: string | Array<string>): FilterValue => get(filters, key, null)
+
+const renderMeterRecord = (record) => {
+    const value1 = get(record, 'value1')
+    const value2 = get(record, 'value2')
+    const value3 = get(record, 'value3')
+    const value4 = get(record, 'value4')
+    const measure = get(record, ['meter', 'resource', 'measure'])
+    const resourceId = get(record, ['meter', 'resource', 'id'])
+
+    return renderMeterReading([value1, value2, value3, value4], resourceId, measure)
+}
 
 export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const intl = useIntl()
@@ -32,8 +50,15 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const sorterMap = getSorterMap(sorters)
 
     return useMemo(() => {
-        let search = get(filters, 'search')
-        search = Array.isArray(search) ? null : search
+        let search = String(get(filters, 'search'))
+
+        if (Array.isArray(search)) search = null
+
+        const renderAddress = (record) => {
+            const { text, unitPrefix } = getAddressDetails(get(record, ['meter']), ShortFlatNumber)
+
+            return getTableCellRenderer(search, true, unitPrefix)(text)
+        }
 
         return [
             {
@@ -43,7 +68,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 dataIndex: 'date',
                 key: 'date',
                 sorter: true,
-                width: '8%',
+                width: '10%',
                 render: getDateRender(intl, search),
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'date'),
             },
@@ -54,16 +79,8 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 filteredValue: getFilteredValue(filters, 'address'),
                 key: 'address',
                 sorter: true,
-                width: '10%',
-                render: (record) => {
-                    const property = get(record, ['meter', 'property'])
-                    const unitName = get(record, ['meter', 'unitName'])
-                    const text = get(property, 'address')
-                    const unitPrefix = unitName ? `${ShortFlatNumber} ${unitName}` : ''
-
-                    const render = getAddressRender(search, unitPrefix)
-                    return render(text)
-                },
+                width: '20%',
+                render: renderAddress,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'address'),
                 filterIcon: getFilterIcon,
             },
@@ -75,7 +92,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 dataIndex: ['meter', 'resource', 'name'],
                 key: 'resource',
                 sorter: true,
-                width: '10%',
+                width: '14%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'resource'),
                 render: getTextRender(search),
                 filterIcon: getFilterIcon,
@@ -108,29 +125,19 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 title: MeterReadingMessage,
                 ellipsis: false,
                 key: 'value',
-                width: '10%',
-                render: (record) => {
-                    const value1 = get(record, 'value1')
-                    const value2 = get(record, 'value2')
-                    const value3 = get(record, 'value3')
-                    const value4 = get(record, 'value4')
-                    const measure = get(record, ['meter', 'resource', 'measure'])
-                    const resourceId = get(record, ['meter', 'resource', 'id'])
-
-                    return renderMeterReading([value1, value2, value3, value4], resourceId, measure)
-                },
+                width: '15%',
+                render: renderMeterRecord,
             },
             {
                 title: ClientNameMessage,
-                ellipsis: true,
                 sortOrder: get(sorterMap, 'clientName'),
                 filteredValue: getFilteredValue(filters, 'clientName'),
                 dataIndex: 'clientName',
                 key: 'clientName',
                 sorter: true,
-                width: '10%',
+                width: '15%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'clientName'),
-                render: getTextRender(search),
+                render: getTableCellRenderer(search, true),
                 filterIcon: getFilterIcon,
             },
             {
@@ -140,7 +147,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 dataIndex: ['source', 'name'],
                 key: 'source',
                 sorter: true,
-                width: '10%',
+                width: '8%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'source'),
                 render: getTextRender(search),
                 filterIcon: getFilterIcon,
