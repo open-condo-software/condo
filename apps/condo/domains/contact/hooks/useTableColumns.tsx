@@ -15,9 +15,19 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
     const PhoneMessage =  intl.formatMessage({ id: 'Phone' })
     const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
     const AddressMessage = intl.formatMessage({ id: 'pages.condo.property.field.Address' })
+    const ShortFlatNumber = intl.formatMessage({ id: 'field.FlatNumber' })
 
     const sorterMap = createSorterMap(sort)
     const search = getFilteredValue(filters, 'search')
+
+    const renderAddress = (address, record) => {
+        const property = get(record, 'property')
+        const unitName = get(record, 'unitName')
+        const text = get(property, 'address')
+        const unitPrefix = unitName ? `${ShortFlatNumber} ${unitName}` : ''
+
+        return getRenderer(search, true, unitPrefix)(text)
+    }
 
     return useMemo(() => {
         return [
@@ -44,7 +54,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 width: '45%',
                 filterDropdown: getTextFilterDropdown(AddressMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
-                render: getRenderer(search, true),
+                render: renderAddress,
             },
             {
                 title: PhoneMessage,
