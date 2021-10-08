@@ -11,6 +11,7 @@ const get = require('lodash/get')
 
 async function canReadMultiPayments ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
     const userId = user.id
     // User can get only it's own MultiPayments
@@ -27,6 +28,7 @@ async function canReadMultiPayments ({ authentication: { item: user } }) {
 
 async function canManageMultiPayments ({ authentication: { item: user }, operation, itemId, context }) {
     if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
     if (user.isAdmin) return true
     // Can be created only through custom mutation or by admin, can be modified by acquiring integration account
     if (operation === 'create') {

@@ -7,6 +7,7 @@ const { throwAuthenticationError } = require("@condo/domains/common/utils/apollo
 
 async function canRead{{ pluralize.plural(name) }} ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
     if (user.isAdmin) return {}
     return {
         // TODO(codegen): write canRead{{ pluralize.plural(name) }} logic!
@@ -15,6 +16,7 @@ async function canRead{{ pluralize.plural(name) }} ({ authentication: { item: us
 
 async function canManage{{ pluralize.plural(name) }} ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
     if (user.isAdmin) return true
     if (operation === 'create') {
         // TODO(codegen): write canManage{{ pluralize.plural(name) }} create logic!
