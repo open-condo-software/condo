@@ -1,6 +1,6 @@
 const { createConfirmedEmployee, createOrganization, createDefaultRoles } = require('@condo/domains/organization/utils/serverSchema/Organization')
 const { getById, GQLCustomSchema } = require('@core/keystone/schema')
-const { rules } = require('../../../access')
+const access = require('@condo/domains/organization/access/RegisterNewOrganizationService')
 const { createTrialSubscription } = require('@condo/domains/subscription/utils/serverSchema/ServiceSubscription')
 
 const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizationService', {
@@ -12,7 +12,7 @@ const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizat
     ],
     mutations: [
         {
-            access: rules.canRegisterNewOrganization,
+            access: access.canRegisterNewOrganization,
             schema: 'registerNewOrganization(data: RegisterNewOrganizationInput!): Organization',
             resolver: async (parent, args, context, info, extra = {}) => {
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
