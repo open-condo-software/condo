@@ -7,7 +7,7 @@ const { PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/er
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const { DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE } = require('@condo/domains/notification/constants')
 const { createOrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema/Organization')
-const { rules } = require('../../../access')
+const access = require('@condo/domains/organization/access/InviteNewOrganizationEmployeeService')
 const guards = require('../utils/serverSchema/guards')
 const { ALREADY_EXISTS_ERROR, NOT_FOUND_ERROR } = require('@condo/domains/common/constants/errors')
 const get = require('lodash/get')
@@ -27,7 +27,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
     ],
     mutations: [
         {
-            access: rules.canInviteEmployee,
+            access: access.canInviteNewOrganizationEmployee,
             schema: 'inviteNewOrganizationEmployee(data: InviteNewOrganizationEmployeeInput!): OrganizationEmployee',
             resolver: async (parent, args, context) => {
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
@@ -107,7 +107,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
             },
         },
         {
-            access: rules.canInviteEmployee,
+            access: access.canInviteNewOrganizationEmployee,
             schema: 'reInviteOrganizationEmployee(data: ReInviteOrganizationEmployeeInput!): OrganizationEmployee',
             resolver: async (parent, args, context) => {
                 if (!context.authedItem.id) {

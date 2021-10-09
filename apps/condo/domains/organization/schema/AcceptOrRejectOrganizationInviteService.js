@@ -1,6 +1,6 @@
 const { updateOrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema/Organization')
 const { getByCondition, getById, GQLCustomSchema } = require('@core/keystone/schema')
-const { rules } = require('../../../access')
+const access = require('@condo/domains/organization/access/AcceptOrRejectOrganizationInviteService')
 
 const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRejectOrganizationInviteService', {
     types: [
@@ -11,7 +11,7 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
     ],
     mutations: [
         {
-            access: rules.canAcceptOrRejectEmployeeInvite,
+            access: access.canAcceptOrRejectOrganizationInvite,
             schema: 'acceptOrRejectOrganizationInviteById(id: ID!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationEmployee',
             resolver: async (parent, args, context, info, extra = {}) => {
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
@@ -44,7 +44,7 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
             },
         },
         {
-            access: rules.canAcceptOrRejectEmployeeInvite,
+            access: access.canAcceptOrRejectOrganizationInvite,
             schema: 'acceptOrRejectOrganizationInviteByCode(inviteCode: String!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationEmployee',
             resolver: async (parent, args, context, info, extra = {}) => {
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
