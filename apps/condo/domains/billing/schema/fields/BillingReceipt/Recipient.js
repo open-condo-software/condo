@@ -26,7 +26,7 @@ const RecipientSchema = {
     properties: Object.assign({},
         ...Object.keys(RecipientFields).map((field) => ({ [field]: { type: 'string' } })),
     ),
-    required: Object.keys(RecipientFields),
+    required: Object.keys(RecipientFields).filter(fieldName => RecipientFields[fieldName].slice(-1) === '!'),
     additionalProperties: false,
 }
 
