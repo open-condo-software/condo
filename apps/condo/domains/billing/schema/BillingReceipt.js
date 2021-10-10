@@ -46,7 +46,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                 },
             },
         },
-
+ 
         printableNumber: {
             schemaDoc: 'A number to print on the payment document.',
             type: Text,
