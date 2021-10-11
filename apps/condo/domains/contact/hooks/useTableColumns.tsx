@@ -2,7 +2,7 @@ import { FilterValue } from 'antd/es/table/interface'
 import get from 'lodash/get'
 import { useIntl } from '@core/next/intl'
 import React, { useMemo } from 'react'
-import {getAddressDetails, getIntlMessages, MessageSetMeta} from '@condo/domains/common/utils/helpers'
+import { getAddressDetails, getIntlMessages, MessageSetMeta } from '@condo/domains/common/utils/helpers'
 import { getTextFilterDropdown, getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import getRenderer from '@condo/domains/common/components/helpers/tableCellRenderer'
 
