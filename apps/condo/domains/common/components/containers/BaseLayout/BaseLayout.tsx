@@ -46,7 +46,7 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
 }
 
 
-const PageWrapper: FunctionComponent = ({ children}) => {
+const PageWrapper: FunctionComponent = ({ children }) => {
     const { isSmall } = useLayoutContext()
 
     return (
