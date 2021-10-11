@@ -15,18 +15,16 @@ const highlighterRenderPart: THighliterRenderPartFN = (part) => (
 )
 
 export const getHighlited: TGetHighlitedFN = (search, postfix) => (text) => {
-    if (!isEmpty(search) && text) {
-        return (
-            <>
-                <Highliter
-                    text={String(text)}
-                    search={String(search)}
-                    renderPart={highlighterRenderPart}
-                />
-                {postfix && ` ${postfix}`}
-            </>
-        )
-    }
+    if (isEmpty(search) && !text) return postfix ? `${text} ${postfix}` : text
 
-    return postfix ? `${text} ${postfix}` : text
+    return (
+        <>
+            <Highliter
+                text={String(text)}
+                search={String(search)}
+                renderPart={highlighterRenderPart}
+            />
+            {postfix && ` ${postfix}`}
+        </>
+    )
 }

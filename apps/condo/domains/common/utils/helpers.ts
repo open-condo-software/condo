@@ -40,6 +40,11 @@ export type TRecordWithAddressDetails = {
     unitName?: string
 }
 
+/**
+ * Tries to extract address details from a record
+ * @param record
+ * @param ShortFlatNumber
+ */
 export const getAddressDetails = (record: TRecordWithAddressDetails, ShortFlatNumber?: string) => {
     const property = get(record, 'property')
     const unitName = get(record, 'unitName')
@@ -49,11 +54,39 @@ export const getAddressDetails = (record: TRecordWithAddressDetails, ShortFlatNu
     return { text, unitPrefix }
 }
 
+/**
+ * Converts generic string literal union to a type, so than any member of a union can be used as a generic record key
+ * ex.: StringLiteral<'aaa' | 'bbb' | 'ccc'> => ... => record.aaa
+ * ex.: type TableMessageKeys = 'NameMessage' | 'PhoneMessage' | 'EmailMessage' | 'AddressMessage' | 'ShortFlatNumber'
+ */
 export type StringLiteral<T> = T extends `${string & T}` ? T : never
 export type IntlMessageMetaItem = { id: string, lowerCase?: boolean }
+/**
+ * Generic record type for message set meta data. Used to generate intl messages set
+ * Here T is a string literal union (see type StringLiteral description above)
+ *
+ * lowerCase flag forces resulting message text to be automatically converted to lower case
+ *
+ * ex.:
+ *     const TABLE_MESSAGES: MessageSetMeta<TableMessageKeys> = {
+ *         NameMessage: { id: 'field.FullName.short', lowerCase: true },
+ *         PhoneMessage: { id: 'Phone' },
+ *         EmailMessage: { id: 'field.EMail' },
+ *         AddressMessage: { id: 'pages.condo.property.field.Address' },
+ *         ShortFlatNumber: { id: 'field.FlatNumber' },
+ *     }
+ */
 export type MessageSetMeta<T> = Record<StringLiteral<T>, IntlMessageMetaItem>
+/**
+ * Generic record type for generated intl messages set
+ */
 export type IntlMessages<T> = Record<StringLiteral<T>, string>
 
+/**
+ * Generic function for generation intl messages from meta
+ * @param intl
+ * @param messageSetMeta
+ */
 export const getIntlMessages = <T>(intl: IntlShape, messageSetMeta: MessageSetMeta<T>): IntlMessages<T> => {
     return Object.keys(messageSetMeta).reduce((result, key) => {
         const meta = messageSetMeta[key]
@@ -65,8 +98,15 @@ export const getIntlMessages = <T>(intl: IntlShape, messageSetMeta: MessageSetMe
     }, {} as IntlMessages<T> )
 }
 
+/**
+ * Describes an object containing a field called id, of string type
+ */
 export interface IRecordWithId extends Record<string, any> {
     id: string,
 }
 
+/**
+ * Tries to get id of string type from any record that might contain such
+ * @param record
+ */
 export const getId = (record: IRecordWithId): string | null => record && record.id || null
