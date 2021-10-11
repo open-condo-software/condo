@@ -90,6 +90,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
 }) => {
     const intl = useIntl()
     const AccountMessage = intl.formatMessage({ id: 'field.AccountNumberShort' })
+    const ShortFlatNumber = intl.formatMessage({ id: 'field.FlatNumber' })
 
     const moneyRender = useMemo(() => {
         return getMoneyRender(undefined, currencyMark, currencySeparator)
@@ -97,6 +98,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
 
     const accountNumber = get(receipt, ['account', 'number'])
     const address = get(receipt, ['property', 'address'])
+    const unitName = get(receipt, ['account', 'unitName'])
 
     const configSize = useContext<SizeType>(ConfigProvider.SizeContext)
 
@@ -107,7 +109,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
                 {modalTitleMessage}
             </Typography.Title>
             <SubText size={configSize}>
-                {address}
+                {address}{unitName ? `, ${ShortFlatNumber} ${unitName}` : ''}
             </SubText>
         </Space>
     )
