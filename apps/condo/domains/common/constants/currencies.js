@@ -180,9 +180,6 @@ const ISO_CODES = [
     'ZWL',
 ]
 
-const RUBLE_ISO_CODE = 'RUB'
-
 module.exports = {
     ISO_CODES,
-    RUBLE_ISO_CODE,
 }
