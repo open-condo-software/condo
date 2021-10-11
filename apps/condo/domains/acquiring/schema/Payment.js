@@ -60,7 +60,7 @@ const Payment = new GQLListSchema('Payment', {
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
             hooks: {
-                validateInput: async ({ resolvedData,  fieldPath, addFieldValidationError  }) => {
+                validateInput: async ({ resolvedData,  fieldPath, addFieldValidationError }) => {
                     const multiPaymentId = get(resolvedData, fieldPath)
                     if (!multiPaymentId) addFieldValidationError('MultiPayment id is not provided')
                     const multipayment =  await getById('MultiPayment', multiPaymentId)
@@ -69,6 +69,11 @@ const Payment = new GQLListSchema('Payment', {
                     const receiptsIds = receipts.map(receipt => receipt.id)
                     const receiptId = get(resolvedData, 'receipt')
                     if (!receiptsIds.includes(receiptId)) addFieldValidationError('This MultiPayment does not contains this billing receipt with this id')
+                    const multiPaymentCurrency = get(multipayment, 'currencyCode')
+                    const paymentCurrency = get(resolvedData, 'currencyCode')
+                    if (!paymentCurrency || paymentCurrency !== multiPaymentCurrency) {
+                        addFieldValidationError(`Payment currency code (${paymentCurrency}) does not match multipayment one (${multiPaymentCurrency})`)
+                    }
                 },
             },
         },

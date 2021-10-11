@@ -14,7 +14,7 @@ async function canReadMultiPayments ({ authentication: { item: user } }) {
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
     const userId = user.id
-    // User can get only it's own MultiPayments
+    // Resident user can get only it's own MultiPayments
     if (user.type === RESIDENT) {
         return {
             user: { id: userId },
