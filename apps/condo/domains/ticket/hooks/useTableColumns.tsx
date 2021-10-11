@@ -1,39 +1,55 @@
+import React, { CSSProperties, useMemo } from 'react'
+import dayjs from 'dayjs'
+import { get } from 'lodash'
 import { identity } from 'lodash/util'
 import { Checkbox, Space, Tag, Typography } from 'antd'
-import { getDateFilterDropdown } from '@condo/domains/common/components/Table/Filters'
-import { FilterValue } from 'antd/es/table/interface'
-import dayjs from 'dayjs'
-import { get, isEmpty } from 'lodash'
+
 import { useIntl } from '@core/next/intl'
-import React, { useMemo } from 'react'
-import { colors } from '@condo/domains/common/constants/style'
-import { EMERGENCY_TAG_COLOR } from '@condo/domains/ticket/constants/style'
+
 import { LOCALES } from '@condo/domains/common/constants/locale'
+
+import getRenderer from '@condo/domains/common/components/helpers/tableCellRenderer'
+import { getAddressDetails, getIntlMessages, MessageSetMeta } from '@condo/domains/common/utils/helpers'
+
+import { getDateFilterDropdown } from '@condo/domains/common/components/Table/Filters'
+import { getTextFilterDropdown, getFilterIcon, FilterContainer } from '@condo/domains/common/components/TableFilter'
+
+import { EMERGENCY_TAG_COLOR } from '@condo/domains/ticket/constants/style'
+
 import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
 import { createSorterMap, IFilters } from '../utils/helpers'
 import { TicketStatus } from '../utils/clientSchema'
-import { Highliter } from '@condo/domains/common/components/Highliter'
-import { getTextFilterDropdown, getFilterIcon, FilterContainer } from '@condo/domains/common/components/TableFilter'
-import getRenderer from '@condo/domains/common/components/helpers/tableCellRenderer'
+import { getFilteredValue } from '../utils/helpers'
 
-const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
+import { getHighlited } from '../../common/components/helpers/highlited'
+
+type MessageKeys = 'EmergencyMessage' | 'NumberMessage' | 'PaidMessage' | 'DateMessage'
+| 'StatusMessage' | 'ClientNameMessage' | 'DescriptionMessage' | 'FindWordMessage'
+| 'AddressMessage' | 'UserNameMessage' | 'ShortFlatNumber' | 'ExecutorMessage' | 'ResponsibleMessage'
+
+const MESSAGES: MessageSetMeta<MessageKeys> = {
+    EmergencyMessage: { id: 'Emergency', lowerCase: true },
+    NumberMessage: { id: 'ticketsTable.Number' },
+    PaidMessage: { id: 'Paid', lowerCase: true },
+    DateMessage: { id: 'Date' },
+    StatusMessage: { id: 'Status' },
+    ClientNameMessage: { id: 'Client' },
+    DescriptionMessage: { id: 'Description' },
+    FindWordMessage: { id: 'filters.FindWord' },
+    AddressMessage: { id: 'field.Address' },
+    UserNameMessage: { id: 'filters.UserName' },
+    ShortFlatNumber: { id: 'field.FlatNumber' },
+    ExecutorMessage: { id: 'field.Executor' },
+    ResponsibleMessage: { id: 'field.Responsible' },
+}
+
+const EMERGENCY_TAG_TEXT_STYLES = { color: EMERGENCY_TAG_COLOR.text }
+const STATUS_FILTER_CHECKBOX_GROUP_STYLES: CSSProperties = { display: 'flex', flexDirection: 'column' }
 
 export const useTableColumns = (sort: Array<string>, filters: IFilters,
     setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>) => {
     const intl = useIntl()
-    const EmergencyMessage = intl.formatMessage({ id: 'Emergency' }).toLowerCase()
-    const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
-    const PaidMessage = intl.formatMessage({ id: 'Paid' }).toLowerCase()
-    const DateMessage = intl.formatMessage({ id: 'Date' })
-    const StatusMessage =  intl.formatMessage({ id: 'Status' })
-    const ClientNameMessage = intl.formatMessage({ id: 'Client' })
-    const DescriptionMessage = intl.formatMessage({ id: 'Description' })
-    const FindWordMessage = intl.formatMessage({ id: 'filters.FindWord' })
-    const AddressMessage = intl.formatMessage({ id: 'field.Address' })
-    const UserNameMessage = intl.formatMessage({ id: 'filters.UserName' })
-    const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
-    const ExecutorMessage = intl.formatMessage({ id: 'field.Executor' })
-    const ResponsibleMessage = intl.formatMessage({ id: 'field.Responsible' })
+    const messages = getIntlMessages<MessageKeys>(intl, MESSAGES)
 
     const sorterMap = createSorterMap(sort)
     const { loading, objs: ticketStatuses } = TicketStatus.useObjects({})
@@ -41,37 +57,25 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
 
     const renderStatus = (status, record) => {
         const { primary: color, secondary: backgroundColor } = status.colors
+        const withHighlited = getHighlited(search, null)(status.name)
 
         return (
             <Space direction='vertical' size={7}>
                 <Tag color={backgroundColor}>
                     <Typography.Text style={{ color }}>
-                        {isEmpty(status.name)
-                            ? status.name
-                            : (
-                                <Highliter
-                                    text={status.name}
-                                    search={String(search)}
-                                    renderPart={(part) => (
-                                        <Typography.Text style={{ backgroundColor: colors.markColor }}>
-                                            {part}
-                                        </Typography.Text>
-                                    )}
-                                />
-                            )
-                        }
+                        {withHighlited}
                     </Typography.Text>
                 </Tag>
                 {record.isEmergency &&
                     <Tag color={EMERGENCY_TAG_COLOR.background}>
-                        <Typography.Text style={{ color: EMERGENCY_TAG_COLOR.text }}>
-                            {EmergencyMessage}
+                        <Typography.Text style={EMERGENCY_TAG_TEXT_STYLES}>
+                            {messages.EmergencyMessage}
                         </Typography.Text>
                     </Tag>
                 }
                 {record.isPaid &&
-                    <Tag color={'orange'}>
-                        {PaidMessage}
+                    <Tag color='orange'>
+                        {messages.PaidMessage}
                     </Tag>
                 }
             </Space>
@@ -89,7 +93,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 <Checkbox.Group
                     disabled={loading}
                     options={adaptedStatuses}
-                    style={{ display: 'flex', flexDirection: 'column' }}
+                    style={STATUS_FILTER_CHECKBOX_GROUP_STYLES}
                     value={selectedKeys}
                     onChange={(e) => {
                         setSelectedKeys(e)
@@ -102,10 +106,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
     }
 
     const renderAddress = (record) => {
-        const property = get(record, 'property')
-        const unitName = get(record, 'unitName')
-        const text = get(property, 'address')
-        const unitPrefix = unitName ? `${ShortFlatNumber} ${unitName}` : ''
+        const { text, unitPrefix } = getAddressDetails(get(record, ['meter']), messages.ShortFlatNumber)
 
         return getRenderer(search, true, unitPrefix)(text)
     }
@@ -119,20 +120,20 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
     return useMemo(() => {
         return [
             {
-                title: NumberMessage,
+                title: messages.NumberMessage,
                 sortOrder: get(sorterMap, 'number'),
                 filteredValue: getFilteredValue(filters, 'number'),
                 dataIndex: 'number',
                 key: 'number',
                 sorter: true,
                 width: '7%',
-                filterDropdown: getTextFilterDropdown(NumberMessage, setFiltersApplied),
+                filterDropdown: getTextFilterDropdown(messages.NumberMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
                 render: getRenderer(search),
                 align: 'right',
             },
             {
-                title: DateMessage,
+                title: messages.DateMessage,
                 sortOrder: get(sorterMap, 'createdAt'),
                 filteredValue: getFilteredValue(filters, 'createdAt'),
                 dataIndex: 'createdAt',
@@ -145,7 +146,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 filterIcon: getFilterIcon,
             },
             {
-                title: StatusMessage,
+                title: messages.StatusMessage,
                 sortOrder: get(sorterMap, 'status'),
                 filteredValue: getFilteredValue(filters, 'status'),
                 render: renderStatus,
@@ -157,17 +158,17 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 filterIcon: getFilterIcon,
             },
             {
-                title: DescriptionMessage,
+                title: messages.DescriptionMessage,
                 dataIndex: 'details',
                 filteredValue: getFilteredValue(filters, 'details'),
                 key: 'details',
                 width: '18%',
-                filterDropdown: getTextFilterDropdown(FindWordMessage, setFiltersApplied),
+                filterDropdown: getTextFilterDropdown(messages.FindWordMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
                 render: getRenderer(search, true),
             },
             {
-                title: AddressMessage,
+                title: messages.AddressMessage,
                 ellipsis: false,
                 sortOrder: get(sorterMap, 'property'),
                 filteredValue: getFilteredValue(filters, 'property'),
@@ -175,23 +176,23 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 sorter: true,
                 width: '12%',
                 render: renderAddress,
-                filterDropdown: getTextFilterDropdown(AddressMessage, setFiltersApplied),
+                filterDropdown: getTextFilterDropdown(messages.AddressMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
             },
             {
-                title: ClientNameMessage,
+                title: messages.ClientNameMessage,
                 sortOrder: get(sorterMap, 'clientName'),
                 filteredValue: getFilteredValue(filters, 'clientName'),
                 dataIndex: 'clientName',
                 key: 'clientName',
                 sorter: true,
                 width: '12%',
-                filterDropdown: getTextFilterDropdown(ClientNameMessage, setFiltersApplied),
+                filterDropdown: getTextFilterDropdown(messages.ClientNameMessage, setFiltersApplied),
                 render: getRenderer(search),
                 filterIcon: getFilterIcon,
             },
             {
-                title: ExecutorMessage,
+                title: messages.ExecutorMessage,
                 sortOrder: get(sorterMap, 'executor'),
                 filteredValue: getFilteredValue(filters, 'executor'),
                 dataIndex: 'executor',
@@ -199,11 +200,11 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 sorter: true,
                 width: '15%',
                 render: (executor) => getRenderer(search)(get(executor, ['name'])),
-                filterDropdown: getTextFilterDropdown(UserNameMessage, setFiltersApplied),
+                filterDropdown: getTextFilterDropdown(messages.UserNameMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
             },
             {
-                title: ResponsibleMessage,
+                title: messages.ResponsibleMessage,
                 sortOrder: get(sorterMap, 'assignee'),
                 filteredValue: getFilteredValue(filters, 'assignee'),
                 dataIndex: 'assignee',
@@ -211,7 +212,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 sorter: true,
                 width: '18%',
                 render: (assignee) => getRenderer(search)(get(assignee, ['name'])),
-                filterDropdown: getTextFilterDropdown(UserNameMessage, setFiltersApplied),
+                filterDropdown: getTextFilterDropdown(messages.UserNameMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
             },
         ]

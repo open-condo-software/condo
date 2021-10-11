@@ -12,20 +12,28 @@ import {
 } from '@condo/domains/common/utils/tables.utils'
 import { getAddressRender, getDateRender, renderMeterReading, getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
+import { getAddressDetails, getIntlMessages, MessageSetMeta } from '@condo/domains/common/utils/helpers'
 
 const getFilteredValue = (filters, key: string | Array<string>): FilterValue => get(filters, key, null)
 
+type TableMessageKeys = 'ClientNameMessage' | 'AddressMessage' | 'ShortFlatNumber' | 'MeterReadingDateMessage'
+| 'ServiceMessage' | 'MeterNumberMessage' | 'PlaceMessage' | 'MeterReadingMessage' | 'SourceMessage'
+
+const TABLE_MESSAGES: MessageSetMeta<TableMessageKeys> = {
+    ClientNameMessage: { id: 'Contact' },
+    AddressMessage: { id: 'field.Address' },
+    ShortFlatNumber: { id: 'field.FlatNumber' },
+    MeterReadingDateMessage: { id: 'pages.condo.meter.MeterReadingDate' },
+    ServiceMessage: { id: 'pages.condo.meter.Service' },
+    MeterNumberMessage: { id: 'pages.condo.meter.MeterNumber' },
+    PlaceMessage: { id: 'pages.condo.meter.Place' },
+    MeterReadingMessage: { id: 'pages.condo.meter.MeterReading' },
+    SourceMessage: { id: 'pages.condo.ticket.field.Source' },
+}
+
 export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const intl = useIntl()
-    const ClientNameMessage = intl.formatMessage({ id: 'Contact' })
-    const AddressMessage = intl.formatMessage({ id: 'field.Address' })
-    const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
-    const MeterReadingDateMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReadingDate' })
-    const ServiceMessage = intl.formatMessage({ id: 'pages.condo.meter.Service' })
-    const MeterNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterNumber' })
-    const PlaceMessage = intl.formatMessage({ id: 'pages.condo.meter.Place' })
-    const MeterReadingMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReading' })
-    const SourceMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.Source' })
+    const messages = getIntlMessages<TableMessageKeys>(intl, TABLE_MESSAGES)
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
@@ -37,7 +45,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
 
         return [
             {
-                title: MeterReadingDateMessage,
+                title: messages.MeterReadingDateMessage,
                 sortOrder: get(sorterMap, 'date'),
                 filteredValue: getFilteredValue(filters, 'date'),
                 dataIndex: 'date',
@@ -48,7 +56,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'date'),
             },
             {
-                title: AddressMessage,
+                title: messages.AddressMessage,
                 ellipsis: false,
                 sortOrder: get(sorterMap, 'address'),
                 filteredValue: getFilteredValue(filters, 'address'),
@@ -56,19 +64,16 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 sorter: true,
                 width: '10%',
                 render: (record) => {
-                    const property = get(record, ['meter', 'property'])
-                    const unitName = get(record, ['meter', 'unitName'])
-                    const text = get(property, 'address')
-                    const unitPrefix = unitName ? `${ShortFlatNumber} ${unitName}` : ''
-
+                    const { text, unitPrefix } = getAddressDetails(get(record, ['meter']), messages.ShortFlatNumber)
                     const render = getAddressRender(search, unitPrefix)
+
                     return render(text)
                 },
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'address'),
                 filterIcon: getFilterIcon,
             },
             {
-                title: ServiceMessage,
+                title: messages.ServiceMessage,
                 ellipsis: true,
                 sortOrder: get(sorterMap, 'resource'),
                 filteredValue: getFilteredValue(filters, 'resource'),
@@ -81,7 +86,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 filterIcon: getFilterIcon,
             },
             {
-                title: MeterNumberMessage,
+                title: messages.MeterNumberMessage,
                 sortOrder: get(sorterMap, 'number'),
                 filteredValue: getFilteredValue(filters, 'number'),
                 dataIndex: ['meter', 'number'],
@@ -93,7 +98,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 filterIcon: getFilterIcon,
             },
             {
-                title: PlaceMessage,
+                title: messages.PlaceMessage,
                 sortOrder: get(sorterMap, 'place'),
                 filteredValue: getFilteredValue(filters, 'place'),
                 dataIndex: ['meter', 'place'],
@@ -105,7 +110,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 filterIcon: getFilterIcon,
             },
             {
-                title: MeterReadingMessage,
+                title: messages.MeterReadingMessage,
                 ellipsis: false,
                 key: 'value',
                 width: '10%',
@@ -121,7 +126,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 },
             },
             {
-                title: ClientNameMessage,
+                title: messages.ClientNameMessage,
                 ellipsis: true,
                 sortOrder: get(sorterMap, 'clientName'),
                 filteredValue: getFilteredValue(filters, 'clientName'),
@@ -134,7 +139,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 filterIcon: getFilterIcon,
             },
             {
-                title: SourceMessage,
+                title: messages.SourceMessage,
                 sortOrder: get(sorterMap, 'source'),
                 filteredValue: getFilteredValue(filters, 'source'),
                 dataIndex: ['source', 'name'],
@@ -149,54 +154,62 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     }, [filters])
 }
 
+type ModalMessageKeys =
+    'InstallationDateMessage' | 'CommissioningDateMessage' | 'SealingDateMessage' | 'VerificationDateMessage' | 'NextVerificationDateMessage' | 'ControlReadingsDateMessage'
+
+const MODAL_MESSAGES: MessageSetMeta<ModalMessageKeys> = {
+    InstallationDateMessage: { id: 'pages.condo.meter.InstallationDate' },
+    CommissioningDateMessage: { id: 'pages.condo.meter.CommissioningDate' },
+    SealingDateMessage: { id: 'pages.condo.meter.SealingDate' },
+    VerificationDateMessage: { id: 'pages.condo.meter.VerificationDate' },
+    NextVerificationDateMessage: { id: 'pages.condo.meter.NextVerificationDate' },
+    ControlReadingsDateMessage: { id: 'pages.condo.meter.ControlReadingsDate' },
+}
+
+
 export const useMeterInfoModalTableColumns = () => {
     const intl = useIntl()
-    const InstallationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.InstallationDate' })
-    const CommissioningDateMessage = intl.formatMessage({ id: 'pages.condo.meter.CommissioningDate' })
-    const SealingDateMessage = intl.formatMessage({ id: 'pages.condo.meter.SealingDate' })
-    const VerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.VerificationDate' })
-    const NextVerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.NextVerificationDate' })
-    const ControlReadingsDateMessage = intl.formatMessage({ id: 'pages.condo.meter.ControlReadingsDate' })
+    const messages = getIntlMessages<ModalMessageKeys>(intl, MODAL_MESSAGES)
 
     return useMemo(() => {
         return [
             {
-                title: InstallationDateMessage,
+                title: messages.InstallationDateMessage,
                 dataIndex: 'installationDate',
                 key: 'installationDate',
                 width: '17%',
                 render: getDateRender(intl),
             },
             {
-                title: CommissioningDateMessage,
+                title: messages.CommissioningDateMessage,
                 dataIndex: 'commissioningDate',
                 key: 'commissioningDate',
                 width: '21%',
                 render: getDateRender(intl),
             },
             {
-                title: SealingDateMessage,
+                title: messages.SealingDateMessage,
                 dataIndex: 'sealingDate',
                 key: 'sealingDate',
                 width: '20%',
                 render: getDateRender(intl),
             },
             {
-                title: VerificationDateMessage,
+                title: messages.VerificationDateMessage,
                 dataIndex: 'verificationDate',
                 key: 'verificationDate',
                 width: '17%',
                 render: getDateRender(intl),
             },
             {
-                title: NextVerificationDateMessage,
+                title: messages.NextVerificationDateMessage,
                 dataIndex: 'nextVerificationDate',
                 key: 'nextVerificationDate',
                 width: '18%',
                 render: getDateRender(intl),
             },
             {
-                title: ControlReadingsDateMessage,
+                title: messages.ControlReadingsDateMessage,
                 dataIndex: 'controlReadingsDate',
                 key: 'controlReadingsDate',
                 width: '20%',

@@ -1,34 +1,41 @@
 /** @jsx jsx */
+import React, { useCallback, useState } from 'react'
+import { notification, Col, Input, Row, Table, Typography, Checkbox } from 'antd'
+import { TablePaginationConfig } from 'antd/lib/table/interface'
+import Head from 'next/head'
+import { useRouter } from 'next/router'
+import qs from 'qs'
+import { pickBy, get, debounce } from 'lodash'
+
 import { css, jsx } from '@emotion/core'
-import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { SortTicketsBy } from '@app/condo/schema'
+import { DatabaseFilled } from '@ant-design/icons'
+import { useIntl } from '@core/next/intl'
+import { useOrganization } from '@core/next/organization'
+import { useLazyQuery } from '@core/next/apollo'
+
+import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { EXPORT_TICKETS_TO_EXCEL } from '@condo/domains/ticket/gql'
-import { DatabaseFilled } from '@ant-design/icons'
 import {
     filtersToQuery,
     getPageIndexFromQuery,
     getSortStringFromQuery,
     sorterToQuery, queryToSorter, getPageSizeFromQuery,
+    IFilters,
 } from '@condo/domains/ticket/utils/helpers'
-import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
-import { IFilters } from '@condo/domains/ticket/utils/helpers'
-import { useIntl } from '@core/next/intl'
-import { useLazyQuery } from '@core/next/apollo'
-import { notification, Col, Input, Row, Table, Typography, Checkbox } from 'antd'
-import Head from 'next/head'
-import { useRouter } from 'next/router'
-import qs from 'qs'
-import { pickBy, get, debounce } from 'lodash'
-import React, { useCallback, useState } from 'react'
-import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
+
 import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { useEmergencySearch } from '@condo/domains/ticket/hooks/useEmergencySearch'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
+
+import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Button } from '@condo/domains/common/components/Button'
-import { useOrganization } from '@core/next/organization'
-import { SortTicketsBy } from '@app/condo/schema'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
+
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+
 import { fontSizes } from '@condo/domains/common/constants/style'
 
 interface ITicketIndexPage extends React.FC {
@@ -41,6 +48,8 @@ const verticalAlign = css`
         vertical-align: baseline;
     }
 `
+
+const EXPORT_ICON = (<DatabaseFilled />)
 
 export const TicketsPageContent = ({
     searchTicketsQuery,
@@ -64,7 +73,7 @@ export const TicketsPageContent = ({
     const router = useRouter()
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
     const offsetFromQuery = getPageIndexFromQuery(router.query)
-    const pagesizeFromQuey: number = getPageSizeFromQuery(router.query)
+    const pagesizeFromQuery: number = getPageSizeFromQuery(router.query)
 
     const {
         fetchMore,
@@ -74,8 +83,8 @@ export const TicketsPageContent = ({
     } = Ticket.useObjects({
         sortBy: sortBy as SortTicketsBy[],
         where: searchTicketsQuery,
-        skip: (offsetFromQuery * pagesizeFromQuey) - pagesizeFromQuey,
-        first: pagesizeFromQuey,
+        skip: (offsetFromQuery * pagesizeFromQuery) - pagesizeFromQuery,
+        first: pagesizeFromQuery,
     }, {
         fetchPolicy: 'network-only',
     })
@@ -111,7 +120,9 @@ export const TicketsPageContent = ({
         const offset = filtersApplied ? 0 : current * pageSize - pageSize
         const sort = sorterToQuery(nextSorter)
         const filters = filtersToQuery(nextFilters)
+
         setFiltersApplied(false)
+
         if (!loading) {
             fetchMore({
                 // @ts-ignore
@@ -137,6 +148,29 @@ export const TicketsPageContent = ({
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
     const [emergency, handleEmergencyChange] = useEmergencySearch<IFilters>(loading)
+
+    const handleExport = React.useCallback(() => {
+        return exportToExcel({
+            variables: {
+                data: {
+                    where: searchTicketsQuery,
+                    sortBy: sortBy,
+                    timeZone,
+                },
+            },
+        })
+    }, [searchTicketsQuery, sortBy, timeZone])
+
+    const paginationParams = React.useMemo<TablePaginationConfig>(() =>
+        ({
+            showSizeChanger: false,
+            total,
+            current: offsetFromQuery,
+            pageSize: pagesizeFromQuery,
+            position: ['bottomLeft'],
+        }),
+    [total, offsetFromQuery, pagesizeFromQuery]
+    )
 
     return (
         <>
@@ -166,7 +200,9 @@ export const TicketsPageContent = ({
                                         onChange={handleEmergencyChange}
                                         checked={emergency}
                                         style={{ paddingLeft: '0px', fontSize: fontSizes.content }}
-                                    >{EmergencyLabel}</Checkbox>
+                                    >
+                                        {EmergencyLabel}
+                                    </Checkbox>
                                 </Col>
                                 <Col span={6} push={1}>
                                     {
@@ -174,20 +210,22 @@ export const TicketsPageContent = ({
                                             ?
                                             <Button
                                                 type={'inlineLink'}
-                                                icon={<DatabaseFilled />}
+                                                icon={EXPORT_ICON}
                                                 loading={isXlsLoading}
                                                 target='_blank'
                                                 href={downloadLink}
-                                                rel='noreferrer'>{DownloadExcelLabel}
+                                                rel='noreferrer'
+                                            >
+                                                {DownloadExcelLabel}
                                             </Button>
                                             :
                                             <Button
                                                 type={'inlineLink'}
-                                                icon={<DatabaseFilled />}
+                                                icon={EXPORT_ICON}
                                                 loading={isXlsLoading}
-                                                onClick={
-                                                    () => exportToExcel({ variables: { data: { where: searchTicketsQuery, sortBy: sortBy, timeZone } } })
-                                                }>{ExportAsExcel}
+                                                onClick={handleExport}
+                                            >
+                                                {ExportAsExcel}
                                             </Button>
                                     }
                                 </Col>
@@ -202,13 +240,7 @@ export const TicketsPageContent = ({
                                         onRow={handleRowAction}
                                         onChange={handleTableChange}
                                         rowKey={record => record.id}
-                                        pagination={{
-                                            showSizeChanger: false,
-                                            total,
-                                            current: offsetFromQuery,
-                                            pageSize: pagesizeFromQuey,
-                                            position: ['bottomLeft'],
-                                        }}
+                                        pagination={paginationParams}
                                     />
                                 </Col>
                             </Row>
