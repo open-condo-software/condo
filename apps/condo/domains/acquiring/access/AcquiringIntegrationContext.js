@@ -15,7 +15,7 @@ async function canReadAcquiringIntegrationContexts ({ authentication: { item: us
     if (user.isAdmin || user.isSupport) return {}
     return {
         OR: [
-            { organization: { employees_some: { user: { id: user.id }, role: { canManagePayments: true }, isBlocked: false, deletedAt: null } } },
+            { organization: { employees_some: { user: { id: user.id }, role: { canReadPayments: true }, isBlocked: false, deletedAt: null } } },
             { integration: { accessRights_some: { user: { id: user.id } } } },
         ],
     }

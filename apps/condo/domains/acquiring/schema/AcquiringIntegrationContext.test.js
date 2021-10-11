@@ -114,14 +114,14 @@ describe('AcquiringIntegrationContext', () => {
             expect(contexts).not.toHaveLength(0)
         })
         describe('user', () => {
-            describe('Employee: can see if have permission `canManagePayments` set',  () => {
+            describe('Employee: can see if have permission `canReadPayments` set',  () => {
                 test('permission set', async () => {
                     const admin = await makeLoggedInAdminClient()
                     const [organization] = await registerNewOrganization(admin)
                     const [integration] = await createTestAcquiringIntegration(admin)
                     await createTestAcquiringIntegrationContext(admin, organization, integration)
                     const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                        canManagePayments: true,
+                        canReadPayments: true,
                     })
                     const client = await makeClientWithNewRegisteredAndLoggedInUser()
                     await createTestOrganizationEmployee(admin, organization, client.user, role)

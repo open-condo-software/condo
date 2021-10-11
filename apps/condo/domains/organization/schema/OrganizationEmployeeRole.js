@@ -63,7 +63,7 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
         canManageDivisions: { type: Checkbox, defaultValue: false },
         canShareTickets: { type: Checkbox, defaultValue: true },
         canManageBillingReceipts: { type: Checkbox, defaultValue: false },
-        canManagePayments: { type: Checkbox, defaultValue: false },
+        canReadPayments: { type: Checkbox, defaultValue: false },
         canBeAssignedAsResponsible: {
             schemaDoc: 'Allows employees with this role to be assigned to tickets as responsible',
             type: Checkbox,
