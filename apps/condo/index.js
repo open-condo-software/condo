@@ -70,6 +70,7 @@ registerSchemas(keystone, [
 
 registerTasks([
     require('@condo/domains/notification/tasks'),
+    require('@condo/domains/organization/tasks'),
 ])
 
 registerTriggers([
