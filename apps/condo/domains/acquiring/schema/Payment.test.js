@@ -14,6 +14,7 @@ const {
     makePayer,
     createTestAcquiringIntegrationAccessRight,
     createTestMultiPayment,
+    createTestAcquiringIntegration,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const {
     expectToThrowAccessDeniedErrorToObj,
@@ -266,6 +267,17 @@ describe('Payment', () => {
                 await createTestPayment(admin, billingReceipts[0], multiPayment, acquiringContext, {
                     currencyCode: 'USD',
                 })
+            })
+        })
+        test('cannot link to multipayment with different integration', async () => {
+            const { admin, billingReceipts, acquiringContext, client } = await makePayer()
+            const [secondIntegration] = await createTestAcquiringIntegration(admin)
+            const integrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            await createTestAcquiringIntegrationAccessRight(admin, secondIntegration, integrationClient.user)
+            const [multiPayment] = await createTestMultiPayment(admin, billingReceipts, client.user, secondIntegration)
+
+            await expectToThrowValidationFailureError(async () => {
+                await createTestPayment(admin, billingReceipts[0], multiPayment, acquiringContext)
             })
         })
     })

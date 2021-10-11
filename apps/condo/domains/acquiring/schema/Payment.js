@@ -65,10 +65,18 @@ const Payment = new GQLListSchema('Payment', {
                     if (!multiPaymentId) addFieldValidationError('MultiPayment id is not provided')
                     const multipayment =  await getById('MultiPayment', multiPaymentId)
                     if (!multiPaymentId) addFieldValidationError('MultiPayment with this id is not exist')
+
+                    const contextId = get(resolvedData, 'context')
+                    if (!contextId) addFieldValidationError('No context id was provided')
+                    const paymentContext = getById('AcquiringIntegrationContext', contextId)
+                    if (!paymentContext) addFieldValidationError('Invalid context id was provided')
+                    if (paymentContext.integration !== multipayment.integration) addFieldValidationError('Integrations for MultiPayment and Payment does not match')
+
                     const receipts = get(multipayment, 'receipts', [])
                     const receiptsIds = receipts.map(receipt => receipt.id)
                     const receiptId = get(resolvedData, 'receipt')
                     if (!receiptsIds.includes(receiptId)) addFieldValidationError('This MultiPayment does not contains this billing receipt with this id')
+
                     const multiPaymentCurrency = get(multipayment, 'currencyCode')
                     const paymentCurrency = get(resolvedData, 'currencyCode')
                     if (!paymentCurrency || paymentCurrency !== multiPaymentCurrency) {
