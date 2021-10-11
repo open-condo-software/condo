@@ -316,7 +316,7 @@
   "pages.condo.division.update.UpdateDivisionTitle": "Редактирование участка",
   "pages.condo.division.id.PageTitle": "Участок «{name}»",
   "pages.condo.division.id.PageTitleNotFound": "Участок не найден",
-  "pages.condo.division.id.ExecutorsLabel": "Техники",
+  "pages.condo.division.id.ExecutorsLabel": "Исполнители",
   "pages.condo.division.id.NameBlank": "Участок без названия",
   "pages.condo.division.id.ExecutorsEmpty.title": "Список пуст",
   "pages.condo.division.id.ExecutorsEmpty.description": "Добавьте сотрудников, чтобы заявки автоматически назначались на них",
