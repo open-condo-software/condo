@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useRouter } from 'next/router'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { getFilterIcon, getTextFilterDropdown } from '@condo/domains/common/components/Table/Filters'
-import { getMoneyRender, getTextRender } from '@condo/domains/common/components/Table/Renders'
+import { getAddressRender, getMoneyRender, getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { useIntl } from '@core/next/intl'
 import get from 'lodash/get'
 
@@ -14,6 +14,7 @@ export const useReceiptTableColumns = (detailed: boolean, currencySign: string, 
     const ToPayTitle = intl.formatMessage({ id: 'field.TotalPayment' })
     const PenaltyTitle = intl.formatMessage({ id: 'PaymentPenalty' })
     const ChargeTitle = intl.formatMessage({ id: 'Charged' })
+    const ShortFlatNumber = intl.formatMessage({ id: 'field.FlatNumber' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
@@ -22,17 +23,25 @@ export const useReceiptTableColumns = (detailed: boolean, currencySign: string, 
         let search = get(filters, 'search')
         search = Array.isArray(search) ? null : search
 
+        const renderAddress = (record) => {
+            const property = get(record, ['property', 'address'])
+            const unitName = get(record, ['account', 'unitName'])
+            const unitPrefix = unitName ? `${ShortFlatNumber} ${unitName}` : ''
+
+            return getAddressRender(search, unitPrefix)(property)
+        }
+
         const columns = {
             address: {
                 title: AddressTitle,
                 key: 'address',
-                dataIndex: ['property', 'address'],
+                dataIndex: [],
                 sorter: false,
                 filteredValue: get(filters, 'address'),
                 width: detailed ? '30%' : '50%',
                 filterIcon: getFilterIcon,
                 filterDropdown: getTextFilterDropdown(AddressTitle),
-                render: getTextRender(search),
+                render: renderAddress,
             },
             account: {
                 title: AccountTitle,
