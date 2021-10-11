@@ -93,7 +93,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         return (
             <Link href={path}>
                 <MenuItemWrapper className={menuItemClassNames} isCollapsed {...menuItemWrapperProps}>
-                    <Tooltip title={Message} placement={'right'} color={colors.black}>
+                    <Tooltip title={Message} placement={'right'} color={colors.black} mouseEnterDelay={0.1}>
                         <IconWrapper className='icon'>
                             <ClientRenderedIcon icon={icon}/>
                         </IconWrapper>

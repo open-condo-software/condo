@@ -5,7 +5,7 @@ import React from 'react'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
 import getConfig from 'next/config'
-import { ThunderboltFilled, HomeFilled, SettingFilled, ApiFilled } from '@ant-design/icons'
+import { ThunderboltFilled, HomeFilled, SettingFilled, ApiFilled, HeartFilled } from '@ant-design/icons'
 import whyDidYouRender from '@welldone-software/why-did-you-render'
 
 import { withApollo } from '@core/next/apollo'
@@ -96,7 +96,7 @@ const MenuItems: React.FC = () => {
             />
             <MenuItem
                 path={'/contact'}
-                icon={UserIcon}
+                icon={HeartFilled}
                 label={'menu.Contacts'}
                 disabled={disabled}
                 isCollapsed={isCollapsed}

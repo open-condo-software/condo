@@ -7,18 +7,17 @@ import { SideNav } from './components/SideNav'
 import Router from 'next/router'
 import classnames from 'classnames'
 import 'antd/dist/antd.less'
-import { layoutCss, pageContentCss, pageHeaderCss, StyledPageWrapper, subLayoutCss } from './components/styles'
+import { layoutCss, pageHeaderCss, StyledPageWrapper, subLayoutCss, PageContentWrapper } from './components/styles'
 import { ElementType } from 'react'
 import MenuItem from 'antd/lib/menu/MenuItem'
 import { Header } from './Header'
-import { ITopMenuItemsProps } from './components/TopMenuItems'
 
 interface IBaseLayoutProps {
     headerAction?: ElementType<unknown>
     style?: CSSProperties
     className?: string
     menuDataRender?: () => MenuItem[]
-    TopMenuItems?: React.FC<ITopMenuItemsProps>
+    TopMenuItems?: React.FC
     logoLocation?: string
     menuData?: React.ElementType
     onLogoClick?: () => void
@@ -46,16 +45,12 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
     )
 }
 
-interface IPageWrapperProps {
-    className?: string
-    style?: CSSProperties
-}
 
-const PageWrapper: FunctionComponent<IPageWrapperProps> = ({ children, className, style }) => {
+const PageWrapper: FunctionComponent = ({ children}) => {
     const { isSmall } = useLayoutContext()
 
     return (
-        <StyledPageWrapper isSmall={isSmall} className={classnames('page-wrapper', className)} style={style}>
+        <StyledPageWrapper isSmall={isSmall}>
             {children}
         </StyledPageWrapper>
     )
@@ -80,16 +75,13 @@ const PageHeader: FunctionComponent<IPageHeaderProps> = ({ children, className, 
     )
 }
 
-interface IPageContentProps {
-    className?: string
-    style?: CSSProperties
-}
+const PageContent: React.FC = ({ children }) => {
+    const { breakpoints } = useLayoutContext()
 
-const PageContent: FunctionComponent<IPageContentProps> = ({ children, className, style }) => {
     return (
-        <div className={classnames('page-content', className)} css={pageContentCss} style={style}>
+        <PageContentWrapper breakpoints={breakpoints}>
             {children}
-        </div>
+        </PageContentWrapper>
     )
 }
 

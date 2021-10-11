@@ -4,6 +4,7 @@ import { css } from '@emotion/core'
 import styled from '@emotion/styled'
 import { Layout, Menu } from 'antd'
 import { gradients } from '@condo/domains/common/constants/style'
+import { ScreenMap } from 'antd/lib/_util/responsiveObserve'
 
 export const SIDE_MENU_WIDTH = 256
 export const COLLAPSED_SIDE_MENU_WIDTH = 92
@@ -80,9 +81,9 @@ export const OrganizationSelectWrapper = styled.div`
 `
 
 export const MenuItemsContainer = styled.div`
-    overflow-x: hidden;
-    height: 100%;
-    padding: 0 34px 100px;
+  overflow-x: hidden;
+  height: 100%;
+  padding: 0 34px 100px;
 `
 
 export const MobileMenuItemsContainer = styled.div`
@@ -115,7 +116,7 @@ export const LayoutTriggerWrapper = styled.div`
   border-radius: 50%;
   box-shadow: ${shadows.elevated};
   font-size: 10px;
-  top: 38px;
+  top: 36px;
   right: -12px;
 `
 
@@ -195,7 +196,6 @@ interface IPageWrapper {
 }
 
 export const StyledPageWrapper = styled(Layout.Content)<IPageWrapper>`
-  padding: ${({ isSmall }) => isSmall ? '20px 20px 0' : '20px 48px 0'};
   margin: 0;
   height: 100%;
   display: flex;
@@ -207,9 +207,34 @@ export const pageHeaderCss = css`
   background: ${colors.white};
 `
 
-export const pageContentCss = css`
-  flex-grow: 1;
-  max-width: 1200px;
+export const PageContentWrapper = styled.div<{ breakpoints: ScreenMap }>`
+  ${({ breakpoints }) => {
+        if (breakpoints.xxl) {
+            return `
+                padding-left: 48px;
+                padding-right: 48px;
+                max-width: 1344px;
+                margin: 0 auto;
+            `
+        }
+
+        if (breakpoints.xl) {
+            return `
+                padding-left: 36px;
+                padding-right: 36px;
+            `
+        }
+
+        if (breakpoints.lg) {
+            return `
+                padding-left: 32px;
+                padding-right: 32px;
+            `
+        }
+    
+        return 'padding: 20px 20px 0;'
+    }}
+
   padding-bottom: 56px;
   background: ${colors.white};
 `
