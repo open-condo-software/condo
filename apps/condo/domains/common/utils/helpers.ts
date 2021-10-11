@@ -52,8 +52,14 @@ export const getIntlMessages = <T>(intl: IntlShape, messageSetMeta: MessageSetMe
         const meta = messageSetMeta[key]
         const message = intl.formatMessage(meta)
 
-        result[key] = meta?.lowerCase ? message.toLowerCase() : message
+        result[key] = meta && meta.lowerCase ? message.toLowerCase() : message
 
         return result
     }, {} as IntlMessages<T> )
 }
+
+export interface IRecordWithId extends Record<string, any> {
+    id: string,
+}
+
+export const getId = (record: IRecordWithId): string | null => record && record.id || null
