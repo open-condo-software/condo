@@ -258,5 +258,15 @@ describe('Payment', () => {
                 await createTestPayment(admin, billingReceipts[1], multiPayment, acquiringContext)
             })
         })
+        test('cannot link to multipayment, if currency codes does not match', async () => {
+            const { admin, billingReceipts, acquiringContext, client, acquiringIntegration } = await makePayer()
+            const [multiPayment] = await createTestMultiPayment(admin, [billingReceipts[0]], client.user, acquiringIntegration)
+
+            await expectToThrowValidationFailureError(async () => {
+                await createTestPayment(admin, billingReceipts[0], multiPayment, acquiringContext, {
+                    currencyCode: 'USD',
+                })
+            })
+        })
     })
 })
