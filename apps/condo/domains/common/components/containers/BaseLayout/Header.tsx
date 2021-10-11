@@ -8,17 +8,18 @@ import { useAuth } from '@core/next/auth'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
 import { Logo } from '../../Logo'
 import { ResidentActions } from '../../ResidentActions/ResidentActions'
-import { ITopMenuItemsProps, TopMenuItems as BaseTopMenuItems } from './components/TopMenuItems'
+import { TopMenuItems as BaseTopMenuItems } from './components/TopMenuItems'
 import { MenuOutlined } from '@ant-design/icons'
 
 const DesktopHeader = styled(Layout.Header)`
   z-index: 9;
   background: ${colors.white};
   width: 100%;
-  padding: 20px 48px;
+  padding: 32px 48px;
   display: flex;
   flex-direction: row;
-  justify-content: flex-start;
+  justify-content: space-between;
+  align-items: center;
   line-height: 100%;
 `
 
@@ -32,9 +33,11 @@ const MobileHeader = styled(Layout.Header)`
   border-bottom: 1px solid ${colors.lightGrey[5]};
 `
 
+const ActionContainer = styled.div``
+
 interface IHeaderProps {
     headerAction?: React.ElementType
-    TopMenuItems?: React.FC<ITopMenuItemsProps>
+    TopMenuItems?: React.FC
 }
 
 export const Header: React.FC<IHeaderProps> = (props) => {
@@ -66,7 +69,10 @@ export const Header: React.FC<IHeaderProps> = (props) => {
             )
             : (
                 <DesktopHeader>
-                    <TopMenuItems headerAction={props.headerAction}/>
+                    <ActionContainer>
+                        {props.headerAction && props.headerAction}
+                    </ActionContainer>
+                    <TopMenuItems/>
                 </DesktopHeader>
             )
     )

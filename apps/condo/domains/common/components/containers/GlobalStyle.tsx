@@ -6,7 +6,7 @@ export default function GlobalStyle () {
     return (
         <Global
             styles={css`
-              $@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,600,700&display=swap');
+              @import url('https://fonts.googleapis.com/css?family=Open+Sans:400,600,700&display=swap');
               body {
                 max-width: 100%;
                 overflow-x: hidden;
@@ -196,10 +196,13 @@ export default function GlobalStyle () {
                 font-weight: 700;
               }
               
+              .ant-layout-header {
+                height: auto;
+              }
+              
               ${uploadControlCss}
               ${radioGroupCss}
               ${inputControlCss}
-              ${page}
             `}
         />
     )
@@ -241,7 +244,6 @@ const radioGroupCss = css`
     background-color:${colors.black};
   }
 `
-
 
 const uploadControlCss = css`
   .upload-control-wrapper .ant-upload-list-text-container {
@@ -287,41 +289,5 @@ const inputControlCss = css`
     &:focus, &:active {
       background: ${colors.white} !important;
     }
-  }
-`
-
-const page = css`
-  .top-menu-only-layout .page-wrapper {
-    flex: auto;
-    align-self: center;
-    max-width: 600px;
-    min-width: initial;
-    padding-top: 64px;
-    padding-bottom: 64px;
-    margin: 0 auto;
-  }
-  @media (max-width: 768px) {
-    .top-menu-only-layout .page-wrapper {
-      min-width: initial;
-    }
-  }
-  @media (max-width: 480px) {
-    .top-menu-only-layout .page-wrapper {
-      min-width: 100%;
-      padding-top: 0;
-      padding-bottom: 0;
-    }
-  }
-
-  .transparent-page-content .page-content {
-    padding: 0;
-    background: inherit;
-  }
-
-  .centered-page-content .page-wrapper {
-    flex: auto;
-    align-self: center;
-    max-width: 600px;
-    min-width: initial;
   }
 `

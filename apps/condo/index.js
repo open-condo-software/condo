@@ -139,7 +139,6 @@ module.exports = {
         }),
         conf.NODE_ENV === 'test' ? undefined : new NextApp({ dir: '.' }),
     ].filter(identity),
-    /** @type {(app: import('express').Application) => void} */
     configureExpress: (app) => {
         app.use('/admin/', (req, res, next) => {
             if (req.url === '/api') return next()
