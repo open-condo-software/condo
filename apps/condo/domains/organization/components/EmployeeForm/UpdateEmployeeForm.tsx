@@ -49,7 +49,6 @@ export const UpdateEmployeeForm = () => {
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
     const ExampleEmailMsg = intl.formatMessage({ id: 'example.Email' })
     const SpecializationsLabel = intl.formatMessage({ id: 'employee.Specializations' })
-    const TechnicianRoleName = intl.formatMessage({ id: 'employee.role.Technician.name' })
     const PositionLabel = intl.formatMessage({ id: 'employee.Position' })
     const UpdateEmployeeMessage = intl.formatMessage({ id: 'employee.UpdateTitle' })
     const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
@@ -127,7 +126,7 @@ export const UpdateEmployeeForm = () => {
                     values.specializations = null
                 }
 
-                if (selectedRole.name !== TechnicianRoleName) {
+                if (!selectedRole.canBeAssignedAsExecutor) {
                     values.specializations = null
                 }
 

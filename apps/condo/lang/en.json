@@ -316,7 +316,7 @@
   "pages.condo.division.update.UpdateDivisionTitle": "Update division",
   "pages.condo.division.id.PageTitle": "Division «{name}»",
   "pages.condo.division.id.PageTitleNotFound": "Division not found",
-  "pages.condo.division.id.ExecutorsLabel": "Technicians",
+  "pages.condo.division.id.ExecutorsLabel": "Executors",
   "pages.condo.division.id.NameBlank": "Division without name",
   "pages.condo.division.id.ExecutorsEmpty.title": "List is empty",
   "pages.condo.division.id.ExecutorsEmpty.description": "Add employees, to let the system assign tickets on them automatically",
