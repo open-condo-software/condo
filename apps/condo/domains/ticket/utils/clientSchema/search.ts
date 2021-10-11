@@ -101,7 +101,7 @@ export function searchOrganizationProperty (organizationId) {
             organization: {
                 id: organizationId,
             },
-            name_contains_i: value,
+            address_contains_i: value,
         }
         const orderBy = 'address_ASC'
         const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_BY_VALUE_QUERY, { where, orderBy })
