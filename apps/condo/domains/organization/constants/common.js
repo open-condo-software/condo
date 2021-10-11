@@ -19,7 +19,7 @@ const DEFAULT_ROLES = {
         'canShareTickets': true,
         'canBeAssignedAsResponsible': true,
         'canBeAssignedAsExecutor': true,
-        'canManagePayments': true,
+        'canReadPayments': true,
         'canManageBillingReceipts': true,
     },
     'Dispatcher': {
@@ -39,7 +39,7 @@ const DEFAULT_ROLES = {
         'canManageMeterReadings': true,
         'canBeAssignedAsResponsible': true,
         'canBeAssignedAsExecutor': true,
-        'canManagePayments': true,
+        'canReadPayments': true,
         'canManageBillingReceipts': true,
     },
     'Manager': {
@@ -59,7 +59,7 @@ const DEFAULT_ROLES = {
         'canShareTickets': true,
         'canBeAssignedAsResponsible': true,
         'canBeAssignedAsExecutor': true,
-        'canManagePayments': false,
+        'canReadPayments': false,
         'canManageBillingReceipts': false,
     },
     'Foreman': {
@@ -79,7 +79,7 @@ const DEFAULT_ROLES = {
         'canShareTickets': true,
         'canBeAssignedAsResponsible': true,
         'canBeAssignedAsExecutor': true,
-        'canManagePayments': false,
+        'canReadPayments': false,
         'canManageBillingReceipts': false,
     },
     'Technician': {
@@ -99,7 +99,7 @@ const DEFAULT_ROLES = {
         'canShareTickets': true,
         'canBeAssignedAsResponsible': true,
         'canBeAssignedAsExecutor': true,
-        'canManagePayments': false,
+        'canReadPayments': false,
         'canManageBillingReceipts': false,
     },
 }
