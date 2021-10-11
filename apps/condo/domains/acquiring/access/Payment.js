@@ -20,8 +20,8 @@ async function canReadPayments ({ authentication: { item: user } }) {
         OR: [
             // Acquiring integration account can see it's payments
             { context: { integration: { accessRights_some: { user: { id: user.id } } } } },
-            // Employee with `canManagePayments` can see theirs organization payments
-            { context: { organization: { employees_some: { user: { id: user.id }, role: { canManagePayments: true }, deletedAt: null, isBlocked: false } } } },
+            // Employee with `canReadPayments` can see theirs organization payments
+            { context: { organization: { employees_some: { user: { id: user.id }, role: { canReadPayments: true }, deletedAt: null, isBlocked: false } } } },
         ],
     }
 }

@@ -68,10 +68,9 @@ const Payment = new GQLListSchema('Payment', {
 
                     const contextId = get(resolvedData, 'context')
                     if (!contextId) addFieldValidationError('No context id was provided')
-                    const paymentContext = getById('AcquiringIntegrationContext', contextId)
+                    const paymentContext = await getById('AcquiringIntegrationContext', contextId)
                     if (!paymentContext) addFieldValidationError('Invalid context id was provided')
                     if (paymentContext.integration !== multipayment.integration) addFieldValidationError('Integrations for MultiPayment and Payment does not match')
-
                     const receipts = get(multipayment, 'receipts', [])
                     const receiptsIds = receipts.map(receipt => receipt.id)
                     const receiptId = get(resolvedData, 'receipt')

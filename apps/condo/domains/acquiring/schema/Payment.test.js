@@ -128,7 +128,7 @@ describe('Payment', () => {
                     expect(payments).toHaveLength(1)
                     expect(payments).toHaveProperty(['0', 'id'], payment.id)
                 })
-                test('Employee with `canManagePayments` can see organization payments', async () => {
+                test('Employee with `canReadPayments` can see organization payments', async () => {
                     const { admin, billingReceipts, acquiringContext, multiPayment, organization } = await makePayerWithMultiPayment()
                     const [payment] = await createTestPayment(admin, billingReceipts[0], multiPayment, acquiringContext)
                     const {
@@ -138,7 +138,7 @@ describe('Payment', () => {
                     } = await makePayerWithMultiPayment()
                     await createTestPayment(admin, secondReceipts[0], secondMultiPayment, secondContext)
                     const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                        canManagePayments: true,
+                        canReadPayments: true,
                     })
 
                     const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
