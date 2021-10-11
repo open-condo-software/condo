@@ -20,7 +20,7 @@ const DEFAULT_ROLES = {
         'canBeAssignedAsResponsible': true,
         'canBeAssignedAsExecutor': true,
         'canReadPayments': true,
-        'canManageBillingReceipts': true,
+        'canReadBillingReceipts': true,
     },
     'Dispatcher': {
         'name': 'employee.role.Dispatcher.name',
@@ -40,7 +40,7 @@ const DEFAULT_ROLES = {
         'canBeAssignedAsResponsible': true,
         'canBeAssignedAsExecutor': true,
         'canReadPayments': true,
-        'canManageBillingReceipts': true,
+        'canReadBillingReceipts': true,
     },
     'Manager': {
         'name': 'employee.role.Manager.name',
@@ -60,7 +60,7 @@ const DEFAULT_ROLES = {
         'canBeAssignedAsResponsible': true,
         'canBeAssignedAsExecutor': true,
         'canReadPayments': false,
-        'canManageBillingReceipts': false,
+        'canReadBillingReceipts': false,
     },
     'Foreman': {
         'name': 'employee.role.Foreman.name',
@@ -80,7 +80,7 @@ const DEFAULT_ROLES = {
         'canBeAssignedAsResponsible': true,
         'canBeAssignedAsExecutor': true,
         'canReadPayments': false,
-        'canManageBillingReceipts': false,
+        'canReadBillingReceipts': false,
     },
     'Technician': {
         'name': 'employee.role.Technician.name',
@@ -100,7 +100,7 @@ const DEFAULT_ROLES = {
         'canBeAssignedAsResponsible': true,
         'canBeAssignedAsExecutor': true,
         'canReadPayments': false,
-        'canManageBillingReceipts': false,
+        'canReadBillingReceipts': false,
     },
 }
 module.exports = {

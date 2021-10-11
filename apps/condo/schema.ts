@@ -16888,7 +16888,7 @@ export type OrganizationEmployeeRole = {
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageDivisions?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
-  canManageBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   /**  Allows employees with this role to be assigned to tickets as responsible  */
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
@@ -16920,7 +16920,7 @@ export type OrganizationEmployeeRoleCreateInput = {
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageDivisions?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
-  canManageBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
@@ -16960,7 +16960,7 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageDivisions?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
-  canManageBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
@@ -16994,7 +16994,7 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageDivisions?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
-  canManageBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
@@ -17033,7 +17033,7 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageDivisions?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
-  canManageBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
@@ -17130,8 +17130,8 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canManageDivisions_not?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
   canShareTickets_not?: Maybe<Scalars['Boolean']>;
-  canManageBillingReceipts?: Maybe<Scalars['Boolean']>;
-  canManageBillingReceipts_not?: Maybe<Scalars['Boolean']>;
+  canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canReadBillingReceipts_not?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canReadPayments_not?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
@@ -17230,7 +17230,7 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageDivisions?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
-  canManageBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
@@ -17318,8 +17318,8 @@ export type OrganizationEmployeeRoleWhereInput = {
   canManageDivisions_not?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
   canShareTickets_not?: Maybe<Scalars['Boolean']>;
-  canManageBillingReceipts?: Maybe<Scalars['Boolean']>;
-  canManageBillingReceipts_not?: Maybe<Scalars['Boolean']>;
+  canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canReadBillingReceipts_not?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canReadPayments_not?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
@@ -25734,8 +25734,8 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanManageDivisionsDesc = 'canManageDivisions_DESC',
   CanShareTicketsAsc = 'canShareTickets_ASC',
   CanShareTicketsDesc = 'canShareTickets_DESC',
-  CanManageBillingReceiptsAsc = 'canManageBillingReceipts_ASC',
-  CanManageBillingReceiptsDesc = 'canManageBillingReceipts_DESC',
+  CanReadBillingReceiptsAsc = 'canReadBillingReceipts_ASC',
+  CanReadBillingReceiptsDesc = 'canReadBillingReceipts_DESC',
   CanReadPaymentsAsc = 'canReadPayments_ASC',
   CanReadPaymentsDesc = 'canReadPayments_DESC',
   CanBeAssignedAsResponsibleAsc = 'canBeAssignedAsResponsible_ASC',
@@ -25789,8 +25789,8 @@ export enum SortOrganizationEmployeeRolesBy {
   CanManageDivisionsDesc = 'canManageDivisions_DESC',
   CanShareTicketsAsc = 'canShareTickets_ASC',
   CanShareTicketsDesc = 'canShareTickets_DESC',
-  CanManageBillingReceiptsAsc = 'canManageBillingReceipts_ASC',
-  CanManageBillingReceiptsDesc = 'canManageBillingReceipts_DESC',
+  CanReadBillingReceiptsAsc = 'canReadBillingReceipts_ASC',
+  CanReadBillingReceiptsDesc = 'canReadBillingReceipts_DESC',
   CanReadPaymentsAsc = 'canReadPayments_ASC',
   CanReadPaymentsDesc = 'canReadPayments_DESC',
   CanBeAssignedAsResponsibleAsc = 'canBeAssignedAsResponsible_ASC',
