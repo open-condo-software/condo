@@ -2,12 +2,12 @@ import React from 'react'
 import isEmpty from 'lodash/isEmpty'
 const { ESCAPE_REGEX } = require('../constants/regexps')
 
-export type HighliterRenderPart = (part: string, index?: number) => React.ReactElement
+export type THighliterRenderPartFN = (part: string, index?: number) => React.ReactElement
 
 interface IHighliterProps {
     text: string
     search: string
-    renderPart: HighliterRenderPart
+    renderPart: THighliterRenderPartFN
 }
 
 export const Highliter: React.FC<IHighliterProps> = (props) => {

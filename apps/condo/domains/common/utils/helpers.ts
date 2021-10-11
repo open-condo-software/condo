@@ -33,7 +33,14 @@ export const preciseFloor = (x: number, precision: number = DEFAULT_WIDTH_PRECIS
     return Math.floor(x * Math.pow(10, precision)) / 100
 }
 
-export const getAddressDetails = (record, ShortFlatNumber) => {
+export type TRecordWithAddressDetails = {
+    property: {
+        address: string
+    },
+    unitName?: string
+}
+
+export const getAddressDetails = (record: TRecordWithAddressDetails, ShortFlatNumber?: string) => {
     const property = get(record, 'property')
     const unitName = get(record, 'unitName')
     const text = get(property, 'address')

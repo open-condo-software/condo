@@ -3,14 +3,14 @@ import { FilterValue } from 'antd/es/table/interface'
 import { Typography } from 'antd'
 import isEmpty from 'lodash/isEmpty'
 
-import { Highliter, HighliterRenderPart } from '../Highliter'
+import { Highliter, THighliterRenderPartFN } from '../Highliter'
 import { colors } from '../../constants/style'
 
 type TGetHighlitedFN = (search?: FilterValue, postfix?: string) => (text?: string) => React.ReactElement | string
 
 const HIGHLITER_STYLES = { backgroundColor: colors.markColor }
 
-const highlighterRenderPart: HighliterRenderPart = (part) => (
+const highlighterRenderPart: THighliterRenderPartFN = (part) => (
     <Typography.Text style={HIGHLITER_STYLES}>{part}</Typography.Text>
 )
 
