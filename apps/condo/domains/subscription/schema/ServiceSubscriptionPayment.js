@@ -66,7 +66,6 @@ const ServiceSubscriptionPayment = new GQLListSchema('ServiceSubscriptionPayment
         meta: {
             schemaDoc: 'Data from remote system',
             type: Json,
-            isRequired: true,
         },
 
     },
