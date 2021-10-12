@@ -79,6 +79,30 @@ const ServiceSubscriptionPayment = new GQLListSchema('ServiceSubscriptionPayment
         delete: false,
         auth: true,
     },
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.CheckConstraint',
+                check: 'Q(type__in=["default", "sbbol"])',
+                name: 'service_subscription_payment_type_check',
+            },
+            {
+                type: 'models.CheckConstraint',
+                check: 'Q(status__in=["processing", "done", "error", "stopped", "cancelled"])',
+                name: 'service_subscription_payment_type_check',
+            },
+            {
+                type: 'models.CheckConstraint',
+                check: 'Q(currency__in=["RUB"])',
+                name: 'service_subscription_payment_currency_check',
+            },
+            {
+                type: 'models.CheckConstraint',
+                check: 'Q(amount__gt=0)',
+                name: 'service_subscription_payment_positive_amount_check',
+            },
+        ],
+    },
 })
 
 module.exports = {
