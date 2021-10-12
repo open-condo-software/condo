@@ -101,7 +101,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
     const unitName = get(receipt, ['account', 'unitName'])
 
     const configSize = useContext<SizeType>(ConfigProvider.SizeContext)
-
+    
     const modalTitleMessage = `${AccountMessage} ${accountNumber}`
     const title = (
         <Space direction={'vertical'} size={4}>
