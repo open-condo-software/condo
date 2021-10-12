@@ -25,7 +25,7 @@ const ServiceSubscriptionPayment = new GQLListSchema('ServiceSubscriptionPayment
         },
 
         status: {
-            schemaDoc: 'Reduced set of statuses from a set of statuses in external system, that contains much more of them. Based on this status a system will filter payment request for subsequent fetching of statuses from remote system.',
+            schemaDoc: 'Reduced set of statuses from a set of statuses in external system, that contains much more of them. Based on this status a system will filter payment request for subsequent fetching of statuses from remote system. Statuses meanings is following: "stopped" means, that the payment is stuck somewhere during processing, for example, because of lack of information, but everything else was correct; "cancelled" means, that a client has refused to pay.',
             type: Select,
             options: 'processing,done,error,stopped,cancelled',
             isRequired: true,
