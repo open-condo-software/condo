@@ -337,7 +337,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                     </Space>
                                 </Col>
                                 <TicketContent ticket={ticket}/>
-                                <ActionBar hidden={isSmall}>
+                                <ActionBar>
                                     <Link href={`/ticket/${ticket.id}/update`}>
                                         <Button
                                             color={'green'}
