@@ -8,66 +8,55 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/subscription/access/ServiceSubscriptionPayment')
+const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 
 
 const ServiceSubscriptionPayment = new GQLListSchema('ServiceSubscriptionPayment', {
-    // TODO(codegen): write doc for the ServiceSubscriptionPayment domain model!
-    schemaDoc: 'TODO DOC!',
+    schemaDoc: 'Payment request for service subscription',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
         type: {
-            // TODO(codegen): write doc for ServiceSubscriptionPayment.type field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Origin of subscription, either through our system or through external system or marketplace',
             type: Select,
             options: 'default,sbbol',
             isRequired: true,
         },
 
         status: {
-            // TODO(codegen): write doc for ServiceSubscriptionPayment.status field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Reduced set of statuses from a set of statuses in external system, that contains much more of them. Based on this status a system will filter payment request for subsequent fetching of statuses from remote system.',
             type: Select,
             options: 'processing,done,error,stopped,cancelled',
             isRequired: true,
         },
 
         externalId: {
-            // TODO(codegen): write doc for ServiceSubscriptionPayment.externalId field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Unique identifier in remote system, if this payment request belong to payment requests for subscription from remote system (non-default)',
             type: Text,
             isRequired: true,
         },
 
         amount: {
-            // TODO(codegen): write doc for ServiceSubscriptionPayment.amount field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Amount in specified currency',
             type: Decimal,
             isRequired: true,
+            knexOptions: {
+                scale: 2,
+            },
         },
 
         currency: {
-            // TODO(codegen): write doc for ServiceSubscriptionPayment.currency field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Currency of amount',
             type: Select,
-            options: 'rub',
+            options: 'RUB',
             isRequired: true,
         },
 
-        organization: {
-            // TODO(codegen): write doc for ServiceSubscriptionPayment.organization field!
-            schemaDoc: 'TODO DOC!',
-            type: Relationship,
-            ref: 'Organization',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-        },
+        organization: ORGANIZATION_OWNED_FIELD,
 
         subscription: {
-            // TODO(codegen): write doc for ServiceSubscriptionPayment.subscription field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Subscription, to pay for',
             type: Relationship,
             ref: 'ServiceSubscription',
             isRequired: true,
@@ -76,8 +65,7 @@ const ServiceSubscriptionPayment = new GQLListSchema('ServiceSubscriptionPayment
         },
 
         meta: {
-            // TODO(codegen): write doc for ServiceSubscriptionPayment.meta field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Data from remote system',
             type: Json,
             isRequired: true,
         },
