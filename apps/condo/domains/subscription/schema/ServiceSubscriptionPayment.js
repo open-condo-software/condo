@@ -9,6 +9,8 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/subscription/access/ServiceSubscriptionPayment')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
+const { values } = require('lodash')
+const { SUBSCRIPTION_PAYMENT_STATUS } = require('../constants')
 
 
 const ServiceSubscriptionPayment = new GQLListSchema('ServiceSubscriptionPayment', {
@@ -27,7 +29,7 @@ const ServiceSubscriptionPayment = new GQLListSchema('ServiceSubscriptionPayment
         status: {
             schemaDoc: 'Reduced set of statuses from a set of statuses in external system, that contains much more of them. Based on this status a system will filter payment request for subsequent fetching of statuses from remote system. Statuses meanings is following: "created" means, that the payment was just created in our system and its status in remote system in unknown yet; "stopped" means, that the payment is stuck somewhere during processing, for example, because of lack of information, but everything else was correct; "cancelled" means, that a client has refused to pay.',
             type: Select,
-            options: 'created,processing,done,error,stopped,cancelled',
+            options: values(SUBSCRIPTION_PAYMENT_STATUS),
             isRequired: true,
         },
 
@@ -86,7 +88,7 @@ const ServiceSubscriptionPayment = new GQLListSchema('ServiceSubscriptionPayment
             },
             {
                 type: 'models.CheckConstraint',
-                check: 'Q(status__in=["created", "processing", "done", "error", "stopped", "cancelled"])',
+                check: `Q(status__in=[${values(SUBSCRIPTION_PAYMENT_STATUS).map(status => `"${status}"`).join(', ')}])`,
                 name: 'service_subscription_payment_status_check',
             },
             {
