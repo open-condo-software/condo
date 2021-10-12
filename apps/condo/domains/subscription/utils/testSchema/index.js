@@ -13,9 +13,11 @@ const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/ut
 const { ServiceSubscription: ServiceSubscriptionGQL } = require('@condo/domains/subscription/gql')
 const dayjs = require('dayjs')
 const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
+const { ServiceSubscriptionPayment: ServiceSubscriptionPaymentGQL } = require('@condo/domains/subscription/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const ServiceSubscription = generateGQLTestUtils(ServiceSubscriptionGQL)
+const ServiceSubscriptionPayment = generateGQLTestUtils(ServiceSubscriptionPaymentGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestServiceSubscription (client, organization, extraAttrs = {}) {
@@ -75,9 +77,45 @@ const expectOverlappingFor = async (action, ...args) => (
     })
 )
 
+async function createTestServiceSubscriptionPayment (client, organization, subscription, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    if (!subscription || !subscription.id) throw new Error('no subscription.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestServiceSubscriptionPayment logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        organization: { connect: { id: organization.id } },
+        subscription: { connect: { id: subscription.id } },
+        ...extraAttrs,
+    }
+    const obj = await ServiceSubscriptionPayment.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestServiceSubscriptionPayment (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestServiceSubscriptionPayment logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await ServiceSubscriptionPayment.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     ServiceSubscription, createTestServiceSubscription, updateTestServiceSubscription, expectOverlappingFor,
+    ServiceSubscriptionPayment, createTestServiceSubscriptionPayment, updateTestServiceSubscriptionPayment,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

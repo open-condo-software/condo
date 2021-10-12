@@ -7,12 +7,15 @@
 const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 
 const { ServiceSubscription: ServiceSubscriptionGQL } = require('@condo/domains/subscription/gql')
+const { ServiceSubscriptionPayment: ServiceSubscriptionPaymentGQL } = require('@condo/domains/subscription/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const ServiceSubscription = generateServerUtils(ServiceSubscriptionGQL)
+const ServiceSubscriptionPayment = generateServerUtils(ServiceSubscriptionPaymentGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     ServiceSubscription,
+    ServiceSubscriptionPayment,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
