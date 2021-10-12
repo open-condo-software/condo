@@ -218,7 +218,6 @@ describe('BillingReceipt', () => {
 
             const payload = {
                 toPay: '22.922',
-                commission: '20.10000',
             }
 
             const [objUpdated] = await updateTestBillingReceipt(managerUserClient, obj.id, payload)
