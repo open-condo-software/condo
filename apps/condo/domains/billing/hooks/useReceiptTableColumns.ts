@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useRouter } from 'next/router'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { getFilterIcon, getTextFilterDropdown } from '@condo/domains/common/components/Table/Filters'
-import { getAddressRender, getMoneyRender, getTextRender } from '@condo/domains/common/components/Table/Renders'
+import { getMoneyRender, getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { useIntl } from '@core/next/intl'
 import get from 'lodash/get'
 
@@ -19,16 +19,20 @@ export const useReceiptTableColumns = (detailed: boolean, currencySign: string, 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
     const sorterMap = getSorterMap(sorters)
+
     return useMemo(() => {
         let search = get(filters, 'search')
         search = Array.isArray(search) ? null : search
 
         const renderAddress = (record) => {
-            const property = get(record, ['property', 'address'])
+            const address = get(record, ['property', 'address'])
             const unitName = get(record, ['account', 'unitName'])
-            const unitPrefix = unitName ? `${ShortFlatNumber} ${unitName}` : ''
+            const unitPrefix = unitName ? `, ${ShortFlatNumber} ${unitName}` : ''
+            const result = `${address}${unitPrefix}`
 
-            return getAddressRender(search, unitPrefix)(property)
+            // @ts-ignore
+            // since search can either be Array<string> or <string> and TS can't parse that we handle the array case
+            return getTextRender(search)(result)
         }
 
         const columns = {
@@ -108,6 +112,7 @@ export const useReceiptTableColumns = (detailed: boolean, currencySign: string, 
         ChargeTitle,
         filters,
         sorterMap,
+        ShortFlatNumber,
         detailed,
         currencySign,
         separator,
