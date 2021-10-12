@@ -16,6 +16,7 @@ import { PropertyPanels } from '@condo/domains/property/components/panels'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
+import { useOrganization } from '@core/next/organization'
 
 interface IPropertyInfoPanelProps {
     title: string
@@ -36,11 +37,19 @@ const PropertyInfoPanel: React.FC<IPropertyInfoPanelProps> = ({ title, message, 
 
 }
 
-export const PropertyPageContent = ({ property }) => {
+export const PropertyPageContent = ({ property, role }) => {
     const intl = useIntl()
     const UnitsCountTitle = intl.formatMessage({ id: 'pages.condo.property.id.UnitsCount' })
     const TicketsClosedTitle = intl.formatMessage({ id: 'pages.condo.property.id.TicketsClosed' })
     const TicketsInWorkTitle = intl.formatMessage({ id: 'pages.condo.property.id.TicketsInWork' })
+    const DeletePropertyLabel = intl.formatMessage({ id: 'pages.condo.property.form.DeleteLabel' })
+    const ConfirmDeleteTitle = intl.formatMessage({ id: 'pages.condo.property.form.ConfirmDeleteTitle' })
+    const ConfirmDeleteMessage = intl.formatMessage({ id: 'pages.condo.property.form.ConfirmDeleteMessage' })
+    const UpdateTitle = intl.formatMessage({ id: 'Edit' })
+
+    const { push } = useRouter()
+
+    const softDeleteAction = useSoftDelete({}, () => push('/property/'))
 
     return (
         <>
@@ -70,6 +79,31 @@ export const PropertyPageContent = ({ property }) => {
                     <PropertyPanels mode='view' map={property.map} address={property.address} />
                 </Col>
             </Row>
+            {
+                role && role.canManageProperties ? (
+                    <ActionBar>
+                        <Link href={`/property/${property.id}/update`}>
+                            <span>
+                                <Button
+                                    color={'green'}
+                                    type={'sberPrimary'}
+                                    secondary
+                                    icon={<EditFilled />}
+                                    size={'large'}
+                                >
+                                    {UpdateTitle}
+                                </Button>
+                            </span>
+                        </Link>
+                        <DeleteButtonWithConfirmModal
+                            title={ConfirmDeleteTitle}
+                            message={ConfirmDeleteMessage}
+                            okButtonLabel={DeletePropertyLabel}
+                            action={() => softDeleteAction({}, property)}
+                        />
+                    </ActionBar>
+                ) : null
+            }
         </>
     )
 }
@@ -83,20 +117,15 @@ const PropertyIdPage: IPropertyIdPage = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.id.PageTitle' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
-    const DeletePropertyLabel = intl.formatMessage({ id: 'pages.condo.property.form.DeleteLabel' })
-    const ConfirmDeleteTitle = intl.formatMessage({ id: 'pages.condo.property.form.ConfirmDeleteTitle' })
-    const ConfirmDeleteMessage = intl.formatMessage({ id: 'pages.condo.property.form.ConfirmDeleteMessage' })
 
-    const { push, query: { id } } = useRouter()
+    const { query: { id } } = useRouter()
     const { loading, obj: property, error } = useObject({ where: { id: id as string } })
 
-    const softDeleteAction = useSoftDelete({}, () => push('/property/'))
+    const { link } = useOrganization()
 
     if (error || loading) {
         return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null}/>
     }
-
-    const UpdateTitle = intl.formatMessage({ id: 'Edit' })
 
     return <>
         <Head>
@@ -104,28 +133,10 @@ const PropertyIdPage: IPropertyIdPage = () => {
         </Head>
         <PageWrapper>
             <PageContent>
-                <PropertyPageContent property={property} />
-                <ActionBar>
-                    <Link href={`/property/${property.id}/update`}>
-                        <span>
-                            <Button
-                                color={'green'}
-                                type={'sberPrimary'}
-                                secondary
-                                icon={<EditFilled />}
-                                size={'large'}
-                            >
-                                {UpdateTitle}
-                            </Button>
-                        </span>
-                    </Link>
-                    <DeleteButtonWithConfirmModal
-                        title={ConfirmDeleteTitle}
-                        message={ConfirmDeleteMessage}
-                        okButtonLabel={DeletePropertyLabel}
-                        action={() => softDeleteAction({}, property)}
-                    />
-                </ActionBar>
+                <PropertyPageContent
+                    property={property}
+                    role={link.role}
+                />
             </PageContent>
         </PageWrapper>
     </>

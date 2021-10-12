@@ -21,15 +21,18 @@ import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/D
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useTableColumns } from '@condo/domains/division/hooks/useTechniciansTableColumns'
+import { IOrganizationEmployeeRoleUIState } from '@condo/domains/organization/utils/clientSchema/OrganizationEmployeeRole'
+import { useOrganization } from '@core/next/organization'
 import qs from 'qs'
 
 type DivisionPageContentProps = {
     division: ReturnType<typeof useObject>['obj']
     loading: ReturnType<typeof useObject>['loading']
     columns: any
+    role: IOrganizationEmployeeRoleUIState
 }
 
-const DivisionPageContent = ({ division, loading, columns }: DivisionPageContentProps) => {
+export const DivisionPageContent = ({ division, loading, columns, role }: DivisionPageContentProps) => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.division.id.PageTitle' }, { name: division.name })
     const NameBlankMessage = intl.formatMessage({ id: 'pages.condo.division.id.NameBlank' })
@@ -38,7 +41,17 @@ const DivisionPageContent = ({ division, loading, columns }: DivisionPageContent
     const ExecutorsLabelMessage = intl.formatMessage({ id: 'pages.condo.division.id.ExecutorsLabel' })
     const ExecutorsEmptyTitleMessage = intl.formatMessage({ id: 'pages.condo.division.id.ExecutorsEmpty.title' })
     const ExecutorsEmptyDescriptionMessage = intl.formatMessage({ id: 'pages.condo.division.id.ExecutorsEmpty.description' })
+    const ConfirmDeleteTitle = intl.formatMessage({ id: 'division.action.delete.confirm.title' })
+    const ConfirmDeleteMessage = intl.formatMessage({ id: 'division.action.delete.confirm.message' })
+    const DeleteDivisionLabel = intl.formatMessage({ id: 'division.action.delete.confirm.ok' })
+    const UpdateTitle = intl.formatMessage({ id: 'Edit' })
+
     const router = useRouter()
+
+    const handleCompleteSoftDelete = () => {
+        router.push('/property/')
+    }
+    const softDeleteAction = useSoftDelete({}, handleCompleteSoftDelete)
 
     // Transform executors array to make `name` attribute required. This fixes following error:
     // TS2322: Type 'OrganizationEmployee[]' is not assignable to type 'readonly { id: any; name: any; }[]'.
@@ -105,62 +118,8 @@ const DivisionPageContent = ({ division, loading, columns }: DivisionPageContent
                     )}
                 </Col>
             </Row>
-        </>
-    )
-}
-
-function DivisionPage () {
-    const intl = useIntl()
-
-    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
-    const UpdateTitle = intl.formatMessage({ id: 'Edit' })
-    const DivisionNotFoundMessage = intl.formatMessage({ id: 'pages.condo.division.id.PageTitleNotFound' })
-    const ConfirmDeleteTitle = intl.formatMessage({ id: 'division.action.delete.confirm.title' })
-    const ConfirmDeleteMessage = intl.formatMessage({ id: 'division.action.delete.confirm.message' })
-    const DeleteDivisionLabel = intl.formatMessage({ id: 'division.action.delete.confirm.ok' })
-
-    const router = useRouter()
-    const { query: { id } } = router
-
-    const handleCompleteSoftDelete = () => {
-        router.push('/property/')
-    }
-    const EXECUTORS_PAGE_SIZE = 10
-    const { offset } = parseQuery(router.query)
-
-    const currentPageIndex = getPageIndexFromOffset(offset, EXECUTORS_PAGE_SIZE)
-
-    const { loading, obj: division, error } = useObject({
-        where: {
-            id: typeof id === 'string' ? id : undefined,
-        },
-        skip: (currentPageIndex - 1) * EXECUTORS_PAGE_SIZE,
-    })
-
-    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.division.id.PageTitle' }, {
-        name: get(division, 'name', ''),
-    })
-
-    const columns = useTableColumns()
-
-    const softDeleteAction = useSoftDelete({}, handleCompleteSoftDelete)
-
-    if (error) {
-        return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null} />
-    }
-
-    if (!division || loading) {
-        return <LoadingOrErrorPage title={DivisionNotFoundMessage} loading={loading} error={error ? ServerErrorMsg : null} />
-    }
-
-    return (
-        <>
-            <Head>
-                <title>{PageTitleMsg}</title>
-            </Head>
-            <PageWrapper>
-                <PageContent>
-                    <DivisionPageContent division={division} loading={loading} columns={columns} />
+            {
+                role && role.canManageDivisions ? (
                     <ActionBar>
                         <Link href={`/division/${division.id}/update`}>
                             <span>
@@ -182,6 +141,62 @@ function DivisionPage () {
                             action={() => softDeleteAction({}, division)}
                         />
                     </ActionBar>
+                ) : null
+            }
+        </>
+    )
+}
+
+function DivisionPage () {
+    const intl = useIntl()
+
+    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
+    const DivisionNotFoundMessage = intl.formatMessage({ id: 'pages.condo.division.id.PageTitleNotFound' })
+
+    const { link } = useOrganization()
+
+    const router = useRouter()
+    const { query: { id } } = router
+
+    const EXECUTORS_PAGE_SIZE = 10
+    const { offset } = parseQuery(router.query)
+
+    const currentPageIndex = getPageIndexFromOffset(offset, EXECUTORS_PAGE_SIZE)
+
+    const { loading, obj: division, error } = useObject({
+        where: {
+            id: typeof id === 'string' ? id : undefined,
+        },
+        skip: (currentPageIndex - 1) * EXECUTORS_PAGE_SIZE,
+    })
+
+    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.division.id.PageTitle' }, {
+        name: get(division, 'name', ''),
+    })
+
+    const columns = useTableColumns()
+
+    if (error) {
+        return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null} />
+    }
+
+    if (!division || loading) {
+        return <LoadingOrErrorPage title={DivisionNotFoundMessage} loading={loading} error={error ? ServerErrorMsg : null} />
+    }
+
+    return (
+        <>
+            <Head>
+                <title>{PageTitleMsg}</title>
+            </Head>
+            <PageWrapper>
+                <PageContent>
+                    <DivisionPageContent
+                        division={division}
+                        loading={loading}
+                        columns={columns}
+                        role={link.role}
+                    />
                 </PageContent>
             </PageWrapper>
         </>
