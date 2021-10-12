@@ -3,12 +3,11 @@ import { Space, Typography } from 'antd'
 import classnames from 'classnames'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React  from 'react'
+import React, { useEffect, useState } from 'react'
 import { useIntl } from '@core/next/intl'
 import { colors } from '../constants/style'
 import { transitions } from '@condo/domains/common/constants/style'
 import { ClientRenderedIcon } from './icons/ClientRenderedIcon'
-import { useLayoutContext } from './LayoutContext'
 import { Tooltip } from './Tooltip'
 
 const IconWrapper = styled.div``
@@ -78,6 +77,11 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
     const { route } = useRouter()
     const intl = useIntl()
 
+    const [isActive, setIsActive] = useState(false)
+    useEffect(() => {
+        setIsActive(path === '/' ? route === path : route.includes(path))
+    }, [route, path])
+
     if (hideInMenu) {
         return null
     }
@@ -85,7 +89,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
     const Message = intl.formatMessage({ id: label })
 
     const menuItemClassNames = classnames({
-        'active': path === '/' ? route === path : route.includes(path),
+        'active': isActive,
         'disabled': disabled,
     })
 
