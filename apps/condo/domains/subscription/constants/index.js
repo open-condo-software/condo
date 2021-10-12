@@ -5,7 +5,25 @@ const SUBSCRIPTION_TYPE = {
     SBBOL: 'sbbol',
 }
 
+/**
+ * Reduced set of statuses from a set of statuses in external system, that contains much more of them.
+ * Based on this status a system will filter payment request for subsequent fetching of statuses from remote system.
+ */
+const SUBSCRIPTION_PAYMENT_STATUS = {
+    // Payment was just created in our system and its status in remote system in unknown yet
+    CREATED: 'created',
+    // Work in payment is in progress (on remote system the payment can have many stages of processing, that are mapped to this one for simplicity)
+    PROCESSING: 'processing',
+    DONE: 'done',
+    ERROR: 'error',
+    // Payment is stuck somewhere during processing, for example, because of lack of information, but everything else was correct
+    STOPPED: 'stopped',
+    // Client has refused to pay
+    CANCELLED: 'cancelled',
+}
+
 module.exports = {
     SUBSCRIPTION_TYPE,
     SUBSCRIPTION_TRIAL_PERIOD_DAYS,
+    SUBSCRIPTION_PAYMENT_STATUS,
 }
