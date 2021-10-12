@@ -10,7 +10,7 @@ const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields'
 const access = require('@condo/domains/subscription/access/ServiceSubscriptionPayment')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { values } = require('lodash')
-const { SUBSCRIPTION_PAYMENT_STATUS, SUBSRIPTION_PAYMENT_STATUS_TRANSITIONS, SUBSCRIPTION_TYPE } = require('../constants')
+const { SUBSCRIPTION_PAYMENT_STATUS, SUBSCRIPTION_PAYMENT_STATUS_TRANSITIONS, SUBSCRIPTION_TYPE } = require('../constants')
 const { WRONG_PAYMENT_STATUS_TRANSITION_ERROR } = require('../constants/errors')
 
 
@@ -35,7 +35,7 @@ const ServiceSubscriptionPayment = new GQLListSchema('ServiceSubscriptionPayment
             hooks: {
                 validateInput: async ({ operation, resolvedData, existingItem, addFieldValidationError }) => {
                     if (operation === 'update' && resolvedData.status !== existingItem.status ) {
-                        if (!SUBSRIPTION_PAYMENT_STATUS_TRANSITIONS[existingItem.status].includes(resolvedData.status)) {
+                        if (!SUBSCRIPTION_PAYMENT_STATUS_TRANSITIONS[existingItem.status].includes(resolvedData.status)) {
                             addFieldValidationError(WRONG_PAYMENT_STATUS_TRANSITION_ERROR + ` ServiceSubscriptionPayment(id=${existingItem.id}) cannot change status from '${existingItem.status}' to '${resolvedData.status}'`)
                         }
                     }
