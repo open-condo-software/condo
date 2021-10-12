@@ -14,6 +14,8 @@ const { ServiceSubscription: ServiceSubscriptionGQL } = require('@condo/domains/
 const dayjs = require('dayjs')
 const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const { ServiceSubscriptionPayment: ServiceSubscriptionPaymentGQL } = require('@condo/domains/subscription/gql')
+const { SUBSCRIPTION_PAYMENT_STATUS } = require('../../constants')
+const { SUBSCRIPTION_TYPE } = require('../../constants')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const ServiceSubscription = generateGQLTestUtils(ServiceSubscriptionGQL)
@@ -83,11 +85,18 @@ async function createTestServiceSubscriptionPayment (client, organization, subsc
     if (!subscription || !subscription.id) throw new Error('no subscription.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestServiceSubscriptionPayment logic for generate fields
+    const type = 'default'
+    const status = SUBSCRIPTION_PAYMENT_STATUS.CREATED
+    const amount = faker.datatype.float({ precision: 0.01 }).toString()
+    const currency = 'RUB'
 
     const attrs = {
         dv: 1,
         sender,
+        type,
+        status,
+        amount,
+        currency,
         organization: { connect: { id: organization.id } },
         subscription: { connect: { id: subscription.id } },
         ...extraAttrs,
@@ -101,11 +110,12 @@ async function updateTestServiceSubscriptionPayment (client, id, extraAttrs = {}
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestServiceSubscriptionPayment logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
+        status: SUBSCRIPTION_PAYMENT_STATUS.PROCESSING,
+        type: SUBSCRIPTION_TYPE.SBBOL,
+        amount: faker.datatype.float({ precision: 0.01 }).toString(),
         ...extraAttrs,
     }
     const obj = await ServiceSubscriptionPayment.update(client, id, attrs)
