@@ -10,7 +10,7 @@ const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields'
 const access = require('@condo/domains/subscription/access/ServiceSubscriptionPayment')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { values } = require('lodash')
-const { SUBSCRIPTION_PAYMENT_STATUS, SUBSRIPTION_PAYMENT_STATUS_TRANSITIONS } = require('../constants')
+const { SUBSCRIPTION_PAYMENT_STATUS, SUBSRIPTION_PAYMENT_STATUS_TRANSITIONS, SUBSCRIPTION_TYPE } = require('../constants')
 const { WRONG_PAYMENT_STATUS_TRANSITION_ERROR } = require('../constants/errors')
 
 
@@ -23,7 +23,7 @@ const ServiceSubscriptionPayment = new GQLListSchema('ServiceSubscriptionPayment
         type: {
             schemaDoc: 'Origin of subscription, either through our system or through external system or marketplace',
             type: Select,
-            options: 'default,sbbol',
+            options: values(SUBSCRIPTION_TYPE).join(','),
             isRequired: true,
         },
 
