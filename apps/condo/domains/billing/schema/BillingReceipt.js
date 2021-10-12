@@ -61,16 +61,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             type: Decimal,
             isRequired: true,
             knexOptions: {
-                scale: 2,
-            },
-        },
-
-        commission: {
-            schemaDoc: 'The commission paid by the resident. The commission that our service receives.',
-            type: Decimal,
-            isRequired: false,
-            knexOptions: {
-                scale: 2,
+                scale: 8,
             },
         },
 
