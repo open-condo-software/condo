@@ -32,9 +32,8 @@ const ServiceSubscriptionPayment = new GQLListSchema('ServiceSubscriptionPayment
         },
 
         externalId: {
-            schemaDoc: 'Unique identifier in remote system, if this payment request belong to payment requests for subscription from remote system (non-default)',
+            schemaDoc: 'Unique identifier in remote system, if this payment request belong to payment requests for subscription from remote system (non-default). It is not required, because the payment can be created and processed in our system only',
             type: Text,
-            isRequired: true,
         },
 
         amount: {
