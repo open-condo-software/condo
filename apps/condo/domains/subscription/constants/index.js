@@ -16,7 +16,8 @@ const SUBSCRIPTION_PAYMENT_STATUS = {
     PROCESSING: 'processing',
     DONE: 'done',
     ERROR: 'error',
-    // Payment is stuck somewhere during processing, for example, because of lack of information, but everything else was correct
+    // Payment is stuck somewhere during processing, for example, because of lack of information, but everything else was correct.
+    // Payments with "stopped" status should not be polled from remote system, further status update should be performed manually.
     STOPPED: 'stopped',
     // Client has refused to pay
     CANCELLED: 'cancelled',
