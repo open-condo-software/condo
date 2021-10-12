@@ -16,6 +16,9 @@ const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const { ServiceSubscriptionPayment: ServiceSubscriptionPaymentGQL } = require('@condo/domains/subscription/gql')
 const { SUBSCRIPTION_PAYMENT_STATUS } = require('../../constants')
 const { SUBSCRIPTION_TYPE } = require('../../constants')
+const { WRONG_PAYMENT_STATUS_TRANSITION_ERROR } = require('../../constants/errors')
+const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const ServiceSubscription = generateGQLTestUtils(ServiceSubscriptionGQL)
@@ -122,10 +125,30 @@ async function updateTestServiceSubscriptionPayment (client, id, extraAttrs = {}
     return [obj, attrs]
 }
 
+async function expectErrorByChangingStatusOfPayment ({ from, to }) {
+    const adminClient = await makeLoggedInAdminClient()
+    const [organization] = await createTestOrganization(adminClient)
+    const [subscription] = await createTestServiceSubscription(adminClient, organization)
+    const [obj] = await createTestServiceSubscriptionPayment(adminClient, organization, subscription, {
+        status: from,
+    })
+
+    const changeToCreated = {
+        status: to,
+    }
+    await catchErrorFrom(async () => {
+        await updateTestServiceSubscriptionPayment(adminClient, obj.id, changeToCreated)
+    }, ({ errors, data }) => {
+        expect(errors[0].data.messages[0]).toMatch((WRONG_PAYMENT_STATUS_TRANSITION_ERROR + ` ServiceSubscriptionPayment(id=${obj.id}) cannot change status from '${obj.status}' to '${changeToCreated.status}'`))
+        expect(data).toEqual({ 'obj': null })
+    })
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     ServiceSubscription, createTestServiceSubscription, updateTestServiceSubscription, expectOverlappingFor,
     ServiceSubscriptionPayment, createTestServiceSubscriptionPayment, updateTestServiceSubscriptionPayment,
+    expectErrorByChangingStatusOfPayment,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
