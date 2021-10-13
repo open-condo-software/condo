@@ -199,14 +199,9 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     const { query } = useRouter()
     const [shareTicket] = useMutation(SHARE_TICKET_MUTATION)
 
-    let origin = 'http://localhost:3000'
-    if (typeof window !== 'undefined') {
-        origin = window.location.origin
-    } else {
-        ({
-            publicRuntimeConfig: { serverUrl: origin },
-        } = getConfig())
-    }
+    const {
+        publicRuntimeConfig: { serverUrl: origin },
+    } = getConfig()
 
     const [chosenEmployees, setChosenEmployees] = useState([])
     const [loading, setLoading] = useState(false)
