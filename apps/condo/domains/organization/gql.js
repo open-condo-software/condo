@@ -19,7 +19,7 @@ const OrganizationEmployeeRole = generateGqlQueries('OrganizationEmployeeRole', 
 const ORGANIZATION_EMPLOYEE_FIELDS = `{ organization ${ORGANIZATION_FIELDS} user { id name } name email phone specializations { id name } role ${ORGANIZATION_EMPLOYEE_ROLE_FIELDS} isRejected isAccepted isBlocked id dv sender { dv fingerprint } v createdBy { id name } updatedBy { id name } position createdAt deletedAt updatedAt }`
 const OrganizationEmployee = generateGqlQueries('OrganizationEmployee', ORGANIZATION_EMPLOYEE_FIELDS)
 
-const ORGANIZATION_LINK_FIELDS = `{ from { id name } to { id name } ${COMMON_FIELDS} }`
+const ORGANIZATION_LINK_FIELDS = `{ from ${ORGANIZATION_FIELDS} to { id name } ${COMMON_FIELDS} }`
 const OrganizationLink = generateGqlQueries('OrganizationLink', ORGANIZATION_LINK_FIELDS)
 
 // TODO(pahaz): rename autocomplete queries
