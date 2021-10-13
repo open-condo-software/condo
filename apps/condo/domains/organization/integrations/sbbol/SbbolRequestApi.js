@@ -101,6 +101,7 @@ class SbbolRequestApi {
                 return reject(`${REQUEST_TIMEOUT_ERROR}] sbbol request failed`)
             })
             request.on('error', error => {
+                console.error(`Failed request to ${path}`)
                 return reject(error)
             })
             if (body && method === 'POST') {
