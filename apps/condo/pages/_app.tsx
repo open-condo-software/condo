@@ -31,7 +31,7 @@ import { FocusContextProvider } from '@condo/domains/common/components/Focus/Foc
 import { LayoutContextProvider } from '@condo/domains/common/components/LayoutContext'
 import { OnBoardingProgressIconContainer } from '@condo/domains/onboarding/components/OnBoardingProgressIconContainer'
 import {
-    BILLING_RECEIPT_SERVICES_FIELD,
+    BILLING_RECEIPT_SERVICE_FIELD_NAME,
 } from '@condo/domains/billing/constants'
 import { MeterLog } from '../domains/common/components/icons/MeterLogIcon'
 import {
@@ -196,7 +196,7 @@ async function messagesImporter (locale) {
  */
 const apolloCacheConfig = {
     typePolicies: {
-        [BILLING_RECEIPT_SERVICES_FIELD]: {
+        [BILLING_RECEIPT_SERVICE_FIELD_NAME]: {
             // avoiding of building cache from ID on client, since Service ID is not UUID and will be repeated
             keyFields: false,
         },
