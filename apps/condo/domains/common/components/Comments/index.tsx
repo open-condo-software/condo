@@ -55,6 +55,7 @@ const Head = styled.div`
 const Body = styled.div`
   overflow-y: scroll;
   flex: 1 1 auto;
+  padding-top: 12px;
 `
 const Footer = styled.div<{
     hasComments?: boolean
@@ -70,6 +71,11 @@ const EmptyContainer = styled.div`
   .ant-empty-image {
     display: none;
   }
+`
+
+const DescriptionContainer = styled.div`
+  font-size: 12px;
+  margin-bottom: 24px;
 `
 
 type ActionsForComment = {
@@ -128,7 +134,9 @@ const Comments: React.FC<ICommentsListProps> = ({
                 </EmptyContainer>
             ) : (
                 <Body ref={bodyRef}>
-                    <Typography.Text style={{ fontSize: '12px' }}>{ListDescriptionMessage}</Typography.Text>
+                    <DescriptionContainer>
+                        {ListDescriptionMessage}
+                    </DescriptionContainer>
                     {comments.map(comment => {
                         const { updateAction, deleteAction } = actionsFor(comment)
                         return (
