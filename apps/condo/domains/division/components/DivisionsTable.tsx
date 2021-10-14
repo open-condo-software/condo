@@ -6,10 +6,10 @@ import { ColumnsType } from 'antd/lib/table'
 import { IFilters, PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
 import { useIntl } from '@core/next/intl'
 
-import { Col, Input, Row, Space, Typography } from 'antd'
+import { Col, Input, Row, Typography } from 'antd'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { DatabaseFilled, DiffOutlined } from '@ant-design/icons'
+import { DatabaseFilled } from '@ant-design/icons'
 import { Button } from '@condo/domains/common/components/Button'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { Division } from '@condo/domains/division/utils/clientSchema'
@@ -96,9 +96,9 @@ export default function DivisionTable (props: BuildingTableProps) {
                 </Tooltip>
 
             </Col>
-            <Col span={4} offset={7}>
+            <Col span={4} offset={7} >
                 {role?.canManageDivisions ? (
-                    <Button type='sberPrimary' onClick={() => router.push('/division/create')}>
+                    <Button type='sberPrimary' onClick={() => router.push('/division/create')} style={{ float: 'right' }}>
                         {CreateLabel}
                     </Button>
                 ) : null}
