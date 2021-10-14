@@ -1,6 +1,6 @@
 /** @type {import('ow').default} */
 const ow = require('ow')
-const { pickBy, identity, get } = require('lodash')
+const { pickBy, identity, get, isFunction, isArray } = require('lodash')
 const Emittery = require('emittery')
 
 let EVENTS = new Emittery()
@@ -11,16 +11,16 @@ const GQL_SCHEMA_TYPES = [GQL_LIST_SCHEMA_TYPE, GQL_CUSTOM_SCHEMA_TYPE]
 
 const isNotNullObject = (v) => typeof v === 'object' && v !== null
 
-function registerSchemas (keystone, modulesList) {
+function registerSchemas (keystone, modulesList, globalPreprocessors = []) {
     modulesList.forEach(
         (module) => {
             if (GQL_SCHEMA_TYPES.includes(module._type)) {
-                module._register(keystone)
+                module._register(keystone, globalPreprocessors)
             } else {
                 Object.values(module).forEach(
                     (GQLSchema) => {
                         if (GQL_SCHEMA_TYPES.includes(GQLSchema._type)) {
-                            GQLSchema._register(keystone)
+                            GQLSchema._register(keystone, globalPreprocessors)
                         } else {
                             console.warn('Wrong schema module export format! What\'s this? ', GQLSchema)
                         }
@@ -79,17 +79,19 @@ class GQLListSchema {
         return new GQLListSchema(this.name, mergedSchema)
     }
 
-    _register (keystone) {
+    _register (keystone, globalPreprocessors = []) {
         if (SCHEMAS.has(this.name)) throw new Error(`Schema ${this.name} is already registered`)
         SCHEMAS.set(this.name, this)
         this._keystone = keystone
-        keystone.createList(this.name, this.schema)  // create this._keystone.lists[this.name] as List type
+        this._keystoneSchema = applyGlobalPreprocessors(globalPreprocessors, this._type, this.name, this.schema)
+        keystone.createList(this.name, this._keystoneSchema)  // create this._keystone.lists[this.name] as List type
         const keystoneList = get(this._keystone, ['lists', this.name])
         if (keystoneList) {
             // We need to save a shallow copy of createList config argument because
             // we want to use it in a future for kMigrator or some another extensions which need to define extra schema
             // extensions! It allow to use `this._keystone.lists[this.name].createListConfig`
             keystoneList.createListConfig = { ...this.schema }
+            keystoneList.processedCreateListConfig = { ...this._keystoneSchema }
         }
     }
 
@@ -134,11 +136,12 @@ class GQLCustomSchema {
         return new GQLCustomSchema(this.name, mergedSchema)
     }
 
-    _register (keystone) {
+    _register (keystone, globalPreprocessors = []) {
         if (SCHEMAS.has(this.name)) throw new Error(`Schema ${this.name} is already registered`)
         SCHEMAS.set(this.name, this)
         this._keystone = keystone
-        keystone.extendGraphQLSchema(this.schema)
+        this._keystoneSchema = applyGlobalPreprocessors(globalPreprocessors, this._type, this.name, this.schema)
+        keystone.extendGraphQLSchema(this._keystoneSchema)
     }
 
     on (eventName, listener) {
@@ -152,6 +155,16 @@ class GQLCustomSchema {
         ow(eventData, ow.object)
         return await EVENTS.emit(`${this.name}:${eventName}`, eventData)
     }
+}
+
+function applyGlobalPreprocessors (globalPreprocessors, schemaType, name, schema) {
+    if (!isArray(globalPreprocessors)) throw new Error('wrong globalPreprocessors type')
+    return globalPreprocessors.reduce((schema, fn) => {
+        if (!isFunction(fn)) throw new Error('preprocessor is not a function! Check your global preprocessors')
+        const newSchema = fn(schemaType, name, schema)
+        if (!newSchema) throw new Error('preprocessor should return a new schema object! Check your global preprocessors')
+        return newSchema
+    }, schema)
 }
 
 async function find (schemaName, condition) {

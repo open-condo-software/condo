@@ -2,7 +2,8 @@ const { ArgumentError } = require('ow')
 const faker = require('faker')
 const { Text, Checkbox } = require('@keystonejs/fields')
 
-const { GQLListSchema, GQLCustomSchema } = require('./schema')
+const { GQLListSchema, GQLCustomSchema, registerSchemas, unregisterAllSchemas } = require('./schema')
+
 const USER_LIST = new GQLListSchema('User', {
     fields: {
         name: {
@@ -133,7 +134,9 @@ const CALCULATOR_SERVICE = new GQLCustomSchema('CalculatorService', {
             // https://www.keystonejs.com/keystonejs/keystone/#config-1
             resolver: async (parent, args, context, info, extra) => {
                 const { op, l, r } = args
-                return String(eval(`${l} ${op} ${r}`))
+                return String(eval(`${l}
+                ${op}
+                ${r}`))
             },
         },
     ],
@@ -144,4 +147,89 @@ test('execute mutation func', async () => {
     const res = await CALCULATOR_SERVICE.schema.mutations[0].resolver(
         parent, { op: '+', l: 2, r: 2 }, context, info, extra)
     expect(res).toEqual('4')
+})
+
+test('registerSchema preprocessors', () => {
+    const keystone = { createList: jest.fn(), extendGraphQLSchema: jest.fn() }
+    const modules = [
+        {
+            User: new GQLListSchema('User', {
+                fields: {
+                    name: {
+                        type: Text,
+                        defaultValue: 'username',
+                    },
+                },
+                access: {
+                    read: false,
+                },
+            }),
+        }, {
+            Organization: new GQLListSchema('Organization', {
+                fields: {
+                    name: {
+                        type: Text,
+                        defaultValue: 'orgname',
+                    },
+                },
+                access: {
+                    read: false,
+                },
+            }),
+        },
+    ]
+
+    function customPreprocessor1 () {
+        return ((schemaType, name, schema) => {
+            return {
+                ...schema,
+                foo: 'bar',
+            }
+        })
+    }
+
+    function customPreprocessor2 () {
+        return ((schemaType, name, schema) => {
+            if (name === 'Organization') schema.access.update = false
+            return {
+                ...schema,
+                bar: 'buz',
+            }
+        })
+    }
+
+    unregisterAllSchemas()
+    registerSchemas(keystone, modules, [customPreprocessor1(), customPreprocessor2()])
+    unregisterAllSchemas()
+
+    expect(keystone.extendGraphQLSchema.mock.calls).toEqual([])
+    expect(keystone.createList.mock.calls).toEqual([
+        ['User', {
+            fields: {
+                name: {
+                    type: Text,
+                    defaultValue: 'username',
+                },
+            },
+            access: {
+                read: false,
+            },
+            foo: 'bar',
+            bar: 'buz',
+        }],
+        ['Organization', {
+            fields: {
+                name: {
+                    type: Text,
+                    defaultValue: 'orgname',
+                },
+            },
+            access: {
+                read: false,
+                update: false,
+            },
+            foo: 'bar',
+            bar: 'buz',
+        }],
+    ])
 })
