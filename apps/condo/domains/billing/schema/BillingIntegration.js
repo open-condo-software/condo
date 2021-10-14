@@ -8,6 +8,7 @@ const { Json } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingIntegration')
+const { CURRENCY_FIELD } = require('@condo/domains/common/schema/fields')
 const { validateDataFormat } = require('../utils/validation.utils')
 const {
     BILLING_INTEGRATION_ORGANIZATION_CONTEXT_STATUSES,
@@ -88,11 +89,9 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
         },
 
         currency: {
+            ...CURRENCY_FIELD,
             schemaDoc: 'Currency which this billing uses',
-            type: Relationship,
-            ref: 'BillingCurrency',
             isRequired: false,
-            kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
         },
 
         // settings data structure config (settings field for BillingIntegrationOrganizationContext)
