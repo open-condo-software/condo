@@ -10,9 +10,8 @@ const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema
 const access = require('@condo/domains/subscription/access/ServiceSubscription')
 const { ServiceSubscription: ServiceSubscriptionAPI } = require('../utils/serverSchema')
 const get = require('lodash/get')
+const { sbbolOfferAcceptJsonValidator, SBBOL_OFFER_ACCEPT_GRAPHQL_TYPES } = require('./fields/SbbolOfferAcceptField')
 const { Json } = require('@core/keystone/fields')
-const { SBBOL_OFFER_ACCEPT_GRAPHQL_TYPES } = require('../gql')
-const { SBBOL_OFFER_ACCEPT_FIELD } = require('./fields/SbbolOfferAcceptField')
 const { OVERLAPPING_ERROR } = require('../constants/errors')
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
@@ -81,8 +80,22 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
             isRequired: false,
         },
 
-        sbbolOfferAccept: SBBOL_OFFER_ACCEPT_FIELD,
-
+        sbbolOfferAccept: {
+            schemaDoc: 'It is necessary to save the offer confirmation data that is transmitted in the response of the advance-acceptances method',
+            type: Json,
+            extendGraphQLTypes: [SBBOL_OFFER_ACCEPT_GRAPHQL_TYPES],
+            graphQLReturnType: 'SbbolOfferAccept',
+            graphQLInputType: 'SbbolOfferAcceptInput',
+            hooks: {
+                validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
+                    if (!sbbolOfferAcceptJsonValidator(resolvedData[fieldPath])) {
+                        sbbolOfferAcceptJsonValidator.errors.forEach(error => {
+                            addFieldValidationError(`${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`)
+                        })
+                    }
+                },
+            },
+        },
     },
     kmigratorOptions: {
         constraints: [
