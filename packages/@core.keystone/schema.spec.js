@@ -149,7 +149,68 @@ test('execute mutation func', async () => {
     expect(res).toEqual('4')
 })
 
-test('registerSchema preprocessors', () => {
+test('registerSchema without preprocessors', () => {
+    const keystone = { createList: jest.fn(), extendGraphQLSchema: jest.fn() }
+    const modules = [
+        {
+            User: new GQLListSchema('User', {
+                fields: {
+                    name: {
+                        type: Text,
+                        defaultValue: 'username',
+                    },
+                },
+                access: {
+                    read: false,
+                },
+            }),
+        }, {
+            Organization: new GQLListSchema('Organization', {
+                fields: {
+                    name: {
+                        type: Text,
+                        defaultValue: 'orgname',
+                    },
+                },
+                access: {
+                    read: false,
+                },
+            }),
+        },
+    ]
+
+    unregisterAllSchemas()
+    registerSchemas(keystone, modules)
+    unregisterAllSchemas()
+
+    expect(keystone.extendGraphQLSchema.mock.calls).toEqual([])
+    expect(keystone.createList.mock.calls).toEqual([
+        ['User', {
+            fields: {
+                name: {
+                    type: Text,
+                    defaultValue: 'username',
+                },
+            },
+            access: {
+                read: false,
+            },
+        }],
+        ['Organization', {
+            fields: {
+                name: {
+                    type: Text,
+                    defaultValue: 'orgname',
+                },
+            },
+            access: {
+                read: false,
+            },
+        }],
+    ])
+})
+
+test('registerSchema with preprocessors', () => {
     const keystone = { createList: jest.fn(), extendGraphQLSchema: jest.fn() }
     const modules = [
         {
