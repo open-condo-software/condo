@@ -79,9 +79,6 @@ class SbbolRequestApi {
         return new Promise((resolve, reject) => {
             const path = method === 'GET' && body ? `${basePath}?${querystring.stringify(body)}` : basePath
             debugMessage(`${method} ${ path }`)
-            if (body) {
-                debugMessage('request body:', body)
-            }
             const requestOptions = {
                 ...this.options,
                 method,
@@ -110,7 +107,9 @@ class SbbolRequestApi {
                 return reject(error)
             })
             if (body && method === 'POST') {
-                request.write(querystring.stringify(body))
+                const stringifiedBody = JSON.stringify(body)
+                debugMessage('request body', stringifiedBody)
+                request.write(stringifiedBody)
             }
             request.end()
         })
