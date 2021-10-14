@@ -1,4 +1,5 @@
 const { Relationship, Select, Integer, Text } = require('@keystonejs/fields')
+const { Decimal } = require('@keystonejs/fields')
 const { PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
@@ -122,6 +123,15 @@ const CLIENT_PHONE_LANDLINE_FIELD = {
     },
 }
 
+const MONEY_FIELD = {
+    schemaDoc: 'Money field',
+    type: Decimal,
+    isRequired: false,
+    knexOptions: {
+        scale: 8,
+    },
+}
+
 const CURRENCY_CODE_FIELD = {
     schemaDoc: 'Code of currency in ISO-4217 format',
     isRequired: true,
@@ -141,5 +151,6 @@ module.exports = {
     CLIENT_EMAIL_FIELD,
     CLIENT_PHONE_FIELD,
     CLIENT_PHONE_LANDLINE_FIELD,
+    MONEY_FIELD,
     CURRENCY_CODE_FIELD,
 }
