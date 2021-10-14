@@ -98,9 +98,11 @@ export default function DivisionTable (props: BuildingTableProps) {
             </Col>
             <Col span={4} offset={7} >
                 {role?.canManageDivisions ? (
-                    <Button type='sberPrimary' onClick={() => router.push('/division/create')} style={{ float: 'right' }}>
-                        {CreateLabel}
-                    </Button>
+                    <Row justify={'end'}>
+                        <Button type='sberPrimary' onClick={() => router.push('/division/create')}>
+                            {CreateLabel}
+                        </Button>
+                    </Row>
                 ) : null}
             </Col>
             <Col span={24}>
