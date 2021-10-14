@@ -226,6 +226,52 @@ export type AddressMetaFieldInput = {
   data: AddressMetaDataFieldInput;
 };
 
+export type AdvanceAcceptance = {
+  __typename?: 'AdvanceAcceptance';
+  active?: Maybe<Scalars['Boolean']>;
+  payerAccount?: Maybe<Scalars['String']>;
+  payerBankBic?: Maybe<Scalars['String']>;
+  payerBankCorrAccount?: Maybe<Scalars['String']>;
+  payerInn?: Maybe<Scalars['String']>;
+  payerName?: Maybe<Scalars['String']>;
+  payerOrgIdHash?: Maybe<Scalars['String']>;
+  purpose?: Maybe<Scalars['String']>;
+  sinceDate?: Maybe<Scalars['String']>;
+  untilDate?: Maybe<Scalars['String']>;
+  bundles?: Maybe<Array<Maybe<AdvanceAcceptanceBundle>>>;
+};
+
+export type AdvanceAcceptanceBundle = {
+  __typename?: 'AdvanceAcceptanceBundle';
+  code?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  sinceDate?: Maybe<Scalars['String']>;
+  untilDate?: Maybe<Scalars['String']>;
+  currentState?: Maybe<CurrentStateType>;
+};
+
+export type AdvanceAcceptanceBundleInput = {
+  code?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  sinceDate?: Maybe<Scalars['String']>;
+  untilDate?: Maybe<Scalars['String']>;
+  currentState?: Maybe<CurrentStateType>;
+};
+
+export type AdvanceAcceptanceInput = {
+  active?: Maybe<Scalars['Boolean']>;
+  payerAccount?: Maybe<Scalars['String']>;
+  payerBankBic?: Maybe<Scalars['String']>;
+  payerBankCorrAccount?: Maybe<Scalars['String']>;
+  payerInn?: Maybe<Scalars['String']>;
+  payerName?: Maybe<Scalars['String']>;
+  payerOrgIdHash?: Maybe<Scalars['String']>;
+  purpose?: Maybe<Scalars['String']>;
+  sinceDate?: Maybe<Scalars['String']>;
+  untilDate?: Maybe<Scalars['String']>;
+  bundles?: Maybe<Array<Maybe<AdvanceAcceptanceBundleInput>>>;
+};
+
 export type AuthenticateUserWithPhoneAndPasswordInput = {
   phone: Scalars['String'];
   password: Scalars['String'];
@@ -6046,6 +6092,12 @@ export type CreateOnBoardingInput = {
   type?: Maybe<OnBoardingType>;
   userId: Scalars['ID'];
 };
+
+export enum CurrentStateType {
+  Active = 'ACTIVE',
+  NotPaid = 'NOT_PAID',
+  Deactivated = 'DEACTIVATED'
+}
 
 /**  Grouping of properties and employees with one single responsible person  */
 export type Division = {
@@ -20271,6 +20323,15 @@ export type ResidentsUpdateInput = {
   data?: Maybe<ResidentUpdateInput>;
 };
 
+export type SbbolOfferAccept = {
+  __typename?: 'SbbolOfferAccept';
+  data?: Maybe<Array<Maybe<AdvanceAcceptance>>>;
+};
+
+export type SbbolOfferAcceptInput = {
+  data?: Maybe<Array<Maybe<AdvanceAcceptanceInput>>>;
+};
+
 export type SendMessageInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -20699,6 +20760,8 @@ export type ServiceSubscription = {
   totalPrice?: Maybe<Scalars['String']>;
   /**  Currency of values for all price fields  */
   currency?: Maybe<Scalars['String']>;
+  /**  It is necessary to save the offer confirmation data that is transmitted in the response of the advance-acceptances method  */
+  sbbolOfferAccept?: Maybe<SbbolOfferAccept>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -20721,6 +20784,7 @@ export type ServiceSubscriptionCreateInput = {
   unitPrice?: Maybe<Scalars['String']>;
   totalPrice?: Maybe<Scalars['String']>;
   currency?: Maybe<Scalars['String']>;
+  sbbolOfferAccept?: Maybe<SbbolOfferAcceptInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -20752,6 +20816,7 @@ export type ServiceSubscriptionHistoryRecord = {
   unitPrice?: Maybe<Scalars['String']>;
   totalPrice?: Maybe<Scalars['String']>;
   currency?: Maybe<Scalars['String']>;
+  sbbolOfferAccept?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -20777,6 +20842,7 @@ export type ServiceSubscriptionHistoryRecordCreateInput = {
   unitPrice?: Maybe<Scalars['String']>;
   totalPrice?: Maybe<Scalars['String']>;
   currency?: Maybe<Scalars['String']>;
+  sbbolOfferAccept?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -20807,6 +20873,7 @@ export type ServiceSubscriptionHistoryRecordUpdateInput = {
   unitPrice?: Maybe<Scalars['String']>;
   totalPrice?: Maybe<Scalars['String']>;
   currency?: Maybe<Scalars['String']>;
+  sbbolOfferAccept?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -20916,6 +20983,10 @@ export type ServiceSubscriptionHistoryRecordWhereInput = {
   currency_not_ends_with_i?: Maybe<Scalars['String']>;
   currency_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   currency_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sbbolOfferAccept?: Maybe<Scalars['JSON']>;
+  sbbolOfferAccept_not?: Maybe<Scalars['JSON']>;
+  sbbolOfferAccept_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sbbolOfferAccept_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -21012,6 +21083,7 @@ export type ServiceSubscriptionUpdateInput = {
   unitPrice?: Maybe<Scalars['String']>;
   totalPrice?: Maybe<Scalars['String']>;
   currency?: Maybe<Scalars['String']>;
+  sbbolOfferAccept?: Maybe<SbbolOfferAcceptInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -21102,6 +21174,10 @@ export type ServiceSubscriptionWhereInput = {
   currency_not_ends_with_i?: Maybe<Scalars['String']>;
   currency_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   currency_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sbbolOfferAccept?: Maybe<SbbolOfferAcceptInput>;
+  sbbolOfferAccept_not?: Maybe<SbbolOfferAcceptInput>;
+  sbbolOfferAccept_in?: Maybe<Array<Maybe<SbbolOfferAcceptInput>>>;
+  sbbolOfferAccept_not_in?: Maybe<Array<Maybe<SbbolOfferAcceptInput>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -29544,7 +29620,7 @@ export type TokenSet = {
   _label_?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   /**  User owner of tokens  */
   user?: Maybe<User>;

@@ -10,6 +10,9 @@ const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema
 const access = require('@condo/domains/subscription/access/ServiceSubscription')
 const { ServiceSubscription: ServiceSubscriptionAPI } = require('../utils/serverSchema')
 const get = require('lodash/get')
+const { Json } = require('@core/keystone/fields')
+const { SBBOL_OFFER_ACCEPT_GRAPHQL_TYPES } = require('../gql')
+const { SBBOL_OFFER_ACCEPT_FIELD } = require('./fields/SbbolOfferAcceptField')
 const { OVERLAPPING_ERROR } = require('../constants/errors')
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
@@ -77,6 +80,8 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
             // defaultValue: 'RUB',
             isRequired: false,
         },
+
+        sbbolOfferAccept: SBBOL_OFFER_ACCEPT_FIELD,
 
     },
     kmigratorOptions: {

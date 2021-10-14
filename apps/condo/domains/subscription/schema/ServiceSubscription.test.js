@@ -14,6 +14,8 @@ const { createTestOrganization } = require('@condo/domains/organization/utils/te
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const dayjs = require('dayjs')
 const faker = require('faker')
+const { wrongSbbolOfferAccept } = require('../utils/testSchema/constants')
+const { rightSbbolOfferAccept } = require('../utils/testSchema/constants')
 
 describe('ServiceSubscription', () => {
 
@@ -353,6 +355,80 @@ describe('ServiceSubscription', () => {
 
                     expect(objUpdated.startAt).toEqual(overlappingInterval.startAt.toISOString())
                     expect(objUpdated.finishAt).toEqual(overlappingInterval.finishAt.toISOString())
+                })
+            })
+        })
+
+        describe('sbbolOfferAccept field input structure', () => {
+            describe('for create ServiceSubscription',  () => {
+                it('can create ServiceSubscription with correct sbbolOfferAccept input structure', async () => {
+                    const adminClient = await makeLoggedInAdminClient()
+                    const [organization] = await createTestOrganization(adminClient)
+
+                    const [obj] = await createTestServiceSubscription(adminClient, organization, {
+                        sbbolOfferAccept: rightSbbolOfferAccept,
+                    })
+
+                    expect(obj.id).toMatch(UUID_RE)
+                })
+
+                it('cannot create ServiceSubscription with incorrect sbbolOfferAccept input structure', async () => {
+                    const adminClient = await makeLoggedInAdminClient()
+                    const [organization] = await createTestOrganization(adminClient)
+
+                    await catchErrorFrom(async () => {
+                        await createTestServiceSubscription(adminClient, organization, {
+                            sbbolOfferAccept: wrongSbbolOfferAccept,
+                        })
+                    }, ({ errors, data }) => {
+                        expect(errors).toHaveLength(1)
+                        expect(errors[0].message).toContain('Variable "$data" got invalid value')
+                    })
+                })
+            })
+
+            describe('for update ServiceSubscription',  () => {
+                it('can update ServiceSubscription with correct sbbolOfferAccept input structure', async () => {
+                    const adminClient = await makeLoggedInAdminClient()
+                    const [organization] = await createTestOrganization(adminClient)
+
+                    const [objCreated] = await createTestServiceSubscription(adminClient, organization)
+
+                    const [objUpdated] = await updateTestServiceSubscription(adminClient, objCreated.id, {
+                        sbbolOfferAccept: rightSbbolOfferAccept,
+                    })
+
+                    expect(objUpdated.id).toMatch(objCreated.id)
+                })
+
+                it('cannot create ServiceSubscription with incorrect sbbolOfferAccept input structure', async () => {
+                    const adminClient = await makeLoggedInAdminClient()
+                    const [organization] = await createTestOrganization(adminClient)
+
+                    const [objCreated] = await createTestServiceSubscription(adminClient, organization)
+
+                    await catchErrorFrom(async () => {
+                        await updateTestServiceSubscription(adminClient, objCreated.id, {
+                            sbbolOfferAccept: wrongSbbolOfferAccept,
+                        })
+                    }, ({ errors, data }) => {
+                        expect(errors).toHaveLength(1)
+                        expect(errors[0].message).toContain('Variable "$data" got invalid value')
+                    })
+                })
+            })
+
+            describe('for read ServiceSubscription', () => {
+                it('can read ServiceSubscription with correct sbbolOfferAccept input structure', async () => {
+                    const adminClient = await makeLoggedInAdminClient()
+                    const [organization] = await createTestOrganization(adminClient)
+
+                    const [obj] = await createTestServiceSubscription(adminClient, organization, {
+                        sbbolOfferAccept: rightSbbolOfferAccept,
+                    })
+
+                    expect(obj.id).toMatch(UUID_RE)
+                    expect(obj.sbbolOfferAccept).toStrictEqual(rightSbbolOfferAccept)
                 })
             })
         })
