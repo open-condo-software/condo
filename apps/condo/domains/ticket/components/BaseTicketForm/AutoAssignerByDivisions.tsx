@@ -3,10 +3,12 @@ import { find, get, map } from 'lodash'
 import { useIntl } from '@core/next/intl'
 import { Alert, FormInstance } from 'antd'
 import { Division } from '@condo/domains/division/utils/clientSchema'
+import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { formatAddressWithoutCityFrom } from '@condo/domains/property/utils/helpers'
 import { Division as DivisionSchema } from '@app/condo/schema'
+import { useAuth } from '@core/next/auth'
 
-const getResponsibleAndExecutorFrom = (divisions, categoryClassifier) => {
+const getResponsibleAndExecutorFrom = (divisions, categoryClassifier, defaultResponsibleUserId) => {
     let responsible
     let executor
     const division = find(divisions, {
@@ -32,7 +34,7 @@ const getResponsibleAndExecutorFrom = (divisions, categoryClassifier) => {
     }
     return {
         executorUserId: get(executor, ['user', 'id']),
-        responsibleUserId: get(responsible, ['user', 'id']),
+        responsibleUserId: get(responsible, ['user', 'id'], defaultResponsibleUserId),
     }
 }
 
@@ -53,6 +55,9 @@ const AutoAssignerByDivisions: React.FC<ITicketAutoAssignment> = ({ organization
     const SelectCategoryClassifierToAssignExecutorMessage = intl.formatMessage({ id: 'ticket.assignments.divisions.selectCategoryClassifier' })
     const NotAssignedExecutorMessage = intl.formatMessage({ id: 'ticket.assignments.divisions.assigned.executor.notFound' })
 
+    const { user } = useAuth()
+    const userId = get(user, 'id', null)
+
     const { loading, error, objs: divisions, refetch } = Division.useObjects({
         where: {
             organization: { id: organizationId },
@@ -64,7 +69,22 @@ const AutoAssignerByDivisions: React.FC<ITicketAutoAssignment> = ({ organization
         fetchPolicy: 'network-only',
     })
 
-    const { responsibleUserId, executorUserId } = getResponsibleAndExecutorFrom(divisions, categoryClassifier)
+    const { obj: employee } = OrganizationEmployee.useObject({
+        where: {
+            organization: { id: organizationId },
+            user: { id: userId },
+            isAccepted: true,
+            isBlocked: false,
+            role: {
+                canBeAssignedAsResponsible: true,
+            },
+            deletedAt: null,
+        },
+    })
+
+    const defaultResponsibleUserId = employee ? userId : undefined
+
+    const { responsibleUserId, executorUserId } = getResponsibleAndExecutorFrom(divisions, categoryClassifier, defaultResponsibleUserId)
 
     useEffect(() => {
         form.setFieldsValue({
