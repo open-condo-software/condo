@@ -20325,11 +20325,13 @@ export type ResidentsUpdateInput = {
 
 export type SbbolOfferAccept = {
   __typename?: 'SbbolOfferAccept';
-  data?: Maybe<Array<Maybe<AdvanceAcceptance>>>;
+  dv?: Maybe<Scalars['Int']>;
+  data: AdvanceAcceptance;
 };
 
 export type SbbolOfferAcceptInput = {
-  data?: Maybe<Array<Maybe<AdvanceAcceptanceInput>>>;
+  dv: Scalars['Int'];
+  data: AdvanceAcceptanceInput;
 };
 
 export type SendMessageInput = {
