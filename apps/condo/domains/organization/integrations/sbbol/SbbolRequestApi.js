@@ -78,8 +78,10 @@ class SbbolRequestApi {
     async request ({ method, path: basePath, body = null }){
         return new Promise((resolve, reject) => {
             const path = method === 'GET' && body ? `${basePath}?${querystring.stringify(body)}` : basePath
-            debugMessage(`fetching ${ path }`)
-            debugMessage('with request body', body)
+            debugMessage(`${method} ${ path }`)
+            if (body) {
+                debugMessage('request body:', body)
+            }
             const requestOptions = {
                 ...this.options,
                 method,
