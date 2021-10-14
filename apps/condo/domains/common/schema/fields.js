@@ -126,7 +126,6 @@ const CLIENT_PHONE_LANDLINE_FIELD = {
 const MONEY_FIELD = {
     schemaDoc: 'Money field',
     type: Decimal,
-    isRequired: false,
     knexOptions: {
         scale: 8,
     },
