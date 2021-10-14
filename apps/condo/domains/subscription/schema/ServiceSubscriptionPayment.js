@@ -10,7 +10,9 @@ const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields'
 const access = require('@condo/domains/subscription/access/ServiceSubscriptionPayment')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { values } = require('lodash')
-const { SUBSCRIPTION_PAYMENT_STATUS, SUBSCRIPTION_PAYMENT_STATUS_TRANSITIONS, SUBSCRIPTION_TYPE } = require('../constants')
+const { SUBSCRIPTION_PAYMENT_STATUS, SUBSCRIPTION_PAYMENT_STATUS_TRANSITIONS, SUBSCRIPTION_TYPE,
+    SUBSCRIPTION_PAYMENT_CURRENCY
+} = require('../constants')
 const { WRONG_PAYMENT_STATUS_TRANSITION_ERROR } = require('../constants/errors')
 
 
@@ -60,7 +62,7 @@ const ServiceSubscriptionPayment = new GQLListSchema('ServiceSubscriptionPayment
         currency: {
             schemaDoc: 'Currency of amount',
             type: Select,
-            options: 'RUB',
+            options: SUBSCRIPTION_PAYMENT_CURRENCY.RUB,
             isRequired: true,
         },
 
