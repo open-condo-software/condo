@@ -75,7 +75,7 @@ class SbbolRequestApi {
         }
     }
 
-    async request ({ method, path: basePath, body = null }){
+    async request ({ method, path: basePath, body = null, headers = {} }){
         return new Promise((resolve, reject) => {
             const path = method === 'GET' && body ? `${basePath}?${querystring.stringify(body)}` : basePath
             debugMessage(`${method} ${ path }`)
@@ -88,6 +88,7 @@ class SbbolRequestApi {
                 path,
             }
             requestOptions.headers.Authorization = `Bearer ${this.accessToken}`
+            Object.assign(requestOptions.headers, headers)
             const request = https.request(requestOptions, response => {
                 let answer = ''
                 response.on('data', data => {
