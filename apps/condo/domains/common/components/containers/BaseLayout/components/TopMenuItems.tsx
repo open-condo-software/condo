@@ -5,6 +5,7 @@ import { useOrganization } from '@core/next/organization'
 import { OrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
 import { useOrganizationInvites } from '@condo/domains/organization/hooks/useOrganizationInvites'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
+import { ServiceSubscriptionIndicator } from '@condo/domains/subscription/components/ServiceSubscriptionIndicator'
 
 export const TopMenuItems: React.FC = () => {
     const auth = useAuth()
@@ -13,7 +14,8 @@ export const TopMenuItems: React.FC = () => {
 
     if (!isLoading && !auth.isLoading && !isInvitesLoading) {
         return (
-            <Space direction={'horizontal'} size={40}>
+            <Space direction={'horizontal'} size={24}>
+                <ServiceSubscriptionIndicator/>
                 <OrganizationSelect/>
                 <UserMenu/>
             </Space>

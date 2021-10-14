@@ -74,7 +74,7 @@ export const OrganizationSelect: React.FC = () => {
                 size={'middle'}
                 bordered={false}
                 dropdownMatchSelectWidth
-                showAction={['focus', 'click' ]}
+                showAction={['focus', 'click']}
                 dropdownRender={menu => (
                     <div>
                         {menu}

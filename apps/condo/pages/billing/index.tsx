@@ -42,8 +42,8 @@ const BillingPage = () => {
                 </title>
             </Head>
             <PageWrapper>
-                <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitle}</Typography.Title>}/>
                 <PageContent>
+                    <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitle}</Typography.Title>}/>
                     <BillingPageContent
                         access={canReadBillingReceipts}
                         contextLoading={contextLoading}

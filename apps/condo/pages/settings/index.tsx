@@ -28,8 +28,8 @@ const SettingsPage = () => {
             </Head>
             <PageWrapper>
                 <OrganizationRequired>
-                    <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitle}</Typography.Title>}/>
                     <PageContent>
+                        <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitle}</Typography.Title>}/>
                         <Col span={20}>
                             <Tabs
                                 defaultActiveKey="settings"

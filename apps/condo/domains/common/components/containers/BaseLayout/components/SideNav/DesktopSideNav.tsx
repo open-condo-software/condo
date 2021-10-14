@@ -6,7 +6,6 @@ import React from 'react'
 import { useOrganization } from '@core/next/organization'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { ResidentActions } from '@condo/domains/common/components/ResidentActions/ResidentActions'
-import { ServiceSubscriptionIndicator } from '@condo/domains/subscription/components/ServiceSubscriptionIndicator'
 import { Logo } from '@condo/domains/common/components/Logo'
 import { LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { Button } from '../../../../Button'
@@ -67,7 +66,6 @@ export const DesktopSideNav: React.FC<ISideNavProps> = (props) => {
                 <MenuItemsContainer>
                     {menuData}
                 </MenuItemsContainer>
-                <ServiceSubscriptionIndicator/>
             </Layout.Sider>
             <Layout.Sider
                 collapsed={isCollapsed}

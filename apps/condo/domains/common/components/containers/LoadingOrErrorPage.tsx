@@ -16,8 +16,8 @@ const LoadingOrErrorPage: React.FC<ILoadingOrErrorPageProps> = ({ title, loading
             <title>{title}</title>
         </Head>
         <PageWrapper>
-            <PageHeader title={title}/>
             <PageContent>
+                <PageHeader title={title}/>
                 {(loading) ? <Loader fill size={'large'}/> : null}
                 {(error) ? <Typography.Title>{error}</Typography.Title> : null}
             </PageContent>

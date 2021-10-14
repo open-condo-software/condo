@@ -137,8 +137,8 @@ export const MetersPageContent = ({
                 <title>{PageTitleMessage}</title>
             </Head>
             <PageWrapper>
-                <PageHeader title={<Typography.Title>{PageTitleMessage}</Typography.Title>}/>
                 <PageContent>
+                    <PageHeader title={<Typography.Title>{PageTitleMessage}</Typography.Title>}/>
                     {
                         !meterReadings.length && !filters
                             ? (

@@ -1,88 +1,44 @@
+import { Typography } from 'antd'
 import React from 'react'
-import { Badge, Typography } from 'antd'
-import { useIntl } from '@core/next/intl'
 import styled from '@emotion/styled'
-import { colors } from '@condo/domains/common/constants/style'
-import { green, grey } from '@ant-design/colors'
 import { useServiceSubscriptionContext } from './SubscriptionContext'
 import get from 'lodash/get'
 
 const StyledPanel = styled.div`
-  margin-left: -25px;
-  margin-bottom: 15px;
-  padding: 15px;
-  border: ${colors.sberGrey[0]} thin solid;
-  border-radius: 8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  position: relative;
+  background-color: white;
+  line-height: 24px;
+  text-align: center;
+  font-size: 12px;
+
+  &:before {
+    content: "";
+    position: absolute;
+    top: -4px;
+    bottom: -4px;
+    left: -4px;
+    right: -4px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg at 50% 50%, #FC5055 0deg, #62B2F9 360deg);
+    z-index: -1;
+  }
 `
 
 export const ServiceSubscriptionIndicator: React.FC = () => {
-    const { subscription, daysLeft, daysLeftHumanized, isExpired } = useServiceSubscriptionContext()
+    const { subscription, daysLeft } = useServiceSubscriptionContext()
+
     if (!subscription || !get(subscription, 'isTrial')) {
         return null
     }
-    const badges = []
-    for (let i = 0; i < daysLeft; i++) {
-        badges.push(
-            <Badge
-                status="success"
-                style={{ marginLeft: i > 0 ? '-3px' : undefined }}
-            />
-        )
-    }
+
     return (
         <StyledPanel>
-            <div>
-                {badges}
-            </div>
-            {isExpired ? (
-                <TrialExpiredMessage/>
-            ) : (
-                <TrialActiveMessage daysLeftHumanized={daysLeftHumanized}/>
-            )}
+            <Typography.Paragraph strong>
+                {daysLeft} 14
+            </Typography.Paragraph>
         </StyledPanel>
-    )
-}
-
-const textStyle = {
-    color: grey[2],
-    fontSize: '12px',
-    lineHeight: '12px',
-}
-
-const TrialExpiredMessage: React.FC = () => {
-    const intl = useIntl()
-    const InfoMessage = intl.formatMessage({ id: 'subscription.indicator.trial.expired.info' })
-    const PromptMessage = intl.formatMessage({ id: 'subscription.indicator.trial.expired.prompt' })
-    return (
-        <>
-            <Typography.Text style={textStyle}>
-                {InfoMessage}
-            </Typography.Text>
-            <br/>
-            <Typography.Text style={{ color: green[6] }} strong>
-                {PromptMessage}
-            </Typography.Text>
-        </>
-    )
-}
-
-
-interface ITrialActiveMessage {
-    daysLeftHumanized: string
-}
-
-const TrialActiveMessage: React.FC<ITrialActiveMessage> = ({ daysLeftHumanized }) => {
-    const intl = useIntl()
-    const TrialActiveMessage = intl.formatMessage({ id: 'subscription.indicator.trial.active' })
-    const [before, after] = TrialActiveMessage.split('{days}')
-
-    return (
-        <Typography.Text style={textStyle}>
-            {before}
-            <Typography.Text style={textStyle} strong>
-                {daysLeftHumanized}
-            </Typography.Text>
-            {after}
-        </Typography.Text>
     )
 }

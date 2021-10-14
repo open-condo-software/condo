@@ -15,8 +15,8 @@ const IndexPage = () => {
             <title>{PageTitleMsg}</title>
         </Head>
         <PageWrapper>
-            <PageHeader title={PageTitleMsg}/>
             <PageContent>
+                <PageHeader title={PageTitleMsg}/>
                 <Typography.Paragraph>
                     <ReactMarkdown source={WeAreStillDevelopingThisPageMsg}/>
                 </Typography.Paragraph>

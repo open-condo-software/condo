@@ -18,7 +18,7 @@ interface IMenuItemWrapperProps {
     labelFontSize?: string
 }
 
-const MenuItemWrapper = styled.span<IMenuItemWrapperProps>`
+export const MenuItemWrapper = styled.span<IMenuItemWrapperProps>`
   cursor: pointer;
   padding: ${props => props.padding ? props.padding : '12px 0'};
   display: flex;
@@ -63,7 +63,7 @@ const MenuItemWrapper = styled.span<IMenuItemWrapperProps>`
 `
 
 interface IMenuItemProps {
-    path: string
+    path?: string
     icon: React.ElementType
     label: string
     disabled?: boolean

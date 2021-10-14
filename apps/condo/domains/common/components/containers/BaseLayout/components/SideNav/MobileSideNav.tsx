@@ -1,12 +1,9 @@
-/** @jsx jsx */
 import { CloseOutlined } from '@ant-design/icons'
-import { jsx } from '@emotion/core'
 import { Layout } from 'antd'
 import get from 'lodash/get'
 import React from 'react'
 import { useOrganization } from '@core/next/organization'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { ServiceSubscriptionIndicator } from '@condo/domains/subscription/components/ServiceSubscriptionIndicator'
 import { OrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
 import {
     MobileMenuItemsContainer,
@@ -44,7 +41,6 @@ export const MobileSideNav: React.FC<ISideNavProps> = (props) => {
                     <OrganizationSelect/>
                 </OrganizationSelectWrapper>
             </MobileSideNavHeader>
-            <ServiceSubscriptionIndicator/>
             <MobileMenuItemsContainer>
                 {menuData}
             </MobileMenuItemsContainer>

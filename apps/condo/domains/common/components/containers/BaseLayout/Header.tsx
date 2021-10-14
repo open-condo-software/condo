@@ -6,6 +6,7 @@ import { colors } from '@condo/domains/common/constants/style'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { useAuth } from '@core/next/auth'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
+import { ServiceSubscriptionIndicator } from '../../../../subscription/components/ServiceSubscriptionIndicator'
 import { Logo } from '../../Logo'
 import { ResidentActions } from '../../ResidentActions/ResidentActions'
 import { TopMenuItems as BaseTopMenuItems } from './components/TopMenuItems'
@@ -15,7 +16,7 @@ const DesktopHeader = styled(Layout.Header)`
   z-index: 9;
   background: ${colors.white};
   width: 100%;
-  padding: 32px 48px;
+  padding: 28px 40px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -26,7 +27,6 @@ const DesktopHeader = styled(Layout.Header)`
 const MobileHeader = styled(Layout.Header)`
   display: flex;
   flex-direction: row;
-  padding: 12px 22px;
   background: ${colors.white};
   justify-content: space-between;
   align-items: center;
@@ -64,7 +64,10 @@ export const Header: React.FC<IHeaderProps> = (props) => {
                         <ResidentActions minified/>
                     </Space>
                     <Logo fillColor={colors.logoPurple} onClick={handleLogoClick} minified/>
-                    <UserMenu/>
+                    <Space size={22}>
+                        <ServiceSubscriptionIndicator/>
+                        <UserMenu/>
+                    </Space>
                 </MobileHeader>
             )
             : (
