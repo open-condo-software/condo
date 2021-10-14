@@ -84,7 +84,7 @@ const User = new GQLListSchema('User', {
                     }
                     return normalizeEmail(resolvedData['email']) || resolvedData['email']
                 },
-                validateInput: async ({ context, operation, fieldPath, resolvedData, existingItem, addFieldValidationError }) => {
+                validateInput: async ({ context, operation, resolvedData, existingItem, addFieldValidationError }) => {
                     if (resolvedData['email'] && normalizeEmail(resolvedData['email']) !== resolvedData['email']) {
                         addFieldValidationError(`${EMAIL_WRONG_FORMAT_ERROR}mail] invalid format`)
                     }
@@ -133,7 +133,7 @@ const User = new GQLListSchema('User', {
         },
 
         avatar: {
-            schemaDoc: 'User loaded avarat image',
+            schemaDoc: 'User loaded avatar image',
             type: File,
             adapter: AVATAR_FILE_ADAPTER,
         },
