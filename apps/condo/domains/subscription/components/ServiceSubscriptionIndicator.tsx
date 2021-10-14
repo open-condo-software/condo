@@ -2,6 +2,7 @@ import { Typography } from 'antd'
 import React from 'react'
 import styled from '@emotion/styled'
 import { useServiceSubscriptionContext } from './SubscriptionContext'
+import { gradients } from '@condo/domains/common/constants/style'
 import get from 'lodash/get'
 
 const StyledPanel = styled.div`
@@ -22,7 +23,7 @@ const StyledPanel = styled.div`
     left: -4px;
     right: -4px;
     border-radius: 50%;
-    background: conic-gradient(from 0deg at 50% 50%, #FC5055 0deg, #62B2F9 360deg);
+    background: ${gradients.subscriptionGradient};
     z-index: -1;
   }
 `
@@ -37,7 +38,7 @@ export const ServiceSubscriptionIndicator: React.FC = () => {
     return (
         <StyledPanel>
             <Typography.Paragraph strong>
-                {daysLeft} 14
+                {daysLeft}
             </Typography.Paragraph>
         </StyledPanel>
     )
