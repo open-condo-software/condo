@@ -8,13 +8,13 @@ const { generateGqlQueries } = require('@condo/domains/common/utils/codegenerati
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const BILLING_INTEGRATION_FIELDS = `{ name shortDescription detailsTitle detailsText detailsConfirmButtonText detailsInstructionButtonText detailsInstructionButtonLink contextDefaultStatus dataFormat currency { id } billingPageTitle ${COMMON_FIELDS} }`
+const BILLING_INTEGRATION_FIELDS = `{ name shortDescription detailsTitle detailsText detailsConfirmButtonText detailsInstructionButtonText detailsInstructionButtonLink contextDefaultStatus dataFormat currency billingPageTitle ${COMMON_FIELDS} }`
 const BillingIntegration = generateGqlQueries('BillingIntegration', BILLING_INTEGRATION_FIELDS)
 
 const BILLING_INTEGRATION_ACCESS_RIGHT_FIELDS = '{ integration { id name } user { id name } id dv createdBy { id name } updatedBy { id name } createdAt updatedAt }'
 const BillingIntegrationAccessRight = generateGqlQueries('BillingIntegrationAccessRight', BILLING_INTEGRATION_ACCESS_RIGHT_FIELDS)
 
-const BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS = `{ integration { id name billingPageTitle currency { id displayInfo } dataFormat } organization { id name } settings state status lastReport ${COMMON_FIELDS} }`
+const BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS = `{ integration { id name billingPageTitle currency dataFormat } organization { id name } settings state status lastReport ${COMMON_FIELDS} }`
 const BillingIntegrationOrganizationContext = generateGqlQueries('BillingIntegrationOrganizationContext', BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS)
 
 const BILLING_INTEGRATION_LOG_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} type message meta ${COMMON_FIELDS} }`
@@ -45,9 +45,6 @@ const BillingReceipt = generateGqlQueries('BillingReceipt', BILLING_RECEIPT_FIEL
 const RESIDENT_BILLING_RECEIPTS_FIELDS =  `{ id ${BILLING_RECEIPT_RECIPIENT_FIELDS} period toPay ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS} ${BILLING_RECEIPT_SERVICE_FIELDS} printableNumber serviceConsumer { id } }`
 const ResidentBillingReceipt = generateGqlQueries('ResidentBillingReceipt', RESIDENT_BILLING_RECEIPTS_FIELDS)
 
-const BILLING_CURRENCY_FIELDS = `{ code displayInfo ${COMMON_FIELDS} }`
-const BillingCurrency = generateGqlQueries('BillingCurrency', BILLING_CURRENCY_FIELDS)
-
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -63,6 +60,5 @@ module.exports = {
     BillingReceipt,
     ResidentBillingReceipt,
     RESIDENT_BILLING_RECEIPTS_FIELDS,
-    BillingCurrency,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
