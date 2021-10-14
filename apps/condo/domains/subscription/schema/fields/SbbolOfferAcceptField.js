@@ -1,5 +1,4 @@
 const Ajv = require('ajv')
-const { Json } = require('@core/keystone/fields')
 
 const AdvanceAcceptanceBundleField = {
     code: 'String',
@@ -119,23 +118,6 @@ const sbbolOfferAcceptFieldSchema = {
 const ajv = new Ajv()
 const sbbolOfferAcceptJsonValidator = ajv.compile(sbbolOfferAcceptFieldSchema)
 
-const SBBOL_OFFER_ACCEPT_FIELD = {
-    schemaDoc: 'It is necessary to save the offer confirmation data that is transmitted in the response of the advance-acceptances method',
-    type: Json,
-    extendGraphQLTypes: [SBBOL_OFFER_ACCEPT_GRAPHQL_TYPES],
-    graphQLReturnType: 'SbbolOfferAccept',
-    graphQLInputType: 'SbbolOfferAcceptInput',
-    hooks: {
-        validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
-            if (!sbbolOfferAcceptJsonValidator(resolvedData[fieldPath])) {
-                sbbolOfferAcceptJsonValidator.errors.forEach(error => {
-                    addFieldValidationError(`${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`)
-                })
-            }
-        },
-    },
-}
-
 const ADVANCE_ACCEPTABLE_BUNDLE_QUERY_LIST = 'code name sinceDate untilDate currentState'
 
 const ADVANCE_ACCEPTABLE_QUERY_LIST = `active payerAccount payerBankBic payerBankCorrAccount payerInn payerName payerOrgIdHash purpose sinceDate untilDate bundles { ${ADVANCE_ACCEPTABLE_BUNDLE_QUERY_LIST} }`
@@ -143,7 +125,7 @@ const ADVANCE_ACCEPTABLE_QUERY_LIST = `active payerAccount payerBankBic payerBan
 const SBBOL_OFFER_ACCEPT_FIELD_QUERY_LIST = `dv data { ${ADVANCE_ACCEPTABLE_QUERY_LIST} }`
 
 module.exports = {
-    SBBOL_OFFER_ACCEPT_FIELD,
+    SBBOL_OFFER_ACCEPT_GRAPHQL_TYPES,
     sbbolOfferAcceptJsonValidator,
     SBBOL_OFFER_ACCEPT_FIELD_QUERY_LIST,
 }
