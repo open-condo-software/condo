@@ -91,6 +91,8 @@ class SbbolRequestApi {
             Object.assign(requestOptions.headers, headers)
             const request = https.request(requestOptions, response => {
                 let answer = ''
+                debugMessage(`Response ${response.statusCode}`)
+                debugMessage('Headers: ', response.headers)
                 response.on('data', data => {
                     answer += data
                 })
