@@ -24,6 +24,11 @@ const postPaymentRequestsFor = async (subscription) => {
         subscription: { connect: { id: subscription.id } },
         organization: { connect: { id: subscription.organization.id } },
     })
+    // TODO: Track successful post request to Fintech API in `ServiceSubscriptionPayment` record
+    // It can be a case, when Fintech API will respond with error, so we need to try to post request for alreqdy created ServiceSubscriptionPayment next time.
+    // To indicate, that no successful API request was performed for some records in ServiceSubscriptionPayment,
+    // we can store Fintech API response.
+    // We have `meta` field in `ServiceSubscriptionPayment` schema, I think, we the name should be more expicit, like `
     if (!newPayment) {
         console.error(`Error by creating ServiceSubscriptionPayment to prolong expired ServiceSubscription(id=${subscription.id})`)
         debugMessage('Abort postPaymentRequestsFor')
@@ -76,6 +81,8 @@ const postPaymentRequestsFor = async (subscription) => {
         },
         voCode: '61150',
     })
+    // TODO: store successful response in `ServiceSubscriptionPayment` record
+    // TODO: store error response in `ServiceSubscriptionPayment` record
 
     debugMessage('End postPaymentRequestsFor')
 }
@@ -91,6 +98,8 @@ const syncPaymentRequestsForSubscriptions = async () => {
         debugMessage('No expired ServiceSubscription(type="sbbol") found. Do nothing.')
     } else {
         debugMessage(`Found expired ServiceSubscription(type="sbbol", id="${expiredSubscription.id}")`)
+        // TODO(antonal): implement lifecycle of `ServiceSubscriptionPayment` record, which have error response from SBBOL
+        // Should we repost payment request for existing `ServiceSubscriptionPayment` record, which have error response from SBBOL?
         const paymentsForSubscription = await ServiceSubscriptionPayment.getAll(context, {
             subscription: { id: expiredSubscription.id },
         })

@@ -126,6 +126,9 @@ class SbbolFintechApi extends SbbolRequestApi {
 
     /**
      * Posts unsigned payment request to SBBOL without `crucialFieldsHash`
+     * TODO(antonal): sign payment request with signature, obtained from SBBOL representatives
+     * TODO(antonal): calculate hash for digested data
+     * TODO(antonal): recognize error response
      * @param {PaymentRequestOut} data
      * @return {Promise<unknown>}
      */
