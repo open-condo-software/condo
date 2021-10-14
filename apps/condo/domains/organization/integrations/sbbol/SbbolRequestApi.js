@@ -94,7 +94,7 @@ class SbbolRequestApi {
                     answer += data
                 })
                 response.on('end', () => {
-                    debugMessage('response', answer)
+                    debugMessage('Body', answer)
                     return resolve(answer)
                 })
             })
@@ -108,7 +108,7 @@ class SbbolRequestApi {
             })
             if (body && method === 'POST') {
                 const stringifiedBody = JSON.stringify(body)
-                debugMessage('request body', stringifiedBody)
+                debugMessage('Body', stringifiedBody)
                 request.write(stringifiedBody)
             }
             request.end()
