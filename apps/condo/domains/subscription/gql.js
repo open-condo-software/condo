@@ -7,10 +7,11 @@
 const { generateGqlQueries } = require('@condo/domains/common/utils/codegeneration/generate.gql')
 
 const gql = require('graphql-tag')
+const { SBBOL_OFFER_ACCEPT_FIELD_QUERY_LIST } = require('./schema/fields/SbbolOfferAcceptField')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const SERVICE_SUBSCRIPTION_FIELDS = `{ type isTrial organization { id } startAt finishAt unitsCount unitPrice totalPrice currency ${COMMON_FIELDS} }`
+const SERVICE_SUBSCRIPTION_FIELDS = `{ type isTrial organization { id } startAt finishAt unitsCount unitPrice totalPrice currency ${COMMON_FIELDS} sbbolOfferAccept { ${SBBOL_OFFER_ACCEPT_FIELD_QUERY_LIST} } }`
 const ServiceSubscription = generateGqlQueries('ServiceSubscription', SERVICE_SUBSCRIPTION_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
