@@ -35,6 +35,8 @@ const BillingPage = () => {
         fetchPolicy: 'network-only',
     })
 
+    console.log(currentContext)
+
     const PageTitle = get(currentContext, ['integration', 'billingPageTitle'], BillingTitle)
 
     return (
