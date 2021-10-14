@@ -58,7 +58,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
         toPay: {
             ...MONEY_FIELD,
-            schemaDoc: 'Total sum to pay',
+            schemaDoc: 'Total sum to pay. Usually counts as the sum of all services.',
             isRequired: true,
         },
 
