@@ -22,7 +22,7 @@ const getHighlightedText = (search: string, text: string) => {
         result = (
             <TextHighlighter
                 text={String(text)}
-                search={search}
+                search={String(search)}
                 renderPart={(part, startIndex, marked) => (
                     <Typography.Text title={text} style={marked ? { backgroundColor: colors.markColor } : {}}>
                         {part}
