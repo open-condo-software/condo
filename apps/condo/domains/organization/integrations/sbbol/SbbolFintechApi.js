@@ -105,16 +105,16 @@ class SbbolFintechApi extends SbbolRequestApi {
      *
      * @param date
      * @param clientId
-     * @return {Promise<AdvanceAcceptance[]|FintechErrorResponse>}
+     * @return {Promise<AdvanceAcceptance[]>}
      */
     async fetchAdvanceAcceptances ({ date, clientId }) {
-        const jsonResultString = await this.request({
+        const { data: jsonResultString, statusCode } = await this.request({
             method: 'GET',
             path: this.advanceAcceptancesPath,
             body: { clientId, date },
         })
         const result = JSON.parse(jsonResultString)
-        if (get(result, 'cause') === SBBOL_API_RESPONSE.DATA_NOT_FOUND_EXCEPTION) {
+        if (statusCode === 404) {
             return []
         }
         if (!Array.isArray(result)) {
