@@ -86,6 +86,7 @@ const postPaymentRequestsFor = async (subscription) => {
     } else {
         const { error } = response
         await ServiceSubscriptionPayment.update(context, newPayment.id, {
+            status: SUBSCRIPTION_PAYMENT_STATUS.ERROR,
             meta: error,
         })
     }
