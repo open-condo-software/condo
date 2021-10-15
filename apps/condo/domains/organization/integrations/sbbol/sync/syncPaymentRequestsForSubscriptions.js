@@ -104,10 +104,11 @@ const syncPaymentRequestsForSubscriptions = async () => {
         debugMessage('No expired ServiceSubscription(type="sbbol") found. Do nothing.')
     } else {
         debugMessage(`Found expired ServiceSubscription(type="sbbol", id="${expiredSubscription.id}")`)
-        // TODO(antonal): implement lifecycle of `ServiceSubscriptionPayment` record, which have error response from SBBOL
-        // Should we repost payment request for existing `ServiceSubscriptionPayment` record, which have error response from SBBOL?
+        // Payments without external id are not created at SBBOL side
+        // Try to repost them
         const paymentsForSubscription = await ServiceSubscriptionPayment.getAll(context, {
             subscription: { id: expiredSubscription.id },
+            externalId_not: null,
         })
         if (paymentsForSubscription.length === 0) {
             await postPaymentRequestsFor(expiredSubscription)
