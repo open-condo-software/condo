@@ -15,8 +15,9 @@ const Payment = new GQLListSchema('Payment', {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
+        // TODO (savelevMatthew): move to MONEY_FIELD
         amount: {
-            schemaDoc: 'Amount of payment',
+            schemaDoc: 'Amount of money from MultiPayment.amountWithOutExplicitFee to pay for billing receipt',
             type: Decimal,
             isRequired: true,
         },
