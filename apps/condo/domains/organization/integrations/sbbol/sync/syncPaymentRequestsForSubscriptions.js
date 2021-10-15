@@ -24,11 +24,6 @@ const postPaymentRequestsFor = async (subscription) => {
         subscription: { connect: { id: subscription.id } },
         organization: { connect: { id: subscription.organization.id } },
     })
-    // TODO: Track successful post request to Fintech API in `ServiceSubscriptionPayment` record
-    // It can be a case, when Fintech API will respond with error, so we need to try to post request for alreqdy created ServiceSubscriptionPayment next time.
-    // To indicate, that no successful API request was performed for some records in ServiceSubscriptionPayment,
-    // we can store Fintech API response.
-    // We have `meta` field in `ServiceSubscriptionPayment` schema, I think, we the name should be more expicit, like `
     if (!newPayment) {
         console.error(`Error by creating ServiceSubscriptionPayment to prolong expired ServiceSubscription(id=${subscription.id})`)
         debugMessage('Abort postPaymentRequestsFor')
@@ -50,7 +45,7 @@ const postPaymentRequestsFor = async (subscription) => {
     const { payeeAccount, payeeBankBic, payeeBankCorrAccount, payeeInn, payeeName } = SBBOL_CONFIG.payee
     const { payerAccount, payerBankBic, payerBankCorrAccount, payerInn, payerName } = SAMPLE_PAYER
 
-    await fintechApi.postPaymentRequest({
+    const response = await fintechApi.postPaymentRequest({
         acceptanceTerm: '5',
         amount: String(SBBOL_YEARLY_SUBSCRIPTION_PRICE),
         //bankComment: '', // This field will be filled by bank. Documentation in SBBOL is wrong.
@@ -81,8 +76,19 @@ const postPaymentRequestsFor = async (subscription) => {
         },
         voCode: '61150',
     })
-    // TODO: store successful response in `ServiceSubscriptionPayment` record
-    // TODO: store error response in `ServiceSubscriptionPayment` record
+
+    if (response.data) {
+        const { data } = response
+        await ServiceSubscriptionPayment.update(context, newPayment.id, {
+            meta: data,
+            externalId: data.number,
+        })
+    } else {
+        const { error } = response
+        await ServiceSubscriptionPayment.update(context, newPayment.id, {
+            meta: error,
+        })
+    }
 
     debugMessage('End postPaymentRequestsFor')
 }
