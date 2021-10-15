@@ -1,4 +1,4 @@
-import React, { CSSProperties } from 'react'
+import React from 'react'
 import get from 'lodash/get'
 import { ParsedUrlQuery } from 'querystring'
 import {
@@ -148,6 +148,10 @@ export const getFilter: (
             return { [current]: acc }
         }, undefined)
     }
+}
+
+export const getDecimalFilter: (dataIndex: DataIndexType) => FilterType = (dataIndex) => {
+    return getFilter(dataIndex, 'single', 'string', 'in')
 }
 
 export const getStringContainsFilter: (dataIndex: DataIndexType) => FilterType = (dataIndex) => {
