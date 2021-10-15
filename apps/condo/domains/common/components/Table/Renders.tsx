@@ -24,7 +24,7 @@ const getHighlightedText = (search: string, text: string) => {
                 text={String(text)}
                 search={search}
                 renderPart={(part, startIndex, marked) => (
-                    <Typography.Text style={marked ? { backgroundColor: colors.markColor } : {}}>
+                    <Typography.Text title={text} style={marked ? { backgroundColor: colors.markColor } : {}}>
                         {part}
                     </Typography.Text>
                 )}
