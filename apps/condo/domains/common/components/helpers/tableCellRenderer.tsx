@@ -9,7 +9,7 @@ import { colors, ELLIPSIS_ROWS } from '../../constants/style'
 import { Highliter } from '../Highliter'
 import { EmptyTableCell } from '../Table/EmptyTableCell'
 
-type GetRenderer =  (search?: FilterValue, ellipsis?: boolean, postfix?: string) => (text?: string) => React.ReactElement
+type GetRenderer = (search?: FilterValue, ellipsis?: boolean, postfix?: string) => (text?: string) => React.ReactElement
 
 const getTableCellRenderer: GetRenderer = (search, ellipsis = false, postfix = '') =>
     (text) => {
