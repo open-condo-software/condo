@@ -99,6 +99,7 @@ const syncPaymentRequestsForSubscriptions = async () => {
     const { keystone: context } = await getSchemaCtx('ServiceSubscription')
     const today = dayjs()
     const [expiredSubscription] = await ServiceSubscription.getAll(context, {
+        type: SUBSCRIPTION_TYPE.SBBOL,
         finishAt_lt: today.toISOString(),
     })
     if (!expiredSubscription) {
