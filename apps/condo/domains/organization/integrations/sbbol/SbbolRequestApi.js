@@ -18,6 +18,11 @@ dayjs.extend(utc)
 // TODO(zuch): move all constants to constants
 const REFRESH_TOKEN_TTL = 30 * 24 * 60 * 60 // its real TTL is 180 days bit we need to update it earlier
 
+/**
+ * @typedef SbbolRequestApiResponse
+ * @property {Object} data
+ * @property {String} statusCode
+ */
 
 class SbbolRequestApi {
     constructor (accessToken) {
@@ -95,7 +100,7 @@ class SbbolRequestApi {
                 })
                 response.on('end', () => {
                     debugMessage('Body', answer)
-                    return resolve(answer)
+                    return resolve({ data: answer, statusCode: response.statusCode })
                 })
             })
             request.on('timeout', () => {
@@ -103,7 +108,7 @@ class SbbolRequestApi {
                 return reject(`${REQUEST_TIMEOUT_ERROR}] sbbol request failed`)
             })
             request.on('error', error => {
-                console.error(`Failed request to ${path}`)
+                console.error(`Failed request to ${path}`, error)
                 return reject(error)
             })
             if (body && method === 'POST') {
