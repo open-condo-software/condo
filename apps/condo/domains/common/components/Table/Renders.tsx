@@ -14,6 +14,7 @@ import { ELECTRICITY_METER_RESOURCE_ID } from '@condo/domains/meter/constants/co
 type RenderReturnType = string | React.ReactNode
 
 const DEFAULT_CURRENCY_SEPARATOR = '.'
+const DEFAULT_CURRENCY_NAME = 'RUB'
 const MONEY_PARTS_SEPARATOR = ' '
 
 const getHighlightedText = (search: string, text: string) => {
@@ -89,79 +90,64 @@ export const renderMeterReading = (values: string[], resourceId: string, measure
     return `${getIntegerPartOfReading(values[0])} ${measure}`
 }
 
-const fillMoneyWithSpaces = (substring: string, startIndex: number, spaces: Array<number>) => {
-    const chars = []
-    for (let i = 0; i < substring.length; i++) {
-        const absoluteIndex = startIndex + i
-        const char = substring.charAt(i)
-        if (spaces.includes(absoluteIndex)) {
-            chars.push(MONEY_PARTS_SEPARATOR)
+const getCurrencySymbol = (currencyName) => {
+    return (0).toLocaleString(
+        undefined,
+        {
+            style: 'currency',
+            currency: currencyName,
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+            currencyDisplay: 'narrowSymbol',
         }
-        chars.push(char)
-    }
-    return chars.join('')
+    ).replace(/\d/g, '').trim()
 }
 
-const recolorMoney = (
-    text: string, startIndex: number, separatorIndex: number, spaces: Array<number>, extraStyles: React.CSSProperties
+const dimText = (text: string, extraStyles: React.CSSProperties = {}) => (
+    <Typography.Text type={'secondary'} style={extraStyles}>
+        {text}
+    </Typography.Text>
+)
+
+const renderMoney = (currencyValuePart: string, currencyDecimalPart: string, currencySymbol: string) => (
+    <>{currencyValuePart}{dimText(',' + currencyDecimalPart)}{MONEY_PARTS_SEPARATOR}{currencySymbol}</>
+)
+
+export const getMoneyRender = (
+    search: string,
+    currencyMark = '₽',
+    partSeparator = DEFAULT_CURRENCY_SEPARATOR,
+    currencyName = DEFAULT_CURRENCY_NAME
 ) => {
-    if (separatorIndex === -1 || startIndex + text.length <= separatorIndex) {
-        return (
-            <Typography.Text style={extraStyles}>
-                {fillMoneyWithSpaces(text, startIndex, spaces)}
-            </Typography.Text>
-        )
-    }
-    if (startIndex >= separatorIndex) {
-        return (
-            <Typography.Text type={'secondary'} style={extraStyles}>
-                {fillMoneyWithSpaces(text, startIndex, spaces)}
-            </Typography.Text>
-        )
-    }
-    const blackLength = separatorIndex - startIndex
-    return (
-        <>
-            <Typography.Text style={extraStyles}>
-                {fillMoneyWithSpaces(text.substring(0, blackLength), startIndex, spaces)}
-            </Typography.Text>
-            <Typography.Text type={'secondary'} style={extraStyles}>
-                {text.substring(blackLength)}
-            </Typography.Text>
-        </>
-    )
-}
-
-export const getMoneyRender = (search: string, currencyMark = '₽', partSeparator = DEFAULT_CURRENCY_SEPARATOR) => {
     return function render (text: string): RenderReturnType {
         if (!text) return <EmptyTableCell/>
-        text = text.replace('.', partSeparator)
-        const separatorIndex = text.indexOf(partSeparator)
-        const lastSymbol = text.startsWith('-') ? 2 : 1
-        const spaces = []
-        for (let i = separatorIndex - 3; i >= lastSymbol; i -= 3) {
-            spaces.push(i)
-        }
-        const markStyles = { backgroundColor: colors.markColor }
+
+        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#locale_identification_and_negotiation
+        // Using undefined will resolve to User-Agent locale
+        const formatter = Intl.NumberFormat(
+            undefined,
+            { style: 'currency', currency: currencyName, currencyDisplay: 'narrowSymbol', signDisplay: 'auto' }
+        )
+        text = formatter.format(parseFloat(text))
+
+        const currencySymbol = getCurrencySymbol(currencyName)
+        const currencyAmount = text
+            .replace(currencySymbol, '')
+            .replace(',', MONEY_PARTS_SEPARATOR)
+            .replace('.', ',')
+
+        const [currencyValuePart, currencyDecimalPart] = currencyAmount.split(',')
+
         if (isEmpty(search)) {
-            return (
-                <>
-                    {recolorMoney(text, 0, separatorIndex, spaces, {})}
-                    &nbsp;
-                    {currencyMark}
-                </>
-            )
+            return renderMoney(currencyValuePart, currencyDecimalPart, currencySymbol)
         }
         return (
             <>
                 <TextHighlighter
                     text={text}
                     search={search}
-                    renderPart={(part, startIndex, marked) =>
-                        recolorMoney(part, startIndex, separatorIndex, spaces, marked ? markStyles : {})}
+                    renderPart={() => renderMoney(currencyValuePart, currencyDecimalPart, currencySymbol)}
                 />
-                &nbsp;
-                {currencyMark}
             </>
         )
     }
