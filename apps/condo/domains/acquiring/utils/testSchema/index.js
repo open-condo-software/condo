@@ -183,14 +183,14 @@ async function createTestMultiPayment (client, receipts, user, integration, extr
     if (!user) throw new Error('no user')
     if (!integration) throw new Error('no integration')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const amount = String(receipts.reduce((acc, cur) => acc + parseFloat(cur.toPay), 0))
-    const commission = String(Math.floor(Math.random() * 100) / 2)
+    const amountWithOutExplicitFee = String(receipts.reduce((acc, cur) => acc + parseFloat(cur.toPay), 0))
+    const explicitFee = String(Math.floor(Math.random() * 100) / 2)
 
     const attrs = {
         dv: 1,
         sender,
-        amount,
-        commission,
+        amountWithOutExplicitFee,
+        explicitFee,
         currencyCode: 'RUB',
         serviceCategory: 'TEST DOCUMENT',
         status: MULTIPAYMENT_INIT_STATUS,
@@ -230,7 +230,7 @@ async function createTestPayment (client, receipt, multiPayment, context, extraA
         sender,
         amount,
         currencyCode: 'RUB',
-        time: dayjs().toISOString(),
+        withdrawnAt: dayjs().toISOString(),
         accountNumber: String(faker.datatype.number()),
         receipt: { connect: { id: receipt.id } },
         multiPayment: { connect: { id: multiPayment.id } },

@@ -250,7 +250,7 @@ describe('Payment', () => {
             })
         })
     })
-    describe('validation tests', () => {
+    describe.skip('validation tests', () => {
         test('cannot link to multipayment, if it\'s not containing billing receipts', async () => {
             const { admin, billingReceipts, acquiringContext, client, acquiringIntegration } = await makePayer(2)
             const [multiPayment] = await createTestMultiPayment(admin, [billingReceipts[0]], client.user, acquiringIntegration)
