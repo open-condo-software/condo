@@ -133,10 +133,8 @@ const CALCULATOR_SERVICE = new GQLCustomSchema('CalculatorService', {
             // https://www.apollographql.com/docs/apollo-server/data/resolvers/#resolver-arguments
             // https://www.keystonejs.com/keystonejs/keystone/#config-1
             resolver: async (parent, args, context, info, extra) => {
-                const { op, l, r } = args
-                return String(eval(`${l}
-                ${op}
-                ${r}`))
+                const { foo, bar } = args
+                return foo + bar
             },
         },
     ],
@@ -145,8 +143,8 @@ const CALCULATOR_SERVICE = new GQLCustomSchema('CalculatorService', {
 test('execute mutation func', async () => {
     const [parent, context, info, extra] = [jest.fn(), jest.fn(), jest.fn(), jest.fn()]
     const res = await CALCULATOR_SERVICE.schema.mutations[0].resolver(
-        parent, { op: '+', l: 2, r: 2 }, context, info, extra)
-    expect(res).toEqual('4')
+        parent, { foo: 2, bar: 2 }, context, info, extra)
+    expect(res).toEqual(4)
 })
 
 test('registerSchema without preprocessors', () => {

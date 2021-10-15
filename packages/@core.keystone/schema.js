@@ -8,7 +8,7 @@ let SCHEMAS = new Map()
 const GQL_LIST_SCHEMA_TYPE = 'GQLListSchema'
 const GQL_CUSTOM_SCHEMA_TYPE = 'GQLCustomSchema'
 const GQL_SCHEMA_TYPES = [GQL_LIST_SCHEMA_TYPE, GQL_CUSTOM_SCHEMA_TYPE]
-
+const IS_DEV = process.env.NODE_ENV === 'development'
 const isNotNullObject = (v) => typeof v === 'object' && v !== null
 
 function registerSchemas (keystone, modulesList, globalPreprocessors = []) {
@@ -83,7 +83,7 @@ class GQLListSchema {
         if (SCHEMAS.has(this.name)) throw new Error(`Schema ${this.name} is already registered`)
         SCHEMAS.set(this.name, this)
         this._keystone = keystone
-        this._keystoneSchema = applyGlobalPreprocessors(globalPreprocessors, this._type, this.name, this.schema)
+        this._keystoneSchema = transformByPreprocessors(globalPreprocessors, this._type, this.name, this.schema)
         keystone.createList(this.name, this._keystoneSchema)  // create this._keystone.lists[this.name] as List type
         const keystoneList = get(this._keystone, ['lists', this.name])
         if (keystoneList) {
@@ -140,7 +140,7 @@ class GQLCustomSchema {
         if (SCHEMAS.has(this.name)) throw new Error(`Schema ${this.name} is already registered`)
         SCHEMAS.set(this.name, this)
         this._keystone = keystone
-        this._keystoneSchema = applyGlobalPreprocessors(globalPreprocessors, this._type, this.name, this.schema)
+        this._keystoneSchema = transformByPreprocessors(globalPreprocessors, this._type, this.name, this.schema)
         keystone.extendGraphQLSchema(this._keystoneSchema)
     }
 
@@ -157,9 +157,10 @@ class GQLCustomSchema {
     }
 }
 
-function applyGlobalPreprocessors (globalPreprocessors, schemaType, name, schema) {
-    if (!isArray(globalPreprocessors)) throw new Error('wrong globalPreprocessors type')
-    return globalPreprocessors.reduce((schema, fn) => {
+function transformByPreprocessors (preprocessors, schemaType, name, schema) {
+    if (!isArray(preprocessors)) throw new Error('wrong preprocessors type')
+    if (preprocessors.length > 0 && IS_DEV) console.info('✔ Transform schema by global preprocessors')
+    return preprocessors.reduce((schema, fn) => {
         if (!isFunction(fn)) throw new Error('preprocessor is not a function! Check your global preprocessors')
         const newSchema = fn(schemaType, name, schema)
         if (!newSchema) throw new Error('preprocessor should return a new schema object! Check your global preprocessors')
