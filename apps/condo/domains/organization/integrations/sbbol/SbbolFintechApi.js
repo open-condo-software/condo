@@ -1,17 +1,38 @@
 const qs = require('qs')
 const { get } = require('lodash')
 const { SbbolRequestApi } = require('./SbbolRequestApi')
-const { SBBOL_API_RESPONSE } = require('./common')
+const { SBBOL_API_RESPONSE, debugMessage } = require('./common')
 const { buildDigestFrom } = require('./utils/buildDigestFrom')
 
 /**
- * Error reponse from Fintech API
- * @typedef {Object} FintechErrorResponse
- * @property {string} cause
- * @property {string} referenceId
- * @property {string} message
+ * Error reponse from SBBOL Fintech API
+ *
+ * @typedef {Object} SbbolFintechApiError
+ * @property {string} cause - error code string
+ * @property {string} referenceId - UUID of error report from SBBOL
+ * @property {string} message - textual description in russian
+ * @property {Object[]} checks - actually, SBBOL does nt
+ * @property {String[]} fieldNames - fields, caused error
  * @example
- * {"cause":"DATA_NOT_FOUND_EXCEPTION","referenceId":"dc32b274-7943-4f2d-ab4c-dc75ea1272bc","message":"Не найдено ни одного заранее данного акцепта за указанную дату"}
+ * {
+ *   cause: 'DATA_NOT_FOUND_EXCEPTION',
+ *   referenceId: 'dc32b274-7943-4f2d-ab4c-dc75ea1272bc',
+ *   message: 'Не найдено ни одного заранее данного акцепта за указанную дату'
+ * }
+ * @example
+ * {
+ *   cause: 'VALIDATION_FAULT',
+ *   referenceId: '19c8f679-ef70-4194-bfa2-2eb9a29aad62',
+ *   message: 'Объект PaymentRequestOut не соответствует модели',
+ *   checks: [ [Object] ],
+ *   fieldNames: [ 'operationCode' ]
+ * },
+ */
+
+/**
+ * @typedef SbbolFintechApiResponse
+ * @property {Object|SbbolFintechApiError} data
+ * @property {Number} statusCode - standard status code from HTTP (in practice, I've noticed 201, 400)
  */
 
 /**
@@ -125,15 +146,21 @@ class SbbolFintechApi extends SbbolRequestApi {
     }
 
     /**
+     * @typedef PaymentRequestResponse
+     * @property {PaymentRequestOut} [data] - created record in SBBOL. Null in case of error
+     * @property {SbbolFintechApiError} [error] – will be null in case of success
+     */
+
+    /**
      * Posts unsigned payment request to SBBOL without `crucialFieldsHash`
      * TODO(antonal): sign payment request with signature, obtained from SBBOL representatives
      * TODO(antonal): calculate hash for digested data
      * TODO(antonal): recognize error response
      * @param {PaymentRequestOut} data
-     * @return {Promise<unknown>}
+     * @return {Promise<>}
      */
-    async postPaymentRequest(body) {
-        const response = this.request({
+    async postPaymentRequest (body) {
+        const { data, statusCode } = await this.request({
             method: 'POST',
             path: this.postPaymentRequestPath,
             body,
@@ -141,15 +168,19 @@ class SbbolFintechApi extends SbbolRequestApi {
                 'Content-Type': 'application/json',
             },
         })
-        const parsedResponse = JSON.parse(response)
-        return parsedResponse
+        const jsonData = JSON.parse(data)
+        if (statusCode === 201) {
+            return { data: jsonData }
+        } else {
+            return { error: jsonData }
+        }
     }
 
     get advanceAcceptancesPath () {
         return `${this.apiPrefix}/v1/partner-info/advance-acceptances`
     }
 
-    get postPaymentRequestPath() {
+    get postPaymentRequestPath () {
         return `${this.apiPrefix}/v1/payment-requests/outgoing`
     }
 
