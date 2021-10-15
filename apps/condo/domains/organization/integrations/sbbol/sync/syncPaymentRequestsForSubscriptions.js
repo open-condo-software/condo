@@ -94,10 +94,15 @@ const postPaymentRequestsFor = async (subscription) => {
     debugMessage('End postPaymentRequestsFor')
 }
 
+/**
+ * For each expired SBBOL-subscription post payment request to SBBOL
+ */
 const syncPaymentRequestsForSubscriptions = async () => {
     debugMessage('Start syncPaymentRequestsForSubscriptions')
     const { keystone: context } = await getSchemaCtx('ServiceSubscription')
     const today = dayjs()
+    // By product case it is supposed to automatically renew expired paid SBBOL-subscription, not only trial.
+    // That's why `isTrial` is missing in `where` conditions.
     const [expiredSubscription] = await ServiceSubscription.getAll(context, {
         type: SUBSCRIPTION_TYPE.SBBOL,
         finishAt_lt: today.toISOString(),
