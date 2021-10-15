@@ -18,7 +18,7 @@ import { usePeriodSelector } from '@condo/domains/billing/hooks/usePeriodSelecto
 import { Row, Col, Input, Select, Typography } from 'antd'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useReceiptTableColumns } from '@condo/domains/billing/hooks/useReceiptTableColumns'
-import { getMoneyFilter } from '@condo/domains/billing/utils/helpers'
+import { getDecimalMoneyFilter } from '@condo/domains/billing/utils/helpers'
 import { ServicesModal } from '../ServicesModal'
 import { IBillingReceiptUIState } from '@condo/domains/billing/utils/clientSchema/BillingReceipt'
 
@@ -45,7 +45,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const contextPeriod = get(context, ['lastReport', 'period'], null)
     const separator = get(context, ['integration', 'currency', 'displayInfo', 'delimiterNative'], '.')
     const currencySign = get(context, ['integration', 'currency', 'displayInfo', 'symbolNative'], '₽')
-    const toPayFilter = getMoneyFilter('toPay', separator)
+    const toPayFilter = getDecimalMoneyFilter('toPay', separator)
     const queryMetas: Array<QueryMeta<BillingReceiptWhereInput>> = [
         ...staticQueryMetas,
         { keyword: 'period', filters: [periodFilter], defaultValue: contextPeriod },
