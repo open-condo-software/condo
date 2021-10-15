@@ -34038,7 +34038,7 @@ export type User = {
   phone?: Maybe<Scalars['String']>;
   /**  Phone verification flag. User verify phone by access to secret sms message  */
   isPhoneVerified?: Maybe<Scalars['Boolean']>;
-  /**  User loaded avarat image  */
+  /**  User loaded avatar image  */
   avatar?: Maybe<File>;
   /**  User metadata. Example: `city`, `country`, ...  */
   meta?: Maybe<Scalars['JSON']>;
