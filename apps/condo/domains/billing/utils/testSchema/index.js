@@ -24,7 +24,7 @@ const { BillingAccountMeterReading: BillingAccountMeterReadingGQL } = require('@
 const { BillingReceipt: BillingReceiptGQL } = require('@condo/domains/billing/gql')
 const { BillingOrganization: BillingOrganizationGQL } = require('@condo/domains/billing/gql')
 const { ResidentBillingReceipt: ResidentBillingReceiptGQL } = require('@condo/domains/billing/gql')
-const { BillingCurrency: BillingCurrencyGQL } = require('@condo/domains/billing/gql')
+const { BillingCurrency } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateGQLTestUtils(BillingIntegrationGQL)
@@ -39,45 +39,7 @@ const BillingAccountMeterReading = generateGQLTestUtils(BillingAccountMeterReadi
 const BillingReceipt = generateGQLTestUtils(BillingReceiptGQL)
 const BillingOrganization = generateGQLTestUtils(BillingOrganizationGQL)
 const ResidentBillingReceipt = generateGQLTestUtils(ResidentBillingReceiptGQL)
-const BillingCurrency = generateGQLTestUtils(BillingCurrencyGQL)
 /* AUTOGENERATE MARKER <CONST> */
-
-async function createTestBillingCurrency (client, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const code = faker.finance.currencyCode()
-    const displayInfo = {
-        symbolNative: faker.finance.currencySymbol(),
-        decimalDigits: 2,
-        rounding: 0,
-        delimiterNative: '.',
-    }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        code,
-        displayInfo,
-        ...extraAttrs,
-    }
-    const obj = await BillingCurrency.create(client, attrs)
-    return [obj, attrs]
-}
-
-async function updateTestBillingCurrency (client, id, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!id) throw new Error('no id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const obj = await BillingCurrency.update(client, id, attrs)
-    return [obj, attrs]
-}
 
 async function createTestBillingIntegration (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -547,7 +509,6 @@ module.exports = {
     makeOrganizationIntegrationManager: createOrganizationIntegrationManager,
     BillingOrganization, createTestBillingOrganization, updateTestBillingOrganization,
     ResidentBillingReceipt,
-    BillingCurrency, createTestBillingCurrency, updateTestBillingCurrency,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
