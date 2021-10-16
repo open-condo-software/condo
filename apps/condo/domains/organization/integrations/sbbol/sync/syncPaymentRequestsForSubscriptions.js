@@ -12,9 +12,10 @@ const { dvSenderFields, BANK_OPERATION_CODE } = require('../constants')
 
 // TODO(antonal): Add 3 days for trial subscription when payment is emitted to compensate payment processing lag and subsequent in service unavailability
 
-const postPaymentRequestsFor = async (subscription) => {
+const postPaymentRequestFor = async (subscription) => {
     const { keystone: context } = await getSchemaCtx('ServiceSubscriptionPayment')
-    debugMessage('Start postPaymentRequestsFor subscription', subscription)
+    debugMessage('Start postPaymentRequestsFor', subscription)
+    debugMessage(`Processing ServiceSubscription(type="sbbol", id="${subscription.id}")`)
     const newPayment = await ServiceSubscriptionPayment.create(context, {
         ...dvSenderFields,
         type: SUBSCRIPTION_TYPE.SBBOL,
@@ -103,25 +104,28 @@ const syncPaymentRequestsForSubscriptions = async () => {
     const today = dayjs()
     // By product case it is supposed to automatically renew expired paid SBBOL-subscription, not only trial.
     // That's why `isTrial` is missing in `where` conditions.
-    const [expiredSubscription] = await ServiceSubscription.getAll(context, {
+    const expiredSubscriptions = await ServiceSubscription.getAll(context, {
         type: SUBSCRIPTION_TYPE.SBBOL,
         finishAt_lt: today.toISOString(),
     })
-    if (!expiredSubscription) {
+
+    if (expiredSubscriptions.length === 0) {
         debugMessage('No expired ServiceSubscription(type="sbbol") found. Do nothing.')
     } else {
-        debugMessage(`Found expired ServiceSubscription(type="sbbol", id="${expiredSubscription.id}")`)
-        // Payments without external id are not created at SBBOL side
-        // Try to repost them
-        const paymentsForSubscription = await ServiceSubscriptionPayment.getAll(context, {
-            subscription: { id: expiredSubscription.id },
-            externalId_not: null,
+        debugMessage(`Found ${expiredSubscriptions.length} expired ServiceSubscription records`)
+        expiredSubscriptions.map(async (expiredSubscription) => {
+            // Payments without external id are not created at SBBOL side
+            // Try to repost them
+            const paymentsForSubscription = await ServiceSubscriptionPayment.getAll(context, {
+                subscription: { id: expiredSubscription.id },
+                externalId_not: null,
+            })
+            if (paymentsForSubscription.length === 0) {
+                await postPaymentRequestFor(expiredSubscription)
+            } else {
+                debugMessage(`Found ${paymentsForSubscription.length} ServiceSubscriptionPaymentRequest records. Do nothing.`)
+            }
         })
-        if (paymentsForSubscription.length === 0) {
-            await postPaymentRequestsFor(expiredSubscription)
-        } else {
-            debugMessage(`Found ${paymentsForSubscription.length} ServiceSubscriptionPaymentRequest records. Do nothing.`)
-        }
     }
     debugMessage('End syncPaymentRequestsForSubscriptions')
 }
