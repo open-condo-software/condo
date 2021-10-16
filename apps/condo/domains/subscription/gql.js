@@ -13,7 +13,7 @@ const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId created
 const SERVICE_SUBSCRIPTION_FIELDS = `{ type isTrial organization { id } startAt finishAt unitsCount unitPrice totalPrice currency ${COMMON_FIELDS} }`
 const ServiceSubscription = generateGqlQueries('ServiceSubscription', SERVICE_SUBSCRIPTION_FIELDS)
 
-const SERVICE_SUBSCRIPTION_PAYMENT_FIELDS = `{ type status externalId amount currency organization { id } subscription { id } meta ${COMMON_FIELDS} }`
+const SERVICE_SUBSCRIPTION_PAYMENT_FIELDS = `{ type status externalId amount currency organization { id } subscription { id } meta statusMeta ${COMMON_FIELDS} }`
 const ServiceSubscriptionPayment = generateGqlQueries('ServiceSubscriptionPayment', SERVICE_SUBSCRIPTION_PAYMENT_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */

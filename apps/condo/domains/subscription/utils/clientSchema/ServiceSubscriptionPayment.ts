@@ -10,7 +10,7 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { ServiceSubscriptionPayment as ServiceSubscriptionPaymentGQL } from '@condo/domains/subscription/gql'
 import { ServiceSubscriptionPayment, ServiceSubscriptionPaymentUpdateInput, QueryAllServiceSubscriptionPaymentsArgs } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'type', 'status', 'externalId', 'amount', 'currency', 'organization', 'subscription', 'meta']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'type', 'status', 'externalId', 'amount', 'currency', 'organization', 'subscription', 'meta', 'statusMeta']
 const RELATIONS = ['organization', 'subscription']
 
 export interface IServiceSubscriptionPaymentUIState extends ServiceSubscriptionPayment {
