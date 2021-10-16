@@ -5,6 +5,7 @@ const dayjs = require('dayjs')
 const { ServiceSubscription } = require('@condo/domains/subscription/utils/serverSchema')
 const { SUBSCRIPTION_TRIAL_PERIOD_DAYS, SUBSCRIPTION_TYPE } = require('@condo/domains/subscription/constants')
 const { dvSenderFields } = require('../constants')
+const { executeInSequence } = require('@condo/domains/common/utils/parallel')
 
 const conf = process.env
 const SBBOL_CONFIG = conf.SBBOL_CONFIG ? JSON.parse(conf.SBBOL_CONFIG) : {}
@@ -121,9 +122,8 @@ const syncSubscriptions = async ({ context, date }) => {
     if (advanceAcceptances.length === 0) {
         debugMessage('SBBOL returned no changes in offers, do nothing')
     } else {
-        await Promise.all(advanceAcceptances.map(advanceAcceptance => (
-            syncSubscriptionsFor(advanceAcceptance, context)
-        )))
+        const syncTasks = advanceAcceptances.map(advanceAcceptance => () => syncSubscriptionsFor(advanceAcceptance, context))
+        await executeInSequence(syncTasks)
     }
     debugMessage('End syncSubscriptions')
 }
