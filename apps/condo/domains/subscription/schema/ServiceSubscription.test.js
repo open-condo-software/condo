@@ -370,6 +370,7 @@ describe('ServiceSubscription', () => {
                     })
 
                     expect(obj.id).toMatch(UUID_RE)
+                    expect(obj.sbbolOfferAccept).toStrictEqual(rightSbbolOfferAccept)
                 })
 
                 it('cannot create ServiceSubscription with incorrect sbbolOfferAccept input structure', async () => {
@@ -399,6 +400,7 @@ describe('ServiceSubscription', () => {
                     })
 
                     expect(objUpdated.id).toMatch(objCreated.id)
+                    expect(objUpdated.sbbolOfferAccept).toStrictEqual(rightSbbolOfferAccept)
                 })
 
                 it('cannot create ServiceSubscription with incorrect sbbolOfferAccept input structure', async () => {
