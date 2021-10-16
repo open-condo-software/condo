@@ -53,6 +53,10 @@ const syncSubscriptionsFor = async ({ payerInn, active }, context) => {
     })
     const existingSubscription = existingSubscriptions[0]
 
+    if (existingSubscriptions.length > 1) {
+        console.error(`More than one subscription found for Organization(id=${organization.id}). It seems strange.`)
+    }
+
     // Client has accepted our offer
     if (active) {
         // TODO: add trial for additional day when client accepts previously revoked (after accepting) offer
