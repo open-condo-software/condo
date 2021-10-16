@@ -79,7 +79,12 @@ const ServiceSubscriptionPayment = new GQLListSchema('ServiceSubscriptionPayment
         },
 
         meta: {
-            schemaDoc: 'Data from remote system',
+            schemaDoc: 'Response from remote system on create record operation',
+            type: Json,
+        },
+
+        statusMeta: {
+            schemaDoc: 'Response from remote system on status check',
             type: Json,
         },
 

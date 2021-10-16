@@ -21249,8 +21249,10 @@ export type ServiceSubscriptionPayment = {
   organization?: Maybe<Organization>;
   /**  Subscription, to pay for  */
   subscription?: Maybe<ServiceSubscription>;
-  /**  Data from remote system  */
+  /**  Response from remote system on create record operation  */
   meta?: Maybe<Scalars['JSON']>;
+  /**  Response from remote system on status check  */
+  statusMeta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -21272,6 +21274,7 @@ export type ServiceSubscriptionPaymentCreateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   subscription?: Maybe<ServiceSubscriptionRelateToOneInput>;
   meta?: Maybe<Scalars['JSON']>;
+  statusMeta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -21306,6 +21309,7 @@ export type ServiceSubscriptionPaymentHistoryRecord = {
   organization?: Maybe<Scalars['String']>;
   subscription?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
+  statusMeta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -21330,6 +21334,7 @@ export type ServiceSubscriptionPaymentHistoryRecordCreateInput = {
   organization?: Maybe<Scalars['String']>;
   subscription?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
+  statusMeta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -21359,6 +21364,7 @@ export type ServiceSubscriptionPaymentHistoryRecordUpdateInput = {
   organization?: Maybe<Scalars['String']>;
   subscription?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
+  statusMeta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -21478,6 +21484,10 @@ export type ServiceSubscriptionPaymentHistoryRecordWhereInput = {
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  statusMeta?: Maybe<Scalars['JSON']>;
+  statusMeta_not?: Maybe<Scalars['JSON']>;
+  statusMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  statusMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -21582,6 +21592,7 @@ export type ServiceSubscriptionPaymentUpdateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   subscription?: Maybe<ServiceSubscriptionRelateToOneInput>;
   meta?: Maybe<Scalars['JSON']>;
+  statusMeta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -21652,6 +21663,10 @@ export type ServiceSubscriptionPaymentWhereInput = {
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  statusMeta?: Maybe<Scalars['JSON']>;
+  statusMeta_not?: Maybe<Scalars['JSON']>;
+  statusMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  statusMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
