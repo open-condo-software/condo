@@ -176,6 +176,44 @@ class SbbolFintechApi extends SbbolRequestApi {
         }
     }
 
+    /**
+     * @typedef PaymentRequestStatus
+     * @property {String} bankStatus
+     * @property {String} [bankComment]
+     * @property {String} [channelInfo]
+     * @property {String} crucialFieldsHash
+     * @example
+     * {
+     *     bankStatus: 'CREATED',
+     *     bankComment: null,
+     *     channelInfo: null,
+     *     crucialFieldsHash: '02e95e5a8ab0917f1b91819f042f3e0d'
+     * }
+     */
+
+    /**
+     * Get state of payment request, posted with `postPaymentRequest`
+     *
+     * @param externalId for SBBOL it means identifier at our side
+     * @return {Promise<{error: any}|{data: PaymentRequestStatus}>}
+     */
+    async getPaymentRequestState (externalId) {
+        const { data, statusCode } = await this.request({
+            method: 'GET',
+            path: this.getPaymentRequestStatePath.replace(':externalId', externalId)
+        })
+        const jsonData = JSON.parse(data)
+        if (statusCode === 200) {
+            return { data: jsonData }
+        } else {
+            return { error: jsonData }
+        }
+    }
+
+    get getPaymentRequestStatePath() {
+        return `${this.apiPrefix}/v1/payment-requests/outgoing/:externalId/state`
+    }
+
     get advanceAcceptancesPath () {
         return `${this.apiPrefix}/v1/partner-info/advance-acceptances`
     }
