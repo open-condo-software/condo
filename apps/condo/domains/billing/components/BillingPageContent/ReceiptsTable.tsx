@@ -68,10 +68,12 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const [search, handleSearchChange] = useSearch(loading)
     const [period, options, handlePeriodChange] = usePeriodSelector(contextPeriod)
 
+    const currencyName = get(context, ['integration', 'currency'])
+
     const hasToPayDetails = get(context, ['integration', 'dataFormat', 'hasToPayDetail'], false)
     const hasServices = get(context, ['integration', 'dataFormat', 'hasServices'], false)
     const hasServicesDetail = get(context, ['integration', 'dataFormat', 'hasServicesDetail'], false)
-    const mainTableColumns = useReceiptTableColumns(hasToPayDetails, currencySign, separator)
+    const mainTableColumns = useReceiptTableColumns(hasToPayDetails, currencyName)
 
     const [modalIsVisible, setModalIsVisible] = useState(false)
     const [detailedReceipt, setDetailedReceipt] = useState<IBillingReceiptUIState>(null)

@@ -6,7 +6,7 @@ import { getMoneyRender, getTextRender } from '@condo/domains/common/components/
 import { useIntl } from '@core/next/intl'
 import get from 'lodash/get'
 
-export const useReceiptTableColumns = (detailed: boolean, currencySign: string, separator: string) => {
+export const useReceiptTableColumns = (detailed: boolean, currencyName: string) => {
     const intl = useIntl()
     const AddressTitle = intl.formatMessage({ id: 'field.Address' })
     const AccountTitle = intl.formatMessage({ id: 'field.AccountNumberShort' })
@@ -65,7 +65,7 @@ export const useReceiptTableColumns = (detailed: boolean, currencySign: string, 
                 sorter: false,
                 width: '13%',
                 align: 'right',
-                render: getMoneyRender(undefined, currencySign, separator),
+                render: getMoneyRender(undefined, currencyName),
             },
             penalty: {
                 title: PenaltyTitle,
@@ -74,7 +74,7 @@ export const useReceiptTableColumns = (detailed: boolean, currencySign: string, 
                 sorter: false,
                 width: '13%',
                 align: 'right',
-                render: getMoneyRender(undefined, currencySign, separator),
+                render: getMoneyRender(undefined, currencyName),
             },
             charge: {
                 title: ChargeTitle,
@@ -83,7 +83,7 @@ export const useReceiptTableColumns = (detailed: boolean, currencySign: string, 
                 sorter: false,
                 width: '13%',
                 align: 'right',
-                render: getMoneyRender(undefined, currencySign, separator),
+                render: getMoneyRender(undefined, currencyName),
             },
             toPay: {
                 title: ToPayTitle,
@@ -96,7 +96,7 @@ export const useReceiptTableColumns = (detailed: boolean, currencySign: string, 
                 align: 'right',
                 filterIcon: getFilterIcon,
                 filterDropdown: getTextFilterDropdown(ToPayTitle),
-                render: getMoneyRender(search, currencySign, separator),
+                render: getMoneyRender(search, currencyName),
             },
         }
 
@@ -114,7 +114,6 @@ export const useReceiptTableColumns = (detailed: boolean, currencySign: string, 
         sorterMap,
         ShortFlatNumber,
         detailed,
-        currencySign,
-        separator,
+        currencyName,
     ])
 }

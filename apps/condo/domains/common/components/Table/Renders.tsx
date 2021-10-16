@@ -115,8 +115,6 @@ const renderMoney = (currencyValuePart: string, currencyDecimalPart: string, cur
 
 export const getMoneyRender = (
     search: string,
-    currencyMark = '₽',
-    partSeparator = DEFAULT_CURRENCY_SEPARATOR,
     currencyName = DEFAULT_CURRENCY_NAME
 ) => {
     return function render (text: string): RenderReturnType {
