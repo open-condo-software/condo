@@ -43,8 +43,8 @@ const getHideCellTextRender = () => {
     }
 }
 
-const getAdvancedMoneyRender = (currencyMark: string, currencySeparator: string) => {
-    const moneyRender = getMoneyRender(undefined, currencyMark, currencySeparator)
+const getAdvancedMoneyRender = (currencyName: string) => {
+    const moneyRender = getMoneyRender(undefined, currencyName)
     return function render (text: string, record: TableRecord) {
         if (get(record, ['children', 'length'])) {
             return {
@@ -77,7 +77,7 @@ const getVolumeRender = (decimals: number) => {
     }
 }
 
-export const useServicesTableColumns = (detailed: boolean, currencySign: string, separator: string) => {
+export const useServicesTableColumns = (detailed: boolean, currencyName: string) => {
     const intl = useIntl()
     const ToPayTitle = intl.formatMessage({ id: 'field.TotalPayment' })
     const ServiceTitle = intl.formatMessage({ id: 'BillingServiceName' })
@@ -90,7 +90,7 @@ export const useServicesTableColumns = (detailed: boolean, currencySign: string,
     const PenaltyTitle = intl.formatMessage({ id: 'PaymentPenalty' })
 
 
-    const moneyRender = getAdvancedMoneyRender(currencySign, separator)
+    const moneyRender = getAdvancedMoneyRender(currencyName)
     const moneyAlign: AlignType = 'right'
     return useMemo(() => {
         const expandTextRender = getExpandTextRender(detailed)
