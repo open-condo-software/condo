@@ -44,7 +44,6 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
 
     const contextPeriod = get(context, ['lastReport', 'period'], null)
     const separator = get(context, ['integration', 'currency', 'displayInfo', 'delimiterNative'], '.')
-    const currencySign = get(context, ['integration', 'currency', 'displayInfo', 'symbolNative'], '₽')
     const toPayFilter = getDecimalMoneyFilter('toPay', separator)
     const queryMetas: Array<QueryMeta<BillingReceiptWhereInput>> = [
         ...staticQueryMetas,
@@ -68,7 +67,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const [search, handleSearchChange] = useSearch(loading)
     const [period, options, handlePeriodChange] = usePeriodSelector(contextPeriod)
 
-    const currencyName = get(context, ['integration', 'currency'])
+    const currencyName = get(context, ['integration', 'currency'], 'RUB')
 
     const hasToPayDetails = get(context, ['integration', 'dataFormat', 'hasToPayDetail'], false)
     const hasServices = get(context, ['integration', 'dataFormat', 'hasServices'], false)
@@ -151,8 +150,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
                 onOk={hideServiceModal}
                 onCancel={hideServiceModal}
                 isDetailed={hasServicesDetail}
-                currencyMark={currencySign}
-                currencySeparator={separator}
+                currencyName={currencyName}
             />
         </>
     )
