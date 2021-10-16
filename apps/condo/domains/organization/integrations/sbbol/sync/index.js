@@ -91,7 +91,7 @@ const sync = async ({ keystone, userInfo, tokenSet }) => {
     const organization = await syncOrganization({ context, user, userInfo, organizationInfo })
 
     const today = dayjs().format('YYYY-MM-DD')
-    await syncSubscriptions({ context, date: today })
+    await syncSubscriptions(today)
     await syncTokens({ context, tokenInfoFromOAuth: tokenSet, organization, user })
 
     const organizationEmployeeId = await getOrganizationEmployee({ context, user, organization })

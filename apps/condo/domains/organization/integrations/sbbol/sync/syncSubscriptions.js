@@ -5,14 +5,15 @@ const dayjs = require('dayjs')
 const { ServiceSubscription } = require('@condo/domains/subscription/utils/serverSchema')
 const { SUBSCRIPTION_TRIAL_PERIOD_DAYS, SUBSCRIPTION_TYPE } = require('@condo/domains/subscription/constants')
 const { dvSenderFields } = require('../constants')
-const { executeInSequence } = require('@condo/domains/common/utils/parallel')
+const { processArrayOf } = require('@condo/domains/common/utils/parallel')
+const { getSchemaCtx } = require('@core/keystone/schema')
 
 const conf = process.env
 const SBBOL_CONFIG = conf.SBBOL_CONFIG ? JSON.parse(conf.SBBOL_CONFIG) : {}
 
 async function stop (subscription, context) {
     debugMessage('Stopping subscription', subscription)
-    return await ServiceSubscription.update(context.keystone, subscription.id, {
+    return await ServiceSubscription.update(context, subscription.id, {
         ...dvSenderFields,
         finishAt: dayjs().toISOString(),
     })
@@ -25,9 +26,10 @@ async function stop (subscription, context) {
  * @param context
  * @return {Promise<void>}
  */
-const syncSubscriptionsFor = async ({ payerInn, active }, context) => {
+const syncSubscriptionsFor = async ({ payerInn, active }) => {
+    const { keystone: context } = await getSchemaCtx('User')
     // GraphQL from Keystone does not supports querying of database fields of type JSON.
-    const knex = context.keystone.adapter.knex
+    const knex = context.adapter.knex
     const result = await knex('Organization')
         .whereRaw('meta->>\'inn\' = ?', [payerInn])
         .orderBy('createdAt', 'desc')
@@ -46,7 +48,7 @@ const syncSubscriptionsFor = async ({ payerInn, active }, context) => {
     //     throw new Error('Multiple organizations with the same inn exists. Its unknown, for what specific organization to create SBBOL subscription')
     // }
 
-    const existingSubscriptions = await ServiceSubscription.getAll(context.keystone, {
+    const existingSubscriptions = await ServiceSubscription.getAll(context, {
         organization: {
             id: organization.id,
         },
@@ -74,7 +76,7 @@ const syncSubscriptionsFor = async ({ payerInn, active }, context) => {
         }
 
         const now = dayjs()
-        const trialServiceSubscription = await ServiceSubscription.create(context.keystone, {
+        const trialServiceSubscription = await ServiceSubscription.create(context, {
             ...dvSenderFields,
             type: SUBSCRIPTION_TYPE.SBBOL,
             isTrial: true,
@@ -95,12 +97,10 @@ const syncSubscriptionsFor = async ({ payerInn, active }, context) => {
  * Fetches changes in subscriptions from SBBOL for specified date and creates or stops
  * ServiceSubscriptions, accordingly.
  *
- * @param {KeystoneContext} context
- * @param organization
+ * @param {String} date - stringified day in format 'YYYY-MM-DD'
  * @return {Promise<void>}
  */
-const syncSubscriptions = async ({ context, date }) => {
-    if (!context) throw new Error('context is not specified')
+const syncSubscriptions = async (date) => {
     if (!date) throw new Error('date is not specified')
     debugMessage('Start syncSubscriptions')
 
@@ -122,8 +122,7 @@ const syncSubscriptions = async ({ context, date }) => {
     if (advanceAcceptances.length === 0) {
         debugMessage('SBBOL returned no changes in offers, do nothing')
     } else {
-        const syncTasks = advanceAcceptances.map(advanceAcceptance => () => syncSubscriptionsFor(advanceAcceptance, context))
-        await executeInSequence(syncTasks)
+        await processArrayOf(advanceAcceptances).inSequenceWith(syncSubscriptionsFor)
     }
     debugMessage('End syncSubscriptions')
 }
