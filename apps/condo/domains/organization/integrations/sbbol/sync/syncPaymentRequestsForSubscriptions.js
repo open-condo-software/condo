@@ -12,7 +12,7 @@ const { dvSenderFields, BANK_OPERATION_CODE } = require('../constants')
 
 // TODO(antonal): Add 3 days for trial subscription when payment is emitted to compensate payment processing lag and subsequent in service unavailability
 
-const postPaymentRequestFor = async (subscription) => {
+const postPaymentRequestFor = async (subscription, fintechApi) => {
     const { keystone: context } = await getSchemaCtx('ServiceSubscriptionPayment')
     debugMessage('Start postPaymentRequestsFor', subscription)
     debugMessage(`Processing ServiceSubscription(type="sbbol", id="${subscription.id}")`)
@@ -30,17 +30,7 @@ const postPaymentRequestFor = async (subscription) => {
         debugMessage('Abort postPaymentRequestsFor')
         return
     }
-    let ourOrganizationAccessToken
-    try {
-        // `service_organization_hashOrgId` is a `userInfo.HashOrgId` from SBBOL, that used to obtain accessToken
-        // for organization, that will be queried in SBBOL using `SbbolFintechApi`.
-        ourOrganizationAccessToken = await SbbolRequestApi.getOrganizationAccessToken(SBBOL_CONFIG.service_organization_hashOrgId)
-    } catch (e) {
-        console.error(e.message)
-        return
-    }
-    console.debug('ourOrganizationAccessToken', ourOrganizationAccessToken)
-    const fintechApi = new SbbolFintechApi(ourOrganizationAccessToken)
+
     const today = dayjs()
 
     const { payeeAccount, payeeBankBic, payeeBankCorrAccount, payeeInn, payeeName } = SBBOL_CONFIG.payee
@@ -100,6 +90,19 @@ const postPaymentRequestFor = async (subscription) => {
  */
 const syncPaymentRequestsForSubscriptions = async () => {
     debugMessage('Start syncPaymentRequestsForSubscriptions')
+
+    let ourOrganizationAccessToken
+    try {
+        // `service_organization_hashOrgId` is a `userInfo.HashOrgId` from SBBOL, that used to obtain accessToken
+        // for organization, that will be queried in SBBOL using `SbbolFintechApi`.
+        ourOrganizationAccessToken = await SbbolRequestApi.getOrganizationAccessToken(SBBOL_CONFIG.service_organization_hashOrgId)
+        console.debug('ourOrganizationAccessToken', ourOrganizationAccessToken)
+    } catch (e) {
+        console.error(e.message)
+        return
+    }
+    const fintechApi = new SbbolFintechApi(ourOrganizationAccessToken)
+
     const { keystone: context } = await getSchemaCtx('ServiceSubscription')
     const today = dayjs()
     // By product case it is supposed to automatically renew expired paid SBBOL-subscription, not only trial.
@@ -121,7 +124,7 @@ const syncPaymentRequestsForSubscriptions = async () => {
                 externalId_not: null,
             })
             if (paymentsForSubscription.length === 0) {
-                await postPaymentRequestFor(expiredSubscription)
+                await postPaymentRequestFor(expiredSubscription, fintechApi)
             } else {
                 debugMessage(`Found ${paymentsForSubscription.length} ServiceSubscriptionPaymentRequest records. Do nothing.`)
             }
