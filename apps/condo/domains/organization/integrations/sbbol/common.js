@@ -29,10 +29,6 @@ const SbbolUserInfoSchema = {
 
 const SbbolUserInfoJSONValidation = new Ajv().compile(SbbolUserInfoSchema)
 
-const SBBOL_API_RESPONSE = {
-    DATA_NOT_FOUND_EXCEPTION: 'DATA_NOT_FOUND_EXCEPTION',
-}
-
 // eslint-disable-next-line no-shadow-restricted-names
 const debugMessage = (...arguments) => {
     if (conf.SBBOL_DEBUG) {
@@ -45,6 +41,5 @@ module.exports = {
     SbbolUserInfoJSONValidation,
     SBBOL_IMPORT_NAME,
     SBBOL_SESSION_KEY,
-    SBBOL_API_RESPONSE,
     debugMessage,
 }

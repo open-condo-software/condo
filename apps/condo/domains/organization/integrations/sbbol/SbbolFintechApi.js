@@ -1,8 +1,4 @@
-const qs = require('qs')
-const { get } = require('lodash')
 const { SbbolRequestApi } = require('./SbbolRequestApi')
-const { SBBOL_API_RESPONSE, debugMessage } = require('./common')
-const { buildDigestFrom } = require('./utils/buildDigestFrom')
 
 /**
  * Error reponse from SBBOL Fintech API
@@ -200,7 +196,7 @@ class SbbolFintechApi extends SbbolRequestApi {
     async getPaymentRequestState (externalId) {
         const { data, statusCode } = await this.request({
             method: 'GET',
-            path: this.getPaymentRequestStatePath.replace(':externalId', externalId)
+            path: this.getPaymentRequestStatePath.replace(':externalId', externalId),
         })
         const jsonData = JSON.parse(data)
         if (statusCode === 200) {
@@ -210,7 +206,7 @@ class SbbolFintechApi extends SbbolRequestApi {
         }
     }
 
-    get getPaymentRequestStatePath() {
+    get getPaymentRequestStatePath () {
         return `${this.apiPrefix}/v1/payment-requests/outgoing/:externalId/state`
     }
 
