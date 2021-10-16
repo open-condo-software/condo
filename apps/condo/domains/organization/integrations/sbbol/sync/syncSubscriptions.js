@@ -97,6 +97,7 @@ const syncSubscriptionsFor = async ({ payerInn, active }, context) => {
 const syncSubscriptions = async ({ context, date }) => {
     if (!context) throw new Error('context is not specified')
     if (!date) throw new Error('date is not specified')
+    debugMessage('Start syncSubscriptions')
 
     let ourOrganizationAccessToken
     try {
@@ -120,6 +121,7 @@ const syncSubscriptions = async ({ context, date }) => {
             syncSubscriptionsFor(advanceAcceptance, context)
         )))
     }
+    debugMessage('End syncSubscriptions')
 }
 
 module.exports = {
