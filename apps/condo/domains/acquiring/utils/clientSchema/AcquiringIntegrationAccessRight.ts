@@ -10,7 +10,7 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { AcquiringIntegrationAccessRight as AcquiringIntegrationAccessRightGQL } from '@condo/domains/acquiring/gql'
 import { AcquiringIntegrationAccessRight, AcquiringIntegrationAccessRightUpdateInput, QueryAllAcquiringIntegrationAccessRightsArgs } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'user', 'canGroupReceipts']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'user']
 const RELATIONS = ['user', 'integration']
 
 export interface IAcquiringIntegrationAccessRightUIState extends AcquiringIntegrationAccessRight {

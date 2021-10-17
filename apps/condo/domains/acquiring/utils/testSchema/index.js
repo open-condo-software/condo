@@ -44,17 +44,22 @@ function getRandomHiddenCard() {
     return `${prefix}********${suffix}`
 }
 
-async function createTestAcquiringIntegration (client, extraAttrs = {}) {
+async function createTestAcquiringIntegration (client, billings, extraAttrs = {}) {
     if (!client) throw new Error('no client')
+    if (!billings || !billings.length) throw new Error('no billings')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const name = faker.company.companyName().replace(/ /, '-').toUpperCase() + ' TEST ACQUIRING'
-    const url = faker.internet.url()
+    const feeCalculationUrl = faker.internet.url()
+    const paymentUrl = faker.internet.url()
+    const billingsIds = billings.map(billing => ({id: billing.id}))
     const attrs = {
         dv: 1,
         sender,
         name,
-        ...extraAttrs,
-        callbackUrl: url
+        feeCalculationUrl,
+        paymentUrl,
+        supportedBillingIntegrations: { connect: billingsIds },
+        ...extraAttrs
     }
     const obj = await AcquiringIntegration.create(client, attrs)
     return [obj, attrs]
