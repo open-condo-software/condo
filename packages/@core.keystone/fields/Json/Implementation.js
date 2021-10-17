@@ -1,6 +1,7 @@
 const { Implementation } = require('@keystonejs/fields')
 const { MongooseFieldAdapter } = require('@keystonejs/adapter-mongoose')
 const { KnexFieldAdapter } = require('@keystonejs/adapter-knex')
+const { PrismaFieldAdapter } = require('@keystonejs/adapter-prisma')
 const stringify = JSON.stringify
 
 class JsonImplementation extends Implementation {
@@ -163,8 +164,15 @@ class JsonKnexFieldAdapter extends CommonFieldAdapterInterface(KnexFieldAdapter)
     }
 }
 
+class JsonPrismaFieldAdapter extends CommonFieldAdapterInterface(PrismaFieldAdapter) {
+    getPrismaSchema () {
+        return [this._schemaField({ type: 'Json' })]
+    }
+}
+
 module.exports = {
     JsonImplementation,
     JsonKnexFieldAdapter,
     JsonMongooseFieldAdapter,
+    JsonPrismaFieldAdapter,
 }

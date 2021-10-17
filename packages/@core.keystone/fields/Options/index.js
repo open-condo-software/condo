@@ -1,4 +1,4 @@
-const { OptionsImplementation, OptionsKnexFieldAdapter, OptionsMongooseFieldAdapter } = require('./Implementation')
+const { OptionsImplementation, OptionsKnexFieldAdapter, OptionsMongooseFieldAdapter, OptionsPrismaFieldAdapter } = require('./Implementation')
 
 module.exports = {
     type: 'Options',
@@ -6,6 +6,7 @@ module.exports = {
     adapters: {
         knex: OptionsKnexFieldAdapter,
         mongoose: OptionsMongooseFieldAdapter,
+        prisma: OptionsPrismaFieldAdapter,
     },
     views: {
         // Note: You cannot currently import and extend a controller
