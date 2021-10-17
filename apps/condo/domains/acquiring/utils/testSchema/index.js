@@ -182,13 +182,13 @@ async function makeAcquiringContextAndIntegrationAccount() {
     }
 }
 
-async function createTestMultiPayment (client, receipts, user, integration, extraAttrs = {}) {
+async function createTestMultiPayment (client, payments, user, integration, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!receipts) throw new Error('no receipts')
+    if (!payments || !payments.length) throw new Error('no receipts')
     if (!user) throw new Error('no user')
     if (!integration) throw new Error('no integration')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const amountWithOutExplicitFee = String(receipts.reduce((acc, cur) => acc + parseFloat(cur.toPay), 0))
+    const amountWithOutExplicitFee = String(payments.reduce((acc, cur) => acc + parseFloat(cur.amount), 0))
     const explicitFee = String(Math.floor(Math.random() * 100) / 2)
 
     const attrs = {
@@ -200,7 +200,7 @@ async function createTestMultiPayment (client, receipts, user, integration, extr
         serviceCategory: 'TEST DOCUMENT',
         status: MULTIPAYMENT_INIT_STATUS,
         user: { connect: { id: user.id } },
-        receipts: receipts,
+        payments: { connect: payments.map(payment => ({id: payment.id})) },
         integration: { connect: { id: integration.id } },
         ...extraAttrs,
     }
@@ -301,11 +301,19 @@ async function makePayer (receiptsAmount = 1) {
     }
 }
 
-async function makePayerWithMultiPayment (receiptsAmount = 1) {
+async function makePayerAndPayments (receiptsAmount = 1) {
     const data = await makePayer(receiptsAmount)
-    const { admin, billingReceipts, acquiringIntegration, client } = data
-    const [multiPayment] = await createTestMultiPayment(admin, billingReceipts, client.user, acquiringIntegration)
-    return {...data, multiPayment}
+    const { admin, billingReceipts, acquiringContext } = data
+    const payments = []
+    for (let i = 0; i < billingReceipts.length; i++) {
+        const [payment] = await createTestPayment(admin, billingReceipts[i], acquiringContext)
+        payments.push(payment)
+    }
+
+    return {
+        ...data,
+        payments
+    }
 }
 
 module.exports = {
@@ -318,7 +326,7 @@ module.exports = {
     makeAcquiringContextAndIntegrationManager,
     Payment, createTestPayment, updateTestPayment,
     makePayer,
-    makePayerWithMultiPayment,
+    makePayerAndPayments,
     getRandomHiddenCard,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
