@@ -55,9 +55,6 @@ const ServiceSubscriptionPayment = new GQLListSchema('ServiceSubscriptionPayment
             schemaDoc: 'Amount in specified currency',
             type: Decimal,
             isRequired: true,
-            knexOptions: {
-                scale: 2,
-            },
         },
 
         currency: {
