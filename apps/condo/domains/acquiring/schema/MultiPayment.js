@@ -97,7 +97,7 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
         },
 
         status: {
-            schemaDoc: `Status of payment. Can be: ${MULTIPAYMENT_STATUSES.map(status => `"${status}"`).join(', ')}`,
+            schemaDoc: `Status of multipayment. Can be: ${MULTIPAYMENT_STATUSES.map(status => `"${status}"`).join(', ')}`,
             type: Select,
             dataType: 'string',
             isRequired: true,
@@ -129,10 +129,12 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
             },
         },
 
-        receipts: {
-            schemaDoc: 'List of all billing receipts, that make up MultiPayment. Created using mutation. Displaying all needed information to resolve conflicts. Mainly used by support team',
-            type: Json,
+        payments: {
+            schemaDoc: 'Link to all related payments',
+            type: Relationship,
+            ref: 'Payment.multiPayment',
             isRequired: true,
+            many: true,
         },
 
         integration: ACQUIRING_INTEGRATION_FIELD,
