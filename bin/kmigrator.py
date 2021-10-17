@@ -32,7 +32,7 @@ from datetime import datetime
 from pathlib import Path
 from time import time
 
-VERSION = (1, 5, 3)
+VERSION = (1, 5, 4)
 CACHE_DIR = Path('.kmigrator')
 KNEX_MIGRATIONS_DIR = Path('migrations')
 GET_KNEX_SETTINGS_SCRIPT = CACHE_DIR / 'get.knex.settings.js'
@@ -336,7 +336,8 @@ function createFakeTable (tableName) {
     const adapter = keystone.adapter
 
         if (!adapter._createTables || !adapter.knex) {
-            return
+            console.error('\\nERROR: No KNEX adapter! Check the DATABASE_URL or keystone database adapter')
+            process.exit(4)
         }
         const schemaName = adapter.schemaName
         const s = adapter.schema()
@@ -443,7 +444,8 @@ async function runInContext(knex, config) {
     const adapter = keystone.adapter
 
         if (!adapter._createTables || !adapter.knex) {
-            return
+            console.error('\\nERROR: No KNEX adapter! Check the DATABASE_URL or keystone database adapter')
+            process.exit(4)
         }
         const migrationsConfig = {directory: knexMigrationsDir}
         try {
@@ -547,13 +549,12 @@ def _1_2_prepare_get_knex_schema_script(ctx):
 def _2_1_generate_knex_jsons(ctx):
     try:
         log = subprocess.check_output(['node', str(GET_KNEX_SETTINGS_SCRIPT)], stderr=subprocess.STDOUT)
+        GET_KNEX_SETTINGS_LOG.write_bytes(log)
     except subprocess.CalledProcessError as e:
         log = e.output
         print('ERROR: logfile =', GET_KNEX_SETTINGS_LOG.resolve())
         print(log.decode('utf-8'))
         raise KProblem('ERROR: can\'t get knex schema')
-    finally:
-        GET_KNEX_SETTINGS_LOG.write_bytes(log)
     ctx['__KNEX_SCHEMA_DATA__'] = Path(ctx['__KNEX_SCHEMA_PATH__']).read_text(encoding='utf-8')
     ctx['__KNEX_CONNECTION_DATA__'] = Path(ctx['__KNEX_CONNECTION_PATH__']).read_text(encoding='utf-8')
 
