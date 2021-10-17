@@ -44,8 +44,16 @@ class AutoIncrementIntegerMongooseFieldAdapter extends Integer.adapters.mongoose
     }
 }
 
+// TODO(pahaz): is it working? or just hack?
+class AutoIncrementIntegerPrismaFieldAdapter extends Integer.adapters.prisma {
+    async nextValue () {
+        throw new Error('Is not supported yet!')
+    }
+}
+
 module.exports = {
     AutoIncrementInteger,
     AutoIncrementIntegerKnexFieldAdapter,
     AutoIncrementIntegerMongooseFieldAdapter,
+    AutoIncrementIntegerPrismaFieldAdapter,
 }

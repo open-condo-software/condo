@@ -1,4 +1,4 @@
-const { AutoIncrementInteger, AutoIncrementIntegerKnexFieldAdapter, AutoIncrementIntegerMongooseFieldAdapter } = require('./Implementation')
+const { AutoIncrementInteger, AutoIncrementIntegerKnexFieldAdapter, AutoIncrementIntegerMongooseFieldAdapter, AutoIncrementIntegerPrismaFieldAdapter } = require('./Implementation')
 const { Integer } = require('@keystonejs/fields')
 
 module.exports = {
@@ -7,6 +7,7 @@ module.exports = {
     adapters: {
         knex: AutoIncrementIntegerKnexFieldAdapter,
         mongoose: AutoIncrementIntegerMongooseFieldAdapter,
+        prisma: AutoIncrementIntegerPrismaFieldAdapter,
     },
     views: Integer.views,
 }
