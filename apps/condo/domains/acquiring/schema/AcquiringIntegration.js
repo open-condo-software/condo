@@ -35,12 +35,25 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             isRequired: true,
         },
         
-        callbackUrl: {
+        feeCalculationUrl: {
+            schemaDoc: 'Url to acquiring integration service. Mobile devices will use it to pass MultiPayment ID and get know about explicitFee. All fees will also be calculated there',
+            type: Text,
+            isRequired: true,
+        },
+
+        paymentUrl: {
             schemaDoc: 'Url to acquiring integration service. Mobile devices will use it to pass MultiPayment ID and start payment process',
             type: Text,
             isRequired: true,
         },
 
+        supportedBillingIntegrations: {
+            schemaDoc: 'List of supported billing integrations. If one of them is here, it means that this acquiring can accept receipts from it',
+            type: Relationship,
+            ref: 'BillingIntegration',
+            isRequired: true,
+            many: true,
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {

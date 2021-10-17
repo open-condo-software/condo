@@ -3,7 +3,7 @@
  */
 
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { AcquiringIntegrationAccessRight } = require('@condo/domains/acquiring/utils/serverSchema')
+const { Payment } = require('@condo/domains/acquiring/utils/serverSchema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
 async function canReadPayments ({ authentication: { item: user } }) {
@@ -26,19 +26,24 @@ async function canReadPayments ({ authentication: { item: user } }) {
     }
 }
 
-async function canManagePayments ({ authentication: { item: user }, operation, context }) {
+async function canManagePayments ({ authentication: { item: user }, operation, context, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
     if (operation === 'create') {
-        // Acquiring integration can create payments, linked to own context and own MultiPayments
-        const rights = await AcquiringIntegrationAccessRight.count(context, {
-            user: { id: user.id },
-        })
-        if (rights) return true
-    } else if (operation === 'update') {
-        // Cannot be updated, since it's strange to change payment details after...
+        // Nobody can create Payments manually
         return false
+
+    } else if (operation === 'update') {
+        if (!itemId) return false
+        // Acquiring integration can update it's own Payments
+        const payments = await Payment.getAll(context, {
+            id: itemId,
+            multiPayment: { integration: { accessRights_some: { user: { id: user.id } } } },
+        })
+        if (payments.length) {
+            return true
+        }
     }
     return false
 }
