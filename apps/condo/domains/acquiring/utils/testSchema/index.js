@@ -222,23 +222,26 @@ async function updateTestMultiPayment (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestPayment (client, receipt, multiPayment, context, extraAttrs = {}) {
+async function createTestPayment (client, receipt, context, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!receipt || !receipt.id) throw new Error('no receipts.id')
-    if (!multiPayment || !multiPayment.id) throw new Error('no multiPayment.id')
     if (!context || !context.id) throw new Error('no context.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const amount = get(receipt, 'toPay', '100.00')
+    const explicitFee = String(Math.floor(Math.random() * 100) / 2)
+    const implicitFee = String(Math.floor(Math.random() * 100) / 2)
 
     const attrs = {
         dv: 1,
         sender,
         amount,
+        explicitFee,
+        implicitFee,
         currencyCode: 'RUB',
-        withdrawnAt: dayjs().toISOString(),
+        advancedAt: dayjs().toISOString(),
         accountNumber: String(faker.datatype.number()),
         receipt: { connect: { id: receipt.id } },
-        multiPayment: { connect: { id: multiPayment.id } },
+        frozenReceipt: receipt,
         context: { connect: { id: context.id } },
         ...extraAttrs,
     }
@@ -270,9 +273,6 @@ async function makePayer (receiptsAmount = 1) {
     const [organization] = await registerNewOrganization(admin)
     const [property] = await createTestProperty(admin, organization)
 
-    const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
-    const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration)
-
     const [billingIntegration] = await createTestBillingIntegration(admin)
     const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, billingIntegration)
     const [billingProperty] = await createTestBillingProperty(admin, billingContext, {address: property.address})
@@ -282,6 +282,9 @@ async function makePayer (receiptsAmount = 1) {
         const [receipt] = await createTestBillingReceipt(admin, billingContext, billingProperty, billingAccount)
         billingReceipts.push(receipt)
     }
+
+    const [acquiringIntegration] = await createTestAcquiringIntegration(admin, [billingIntegration])
+    const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration)
 
     return {
         admin,
