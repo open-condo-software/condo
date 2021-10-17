@@ -44,6 +44,19 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
         },
 
         // TODO (savelevMatthew): move to MONEY_FIELD later
+        serviceFee: {
+            schemaDoc: 'The amount of money charged by service (Doma) for the provision of service. Can be explicit or implicit',
+            type: Decimal,
+            isRequired: false,
+        },
+
+        implicitFee: {
+            schemaDoc: 'Total amount of money charged from recipients of multipayment as fee for transaction',
+            type: Decimal,
+            isRequired: false,
+        },
+
+        // TODO (savelevMatthew): move to MONEY_FIELD later
         amountWithOutExplicitFee: {
             schemaDoc: 'The amount of money used to pay bills, initialized by resident.',
             type: Decimal,
