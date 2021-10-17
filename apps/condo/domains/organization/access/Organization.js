@@ -3,7 +3,7 @@
  */
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { queryOrganizationEmployeeFromRelatedOrganizationFor, queryOrganizationEmployeeFor, queryAcquiringIntegrationAccount } = require('../utils/accessSchema')
+const { queryOrganizationEmployeeFromRelatedOrganizationFor, queryOrganizationEmployeeFor } = require('../utils/accessSchema')
 const { Resident: ResidentServerUtils } = require('@condo/domains/resident/utils/serverSchema')
 const { AcquiringIntegrationAccessRight } = require('@condo/domains/acquiring/utils/serverSchema')
 const { get, uniq, compact } = require('lodash')
@@ -27,15 +27,23 @@ async function canReadOrganizations ({ authentication: { item: user }, context }
         }
         return false
     }
-    // Check if user account is acquiring integration and organization has this acquiring
-    const accessRights = await AcquiringIntegrationAccessRight.getAll(context, { user: { id: userId } })
-    if (accessRights && accessRights.length > 0) return true
+
+    const acquiringIntegrationRights = await AcquiringIntegrationAccessRight.getAll(context, {
+        user: { id: userId, deletedAt: null },
+    })
+
+    // Acquiring integration can have access to organizations created by it
+    // TODO (savelevMatthew): Better way to get access for acquiring integrations?
+    if (acquiringIntegrationRights && acquiringIntegrationRights.length) {
+        return {
+            createdBy: { id: userId },
+        }
+    }
 
     return {
         OR: [
             queryOrganizationEmployeeFor(userId),
             queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
-            queryAcquiringIntegrationAccount(userId),
         ],
     }
 }

@@ -29,7 +29,7 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
         organization: {
             schemaDoc: 'Service provider (organization)',
             type: Relationship,
-            ref: 'Organization.acquiringContext',
+            ref: 'Organization',
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },

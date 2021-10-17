@@ -14,7 +14,7 @@ const {
 } = require('@condo/domains/common/utils/testSchema')
 
 describe('AcquiringIntegration', () => {
-    describe('create', async () => {
+    describe('create',  () => {
         test('user can\'t', async () => {
             const admin = await makeLoggedInAdminClient()
             const [billingIntegration] = await createTestBillingIntegration(admin)
@@ -57,7 +57,7 @@ describe('AcquiringIntegration', () => {
             }))
         })
     })
-    describe('read', async () => {
+    describe('read', () => {
         test('user can', async () => {
             const admin = await makeLoggedInAdminClient()
             const [billingIntegration] = await createTestBillingIntegration(admin)
@@ -93,7 +93,7 @@ describe('AcquiringIntegration', () => {
             expect(integrations).not.toHaveLength(0)
         })
     })
-    describe('update', async () => {
+    describe('update',  () => {
         test('user can\'t', async () => {
             const admin = await makeLoggedInAdminClient()
             const [billingIntegration] = await createTestBillingIntegration(admin)
@@ -138,7 +138,7 @@ describe('AcquiringIntegration', () => {
             expect(newIntegration).toEqual(expect.objectContaining(payload))
         })
     })
-    describe('hard delete', async () => {
+    describe('hard delete',  () => {
         test('user can\'t', async () => {
             const admin = await makeLoggedInAdminClient()
             const [billingIntegration] = await createTestBillingIntegration(admin)

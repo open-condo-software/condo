@@ -71,7 +71,6 @@ async function checkUserBelongsToOrganization (userId, organizationId) {
 
 const queryOrganizationEmployeeFor = userId => ({ employees_some: { user: { id: userId }, isBlocked: false, deletedAt: null } })
 const queryOrganizationEmployeeFromRelatedOrganizationFor = userId => ({ relatedOrganizations_some: { from: queryOrganizationEmployeeFor(userId) } })
-const queryAcquiringIntegrationAccount = userId => ({ acquiringContext: { integration: { accessRights_some: { user: { id: userId } } } } })
 
 module.exports = {
     checkPermissionInUserOrganizationOrRelatedOrganization,
@@ -80,5 +79,4 @@ module.exports = {
     checkRelatedOrganizationPermission,
     queryOrganizationEmployeeFromRelatedOrganizationFor,
     queryOrganizationEmployeeFor,
-    queryAcquiringIntegrationAccount,
 }
