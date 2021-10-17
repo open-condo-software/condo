@@ -68,12 +68,6 @@ const Organization = new GQLListSchema('Organization', {
             many: true,
             access: userAccess.canAccessToStaffUserField,
         },
-        acquiringContext: {
-            type: Relationship,
-            ref: 'AcquiringIntegrationContext.organization',
-            isRequired: false,
-            access: userAccess.canAccessToStaffUserField,
-        },
         statusTransitions: {
             schemaDoc: 'Graph of possible transitions for statuses. If there is no transition in this graph, ' +
                 'it is impossible to change status if the user in the role has the right to do so.',
