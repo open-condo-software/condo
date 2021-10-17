@@ -39,7 +39,7 @@ async function canManagePayments ({ authentication: { item: user }, operation, c
         // Acquiring integration can update it's own Payments
         const payments = await Payment.getAll(context, {
             id: itemId,
-            multiPayment: { integration: { accessRights_some: { user: { id: user.id } } } },
+            context: { integration: { accessRights_some: { user: { id: user.id } } } },
         })
         if (payments.length) {
             return true

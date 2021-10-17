@@ -24,10 +24,23 @@ const Payment = new GQLListSchema('Payment', {
             isRequired: true,
         },
 
+        // TODO (savelevMatthew): move to MONEY_FIELD
+        explicitFee: {
+            schemaDoc: 'Amount of money which payer pays on top of initial "amount"',
+            type: Decimal,
+            isRequired: false,
+        },
+
+        implicitFee: {
+            schemaDoc: 'Amount of money which recipient pays from initial amount for transaction',
+            type: Decimal,
+            isRequired: false,
+        },
+
         currencyCode: CURRENCY_CODE_FIELD,
 
-        time: {
-            schemaDoc: 'Time at which transaction was made',
+        advancedAt: {
+            schemaDoc: 'Time at which money was advanced to recipient\'s account',
             type: DateTimeUtc,
             isRequired: true,
         },
@@ -64,8 +77,6 @@ const Payment = new GQLListSchema('Payment', {
             schemaDoc: 'Link to a payment related MultiPayment. Required field to update, but initially created unlinked',
             type: Relationship,
             ref: 'MultiPayment.payments',
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
             hooks: {
                 // TODO (savelevMatthew): create validations later
             },
