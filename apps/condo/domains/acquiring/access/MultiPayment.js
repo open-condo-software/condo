@@ -34,7 +34,7 @@ async function canManageMultiPayments ({ authentication: { item: user }, operati
     if (operation === 'create') {
         return false
     } else if (operation === 'update') {
-        if (!itemId) return
+        if (!itemId) return false
         const availableIntegrations = await AcquiringIntegration.getAll(context, {
             accessRights_some: { user: { id: user.id } },
         })
