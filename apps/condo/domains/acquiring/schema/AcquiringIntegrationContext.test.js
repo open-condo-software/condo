@@ -21,12 +21,17 @@ const {
     expectToThrowAuthenticationErrorToObjects,
 } = require('@condo/domains/common/utils/testSchema')
 
+const {
+    createTestBillingIntegration,
+} = require('@condo/domains/billing/utils/testSchema')
+
 describe('AcquiringIntegrationContext', () => {
     describe('create', () => {
         test('admin can', async () => {
             const admin = await makeLoggedInAdminClient()
             const [organization] = await registerNewOrganization(admin)
-            const [integration] = await createTestAcquiringIntegration(admin)
+            const [billingIntegration] = await createTestBillingIntegration(admin)
+            const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
             const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
             expect(context).toBeDefined()
             expect(context).toHaveProperty(['organization', 'id'], organization.id)
@@ -35,7 +40,8 @@ describe('AcquiringIntegrationContext', () => {
         test('support can\'t', async () => {
             const admin = await makeLoggedInAdminClient()
             const [organization] = await registerNewOrganization(admin)
-            const [integration] = await createTestAcquiringIntegration(admin)
+            const [billingIntegration] = await createTestBillingIntegration(admin)
+            const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
 
             const support = await makeClientWithSupportUser()
             await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -46,7 +52,8 @@ describe('AcquiringIntegrationContext', () => {
             test('can with if it\'s integration manager of organization (has `canManageIntegration`)', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await registerNewOrganization(admin)
-                const [integration] = await createTestAcquiringIntegration(admin)
+                const [billingIntegration] = await createTestBillingIntegration(admin)
+                const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
                 const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
                     canManageIntegrations: true,
                 })
@@ -60,7 +67,8 @@ describe('AcquiringIntegrationContext', () => {
             test('if it\'s integration account, and has access rights to integration', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await registerNewOrganization(admin)
-                const [integration] = await createTestAcquiringIntegration(admin)
+                const [billingIntegration] = await createTestBillingIntegration(admin)
+                const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 await createTestAcquiringIntegrationAccessRight(admin, integration, client.user)
 
@@ -72,7 +80,8 @@ describe('AcquiringIntegrationContext', () => {
             test('can\'t in other cases', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await registerNewOrganization(admin)
-                const [integration] = await createTestAcquiringIntegration(admin)
+                const [billingIntegration] = await createTestBillingIntegration(admin)
+                const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -83,7 +92,8 @@ describe('AcquiringIntegrationContext', () => {
         test('anonymous can\'t', async () => {
             const admin = await makeLoggedInAdminClient()
             const [organization] = await registerNewOrganization(admin)
-            const [integration] = await createTestAcquiringIntegration(admin)
+            const [billingIntegration] = await createTestBillingIntegration(admin)
+            const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
 
             const anonymousClient = await makeClient()
             await expectToThrowAuthenticationErrorToObj(async () => {
@@ -95,7 +105,8 @@ describe('AcquiringIntegrationContext', () => {
         test('admin can', async () => {
             const admin = await makeLoggedInAdminClient()
             const [organization] = await registerNewOrganization(admin)
-            const [integration] = await createTestAcquiringIntegration(admin)
+            const [billingIntegration] = await createTestBillingIntegration(admin)
+            const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
             await createTestAcquiringIntegrationContext(admin, organization, integration)
 
             const contexts = await AcquiringIntegrationContext.getAll(admin)
@@ -105,7 +116,8 @@ describe('AcquiringIntegrationContext', () => {
         test('support can', async () => {
             const admin = await makeLoggedInAdminClient()
             const [organization] = await registerNewOrganization(admin)
-            const [integration] = await createTestAcquiringIntegration(admin)
+            const [billingIntegration] = await createTestBillingIntegration(admin)
+            const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
             await createTestAcquiringIntegrationContext(admin, organization, integration)
 
             const support = await makeClientWithSupportUser()
@@ -118,7 +130,8 @@ describe('AcquiringIntegrationContext', () => {
                 test('permission set', async () => {
                     const admin = await makeLoggedInAdminClient()
                     const [organization] = await registerNewOrganization(admin)
-                    const [integration] = await createTestAcquiringIntegration(admin)
+                    const [billingIntegration] = await createTestBillingIntegration(admin)
+                    const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
                     await createTestAcquiringIntegrationContext(admin, organization, integration)
                     const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
                         canReadPayments: true,
