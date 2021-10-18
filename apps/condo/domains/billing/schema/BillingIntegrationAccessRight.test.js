@@ -106,7 +106,7 @@ describe('BillingIntegrationAccessRight', () => {
             await BillingIntegrationAccessRight.delete(admin, objCreated.id)
         } catch (e) {
             expect(e.errors[0]).toMatchObject({
-                'message': 'Cannot query field "deleteBillingIntegrationAccessRight" on type "Mutation". Did you mean "createBillingIntegrationAccessRight", "updateBillingIntegrationAccessRight", "createBillingIntegrationAccessRights", "updateBillingIntegrationAccessRights", or "deleteBillingIntegrationLog"?',
+                'message': expect.stringContaining('Cannot query field "deleteBillingIntegrationAccessRight" on type "Mutation"'),
                 'name': 'ValidationError',
             })
             expect(e.data).toBeUndefined()
