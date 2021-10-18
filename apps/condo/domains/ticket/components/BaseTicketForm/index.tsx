@@ -14,7 +14,6 @@ import { useMultipleFileUploadHook } from '@condo/domains/common/components/Mult
 import { TicketFile, ITicketFileUIState } from '@condo/domains/ticket/utils/clientSchema'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
 import { useTicketThreeLevelsClassifierHook } from '@condo/domains/ticket/components/TicketClassifierSelect'
-import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
 import { normalizeText } from '@condo/domains/common/utils/text'
 import { InputWithCounter } from '@condo/domains/common/components/InputWithCounter'
 import Prompt from '@condo/domains/common/components/Prompt'
@@ -117,7 +116,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                                 </Form.Item>
                             </Col>
                             <Col span={6}>
-                                <Form.Item name={'isPaid'}  valuePropName='checked'>
+                                <Form.Item name={'isPaid'} valuePropName='checked'>
                                     <Checkbox disabled={disableUserInteraction}>{PaidLabel}</Checkbox>
                                 </Form.Item>
                             </Col>
@@ -140,7 +139,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                         <Form.Item
                             label={AttachedFilesLabel}
                         >
-                            <UploadComponent />
+                            <UploadComponent/>
                         </Form.Item>
                     </Col>
                 </Row>
@@ -179,11 +178,14 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
     const { loading: organizationPropertiesLoading, objs: organizationProperties } = Property.useObjects({
         where: {
-            organization: { id: organization ? organization.id : null },
+            organization: {
+                id: organization ? organization.id : null,
+            },
+            deletedAt: null,
         },
     })
 
-    const { loading, obj: property } = useObject({ where: { id: selectedPropertyId ? selectedPropertyId : null } })
+    const property = organizationProperties.find(property => property.id === selectedPropertyId)
 
     const [selectedUnitName, setSelectedUnitName] = useState(get(initialValues, 'unitName'))
     const selectedUnitNameRef = useRef(selectedUnitName)
@@ -313,7 +315,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                         {selectedPropertyId && (
                                             <UnitInfo
                                                 property={property}
-                                                loading={loading}
+                                                loading={organizationPropertiesLoading}
                                                 setSelectedUnitName={setSelectedUnitName}
                                                 form={form}
                                             />
@@ -329,7 +331,10 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                 <Form.Item noStyle dependencies={['property', 'categoryClassifier']} shouldUpdate>
                                     {
                                         ({ getFieldsValue }) => {
-                                            const { property, categoryClassifier } = getFieldsValue(['property', 'categoryClassifier'])
+                                            const {
+                                                property,
+                                                categoryClassifier,
+                                            } = getFieldsValue(['property', 'categoryClassifier'])
                                             const disableUserInteraction = !property
 
                                             return (
