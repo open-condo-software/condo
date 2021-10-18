@@ -104,7 +104,6 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
     const renderAddress = (record) => {
         const property = get(record, 'property')
         const unitName = get(record, 'unitName')
-        console.log(unitName)
         const text = get(property, 'address')
         const unitPrefix = unitName ? `${ShortFlatNumber} ${unitName}` : ''
 
