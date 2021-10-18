@@ -84,7 +84,10 @@ const syncSubscriptionsFor = async (advanceAcceptance) => {
             organization: { connect: { id: organization.id } },
             startAt: now.toISOString(),
             finishAt: now.add(SUBSCRIPTION_TRIAL_PERIOD_DAYS, 'days').toISOString(),
-            sbbolOfferAccept: advanceAcceptance,
+            sbbolOfferAccept: {
+                dv: 1,
+                ...advanceAcceptance,
+            },
         })
         debugMessage('Created trial subscription for SBBOL', trialServiceSubscription)
     } else {
@@ -119,7 +122,7 @@ const syncSubscriptions = async (date) => {
     const fintechApi = new SbbolFintechApi(ourOrganizationAccessToken)
     debugMessage('Checking, whether the user have ServiceSubscription items')
 
-    const advanceAcceptances = await fintechApi.fetchAdvanceAcceptances({ date, clientId: SBBOL_CONFIG.client_id })
+    const advanceAcceptances = await fintechApi.fetchAdvanceAcceptances({ date: '2021-10-08', clientId: SBBOL_CONFIG.client_id })
 
     if (advanceAcceptances.length === 0) {
         debugMessage('SBBOL returned no changes in offers, do nothing')
