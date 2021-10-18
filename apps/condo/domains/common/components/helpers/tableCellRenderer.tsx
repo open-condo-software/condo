@@ -35,7 +35,7 @@ const getTableCellRenderer: GetRenderer = (search, ellipsis = false, postfix = '
             <EmptyTableCell>
                 {ellipsis
                     ? (
-                        <Typography.Paragraph ellipsis={{ rows: ELLIPSIS_ROWS, expandable: false }} title={text + (postfix && ` ${postfix}`)} style={{ marginBottom: 0 }}>
+                        <Typography.Paragraph ellipsis={{ rows: ELLIPSIS_ROWS, expandable: false }} title={text + (postfix ? ` ${postfix}` : '')} style={{ marginBottom: 0 }}>
                             {result}
                         </Typography.Paragraph>
                     )
