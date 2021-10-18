@@ -20,7 +20,7 @@ const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegenera
 const { MULTIPAYMENT_INIT_STATUS } = require('../../constants')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
-const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/organization')
+const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 
 const { AcquiringIntegration: AcquiringIntegrationGQL } = require('@condo/domains/acquiring/gql')
 const { AcquiringIntegrationAccessRight: AcquiringIntegrationAccessRightGQL } = require('@condo/domains/acquiring/gql')
