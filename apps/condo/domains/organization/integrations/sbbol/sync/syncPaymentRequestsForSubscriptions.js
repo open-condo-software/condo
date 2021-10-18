@@ -6,9 +6,9 @@ const { SbbolFintechApi } = require('../SbbolFintechApi')
 const { SBBOL_YEARLY_SUBSCRIPTION_PRICE, SUBSCRIPTION_TYPE, SUBSCRIPTION_PAYMENT_STATUS, SUBSCRIPTION_PAYMENT_CURRENCY } = require('@condo/domains/subscription/constants')
 const conf = process.env
 const SBBOL_CONFIG = conf.SBBOL_CONFIG ? JSON.parse(conf.SBBOL_CONFIG) : {}
-const SAMPLE_PAYER = require('./samplePayer.json')
 const { debugMessage } = require('../common')
 const { dvSenderFields, BANK_OPERATION_CODE } = require('../constants')
+const { SBBOL_OFFER_ACCEPT_IS_NULL_ERROR, SBBOL_OFFER_ACCEPT_HAS_INCORRECT_PAYER_REQUISITES_ERROR } = require('@condo/domains/subscription/constants/errors')
 
 // TODO(antonal): Add 3 days for trial subscription when payment is emitted to compensate payment processing lag and subsequent in service unavailability
 
@@ -16,6 +16,21 @@ const postPaymentRequestFor = async (subscription, fintechApi) => {
     const { keystone: context } = await getSchemaCtx('ServiceSubscriptionPayment')
     debugMessage('Start postPaymentRequestsFor', subscription)
     debugMessage(`Processing ServiceSubscription(type="sbbol", id="${subscription.id}")`)
+
+    if (!subscription.sbbolOfferAccept) {
+        console.error(`${SBBOL_OFFER_ACCEPT_IS_NULL_ERROR} Cannot obtain requisites for payer from latest ServiceSubscription`)
+        debugMessage('Abort postPaymentRequestsFor')
+        return
+    }
+
+    const { payerAccount, payerBankBic, payerBankCorrAccount, payerInn, payerName } = subscription.sbbolOfferAccept
+
+    if (!payerAccount || !payerBankBic || !payerBankCorrAccount || !payerInn || !payerName) {
+        console.error(SBBOL_OFFER_ACCEPT_HAS_INCORRECT_PAYER_REQUISITES_ERROR, subscription.sbbolOfferAccept)
+        debugMessage('Abort postPaymentRequestsFor')
+        return
+    }
+
     const newPayment = await ServiceSubscriptionPayment.create(context, {
         ...dvSenderFields,
         type: SUBSCRIPTION_TYPE.SBBOL,
@@ -34,7 +49,6 @@ const postPaymentRequestFor = async (subscription, fintechApi) => {
     const today = dayjs()
 
     const { payeeAccount, payeeBankBic, payeeBankCorrAccount, payeeInn, payeeName } = SBBOL_CONFIG.payee
-    const { payerAccount, payerBankBic, payerBankCorrAccount, payerInn, payerName } = SAMPLE_PAYER
 
     const response = await fintechApi.postPaymentRequest({
         acceptanceTerm: '5',
