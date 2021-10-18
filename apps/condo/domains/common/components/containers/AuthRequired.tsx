@@ -35,7 +35,7 @@ export function AuthRequired ({ children }) {
     const { isAuthenticated, isLoading } = auth
 
     if (isLoading) {
-        return <Loader/>
+        return <Loader fill size={'large'}/>
     }
 
     if (!isAuthenticated) {
