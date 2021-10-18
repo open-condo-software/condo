@@ -22,6 +22,7 @@ exports.up = async (knex) => {
     
     [UP]
 
+    COMMIT;
     \`)
 }
 
@@ -30,7 +31,8 @@ exports.down = async (knex) => {
     BEGIN;
     
     [DOWN]
-
+    
+    COMMIT;
     \`)
 }
 `
