@@ -5,7 +5,7 @@ const dayjs = require('dayjs')
 /**
  * Syncs new and cancelled subscriptions
  */
-const syncSbbolSubscriptions = createCronTask('syncSbbolSubscriptions', '0 * * * *', async () => {
+const syncSbbolSubscriptions = createCronTask('syncSbbolSubscriptions', '20 9 * * *', async () => {
     const today = dayjs().format('YYYY-MM-DD')
     await syncSubscriptions(today)
 })
