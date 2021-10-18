@@ -332,7 +332,7 @@
   "pages.condo.warning.modal.SaveLabel": "Сохранить",
   "pages.condo.warning.modal.LeaveLabel": "Не сохранять",
   "pages.condo.residents.PageTitle": "Жители",
-  "pages.condo.ticket.alert.NoProperties": "Чтобы создать заявку, нужно добавить хотя бы один адрес в разделе «Дома и участки».",
+  "pages.condo.ticket.alert.NoProperties": "Чтобы создать заявку, добавьте хотя бы один адрес в разделе «Дома и участки».",
   "pages.condo.ticket.field.Client": "Заявитель (житель)",
   "pages.condo.ticket.field.Description": "Описание проблемы",
   "pages.condo.ticket.field.Files": "Прикреплённые файлы",
