@@ -26,7 +26,8 @@ async function stop (subscription, context) {
  * @param context
  * @return {Promise<void>}
  */
-const syncSubscriptionsFor = async ({ payerInn, active }) => {
+const syncSubscriptionsFor = async (advanceAcceptance) => {
+    const { payerInn, active } = advanceAcceptance
     const { keystone: context } = await getSchemaCtx('User')
     // GraphQL from Keystone does not supports querying of database fields of type JSON.
     const knex = context.adapter.knex
@@ -83,6 +84,7 @@ const syncSubscriptionsFor = async ({ payerInn, active }) => {
             organization: { connect: { id: organization.id } },
             startAt: now.toISOString(),
             finishAt: now.add(SUBSCRIPTION_TRIAL_PERIOD_DAYS, 'days').toISOString(),
+            sbbolOfferAccept: advanceAcceptance,
         })
         debugMessage('Created trial subscription for SBBOL', trialServiceSubscription)
     } else {
