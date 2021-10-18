@@ -6,7 +6,7 @@ const { getSchemaCtx } = require('@core/keystone/schema')
 /**
  * Syncs new and cancelled subscriptions
  */
-const task = createCronTask('syncSbbolSubscriptionPaymentRequestsState', '* * * * *', async () => {
+const task = createCronTask('syncSbbolSubscriptionPaymentRequestsState', '10 9 * * *', async () => {
     const today = dayjs().format('YYYY-MM-DD')
     const { keystone } = await getSchemaCtx('User')
     await syncSbbolSubscriptionPaymentRequestsState({ date: today, context: keystone })
