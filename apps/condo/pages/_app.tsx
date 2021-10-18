@@ -202,6 +202,15 @@ const apolloCacheConfig = {
             // avoiding of building cache from ID on client, since Service ID is not UUID and will be repeated
             keyFields: false,
         },
+        BuildingSection: {
+            keyFields: false,
+        },
+        BuildingFloor: {
+            keyFields: false,
+        },
+        BuildingUnit: {
+            keyFields: false,
+        },
     },
 }
 
