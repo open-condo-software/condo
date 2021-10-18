@@ -4,9 +4,6 @@
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { AcquiringIntegration } = require('@condo/domains/acquiring/utils/serverSchema')
-const { getById } = require('@core/keystone/schema')
-const get = require('lodash/get')
 
 
 async function canReadMultiPayments ({ authentication: { item: user } }) {
@@ -26,7 +23,7 @@ async function canReadMultiPayments ({ authentication: { item: user } }) {
     }
 }
 
-async function canManageMultiPayments ({ authentication: { item: user }, operation, itemId, context }) {
+async function canManageMultiPayments ({ authentication: { item: user }, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -35,13 +32,8 @@ async function canManageMultiPayments ({ authentication: { item: user }, operati
         return false
     } else if (operation === 'update') {
         if (!itemId) return false
-        const availableIntegrations = await AcquiringIntegration.getAll(context, {
-            accessRights_some: { user: { id: user.id } },
-        })
-        const availableIntegrationsIds = availableIntegrations.map(integration => integration.id)
-        const multiPayment = await getById('MultiPayment', itemId)
-        const integrationId = get(multiPayment, ['integration'])
-        if (availableIntegrationsIds.includes(integrationId)) return true
+        // Acquiring integration account can update only it's own multipayment
+        return { integration: { accessRights_some: { user: { id: user.id } } } }
     }
     return false
 }

@@ -3,7 +3,6 @@
  */
 
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { Payment } = require('@condo/domains/acquiring/utils/serverSchema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
 async function canReadPayments ({ authentication: { item: user } }) {
@@ -26,7 +25,7 @@ async function canReadPayments ({ authentication: { item: user } }) {
     }
 }
 
-async function canManagePayments ({ authentication: { item: user }, operation, context, itemId }) {
+async function canManagePayments ({ authentication: { item: user }, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -37,13 +36,7 @@ async function canManagePayments ({ authentication: { item: user }, operation, c
     } else if (operation === 'update') {
         if (!itemId) return false
         // Acquiring integration can update it's own Payments
-        const payments = await Payment.getAll(context, {
-            id: itemId,
-            context: { integration: { accessRights_some: { user: { id: user.id } } } },
-        })
-        if (payments.length) {
-            return true
-        }
+        return { context: { integration: { accessRights_some: { user: { id: user.id } } } } }
     }
     return false
 }
