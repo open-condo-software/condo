@@ -14,7 +14,7 @@ const {
     createTestAcquiringIntegration,
     createTestAcquiringIntegrationAccessRight,
 } = require('@condo/domains/acquiring/utils/testSchema')
-const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/organization')
+const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj,
