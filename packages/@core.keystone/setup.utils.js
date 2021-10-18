@@ -56,9 +56,14 @@ function getAdapter (databaseUrl) {
 }
 
 function prepareDefaultKeystoneConfig (conf) {
-    const redisClient = new IORedis(conf.REDIS_URL)
-    const sessionStore = new RedisStore({ client: redisClient })
-
+    let sessionStore = undefined
+    if (process.env.PHASE !== 'build') {
+        const redisClient = new IORedis(conf.REDIS_URL)
+        sessionStore = new RedisStore({ client: redisClient })
+    }
+    else {
+        console.log('Not creating session store at build time.')
+    }
     return {
         cookieSecret: getCookieSecret(conf.COOKIE_SECRET),
         cookie: {
