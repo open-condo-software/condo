@@ -283,6 +283,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                 {NoPropertiesMessage}&nbsp;
                                                                 <Button
                                                                     type={'inlineLink'}
+                                                                    size={'small'}
                                                                     onClick={() => router.push('/property/create')}
                                                                 >
                                                                     {AddMessage}
