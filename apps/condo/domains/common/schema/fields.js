@@ -123,7 +123,7 @@ const CLIENT_PHONE_LANDLINE_FIELD = {
     },
 }
 
-const MONEY_FIELD = {
+const MONEY_AMOUNT_FIELD = {
     schemaDoc: 'Money field',
     type: Decimal,
     knexOptions: {
