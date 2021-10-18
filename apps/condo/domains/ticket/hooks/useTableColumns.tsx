@@ -31,7 +31,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
     const FindWordMessage = intl.formatMessage({ id: 'filters.FindWord' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
     const UserNameMessage = intl.formatMessage({ id: 'filters.UserName' })
-    const ShortFlatNumber = intl.formatMessage({ id: 'field.FlatNumber' })
+    const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
     const ExecutorMessage = intl.formatMessage({ id: 'field.Executor' })
     const ResponsibleMessage = intl.formatMessage({ id: 'field.Responsible' })
 
@@ -104,6 +104,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
     const renderAddress = (record) => {
         const property = get(record, 'property')
         const unitName = get(record, 'unitName')
+        console.log(unitName)
         const text = get(property, 'address')
         const unitPrefix = unitName ? `${ShortFlatNumber} ${unitName}` : ''
 
