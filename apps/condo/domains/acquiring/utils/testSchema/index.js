@@ -188,13 +188,13 @@ async function createTestMultiPayment (client, payments, user, integration, extr
     if (!user) throw new Error('no user')
     if (!integration) throw new Error('no integration')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const amountWithOutExplicitFee = String(payments.reduce((acc, cur) => acc + parseFloat(cur.amount), 0))
+    const amountWithoutExplicitFee = String(payments.reduce((acc, cur) => acc + parseFloat(cur.amount), 0))
     const explicitFee = String(Math.floor(Math.random() * 100) / 2)
 
     const attrs = {
         dv: 1,
         sender,
-        amountWithOutExplicitFee,
+        amountWithoutExplicitFee,
         explicitFee,
         currencyCode: 'RUB',
         serviceCategory: 'TEST DOCUMENT',

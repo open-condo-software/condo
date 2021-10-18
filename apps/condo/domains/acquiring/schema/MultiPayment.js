@@ -26,7 +26,7 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
         sender: SENDER_FIELD,
 
         amount: {
-            schemaDoc: 'Total amount of withdraw. amount = amountWithOutExplicitFee + explicitFee',
+            schemaDoc: 'Total amount of withdraw. amount = amountWithoutExplicitFee + explicitFee',
             type: Virtual,
             resolver: (item) => {
                 const explicitFee = get(item, 'explicitFee')
@@ -57,7 +57,7 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
         },
 
         // TODO (savelevMatthew): move to MONEY_FIELD later
-        amountWithOutExplicitFee: {
+        amountWithoutExplicitFee: {
             schemaDoc: 'The amount of money used to pay bills, initialized by resident.',
             type: Decimal,
             isRequired: true,

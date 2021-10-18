@@ -31,7 +31,7 @@ async function canManageAcquiringIntegrationContexts ({ authentication: { item: 
         // get ids from input on create
         organizationId = get(originalInput, ['organization', 'connect', 'id'])
         integrationId = get(originalInput, ['integration', 'connect', 'id'])
-        if (!organizationId || !integrationId) return
+        if (!organizationId || !integrationId) return false
     } else if (operation === 'update') {
         // getting ids from existing object
         if (!itemId) return false
