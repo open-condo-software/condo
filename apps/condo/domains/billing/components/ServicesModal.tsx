@@ -90,7 +90,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
 }) => {
     const intl = useIntl()
     const AccountMessage = intl.formatMessage({ id: 'field.AccountNumberShort' })
-    const ShortFlatNumber = intl.formatMessage({ id: 'field.FlatNumber' })
+    const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
 
     const moneyRender = useMemo(() => {
         return getMoneyRender(undefined, currencyMark, currencySeparator)

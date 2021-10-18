@@ -14,7 +14,7 @@ export const useReceiptTableColumns = (detailed: boolean, currencySign: string, 
     const ToPayTitle = intl.formatMessage({ id: 'field.TotalPayment' })
     const PenaltyTitle = intl.formatMessage({ id: 'PaymentPenalty' })
     const ChargeTitle = intl.formatMessage({ id: 'Charged' })
-    const ShortFlatNumber = intl.formatMessage({ id: 'field.FlatNumber' })
+    const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)

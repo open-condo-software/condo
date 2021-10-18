@@ -1,7 +1,7 @@
 import { FilterValue } from 'antd/es/table/interface'
 import { get } from 'lodash'
 import { useIntl } from '@core/next/intl'
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import {
     getFilterIcon,
 } from '@condo/domains/common/components/Table/Filters'
@@ -19,7 +19,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const intl = useIntl()
     const ClientNameMessage = intl.formatMessage({ id: 'Contact' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
-    const ShortFlatNumber = intl.formatMessage({ id: 'field.FlatNumber' })
+    const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
     const MeterReadingDateMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReadingDate' })
     const ServiceMessage = intl.formatMessage({ id: 'pages.condo.meter.Service' })
     const MeterNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterNumber' })
