@@ -67,7 +67,7 @@ const Payment = new GQLListSchema('Payment', {
         },
 
         frozenReceipt: {
-            schemaDoc: 'Frozen billing receipt, used to resolving future conflicts',
+            schemaDoc: 'Frozen billing receipt, used to resolving conflicts',
             type: Json,
             isRequired: true,
             // TODO (savelevMatthew): create validation / type later
