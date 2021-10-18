@@ -4,7 +4,7 @@ const { syncPaymentRequestsForSubscriptions } = require('../integrations/sbbol/s
 /**
  * Checking of SBBOL payment requests should be performed more frequently
  */
-const task = createCronTask('syncSbbolPaymentRequestsForSubscriptions', '* * * * *', async () => {
+const task = createCronTask('syncSbbolPaymentRequestsForSubscriptions', '0 9 * * *', async () => {
     await syncPaymentRequestsForSubscriptions()
 })
 
