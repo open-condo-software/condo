@@ -29,10 +29,10 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
             schemaDoc: 'Total amount of withdraw. amount = amountWithOutExplicitFee + explicitFee',
             type: Virtual,
             resolver: (item) => {
-                const explicitFee = get(item, 'explicitFee', '0')
-                const floatFee = parseFloat(explicitFee)
-                const floatAmount = parseFloat(item.amount)
-                return String(floatAmount - floatFee)
+                const explicitFee = get(item, 'explicitFee')
+                const floatFee = parseFloat(explicitFee || '0')
+                const floatAmount = parseFloat(item.amountWithOutExplicitFee)
+                return String(floatAmount + floatFee)
             },
         },
 
