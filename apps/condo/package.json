@@ -22,6 +22,7 @@
     "generate-excel-template": "node ./../../bin/create-xlsx-template.js",
     "lint-schema": "NODE_ENV=test node ./../../bin/lint-schema.js",
     "refresh-sbbol-tokens": "node ./../../bin/sbbol.js",
+    "sync-sbbol-subscription": "node ./../../bin/sbbol_subscription.js",
     "create-integration": "node ./../../bin/create-integration.js"
   },
   "dependencies": {
