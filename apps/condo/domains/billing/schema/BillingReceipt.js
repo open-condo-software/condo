@@ -7,7 +7,7 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingReceipt')
-const { MONEY_FIELD } = require('@condo/domains/common/schema/fields')
+const { MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { DV_UNKNOWN_VERSION_ERROR, WRONG_TEXT_FORMAT } = require('@condo/domains/common/constants/errors')
 const { RAW_DATA_FIELD, PERIOD_FIELD } = require('./fields/common')
@@ -57,7 +57,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         raw: RAW_DATA_FIELD,
 
         toPay: {
-            ...MONEY_FIELD,
+            ...MONEY_AMOUNT_FIELD,
             schemaDoc: 'Total sum to pay. Usually counts as the sum of all services.',
             isRequired: true,
         },
