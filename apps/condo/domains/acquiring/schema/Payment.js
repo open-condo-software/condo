@@ -77,6 +77,7 @@ const Payment = new GQLListSchema('Payment', {
             schemaDoc: 'Link to a payment related MultiPayment. Required field to update, but initially created unlinked',
             type: Relationship,
             ref: 'MultiPayment.payments',
+            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
             hooks: {
                 // TODO (savelevMatthew): create validations later
             },
