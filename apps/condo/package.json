@@ -22,7 +22,8 @@
     "generate-excel-template": "node ./../../bin/create-xlsx-template.js",
     "lint-schema": "NODE_ENV=test node ./../../bin/lint-schema.js",
     "refresh-sbbol-tokens": "node ./../../bin/sbbol.js",
-    "create-integration": "node ./../../bin/create-integration.js"
+    "create-integration": "node ./../../bin/create-integration.js",
+    "add-classifiers": "node ./../../bin/add-classifiers.js"
   },
   "dependencies": {
     "@2gis/mapgl": "^1.12.0",
