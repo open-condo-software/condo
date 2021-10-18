@@ -86,7 +86,7 @@ const syncSubscriptionsFor = async (advanceAcceptance) => {
             finishAt: now.add(SUBSCRIPTION_TRIAL_PERIOD_DAYS, 'days').toISOString(),
             sbbolOfferAccept: {
                 dv: 1,
-                ...advanceAcceptance,
+                ...advanceAcceptance, // TODO: Figure out, why it crashes here on `payerInn` field
             },
         })
         debugMessage('Created trial subscription for SBBOL', trialServiceSubscription)
