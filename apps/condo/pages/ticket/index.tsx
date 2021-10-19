@@ -1,103 +1,56 @@
 /** @jsx jsx */
-import React, { useCallback, useState } from 'react'
-import pickBy from 'lodash/pickBy'
-import get from 'lodash/get'
-import debounce from 'lodash/debounce'
-import qs from 'qs'
-import { notification, Col, Input, Row, Table, Typography, Checkbox } from 'antd'
-import { TablePaginationConfig } from 'antd/lib/table/interface'
-import { Gutter } from 'antd/lib/grid/row'
+import { jsx } from '@emotion/core'
+import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
+import { DatabaseFilled, FilterFilled } from '@ant-design/icons'
+import { IFilters } from '@condo/domains/ticket/utils/helpers'
+import { useIntl } from '@core/next/intl'
+import { useLazyQuery } from '@core/next/apollo'
+import { notification, Col, Input, Row, Typography, Checkbox, Form } from 'antd'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-
-import { css, jsx } from '@emotion/core'
-import { SortTicketsBy } from '@app/condo/schema'
-import { DatabaseFilled } from '@ant-design/icons'
-import { useIntl } from '@core/next/intl'
-import { useOrganization } from '@core/next/organization'
-import { useLazyQuery } from '@core/next/apollo'
-
-import { getFiltersFromQuery, getId } from '@condo/domains/common/utils/helpers'
-import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
-import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { get } from 'lodash'
+import React, { useCallback, useState } from 'react'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { Button } from '@condo/domains/common/components/Button'
-import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
-
-import { EXPORT_TICKETS_TO_EXCEL } from '@condo/domains/ticket/gql'
-import {
-    filtersToQuery,
-    getPageIndexFromQuery,
-    getSortStringFromQuery,
-    sorterToQuery, queryToSorter, getPageSizeFromQuery,
-    IFilters,
-} from '@condo/domains/ticket/utils/helpers'
 import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { useEmergencySearch } from '@condo/domains/ticket/hooks/useEmergencySearch'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-
+import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { Button } from '@condo/domains/common/components/Button'
+import { useOrganization } from '@core/next/organization'
+import { SortMeterReadingsBy, SortTicketsBy } from '@app/condo/schema'
+import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { useTicketTableFilters } from '../../domains/ticket/hooks/useTicketTableFilters'
+import { useQueryMappers } from '../../domains/common/hooks/useQueryMappers'
+import { getPageIndexFromOffset, parseQuery } from '../../domains/common/utils/tables.utils'
+import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table'
+import { useMultipleFiltersModal } from '../../domains/common/hooks/useMultipleFiltersModal'
+import { EXPORT_TICKETS_TO_EXCEL } from '@condo/domains/ticket/gql'
+import ActionBar from '../../domains/common/components/ActionBar'
+import { FocusContainer } from '../../domains/common/components/FocusContainer'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
     requiredAccess?: React.FC
 }
 
-const verticalAlign = css`
-    & tbody.ant-table-tbody {
-        vertical-align: baseline;
-    }
-`
-
-const EXPORT_ICON = (<DatabaseFilled />)
-const EMERGENCY_CHECKBOX_STYLES = { paddingLeft: '0px', fontSize: fontSizes.content }
-const PAGE_HEADER_TITLE_STYLES = { margin: 0 }
-const ROW_GUTTER: [Gutter, Gutter] = [0, 40]
-
-export const TicketsPageContent = ({
+//TODO(nomerdvadcatpyat): move to common components and also use it in meter readings page
+export const ExportToExcelActionBar = ({
     searchTicketsQuery,
-    tableColumns,
     sortBy,
-    filtersApplied,
-    setFiltersApplied,
-    filtersToQuery,
 }) => {
     const intl = useIntl()
-    const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
-    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const ExportAsExcel = intl.formatMessage({ id: 'ExportAsExcel' })
-    const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
-    const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
-    const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
-    const EmergencyLabel = intl.formatMessage({ id: 'Emergency' })
     const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.ticket.id.DownloadExcelLabel' })
     const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
 
-    const router = useRouter()
-    const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
-    const offsetFromQuery = getPageIndexFromQuery(router.query)
-    const pagesizeFromQuery: number = getPageSizeFromQuery(router.query)
-
-    searchTicketsQuery = { ...searchTicketsQuery, ...{ deletedAt: null } }
-
-    const {
-        fetchMore,
-        loading,
-        count: total,
-        objs: tickets,
-    } = Ticket.useObjects({
-        sortBy: sortBy as SortTicketsBy[],
-        where: searchTicketsQuery,
-        skip: (offsetFromQuery * pagesizeFromQuery) - pagesizeFromQuery,
-        first: pagesizeFromQuery,
-    }, {
-        fetchPolicy: 'network-only',
-    })
-
     const [downloadLink, setDownloadLink] = useState(null)
 
-    const [exportToExcel, { loading: isXlsLoading }] = useLazyQuery(
+    const [
+        exportToExcel,
+        { loading: isXlsLoading },
+    ] = useLazyQuery(
         EXPORT_TICKETS_TO_EXCEL,
         {
             onError: error => {
@@ -109,71 +62,84 @@ export const TicketsPageContent = ({
         },
     )
 
-    const handleRowAction = useCallback((record) => ({
-        onClick: () => {
-            router.push(`/ticket/${record.id}/`)
-        },
-    }), [])
+    return (
+        <Form.Item noStyle>
+            <ActionBar>
+                {
+                    downloadLink
+                        ?
+                        <Button
+                            type={'inlineLink'}
+                            icon={<DatabaseFilled />}
+                            loading={isXlsLoading}
+                            target='_blank'
+                            href={downloadLink}
+                            rel='noreferrer'>{DownloadExcelLabel}
+                        </Button>
+                        :
+                        <Button
+                            type={'sberPrimary'}
+                            secondary
+                            icon={<DatabaseFilled />}
+                            loading={isXlsLoading}
+                            onClick={
+                                () => exportToExcel({ variables: { data: { where: searchTicketsQuery, sortBy: sortBy, timeZone } } })
+                            }>{ExportAsExcel}
+                        </Button>
+                }
+            </ActionBar>
+        </Form.Item>
+    )
+}
 
-    const handleTableChange = useCallback(debounce((...tableChangeArguments) => {
-        const [nextPagination, nextFilters, nextSorter] = tableChangeArguments
-        const { current, pageSize } = nextPagination
-        const offset = filtersApplied ? 0 : current * pageSize - pageSize
-        const sort = sorterToQuery(nextSorter)
-        const filters = filtersToQuery(nextFilters)
+export const TicketsPageContent = ({
+    tableColumns,
+    searchTicketsQuery,
+    sortBy,
+    filterMetas,
+}) => {
+    const intl = useIntl()
+    const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
+    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
+    const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
+    const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
+    const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
+    const EmergencyLabel = intl.formatMessage({ id: 'Emergency' })
+    const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
 
-        setFiltersApplied(false)
+    const router = useRouter()
+    const { filters, offset } = parseQuery(router.query)
+    const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
+    
+    const { MultipleFiltersModal, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas)
 
-        if (!loading) {
-            fetchMore({
-                // @ts-ignore
-                sortBy: sort,
-                where: filters,
-                skip: offset,
-                first: current * pageSize,
-            }).then(() => {
-                const query = qs.stringify(
-                    {
-                        ...router.query,
-                        sort,
-                        offset,
-                        filters: JSON.stringify(pickBy({ ...filtersFromQuery, ...nextFilters })),
-                    },
-                    { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-                )
-                setDownloadLink(null)
-                router.push(router.route + query)
-            })
+    searchTicketsQuery = { ...searchTicketsQuery, ...{ deletedAt: null } }
+
+    const {
+        loading,
+        count: total,
+        objs: tickets,
+    } = Ticket.useObjects({
+        sortBy: sortBy as SortTicketsBy[],
+        where: searchTicketsQuery,
+        first: DEFAULT_PAGE_SIZE,
+        skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
+    }, {
+        fetchPolicy: 'network-only',
+    })
+
+    console.log('tickets', tickets)
+
+    const handleRowAction = useCallback((record) => {
+        return {
+            onClick: () => {
+                router.push(`/ticket/${record.id}/`)
+            },
         }
-    }, 400), [loading])
+    }, [])
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
     const [emergency, handleEmergencyChange] = useEmergencySearch<IFilters>(loading)
-
-    const handleExport = React.useCallback(() =>
-        exportToExcel({
-            variables: {
-                data: {
-                    where: searchTicketsQuery,
-                    sortBy: sortBy,
-                    timeZone,
-                },
-            },
-        }), [searchTicketsQuery, sortBy, timeZone]
-    )
-
-    const paginationParams = React.useMemo<TablePaginationConfig>(() =>
-        ({
-            showSizeChanger: false,
-            total,
-            current: offsetFromQuery,
-            pageSize: pagesizeFromQuery,
-            position: ['bottomLeft'],
-        }),
-    [total, offsetFromQuery, pagesizeFromQuery]
-    )
-
-    const handleSearchInputChange = React.useCallback((e) => handleSearchChange(get(e, 'target.value')), [])
 
     return (
         <>
@@ -181,75 +147,64 @@ export const TicketsPageContent = ({
                 <title>{PageTitleMessage}</title>
             </Head>
             <PageWrapper>
-                <PageHeader title={
-                    <Typography.Title style={PAGE_HEADER_TITLE_STYLES}>{PageTitleMessage}</Typography.Title>
-                }/>
+                <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>}/>
                 <PageContent>
                     {
-                        !tickets.length && !filtersFromQuery
+                        !tickets.length && !filters
                             ? <EmptyListView
                                 label={EmptyListLabel}
                                 message={EmptyListMessage}
                                 createRoute='/ticket/create'
                                 createLabel={CreateTicket} />
-                            : <Row gutter={ROW_GUTTER} align={'middle'}>
-                                <Col span={6}>
-                                    <Input
-                                        placeholder={SearchPlaceholder}
-                                        onChange={handleSearchInputChange}
-                                        value={search}
+                            : (
+                                <Row gutter={[0, 40]} align={'middle'} justify={'center'}>
+                                    <Col span={23}>
+                                        <FocusContainer padding={'16px'}>
+                                            <Row justify={'space-between'}>
+                                                <Col span={6}>
+                                                    <Input
+                                                        placeholder={SearchPlaceholder}
+                                                        onChange={(e)=>{handleSearchChange(e.target.value)}}
+                                                        value={search}
+                                                    />
+                                                </Col>
+                                                <Col span={4} offset={1}>
+                                                    <Checkbox
+                                                        onChange={handleEmergencyChange}
+                                                        checked={emergency}
+                                                        style={{ paddingLeft: '0px', fontSize: fontSizes.content }}
+                                                    >{EmergencyLabel}</Checkbox>
+                                                </Col>
+                                                <Col>
+                                                    <Button
+                                                        secondary
+                                                        type={'sberPrimary'}
+                                                        onClick={() => setIsMultipleFiltersModalVisible(true)}
+                                                    >
+                                                        <FilterFilled/>
+                                                        {FiltersButtonLabel}
+                                                    </Button>
+                                                </Col>
+                                            </Row>
+                                        </FocusContainer>
+                                    </Col>
+                                    <Col span={24}>
+                                        <Table
+                                            totalRows={total}
+                                            loading={loading}
+                                            dataSource={tickets}
+                                            columns={tableColumns}
+                                            onRow={handleRowAction}
+                                        />
+                                    </Col>
+                                    <ExportToExcelActionBar
+                                        searchTicketsQuery={searchTicketsQuery}
+                                        sortBy={sortBy}
                                     />
-                                </Col>
-                                <Col span={4} offset={1}>
-                                    <Checkbox
-                                        onChange={handleEmergencyChange}
-                                        checked={emergency}
-                                        style={EMERGENCY_CHECKBOX_STYLES}
-                                    >
-                                        {EmergencyLabel}
-                                    </Checkbox>
-                                </Col>
-                                <Col span={6} push={1}>
-                                    {
-                                        downloadLink
-                                            ?
-                                            <Button
-                                                type={'inlineLink'}
-                                                icon={EXPORT_ICON}
-                                                loading={isXlsLoading}
-                                                target='_blank'
-                                                href={downloadLink}
-                                                rel='noreferrer'
-                                            >
-                                                {DownloadExcelLabel}
-                                            </Button>
-                                            :
-                                            <Button
-                                                type={'inlineLink'}
-                                                icon={EXPORT_ICON}
-                                                loading={isXlsLoading}
-                                                onClick={handleExport}
-                                            >
-                                                {ExportAsExcel}
-                                            </Button>
-                                    }
-                                </Col>
-                                <Col span={24}>
-                                    <Table
-                                        bordered
-                                        css={verticalAlign}
-                                        tableLayout={'fixed'}
-                                        loading={loading}
-                                        dataSource={tickets}
-                                        columns={tableColumns}
-                                        onRow={handleRowAction}
-                                        onChange={handleTableChange}
-                                        rowKey={getId}
-                                        pagination={paginationParams}
-                                    />
-                                </Col>
-                            </Row>
+                                </Row>
+                            )
                     }
+                    <MultipleFiltersModal/>
                 </PageContent>
             </PageWrapper>
         </>
@@ -260,32 +215,38 @@ const TicketsPage: ITicketIndexPage = () => {
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
-    const router = useRouter()
-    const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
-    const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
-    const sortBy = sortFromQuery.length > 0  ? sortFromQuery : 'createdAt_DESC' //TODO(Dimitreee):Find cleanest solution
-    const [filtersApplied, setFiltersApplied] = useState(false)
+    const filterMetas = useTicketTableFilters()
 
-    const tableColumns = useTableColumns(sortFromQuery, filtersFromQuery, setFiltersApplied)
-    const searchTicketsQuery = React.useMemo(() => (
-        { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } }
-    ), [filtersFromQuery, userOrganizationId])
+    const sortableProperties = ['number', 'status', 'details', 'property', 'assignee', 'executor', 'createdAt', 'clientName']
+
+    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, sortableProperties)
+
+    const router = useRouter()
+    const { filters, sorters } = parseQuery(router.query)
+
+    const tableColumns = useTableColumns(filterMetas)
+    const searchTicketsQuery = { ...filtersToWhere(filters), organization: { id: userOrganizationId } }
+
+    //
+    // const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
+    // const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
+    // const sortBy = sortFromQuery.length > 0  ? sortFromQuery : 'createdAt_DESC' //TODO(Dimitreee):Find cleanest solution
+    // const [filtersApplied, setFiltersApplied] = useState(false)
+    //
+    // const tableColumns = useTableColumns(sortFromQuery, filtersFromQuery, setFiltersApplied)
+    // const searchTicketsQuery = { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } }
 
     return (
         <TicketsPageContent
             tableColumns={tableColumns}
-            filtersToQuery={filtersToQuery}
-            filtersApplied={filtersApplied}
-            setFiltersApplied={setFiltersApplied}
             searchTicketsQuery={searchTicketsQuery}
-            sortBy={sortBy}
+            sortBy={sortersToSortBy(sorters) as SortMeterReadingsBy[]}
+            filterMetas={filterMetas}
         />
     )
 }
 
-const PAGE_HEADER_ACTION_DESCRIPTOR = { id: 'menu.ControlRoom' }
-
-TicketsPage.headerAction = <TitleHeaderAction descriptor={PAGE_HEADER_ACTION_DESCRIPTOR}/>
+TicketsPage.headerAction = <TitleHeaderAction descriptor={{ id: 'menu.ControlRoom' }}/>
 TicketsPage.requiredAccess = OrganizationRequired
 
 export default TicketsPage
