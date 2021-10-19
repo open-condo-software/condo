@@ -5,6 +5,7 @@
 
 export * as Ticket from './Ticket'
 export * as TicketStatus from './TicketStatus'
+export * as TicketSource from './TicketSource'
 export * as TicketChange from './TicketChange'
 export * as TicketFile from './TicketFile'
 export * as TicketClassifier from './TicketClassifier'

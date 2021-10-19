@@ -1,0 +1,320 @@
+import { useMemo } from 'react'
+import { ComponentType, FilterComponentSize, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
+import { MeterReadingWhereInput } from '@app/condo/schema'
+import {
+    getDayRangeFilter,
+    getFilter,
+    getNumberFilter,
+    getStringContainsFilter,
+} from '@condo/domains/common/utils/tables.utils'
+import { TicketCategoryClassifier, TicketPlaceClassifier, TicketSource, TicketStatus } from '../utils/clientSchema'
+import { useIntl } from '@core/next/intl'
+import { searchEmployeeUser, searchOrganizationProperty } from '../utils/clientSchema/search'
+import { useOrganization } from '../../../../../packages/@core.next/organization'
+import { get } from 'lodash'
+
+export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
+    const intl = useIntl()
+    const EmergencyMessage = intl.formatMessage({ id: 'Emergency' }).toLowerCase()
+    const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
+    const PaidMessage = intl.formatMessage({ id: 'Paid' }).toLowerCase()
+    const DateMessage = intl.formatMessage({ id: 'Date' })
+    const StatusMessage =  intl.formatMessage({ id: 'Status' })
+    const ClientNameMessage = intl.formatMessage({ id: 'Client' })
+    const DescriptionMessage = intl.formatMessage({ id: 'Description' })
+    const FindWordMessage = intl.formatMessage({ id: 'filters.FindWord' })
+    const AddressMessage = intl.formatMessage({ id: 'field.Address' })
+    const EnterAddressMessage = intl.formatMessage({ id: 'pages.condo.meter.EnterAddress' })
+    const UserNameMessage = intl.formatMessage({ id: 'filters.UserName' })
+    const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
+    const ExecutorMessage = intl.formatMessage({ id: 'field.Executor' })
+    const ResponsibleMessage = intl.formatMessage({ id: 'field.Responsible' })
+    const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
+    const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
+    const SourceMessage = intl.formatMessage({ id: 'field.Source' })
+    const SectionMessage = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
+    const FloorMessage = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
+    const UnitMessage = intl.formatMessage({ id: 'field.FlatNumber' })
+    const PlaceClassifierMessage = intl.formatMessage({ id: 'component.ticketclassifier.PlaceLabel' })
+    const CategoryClassifierMessage = intl.formatMessage({ id: 'component.ticketclassifier.CategoryLabel' })
+    const PhoneMessage = intl.formatMessage({ id: 'Phone' })
+    const AssigneeMessage = intl.formatMessage({ id: 'field.Responsible' })
+
+    // const userOrganization = useOrganization()
+    // const userOrganizationId = get(userOrganization, ['organization', 'id'])
+
+    const numberFilter = getNumberFilter('number')
+    const dateRangeFilter = getDayRangeFilter('createdAt')
+    const statusFilter = getFilter(['status', 'id'], 'array', 'string', 'in')
+    const detailsFilter = getStringContainsFilter('details')
+    const addressFilter = getFilter(['property', 'id'], 'array', 'string', 'in')
+    const clientNameFilter = getStringContainsFilter('clientName')
+    const executorNameFilter = getStringContainsFilter(['executor', 'name'])
+    const assigneeNameFilter = getStringContainsFilter(['assignee', 'name'])
+
+    // filters which display only in modal
+    const sourceFilter = getFilter(['source', 'id'], 'array', 'string', 'in')
+    // Division filter ??? maybe in
+
+    // chips filters
+    const sectionFilter = getStringContainsFilter('sectionName')
+    const floorFilter = getStringContainsFilter('floorName')
+    const unitFilter = getStringContainsFilter('unitName')
+
+    // classifier filters
+    const placeClassifierFilter = getFilter(['placeClassifier', 'id'], 'array', 'string', 'in')
+    const categoryClassifierFilter = getFilter(['categoryClassifier', 'id'], 'array', 'string', 'in')
+
+    // priznak filters ??? it's isPaid and isEmergency mb. Think about table checkbox and modal filter select
+    const clientPhoneFilter = getStringContainsFilter('clientPhone')
+    const ticketAuthorFilter = getFilter(['createdBy', 'id'], 'array', 'string', 'in')
+
+    const { objs: statuses } = TicketStatus.useObjects({})
+    const statusOptions = statuses.map(status => ({ label: status.name, value: status.id }))
+
+    const { objs: sources } = TicketSource.useObjects({})
+    const sourceOptions = sources.map(source => ({ label: source.name, value: source.id }))
+
+    const { objs: ticketPlaceClassifiers } = TicketPlaceClassifier.useObjects({})
+    const ticketPlaceClassifierOptions = ticketPlaceClassifiers.map(ticketPlaceClassifier =>
+        ({ label: ticketPlaceClassifier.name, value: ticketPlaceClassifier.id }))
+
+    const { objs: ticketCategoryClassifiers } = TicketCategoryClassifier.useObjects({})
+    const ticketCategoryClassifierOptions = ticketCategoryClassifiers.map(ticketCategoryClassifier =>
+        ({ label: ticketCategoryClassifier.name, value: ticketCategoryClassifier.id }))
+
+    const userOrganization = useOrganization()
+    const userOrganizationId = get(userOrganization, ['organization', 'id'])
+
+    return useMemo(() => {
+        return [
+            {
+                keyword: 'property',
+                filters: [addressFilter],
+                component: {
+                    type: ComponentType.GQLSelect,
+                    props: {
+                        search: searchOrganizationProperty(userOrganizationId),
+                        mode: 'multiple',
+                        showArrow: true,
+                        placeholder: EnterAddressMessage,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: AddressMessage,
+                        size: FilterComponentSize.Large,
+                    },
+                    columnFilterComponentWrapper: {
+                        width: '400px',
+                    },
+                },
+            },
+            {
+                keyword: 'details',
+                filters: [detailsFilter],
+                component: {
+                    type: ComponentType.Input,
+                },
+            },
+            {
+                keyword: 'createdAt',
+                filters: [dateRangeFilter],
+                component: {
+                    type: ComponentType.DateRange,
+                    props: {
+                        placeholder: [StartDateMessage, EndDateMessage],
+                    },
+                    modalFilterComponentWrapper: {
+                        label: DateMessage,
+                        size: FilterComponentSize.Medium,
+                    },
+                },
+            },
+            {
+                keyword: 'source',
+                filters: [sourceFilter],
+                component: {
+                    type: ComponentType.Select,
+                    options: sourceOptions,
+                    props: {
+                        mode: 'multiple',
+                        showArrow: true,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: SourceMessage,
+                        size: FilterComponentSize.Medium,
+                    },
+                },
+            },
+            // Division
+            {
+                keyword: 'sectionName',
+                filters: [sectionFilter],
+                component: {
+                    type: ComponentType.Input,
+                    modalFilterComponentWrapper: {
+                        label: SectionMessage,
+                        size: FilterComponentSize.Medium,
+                    },
+                },
+            },
+            {
+                keyword: 'floorName',
+                filters: [floorFilter],
+                component: {
+                    type: ComponentType.Input,
+                    modalFilterComponentWrapper: {
+                        label: FloorMessage,
+                        size: FilterComponentSize.Medium,
+                    },
+                },
+            },
+            {
+                keyword: 'unitName',
+                filters: [unitFilter],
+                component: {
+                    type: ComponentType.Input,
+                    modalFilterComponentWrapper: {
+                        label: UnitMessage,
+                        size: FilterComponentSize.Medium,
+                    },
+                },
+            },
+            {
+                keyword: 'placeClassifier',
+                filters: [placeClassifierFilter],
+                component: {
+                    type: ComponentType.Select,
+                    options: ticketPlaceClassifierOptions,
+                    props: {
+                        mode: 'multiple',
+                        showArrow: true,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: PlaceClassifierMessage,
+                        size: FilterComponentSize.Medium,
+                    },
+                },
+            },
+            {
+                keyword: 'categoryClassifier',
+                filters: [categoryClassifierFilter],
+                component: {
+                    type: ComponentType.Select,
+                    options: ticketCategoryClassifierOptions,
+                    props: {
+                        mode: 'multiple',
+                        showArrow: true,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: CategoryClassifierMessage,
+                        size: FilterComponentSize.Medium,
+                    },
+                },
+            },
+            {
+                keyword: 'status',
+                filters: [statusFilter],
+                component: {
+                    type: ComponentType.Select,
+                    options: statusOptions,
+                    props: {
+                        mode: 'multiple',
+                        showArrow: true,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: StatusMessage,
+                        size: FilterComponentSize.Medium,
+                    },
+                },
+            },
+            // Priznak
+            {
+                keyword: 'clientName',
+                filters: [clientNameFilter],
+                component: {
+                    type: ComponentType.Input,
+                },
+            },
+            {
+                keyword: 'clientPhone',
+                filters: [clientPhoneFilter],
+                component: {
+                    type: ComponentType.Input,
+                    modalFilterComponentWrapper: {
+                        label: PhoneMessage,
+                        size: FilterComponentSize.Medium,
+                    },
+                },
+            },
+            {
+                keyword: 'executor',
+                filters: [executorNameFilter],
+                component: {
+                    type: ComponentType.GQLSelect,
+                    props: {
+                        search: searchEmployeeUser(userOrganizationId, ({ role }) => (
+                            get(role, 'canBeAssignedAsExecutor', false)
+                        )),
+                        mode: 'multiple',
+                        showArrow: true,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: ExecutorMessage,
+                        size: FilterComponentSize.Medium,
+                    },
+                    columnFilterComponentWrapper: {
+                        width: '200px',
+                    },
+                },
+            },
+            {
+                keyword: 'assignee',
+                filters: [assigneeNameFilter],
+                component: {
+                    type: ComponentType.GQLSelect,
+                    props: {
+                        search: searchEmployeeUser(userOrganizationId, ({ role }) => (
+                            get(role, 'canBeAssignedAsResponsible', false)
+                        )),
+                        mode: 'multiple',
+                        showArrow: true,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: AssigneeMessage,
+                        size: FilterComponentSize.Medium,
+                    },
+                    columnFilterComponentWrapper: {
+                        width: '200px',
+                    },
+                },
+            },
+            {
+                keyword: 'author',
+                filters: [ticketAuthorFilter],
+                component: {
+                    type: ComponentType.GQLSelect,
+                    props: {
+                        search: searchEmployeeUser(userOrganizationId),
+                        mode: 'multiple',
+                        showArrow: true,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: UserNameMessage,
+                        size: FilterComponentSize.Medium,
+                    },
+                },
+            },
+            {
+                keyword: 'search',
+                filters: [
+                    numberFilter,
+                    clientNameFilter,
+                    detailsFilter,
+                    executorNameFilter,
+                    assigneeNameFilter,
+                ],
+                combineType: 'OR',
+            },
+        ]
+    }, [statuses, sources, ticketPlaceClassifiers, ticketCategoryClassifiers])
+}
