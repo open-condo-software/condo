@@ -130,9 +130,12 @@ export const getFilter: (
                     .map((el) => el.toLowerCase())
                     .filter((el) => ['true', 'false'].includes(el))
                     .map((el) => el === 'true')
+
+                console.log('args', args)
                 break
             default:
                 args = search.filter(Boolean)
+                console.log('default args', args)
                 break
         }
 
@@ -204,6 +207,7 @@ export const getDayRangeFilter: (dataIndex: DataIndexType) => FilterType = (data
 }
 
 export const getBooleanFilter: (dataIndex: DataIndexType) => FilterType = (dataIndex) => {
+    console.log('dataIndex', dataIndex)
     return getFilter(dataIndex, 'single', 'boolean', undefined)
 }
 
@@ -265,6 +269,7 @@ export const getPageIndexFromOffset = (offset: number, pageSize: number): number
 
 export const parseQuery = (query: ParsedUrlQuery): ParsedQueryType => {
     const filters = getFiltersFromQuery(query)
+    console.log(filters)
     const sorters = getSortersFromQuery(query)
     const queryOffset = get(query, 'offset', '0')
     const offset = Number(queryOffset) ? Number(queryOffset) : 0

@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { ComponentType, FilterComponentSize, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { MeterReadingWhereInput } from '@app/condo/schema'
 import {
+    getBooleanFilter,
     getDayRangeFilter,
     getFilter,
     getNumberFilter,
@@ -10,8 +11,9 @@ import {
 import { TicketCategoryClassifier, TicketPlaceClassifier, TicketSource, TicketStatus } from '../utils/clientSchema'
 import { useIntl } from '@core/next/intl'
 import { searchEmployeeUser, searchOrganizationProperty } from '../utils/clientSchema/search'
-import { useOrganization } from '../../../../../packages/@core.next/organization'
+import { useOrganization } from '@core/next/organization'
 import { get } from 'lodash'
+
 
 export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
     const intl = useIntl()
@@ -52,6 +54,9 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
     const executorNameFilter = getStringContainsFilter(['executor', 'name'])
     const assigneeNameFilter = getStringContainsFilter(['assignee', 'name'])
 
+    const isEmergencyFilter = getBooleanFilter('isEmergency')
+    const isPaidFilter = getBooleanFilter('isPaid')
+
     // filters which display only in modal
     const sourceFilter = getFilter(['source', 'id'], 'array', 'string', 'in')
     // Division filter ??? maybe in
@@ -65,7 +70,6 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
     const placeClassifierFilter = getFilter(['placeClassifier', 'id'], 'array', 'string', 'in')
     const categoryClassifierFilter = getFilter(['categoryClassifier', 'id'], 'array', 'string', 'in')
 
-    // priznak filters ??? it's isPaid and isEmergency mb. Think about table checkbox and modal filter select
     const clientPhoneFilter = getStringContainsFilter('clientPhone')
     const ticketAuthorFilter = getFilter(['createdBy', 'id'], 'array', 'string', 'in')
 
@@ -310,6 +314,10 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                         size: FilterComponentSize.Medium,
                     },
                 },
+            },
+            {
+                keyword: 'attributes',
+                filters: [isEmergencyFilter, isPaidFilter],
             },
             {
                 keyword: 'search',
