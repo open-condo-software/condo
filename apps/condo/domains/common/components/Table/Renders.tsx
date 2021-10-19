@@ -14,8 +14,8 @@ import { ELECTRICITY_METER_RESOURCE_ID } from '@condo/domains/meter/constants/co
 type RenderReturnType = string | React.ReactNode
 
 const DEFAULT_CURRENCY_SEPARATOR = '.'
-const DEFAULT_CURRENCY_NAME = 'RUB'
-const MONEY_PARTS_SEPARATOR = ' '
+const DEFAULT_CURRENCY_CODE = 'RUB'
+const NBSP = ' '
 
 const getHighlightedText = (search: string, text: string) => {
     let result: RenderReturnType = text
@@ -90,12 +90,12 @@ export const renderMeterReading = (values: string[], resourceId: string, measure
     return `${getIntegerPartOfReading(values[0])} ${measure}`
 }
 
-const getCurrencySymbol = (currencyName) => {
+const getCurrencySymbol = (currencyCode) => {
     return (0).toLocaleString(
         undefined,
         {
             style: 'currency',
-            currency: currencyName,
+            currency: currencyCode,
             minimumFractionDigits: 0,
             maximumFractionDigits: 0,
             currencyDisplay: 'narrowSymbol',
@@ -110,12 +110,12 @@ const dimText = (text: string, extraStyles: React.CSSProperties = {}) => (
 )
 
 const renderMoney = (currencyValuePart: string, currencyDecimalPart: string, currencySymbol: string) => (
-    <>{currencyValuePart}{dimText(',' + currencyDecimalPart)}{MONEY_PARTS_SEPARATOR}{currencySymbol}</>
+    <>{currencyValuePart}{dimText(',' + currencyDecimalPart)}{NBSP}{currencySymbol}</>
 )
 
 export const getMoneyRender = (
     search: string,
-    currencyName = DEFAULT_CURRENCY_NAME
+    currencyCode = DEFAULT_CURRENCY_CODE
 ) => {
     return function render (text: string): RenderReturnType {
         if (!text) return <EmptyTableCell/>
@@ -124,14 +124,14 @@ export const getMoneyRender = (
         // Using undefined will resolve to User-Agent locale
         const formatter = Intl.NumberFormat(
             undefined,
-            { style: 'currency', currency: currencyName, currencyDisplay: 'narrowSymbol', signDisplay: 'auto' }
+            { style: 'currency', currency: currencyCode, currencyDisplay: 'narrowSymbol', signDisplay: 'auto' }
         )
         text = formatter.format(parseFloat(text))
 
-        const currencySymbol = getCurrencySymbol(currencyName)
+        const currencySymbol = getCurrencySymbol(currencyCode)
         const currencyAmount = text
             .replace(currencySymbol, '')
-            .replace(',', MONEY_PARTS_SEPARATOR)
+            .replace(',', NBSP)
             .replace(DEFAULT_CURRENCY_SEPARATOR, ',')
 
         const [currencyValuePart, currencyDecimalPart] = currencyAmount.split(',')
