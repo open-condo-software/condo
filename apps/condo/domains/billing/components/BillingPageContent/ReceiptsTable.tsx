@@ -67,7 +67,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const [search, handleSearchChange] = useSearch(loading)
     const [period, options, handlePeriodChange] = usePeriodSelector(contextPeriod)
 
-    const currencyName = get(context, ['integration', 'currency'], 'RUB')
+    const currencyName = get(context, ['integration', 'currencyCode'], 'RUB')
 
     const hasToPayDetails = get(context, ['integration', 'dataFormat', 'hasToPayDetail'], false)
     const hasServices = get(context, ['integration', 'dataFormat', 'hasServices'], false)
