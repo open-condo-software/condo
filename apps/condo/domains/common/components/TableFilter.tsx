@@ -41,7 +41,6 @@ const StyledSelectFilterContainer = styled.div`
   padding: 16px;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
   gap: 10px;
 `
 

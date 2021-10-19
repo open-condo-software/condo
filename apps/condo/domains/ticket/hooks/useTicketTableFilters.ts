@@ -236,6 +236,13 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                 },
             },
             {
+                keyword: 'number',
+                filters: [numberFilter],
+                component: {
+                    type: ComponentType.Input,
+                },
+            },
+            {
                 keyword: 'clientPhone',
                 filters: [clientPhoneFilter],
                 component: {
