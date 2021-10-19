@@ -77,7 +77,7 @@ const getVolumeRender = (decimals: number) => {
     }
 }
 
-export const useServicesTableColumns = (detailed: boolean, currencyName: string) => {
+export const useServicesTableColumns = (detailed: boolean, currencyCode: string) => {
     const intl = useIntl()
     const ToPayTitle = intl.formatMessage({ id: 'field.TotalPayment' })
     const ServiceTitle = intl.formatMessage({ id: 'BillingServiceName' })
@@ -90,7 +90,7 @@ export const useServicesTableColumns = (detailed: boolean, currencyName: string)
     const PenaltyTitle = intl.formatMessage({ id: 'PaymentPenalty' })
 
 
-    const moneyRender = getAdvancedMoneyRender(currencyName)
+    const moneyRender = getAdvancedMoneyRender(currencyCode)
     const moneyAlign: AlignType = 'right'
     return useMemo(() => {
         const expandTextRender = getExpandTextRender(detailed)
