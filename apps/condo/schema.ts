@@ -18271,6 +18271,13 @@ export type Payment = {
   newId?: Maybe<Scalars['String']>;
 };
 
+export type PaymentCategory = {
+  __typename?: 'PaymentCategory';
+  categoryName: Scalars['String'];
+  billingName: Scalars['String'];
+  acquiringName: Scalars['String'];
+};
+
 export type PaymentCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
@@ -22578,6 +22585,8 @@ export type Resident = {
   residentProperty?: Maybe<ResidentProperty>;
   /**  Contains features that are enabled for user organization  */
   organizationFeatures?: Maybe<OrganizationFeatures>;
+  /**  Contains billing and acquiring integration names that are enabled for this resident per category  */
+  paymentCategories?: Maybe<Array<Maybe<PaymentCategory>>>;
   /**  Normalized address  */
   address?: Maybe<Scalars['String']>;
   /**  Property address components  */
@@ -22703,6 +22712,7 @@ export type ResidentHistoryRecord = {
   property?: Maybe<Scalars['String']>;
   residentProperty?: Maybe<Scalars['JSON']>;
   organizationFeatures?: Maybe<Scalars['JSON']>;
+  paymentCategories?: Maybe<Scalars['JSON']>;
   address?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
   unitName?: Maybe<Scalars['String']>;
@@ -22728,6 +22738,7 @@ export type ResidentHistoryRecordCreateInput = {
   property?: Maybe<Scalars['String']>;
   residentProperty?: Maybe<Scalars['JSON']>;
   organizationFeatures?: Maybe<Scalars['JSON']>;
+  paymentCategories?: Maybe<Scalars['JSON']>;
   address?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
   unitName?: Maybe<Scalars['String']>;
@@ -22758,6 +22769,7 @@ export type ResidentHistoryRecordUpdateInput = {
   property?: Maybe<Scalars['String']>;
   residentProperty?: Maybe<Scalars['JSON']>;
   organizationFeatures?: Maybe<Scalars['JSON']>;
+  paymentCategories?: Maybe<Scalars['JSON']>;
   address?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
   unitName?: Maybe<Scalars['String']>;
@@ -22812,6 +22824,10 @@ export type ResidentHistoryRecordWhereInput = {
   organizationFeatures_not?: Maybe<Scalars['JSON']>;
   organizationFeatures_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   organizationFeatures_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  paymentCategories?: Maybe<Scalars['JSON']>;
+  paymentCategories_not?: Maybe<Scalars['JSON']>;
+  paymentCategories_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  paymentCategories_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   address?: Maybe<Scalars['String']>;
   address_not?: Maybe<Scalars['String']>;
   address_contains?: Maybe<Scalars['String']>;
