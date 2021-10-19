@@ -2959,7 +2959,7 @@ export type BillingIntegration = {
   /**  Format of the data, that is output of this integration. This field specifies the detail and size of columns. If not specified we can only show first level of detail (address, account, toPay)  */
   dataFormat?: Maybe<Scalars['JSON']>;
   /**  Currency which this billing uses  */
-  currency?: Maybe<BillingIntegrationCurrencyType>;
+  currencyCode?: Maybe<Scalars['String']>;
   accessRights: Array<BillingIntegrationAccessRight>;
   _accessRightsMeta?: Maybe<_QueryMeta>;
   id: Scalars['ID'];
@@ -3261,7 +3261,7 @@ export type BillingIntegrationCreateInput = {
   billingPageTitle?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<Scalars['JSON']>;
-  currency?: Maybe<BillingIntegrationCurrencyType>;
+  currencyCode?: Maybe<Scalars['String']>;
   accessRights?: Maybe<BillingIntegrationAccessRightRelateToManyInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3271,128 +3271,6 @@ export type BillingIntegrationCreateInput = {
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
 };
-
-export enum BillingIntegrationCurrencyType {
-  Usd = 'USD',
-  Cad = 'CAD',
-  Eur = 'EUR',
-  Aed = 'AED',
-  Afn = 'AFN',
-  All = 'ALL',
-  Amd = 'AMD',
-  Ars = 'ARS',
-  Aud = 'AUD',
-  Azn = 'AZN',
-  Bam = 'BAM',
-  Bdt = 'BDT',
-  Bgn = 'BGN',
-  Bhd = 'BHD',
-  Bif = 'BIF',
-  Bnd = 'BND',
-  Bob = 'BOB',
-  Brl = 'BRL',
-  Bwp = 'BWP',
-  Byn = 'BYN',
-  Bzd = 'BZD',
-  Cdf = 'CDF',
-  Chf = 'CHF',
-  Clp = 'CLP',
-  Cny = 'CNY',
-  Cop = 'COP',
-  Crc = 'CRC',
-  Cve = 'CVE',
-  Czk = 'CZK',
-  Djf = 'DJF',
-  Dkk = 'DKK',
-  Dop = 'DOP',
-  Dzd = 'DZD',
-  Eek = 'EEK',
-  Egp = 'EGP',
-  Ern = 'ERN',
-  Etb = 'ETB',
-  Gbp = 'GBP',
-  Gel = 'GEL',
-  Ghs = 'GHS',
-  Gnf = 'GNF',
-  Gtq = 'GTQ',
-  Hkd = 'HKD',
-  Hnl = 'HNL',
-  Hrk = 'HRK',
-  Huf = 'HUF',
-  Idr = 'IDR',
-  Ils = 'ILS',
-  Inr = 'INR',
-  Iqd = 'IQD',
-  Irr = 'IRR',
-  Isk = 'ISK',
-  Jmd = 'JMD',
-  Jod = 'JOD',
-  Jpy = 'JPY',
-  Kes = 'KES',
-  Khr = 'KHR',
-  Kmf = 'KMF',
-  Krw = 'KRW',
-  Kwd = 'KWD',
-  Kzt = 'KZT',
-  Lbp = 'LBP',
-  Lkr = 'LKR',
-  Ltl = 'LTL',
-  Lvl = 'LVL',
-  Lyd = 'LYD',
-  Mad = 'MAD',
-  Mdl = 'MDL',
-  Mga = 'MGA',
-  Mkd = 'MKD',
-  Mmk = 'MMK',
-  Mop = 'MOP',
-  Mur = 'MUR',
-  Mxn = 'MXN',
-  Myr = 'MYR',
-  Mzn = 'MZN',
-  Nad = 'NAD',
-  Ngn = 'NGN',
-  Nio = 'NIO',
-  Nok = 'NOK',
-  Npr = 'NPR',
-  Nzd = 'NZD',
-  Omr = 'OMR',
-  Pab = 'PAB',
-  Pen = 'PEN',
-  Php = 'PHP',
-  Pkr = 'PKR',
-  Pln = 'PLN',
-  Pyg = 'PYG',
-  Qar = 'QAR',
-  Ron = 'RON',
-  Rsd = 'RSD',
-  Rub = 'RUB',
-  Rwf = 'RWF',
-  Sar = 'SAR',
-  Sdg = 'SDG',
-  Sek = 'SEK',
-  Sgd = 'SGD',
-  Sos = 'SOS',
-  Syp = 'SYP',
-  Thb = 'THB',
-  Tnd = 'TND',
-  Top = 'TOP',
-  Try = 'TRY',
-  Ttd = 'TTD',
-  Twd = 'TWD',
-  Tzs = 'TZS',
-  Uah = 'UAH',
-  Ugx = 'UGX',
-  Uyu = 'UYU',
-  Uzs = 'UZS',
-  Vef = 'VEF',
-  Vnd = 'VND',
-  Xaf = 'XAF',
-  Xof = 'XOF',
-  Yer = 'YER',
-  Zar = 'ZAR',
-  Zmk = 'ZMK',
-  Zwl = 'ZWL'
-}
 
 /**  A keystone list  */
 export type BillingIntegrationHistoryRecord = {
@@ -3417,7 +3295,7 @@ export type BillingIntegrationHistoryRecord = {
   billingPageTitle?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<Scalars['JSON']>;
-  currency?: Maybe<Scalars['String']>;
+  currencyCode?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3444,7 +3322,7 @@ export type BillingIntegrationHistoryRecordCreateInput = {
   billingPageTitle?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<Scalars['JSON']>;
-  currency?: Maybe<Scalars['String']>;
+  currencyCode?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3476,7 +3354,7 @@ export type BillingIntegrationHistoryRecordUpdateInput = {
   billingPageTitle?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<Scalars['JSON']>;
-  currency?: Maybe<Scalars['String']>;
+  currencyCode?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3670,24 +3548,24 @@ export type BillingIntegrationHistoryRecordWhereInput = {
   dataFormat_not?: Maybe<Scalars['JSON']>;
   dataFormat_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   dataFormat_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  currency?: Maybe<Scalars['String']>;
-  currency_not?: Maybe<Scalars['String']>;
-  currency_contains?: Maybe<Scalars['String']>;
-  currency_not_contains?: Maybe<Scalars['String']>;
-  currency_starts_with?: Maybe<Scalars['String']>;
-  currency_not_starts_with?: Maybe<Scalars['String']>;
-  currency_ends_with?: Maybe<Scalars['String']>;
-  currency_not_ends_with?: Maybe<Scalars['String']>;
-  currency_i?: Maybe<Scalars['String']>;
-  currency_not_i?: Maybe<Scalars['String']>;
-  currency_contains_i?: Maybe<Scalars['String']>;
-  currency_not_contains_i?: Maybe<Scalars['String']>;
-  currency_starts_with_i?: Maybe<Scalars['String']>;
-  currency_not_starts_with_i?: Maybe<Scalars['String']>;
-  currency_ends_with_i?: Maybe<Scalars['String']>;
-  currency_not_ends_with_i?: Maybe<Scalars['String']>;
-  currency_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  currency_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  currencyCode?: Maybe<Scalars['String']>;
+  currencyCode_not?: Maybe<Scalars['String']>;
+  currencyCode_contains?: Maybe<Scalars['String']>;
+  currencyCode_not_contains?: Maybe<Scalars['String']>;
+  currencyCode_starts_with?: Maybe<Scalars['String']>;
+  currencyCode_not_starts_with?: Maybe<Scalars['String']>;
+  currencyCode_ends_with?: Maybe<Scalars['String']>;
+  currencyCode_not_ends_with?: Maybe<Scalars['String']>;
+  currencyCode_i?: Maybe<Scalars['String']>;
+  currencyCode_not_i?: Maybe<Scalars['String']>;
+  currencyCode_contains_i?: Maybe<Scalars['String']>;
+  currencyCode_not_contains_i?: Maybe<Scalars['String']>;
+  currencyCode_starts_with_i?: Maybe<Scalars['String']>;
+  currencyCode_not_starts_with_i?: Maybe<Scalars['String']>;
+  currencyCode_ends_with_i?: Maybe<Scalars['String']>;
+  currencyCode_not_ends_with_i?: Maybe<Scalars['String']>;
+  currencyCode_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  currencyCode_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -4361,7 +4239,7 @@ export type BillingIntegrationUpdateInput = {
   billingPageTitle?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<Scalars['JSON']>;
-  currency?: Maybe<BillingIntegrationCurrencyType>;
+  currencyCode?: Maybe<Scalars['String']>;
   accessRights?: Maybe<BillingIntegrationAccessRightRelateToManyInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -4539,10 +4417,10 @@ export type BillingIntegrationWhereInput = {
   dataFormat_not?: Maybe<Scalars['JSON']>;
   dataFormat_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   dataFormat_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  currency?: Maybe<BillingIntegrationCurrencyType>;
-  currency_not?: Maybe<BillingIntegrationCurrencyType>;
-  currency_in?: Maybe<Array<Maybe<BillingIntegrationCurrencyType>>>;
-  currency_not_in?: Maybe<Array<Maybe<BillingIntegrationCurrencyType>>>;
+  currencyCode?: Maybe<Scalars['String']>;
+  currencyCode_not?: Maybe<Scalars['String']>;
+  currencyCode_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  currencyCode_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   /**  condition must be true for all nodes  */
   accessRights_every?: Maybe<BillingIntegrationAccessRightWhereInput>;
   /**  condition must be true for at least 1 node  */
@@ -5424,10 +5302,8 @@ export type BillingReceipt = {
   printableNumber?: Maybe<Scalars['String']>;
   /**  Raw non-structured data obtained from the `billing data source`. Used only for the internal needs of the `integration component`.  */
   raw?: Maybe<Scalars['JSON']>;
-  /**  Total sum to pay. Usually counts as the sum of all services. Stored like this: "123.30" Detail level 1.  */
+  /**  Total sum to pay. Usually counts as the sum of all services.  */
   toPay?: Maybe<Scalars['String']>;
-  /**  Total commission sum to pay.  */
-  commission?: Maybe<Scalars['String']>;
   /**  Sum to pay details. Detail level 2  */
   toPayDetails?: Maybe<BillingReceiptToPayDetailsField>;
   /**  Services to pay for. Every service has id, name and toPay. Service may or may not have toPay detail. Detail level 3 and 4  */
@@ -5455,7 +5331,6 @@ export type BillingReceiptCreateInput = {
   printableNumber?: Maybe<Scalars['String']>;
   raw?: Maybe<Scalars['JSON']>;
   toPay?: Maybe<Scalars['String']>;
-  commission?: Maybe<Scalars['String']>;
   toPayDetails?: Maybe<BillingReceiptToPayDetailsFieldInput>;
   services?: Maybe<Array<BillingReceiptServiceFieldInput>>;
   recipient?: Maybe<BillingReceiptsRecipientFieldInput>;
@@ -5489,7 +5364,6 @@ export type BillingReceiptHistoryRecord = {
   printableNumber?: Maybe<Scalars['String']>;
   raw?: Maybe<Scalars['JSON']>;
   toPay?: Maybe<Scalars['String']>;
-  commission?: Maybe<Scalars['String']>;
   toPayDetails?: Maybe<Scalars['JSON']>;
   services?: Maybe<Scalars['JSON']>;
   recipient?: Maybe<Scalars['JSON']>;
@@ -5517,7 +5391,6 @@ export type BillingReceiptHistoryRecordCreateInput = {
   printableNumber?: Maybe<Scalars['String']>;
   raw?: Maybe<Scalars['JSON']>;
   toPay?: Maybe<Scalars['String']>;
-  commission?: Maybe<Scalars['String']>;
   toPayDetails?: Maybe<Scalars['JSON']>;
   services?: Maybe<Scalars['JSON']>;
   recipient?: Maybe<Scalars['JSON']>;
@@ -5550,7 +5423,6 @@ export type BillingReceiptHistoryRecordUpdateInput = {
   printableNumber?: Maybe<Scalars['String']>;
   raw?: Maybe<Scalars['JSON']>;
   toPay?: Maybe<Scalars['String']>;
-  commission?: Maybe<Scalars['String']>;
   toPayDetails?: Maybe<Scalars['JSON']>;
   services?: Maybe<Scalars['JSON']>;
   recipient?: Maybe<Scalars['JSON']>;
@@ -5649,14 +5521,6 @@ export type BillingReceiptHistoryRecordWhereInput = {
   toPay_gte?: Maybe<Scalars['String']>;
   toPay_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   toPay_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  commission?: Maybe<Scalars['String']>;
-  commission_not?: Maybe<Scalars['String']>;
-  commission_lt?: Maybe<Scalars['String']>;
-  commission_lte?: Maybe<Scalars['String']>;
-  commission_gt?: Maybe<Scalars['String']>;
-  commission_gte?: Maybe<Scalars['String']>;
-  commission_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  commission_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   toPayDetails?: Maybe<Scalars['JSON']>;
   toPayDetails_not?: Maybe<Scalars['JSON']>;
   toPayDetails_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -5825,7 +5689,6 @@ export type BillingReceiptUpdateInput = {
   printableNumber?: Maybe<Scalars['String']>;
   raw?: Maybe<Scalars['JSON']>;
   toPay?: Maybe<Scalars['String']>;
-  commission?: Maybe<Scalars['String']>;
   toPayDetails?: Maybe<BillingReceiptToPayDetailsFieldInput>;
   services?: Maybe<Array<BillingReceiptServiceFieldInput>>;
   recipient?: Maybe<BillingReceiptsRecipientFieldInput>;
@@ -5915,14 +5778,6 @@ export type BillingReceiptWhereInput = {
   toPay_gte?: Maybe<Scalars['String']>;
   toPay_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   toPay_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  commission?: Maybe<Scalars['String']>;
-  commission_not?: Maybe<Scalars['String']>;
-  commission_lt?: Maybe<Scalars['String']>;
-  commission_lte?: Maybe<Scalars['String']>;
-  commission_gt?: Maybe<Scalars['String']>;
-  commission_gte?: Maybe<Scalars['String']>;
-  commission_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  commission_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   toPayDetails?: Maybe<BillingReceiptToPayDetailsFieldInput>;
   toPayDetails_not?: Maybe<BillingReceiptToPayDetailsFieldInput>;
   toPayDetails_in?: Maybe<Array<Maybe<BillingReceiptToPayDetailsFieldInput>>>;
@@ -25225,8 +25080,8 @@ export enum SortBillingIntegrationHistoryRecordsBy {
   BillingPageTitleDesc = 'billingPageTitle_DESC',
   ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
   ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
-  CurrencyAsc = 'currency_ASC',
-  CurrencyDesc = 'currency_DESC',
+  CurrencyCodeAsc = 'currencyCode_ASC',
+  CurrencyCodeDesc = 'currencyCode_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -25335,8 +25190,8 @@ export enum SortBillingIntegrationsBy {
   BillingPageTitleDesc = 'billingPageTitle_DESC',
   ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
   ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
-  CurrencyAsc = 'currency_ASC',
-  CurrencyDesc = 'currency_DESC',
+  CurrencyCodeAsc = 'currencyCode_ASC',
+  CurrencyCodeDesc = 'currencyCode_DESC',
   AccessRightsAsc = 'accessRights_ASC',
   AccessRightsDesc = 'accessRights_DESC',
   IdAsc = 'id_ASC',
@@ -25460,8 +25315,6 @@ export enum SortBillingReceiptHistoryRecordsBy {
   PrintableNumberDesc = 'printableNumber_DESC',
   ToPayAsc = 'toPay_ASC',
   ToPayDesc = 'toPay_DESC',
-  CommissionAsc = 'commission_ASC',
-  CommissionDesc = 'commission_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -25495,8 +25348,6 @@ export enum SortBillingReceiptsBy {
   PrintableNumberDesc = 'printableNumber_DESC',
   ToPayAsc = 'toPay_ASC',
   ToPayDesc = 'toPay_DESC',
-  CommissionAsc = 'commission_ASC',
-  CommissionDesc = 'commission_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
