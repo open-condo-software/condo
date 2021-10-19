@@ -43,8 +43,8 @@ const getHideCellTextRender = () => {
     }
 }
 
-const getAdvancedMoneyRender = (currencyName: string) => {
-    const moneyRender = getMoneyRender(undefined, currencyName)
+const getAdvancedMoneyRender = (currencyCode: string) => {
+    const moneyRender = getMoneyRender(undefined, currencyCode)
     return function render (text: string, record: TableRecord) {
         if (get(record, ['children', 'length'])) {
             return {

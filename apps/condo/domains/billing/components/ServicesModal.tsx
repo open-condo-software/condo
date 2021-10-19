@@ -15,7 +15,7 @@ import { colors } from '@condo/domains/common/constants/style'
 
 interface IServicesModalProps {
     receipt: IBillingReceiptUIState
-    currencyName: string
+    currencyCode: string
     isDetailed: boolean
     visible: boolean
     onOk: () => void
@@ -83,7 +83,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
     onCancel,
     onOk,
     receipt,
-    currencyName,
+    currencyCode,
     isDetailed,
 }) => {
     const intl = useIntl()
@@ -91,8 +91,8 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
     const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
 
     const moneyRender = useMemo(() => {
-        return getMoneyRender(undefined, currencyName)
-    }, [currencyName])
+        return getMoneyRender(undefined, currencyCode)
+    }, [currencyCode])
 
     const accountNumber = get(receipt, ['account', 'number'])
     const address = get(receipt, ['property', 'address'])
@@ -112,7 +112,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
         </Space>
     )
 
-    const columns = useServicesTableColumns(isDetailed, currencyName)
+    const columns = useServicesTableColumns(isDetailed, currencyCode)
 
     const { significantServices, insignificantServices } = splitServices(receipt)
     const ExpandMessage = intl.formatMessage({ id: 'MoreReceiptsWithZeroCharge' }, {
