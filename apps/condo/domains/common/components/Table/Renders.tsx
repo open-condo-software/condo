@@ -73,7 +73,7 @@ export const getTextRender = (search?: string) => {
     }
 }
 
-const getIntegerPartOfReading = (value: string) => value?.split('.')[0]
+const getIntegerPartOfReading = (value: string) => value?.split(DEFAULT_CURRENCY_SEPARATOR)[0]
 
 export const renderMeterReading = (values: string[], resourceId: string, measure: string) => {
     // ELECTRICITY multi-tariff meter
@@ -132,7 +132,7 @@ export const getMoneyRender = (
         const currencyAmount = text
             .replace(currencySymbol, '')
             .replace(',', MONEY_PARTS_SEPARATOR)
-            .replace('.', ',')
+            .replace(DEFAULT_CURRENCY_SEPARATOR, ',')
 
         const [currencyValuePart, currencyDecimalPart] = currencyAmount.split(',')
 
