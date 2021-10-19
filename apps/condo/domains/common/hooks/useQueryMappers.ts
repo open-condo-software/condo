@@ -25,6 +25,7 @@ export const useQueryMappers = <F>(queryMetas: Array<QueryMeta<F>>, sortableColu
                     whereQueries.push({ [combineType]: createdFilters })
                 }
             })
+
             if (whereQueries.length) {
                 return {
                     AND: whereQueries,

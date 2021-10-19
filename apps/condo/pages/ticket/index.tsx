@@ -30,6 +30,7 @@ import { EXPORT_TICKETS_TO_EXCEL } from '@condo/domains/ticket/gql'
 import ActionBar from '../../domains/common/components/ActionBar'
 import { FocusContainer } from '../../domains/common/components/FocusContainer'
 import qs from 'qs'
+import { usePaidSearch } from '../../domains/ticket/hooks/usePaidSearch'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -106,6 +107,7 @@ export const TicketsPageContent = ({
     const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
     const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
     const EmergencyLabel = intl.formatMessage({ id: 'Emergency' })
+    const PaidLabel = intl.formatMessage({ id: 'Paid' })
     const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
     const ClearAllFiltersMessage = intl.formatMessage({ id: 'ClearAllFilters' })
 
@@ -142,6 +144,7 @@ export const TicketsPageContent = ({
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
     const [emergency, handleEmergencyChange] = useEmergencySearch<IFilters>(loading)
+    const [paid, handlePaidChange] = usePaidSearch<IFilters>(loading)
 
     const resetQuery = async () => {
         if ('offset' in router.query) router.query['offset'] = '0'
@@ -185,7 +188,18 @@ export const TicketsPageContent = ({
                                                         onChange={handleEmergencyChange}
                                                         checked={emergency}
                                                         style={{ paddingLeft: '0px', fontSize: fontSizes.content }}
-                                                    >{EmergencyLabel}</Checkbox>
+                                                    >
+                                                        {EmergencyLabel}
+                                                    </Checkbox>
+                                                </Col>
+                                                <Col span={4} offset={1}>
+                                                    <Checkbox
+                                                        onChange={handlePaidChange}
+                                                        checked={paid}
+                                                        style={{ paddingLeft: '0px', fontSize: fontSizes.content }}
+                                                    >
+                                                        {PaidLabel}
+                                                    </Checkbox>
                                                 </Col>
                                                 <Col>
                                                     <Button
