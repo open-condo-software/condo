@@ -88,11 +88,11 @@ describe('BillingIntegration', () => {
             const admin = await makeLoggedInAdminClient()
             const [objCreated] = await createTestBillingIntegration(admin)
             const support = await makeClientWithSupportUser()
-            const payload = { name: 'super-billing!', currency: 'EUR' }
+            const payload = { name: 'super-billing!', currencyCode: 'EUR' }
             const [updatedIntegration] = await updateTestBillingIntegration(support, objCreated.id, payload)
             expect(updatedIntegration.id).toEqual(objCreated.id)
             expect(updatedIntegration.name).toEqual('super-billing!')
-            expect(updatedIntegration.currency).toBeDefined()
+            expect(updatedIntegration.currencyCode).toBeDefined()
         })
 
         test('user cant update BillingIntegration', async () => {
