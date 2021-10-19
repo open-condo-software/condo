@@ -3,7 +3,7 @@ import { jsx } from '@emotion/core'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
-import { DatabaseFilled, FilterFilled } from '@ant-design/icons'
+import { CloseOutlined, DatabaseFilled, FilterFilled } from '@ant-design/icons'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 import { useIntl } from '@core/next/intl'
 import { useLazyQuery } from '@core/next/apollo'
@@ -29,6 +29,7 @@ import { useMultipleFiltersModal } from '../../domains/common/hooks/useMultipleF
 import { EXPORT_TICKETS_TO_EXCEL } from '@condo/domains/ticket/gql'
 import ActionBar from '../../domains/common/components/ActionBar'
 import { FocusContainer } from '../../domains/common/components/FocusContainer'
+import qs from 'qs'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -106,6 +107,7 @@ export const TicketsPageContent = ({
     const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
     const EmergencyLabel = intl.formatMessage({ id: 'Emergency' })
     const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
+    const ClearAllFiltersMessage = intl.formatMessage({ id: 'ClearAllFilters' })
 
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
@@ -141,6 +143,16 @@ export const TicketsPageContent = ({
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
     const [emergency, handleEmergencyChange] = useEmergencySearch<IFilters>(loading)
 
+    const resetQuery = async () => {
+        if ('offset' in router.query) router.query['offset'] = '0'
+        const query = qs.stringify(
+            { ...router.query, filters: JSON.stringify({}) },
+            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
+        )
+
+        await router.push(router.route + query)
+    }
+
     return (
         <>
             <Head>
@@ -174,6 +186,16 @@ export const TicketsPageContent = ({
                                                         checked={emergency}
                                                         style={{ paddingLeft: '0px', fontSize: fontSizes.content }}
                                                     >{EmergencyLabel}</Checkbox>
+                                                </Col>
+                                                <Col>
+                                                    <Button
+                                                        type={'text'}
+                                                        onClick={resetQuery}
+                                                    >
+                                                        <Typography.Text strong type={'secondary'}>
+                                                            {ClearAllFiltersMessage} <CloseOutlined style={{ fontSize: '12px' }} />
+                                                        </Typography.Text>
+                                                    </Button>,
                                                 </Col>
                                                 <Col>
                                                     <Button
