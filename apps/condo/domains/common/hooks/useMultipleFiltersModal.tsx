@@ -189,8 +189,6 @@ export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>)
         }, [form])
 
         const handleSubmit = useCallback((values) => {
-            console.log('values', values)
-
             if ('offset' in router.query) router.query['offset'] = '0'
             const query = qs.stringify(
                 { ...router.query, filters: JSON.stringify(pickBy({ ...filters, ...values })) },

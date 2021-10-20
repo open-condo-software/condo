@@ -10,7 +10,7 @@ import {
 } from '@condo/domains/common/utils/tables.utils'
 import { TicketCategoryClassifier, TicketPlaceClassifier, TicketSource, TicketStatus } from '../utils/clientSchema'
 import { useIntl } from '@core/next/intl'
-import { searchEmployeeUser, searchOrganizationProperty } from '../utils/clientSchema/search'
+import { searchEmployeeUser, searchOrganizationDivision, searchOrganizationProperty } from '../utils/clientSchema/search'
 import { useOrganization } from '@core/next/organization'
 import { get } from 'lodash'
 
@@ -92,26 +92,26 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
 
     return useMemo(() => {
         return [
-            {
-                keyword: 'property',
-                filters: [addressFilter],
-                component: {
-                    type: ComponentType.GQLSelect,
-                    props: {
-                        search: searchOrganizationProperty(userOrganizationId),
-                        mode: 'multiple',
-                        showArrow: true,
-                        placeholder: EnterAddressMessage,
-                    },
-                    modalFilterComponentWrapper: {
-                        label: AddressMessage,
-                        size: FilterComponentSize.Large,
-                    },
-                    columnFilterComponentWrapper: {
-                        width: '400px',
-                    },
-                },
-            },
+            // {
+            //     keyword: 'property',
+            //     filters: [addressFilter],
+            //     component: {
+            //         type: ComponentType.GQLSelect,
+            //         props: {
+            //             search: searchOrganizationProperty(userOrganizationId),
+            //             mode: 'multiple',
+            //             showArrow: true,
+            //             placeholder: EnterAddressMessage,
+            //         },
+            //         modalFilterComponentWrapper: {
+            //             label: AddressMessage,
+            //             size: FilterComponentSize.Large,
+            //         },
+            //         columnFilterComponentWrapper: {
+            //             width: '400px',
+            //         },
+            //     },
+            // },
             {
                 keyword: 'details',
                 filters: [detailsFilter],
@@ -149,7 +149,26 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                     },
                 },
             },
-            // Division
+            {
+                keyword: 'division',
+                filters: [addressFilter],
+                queryToWhereProcessor: (queryDivisions) => {
+                    return queryDivisions?.map(queryDivision => queryDivision.split(',')).flat(1)
+                },
+                component: {
+                    type: ComponentType.GQLSelect,
+                    props: {
+                        search: searchOrganizationDivision(userOrganizationId),
+                        mode: 'multiple',
+                        showArrow: true,
+                        placeholder: EnterAddressMessage,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: 'Участок',
+                        size: FilterComponentSize.Medium,
+                    },
+                },
+            },
             {
                 keyword: 'sectionName',
                 filters: [sectionFilter],
@@ -260,64 +279,64 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                     },
                 },
             },
-            {
-                keyword: 'executor',
-                filters: [executorNameFilter],
-                component: {
-                    type: ComponentType.GQLSelect,
-                    props: {
-                        search: searchEmployeeUser(userOrganizationId, ({ role }) => (
-                            get(role, 'canBeAssignedAsExecutor', false)
-                        )),
-                        mode: 'multiple',
-                        showArrow: true,
-                    },
-                    modalFilterComponentWrapper: {
-                        label: ExecutorMessage,
-                        size: FilterComponentSize.Medium,
-                    },
-                    columnFilterComponentWrapper: {
-                        width: '200px',
-                    },
-                },
-            },
-            {
-                keyword: 'assignee',
-                filters: [assigneeNameFilter],
-                component: {
-                    type: ComponentType.GQLSelect,
-                    props: {
-                        search: searchEmployeeUser(userOrganizationId, ({ role }) => (
-                            get(role, 'canBeAssignedAsResponsible', false)
-                        )),
-                        mode: 'multiple',
-                        showArrow: true,
-                    },
-                    modalFilterComponentWrapper: {
-                        label: AssigneeMessage,
-                        size: FilterComponentSize.Medium,
-                    },
-                    columnFilterComponentWrapper: {
-                        width: '200px',
-                    },
-                },
-            },
-            {
-                keyword: 'author',
-                filters: [ticketAuthorFilter],
-                component: {
-                    type: ComponentType.GQLSelect,
-                    props: {
-                        search: searchEmployeeUser(userOrganizationId),
-                        mode: 'multiple',
-                        showArrow: true,
-                    },
-                    modalFilterComponentWrapper: {
-                        label: UserNameMessage,
-                        size: FilterComponentSize.Medium,
-                    },
-                },
-            },
+            // {
+            //     keyword: 'executor',
+            //     filters: [executorNameFilter],
+            //     component: {
+            //         type: ComponentType.GQLSelect,
+            //         props: {
+            //             search: searchEmployeeUser(userOrganizationId, ({ role }) => (
+            //                 get(role, 'canBeAssignedAsExecutor', false)
+            //             )),
+            //             mode: 'multiple',
+            //             showArrow: true,
+            //         },
+            //         modalFilterComponentWrapper: {
+            //             label: ExecutorMessage,
+            //             size: FilterComponentSize.Medium,
+            //         },
+            //         columnFilterComponentWrapper: {
+            //             width: '200px',
+            //         },
+            //     },
+            // },
+            // {
+            //     keyword: 'assignee',
+            //     filters: [assigneeNameFilter],
+            //     component: {
+            //         type: ComponentType.GQLSelect,
+            //         props: {
+            //             search: searchEmployeeUser(userOrganizationId, ({ role }) => (
+            //                 get(role, 'canBeAssignedAsResponsible', false)
+            //             )),
+            //             mode: 'multiple',
+            //             showArrow: true,
+            //         },
+            //         modalFilterComponentWrapper: {
+            //             label: AssigneeMessage,
+            //             size: FilterComponentSize.Medium,
+            //         },
+            //         columnFilterComponentWrapper: {
+            //             width: '200px',
+            //         },
+            //     },
+            // },
+            // {
+            //     keyword: 'author',
+            //     filters: [ticketAuthorFilter],
+            //     component: {
+            //         type: ComponentType.GQLSelect,
+            //         props: {
+            //             search: searchEmployeeUser(userOrganizationId),
+            //             mode: 'multiple',
+            //             showArrow: true,
+            //         },
+            //         modalFilterComponentWrapper: {
+            //             label: UserNameMessage,
+            //             size: FilterComponentSize.Medium,
+            //         },
+            //     },
+            // },
             {
                 keyword: 'search',
                 filters: [

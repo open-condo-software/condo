@@ -16,7 +16,14 @@ export const useQueryMappers = <F>(queryMetas: Array<QueryMeta<F>>, sortableColu
         const filtersToWhere = (queryFilters) => {
             const whereQueries = []
             validMetas.forEach((meta) => {
-                const searchValue = get(queryFilters, meta.keyword)
+                let searchValue = get(queryFilters, meta.keyword)
+
+                const queryToWhereProcessor = meta.queryToWhereProcessor
+                if (searchValue && queryToWhereProcessor) {
+                    console.log('searchValue', searchValue)
+                    searchValue = queryToWhereProcessor(searchValue)
+                }
+
                 const createdFilters = meta.filters
                     .map((filter) => filter(searchValue || meta.defaultValue))
                     .filter(Boolean)
