@@ -12,7 +12,6 @@ export const useQueryMappers = <F>(queryMetas: Array<QueryMeta<F>>, sortableColu
         const validMetas = queryMetas
             .filter((meta) => meta && meta.keyword && meta.filters && meta.filters.length > 0)
 
-
         const filtersToWhere = (queryFilters) => {
             const whereQueries = []
             validMetas.forEach((meta) => {
@@ -20,7 +19,6 @@ export const useQueryMappers = <F>(queryMetas: Array<QueryMeta<F>>, sortableColu
 
                 const queryToWhereProcessor = meta.queryToWhereProcessor
                 if (searchValue && queryToWhereProcessor) {
-                    console.log('searchValue', searchValue)
                     searchValue = queryToWhereProcessor(searchValue)
                 }
 
