@@ -4,6 +4,7 @@ const isNull = require('lodash/isNull')
 const isUndefined = require('lodash/isUndefined')
 const isString = require('lodash/isString')
 const isNumber = require('lodash/isNumber')
+const isObject = require('lodash/isObject')
 
 const {
     JSON_WRONG_VERSION_FORMAT_ERROR,
@@ -13,9 +14,8 @@ const {
 } = require('@condo/domains/common/constants/errors')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 
-function hasDbFields (databaseRequired, resolvedData, existingItem, context, addFieldValidationError) {
+function hasDbFields (databaseRequired, resolvedData, existingItem = {}, context, addFieldValidationError) {
     if (isUndefined(resolvedData)) throw new Error('unexpected undefined resolvedData arg')
-    if (isUndefined(existingItem)) existingItem = {}
 
     let hasAllFields = true
 
@@ -130,7 +130,7 @@ function hasValidJsonStructure (args, isRequired, dataVersion, fieldsConstraints
 
     const value = resolvedData[fieldPath]
 
-    if (typeof value !== 'object' || isNull(value))
+    if (!isObject(value) || isNull(value))
         return addFieldValidationError(`${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] Expect JSON Object`)
 
     const { dv, ...data } = value
