@@ -115,6 +115,7 @@ const renderMoney = (currencyValuePart: string, currencyDecimalPart: string, cur
 
 export const getMoneyRender = (
     search: string,
+    intl: any,
     currencyCode = DEFAULT_CURRENCY_CODE
 ) => {
     return function render (text: string): RenderReturnType {
@@ -122,17 +123,16 @@ export const getMoneyRender = (
 
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#locale_identification_and_negotiation
         // Using undefined will resolve to User-Agent locale
-        const formatter = Intl.NumberFormat(
-            undefined,
-            { style: 'currency', currency: currencyCode, currencyDisplay: 'narrowSymbol', signDisplay: 'auto' }
+        const currencyAmount = intl.formatNumber(
+            parseFloat(text),
+            { style: 'currency', currency: currencyCode }
         )
-        text = formatter.format(parseFloat(text))
 
         const currencySymbol = getCurrencySymbol(currencyCode)
-        const currencyAmount = text
-            .replace(currencySymbol, '')
-            .replace(',', NBSP)
-            .replace(DEFAULT_CURRENCY_SEPARATOR, ',')
+        // const currencyAmount = text
+        //     .replace(currencySymbol, '')
+        //     .replace(',', NBSP)
+        //     .replace(DEFAULT_CURRENCY_SEPARATOR, ',')
 
         const [currencyValuePart, currencyDecimalPart] = currencyAmount.split(',')
 
