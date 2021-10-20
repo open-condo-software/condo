@@ -116,6 +116,30 @@ export const expectToThrowAccessDeniedErrorToResult = async (testFunc ) => {
         expect(data).toEqual({ 'result': null })
     })
 }
+/**
+ * Expects a GraphQLError of type 'ForbiddenError', thrown by Keystone on trying to execute a mutation,
+ * which by convention returns `result` object.
+ * Should be used to examine access to GraphQL mutations, that returns `result`.
+ * @example
+ *
+ * test('something, that should throw an error', async () => {
+ *     const client = await makeClient()
+ *     await expectToThrowForbiddenErrorToResult(async () => {
+ *         await registerResidentByTestClient(client)
+ *     })
+ * })
+ *
+ * @param {TestFunc} testFunc - Function, expected to throw an error
+ * @return {Promise<void>}
+ */
+export const expectToThrowForbiddenErrorToResult = async (testFunc) => {
+    await catchErrorFrom(testFunc, ({ errors, data }) => {
+        expect(errors[0]).toMatchObject({
+            'message': 'You are not allowed to perform this operation',
+            'name': 'ForbiddenError',
+        })
+    })
+}
 
 
 /**
