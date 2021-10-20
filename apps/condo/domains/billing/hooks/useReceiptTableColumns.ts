@@ -65,7 +65,7 @@ export const useReceiptTableColumns = (detailed: boolean, currencyCode: string) 
                 sorter: false,
                 width: '13%',
                 align: 'right',
-                render: getMoneyRender(undefined, currencyCode),
+                render: getMoneyRender(undefined, intl, currencyCode),
             },
             penalty: {
                 title: PenaltyTitle,
@@ -74,7 +74,7 @@ export const useReceiptTableColumns = (detailed: boolean, currencyCode: string) 
                 sorter: false,
                 width: '13%',
                 align: 'right',
-                render: getMoneyRender(undefined, currencyCode),
+                render: getMoneyRender(undefined, intl, currencyCode),
             },
             charge: {
                 title: ChargeTitle,
@@ -83,7 +83,7 @@ export const useReceiptTableColumns = (detailed: boolean, currencyCode: string) 
                 sorter: false,
                 width: '13%',
                 align: 'right',
-                render: getMoneyRender(undefined, currencyCode),
+                render: getMoneyRender(undefined, intl, currencyCode),
             },
             toPay: {
                 title: ToPayTitle,
@@ -96,7 +96,7 @@ export const useReceiptTableColumns = (detailed: boolean, currencyCode: string) 
                 align: 'right',
                 filterIcon: getFilterIcon,
                 filterDropdown: getTextFilterDropdown(ToPayTitle),
-                render: getMoneyRender(search, currencyCode),
+                render: getMoneyRender(search, intl, currencyCode),
             },
         }
 
