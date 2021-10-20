@@ -18,6 +18,7 @@ import qs from 'qs'
 import { useIntl } from '@core/next/intl'
 import { CloseOutlined } from '@ant-design/icons'
 import { ComponentType, FilterComponentInfo, FiltersMeta, getQueryToValueProcessorByType } from '../utils/filters.utils'
+import { ChipsInput } from '../components/ChipsInput'
 
 enum FilterComponentSize {
     Medium = 12,
@@ -108,6 +109,11 @@ export const getModalFilterComponentByMeta = (filters, name, component: FilterCo
                 {...props}
             />
         }
+        case ComponentType.ChipsInput: {
+            return <ChipsInput
+                {...props}
+            />
+        }
 
         default: return
     }
@@ -162,7 +168,7 @@ export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>)
         const router = useRouter()
         const { filters } = parseQuery(router.query)
 
-        const resetFields = useCallback(async () => {
+        const handleReset = useCallback(async () => {
             const resetFields = {}
             const formKeys = Object.keys(form.getFieldsValue())
             formKeys.forEach(key => {
@@ -179,6 +185,19 @@ export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>)
             await router.push(router.route + query)
         }, [form])
 
+        const handleSubmit = useCallback((values) => {
+            console.log('values', values)
+
+            if ('offset' in router.query) router.query['offset'] = '0'
+            const query = qs.stringify(
+                { ...router.query, filters: JSON.stringify(pickBy({ ...filters, ...values })) },
+                { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
+            )
+
+            router.push(router.route + query)
+            setIsMultipleFiltersModalVisible(false)
+        }, [])
+
         return (
             <BaseModalForm
                 visible={isMultipleFiltersModalVisible}
@@ -188,24 +207,13 @@ export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>)
                 ModalSaveButtonLabelMsg={ShowMessage}
                 showCancelButton={false}
                 validateTrigger={['onBlur', 'onSubmit']}
-                handleSubmit={
-                    (values) => {
-                        if ('offset' in router.query) router.query['offset'] = '0'
-                        const query = qs.stringify(
-                            { ...router.query, filters: JSON.stringify(pickBy({ ...filters, ...values })) },
-                            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-                        )
-
-                        router.push(router.route + query)
-                        setIsMultipleFiltersModalVisible(false)
-                    }
-                }
+                handleSubmit={handleSubmit}
                 modalExtraFooter={[
                     <Button
                         style={{ position: 'absolute', left: '10px' }}
                         key={'reset'}
                         type={'text'}
-                        onClick={resetFields}
+                        onClick={handleReset}
                     >
                         <Typography.Text strong type={'secondary'}>
                             {ClearAllFiltersMessage} <CloseOutlined style={{ fontSize: '12px' }} />

@@ -24,6 +24,7 @@ export enum ComponentType {
     CheckboxGroup,
     Select,
     GQLSelect,
+    ChipsInput,
     Date,
     DateRange,
     Custom,
@@ -52,6 +53,9 @@ export type FilterComponentInfo = CommonFilterComponentInfo & ({
 } | {
     type: ComponentType.Select
     options: { value: string, label: string }[]
+    props?: SelectProps<string>
+} | {
+    type: ComponentType.ChipsInput
     props?: SelectProps<string>
 } | {
     type: ComponentType.Date
@@ -117,6 +121,13 @@ export function getFilterDropdownByKey <T> (filterMetas: Array<FiltersMeta<T>>, 
             const search = get(props, 'search')
             const mode = get(props, 'mode')
             return getGQLSelectFilterDropdown(search, mode, columnFilterComponentWrapperStyles)
+        }
+
+        case ComponentType.ChipsInput: {
+            const options = get(component, 'options')
+            const loading = get(component, 'loading')
+            const mode = get(component, ['props', 'mode'])
+            return getSelectFilterDropdown(options, loading, mode, columnFilterComponentWrapperStyles)
         }
 
         case ComponentType.Custom: {
