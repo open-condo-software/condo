@@ -154,7 +154,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                 keyword: 'sectionName',
                 filters: [sectionFilter],
                 component: {
-                    type: ComponentType.Input,
+                    type: ComponentType.ChipsInput,
                     modalFilterComponentWrapper: {
                         label: SectionMessage,
                         size: FilterComponentSize.Medium,
@@ -231,7 +231,10 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                     },
                 },
             },
-            // Priznak
+            {
+                keyword: 'attributes',
+                filters: [isEmergencyFilter, isPaidFilter],
+            },
             {
                 keyword: 'clientName',
                 filters: [clientNameFilter],
@@ -314,10 +317,6 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                         size: FilterComponentSize.Medium,
                     },
                 },
-            },
-            {
-                keyword: 'attributes',
-                filters: [isEmergencyFilter, isPaidFilter],
             },
             {
                 keyword: 'search',
