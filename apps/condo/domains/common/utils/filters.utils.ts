@@ -114,7 +114,7 @@ export function getFilterDropdownByKey <T> (filterMetas: Array<FiltersMeta<T>>, 
             const options = get(component, 'options')
             const loading = get(component, 'loading')
             const mode = get(component, ['props', 'mode'])
-            return getSelectFilterDropdown(options, loading, mode, columnFilterComponentWrapperStyles)
+            return getSelectFilterDropdown({ options, loading, mode }, columnFilterComponentWrapperStyles)
         }
 
         case ComponentType.GQLSelect: {
@@ -124,10 +124,14 @@ export function getFilterDropdownByKey <T> (filterMetas: Array<FiltersMeta<T>>, 
         }
 
         case ComponentType.ChipsInput: {
-            const options = get(component, 'options')
-            const loading = get(component, 'loading')
-            const mode = get(component, ['props', 'mode'])
-            return getSelectFilterDropdown(options, loading, mode, columnFilterComponentWrapperStyles)
+            return getSelectFilterDropdown(
+                {
+                    mode: 'tags',
+                    dropdownStyle: { display: 'none' },
+                    allowClear: true,
+                },
+                columnFilterComponentWrapperStyles
+            )
         }
 
         case ComponentType.Custom: {
