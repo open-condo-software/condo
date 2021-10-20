@@ -6,7 +6,7 @@ const get = require('lodash/get')
 const { File, Text, Relationship, Select, Virtual } = require('@keystonejs/fields')
 const { Wysiwyg } = require('@keystonejs/fields-wysiwyg-tinymce')
 
-const { GQLListSchema} = require('@core/keystone/schema')
+const { GQLListSchema } = require('@core/keystone/schema')
 const { Json } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 

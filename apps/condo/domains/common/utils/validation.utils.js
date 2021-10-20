@@ -1,5 +1,9 @@
 const validate = require('validate.js')
 const nextCookies = require('next-cookies')
+const isNull = require('lodash/isNull')
+const isUndefined = require('lodash/isUndefined')
+const isString = require('lodash/isString')
+const isNumber = require('lodash/isNumber')
 
 const {
     JSON_WRONG_VERSION_FORMAT_ERROR,
@@ -10,14 +14,14 @@ const {
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 
 function hasDbFields (databaseRequired, resolvedData, existingItem, context, addFieldValidationError) {
-    if (typeof resolvedData === 'undefined') throw new Error('unexpected undefined resolvedData arg')
-    if (typeof existingItem === 'undefined') existingItem = {}
+    if (isUndefined(resolvedData)) throw new Error('unexpected undefined resolvedData arg')
+    if (isUndefined(existingItem)) existingItem = {}
 
     let hasAllFields = true
 
     for (let field of databaseRequired) {
         const value = existingItem[field]
-        const isValueNullOrUndefined = value === null || typeof value === 'undefined'
+        const isValueNullOrUndefined = isNull(value) || isUndefined(value)
 
         if (isValueNullOrUndefined && !resolvedData.hasOwnProperty(field)) {
             addFieldValidationError(`${REQUIRED_NO_VALUE_ERROR}${field}] Value is not set`)
@@ -98,14 +102,14 @@ function hasDvAndSenderFields (resolvedData, context, addFieldValidationError) {
 function hasOneOfFields (requestRequired, resolvedData, existingItem = {}, addFieldValidationError) {
     let hasOneField = false
 
-    if (typeof resolvedData === 'undefined') throw new Error('unexpected undefined resolvedData arg')
+    if (isUndefined(resolvedData)) throw new Error('unexpected undefined resolvedData arg')
     if (requestRequired.length < 1) throw new Error('unexpected requestRequired list length')
 
     for (let field of requestRequired) {
         const value = existingItem[field]
         const newValue = resolvedData[field]
-        const isValueNullOrUndefined = value === null || typeof value === 'undefined'
-        const isNewValueNullOrUndefined = newValue === null || typeof newValue === 'undefined'
+        const isValueNullOrUndefined = isNull(value) || isUndefined(value)
+        const isNewValueNullOrUndefined = isNull(newValue) || isUndefined(newValue)
 
         if (!isValueNullOrUndefined || !isNewValueNullOrUndefined) hasOneField = true
     }
@@ -126,7 +130,7 @@ function hasValidJsonStructure (args, isRequired, dataVersion, fieldsConstraints
 
     const value = resolvedData[fieldPath]
 
-    if (typeof value !== 'object' || value === null)
+    if (typeof value !== 'object' || isNull(value))
         return addFieldValidationError(`${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] Expect JSON Object`)
 
     const { dv, ...data } = value
@@ -173,7 +177,7 @@ const getInnChecksumRU = num => {
 }
 
 const validateInnRU = innValue => {
-    if (typeof innValue != 'string' && typeof innValue != 'number' || !RU_ORGANIZATION_INN_REGEXP.test(innValue)) return false
+    if (!isString(innValue) && isNumber(innValue) || !RU_ORGANIZATION_INN_REGEXP.test(innValue)) return false
 
     const inn = innValue.toString().trim()
 

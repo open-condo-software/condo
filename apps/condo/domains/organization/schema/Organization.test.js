@@ -8,7 +8,7 @@ const {
     catchErrorFrom,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
-    expectToThrowAuthenticationErrorToObj
+    expectToThrowAuthenticationErrorToObj,
 } = require('@condo/domains/common/utils/testSchema')
 const {
     VALID_RU_INN_10,
@@ -29,7 +29,7 @@ const {
     readOrganization,
     updateTestOrganization,
     OrganizationEmployee,
-    updateTestOrganizationEmployee
+    updateTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
 
 const { createTestOrganizationEmployeeRole } = require('../utils/testSchema')
@@ -316,7 +316,7 @@ describe('organization INN: various cases',  () => {
 
         const organizationData = await readOrganization(admin, createdOrganization.id)
 
-        expect(organizationData.length).toEqual(1)
+        expect(organizationData).toHaveLength(1)
         expect(organizationData[0].inn).toEqual(createdOrganization.inn)
     })
 
@@ -326,7 +326,7 @@ describe('organization INN: various cases',  () => {
 
         const organizationData = await readOrganization(admin, createdOrganization.id)
 
-        expect(organizationData.length).toEqual(1)
+        expect(organizationData).toHaveLength(1)
         expect(organizationData[0].inn).toEqual(null)
     })
 
@@ -336,7 +336,7 @@ describe('organization INN: various cases',  () => {
 
         const organizationData = await readOrganization(admin, createdOrganization.id)
 
-        expect(organizationData.length).toEqual(1)
+        expect(organizationData).toHaveLength(1)
         expect(organizationData[0].inn).toEqual(null)
     })
 
@@ -346,7 +346,7 @@ describe('organization INN: various cases',  () => {
 
         const organizationData = await readOrganization(admin, createdOrganization.id)
 
-        expect(organizationData.length).toEqual(1)
+        expect(organizationData).toHaveLength(1)
         expect(organizationData[0].inn).toEqual(null)
     })
 
@@ -356,7 +356,7 @@ describe('organization INN: various cases',  () => {
 
         const organizationData = await readOrganization(admin, createdOrganization.id)
 
-        expect(organizationData.length).toEqual(1)
+        expect(organizationData).toHaveLength(1)
         expect(organizationData[0].inn).toEqual(null)
     })
 })

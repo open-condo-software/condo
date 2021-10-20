@@ -35,7 +35,7 @@ export const useValidations: UseValidations = (settings = {}) => {
     const FieldIsTooShortMessage = intl.formatMessage({ id: 'ValueIsTooShort' })
     const FieldIsTooLongMessage = intl.formatMessage({ id: 'ValueIsTooLong' })
     const NumberIsNotValidMessage = intl.formatMessage({ id: 'NumberIsNotValid' })
-    const InnValueIsInvalid = intl.formatMessage({ id: 'pages.organizations.inn.InvalidValue' })
+    const InnValueIsInvalidMessage = intl.formatMessage({ id: 'pages.organizations.inn.InvalidValue' })
 
     const { allowLandLine } = settings
 
@@ -127,7 +127,7 @@ export const useValidations: UseValidations = (settings = {}) => {
                 validator: (_, value: string) => {
                     if (isInnValid(value, country)) return Promise.resolve()
 
-                    return Promise.reject(InnValueIsInvalid)
+                    return Promise.reject(InnValueIsInvalidMessage)
                 },
             }
         }
