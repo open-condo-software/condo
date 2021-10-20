@@ -15,7 +15,6 @@ type RenderReturnType = string | React.ReactNode
 
 const DEFAULT_CURRENCY_SEPARATOR = '.'
 const DEFAULT_CURRENCY_CODE = 'RUB'
-const NBSP = ' '
 
 const getHighlightedText = (search: string, text: string) => {
     let result: RenderReturnType = text
@@ -90,61 +89,59 @@ export const renderMeterReading = (values: string[], resourceId: string, measure
     return `${getIntegerPartOfReading(values[0])} ${measure}`
 }
 
-const getCurrencySymbol = (currencyCode) => {
-    return (0).toLocaleString(
-        undefined,
-        {
-            style: 'currency',
-            currency: currencyCode,
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
-            currencyDisplay: 'narrowSymbol',
-        }
-    ).replace(/\d/g, '').trim()
-}
-
 const dimText = (text: string, extraStyles: React.CSSProperties = {}) => (
     <Typography.Text type={'secondary'} style={extraStyles}>
         {text}
     </Typography.Text>
 )
 
-const renderMoney = (currencyValuePart: string, currencyDecimalPart: string, currencySymbol: string) => (
-    <>{currencyValuePart}{dimText(',' + currencyDecimalPart)}{NBSP}{currencySymbol}</>
-)
+const renderMoney = (formattedValue: string, currencyDelimeter = ',') => {
+    const [integerWithPrefix, decimalWithPostfix] = formattedValue.split(currencyDelimeter)
+
+    if (!decimalWithPostfix) {
+        return (<>{integerWithPrefix}</>)
+    }
+
+    // We might have the case when the currency sign or other things are located after the end of decimal part
+    // We don't want to dim them, so we find the end of decimal part by simple iteration
+    // Example: 2 200,00 RUB (only ,00 should be dimmed)
+    let decimal = ''
+    let postfix = ''
+
+    for (let i = 0; i < decimalWithPostfix.length; ++i ) {
+        const currentChar = decimalWithPostfix[i]
+        if (/^[0-9]$/.test(currentChar)) {
+            decimal += currentChar
+        } else {
+            postfix = decimalWithPostfix.slice(i - 1)
+        }
+    }
+
+    return (<>{integerWithPrefix}{dimText(currencyDelimeter + decimal)}{postfix}</>)
+}
 
 export const getMoneyRender = (
     search: string,
-    intl: any,
+    intl,
     currencyCode = DEFAULT_CURRENCY_CODE
 ) => {
     return function render (text: string): RenderReturnType {
         if (!text) return <EmptyTableCell/>
 
-        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#locale_identification_and_negotiation
-        // Using undefined will resolve to User-Agent locale
-        const currencyAmount = intl.formatNumber(
+        const formattedCurrency = intl.formatNumber(
             parseFloat(text),
             { style: 'currency', currency: currencyCode }
         )
 
-        const currencySymbol = getCurrencySymbol(currencyCode)
-        // const currencyAmount = text
-        //     .replace(currencySymbol, '')
-        //     .replace(',', NBSP)
-        //     .replace(DEFAULT_CURRENCY_SEPARATOR, ',')
-
-        const [currencyValuePart, currencyDecimalPart] = currencyAmount.split(',')
-
         if (isEmpty(search)) {
-            return renderMoney(currencyValuePart, currencyDecimalPart, currencySymbol)
+            return renderMoney(formattedCurrency, ',')
         }
         return (
             <>
                 <TextHighlighter
                     text={text}
                     search={search}
-                    renderPart={() => renderMoney(currencyValuePart, currencyDecimalPart, currencySymbol)}
+                    renderPart={() => renderMoney(formattedCurrency, ',')}
                 />
             </>
         )
