@@ -71,9 +71,10 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
     const [isVisible, setIsVisible] = useState<boolean>(false)
     const { selectLink } = useOrganization()
     const { user } = useAuth()
+    const userId = get(user, 'id')
 
     const { fetchMore } = OrganizationEmployee.useObjects(
-        { where: user ? { user: { id: user.id }, isRejected: false, isBlocked: false } : {} },
+        { where: user ? { user: { id: userId }, isRejected: false, isBlocked: false } : {} },
         FETCH_OPTIONS
     )
 
@@ -81,15 +82,15 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
         const id = get(createResult, 'data.obj.id')
 
         fetchMore({
-            where: { organization: { id }, user: { id: user.id } },
+            where: { organization: { id }, user: { id: userId } },
         }).then((data) => {
             const userLinks = get(data, 'data.objs', [])
 
             if (id) {
-                const newLink = userLinks.find(link => link.organization.id === id)
+                const newLink = userLinks.find(link => get(link, ['organization', 'id']) === id)
 
                 if (newLink) {
-                    selectLink({ id: newLink.id }).then(() => {
+                    selectLink({ id: get(newLink, 'id') }).then(() => {
                         setIsVisible(false)
                     })
                 }
@@ -99,7 +100,7 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
         })
 
         return null
-    }, [user.id, selectLink, setIsVisible, fetchMore, onFinish])
+    }, [user, selectLink, setIsVisible, fetchMore, onFinish])
 
     const { requiredValidator, minLengthValidator, changeMessage, innValidator } = useValidations()
 
