@@ -17,7 +17,7 @@ const BillingPage = () => {
 
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], '')
-    const canManageIntegrations = get(userOrganization, ['link', 'role', 'canManageIntegrations'], false)
+    const canManageIntegrations = get(userOrganization, ['link', 'role', 'canReadBillingReceipts'], false)
 
     const {
         obj: currentContext,

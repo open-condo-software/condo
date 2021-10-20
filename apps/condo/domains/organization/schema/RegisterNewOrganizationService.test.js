@@ -74,6 +74,8 @@ describe('RegisterNewOrganizationService', () => {
             canShareTickets: true,
             canBeAssignedAsResponsible: true,
             canBeAssignedAsExecutor: true,
+            canReadBillingReceipts: true,
+            canReadPayments: true,
         })
 
         const [dispatcherRole] = await OrganizationEmployeeRole.getAll(admin, {
@@ -95,6 +97,8 @@ describe('RegisterNewOrganizationService', () => {
             canShareTickets: true,
             canBeAssignedAsResponsible: true,
             canBeAssignedAsExecutor: true,
+            canReadBillingReceipts: true,
+            canReadPayments: true,
         })
 
         const [managerRole] = await OrganizationEmployeeRole.getAll(admin, {
@@ -116,6 +120,8 @@ describe('RegisterNewOrganizationService', () => {
             canShareTickets: true,
             canBeAssignedAsResponsible: true,
             canBeAssignedAsExecutor: true,
+            canReadBillingReceipts: false,
+            canReadPayments: false,
         })
 
         const [foremanRole] = await OrganizationEmployeeRole.getAll(admin, {
@@ -137,6 +143,8 @@ describe('RegisterNewOrganizationService', () => {
             canShareTickets: true,
             canBeAssignedAsResponsible: true,
             canBeAssignedAsExecutor: true,
+            canReadBillingReceipts: false,
+            canReadPayments: false,
         })
 
         const [technicianRole] = await OrganizationEmployeeRole.getAll(admin, {
@@ -158,6 +166,8 @@ describe('RegisterNewOrganizationService', () => {
             canShareTickets: true,
             canBeAssignedAsResponsible: true,
             canBeAssignedAsExecutor: true,
+            canReadBillingReceipts: false,
+            canReadPayments: false,
         })
     })
 
