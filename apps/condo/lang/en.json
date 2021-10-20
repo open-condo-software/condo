@@ -473,6 +473,7 @@
   "pages.organizations.OrganizationName": "Name",
   "pages.organizations.Inn": "TIN",
   "pages.organizations.inn.TooShortMessage": "TIN field is too short",
+  "pages.organizations.inn.InvalidValue": "TIN field value is not valid",
   "pages.organizations.PageTitle": "Organizations",
   "pages.users.InviteNewUserButtonLabel": "Invite new user",
   "pages.users.InviteMessageTitle": "You have an invitation to «{name}»",

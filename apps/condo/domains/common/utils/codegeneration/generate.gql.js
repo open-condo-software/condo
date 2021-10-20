@@ -66,8 +66,10 @@ function genDeleteGQL (key, fields) {
 
 function generateGqlQueries (key, fields) {
     const [singularName, pluralName] = getModelForms(key)
+
     if (!fields.startsWith('{') || !fields.endsWith('}'))
         throw new Error('wrong list fields format. Try "{ name1 name2 }"')
+
     const GET_ALL_OBJS_QUERY = genGetAllGQL(singularName, fields)
     const GET_COUNT_OBJS_QUERY = genGetCountGQL(singularName)
     const GET_ALL_OBJS_WITH_COUNT_QUERY = genGetAllWithCountGQL(singularName, fields)
