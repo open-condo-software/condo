@@ -1,14 +1,18 @@
 const gql = require('graphql-tag')
-const { isFunction, capitalize, isUndefined, isNull } = require('lodash')
+const { capitalize, isUndefined, isNull, isBoolean } = require('lodash')
+const { isObject } = require('validate.js')
 const { throwForbiddenError } = require('./apolloErrorFormatter')
 
-function accessControl (schemaType, name, schema){
-    if (schemaType === 'GQLListSchema' && !isUndefined(schema.access) && !isNull(schema.access)) {
-        ['create', 'read', 'update', 'delete'].forEach(crudOperation => {
+function accessControl (schemaType, schemaName, schema){
+    if (schemaType === 'GQLListSchema' && isObject(schema.access)) {
+        Object.getOwnPropertyNames(schema.access).forEach(crudOperation => {
             const originalAccess = schema.access[crudOperation]
+            if (isBoolean(originalAccess)){
+                return
+            }
             schema.access[crudOperation] = function ({ authentication: { item: user } } ) {
                 if (user && user.permissions) {
-                    const thisPermissionName = `can${capitalize(crudOperation)}${name}s`
+                    const thisPermissionName = `can${capitalize(crudOperation)}${schemaName}s`
                     if (user.permissions[thisPermissionName] !== true) {
                         return throwForbiddenError()
                     }
@@ -16,13 +20,7 @@ function accessControl (schemaType, name, schema){
                         return true
                     }
                 }
-                if (isFunction(originalAccess)){
-                    return originalAccess(...arguments)
-                }
-                else 
-                {
-                    return originalAccess
-                }
+                return originalAccess(...arguments)
             }
         })
     }
@@ -33,6 +31,9 @@ function accessControl (schemaType, name, schema){
             const permissionName = `can${capitalize(mutationName)}`
             if (!isNull(mutation.access) && !isUndefined(mutation.access)) {
                 const originalAccess = mutation.access
+                if (isBoolean(originalAccess)) {
+                    return
+                }
                 mutation.access = function ({ authentication: { item: user } }){
                     if (user && user.permissions) {
                         if (user.permissions[permissionName] !== true) {
@@ -42,13 +43,7 @@ function accessControl (schemaType, name, schema){
                             return true
                         }
                     }
-                    if (isFunction(originalAccess)){
-                        return originalAccess(...arguments)
-                    }
-                    else 
-                    {
-                        return originalAccess
-                    }
+                    return originalAccess(...arguments)
                 }
             }
         })
