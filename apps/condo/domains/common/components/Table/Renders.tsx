@@ -95,29 +95,34 @@ const dimText = (text: string, extraStyles: React.CSSProperties = {}) => (
     </Typography.Text>
 )
 
-const renderMoney = (formattedValue: string, currencyDelimeter = ',') => {
-    const [integerWithPrefix, decimalWithPostfix] = formattedValue.split(currencyDelimeter)
+const renderMoney = (formattedValue: Intl.NumberFormatPart[]) => {
 
-    if (!decimalWithPostfix) {
-        return (<>{integerWithPrefix}</>)
-    }
+    const prefix = []
+    const decimalAndFraction = []
+    const postfix = []
 
-    // We might have the case when the currency sign or other things are located after the end of decimal part
-    // We don't want to dim them, so we find the end of decimal part by simple iteration
-    // Example: 2 200,00 RUB (only ,00 should be dimmed)
-    let decimal = ''
-    let postfix = ''
+    let decimalAndFractionProcessedFlag = false
 
-    for (let i = 0; i < decimalWithPostfix.length; ++i ) {
-        const currentChar = decimalWithPostfix[i]
-        if (/^[0-9]$/.test(currentChar)) {
-            decimal += currentChar
-        } else {
-            postfix = decimalWithPostfix.slice(i - 1)
+    formattedValue.forEach(token => {
+        switch (token.type) {
+            case 'decimal':
+                decimalAndFraction.push(token.value)
+                decimalAndFractionProcessedFlag = true
+                break
+            case 'fraction':
+                decimalAndFraction.push(token.value)
+                decimalAndFractionProcessedFlag = true
+                break
+            default:
+                if (decimalAndFractionProcessedFlag) {
+                    postfix.push(token.value)
+                } else {
+                    prefix.push(token.value)
+                }
         }
-    }
+    })
 
-    return (<>{integerWithPrefix}{dimText(currencyDelimeter + decimal)}{postfix}</>)
+    return (<>{prefix.join('')}{dimText(decimalAndFraction.join(''))}{postfix.join('')}</>)
 }
 
 export const getMoneyRender = (
@@ -128,20 +133,19 @@ export const getMoneyRender = (
     return function render (text: string): RenderReturnType {
         if (!text) return <EmptyTableCell/>
 
-        const formattedCurrency = intl.formatNumber(
+        const formattedCurrency = intl.formatNumberToParts(
             parseFloat(text),
             { style: 'currency', currency: currencyCode }
         )
-
         if (isEmpty(search)) {
-            return renderMoney(formattedCurrency, ',')
+            return renderMoney(formattedCurrency)
         }
         return (
             <>
                 <TextHighlighter
                     text={text}
                     search={search}
-                    renderPart={() => renderMoney(formattedCurrency, ',')}
+                    renderPart={() => renderMoney(formattedCurrency)}
                 />
             </>
         )
