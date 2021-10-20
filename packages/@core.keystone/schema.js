@@ -159,7 +159,7 @@ class GQLCustomSchema {
 
 function transformByPreprocessors (preprocessors, schemaType, name, schema) {
     if (!isArray(preprocessors)) throw new Error('wrong preprocessors type')
-    if (preprocessors.length > 0 && IS_DEV) console.info('✔ Transform schema by global preprocessors')
+    // if (preprocessors.length > 0 && IS_DEV) console.info('✔ Transform schema by global preprocessors')
     return preprocessors.reduce((schema, fn) => {
         if (!isFunction(fn)) throw new Error('preprocessor is not a function! Check your global preprocessors')
         const newSchema = fn(schemaType, name, schema)

@@ -12,6 +12,7 @@ const conf = require('@core/config')
 const { registerTasks } = require('@core/keystone/tasks')
 const { prepareDefaultKeystoneConfig } = require('@core/keystone/setup.utils')
 const { registerSchemas } = require('@core/keystone/schema')
+const { accessControl } = require('@condo/domains/common/utils/accessControl')
 const express = require('express')
 const bodyParser = require('body-parser')
 const nextCookie = require('next-cookies')
@@ -25,6 +26,8 @@ const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV 
 // WARN: https://github.com/graphql/graphql-playground/tree/main/packages/graphql-playground-html/examples/xss-attack
 const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND === 'true'
 const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/routes')
+
+
 
 if (IS_ENABLE_DD_TRACE) {
     require('dd-trace').init({
@@ -67,7 +70,7 @@ registerSchemas(keystone, [
     require('@condo/domains/meter/schema'),
     require('@condo/domains/subscription/schema'),
     require('@condo/domains/acquiring/schema'),
-])
+], [accessControl])
 
 registerTasks([
     require('@condo/domains/notification/tasks'),
