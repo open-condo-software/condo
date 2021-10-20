@@ -8,7 +8,6 @@ const { Json } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingIntegration')
-const { DEFAULT_CURRENCY_CODE } = require('@condo/domains/common/constants/currencies')
 const { CURRENCY_CODE_FIELD } = require('@condo/domains/common/schema/fields')
 const { validateDataFormat } = require('../utils/validation.utils')
 const {
@@ -93,7 +92,6 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
             ...CURRENCY_CODE_FIELD,
             schemaDoc: 'Currency which this billing uses',
             isRequired: true,
-            defaultValue: DEFAULT_CURRENCY_CODE,
         },
 
         // settings data structure config (settings field for BillingIntegrationOrganizationContext)

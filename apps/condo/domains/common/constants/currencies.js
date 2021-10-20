@@ -180,9 +180,6 @@ const ISO_CODES = [
     'ZWL',
 ]
 
-const DEFAULT_CURRENCY_CODE = 'RUB'
-
 module.exports = {
     ISO_CODES,
-    DEFAULT_CURRENCY_CODE,
 }
