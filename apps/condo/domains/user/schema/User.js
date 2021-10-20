@@ -157,7 +157,7 @@ const User = new GQLListSchema('User', {
             kmigratorOptions: { null: true, unique: false },
         },
         permissions: {
-            schemaDoc: 'User permission. Currently applied only for service users. Example: see in docs/user-permissions.md',
+            schemaDoc: 'User permissions. Currently applied only for service users. Example: see in docs/user-permissions.md',
             type: Json,
         },
 

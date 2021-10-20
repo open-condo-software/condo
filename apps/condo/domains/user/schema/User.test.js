@@ -8,11 +8,13 @@ const { getRandomString, makeLoggedInAdminClient, makeClient } = require('@core/
 
 const { User, UserAdmin, createTestUser, updateTestUser, makeClientWithNewRegisteredAndLoggedInUser, makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObjects,  expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj, expectToThrowForbiddenErrorToResult } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObjects,  expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj, expectToThrowForbiddenErrorToResult, expectToThrowAuthenticationError } = require('@condo/domains/common/utils/testSchema')
 const { throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 const { GET_MY_USERINFO, SIGNIN_MUTATION } = require('@condo/domains/user/gql')
 const { DEFAULT_TEST_USER_IDENTITY, DEFAULT_TEST_USER_SECRET } = require('@core/keystone/test.utils')
 const { WRONG_PASSWORD_ERROR, EMPTY_PASSWORD_ERROR } = require('@condo/domains/user/constants/errors')
+const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+const { generateGqlQueries } = require('@condo/domains/common/utils/codegeneration/generate.gql')
 
 describe('SIGNIN', () => {
     test('anonymous: SIGNIN_MUTATION', async () => {
@@ -199,53 +201,111 @@ describe('User fields', () => {
         await expect(checkAuthByUpperCaseEmail).rejects.toThrow(WRONG_EMAIL_ERROR)
     })
 })
-describe('Service User permissions', ()=>{
-    test('User with permission can perform allowed operations', async () => {
-        const admin = await makeLoggedInAdminClient()
-        await createTestOrganization(admin)
-        const client = await makeClientWithNewRegisteredAndLoggedInUser()
-        await updateTestUser(admin, client.user.id, {
-            permissions: {
-                canReadOrganizations: true,
-            },
+describe('Service User permissions', () => {
+    describe('List operations', ()=> {
+        test('User with permission can perform allowed list operations', async () => {
+            const admin = await makeLoggedInAdminClient()
+            await createTestOrganization(admin)
+
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            await updateTestUser(admin, client.user.id, {
+                permissions: {
+                    canReadOrganizations: true,
+                },
+            })
+
+            const query = generateGqlQueries('Organization', '{ _label_ id meta }').GET_ALL_OBJS_QUERY
+            const { data: { objs: organizationsSeenByAdmin } } = await admin.query(query)
+            const { data: { objs: organizationsSeenByUser } }  = await client.query(query)
+            expect(organizationsSeenByUser).toHaveLength(organizationsSeenByAdmin.length)
         })
-        const query = gql`query getList($where: OrganizationWhereInput, $sortBy: [SortOrganizationsBy!]) {
-            allOrganizations(where: $where, sortBy: $sortBy) {
-              _label_
-              id
-              createdBy {
-                id
-                phone
-              }
-              meta 
-            }
-          }`
-        const organizationsSeenByAdmin = await admin.query(query)
-        const organizationsSeenByUser = await client.query(query)
-        expect(organizationsSeenByUser).toHaveLength(organizationsSeenByAdmin.length)
+        test('User with permission can perform allowed nested list operations', async () => {
+            const admin = await makeLoggedInAdminClient()
+            await createTestOrganization(admin)
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            await updateTestUser(admin, client.user.id, {
+                permissions: {
+                    canReadOrganizations: true,
+                    canReadUsers: true,
+                },
+            })
+
+            const query = generateGqlQueries('Organization', '{ createdBy { name } }').GET_ALL_OBJS_QUERY
+            const { data: { objs: organizationsSeenByUser } }  = await client.query(query)
+            expect(organizationsSeenByUser[0].createdBy.name).not.toBeUndefined()
+        })
+        test('User with permission cannot perform inner access-frobidden nested list operations', async () => {
+            const admin = await makeLoggedInAdminClient()
+            await createTestOrganization(admin)
+
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            await updateTestUser(admin, client.user.id, {
+                permissions: {
+                    canReadOrganizations: true,
+                    canReadUsers: true,
+                },
+            })
+
+            const query = generateGqlQueries('Organization', '{ createdBy { phone } }').GET_ALL_OBJS_QUERY
+            const { data, errors } = await client.query(query, {
+                first: 1,
+            })
+            expect(errors[0]).toMatchObject({
+                'message': 'You do not have access to this resource',
+                'name': 'AccessDeniedError',
+                'path': ['objs', 0, 'createdBy', 'phone'],
+            })
+        })
+    
+        test('User with permission cannot perform forbidden list operations', async ()=> {
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            const admin = await makeLoggedInAdminClient()
+            await updateTestUser(admin, client.user.id, {
+                permissions: {
+                    canReadOrganizations: false,
+                },
+            })
+            const query = generateGqlQueries('Organization', '{ _label_ id meta }').GET_ALL_OBJS_QUERY
+            await expectToThrowForbiddenErrorToResult(async () => {
+                const { data, errors } = await client.query(query)
+                throwIfError(data, errors)
+            })
+        })
     })
-    test('User with permission cant perform forbidden operations', async ()=> {
-        const client = await makeClientWithNewRegisteredAndLoggedInUser()
-        const admin = await makeLoggedInAdminClient()
-        await updateTestUser(admin, client.user.id, {
-            permissions: {
-                canReadOrganizations: false,
-            },
+
+    describe('Service operations', () => {
+        test('User with permission can perform allowed service operations', async () => {
+            const admin = await makeLoggedInAdminClient()
+            await createTestOrganization(admin)
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            await updateTestUser(admin, client.user.id, {
+                permissions: {
+                    canRegisterneworganization: true,
+                    canReadOrganizations: true,
+                    canReadUsers: true,
+                    canReadOrganizationLinks: true,
+                },
+            })
+            await registerNewOrganization(client)
         })
-        const query = gql`query getList($where: OrganizationWhereInput, $sortBy: [SortOrganizationsBy!]) {
-            allOrganizations(where: $where, sortBy: $sortBy) {
-              _label_
-              id
-              createdBy {
-                id
-                phone
-              }
-              meta 
-            }
-          }`
-        await expectToThrowForbiddenErrorToResult(async () => {
-            const { data, errors } = await client.query(query)
-            throwIfError(data, errors)
+        
+        test('User with permission cannot perform forbidden service operations', async ()=> {
+            const admin = await makeLoggedInAdminClient()
+            await createTestOrganization(admin)
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            await updateTestUser(admin, client.user.id, {
+                permissions: {
+                    canRegisterneworganization: false,
+                },
+            })
+            const REGISTER_NEW_ORGANIZATION_MUTATION = gql`
+                mutation registerNewOrganization($data: RegisterNewOrganizationInput!) {
+                    obj: registerNewOrganization(data: $data) {name}
+                }`
+            await expectToThrowForbiddenErrorToResult(async () => {
+                const { data, errors } = await registerNewOrganization(client, {}, { raw: true }, REGISTER_NEW_ORGANIZATION_MUTATION)
+                throwIfError(data, errors)
+            })
         })
-    })
+    })  
 })

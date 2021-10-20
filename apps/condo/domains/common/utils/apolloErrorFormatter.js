@@ -25,7 +25,7 @@
 const {
     isInstance: isKeystoneErrorInstance,
 } = require('apollo-errors')
-const { ApolloError, AuthenticationError } = require('apollo-server-errors')
+const { ApolloError, AuthenticationError, ForbiddenError } = require('apollo-server-errors')
 const { GraphQLError, printError } = require('graphql')
 
 const ensureError = require('ensure-error')
@@ -152,10 +152,14 @@ const formatError = error => {
 function throwAuthenticationError () {
     throw new AuthenticationError('No or incorrect authentication credentials')
 }
+function throwForbiddenError () {
+    throw new ForbiddenError('You are not allowed to perform this operation')
+}
 
 module.exports = {
     safeFormatError,
     toGraphQLFormat,
     formatError,
     throwAuthenticationError,
+    throwForbiddenError,
 }

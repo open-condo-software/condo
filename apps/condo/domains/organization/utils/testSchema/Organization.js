@@ -23,7 +23,7 @@ async function createOrganizationEmployee (client, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function registerNewOrganization (client, extraAttrs = {}, { raw = false } = {}) {
+async function registerNewOrganization (client, extraAttrs = {}, { raw = false } = {}, mutation = REGISTER_NEW_ORGANIZATION_MUTATION) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const country = 'ru'
@@ -42,7 +42,7 @@ async function registerNewOrganization (client, extraAttrs = {}, { raw = false }
         ...extraAttrs,
     }
 
-    const { data, errors } = await client.mutate(REGISTER_NEW_ORGANIZATION_MUTATION, {
+    const { data, errors } = await client.mutate(mutation, {
         data: { ...attrs },
     })
     if (raw) return { data, errors }
