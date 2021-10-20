@@ -41,7 +41,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     return useMemo(() => {
         let search = get(filters, 'search')
         search = Array.isArray(search) ? null : search
-    
+
         const renderStatus = (status, record) => {
             const { primary: color, secondary: backgroundColor } = status.colors
 
@@ -165,9 +165,9 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
             {
                 title: AddressMessage,
                 ellipsis: false,
-                sortOrder: get(sorterMap, 'property'),
-                filteredValue: getFilteredValue(filters, 'property'),
-                key: 'property',
+                sortOrder: get(sorterMap, 'address'),
+                filteredValue: getFilteredValue(filters, 'address'),
+                key: 'address',
                 sorter: true,
                 width: '12%',
                 render: renderAddress,
