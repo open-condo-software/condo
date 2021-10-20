@@ -28,8 +28,8 @@ function accessControl (schemaType, name, schema){
     }
     else if (schemaType === 'GQLCustomSchema' && schema.mutations){
         schema.mutations.forEach(mutation => {
-            const gqlMutationSchemaName = gql('type A { ' + mutation.schema + ' }')
-            const mutationName = gqlMutationSchemaName.definitions[0].fields[0].name.value
+            const gqlMutationSchema = gql('type A { ' + mutation.schema + ' }')
+            const mutationName = gqlMutationSchema.definitions[0].fields[0].name.value
             const permissionName = `can${capitalize(mutationName)}`
             if (!isNull(mutation.access) && !isUndefined(mutation.access)) {
                 const originalAccess = mutation.access
