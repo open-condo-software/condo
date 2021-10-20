@@ -4,6 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
+const get = require('lodash/get')
 const {makeClientWithProperty} = require("@condo/domains/property/utils/testSchema");
 const {createTestProperty} = require("@condo/domains/property/utils/testSchema");
 const { DEFAULT_ENGLISH_COUNTRY, RUSSIA_COUNTRY } = require ('@condo/domains/common/constants/countries');
@@ -24,21 +25,35 @@ const OrganizationLink = generateGQLTestUtils(OrganizationLinkGQL)
 const TokenSet = generateGQLTestUtils(TokenSetGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-async function createTestOrganization (client, extraAttrs = {}) {
+async function readOrganization (client, id) {
+    if (!id) throw new Error ('no id')
+
+    return await Organization.getAll(client, { id })
+}
+
+/**
+ * Creates test organization prefilled with faker data, hydrated with extraAttrs and extraMeta, if provided
+ * @param client
+ * @param extraAttrs
+ * @param extraMeta {inn?: string, country?: string}
+ * @returns {Promise<({data: *, errors: *}|*|{country: (*|string), dv: number, sender: {dv: number, fingerprint: *}, meta: {zipCode: *, number: *, country: (*|string), dv: number, city, street: *, inn: (*), kpp: *}, name: *, description: *})[]>}
+ */
+async function createTestOrganization (client, extraAttrs = {}, extraMeta = {}) {
     if (!client) throw new Error ('no client')
+
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric (8) }
-    const country = DEFAULT_ENGLISH_COUNTRY
+    const country = get(extraMeta, 'country') || DEFAULT_ENGLISH_COUNTRY
     const name = faker.company.companyName ()
     const description = faker.company.catchPhrase ()
     const meta = {
         dv: 1,
-        inn: faker.random.alphaNumeric(10),
+        inn: get(extraMeta, 'inn') || faker.random.alphaNumeric(10),
         kpp: faker.random.alphaNumeric(9),
         city: faker.address.city(),
         zipCode: faker.address.zipCode(),
         street: faker.address.streetName(),
         number: faker.address.secondaryAddress(),
-        country: faker.address.country(),
+        country: country,
     }
 
     const attrs = {
@@ -51,16 +66,17 @@ async function createTestOrganization (client, extraAttrs = {}) {
         ...extraAttrs,
     }
     const obj = await Organization.create(client, attrs)
+
     return [obj, attrs]
 }
 
-async function updateTestOrganization (client, id, extraAttrs = {}) {
+async function updateTestOrganization (client, id, extraAttrs = {}, extraMeta = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const meta = {
-        inn: faker.random.alphaNumeric(10),
+        inn: get(extraMeta, 'inn') || faker.random.alphaNumeric(10),
         kpp: faker.random.alphaNumeric(9),
         city: faker.address.city(),
         zipCode: faker.address.zipCode(),
@@ -280,6 +296,7 @@ module.exports = {
     OrganizationLink, createTestOrganizationLink, updateTestOrganizationLink,
     makeEmployeeUserClientWithAbilities,
     TokenSet, createTestTokenSet, updateTestTokenSet,
+    readOrganization,
 }
 
 

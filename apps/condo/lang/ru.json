@@ -473,6 +473,7 @@
   "pages.organizations.OrganizationName": "Название",
   "pages.organizations.Inn": "ИНН",
   "pages.organizations.inn.TooShortMessage": "ИНН содержит 10 символов",
+  "pages.organizations.inn.InvalidValue": "некорректное значение ИНН",
   "pages.organizations.PageTitle": "Организации",
   "pages.users.InviteNewUserButtonLabel": "Пригласить новго пользователя",
   "pages.users.InviteMessageTitle": "Вас пригласили в организацию «{name}»",
