@@ -18,7 +18,6 @@ import qs from 'qs'
 import { useIntl } from '@core/next/intl'
 import { CloseOutlined } from '@ant-design/icons'
 import { ComponentType, FilterComponentInfo, FiltersMeta, getQueryToValueProcessorByType } from '../utils/filters.utils'
-import { ChipsInput } from '../components/ChipsInput'
 
 enum FilterComponentSize {
     Medium = 12,
@@ -110,7 +109,11 @@ export const getModalFilterComponentByMeta = (filters, name, component: FilterCo
             />
         }
         case ComponentType.ChipsInput: {
-            return <ChipsInput
+            return <Select
+                mode="tags"
+                allowClear
+                style={{ width: '100%' }}
+                dropdownStyle={{ display: 'none' }}
                 {...props}
             />
         }

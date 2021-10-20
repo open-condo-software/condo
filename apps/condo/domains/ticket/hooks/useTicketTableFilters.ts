@@ -62,9 +62,9 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
     // Division filter ??? maybe in
 
     // chips filters
-    const sectionFilter = getStringContainsFilter('sectionName')
-    const floorFilter = getStringContainsFilter('floorName')
-    const unitFilter = getStringContainsFilter('unitName')
+    const sectionFilter = getFilter('sectionName', 'array', 'string', 'in')
+    const floorFilter = getFilter('floorName', 'array', 'string', 'in')
+    const unitFilter = getFilter('unitName', 'array', 'string', 'in')
 
     // classifier filters
     const placeClassifierFilter = getFilter(['placeClassifier', 'id'], 'array', 'string', 'in')
@@ -165,7 +165,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                 keyword: 'floorName',
                 filters: [floorFilter],
                 component: {
-                    type: ComponentType.Input,
+                    type: ComponentType.ChipsInput,
                     modalFilterComponentWrapper: {
                         label: FloorMessage,
                         size: FilterComponentSize.Medium,
@@ -176,7 +176,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                 keyword: 'unitName',
                 filters: [unitFilter],
                 component: {
-                    type: ComponentType.Input,
+                    type: ComponentType.ChipsInput,
                     modalFilterComponentWrapper: {
                         label: UnitMessage,
                         size: FilterComponentSize.Medium,

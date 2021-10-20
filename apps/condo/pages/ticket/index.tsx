@@ -132,8 +132,6 @@ export const TicketsPageContent = ({
         fetchPolicy: 'network-only',
     })
 
-    console.log('tickets', tickets)
-
     const handleRowAction = useCallback((record) => {
         return {
             onClick: () => {

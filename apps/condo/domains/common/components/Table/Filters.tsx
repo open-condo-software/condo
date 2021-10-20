@@ -68,7 +68,7 @@ export const getOptionFilterDropdown = (options: Array<OptionType>, loading: boo
     }
 }
 
-export const getSelectFilterDropdown = (options: Array<OptionType>, loading: boolean, mode?: 'multiple' | 'tags', containerStyles?: CSSProperties) => {
+export const getSelectFilterDropdown = (selectProps, containerStyles?: CSSProperties) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         return (
             <SelectFilterContainer
@@ -77,9 +77,6 @@ export const getSelectFilterDropdown = (options: Array<OptionType>, loading: boo
                 style={containerStyles}
             >
                 <Select
-                    disabled={loading}
-                    mode={mode}
-                    options={options}
                     showArrow
                     style={{ display: 'flex', flexDirection: 'column', width: '200px' }}
                     value={selectedKeys}
@@ -90,6 +87,7 @@ export const getSelectFilterDropdown = (options: Array<OptionType>, loading: boo
                     filterOption={(input, option: { value: string, label: string }) =>
                         option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                     }
+                    {...selectProps}
                 />
             </SelectFilterContainer>
         )
