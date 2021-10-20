@@ -45,12 +45,14 @@ async function createTestBillingIntegration (client, extraAttrs = {}) {
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const name = faker.company.companyName().replace(/ /, '-').toUpperCase() + ' TEST INTEGRATION'
     const detailsTitle = faker.animal.dog() + ' TEST INTEGRATION'
+    const currencyCode = 'RUB'
 
     const attrs = {
         dv: 1,
         sender,
         name,
         detailsTitle,
+        currencyCode,
         ...extraAttrs,
     }
     const obj = await BillingIntegration.create(client, attrs)
