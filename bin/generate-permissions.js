@@ -1,6 +1,6 @@
 const fs = require('fs')
 const path = require('path')
-const { capitalize } = require('lodash')
+const { upperFirst } = require('lodash')
 const { GQLListSchema, GQLCustomSchema } = require('../packages/@core.keystone/schema')
 const gql = require('graphql-tag')
 
@@ -18,7 +18,7 @@ domains.forEach(domainName => {
             if (service instanceof GQLListSchema) {
                 if (!service.schema.access) return
                 Object.getOwnPropertyNames(service.schema.access).forEach(crudOperation => {
-                    const permissionName = `can${capitalize(crudOperation)}${service.name}s`
+                    const permissionName = `can${upperFirst(crudOperation)}${service.name}s`
                     permissions.push(permissionName)
                 })
             }
@@ -27,7 +27,7 @@ domains.forEach(domainName => {
                 service.schema.mutations.forEach(mutation => {
                     const gqlMutationSchemaName = gql('type A { ' + mutation.schema + ' }')
                     const mutationName = gqlMutationSchemaName.definitions[0].fields[0].name.value
-                    const permissionName = `can${capitalize(mutationName)}`
+                    const permissionName = `can${upperFirst(mutationName)}`
                     permissions.push(permissionName)
                 })
             }

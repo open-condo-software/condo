@@ -280,7 +280,7 @@ describe('Service User permissions', () => {
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
             await updateTestUser(admin, client.user.id, {
                 permissions: {
-                    canRegisterneworganization: true,
+                    canRegisterNewOrganization: true,
                     canReadOrganizations: true,
                     canReadUsers: true,
                     canReadOrganizationLinks: true,
@@ -295,7 +295,7 @@ describe('Service User permissions', () => {
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
             await updateTestUser(admin, client.user.id, {
                 permissions: {
-                    canRegisterneworganization: false,
+                    canRegisterNewOrganization: false,
                 },
             })
             const REGISTER_NEW_ORGANIZATION_MUTATION = gql`
