@@ -471,7 +471,7 @@
   "pages.organizations.CreateOrganizationModalTitle": "New organization form",
   "pages.organizations.EditOrganizationModalTitle": "Edit organization form",
   "pages.organizations.OrganizationName": "Name",
-  "pages.organizations.Tin": "TIN",
+  "pages.organizations.tin": "TIN",
   "pages.organizations.tin.TooShortMessage": "TIN field is too short",
   "pages.organizations.tin.InvalidValue": "TIN field value is not valid",
   "pages.organizations.PageTitle": "Organizations",

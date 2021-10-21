@@ -471,7 +471,7 @@
   "pages.organizations.CreateOrganizationModalTitle": "Форма создания новой организации",
   "pages.organizations.EditOrganizationModalTitle": "Форма редактирования организации",
   "pages.organizations.OrganizationName": "Название",
-  "pages.organizations.Tin": "ИНН",
+  "pages.organizations.tin": "ИНН",
   "pages.organizations.tin.TooShortMessage": "ИНН содержит 10 символов",
   "pages.organizations.tin.InvalidValue": "некорректное значение ИНН",
   "pages.organizations.PageTitle": "Организации",
