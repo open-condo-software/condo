@@ -262,15 +262,6 @@ const TicketsPage: ITicketIndexPage = () => {
 
     const searchTicketsQuery = { ...filtersToWhere(filters), organization: { id: userOrganizationId } }
 
-    //
-    // const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
-    // const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
-    // const sortBy = sortFromQuery.length > 0  ? sortFromQuery : 'createdAt_DESC' //TODO(Dimitreee):Find cleanest solution
-    // const [filtersApplied, setFiltersApplied] = useState(false)
-    //
-    // const tableColumns = useTableColumns(sortFromQuery, filtersFromQuery, setFiltersApplied)
-    // const searchTicketsQuery = { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } }
-
     return (
         <TicketsPageContent
             tableColumns={tableColumns}

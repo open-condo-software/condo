@@ -19,7 +19,7 @@ export const useEmergencySearch = <F>(loading): [boolean, (e: CheckboxChangeEven
     }, [searchValue])
 
     const searchChange = useCallback(debounce((e) => {
-        const queryAttributes = e ? [...attributes, e && 'isEmergency'] : [...attributes]
+        const queryAttributes = e ? [...attributes, e && 'isEmergency'] : attributes.filter(attr => attr !== 'isEmergency')
 
         const query = qs.stringify(
             { ...router.query, filters: JSON.stringify(pickBy({ ...filtersFromQuery, attributes: queryAttributes })) },

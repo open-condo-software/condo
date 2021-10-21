@@ -152,6 +152,36 @@ export const getFilter: (
     }
 }
 
+type MultipleDataIndexType = DataIndexType[]
+
+export const getTicketAttributesFilter: (
+    dataIndices: MultipleDataIndexType,
+) => FilterType = (
+    dataIndices
+) => {
+    return function getWhereQuery (search) {
+        if (!search || search.length === 0) return
+        if (dataIndices.length === 1) return
+
+        let args
+        if (!Array.isArray(search)) {
+            args = [search]
+        } else {
+            args = search
+        }
+
+        return {
+            OR: dataIndices.map(wrappedDataIndex => {
+                if (!args.find(arg => arg === wrappedDataIndex) || typeof wrappedDataIndex !== 'string') return
+
+                return {
+                    [wrappedDataIndex]: true,
+                }
+            }).filter(Boolean),
+        }
+    }
+}
+
 export const getDecimalFilter: (dataIndex: DataIndexType) => FilterType = (dataIndex) => {
     return getFilter(dataIndex, 'single', 'string', 'in')
 }
