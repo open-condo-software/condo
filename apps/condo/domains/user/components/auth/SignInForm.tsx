@@ -11,6 +11,8 @@ import { WRONG_PASSWORD_ERROR, WRONG_PHONE_ERROR } from '@condo/domains/user/con
 import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } from '@condo/domains/user/gql'
 import { useMutation } from '@core/next/apollo'
 import { useAuth } from '@core/next/auth'
+import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
+import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
 
 const FORM_LAYOUT = {
     labelCol: { span: 10 },
@@ -26,6 +28,7 @@ export const SignInForm = (): React.ReactElement => {
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
     const ResetMsg = intl.formatMessage({ id: 'pages.auth.signin.ResetPasswordLinkTitle' })
     const PasswordOrPhoneMismatch = intl.formatMessage({ id: 'pages.auth.WrongPhoneOrPassword' })
+    const LoginBySbbolMessage = intl.formatMessage({ id: 'LoginBySBBOL' })
 
     const [form] = Form.useForm()
     const { next } = getQueryParams()
@@ -105,7 +108,7 @@ export const SignInForm = (): React.ReactElement => {
                     </Row>
                 </Col>
                 <Col span={24}>
-                    <Row justify={'space-between'} align={'middle'} gutter={[0, 40]}>
+                    <Row justify={'start'} align={'middle'} gutter={[0, 40]}>
                         <Col lg={7} xs={24}>
                             <Button
                                 key='submit'
@@ -115,6 +118,16 @@ export const SignInForm = (): React.ReactElement => {
                                 block
                             >
                                 {SignInMsg}
+                            </Button>
+                        </Col>
+                        <Col offset={3} lg={7} xs={24}>
+                            <Button
+                                key='submit'
+                                type='sberAction'
+                                icon={<SberIconWithoutLabel/>}
+                                href={hasFeature('sbbol_auth') ? '/api/sbbol/auth' : ''}
+                            >
+                                {LoginBySbbolMessage}
                             </Button>
                         </Col>
                         <Col lg={14} xs={24}>
