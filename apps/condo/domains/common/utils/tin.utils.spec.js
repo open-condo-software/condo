@@ -8,7 +8,7 @@ const INVALID_RU_INN_10 = '01234556789'
 const INVALID_RU_INN_12 = '0123455678901'
 const SOME_RANDOM_LETTERS = 'ABCDEFGHIJ'
 
-describe('isInnValid()', () => {
+describe('isValidTin()', () => {
     test('for valid 10 char RU INN ', () => {
         expect(isValidTin(VALID_RU_INN_10, RUSSIA_COUNTRY)).toBe(true)
     })
