@@ -109,7 +109,7 @@ const ADVANCE_ACCEPTABLE_BUNDLE_QUERY_LIST = 'code name sinceDate untilDate curr
 
 const ADVANCE_ACCEPTABLE_QUERY_LIST = `active payerAccount payerBankBic payerBankCorrAccount payerInn payerName payerOrgIdHash purpose sinceDate untilDate bundles { ${ADVANCE_ACCEPTABLE_BUNDLE_QUERY_LIST} }`
 
-const SBBOL_OFFER_ACCEPT_FIELD_QUERY_LIST = `dv data { ${ADVANCE_ACCEPTABLE_QUERY_LIST} }`
+const SBBOL_OFFER_ACCEPT_FIELD_QUERY_LIST = `dv ${ADVANCE_ACCEPTABLE_QUERY_LIST}`
 
 module.exports = {
     SBBOL_OFFER_ACCEPT_GRAPHQL_TYPES,

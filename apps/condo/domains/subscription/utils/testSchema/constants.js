@@ -5,34 +5,30 @@ const currentState = 'ACTIVE'
 
 const rightSbbolOfferAccept = {
     'dv': 1,
-    'data': {
-        'active': false,
-        'bundles': [{
-            'code': randomAlphaNumeric,
-            'name': randomAlphaNumeric,
-            'sinceDate': randomAlphaNumeric,
-            'untilDate': randomAlphaNumeric,
-            'currentState': currentState,
-        }],
-        'payerAccount': randomAlphaNumeric,
-        'payerBankBic': randomAlphaNumeric,
-        'payerBankCorrAccount': randomAlphaNumeric,
-        'payerInn': randomAlphaNumeric,
-        'payerName': randomAlphaNumeric,
-        'payerOrgIdHash': randomAlphaNumeric,
-        'purpose': randomAlphaNumeric,
+    'active': false,
+    'bundles': [{
+        'code': randomAlphaNumeric,
+        'name': randomAlphaNumeric,
         'sinceDate': randomAlphaNumeric,
         'untilDate': randomAlphaNumeric,
-    },
+        'currentState': currentState,
+    }],
+    'payerAccount': randomAlphaNumeric,
+    'payerBankBic': randomAlphaNumeric,
+    'payerBankCorrAccount': randomAlphaNumeric,
+    'payerInn': randomAlphaNumeric,
+    'payerName': randomAlphaNumeric,
+    'payerOrgIdHash': randomAlphaNumeric,
+    'purpose': randomAlphaNumeric,
+    'sinceDate': randomAlphaNumeric,
+    'untilDate': randomAlphaNumeric,
 }
 
 const wrongSbbolOfferAccept = {
     'dv': 1,
-    'data': {
-        'bundles': [{
-            'currentState': faker.random.alphaNumeric(10),
-        }],
-    },
+    'bundles': [{
+        'currentState': faker.random.alphaNumeric(10),
+    }],
 }
 
 module.exports = {
