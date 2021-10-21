@@ -38,12 +38,15 @@ const useServiceSubscriptionLoader = (): ISubscriptionContext => {
         fetchPolicy: 'network-only',
     })
     const subscription = objs[0]
+
     if (!subscription) {
         return {}
     }
+
     const daysLeftDuration = dayjs.duration(dayjs(subscription.finishAt).diff(dayjs()))
     const daysLeft = Math.ceil(daysLeftDuration.asDays())
     const daysLeftHumanized = daysLeftDuration.humanize()
+
     return {
         subscription,
         daysLeft,
@@ -93,14 +96,17 @@ interface ISubscriptionProviderProps {
 const SubscriptionContextProvider: React.FC<ISubscriptionProviderProps> = ({ children }) => {
     const { subscription, isExpired, daysLeft, daysLeftHumanized } = useServiceSubscriptionLoader()
     const { route } = useRouter()
+
     useEffect(() => {
         if (isExpired && route !== '/settings') {
             Router.push('/settings')
         }
-    }, [route, isExpired])
+    }, [route, isExpired, subscription])
+
     if (!subscription) {
         return children
     }
+
     return (
         <SubscriptionContext.Provider value={{ subscription, isExpired, daysLeft, daysLeftHumanized }}>
             {isExpired && (
@@ -113,11 +119,14 @@ const SubscriptionContextProvider: React.FC<ISubscriptionProviderProps> = ({ chi
 
 export const SubscriptionProvider: React.FC<ISubscriptionProviderProps> = ({ children }) => {
     const hasSubscriptionFeature = hasFeature('subscription')
-    return hasSubscriptionFeature ? (
-        <SubscriptionContextProvider>
-            {children}
-        </SubscriptionContextProvider>
-    ) : (
-        children
-    )
+
+    if (hasSubscriptionFeature) {
+        return (
+            <SubscriptionContextProvider>
+                {children}
+            </SubscriptionContextProvider>
+        )
+    }
+
+    return children
 }
