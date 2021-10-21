@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 import { useRouter } from 'next/router'
 import qs from 'qs'
@@ -8,14 +8,21 @@ import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 export const useEmergencySearch = <F>(loading): [boolean, (e: CheckboxChangeEvent) => void] => {
     const router = useRouter()
     const filtersFromQuery = getFiltersFromQuery<F>(router.query)
-    const searchValue = get(filtersFromQuery, 'isEmergency') === 'true'
+
+    const attributes = get(filtersFromQuery, 'attributes', [])
+    const searchValue = !!attributes.find(atr => atr === 'isEmergency')
+
     const [isEmergency, setIsEmergency] = useState(searchValue)
 
+    useEffect(() => {
+        setIsEmergency(searchValue)
+    }, [searchValue])
+
     const searchChange = useCallback(debounce((e) => {
-        const isEmergency = e ? `${e}` : null
+        const queryAttributes = e ? [...attributes, e && 'isEmergency'] : [...attributes]
 
         const query = qs.stringify(
-            { ...router.query, filters: JSON.stringify(pickBy({ ...filtersFromQuery, isEmergency })) },
+            { ...router.query, filters: JSON.stringify(pickBy({ ...filtersFromQuery, attributes: queryAttributes })) },
             { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
         )
 

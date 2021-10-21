@@ -3,7 +3,7 @@ import dayjs, { Dayjs } from 'dayjs'
 import { FormItemProps } from 'antd/es'
 import React, { CSSProperties } from 'react'
 import { ISearchInputProps } from '../components/GraphQlSearchInput'
-import { DatePickerProps, InputProps, SelectProps } from 'antd'
+import { CheckboxProps, DatePickerProps, InputProps, SelectProps } from 'antd'
 import { CheckboxGroupProps } from 'antd/es/checkbox'
 import { RangePickerSharedProps } from 'rc-picker/lib/RangePicker'
 import { get } from 'lodash'
@@ -22,6 +22,7 @@ export enum FilterComponentSize {
 export enum ComponentType {
     Input,
     CheckboxGroup,
+    Checkbox,
     Select,
     GQLSelect,
     ChipsInput,
@@ -50,6 +51,10 @@ export type FilterComponentInfo = CommonFilterComponentInfo & ({
     options: { value: string, label: string }[]
     loading?: boolean
     props?: CheckboxGroupProps
+} | {
+    type: ComponentType.Checkbox
+    label: string
+    props?: CheckboxProps
 } | {
     type: ComponentType.Select
     options: { value: string, label: string }[]
