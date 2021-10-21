@@ -83,13 +83,6 @@ export const getModalFilterComponentByMeta = (filters, name, component: FilterCo
             return <Checkbox.Group options={options} {...props} />
         }
 
-        case ComponentType.Checkbox: {
-            const label = get(component, 'label')
-            return <Checkbox {...props}>
-                {label}
-            </Checkbox>
-        }
-
         case ComponentType.DateRange: {
             return <DateRangePicker
                 format='DD.MM.YYYY'

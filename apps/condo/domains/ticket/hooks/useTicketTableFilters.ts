@@ -4,7 +4,7 @@ import { MeterReadingWhereInput } from '@app/condo/schema'
 import {
     getBooleanFilter,
     getDayRangeFilter,
-    getFilter,
+    getFilter, getTicketAttributesFilter,
     getNumberFilter,
     getStringContainsFilter,
 } from '@condo/domains/common/utils/tables.utils'
@@ -55,8 +55,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
     const executorNameFilter = getStringContainsFilter(['executor', 'name'])
     const assigneeNameFilter = getStringContainsFilter(['assignee', 'name'])
 
-    const isEmergencyFilter = getBooleanFilter('isEmergency')
-    const isPaidFilter = getBooleanFilter('isPaid')
+    const attributeFilter = getTicketAttributesFilter(['isEmergency', 'isPaid'])
 
     // filters which display only in modal
     const sourceFilter = getFilter(['source', 'id'], 'array', 'string', 'in')
@@ -161,6 +160,8 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                 keyword: 'division',
                 filters: [propertyFilter],
                 queryToWhereProcessor: (queryDivisions) => {
+                    // Определяем участок в браузерной строке как "propertyId1, propertyId2" ->
+                    // в GQLWhere нам нужен ["propertyId1", "propertyId2"], поэтому процессим
                     return queryDivisions?.map(queryDivision => queryDivision.split(',')).flat(1)
                 },
                 component: {
@@ -341,34 +342,9 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                     },
                 },
             },
-            // {
-            //     keyword: 'isPaid',
-            //     filters: [isPaidFilter],
-            //     component: {
-            //         type: ComponentType.Checkbox,
-            //         label: PaidMessage,
-            //         props: {
-            //             value: 'isPaid',
-            //         },
-            //         modalFilterComponentWrapper: {
-            //             size: FilterComponentSize.Medium,
-            //         },
-            //     },
-            // },
-            // {
-            //     keyword: 'isEmergency',
-            //     filters: [isEmergencyFilter],
-            //     component: {
-            //         type: ComponentType.Checkbox,
-            //         label: EmergencyMessage,
-            //         modalFilterComponentWrapper: {
-            //             size: FilterComponentSize.Medium,
-            //         },
-            //     },
-            // },
             {
                 keyword: 'attributes',
-                filters: [isEmergencyFilter, isPaidFilter],
+                filters: [attributeFilter],
                 component: {
                     type: ComponentType.Select,
                     options: [{ label: PaidMessage, value: 'isPaid' }, { label: EmergencyMessage, value: 'isEmergency' }],

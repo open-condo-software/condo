@@ -85,6 +85,7 @@ const useTicketClassifierSelectHook = ({
                     ref={classifiersRef}
                     value={selectedRef.current}
                     showAction={['focus', 'click']}
+                    mode={'multiple'}
                 >
                     {
                         optionsRef.current.map(classifier => (
@@ -237,7 +238,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     }
 
     // Every time user choose some option from select we are trying to find what exact rule is matching for this combination
-    // When  place and category are chosen we set rule with problem=null
+    // When place and category are chosen we set rule with problem=null
     const updateRuleId = async () => {
         const querySelectors = pick(ruleRef.current, ['place', 'category', 'problem'])
         const query = {}
