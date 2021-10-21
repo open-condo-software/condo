@@ -66,7 +66,7 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
             name: 'tin',
             errors: [TinValueIsInvalid],
         },
-    }), [ValueIsTooShortMsg, InnTooShortMsg, InnValueIsInvalid])
+    }), [ValueIsTooShortMsg, TinTooShortMsg, TinValueIsInvalid])
 
     const [isVisible, setIsVisible] = useState<boolean>(false)
     const { selectLink } = useOrganization()
