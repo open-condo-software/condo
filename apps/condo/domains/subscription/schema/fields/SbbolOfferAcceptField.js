@@ -58,61 +58,48 @@ const SBBOL_OFFER_ACCEPT_GRAPHQL_TYPES = `
         ${render(AdvanceAcceptanceBundleField, true)}
     }
     
-    type AdvanceAcceptance {
-        ${render(AdvanceAcceptanceField)}
-    }
-    
-    input AdvanceAcceptanceInput {
-        ${render(AdvanceAcceptanceField, true)}
-    }
-    
     type SbbolOfferAccept {
         dv: Int
-        data: AdvanceAcceptance!
+        ${render(AdvanceAcceptanceField)}
     }
     
     input SbbolOfferAcceptInput {
         dv: Int!
-        data: AdvanceAcceptanceInput!
+        ${render(AdvanceAcceptanceField, true)}
     }
 `
 
 const sbbolOfferAcceptFieldSchema = {
-    properties: {
-        dv: {
-            type: 'integer',
-        },
-        data: {
-            type: 'object',
-            properties: Object.assign({},
-                ...Object.keys(AdvanceAcceptanceField).map((x) => ({ [x]: { type: ['string', 'null'] } })),
-                {
-                    active: {
-                        type: ['boolean', 'null'],
-                    },
-                    bundles: {
-                        type: ['array', 'null'],
-                        items: {
-                            type: 'object',
-                            properties: Object.assign({},
-                                ...Object.keys(AdvanceAcceptanceBundleField).map((x) => ({ [x]: { type: ['string', 'null'] } })),
-                                {
-                                    currentState: {
-                                        type: ['string', 'null'],
-                                        enum: [
-                                            'ACTIVE',
-                                            'NOT_PAID',
-                                            'DEACTIVATED',
-                                        ],
-                                    },
-                                }
-                            ),
-                        },
-                    },
-                }
-            ),
-        },
-    },
+    properties: Object.assign({}, ...Object.keys(AdvanceAcceptanceField).map((x) => ({ [x]: { type: ['string', 'null'] } })),
+        {
+            dv: {
+                type: 'integer',
+            },
+            active: {
+                type: ['boolean', 'null'],
+            },
+            bundles: {
+                type: ['array', 'null'],
+                items: {
+                    type: 'object',
+                    properties: Object.assign({},
+                        ...Object.keys(AdvanceAcceptanceBundleField).map((x) => ({ [x]: { type: ['string', 'null'] } })),
+                        {
+                            currentState: {
+                                type: ['string', 'null'],
+                                enum: [
+                                    'ACTIVE',
+                                    'NOT_PAID',
+                                    'DEACTIVATED',
+                                ],
+                            },
+                        }
+                    ),
+                },
+            },
+        }
+    ),
+
 }
 
 const ajv = new Ajv()
