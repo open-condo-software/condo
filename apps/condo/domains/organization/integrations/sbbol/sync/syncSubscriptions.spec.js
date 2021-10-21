@@ -42,10 +42,6 @@ describe('syncSubscriptions', () => {
     describe('arguments validation', () => {
         it('throws error if "date" argument is not specified', async () => {
             const adminContext = await keystone.createContext({ skipAccessControl: true })
-            const context = {
-                keystone,
-                context: adminContext,
-            }
 
             await catchErrorFrom(async () => {
                 await syncSubscriptions()
