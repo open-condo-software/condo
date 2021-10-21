@@ -661,7 +661,7 @@
   "subscription.data.status": "Статус подписки",
   "subscription.data.accountsCount": "Количество лицевых счетов",
   "subscription.data.value": "Сумма",
-  "subscription.data.createBill": "Выставить счет",
+  "subscription.data.createBill": "Активировать",
   "subscription.alert.subscription.payment.decline.sbbol": "Отменить подписку можно в личном кабинете СББОЛ",
   "subscription.alert.subscription.payment.decline.default": "Отменить подписку можно в личном кабинете СББОЛ",
   "subscription.option.description.clients": "Для клиентов",
