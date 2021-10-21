@@ -6,7 +6,7 @@ const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const { makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
 const { makeOrganizationIntegrationManager } = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { createTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
+const { createTestBillingIntegrationOrganizationContext, createReceiptsReader } = require('@condo/domains/billing/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { BillingProperty, createTestBillingProperty, updateTestBillingProperty } = require('@condo/domains/billing/utils/testSchema')
 const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
@@ -126,6 +126,16 @@ describe('BillingProperty', () => {
 
             const props = await BillingProperty.getAll(managerUserClient, { id: property.id })
             expect(props).toHaveLength(1)
+        })
+
+        test('can be read by employee with `canReadBillingReceipts`', async () => {
+            const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
+            const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
+            await createTestBillingProperty(managerUserClient, context)
+            const client = await createReceiptsReader(organization)
+
+            const properties = await BillingProperty.getAll(client)
+            expect(properties).toHaveLength(1)
         })
     })
 

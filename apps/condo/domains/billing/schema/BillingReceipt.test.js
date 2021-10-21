@@ -446,7 +446,7 @@ describe('BillingReceipt', () => {
             expect(objs).toHaveLength(1)
         })
 
-        test('user with `canReadBillingReceipts` can read', async () => {
+        test('employee with `canReadBillingReceipts` can read', async () => {
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
             const [property] = await createTestBillingProperty(managerUserClient, context)

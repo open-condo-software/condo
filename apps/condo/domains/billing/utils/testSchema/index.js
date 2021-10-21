@@ -494,6 +494,16 @@ async function createOrganizationIntegrationManager() {
     return { organization, integration, managerUserClient }
 }
 
+async function createReceiptsReader(organization) {
+    const admin = await makeLoggedInAdminClient()
+    const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+        canReadBillingReceipts: true,
+    })
+    const client = await makeClientWithNewRegisteredAndLoggedInUser()
+    await createTestOrganizationEmployee(admin, organization, client.user, role)
+    return client
+}
+
 module.exports = {
     BillingIntegration, createTestBillingIntegration, updateTestBillingIntegration,
     BillingIntegrationAccessRight, createTestBillingIntegrationAccessRight, updateTestBillingIntegrationAccessRight,
@@ -510,6 +520,7 @@ module.exports = {
     makeOrganizationIntegrationManager: createOrganizationIntegrationManager,
     BillingOrganization, createTestBillingOrganization, updateTestBillingOrganization,
     ResidentBillingReceipt,
+    createReceiptsReader,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 

@@ -17,8 +17,7 @@ const BillingPage = () => {
 
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], '')
-    const canManageIntegrations = get(userOrganization, ['link', 'role', 'canReadBillingReceipts'], false)
-
+    const canReadBillingReceipts = get(userOrganization, ['link', 'role', 'canReadBillingReceipts'], false)
     const {
         obj: currentContext,
         error: contextError,
@@ -34,7 +33,7 @@ const BillingPage = () => {
     })
 
     const PageTitle = get(currentContext, ['integration', 'billingPageTitle'], BillingTitle)
-
+    console.log(currentContext)
     return (
         <>
             <Head>
@@ -46,7 +45,7 @@ const BillingPage = () => {
                 <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitle}</Typography.Title>}/>
                 <PageContent>
                     <BillingPageContent
-                        access={canManageIntegrations}
+                        access={canReadBillingReceipts}
                         contextLoading={contextLoading}
                         contextError={contextError}
                         context={currentContext}
