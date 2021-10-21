@@ -54,6 +54,7 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
             schemaDoc: 'Total amount of money charged from recipients of multipayment as fee for transaction',
             type: Decimal,
             isRequired: false,
+            access: { read: access.canReadSensitiveData },
         },
 
         // TODO (savelevMatthew): move to MONEY_FIELD later
@@ -101,12 +102,14 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
             schemaDoc: 'Transaction ID of money withdraw',
             type: Text,
             isRequired: false,
+            access: { read: access.canReadSensitiveData },
         },
 
         meta: {
             schemaDoc: 'Additional acquiring-specific information',
             type: Json,
             isRequired: false,
+            access: { read: access.canReadSensitiveData },
         },
 
         status: {
