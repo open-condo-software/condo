@@ -16228,7 +16228,7 @@ export type Organization = {
   country?: Maybe<OrganizationCountryType>;
   /**  Customer-friendly name  */
   name?: Maybe<Scalars['String']>;
-  /**  Organization tin  */
+  /**  Taxpayer identification number. Every country has its own identification. Examples: INN for Russia, IIN for Kazakhstan and so on  */
   tin?: Maybe<Scalars['String']>;
   /**  Customer-friendly description. Friendly text for employee and resident users  */
   description?: Maybe<Scalars['String']>;
