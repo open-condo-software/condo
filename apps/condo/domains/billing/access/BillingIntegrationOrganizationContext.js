@@ -13,7 +13,7 @@ async function canReadBillingIntegrationOrganizationContexts ({ authentication: 
     if (user.isAdmin || user.isSupport) return true
     return {
         OR: [
-            { organization: { employees_some: { user: { id: user.id }, role: { canManageIntegrations: true }, isBlocked: false } } },
+            { organization: { employees_some: { user: { id: user.id }, role: { OR: [{ canReadBillingReceipts: true }, { canManageIntegrations: true }] }, isBlocked: false } } },
             { integration: { accessRights_some: { user: { id: user.id } } } },
         ],
     }
