@@ -117,6 +117,15 @@ export const SignInForm = (): React.ReactElement => {
                                 {SignInMsg}
                             </Button>
                         </Col>
+                        <Col offset={3} lg={7} xs={24}>
+                            <Button
+                                type='sberAction'
+                                icon={<SberIconWithoutLabel/>}
+                                href={hasFeature('sbbol_auth') ? '/api/sbbol/auth' : ''}
+                            >
+                                {LoginBySbbolMessage}
+                            </Button>
+                        </Col>
                         <Col lg={14} xs={24}>
                             <Typography.Text type='secondary'>
                                 <FormattedMessage
