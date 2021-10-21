@@ -84,6 +84,7 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
             schemaDoc: 'It is necessary to save the offer confirmation data that is transmitted in the response of the advance-acceptances method',
             type: Json,
             extendGraphQLTypes: [SBBOL_OFFER_ACCEPT_GRAPHQL_TYPES],
+            graphQLAdminFragment: '{ dv active payerAccount payerBankBic payerBankCorrAccount payerInn payerName payerOrgIdHash purpose sinceDate untilDate bundles }',
             graphQLReturnType: 'SbbolOfferAccept',
             graphQLInputType: 'SbbolOfferAcceptInput',
             hooks: {
