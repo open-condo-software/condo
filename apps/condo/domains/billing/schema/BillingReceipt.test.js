@@ -464,6 +464,26 @@ describe('BillingReceipt', () => {
             expect(objs).toHaveLength(1)
         })
 
+        test('deleted employee with `canReadBillingReceipts` cant read', async () => {
+            const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
+            const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
+            const [property] = await createTestBillingProperty(managerUserClient, context)
+            const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
+            await createTestBillingReceipt(managerUserClient, context, property, billingAccount)
+
+            const admin = await makeLoggedInAdminClient()
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                canReadBillingReceipts: true,
+            })
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            await createTestOrganizationEmployee(admin, organization, client.user, role, {
+                isBlocked: true,
+            })
+            const objs = await BillingReceipt.getAll(client)
+
+            expect(objs).toHaveLength(0)
+        })
+
         test('user cant read BillingReceipt in other cases', async () => {
             const user = await makeClientWithNewRegisteredAndLoggedInUser()
             const admin = await makeLoggedInAdminClient()
