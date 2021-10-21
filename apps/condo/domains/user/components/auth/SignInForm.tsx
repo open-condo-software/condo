@@ -11,6 +11,8 @@ import { WRONG_PASSWORD_ERROR, WRONG_PHONE_ERROR } from '@condo/domains/user/con
 import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } from '@condo/domains/user/gql'
 import { useMutation } from '@core/next/apollo'
 import { useAuth } from '@core/next/auth'
+import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
+import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
 
 const FORM_LAYOUT = {
     labelCol: { span: 10 },
@@ -26,6 +28,7 @@ export const SignInForm = (): React.ReactElement => {
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
     const ResetMsg = intl.formatMessage({ id: 'pages.auth.signin.ResetPasswordLinkTitle' })
     const PasswordOrPhoneMismatch = intl.formatMessage({ id: 'pages.auth.WrongPhoneOrPassword' })
+    const LoginBySbbolMessage = intl.formatMessage({ id: 'LoginBySBBOL' })
 
     const [form] = Form.useForm()
     const { next } = getQueryParams()
