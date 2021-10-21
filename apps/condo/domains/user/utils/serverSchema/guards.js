@@ -24,12 +24,7 @@ const ipWhiteList = conf.IP_WHITE_LIST ? JSON.parse(conf.IP_WHITE_LIST) : []
 class RedisGuard {
 
     constructor () {
-        if (process.env.PHASE !== 'build') {
-            this.db = new IORedis(REDIS_URL)
-        }
-        else {
-            console.log('Not creating SMS store at build time.')
-        }
+        this.db = new IORedis(REDIS_URL)
         this.lockPrefix = 'guard_lock:'
         this.counterPrefix = 'guard_counter:'
     }

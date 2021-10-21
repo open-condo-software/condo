@@ -1,6 +1,5 @@
 const { identity } = require('lodash')
 const { Keystone } = require('@keystonejs/keystone')
-const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { AdminUIApp } = require('@keystonejs/app-admin-ui')
 const { NextApp } = require('@keystonejs/app-next')
@@ -10,7 +9,7 @@ const { obsRouterHandler } = require('@condo/domains/common/utils/sberCloudFileA
 const conf = require('@core/config')
 // const access = require('@core/keystone/access')
 const { registerTasks } = require('@core/keystone/tasks')
-const { prepareDefaultKeystoneConfig } = require('@core/keystone/setup.utils')
+const { prepareDefaultKeystoneConfig, getAuthStrategy } = require('@core/keystone/setup.utils')
 const { registerSchemas } = require('@core/keystone/schema')
 const express = require('express')
 const bodyParser = require('body-parser')
@@ -52,39 +51,32 @@ const keystone = new Keystone({
         }
     },
 })
+if (conf.PHASE !== 'build'){
+    registerSchemas(keystone, [
+        require('@condo/domains/user/schema'),
+        require('@condo/domains/organization/schema'),
+        require('@condo/domains/property/schema'),
+        require('@condo/domains/billing/schema'),
+        require('@condo/domains/ticket/schema'),
+        require('@condo/domains/notification/schema'),
+        require('@condo/domains/contact/schema'),
+        require('@condo/domains/resident/schema'),
+        require('@condo/domains/onboarding/schema'),
+        require('@condo/domains/division/schema'),
+        require('@condo/domains/meter/schema'),
+        require('@condo/domains/subscription/schema'),
+        require('@condo/domains/acquiring/schema'),
+    ])
 
-registerSchemas(keystone, [
-    require('@condo/domains/user/schema'),
-    require('@condo/domains/organization/schema'),
-    require('@condo/domains/property/schema'),
-    require('@condo/domains/billing/schema'),
-    require('@condo/domains/ticket/schema'),
-    require('@condo/domains/notification/schema'),
-    require('@condo/domains/contact/schema'),
-    require('@condo/domains/resident/schema'),
-    require('@condo/domains/onboarding/schema'),
-    require('@condo/domains/division/schema'),
-    require('@condo/domains/meter/schema'),
-    require('@condo/domains/subscription/schema'),
-    require('@condo/domains/acquiring/schema'),
-])
+    registerTasks([
+        require('@condo/domains/notification/tasks'),
+        require('@condo/domains/organization/tasks'),
+    ])
 
-registerTasks([
-    require('@condo/domains/notification/tasks'),
-    require('@condo/domains/organization/tasks'),
-])
-
-registerTriggers([
-    require('@condo/domains/ticket/triggers'),
-])
-
-const authStrategy = keystone.createAuthStrategy({
-    type: PasswordAuthStrategy,
-    list: 'User',
-    config: {
-        protectIdentities: false,
-    },
-})
+    registerTriggers([
+        require('@condo/domains/ticket/triggers'),
+    ])
+}
 
 class OBSFilesMiddleware {
     prepareMiddleware ({ keystone }) {
@@ -135,7 +127,7 @@ module.exports = {
         new AdminUIApp({
             adminPath: '/admin',
             isAccessAllowed: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport)),
-            authStrategy,
+            authStrategy: getAuthStrategy(keystone),
         }),
         conf.NODE_ENV === 'test' ? undefined : new NextApp({ dir: '.' }),
     ].filter(identity),
