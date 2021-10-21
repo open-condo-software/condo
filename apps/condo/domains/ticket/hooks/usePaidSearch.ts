@@ -8,21 +8,14 @@ import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 export const usePaidSearch = <F>(loading): [boolean, (e: CheckboxChangeEvent) => void] => {
     const router = useRouter()
     const filtersFromQuery = getFiltersFromQuery<F>(router.query)
-
-    const attributes = get(filtersFromQuery, 'attributes', {})
-
-    const searchValue = get(attributes, 'isPaid') === true
-    const [isPaid, setIsPaid] = useState(searchValue)
+    const searchValue = get(filtersFromQuery, 'isPaid') === 'true'
+    const [isEmergency, setIsEmergency] = useState(searchValue)
 
     const searchChange = useCallback(debounce((e) => {
+        const isPaid = e ? `${e}` : null
+
         const query = qs.stringify(
-            {
-                ...router.query,
-                filters: JSON.stringify(pickBy({
-                    ...filtersFromQuery,
-                    attributes: { ...attributes, isPaid: String(e) },
-                })),
-            },
+            { ...router.query, filters: JSON.stringify(pickBy({ ...filtersFromQuery, isPaid })) },
             { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
         )
 
@@ -30,9 +23,9 @@ export const usePaidSearch = <F>(loading): [boolean, (e: CheckboxChangeEvent) =>
     }, 400), [loading])
 
     const handlePaidChange = (e: CheckboxChangeEvent): void => {
-        setIsPaid(e.target.checked)
+        setIsEmergency(e.target.checked)
         searchChange(e.target.checked)
     }
 
-    return [isPaid, handlePaidChange]
+    return [isEmergency, handlePaidChange]
 }

@@ -8,21 +8,14 @@ import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 export const useEmergencySearch = <F>(loading): [boolean, (e: CheckboxChangeEvent) => void] => {
     const router = useRouter()
     const filtersFromQuery = getFiltersFromQuery<F>(router.query)
-
-    const attributes = get(filtersFromQuery, 'attributes', {})
-
-    const searchValue = get(attributes, 'isEmergency') === true
+    const searchValue = get(filtersFromQuery, 'isEmergency') === 'true'
     const [isEmergency, setIsEmergency] = useState(searchValue)
 
     const searchChange = useCallback(debounce((e) => {
+        const isEmergency = e ? `${e}` : null
+
         const query = qs.stringify(
-            {
-                ...router.query,
-                filters: JSON.stringify(pickBy({
-                    ...filtersFromQuery,
-                    attributes: { ...attributes, isEmergency: String(e) },
-                })),
-            },
+            { ...router.query, filters: JSON.stringify(pickBy({ ...filtersFromQuery, isEmergency })) },
             { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
         )
 

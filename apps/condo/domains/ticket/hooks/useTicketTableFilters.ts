@@ -259,10 +259,6 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                 },
             },
             {
-                keyword: 'attributes',
-                filters: [isEmergencyFilter, isPaidFilter],
-            },
-            {
                 keyword: 'clientName',
                 filters: [clientNameFilter],
                 component: {
@@ -344,6 +340,20 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                         size: FilterComponentSize.Medium,
                     },
                 },
+            },
+            {
+                keyword: 'isPaid',
+                filters: [isPaidFilter],
+                // component: {
+                //     type: ComponentType.CheckboxGroup,
+                // },
+            },
+            {
+                keyword: 'isEmergency',
+                filters: [isEmergencyFilter],
+                // component: {
+                //     type: ComponentType.CheckboxGroup,
+                // },
             },
             {
                 keyword: 'search',
