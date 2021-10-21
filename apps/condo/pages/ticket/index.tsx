@@ -259,6 +259,7 @@ const TicketsPage: ITicketIndexPage = () => {
     const { filters, sorters } = parseQuery(router.query)
 
     const tableColumns = useTableColumns(filterMetas)
+
     const searchTicketsQuery = { ...filtersToWhere(filters), organization: { id: userOrganizationId } }
 
     //

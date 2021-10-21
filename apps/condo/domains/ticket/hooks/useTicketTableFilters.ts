@@ -341,19 +341,46 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                     },
                 },
             },
+            // {
+            //     keyword: 'isPaid',
+            //     filters: [isPaidFilter],
+            //     component: {
+            //         type: ComponentType.Checkbox,
+            //         label: PaidMessage,
+            //         props: {
+            //             value: 'isPaid',
+            //         },
+            //         modalFilterComponentWrapper: {
+            //             size: FilterComponentSize.Medium,
+            //         },
+            //     },
+            // },
+            // {
+            //     keyword: 'isEmergency',
+            //     filters: [isEmergencyFilter],
+            //     component: {
+            //         type: ComponentType.Checkbox,
+            //         label: EmergencyMessage,
+            //         modalFilterComponentWrapper: {
+            //             size: FilterComponentSize.Medium,
+            //         },
+            //     },
+            // },
             {
-                keyword: 'isPaid',
-                filters: [isPaidFilter],
-                // component: {
-                //     type: ComponentType.CheckboxGroup,
-                // },
-            },
-            {
-                keyword: 'isEmergency',
-                filters: [isEmergencyFilter],
-                // component: {
-                //     type: ComponentType.CheckboxGroup,
-                // },
+                keyword: 'attributes',
+                filters: [isEmergencyFilter, isPaidFilter],
+                component: {
+                    type: ComponentType.Select,
+                    options: [{ label: PaidMessage, value: 'isPaid' }, { label: EmergencyMessage, value: 'isEmergency' }],
+                    props: {
+                        mode: 'multiple',
+                        showArrow: true,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: 'Атрибут',
+                        size: FilterComponentSize.Medium,
+                    },
+                },
             },
             {
                 keyword: 'search',

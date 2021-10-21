@@ -70,21 +70,35 @@ export const getModalFilterComponentByMeta = (filters, name, component: FilterCo
     }
 
     switch (type) {
-        case ComponentType.Input:
+        case ComponentType.Input: {
             return <Input {...props} />
-        case ComponentType.Date:
+        }
+
+        case ComponentType.Date: {
             return <DatePicker format='DD.MM.YYYY' style={{ width: '100%' }} {...props} />
+        }
+
         case ComponentType.CheckboxGroup: {
             const options = get(component, 'options')
             return <Checkbox.Group options={options} {...props} />
         }
-        case ComponentType.DateRange:
+
+        case ComponentType.Checkbox: {
+            const label = get(component, 'label')
+            return <Checkbox {...props}>
+                {label}
+            </Checkbox>
+        }
+
+        case ComponentType.DateRange: {
             return <DateRangePicker
                 format='DD.MM.YYYY'
                 style={{ width: '100%' }}
                 separator={null}
                 {...props}
             />
+        }
+
         case ComponentType.Select: {
             const options = get(component, 'options')
             return (
@@ -103,11 +117,13 @@ export const getModalFilterComponentByMeta = (filters, name, component: FilterCo
                 </Select>
             )
         }
+
         case ComponentType.GQLSelect: {
             return <GraphQlSearchInput
                 {...props}
             />
         }
+
         case ComponentType.ChipsInput: {
             return <Select
                 mode="tags"
@@ -189,6 +205,7 @@ export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>)
         }, [form])
 
         const handleSubmit = useCallback((values) => {
+            console.log('values', values)
             if ('offset' in router.query) router.query['offset'] = '0'
             const query = qs.stringify(
                 { ...router.query, filters: JSON.stringify(pickBy({ ...filters, ...values })) },
