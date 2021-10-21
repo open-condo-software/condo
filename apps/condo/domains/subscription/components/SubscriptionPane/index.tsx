@@ -18,6 +18,10 @@ const getActiveSubscriptionData = (intl, subscription: ServiceSubscription, isEx
     const TrialMessage = intl.formatMessage({ id: 'subscription.type.trial' })
     const ExpiredDate = intl.formatMessage({ id: 'subscription.type.expiredDate' })
 
+    if (!subscription) {
+        return []
+    }
+
     let tariffMessage = subscription.type === 'sbbol' ? SbbolSubscriptionTypeMessage : DefaultSubscriptionTypeMessage
 
     if (subscription.isTrial) {
@@ -51,7 +55,7 @@ export const SubscriptionPane: React.FC = () => {
 
     const { isVisible, setIsVisible, SubscriptionPaymentModal } = useSubscriptionPaymentModal()
     const subscriptions = getSubscriptionOptions(intl, subscription, setIsVisible)
-    const activeSubscription = getActiveSubscriptionData(intl, subscription, isExpired)
+    const activeSubscriptionData = getActiveSubscriptionData(intl, subscription, isExpired)
 
     return (
         <>
@@ -78,39 +82,43 @@ export const SubscriptionPane: React.FC = () => {
                         </Col>
                     </Row>
                 </Col>
-                <Col span={24}>
-                    <Row gutter={[0, 20]}>
+                {
+                    activeSubscriptionData.length > 0 && (
                         <Col span={24}>
-                            <Typography.Title level={3}>
-                                {SubscriptionMessage}
-                            </Typography.Title>
+                            <Row gutter={[0, 20]}>
+                                <Col span={24}>
+                                    <Typography.Title level={3}>
+                                        {SubscriptionMessage}
+                                    </Typography.Title>
+                                </Col>
+                                <Col span={24}>
+                                    <Table
+                                        columns={[
+                                            { dataIndex: 'attribute', key: 'attribute' },
+                                            { dataIndex: 'value', key: 'value' },
+                                        ]}
+                                        dataSource={activeSubscriptionData}
+                                        pagination={false}
+                                        bordered
+                                    />
+                                </Col>
+                                {subscription && !isExpired && (
+                                    <Col span={24}>
+                                        <Alert
+                                            message={
+                                                subscription.type === 'sbbol'
+                                                    ? SbbolSubscriptionDeclineMessage
+                                                    : DefaultSubscriptionDeclineMessage
+                                            }
+                                            type={'warning'}
+                                            showIcon
+                                        />
+                                    </Col>
+                                )}
+                            </Row>
                         </Col>
-                        <Col span={24}>
-                            <Table
-                                columns={[
-                                    { dataIndex: 'attribute', key: 'attribute' },
-                                    { dataIndex: 'value', key: 'value' },
-                                ]}
-                                dataSource={activeSubscription}
-                                pagination={false}
-                                bordered
-                            />
-                        </Col>
-                        {subscription && !isExpired && (
-                            <Col span={24}>
-                                <Alert
-                                    message={
-                                        subscription.type === 'sbbol'
-                                            ? SbbolSubscriptionDeclineMessage
-                                            : DefaultSubscriptionDeclineMessage
-                                    }
-                                    type={'warning'}
-                                    showIcon
-                                />
-                            </Col>
-                        )}
-                    </Row>
-                </Col>
+                    )
+                }
                 {isVisible && <SubscriptionPaymentModal/>}
             </Row>
         </>
