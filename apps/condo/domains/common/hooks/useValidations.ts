@@ -1,7 +1,7 @@
 import { Rule } from 'rc-field-form/lib/interface'
 import { useIntl } from '@core/next/intl'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
-import { isInnValid } from '@condo/domains/common/utils/validation.utils'
+import { isValidTin } from '@condo/domains/common/utils/tin.utils'
 
 type ValidatorTypes = {
     changeMessage: (rule: Rule, message: string) => Rule
@@ -14,7 +14,7 @@ type ValidatorTypes = {
     lessThanValidator: (comparedValue: number, errorMessage: string) => Rule
     greaterThanValidator: (comparedValue: number, errorMessage: string, delta?: number) => Rule
     numberValidator: Rule
-    innValidator: (country: string) => Rule
+    tinValidator: (country: string) => Rule
 }
 
 const changeMessage = (rule: Rule, message: string) => {
@@ -35,7 +35,7 @@ export const useValidations: UseValidations = (settings = {}) => {
     const FieldIsTooShortMessage = intl.formatMessage({ id: 'ValueIsTooShort' })
     const FieldIsTooLongMessage = intl.formatMessage({ id: 'ValueIsTooLong' })
     const NumberIsNotValidMessage = intl.formatMessage({ id: 'NumberIsNotValid' })
-    const InnValueIsInvalidMessage = intl.formatMessage({ id: 'pages.organizations.inn.InvalidValue' })
+    const InnValueIsInvalidMessage = intl.formatMessage({ id: 'pages.organizations.tin.InvalidValue' })
 
     const { allowLandLine } = settings
 
@@ -121,11 +121,11 @@ export const useValidations: UseValidations = (settings = {}) => {
             }
         }
 
-    const innValidator: (country: string) => Rule =
+    const tinValidator: (country: string) => Rule =
         (country) => {
             return {
                 validator: (_, value: string) => {
-                    if (isInnValid(value, country)) return Promise.resolve()
+                    if (isValidTin(value, country)) return Promise.resolve()
 
                     return Promise.reject(InnValueIsInvalidMessage)
                 },
@@ -143,6 +143,6 @@ export const useValidations: UseValidations = (settings = {}) => {
         minLengthValidator,
         maxLengthValidator,
         numberValidator,
-        innValidator,
+        tinValidator,
     }
 }

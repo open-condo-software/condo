@@ -13,6 +13,7 @@ const {
     REQUIRED_NO_VALUE_ERROR,
 } = require('@condo/domains/common/constants/errors')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
+const { DV_FIELD_NAME, SENDER_FIELD_NAME } = require('@condo/domains/common/constants/utils')
 
 function hasDbFields (databaseRequired, resolvedData, existingItem = {}, context, addFieldValidationError) {
     if (isUndefined(resolvedData)) throw new Error('unexpected undefined resolvedData arg')
@@ -32,8 +33,7 @@ function hasDbFields (databaseRequired, resolvedData, existingItem = {}, context
     return hasAllFields
 }
 
-const DV_FIELD_NAME = 'dv'
-const SENDER_FIELD_NAME = 'sender'
+// TODO: DOMA-663 research if we need this validation regexp at all
 const VALID_JSON_FIELD_CONSTRAINTS_FORMAT_REGEXP = /^[a-zA-Z0-9!#$%()*+-;=,:[\]/.?@^_`{|}~]{5,42}$/
 const JSON_STRUCTURE_FIELDS_CONSTRAINTS = {
     fingerprint: {
@@ -152,64 +152,9 @@ function hasValidJsonStructure (args, isRequired, dataVersion, fieldsConstraints
     }
 }
 
-const DEFAULT_COUNTRY = RUSSIA_COUNTRY
-const RU_INN_DIGITS = [3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8, 0]
-const RU_INN_REGEXP = /^\d{10}$|^\d{12}$/
-const RU_ORGANIZATION_INN_REGEXP = /^\d{10}$/
-const VALID_RU_INN_10 = '1654019570'
-const VALID_RU_INN_12 = '500110474504'
-const INVALID_RU_INN_10 = '01234556789'
-const INVALID_RU_INN_12 = '0123455678901'
-const SOME_RANDOM_LETTERS = 'ABCDEFGHIJ'
-
-
-const getInnChecksumRU = num => {
-    const n = RU_INN_DIGITS.slice(-num.length)
-    let summ = 0
-
-    for (let i = 0; i < num.length; i++) summ += num[i] * n[i]
-
-    let control = summ % 11
-
-    if (control > 9) control = control % 10
-
-    return control
-}
-
-const validateInnRU = innValue => {
-    if (!isString(innValue) && isNumber(innValue) || !RU_ORGANIZATION_INN_REGEXP.test(innValue)) return false
-
-    const inn = innValue.toString().trim()
-
-    if (inn.length == 10) return getInnChecksumRU(inn) == inn.slice(-1)
-
-    // NOTE: we need INNs only for organizations, that is of 10 chars length.
-    // So valid 12 char length person INN doesn`t suit
-    if (inn.length == 12) return getInnChecksumRU(inn.slice(0, 11)) == inn.slice(10, -1) && getInnChecksumRU(inn) == inn.slice(-1)
-
-    return false
-}
-
-const isInnValid = (innValue = null, country = DEFAULT_COUNTRY) => {
-    if (country === RUSSIA_COUNTRY) return validateInnRU(innValue)
-
-    // TODO: DOMA-663 add tin validations for countries other than Russian Federation
-    return false
-}
-
-const getIsInnValid = (country = DEFAULT_COUNTRY) => (innValue = null) => isInnValid(innValue, country)
-
 module.exports = {
     hasDbFields,
     hasOneOfFields,
     hasDvAndSenderFields,
     hasValidJsonStructure,
-    validateInnRU,
-    isInnValid,
-    getIsInnValid,
-    VALID_RU_INN_10,
-    VALID_RU_INN_12,
-    INVALID_RU_INN_10,
-    INVALID_RU_INN_12,
-    SOME_RANDOM_LETTERS,
 }

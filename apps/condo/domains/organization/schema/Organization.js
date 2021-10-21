@@ -41,8 +41,8 @@ const Organization = new GQLListSchema('Organization', {
         },
         // The reason for this field is to avoid adding check for resident user into global Organization read access.
         // This field have specific use case for mobile client.
-        inn: {
-            schemaDoc: 'Organization inn',
+        tin: {
+            schemaDoc: 'Organization tin',
             type: Virtual,
             resolver: async (item) => {
                 if (!item) return null
@@ -52,6 +52,7 @@ const Organization = new GQLListSchema('Organization', {
 
                 if (!country || !meta) return null
 
+                // TODO: DOMA-663 rename Organization.meta.inn to Organization.meta.tin and fix corresponding code
                 const innValue = get(meta, 'inn')
                 const isValid = isInnValid(innValue, item.country)
 

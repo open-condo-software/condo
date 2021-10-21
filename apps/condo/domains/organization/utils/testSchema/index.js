@@ -5,15 +5,20 @@
  */
 const faker = require('faker')
 const get = require('lodash/get')
-const {makeClientWithProperty} = require("@condo/domains/property/utils/testSchema");
-const {createTestProperty} = require("@condo/domains/property/utils/testSchema");
-const { DEFAULT_ENGLISH_COUNTRY, RUSSIA_COUNTRY } = require ('@condo/domains/common/constants/countries');
-const { makeClientWithNewRegisteredAndLoggedInUser, registerNewUser } = require ('@condo/domains/user/utils/testSchema');
-const { makeLoggedInAdminClient, makeLoggedInClient } = require ('@core/keystone/test.utils');
+const omit = require('lodash/omit')
+const {makeClientWithProperty} = require('@condo/domains/property/utils/testSchema')
+const {createTestProperty} = require('@condo/domains/property/utils/testSchema')
+const { DEFAULT_ENGLISH_COUNTRY, RUSSIA_COUNTRY } = require ('@condo/domains/common/constants/countries')
+const { makeClientWithNewRegisteredAndLoggedInUser, registerNewUser } = require ('@condo/domains/user/utils/testSchema')
+const { makeLoggedInAdminClient, makeLoggedInClient } = require ('@core/keystone/test.utils')
 
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
-const { Organization: OrganizationGQL, OrganizationEmployee: OrganizationEmployeeGQL, OrganizationEmployeeRole: OrganizationEmployeeRoleGQL } = require('@condo/domains/organization/gql')
-const { OrganizationLink: OrganizationLinkGQL } = require('@condo/domains/organization/gql');
+const {
+    Organization: OrganizationGQL,
+    OrganizationEmployee: OrganizationEmployeeGQL,
+    OrganizationEmployeeRole: OrganizationEmployeeRoleGQL
+} = require('@condo/domains/organization/gql')
+const { OrganizationLink: OrganizationLinkGQL } = require('@condo/domains/organization/gql')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { TokenSet: TokenSetGQL } = require('@condo/domains/organization/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
@@ -25,37 +30,32 @@ const OrganizationLink = generateGQLTestUtils(OrganizationLinkGQL)
 const TokenSet = generateGQLTestUtils(TokenSetGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-async function readOrganization (client, id) {
-    if (!id) throw new Error ('no id')
-
-    return await Organization.getAll(client, { id })
-}
-
 /**
  * Creates test organization prefilled with faker data, hydrated with extraAttrs and extraMeta, if provided
  * @param client
  * @param extraAttrs
- * @param extraMeta {inn?: string, country?: string}
  * @returns {Promise<({data: *, errors: *}|*|{country: (*|string), dv: number, sender: {dv: number, fingerprint: *}, meta: {zipCode: *, number: *, country: (*|string), dv: number, city, street: *, inn: (*), kpp: *}, name: *, description: *})[]>}
  */
-async function createTestOrganization (client, extraAttrs = {}, extraMeta = {}) {
+async function createTestOrganization (client, extraAttrs = {}) {
     if (!client) throw new Error ('no client')
 
+    const attrsNoMeta = omit(extraAttrs, 'meta')
+    const extraMeta = get(extraAttrs, 'meta') || {}
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric (8) }
-    const country = get(extraMeta, 'country') || DEFAULT_ENGLISH_COUNTRY
+    const country = DEFAULT_ENGLISH_COUNTRY
     const name = faker.company.companyName ()
     const description = faker.company.catchPhrase ()
     const meta = {
         dv: 1,
-        inn: get(extraMeta, 'inn') || faker.random.alphaNumeric(10),
+        inn: faker.random.alphaNumeric(10),
         kpp: faker.random.alphaNumeric(9),
         city: faker.address.city(),
         zipCode: faker.address.zipCode(),
         street: faker.address.streetName(),
         number: faker.address.secondaryAddress(),
         country: country,
+        ...extraMeta
     }
-
     const attrs = {
         dv: 1,
         sender,
@@ -63,7 +63,7 @@ async function createTestOrganization (client, extraAttrs = {}, extraMeta = {}) 
         name,
         description,
         meta,
-        ...extraAttrs,
+        ...attrsNoMeta,
     }
     const obj = await Organization.create(client, attrs)
 
@@ -296,7 +296,6 @@ module.exports = {
     OrganizationLink, createTestOrganizationLink, updateTestOrganizationLink,
     makeEmployeeUserClientWithAbilities,
     TokenSet, createTestTokenSet, updateTestTokenSet,
-    readOrganization,
 }
 
 

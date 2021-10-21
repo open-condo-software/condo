@@ -1,6 +1,7 @@
 import React, { useState, Dispatch, SetStateAction, useCallback } from 'react'
 import { Form, Input, Typography } from 'antd'
 import get from 'lodash/get'
+import isFunction from 'lodash/isFunction'
 
 import { BaseQueryOptions } from '@apollo/client'
 import { useIntl } from '@core/next/intl'
@@ -8,7 +9,6 @@ import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
 
 import { RUSSIA_COUNTRY } from '@condo/domains/common/constants/countries'
-import { isFunction } from '@condo/domains/common/utils/typeGuards'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
 
@@ -49,9 +49,9 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
     const CreateOrganizationModalMsg = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationMessage' })
 
     const NameMsg = intl.formatMessage({ id: 'pages.organizations.OrganizationName' })
-    const InnMessage = intl.formatMessage({ id: 'pages.organizations.Inn' })
-    const InnTooShortMsg = intl.formatMessage({ id: 'pages.organizations.inn.TooShortMessage' })
-    const InnValueIsInvalid = intl.formatMessage({ id: 'pages.organizations.inn.InvalidValue' })
+    const InnMessage = intl.formatMessage({ id: 'pages.organizations.Tin' })
+    const InnTooShortMsg = intl.formatMessage({ id: 'pages.organizations.tin.TooShortMessage' })
+    const InnValueIsInvalid = intl.formatMessage({ id: 'pages.organizations.tin.InvalidValue' })
 
     const ErrorToFormFieldMsgMapping = React.useMemo(() => ({
         [EMPTY_NAME_ERROR]: {
@@ -102,14 +102,14 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
         return null
     }, [user, selectLink, setIsVisible, fetchMore, onFinish])
 
-    const { requiredValidator, minLengthValidator, changeMessage, innValidator } = useValidations()
+    const { requiredValidator, minLengthValidator, changeMessage, tinValidator } = useValidations()
 
     const validations = {
         name: [requiredValidator],
         inn: [
             requiredValidator,
             changeMessage(minLengthValidator(INN_LENGTH), InnTooShortMsg),
-            innValidator(MUTATION_EXTRA_DATA.country),
+            tinValidator(MUTATION_EXTRA_DATA.country),
         ],
     }
 
