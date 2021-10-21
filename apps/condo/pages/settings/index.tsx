@@ -1,4 +1,3 @@
-import Error from 'next/error'
 import React from 'react'
 import Head from 'next/head'
 import { Typography, Tabs, Tooltip, Col } from 'antd'
