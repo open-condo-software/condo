@@ -57,7 +57,6 @@ const syncSbbolSubscriptionPaymentRequestsState = async () => {
         // `service_organization_hashOrgId` is a `userInfo.HashOrgId` from SBBOL, that used to obtain accessToken
         // for organization, that will be queried in SBBOL using `SbbolFintechApi`.
         ourOrganizationAccessToken = await SbbolRequestApi.getOrganizationAccessToken(SBBOL_CONFIG.service_organization_hashOrgId)
-        console.debug('ourOrganizationAccessToken', ourOrganizationAccessToken)
     } catch (e) {
         console.error(e.message)
         return
