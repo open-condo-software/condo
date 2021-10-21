@@ -14,6 +14,10 @@ import { getSorterMap, parseQuery } from '../../common/utils/tables.utils'
 import { getAddressRender, getDateRender, getTextRender } from '../../common/components/Table/Renders'
 import { TextHighlighter } from '../../common/components/TextHighlighter'
 import getRenderer from '@condo/domains/common/components/helpers/tableCellRenderer'
+import { getTextFilterDropdown, FilterContainer } from '@condo/domains/common/components/TableFilter'
+import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
+import { identity } from '@keystonejs/utils'
+import { TicketStatus } from '../utils/clientSchema'
 
 const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
 
@@ -37,6 +41,8 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
     const sorterMap = getSorterMap(sorters)
+
+    const { loading, objs: ticketStatuses } = TicketStatus.useObjects({})
 
     return useMemo(() => {
         let search = get(filters, 'search')
@@ -113,6 +119,30 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
             return getRenderer(search, true, unitPrefix)(address)
         }
 
+        function getStatusFilterDropDown () {
+            return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+                const adaptedStatuses = ticketStatuses.map(convertGQLItemToFormSelectState).filter(identity)
+
+                return (
+                    <FilterContainer
+                        clearFilters={clearFilters}
+                        showClearButton={selectedKeys && selectedKeys.length > 0}
+                    >
+                        <Checkbox.Group
+                            disabled={loading}
+                            options={adaptedStatuses}
+                            style={{ display: 'flex', flexDirection: 'column' }}
+                            value={selectedKeys}
+                            onChange={(e) => {
+                                setSelectedKeys(e)
+                                confirm({ closeDropdown: false })
+                            }}
+                        />
+                    </FilterContainer>
+                )
+            }
+        }
+
         return [
             {
                 title: NumberMessage,
@@ -149,7 +179,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 key: 'status',
                 sorter: true,
                 width: '10%',
-                filterDropdown: getFilterDropdownByKey(filterMetas, 'status'),
+                filterDropdown: getStatusFilterDropDown(),
                 filterIcon: getFilterIcon,
             },
             {

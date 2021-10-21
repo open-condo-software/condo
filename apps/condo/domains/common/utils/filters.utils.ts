@@ -48,7 +48,7 @@ export type FilterComponentInfo = CommonFilterComponentInfo & ({
 } | {
     type: ComponentType.CheckboxGroup
     options: { value: string, label: string }[]
-    loading: boolean
+    loading?: boolean
     props?: CheckboxGroupProps
 } | {
     type: ComponentType.Select
