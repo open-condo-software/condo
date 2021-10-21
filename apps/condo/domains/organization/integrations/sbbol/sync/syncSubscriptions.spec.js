@@ -40,14 +40,6 @@ describe('syncSubscriptions', () => {
 
 
     describe('arguments validation', () => {
-        it('throws error if "context" argument is not specified', async () => {
-            await catchErrorFrom(async () => {
-                await syncSubscriptions({ })
-            }, (error) => {
-                expect(error.message).toEqual('context is not specified')
-            })
-        })
-
         it('throws error if "date" argument is not specified', async () => {
             const adminContext = await keystone.createContext({ skipAccessControl: true })
             const context = {
@@ -56,7 +48,7 @@ describe('syncSubscriptions', () => {
             }
 
             await catchErrorFrom(async () => {
-                await syncSubscriptions({ context })
+                await syncSubscriptions()
             }, (error) => {
                 expect(error.message).toEqual('date is not specified')
             })
@@ -67,6 +59,7 @@ describe('syncSubscriptions', () => {
         beforeAll(() => {
             mockResponseFromFintechApi.advanceAcceptances = () => mockActiveSubscriptionResponse.activeSubscription(firstInn)
         })
+
         it('creates new subscription and stops already active one', async () => {
             const today = dayjs()
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -77,17 +70,13 @@ describe('syncSubscriptions', () => {
             })
 
             const adminContext = await keystone.createContext({ skipAccessControl: true })
-            const context = {
-                keystone,
-                context: adminContext,
-            }
 
             const [initialDefaultTrialSubscription] = await ServiceSubscription.getAll(adminContext, {
                 type: SUBSCRIPTION_TYPE.DEFAULT,
                 organization: { id: organization.id },
             }, { sortBy: ['updatedAt_DESC'] })
 
-            await syncSubscriptions({ context, date: today.format('YYYY-MM-DD') })
+            await syncSubscriptions(today.format('YYYY-MM-DD'))
 
             const subscriptions = await ServiceSubscription.getAll(adminContext, {
                 organization: { id: organization.id },
@@ -119,17 +108,13 @@ describe('syncSubscriptions', () => {
             })
 
             const adminContext = await keystone.createContext({ skipAccessControl: true })
-            const context = {
-                keystone,
-                context: adminContext,
-            }
 
             const [initialDefaultTrialSubscription] = await ServiceSubscription.getAll(adminContext, {
                 type: SUBSCRIPTION_TYPE.DEFAULT,
                 organization: { id: organization.id },
             }, { sortBy: ['updatedAt_DESC'] })
 
-            await syncSubscriptions({ context, date: today.format('YYYY-MM-DD') })
+            await syncSubscriptions(today.format('YYYY-MM-DD'))
 
             const subscriptions = await ServiceSubscription.getAll(adminContext, {
                 organization: { id: organization.id },
@@ -153,12 +138,8 @@ describe('syncSubscriptions', () => {
             })
 
             const adminContext = await keystone.createContext({ skipAccessControl: true })
-            const context = {
-                keystone,
-                context: adminContext,
-            }
 
-            await syncSubscriptions({ context, date: today.format('YYYY-MM-DD') })
+            await syncSubscriptions(today.format('YYYY-MM-DD'))
 
             const [currentSbbolSubscription] = await ServiceSubscription.getAll(adminContext, {
                 type: SUBSCRIPTION_TYPE.SBBOL,
@@ -169,7 +150,7 @@ describe('syncSubscriptions', () => {
 
             mockResponseFromFintechApi.advanceAcceptances = () => mockActiveSubscriptionResponse.canceledSubscription(firstInn)
 
-            await syncSubscriptions({ context, date: today.format('YYYY-MM-DD') })
+            await syncSubscriptions(today.format('YYYY-MM-DD'))
 
             const [changedSbbolSubscription] = await ServiceSubscription.getAll(adminContext, {
                 type: SUBSCRIPTION_TYPE.SBBOL,
@@ -194,12 +175,8 @@ describe('syncSubscriptions', () => {
             })
 
             const adminContext = await keystone.createContext({ skipAccessControl: true })
-            const context = {
-                keystone,
-                context: adminContext,
-            }
 
-            await syncSubscriptions({ context, date: today.format('YYYY-MM-DD') })
+            await syncSubscriptions(today.format('YYYY-MM-DD'))
 
             const [currentSbbolSubscription] = await ServiceSubscription.getAll(adminContext, {
                 type: SUBSCRIPTION_TYPE.SBBOL,
@@ -210,7 +187,7 @@ describe('syncSubscriptions', () => {
 
             mockResponseFromFintechApi.advanceAcceptances = () => mockActiveSubscriptionResponse.canceledSubscription(secondInn)
 
-            await syncSubscriptions({ context, date: today.format('YYYY-MM-DD') })
+            await syncSubscriptions(today.format('YYYY-MM-DD'))
 
             const [sbbolSubscriptionAfterSync] = await ServiceSubscription.getAll(adminContext, {
                 type: SUBSCRIPTION_TYPE.SBBOL,
