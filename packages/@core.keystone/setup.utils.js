@@ -1,5 +1,7 @@
 const { v5: uuidv5 } = require('uuid')
+const config = require('@core/config')
 
+const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
 const { KnexAdapter } = require('@keystonejs/adapter-knex')
 const { MongooseAdapter } = require('@keystonejs/adapter-mongoose')
 const IORedis = require('ioredis')
@@ -56,15 +58,7 @@ function getAdapter (databaseUrl) {
 }
 
 function prepareDefaultKeystoneConfig (conf) {
-    let sessionStore = undefined
-    if (process.env.PHASE !== 'build') {
-        const redisClient = new IORedis(conf.REDIS_URL)
-        sessionStore = new RedisStore({ client: redisClient })
-    }
-    else {
-        console.log('Not creating session store at build time.')
-    }
-    return {
+    const baseConfig = {
         cookieSecret: getCookieSecret(conf.COOKIE_SECRET),
         cookie: {
             sameSite: false,
@@ -75,12 +69,30 @@ function prepareDefaultKeystoneConfig (conf) {
         adapter: getAdapter(conf.DATABASE_URL),
         defaultAccess: { list: false, field: true, custom: false },
         queryLimits: { maxTotalResults: 1000 },
+    }
+    if (config.PHASE === 'build') return baseConfig
+
+    const redisClient = new IORedis(conf.REDIS_URL)
+    const sessionStore = new RedisStore({ client: redisClient })
+    return {
+        ...baseConfig,
         sessionStore,
     }
 }
 
+function getAuthStrategy (keystone) {
+    if (config.PHASE === 'build') return undefined
+    return keystone.createAuthStrategy({
+        type: PasswordAuthStrategy,
+        list: 'User',
+        config: {
+            protectIdentities: false,
+        },
+    })
+}
 module.exports = {
     getCookieSecret,
     getAdapter,
+    getAuthStrategy,
     prepareDefaultKeystoneConfig,
 }
