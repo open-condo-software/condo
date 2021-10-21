@@ -1,13 +1,4 @@
-const {
-    hasValidJsonStructure,
-    isInnValid,
-    VALID_RU_INN_10,
-    VALID_RU_INN_12,
-    INVALID_RU_INN_10,
-    INVALID_RU_INN_12,
-    SOME_RANDOM_LETTERS,
-} = require('./validation.utils')
-const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
+const { hasValidJsonStructure } = require('./validation.utils')
 
 describe('hasValidJsonStructure()', () => {
     describe('dv', () => {
@@ -82,28 +73,5 @@ describe('hasValidJsonStructure()', () => {
                 ])
             })
         })
-    })
-})
-
-describe('isInnValid()', () => {
-    test('for valid 10 char RU INN ', () => {
-        expect(isInnValid(VALID_RU_INN_10, RUSSIA_COUNTRY)).toBe(true)
-    })
-    test('for valid 12 char RU INN ', () => {
-        // NOTE: we need INNs only for organizations, that is of 10 chars length.
-        // So valid 12 char length person INN doesn`t suit
-        expect(isInnValid(VALID_RU_INN_12, RUSSIA_COUNTRY)).toBe(false)
-    })
-    test('for invalid 10 digits as RU INN', () => {
-        expect(isInnValid(INVALID_RU_INN_10, RUSSIA_COUNTRY)).toBe(false)
-    })
-    test('for invalid 12 digits as RU INN', () => {
-        expect(isInnValid(INVALID_RU_INN_12, RUSSIA_COUNTRY)).toBe(false)
-    })
-    test('for invalid random letters as RU INN', () => {
-        expect(isInnValid(SOME_RANDOM_LETTERS, RUSSIA_COUNTRY)).toBe(false)
-    })
-    test('for invalid random wrong length number as RU INN', () => {
-        expect(isInnValid(Math.floor(999 + Math.random() * 1000000), RUSSIA_COUNTRY)).toBe(false)
     })
 })
