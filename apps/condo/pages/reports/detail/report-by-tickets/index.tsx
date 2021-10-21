@@ -471,7 +471,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                             const restTableColumns = {}
                             Object.keys(data).forEach(ticketType => (restTableColumns[ticketType] = data[ticketType][date]))
                             let address = translations['allAddresses']
-                            const addressList = get(filters, 'addresses')
+                            const addressList = get(filters, 'address')
                             if (addressList && addressList.length) {
                                 address = addressList.join(', ')
                             }
