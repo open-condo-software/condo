@@ -159,6 +159,7 @@ const User = new GQLListSchema('User', {
         permissions: {
             schemaDoc: 'User permissions. Currently applied only for service users. Example: see in docs/user-permissions.md',
             type: Json,
+            access: access.canAccessToPermissionsField,
         },
 
     },

@@ -46,6 +46,11 @@ const canAccessToIsAdminField = {
     create: access.userIsAdmin,
     update: access.userIsAdmin,
 }
+const canAccessToPermissionsField = {
+    read: access.userIsAdminOrSupport,
+    create: access.userIsAdminOrSupport,
+    update: access.userIsAdminOrSupport,
+}
 const canAccessToIsEmailVerifiedField = readByAnyUpdateByAdminField
 const canAccessToIsPhoneVerifiedField = readByAnyUpdateByAdminField
 const canAccessToImportField = readByAnyUpdateByAdminField
@@ -71,4 +76,5 @@ module.exports = {
     canAccessToIsPhoneVerifiedField,
     canAccessToImportField,
     canAccessToStaffUserField,
+    canAccessToPermissionsField,
 }

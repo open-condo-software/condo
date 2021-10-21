@@ -6,6 +6,8 @@ const userIsAuthenticated = ({ authentication: { item: user } }) => Boolean(user
 
 const userIsAdmin = ({ authentication: { item: user } }) => Boolean(user && user.isAdmin)
 
+const userIsAdminOrSupport = ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport))
+
 const userIsThisItem = ({ existingItem, authentication: { item: user } }) => {
     if (!user || !existingItem) {
         return false
@@ -84,6 +86,7 @@ const isSoftDelete = (originalInput) => {
 module.exports = {
     userIsAuthenticated,
     userIsAdmin,
+    userIsAdminOrSupport,
     userIsOwner,
     userIsAdminOrOwner,
     userIsThisItem,

@@ -132,11 +132,12 @@ export const expectToThrowAccessDeniedErrorToResult = async (testFunc ) => {
  * @param {TestFunc} testFunc - Function, expected to throw an error
  * @return {Promise<void>}
  */
-export const expectToThrowForbiddenErrorToResult = async (testFunc) => {
+export const expectToThrowForbiddenError = async (testFunc, path) => {
     await catchErrorFrom(testFunc, ({ errors, data }) => {
         expect(errors[0]).toMatchObject({
             'message': 'You are not allowed to perform this operation',
             'name': 'ForbiddenError',
+            path,
         })
     })
 }

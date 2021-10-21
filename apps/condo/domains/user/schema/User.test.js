@@ -6,9 +6,9 @@ const gql = require('graphql-tag')
 const { WRONG_EMAIL_ERROR } = require('@condo/domains/user/constants/errors')
 const { getRandomString, makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 
-const { User, UserAdmin, createTestUser, updateTestUser, makeClientWithNewRegisteredAndLoggedInUser, makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
+const { User, UserAdmin, createTestUser, updateTestUser, makeClientWithNewRegisteredAndLoggedInUser, makeLoggedInClient, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObjects,  expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj, expectToThrowForbiddenErrorToResult, expectToThrowAuthenticationError } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObjects,  expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj, expectToThrowForbiddenError } = require('@condo/domains/common/utils/testSchema')
 const { throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 const { GET_MY_USERINFO, SIGNIN_MUTATION } = require('@condo/domains/user/gql')
 const { DEFAULT_TEST_USER_IDENTITY, DEFAULT_TEST_USER_SECRET } = require('@core/keystone/test.utils')
@@ -201,9 +201,112 @@ describe('User fields', () => {
         await expect(checkAuthByUpperCaseEmail).rejects.toThrow(WRONG_EMAIL_ERROR)
     })
 })
-describe('Service User permissions', () => {
-    describe('List operations', ()=> {
-        test('User with permission can perform allowed list operations', async () => {
+describe('Service Custom permissions', () => {
+    describe('Accesses', () => {
+        const GET_USERS_PERMISSIONS_QUERY = generateGqlQueries('User', '{ permissions }').GET_ALL_OBJS_QUERY
+
+        test('Admin can operate with permissions field', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+    
+            await updateTestUser(adminClient, userClient.user.id, {
+                permissions: {
+                    canReadOrganizations: true,
+                },
+            })
+            const permissionsReadByAdmin = await adminClient.query(GET_USERS_PERMISSIONS_QUERY, {
+                where: {
+                    id: userClient.user.id,
+                },
+            }).then(r => r.data.objs[0].permissions)
+
+            expect(permissionsReadByAdmin).toBeDefined()
+            expect(permissionsReadByAdmin).toMatchObject({
+                canReadOrganizations: true,
+            })
+        })
+        test('Support can operate with permissions field', async () => {
+            const supportClient = await makeClientWithSupportUser()
+            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+    
+            await updateTestUser(supportClient, userClient.user.id, {
+                permissions: {
+                    canReadOrganizations: true,
+                },
+            })
+    
+            const permissionsReadBySupport = await supportClient.query(GET_USERS_PERMISSIONS_QUERY, {
+                where: {
+                    id: userClient.user.id,
+                },
+            }).then(r => r.data.objs[0].permissions)
+
+    
+            expect(permissionsReadBySupport).toBeDefined()
+            expect(permissionsReadBySupport).toMatchObject({
+                canReadOrganizations: true,
+            })
+        })
+        test('Common users cannot read permissions field', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const serviceUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const commonUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
+    
+            await updateTestUser(adminClient, serviceUserClient.user.id, {
+                permissions: {
+                    canReadOrganizations: true,
+                },
+            })
+            
+            const { data, errors } = await commonUserClient.query(GET_USERS_PERMISSIONS_QUERY, {
+                where: {
+                    id: serviceUserClient.user.id,
+                },
+            })
+            expect(data).toMatchObject({
+                objs: [{ permissions: null }],
+            })
+            expect(errors[0]).toMatchObject({
+                'message': 'You do not have access to this resource',
+                'name': 'AccessDeniedError',
+                'path': ['objs', 0, 'permissions'],
+            })
+        })
+
+        test('Service users cannot read own permissions field', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const serviceUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
+    
+            await updateTestUser(adminClient, serviceUserClient.user.id, {
+                permissions: {
+                    canReadOrganizations: true,
+                },
+            })
+            
+            await expectToThrowForbiddenError(async () => {
+                const { data, errors } = await serviceUserClient.query(GET_USERS_PERMISSIONS_QUERY, {
+                    where: {
+                        id: serviceUserClient.user.id,
+                    },
+                })
+                throwIfError(data, errors)
+            }, ['objs'])
+        })
+    
+        test('Users cannot update permissions field', async () => {
+            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestUser(userClient, userClient.user.id, {
+                    permissions: {
+                        canReadOrganizations: true,
+                    },
+                })
+            })
+        })
+    })
+
+    describe('List operations', () => {
+        test('User with permissions can perform allowed list operations', async () => {
             const admin = await makeLoggedInAdminClient()
             await createTestOrganization(admin)
 
@@ -219,7 +322,7 @@ describe('Service User permissions', () => {
             const { data: { objs: organizationsSeenByUser } }  = await client.query(query)
             expect(organizationsSeenByUser).toHaveLength(organizationsSeenByAdmin.length)
         })
-        test('User with permission can perform allowed nested list operations', async () => {
+        test('User with permissions can perform allowed nested list operations', async () => {
             const admin = await makeLoggedInAdminClient()
             await createTestOrganization(admin)
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -234,7 +337,7 @@ describe('Service User permissions', () => {
             const { data: { objs: organizationsSeenByUser } }  = await client.query(query)
             expect(organizationsSeenByUser[0].createdBy.name).not.toBeUndefined()
         })
-        test('User with permission cannot perform inner access-frobidden nested list operations', async () => {
+        test('User with permissions cannot perform inner access-frobidden nested list operations', async () => {
             const admin = await makeLoggedInAdminClient()
             await createTestOrganization(admin)
 
@@ -250,6 +353,9 @@ describe('Service User permissions', () => {
             const { data, errors } = await client.query(query, {
                 first: 1,
             })
+            expect(data).toMatchObject({
+                objs: [{ createdBy: { phone: null } }],
+            })
             expect(errors[0]).toMatchObject({
                 'message': 'You do not have access to this resource',
                 'name': 'AccessDeniedError',
@@ -257,7 +363,7 @@ describe('Service User permissions', () => {
             })
         })
     
-        test('User with permission cannot perform forbidden list operations', async ()=> {
+        test('User with permissions cannot perform forbidden list operations', async ()=> {
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
             const admin = await makeLoggedInAdminClient()
             await updateTestUser(admin, client.user.id, {
@@ -266,10 +372,10 @@ describe('Service User permissions', () => {
                 },
             })
             const query = generateGqlQueries('Organization', '{ _label_ id meta }').GET_ALL_OBJS_QUERY
-            await expectToThrowForbiddenErrorToResult(async () => {
+            await expectToThrowForbiddenError(async () => {
                 const { data, errors } = await client.query(query)
                 throwIfError(data, errors)
-            })
+            }, ['objs'])
         })
     })
 
@@ -289,7 +395,7 @@ describe('Service User permissions', () => {
             await registerNewOrganization(client)
         })
         
-        test('User with permission cannot perform forbidden service operations', async ()=> {
+        test('User with permissions cannot perform forbidden service operations', async ()=> {
             const admin = await makeLoggedInAdminClient()
             await createTestOrganization(admin)
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -302,10 +408,10 @@ describe('Service User permissions', () => {
                 mutation registerNewOrganization($data: RegisterNewOrganizationInput!) {
                     obj: registerNewOrganization(data: $data) {name}
                 }`
-            await expectToThrowForbiddenErrorToResult(async () => {
+            await expectToThrowForbiddenError(async () => {
                 const { data, errors } = await registerNewOrganization(client, {}, { raw: true }, REGISTER_NEW_ORGANIZATION_MUTATION)
                 throwIfError(data, errors)
-            })
+            }, ['obj'])
         })
     })  
 })
