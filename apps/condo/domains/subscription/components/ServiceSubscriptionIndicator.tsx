@@ -5,6 +5,7 @@ import styled from '@emotion/styled'
 import { colors } from '@condo/domains/common/constants/style'
 import { green, grey } from '@ant-design/colors'
 import { useServiceSubscriptionContext } from './SubscriptionContext'
+import get from 'lodash/get'
 
 const StyledPanel = styled.div`
   margin-left: -25px;
@@ -16,7 +17,7 @@ const StyledPanel = styled.div`
 
 export const ServiceSubscriptionIndicator: React.FC = () => {
     const { subscription, daysLeft, daysLeftHumanized, isExpired } = useServiceSubscriptionContext()
-    if (!subscription || !subscription.isTrial) {
+    if (!subscription || !get(subscription, 'isTrial')) {
         return null
     }
     const badges = []
