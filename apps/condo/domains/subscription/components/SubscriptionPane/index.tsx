@@ -25,7 +25,7 @@ const getActiveSubscriptionData = (intl, subscription: ServiceSubscription, isEx
 
     let tariffMessage = get(subscription, 'type') === 'sbbol' ? SbbolSubscriptionTypeMessage : DefaultSubscriptionTypeMessage
 
-    if (subscription.isTrial) {
+    if (get(subscription, 'isTrial')) {
         tariffMessage += ` (${TrialMessage})`
     }
 
