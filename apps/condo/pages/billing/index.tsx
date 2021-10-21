@@ -33,7 +33,7 @@ const BillingPage = () => {
     })
 
     const PageTitle = get(currentContext, ['integration', 'billingPageTitle'], BillingTitle)
-    console.log(currentContext)
+
     return (
         <>
             <Head>

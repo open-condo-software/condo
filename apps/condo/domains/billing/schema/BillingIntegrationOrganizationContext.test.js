@@ -4,7 +4,8 @@
 const { createTestOrganization, updateTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithIntegrationAccess, updateTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { createTestBillingIntegration } = require('../utils/testSchema')
+const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
+const { createTestBillingIntegration, createReceiptsReader } = require('../utils/testSchema')
 const { makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
 const { makeOrganizationIntegrationManager } = require('@condo/domains/billing/utils/testSchema')
 const { BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
@@ -131,6 +132,43 @@ describe('BillingIntegrationOrganizationContext', () => {
         const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
         const contexts = await BillingIntegrationOrganizationContext.getAll(managerUserClient, { id: context.id })
         expect(contexts).toHaveLength(1)
+    })
+
+    test('employee with `canReadBillingReceipts`: read BillingIntegrationOrganizationContext', async () => {
+        const { managerUserClient, integration, organization } = await makeOrganizationIntegrationManager()
+        const client = await createReceiptsReader(organization)
+        await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
+        const contexts = await BillingIntegrationOrganizationContext.getAll(client)
+        expect(contexts).toHaveLength(1)
+    })
+
+    test('employee without `canReadBillingReceipts`: read BillingIntegrationOrganizationContext', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const { managerUserClient, integration, organization } = await makeOrganizationIntegrationManager()
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+        const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+            canBeAssignedAsExecutor: true,
+            canBeAssignedAsResponsible: true,
+        })
+        await createTestOrganizationEmployee(admin, organization, client.user, role)
+        await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
+        const contexts = await BillingIntegrationOrganizationContext.getAll(client)
+        expect(contexts).toHaveLength(0)
+    })
+
+    test('deleted from organization employee with `canReadBillingReceipts`: read BillingIntegrationOrganizationContext', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const { managerUserClient, integration, organization } = await makeOrganizationIntegrationManager()
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+        const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+            canReadBillingReceipts: true,
+        })
+        await createTestOrganizationEmployee(admin, organization, client.user, role, {
+            isBlocked: true,
+        })
+        await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
+        const contexts = await BillingIntegrationOrganizationContext.getAll(client)
+        expect(contexts).toHaveLength(0)
     })
 
     test('integration: read BillingIntegrationOrganizationContext', async () => {
