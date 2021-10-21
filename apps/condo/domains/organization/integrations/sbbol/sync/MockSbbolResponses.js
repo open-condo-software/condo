@@ -1,6 +1,6 @@
 const faker = require('faker')
 const { v4: uuid } = require('uuid')
-const { INN_LENGTH } = require('@condo/domains/organization/constants/common')
+const { TIN_LENGTH } = require('@condo/domains/organization/constants/common')
 const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/integrations/sbbol/common')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries.js')
 
@@ -62,8 +62,8 @@ class MockSbbolResponses {
 
     static getUserInfo () {
         const inn = faker.datatype.number({
-            min: Math.pow(10, INN_LENGTH - 1) + 1,
-            max: Math.pow(10, INN_LENGTH) - 1,
+            min: Math.pow(10, TIN_LENGTH - 1) + 1,
+            max: Math.pow(10, TIN_LENGTH) - 1,
         })
         return {
             ...EXAMPLE_USER_INFO,

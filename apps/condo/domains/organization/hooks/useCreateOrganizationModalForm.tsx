@@ -12,8 +12,8 @@ import { RUSSIA_COUNTRY } from '@condo/domains/common/constants/countries'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
 
-import { INN_LENGTH } from '@condo/domains/organization/constants/common'
-import { EMPTY_NAME_ERROR, INN_TOO_SHORT_ERROR, INN_VALUE_INVALID } from '@condo/domains/organization/constants/errors'
+import { TIN_LENGTH } from '@condo/domains/organization/constants/common'
+import { EMPTY_NAME_ERROR, TIN_TOO_SHORT_ERROR, TIN_VALUE_INVALID } from '@condo/domains/organization/constants/errors'
 import { REGISTER_NEW_ORGANIZATION_MUTATION } from '@condo/domains/organization/gql'
 import { convertUIStateToGQLItem, OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
@@ -33,11 +33,11 @@ const FETCH_OPTIONS: BaseQueryOptions = { fetchPolicy: 'network-only' }
 const MUTATION_EXTRA_DATA = { country: RUSSIA_COUNTRY }
 
 const adaptOrganizationMeta = (values) => {
-    const { name, inn } = values
+    const { name, tin } = values
 
     return convertUIStateToGQLItem({
         name,
-        meta: { v: 1, inn },
+        meta: { v: 1, inn: tin },
     })
 }
 
@@ -49,22 +49,22 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
     const CreateOrganizationModalMsg = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationMessage' })
 
     const NameMsg = intl.formatMessage({ id: 'pages.organizations.OrganizationName' })
-    const InnMessage = intl.formatMessage({ id: 'pages.organizations.Tin' })
-    const InnTooShortMsg = intl.formatMessage({ id: 'pages.organizations.tin.TooShortMessage' })
-    const InnValueIsInvalid = intl.formatMessage({ id: 'pages.organizations.tin.InvalidValue' })
+    const InnMessage = intl.formatMessage({ id: 'pages.organizations.tin' })
+    const TinTooShortMsg = intl.formatMessage({ id: 'pages.organizations.tin.TooShortMessage' })
+    const TinValueIsInvalid = intl.formatMessage({ id: 'pages.organizations.tin.InvalidValue' })
 
     const ErrorToFormFieldMsgMapping = React.useMemo(() => ({
         [EMPTY_NAME_ERROR]: {
             name: 'name',
             errors: [ValueIsTooShortMsg],
         },
-        [INN_TOO_SHORT_ERROR]: {
-            name: 'inn',
-            errors: [InnTooShortMsg],
+        [TIN_TOO_SHORT_ERROR]: {
+            name: 'tin',
+            errors: [TinTooShortMsg],
         },
-        [INN_VALUE_INVALID]: {
-            name: 'inn',
-            errors: [InnValueIsInvalid],
+        [TIN_VALUE_INVALID]: {
+            name: 'tin',
+            errors: [TinValueIsInvalid],
         },
     }), [ValueIsTooShortMsg, InnTooShortMsg, InnValueIsInvalid])
 
@@ -106,9 +106,9 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
 
     const validations = {
         name: [requiredValidator],
-        inn: [
+        tin: [
             requiredValidator,
-            changeMessage(minLengthValidator(INN_LENGTH), InnTooShortMsg),
+            changeMessage(minLengthValidator(TIN_LENGTH), TinTooShortMsg),
             tinValidator(MUTATION_EXTRA_DATA.country),
         ],
     }
@@ -147,10 +147,10 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
                 <Input />
             </Form.Item>
             <Form.Item
-                name='inn'
+                name='tin'
                 style={FORM_ITEM_STYLES}
                 label={InnMessage}
-                rules={validations.inn}
+                rules={validations.tin}
             >
                 <Input />
             </Form.Item>

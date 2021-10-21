@@ -11,7 +11,7 @@ const { Json } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-const { isValidTin } = require('@condo/domains/common/utils/tin.utils')
+const { isValidTin } = require('@condo/domains/organization/utils/tin.utils')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 
@@ -42,7 +42,7 @@ const Organization = new GQLListSchema('Organization', {
         // The reason for this field is to avoid adding check for resident user into global Organization read access.
         // This field have specific use case for mobile client.
         tin: {
-            schemaDoc: 'Organization tin',
+            schemaDoc: 'Taxpayer identification number. Every country has its own identification. Examples: INN for Russia, IIN for Kazakhstan and so on',
             type: Virtual,
             resolver: async (item) => {
                 if (!item) return null

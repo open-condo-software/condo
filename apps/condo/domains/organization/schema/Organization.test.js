@@ -10,14 +10,14 @@ const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj,
 } = require('@condo/domains/common/utils/testSchema')
-const {
-    VALID_RU_INN_10,
-    VALID_RU_INN_12,
-    INVALID_RU_INN_10,
-    INVALID_RU_INN_12,
-    SOME_RANDOM_LETTERS,
-} = require('@condo/domains/common/utils/tin.utils.spec')
 
+const {
+    VALID_RU_TIN_10,
+    VALID_RU_TIN_12,
+    INVALID_RU_TIN_10,
+    INVALID_RU_TIN_12,
+    SOME_RANDOM_LETTERS,
+} = require('@condo/domains/organization/utils/tin.utils.spec')
 const { createTestOrganizationLink } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { DEFAULT_STATUS_TRANSITIONS, STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
@@ -308,20 +308,20 @@ describe('Organization', () => {
     })
 })
 
-describe('organization INN: various cases',  () => {
+describe('organization TIN: various cases',  () => {
     test('admin: create Organization with valid 10 digits RU INN and RU country code ', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [createdOrganization] = await createTestOrganization(admin, { meta: { inn: VALID_RU_INN_10 }, country: RUSSIA_COUNTRY })
+        const [createdOrganization] = await createTestOrganization(admin, { meta: { inn: VALID_RU_TIN_10 }, country: RUSSIA_COUNTRY })
 
         const organizationData = await Organization.getAll(admin, { id: createdOrganization.id })
 
         expect(organizationData).toHaveLength(1)
-        expect(organizationData[0].tin).toEqual(VALID_RU_INN_10)
+        expect(organizationData[0].tin).toEqual(VALID_RU_TIN_10)
     })
 
     test('admin: create Organization with valid 12 digits RU INN and RU country code ', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [createdOrganization] = await createTestOrganization(admin, { meta: { inn: VALID_RU_INN_12 }, country: RUSSIA_COUNTRY })
+        const [createdOrganization] = await createTestOrganization(admin, { meta: { inn: VALID_RU_TIN_12 }, country: RUSSIA_COUNTRY })
 
         const organizationData = await Organization.getAll(admin, { id: createdOrganization.id })
 
@@ -331,7 +331,7 @@ describe('organization INN: various cases',  () => {
 
     test('admin: create Organization with invalid 10 digits RU INN and RU country code ', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [createdOrganization] = await createTestOrganization(admin, { meta: { inn: INVALID_RU_INN_10 }, country: RUSSIA_COUNTRY })
+        const [createdOrganization] = await createTestOrganization(admin, { meta: { inn: INVALID_RU_TIN_10 }, country: RUSSIA_COUNTRY })
 
         const organizationData = await Organization.getAll(admin, { id: createdOrganization.id })
 
@@ -341,7 +341,7 @@ describe('organization INN: various cases',  () => {
 
     test('admin: create Organization with invalid 12 digits RU INN and RU country code ', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [createdOrganization] = await createTestOrganization(admin, { meta: { inn: INVALID_RU_INN_12 }, country: RUSSIA_COUNTRY })
+        const [createdOrganization] = await createTestOrganization(admin, { meta: { inn: INVALID_RU_TIN_12 }, country: RUSSIA_COUNTRY })
 
         const organizationData = await Organization.getAll(admin, { id: createdOrganization.id })
 
