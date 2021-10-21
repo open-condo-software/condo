@@ -122,7 +122,6 @@ export const SignInForm = (): React.ReactElement => {
                         </Col>
                         <Col offset={3} lg={7} xs={24}>
                             <Button
-                                key='submit'
                                 type='sberAction'
                                 icon={<SberIconWithoutLabel/>}
                                 href={hasFeature('sbbol_auth') ? '/api/sbbol/auth' : ''}
