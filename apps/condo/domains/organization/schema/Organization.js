@@ -11,7 +11,7 @@ const { Json } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-const { isInnValid }  = require('@condo/domains/common/utils/validation.utils')
+const { isValidTin } = require('@condo/domains/common/utils/tin.utils')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 
@@ -54,7 +54,7 @@ const Organization = new GQLListSchema('Organization', {
 
                 // TODO: DOMA-663 rename Organization.meta.inn to Organization.meta.tin and fix corresponding code
                 const innValue = get(meta, 'inn')
-                const isValid = isInnValid(innValue, item.country)
+                const isValid = isValidTin(innValue, item.country)
 
                 return isValid ? innValue : null
             },

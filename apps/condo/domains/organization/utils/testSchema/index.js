@@ -39,8 +39,6 @@ const TokenSet = generateGQLTestUtils(TokenSetGQL)
 async function createTestOrganization (client, extraAttrs = {}) {
     if (!client) throw new Error ('no client')
 
-    const attrsNoMeta = omit(extraAttrs, 'meta')
-    const extraMeta = get(extraAttrs, 'meta') || {}
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric (8) }
     const country = DEFAULT_ENGLISH_COUNTRY
     const name = faker.company.companyName ()
@@ -54,7 +52,6 @@ async function createTestOrganization (client, extraAttrs = {}) {
         street: faker.address.streetName(),
         number: faker.address.secondaryAddress(),
         country: country,
-        ...extraMeta
     }
     const attrs = {
         dv: 1,
@@ -63,20 +60,20 @@ async function createTestOrganization (client, extraAttrs = {}) {
         name,
         description,
         meta,
-        ...attrsNoMeta,
+        ...extraAttrs,
     }
     const obj = await Organization.create(client, attrs)
 
     return [obj, attrs]
 }
 
-async function updateTestOrganization (client, id, extraAttrs = {}, extraMeta = {}) {
+async function updateTestOrganization (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const meta = {
-        inn: get(extraMeta, 'inn') || faker.random.alphaNumeric(10),
+        inn: faker.random.alphaNumeric(10),
         kpp: faker.random.alphaNumeric(9),
         city: faker.address.city(),
         zipCode: faker.address.zipCode(),

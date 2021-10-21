@@ -16228,8 +16228,8 @@ export type Organization = {
   country?: Maybe<OrganizationCountryType>;
   /**  Customer-friendly name  */
   name?: Maybe<Scalars['String']>;
-  /**  Organization inn  */
-  inn?: Maybe<Scalars['String']>;
+  /**  Organization tin  */
+  tin?: Maybe<Scalars['String']>;
   /**  Customer-friendly description. Friendly text for employee and resident users  */
   description?: Maybe<Scalars['String']>;
   /**  Customer-friendly avatar  */
@@ -17445,7 +17445,7 @@ export type OrganizationHistoryRecord = {
   sender?: Maybe<Scalars['JSON']>;
   country?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
-  inn?: Maybe<Scalars['JSON']>;
+  tin?: Maybe<Scalars['JSON']>;
   description?: Maybe<Scalars['JSON']>;
   avatar?: Maybe<Scalars['JSON']>;
   meta?: Maybe<Scalars['JSON']>;
@@ -17471,7 +17471,7 @@ export type OrganizationHistoryRecordCreateInput = {
   sender?: Maybe<Scalars['JSON']>;
   country?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
-  inn?: Maybe<Scalars['JSON']>;
+  tin?: Maybe<Scalars['JSON']>;
   description?: Maybe<Scalars['JSON']>;
   avatar?: Maybe<Scalars['JSON']>;
   meta?: Maybe<Scalars['JSON']>;
@@ -17502,7 +17502,7 @@ export type OrganizationHistoryRecordUpdateInput = {
   sender?: Maybe<Scalars['JSON']>;
   country?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
-  inn?: Maybe<Scalars['JSON']>;
+  tin?: Maybe<Scalars['JSON']>;
   description?: Maybe<Scalars['JSON']>;
   avatar?: Maybe<Scalars['JSON']>;
   meta?: Maybe<Scalars['JSON']>;
@@ -17573,10 +17573,10 @@ export type OrganizationHistoryRecordWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  inn?: Maybe<Scalars['JSON']>;
-  inn_not?: Maybe<Scalars['JSON']>;
-  inn_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  inn_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  tin?: Maybe<Scalars['JSON']>;
+  tin_not?: Maybe<Scalars['JSON']>;
+  tin_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  tin_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   description?: Maybe<Scalars['JSON']>;
   description_not?: Maybe<Scalars['JSON']>;
   description_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
