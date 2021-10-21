@@ -16,7 +16,6 @@ const StyledTitle = styled(Typography.Title)`
 `
 
 export const getSubscriptionOptions = (intl, subscription: ServiceSubscription, setIsVisible: Dispatch<SetStateAction<boolean>>) => {
-    const { type } = subscription
     const ClientsMessage = intl.formatMessage({ id: 'subscription.option.description.clients' })
     const ActiveMessage = intl.formatMessage({ id: 'subscription.action.active' })
     const LoginBySbbolMessage = intl.formatMessage({ id: 'LoginBySBBOL' })
@@ -24,6 +23,7 @@ export const getSubscriptionOptions = (intl, subscription: ServiceSubscription, 
     const ActiveActionMessage = intl.formatMessage({ id: 'subscription.action.active' })
     const CreateBillMessage = intl.formatMessage({ id: 'subscription.data.createBill' })
 
+    const type = get(subscription, 'type')
     const focusContainerClassNames = classNames({
         ['disabled']: subscription && type === 'sbbol',
     })

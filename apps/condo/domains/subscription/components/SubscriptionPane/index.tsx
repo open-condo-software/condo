@@ -1,6 +1,7 @@
 import { Alert, Col, Row, Table, Typography } from 'antd'
 import dayjs from 'dayjs'
 import React from 'react'
+import get from 'lodash/get'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { useIntl } from '@core/next/intl'
 import { ServiceSubscription } from '../../../../schema'
@@ -22,7 +23,7 @@ const getActiveSubscriptionData = (intl, subscription: ServiceSubscription, isEx
         return []
     }
 
-    let tariffMessage = subscription.type === 'sbbol' ? SbbolSubscriptionTypeMessage : DefaultSubscriptionTypeMessage
+    let tariffMessage = get(subscription, 'type') === 'sbbol' ? SbbolSubscriptionTypeMessage : DefaultSubscriptionTypeMessage
 
     if (subscription.isTrial) {
         tariffMessage += ` (${TrialMessage})`
@@ -39,7 +40,7 @@ const getActiveSubscriptionData = (intl, subscription: ServiceSubscription, isEx
         },
         {
             attribute: ExpiredDate,
-            value: dayjs(subscription.finishAt).format('DD.MM.YYYY'),
+            value: dayjs(get(subscription, 'finishAt')).format('DD.MM.YYYY'),
         },
     ]
 }
@@ -106,7 +107,7 @@ export const SubscriptionPane: React.FC = () => {
                                     <Col span={24}>
                                         <Alert
                                             message={
-                                                subscription.type === 'sbbol'
+                                                get(subscription, 'type') === 'sbbol'
                                                     ? SbbolSubscriptionDeclineMessage
                                                     : DefaultSubscriptionDeclineMessage
                                             }

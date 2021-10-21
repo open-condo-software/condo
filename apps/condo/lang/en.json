@@ -685,6 +685,8 @@
   "subscription.action.active": "Active Plan",
   "subscription.status.active": "Active",
   "subscription.status.expired": "Expired",
+  "subscription.type.sbbol": "For Sber clients",
+  "subscription.type.default": "Default plan",
   "subscription.type.trial": "Trial version",
   "subscription.type.expiredDate": "Expired at",
   "Seconds": "Seconds",
