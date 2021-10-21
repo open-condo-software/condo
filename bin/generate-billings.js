@@ -1,4 +1,4 @@
-const { BillingIntegration, BillingCurrency } = require('@condo/domains/billing/utils/serverSchema')
+const { BillingIntegration } = require('@condo/domains/billing/utils/serverSchema')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const faker = require('faker')
 const path = require('path')
@@ -10,30 +10,8 @@ const {
 
 const DV = 1
 const SENDER = { dv: DV, fingerprint: faker.random.alphaNumeric(8) }
-
-const RubleCurrency = {
-    dv: DV,
-    sender: SENDER,
-    code: 'RUB',
-    displayInfo: {
-        symbolNative: '₽',
-        decimalDigits: 2,
-        rounding: 0,
-        delimiterNative: ',',
-    },
-}
-
-const DollarCurrency = {
-    dv: DV,
-    sender: SENDER,
-    code: 'USD',
-    displayInfo: {
-        symbolNative: '$',
-        decimalDigits: 2,
-        rounding: 0,
-        delimiterNative: '.',
-    },
-}
+const RUBLE_CURRENCY_CODE = 'RUB'
+const DOLLAR_CURRENCY_CODE = 'USD'
 
 const Lvl1DataFormat = {
     hasToPayDetail: false,
@@ -187,27 +165,18 @@ class BillingsGenerator {
         this.context = await keystone.createContext({ skipAccessControl: true })
     }
 
-    async generateCurrencies () {
-        console.info('[INFO] Generating currencies...')
-        const rub = await BillingCurrency.create(this.context, RubleCurrency)
-        const usd = await BillingCurrency.create(this.context, DollarCurrency)
-        return { rub, usd }
-    }
-
     async generateBillings () {
         console.info('[INFO] Generating billings...')
-        const { rub, usd } = await this.generateCurrencies()
-        console.log(rub)
         for (const billing of RUBLE_BILLINGS_TO_CREATE) {
             await BillingIntegration.create(this.context, {
                 ...billing,
-                currency: { connect: { id: rub.id } },
+                currencyCode: RUBLE_CURRENCY_CODE,
             })
         }
         for (const billing of DOLLAR_BILLINGS_TO_CREATE) {
             await BillingIntegration.create(this.context, {
                 ...billing,
-                currency: { connect: { id: usd.id } },
+                currencyCode: DOLLAR_CURRENCY_CODE,
             })
         }
     }
