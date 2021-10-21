@@ -213,23 +213,15 @@ describe('MultiPayment', () => {
         test('mobile resident can\'t see his sensitive data in his own MultiPayments', async () => {
             const { admin, payments, acquiringIntegration, client } = await makePayerAndPayments()
             const [createdMultiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
-            let multiPayments = await MultiPayment.getAll(client)
+            // We use raw: true because when using field access, all fields that are not permitted result in error which stops the test
+            let { data: { objs: multiPayments } } = await MultiPayment.getAll(client, {}, { raw: true })
             expect(multiPayments).toBeDefined()
             expect(multiPayments).toHaveLength(1)
             const retrievedMultiPayment = multiPayments[0]
             expect(retrievedMultiPayment.id).toBe(createdMultiPayment.id)
-            expect(retrievedMultiPayment.implicitFee).not.toBeDefined()
-            expect(retrievedMultiPayment.transactionId).not.toBeDefined()
-            expect(retrievedMultiPayment.meta).not.toBeDefined()
-            expect(retrievedMultiPayment.v).not.toBeDefined()
-            expect(retrievedMultiPayment.deletedAt).not.toBeDefined()
-            expect(retrievedMultiPayment.createdBy).not.toBeDefined()
-            expect(retrievedMultiPayment.updatedBy).not.toBeDefined()
-            console.log(retrievedMultiPayment)
-        })
-
-        test('mobile resident can\'t see his sensitive data in his own MultiPayments.Payments', async () => {
-
+            expect(retrievedMultiPayment.implicitFee).toBeNull()
+            expect(retrievedMultiPayment.transactionId).toBeNull()
+            expect(retrievedMultiPayment.meta).toBeNull()
         })
     })
 })
