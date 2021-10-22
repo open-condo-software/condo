@@ -10,8 +10,8 @@ const {
 
 const DV = 1
 const SENDER = { dv: DV, fingerprint: faker.random.alphaNumeric(8) }
-const RUBLE_CURRENCY_CODE = 'RUB'
-const DOLLAR_CURRENCY_CODE = 'USD'
+const RUB_CURRENCY_CODE = 'RUB'
+const USD_CURRENCY_CODE = 'USD'
 
 const Lvl1DataFormat = {
     hasToPayDetail: false,
@@ -170,13 +170,13 @@ class BillingsGenerator {
         for (const billing of RUBLE_BILLINGS_TO_CREATE) {
             await BillingIntegration.create(this.context, {
                 ...billing,
-                currencyCode: RUBLE_CURRENCY_CODE,
+                currencyCode: RUB_CURRENCY_CODE,
             })
         }
         for (const billing of DOLLAR_BILLINGS_TO_CREATE) {
             await BillingIntegration.create(this.context, {
                 ...billing,
-                currencyCode: DOLLAR_CURRENCY_CODE,
+                currencyCode: USD_CURRENCY_CODE,
             })
         }
     }
