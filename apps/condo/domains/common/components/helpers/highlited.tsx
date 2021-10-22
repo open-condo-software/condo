@@ -14,7 +14,7 @@ const highlighterRenderPart: THighlighterRenderPartFN = (part) => (
     <Typography.Text style={HIGHLITER_STYLES}>{part}</Typography.Text>
 )
 
-export const getHighlited: TGetHighlitedFN = (search, postfix) => (text) => {
+export const getHighlited: TGetHighlitedFN = (search, postfix) => (text = '') => {
     if (isEmpty(search) && !text) return postfix ? `${text} ${postfix}` : text
 
     return (

@@ -11,6 +11,11 @@ interface IHighlighterProps {
     renderPart: THighlighterRenderPartFN
 }
 
+/**
+ * DEPRECATED! Please use apps/condo/domains/common/components/TextHighlighter.tsx
+ * @param props
+ * @constructor
+ */
 export const Highlighter: React.FC<IHighlighterProps> = (props) => {
     const { text, search, renderPart } = props
 

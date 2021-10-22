@@ -15,7 +15,8 @@ import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
 import { useLazyQuery } from '@core/next/apollo'
 
-import { getFiltersFromQuery, getId } from '@condo/domains/common/utils/helpers'
+import { MessageSetMeta } from '@condo/domains/common/types'
+import { getFiltersFromQuery, getId, getIntlMessages } from '@condo/domains/common/utils/helpers'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { EXPORT_TICKETS_TO_EXCEL } from '@condo/domains/ticket/gql'
 import {
@@ -55,6 +56,20 @@ const EMERGENCY_CHECKBOX_STYLES = { paddingLeft: '0px', fontSize: fontSizes.cont
 const PAGE_HEADER_TITLE_STYLES = { margin: 0 }
 const ROW_GUTTER: [Gutter, Gutter] = [0, 40]
 
+type TableMessageKeys = 'PageTitleMessage' | 'SearchPlaceholder' | 'ExportAsExcel' | 'EmptyListLabel'
+| 'EmptyListMessage' | 'CreateTicket' | 'EmergencyLabel' | 'DownloadExcelLabel'
+
+const TABLE_MESSAGES: MessageSetMeta<TableMessageKeys> = {
+    PageTitleMessage: 'pages.condo.ticket.index.PageTitle',
+    SearchPlaceholder: 'filters.FullSearch',
+    ExportAsExcel: 'ExportAsExcel',
+    EmptyListLabel: 'ticket.EmptyList.header',
+    EmptyListMessage: 'ticket.EmptyList.title',
+    CreateTicket: 'CreateTicket',
+    EmergencyLabel: 'Emergency',
+    DownloadExcelLabel: 'pages.condo.ticket.id.DownloadExcelLabel',
+}
+
 export const TicketsPageContent = ({
     searchTicketsQuery,
     tableColumns,
@@ -64,14 +79,7 @@ export const TicketsPageContent = ({
     filtersToQuery,
 }) => {
     const intl = useIntl()
-    const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
-    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const ExportAsExcel = intl.formatMessage({ id: 'ExportAsExcel' })
-    const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
-    const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
-    const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
-    const EmergencyLabel = intl.formatMessage({ id: 'Emergency' })
-    const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.ticket.id.DownloadExcelLabel' })
+    const messages = getIntlMessages<TableMessageKeys>(intl, TABLE_MESSAGES)
     const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
 
     const router = useRouter()
@@ -95,10 +103,7 @@ export const TicketsPageContent = ({
 
     const [downloadLink, setDownloadLink] = useState(null)
 
-    const [
-        exportToExcel,
-        { loading: isXlsLoading },
-    ] = useLazyQuery(
+    const [exportToExcel, { loading: isXlsLoading }] = useLazyQuery(
         EXPORT_TICKETS_TO_EXCEL,
         {
             onError: error => {
@@ -110,13 +115,11 @@ export const TicketsPageContent = ({
         },
     )
 
-    const handleRowAction = useCallback((record) => {
-        return {
-            onClick: () => {
-                router.push(`/ticket/${record.id}/`)
-            },
-        }
-    }, [])
+    const handleRowAction = useCallback((record) => ({
+        onClick: () => {
+            router.push(`/ticket/${record.id}/`)
+        },
+    }), [])
 
     const handleTableChange = useCallback(debounce((...tableChangeArguments) => {
         const [nextPagination, nextFilters, nextSorter] = tableChangeArguments
@@ -181,22 +184,22 @@ export const TicketsPageContent = ({
     return (
         <>
             <Head>
-                <title>{PageTitleMessage}</title>
+                <title>{messages.PageTitleMessage}</title>
             </Head>
             <PageWrapper>
-                <PageHeader title={<Typography.Title style={PAGE_HEADER_TITLE_STYLES}>{PageTitleMessage}</Typography.Title>}/>
+                <PageHeader title={<Typography.Title style={PAGE_HEADER_TITLE_STYLES}>{messages.PageTitleMessage}</Typography.Title>}/>
                 <PageContent>
                     {
                         !tickets.length && !filtersFromQuery
                             ? <EmptyListView
-                                label={EmptyListLabel}
-                                message={EmptyListMessage}
+                                label={messages.EmptyListLabel}
+                                message={messages.EmptyListMessage}
                                 createRoute='/ticket/create'
-                                createLabel={CreateTicket} />
+                                createLabel={messages.CreateTicket} />
                             : <Row gutter={ROW_GUTTER} align={'middle'}>
                                 <Col span={6}>
                                     <Input
-                                        placeholder={SearchPlaceholder}
+                                        placeholder={messages.SearchPlaceholder}
                                         onChange={handleSearchInputChange}
                                         value={search}
                                     />
@@ -207,7 +210,7 @@ export const TicketsPageContent = ({
                                         checked={emergency}
                                         style={EMERGENCY_CHECKBOX_STYLES}
                                     >
-                                        {EmergencyLabel}
+                                        {messages.EmergencyLabel}
                                     </Checkbox>
                                 </Col>
                                 <Col span={6} push={1}>
@@ -222,7 +225,7 @@ export const TicketsPageContent = ({
                                                 href={downloadLink}
                                                 rel='noreferrer'
                                             >
-                                                {DownloadExcelLabel}
+                                                {messages.DownloadExcelLabel}
                                             </Button>
                                             :
                                             <Button
@@ -231,7 +234,7 @@ export const TicketsPageContent = ({
                                                 loading={isXlsLoading}
                                                 onClick={handleExport}
                                             >
-                                                {ExportAsExcel}
+                                                {messages.ExportAsExcel}
                                             </Button>
                                     }
                                 </Col>

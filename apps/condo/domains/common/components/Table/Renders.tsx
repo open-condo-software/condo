@@ -9,7 +9,6 @@ import { ELECTRICITY_METER_RESOURCE_ID } from '@condo/domains/meter/constants/co
 import { LOCALES } from '../../constants/locale'
 import { QueryArgType } from '../../utils/tables.utils'
 import { TextHighlighter } from '../TextHighlighter'
-import { Highlighter } from '../Highlighter'
 import { EmptyTableCell } from './EmptyTableCell'
 
 import { colors } from '../../constants/style'
@@ -21,7 +20,7 @@ const DEFAULT_CURRENCY_CODE = 'RUB'
 const MARKED_TEXT_STYLES = { backgroundColor: colors.markColor }
 const EMPTY_TEXT_STYLES = {}
 
-const renderHighlightedPart = (part, startIndex, marked) => (
+export const renderHighlightedPart = (part, startIndex, marked) => (
     <Typography.Text style={marked ? MARKED_TEXT_STYLES : EMPTY_TEXT_STYLES}>
         {part}
     </Typography.Text>
@@ -60,7 +59,7 @@ export const getAddressRender = (search?: QueryArgType, unitPrefix?: string) => 
 
         return (
             <>
-                <Highlighter
+                <TextHighlighter
                     text={text}
                     search={String(search)}
                     renderPart={renderHighlightedPart}

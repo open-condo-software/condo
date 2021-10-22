@@ -7,7 +7,8 @@ import { Checkbox, Space, Tag, Typography } from 'antd'
 import { useIntl } from '@core/next/intl'
 
 import { LOCALES } from '@condo/domains/common/constants/locale'
-
+import { getHighlited } from '@condo/domains/common/components/helpers/highlited'
+import { MessageSetMeta } from '@condo/domains/common/types'
 import getRenderer from '@condo/domains/common/components/helpers/tableCellRenderer'
 import { getAddressDetails, getIntlMessages } from '@condo/domains/common/utils/helpers'
 
@@ -20,9 +21,6 @@ import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketSta
 import { createSorterMap, IFilters } from '../utils/helpers'
 import { TicketStatus } from '../utils/clientSchema'
 import { getFilteredValue } from '../utils/helpers'
-
-import { getHighlited } from '../../common/components/helpers/highlited'
-import { MessageSetMeta } from '../../common/types'
 
 type MessageKeys = 'EmergencyMessage' | 'NumberMessage' | 'PaidMessage' | 'DateMessage'
 | 'StatusMessage' | 'ClientNameMessage' | 'DescriptionMessage' | 'FindWordMessage'
@@ -47,8 +45,11 @@ const MESSAGES: MessageSetMeta<MessageKeys> = {
 const EMERGENCY_TAG_TEXT_STYLES = { color: EMERGENCY_TAG_COLOR.text }
 const STATUS_FILTER_CHECKBOX_GROUP_STYLES: CSSProperties = { display: 'flex', flexDirection: 'column' }
 
-export const useTableColumns = (sort: Array<string>, filters: IFilters,
-    setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>) => {
+export const useTableColumns = (
+    sort: Array<string>,
+    filters: IFilters,
+    setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>
+) => {
     const intl = useIntl()
     const messages = getIntlMessages<MessageKeys>(intl, MESSAGES)
 
@@ -85,6 +86,11 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
 
     const renderStatusFilterDropdown = ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         const adaptedStatuses = ticketStatuses.map(convertGQLItemToFormSelectState).filter(identity)
+        const handleFilterChange = (e) => {
+            setSelectedKeys(e)
+            setFiltersApplied(true)
+            confirm({ closeDropdown: false })
+        }
 
         return (
             <FilterContainer
@@ -96,18 +102,14 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                     options={adaptedStatuses}
                     style={STATUS_FILTER_CHECKBOX_GROUP_STYLES}
                     value={selectedKeys}
-                    onChange={(e) => {
-                        setSelectedKeys(e)
-                        setFiltersApplied(true)
-                        confirm({ closeDropdown: false })
-                    }}
+                    onChange={handleFilterChange}
                 />
             </FilterContainer>
         )
     }
 
     const renderAddress = (record) => {
-        const { text, unitPrefix } = getAddressDetails(get(record, ['meter']), messages.ShortFlatNumber)
+        const { text, unitPrefix } = getAddressDetails(get(record, 'meter') || record, messages.ShortFlatNumber)
 
         return getRenderer(search, true, unitPrefix)(text)
     }
@@ -163,7 +165,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 dataIndex: 'details',
                 filteredValue: getFilteredValue(filters, 'details'),
                 key: 'details',
-                width: '18%',
+                width: '22%',
                 filterDropdown: getTextFilterDropdown(messages.FindWordMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
                 render: getRenderer(search, true),
@@ -175,7 +177,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 filteredValue: getFilteredValue(filters, 'property'),
                 key: 'property',
                 sorter: true,
-                width: '12%',
+                width: '19%',
                 render: renderAddress,
                 filterDropdown: getTextFilterDropdown(messages.AddressMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
@@ -199,7 +201,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 dataIndex: 'executor',
                 key: 'executor',
                 sorter: true,
-                width: '15%',
+                width: '12%',
                 render: (executor) => getRenderer(search)(get(executor, ['name'])),
                 filterDropdown: getTextFilterDropdown(messages.UserNameMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
@@ -211,7 +213,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 dataIndex: 'assignee',
                 key: 'assignee',
                 sorter: true,
-                width: '18%',
+                width: '12%',
                 render: (assignee) => getRenderer(search)(get(assignee, ['name'])),
                 filterDropdown: getTextFilterDropdown(messages.UserNameMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,

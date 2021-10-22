@@ -8,7 +8,7 @@ export type RecordWithAddressDetails = {
     unitName?: string
 }
 /**
- * Converts generic string literal union to a type, so than any member of a union can be used as a generic record key
+ * Converts generic string literal union to a type, so that any member of a union can be used as a generic record key
  * ex.: StringLiteral<'aaa' | 'bbb' | 'ccc'> => ... => record.aaa
  * ex.: type TableMessageKeys = 'NameMessage' | 'PhoneMessage' | 'EmailMessage' | 'AddressMessage' | 'ShortFlatNumber'
  */
