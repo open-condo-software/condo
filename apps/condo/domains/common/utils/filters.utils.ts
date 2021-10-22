@@ -3,7 +3,7 @@ import dayjs, { Dayjs } from 'dayjs'
 import { FormItemProps } from 'antd/es'
 import React, { CSSProperties } from 'react'
 import { ISearchInputProps } from '../components/GraphQlSearchInput'
-import { DatePickerProps, InputProps, SelectProps } from 'antd'
+import { DatePickerProps, FormInstance, InputProps, SelectProps } from 'antd'
 import { CheckboxGroupProps } from 'antd/es/checkbox'
 import { RangePickerSharedProps } from 'rc-picker/lib/RangePicker'
 import { get } from 'lodash'
@@ -68,7 +68,7 @@ export type FilterComponentInfo = CommonFilterComponentInfo & ({
     getComponentFilterDropdown?: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: {
         setSelectedKeys: any, selectedKeys: any, confirm: any, clearFilters: any
     }) => JSX.Element
-    modalFilterComponent?: React.ReactElement
+    modalFilterComponent?: React.ReactElement | ((form: FormInstance) => React.ReactElement)
 })
 
 export type FiltersMeta<F> = QueryMeta<F> & {
@@ -108,27 +108,31 @@ export function getFilterDropdownByKey <T> (filterMetas: Array<FiltersMeta<T>>, 
         }
 
         case ComponentType.DateRange:
-            return getDateRangeFilterDropdown(columnFilterComponentWrapperStyles)
+            return getDateRangeFilterDropdown(props, columnFilterComponentWrapperStyles)
 
         case ComponentType.Select: {
             const options = get(component, 'options')
             const loading = get(component, 'loading')
-            const mode = get(component, ['props', 'mode'])
-            return getSelectFilterDropdown({ options, loading, mode }, columnFilterComponentWrapperStyles)
+            const props = get(component, 'props', {})
+            return getSelectFilterDropdown({ options, loading, ...props }, columnFilterComponentWrapperStyles)
         }
 
         case ComponentType.GQLSelect: {
+            const props = get(component, 'props', {})
             const search = get(props, 'search')
             const mode = get(props, 'mode')
-            return getGQLSelectFilterDropdown(search, mode, columnFilterComponentWrapperStyles)
+            return getGQLSelectFilterDropdown(props, search, mode, columnFilterComponentWrapperStyles)
         }
 
         case ComponentType.ChipsInput: {
+            const props = get(component, 'props', {})
+
             return getSelectFilterDropdown(
                 {
                     mode: 'tags',
                     dropdownStyle: { display: 'none' },
                     allowClear: true,
+                    ...props,
                 },
                 columnFilterComponentWrapperStyles
             )

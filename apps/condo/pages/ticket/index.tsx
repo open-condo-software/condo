@@ -43,7 +43,6 @@ export const ExportToExcelActionBar = ({
     sortBy,
 }) => {
     const intl = useIntl()
-    const ExportAsExcel = intl.formatMessage({ id: 'ExportAsExcel' })
     const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.ticket.id.DownloadExcelLabel' })
     const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
 
@@ -115,7 +114,14 @@ export const TicketsPageContent = ({
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
-    
+
+    let appliedFiltersCount = 0
+    for (const filter in filters) {
+        if (Array.isArray(filters[filter]) && filters[filter].length > 0) {
+            appliedFiltersCount++
+        }
+    }
+
     const { MultipleFiltersModal, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas)
 
     searchTicketsQuery = { ...searchTicketsQuery, ...{ deletedAt: null } }
@@ -206,16 +212,20 @@ export const TicketsPageContent = ({
                                                 </Col>
                                                 <Col>
                                                     <Row>
-                                                        <Col>
-                                                            <Button
-                                                                type={'text'}
-                                                                onClick={resetQuery}
-                                                            >
-                                                                <Typography.Text strong type={'secondary'}>
-                                                                    {'Сбросить'} <CloseOutlined style={{ fontSize: '12px' }} />
-                                                                </Typography.Text>
-                                                            </Button>,
-                                                        </Col>
+                                                        {
+                                                            appliedFiltersCount > 0 ? (
+                                                                <Col>
+                                                                    <Button
+                                                                        type={'text'}
+                                                                        onClick={resetQuery}
+                                                                    >
+                                                                        <Typography.Text strong type={'secondary'}>
+                                                                            {'Сбросить'} <CloseOutlined style={{ fontSize: '12px' }} />
+                                                                        </Typography.Text>
+                                                                    </Button>,
+                                                                </Col>
+                                                            ) : null
+                                                        }
                                                         <Col>
                                                             <Button
                                                                 secondary
@@ -224,6 +234,7 @@ export const TicketsPageContent = ({
                                                             >
                                                                 <FilterFilled/>
                                                                 {FiltersButtonLabel}
+                                                                {appliedFiltersCount > 0 ? `(${appliedFiltersCount})` : null}
                                                             </Button>
                                                         </Col>
                                                     </Row>

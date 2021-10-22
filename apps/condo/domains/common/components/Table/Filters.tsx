@@ -23,7 +23,7 @@ const FILTER_DROPDOWN_CHECKBOX_STYLES: CSSProperties = { display: 'flex', flexDi
 export const getFilterIcon: FilterIconType = (filtered) => <FilterFilled style={{ color: filtered ? colors.sberPrimary[5] : undefined }} />
 export const getFilterValue: FilterValueType = (path, filters) => get(filters, path, null)
 
-export const getTextFilterDropdown = (placeholder: string, containerStyles?: CSSProperties) => {
+export const getTextFilterDropdown = (placeholder: string, props, containerStyles?: CSSProperties) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         return (
             <FilterContainer
@@ -94,7 +94,7 @@ export const getSelectFilterDropdown = (selectProps, containerStyles?: CSSProper
     }
 }
 
-export const getGQLSelectFilterDropdown = (search, mode?: 'multiple' | 'tag', containerStyles?: CSSProperties) => {
+export const getGQLSelectFilterDropdown = (props, search, mode?: 'multiple' | 'tag', containerStyles?: CSSProperties) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         return (
             <SelectFilterContainer
@@ -112,6 +112,7 @@ export const getGQLSelectFilterDropdown = (search, mode?: 'multiple' | 'tag', co
                         setSelectedKeys(e)
                         confirm({ closeDropdown: false })
                     }}
+                    {...props}
                 />
             </SelectFilterContainer>
         )
@@ -143,7 +144,7 @@ export const getDateFilterDropdown = (containerStyles?: CSSProperties) => {
     }
 }
 
-export const getDateRangeFilterDropdown = (containerStyles?: CSSProperties) => {
+export const getDateRangeFilterDropdown = (props, containerStyles?: CSSProperties) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         const pickerProps = {
             value: undefined,
@@ -163,7 +164,7 @@ export const getDateRangeFilterDropdown = (containerStyles?: CSSProperties) => {
                 showClearButton={selectedKeys && selectedKeys.length > 0}
                 style={containerStyles}
             >
-                <DateRangePicker {...pickerProps}/>
+                <DateRangePicker {...pickerProps} {...props}/>
             </FilterContainer>
         )
     }
