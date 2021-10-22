@@ -86,7 +86,8 @@ export const ExportToExcelActionBar = ({
                             loading={isXlsLoading}
                             onClick={
                                 () => exportToExcel({ variables: { data: { where: searchTicketsQuery, sortBy: sortBy, timeZone } } })
-                            }>{ExportAsExcel}
+                            }>
+                            {'Выгрузить в Excel'}
                         </Button>
                 }
             </ActionBar>
@@ -174,50 +175,58 @@ export const TicketsPageContent = ({
                                     <Col span={23}>
                                         <FocusContainer padding={'16px'}>
                                             <Row justify={'space-between'}>
-                                                <Col span={6}>
-                                                    <Input
-                                                        placeholder={SearchPlaceholder}
-                                                        onChange={(e)=>{handleSearchChange(e.target.value)}}
-                                                        value={search}
-                                                    />
-                                                </Col>
-                                                <Col span={4} offset={1}>
-                                                    <Checkbox
-                                                        onChange={handleEmergencyChange}
-                                                        checked={emergency}
-                                                        style={{ paddingLeft: '0px', fontSize: fontSizes.content }}
-                                                    >
-                                                        {EmergencyLabel}
-                                                    </Checkbox>
-                                                </Col>
-                                                <Col span={4} offset={1}>
-                                                    <Checkbox
-                                                        onChange={handlePaidChange}
-                                                        checked={paid}
-                                                        style={{ paddingLeft: '0px', fontSize: fontSizes.content }}
-                                                    >
-                                                        {PaidLabel}
-                                                    </Checkbox>
-                                                </Col>
-                                                <Col>
-                                                    <Button
-                                                        type={'text'}
-                                                        onClick={resetQuery}
-                                                    >
-                                                        <Typography.Text strong type={'secondary'}>
-                                                            {ClearAllFiltersMessage} <CloseOutlined style={{ fontSize: '12px' }} />
-                                                        </Typography.Text>
-                                                    </Button>,
+                                                <Col span={15}>
+                                                    <Row gutter={[40, 0]} align={'middle'}>
+                                                        <Col span={11}>
+                                                            <Input
+                                                                placeholder={SearchPlaceholder}
+                                                                onChange={(e)=>{handleSearchChange(e.target.value)}}
+                                                                value={search}
+                                                            />
+                                                        </Col>
+                                                        <Col span={5}>
+                                                            <Checkbox
+                                                                onChange={handleEmergencyChange}
+                                                                checked={emergency}
+                                                                style={{ paddingLeft: '0px', fontSize: fontSizes.content }}
+                                                            >
+                                                                {'Аварийные'}
+                                                            </Checkbox>
+                                                        </Col>
+                                                        <Col span={5}>
+                                                            <Checkbox
+                                                                onChange={handlePaidChange}
+                                                                checked={paid}
+                                                                style={{ paddingLeft: '0px', fontSize: fontSizes.content }}
+                                                            >
+                                                                {'Платные'}
+                                                            </Checkbox>
+                                                        </Col>
+                                                    </Row>
                                                 </Col>
                                                 <Col>
-                                                    <Button
-                                                        secondary
-                                                        type={'sberPrimary'}
-                                                        onClick={() => setIsMultipleFiltersModalVisible(true)}
-                                                    >
-                                                        <FilterFilled/>
-                                                        {FiltersButtonLabel}
-                                                    </Button>
+                                                    <Row>
+                                                        <Col>
+                                                            <Button
+                                                                type={'text'}
+                                                                onClick={resetQuery}
+                                                            >
+                                                                <Typography.Text strong type={'secondary'}>
+                                                                    {'Сбросить'} <CloseOutlined style={{ fontSize: '12px' }} />
+                                                                </Typography.Text>
+                                                            </Button>,
+                                                        </Col>
+                                                        <Col>
+                                                            <Button
+                                                                secondary
+                                                                type={'sberPrimary'}
+                                                                onClick={() => setIsMultipleFiltersModalVisible(true)}
+                                                            >
+                                                                <FilterFilled/>
+                                                                {FiltersButtonLabel}
+                                                            </Button>
+                                                        </Col>
+                                                    </Row>
                                                 </Col>
                                             </Row>
                                         </FocusContainer>
