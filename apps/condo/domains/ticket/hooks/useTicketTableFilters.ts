@@ -41,6 +41,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
     const CategoryClassifierMessage = intl.formatMessage({ id: 'component.ticketclassifier.CategoryLabel' })
     const PhoneMessage = intl.formatMessage({ id: 'Phone' })
     const AssigneeMessage = intl.formatMessage({ id: 'field.Responsible' })
+    const SelectMessage = intl.formatMessage({ id: 'Select' })
 
     // const userOrganization = useOrganization()
     // const userOrganizationId = get(userOrganization, ['organization', 'id'])
@@ -70,7 +71,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
     const placeClassifierFilter = getFilter(['placeClassifier', 'id'], 'array', 'string', 'in')
     const categoryClassifierFilter = getFilter(['categoryClassifier', 'id'], 'array', 'string', 'in')
 
-    const clientPhoneFilter = getStringContainsFilter('clientPhone')
+    const clientPhoneFilter = getFilter('clientPhone', 'array', 'string', 'in')
     const ticketAuthorFilter = getFilter(['createdBy', 'id'], 'array', 'string', 'in')
 
     const { objs: statuses } = TicketStatus.useObjects({})
@@ -100,6 +101,38 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                 },
             },
             {
+                keyword: 'details',
+                filters: [detailsFilter],
+                component: {
+                    type: ComponentType.Input,
+                },
+            },
+            {
+                keyword: 'clientName',
+                filters: [clientNameFilter],
+                component: {
+                    type: ComponentType.Input,
+                },
+            },
+            {
+                keyword: 'number',
+                filters: [numberFilter],
+                component: {
+                    type: ComponentType.Input,
+                },
+            },
+            {
+                keyword: 'search',
+                filters: [
+                    numberFilter,
+                    clientNameFilter,
+                    detailsFilter,
+                    executorNameFilter,
+                    assigneeNameFilter,
+                ],
+                combineType: 'OR',
+            },
+            {
                 keyword: 'property',
                 filters: [propertyFilter],
                 component: {
@@ -117,13 +150,6 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                     columnFilterComponentWrapper: {
                         width: '400px',
                     },
-                },
-            },
-            {
-                keyword: 'details',
-                filters: [detailsFilter],
-                component: {
-                    type: ComponentType.Input,
                 },
             },
             {
@@ -149,6 +175,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                     props: {
                         mode: 'multiple',
                         showArrow: true,
+                        placeholder: SelectMessage,
                     },
                     modalFilterComponentWrapper: {
                         label: SourceMessage,
@@ -170,7 +197,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                         search: searchOrganizationDivision(userOrganizationId),
                         mode: 'multiple',
                         showArrow: true,
-                        placeholder: EnterAddressMessage,
+                        placeholder: SelectMessage,
                     },
                     modalFilterComponentWrapper: {
                         label: 'Участок',
@@ -183,6 +210,9 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                 filters: [sectionFilter],
                 component: {
                     type: ComponentType.ChipsInput,
+                    props: {
+                        placeholder: SelectMessage,
+                    },
                     modalFilterComponentWrapper: {
                         label: SectionMessage,
                         size: FilterComponentSize.Medium,
@@ -194,6 +224,9 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                 filters: [floorFilter],
                 component: {
                     type: ComponentType.ChipsInput,
+                    props: {
+                        placeholder: SelectMessage,
+                    },
                     modalFilterComponentWrapper: {
                         label: FloorMessage,
                         size: FilterComponentSize.Medium,
@@ -205,6 +238,10 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                 filters: [unitFilter],
                 component: {
                     type: ComponentType.ChipsInput,
+                    props: {
+                        tokenSeparators: [' '],
+                        placeholder: 'Введите номер квартиры',
+                    },
                     modalFilterComponentWrapper: {
                         label: UnitMessage,
                         size: FilterComponentSize.Medium,
@@ -220,6 +257,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                     props: {
                         mode: 'multiple',
                         showArrow: true,
+                        placeholder: SelectMessage,
                     },
                     modalFilterComponentWrapper: {
                         label: PlaceClassifierMessage,
@@ -236,6 +274,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                     props: {
                         mode: 'multiple',
                         showArrow: true,
+                        placeholder: SelectMessage,
                     },
                     modalFilterComponentWrapper: {
                         label: CategoryClassifierMessage,
@@ -252,6 +291,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                     props: {
                         mode: 'multiple',
                         showArrow: true,
+                        placeholder: SelectMessage,
                     },
                     modalFilterComponentWrapper: {
                         label: StatusMessage,
@@ -260,26 +300,32 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                 },
             },
             {
-                keyword: 'clientName',
-                filters: [clientNameFilter],
+                keyword: 'attributes',
+                filters: [attributeFilter],
                 component: {
-                    type: ComponentType.Input,
-                },
-            },
-            {
-                keyword: 'number',
-                filters: [numberFilter],
-                component: {
-                    type: ComponentType.Input,
+                    type: ComponentType.Select,
+                    options: [{ label: PaidMessage, value: 'isPaid' }, { label: EmergencyMessage, value: 'isEmergency' }],
+                    props: {
+                        mode: 'multiple',
+                        showArrow: true,
+                        placeholder: SelectMessage,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: 'Признак',
+                        size: FilterComponentSize.Medium,
+                    },
                 },
             },
             {
                 keyword: 'clientPhone',
                 filters: [clientPhoneFilter],
                 component: {
-                    type: ComponentType.Input,
+                    type: ComponentType.ChipsInput,
+                    props: {
+                        placeholder: 'Введите телефон',
+                    },
                     modalFilterComponentWrapper: {
-                        label: PhoneMessage,
+                        label: 'Телефон жителя',
                         size: FilterComponentSize.Medium,
                     },
                 },
@@ -295,6 +341,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                         )),
                         mode: 'multiple',
                         showArrow: true,
+                        placeholder: 'Введите ФИО',
                     },
                     modalFilterComponentWrapper: {
                         label: ExecutorMessage,
@@ -316,6 +363,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                         )),
                         mode: 'multiple',
                         showArrow: true,
+                        placeholder: 'Введите ФИО',
                     },
                     modalFilterComponentWrapper: {
                         label: AssigneeMessage,
@@ -335,39 +383,13 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                         search: searchEmployeeUser(userOrganizationId),
                         mode: 'multiple',
                         showArrow: true,
+                        placeholder: 'Выбрать',
                     },
                     modalFilterComponentWrapper: {
                         label: UserNameMessage,
                         size: FilterComponentSize.Medium,
                     },
                 },
-            },
-            {
-                keyword: 'attributes',
-                filters: [attributeFilter],
-                component: {
-                    type: ComponentType.Select,
-                    options: [{ label: PaidMessage, value: 'isPaid' }, { label: EmergencyMessage, value: 'isEmergency' }],
-                    props: {
-                        mode: 'multiple',
-                        showArrow: true,
-                    },
-                    modalFilterComponentWrapper: {
-                        label: 'Атрибут',
-                        size: FilterComponentSize.Medium,
-                    },
-                },
-            },
-            {
-                keyword: 'search',
-                filters: [
-                    numberFilter,
-                    clientNameFilter,
-                    detailsFilter,
-                    executorNameFilter,
-                    assigneeNameFilter,
-                ],
-                combineType: 'OR',
             },
         ]
     }, [statuses, sources, ticketPlaceClassifiers, ticketCategoryClassifiers])
