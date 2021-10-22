@@ -1,16 +1,17 @@
 import React from 'react'
 import isEmpty from 'lodash/isEmpty'
+
 const { ESCAPE_REGEX } = require('../constants/regexps')
 
-export type THighliterRenderPartFN = (part: string, index?: number) => React.ReactElement
+export type THighlighterRenderPartFN = (part: string, index?: number) => React.ReactElement
 
-interface IHighliterProps {
+interface IHighlighterProps {
     text: string
     search: string
-    renderPart: THighliterRenderPartFN
+    renderPart: THighlighterRenderPartFN
 }
 
-export const Highliter: React.FC<IHighliterProps> = (props) => {
+export const Highlighter: React.FC<IHighlighterProps> = (props) => {
     const { text, search, renderPart } = props
 
     if (!text) return null

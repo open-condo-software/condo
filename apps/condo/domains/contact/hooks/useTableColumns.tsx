@@ -2,22 +2,23 @@ import { FilterValue } from 'antd/es/table/interface'
 import get from 'lodash/get'
 import { useIntl } from '@core/next/intl'
 import React, { useMemo } from 'react'
-import { getAddressDetails, getIntlMessages, MessageSetMeta } from '@condo/domains/common/utils/helpers'
+import { getAddressDetails, getIntlMessages } from '@condo/domains/common/utils/helpers'
 import { getTextFilterDropdown, getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import getRenderer from '@condo/domains/common/components/helpers/tableCellRenderer'
 
 import { createSorterMap, IFilters } from '../utils/helpers'
+import { MessageSetMeta } from '../../common/types'
 
 const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
 
 type TableMessageKeys = 'NameMessage' | 'PhoneMessage' | 'EmailMessage' | 'AddressMessage' | 'ShortFlatNumber'
 
 const TABLE_MESSAGES: MessageSetMeta<TableMessageKeys> = {
-    NameMessage: { id: 'field.FullName.short' },
-    PhoneMessage: { id: 'Phone' },
-    EmailMessage: { id: 'field.EMail' },
-    AddressMessage: { id: 'pages.condo.property.field.Address' },
-    ShortFlatNumber: { id: 'field.FlatNumber' },
+    NameMessage: 'field.FullName.short',
+    PhoneMessage: 'Phone',
+    EmailMessage: 'field.EMail',
+    AddressMessage: 'pages.condo.property.field.Address',
+    ShortFlatNumber: 'field.FlatNumber',
 }
 
 export const useTableColumns = (

@@ -176,7 +176,7 @@ export const TicketsPageContent = ({
     [total, offsetFromQuery, pagesizeFromQuery]
     )
 
-    const handleSearchInputChange = React.useCallback((e)=>{ handleSearchChange(e.target.value) }, [])
+    const handleSearchInputChange = React.useCallback((e) => { handleSearchChange(e.target.value) }, [])
 
     return (
         <>

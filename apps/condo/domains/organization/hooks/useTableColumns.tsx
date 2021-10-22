@@ -9,7 +9,7 @@ import { createSorterMap, IFilters } from '../utils/helpers'
 import { OrganizationEmployeeRole } from '../utils/clientSchema'
 import { getTextFilterDropdown, getFilterIcon, FilterContainer } from '@condo/domains/common/components/TableFilter'
 import { isEmpty } from 'lodash'
-import { Highliter } from '../../common/components/Highliter'
+import { Highlighter } from '../../common/components/Highlighter'
 import { EmptyTableCell } from '@condo/domains/common/components/Table/EmptyTableCell'
 
 const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
@@ -30,7 +30,7 @@ export const useTableColumns = (organizationId: string, sort: Array<string>, fil
         let result = text
         if (!isEmpty(search) && text) {
             result = (
-                <Highliter
+                <Highlighter
                     text={String(text)}
                     search={String(search)}
                     renderPart={(part) => (

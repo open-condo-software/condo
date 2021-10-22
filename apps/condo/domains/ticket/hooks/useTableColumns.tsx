@@ -9,7 +9,7 @@ import { useIntl } from '@core/next/intl'
 import { LOCALES } from '@condo/domains/common/constants/locale'
 
 import getRenderer from '@condo/domains/common/components/helpers/tableCellRenderer'
-import { getAddressDetails, getIntlMessages, MessageSetMeta } from '@condo/domains/common/utils/helpers'
+import { getAddressDetails, getIntlMessages } from '@condo/domains/common/utils/helpers'
 
 import { getDateFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import { getTextFilterDropdown, getFilterIcon, FilterContainer } from '@condo/domains/common/components/TableFilter'
@@ -22,25 +22,26 @@ import { TicketStatus } from '../utils/clientSchema'
 import { getFilteredValue } from '../utils/helpers'
 
 import { getHighlited } from '../../common/components/helpers/highlited'
+import { MessageSetMeta } from '../../common/types'
 
 type MessageKeys = 'EmergencyMessage' | 'NumberMessage' | 'PaidMessage' | 'DateMessage'
 | 'StatusMessage' | 'ClientNameMessage' | 'DescriptionMessage' | 'FindWordMessage'
 | 'AddressMessage' | 'UserNameMessage' | 'ShortFlatNumber' | 'ExecutorMessage' | 'ResponsibleMessage'
 
 const MESSAGES: MessageSetMeta<MessageKeys> = {
-    EmergencyMessage: { id: 'Emergency', lowerCase: true },
-    NumberMessage: { id: 'ticketsTable.Number' },
-    PaidMessage: { id: 'Paid', lowerCase: true },
-    DateMessage: { id: 'Date' },
-    StatusMessage: { id: 'Status' },
-    ClientNameMessage: { id: 'Client' },
-    DescriptionMessage: { id: 'Description' },
-    FindWordMessage: { id: 'filters.FindWord' },
-    AddressMessage: { id: 'field.Address' },
-    UserNameMessage: { id: 'filters.UserName' },
-    ShortFlatNumber: { id: 'field.FlatNumber' },
-    ExecutorMessage: { id: 'field.Executor' },
-    ResponsibleMessage: { id: 'field.Responsible' },
+    EmergencyMessage: 'Emergency',
+    NumberMessage: 'ticketsTable.Number',
+    PaidMessage: 'Paid',
+    DateMessage: 'Date',
+    StatusMessage: 'Status',
+    ClientNameMessage: 'Client',
+    DescriptionMessage: 'Description',
+    FindWordMessage: 'filters.FindWord',
+    AddressMessage: 'field.Address',
+    UserNameMessage: 'filters.UserName',
+    ShortFlatNumber: 'field.FlatNumber',
+    ExecutorMessage: 'field.Executor',
+    ResponsibleMessage: 'field.Responsible',
 }
 
 const EMERGENCY_TAG_TEXT_STYLES = { color: EMERGENCY_TAG_COLOR.text }
@@ -69,13 +70,13 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                 {record.isEmergency &&
                     <Tag color={EMERGENCY_TAG_COLOR.background}>
                         <Typography.Text style={EMERGENCY_TAG_TEXT_STYLES}>
-                            {messages.EmergencyMessage}
+                            {messages.EmergencyMessage.toLowerCase()}
                         </Typography.Text>
                     </Tag>
                 }
                 {record.isPaid &&
                     <Tag color='orange'>
-                        {messages.PaidMessage}
+                        {messages.PaidMessage.toLowerCase()}
                     </Tag>
                 }
             </Space>

@@ -15,17 +15,17 @@ const ELLIPSIS_STYLES = { marginBottom: 0 }
 
 const getTableCellRenderer: TGetRendererFN = (search, ellipsis = false, postfix = '') =>
     (text) => {
-        const withHighlited = getHighlited(search, postfix)(text)
+        const highlitedContent = getHighlited(search, postfix)(text)
 
         return (
             <EmptyTableCell>
                 {ellipsis
                     ? (
                         <Typography.Paragraph ellipsis={ELLIPSIS_SETTINGS} title={`${text} ${postfix || ''}`} style={ELLIPSIS_STYLES}>
-                            {withHighlited}
+                            {highlitedContent}
                         </Typography.Paragraph>
                     )
-                    : <>{withHighlited}</>
+                    : <>{highlitedContent}</>
                 }
             </EmptyTableCell>
         )

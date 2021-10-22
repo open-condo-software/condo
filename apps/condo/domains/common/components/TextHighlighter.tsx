@@ -1,11 +1,14 @@
-import { isEmpty } from 'lodash'
 import React from 'react'
+import isEmpty from 'lodash/isEmpty'
+
 const { ESCAPE_REGEX } = require('../constants/regexps')
+
+export type TTextHighlighterRenderPartFN = (part: string, startIndex: number, marked: boolean) => React.ReactElement
 
 interface ITextHighlighterProps {
     text: string
     search: string
-    renderPart: (part: string, startIndex: number, marked: boolean) => React.ReactElement
+    renderPart: TTextHighlighterRenderPartFN
 }
 
 export const TextHighlighter: React.FC<ITextHighlighterProps> = ({ text, search, renderPart }) => {
@@ -16,6 +19,7 @@ export const TextHighlighter: React.FC<ITextHighlighterProps> = ({ text, search,
     }
 
     const searchRegexp = new RegExp(`(${ESCAPE_REGEX(search)})`, 'ig')
+
     if (!text.match(searchRegexp)) {
         return <>{ renderPart(text, 0, false) }</>
     }
@@ -25,10 +29,13 @@ export const TextHighlighter: React.FC<ITextHighlighterProps> = ({ text, search,
     let symbolsPassed = 0
     const elements = parts.map((part) => {
         const startSymbolIndex = symbolsPassed
+
         symbolsPassed += part.length
+
         if (part.match(searchRegexp)) {
             return renderPart(part, startSymbolIndex, true)
         }
+
         return renderPart(part, startSymbolIndex, false)
     })
 
