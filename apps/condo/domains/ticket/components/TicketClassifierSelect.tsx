@@ -85,7 +85,6 @@ const useTicketClassifierSelectHook = ({
                     ref={classifiersRef}
                     value={selectedRef.current}
                     showAction={['focus', 'click']}
-                    mode={'multiple'}
                 >
                     {
                         optionsRef.current.map(classifier => (
