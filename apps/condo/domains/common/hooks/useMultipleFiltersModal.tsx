@@ -131,7 +131,7 @@ export const getModalFilterComponentByMeta = (filters, name, component: FilterCo
     }
 }
 
-function getModalComponents <T> (filters, filterMetas: Array<FiltersMeta<T>>): React.ReactElement[] {
+function getModalComponents <T> (filters, filterMetas: Array<FiltersMeta<T>>, form): React.ReactElement[] {
     return filterMetas.map(filterMeta => {
         const { keyword, component } = filterMeta
 
@@ -161,7 +161,9 @@ function getModalComponents <T> (filters, filterMetas: Array<FiltersMeta<T>>): R
                 formItemProps={formItemProps}
                 queryToValueProcessor={queryToValueProcessor}
             >
-                {Component}
+                {
+                    typeof Component === 'function' ? Component(form) : Component
+                }
             </FilterComponent>
         )
     })
@@ -238,7 +240,7 @@ export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>)
 
                         return (
                             <Row justify={'space-between'} gutter={[24, 12]} id={FILTERS_POPUP_CONTAINER_ID}>
-                                {getModalComponents(filters, filterMetas)}
+                                {getModalComponents(filters, filterMetas, form)}
                             </Row>
                         )
                     }

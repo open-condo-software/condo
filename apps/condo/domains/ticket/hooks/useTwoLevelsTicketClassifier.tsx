@@ -3,22 +3,15 @@ import { Select, Input, Col, Form } from 'antd'
 const { Option } = Select
 import { useApolloClient } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
-import { uniqBy, isEmpty, find, pick, get } from 'lodash'
-import { ClassifiersQueryLocal, ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
+import { uniqBy, isEmpty, find, pick } from 'lodash'
+import { ClassifiersQueryLocal, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 import { useTicketValidations } from '@condo/domains/ticket/components/BaseTicketForm/useTicketValidations'
 
 interface Options {
     id: string
     name: string
 }
-interface ITicketThreeLevelsClassifierHookInput {
-    initialValues: {
-        classifierRule: string
-        placeClassifier: string
-        categoryClassifier: string
-        problemClassifier?: string
-    }
-}
+
 interface ITicketThreeLevelsClassifierHookOutput {
     ClassifiersEditorComponent: React.FC<{ form, disabled }>
 }
@@ -40,7 +33,7 @@ interface ITicketClassifierSelectHookOutput {
     ref: React.MutableRefObject<HTMLSelectElement>
 }
 
-const useTicketClassifierSelectHook = ({
+export const useTicketClassifierSelectHook = ({
     onChange,
     onSearch,
     initialValue,
@@ -85,6 +78,7 @@ const useTicketClassifierSelectHook = ({
                     ref={classifiersRef}
                     value={selectedRef.current}
                     showAction={['focus', 'click']}
+                    // mode={'multiple'}
                 >
                     {
                         optionsRef.current.map(classifier => (
@@ -109,17 +103,11 @@ const useTicketClassifierSelectHook = ({
     }
 }
 
-export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
-    classifierRule,
-    placeClassifier,
-    categoryClassifier,
-    problemClassifier,
-} }: ITicketThreeLevelsClassifierHookInput): ITicketThreeLevelsClassifierHookOutput => {
+export const useTicketTwoLevelsClassifierHook = (): ITicketThreeLevelsClassifierHookOutput => {
     const intl = useIntl()
     const PlaceClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.PlaceLabel' })
     const CategoryClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.CategoryLabel' })
-    const ProblemClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.ProblemLabel' })
-    const ruleRef = useRef({ id: classifierRule, place: null, category:null, problem: null })
+    const ruleRef = useRef({ id: null, place: null, category:null, problem: null })
     const client = useApolloClient()
     const ClassifierLoader = new ClassifiersQueryLocal(client)
     const validations = useTicketValidations()
@@ -136,23 +124,13 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     }
 
     const {
-        set: problemSet,
-        SelectComponent: ProblemSelect,
-        ref: problemRef,
-    } = useTicketClassifierSelectHook({
-        onChange: (id) => onUserSelect(id, TicketClassifierTypes.problem),
-        onSearch: (id) => onUserSearch(id, TicketClassifierTypes.problem),
-        initialValue: problemClassifier,
-    })
-
-    const {
         set: categorySet,
         SelectComponent: CategorySelect,
         ref: categoryRef,
     } = useTicketClassifierSelectHook({
         onChange: (id) => onUserSelect(id, TicketClassifierTypes.category),
         onSearch: (id) => onUserSearch(id, TicketClassifierTypes.category),
-        initialValue: categoryClassifier,
+        initialValue: null,
     })
 
     const {
@@ -162,19 +140,17 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     } = useTicketClassifierSelectHook({
         onChange: (id) => onUserSelect(id, TicketClassifierTypes.place),
         onSearch: (id) => onUserSearch(id, TicketClassifierTypes.place),
-        initialValue: placeClassifier,
+        initialValue: null,
     })
 
     const Setter = {
         place: placeSet,
         category: categorySet,
-        problem: problemSet,
     }
 
     const Refs = {
         place: placeRef,
         category: categoryRef,
-        problem: problemRef,
     }
 
     useEffect(() => {
@@ -182,7 +158,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
             if (ruleRef.current.id) {
                 ClassifierLoader.findRules({ id: ruleRef.current.id }).then(([rule]) => {
                     const { place, category, problem } = rule
-                    ruleRef.current = { ...ruleRef.current, ...{ place: place.id, category: category.id, problem: get(problem, 'id', null) } }
+                    ruleRef.current = { ...ruleRef.current, ...{ place: place.id, category: category.id } }
                     updateLevels(ruleRef.current)
                 })
             } else {
@@ -198,7 +174,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
             // clear all loaded data from helper
             ClassifierLoader.clear()
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     // We build options for every select with care - not to break selection
@@ -208,11 +184,10 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     // Now we have all possible options for places that will not break selection in the category select and problem select  after choosing
     // Same thing for all selects
     const loadLevels = async () => {
-        const { place, category, problem } = ruleRef.current
+        const { place, category } = ruleRef.current
         const loadedRules = await Promise.all([
-            { category, problem, type: 'place' },
-            { place, problem, type: 'category' },
-            { place, category, type: 'problem' },
+            { category, type: 'place' },
+            { place, type: 'category' },
         ].map(selector => {
             const { type, ...querySelectors } = selector
             return new Promise<[string, Options[]]>(resolve => {
@@ -222,13 +197,13 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
                         query[key] = { id: querySelectors[key] }
                     }
                 }
-                ClassifierLoader.findRules(query).then(data => {
-                    console.log('data', query, data)
-                    resolve([type, ClassifierLoader.rulesToOptions(data, type)])
-                })
+                ClassifierLoader.findRules(query).then(data => resolve([type, ClassifierLoader.rulesToOptions(data, type)]))
             })
         }))
         const result = Object.fromEntries(loadedRules)
+
+        console.log('loadLevels result', result)
+
         return result
     }
 
@@ -291,6 +266,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
             }
         }
         Object.keys(Setter).forEach(type => {
+            console.log(' state[type]',  state[type], type)
             Setter[type].all(options[type])
             const isExisted = options[type].find(option => option.id === state[type])
             Setter[type].one(isExisted ? state[type] : null)
@@ -311,26 +287,21 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
                     <Form.Item name={'classifierRule'} rules={validations.classifierRule} noStyle={true}>
                         <Input type='hidden'></Input>
                     </Form.Item>
-                    <Col span={12} style={{ paddingRight: '20px' }}>
+                    <Col>
                         <Form.Item label={PlaceClassifierLabel} name={'placeClassifier'} rules={validations.placeClassifier}>
                             <PlaceSelect disabled={disabled} />
                         </Form.Item>
                     </Col>
-                    <Col span={12} style={{ paddingLeft: '20px' }}>
+                    <Col>
                         <Form.Item label={CategoryClassifierLabel} name={'categoryClassifier'} rules={validations.categoryClassifier}>
                             <CategorySelect disabled={disabled} />
-                        </Form.Item>
-                    </Col>
-                    <Col span={24}>
-                        <Form.Item name={'problemClassifier'}  label={ProblemClassifierLabel}>
-                            <ProblemSelect disabled={disabled} />
                         </Form.Item>
                     </Col>
                 </>
             )
         }
         return ClassifiersEditorWrapper
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     return {
