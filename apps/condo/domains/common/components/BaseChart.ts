@@ -6,11 +6,11 @@ export interface IGetBaseTableConfig<ViewModeType, ResultDataType, RestTableOpti
     (viewMode: ViewModeType, data: ResultDataType, restTableOptions: RestTableOptionsType): BaseTableConfigResult
 }
 
-abstract class BaseChart<ChartConfigType, ChartConfigResult, TableConfigResult> {
+abstract class BaseChart<ChartConfigType, ChartConfigResult, TableConfigResult, ViewMode, ResultData, RestTableOptions> {
     constructor (protected chartConfigMap: ChartConfigType) {}
 
-    abstract getChartConfig (viewMode, data): ChartConfigResult
-    abstract getTableConfig (viewMode, data, restTableOptions): TableConfigResult
+    abstract getChartConfig (viewMode: ViewMode, data: ResultData): ChartConfigResult
+    abstract getTableConfig (viewMode: ViewMode, data: ResultData, restTableOptions: RestTableOptions): TableConfigResult
 }
 
 export default BaseChart

@@ -71,7 +71,8 @@ type TableConfigResult = {
     tableColumns: TableColumnsType
 }
 
-interface IGetTableConfig extends IGetBaseTableConfig<ViewModeTypes, TicketGroupedCounter[], RestTableOptionsType, TableConfigResult>{
+interface IGetTableConfig extends IGetBaseTableConfig<ViewModeTypes, TicketGroupedCounter[], RestTableOptionsType,
+TableConfigResult>{
     (viewMode, data: TicketGroupedCounter[], restOptions): {
         dataSource, tableColumns
     }
@@ -83,7 +84,8 @@ export type ChartConfigMapType = {
     pie?: { chart: IGetChartConfig; table: IGetTableConfig; };
 }
 
-class TicketChart extends BaseChart<ChartConfigMapType, ChartConfigResult, TableConfigResult>{
+class TicketChart extends BaseChart<ChartConfigMapType, ChartConfigResult, TableConfigResult, ViewModeTypes,
+TicketGroupedCounter[], RestTableOptionsType>{
     getChartConfig: IGetChartConfig = (viewMode, data) => {
         return this.chartConfigMap[viewMode]['chart'](viewMode, data)
     }
