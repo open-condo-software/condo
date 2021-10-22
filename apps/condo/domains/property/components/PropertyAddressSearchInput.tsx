@@ -8,7 +8,7 @@ import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInpu
 import { useApolloClient } from '@core/next/apollo'
 import { searchProperty, searchSingleProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 import { Organization, Property } from '@app/condo/schema'
-import { Highlighter } from '@condo/domains/common/components/Highliter'
+import { Highlighter } from '@condo/domains/common/components/Highlighter'
 import { colors } from '@condo/domains/common/constants/style'
 
 type IAddressSearchInput = SelectProps<string> & {
