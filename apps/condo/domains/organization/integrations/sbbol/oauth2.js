@@ -1,6 +1,5 @@
 // Todo(zuch): need to write JWT verification
 
-const qs = require('qs')
 const { Issuer, custom } = require('openid-client') // certified openid client will all checks
 const jwtDecode = require('jwt-decode') // decode jwt without validation
 const dayjs = require('dayjs')
@@ -53,12 +52,8 @@ class SbbolOauth2Api {
             try {
                 await _validateJWT.call(client, jwt, expectedAlg, required)
             } catch (error) {
-                if (error.message === 'failed to validate JWT signature') {
-                    //TODO(zuch): find a way to force jose validate gost algorithm
-                } else {
-                    // throw error
-                    console.error(error)
-                }
+                //TODO(zuch): find a way to force jose validate gost algorithm
+                console.error('Validate JWT ERROR:', error.message === 'failed to validate JWT signature', jwt, error)
             }
             return { protected: jwtDecode(jwt, { header: true }), payload: jwtDecode(jwt) }
         }
@@ -67,7 +62,7 @@ class SbbolOauth2Api {
 
     createIssuer () {
         const sbbolIssuer = new Issuer({
-            issuer: this.protectedUrl,
+            issuer: SBBOL_CONFIG.issuer,
             authorization_endpoint: this.authUrl,
             token_endpoint: this.tokenUrl,
             userinfo_endpoint: this.userInfoUrl,
@@ -88,16 +83,9 @@ class SbbolOauth2Api {
         })
     }
 
-    async fetchTokens (req, sessionKey) {
-        const params = this.client.callbackParams(req)
-        if (!req.session[sessionKey]) {
-            throw new Error('No check fields in user session')
-        }
-        const { nonce = '', state = '' } = req.session[sessionKey]
-        const tokenSet = await this.client.callback(this.redirectUrl, params, {
-            nonce,
-            state,
-        })
+    async completeAuth (inputOrReq, checks) {
+        const params = this.client.callbackParams(inputOrReq)
+        const tokenSet = await this.client.callback(this.redirectUrl, params, checks)
         return tokenSet
     }
 
