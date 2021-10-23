@@ -125,7 +125,7 @@ export const SignInForm = (): React.ReactElement => {
                                 key='submit'
                                 type='sberAction'
                                 icon={<SberIconWithoutLabel/>}
-                                href={hasFeature('sbbol_auth') ? '/api/sbbol/auth' : ''}
+                                href={'/api/sbbol/auth'}
                             >
                                 {LoginBySbbolMessage}
                             </Button>
