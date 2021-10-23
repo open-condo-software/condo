@@ -1,109 +1,51 @@
 // Todo(zuch): need to write JWT verification
 
-const conf = process.env
 const qs = require('qs')
-
 const { Issuer, custom } = require('openid-client') // certified openid client will all checks
 const jwtDecode = require('jwt-decode') // decode jwt without validation
 const dayjs = require('dayjs')
 
+const conf = require('@core/config')
+
 const SBBOL_CONFIG = conf.SBBOL_CONFIG ? JSON.parse(conf.SBBOL_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
+const SBBOL_DEBUG = conf.SBBOL_DEBUG || false
+const SERVER_URL = conf.SERVER_URL
 const JWT_ALG = 'gost34.10-2012'
-
-// When this scope will be added, an error "Invalid scope" will be returned
-const SCOPE_FOR_SUBSCRIPTION = 'PAYMENT_SUBSCRIPTION'
-
-// When this scope will be added, an error "Invalid scope" will be returned,
-// in case of '/ic/sso/api/v2/oauth/authorize' authorization endpoint
-const SCOPE_FOR_SERVICE_ID = SBBOL_CONFIG.service_id
-
-const ADDITIONAL_SCOPES = [
-    // 'ACCOUNTING_EVENTS',
-    // 'ACCOUNTING_EVENT_ORG',
-    // 'ACCOUNTING_NOTIFICATION',
-    // 'ESTATE_FEED',
-    'GET_ADVANCE_ACCEPTANCES',
-    // 'PAY_DOC_RU',
-    'inn',
-    'email',
-    'phone_number',
-    'orgKpp',
-    'orgFullName',
-    'OrgName',
-    'HashOrgId',
-    // 'offerSmartCredit',
-    // 'summOfferSmartCredit',
-    'orgLawForm',
-    'orgLawFormShort',
-    'orgOgrn',
-    'orgActualAddress',
-    'orgJuridicalAddress',
-    'accounts',
-    'userPosition',
-    'terBank',
-    'regDateINN',
-    'regDateOGRN',
-    'orgBusinessSegmentName',
-    'userSignatureType',
-    'userCryptoType',
-    'userGroups',
-    'individualExecutiveAgency',
-    'orgOktmo',
-    'isIdentified',
-    'inquiryOrder',
-    'userGuid',
-]
-
-const SCOPES = [
-    'openid',
-    ...ADDITIONAL_SCOPES,
-    SCOPE_FOR_SUBSCRIPTION,
-    // SCOPE_FOR_SERVICE_ID,
-]
 
 class SbbolOauth2Api {
     constructor () {
-        this.host = SBBOL_CONFIG.host
-        this.protectedHost = SBBOL_CONFIG.protected_host
-        this.port = SBBOL_CONFIG.port
-        this.clientSecret = SBBOL_CONFIG.client_secret
-        this.clientId = SBBOL_CONFIG.client_id
-        this.serviceId = SBBOL_CONFIG.service_id
-        this.alg = JWT_ALG
-        this.redirectUrl = `${conf.SERVER_URL}/api/sbbol/auth/callback`
-        if (SBBOL_PFX.certificate) {
-            this.certificate = {
-                pfx: Buffer.from(SBBOL_PFX.certificate, 'base64'),
-                passphrase: SBBOL_PFX.passphrase,
-            }
-        }
         this.createClient()
     }
 
     createClient () {
-        if (conf.SBBOL_DEBUG) {
+        if (SBBOL_DEBUG) {
             this.enableDebugMode()
         }
         this.createIssuer()
         const client = new this.issuer.Client({
-            client_id: String(this.clientId),
-            client_secret: this.clientSecret,
+            client_id: String(SBBOL_CONFIG.client_id),
+            client_secret: SBBOL_CONFIG.client_secret,
             redirect_uris: [this.redirectUrl],
             response_types: ['code'],
-            authorization_signed_response_alg: this.alg,
-            id_token_signed_response_alg: this.alg,
-            userinfo_signed_response_alg: this.alg,
+            authorization_signed_response_alg: JWT_ALG,
+            id_token_signed_response_alg: JWT_ALG,
+            userinfo_signed_response_alg: JWT_ALG,
             token_endpoint_auth_method: 'client_secret_post',
             tls_client_certificate_bound_access_tokens: true,
         })
         client[custom.http_options] = (options) => {
-            let withCertificate = { ...options }
-            if (this.certificate) {
-                const { pfx, passphrase } = this.certificate
-                withCertificate = { ...withCertificate, https: { pfx, passphrase } }
+            if (SBBOL_PFX.certificate) {
+                return {
+                    ...options,
+                    https: {
+                        pfx: Buffer.from(SBBOL_PFX.certificate, 'base64'),
+                        passphrase: SBBOL_PFX.passphrase,
+                        ...(SBBOL_PFX.https || {}),
+                    },
+                }
             }
-            return withCertificate
+            return options
         }
         // we override standart JWT validation as we do not have JWK from oauth provider
         const _validateJWT = client.validateJWT
@@ -115,7 +57,7 @@ class SbbolOauth2Api {
                     //TODO(zuch): find a way to force jose validate gost algorithm
                 } else {
                     // throw error
-                    console.log(error)
+                    console.error(error)
                 }
             }
             return { protected: jwtDecode(jwt, { header: true }), payload: jwtDecode(jwt) }
@@ -141,7 +83,7 @@ class SbbolOauth2Api {
     authorizationUrlWithParams (checks) {
         return this.client.authorizationUrl({
             response_type: 'code',
-            scope: SCOPES.join(' '),
+            scope: SBBOL_CONFIG.scope,
             ...checks,
         })
     }
@@ -159,11 +101,10 @@ class SbbolOauth2Api {
         return tokenSet
     }
 
-    async refreshToken ( refreshToken ) {
+    async refreshToken (refreshToken) {
         const tokenSet = await this.client.refresh(refreshToken)
         return tokenSet
     }
-
 
     async fetchUserInfo (accessToken) {
         const userInfo = await this.client.userinfo(accessToken)
@@ -172,6 +113,10 @@ class SbbolOauth2Api {
 
     get userInfoUrl () {
         return `${this.protectedUrl}/ic/sso/api/v1/oauth/user-info`
+    }
+
+    get redirectUrl () {
+        return `${SERVER_URL}/api/sbbol/auth/callback`
     }
 
     get tokenUrl () {
@@ -187,11 +132,11 @@ class SbbolOauth2Api {
     }
 
     get url () {
-        return `${this.host}:${this.port}`
+        return `${SBBOL_CONFIG.host}:${SBBOL_CONFIG.port}`
     }
 
     get protectedUrl () {
-        return `${this.protectedHost}:${this.port}`
+        return `${SBBOL_CONFIG.protected_host}:${SBBOL_CONFIG.protected_port || SBBOL_CONFIG.port}`
     }
 
     /**
@@ -226,7 +171,6 @@ class SbbolOauth2Api {
         })
     }
 }
-
 
 module.exports = {
     SbbolOauth2Api,
