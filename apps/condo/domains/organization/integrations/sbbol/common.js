@@ -28,8 +28,6 @@ const SbbolUserInfoSchema = {
     additionalProperties: true,
 }
 
-const SbbolUserInfoJSONValidation = new Ajv().compile(SbbolUserInfoSchema)
-
 function getSbbolUserInfoErrors (userInfo) {
     const ajv = new Ajv()
     ajv.validate(SbbolUserInfoSchema, userInfo)
@@ -45,7 +43,6 @@ const debugMessage = (...arguments) => {
 }
 
 module.exports = {
-    SbbolUserInfoJSONValidation,
     getSbbolUserInfoErrors,
     SBBOL_IMPORT_NAME,
     SBBOL_SESSION_KEY,
