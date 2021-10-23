@@ -2,6 +2,7 @@ const { generators } = require('openid-client')
 const readline = require('readline')
 
 const { SbbolOauth2Api } = require('@condo/domains/organization/integrations/sbbol/oauth2')
+const { getSbbolUserInfoErrors } = require('@condo/domains/organization/integrations/sbbol/common')
 
 function askQuestion (query) {
     const rl = readline.createInterface({
@@ -23,6 +24,14 @@ async function main () {
     const urlInput = await askQuestion('Past you redirect url: ')
     const tokenSet = await api.completeAuth(urlInput, checks)
     console.log(tokenSet)
+    const { access_token, refresh_token } = tokenSet
+    const userInfo = await api.fetchUserInfo(access_token)
+    console.log(userInfo)
+
+    const errors = getSbbolUserInfoErrors(userInfo)
+    if (errors.length) {
+        console.error('invalid user info!', errors.join('; '))
+    }
 }
 
 main().catch(console.error)

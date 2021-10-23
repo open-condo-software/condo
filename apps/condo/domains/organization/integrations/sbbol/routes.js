@@ -7,13 +7,12 @@ const conf = require('@core/config')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { DEVELOPER_IMPORTANT_NOTE_TYPE } = require('@condo/domains/notification/constants')
 
-const { SbbolUserInfoJSONValidation, SBBOL_SESSION_KEY } = require('./common')
+const { getSbbolUserInfoErrors, SBBOL_SESSION_KEY } = require('./common')
 const { SbbolOauth2Api } = require('./oauth2')
 const sync = require('./sync')
 const { dvSenderFields } = require('./constants')
 
 const DEVELOPER_EMAIL = conf.DEVELOPER_EMAIL
-
 
 async function sendToDeveloper (type, data) {
     if (DEVELOPER_EMAIL) {
@@ -27,7 +26,6 @@ async function sendToDeveloper (type, data) {
         })
     }
 }
-
 
 class SbbolRoutes {
     constructor () {
@@ -58,9 +56,10 @@ class SbbolRoutes {
             const { keystone } = await getSchemaCtx('User')
             const { access_token } = tokenSet
             const userInfo = await this.helper.fetchUserInfo(access_token)
-            if (!SbbolUserInfoJSONValidation(userInfo)) {
-                await sendToDeveloper('SBBOL_INVALID_USERINFO', userInfo)
-                return res.status(400).send(`ERROR: Invalid SBBOL userInfo: ${JSON.stringify(userInfo)}`)
+            const errors = getSbbolUserInfoErrors(userInfo)
+            if (errors.length) {
+                await sendToDeveloper('SBBOL_INVALID_USERINFO', { userInfo, errors })
+                return res.status(400).send(`ERROR: Invalid SBBOL userInfo: ${errors.join(';')}`)
             }
             const {
                 user,
