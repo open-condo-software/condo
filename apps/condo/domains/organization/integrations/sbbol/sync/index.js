@@ -22,17 +22,20 @@ const { dvSenderFields } = require('../constants')
  * User information, fetched from SBBOL OAuth service
  *
  * @typedef UserInfo
- * @property {String} OrgName
- * @property {String} orgOgrn
- * @property {String} orgLawFormShort
- * @property {String} inn
- * @property {String} kpp
- * @property {String} orgJuridicalAddress
- * @property {String} orgFullName
- * @property {String} terBank
- * @property {String} userGuid
- * @property {String} email
- * @property {String} phone_number
+ * @property {String} HashOrgId - required
+ * @property {String} OrgName - required
+ * @property {String} inn - required
+ * @property {String} orgKpp - optional
+ * @property {String} orgOgrn - optional
+ * @property {String} orgLawFormShort - optional
+ * @property {String} orgJuridicalAddress - optional
+ * @property {String} orgFullName - optional
+ * @property {String} orgOktmo - optional
+ * @property {String} terBank - optional
+ * @property {String} name - optional
+ * @property {String} userGuid - required
+ * @property {String} email - required
+ * @property {String} phone_number - required
  */
 
 /**
@@ -65,19 +68,20 @@ const sync = async ({ keystone, userInfo, tokenSet }) => {
             inn: userInfo.inn,
             kpp: userInfo.orgKpp,
             ogrn: userInfo.orgOgrn,
+            oktmo: userInfo.orgOktmo,
             address: userInfo.orgJuridicalAddress,
             fullname: userInfo.orgFullName,
             bank: userInfo.terBank,
         },
         importRemoteSystem: SBBOL_IMPORT_NAME,
-        importId: userInfo.HashOrgId, // TODO(zuch): we have no access to orgId field from sbbol
+        importId: userInfo.HashOrgId,
     }
     if (!userInfo.phone_number.startsWith('+')) {
         userInfo.phone_number = `+${userInfo.phone_number}`
     }
     const userData = {
         ...dvSenderFields,
-        name: userInfo.OrgName, // TODO(zuch): we have no access to user name field from sbbol
+        name: userInfo.name || userInfo.OrgName,
         importId: userInfo.userGuid,
         importRemoteSystem: SBBOL_IMPORT_NAME,
         email: userInfo.email,
