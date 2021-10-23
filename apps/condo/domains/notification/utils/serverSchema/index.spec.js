@@ -1,15 +1,16 @@
 const { prepareKeystoneExpressApp, setFakeClientMode } = require('@core/keystone/test.utils')
 
-const { sendMessage } = require('./index')
+const { sendMessage, Message } = require('./index')
 const { DEVELOPER_IMPORTANT_NOTE_TYPE } = require('../../constants')
 
 let keystone
 
 describe('notification', () => {
-    setFakeClientMode(require.resolve('../../../../../index'))
+    const keystoneIndex = require.resolve('../../../../index')
+    setFakeClientMode(require.resolve(keystoneIndex))
 
     beforeAll(async () => {
-        const result = await prepareKeystoneExpressApp(require.resolve('../../../../../index'))
+        const result = await prepareKeystoneExpressApp(require.resolve(keystoneIndex))
         keystone = result.keystone
     })
 
@@ -27,9 +28,10 @@ describe('notification', () => {
                 },
             })
 
-            expect(result.type).toEqual(DEVELOPER_IMPORTANT_NOTE_TYPE)
-            expect(result.lang).toEqual('en')
-            expect(result.meta).toEqual({
+            const [message] = await Message.getAll(keystone, { id: result.id })
+            expect(message.type).toEqual(DEVELOPER_IMPORTANT_NOTE_TYPE)
+            expect(message.lang).toEqual('en')
+            expect(message.meta).toEqual({
                 dv: 1,
                 type: 'TEST',
                 data: { foo: 'bar', sigma: 1 },
