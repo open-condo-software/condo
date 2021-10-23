@@ -1,14 +1,16 @@
 const faker = require('faker')
-const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries.js')
+
+const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { normalizeEmail } = require('@condo/domains/common/utils/mail')
+const { getOrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema/OrganizationEmployee')
+
 const { SBBOL_IMPORT_NAME } = require('../common')
+const { dvSenderFields } = require('../constants')
 const { syncUser } = require('./syncUser')
 const { syncOrganization } = require('./syncOrganization')
 const { syncSubscriptions } = require('./syncSubscriptions')
 const { syncTokens } = require('./syncTokens')
-const { getOrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema/OrganizationEmployee')
-const dayjs = require('dayjs')
-const { dvSenderFields } = require('../constants')
 
 /**
  * Params for direct execution of GraphQL queries and mutations using Keystone
@@ -84,7 +86,7 @@ const sync = async ({ keystone, userInfo, tokenSet }) => {
         name: userInfo.name || userInfo.OrgName,
         importId: userInfo.userGuid,
         importRemoteSystem: SBBOL_IMPORT_NAME,
-        email: userInfo.email,
+        email: normalizeEmail(userInfo.email),
         phone: normalizePhone(userInfo.phone_number),
         isPhoneVerified: true,
         isEmailVerified: true,
@@ -93,10 +95,9 @@ const sync = async ({ keystone, userInfo, tokenSet }) => {
 
     const user = await syncUser({ context, userInfo: userData })
     const organization = await syncOrganization({ context, user, userInfo, organizationInfo })
-
-    const today = dayjs().format('YYYY-MM-DD')
-    await syncSubscriptions(today)
     await syncTokens({ context, tokenInfoFromOAuth: tokenSet, organization, user })
+
+    await syncSubscriptions()
 
     const organizationEmployeeId = await getOrganizationEmployee({ context, user, organization })
     if (!organizationEmployeeId) {

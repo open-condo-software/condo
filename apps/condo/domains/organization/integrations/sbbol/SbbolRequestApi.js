@@ -4,7 +4,7 @@ const { URL } = require('url')
 const { debugMessage, SBBOL_IMPORT_NAME } = require('./common')
 const { getSchemaCtx } = require('@core/keystone/schema')
 const { TokenSet: TokenSetApi } = require('@condo/domains/organization/utils/serverSchema')
-const conf = process.env
+const conf = require('@core/config')
 const SBBOL_CONFIG = conf.SBBOL_CONFIG ? JSON.parse(conf.SBBOL_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
 const { SbbolOauth2Api } = require('./oauth2')
@@ -26,6 +26,7 @@ const REFRESH_TOKEN_TTL = 30 * 24 * 60 * 60 // its real TTL is 180 days bit we n
 
 class SbbolRequestApi {
     constructor (accessToken) {
+        // TODO(pahaz): use protected_port?
         const { protected_host: hostname, port } = SBBOL_CONFIG
         let { host } = new URL(hostname)
         this.options = {
@@ -55,7 +56,8 @@ class SbbolRequestApi {
     static async getOrganizationAccessToken (organizationImportId) {
         const { keystone } = await getSchemaCtx('TokenSet')
         const adminContext = await keystone.createContext({ skipAccessControl: true })
-        const [tokenSet] = await TokenSetApi.getAll(adminContext, { organization: { importId: organizationImportId, importRemoteSystem: SBBOL_IMPORT_NAME } })
+        // TODO(pahaz): need to be fixed! it's looks so strange.
+        const [tokenSet] = await TokenSetApi.getAll(adminContext, { organization: { importId: organizationImportId, importRemoteSystem: SBBOL_IMPORT_NAME } }, { sortBy: ['createdAt_DESC'] })
         const instructionsMessage = 'Please, login through SBBOL for this organization, so its accessToken and refreshToken will be obtained and saved in TokenSet table for further renewals'
         if (!tokenSet) {
             throw new Error(`[tokens:expired] record from TokenSet was not found for organization ${organizationImportId}. ${instructionsMessage}`)
