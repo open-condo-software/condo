@@ -1,9 +1,33 @@
 const { isObject } = require('lodash')
 const { generators } = require('openid-client') // certified openid client will all checks
+
 const { getSchemaCtx } = require('@core/keystone/schema')
+const conf = require('@core/config')
+
+const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
+const { DEVELOPER_IMPORTANT_NOTE_TYPE } = require('@condo/domains/notification/constants')
+
 const { SbbolUserInfoJSONValidation, SBBOL_SESSION_KEY } = require('./common')
 const { SbbolOauth2Api } = require('./oauth2')
 const sync = require('./sync')
+const { dvSenderFields } = require('./constants')
+
+const DEVELOPER_EMAIL = conf.DEVELOPER_EMAIL
+
+
+async function sendToDeveloper (type, data) {
+    if (DEVELOPER_EMAIL) {
+        const { keystone } = await getSchemaCtx('Message')
+        await sendMessage(keystone, {
+            ...dvSenderFields,
+            to: { email: DEVELOPER_EMAIL },
+            lang: 'en',
+            type: DEVELOPER_IMPORTANT_NOTE_TYPE,
+            meta: { dv: 1, type, data },
+        })
+    }
+}
+
 
 class SbbolRoutes {
     constructor () {
@@ -35,6 +59,7 @@ class SbbolRoutes {
             const { access_token } = tokenSet
             const userInfo = await this.helper.fetchUserInfo(access_token)
             if (!SbbolUserInfoJSONValidation(userInfo)) {
+                await sendToDeveloper('SBBOL_INVALID_USERINFO', userInfo)
                 return res.status(400).send(`ERROR: Invalid SBBOL userInfo: ${JSON.stringify(userInfo)}`)
             }
             const {

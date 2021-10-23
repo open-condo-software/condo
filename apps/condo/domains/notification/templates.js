@@ -13,6 +13,7 @@ const {
     SHARE_TICKET_MESSAGE_TYPE,
     EMAIL_TRANSPORT,
     SMS_TRANSPORT,
+    DEVELOPER_IMPORTANT_NOTE_TYPE,
 } = require('./constants')
 
 async function renderTemplate (transport, message) {
@@ -230,6 +231,15 @@ async function renderTemplate (transport, message) {
             }
         }
     }
+
+    if (message.type === DEVELOPER_IMPORTANT_NOTE_TYPE) {
+        const { data, type } = message.meta
+        return {
+            subject: String(type),
+            text: JSON.stringify(data),
+        }
+    }
+
     throw new Error('unknown template or lang')
 }
 
