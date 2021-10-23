@@ -10,6 +10,7 @@ const SbbolUserInfoSchema = {
     properties: {
         // Organization's field
         OrgName: { type: 'string' },
+        HashOrgId: { type: 'string' },
         orgOgrn: { type: 'string' },
         orgLawFormShort: { type: 'string' },
         // Organization's meta fields
@@ -23,7 +24,7 @@ const SbbolUserInfoSchema = {
         email: { type: 'string' },
         phone_number: { type: 'string' },
     },
-    required: ['inn', 'OrgName', 'orgJuridicalAddress', 'email', 'userGuid', 'phone_number'],
+    required: ['inn', 'OrgName', 'orgJuridicalAddress', 'email', 'userGuid', 'phone_number', 'HashOrgId'],
     additionalProperties: true,
 }
 
@@ -39,6 +40,7 @@ const debugMessage = (...arguments) => {
 
 module.exports = {
     SbbolUserInfoJSONValidation,
+    SbbolUserInfoSchema,
     SBBOL_IMPORT_NAME,
     SBBOL_SESSION_KEY,
     debugMessage,
