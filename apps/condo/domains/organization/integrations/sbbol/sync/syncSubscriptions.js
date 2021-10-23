@@ -114,6 +114,7 @@ const syncSubscriptions = async (date = null) => {
     try {
         // `service_organization_hashOrgId` is a `userInfo.HashOrgId` from SBBOL, that used to obtain accessToken
         // for organization, that will be queried in SBBOL using `SbbolFintechApi`.
+        if (!SBBOL_CONFIG.service_organization_hashOrgId) return
         ourOrganizationAccessToken = await SbbolRequestApi.getOrganizationAccessToken(SBBOL_CONFIG.service_organization_hashOrgId)
     } catch (e) {
         console.error(e.message)
