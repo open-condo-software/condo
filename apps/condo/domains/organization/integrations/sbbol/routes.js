@@ -1,6 +1,6 @@
+const { isObject } = require('lodash')
 const { generators } = require('openid-client') // certified openid client will all checks
 const { getSchemaCtx } = require('@core/keystone/schema')
-const { JSON_SCHEMA_VALIDATION_ERROR } = require('@condo/domains/common/constants/errors')
 const { SbbolUserInfoJSONValidation, SBBOL_SESSION_KEY } = require('./common')
 const { SbbolOauth2Api } = require('./oauth2')
 const sync = require('./sync')
@@ -26,13 +26,16 @@ class SbbolRoutes {
 
     async completeAuth (req, res, next) {
         try {
-            console.log('> completeAuth')
-            const tokenSet = await this.helper.fetchTokens(req, SBBOL_SESSION_KEY)
+            if (!isObject(req.session[SBBOL_SESSION_KEY])) {
+                return res.status(400).send('ERROR: Invalid nonce and state')
+            }
+
+            const tokenSet = await this.helper.completeAuth(req, req.session[SBBOL_SESSION_KEY])
             const { keystone } = await getSchemaCtx('User')
             const { access_token } = tokenSet
             const userInfo = await this.helper.fetchUserInfo(access_token)
             if (!SbbolUserInfoJSONValidation(userInfo)) {
-                throw new Error(`${JSON_SCHEMA_VALIDATION_ERROR}] invalid json structure for userInfo`)
+                return res.status(400).send(`ERROR: Invalid SBBOL userInfo: ${JSON.stringify(userInfo)}`)
             }
             const {
                 user,
@@ -41,8 +44,6 @@ class SbbolRoutes {
             await keystone._sessionManager.startAuthedSession(req, { item: { id: user.id }, list: keystone.lists['User'] })
             if (organizationEmployeeId) {
                 res.cookie('organizationLinkId', organizationEmployeeId)
-            } else {
-                throw new Error('Organization employee create failed')
             }
             delete req.session[SBBOL_SESSION_KEY]
             await req.session.save()
