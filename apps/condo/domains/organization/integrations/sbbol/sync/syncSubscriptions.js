@@ -102,11 +102,12 @@ const syncSubscriptionsFor = async (advanceAcceptance) => {
  * Fetches changes in subscriptions from SBBOL for specified date and creates or stops
  * ServiceSubscriptions, accordingly.
  *
- * @param {String} date - stringified day in format 'YYYY-MM-DD'
+ * @param {String|null} date stringified day in format 'YYYY-MM-DD'
  * @return {Promise<void>}
  */
-const syncSubscriptions = async (date) => {
-    if (!date) throw new Error('date is not specified')
+const syncSubscriptions = async (date = null) => {
+    if (!date) date = dayjs().format('YYYY-MM-DD')
+
     debugMessage('Start syncSubscriptions')
 
     let ourOrganizationAccessToken
@@ -118,7 +119,7 @@ const syncSubscriptions = async (date) => {
         console.error(e.message)
         return
     }
-    console.debug('ourOrganizationAccessToken', ourOrganizationAccessToken)
+
     const fintechApi = new SbbolFintechApi(ourOrganizationAccessToken)
     debugMessage('Checking, whether the user have ServiceSubscription items')
 
