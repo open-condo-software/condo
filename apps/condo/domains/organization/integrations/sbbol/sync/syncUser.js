@@ -34,15 +34,20 @@ const createOnboarding = async ({ keystone, user }) => {
 const syncUser = async ({ context, userInfo }) => {
     const returnFields = 'id phone name importId importRemoteSystem'
     const importFields = {
+        type: 'staff',
         importId: userInfo.importId,
         importRemoteSystem: userInfo.importRemoteSystem,
+    }
+    const userFields = {
+        type: 'staff',
+        phone: userInfo.phone,
     }
     const existingUsers = await getItems({
         ...context,
         listKey: 'User',
         where: {
             OR: [
-                { phone: userInfo.phone },
+                { AND: userFields },
                 { AND: importFields },
             ],
         },
