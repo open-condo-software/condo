@@ -4,7 +4,8 @@ const { makeClientWithRegisteredOrganization } = require('@condo/domains/organiz
 const { MockSbbolResponses } = require('./MockSbbolResponses')
 const { User: UserApi } = require('@condo/domains/user/utils/serverSchema')
 const { OnBoarding: OnBoardingApi } = require('@condo/domains/onboarding/utils/serverSchema')
-const { getItem } = require('@keystonejs/server-side-graphql-client')
+const { getItem, getItems } = require('@keystonejs/server-side-graphql-client')
+const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
 let keystone
 
@@ -71,6 +72,43 @@ describe('syncUser from SBBOL', () => {
             expect(existedUser.phone).toEqual(updatedUser.phone)
             expect(updatedUser.importId).toEqual(userData.importId)
             expect(updatedUser.importRemoteSystem).toEqual(userData.importRemoteSystem)
+        })
+        it('should work with resident and phone collision', async () => {
+            const residentClient = await makeClientWithResidentUser()
+            const adminContext = await keystone.createContext({ skipAccessControl: true })
+            const context = {
+                keystone,
+                context: adminContext,
+            }
+            const residentUser = await getItem({
+                keystone,
+                itemId: residentClient.user.id,
+                listKey: 'User',
+                returnFields: 'id name phone',
+            })
+            
+            const { userData } = MockSbbolResponses.getUserAndOrganizationInfo()
+            userData.phone = residentUser.phone
+            await syncUser({ context, userInfo: userData })
+            const existingUsers = await getItems({
+                keystone,
+                listKey: 'User',
+                where: { phone: residentUser.phone },
+                returnFields: 'id type name phone importId importRemoteSystem',
+            })
+            
+            expect(existingUsers).toHaveLength(2)
+
+            const resident = (existingUsers[0].type === 'staff') ? existingUsers[1] : existingUsers[0]
+            const staff = (existingUsers[0].type === 'staff') ? existingUsers[0] : existingUsers[1]
+
+            expect(resident.id).toEqual(residentUser.id)
+            expect(staff.id).not.toEqual(residentUser.id)
+
+            expect(resident.importId).toEqual(null)
+            expect(resident.importRemoteSystem).toEqual(null)
+            expect(staff.importId).toEqual(userData.importId)
+            expect(staff.importRemoteSystem).toEqual(userData.importRemoteSystem)
         })
     })
 })
