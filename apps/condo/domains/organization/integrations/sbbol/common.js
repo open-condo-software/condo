@@ -30,6 +30,12 @@ const SbbolUserInfoSchema = {
 
 const SbbolUserInfoJSONValidation = new Ajv().compile(SbbolUserInfoSchema)
 
+function getSbbolUserInfoErrors (userInfo) {
+    const ajv = new Ajv()
+    ajv.validate(SbbolUserInfoSchema, userInfo)
+    return (ajv.errors) ? ajv.errors.map(x => x.message) : []
+}
+
 // eslint-disable-next-line no-shadow-restricted-names
 const debugMessage = (...arguments) => {
     if (conf.SBBOL_DEBUG) {
@@ -40,7 +46,7 @@ const debugMessage = (...arguments) => {
 
 module.exports = {
     SbbolUserInfoJSONValidation,
-    SbbolUserInfoSchema,
+    getSbbolUserInfoErrors,
     SBBOL_IMPORT_NAME,
     SBBOL_SESSION_KEY,
     debugMessage,
