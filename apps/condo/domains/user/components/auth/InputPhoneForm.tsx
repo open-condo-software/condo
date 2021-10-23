@@ -148,16 +148,14 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
                             </Button>
                         </Col>
                         <Col lg={24} xl={11}>
-                            <FeatureFlagRequired name="sbbol_auth" >
-                                <Button
-                                    key='submit'
-                                    type='sberAction'
-                                    icon={<SberIconWithoutLabel/>}
-                                    href={hasFeature('sbbol_auth') ? '/api/sbbol/auth' : ''}
-                                >
-                                    {SberIdRegisterMsg}
-                                </Button>
-                            </FeatureFlagRequired>
+                            <Button
+                                key='submit'
+                                type='sberAction'
+                                icon={<SberIconWithoutLabel/>}
+                                href={'/api/sbbol/auth'}
+                            >
+                                {SberIdRegisterMsg}
+                            </Button>
                         </Col>
                     </Row>
                 </Col>
