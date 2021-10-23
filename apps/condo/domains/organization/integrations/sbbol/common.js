@@ -24,7 +24,7 @@ const SbbolUserInfoSchema = {
         email: { type: 'string' },
         phone_number: { type: 'string' },
     },
-    required: ['inn', 'OrgName', 'orgJuridicalAddress', 'email', 'userGuid', 'phone_number', 'HashOrgId'],
+    required: ['inn', 'OrgName', 'email', 'userGuid', 'phone_number', 'HashOrgId'],
     additionalProperties: true,
 }
 
