@@ -18,6 +18,7 @@ const DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE = 'DIRTY_INVITE_NEW_EMPLOYEE'
 const REGISTER_NEW_USER_MESSAGE_TYPE = 'REGISTER_NEW_USER'
 const RESET_PASSWORD_MESSAGE_TYPE = 'RESET_PASSWORD'
 const SMS_VERIFY_CODE_MESSAGE_TYPE = 'SMS_VERIFY'
+const DEVELOPER_IMPORTANT_NOTE_TYPE = 'DEVELOPER_IMPORTANT_NOTE_TYPE'
 const MESSAGE_TYPES = [
     INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
     DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
@@ -25,6 +26,7 @@ const MESSAGE_TYPES = [
     RESET_PASSWORD_MESSAGE_TYPE,
     SMS_VERIFY_CODE_MESSAGE_TYPE,
     SHARE_TICKET_MESSAGE_TYPE,
+    DEVELOPER_IMPORTANT_NOTE_TYPE,
 ]
 
 
@@ -63,6 +65,11 @@ const MESSAGE_META = {
         dv: { defaultValue: '', required: true },
         smsCode: { defaultValue: '', required: true },
     },
+    [DEVELOPER_IMPORTANT_NOTE_TYPE]: {
+        dv: { defaultValue: '', required: true },
+        type: { defaultValue: 'UNKNOWN', required: true },
+        data: { defaultValue: null, required: true },
+    },
 }
 
 const MESSAGE_SENDING_STATUS = 'sending'
@@ -89,6 +96,7 @@ module.exports = {
     SMS_VERIFY_CODE_MESSAGE_TYPE,
     INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
     RESET_PASSWORD_MESSAGE_TYPE,
+    DEVELOPER_IMPORTANT_NOTE_TYPE,
     MESSAGE_TYPES,
     MESSAGE_META,
     MESSAGE_SENDING_STATUS,
