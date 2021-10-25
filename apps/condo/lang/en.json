@@ -690,6 +690,7 @@
   "subscription.type.default": "Default plan",
   "subscription.type.trial": "Trial version",
   "subscription.type.expiredDate": "Expired at",
+  "subscription.type.expiredMessage": "Number of days until the end of the trial subscription",
   "Seconds": "Seconds",
   "Update": "Update",
   "Updated": "Updated",

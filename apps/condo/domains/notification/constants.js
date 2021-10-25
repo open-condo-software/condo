@@ -19,6 +19,8 @@ const REGISTER_NEW_USER_MESSAGE_TYPE = 'REGISTER_NEW_USER'
 const RESET_PASSWORD_MESSAGE_TYPE = 'RESET_PASSWORD'
 const SMS_VERIFY_CODE_MESSAGE_TYPE = 'SMS_VERIFY'
 const DEVELOPER_IMPORTANT_NOTE_TYPE = 'DEVELOPER_IMPORTANT_NOTE_TYPE'
+const CUSTOMER_IMPORTANT_NOTE_TYPE = 'DEVELOPER_IMPORTANT_NOTE_TYPE'
+
 const MESSAGE_TYPES = [
     INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
     DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
@@ -27,8 +29,8 @@ const MESSAGE_TYPES = [
     SMS_VERIFY_CODE_MESSAGE_TYPE,
     SHARE_TICKET_MESSAGE_TYPE,
     DEVELOPER_IMPORTANT_NOTE_TYPE,
+    CUSTOMER_IMPORTANT_NOTE_TYPE,
 ]
-
 
 const MESSAGE_META = {
     [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: {
@@ -66,6 +68,11 @@ const MESSAGE_META = {
         smsCode: { defaultValue: '', required: true },
     },
     [DEVELOPER_IMPORTANT_NOTE_TYPE]: {
+        dv: { defaultValue: '', required: true },
+        type: { defaultValue: 'UNKNOWN', required: true },
+        data: { defaultValue: null, required: true },
+    },
+    [CUSTOMER_IMPORTANT_NOTE_TYPE]: {
         dv: { defaultValue: '', required: true },
         type: { defaultValue: 'UNKNOWN', required: true },
         data: { defaultValue: null, required: true },
@@ -108,4 +115,5 @@ module.exports = {
     DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
     MESSAGE_STATUSES,
     SHARE_TICKET_MESSAGE_TYPE,
+    CUSTOMER_IMPORTANT_NOTE_TYPE,
 }

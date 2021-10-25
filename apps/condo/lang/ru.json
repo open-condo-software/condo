@@ -692,6 +692,7 @@
   "subscription.type.default": "Стандартный тарифный план",
   "subscription.type.trial": "Пробная версия",
   "subscription.type.expiredDate": "Дата окончания",
+  "subscription.type.expiredMessage": "Количество дней до окончания пробной подписки",
   "Seconds": "Секунд",
   "Update": "Обновить",
   "Updated": "Обновлено",
