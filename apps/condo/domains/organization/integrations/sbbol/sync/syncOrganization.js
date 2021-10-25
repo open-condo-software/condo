@@ -1,5 +1,4 @@
-import { getSchemaCtx } from '@core/keystone/schema'
-
+const { getSchemaCtx } = require('@core/keystone/schema')
 const { REGISTER_NEW_ORGANIZATION_MUTATION } = require('@condo/domains/organization/gql.js')
 const { updateItem, getItems } = require('@keystonejs/server-side-graphql-client')
 const { createConfirmedEmployee } = require('@condo/domains/organization/utils/serverSchema/Organization')
