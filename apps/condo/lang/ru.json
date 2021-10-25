@@ -336,6 +336,7 @@
   "pages.condo.ticket.field.Client": "Заявитель (житель)",
   "pages.condo.ticket.field.Description": "Описание проблемы",
   "pages.condo.ticket.field.Files": "Прикреплённые файлы",
+  "pages.condo.ticket.field.PropertyWasDeleted": "Дом удален",
   "pages.condo.ticket.field.Details": "Детали проблемы",
   "pages.condo.ticket.field.Number": "Номер",
   "pages.condo.ticket.field.Property": "Объект",

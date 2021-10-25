@@ -336,6 +336,7 @@
   "pages.condo.ticket.field.Client": "Client (resident)",
   "pages.condo.ticket.field.Description": "Problem description",
   "pages.condo.ticket.field.Files": "Files list",
+  "pages.condo.ticket.field.PropertyWasDeleted": "Property was deleted",
   "pages.condo.ticket.field.Details": "Details",
   "pages.condo.ticket.field.Number": "Number",
   "pages.condo.ticket.field.Property": "Property",
