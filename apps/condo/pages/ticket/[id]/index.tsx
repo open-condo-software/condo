@@ -128,10 +128,12 @@ const TicketContent = ({ ticket }) => {
     const ExecutorMessage = intl.formatMessage({ id: 'field.Executor' })
     const ClassifierMessage = intl.formatMessage({ id: 'Classifier' })
     const AssigneeMessage = intl.formatMessage({ id: 'field.Responsible' })
+    const PropertyWasDeletedMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.PropertyWasDeleted' })
     const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
     const SectionName = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
     const FloorName = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
 
+    const propertyWasDeleted = !get(ticket, ['property', 'address'])
     const ticketUnit = ticket.unitName ? `, ${ShortFlatNumber} ${ticket.unitName}` : ''
     const ticketAddress = get(ticket, ['property', 'address']) + ticketUnit
     const ticketAddressExtra = ticket.sectionName && ticket.floorName
@@ -149,19 +151,22 @@ const TicketContent = ({ ticket }) => {
         <Col span={24}>
             <Row gutter={[0, 8]}>
                 <PageFieldRow title={AddressMessage} highlight>
-                    <Link href={`/property/${get(ticket, ['property', 'id'])}`}>
-                        <Typography.Link>
-                            {ticketAddress}
-                            {ticketAddressExtra && (
-                                <>
-                                    <br/>
-                                    <Typography.Text>
-                                        {ticketAddressExtra}
-                                    </Typography.Text>
-                                </>
-                            )}
-                        </Typography.Link>
-                    </Link>
+                    {propertyWasDeleted ?
+                        <Typography.Text type={'secondary'}>{ PropertyWasDeletedMessage }</Typography.Text> :
+                        <Link href={`/property/${get(ticket, ['property', 'id'])}`}>
+                            <Typography.Link>
+                                {ticketAddress}
+                                {ticketAddressExtra && (
+                                    <>
+                                        <br/>
+                                        <Typography.Text>
+                                            {ticketAddressExtra}
+                                        </Typography.Text>
+                                    </>
+                                )}
+                            </Typography.Link>
+                        </Link>
+                    }
                 </PageFieldRow>
                 <PageFieldRow title={ClientMessage} highlight>
                     <Link href={`/contact/${get(ticket, ['contact', 'id'])}`}>
