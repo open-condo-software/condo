@@ -34,6 +34,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
     const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
     const ExecutorMessage = intl.formatMessage({ id: 'field.Executor' })
     const ResponsibleMessage = intl.formatMessage({ id: 'field.Responsible' })
+    const HouseWasDeletedMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.PropertyWasDeleted' })
 
     const sorterMap = createSorterMap(sort)
     const { loading, objs: ticketStatuses } = TicketStatus.useObjects({})
@@ -103,6 +104,11 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
 
     const renderAddress = (record) => {
         const property = get(record, 'property')
+
+        if (!property) {
+            return <Typography.Text type={'secondary'}>{HouseWasDeletedMessage}</Typography.Text>
+        }
+
         const unitName = get(record, 'unitName')
         const text = get(property, 'address')
         const unitPrefix = unitName ? `${ShortFlatNumber} ${unitName}` : ''
