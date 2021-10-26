@@ -9,6 +9,7 @@ import get from 'lodash/get'
 import { Space, Typography } from 'antd'
 import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayoutContext'
 import { Button } from './Button'
+import { HistoryContext } from './HistoryContext'
 
 interface IReturnBackHeaderActionProps {
     descriptor: MessageDescriptor
@@ -28,8 +29,12 @@ export const ReturnBackHeaderAction: React.FC<IReturnBackHeaderActionProps> = (p
     const { descriptor, path } = props
     const intl = useIntl()
     const BackMessage = intl.formatMessage(descriptor)
-    const { query } = useRouter()
-    const url = typeof path === 'string' ? path : path(String(get(query, 'id')))
+    const previousUrl = useContext(HistoryContext)
+    const { query, asPath } = useRouter()
+    let url = typeof path === 'string' ? path : path(String(get(query, 'id')))
+    if (previousUrl !== null && previousUrl !== asPath) {
+        url = previousUrl
+    }
 
     return (
         <LinkWithIcon
