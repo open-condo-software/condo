@@ -743,7 +743,7 @@
   "ErrorHappenedDuringIntegration": "An error occurred during the integration process. Please, contact support of «{company}»",
   "ErrorOccurred": "Error occurred",
   "NoBillingIntegrationYet": "You haven't integrated billing yet",
-  "AvailableBillings": "Unified Payment Service, 1C, loading registers",
+  "AvailableBillings": "dom.gosuslugi.ru",
   "CanIntegrateWithThisBillings": "You can connect {billingList} and others",
   "ConnectBilling": "Connect billing",
   "WillBeReadySoon": "Everything will be ready soon",
