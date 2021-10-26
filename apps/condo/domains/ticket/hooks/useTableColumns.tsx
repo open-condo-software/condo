@@ -111,7 +111,16 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
         const unitPrefix = unitName ? `${ShortFlatNumber} ${unitName}` : ''
 
         if (propertyWasDeleted) {
-            return <Typography.Text type={'secondary'}>{ address } { unitPrefix } ({DeletedMessage})</Typography.Text>
+            return (
+                <Typography.Text type={'secondary'}>
+                    <Highliter
+                        text={String(address)}
+                        search={String(search)}
+                        renderPart={(part) => <Typography.Text style={{ backgroundColor: colors.markColor }}>{part}</Typography.Text>}
+                    />
+                    { ' ' + unitPrefix } ({DeletedMessage})
+                </Typography.Text>
+            )
         }
 
         return getRenderer(search, true, unitPrefix)(address)
