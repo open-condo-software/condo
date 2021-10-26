@@ -2,8 +2,8 @@ import { ParsedUrlQuery } from 'querystring'
 import get from 'lodash/get'
 
 import { IRecordWithId, RecordWithAddressDetails } from '../types'
-import {FilterValue} from "antd/es/table/interface";
-import {IFilters} from "../../ticket/utils/helpers";
+import { FilterValue } from 'antd/es/table/interface'
+import { IFilters } from '../../ticket/utils/helpers'
 
 const DEFAULT_WIDTH_PRECISION = 2
 const PHONE_FORMAT_REGEXP = /(\d)(\d{3})(\d{3})(\d{2})(\d{2})/

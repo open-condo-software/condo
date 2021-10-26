@@ -117,8 +117,6 @@ export interface IFilters extends Pick<Ticket, 'clientName' | 'createdAt' | 'det
     search?: string
 }
 
-export const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
-
 export const statusToQuery = (statusIds: Array<string>): TicketStatusWhereInput => {
     if (Array.isArray(statusIds) && statusIds.length > 0) {
         return {
