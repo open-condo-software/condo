@@ -66,6 +66,8 @@ export const TicketsPageContent = ({
     const offsetFromQuery = getPageIndexFromQuery(router.query)
     const pagesizeFromQuey: number = getPageSizeFromQuery(router.query)
 
+    searchTicketsQuery = { ...searchTicketsQuery, ...{ deletedAt: null } }
+
     const {
         fetchMore,
         loading,
