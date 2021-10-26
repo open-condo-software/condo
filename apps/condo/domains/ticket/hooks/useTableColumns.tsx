@@ -50,13 +50,13 @@ export const useTableColumns = (
 
     const renderStatus = (status, record) => {
         const { primary: color, secondary: backgroundColor } = status.colors
-        const withHighlited = getHighlitedContents(search, null)(status.name)
+        const highlightedContent = getHighlitedContents(search, null)(status.name)
 
         return (
             <Space direction='vertical' size={7}>
                 <Tag color={backgroundColor}>
                     <Typography.Text style={{ color }}>
-                        {withHighlited}
+                        {highlightedContent}
                     </Typography.Text>
                 </Tag>
                 {record.isEmergency &&
