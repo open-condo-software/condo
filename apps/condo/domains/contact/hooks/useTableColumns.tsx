@@ -1,16 +1,13 @@
 import React, { useMemo } from 'react'
 import get from 'lodash/get'
-import { FilterValue } from 'antd/es/table/interface'
 
 import { useIntl } from '@core/next/intl'
 
-import { getAddressDetails } from '@condo/domains/common/utils/helpers'
+import { getAddressDetails, getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getTextFilterDropdown, getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 
 import { createSorterMap, IFilters } from '../utils/helpers'
-
-const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
 
 export const useTableColumns = (
     sort: Array<string>,
@@ -38,7 +35,7 @@ export const useTableColumns = (
             {
                 title: NameMessage,
                 sortOrder: get(sorterMap, 'name'),
-                filteredValue: getFilteredValue(filters, 'name'),
+                filteredValue: getFilteredValue<IFilters>(filters, 'name'),
                 dataIndex: 'name',
                 key: 'name',
                 sorter: true,
@@ -51,7 +48,7 @@ export const useTableColumns = (
             {
                 title: AddressMessage,
                 sortOrder: get(sorterMap, 'address'),
-                filteredValue: getFilteredValue(filters, 'address'),
+                filteredValue: getFilteredValue<IFilters>(filters, 'address'),
                 dataIndex: ['property', 'address'],
                 key: 'address',
                 sorter: false,
@@ -63,7 +60,7 @@ export const useTableColumns = (
             {
                 title: PhoneMessage,
                 sortOrder: get(sorterMap, 'phone'),
-                filteredValue: getFilteredValue(filters, 'phone'),
+                filteredValue: getFilteredValue<IFilters>(filters, 'phone'),
                 dataIndex: 'phone',
                 key: 'phone',
                 sorter: true,
@@ -76,7 +73,7 @@ export const useTableColumns = (
                 title: EmailMessage,
                 ellipsis: true,
                 sortOrder: get(sorterMap, 'email'),
-                filteredValue: getFilteredValue(filters, 'email'),
+                filteredValue: getFilteredValue<IFilters>(filters, 'email'),
                 dataIndex: 'email',
                 key: 'email',
                 sorter: true,

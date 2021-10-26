@@ -2,6 +2,8 @@ import { ParsedUrlQuery } from 'querystring'
 import get from 'lodash/get'
 
 import { IRecordWithId, RecordWithAddressDetails } from '../types'
+import {FilterValue} from "antd/es/table/interface";
+import {IFilters} from "../../ticket/utils/helpers";
 
 const DEFAULT_WIDTH_PRECISION = 2
 const PHONE_FORMAT_REGEXP = /(\d)(\d{3})(\d{3})(\d{2})(\d{2})/
@@ -51,3 +53,10 @@ export const getAddressDetails = (record: RecordWithAddressDetails, ShortFlatNum
  * @param record
  */
 export const getId = (record: IRecordWithId): string | null => record && record.id || null
+
+/**
+ * Generic function for extracting value from filters
+ * @param filters
+ * @param key
+ */
+export const getFilteredValue = <T>(filters: T, key: string | Array<string>): FilterValue => get(filters, key, null)

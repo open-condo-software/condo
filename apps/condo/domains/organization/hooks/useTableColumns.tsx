@@ -3,10 +3,10 @@ import { identity } from 'lodash/util'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { Checkbox } from 'antd'
-import { FilterValue } from 'antd/es/table/interface'
 
 import { useIntl } from '@core/next/intl'
 
+import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getTextFilterDropdown, getFilterIcon, FilterContainer } from '@condo/domains/common/components/TableFilter'
 import { EmptyTableCell } from '@condo/domains/common/components/Table/EmptyTableCell'
 import { renderHighlightedPart } from '@condo/domains/common/components/Table/Renders'
@@ -16,8 +16,6 @@ import { createSorterMap, IFilters } from '../utils/helpers'
 import { OrganizationEmployeeRole } from '../utils/clientSchema'
 
 const FILTER_DROPDOWN_CHECKBOX_STYLES: CSSProperties = { display: 'flex', flexDirection: 'column' }
-
-const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
 
 export const useTableColumns = (
     organizationId: string,
@@ -34,7 +32,7 @@ export const useTableColumns = (
 
     const sorterMap = createSorterMap(sort)
     const { loading, objs: organizationEmployeeRoles } = OrganizationEmployeeRole.useObjects({ where: { organization: { id: organizationId } } })
-    const search = getFilteredValue(filters, 'search')
+    const search = getFilteredValue<IFilters>(filters, 'search')
 
     const render = (text) => {
         let result = text
@@ -82,7 +80,7 @@ export const useTableColumns = (
             {
                 title: NameMessage,
                 sortOrder: get(sorterMap, 'name'),
-                filteredValue: getFilteredValue(filters, 'name'),
+                filteredValue: getFilteredValue<IFilters>(filters, 'name'),
                 dataIndex: 'name',
                 key: 'name',
                 sorter: true,
@@ -94,7 +92,7 @@ export const useTableColumns = (
             {
                 title: PositionMessage,
                 sortOrder: get(sorterMap, 'position'),
-                filteredValue: getFilteredValue(filters, 'position'),
+                filteredValue: getFilteredValue<IFilters>(filters, 'position'),
                 dataIndex: 'position',
                 key: 'position',
                 width: '20%',
@@ -105,7 +103,7 @@ export const useTableColumns = (
             {
                 title: RoleMessage,
                 sortOrder: get(sorterMap, 'role'),
-                filteredValue: getFilteredValue(filters, 'role'),
+                filteredValue: getFilteredValue<IFilters>(filters, 'role'),
                 dataIndex: 'role',
                 key: 'role',
                 sorter: true,
@@ -117,7 +115,7 @@ export const useTableColumns = (
             {
                 title: PhoneMessage,
                 sortOrder: get(sorterMap, 'phone'),
-                filteredValue: getFilteredValue(filters, 'phone'),
+                filteredValue: getFilteredValue<IFilters>(filters, 'phone'),
                 dataIndex: 'phone',
                 key: 'phone',
                 sorter: true,
@@ -130,7 +128,7 @@ export const useTableColumns = (
                 title: EmailMessage,
                 ellipsis: true,
                 dataIndex: 'email',
-                filteredValue: getFilteredValue(filters, 'email'),
+                filteredValue: getFilteredValue<IFilters>(filters, 'email'),
                 key: 'email',
                 width: '20%',
                 filterDropdown: getTextFilterDropdown(EmailMessage, setFiltersApplied),

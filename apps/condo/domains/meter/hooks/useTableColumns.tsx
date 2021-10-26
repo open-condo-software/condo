@@ -11,6 +11,9 @@ import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.uti
 import { getFilterIcon } from '@condo/domains/common/components/Table/Filters'
 import { getAddressRender, getDateRender, renderMeterReading, getTextRender } from '@condo/domains/common/components/Table/Renders'
 
+/**
+ * TODO: replace with getFilteredValue from @condo/domains/common/utils/helpers (needs IFilters to be defined)
+ */
 const getFilteredValue = (filters, key: string | Array<string>): FilterValue => get(filters, key, null)
 
 const renderMeterRecord = (record) => {
