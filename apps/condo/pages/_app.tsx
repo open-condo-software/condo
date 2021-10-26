@@ -40,7 +40,6 @@ import {
 } from '../domains/subscription/components/SubscriptionContext'
 import dayjs from 'dayjs'
 import { useEndTrialSubscriptionReminderPopup } from '../domains/subscription/hooks/useEndTrialSubscriptionReminderPopup'
-import { HistoryContextProvider } from '../domains/common/components/HistoryContext'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
@@ -158,20 +157,18 @@ const MyApp = ({ Component, pageProps }) => {
                     <FocusContextProvider>
                         <OnBoardingProvider>
                             <SubscriptionProvider>
-                                <HistoryContextProvider>
-                                    <LayoutContextProvider>
-                                        <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                            <RequiredAccess>
-                                                <Component {...pageProps} />
-                                                {
-                                                    isEndTrialSubscriptionReminderPopupVisible && (
-                                                        <EndTrialSubscriptionReminderPopup/>
-                                                    )
-                                                }
-                                            </RequiredAccess>
-                                        </LayoutComponent>
-                                    </LayoutContextProvider>
-                                </HistoryContextProvider>
+                                <LayoutContextProvider>
+                                    <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                        <RequiredAccess>
+                                            <Component {...pageProps} />
+                                            {
+                                                isEndTrialSubscriptionReminderPopupVisible && (
+                                                    <EndTrialSubscriptionReminderPopup/>
+                                                )
+                                            }
+                                        </RequiredAccess>
+                                    </LayoutComponent>
+                                </LayoutContextProvider>
                             </SubscriptionProvider>
                         </OnBoardingProvider>
                     </FocusContextProvider>
