@@ -12,9 +12,9 @@ import { LOCALES } from '@condo/domains/common/constants/locale'
 import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
 import { createSorterMap, IFilters } from '../utils/helpers'
 import { TicketStatus } from '../utils/clientSchema'
-import { Highliter } from '@condo/domains/common/components/Highliter'
 import { getTextFilterDropdown, getFilterIcon, FilterContainer } from '@condo/domains/common/components/TableFilter'
 import getRenderer from '@condo/domains/common/components/helpers/tableCellRenderer'
+import { TextHighlighter } from '../../common/components/TextHighlighter'
 
 const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
 
@@ -112,14 +112,24 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
 
         if (propertyWasDeleted) {
             return (
-                <Typography.Text type={'secondary'}>
-                    <Highliter
+                <>
+                    <TextHighlighter
                         text={String(address)}
                         search={String(search)}
-                        renderPart={(part) => <Typography.Text style={{ backgroundColor: colors.markColor }}>{part}</Typography.Text>}
+                        renderPart={(part, startIndex, marked) => (
+                            <Typography.Text
+                                title={`${address} ${unitPrefix}`}
+                                type={'secondary'}
+                                style={marked ? { backgroundColor: colors.markColor } : {}}
+                            >
+                                {part}
+                            </Typography.Text>
+                        )}
                     />
-                    { ' ' + unitPrefix } ({DeletedMessage})
-                </Typography.Text>
+                    <Typography.Text type={'secondary'} title={`${address} ${unitPrefix}`} >
+                        { ' ' + unitPrefix } ({DeletedMessage})
+                    </Typography.Text>
+                </>
             )
         }
 
