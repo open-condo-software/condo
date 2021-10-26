@@ -34,7 +34,7 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
     const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
     const ExecutorMessage = intl.formatMessage({ id: 'field.Executor' })
     const ResponsibleMessage = intl.formatMessage({ id: 'field.Responsible' })
-    const HouseWasDeletedMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.PropertyWasDeleted' })
+    const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
 
     const sorterMap = createSorterMap(sort)
     const { loading, objs: ticketStatuses } = TicketStatus.useObjects({})
@@ -103,17 +103,18 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
     }
 
     const renderAddress = (record) => {
+        const propertyWasDeleted = !!get(record, ['property', 'deletedAt'])
         const property = get(record, 'property')
 
-        if (!property) {
-            return <Typography.Text type={'secondary'}>{HouseWasDeletedMessage}</Typography.Text>
-        }
-
         const unitName = get(record, 'unitName')
-        const text = get(property, 'address')
+        const address = get(property, 'address')
         const unitPrefix = unitName ? `${ShortFlatNumber} ${unitName}` : ''
 
-        return getRenderer(search, true, unitPrefix)(text)
+        if (propertyWasDeleted) {
+            return <Typography.Text type={'secondary'}>{ address } { unitPrefix } ({DeletedMessage})</Typography.Text>
+        }
+
+        return getRenderer(search, true, unitPrefix)(address)
     }
 
     const renderDate = (createdAt) => {
