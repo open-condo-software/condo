@@ -31,16 +31,21 @@ const StyledButton = styled(Button)`
 `
 
 interface ILinkWithIconProps {
-    path: string,
+    path: string
     icon?: React.ReactNode
     children?: React.ReactNode
+    isBackLink?: boolean
 }
 
 export const LinkWithIcon: React.FC<ILinkWithIconProps> = (props: ILinkWithIconProps) => {
     const router = useRouter()
     const handleClick = useCallback(() => {
+        if (props.isBackLink) {
+            router.back()
+            return
+        }
         router.push(props.path)
-    }, [props.path])
+    }, [props.path, props.isBackLink])
 
     return (
         <StyledButton type='link' onClick={handleClick}>

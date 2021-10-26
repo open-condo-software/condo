@@ -2,14 +2,13 @@ import { useIntl } from '@core/next/intl'
 import { LinkWithIcon } from './LinkWithIcon'
 import { ArrowLeftOutlined } from '@ant-design/icons'
 import { colors } from '../constants/style'
-import React, { useContext } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { MessageDescriptor } from '@formatjs/intl/src/types'
 import Router, { useRouter } from 'next/router'
 import get from 'lodash/get'
 import { Space, Typography } from 'antd'
 import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayoutContext'
 import { Button } from './Button'
-import { HistoryContext } from './HistoryContext'
 
 interface IReturnBackHeaderActionProps {
     descriptor: MessageDescriptor
@@ -29,17 +28,21 @@ export const ReturnBackHeaderAction: React.FC<IReturnBackHeaderActionProps> = (p
     const { descriptor, path } = props
     const intl = useIntl()
     const BackMessage = intl.formatMessage(descriptor)
-    const previousUrl = useContext(HistoryContext)
-    const { query, asPath } = useRouter()
-    let url = typeof path === 'string' ? path : path(String(get(query, 'id')))
-    if (previousUrl !== null && previousUrl !== asPath) {
-        url = previousUrl
-    }
+    const [isBackLink, setIsBackLink] = useState<boolean>(false)
+    const { query } = useRouter()
+    const url = typeof path === 'string' ? path : path(String(get(query, 'id')))
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            setIsBackLink(window.history.length > 2)
+        }
+    }, [])
 
     return (
         <LinkWithIcon
             icon={<ArrowLeftOutlined style={{ color: colors.white }}/>}
             path={url}
+            isBackLink={isBackLink}
         >
             {BackMessage}
         </LinkWithIcon>
