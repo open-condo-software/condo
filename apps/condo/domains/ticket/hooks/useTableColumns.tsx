@@ -1,14 +1,12 @@
 import React, { CSSProperties, useMemo } from 'react'
-import dayjs from 'dayjs'
-import { get } from 'lodash'
+import get from 'lodash/get'
 import { identity } from 'lodash/util'
 import { Checkbox, Space, Tag, Typography } from 'antd'
 
 import { useIntl } from '@core/next/intl'
 
-import { LOCALES } from '@condo/domains/common/constants/locale'
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
-import { getAddressDetails } from '@condo/domains/common/utils/helpers'
+import { getAddressDetails, getFilteredValue } from '@condo/domains/common/utils/helpers'
 
 import { getHighlitedContents, getDateRender } from '@condo/domains/common/components/Table/Renders'
 import { getDateFilterDropdown } from '@condo/domains/common/components/Table/Filters'
@@ -16,10 +14,9 @@ import { getTextFilterDropdown, getFilterIcon, FilterContainer } from '@condo/do
 
 import { EMERGENCY_TAG_COLOR } from '@condo/domains/ticket/constants/style'
 
+import { TicketStatus } from '../utils/clientSchema'
 import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
 import { createSorterMap, IFilters } from '../utils/helpers'
-import { TicketStatus } from '../utils/clientSchema'
-import { getFilteredValue } from '../utils/helpers'
 
 const EMERGENCY_TAG_TEXT_STYLES = { color: EMERGENCY_TAG_COLOR.text }
 const STATUS_FILTER_CHECKBOX_GROUP_STYLES: CSSProperties = { display: 'flex', flexDirection: 'column' }
@@ -46,7 +43,7 @@ export const useTableColumns = (
 
     const sorterMap = createSorterMap(sort)
     const { loading, objs: ticketStatuses } = TicketStatus.useObjects({})
-    const search = getFilteredValue(filters, 'search')
+    const search = getFilteredValue<IFilters>(filters, 'search')
 
     const renderStatus = (status, record) => {
         const { primary: color, secondary: backgroundColor } = status.colors
@@ -105,18 +102,12 @@ export const useTableColumns = (
         return getTableCellRenderer(search, true, unitPrefix)(text)
     }
 
-    const renderDate = (createdAt) => {
-        const locale = get(LOCALES, intl.locale)
-        const date = locale ? dayjs(createdAt).locale(locale) : dayjs(createdAt)
-        return date.format('DD MMM')
-    }
-
     return useMemo(() => {
         return [
             {
                 title: NumberMessage,
                 sortOrder: get(sorterMap, 'number'),
-                filteredValue: getFilteredValue(filters, 'number'),
+                filteredValue: getFilteredValue<IFilters>(filters, 'number'),
                 dataIndex: 'number',
                 key: 'number',
                 sorter: true,
@@ -129,7 +120,7 @@ export const useTableColumns = (
             {
                 title: DateMessage,
                 sortOrder: get(sorterMap, 'createdAt'),
-                filteredValue: getFilteredValue(filters, 'createdAt'),
+                filteredValue: getFilteredValue<IFilters>(filters, 'createdAt'),
                 dataIndex: 'createdAt',
                 key: 'createdAt',
                 sorter: true,
@@ -143,7 +134,7 @@ export const useTableColumns = (
             {
                 title: StatusMessage,
                 sortOrder: get(sorterMap, 'status'),
-                filteredValue: getFilteredValue(filters, 'status'),
+                filteredValue: getFilteredValue<IFilters>(filters, 'status'),
                 render: renderStatus,
                 dataIndex: 'status',
                 key: 'status',
@@ -155,7 +146,7 @@ export const useTableColumns = (
             {
                 title: DescriptionMessage,
                 dataIndex: 'details',
-                filteredValue: getFilteredValue(filters, 'details'),
+                filteredValue: getFilteredValue<IFilters>(filters, 'details'),
                 key: 'details',
                 width: '22%',
                 filterDropdown: getTextFilterDropdown(FindWordMessage, setFiltersApplied),
@@ -166,7 +157,7 @@ export const useTableColumns = (
                 title: AddressMessage,
                 ellipsis: false,
                 sortOrder: get(sorterMap, 'property'),
-                filteredValue: getFilteredValue(filters, 'property'),
+                filteredValue: getFilteredValue<IFilters>(filters, 'property'),
                 key: 'property',
                 sorter: true,
                 width: '19%',
@@ -177,7 +168,7 @@ export const useTableColumns = (
             {
                 title: ClientNameMessage,
                 sortOrder: get(sorterMap, 'clientName'),
-                filteredValue: getFilteredValue(filters, 'clientName'),
+                filteredValue: getFilteredValue<IFilters>(filters, 'clientName'),
                 dataIndex: 'clientName',
                 key: 'clientName',
                 sorter: true,
@@ -189,7 +180,7 @@ export const useTableColumns = (
             {
                 title: ExecutorMessage,
                 sortOrder: get(sorterMap, 'executor'),
-                filteredValue: getFilteredValue(filters, 'executor'),
+                filteredValue: getFilteredValue<IFilters>(filters, 'executor'),
                 dataIndex: 'executor',
                 key: 'executor',
                 sorter: true,
@@ -201,7 +192,7 @@ export const useTableColumns = (
             {
                 title: ResponsibleMessage,
                 sortOrder: get(sorterMap, 'assignee'),
-                filteredValue: getFilteredValue(filters, 'assignee'),
+                filteredValue: getFilteredValue<IFilters>(filters, 'assignee'),
                 dataIndex: 'assignee',
                 key: 'assignee',
                 sorter: true,
