@@ -746,7 +746,7 @@
   "ErrorOccurred": "Возникла ошибка",
   "NoBillingIntegrationYet": "Вы пока не интегрировали биллинг",
   "AvailableBillings": "ГИС ЖКХ",
-  "CanIntegrateWithThisBillings": "Пока можно подключить только {billingList}",
+  "CanIntegrateWithThisBillings": "Можно подключить {billingList}",
   "ConnectBilling": "Подключить биллинг",
   "WillBeReadySoon": "Скоро всё будет готово",
   "Accruals": "Начисления",
