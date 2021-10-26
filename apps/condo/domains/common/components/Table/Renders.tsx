@@ -3,15 +3,17 @@ import { Typography } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import { FilterValue } from 'antd/es/table/interface'
 
 import { ELECTRICITY_METER_RESOURCE_ID } from '@condo/domains/meter/constants/constants'
 
 import { LOCALES } from '../../constants/locale'
 import { QueryArgType } from '../../utils/tables.utils'
 import { TextHighlighter } from '../TextHighlighter'
-import { EmptyTableCell } from './EmptyTableCell'
-
+import { ELLIPSIS_ROWS } from '../../constants/style'
 import { colors } from '../../constants/style'
+
+import { EmptyTableCell } from './EmptyTableCell'
 
 type RenderReturnType = string | React.ReactNode
 
@@ -19,14 +21,75 @@ const DEFAULT_CURRENCY_SEPARATOR = '.'
 const DEFAULT_CURRENCY_CODE = 'RUB'
 const MARKED_TEXT_STYLES = { backgroundColor: colors.markColor }
 const EMPTY_TEXT_STYLES = {}
+const ELLIPSIS_SETTINGS = { rows: ELLIPSIS_ROWS, expandable: false }
+const ELLIPSIS_STYLES = { marginBottom: 0 }
 
+type TGetHighlitedFN = (search?: FilterValue, postfix?: string) => (text?: string) => React.ReactElement | string
+
+/**
+ * Returned function renders provided text with highlited parts according to search value
+ * @param search
+ * @param postfix
+ */
+export const getHighlitedContents: TGetHighlitedFN = (search, postfix) => (text) => {
+    // Sometimes we can receive null/undefined as text
+    const renderText = text ? String(text) : ''
+
+    if (isEmpty(search) && !renderText) return postfix ? `${renderText} ${postfix}` : renderText
+
+    return (
+        <>
+            <TextHighlighter
+                text={renderText}
+                search={String(search)}
+                renderPart={renderHighlightedPart}
+            />
+            {postfix && ` ${postfix}`}
+        </>
+    )
+}
+
+
+type TGetRendererFN =  (search?: FilterValue, ellipsis?: boolean, postfix?: string) => (text?: string) => React.ReactElement
+
+/**
+ * Returned function renders provided text as a cell with highlighted search and multi row ellipsis
+ * @param search
+ * @param ellipsis
+ * @param postfix
+ * @return cell contents renderer fn
+ */
+export const getTableCellRenderer: TGetRendererFN = (search, ellipsis = false, postfix = '') =>
+    (text) => {
+        const highlitedContent = getHighlitedContents(search, postfix)(text)
+
+        return (
+            <EmptyTableCell>
+                {ellipsis
+                    ? (
+                        <Typography.Paragraph ellipsis={ELLIPSIS_SETTINGS} title={`${text} ${postfix || ''}`} style={ELLIPSIS_STYLES}>
+                            {highlitedContent}
+                        </Typography.Paragraph>
+                    )
+                    : <>{highlitedContent}</>
+                }
+            </EmptyTableCell>
+        )
+    }
+
+/**
+ * Marks text according to marked flag
+ * @param part
+ * @param startIndex
+ * @param marked
+ */
 export const renderHighlightedPart = (part, startIndex, marked) => (
     <Typography.Text style={marked ? MARKED_TEXT_STYLES : EMPTY_TEXT_STYLES}>
         {part}
     </Typography.Text>
 )
 
-const getHighlightedText = (search: string, text: string) => {
+const renderHighlightedCellContents = (search: string, text: string) => {
     let result: RenderReturnType = text
 
     if (!isEmpty(search) && text) {
@@ -42,14 +105,17 @@ const getHighlightedText = (search: string, text: string) => {
     return <EmptyTableCell>{result}</EmptyTableCell>
 }
 
-export const getDateRender = (intl, search?: string) => {
+const DATE_FORMAT_LONG = 'DD MMM YYYY'
+const DATE_FORMAT_SHORT = 'DD MMM'
+
+export const getDateRender = (intl, search?: string, short?: boolean) => {
     return function render (stringDate: string): RenderReturnType {
         if (!stringDate) return '—'
 
         const locale = get(LOCALES, intl.locale)
         const date = locale ? dayjs(stringDate).locale(locale) : dayjs(stringDate)
 
-        return getHighlightedText(search, date.format('DD MMMM YYYY'))
+        return renderHighlightedCellContents(search, date.format(short ? DATE_FORMAT_SHORT : DATE_FORMAT_LONG))
     }
 }
 
@@ -72,7 +138,7 @@ export const getAddressRender = (search?: QueryArgType, unitPrefix?: string) => 
 
 export const getTextRender = (search?: string) => {
     return function render (text: string): RenderReturnType {
-        return getHighlightedText(search, text)
+        return renderHighlightedCellContents(search, text)
     }
 }
 

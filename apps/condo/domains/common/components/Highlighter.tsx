@@ -1,7 +1,7 @@
 import React from 'react'
 import isEmpty from 'lodash/isEmpty'
 
-const { ESCAPE_REGEX } = require('../constants/regexps')
+import { ESCAPE_REGEX }  from '../constants/regexps'
 
 export type THighlighterRenderPartFN = (part: string, index?: number) => React.ReactElement
 

@@ -7,13 +7,10 @@ import { FilterValue } from 'antd/es/table/interface'
 
 import { useIntl } from '@core/next/intl'
 
-import { MessageSetMeta } from '@condo/domains/common/types'
-import { getIntlMessages } from '@condo/domains/common/utils/helpers'
 import { getTextFilterDropdown, getFilterIcon, FilterContainer } from '@condo/domains/common/components/TableFilter'
-import { renderHighlightedPart } from '@condo/domains/common/components/Table/Renders'
 import { EmptyTableCell } from '@condo/domains/common/components/Table/EmptyTableCell'
+import { renderHighlightedPart } from '@condo/domains/common/components/Table/Renders'
 import { TextHighlighter } from '@condo/domains/common/components/TextHighlighter'
-
 
 import { createSorterMap, IFilters } from '../utils/helpers'
 import { OrganizationEmployeeRole } from '../utils/clientSchema'
@@ -22,16 +19,6 @@ const FILTER_DROPDOWN_CHECKBOX_STYLES: CSSProperties = { display: 'flex', flexDi
 
 const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
 
-type TableMessageKeys = 'NameMessage' | 'RoleMessage' | 'PositionMessage' | 'PhoneMessage' | 'EmailMessage'
-
-const TABLE_MESSAGES: MessageSetMeta<TableMessageKeys> = {
-    NameMessage: 'pages.auth.register.field.Name',
-    RoleMessage: 'employee.Role',
-    PositionMessage: 'employee.Position',
-    PhoneMessage: 'Phone',
-    EmailMessage: 'field.EMail',
-}
-
 export const useTableColumns = (
     organizationId: string,
     sort: Array<string>,
@@ -39,7 +26,12 @@ export const useTableColumns = (
     setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
     const intl = useIntl()
-    const messages = getIntlMessages<TableMessageKeys>(intl, TABLE_MESSAGES)
+    const NameMessage = intl.formatMessage({ id: 'pages.auth.register.field.Name' })
+    const RoleMessage = intl.formatMessage({ id: 'employee.Role' })
+    const PositionMessage = intl.formatMessage({ id: 'employee.Position' })
+    const PhoneMessage =  intl.formatMessage({ id: 'Phone' })
+    const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
+
     const sorterMap = createSorterMap(sort)
     const { loading, objs: organizationEmployeeRoles } = OrganizationEmployeeRole.useObjects({ where: { organization: { id: organizationId } } })
     const search = getFilteredValue(filters, 'search')
@@ -88,30 +80,30 @@ export const useTableColumns = (
     const columns = useMemo(() => {
         return [
             {
-                title: messages.NameMessage,
+                title: NameMessage,
                 sortOrder: get(sorterMap, 'name'),
                 filteredValue: getFilteredValue(filters, 'name'),
                 dataIndex: 'name',
                 key: 'name',
                 sorter: true,
                 width: '40%',
-                filterDropdown: getTextFilterDropdown(messages.NameMessage, setFiltersApplied),
+                filterDropdown: getTextFilterDropdown(NameMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
                 render,
             },
             {
-                title: messages.PositionMessage,
+                title: PositionMessage,
                 sortOrder: get(sorterMap, 'position'),
                 filteredValue: getFilteredValue(filters, 'position'),
                 dataIndex: 'position',
                 key: 'position',
                 width: '20%',
                 render,
-                filterDropdown: getTextFilterDropdown(messages.PositionMessage, setFiltersApplied),
+                filterDropdown: getTextFilterDropdown(PositionMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
             },
             {
-                title: messages.RoleMessage,
+                title: RoleMessage,
                 sortOrder: get(sorterMap, 'role'),
                 filteredValue: getFilteredValue(filters, 'role'),
                 dataIndex: 'role',
@@ -123,25 +115,25 @@ export const useTableColumns = (
                 filterIcon: getFilterIcon,
             },
             {
-                title: messages.PhoneMessage,
+                title: PhoneMessage,
                 sortOrder: get(sorterMap, 'phone'),
                 filteredValue: getFilteredValue(filters, 'phone'),
                 dataIndex: 'phone',
                 key: 'phone',
                 sorter: true,
                 width: '20%',
-                filterDropdown: getTextFilterDropdown(messages.PhoneMessage, setFiltersApplied),
+                filterDropdown: getTextFilterDropdown(PhoneMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
                 render,
             },
             {
-                title: messages.EmailMessage,
+                title: EmailMessage,
                 ellipsis: true,
                 dataIndex: 'email',
                 filteredValue: getFilteredValue(filters, 'email'),
                 key: 'email',
                 width: '20%',
-                filterDropdown: getTextFilterDropdown(messages.EmailMessage, setFiltersApplied),
+                filterDropdown: getTextFilterDropdown(EmailMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
                 render,
             },

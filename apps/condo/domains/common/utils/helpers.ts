@@ -1,7 +1,7 @@
 import { ParsedUrlQuery } from 'querystring'
 import get from 'lodash/get'
-import { IntlShape } from 'react-intl'
-import { IRecordWithId, MessageSetMeta, PartialIntlMessages, RecordWithAddressDetails } from '../types'
+
+import { IRecordWithId, RecordWithAddressDetails } from '../types'
 
 const DEFAULT_WIDTH_PRECISION = 2
 const PHONE_FORMAT_REGEXP = /(\d)(\d{3})(\d{3})(\d{2})(\d{2})/
@@ -44,19 +44,6 @@ export const getAddressDetails = (record: RecordWithAddressDetails, ShortFlatNum
     const unitPrefix = unitName ? `${ShortFlatNumber} ${unitName}` : ''
 
     return { text, unitPrefix }
-}
-
-/**
- * Generic function for generation intl messages from meta
- * @param intl
- * @param messageSetMeta
- */
-export const getIntlMessages = <T>(intl: IntlShape, messageSetMeta: MessageSetMeta<T>): PartialIntlMessages<T> => {
-    return Object.keys(messageSetMeta).reduce<PartialIntlMessages<T>>((result, key) => {
-        result[key] = intl.formatMessage({ id: messageSetMeta[key] })
-
-        return result
-    }, {} )
 }
 
 /**

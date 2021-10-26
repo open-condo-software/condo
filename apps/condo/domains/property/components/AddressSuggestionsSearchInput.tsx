@@ -1,15 +1,18 @@
-import { notification, Select, SelectProps, Typography } from 'antd'
-import { OptionProps } from 'antd/lib/mentions'
 import React, { useCallback } from 'react'
 import identity from 'lodash/identity'
 import pickBy from 'lodash/pickBy'
-import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInput'
+import { notification, Select, SelectProps, Typography } from 'antd'
+import { OptionProps } from 'antd/lib/mentions'
+
 import { useIntl } from '@core/next/intl'
-import { Highlighter } from '@condo/domains/common/components/Highlighter'
 import { grey } from '@ant-design/colors'
-import { colors } from '@condo/domains/common/constants/style'
-import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import styled from '@emotion/styled'
+
+import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInput'
+import { Highlighter } from '@condo/domains/common/components/Highlighter'
+import { useAddressApi } from '@condo/domains/common/components/AddressApi'
+
+import { colors } from '@condo/domains/common/constants/style'
 
 /*
     Fixes visual overlapping of close-button with text
@@ -55,6 +58,9 @@ export const AddressSuggestionsSearchInput: React.FC<AddressSearchInputProps> = 
         [],
     )
 
+    /**
+     * TODO: replace HighLighter with apps/condo/domains/common/components/TextHighlighter.tsx and renderHighlightedPart
+     */
     const renderOption = useCallback(
         (dataItem, searchValue) => {
             return (

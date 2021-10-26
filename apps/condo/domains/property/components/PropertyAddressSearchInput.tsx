@@ -1,14 +1,18 @@
 /** @jsx jsx */
+import React, { useCallback } from 'react'
+import get from 'lodash/get'
+import { Select, SelectProps, Typography } from 'antd'
+
+import { Organization, Property } from '@app/condo/schema'
+import { useApolloClient } from '@core/next/apollo'
 import { grey } from '@ant-design/colors'
 import { jsx } from '@emotion/core'
-import { Select, SelectProps, Typography } from 'antd'
-import get from 'lodash/get'
-import React, { useCallback } from 'react'
+
 import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInput'
-import { useApolloClient } from '@core/next/apollo'
-import { searchProperty, searchSingleProperty } from '@condo/domains/ticket/utils/clientSchema/search'
-import { Organization, Property } from '@app/condo/schema'
 import { Highlighter } from '@condo/domains/common/components/Highlighter'
+
+import { searchProperty, searchSingleProperty } from '@condo/domains/ticket/utils/clientSchema/search'
+
 import { colors } from '@condo/domains/common/constants/style'
 
 type IAddressSearchInput = SelectProps<string> & {
@@ -45,6 +49,9 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
         [],
     )
 
+    /**
+     * TODO: replace HighLighter with apps/condo/domains/common/components/TextHighlighter.tsx and renderHighlightedPart
+     */
     const renderOption = useCallback(
         (dataItem, searchValue) => {
             return (
