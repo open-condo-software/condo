@@ -328,7 +328,7 @@ describe('Resident', () => {
                 const [billingIntegration] = await createTestBillingIntegration(adminClient)
                 await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, billingIntegration)
 
-                const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient)
+                const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient, [billingIntegration])
                 await createTestAcquiringIntegrationContext(adminClient, userClient.organization, acquiringIntegration)
 
                 const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
@@ -364,7 +364,8 @@ describe('Resident', () => {
                 const userClient = await makeClientWithProperty()
                 const adminClient = await makeLoggedInAdminClient()
 
-                const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient)
+                const [billingIntegration] = await createTestBillingIntegration(adminClient)
+                const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient, [billingIntegration])
                 await createTestAcquiringIntegrationContext(adminClient, userClient.organization, acquiringIntegration)
 
                 const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
