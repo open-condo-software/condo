@@ -95,7 +95,7 @@ export const CreateContactForm: React.FC = () => {
                         <Row gutter={[0, 40]}>
                             <Col span={24}>
                                 <Row gutter={[0, 24]}>
-                                    <Col span={18}>
+                                    <Col lg={18} xs={24}>
                                         <Form.Item
                                             name={'property'}
                                             label={AddressLabel}
@@ -120,7 +120,7 @@ export const CreateContactForm: React.FC = () => {
                                             />
                                         </Form.Item>
                                     </Col>
-                                    <Col span={18}>
+                                    <Col lg={18} xs={24}>
                                         <Form.Item
                                             name={'unitName'}
                                             label={UnitLabel}
@@ -137,7 +137,7 @@ export const CreateContactForm: React.FC = () => {
                                             />
                                         </Form.Item>
                                     </Col>
-                                    <Col span={18}>
+                                    <Col lg={18} xs={24}>
                                         <Form.Item
                                             name={'name'}
                                             label={FullNameLabel}
@@ -149,7 +149,7 @@ export const CreateContactForm: React.FC = () => {
                                             <Input placeholder={FullNamePlaceholderMessage}/>
                                         </Form.Item>
                                     </Col>
-                                    <Col span={18}>
+                                    <Col lg={18} xs={24}>
                                         <Form.Item
                                             name={'phone'}
                                             label={PhoneLabel}
@@ -162,7 +162,7 @@ export const CreateContactForm: React.FC = () => {
                                             <PhoneInput placeholder={ExamplePhoneMessage} block/>
                                         </Form.Item>
                                     </Col>
-                                    <Col span={18}>
+                                    <Col lg={18} xs={24}>
                                         <Form.Item
                                             name={'email'}
                                             label={EmailLabel}

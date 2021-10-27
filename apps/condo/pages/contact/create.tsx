@@ -37,9 +37,12 @@ const CreateContactPage: ICreateContactPage = () => {
     )
 }
 
-CreateContactPage.headerAction = <ReturnBackHeaderAction
-    descriptor={{ id:'pages.condo.contact.PageTitle' }}
-    path={'/contact'}/>
+CreateContactPage.headerAction = (
+    <ReturnBackHeaderAction
+        descriptor={{ id:'pages.condo.contact.PageTitle' }}
+        path={'/contact'}
+    />
+)
 CreateContactPage.requiredAccess = OrganizationRequired
 
 export default CreateContactPage

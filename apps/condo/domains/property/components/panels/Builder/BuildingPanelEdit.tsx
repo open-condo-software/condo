@@ -81,7 +81,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ mapValida
         <FullscreenWrapper mode={'edit'} className={isFullscreen ? 'fullscreen' : ''}>
             <FullscreenHeader edit={true}>
                 <Row style={{ paddingBottom: '39px', marginRight: '36px' }}>
-                    {address && <Col flex={0} style={{ marginTop: '10px' }}><b>{address}</b></Col>}
+                    {address && <Col style={{ marginTop: '10px' }}><b>{address}</b></Col>}
                     <Col style={{ marginLeft: 'auto' }}>
                         <Button
                             key='submit'
@@ -400,7 +400,6 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) =>
         </>
     )
 }
-
 
 interface IUnitFormProps {
     Builder: MapEdit

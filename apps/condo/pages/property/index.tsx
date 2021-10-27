@@ -1,6 +1,11 @@
 /** @jsx jsx */
 import React, { useEffect, useRef, useState } from 'react'
-import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import {
+    PageContent,
+    PageHeader,
+    PageWrapper,
+    useLayoutContext
+} from '@condo/domains/common/components/containers/BaseLayout'
 import { Col, Radio, Row, Tabs, Typography } from 'antd'
 import Head from 'next/head'
 import { jsx } from '@emotion/core'
@@ -57,7 +62,7 @@ type PropertiesContentProps = {
     tab?: PropertiesType
 }
 
-export function PropertiesContent (props: PropertiesContentProps) {
+export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
     const intl = useIntl()
     const router = useRouter()
 
@@ -69,6 +74,7 @@ export function PropertiesContent (props: PropertiesContentProps) {
 
     const [propertiesType, setPropertiesType] = useState<PropertiesType>(props.tab)
     const [viewMode, changeViewMode] = useState('list')
+    const { isSmall } = useLayoutContext()
 
     const initialTab = useRef(props.tab)
 
@@ -93,34 +99,36 @@ export function PropertiesContent (props: PropertiesContentProps) {
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <Row gutter={[0, 40]} align={'top'} style={{ zIndex: 1, position: 'relative' }}>
-                        <Col span={6} >
-                            <PageHeader style={{ background: 'transparent' }} title={<Typography.Title>
+                    <Row gutter={[0, 40]} align={'top'}>
+                        <Col lg={6} xs={24}>
+                            <Typography.Title>
                                 {PageTitleMessage}
-                            </Typography.Title>} />
-                            {viewMode !== 'map' &&
-                                <Tabs
-                                    defaultActiveKey={initialTab.current}
-                                    onChange={(key: PropertiesType) => {
-                                        setPropertiesType(key)
-                                        router.push(`/property?tab=${key}`)
-                                    }}>
-                                    <Tabs.TabPane
-                                        key="buildings"
-                                        tab={BuildingsTabTitle}
-                                    />
-                                    <Tabs.TabPane
-                                        key="divisions"
-                                        tab={DivisionsTabTitle}
-                                    />
-                                </Tabs>
-                            }
+                            </Typography.Title>
                         </Col>
-                        <Col span={6} push={12} style={{ top: 10 }}>
+                        <Col lg={6} offset={isSmall ? 0 : 12} xs={24}>
                             <Radio.Group className={'sberRadioGroup'} value={viewMode} buttonStyle="outline" onChange={e => changeViewMode(e.target.value)}>
                                 <Radio.Button value="list">{ShowTable}</Radio.Button>
                                 <Radio.Button value="map">{ShowMap}</Radio.Button>
                             </Radio.Group>
+                        </Col>
+                        <Col xs={24}>
+                            {viewMode !== 'map' &&
+                            <Tabs
+                                defaultActiveKey={initialTab.current}
+                                onChange={(key: PropertiesType) => {
+                                    setPropertiesType(key)
+                                    router.push(`/property?tab=${key}`)
+                                }}>
+                                <Tabs.TabPane
+                                    key="buildings"
+                                    tab={BuildingsTabTitle}
+                                />
+                                <Tabs.TabPane
+                                    key="divisions"
+                                    tab={DivisionsTabTitle}
+                                />
+                            </Tabs>
+                            }
                         </Col>
                         {viewMode !== 'map' &&
                             <Col span={24}>
