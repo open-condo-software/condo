@@ -14,6 +14,8 @@ const { createTestOrganization } = require('@condo/domains/organization/utils/te
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const dayjs = require('dayjs')
 const faker = require('faker')
+const { makeClientWithSupportUser } = require(
+    '@condo/domains/user/utils/testSchema')
 const { wrongSbbolOfferAccept } = require('../utils/testSchema/constants')
 const { rightSbbolOfferAccept } = require('../utils/testSchema/constants')
 
@@ -546,6 +548,36 @@ describe('ServiceSubscription', () => {
             expect(objUpdated.deletedAt).toEqual(null)
             expect(objUpdated.createdBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
             expect(objUpdated.updatedBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+            expect(objUpdated.createdAt).toMatch(DATETIME_RE)
+            expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
+            expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
+            expect(objUpdated.type).toEqual(payload.type)
+            expect(objUpdated.startAt).toEqual(payload.startAt.toISOString())
+            expect(objUpdated.finishAt).toEqual(payload.finishAt.toISOString())
+        })
+
+        it('can be updated by support', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const supportClient = await makeClientWithSupportUser()
+            const [organization] = await createTestOrganization(adminClient)
+
+            const [objCreated] = await createTestServiceSubscription(adminClient, organization)
+
+            const payload = {
+                type: 'sbbol',
+                startAt: dayjs().add(1, 'day'),
+                finishAt: dayjs().add(16, 'days'),
+            }
+            const [objUpdated, attrs] = await updateTestServiceSubscription(supportClient, objCreated.id, payload)
+
+            expect(objUpdated.id).toEqual(objCreated.id)
+            expect(objUpdated.dv).toEqual(1)
+            expect(objUpdated.sender).toEqual(attrs.sender)
+            expect(objUpdated.v).toEqual(2)
+            expect(objUpdated.newId).toEqual(null)
+            expect(objUpdated.deletedAt).toEqual(null)
+            expect(objUpdated.createdBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+            expect(objUpdated.updatedBy).toEqual(expect.objectContaining({ id: supportClient.user.id }))
             expect(objUpdated.createdAt).toMatch(DATETIME_RE)
             expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
             expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
