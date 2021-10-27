@@ -46,22 +46,20 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
         return (
             <Space direction='vertical' size={7}>
                 <Tag color={backgroundColor}>
-                    <Typography.Text style={{ color }}>
-                        {isEmpty(status.name)
-                            ? status.name
-                            : (
-                                <TextHighlighter
-                                    text={String(status.name)}
-                                    search={String(search)}
-                                    renderPart={(part, startIndex, marked) => (
-                                        <Typography.Text title={status.name} style={marked ? { backgroundColor: colors.markColor } : { color: color }}>
-                                            {part}
-                                        </Typography.Text>
-                                    )}
-                                />
-                            )
-                        }
-                    </Typography.Text>
+                    {isEmpty(status.name)
+                        ? <Typography.Text style={{ color }}>{status.name}</Typography.Text>
+                        : (
+                            <TextHighlighter
+                                text={String(status.name)}
+                                search={String(search)}
+                                renderPart={(part, startIndex, marked) => (
+                                    <Typography.Text title={status.name} style={marked ? { backgroundColor: colors.markColor } : { color: color }}>
+                                        {part}
+                                    </Typography.Text>
+                                )}
+                            />
+                        )
+                    }
                 </Tag>
                 {record.isEmergency &&
                     <Tag color={EMERGENCY_TAG_COLOR.background}>
