@@ -210,6 +210,8 @@ describe('MultiPayment', () => {
         })
     })
     describe('real-life cases', () => {
+        // TODO (savelevMatthew) write tests
+
         test('mobile resident can\'t see his sensitive data in his own MultiPayments', async () => {
             const { admin, payments, acquiringIntegration, client } = await makePayerAndPayments()
             const [createdMultiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
