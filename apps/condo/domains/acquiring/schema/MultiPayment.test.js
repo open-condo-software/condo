@@ -143,7 +143,7 @@ describe('MultiPayment', () => {
 
                     const integrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
                     await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
-                    const [updatedMultiPayment, updatedMultiPaymentAttrs] = await updateTestMultiPayment(integrationClient, multiPayment.id, {
+                    const [_, updatedMultiPaymentAttrs] = await updateTestMultiPayment(integrationClient, multiPayment.id, {
                         status: MULTIPAYMENT_ERROR_STATUS,
                     }, { raw:true })
                     expect(updatedMultiPaymentAttrs).toBeDefined()
