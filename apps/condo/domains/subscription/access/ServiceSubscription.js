@@ -19,7 +19,7 @@ async function canManageServiceSubscriptions ({ authentication: { item: user }, 
     if (operation === 'create') {
         return false
     } else if (operation === 'update') {
-        return false
+        return (user.isSupport)
     }
     return false
 }
