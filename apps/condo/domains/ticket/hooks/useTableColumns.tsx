@@ -15,7 +15,6 @@ import { TicketStatus } from '../utils/clientSchema'
 import { getTextFilterDropdown, getFilterIcon, FilterContainer } from '@condo/domains/common/components/TableFilter'
 import getRenderer from '@condo/domains/common/components/helpers/tableCellRenderer'
 import { TextHighlighter } from '../../common/components/TextHighlighter'
-import { Highliter } from '../../common/components/Highliter'
 
 const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
 
@@ -51,11 +50,11 @@ export const useTableColumns = (sort: Array<string>, filters: IFilters,
                         {isEmpty(status.name)
                             ? status.name
                             : (
-                                <Highliter
-                                    text={status.name}
+                                <TextHighlighter
+                                    text={String(status.name)}
                                     search={String(search)}
-                                    renderPart={(part) => (
-                                        <Typography.Text style={{ backgroundColor: colors.markColor }}>
+                                    renderPart={(part, startIndex, marked) => (
+                                        <Typography.Text title={status.name} style={marked ? { backgroundColor: colors.markColor } : { color: color }}>
                                             {part}
                                         </Typography.Text>
                                     )}
