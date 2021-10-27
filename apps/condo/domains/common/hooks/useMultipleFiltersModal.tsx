@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import Form from 'antd/lib/form'
 import { Checkbox, Col, FormInstance, Input, Row, Select, Typography } from 'antd'
 import {
@@ -18,6 +18,7 @@ import qs from 'qs'
 import { useIntl } from '@core/next/intl'
 import { CloseOutlined } from '@ant-design/icons'
 import { ComponentType, FilterComponentInfo, FiltersMeta, getQueryToValueProcessorByType } from '../utils/filters.utils'
+import { is } from 'immer/dist/utils/common'
 
 enum FilterComponentSize {
     Medium = 12,
@@ -169,85 +170,93 @@ function getModalComponents <T> (filters, filterMetas: Array<FiltersMeta<T>>, fo
     })
 }
 
+const Modal = ({ isMultipleFiltersModalVisible, setIsMultipleFiltersModalVisible, filterMetas }) => {
+    const [form, setForm] = useState<FormInstance>(null)
+    const intl = useIntl()
+    const FiltersModalTitle = intl.formatMessage({ id: 'FiltersLabel' })
+    const ShowMessage = intl.formatMessage({ id: 'Show' })
+    const ClearAllFiltersMessage = intl.formatMessage({ id: 'ClearAllFilters' })
+
+    const router = useRouter()
+    const { filters } = parseQuery(router.query)
+
+    const handleReset = useCallback(async () => {
+        const resetFields = {}
+        const formKeys = Object.keys(form.getFieldsValue())
+        formKeys.forEach(key => {
+            resetFields[key] = undefined
+        })
+        form.setFieldsValue(resetFields)
+
+        if ('offset' in router.query) router.query['offset'] = '0'
+        const query = qs.stringify(
+            { ...router.query, filters: JSON.stringify({}) },
+            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
+        )
+
+        await router.push(router.route + query)
+    }, [form])
+
+    const handleSubmit = useCallback((values) => {
+        console.log('values', values)
+        if ('offset' in router.query) router.query['offset'] = '0'
+        const query = qs.stringify(
+            { ...router.query, filters: JSON.stringify(pickBy({ ...filters, ...values })) },
+            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
+        )
+
+        router.push(router.route + query)
+        setIsMultipleFiltersModalVisible(false)
+    }, [])
+
+    return (
+        <BaseModalForm
+            visible={isMultipleFiltersModalVisible}
+            modalProps={{ width: 840 }}
+            cancelModal={() => setIsMultipleFiltersModalVisible(false)}
+            ModalTitleMsg={FiltersModalTitle}
+            ModalSaveButtonLabelMsg={ShowMessage}
+            showCancelButton={false}
+            validateTrigger={['onBlur', 'onSubmit']}
+            handleSubmit={handleSubmit}
+            modalExtraFooter={[
+                <Button
+                    style={{ position: 'absolute', left: '10px' }}
+                    key={'reset'}
+                    type={'text'}
+                    onClick={handleReset}
+                >
+                    <Typography.Text strong type={'secondary'}>
+                        {ClearAllFiltersMessage} <CloseOutlined style={{ fontSize: '12px' }} />
+                    </Typography.Text>
+                </Button>,
+            ]}
+        >
+            {
+                (form: FormInstance) => {
+                    setForm(form)
+
+                    return (
+                        <Row justify={'space-between'} gutter={[24, 12]} id={FILTERS_POPUP_CONTAINER_ID}>
+                            {getModalComponents(filters, filterMetas, form)}
+                        </Row>
+                    )
+                }
+            }
+        </BaseModalForm>
+    )
+}
+
 export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>) {
     const [isMultipleFiltersModalVisible, setIsMultipleFiltersModalVisible] = useState<boolean>()
 
-    const MultipleFiltersModal = () => {
-        const [form, setForm] = useState<FormInstance>(null)
-        const intl = useIntl()
-        const FiltersModalTitle = intl.formatMessage({ id: 'FiltersLabel' })
-        const ShowMessage = intl.formatMessage({ id: 'Show' })
-        const ClearAllFiltersMessage = intl.formatMessage({ id: 'ClearAllFilters' })
-
-        const router = useRouter()
-        const { filters } = parseQuery(router.query)
-
-        const handleReset = useCallback(async () => {
-            const resetFields = {}
-            const formKeys = Object.keys(form.getFieldsValue())
-            formKeys.forEach(key => {
-                resetFields[key] = undefined
-            })
-            form.setFieldsValue(resetFields)
-
-            if ('offset' in router.query) router.query['offset'] = '0'
-            const query = qs.stringify(
-                { ...router.query, filters: JSON.stringify({}) },
-                { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-            )
-
-            await router.push(router.route + query)
-        }, [form])
-
-        const handleSubmit = useCallback((values) => {
-            console.log('values', values)
-            if ('offset' in router.query) router.query['offset'] = '0'
-            const query = qs.stringify(
-                { ...router.query, filters: JSON.stringify(pickBy({ ...filters, ...values })) },
-                { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-            )
-
-            router.push(router.route + query)
-            setIsMultipleFiltersModalVisible(false)
-        }, [])
-
-        return (
-            <BaseModalForm
-                visible={isMultipleFiltersModalVisible}
-                modalProps={{ width: 840 }}
-                cancelModal={() => setIsMultipleFiltersModalVisible(false)}
-                ModalTitleMsg={FiltersModalTitle}
-                ModalSaveButtonLabelMsg={ShowMessage}
-                showCancelButton={false}
-                validateTrigger={['onBlur', 'onSubmit']}
-                handleSubmit={handleSubmit}
-                modalExtraFooter={[
-                    <Button
-                        style={{ position: 'absolute', left: '10px' }}
-                        key={'reset'}
-                        type={'text'}
-                        onClick={handleReset}
-                    >
-                        <Typography.Text strong type={'secondary'}>
-                            {ClearAllFiltersMessage} <CloseOutlined style={{ fontSize: '12px' }} />
-                        </Typography.Text>
-                    </Button>,
-                ]}
-            >
-                {
-                    (form: FormInstance) => {
-                        setForm(form)
-
-                        return (
-                            <Row justify={'space-between'} gutter={[24, 12]} id={FILTERS_POPUP_CONTAINER_ID}>
-                                {getModalComponents(filters, filterMetas, form)}
-                            </Row>
-                        )
-                    }
-                }
-            </BaseModalForm>
-        )
-    }
+    const MultipleFiltersModal = useCallback(() => {
+        return <Modal
+            isMultipleFiltersModalVisible={isMultipleFiltersModalVisible}
+            setIsMultipleFiltersModalVisible={setIsMultipleFiltersModalVisible}
+            filterMetas={filterMetas}
+        />
+    }, [isMultipleFiltersModalVisible])
 
     return { MultipleFiltersModal, setIsMultipleFiltersModalVisible }
 }
