@@ -130,6 +130,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
         ruleRef.current = { ...ruleRef.current, [type]: id, ...clearProblem }
         updateLevels({ [type]: id })
     }
+
     const onUserSearch = async (input, type) => {
         const classifiers = await ClassifierLoader.search(input, type)
         Setter[type].search(classifiers)
@@ -222,10 +223,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
                         query[key] = { id: querySelectors[key] }
                     }
                 }
-                ClassifierLoader.findRules(query).then(data => {
-                    console.log('data', query, data)
-                    resolve([type, ClassifierLoader.rulesToOptions(data, type)])
-                })
+                ClassifierLoader.findRules(query).then(data => resolve([type, ClassifierLoader.rulesToOptions(data, type)]))
             })
         }))
         const result = Object.fromEntries(loadedRules)
