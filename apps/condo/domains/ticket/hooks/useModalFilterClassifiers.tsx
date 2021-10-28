@@ -1,6 +1,6 @@
 import { useApolloClient } from '@core/next/apollo'
 import { ClassifiersQueryLocal, TicketClassifierTypes } from '../utils/clientSchema/classifierSearch'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { find, get, isEmpty, pick, pickBy, uniqBy } from 'lodash'
 import { FormInstance, Select } from 'antd'
 import { useRouter } from 'next/router'
@@ -21,6 +21,8 @@ const useTicketClassifierSelect = ({
 }) => {
     const [classifiers, setClassifiersFromRules] = useState([])
     const [searchClassifiers, setSearchClassifiers] = useState([])
+    const [stateForm, setForm] = useState<FormInstance>(null)
+
     const classifiersRef = useRef(null)
     const optionsRef = useRef([])
     // const selectedRef = useRef<string>(null)
@@ -34,11 +36,11 @@ const useTicketClassifierSelect = ({
         setSearchClassifiers([])
     }
 
-    // function setSelected (value) {
-    //     selectedRef.current = value
-    //     // Remove search classifiers when user chosen smth - only classifiers will work for now
-    //     setSearchClassifiers([])
-    // }
+    function setSelected (value) {
+        stateForm && stateForm.setFieldsValue({ [keyword]: value })
+        // Remove search classifiers when user chosen smth - only classifiers will work for now
+        // setSearchClassifiers([])
+    }
 
     useEffect(() => {
         optionsRef.current = uniqBy([...classifiers, ...searchClassifiers], 'id')
@@ -49,45 +51,47 @@ const useTicketClassifierSelect = ({
         form.setFieldsValue({ [keyword]: value })
     }
 
-    const SelectComponent = useMemo(() => {
-        const SelectComponentWrapper = (props) => {
-            const { disabled, style, form } = props
+    const SelectComponent = useCallback( (props) => {
+        const { disabled, style, form } = props
 
-            return (
-                <Select
-                    showSearch
-                    style={style}
-                    allowClear={true}
-                    // onSelect={onChange}
-                    onChange={(value) => handleChange(form, value)}
-                    // onSearch={onSearch}
-                    // onClear={() => onChange(null)}
-                    optionFilterProp={'title'}
-                    // defaultActiveFirstOption={false}
-                    disabled={disabled}
-                    defaultValue={form.getFieldValue(keyword)}
-                    // ref={classifiersRef}
-                    showAction={['focus', 'click']}
-                    mode={'multiple'}
-                >
-                    {
-                        optionsRef.current.map(classifier => (
-                            <Option value={classifier.id} key={classifier.id} title={classifier.name}>
-                                {classifier.name}
-                            </Option>
-                        ))
-                    }
-                </Select>
-            )
-        }
-        return SelectComponentWrapper
+        if (!stateForm)
+            setForm(stateForm)
+
+        // console.log('form.getFieldValue(keyword)', form.getFieldValue(keyword))
+
+        return (
+            <Select
+                showSearch
+                style={style}
+                allowClear={true}
+                // onSelect={onChange}
+                onChange={(value) => handleChange(form, value)}
+                // onSearch={onSearch}
+                // onClear={() => onChange(null)}
+                optionFilterProp={'title'}
+                // defaultActiveFirstOption={false}
+                disabled={disabled}
+                value={form.getFieldValue(keyword)}
+                // ref={classifiersRef}
+                showAction={['focus', 'click']}
+                mode={'multiple'}
+            >
+                {
+                    optionsRef.current.map(classifier => (
+                        <Option value={classifier.id} key={classifier.id} title={classifier.name}>
+                            {classifier.name}
+                        </Option>
+                    ))
+                }
+            </Select>
+        )
     }, [router.query])
 
     return {
         SelectComponent,
         set: {
             all: setClassifiers,
-            // one: setSelected,
+            one: setSelected,
             search: setSearchClassifiers,
         },
         ref: classifiersRef,
@@ -141,10 +145,8 @@ export function useModalFilterClassifiers () {
         ClassifierLoaderRef.current = ClassifierLoader
 
         ClassifierLoaderRef.current.init().then(() => {
-            if (
-                (filters['placeClassifier'] && filters['placeClassifier'].length > 0) ||
-                    (filters['categoryClassifier'] && filters['categoryClassifier'].length > 0)
-            ) {
+            if ((filters['placeClassifier'] && filters['placeClassifier'].length > 0) ||
+                    (filters['categoryClassifier'] && filters['categoryClassifier'].length > 0)) {
                 ruleRef.current = { place: filters['placeClassifier'], category: filters['categoryClassifier'] }
                 updateLevels()
             } else {
@@ -163,8 +165,20 @@ export function useModalFilterClassifiers () {
     }, [router.query])
 
 
+    useEffect(() => {
+        console.log('update router.query', router.query)
+        if (!filters['placeClassifier'] || filters['placeClassifier'].length === 0 ||
+            !filters['categoryClassifier'] || filters['categoryClassifier'].length === 0) {
+            ruleRef.current = { place: [], category: [] }
+        }
+    }, [router.query])
+
+
     const loadLevels = async () => {
         const { place, category } = ruleRef.current
+
+        console.log('ruleRef.current', ruleRef.current)
+
         const loadedRules = await Promise.all([
             { category, type: 'place' },
             { place, type: 'category' },
@@ -195,9 +209,24 @@ export function useModalFilterClassifiers () {
         const options = await loadLevels()
 
         Object.keys(Setter).forEach(type => {
+            console.log('type', type, ruleRef.current)
             Setter[type].all(options[type])
+            const isExisted = options[type].find(option => ruleRef.current[type] && ruleRef.current[type].includes(option.id))
+            Setter[type].one(isExisted ? ruleRef.current[type] : null)
         })
     }
 
-    return { CategorySelect, PlaceSelect }
+    const Category = useCallback((props) => {
+        return (
+            <CategorySelect {...props}/>
+        )
+    }, [router.query])
+
+    const Place = useCallback((props) => {
+        return (
+            <PlaceSelect {...props}/>
+        )
+    }, [router.query])
+
+    return { CategorySelect: Category, PlaceSelect: Place }
 }
