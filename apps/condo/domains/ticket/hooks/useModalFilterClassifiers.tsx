@@ -52,6 +52,7 @@ const useTicketClassifierSelect = ({
     const SelectComponent = useMemo(() => {
         const SelectComponentWrapper = (props) => {
             const { disabled, style, form } = props
+
             return (
                 <Select
                     showSearch
@@ -64,7 +65,7 @@ const useTicketClassifierSelect = ({
                     optionFilterProp={'title'}
                     // defaultActiveFirstOption={false}
                     disabled={disabled}
-                    defaultValue={filters[keyword]}
+                    defaultValue={form.getFieldValue(keyword)}
                     // ref={classifiersRef}
                     showAction={['focus', 'click']}
                     mode={'multiple'}
@@ -80,7 +81,7 @@ const useTicketClassifierSelect = ({
             )
         }
         return SelectComponentWrapper
-    }, [filters])
+    }, [router.query])
 
     return {
         SelectComponent,
@@ -102,11 +103,6 @@ export function useModalFilterClassifiers () {
 
     const router = useRouter()
     const { filters } = parseQuery(router.query)
-
-    //
-    // useEffect(() => {
-    //     ruleRef.current = { place: filters['placeClassifier'] || [], category: filters['categoryClassifier'] || [] }
-    // }, [])
 
     const onUserSelect = (id, type) => {
         ruleRef.current = { ...ruleRef.current, [type]: id }
@@ -164,7 +160,7 @@ export function useModalFilterClassifiers () {
             // clear all loaded data from helper
             ClassifierLoaderRef.current.clear()
         }
-    }, [])
+    }, [router.query])
 
 
     const loadLevels = async () => {

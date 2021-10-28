@@ -258,7 +258,7 @@ export const TicketsPageContent = ({
                                 </Row>
                             )
                     }
-                    <MultipleFiltersModal/>
+                    <MultipleFiltersModal />
                 </PageContent>
             </PageWrapper>
         </>
