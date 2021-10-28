@@ -1,11 +1,11 @@
 import { useApolloClient } from '@core/next/apollo'
 import { ClassifiersQueryLocal, TicketClassifierTypes } from '../utils/clientSchema/classifierSearch'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { find, get, isEmpty, pick, pickBy, uniqBy } from 'lodash'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { uniqBy } from 'lodash'
 import { FormInstance, Select } from 'antd'
 import { useRouter } from 'next/router'
-import { parseQuery } from '../../common/utils/tables.utils'
-import qs from 'qs'
+import { parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { useIntl } from '@core/next/intl'
 
 const { Option } = Select
 
@@ -16,9 +16,11 @@ interface Options {
 
 const useTicketClassifierSelect = ({
     onChange,
-    // onSearch,
     keyword,
 }) => {
+    const intl = useIntl()
+    const SelectMessage = intl.formatMessage({ id: 'Select' })
+
     const [classifiers, setClassifiersFromRules] = useState([])
     const [searchClassifiers, setSearchClassifiers] = useState([])
     const [stateForm, setForm] = useState<FormInstance>(null)
@@ -30,14 +32,11 @@ const useTicketClassifierSelect = ({
 
     const setClassifiers = (classifiers) => {
         setClassifiersFromRules(classifiers)
-        // We need to remove search classifiers when rules start to work
         setSearchClassifiers([])
     }
 
     function setSelected (value) {
         stateForm && stateForm.setFieldsValue({ [keyword]: value })
-        // Remove search classifiers when user chosen smth - only classifiers will work for now
-        // setSearchClassifiers([])
     }
 
     useEffect(() => {
@@ -55,24 +54,20 @@ const useTicketClassifierSelect = ({
         if (!stateForm)
             setForm(stateForm)
 
-        // console.log('form.getFieldValue(keyword)', form.getFieldValue(keyword))
-
         return (
             <Select
                 showSearch
+                showArrow
+                allowClear
                 style={style}
-                allowClear={true}
-                // onSelect={onChange}
                 onChange={(value) => handleChange(form, value)}
-                // onSearch={onSearch}
-                // onClear={() => onChange(null)}
                 optionFilterProp={'title'}
-                // defaultActiveFirstOption={false}
                 disabled={disabled}
                 value={form.getFieldValue(keyword)}
-                // ref={classifiersRef}
                 showAction={['focus', 'click']}
                 mode={'multiple'}
+                placeholder={SelectMessage}
+                getPopupContainer={() => document.getElementById('filtersPopupContainer')}
             >
                 {
                     optionsRef.current.map(classifier => (
@@ -96,12 +91,15 @@ const useTicketClassifierSelect = ({
     }
 }
 
+const PLACE_CLASSIFIER_KEYWORD = 'placeClassifier'
+const CATEGORY_CLASSIFIER_KEYWORD = 'categoryClassifier'
+
 export function useModalFilterClassifiers () {
     const client = useApolloClient()
     const ClassifierLoader = new ClassifiersQueryLocal(client)
 
     const ClassifierLoaderRef = useRef<ClassifiersQueryLocal>()
-    const ruleRef = useRef<{ place: string[], category: string[] }>({ place: [], category: [] })
+    const ruleRef = useRef({ place: [], category: [] })
 
     const router = useRouter()
     const { filters } = parseQuery(router.query)
@@ -111,18 +109,12 @@ export function useModalFilterClassifiers () {
         updateLevels({ [type]: id })
     }
 
-    // const onUserSearch = async (input, type) => {
-    //     const classifiers = await ClassifierLoader.search(input, type)
-    //     Setter[type].search(classifiers)
-    // }
-
     const {
         set: categorySet,
         SelectComponent: CategorySelect,
     } = useTicketClassifierSelect({
         onChange: (id) => onUserSelect(id, TicketClassifierTypes.category),
-        // onSearch: (id) => onUserSearch(id, TicketClassifierTypes.category),
-        keyword: 'categoryClassifier',
+        keyword: CATEGORY_CLASSIFIER_KEYWORD,
     })
 
     const {
@@ -130,8 +122,7 @@ export function useModalFilterClassifiers () {
         SelectComponent: PlaceSelect,
     } = useTicketClassifierSelect({
         onChange: (id) => onUserSelect(id, TicketClassifierTypes.place),
-        // onSearch: (id) => onUserSearch(id, TicketClassifierTypes.place),
-        keyword: 'placeClassifier',
+        keyword: PLACE_CLASSIFIER_KEYWORD,
     })
 
     const Setter = {
@@ -142,10 +133,18 @@ export function useModalFilterClassifiers () {
     useEffect(() => {
         ClassifierLoaderRef.current = ClassifierLoader
 
+        const initialPlaceClassifierIds = Array.isArray(filters[PLACE_CLASSIFIER_KEYWORD]) ?
+            [...filters[PLACE_CLASSIFIER_KEYWORD]] : [filters[PLACE_CLASSIFIER_KEYWORD]]
+
+        const initialCategoryClassifierIds = Array.isArray(filters[CATEGORY_CLASSIFIER_KEYWORD]) ?
+            [...filters[CATEGORY_CLASSIFIER_KEYWORD]] : [filters[CATEGORY_CLASSIFIER_KEYWORD]]
+
         ClassifierLoaderRef.current.init().then(() => {
-            if ((filters['placeClassifier'] && filters['placeClassifier'].length > 0) ||
-                    (filters['categoryClassifier'] && filters['categoryClassifier'].length > 0)) {
-                ruleRef.current = { place: filters['placeClassifier'], category: filters['categoryClassifier'] }
+            if (initialPlaceClassifierIds.length > 0 || initialCategoryClassifierIds.length > 0) {
+                ruleRef.current = {
+                    place: initialPlaceClassifierIds,
+                    category: initialCategoryClassifierIds,
+                }
                 updateLevels()
             } else {
                 [TicketClassifierTypes.place, TicketClassifierTypes.category].forEach(type => {
@@ -153,29 +152,22 @@ export function useModalFilterClassifiers () {
                         Setter[type].all(classifiers)
                     })
                 })
+
+                ruleRef.current = {
+                    place: [],
+                    category: [],
+                }
             }
         })
 
         return () => {
-            // clear all loaded data from helper
             ClassifierLoaderRef.current.clear()
-        }
-    }, [router.query])
-
-
-    useEffect(() => {
-        console.log('update router.query', router.query)
-        if (!filters['placeClassifier'] || filters['placeClassifier'].length === 0 ||
-            !filters['categoryClassifier'] || filters['categoryClassifier'].length === 0) {
-            ruleRef.current = { place: [], category: [] }
         }
     }, [router.query])
 
 
     const loadLevels = async () => {
         const { place, category } = ruleRef.current
-
-        console.log('loadLevels ruleRef.current', ruleRef.current)
 
         const loadedRules = await Promise.all([
             { category, type: 'place' },
@@ -189,8 +181,6 @@ export function useModalFilterClassifiers () {
                         query[key] = { ids: querySelectors[key] }
                     }
                 }
-
-                console.log('query', type, query)
 
                 ClassifierLoaderRef.current
                     .findRulesByIds(query, type, ruleRef.current[type])
@@ -207,8 +197,6 @@ export function useModalFilterClassifiers () {
     const updateLevels = async (selected = {} ) => {
         ruleRef.current = { ...ruleRef.current, ...selected }
         const options = await loadLevels()
-
-        console.log('options', options)
 
         Object.keys(Setter).forEach(type => {
             Setter[type].all(options[type])

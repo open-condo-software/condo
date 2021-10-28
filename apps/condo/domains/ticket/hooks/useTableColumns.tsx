@@ -7,14 +7,13 @@ import { colors } from '@condo/domains/common/constants/style'
 import { EMERGENCY_TAG_COLOR } from '@condo/domains/ticket/constants/style'
 import { IFilters } from '../utils/helpers'
 import { Highliter } from '@condo/domains/common/components/Highliter'
-import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
-import { FiltersMeta, getFilterDropdownByKey } from '../../common/utils/filters.utils'
+import { getFilterIcon, FilterContainer } from '@condo/domains/common/components/TableFilter'
+import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { useRouter } from 'next/router'
-import { getSorterMap, parseQuery } from '../../common/utils/tables.utils'
-import { getAddressRender, getDateRender, getTextRender } from '../../common/components/Table/Renders'
+import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { getAddressRender, getDateRender, getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { TextHighlighter } from '../../common/components/TextHighlighter'
 import getRenderer from '@condo/domains/common/components/helpers/tableCellRenderer'
-import { getTextFilterDropdown, FilterContainer } from '@condo/domains/common/components/TableFilter'
 import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
 import { identity } from '@keystonejs/utils'
 import { TicketStatus } from '../utils/clientSchema'
@@ -27,12 +26,10 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
     const PaidMessage = intl.formatMessage({ id: 'Paid' }).toLowerCase()
     const DateMessage = intl.formatMessage({ id: 'Date' })
-    const StatusMessage =  intl.formatMessage({ id: 'Status' })
+    const StatusMessage = intl.formatMessage({ id: 'Status' })
     const ClientNameMessage = intl.formatMessage({ id: 'Client' })
     const DescriptionMessage = intl.formatMessage({ id: 'Description' })
-    const FindWordMessage = intl.formatMessage({ id: 'filters.FindWord' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
-    const UserNameMessage = intl.formatMessage({ id: 'filters.UserName' })
     const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
     const ExecutorMessage = intl.formatMessage({ id: 'field.Executor' })
     const ResponsibleMessage = intl.formatMessage({ id: 'field.Responsible' })
@@ -69,17 +66,21 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                             )
                         }
                     </Tag>
-                    {record.isEmergency &&
-                    <Tag color={EMERGENCY_TAG_COLOR.background}>
-                        <Typography.Text style={{ color: EMERGENCY_TAG_COLOR.text }}>
-                            {EmergencyMessage}
-                        </Typography.Text>
-                    </Tag>
+                    {
+                        record.isEmergency && (
+                            <Tag color={EMERGENCY_TAG_COLOR.background}>
+                                <Typography.Text style={{ color: EMERGENCY_TAG_COLOR.text }}>
+                                    {EmergencyMessage}
+                                </Typography.Text>
+                            </Tag>
+                        )
                     }
-                    {record.isPaid &&
-                    <Tag color={'orange'}>
-                        {PaidMessage}
-                    </Tag>
+                    {
+                        record.isPaid && (
+                            <Tag color={'orange'}>
+                                {PaidMessage}
+                            </Tag>
+                        )
                     }
                 </Space>
             )

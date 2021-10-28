@@ -24,13 +24,13 @@ export enum ComponentType {
     CheckboxGroup,
     Select,
     GQLSelect,
-    ChipsInput,
+    TagsSelect,
     Date,
     DateRange,
     Custom,
 }
 
-type CommonFilterComponentInfo = {
+type CommonFilterComponentType = {
     modalFilterComponentWrapper?: {
         label?: string
         size?: FilterComponentSize
@@ -39,40 +39,58 @@ type CommonFilterComponentInfo = {
     columnFilterComponentWrapper?: CSSProperties
 }
 
-export type FilterComponentInfo = CommonFilterComponentInfo & ({
+type GQLSelectFilterType = {
     type: ComponentType.GQLSelect
-    props: ISearchInputProps
-} | {
+    props?: ISearchInputProps
+}
+
+type InputFilterType = {
     type: ComponentType.Input
     props?: InputProps
-} | {
+}
+
+type CheckboxGroupFilterType = {
     type: ComponentType.CheckboxGroup
     options: { value: string, label: string }[]
-    loading?: boolean
     props?: CheckboxGroupProps
-} | {
+}
+
+type SelectFilterType = {
     type: ComponentType.Select
     options: { value: string, label: string }[]
     props?: SelectProps<string>
-} | {
-    type: ComponentType.ChipsInput
+}
+
+type TagsSelectFilterType = {
+    type: ComponentType.TagsSelect
     props?: SelectProps<string>
-} | {
+}
+
+type DateFilterType = {
     type: ComponentType.Date
     props?: DatePickerProps
-} | {
+}
+
+type DateRangeFilterType = {
     type: ComponentType.DateRange
     props?: RangePickerSharedProps<Dayjs>
-} | {
+}
+
+type CustomFilterType = {
     type: ComponentType.Custom
     getComponentFilterDropdown?: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: {
         setSelectedKeys: any, selectedKeys: any, confirm: any, clearFilters: any
     }) => JSX.Element
     modalFilterComponent?: React.ReactElement | ((form: FormInstance) => React.ReactElement)
-})
+}
+
+export type FilterComponentType = CommonFilterComponentType & (
+    GQLSelectFilterType | InputFilterType | CheckboxGroupFilterType | SelectFilterType |
+    TagsSelectFilterType | DateFilterType | DateRangeFilterType | CustomFilterType
+)
 
 export type FiltersMeta<F> = QueryMeta<F> & {
-    component?: FilterComponentInfo,
+    component?: FilterComponentType,
 }
 
 export const getQueryToValueProcessorByType = (type: ComponentType) => {
@@ -103,7 +121,7 @@ export function getFilterDropdownByKey <T> (filterMetas: Array<FiltersMeta<T>>, 
 
         case ComponentType.CheckboxGroup: {
             const options = get(component, 'options')
-            const loading = get(component, 'loading')
+            const loading = get(component, 'props', 'loading')
             return getOptionFilterDropdown(options, loading, columnFilterComponentWrapperStyles)
         }
 
@@ -124,7 +142,7 @@ export function getFilterDropdownByKey <T> (filterMetas: Array<FiltersMeta<T>>, 
             return getGQLSelectFilterDropdown(props, search, mode, columnFilterComponentWrapperStyles)
         }
 
-        case ComponentType.ChipsInput: {
+        case ComponentType.TagsSelect: {
             const props = get(component, 'props', {})
 
             return getSelectFilterDropdown(

@@ -11,6 +11,7 @@ import { notification, Col, Input, Row, Typography, Checkbox, Form } from 'antd'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { get } from 'lodash'
+import qs from 'qs'
 import React, { useCallback, useState } from 'react'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
@@ -21,16 +22,15 @@ import { useOrganization } from '@core/next/organization'
 import { SortMeterReadingsBy, SortTicketsBy } from '@app/condo/schema'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { fontSizes } from '@condo/domains/common/constants/style'
-import { useTicketTableFilters } from '../../domains/ticket/hooks/useTicketTableFilters'
-import { useQueryMappers } from '../../domains/common/hooks/useQueryMappers'
-import { getPageIndexFromOffset, parseQuery } from '../../domains/common/utils/tables.utils'
-import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table'
-import { useMultipleFiltersModal } from '../../domains/common/hooks/useMultipleFiltersModal'
+import { useTicketTableFilters } from '@condo/domains/ticket/hooks/useTicketTableFilters'
+import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
+import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
+import { useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { EXPORT_TICKETS_TO_EXCEL } from '@condo/domains/ticket/gql'
-import ActionBar from '../../domains/common/components/ActionBar'
-import { FocusContainer } from '../../domains/common/components/FocusContainer'
-import qs from 'qs'
-import { usePaidSearch } from '../../domains/ticket/hooks/usePaidSearch'
+import ActionBar from '@condo/domains/common/components/ActionBar'
+import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
+import { usePaidSearch } from '@condo/domains/ticket/hooks/usePaidSearch'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -44,6 +44,8 @@ export const ExportToExcelActionBar = ({
 }) => {
     const intl = useIntl()
     const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.ticket.id.DownloadExcelLabel' })
+    const ExportAsExcelLabel = intl.formatMessage({ id: 'ExportAsExcel' })
+
     const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
 
     const [downloadLink, setDownloadLink] = useState(null)
@@ -75,7 +77,9 @@ export const ExportToExcelActionBar = ({
                             loading={isXlsLoading}
                             target='_blank'
                             href={downloadLink}
-                            rel='noreferrer'>{DownloadExcelLabel}
+                            rel='noreferrer'
+                        >
+                            {DownloadExcelLabel}
                         </Button>
                         :
                         <Button
@@ -86,7 +90,7 @@ export const ExportToExcelActionBar = ({
                             onClick={
                                 () => exportToExcel({ variables: { data: { where: searchTicketsQuery, sortBy: sortBy, timeZone } } })
                             }>
-                            {'Выгрузить в Excel'}
+                            {ExportAsExcelLabel}
                         </Button>
                 }
             </ActionBar>
@@ -106,10 +110,7 @@ export const TicketsPageContent = ({
     const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
     const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
-    const EmergencyLabel = intl.formatMessage({ id: 'Emergency' })
-    const PaidLabel = intl.formatMessage({ id: 'Paid' })
     const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
-    const ClearAllFiltersMessage = intl.formatMessage({ id: 'ClearAllFilters' })
 
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
