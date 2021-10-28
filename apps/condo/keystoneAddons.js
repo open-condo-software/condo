@@ -17,7 +17,7 @@ async function validateListAccessControl ({
     itemId,
     itemIds,
     context,
-    info,
+    readFields,
 }) {
     // Either a boolean or an object describing a where clause
     let result = false
@@ -35,7 +35,7 @@ async function validateListAccessControl ({
             itemId,
             itemIds,
             context,
-            info,
+            readFields,
         })
     }
   
@@ -85,7 +85,7 @@ function enhanceKeystone (keystone){
                 listKey,
                 originalInput,
                 operation,
-                { gqlName, itemId, itemIds, context, info } = {}
+                { gqlName, itemId, itemIds, context, readFields } = {}
             ) => {
                 return validateListAccessControl({
                     access: access[schemaName],
@@ -97,7 +97,7 @@ function enhanceKeystone (keystone){
                     itemId,
                     itemIds,
                     context,
-                    info,
+                    readFields,
                 })
             },
             { isPromise: true }
@@ -155,7 +155,8 @@ function enhanceKeystone (keystone){
 
     Object.keys(keystone.lists).forEach(listKey => {
         const listQuery = async function (args, context, gqlName, info, from) {
-            const access = await this.checkListAccess(context, undefined, 'read', { gqlName, info })
+            // const requestFields = 
+            const access = await this.checkListAccess(context, undefined, 'read', { gqlName, readFields: info.fieldNodes[0].selectionSet.selections.map(s => s.name.value) })
             return this._itemsQuery(mergeWhereClause(args, access), { context, info, from })
         }
         keystone.lists[listKey].listQuery = listQuery.bind(keystone.lists[listKey])

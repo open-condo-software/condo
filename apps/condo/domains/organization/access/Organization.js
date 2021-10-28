@@ -10,7 +10,7 @@ const { get, uniq, compact } = require('lodash')
 const access = require('@core/keystone/access')
 
 
-async function canReadOrganizations ({ authentication: { item: user }, context }) {
+async function canReadOrganizations ({ authentication: { item: user }, context, readFields }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin || user.isSupport) return {}
     const userId = user.id
