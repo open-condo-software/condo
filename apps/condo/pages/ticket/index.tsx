@@ -36,6 +36,8 @@ interface ITicketIndexPage extends React.FC {
     requiredAccess?: React.FC
 }
 
+const CHECKBOX_STYLE = { paddingLeft: '0px', fontSize: fontSizes.content }
+
 export const TicketsPageContent = ({
     tableColumns,
     searchTicketsQuery,
@@ -128,7 +130,9 @@ export const TicketsPageContent = ({
                                                         <Col span={11}>
                                                             <Input
                                                                 placeholder={SearchPlaceholder}
-                                                                onChange={(e)=>{handleSearchChange(e.target.value)}}
+                                                                onChange={(e) => {
+                                                                    handleSearchChange(e.target.value)
+                                                                }}
                                                                 value={search}
                                                             />
                                                         </Col>
@@ -136,7 +140,7 @@ export const TicketsPageContent = ({
                                                             <Checkbox
                                                                 onChange={handleEmergencyChange}
                                                                 checked={emergency}
-                                                                style={{ paddingLeft: '0px', fontSize: fontSizes.content }}
+                                                                style={CHECKBOX_STYLE}
                                                             >
                                                                 {EmergenciesLabel}
                                                             </Checkbox>
@@ -145,7 +149,7 @@ export const TicketsPageContent = ({
                                                             <Checkbox
                                                                 onChange={handlePaidChange}
                                                                 checked={paid}
-                                                                style={{ paddingLeft: '0px', fontSize: fontSizes.content }}
+                                                                style={CHECKBOX_STYLE}
                                                             >
                                                                 {PaidLabel}
                                                             </Checkbox>
