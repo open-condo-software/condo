@@ -13,7 +13,6 @@ import { useIntl } from '@core/next/intl'
 import { searchEmployeeUser, searchOrganizationDivision, searchOrganizationProperty } from '../utils/clientSchema/search'
 import { useOrganization } from '@core/next/organization'
 import { get } from 'lodash'
-import { useApolloClient } from '@core/next/apollo'
 import { useModalFilterClassifiers } from './useModalFilterClassifiers'
 
 export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
@@ -43,8 +42,6 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
     const SelectMessage = intl.formatMessage({ id: 'Select' })
     const PlaceClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.PlaceLabel' })
     const CategoryClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.CategoryLabel' })
-    const ruleRef = useRef({ id: null, place: null, category:null, problem: null })
-    const client = useApolloClient()
 
     // const userOrganization = useOrganization()
     // const userOrganizationId = get(userOrganization, ['organization', 'id'])
