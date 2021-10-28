@@ -13,7 +13,6 @@ import { TableRecord } from '@condo/domains/common/components/Table/Index'
 import { preciseFloor } from './helpers'
 import { FilterDropdownProps } from 'antd/es/table/interface'
 import dayjs from 'dayjs'
-import { functions } from 'firebase'
 
 export type DataIndexType = string | Array<string>
 export type QueryArgType = string | Array<string>
@@ -76,7 +75,7 @@ export type QueryMeta<F> = {
     // by default === 'AND'
     combineType?: FiltersApplyMode
     defaultValue?: QueryArgType
-    queryToWhereProcessor?: (queryValue: string[]) => string | string[]
+    queryToWhereProcessor?: (queryValue: string[]) => QueryArgType
 }
 
 export type SorterColumn = {

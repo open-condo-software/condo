@@ -42,6 +42,7 @@ const StyledSelectFilterContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
+  width: 300px;
 `
 
 export const SelectFilterContainer: React.FC<IFilterContainerProps> = (props) => {

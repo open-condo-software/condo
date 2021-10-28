@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import Form from 'antd/lib/form'
 import { Checkbox, Col, FormInstance, Input, Row, Select, Typography } from 'antd'
 import {
@@ -17,8 +17,7 @@ import { BaseModalForm } from '../components/containers/FormList'
 import qs from 'qs'
 import { useIntl } from '@core/next/intl'
 import { CloseOutlined } from '@ant-design/icons'
-import { ComponentType, FilterComponentInfo, FiltersMeta, getQueryToValueProcessorByType } from '../utils/filters.utils'
-import { is } from 'immer/dist/utils/common'
+import { ComponentType, FilterComponentType, FiltersMeta, getQueryToValueProcessorByType } from '../utils/filters.utils'
 
 enum FilterComponentSize {
     Medium = 12,
@@ -62,7 +61,7 @@ function FilterComponent<T> ({
 
 const FILTERS_POPUP_CONTAINER_ID = 'filtersPopupContainer'
 
-export const getModalFilterComponentByMeta = (filters, name, component: FilterComponentInfo): React.ReactElement => {
+export const getModalFilterComponentByMeta = (filters, name, component: FilterComponentType): React.ReactElement => {
     const type = get(component, 'type')
     const props = {
         // It is necessary so that dropdowns do not go along with the screen when scrolling the modal window
@@ -118,7 +117,7 @@ export const getModalFilterComponentByMeta = (filters, name, component: FilterCo
             />
         }
 
-        case ComponentType.ChipsInput: {
+        case ComponentType.TagsSelect: {
             return <Select
                 mode="tags"
                 allowClear
@@ -132,7 +131,7 @@ export const getModalFilterComponentByMeta = (filters, name, component: FilterCo
     }
 }
 
-function getModalComponents <T> (filters, filterMetas: Array<FiltersMeta<T>>, form): React.ReactElement[] {
+function getModalComponents <T> (filters, filterMetas: Array<FiltersMeta<T>>, form: FormInstance): React.ReactElement[] {
     return filterMetas.map(filterMeta => {
         const { keyword, component } = filterMeta
 
@@ -145,8 +144,10 @@ function getModalComponents <T> (filters, filterMetas: Array<FiltersMeta<T>>, fo
         const type = get(component, 'type')
 
         let Component
-        if (type === ComponentType.Custom)
-            Component = get(component, 'modalFilterComponent')
+        if (type === ComponentType.Custom) {
+            const componentGetter = get(component, 'modalFilterComponent')
+            Component = typeof componentGetter === 'function' ? componentGetter(form) : componentGetter
+        }
         else
             Component = getModalFilterComponentByMeta(filters, keyword, component)
 
@@ -162,15 +163,23 @@ function getModalComponents <T> (filters, filterMetas: Array<FiltersMeta<T>>, fo
                 formItemProps={formItemProps}
                 queryToValueProcessor={queryToValueProcessor}
             >
-                {
-                    typeof Component === 'function' ? Component(form) : Component
-                }
+                {Component}
             </FilterComponent>
         )
     })
 }
 
-const Modal = ({ isMultipleFiltersModalVisible, setIsMultipleFiltersModalVisible, filterMetas }) => {
+type MultipleFiltersModalProps = {
+    isMultipleFiltersModalVisible: boolean,
+    setIsMultipleFiltersModalVisible: React.Dispatch<React.SetStateAction<boolean>>,
+    filterMetas: Array<FiltersMeta<unknown>>
+}
+
+const Modal: React.FC<MultipleFiltersModalProps> = ({
+    isMultipleFiltersModalVisible,
+    setIsMultipleFiltersModalVisible,
+    filterMetas,
+}) => {
     const [form, setForm] = useState<FormInstance>(null)
     const intl = useIntl()
     const FiltersModalTitle = intl.formatMessage({ id: 'FiltersLabel' })
