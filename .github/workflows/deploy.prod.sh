@@ -22,7 +22,7 @@ function run {
 
 VERSION=$(escape $1)
 
-SSH_DESTINATION=root@v1.doma.ai
+SSH_DESTINATION=root@178.170.194.20
 
 WORKSPACE=$(escape $2)
 APP=$(escape $3)
