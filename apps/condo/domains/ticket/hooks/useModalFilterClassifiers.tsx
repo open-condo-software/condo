@@ -217,17 +217,5 @@ export function useModalFilterClassifiers () {
         })
     }
 
-    const Category = useCallback((props) => {
-        return (
-            <CategorySelect {...props}/>
-        )
-    }, [router.query])
-
-    const Place = useCallback((props) => {
-        return (
-            <PlaceSelect {...props}/>
-        )
-    }, [router.query])
-
-    return { CategorySelect: Category, PlaceSelect: Place }
+    return { CategorySelect, PlaceSelect }
 }
