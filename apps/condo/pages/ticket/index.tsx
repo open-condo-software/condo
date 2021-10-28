@@ -6,8 +6,7 @@ import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { CloseOutlined, DatabaseFilled, FilterFilled } from '@ant-design/icons'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 import { useIntl } from '@core/next/intl'
-import { useLazyQuery } from '@core/next/apollo'
-import { notification, Col, Input, Row, Typography, Checkbox, Form } from 'antd'
+import { Col, Input, Row, Typography, Checkbox, Form } from 'antd'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { get } from 'lodash'
@@ -28,74 +27,13 @@ import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { EXPORT_TICKETS_TO_EXCEL } from '@condo/domains/ticket/gql'
-import ActionBar from '@condo/domains/common/components/ActionBar'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { usePaidSearch } from '@condo/domains/ticket/hooks/usePaidSearch'
+import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
     requiredAccess?: React.FC
-}
-
-//TODO(nomerdvadcatpyat): move to common components and also use it in meter readings page
-export const ExportToExcelActionBar = ({
-    searchTicketsQuery,
-    sortBy,
-}) => {
-    const intl = useIntl()
-    const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.ticket.id.DownloadExcelLabel' })
-    const ExportAsExcelLabel = intl.formatMessage({ id: 'ExportAsExcel' })
-
-    const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
-
-    const [downloadLink, setDownloadLink] = useState(null)
-
-    const [
-        exportToExcel,
-        { loading: isXlsLoading },
-    ] = useLazyQuery(
-        EXPORT_TICKETS_TO_EXCEL,
-        {
-            onError: error => {
-                notification.error(error)
-            },
-            onCompleted: data => {
-                setDownloadLink(data.result.linkToFile)
-            },
-        },
-    )
-
-    return (
-        <Form.Item noStyle>
-            <ActionBar>
-                {
-                    downloadLink
-                        ?
-                        <Button
-                            type={'inlineLink'}
-                            icon={<DatabaseFilled />}
-                            loading={isXlsLoading}
-                            target='_blank'
-                            href={downloadLink}
-                            rel='noreferrer'
-                        >
-                            {DownloadExcelLabel}
-                        </Button>
-                        :
-                        <Button
-                            type={'sberPrimary'}
-                            secondary
-                            icon={<DatabaseFilled />}
-                            loading={isXlsLoading}
-                            onClick={
-                                () => exportToExcel({ variables: { data: { where: searchTicketsQuery, sortBy: sortBy, timeZone } } })
-                            }>
-                            {ExportAsExcelLabel}
-                        </Button>
-                }
-            </ActionBar>
-        </Form.Item>
-    )
 }
 
 export const TicketsPageContent = ({
@@ -253,8 +191,9 @@ export const TicketsPageContent = ({
                                         />
                                     </Col>
                                     <ExportToExcelActionBar
-                                        searchTicketsQuery={searchTicketsQuery}
+                                        searchObjectsQuery={searchTicketsQuery}
                                         sortBy={sortBy}
+                                        exportToExcelQuery={EXPORT_TICKETS_TO_EXCEL}
                                     />
                                 </Row>
                             )

@@ -5,7 +5,6 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { MeterReading } from '@condo/domains/meter/utils/clientSchema'
 import { DatabaseFilled, FilterFilled } from '@ant-design/icons'
 import { useIntl } from '@core/next/intl'
-import { useLazyQuery } from '@core/next/apollo'
 import { Col, Form, Input, notification, Row, Typography } from 'antd'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -23,68 +22,12 @@ import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { EXPORT_METER_READINGS } from '@condo/domains/meter/gql'
-import ActionBar from '@condo/domains/common/components/ActionBar'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { useMeterInfoModal } from '@condo/domains/meter/hooks/useMeterInfoModal'
 import { useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { useFilters } from '@condo/domains/meter/hooks/useFilters'
-
-export const ExportToExcelActionBar = ({
-    searchMeterReadingsQuery,
-    sortBy,
-}) => {
-    const intl = useIntl()
-    const ExportAsExcel = intl.formatMessage({ id: 'ExportAsExcel' })
-    const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.ticket.id.DownloadExcelLabel' })
-    const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
-
-    const [downloadLink, setDownloadLink] = useState(null)
-
-    const [
-        exportToExcel,
-        { loading: isXlsLoading },
-    ] = useLazyQuery(
-        EXPORT_METER_READINGS,
-        {
-            onError: error => {
-                notification.error(error)
-            },
-            onCompleted: data => {
-                setDownloadLink(data.result.linkToFile)
-            },
-        },
-    )
-
-    return (
-        <Form.Item noStyle>
-            <ActionBar>
-                {
-                    downloadLink
-                        ?
-                        <Button
-                            type={'inlineLink'}
-                            icon={<DatabaseFilled />}
-                            loading={isXlsLoading}
-                            target='_blank'
-                            href={downloadLink}
-                            rel='noreferrer'>{DownloadExcelLabel}
-                        </Button>
-                        :
-                        <Button
-                            type={'sberPrimary'}
-                            secondary
-                            icon={<DatabaseFilled />}
-                            loading={isXlsLoading}
-                            onClick={
-                                () => exportToExcel({ variables: { data: { where: searchMeterReadingsQuery, sortBy: sortBy, timeZone } } })
-                            }>{ExportAsExcel}
-                        </Button>
-                }
-            </ActionBar>
-        </Form.Item>
-    )
-}
+import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 
 export const MetersPageContent = ({
     searchMeterReadingsQuery,
@@ -184,7 +127,8 @@ export const MetersPageContent = ({
                                     </Col>
 
                                     <ExportToExcelActionBar
-                                        searchMeterReadingsQuery={searchMeterReadingsQuery}
+                                        searchObjectsQuery={searchMeterReadingsQuery}
+                                        exportToExcelQuery={EXPORT_METER_READINGS}
                                         sortBy={sortBy}
                                     />
                                 </Row>
