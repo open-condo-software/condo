@@ -49,6 +49,9 @@ export const TicketsPageContent = ({
     const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
     const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
     const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
+    const EmergenciesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.EmergenciesLabel' })
+    const PaidLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PaidLabel' })
+    const ResetFiltersLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.ResetFilters' })
 
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
@@ -135,7 +138,7 @@ export const TicketsPageContent = ({
                                                                 checked={emergency}
                                                                 style={{ paddingLeft: '0px', fontSize: fontSizes.content }}
                                                             >
-                                                                {'Аварийные'}
+                                                                {EmergenciesLabel}
                                                             </Checkbox>
                                                         </Col>
                                                         <Col span={5}>
@@ -144,7 +147,7 @@ export const TicketsPageContent = ({
                                                                 checked={paid}
                                                                 style={{ paddingLeft: '0px', fontSize: fontSizes.content }}
                                                             >
-                                                                {'Платные'}
+                                                                {PaidLabel}
                                                             </Checkbox>
                                                         </Col>
                                                     </Row>
@@ -159,7 +162,7 @@ export const TicketsPageContent = ({
                                                                         onClick={resetQuery}
                                                                     >
                                                                         <Typography.Text strong type={'secondary'}>
-                                                                            {'Сбросить'} <CloseOutlined style={{ fontSize: '12px' }} />
+                                                                            {ResetFiltersLabel} <CloseOutlined style={{ fontSize: '12px' }} />
                                                                         </Typography.Text>
                                                                     </Button>,
                                                                 </Col>
@@ -173,7 +176,7 @@ export const TicketsPageContent = ({
                                                             >
                                                                 <FilterFilled/>
                                                                 {FiltersButtonLabel}
-                                                                {appliedFiltersCount > 0 ? `(${appliedFiltersCount})` : null}
+                                                                {appliedFiltersCount > 0 ? ` (${appliedFiltersCount})` : null}
                                                             </Button>
                                                         </Col>
                                                     </Row>
