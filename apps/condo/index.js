@@ -133,6 +133,7 @@ module.exports = {
                 debug: IS_ENABLE_APOLLO_DEBUG,
                 introspection: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
                 playground: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
+                resolvers: getWrappedGQLResolvers(keystone),
             },
         }),
         FileAdapter.makeFileAdapterMiddleware(),

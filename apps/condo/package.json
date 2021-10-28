@@ -82,6 +82,7 @@
     "jwt-decode": "3.1.2",
     "less": "^3.12.2",
     "lodash": "^4.17.21",
+    "micro-memoize": "^4.0.9",
     "minimatch": "^3.0.4",
     "next": "^9.5.2",
     "next-transpile-modules": "^7.0.0",
