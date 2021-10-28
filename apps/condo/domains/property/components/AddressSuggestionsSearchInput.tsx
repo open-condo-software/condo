@@ -59,7 +59,7 @@ export const AddressSuggestionsSearchInput: React.FC<AddressSearchInputProps> = 
     )
 
     /**
-     * TODO: replace HighLighter with apps/condo/domains/common/components/TextHighlighter.tsx and renderHighlightedPart
+     * TODO: DOMA-1513 replace HighLighter with apps/condo/domains/common/components/TextHighlighter.tsx and renderHighlightedPart
      */
     const renderOption = useCallback(
         (dataItem, searchValue) => {

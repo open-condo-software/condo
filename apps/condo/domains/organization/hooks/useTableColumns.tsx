@@ -1,19 +1,17 @@
 import React, { CSSProperties, useMemo } from 'react'
 import { identity } from 'lodash/util'
 import get from 'lodash/get'
-import isEmpty from 'lodash/isEmpty'
 import { Checkbox } from 'antd'
 
 import { useIntl } from '@core/next/intl'
 
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getTextFilterDropdown, getFilterIcon, FilterContainer } from '@condo/domains/common/components/TableFilter'
-import { EmptyTableCell } from '@condo/domains/common/components/Table/EmptyTableCell'
-import { renderHighlightedPart } from '@condo/domains/common/components/Table/Renders'
-import { TextHighlighter } from '@condo/domains/common/components/TextHighlighter'
+import { renderCellWithHighlightedContents } from '@condo/domains/common/components/Table/Renders'
 
 import { createSorterMap, IFilters } from '../utils/helpers'
 import { OrganizationEmployeeRole } from '../utils/clientSchema'
+import { getOptionFilterDropdown } from '../../common/components/Table/Filters'
 
 const FILTER_DROPDOWN_CHECKBOX_STYLES: CSSProperties = { display: 'flex', flexDirection: 'column' }
 
@@ -34,45 +32,19 @@ export const useTableColumns = (
     const { loading, objs: organizationEmployeeRoles } = OrganizationEmployeeRole.useObjects({ where: { organization: { id: organizationId } } })
     const search = getFilteredValue<IFilters>(filters, 'search')
 
-    const render = (text) => {
-        let result = text
-
-        if (!isEmpty(search) && text) {
-            result = (
-                <TextHighlighter
-                    text={String(text)}
-                    search={String(search)}
-                    renderPart={renderHighlightedPart}
-                />
-            )
-        }
-
-        return (<EmptyTableCell>{result}</EmptyTableCell>)
-    }
+    const render = (text) => renderCellWithHighlightedContents(search, text)
 
     const renderFilterDropdown = ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         const adaptedStatuses = organizationEmployeeRoles.map(OrganizationEmployeeRole.convertGQLItemToFormSelectState).filter(identity)
-
-        const handleFilterChange = (e) => {
-            setFiltersApplied(true)
-            setSelectedKeys(e)
-            confirm({ closeDropdown: false })
+        const filterProps = {
+            setSelectedKeys,
+            selectedKeys,
+            confirm,
+            clearFilters,
+            beforeChange: () => { setFiltersApplied(true) },
         }
 
-        return (
-            <FilterContainer
-                clearFilters={clearFilters}
-                showClearButton={selectedKeys && selectedKeys.length > 0}
-            >
-                <Checkbox.Group
-                    disabled={loading}
-                    options={adaptedStatuses}
-                    style={FILTER_DROPDOWN_CHECKBOX_STYLES}
-                    value={selectedKeys}
-                    onChange={handleFilterChange}
-                />
-            </FilterContainer>
-        )
+        return getOptionFilterDropdown(adaptedStatuses, loading)(filterProps)
     }
 
     const columns = useMemo(() => {
@@ -84,7 +56,6 @@ export const useTableColumns = (
                 dataIndex: 'name',
                 key: 'name',
                 sorter: true,
-                width: '40%',
                 filterDropdown: getTextFilterDropdown(NameMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
                 render,
@@ -95,7 +66,7 @@ export const useTableColumns = (
                 filteredValue: getFilteredValue<IFilters>(filters, 'position'),
                 dataIndex: 'position',
                 key: 'position',
-                width: '20%',
+                width: '15%',
                 render,
                 filterDropdown: getTextFilterDropdown(PositionMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
@@ -107,7 +78,7 @@ export const useTableColumns = (
                 dataIndex: 'role',
                 key: 'role',
                 sorter: true,
-                width: '20%',
+                width: '15%',
                 render: (role) => render(get(role, 'name')),
                 filterDropdown: renderFilterDropdown,
                 filterIcon: getFilterIcon,
@@ -119,7 +90,7 @@ export const useTableColumns = (
                 dataIndex: 'phone',
                 key: 'phone',
                 sorter: true,
-                width: '20%',
+                width: '15%',
                 filterDropdown: getTextFilterDropdown(PhoneMessage, setFiltersApplied),
                 filterIcon: getFilterIcon,
                 render,

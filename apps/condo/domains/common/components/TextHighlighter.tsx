@@ -1,7 +1,8 @@
 import React from 'react'
 import isEmpty from 'lodash/isEmpty'
+import { Typography } from 'antd'
 
-const { ESCAPE_REGEX } = require('../constants/regexps')
+import { getEscaped } from '@condo/domains/common/utils/string.utils'
 
 export type TTextHighlighterRenderPartFN = (part: string, startIndex: number, marked: boolean) => React.ReactElement
 
@@ -14,30 +15,24 @@ interface ITextHighlighterProps {
 export const TextHighlighter: React.FC<ITextHighlighterProps> = ({ text, search, renderPart }) => {
     if (!text) return null
 
-    if (isEmpty(search)) {
-        return <>{ renderPart(text, 0, false) }</>
+    let result
+    const searchRegexp = new RegExp(`(${getEscaped(search)})`, 'ig')
+
+    if (isEmpty(search) || !searchRegexp.test(text)) {
+        result = renderPart(text, 0, false)
+    } else {
+        let symbolsPassed = 0
+        const parts = text.split(searchRegexp)
+
+        result = parts.map((part) => {
+            const startSymbolIndex = symbolsPassed
+            const isMatch = searchRegexp.test(part)
+
+            symbolsPassed += part.length
+
+            return renderPart(part, startSymbolIndex, isMatch)
+        })
     }
 
-    const searchRegexp = new RegExp(`(${ESCAPE_REGEX(search)})`, 'ig')
-
-    if (!text.match(searchRegexp)) {
-        return <>{ renderPart(text, 0, false) }</>
-    }
-
-    const parts = text.split(searchRegexp)
-
-    let symbolsPassed = 0
-    const elements = parts.map((part) => {
-        const startSymbolIndex = symbolsPassed
-
-        symbolsPassed += part.length
-
-        if (part.match(searchRegexp)) {
-            return renderPart(part, startSymbolIndex, true)
-        }
-
-        return renderPart(part, startSymbolIndex, false)
-    })
-
-    return <>{elements}</>
+    return <Typography.Text title={text}>{result}</Typography.Text>
 }

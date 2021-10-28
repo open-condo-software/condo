@@ -8,8 +8,8 @@ import { useIntl } from '@core/next/intl'
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { getAddressDetails, getFilteredValue } from '@condo/domains/common/utils/helpers'
 
-import { getHighlitedContents, getDateRender } from '@condo/domains/common/components/Table/Renders'
-import { getDateFilterDropdown } from '@condo/domains/common/components/Table/Filters'
+import { getHighlightedContents, getDateRender } from '@condo/domains/common/components/Table/Renders'
+import { getDateFilterDropdown, getOptionFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import { getTextFilterDropdown, getFilterIcon, FilterContainer } from '@condo/domains/common/components/TableFilter'
 
 import { EMERGENCY_TAG_COLOR } from '@condo/domains/ticket/constants/style'
@@ -18,7 +18,6 @@ import { TicketStatus } from '../utils/clientSchema'
 import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
 import { createSorterMap, IFilters } from '../utils/helpers'
 
-const EMERGENCY_TAG_TEXT_STYLES = { color: EMERGENCY_TAG_COLOR.text }
 const STATUS_FILTER_CHECKBOX_GROUP_STYLES: CSSProperties = { display: 'flex', flexDirection: 'column' }
 
 export const useTableColumns = (
@@ -47,7 +46,7 @@ export const useTableColumns = (
 
     const renderStatus = (status, record) => {
         const { primary: color, secondary: backgroundColor } = status.colors
-        const highlightedContent = getHighlitedContents(search, null)(status.name)
+        const highlightedContent = getHighlightedContents(search, null)(status.name)
 
         return (
             <Space direction='vertical' size={7}>
@@ -58,7 +57,7 @@ export const useTableColumns = (
                 </Tag>
                 {record.isEmergency &&
                     <Tag color={EMERGENCY_TAG_COLOR.background}>
-                        <Typography.Text style={EMERGENCY_TAG_TEXT_STYLES}>
+                        <Typography.Text type="danger">
                             {EmergencyMessage.toLowerCase()}
                         </Typography.Text>
                     </Tag>
@@ -74,30 +73,19 @@ export const useTableColumns = (
 
     const renderStatusFilterDropdown = ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         const adaptedStatuses = ticketStatuses.map(convertGQLItemToFormSelectState).filter(identity)
-        const handleFilterChange = (e) => {
-            setSelectedKeys(e)
-            setFiltersApplied(true)
-            confirm({ closeDropdown: false })
+        const filterProps = {
+            setSelectedKeys,
+            selectedKeys,
+            confirm,
+            clearFilters,
+            beforeChange: () => { setFiltersApplied(true) },
         }
 
-        return (
-            <FilterContainer
-                clearFilters={clearFilters}
-                showClearButton={selectedKeys && selectedKeys.length > 0}
-            >
-                <Checkbox.Group
-                    disabled={loading}
-                    options={adaptedStatuses}
-                    style={STATUS_FILTER_CHECKBOX_GROUP_STYLES}
-                    value={selectedKeys}
-                    onChange={handleFilterChange}
-                />
-            </FilterContainer>
-        )
+        return getOptionFilterDropdown(adaptedStatuses, loading)(filterProps)
     }
 
     const renderAddress = (record) => {
-        const { text, unitPrefix } = getAddressDetails(get(record, 'meter') || record, ShortFlatNumber)
+        const { text, unitPrefix } = getAddressDetails(record, ShortFlatNumber)
 
         return getTableCellRenderer(search, true, unitPrefix)(text)
     }

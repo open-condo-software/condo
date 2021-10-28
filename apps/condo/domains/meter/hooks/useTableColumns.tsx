@@ -9,7 +9,13 @@ import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils
 import { getAddressDetails } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { getFilterIcon } from '@condo/domains/common/components/Table/Filters'
-import { getAddressRender, getDateRender, renderMeterReading, getTextRender } from '@condo/domains/common/components/Table/Renders'
+import {
+    getAddressRender,
+    getDateRender,
+    renderMeterReading,
+    getTextRender,
+    getTableCellRenderer,
+} from '@condo/domains/common/components/Table/Renders'
 
 /**
  * TODO: replace with getFilteredValue from @condo/domains/common/utils/helpers (needs IFilters to be defined)
@@ -44,8 +50,15 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const sorterMap = getSorterMap(sorters)
 
     return useMemo(() => {
-        let search = get(filters, 'search')
-        search = Array.isArray(search) ? null : search
+        let search = String(get(filters, 'search'))
+
+        if (Array.isArray(search)) search = null
+
+        const renderAddress = (record) => {
+            const { text, unitPrefix } = getAddressDetails(get(record, ['meter']), ShortFlatNumber)
+
+            return getTableCellRenderer(search, true, unitPrefix)(text)
+        }
 
         return [
             {
@@ -55,7 +68,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 dataIndex: 'date',
                 key: 'date',
                 sorter: true,
-                width: '8%',
+                width: '10%',
                 render: getDateRender(intl, search),
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'date'),
             },
@@ -66,13 +79,8 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 filteredValue: getFilteredValue(filters, 'address'),
                 key: 'address',
                 sorter: true,
-                width: '15%',
-                render: (record) => {
-                    const { text, unitPrefix } = getAddressDetails(get(record, ['meter']), ShortFlatNumber)
-                    const render = getAddressRender(search, unitPrefix)
-
-                    return render(text)
-                },
+                width: '25%',
+                render: renderAddress,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'address'),
                 filterIcon: getFilterIcon,
             },
@@ -84,7 +92,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 dataIndex: ['meter', 'resource', 'name'],
                 key: 'resource',
                 sorter: true,
-                width: '10%',
+                width: '15%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'resource'),
                 render: getTextRender(search),
                 filterIcon: getFilterIcon,
@@ -108,7 +116,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 dataIndex: ['meter', 'place'],
                 key: 'place',
                 sorter: true,
-                width: '8%',
+                width: '10%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'place'),
                 render: getTextRender(search),
                 filterIcon: getFilterIcon,
@@ -117,20 +125,19 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 title: MeterReadingMessage,
                 ellipsis: false,
                 key: 'value',
-                width: '10%',
+                width: '15%',
                 render: renderMeterRecord,
             },
             {
                 title: ClientNameMessage,
-                ellipsis: true,
                 sortOrder: get(sorterMap, 'clientName'),
                 filteredValue: getFilteredValue(filters, 'clientName'),
                 dataIndex: 'clientName',
                 key: 'clientName',
                 sorter: true,
-                width: '10%',
+                width: '20%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'clientName'),
-                render: getTextRender(search),
+                render: getTableCellRenderer(search, true),
                 filterIcon: getFilterIcon,
             },
             {

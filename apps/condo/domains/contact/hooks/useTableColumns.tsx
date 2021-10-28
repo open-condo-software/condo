@@ -19,7 +19,7 @@ export const useTableColumns = (
     const PhoneMessage =  intl.formatMessage({ id: 'Phone' })
     const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
     const AddressMessage = intl.formatMessage({ id: 'pages.condo.property.field.Address' })
-    const ShortFlatNumber = intl.formatMessage({ id: 'field.FlatNumber' })
+    const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
 
     const sorterMap = createSorterMap(sort)
     const search = getFilteredValue(filters, 'search')

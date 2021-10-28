@@ -1,7 +1,7 @@
 import React from 'react'
 import isEmpty from 'lodash/isEmpty'
 
-import { ESCAPE_REGEX }  from '../constants/regexps'
+import { getEscaped } from '@condo/domains/common/utils/string.utils'
 
 export type THighlighterRenderPartFN = (part: string, index?: number) => React.ReactElement
 
@@ -21,24 +21,18 @@ export const Highlighter: React.FC<IHighlighterProps> = (props) => {
 
     if (!text) return null
 
-    if (isEmpty(search)) {
-        return <>{ text }</>
-    }
+    if (isEmpty(search)) return <>{ text }</>
 
-    const searchRegexp = new RegExp(`(${ESCAPE_REGEX(search)})`, 'ig')
+    const searchRegexp = new RegExp(`(${getEscaped(search)})`, 'ig')
 
-    if (!text.match(searchRegexp)) {
-        return <>{ text }</>
-    }
+    if (!searchRegexp.test(text)) return <>{ text }</>
 
     const parts = text.split(searchRegexp)
 
     const highlited = parts.map((part, index) => {
         // Todo(zuch): mark - is standart search result highlighter - but can not override it's color - it is $gold[5] in antd sources
-        return part.match(searchRegexp) ? renderPart(part, index) : part
+        return searchRegexp.test(part) ? renderPart(part, index) : part
     })
 
-    return (
-        <>{ highlited }</>
-    )
+    return <>{ highlited }</>
 }

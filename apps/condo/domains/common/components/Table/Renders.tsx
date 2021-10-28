@@ -11,7 +11,6 @@ import { LOCALES } from '../../constants/locale'
 import { QueryArgType } from '../../utils/tables.utils'
 import { TextHighlighter } from '../TextHighlighter'
 import { ELLIPSIS_ROWS } from '../../constants/style'
-import { colors } from '../../constants/style'
 
 import { EmptyTableCell } from './EmptyTableCell'
 
@@ -19,19 +18,34 @@ type RenderReturnType = string | React.ReactNode
 
 const DEFAULT_CURRENCY_SEPARATOR = '.'
 const DEFAULT_CURRENCY_CODE = 'RUB'
-const MARKED_TEXT_STYLES = { backgroundColor: colors.markColor }
-const EMPTY_TEXT_STYLES = {}
 const ELLIPSIS_SETTINGS = { rows: ELLIPSIS_ROWS, expandable: false }
 const ELLIPSIS_STYLES = { marginBottom: 0 }
-
-type TGetHighlitedFN = (search?: FilterValue, postfix?: string) => (text?: string) => React.ReactElement | string
+const DATE_FORMAT_LONG = 'DD MMM YYYY'
+const DATE_FORMAT_SHORT = 'DD MMM'
 
 /**
- * Returned function renders provided text with highlited parts according to search value
+ * Marks text according to marked flag
+ * @param part
+ * @param startIndex
+ * @param marked
+ */
+export const renderHighlightedPart = (part, startIndex, marked) => (
+    <Typography.Text mark={marked}>
+        {part}
+    </Typography.Text>
+)
+
+/**
+ * Type for getHighlightedContents fn
+ */
+type TGetHighlightedFN = (search?: FilterValue | string, postfix?: string) => (text?: string) => React.ReactElement | string
+
+/**
+ * Returned function renders provided text with highlighted parts according to search value
  * @param search
  * @param postfix
  */
-export const getHighlitedContents: TGetHighlitedFN = (search, postfix) => (text) => {
+export const getHighlightedContents: TGetHighlightedFN = (search, postfix) => (text) => {
     // Sometimes we can receive null/undefined as text
     const renderText = text ? String(text) : ''
 
@@ -50,63 +64,46 @@ export const getHighlitedContents: TGetHighlitedFN = (search, postfix) => (text)
 }
 
 
-type TGetRendererFN =  (search?: FilterValue, ellipsis?: boolean, postfix?: string) => (text?: string) => React.ReactElement
+/**
+ * Type for getTableCellRenderer fn
+ */
+type TTableCellRendererFN =  (search?: FilterValue | string, ellipsis?: boolean, postfix?: string) => (text?: string) => React.ReactElement
 
 /**
- * Returned function renders provided text as a cell with highlighted search and multi row ellipsis
+ * Returned function renders provided text as a cell with highlighted search and multi row ellipsis (if requested)
+ * !!! Attention: ellipsis here does not work properly, if ellipsis is also enabled in table column settings for this field, so please remove it from there.
  * @param search
  * @param ellipsis
  * @param postfix
  * @return cell contents renderer fn
  */
-export const getTableCellRenderer: TGetRendererFN = (search, ellipsis = false, postfix = '') =>
+export const getTableCellRenderer: TTableCellRendererFN = (search, ellipsis = false, postfix = '') =>
     (text) => {
-        const highlitedContent = getHighlitedContents(search, postfix)(text)
+        const highlightedContent = getHighlightedContents(search, postfix)(text)
 
         return (
             <EmptyTableCell>
                 {ellipsis
                     ? (
                         <Typography.Paragraph ellipsis={ELLIPSIS_SETTINGS} title={`${text} ${postfix || ''}`} style={ELLIPSIS_STYLES}>
-                            {highlitedContent}
+                            {highlightedContent}
                         </Typography.Paragraph>
                     )
-                    : <>{highlitedContent}</>
+                    : <>{highlightedContent}</>
                 }
             </EmptyTableCell>
         )
     }
 
+
 /**
- * Marks text according to marked flag
- * @param part
- * @param startIndex
- * @param marked
+ * Renders provided text as a table cell with highlighted search contents
+ * @param search
+ * @param text
  */
-export const renderHighlightedPart = (part, startIndex, marked) => (
-    <Typography.Text style={marked ? MARKED_TEXT_STYLES : EMPTY_TEXT_STYLES}>
-        {part}
-    </Typography.Text>
+export const renderCellWithHighlightedContents = (search?: FilterValue | string, text?: string) => (
+    <EmptyTableCell>{getHighlightedContents(search)(text)}</EmptyTableCell>
 )
-
-const renderHighlightedCellContents = (search: string, text: string) => {
-    let result: RenderReturnType = text
-
-    if (!isEmpty(search) && text) {
-        result = (
-            <TextHighlighter
-                text={String(text)}
-                search={String(search)}
-                renderPart={renderHighlightedPart}
-            />
-        )
-    }
-
-    return <EmptyTableCell>{result}</EmptyTableCell>
-}
-
-const DATE_FORMAT_LONG = 'DD MMM YYYY'
-const DATE_FORMAT_SHORT = 'DD MMM'
 
 export const getDateRender = (intl, search?: string, short?: boolean) => {
     return function render (stringDate: string): RenderReturnType {
@@ -114,8 +111,9 @@ export const getDateRender = (intl, search?: string, short?: boolean) => {
 
         const locale = get(LOCALES, intl.locale)
         const date = locale ? dayjs(stringDate).locale(locale) : dayjs(stringDate)
+        const dateFormat = short ? DATE_FORMAT_SHORT : DATE_FORMAT_LONG
 
-        return renderHighlightedCellContents(search, date.format(short ? DATE_FORMAT_SHORT : DATE_FORMAT_LONG))
+        return renderCellWithHighlightedContents(search, date.format(dateFormat))
     }
 }
 
@@ -138,7 +136,7 @@ export const getAddressRender = (search?: QueryArgType, unitPrefix?: string) => 
 
 export const getTextRender = (search?: string) => {
     return function render (text: string): RenderReturnType {
-        return renderHighlightedCellContents(search, text)
+        return renderCellWithHighlightedContents(search, text)
     }
 }
 
@@ -147,13 +145,9 @@ const getIntegerPartOfReading = (value: string) => value?.split(DEFAULT_CURRENCY
 export const renderMeterReading = (values: string[], resourceId: string, measure: string) => {
     // ELECTRICITY multi-tariff meter
     if (resourceId === ELECTRICITY_METER_RESOURCE_ID) {
-        const stringValues = values.reduce((acc, value, index) => {
-            if (!value) return acc
+        const formatMeter = (value, index) => <>{`T${index + 1} - ${getIntegerPartOfReading(value)} ${measure}`}<br /></>
 
-            return `${acc}, T${index + 1} - ${getIntegerPartOfReading(value)} ${measure}`
-        }, '')
-
-        return stringValues?.substr(2)
+        return values.filter(Boolean).map(formatMeter)
     }
 
     // other resource 1-tariff meter
@@ -189,7 +183,11 @@ const renderMoney = (formattedValue: Intl.NumberFormatPart[]) => {
         }
     })
 
-    return (<>{prefix.join('')}{dimText(decimalAndFraction.join(''))}{postfix.join('')}</>)
+    return (<>
+        {prefix.join('')}
+        {dimText(decimalAndFraction.join(''))}
+        {postfix.join('')}
+    </>)
 }
 
 export const getMoneyRender = (
@@ -200,10 +198,7 @@ export const getMoneyRender = (
     return function render (text: string): RenderReturnType {
         if (!text) return <EmptyTableCell/>
 
-        const formattedCurrency = intl.formatNumberToParts(
-            parseFloat(text),
-            { style: 'currency', currency: currencyCode }
-        )
+        const formattedCurrency = intl.formatNumberToParts(parseFloat(text), { style: 'currency', currency: currencyCode })
 
         if (isEmpty(search)) return renderMoney(formattedCurrency)
 
