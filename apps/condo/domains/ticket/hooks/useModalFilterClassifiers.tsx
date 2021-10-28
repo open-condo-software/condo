@@ -25,10 +25,8 @@ const useTicketClassifierSelect = ({
 
     const classifiersRef = useRef(null)
     const optionsRef = useRef([])
-    // const selectedRef = useRef<string>(null)
 
     const router = useRouter()
-    const { filters } = parseQuery(router.query)
 
     const setClassifiers = (classifiers) => {
         setClassifiersFromRules(classifiers)
@@ -177,7 +175,7 @@ export function useModalFilterClassifiers () {
     const loadLevels = async () => {
         const { place, category } = ruleRef.current
 
-        console.log('ruleRef.current', ruleRef.current)
+        console.log('loadLevels ruleRef.current', ruleRef.current)
 
         const loadedRules = await Promise.all([
             { category, type: 'place' },
@@ -192,8 +190,10 @@ export function useModalFilterClassifiers () {
                     }
                 }
 
+                console.log('query', type, query)
+
                 ClassifierLoaderRef.current
-                    .findRulesByIds(query)
+                    .findRulesByIds(query, type, ruleRef.current[type])
                     .then(data => {
                         resolve([type, ClassifierLoaderRef.current.rulesToOptions(data, type)])
                     })
@@ -208,8 +208,9 @@ export function useModalFilterClassifiers () {
         ruleRef.current = { ...ruleRef.current, ...selected }
         const options = await loadLevels()
 
+        console.log('options', options)
+
         Object.keys(Setter).forEach(type => {
-            console.log('type', type, ruleRef.current)
             Setter[type].all(options[type])
             const isExisted = options[type].find(option => ruleRef.current[type] && ruleRef.current[type].includes(option.id))
             Setter[type].one(isExisted ? ruleRef.current[type] : null)
