@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import dayjs from 'dayjs'
 import styled from '@emotion/styled'
 import { Row, Col, Typography }  from 'antd'
@@ -7,11 +7,11 @@ dayjs.extend(utc)
 import { colors } from '@condo/domains/common/constants/style'
 import { useIntl } from '@core/next/intl'
 import { MULTIPAYMENT_DONE_STATUS, MULTIPAYMENT_ERROR_STATUS, MULTIPAYMENT_PROCESSING_STATUS } from '@condo/domains/acquiring/constants'
+import { createWrappedPdf } from '@condo/domains/common/utils/pdf'
 
 type PrintingOption = {
     key: string,
     value: string,
-    display: 'inline' | 'breaking'
 }
 
 // This colors are mobile oriented and dont match antd / CRM DS defaults
@@ -36,7 +36,6 @@ const PageWrapper = styled.div`
   width: 335px;
   padding: 20px;
   font-size: 12px;
-  border: 1px solid black;
   & .moneyContainer {
     border-top: 1px solid ${colors.lightGrey[5]};
     box-sizing: border-box;
@@ -57,20 +56,6 @@ const PageWrapper = styled.div`
 `
 
 const getInfoRow = (row: PrintingOption) => {
-    if (row.display === 'inline') {
-        return (
-            <Col span={24}>
-                <Row justify={'space-between'}>
-                    <Typography.Text>
-                        {row.key}
-                    </Typography.Text>
-                    <Typography.Text style={{ textAlign: 'right', flex: '1' }}>
-                        {row.value}
-                    </Typography.Text>
-                </Row>
-            </Col>
-        )
-    }
     return (
         <>
             <Col span={12}>
@@ -79,9 +64,9 @@ const getInfoRow = (row: PrintingOption) => {
                 </Typography.Text>
             </Col>
             <Col span={12} style={{ textAlign: 'right' }}>
-                <Typography.Text>
+                <Typography.Paragraph style={{ marginBottom: 0 }}>
                     {row.value}
-                </Typography.Text>
+                </Typography.Paragraph>
             </Col>
         </>
     )
@@ -100,8 +85,10 @@ export const AcquiringReceipt: React.FC<IAcquiringReceiptProps> = (props) => {
         status,
         info,
     } = props
+
     const intl = useIntl()
     const IncludingFeeMessage = intl.formatMessage({ id: 'IncludingFee' })
+
     const moneyAmount = intl.formatNumber(amountWithExplicitFee, {
         style: 'currency',
         currency: currencyCode,
@@ -111,6 +98,12 @@ export const AcquiringReceipt: React.FC<IAcquiringReceiptProps> = (props) => {
         currency: currencyCode,
     })
 
+    let statusMessage = intl.formatMessage({ id: 'MultiPayment.status.DONE' })
+    if (status === MULTIPAYMENT_PROCESSING_STATUS) {
+        statusMessage = intl.formatMessage({ id: 'MultiPayment.status.PROCESSING' })
+    } else if (status === MULTIPAYMENT_ERROR_STATUS) {
+        statusMessage = intl.formatMessage({ id: 'MultiPayment.status.ERROR' })
+    }
     let statusColor = STATUS_SUCCESS_COLOR
     if (status === MULTIPAYMENT_PROCESSING_STATUS) {
         statusColor = STATUS_PROCESSING_COLOR
@@ -118,15 +111,14 @@ export const AcquiringReceipt: React.FC<IAcquiringReceiptProps> = (props) => {
         statusColor = STATUS_ERROR_COLOR
     }
 
-    let statusMessage = intl.formatMessage({ id: 'MultiPayment.status.DONE' })
-    if (status === MULTIPAYMENT_PROCESSING_STATUS) {
-        statusMessage = intl.formatMessage({ id: 'MultiPayment.status.PROCESSING' })
-    } else if (status === MULTIPAYMENT_ERROR_STATUS) {
-        statusMessage = intl.formatMessage({ id: 'MultiPayment.status.ERROR' })
-    }
-
+    const containerRef = useRef(null)
+    useEffect(() => {
+        if (containerRef.current) {
+            createWrappedPdf({ fileName: `Receipt_${documentNumber}`, element: containerRef.current })
+        }
+    }, [containerRef])
     return (
-        <PageWrapper>
+        <PageWrapper ref={containerRef}>
             <Row gutter={[0, 40]}>
                 <Col span={24}>
                     <Row justify={'space-between'}>
