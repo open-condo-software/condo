@@ -92,6 +92,9 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                 filters: [addressFilter],
                 component: {
                     type: ComponentType.Input,
+                    props: {
+                        placeholder: AddressMessage,
+                    },
                 },
             },
             {
@@ -99,6 +102,9 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                 filters: [detailsFilter],
                 component: {
                     type: ComponentType.Input,
+                    props: {
+                        placeholder: DescriptionMessage,
+                    },
                 },
             },
             {
@@ -106,6 +112,9 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                 filters: [clientNameFilter],
                 component: {
                     type: ComponentType.Input,
+                    props: {
+                        placeholder: UserNameMessage,
+                    },
                 },
             },
             {

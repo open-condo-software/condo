@@ -1,4 +1,4 @@
-import React, { CSSProperties } from 'react'
+import React, { ComponentProps, CSSProperties } from 'react'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
 import dayjs from 'dayjs'
@@ -14,6 +14,7 @@ import DatePicker from '../Pickers/DatePicker'
 import { FilterContainer, SelectFilterContainer } from '../TableFilter'
 import { GraphQlSearchInput } from '../GraphQlSearchInput'
 import DateRangePicker from '../Pickers/DateRangePicker'
+import { ApolloClient } from '@apollo/client'
 
 type FilterIconType = (filtered?: boolean) => React.ReactNode
 type FilterValueType = (path: string | Array<string>, filters: { [x: string]: QueryArgType }) => FilterValue
@@ -23,7 +24,7 @@ const FILTER_DROPDOWN_CHECKBOX_STYLES: CSSProperties = { display: 'flex', flexDi
 export const getFilterIcon: FilterIconType = (filtered) => <FilterFilled style={{ color: filtered ? colors.sberPrimary[5] : undefined }} />
 export const getFilterValue: FilterValueType = (path, filters) => get(filters, path, null)
 
-export const getTextFilterDropdown = (placeholder: string, props, containerStyles?: CSSProperties) => {
+export const getTextFilterDropdown = (placeholder: string, containerStyles?: CSSProperties) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         return (
             <FilterContainer
@@ -78,7 +79,7 @@ export const getSelectFilterDropdown = (selectProps, containerStyles?: CSSProper
             >
                 <Select
                     showArrow
-                    style={{ display: 'flex', flexDirection: 'column', width: '200px' }}
+                    style={{ display: 'flex', flexDirection: 'column' }}
                     value={selectedKeys}
                     onChange={(e) => {
                         setSelectedKeys(e)
@@ -94,7 +95,12 @@ export const getSelectFilterDropdown = (selectProps, containerStyles?: CSSProper
     }
 }
 
-export const getGQLSelectFilterDropdown = (props, search, mode?: 'multiple' | 'tag', containerStyles?: CSSProperties) => {
+export const getGQLSelectFilterDropdown = (
+    props: ComponentProps<typeof GraphQlSearchInput>,
+    search: (client: ApolloClient<Record<string, unknown>>, queryArguments: string) => Promise<Array<Record<string, unknown>>>,
+    mode?: 'multiple' | 'tag',
+    containerStyles?: CSSProperties
+) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         return (
             <SelectFilterContainer
@@ -144,7 +150,10 @@ export const getDateFilterDropdown = (containerStyles?: CSSProperties) => {
     }
 }
 
-export const getDateRangeFilterDropdown = (props, containerStyles?: CSSProperties) => {
+export const getDateRangeFilterDropdown = (
+    props: ComponentProps<typeof DateRangePicker>,
+    containerStyles?: CSSProperties
+) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         const pickerProps = {
             value: undefined,
