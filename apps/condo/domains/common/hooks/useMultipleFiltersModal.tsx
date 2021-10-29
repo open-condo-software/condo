@@ -18,6 +18,7 @@ import qs from 'qs'
 import { useIntl } from '@core/next/intl'
 import { CloseOutlined } from '@ant-design/icons'
 import { ComponentType, FilterComponentType, FiltersMeta, getQueryToValueProcessorByType } from '../utils/filters.utils'
+import styled from '@emotion/styled'
 
 enum FilterComponentSize {
     Medium = 12,
@@ -169,6 +170,11 @@ function getModalComponents <T> (filters, filterMetas: Array<FiltersMeta<T>>, fo
     })
 }
 
+const ResetFiltersModalButton = styled(Button)`
+  position: absolute;
+  left: 10px;
+`
+
 type MultipleFiltersModalProps = {
     isMultipleFiltersModalVisible: boolean,
     setIsMultipleFiltersModalVisible: React.Dispatch<React.SetStateAction<boolean>>,
@@ -207,7 +213,6 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     }, [form])
 
     const handleSubmit = useCallback((values) => {
-        console.log('values', values)
         if ('offset' in router.query) router.query['offset'] = '0'
         const query = qs.stringify(
             { ...router.query, filters: JSON.stringify(pickBy({ ...filters, ...values })) },
@@ -229,8 +234,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
             validateTrigger={['onBlur', 'onSubmit']}
             handleSubmit={handleSubmit}
             modalExtraFooter={[
-                <Button
-                    style={{ position: 'absolute', left: '10px' }}
+                <ResetFiltersModalButton
                     key={'reset'}
                     type={'text'}
                     onClick={handleReset}
@@ -238,7 +242,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
                     <Typography.Text strong type={'secondary'}>
                         {ClearAllFiltersMessage} <CloseOutlined style={{ fontSize: '12px' }} />
                     </Typography.Text>
-                </Button>,
+                </ResetFiltersModalButton>,
             ]}
         >
             {

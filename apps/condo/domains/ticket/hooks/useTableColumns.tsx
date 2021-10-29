@@ -10,7 +10,7 @@ import { getFilterIcon, FilterContainer } from '@condo/domains/common/components
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { useRouter } from 'next/router'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { TextHighlighter } from '../../common/components/TextHighlighter'
+import { TextHighlighter } from '@condo/domains/common/components/TextHighlighter'
 import getRenderer from '@condo/domains/common/components/helpers/tableCellRenderer'
 import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
 import { identity } from 'lodash/util'
