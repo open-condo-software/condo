@@ -6,7 +6,6 @@ import React, { useMemo } from 'react'
 import { colors } from '@condo/domains/common/constants/style'
 import { EMERGENCY_TAG_COLOR } from '@condo/domains/ticket/constants/style'
 import { IFilters } from '../utils/helpers'
-import { Highliter } from '@condo/domains/common/components/Highliter'
 import { getFilterIcon, FilterContainer } from '@condo/domains/common/components/TableFilter'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { useRouter } from 'next/router'
@@ -44,6 +43,8 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     return useMemo(() => {
         let search = get(filters, 'search')
         search = Array.isArray(search) ? null : search
+
+        const filteredValueSearch = getFilteredValue(filters, 'search')
 
         const renderStatus = (status, record) => {
             const { primary: color, secondary: backgroundColor } = status.colors
@@ -117,7 +118,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 )
             }
 
-            return getRenderer(search, true, unitPrefix)(address)
+            return getRenderer(filteredValueSearch, true, unitPrefix)(address)
         }
 
         function getStatusFilterDropDown () {
