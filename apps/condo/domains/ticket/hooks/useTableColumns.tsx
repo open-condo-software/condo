@@ -10,12 +10,13 @@ import { getFilterIcon, FilterContainer } from '@condo/domains/common/components
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { useRouter } from 'next/router'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { getAddressRender, getDateRender, getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { TextHighlighter } from '../../common/components/TextHighlighter'
 import getRenderer from '@condo/domains/common/components/helpers/tableCellRenderer'
 import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
-import { identity } from '@keystonejs/utils'
+import { identity } from 'lodash/util'
+import { LOCALES } from '@condo/domains/common/constants/locale'
 import { TicketStatus } from '../utils/clientSchema'
+import dayjs from 'dayjs'
 
 const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
 
@@ -139,11 +140,14 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
         }
     }
 
-    return useMemo(() => {
-        let search = get(filters, 'search')
-        search = Array.isArray(search) ? null : search
+    const renderDate = (createdAt) => {
+        const locale = get(LOCALES, intl.locale)
+        const date = locale ? dayjs(createdAt).locale(locale) : dayjs(createdAt)
+        return date.format('DD MMM')
+    }
 
-        const filteredValueSearch = getFilteredValue(filters, 'search')
+    return useMemo(() => {
+        const search = getFilteredValue(filters, 'search')
 
         return [
             {
@@ -156,7 +160,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 width: '7%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'number'),
                 filterIcon: getFilterIcon,
-                render: getTextRender(search),
+                render: getRenderer(search),
                 align: 'right',
             },
             {
@@ -168,7 +172,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 sorter: true,
                 width: '8%',
                 ellipsis: true,
-                render: getDateRender(intl, search),
+                render: renderDate,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'createdAt'),
                 filterIcon: getFilterIcon,
             },
@@ -192,7 +196,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 width: '18%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'details'),
                 filterIcon: getFilterIcon,
-                render: getRenderer(filteredValueSearch, true),
+                render: getRenderer(search, true),
             },
             {
                 title: AddressMessage,
@@ -215,18 +219,18 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 sorter: true,
                 width: '12%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'clientName'),
-                render: getTextRender(search),
+                render: getRenderer(search),
                 filterIcon: getFilterIcon,
             },
             {
                 title: ExecutorMessage,
                 sortOrder: get(sorterMap, 'executor'),
                 filteredValue: getFilteredValue(filters, 'executor'),
-                dataIndex: ['executor', 'name'],
+                dataIndex: 'executor',
                 key: 'executor',
                 sorter: true,
                 width: '15%',
-                render: getTextRender(search),
+                render: (assignee) => getRenderer(search)(get(assignee, ['name'])),
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'executor'),
                 filterIcon: getFilterIcon,
             },
@@ -238,7 +242,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 key: 'assignee',
                 sorter: true,
                 width: '18%',
-                render: (assignee) => getRenderer(filteredValueSearch)(get(assignee, ['name'])),
+                render: (assignee) => getRenderer(search)(get(assignee, ['name'])),
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'assignee'),
                 filterIcon: getFilterIcon,
             },
