@@ -13,6 +13,7 @@ interface IHighlighterProps {
 
 /**
  * DEPRECATED! Please use apps/condo/domains/common/components/TextHighlighter.tsx
+ * @deprecated since 2021-10-21
  * @param props
  * @constructor
  */
