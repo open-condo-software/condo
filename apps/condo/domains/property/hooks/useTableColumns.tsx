@@ -45,7 +45,8 @@ export const useTableColumns = (filterMetas: FiltersMeta<PropertyWhereInput>[]) 
                 key: 'address',
                 sorter: true,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'address'),
-                render: !Array.isArray(search) ? getTextRender(search) : undefined,
+                render: getTextRender(search),
+                width: '70%',
             },
             {
                 title: UnitsCountMessage,

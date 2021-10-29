@@ -6,21 +6,15 @@ import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
 
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
-import { getAddressDetails } from '@condo/domains/common/utils/helpers'
+import { getAddressDetails, getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { getFilterIcon } from '@condo/domains/common/components/Table/Filters'
 import {
-    getAddressRender,
     getDateRender,
     renderMeterReading,
     getTextRender,
     getTableCellRenderer,
 } from '@condo/domains/common/components/Table/Renders'
-
-/**
- * TODO: replace with getFilteredValue from @condo/domains/common/utils/helpers (needs IFilters to be defined)
- */
-const getFilteredValue = (filters, key: string | Array<string>): FilterValue => get(filters, key, null)
 
 const renderMeterRecord = (record) => {
     const value1 = get(record, 'value1')

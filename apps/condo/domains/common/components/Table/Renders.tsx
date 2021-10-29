@@ -56,8 +56,6 @@ export const getHighlightedContents: TGetHighlightedFN = (search, postfix, extra
     // Sometimes we can receive null/undefined as text
     const renderText = text ? String(text) : ''
 
-    // if (isEmpty(search) && !renderText) return postfix ? `${renderText} ${postfix}` : renderText
-
     return (
         <TextHighlighter
             text={renderText}
@@ -84,24 +82,25 @@ type TTableCellRendererFN =  (search?: FilterValue | string, ellipsis?: boolean,
  * @param postfix
  * @return cell contents renderer fn
  */
-export const getTableCellRenderer: TTableCellRendererFN = (search, ellipsis = false, postfix = '', extraHighlighterProps) =>
+export const getTableCellRenderer: TTableCellRendererFN = (
+    search,
+    ellipsis = false,
+    postfix = '',
+    extraHighlighterProps
+) =>
     (text) => {
         const highlightedContent = getHighlightedContents(search, postfix, extraHighlighterProps)(text)
 
+        if (!ellipsis) return <EmptyTableCell>{highlightedContent}</EmptyTableCell>
+
         return (
             <EmptyTableCell>
-                {ellipsis
-                    ? (
-                        <Typography.Paragraph ellipsis={ELLIPSIS_SETTINGS} title={`${text} ${postfix || ''}`} style={ELLIPSIS_STYLES}>
-                            {highlightedContent}
-                        </Typography.Paragraph>
-                    )
-                    : <>{highlightedContent}</>
-                }
+                <Typography.Paragraph ellipsis={ELLIPSIS_SETTINGS} title={`${text} ${postfix || ''}`} style={ELLIPSIS_STYLES}>
+                    {highlightedContent}
+                </Typography.Paragraph>
             </EmptyTableCell>
         )
     }
-
 
 /**
  * Renders provided text as a table cell with highlighted search contents

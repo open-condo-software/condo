@@ -52,7 +52,7 @@ export const getAddressDetails = (record: RecordWithAddressDetails, ShortFlatNum
  * Tries to get id of string type from any record that might contain such
  * @param record
  */
-export const getId = (record: IRecordWithId): string | null => record && record.id || null
+export const getId = (record: IRecordWithId): string | null => get(record, 'id', null)
 
 /**
  * Generic function for extracting value from filters
