@@ -40,110 +40,110 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
 
     const { loading, objs: ticketStatuses } = TicketStatus.useObjects({})
 
+    const renderStatus = (status, record, search) => {
+        const { primary: color, secondary: backgroundColor } = status.colors
+
+        return (
+            <Space direction='vertical' size={7}>
+                <Tag color={backgroundColor}>
+                    {isEmpty(status.name)
+                        ? <Typography.Text style={{ color }}>{status.name}</Typography.Text>
+                        : (
+                            <TextHighlighter
+                                text={String(status.name)}
+                                search={String(search)}
+                                renderPart={(part, startIndex, marked) => (
+                                    <Typography.Text title={status.name} style={marked ? { backgroundColor: colors.markColor } : { color: color }}>
+                                        {part}
+                                    </Typography.Text>
+                                )}
+                            />
+                        )
+                    }
+                </Tag>
+                {
+                    record.isEmergency && (
+                        <Tag color={EMERGENCY_TAG_COLOR.background}>
+                            <Typography.Text style={{ color: EMERGENCY_TAG_COLOR.text }}>
+                                {EmergencyMessage}
+                            </Typography.Text>
+                        </Tag>
+                    )
+                }
+                {
+                    record.isPaid && (
+                        <Tag color={'orange'}>
+                            {PaidMessage}
+                        </Tag>
+                    )
+                }
+            </Space>
+        )
+    }
+
+    const renderAddress = (record, filteredValueSearch) => {
+        const propertyWasDeleted = !!get(record, ['property', 'deletedAt'])
+        const property = get(record, 'property')
+
+        const unitName = get(record, 'unitName')
+        const address = get(property, 'address')
+        const unitPrefix = unitName ? `${ShortFlatNumber} ${unitName}` : ''
+
+        if (propertyWasDeleted) {
+            return (
+                <>
+                    <TextHighlighter
+                        text={String(address)}
+                        search={String(filteredValueSearch)}
+                        renderPart={(part, startIndex, marked) => (
+                            <Typography.Text
+                                title={`${address} ${unitPrefix}`}
+                                type={'secondary'}
+                                style={marked ? { backgroundColor: colors.markColor } : {}}
+                            >
+                                {part}
+                            </Typography.Text>
+                        )}
+                    />
+                    <Typography.Text type={'secondary'} title={`${address} ${unitPrefix}`} >
+                        { ' ' + unitPrefix } ({DeletedMessage})
+                    </Typography.Text>
+                </>
+            )
+        }
+
+        return getRenderer(filteredValueSearch, true, unitPrefix)(address)
+    }
+
+    function getStatusFilterDropDown () {
+        return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+            const adaptedStatuses = ticketStatuses.map(convertGQLItemToFormSelectState).filter(identity)
+
+            return (
+                <FilterContainer
+                    clearFilters={clearFilters}
+                    showClearButton={selectedKeys && selectedKeys.length > 0}
+                >
+                    <Checkbox.Group
+                        disabled={loading}
+                        options={adaptedStatuses}
+                        style={{ display: 'flex', flexDirection: 'column' }}
+                        value={selectedKeys}
+                        onChange={(e) => {
+                            setSelectedKeys(e)
+                            confirm({ closeDropdown: false })
+                        }}
+                    />
+                </FilterContainer>
+            )
+        }
+    }
+
     return useMemo(() => {
         let search = get(filters, 'search')
         search = Array.isArray(search) ? null : search
 
         const filteredValueSearch = getFilteredValue(filters, 'search')
-
-        const renderStatus = (status, record) => {
-            const { primary: color, secondary: backgroundColor } = status.colors
-
-            return (
-                <Space direction='vertical' size={7}>
-                    <Tag color={backgroundColor}>
-                        {isEmpty(status.name)
-                            ? <Typography.Text style={{ color }}>{status.name}</Typography.Text>
-                            : (
-                                <TextHighlighter
-                                    text={String(status.name)}
-                                    search={String(search)}
-                                    renderPart={(part, startIndex, marked) => (
-                                        <Typography.Text title={status.name} style={marked ? { backgroundColor: colors.markColor } : { color: color }}>
-                                            {part}
-                                        </Typography.Text>
-                                    )}
-                                />
-                            )
-                        }
-                    </Tag>
-                    {
-                        record.isEmergency && (
-                            <Tag color={EMERGENCY_TAG_COLOR.background}>
-                                <Typography.Text style={{ color: EMERGENCY_TAG_COLOR.text }}>
-                                    {EmergencyMessage}
-                                </Typography.Text>
-                            </Tag>
-                        )
-                    }
-                    {
-                        record.isPaid && (
-                            <Tag color={'orange'}>
-                                {PaidMessage}
-                            </Tag>
-                        )
-                    }
-                </Space>
-            )
-        }
-
-        const renderAddress = (record) => {
-            const propertyWasDeleted = !!get(record, ['property', 'deletedAt'])
-            const property = get(record, 'property')
-
-            const unitName = get(record, 'unitName')
-            const address = get(property, 'address')
-            const unitPrefix = unitName ? `${ShortFlatNumber} ${unitName}` : ''
-
-            if (propertyWasDeleted) {
-                return (
-                    <>
-                        <TextHighlighter
-                            text={String(address)}
-                            search={String(search)}
-                            renderPart={(part, startIndex, marked) => (
-                                <Typography.Text
-                                    title={`${address} ${unitPrefix}`}
-                                    type={'secondary'}
-                                    style={marked ? { backgroundColor: colors.markColor } : {}}
-                                >
-                                    {part}
-                                </Typography.Text>
-                            )}
-                        />
-                        <Typography.Text type={'secondary'} title={`${address} ${unitPrefix}`} >
-                            { ' ' + unitPrefix } ({DeletedMessage})
-                        </Typography.Text>
-                    </>
-                )
-            }
-
-            return getRenderer(filteredValueSearch, true, unitPrefix)(address)
-        }
-
-        function getStatusFilterDropDown () {
-            return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
-                const adaptedStatuses = ticketStatuses.map(convertGQLItemToFormSelectState).filter(identity)
-
-                return (
-                    <FilterContainer
-                        clearFilters={clearFilters}
-                        showClearButton={selectedKeys && selectedKeys.length > 0}
-                    >
-                        <Checkbox.Group
-                            disabled={loading}
-                            options={adaptedStatuses}
-                            style={{ display: 'flex', flexDirection: 'column' }}
-                            value={selectedKeys}
-                            onChange={(e) => {
-                                setSelectedKeys(e)
-                                confirm({ closeDropdown: false })
-                            }}
-                        />
-                    </FilterContainer>
-                )
-            }
-        }
 
         return [
             {
@@ -192,7 +192,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 width: '18%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'details'),
                 filterIcon: getFilterIcon,
-                render: getTextRender(search),
+                render: getRenderer(filteredValueSearch, true),
             },
             {
                 title: AddressMessage,
@@ -203,7 +203,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 sorter: true,
                 width: '12%',
                 render: renderAddress,
-                filterDropdown: getFilterDropdownByKey(filterMetas, 'property'),
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'address'),
                 filterIcon: getFilterIcon,
             },
             {
@@ -234,14 +234,14 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 title: ResponsibleMessage,
                 sortOrder: get(sorterMap, 'assignee'),
                 filteredValue: getFilteredValue(filters, 'assignee'),
-                dataIndex: ['assignee', 'name'],
+                dataIndex: 'assignee',
                 key: 'assignee',
                 sorter: true,
                 width: '18%',
-                render: getTextRender(search),
+                render: (assignee) => getRenderer(filteredValueSearch)(get(assignee, ['name'])),
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'assignee'),
                 filterIcon: getFilterIcon,
             },
         ]
-    }, [filters])
+    }, [sorters, filters])
 }

@@ -52,8 +52,8 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
     const propertyFilter = getFilter(['property', 'id'], 'array', 'string', 'in')
     const addressFilter = getStringContainsFilter(['property', 'address'])
     const clientNameFilter = getStringContainsFilter('clientName')
-    const executorNameFilter = getStringContainsFilter(['executor', 'name'])
-    const assigneeNameFilter = getStringContainsFilter(['assignee', 'name'])
+    const executorFilter = getFilter(['executor', 'id'], 'array', 'string', 'in')
+    const assigneeFilter = getFilter(['assignee', 'id'], 'array', 'string', 'in')
 
     const attributeFilter = getTicketAttributesFilter(['isEmergency', 'isPaid'])
 
@@ -91,9 +91,10 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                 filters: [
                     numberFilter,
                     clientNameFilter,
+                    addressFilter,
                     detailsFilter,
-                    executorNameFilter,
-                    assigneeNameFilter,
+                    executorFilter,
+                    assigneeFilter,
                 ],
                 combineType: 'OR',
             },
@@ -327,7 +328,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
             },
             {
                 keyword: 'executor',
-                filters: [executorNameFilter],
+                filters: [executorFilter],
                 component: {
                     type: ComponentType.GQLSelect,
                     props: {
@@ -346,7 +347,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
             },
             {
                 keyword: 'assignee',
-                filters: [assigneeNameFilter],
+                filters: [assigneeFilter],
                 component: {
                     type: ComponentType.GQLSelect,
                     props: {
