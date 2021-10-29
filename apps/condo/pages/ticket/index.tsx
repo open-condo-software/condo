@@ -1,12 +1,14 @@
 /** @jsx jsx */
 import React, { useCallback, useState } from 'react'
+import pickBy from 'lodash/pickBy'
+import get from 'lodash/get'
+import debounce from 'lodash/debounce'
+import qs from 'qs'
 import { notification, Col, Input, Row, Table, Typography, Checkbox } from 'antd'
 import { TablePaginationConfig } from 'antd/lib/table/interface'
 import { Gutter } from 'antd/lib/grid/row'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import qs from 'qs'
-import { pickBy, get, debounce } from 'lodash'
 
 import { css, jsx } from '@emotion/core'
 import { SortTicketsBy } from '@app/condo/schema'
@@ -16,7 +18,13 @@ import { useOrganization } from '@core/next/organization'
 import { useLazyQuery } from '@core/next/apollo'
 
 import { getFiltersFromQuery, getId } from '@condo/domains/common/utils/helpers'
+import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
+import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { Button } from '@condo/domains/common/components/Button'
+import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
+
 import { EXPORT_TICKETS_TO_EXCEL } from '@condo/domains/ticket/gql'
 import {
     filtersToQuery,
@@ -25,16 +33,8 @@ import {
     sorterToQuery, queryToSorter, getPageSizeFromQuery,
     IFilters,
 } from '@condo/domains/ticket/utils/helpers'
-
 import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { useEmergencySearch } from '@condo/domains/ticket/hooks/useEmergencySearch'
-import { useSearch } from '@condo/domains/common/hooks/useSearch'
-
-import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { Button } from '@condo/domains/common/components/Button'
-import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
-
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
 import { fontSizes } from '@condo/domains/common/constants/style'
@@ -150,8 +150,8 @@ export const TicketsPageContent = ({
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
     const [emergency, handleEmergencyChange] = useEmergencySearch<IFilters>(loading)
 
-    const handleExport = React.useCallback(() => {
-        return exportToExcel({
+    const handleExport = React.useCallback(() =>
+        exportToExcel({
             variables: {
                 data: {
                     where: searchTicketsQuery,
@@ -159,8 +159,8 @@ export const TicketsPageContent = ({
                     timeZone,
                 },
             },
-        })
-    }, [searchTicketsQuery, sortBy, timeZone])
+        }), [searchTicketsQuery, sortBy, timeZone]
+    )
 
     const paginationParams = React.useMemo<TablePaginationConfig>(() =>
         ({
@@ -173,7 +173,7 @@ export const TicketsPageContent = ({
     [total, offsetFromQuery, pagesizeFromQuery]
     )
 
-    const handleSearchInputChange = React.useCallback((e) => { handleSearchChange(e.target.value) }, [])
+    const handleSearchInputChange = React.useCallback((e) => handleSearchChange(get(e, 'target.value')), [])
 
     return (
         <>
@@ -181,7 +181,9 @@ export const TicketsPageContent = ({
                 <title>{PageTitleMessage}</title>
             </Head>
             <PageWrapper>
-                <PageHeader title={<Typography.Title style={PAGE_HEADER_TITLE_STYLES}>{PageTitleMessage}</Typography.Title>}/>
+                <PageHeader title={
+                    <Typography.Title style={PAGE_HEADER_TITLE_STYLES}>{PageTitleMessage}</Typography.Title>
+                }/>
                 <PageContent>
                     {
                         !tickets.length && !filtersFromQuery

@@ -23,6 +23,7 @@ export type TTextHighlighterProps = {
 
 export const TextHighlighter: React.FC<TTextHighlighterProps> = (props) => {
     const { text, search, renderPart, type, style, children } = props
+
     if (isEmpty(text)) return null
 
     let result

@@ -18,7 +18,7 @@ import { EMERGENCY_TAG_COLOR } from '@condo/domains/ticket/constants/style'
 import { TicketStatus } from '../utils/clientSchema'
 import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
 import { createSorterMap, IFilters } from '../utils/helpers'
-import {TextHighlighter, TTextHighlighterProps} from '../../common/components/TextHighlighter'
+import { TextHighlighter, TTextHighlighterProps } from '../../common/components/TextHighlighter'
 
 const STATUS_FILTER_CHECKBOX_GROUP_STYLES: CSSProperties = { display: 'flex', flexDirection: 'column' }
 
@@ -50,16 +50,14 @@ export const useTableColumns = (
     const renderStatus = (status, record) => {
         const { primary: color, secondary: backgroundColor } = status.colors
         const extraProps = { style: { color } }
-        // TODO: DOMA-1518 find solution for cases where no status received
+        // TODO(DOMA-1518) find solution for cases where no status received
         const highlightedContent = getHighlightedContents(search, null, extraProps)(status.name)
 
         return (
             <Space direction='vertical' size={7} align='center'>
                 {status.name &&
                     <Tag color={backgroundColor}>
-                        <Typography.Text>
-                            {highlightedContent}
-                        </Typography.Text>
+                        {highlightedContent}
                     </Tag>
                 }
                 {record.isEmergency &&
