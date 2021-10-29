@@ -2,9 +2,8 @@
 import React, { useEffect, useRef, useState } from 'react'
 import {
     PageContent,
-    PageHeader,
     PageWrapper,
-    useLayoutContext
+    useLayoutContext,
 } from '@condo/domains/common/components/containers/BaseLayout'
 import { Col, Radio, Row, Tabs, Typography } from 'antd'
 import Head from 'next/head'
