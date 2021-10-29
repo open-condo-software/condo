@@ -54,6 +54,8 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
     const clientNameFilter = getStringContainsFilter('clientName')
     const executorFilter = getFilter(['executor', 'id'], 'array', 'string', 'in')
     const assigneeFilter = getFilter(['assignee', 'id'], 'array', 'string', 'in')
+    const executorNameFilter = getStringContainsFilter(['executor', 'name'])
+    const assigneeNameFilter = getStringContainsFilter(['assignee', 'name'])
 
     const attributeFilter = getTicketAttributesFilter(['isEmergency', 'isPaid'])
 
@@ -93,8 +95,8 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                     clientNameFilter,
                     addressFilter,
                     detailsFilter,
-                    executorFilter,
-                    assigneeFilter,
+                    executorNameFilter,
+                    assigneeNameFilter,
                 ],
                 combineType: 'OR',
             },
