@@ -40,12 +40,6 @@ async function canManageMultiPayments ({ authentication: { item: user }, operati
     return false
 }
 
-async function canReadSensitiveData ({ authentication: { item: user }, existingItem }) {
-    if (user.deletedAt) return false
-    if (user.isAdmin || user.isSupport) return true
-    if (await checkAcquiringIntegrationAccessRight(user, existingItem.integration)) return true
-}
-
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
   all or no items are available) or a set of filters that limit the available items.
@@ -53,5 +47,4 @@ async function canReadSensitiveData ({ authentication: { item: user }, existingI
 module.exports = {
     canReadMultiPayments,
     canManageMultiPayments,
-    canReadSensitiveData,
 }

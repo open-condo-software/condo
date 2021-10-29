@@ -8,6 +8,7 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD, CURRENCY_CODE_FIELD, MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/acquiring/access/Payment')
+const { canReadSensitiveData } = require('../utils/accessSchema')
 const { PAYMENT_STATUSES, PAYMENT_INIT_STATUS } = require('@condo/domains/acquiring/constants')
 
 
@@ -33,6 +34,7 @@ const Payment = new GQLListSchema('Payment', {
             ...MONEY_AMOUNT_FIELD,
             schemaDoc: 'Amount of money which recipient pays from initial amount for transaction',
             isRequired: false,
+            access: { read: canReadSensitiveData },
         },
 
         currencyCode: CURRENCY_CODE_FIELD,
@@ -68,6 +70,7 @@ const Payment = new GQLListSchema('Payment', {
             schemaDoc: 'Frozen billing receipt, used to resolving conflicts',
             type: Json,
             isRequired: true,
+            access: { read: canReadSensitiveData },
             // TODO (savelevMatthew): create validation / type later
         },
 
@@ -89,6 +92,7 @@ const Payment = new GQLListSchema('Payment', {
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+            access: { read: canReadSensitiveData },
         },
 
         status: {

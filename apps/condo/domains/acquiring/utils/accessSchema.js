@@ -10,6 +10,13 @@ async function checkAcquiringIntegrationAccessRight (userId, integrationId) {
     return !!get(integration, 'id')
 }
 
+async function canReadSensitiveData ({ authentication: { item: user }, existingItem }) {
+    if (user.deletedAt) return false
+    if (user.isAdmin || user.isSupport) return true
+    if (await checkAcquiringIntegrationAccessRight(user, existingItem.integration)) return true
+}
+
 module.exports = {
     checkAcquiringIntegrationAccessRight,
+    canReadSensitiveData,
 }
