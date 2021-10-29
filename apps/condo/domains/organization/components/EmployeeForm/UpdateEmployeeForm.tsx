@@ -12,6 +12,7 @@ import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { OrganizationEmployee, OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
 import { useAuth } from '@core/next/auth'
+import { useLayoutContext } from '../../../common/components/LayoutContext'
 import { EmployeeRoleSelect } from '../EmployeeRoleSelect'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { Rule } from 'rc-field-form/lib/interface'
@@ -36,9 +37,9 @@ const INPUT_LAYOUT_PROPS = {
     },
 }
 const CardCss = css`
-    width: 300px;
-    height: fit-content;
-    box-shadow: ${shadows.elevated};
+  width: 300px;
+  height: fit-content;
+  box-shadow: ${shadows.elevated};
 `
 
 export const UpdateEmployeeForm = () => {
@@ -55,6 +56,7 @@ export const UpdateEmployeeForm = () => {
 
     const { query, push } = useRouter()
     const classifiersLoader = new ClassifiersQueryRemote(useApolloClient())
+    const { isSmall } = useLayoutContext()
 
     const { obj: employee, loading: employeeLoading, error: employeeError, refetch } = OrganizationEmployee.useObject({ where: { id: String(get(query, 'id', '')) } })
     const { objs: employeeRoles, loading: employeeRolesLoading, error: employeeRolesError } = OrganizationEmployeeRole.useObjects({ where: { organization: { id:  get(employee, ['organization', 'id']) } } })
@@ -82,7 +84,7 @@ export const UpdateEmployeeForm = () => {
     useEffect(()=> {
         classifiersLoader.init()
         return () => classifiersLoader.clear()
-    }, [])   
+    }, [])
 
     const error = employeeError || employeeRolesError
     const loading = employeeLoading || employeeRolesLoading
@@ -139,11 +141,11 @@ export const UpdateEmployeeForm = () => {
         >
             {({ handleSave, isLoading }) => {
                 return (
-                    <Row>
-                        <Col span={3}>
+                    <Row gutter={[0, 40]} justify={'center'}>
+                        <Col xs={10} lg={2}>
                             <UserAvatar borderRadius={24} isBlocked={get(employee, 'isBlocked')}/>
                         </Col>
-                        <Col span={12} offset={1}>
+                        <Col xs={24} lg={12} offset={1}>
                             <Row gutter={[0, 40]}>
                                 <Col span={24}>
                                     <Typography.Title
@@ -224,29 +226,31 @@ export const UpdateEmployeeForm = () => {
                                 </Col>
                             </Row>
                         </Col>
-                        <Col span={8} style={{ alignSelf: 'center' }}> 
-                            <Form.Item dependencies={['role']}>
-                                {({ getFieldValue }) => {
-                                    const roleId = getFieldValue('role')
-                                    const role = employeeRoles.find(x => x.id === roleId)
-                                    if (!role) return null
-                                    return (
-                                        <Card
-                                            title={role.name}
-                                            bordered={false}
-                                            css={CardCss}
-                                            headStyle={{
-                                                color: colors.lightGrey[10],
-                                                fontSize: 24,
-                                                fontWeight: 'bold',
-                                            }}
-                                        >
-                                            {role.description}
-                                        </Card>
-                                    )
-                                }}
-                            </Form.Item>
-                        </Col>
+                        {!isSmall && (
+                            <Col lg={9}>
+                                <Form.Item dependencies={['role']}>
+                                    {({ getFieldValue }) => {
+                                        const roleId = getFieldValue('role')
+                                        const role = employeeRoles.find(x => x.id === roleId)
+                                        if (!role) return null
+                                        return (
+                                            <Card
+                                                title={role.name}
+                                                bordered={false}
+                                                css={CardCss}
+                                                headStyle={{
+                                                    color: colors.lightGrey[10],
+                                                    fontSize: 24,
+                                                    fontWeight: 'bold',
+                                                }}
+                                            >
+                                                {role.description}
+                                            </Card>
+                                        )
+                                    }}
+                                </Form.Item>
+                            </Col>
+                        )}
                     </Row>
                 )
             }}

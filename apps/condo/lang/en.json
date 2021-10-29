@@ -629,6 +629,7 @@
   "ticket.assignments.executor.All": "All employees",
   "OK": "OK",
   "Title": "Title",
+  "profile": "Profile",
   "profile.Update": "Editing my profile",
   "profile.Employee.Update": "Editing profile",
   "profile.ChangePasswordModalTitle": "change Password",

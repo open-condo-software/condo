@@ -1,4 +1,4 @@
-import { colors, shadows } from '@condo/domains/common/constants/style'
+import { colors, shadows, zIndex } from '@condo/domains/common/constants/style'
 const { red } = require('@ant-design/colors')
 import { css } from '@emotion/core'
 import styled from '@emotion/styled'
@@ -49,7 +49,7 @@ export const mobileSideNavStyles = css`
   box-sizing: border-box;
   overflow-y: scroll;
   height: 100vh;
-  z-index: 10;
+  z-index: ${zIndex.mobileSidenav};
 `
 
 export const sideNavStyles = css`

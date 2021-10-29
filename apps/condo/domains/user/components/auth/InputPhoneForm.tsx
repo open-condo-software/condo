@@ -137,22 +137,24 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
                 </Col>
                 <Col span={24}>
                     <Row justify={'space-between'} gutter={[0, 12]}>
-                        <Col lg={24} xl={11}>
+                        <Col  xs={24} lg={24}>
                             <Button
                                 key='submit'
                                 type='sberPrimary'
                                 htmlType='submit'
                                 loading={isLoading}
+                                block
                             >
                                 {RegisterMsg}
                             </Button>
                         </Col>
-                        <Col lg={24} xl={11}>
+                        <Col  xs={24} lg={24}>
                             <Button
                                 key='submit'
                                 type='sberAction'
                                 icon={<SberIconWithoutLabel/>}
                                 href={'/api/sbbol/auth'}
+                                block
                             >
                                 {SberIdRegisterMsg}
                             </Button>

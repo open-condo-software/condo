@@ -62,12 +62,12 @@ const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) =>
     return (
         <Col span={24}>
             <Row gutter={[0, 24]}>
-                <Col span={3}>
+                <Col lg={3} xs={10}>
                     <Typography.Text type='secondary'>
                         {OrganizationMessage}
                     </Typography.Text>
                 </Col>
-                <Col span={19} push={2}>
+                <Col lg={19} xs={12} offset={2}>
                     <NotDefinedField
                         value={get(employee, ['organization', 'name'])}
                         render={(name) => (
@@ -80,20 +80,20 @@ const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) =>
                         )}
                     />
                 </Col>
-                <Col span={3}>
+                <Col lg={3} xs={10}>
                     <Typography.Text type='secondary'>
                         {PositionMessage}
                     </Typography.Text>
                 </Col>
-                <Col span={19} push={2}>
+                <Col lg={19} xs={12} offset={2}>
                     <NotDefinedField value={get(employee, ['position'])}/>
                 </Col>
-                <Col span={3}>
+                <Col lg={3} xs={10}>
                     <Typography.Text type='secondary'>
                         {RoleMessage}
                     </Typography.Text>
                 </Col>
-                <Col span={19} push={2}>
+                <Col lg={19} xs={12} offset={2}>
                     <NotDefinedField
                         value={get(employee, ['role', 'name'])}
                         render={(roleName) => (<Tag color='default'>{roleName}</Tag>)}

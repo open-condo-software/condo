@@ -4,6 +4,7 @@ import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
+import { useLayoutContext } from '../../common/components/LayoutContext'
 import { Contact } from '../utils/clientSchema'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -21,9 +22,6 @@ const INPUT_LAYOUT_PROPS = {
     },
     wrapperCol: {
         span: 13,
-    },
-    style: {
-        maxWidth: '453px',
     },
 }
 
@@ -43,6 +41,7 @@ export const EditContactForm: React.FC = () => {
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
     const NoPermissionMessage = intl.formatMessage({ id: 'EditingContactNoPermission' })
 
+    const { isSmall } = useLayoutContext()
     const { query, push } = useRouter()
     const { organization, link } = useOrganization()
     const contactId = get(query, 'id', '')
@@ -110,11 +109,11 @@ export const EditContactForm: React.FC = () => {
                 {
                     ({ handleSave, isLoading }) => {
                         return (
-                            <Row>
-                                <Col span={3}>
+                            <Row gutter={[0, 40]} justify={'center'}>
+                                <Col xs={10} lg={3}>
                                     <UserAvatar borderRadius={24}/>
                                 </Col>
-                                <Col span={20} push={1}>
+                                <Col xs={24} lg={15} offset={isSmall ? 0 : 1}>
                                     <Row gutter={[0, 40]}>
                                         <Col span={24}>
                                             <Typography.Title
@@ -179,6 +178,7 @@ export const EditContactForm: React.FC = () => {
                                         </Space>
                                     </Row>
                                 </Col>
+                                <Col xs={24} lg={5}/>
                             </Row>
                         )
                     }

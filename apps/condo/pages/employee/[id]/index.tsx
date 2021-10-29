@@ -1,6 +1,6 @@
 import { EditFilled } from '@ant-design/icons'
 import { Button } from '@condo/domains/common/components/Button'
-import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { EmployeeInviteRetryButton } from '@condo/domains/organization/components/EmployeeInviteRetryButton'
@@ -68,6 +68,7 @@ export const EmployeePageContent = ({
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'employee.ConfirmDeleteMessage' })
 
     const { user } = useAuth()
+    const { isSmall } = useLayoutContext()
 
     const userId = get(user, 'id')
     const employeeUserId = get(employee, 'user.id')
@@ -92,11 +93,11 @@ export const EmployeePageContent = ({
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <Row gutter={[0, 40]}>
-                        <Col span={3}>
+                    <Row gutter={[0, 40]} justify={'center'}>
+                        <Col xs={10} lg={3}>
                             <UserAvatar borderRadius={24} isBlocked={isEmployeeBlocked}/>
                         </Col>
-                        <Col span={20} push={1}>
+                        <Col xs={24} lg={20} offset={isSmall ? 0 : 1}>
                             <Row gutter={[0, 60]}>
                                 <Col span={24}>
                                     <Row gutter={[0, 40]}>
@@ -150,21 +151,21 @@ export const EmployeePageContent = ({
                                         <Col span={24}>
                                             <FrontLayerContainer showLayer={isEmployeeBlocked}>
                                                 <Row gutter={[0, 24]}>
-                                                    <Col span={4}>
+                                                    <Col lg={4} xs={10}>
                                                         <Typography.Text type='secondary'>
                                                             {PhoneMessage}
                                                         </Typography.Text>
                                                     </Col>
-                                                    <Col span={18} push={1}>
+                                                    <Col lg={18} xs={13} offset={1}>
                                                         <NotDefinedField value={get(employee, 'phone')}/>
                                                     </Col>
 
-                                                    <Col span={4}>
+                                                    <Col lg={4} xs={10}>
                                                         <Typography.Text type='secondary'>
                                                             {RoleMessage}
                                                         </Typography.Text>
                                                     </Col>
-                                                    <Col span={18} push={1}>
+                                                    <Col lg={18} xs={13} offset={1}>
                                                         <NotDefinedField
                                                             value={get(employee, ['role', 'name'])}
                                                             render={
@@ -175,12 +176,12 @@ export const EmployeePageContent = ({
                                                         />
                                                     </Col>
 
-                                                    <Col span={4}>
+                                                    <Col lg={4} xs={10}>
                                                         <Typography.Text type='secondary'>
                                                             {PositionMessage}
                                                         </Typography.Text>
                                                     </Col>
-                                                    <Col span={18} push={1}>
+                                                    <Col lg={18} xs={13} offset={1}>
                                                         <NotDefinedField
                                                             value={get(employee, 'position')}
                                                             render={
@@ -191,12 +192,12 @@ export const EmployeePageContent = ({
                                                         />
                                                     </Col>
 
-                                                    <Col span={4}>
+                                                    <Col lg={4} xs={10}>
                                                         <Typography.Text type='secondary'>
                                                             {SpecializationsMessage}
                                                         </Typography.Text>
                                                     </Col>
-                                                    <Col span={18} push={1}>
+                                                    <Col lg={18} xs={13} offset={1}>
                                                         <NotDefinedField
                                                             value={get(employee, 'specializations')}
                                                             render={
@@ -210,12 +211,12 @@ export const EmployeePageContent = ({
                                                     </Col>
                                                     {
                                                         email && <>
-                                                            <Col span={4}>
+                                                            <Col lg={4} xs={10}>
                                                                 <Typography.Text type='secondary'>
                                                                     {EmailMessage}
                                                                 </Typography.Text>
                                                             </Col>
-                                                            <Col span={18} push={1}>
+                                                            <Col lg={18} xs={13} offset={1}>
                                                                 <NotDefinedField value={email}/>
                                                             </Col>
                                                         </>
