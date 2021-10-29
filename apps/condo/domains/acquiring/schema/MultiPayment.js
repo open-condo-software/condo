@@ -17,6 +17,7 @@ const {
 const { ACQUIRING_INTEGRATION_FIELD } = require('./fields/relations')
 const access = require('@condo/domains/acquiring/access/MultiPayment')
 const get = require('lodash/get')
+const { canReadSensitiveData } = require('../utils/accessSchema')
 
 
 const MultiPayment = new GQLListSchema('MultiPayment', {
@@ -52,7 +53,7 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
             ...MONEY_AMOUNT_FIELD,
             schemaDoc: 'Total amount of money charged from recipients of multipayment as fee for transaction',
             isRequired: false,
-            access: { read: access.canReadSensitiveData },
+            access: { read: canReadSensitiveData },
         },
 
         amountWithoutExplicitFee: {
@@ -99,14 +100,14 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
             schemaDoc: 'Transaction ID of money withdraw',
             type: Text,
             isRequired: false,
-            access: { read: access.canReadSensitiveData },
+            access: { read: canReadSensitiveData },
         },
 
         meta: {
             schemaDoc: 'Additional acquiring-specific information',
             type: Json,
             isRequired: false,
-            access: { read: access.canReadSensitiveData },
+            access: { read: canReadSensitiveData },
         },
 
         status: {
