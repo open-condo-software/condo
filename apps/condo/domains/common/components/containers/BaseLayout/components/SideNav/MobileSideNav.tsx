@@ -3,7 +3,8 @@ import { CloseOutlined } from '@ant-design/icons'
 import { jsx } from '@emotion/core'
 import { Layout } from 'antd'
 import get from 'lodash/get'
-import React from 'react'
+import { useRouter } from 'next/router'
+import React, { useCallback, useEffect } from 'react'
 import { useOrganization } from '@core/next/organization'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { ServiceSubscriptionIndicator } from '@condo/domains/subscription/components/ServiceSubscriptionIndicator'
@@ -23,10 +24,24 @@ export const MobileSideNav: React.FC<ISideNavProps> = (props) => {
     const { menuData } = props
     const { link } = useOrganization()
     const { toggleCollapsed, isCollapsed } = useLayoutContext()
+    const router = useRouter()
 
-    const isEmployeeBlocked = get(link, 'isBlocked', false)
+    const hideSideNav = useCallback(() => {
+        if (!isCollapsed) {
+            toggleCollapsed()
+        }
+    }, [isCollapsed])
 
-    if (isEmployeeBlocked) {
+    useEffect(() => {
+        router.events.on('routeChangeComplete', hideSideNav)
+
+        return () => {
+            router.events.off('routeChangeComplete', hideSideNav)
+        }
+    }, [])
+
+
+    if (get(link, 'isBlocked', false)) {
         return null
     }
 
@@ -44,7 +59,6 @@ export const MobileSideNav: React.FC<ISideNavProps> = (props) => {
                     <OrganizationSelect/>
                 </OrganizationSelectWrapper>
             </MobileSideNavHeader>
-            <ServiceSubscriptionIndicator/>
             <MobileMenuItemsContainer>
                 {menuData}
             </MobileMenuItemsContainer>

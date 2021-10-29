@@ -629,6 +629,7 @@
   "ticket.assignments.executor.All": "Все сотрудники",
   "OK": "Хорошо",
   "Title": "Заголовок",
+  "profile": "Профиль",
   "profile.Update": "Редактирование профиля",
   "profile.Employee.Update": "Редактирование сотрудника",
   "profile.ChangePasswordModalTitle": "Изменение пароля",

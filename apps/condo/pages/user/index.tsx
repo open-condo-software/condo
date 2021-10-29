@@ -8,7 +8,7 @@ import { useIntl } from '@core/next/intl'
 import { useAuth } from '@core/next/auth'
 import { Button } from '@condo/domains/common/components/Button'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
-import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { UserOrganizationsList } from '@condo/domains/user/components/UserOrganizationsList'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
@@ -25,6 +25,7 @@ export const UserInfoPage = () => {
 
     const { user, refetch } = useAuth()
     const userOrganization = useOrganization()
+    const { isSmall } = useLayoutContext()
 
     useEffect(() => {
         refetch()
@@ -41,11 +42,11 @@ export const UserInfoPage = () => {
             <FeatureFlagsController/>
             <PageWrapper>
                 <PageContent>
-                    <Row gutter={[0, 40]}>
-                        <Col span={3}>
+                    <Row gutter={[0, 40]} justify={'center'}>
+                        <Col xs={10} lg={3}>
                             <UserAvatar borderRadius={24}/>
                         </Col>
-                        <Col span={20} push={1}>
+                        <Col xs={24} lg={20} offset={ isSmall ? 0 : 1}>
                             <Row gutter={[0, 60]}>
                                 <Col span={24}>
                                     <Row gutter={[0, 40]}>
@@ -59,32 +60,32 @@ export const UserInfoPage = () => {
                                         </Col>
                                         <Col span={24}>
                                             <Row gutter={[0, 24]}>
-                                                <Col span={3}>
+                                                <Col lg={3} xs={10}>
                                                     <Typography.Text type='secondary'>
                                                         {PhoneMessage}
                                                     </Typography.Text>
                                                 </Col>
-                                                <Col span={19} push={2}>
+                                                <Col lg={19} xs={10} offset={2}>
                                                     <NotDefinedField value={get(user, 'phone')}/>
                                                 </Col>
                                                 {
                                                     email && <>
-                                                        <Col span={3}>
+                                                        <Col lg={3} xs={10}>
                                                             <Typography.Text type='secondary'>
                                                                 {EmailMessage}
                                                             </Typography.Text>
                                                         </Col>
-                                                        <Col span={19} push={2}>
+                                                        <Col lg={19} xs={10} offset={2}>
                                                             <NotDefinedField value={get(user, 'email')}/>
                                                         </Col>
                                                     </>
                                                 }
-                                                <Col span={3}>
+                                                <Col lg={3} xs={10}>
                                                     <Typography.Text type='secondary'>
                                                         {PasswordMessage}
                                                     </Typography.Text>
                                                 </Col>
-                                                <Col span={19} push={2}>
+                                                <Col lg={19} xs={10} offset={2}>
                                                     <NotDefinedField value='******'/>
                                                 </Col>
                                             </Row>
@@ -105,9 +106,9 @@ export const UserInfoPage = () => {
                                 </Col>
                                 <Col span={24}>
                                     {
-                                        userOrganization ? (
-                                            <UserOrganizationsList userOrganization={userOrganization}/>
-                                        ) : null
+                                        userOrganization
+                                            ? (<UserOrganizationsList userOrganization={userOrganization}/>)
+                                            : null
                                     }
                                 </Col>
                             </Row>

@@ -8,6 +8,7 @@ import { useAuth } from '@core/next/auth'
 import { Button } from '@condo/domains/common/components/Button'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { FormResetButton } from '@condo/domains/common/components/FormResetButton'
+import { useLayoutContext } from '../../common/components/LayoutContext'
 import { UserAvatar } from './UserAvatar'
 import { UserPasswordResetButton } from './UserPasswordResetButton'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
@@ -40,6 +41,7 @@ export const UserProfileForm = () => {
     const { user } = useAuth()
     const updateUserAction = User.useUpdate({}, () => router.push('/user/'))
     const formAction = (formValues) => updateUserAction(formValues, user)
+    const { isSmall } = useLayoutContext()
 
     const { requiredValidator, emailValidator, changeMessage, minLengthValidator } = useValidations()
     const minClientNameRule = changeMessage(minLengthValidator(2), MinLengthError)
@@ -70,13 +72,11 @@ export const UserProfileForm = () => {
         >
             {({ handleSave, isLoading }) => {
                 return (
-                    <Row>
-                        <Col span={3}>
-                            <Form.Item name={'avatar'}>
-                                <UserAvatar borderRadius={24}/>
-                            </Form.Item>
+                    <Row gutter={[0, 40]} justify={'center'}>
+                        <Col xs={10} lg={3}>
+                            <UserAvatar borderRadius={24}/>
                         </Col>
-                        <Col span={20} push={1}>
+                        <Col lg={20} offset={isSmall ? 0 : 1}>
                             <Row gutter={[0, 40]}>
                                 <Col span={24}>
                                     <Typography.Title

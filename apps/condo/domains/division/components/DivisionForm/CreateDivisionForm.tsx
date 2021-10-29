@@ -1,4 +1,4 @@
-import { Space, Form } from 'antd'
+import { Space, Form, Row, Col } from 'antd'
 import React from 'react'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
@@ -41,22 +41,20 @@ export const CreateDivisionForm: React.FC = () => {
                                 )
                                 return (
                                     <ActionBar>
-                                        <Space size={12}>
-                                            <Button
-                                                key='submit'
-                                                onClick={handleSave}
-                                                type='sberPrimary'
-                                                loading={isLoading}
-                                            >
-                                                {CreateDivisionMessage}
-                                            </Button>
-                                            <ErrorsContainer
-                                                name={name || ''}
-                                                properties={properties}
-                                                responsible={responsible}
-                                                executors={executors}
-                                            />
-                                        </Space>
+                                        <Button
+                                            key='submit'
+                                            onClick={handleSave}
+                                            type='sberPrimary'
+                                            loading={isLoading}
+                                        >
+                                            {CreateDivisionMessage}
+                                        </Button>
+                                        <ErrorsContainer
+                                            name={name || ''}
+                                            properties={properties}
+                                            responsible={responsible}
+                                            executors={executors}
+                                        />
                                     </ActionBar>
                                 )
                             }

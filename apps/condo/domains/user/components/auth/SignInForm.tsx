@@ -13,6 +13,7 @@ import { useMutation } from '@core/next/apollo'
 import { useAuth } from '@core/next/auth'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
+import { useLayoutContext } from '../../../common/components/LayoutContext'
 
 const FORM_LAYOUT = {
     labelCol: { span: 10 },
@@ -83,7 +84,7 @@ export const SignInForm = (): React.ReactElement => {
             colon={false}
             requiredMark={false}
         >
-            <Row gutter={[0, 30]}>
+            <Row gutter={[0, 40]}>
                 <Col span={24} >
                     <Row gutter={[0, 24]}>
                         <Col span={24}>
@@ -109,26 +110,31 @@ export const SignInForm = (): React.ReactElement => {
                 </Col>
                 <Col span={24}>
                     <Row justify={'start'} align={'middle'} gutter={[0, 40]}>
-                        <Col lg={7} xs={24}>
-                            <Button
-                                key='submit'
-                                type='sberPrimary'
-                                htmlType='submit'
-                                loading={isLoading}
-                                block
-                            >
-                                {SignInMsg}
-                            </Button>
-                        </Col>
-                        <Col offset={3} lg={7} xs={24}>
-                            <Button
-                                key='submit'
-                                type='sberAction'
-                                icon={<SberIconWithoutLabel/>}
-                                href={'/api/sbbol/auth'}
-                            >
-                                {LoginBySbbolMessage}
-                            </Button>
+                        <Col xs={24}>
+                            <Row justify={'space-between'} gutter={[0, 12]}>
+                                <Col xs={24}>
+                                    <Button
+                                        key='submit'
+                                        type='sberPrimary'
+                                        htmlType='submit'
+                                        loading={isLoading}
+                                        block
+                                    >
+                                        {SignInMsg}
+                                    </Button>
+                                </Col >
+                                <Col xs={24}>
+                                    <Button
+                                        key='submit'
+                                        type='sberAction'
+                                        icon={<SberIconWithoutLabel/>}
+                                        href={'/api/sbbol/auth'}
+                                        block
+                                    >
+                                        {LoginBySbbolMessage}
+                                    </Button>
+                                </Col>
+                            </Row>
                         </Col>
                         <Col lg={14} xs={24}>
                             <Typography.Text type='secondary'>

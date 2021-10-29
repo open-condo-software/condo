@@ -3,7 +3,7 @@ import { Dropdown, Space, Menu, Avatar } from 'antd'
 import { RestFilled } from '@ant-design/icons'
 import { StyledMenuItem, menuIconStyles } from '@condo/domains/common/components/containers/BaseLayout/components/styles'
 import React from 'react'
-import Router from 'next/router'
+import Router, { useRouter } from 'next/router'
 import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
@@ -26,10 +26,19 @@ export const MobileUserMenu: React.FC = () => {
     const intl = useIntl()
     const SignInMessage = intl.formatMessage({ id: 'SignIn' })
     const SignOutMessage = intl.formatMessage({ id: 'SignOut' })
+    const ProfileMessage = intl.formatMessage({ id: 'profile' })
+
     const auth = useAuth()
+    const router = useRouter()
 
     const DropdownOverlay = (
         <StyledMenu>
+            <StyledMenuItem key='profile' onClick={() => router.push('/user')}>
+                <Space size={16}>
+                    <UserOutlined style={menuIconStyles}/>
+                    {ProfileMessage}
+                </Space>
+            </StyledMenuItem>
             <StyledMenuItem key='signout' onClick={auth.signout}>
                 <Space size={16}>
                     <RestFilled style={menuIconStyles}/>

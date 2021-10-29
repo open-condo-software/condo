@@ -30,7 +30,7 @@ const SettingsPage = () => {
                 <OrganizationRequired>
                     <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitle}</Typography.Title>}/>
                     <PageContent>
-                        <Col span={20}>
+                        <Col lg={20} xs={24}>
                             <Tabs
                                 defaultActiveKey="settings"
                                 tabBarStyle={{ marginBottom: 40 }}
