@@ -286,4 +286,22 @@ describe('Payment', () => {
             })
         })
     })
+    describe('real-life cases', async () => {
+        test('mobile app requests payments by user and can\'t see sensetive data', async () => {
+            const { admin, payments: firstPayments, acquiringIntegration: firstAcquiringIntegration, client: firstClient } = await makePayerAndPayments()
+            await createTestMultiPayment(admin, firstPayments, firstClient.user, firstAcquiringIntegration)
+
+            let { data: { objs: firstUserPayments } } = await Payment.getAll(firstClient, {}, { raw:true })
+            const firstUserPayment = firstUserPayments[0]
+            expect(firstUserPayment).toBeDefined()
+            expect(firstUserPayment.status).toBeDefined()
+            expect(firstUserPayment.amount).toBeDefined()
+            expect(firstUserPayment.explicitFee).toBeDefined()
+            expect(firstUserPayment.currencyCode).toBeDefined()
+            expect(firstUserPayment.accountNumber).toBeDefined()
+            expect(firstUserPayment.implicitFee).toBeNull()
+            expect(firstUserPayment.frozenReceipt).toBeNull()
+            expect(firstUserPayment.context).toBeNull()
+        })
+    })
 })
