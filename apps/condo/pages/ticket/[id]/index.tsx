@@ -133,7 +133,7 @@ const TicketContent = ({ ticket }) => {
     const SectionName = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
     const FloorName = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
 
-    const propertyWasDeleted = !get(ticket, ['property', 'address', 'deletedAt'])
+    const propertyWasDeleted = !get(ticket, ['property', 'deletedAt'])
 
     const ticketUnit = ticket.unitName ? `, ${ShortFlatNumber} ${ticket.unitName}` : ''
     const ticketAddress = get(ticket, ['property', 'address']) + ticketUnit
