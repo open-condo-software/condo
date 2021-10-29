@@ -152,12 +152,9 @@ export const getFilter: (
 }
 
 type MultipleDataIndexType = DataIndexType[]
+type TicketAttributesFilterGetterType = (dataIndices: MultipleDataIndexType) => FilterType
 
-export const getTicketAttributesFilter: (
-    dataIndices: MultipleDataIndexType,
-) => FilterType = (
-    dataIndices
-) => {
+export const getTicketAttributesFilter: TicketAttributesFilterGetterType = (dataIndices) => {
     return function getWhereQuery (search) {
         if (!search || search.length === 0) return
         if (dataIndices.length === 1) return
