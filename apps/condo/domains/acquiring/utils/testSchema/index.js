@@ -225,7 +225,6 @@ async function updateTestMultiPayment (client, id, extraAttrs = {}, params = {})
 
 async function createTestPayment (client, organization, receipt=null, context=null, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!receipt || !receipt.id) throw new Error('no receipts.id')
     if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const amount = get(receipt, 'toPay', '100.00')

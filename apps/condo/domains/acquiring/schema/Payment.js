@@ -64,13 +64,13 @@ const Payment = new GQLListSchema('Payment', {
             type: Relationship,
             ref: 'BillingReceipt',
             isRequired: false,
-            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
         },
 
         frozenReceipt: {
             schemaDoc: 'Frozen billing receipt, used to resolving conflicts',
             type: Json,
-            isRequired: true,
+            isRequired: false,
             access: { read: access.canReadPaymentsSensitiveData },
             // TODO (savelevMatthew): create validation / type later
         },
@@ -91,7 +91,7 @@ const Payment = new GQLListSchema('Payment', {
             type: Relationship,
             ref: 'AcquiringIntegrationContext',
             isRequired: false,
-            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
         },
 
         organization: {
