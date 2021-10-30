@@ -120,7 +120,10 @@ describe('Payment', () => {
                 })
                 test('Employee with `canReadPayments` can see organization payments', async () => {
                     const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
+                    // Internal payment (received through our service)
                     const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
+                    // External payment (received through billing / file uploading)
+                    const [secondPayment] = await createTestPayment(admin, organization)
                     const {
                         billingReceipts: secondReceipts,
                         acquiringContext: secondContext,
@@ -135,8 +138,11 @@ describe('Payment', () => {
                     await createTestOrganizationEmployee(admin, organization, employeeClient.user, role)
                     const payments = await Payment.getAll(employeeClient)
                     expect(payments).toBeDefined()
-                    expect(payments).toHaveLength(1)
-                    expect(payments).toHaveProperty(['0', 'id'], payment.id)
+                    expect(payments).toHaveLength(2)
+                    expect(payments).toEqual(expect.arrayContaining([
+                        expect.objectContaining({ id: payment.id }),
+                        expect.objectContaining({ id: secondPayment.id }),
+                    ]))
                 })
                 test('can\'t in other cases', async () => {
                     const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
