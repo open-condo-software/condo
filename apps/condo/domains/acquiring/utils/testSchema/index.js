@@ -223,14 +223,17 @@ async function updateTestMultiPayment (client, id, extraAttrs = {}, params = {})
     return [obj, attrs]
 }
 
-async function createTestPayment (client, receipt, context, extraAttrs = {}) {
+async function createTestPayment (client, organization, receipt=null, context=null, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!receipt || !receipt.id) throw new Error('no receipts.id')
-    if (!context || !context.id) throw new Error('no context.id')
+    if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const amount = get(receipt, 'toPay', '100.00')
     const explicitFee = String(Math.floor(Math.random() * 100) / 2)
     const implicitFee = String(Math.floor(Math.random() * 100) / 2)
+    const period = dayjs().format('YYYY-MM-01')
+    const contextId = get(context, 'id')
+    const receiptId = get(receipt, 'id')
 
     const attrs = {
         dv: 1,
@@ -241,9 +244,11 @@ async function createTestPayment (client, receipt, context, extraAttrs = {}) {
         currencyCode: 'RUB',
         advancedAt: dayjs().toISOString(),
         accountNumber: String(faker.datatype.number()),
-        receipt: { connect: { id: receipt.id } },
-        frozenReceipt: receipt,
-        context: { connect: { id: context.id } },
+        receipt: receiptId ? { connect: { id: receipt.id } } : null,
+        frozenReceipt: receiptId ? receipt : null,
+        organization: { connect: { id: organization.id } },
+        context: contextId ? { connect: {id: contextId} } : null,
+        period,
         ...extraAttrs,
     }
     const obj = await Payment.create(client, attrs)
