@@ -18220,9 +18220,11 @@ export type Payment = {
   advancedAt?: Maybe<Scalars['String']>;
   /**  Payer's account number  */
   accountNumber?: Maybe<Scalars['String']>;
+  /**  Period date: Generated on template <year>-<month>-01  */
+  period?: Maybe<Scalars['String']>;
   /**  Purpose of payment. Mostly used as title such as "Payment by agreement №123"  */
   purpose?: Maybe<Scalars['String']>;
-  /**  Link to a billing receipt that the user paid for  */
+  /**  Link to a billing receipt that the user paid for. Can be undefined in cases of getting payments out of our system  */
   receipt?: Maybe<BillingReceipt>;
   /**  Frozen billing receipt, used to resolving conflicts  */
   frozenReceipt?: Maybe<Scalars['JSON']>;
@@ -18230,6 +18232,8 @@ export type Payment = {
   multiPayment?: Maybe<MultiPayment>;
   /**  Link to Acquiring Integration context to link payment with organization  */
   context?: Maybe<AcquiringIntegrationContext>;
+  /**  Direct link to organization, since acquiring context cannot be defined for some payments  */
+  organization?: Maybe<Organization>;
   /**  Status of payment. Can be: "CREATED", "PROCESSING", "DONE", "ERROR"  */
   status?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -18258,11 +18262,13 @@ export type PaymentCreateInput = {
   currencyCode?: Maybe<Scalars['String']>;
   advancedAt?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
+  period?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
   receipt?: Maybe<BillingReceiptRelateToOneInput>;
   frozenReceipt?: Maybe<Scalars['JSON']>;
   multiPayment?: Maybe<MultiPaymentRelateToOneInput>;
   context?: Maybe<AcquiringIntegrationContextRelateToOneInput>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
   status?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -18292,11 +18298,13 @@ export type PaymentHistoryRecord = {
   currencyCode?: Maybe<Scalars['String']>;
   advancedAt?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
+  period?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
   receipt?: Maybe<Scalars['String']>;
   frozenReceipt?: Maybe<Scalars['JSON']>;
   multiPayment?: Maybe<Scalars['String']>;
   context?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -18320,11 +18328,13 @@ export type PaymentHistoryRecordCreateInput = {
   currencyCode?: Maybe<Scalars['String']>;
   advancedAt?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
+  period?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
   receipt?: Maybe<Scalars['String']>;
   frozenReceipt?: Maybe<Scalars['JSON']>;
   multiPayment?: Maybe<Scalars['String']>;
   context?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -18353,11 +18363,13 @@ export type PaymentHistoryRecordUpdateInput = {
   currencyCode?: Maybe<Scalars['String']>;
   advancedAt?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
+  period?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
   receipt?: Maybe<Scalars['String']>;
   frozenReceipt?: Maybe<Scalars['JSON']>;
   multiPayment?: Maybe<Scalars['String']>;
   context?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -18454,6 +18466,14 @@ export type PaymentHistoryRecordWhereInput = {
   accountNumber_not_ends_with_i?: Maybe<Scalars['String']>;
   accountNumber_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   accountNumber_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  period?: Maybe<Scalars['String']>;
+  period_not?: Maybe<Scalars['String']>;
+  period_lt?: Maybe<Scalars['String']>;
+  period_lte?: Maybe<Scalars['String']>;
+  period_gt?: Maybe<Scalars['String']>;
+  period_gte?: Maybe<Scalars['String']>;
+  period_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  period_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   purpose?: Maybe<Scalars['String']>;
   purpose_not?: Maybe<Scalars['String']>;
   purpose_contains?: Maybe<Scalars['String']>;
@@ -18488,6 +18508,10 @@ export type PaymentHistoryRecordWhereInput = {
   context_not?: Maybe<Scalars['String']>;
   context_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   context_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   status?: Maybe<Scalars['String']>;
   status_not?: Maybe<Scalars['String']>;
   status_contains?: Maybe<Scalars['String']>;
@@ -18601,11 +18625,13 @@ export type PaymentUpdateInput = {
   currencyCode?: Maybe<Scalars['String']>;
   advancedAt?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
+  period?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
   receipt?: Maybe<BillingReceiptRelateToOneInput>;
   frozenReceipt?: Maybe<Scalars['JSON']>;
   multiPayment?: Maybe<MultiPaymentRelateToOneInput>;
   context?: Maybe<AcquiringIntegrationContextRelateToOneInput>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
   status?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -18685,6 +18711,14 @@ export type PaymentWhereInput = {
   accountNumber_not_ends_with_i?: Maybe<Scalars['String']>;
   accountNumber_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   accountNumber_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  period?: Maybe<Scalars['String']>;
+  period_not?: Maybe<Scalars['String']>;
+  period_lt?: Maybe<Scalars['String']>;
+  period_lte?: Maybe<Scalars['String']>;
+  period_gt?: Maybe<Scalars['String']>;
+  period_gte?: Maybe<Scalars['String']>;
+  period_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  period_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   purpose?: Maybe<Scalars['String']>;
   purpose_not?: Maybe<Scalars['String']>;
   purpose_contains?: Maybe<Scalars['String']>;
@@ -18713,6 +18747,8 @@ export type PaymentWhereInput = {
   multiPayment_is_null?: Maybe<Scalars['Boolean']>;
   context?: Maybe<AcquiringIntegrationContextWhereInput>;
   context_is_null?: Maybe<Scalars['Boolean']>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
   status?: Maybe<Scalars['String']>;
   status_not?: Maybe<Scalars['String']>;
   status_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -26475,6 +26511,8 @@ export enum SortPaymentHistoryRecordsBy {
   AdvancedAtDesc = 'advancedAt_DESC',
   AccountNumberAsc = 'accountNumber_ASC',
   AccountNumberDesc = 'accountNumber_DESC',
+  PeriodAsc = 'period_ASC',
+  PeriodDesc = 'period_DESC',
   PurposeAsc = 'purpose_ASC',
   PurposeDesc = 'purpose_DESC',
   StatusAsc = 'status_ASC',
@@ -26510,6 +26548,8 @@ export enum SortPaymentsBy {
   AdvancedAtDesc = 'advancedAt_DESC',
   AccountNumberAsc = 'accountNumber_ASC',
   AccountNumberDesc = 'accountNumber_DESC',
+  PeriodAsc = 'period_ASC',
+  PeriodDesc = 'period_DESC',
   PurposeAsc = 'purpose_ASC',
   PurposeDesc = 'purpose_DESC',
   ReceiptAsc = 'receipt_ASC',
@@ -26518,6 +26558,8 @@ export enum SortPaymentsBy {
   MultiPaymentDesc = 'multiPayment_DESC',
   ContextAsc = 'context_ASC',
   ContextDesc = 'context_DESC',
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
   StatusAsc = 'status_ASC',
   StatusDesc = 'status_DESC',
   IdAsc = 'id_ASC',

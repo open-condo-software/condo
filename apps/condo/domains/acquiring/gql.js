@@ -20,7 +20,7 @@ const AcquiringIntegrationContext = generateGqlQueries('AcquiringIntegrationCont
 const MULTI_PAYMENT_FIELDS = `{ amount explicitFee implicitFee amountWithoutExplicitFee currencyCode withdrawnAt cardNumber paymentWay serviceCategory payerEmail serviceCategory transactionId meta status payments { id } integration { id } ${COMMON_FIELDS} }`
 const MultiPayment = generateGqlQueries('MultiPayment', MULTI_PAYMENT_FIELDS)
 
-const PAYMENT_FIELDS = `{ amount explicitFee implicitFee currencyCode advancedAt accountNumber purpose frozenReceipt multiPayment { id } context { id } status ${COMMON_FIELDS} }`
+const PAYMENT_FIELDS = `{ amount explicitFee implicitFee currencyCode advancedAt accountNumber purpose frozenReceipt multiPayment { id } context { id } status ${COMMON_FIELDS} period organization { id } }`
 const Payment = generateGqlQueries('Payment', PAYMENT_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
