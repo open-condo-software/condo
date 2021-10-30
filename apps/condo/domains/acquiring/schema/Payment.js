@@ -7,6 +7,7 @@ const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD, CURRENCY_CODE_FIELD, MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
+const { PERIOD_FIELD } = require('@condo/domains/billing/schema/fields/common')
 const access = require('@condo/domains/acquiring/access/Payment')
 const { PAYMENT_STATUSES, PAYMENT_INIT_STATUS } = require('@condo/domains/acquiring/constants')
 
@@ -50,6 +51,8 @@ const Payment = new GQLListSchema('Payment', {
             isRequired: true,
         },
 
+        period: PERIOD_FIELD,
+
         purpose: {
             schemaDoc: 'Purpose of payment. Mostly used as title such as "Payment by agreement №123"',
             type: Text,
@@ -57,11 +60,10 @@ const Payment = new GQLListSchema('Payment', {
         },
 
         receipt: {
-            schemaDoc: 'Link to a billing receipt that the user paid for',
+            schemaDoc: 'Link to a billing receipt that the user paid for. Can be undefined in cases of getting payments out of our system',
             type: Relationship,
             ref: 'BillingReceipt',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
+            isRequired: false,
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
         },
 
@@ -88,7 +90,14 @@ const Payment = new GQLListSchema('Payment', {
             schemaDoc: 'Link to Acquiring Integration context to link payment with organization',
             type: Relationship,
             ref: 'AcquiringIntegrationContext',
-            isRequired: true,
+            isRequired: false,
+            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+        },
+
+        organization: {
+            schemaDoc: 'Direct link to organization, since acquiring context cannot be defined for some payments',
+            type: Relationship,
+            ref: 'Organization',
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
             access: { read: access.canReadPaymentsSensitiveData },
