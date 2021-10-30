@@ -35,14 +35,8 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             isRequired: true,
         },
         
-        feeCalculationUrl: {
-            schemaDoc: 'Url to acquiring integration service. Mobile devices will use it to pass MultiPayment ID and get know about explicitFee. All fees will also be calculated there',
-            type: Text,
-            isRequired: true,
-        },
-
-        paymentUrl: {
-            schemaDoc: 'Url to acquiring integration service. Mobile devices will use it to pass MultiPayment ID and start payment process',
+        hostUrl: {
+            schemaDoc: 'Url to acquiring integration service. Mobile devices will use it communicate with external acquiring. List of endpoints are the same for all of them.',
             type: Text,
             isRequired: true,
         },

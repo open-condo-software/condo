@@ -49,15 +49,13 @@ async function createTestAcquiringIntegration (client, billings, extraAttrs = {}
     if (!billings || !billings.length) throw new Error('no billings')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const name = faker.company.companyName().replace(/ /, '-').toUpperCase() + ' TEST ACQUIRING'
-    const feeCalculationUrl = faker.internet.url()
-    const paymentUrl = faker.internet.url()
+    const hostUrl = faker.internet.url()
     const billingsIds = billings.map(billing => ({id: billing.id}))
     const attrs = {
         dv: 1,
         sender,
         name,
-        feeCalculationUrl,
-        paymentUrl,
+        hostUrl,
         supportedBillingIntegrations: { connect: billingsIds },
         ...extraAttrs
     }
