@@ -257,8 +257,16 @@ describe('Payment', () => {
             })
         })
     })
-    describe.skip('validation tests', () => {
-        test('cannot link to multipayment, if it\'s not containing billing receipts', async () => {
+    describe('validation tests', () => {
+        test('can be created without context and receipt', async () => {
+            const { admin, organization } = await makePayer()
+            const [payment] = await createTestPayment(admin, organization)
+            expect(payment).toBeDefined()
+            expect(payment).toHaveProperty('id')
+            expect(payment).toHaveProperty('context', null)
+            expect(payment).toHaveProperty('frozenReceipt', null)
+        })
+        test.skip('cannot link to multipayment, if it\'s not containing billing receipts', async () => {
             const { admin, billingReceipts, acquiringContext, client, acquiringIntegration } = await makePayer(2)
             const [multiPayment] = await createTestMultiPayment(admin, [billingReceipts[0]], client.user, acquiringIntegration)
 
@@ -266,7 +274,7 @@ describe('Payment', () => {
                 await createTestPayment(admin, billingReceipts[1], multiPayment, acquiringContext)
             })
         })
-        test('cannot link to multipayment, if currency codes does not match', async () => {
+        test.skip('cannot link to multipayment, if currency codes does not match', async () => {
             const { admin, billingReceipts, acquiringContext, client, acquiringIntegration } = await makePayer()
             const [multiPayment] = await createTestMultiPayment(admin, [billingReceipts[0]], client.user, acquiringIntegration)
 
@@ -276,7 +284,7 @@ describe('Payment', () => {
                 })
             })
         })
-        test('cannot link to multipayment with different integration', async () => {
+        test.skip('cannot link to multipayment with different integration', async () => {
             const { admin, billingReceipts, acquiringContext, client } = await makePayer()
             const [secondIntegration] = await createTestAcquiringIntegration(admin)
             const integrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
