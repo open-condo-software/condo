@@ -306,10 +306,10 @@ async function makePayer (receiptsAmount = 1) {
 
 async function makePayerAndPayments (receiptsAmount = 1) {
     const data = await makePayer(receiptsAmount)
-    const { admin, billingReceipts, acquiringContext } = data
+    const { admin, billingReceipts, acquiringContext, organization } = data
     const payments = []
     for (let i = 0; i < billingReceipts.length; i++) {
-        const [payment] = await createTestPayment(admin, billingReceipts[i], acquiringContext)
+        const [payment] = await createTestPayment(admin, organization, billingReceipts[i], acquiringContext)
         payments.push(payment)
     }
 
