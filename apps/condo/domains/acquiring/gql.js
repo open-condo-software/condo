@@ -8,7 +8,7 @@ const { generateGqlQueries } = require('@condo/domains/common/utils/codegenerati
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const ACQUIRING_INTEGRATION_FIELDS = `{ name canGroupReceipts feeCalculationUrl paymentUrl supportedBillingIntegrations { id } ${COMMON_FIELDS} }`
+const ACQUIRING_INTEGRATION_FIELDS = `{ name canGroupReceipts hostUrl supportedBillingIntegrations { id } ${COMMON_FIELDS} }`
 const AcquiringIntegration = generateGqlQueries('AcquiringIntegration', ACQUIRING_INTEGRATION_FIELDS)
 
 const ACQUIRING_INTEGRATION_ACCESS_RIGHT_FIELDS = `{ user { id } integration { id } ${COMMON_FIELDS} }`

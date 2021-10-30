@@ -44,10 +44,8 @@ export type AcquiringIntegration = {
   _accessRightsMeta?: Maybe<_QueryMeta>;
   /**  Can multiple receipts be united through this acquiring  */
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
-  /**  Url to acquiring integration service. Mobile devices will use it to pass MultiPayment ID and get know about explicitFee. All fees will also be calculated there  */
-  feeCalculationUrl?: Maybe<Scalars['String']>;
-  /**  Url to acquiring integration service. Mobile devices will use it to pass MultiPayment ID and start payment process  */
-  paymentUrl?: Maybe<Scalars['String']>;
+  /**  Url to acquiring integration service. Mobile devices will use it communicate with external acquiring. List of endpoints are the same for all of them.  */
+  hostUrl?: Maybe<Scalars['String']>;
   /**  List of supported billing integrations. If one of them is here, it means that this acquiring can accept receipts from it  */
   supportedBillingIntegrations: Array<BillingIntegration>;
   _supportedBillingIntegrationsMeta?: Maybe<_QueryMeta>;
@@ -765,8 +763,7 @@ export type AcquiringIntegrationCreateInput = {
   name?: Maybe<Scalars['String']>;
   accessRights?: Maybe<AcquiringIntegrationAccessRightRelateToManyInput>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
-  feeCalculationUrl?: Maybe<Scalars['String']>;
-  paymentUrl?: Maybe<Scalars['String']>;
+  hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrations?: Maybe<BillingIntegrationRelateToManyInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -792,8 +789,7 @@ export type AcquiringIntegrationHistoryRecord = {
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
-  feeCalculationUrl?: Maybe<Scalars['String']>;
-  paymentUrl?: Maybe<Scalars['String']>;
+  hostUrl?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -812,8 +808,7 @@ export type AcquiringIntegrationHistoryRecordCreateInput = {
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
-  feeCalculationUrl?: Maybe<Scalars['String']>;
-  paymentUrl?: Maybe<Scalars['String']>;
+  hostUrl?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -837,8 +832,7 @@ export type AcquiringIntegrationHistoryRecordUpdateInput = {
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
-  feeCalculationUrl?: Maybe<Scalars['String']>;
-  paymentUrl?: Maybe<Scalars['String']>;
+  hostUrl?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -886,42 +880,24 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   canGroupReceipts_not?: Maybe<Scalars['Boolean']>;
-  feeCalculationUrl?: Maybe<Scalars['String']>;
-  feeCalculationUrl_not?: Maybe<Scalars['String']>;
-  feeCalculationUrl_contains?: Maybe<Scalars['String']>;
-  feeCalculationUrl_not_contains?: Maybe<Scalars['String']>;
-  feeCalculationUrl_starts_with?: Maybe<Scalars['String']>;
-  feeCalculationUrl_not_starts_with?: Maybe<Scalars['String']>;
-  feeCalculationUrl_ends_with?: Maybe<Scalars['String']>;
-  feeCalculationUrl_not_ends_with?: Maybe<Scalars['String']>;
-  feeCalculationUrl_i?: Maybe<Scalars['String']>;
-  feeCalculationUrl_not_i?: Maybe<Scalars['String']>;
-  feeCalculationUrl_contains_i?: Maybe<Scalars['String']>;
-  feeCalculationUrl_not_contains_i?: Maybe<Scalars['String']>;
-  feeCalculationUrl_starts_with_i?: Maybe<Scalars['String']>;
-  feeCalculationUrl_not_starts_with_i?: Maybe<Scalars['String']>;
-  feeCalculationUrl_ends_with_i?: Maybe<Scalars['String']>;
-  feeCalculationUrl_not_ends_with_i?: Maybe<Scalars['String']>;
-  feeCalculationUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  feeCalculationUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  paymentUrl?: Maybe<Scalars['String']>;
-  paymentUrl_not?: Maybe<Scalars['String']>;
-  paymentUrl_contains?: Maybe<Scalars['String']>;
-  paymentUrl_not_contains?: Maybe<Scalars['String']>;
-  paymentUrl_starts_with?: Maybe<Scalars['String']>;
-  paymentUrl_not_starts_with?: Maybe<Scalars['String']>;
-  paymentUrl_ends_with?: Maybe<Scalars['String']>;
-  paymentUrl_not_ends_with?: Maybe<Scalars['String']>;
-  paymentUrl_i?: Maybe<Scalars['String']>;
-  paymentUrl_not_i?: Maybe<Scalars['String']>;
-  paymentUrl_contains_i?: Maybe<Scalars['String']>;
-  paymentUrl_not_contains_i?: Maybe<Scalars['String']>;
-  paymentUrl_starts_with_i?: Maybe<Scalars['String']>;
-  paymentUrl_not_starts_with_i?: Maybe<Scalars['String']>;
-  paymentUrl_ends_with_i?: Maybe<Scalars['String']>;
-  paymentUrl_not_ends_with_i?: Maybe<Scalars['String']>;
-  paymentUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  paymentUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  hostUrl?: Maybe<Scalars['String']>;
+  hostUrl_not?: Maybe<Scalars['String']>;
+  hostUrl_contains?: Maybe<Scalars['String']>;
+  hostUrl_not_contains?: Maybe<Scalars['String']>;
+  hostUrl_starts_with?: Maybe<Scalars['String']>;
+  hostUrl_not_starts_with?: Maybe<Scalars['String']>;
+  hostUrl_ends_with?: Maybe<Scalars['String']>;
+  hostUrl_not_ends_with?: Maybe<Scalars['String']>;
+  hostUrl_i?: Maybe<Scalars['String']>;
+  hostUrl_not_i?: Maybe<Scalars['String']>;
+  hostUrl_contains_i?: Maybe<Scalars['String']>;
+  hostUrl_not_contains_i?: Maybe<Scalars['String']>;
+  hostUrl_starts_with_i?: Maybe<Scalars['String']>;
+  hostUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  hostUrl_ends_with_i?: Maybe<Scalars['String']>;
+  hostUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  hostUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  hostUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -1014,8 +990,7 @@ export type AcquiringIntegrationUpdateInput = {
   name?: Maybe<Scalars['String']>;
   accessRights?: Maybe<AcquiringIntegrationAccessRightRelateToManyInput>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
-  feeCalculationUrl?: Maybe<Scalars['String']>;
-  paymentUrl?: Maybe<Scalars['String']>;
+  hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrations?: Maybe<BillingIntegrationRelateToManyInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -1067,42 +1042,24 @@ export type AcquiringIntegrationWhereInput = {
   accessRights_none?: Maybe<AcquiringIntegrationAccessRightWhereInput>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   canGroupReceipts_not?: Maybe<Scalars['Boolean']>;
-  feeCalculationUrl?: Maybe<Scalars['String']>;
-  feeCalculationUrl_not?: Maybe<Scalars['String']>;
-  feeCalculationUrl_contains?: Maybe<Scalars['String']>;
-  feeCalculationUrl_not_contains?: Maybe<Scalars['String']>;
-  feeCalculationUrl_starts_with?: Maybe<Scalars['String']>;
-  feeCalculationUrl_not_starts_with?: Maybe<Scalars['String']>;
-  feeCalculationUrl_ends_with?: Maybe<Scalars['String']>;
-  feeCalculationUrl_not_ends_with?: Maybe<Scalars['String']>;
-  feeCalculationUrl_i?: Maybe<Scalars['String']>;
-  feeCalculationUrl_not_i?: Maybe<Scalars['String']>;
-  feeCalculationUrl_contains_i?: Maybe<Scalars['String']>;
-  feeCalculationUrl_not_contains_i?: Maybe<Scalars['String']>;
-  feeCalculationUrl_starts_with_i?: Maybe<Scalars['String']>;
-  feeCalculationUrl_not_starts_with_i?: Maybe<Scalars['String']>;
-  feeCalculationUrl_ends_with_i?: Maybe<Scalars['String']>;
-  feeCalculationUrl_not_ends_with_i?: Maybe<Scalars['String']>;
-  feeCalculationUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  feeCalculationUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  paymentUrl?: Maybe<Scalars['String']>;
-  paymentUrl_not?: Maybe<Scalars['String']>;
-  paymentUrl_contains?: Maybe<Scalars['String']>;
-  paymentUrl_not_contains?: Maybe<Scalars['String']>;
-  paymentUrl_starts_with?: Maybe<Scalars['String']>;
-  paymentUrl_not_starts_with?: Maybe<Scalars['String']>;
-  paymentUrl_ends_with?: Maybe<Scalars['String']>;
-  paymentUrl_not_ends_with?: Maybe<Scalars['String']>;
-  paymentUrl_i?: Maybe<Scalars['String']>;
-  paymentUrl_not_i?: Maybe<Scalars['String']>;
-  paymentUrl_contains_i?: Maybe<Scalars['String']>;
-  paymentUrl_not_contains_i?: Maybe<Scalars['String']>;
-  paymentUrl_starts_with_i?: Maybe<Scalars['String']>;
-  paymentUrl_not_starts_with_i?: Maybe<Scalars['String']>;
-  paymentUrl_ends_with_i?: Maybe<Scalars['String']>;
-  paymentUrl_not_ends_with_i?: Maybe<Scalars['String']>;
-  paymentUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  paymentUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  hostUrl?: Maybe<Scalars['String']>;
+  hostUrl_not?: Maybe<Scalars['String']>;
+  hostUrl_contains?: Maybe<Scalars['String']>;
+  hostUrl_not_contains?: Maybe<Scalars['String']>;
+  hostUrl_starts_with?: Maybe<Scalars['String']>;
+  hostUrl_not_starts_with?: Maybe<Scalars['String']>;
+  hostUrl_ends_with?: Maybe<Scalars['String']>;
+  hostUrl_not_ends_with?: Maybe<Scalars['String']>;
+  hostUrl_i?: Maybe<Scalars['String']>;
+  hostUrl_not_i?: Maybe<Scalars['String']>;
+  hostUrl_contains_i?: Maybe<Scalars['String']>;
+  hostUrl_not_contains_i?: Maybe<Scalars['String']>;
+  hostUrl_starts_with_i?: Maybe<Scalars['String']>;
+  hostUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  hostUrl_ends_with_i?: Maybe<Scalars['String']>;
+  hostUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  hostUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  hostUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   /**  condition must be true for all nodes  */
   supportedBillingIntegrations_every?: Maybe<BillingIntegrationWhereInput>;
   /**  condition must be true for at least 1 node  */
@@ -24868,10 +24825,8 @@ export enum SortAcquiringIntegrationHistoryRecordsBy {
   NameDesc = 'name_DESC',
   CanGroupReceiptsAsc = 'canGroupReceipts_ASC',
   CanGroupReceiptsDesc = 'canGroupReceipts_DESC',
-  FeeCalculationUrlAsc = 'feeCalculationUrl_ASC',
-  FeeCalculationUrlDesc = 'feeCalculationUrl_DESC',
-  PaymentUrlAsc = 'paymentUrl_ASC',
-  PaymentUrlDesc = 'paymentUrl_DESC',
+  HostUrlAsc = 'hostUrl_ASC',
+  HostUrlDesc = 'hostUrl_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -24897,10 +24852,8 @@ export enum SortAcquiringIntegrationsBy {
   AccessRightsDesc = 'accessRights_DESC',
   CanGroupReceiptsAsc = 'canGroupReceipts_ASC',
   CanGroupReceiptsDesc = 'canGroupReceipts_DESC',
-  FeeCalculationUrlAsc = 'feeCalculationUrl_ASC',
-  FeeCalculationUrlDesc = 'feeCalculationUrl_DESC',
-  PaymentUrlAsc = 'paymentUrl_ASC',
-  PaymentUrlDesc = 'paymentUrl_DESC',
+  HostUrlAsc = 'hostUrl_ASC',
+  HostUrlDesc = 'hostUrl_DESC',
   SupportedBillingIntegrationsAsc = 'supportedBillingIntegrations_ASC',
   SupportedBillingIntegrationsDesc = 'supportedBillingIntegrations_DESC',
   IdAsc = 'id_ASC',
