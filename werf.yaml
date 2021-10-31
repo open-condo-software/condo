@@ -9,9 +9,9 @@ git:
   to: /app
   stageDependencies:
     setup:
-    - apps/**
-    - packages/**
-    - bin/**
+    - "apps/**"
+    - "packages/**"
+    - "bin/**/*"
   excludePaths:
   - .github
   - .helm
