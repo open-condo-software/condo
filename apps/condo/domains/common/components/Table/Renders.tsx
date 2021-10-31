@@ -1,74 +1,148 @@
 import React from 'react'
-import isEmpty from 'lodash/isEmpty'
-import { TextHighlighter } from '../TextHighlighter'
 import { Typography } from 'antd'
-import { colors } from '../../constants/style'
-import { EmptyTableCell } from './EmptyTableCell'
-import { get } from 'lodash'
-import { LOCALES } from '../../constants/locale'
 import dayjs from 'dayjs'
-import { Highliter } from '../Highliter'
-import { QueryArgType } from '../../utils/tables.utils'
+import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
+import { FilterValue } from 'antd/es/table/interface'
+
 import { ELECTRICITY_METER_RESOURCE_ID } from '@condo/domains/meter/constants/constants'
+import { TTextHighlighterRenderPartFN } from '@condo/domains/common/components/TextHighlighter'
+
+import { LOCALES } from '../../constants/locale'
+import { QueryArgType } from '../../utils/tables.utils'
+import { TextHighlighter, TTextHighlighterProps } from '../TextHighlighter'
+import { ELLIPSIS_ROWS } from '../../constants/style'
+
+import { EmptyTableCell } from './EmptyTableCell'
 
 type RenderReturnType = string | React.ReactNode
 
 const DEFAULT_CURRENCY_SEPARATOR = '.'
 const DEFAULT_CURRENCY_CODE = 'RUB'
+const ELLIPSIS_SETTINGS = { rows: ELLIPSIS_ROWS, expandable: false }
+const ELLIPSIS_STYLES = { marginBottom: 0 }
+const DATE_FORMAT_LONG = 'DD MMM YYYY'
+const DATE_FORMAT_SHORT = 'DD MMM'
 
-const getHighlightedText = (search: string, text: string) => {
-    let result: RenderReturnType = text
-    if (!isEmpty(search) && text) {
-        result = (
-            <TextHighlighter
-                text={String(text)}
-                search={String(search)}
-                renderPart={(part, startIndex, marked) => (
-                    <Typography.Text title={text} style={marked ? { backgroundColor: colors.markColor } : {}}>
-                        {part}
-                    </Typography.Text>
-                )}
-            />
-        )
-    }
-    return (<EmptyTableCell>{result}</EmptyTableCell>)
+/**
+ * Marks text according to marked flag
+ * @param part
+ * @param startIndex
+ * @param marked
+ */
+export const renderHighlightedPart: TTextHighlighterRenderPartFN = (
+    part,
+    startIndex,
+    marked,
+    type,
+    style
+) => (
+    <Typography.Text mark={marked} type={type} style={style}>
+        {part}
+    </Typography.Text>
+)
+
+/**
+ * Type for getHighlightedContents fn
+ */
+type TGetHighlightedFN = (search?: FilterValue | string, postfix?: string, extraProps?: Partial<TTextHighlighterProps>) => (text?: string) => React.ReactElement | string
+
+/**
+ * Returned function renders provided text with highlighted parts according to search value
+ * @param search
+ * @param postfix
+ */
+export const getHighlightedContents: TGetHighlightedFN = (search, postfix, extraProps) => (text) => {
+    // Sometimes we can receive null/undefined as text
+    const renderText = text ? String(text) : ''
+
+    return (
+        <TextHighlighter
+            text={renderText}
+            search={String(search)}
+            renderPart={renderHighlightedPart}
+            {...extraProps}
+        >
+            {postfix && ` ${postfix}`}
+        </TextHighlighter>
+    )
 }
 
-export const getDateRender = (intl, search?: string) => {
+
+/**
+ * Type for getTableCellRenderer fn
+ */
+type TTableCellRendererFN =  (search?: FilterValue | string, ellipsis?: boolean, postfix?: string, extraHighlighterProps?: Partial<TTextHighlighterProps>) => (text?: string) => React.ReactElement
+
+/**
+ * Returned function renders provided text as a cell with highlighted search and multi row ellipsis (if requested)
+ * !!! Attention: ellipsis here does not work properly, if ellipsis is also enabled in table column settings for this field, so please remove it from there.
+ * @param search
+ * @param ellipsis
+ * @param postfix
+ * @return cell contents renderer fn
+ */
+export const getTableCellRenderer: TTableCellRendererFN = (
+    search,
+    ellipsis = false,
+    postfix = '',
+    extraHighlighterProps
+) =>
+    (text) => {
+        const highlightedContent = getHighlightedContents(search, postfix, extraHighlighterProps)(text)
+
+        if (!ellipsis) return <EmptyTableCell>{highlightedContent}</EmptyTableCell>
+
+        return (
+            <EmptyTableCell>
+                <Typography.Paragraph ellipsis={ELLIPSIS_SETTINGS} title={`${text} ${postfix || ''}`} style={ELLIPSIS_STYLES}>
+                    {highlightedContent}
+                </Typography.Paragraph>
+            </EmptyTableCell>
+        )
+    }
+
+/**
+ * Renders provided text as a table cell with highlighted search contents
+ * @param search
+ * @param text
+ */
+export const renderCellWithHighlightedContents = (search?: FilterValue | string, text?: string) => (
+    <EmptyTableCell>{getHighlightedContents(search)(text)}</EmptyTableCell>
+)
+
+export const getDateRender = (intl, search?: string, short?: boolean) => {
     return function render (stringDate: string): RenderReturnType {
         if (!stringDate) return '—'
 
         const locale = get(LOCALES, intl.locale)
         const date = locale ? dayjs(stringDate).locale(locale) : dayjs(stringDate)
-        return getHighlightedText(search, date.format('DD MMMM YYYY'))
+        const dateFormat = short ? DATE_FORMAT_SHORT : DATE_FORMAT_LONG
+
+        return renderCellWithHighlightedContents(search, date.format(dateFormat))
     }
 }
 
 export const getAddressRender = (search?: QueryArgType, unitPrefix?: string) => {
     return function render (text: string): RenderReturnType {
-        if (!isEmpty(search)) {
-            return (
-                <>
-                    <Highliter
-                        text={text}
-                        search={String(search)}
-                        renderPart={(part) => (
-                            <Typography.Text style={{ backgroundColor: colors.markColor }}>
-                                {part}
-                            </Typography.Text>
-                        )}
-                    />
-                    {` ${unitPrefix}`}
-                </>
-            )
-        }
-        return `${text} ${unitPrefix}`
+        if (isEmpty(search)) return `${text} ${unitPrefix}`
+
+        return (
+            <>
+                <TextHighlighter
+                    text={text}
+                    search={String(search)}
+                    renderPart={renderHighlightedPart}
+                />
+                {unitPrefix ? ` ${unitPrefix}` : ''}
+            </>
+        )
     }
 }
 
 export const getTextRender = (search?: string) => {
     return function render (text: string): RenderReturnType {
-        return getHighlightedText(search, text)
+        return renderCellWithHighlightedContents(search, text)
     }
 }
 
@@ -77,12 +151,9 @@ const getIntegerPartOfReading = (value: string) => value?.split(DEFAULT_CURRENCY
 export const renderMeterReading = (values: string[], resourceId: string, measure: string) => {
     // ELECTRICITY multi-tariff meter
     if (resourceId === ELECTRICITY_METER_RESOURCE_ID) {
-        const stringValues = values.reduce((acc, value, index) => {
-            if (!value) return acc
-            return acc += `, T${index + 1} - ${getIntegerPartOfReading(value)} ${measure}`
-        }, '')
+        const formatMeter = (value, index) => <>{`T${index + 1} - ${getIntegerPartOfReading(value)} ${measure}`}<br /></>
 
-        return stringValues?.substr(2)
+        return values.filter(Boolean).map(formatMeter)
     }
 
     // other resource 1-tariff meter
@@ -96,7 +167,6 @@ const dimText = (text: string, extraStyles: React.CSSProperties = {}) => (
 )
 
 const renderMoney = (formattedValue: Intl.NumberFormatPart[]) => {
-
     const prefix = []
     const decimalAndFraction = []
     const postfix = []
@@ -106,9 +176,6 @@ const renderMoney = (formattedValue: Intl.NumberFormatPart[]) => {
     formattedValue.forEach(token => {
         switch (token.type) {
             case 'decimal':
-                decimalAndFraction.push(token.value)
-                decimalAndFractionProcessedFlag = true
-                break
             case 'fraction':
                 decimalAndFraction.push(token.value)
                 decimalAndFractionProcessedFlag = true
@@ -122,7 +189,11 @@ const renderMoney = (formattedValue: Intl.NumberFormatPart[]) => {
         }
     })
 
-    return (<>{prefix.join('')}{dimText(decimalAndFraction.join(''))}{postfix.join('')}</>)
+    return (<>
+        {prefix.join('')}
+        {dimText(decimalAndFraction.join(''))}
+        {postfix.join('')}
+    </>)
 }
 
 export const getMoneyRender = (
@@ -133,13 +204,10 @@ export const getMoneyRender = (
     return function render (text: string): RenderReturnType {
         if (!text) return <EmptyTableCell/>
 
-        const formattedCurrency = intl.formatNumberToParts(
-            parseFloat(text),
-            { style: 'currency', currency: currencyCode }
-        )
-        if (isEmpty(search)) {
-            return renderMoney(formattedCurrency)
-        }
+        const formattedCurrency = intl.formatNumberToParts(parseFloat(text), { style: 'currency', currency: currencyCode })
+
+        if (isEmpty(search)) return renderMoney(formattedCurrency)
+
         return (
             <>
                 <TextHighlighter

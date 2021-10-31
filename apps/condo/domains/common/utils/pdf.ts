@@ -114,3 +114,24 @@ export const createPdfWithPageBreaks: ICreatePdfWithPageBreaks = (options) => {
         return pdf.save(fileName, { returnPromise: true })
     })
 }
+
+export const createWrappedPdf: ICreatePdfWithPageBreaks = (options) => {
+    const { element, fileName } = options
+    const pdfWidth = element.clientWidth
+    const pdfHeight = element.clientHeight
+    return html2canvas(element, {
+        windowWidth: pdfWidth,
+        windowHeight: pdfHeight,
+    }).then(canvas => {
+        const doc = new Jspdf('p', 'px', [pdfWidth, pdfHeight])
+        const imageOptions = {
+            imageData: canvas,
+            x: 0,
+            y: 0,
+            width: pdfWidth,
+            height: pdfHeight,
+        }
+        doc.addImage(imageOptions)
+        return doc.save(fileName, { returnPromise: true })
+    })
+}

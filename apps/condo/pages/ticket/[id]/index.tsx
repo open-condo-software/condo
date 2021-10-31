@@ -128,9 +128,12 @@ const TicketContent = ({ ticket }) => {
     const ExecutorMessage = intl.formatMessage({ id: 'field.Executor' })
     const ClassifierMessage = intl.formatMessage({ id: 'Classifier' })
     const AssigneeMessage = intl.formatMessage({ id: 'field.Responsible' })
+    const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
     const SectionName = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
     const FloorName = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
+
+    const propertyWasDeleted = !!get(ticket, ['property', 'deletedAt'])
 
     const ticketUnit = ticket.unitName ? `, ${ShortFlatNumber} ${ticket.unitName}` : ''
     const ticketAddress = get(ticket, ['property', 'address']) + ticketUnit
@@ -149,19 +152,22 @@ const TicketContent = ({ ticket }) => {
         <Col span={24}>
             <Row gutter={[0, 8]}>
                 <PageFieldRow title={AddressMessage} highlight>
-                    <Link href={`/property/${get(ticket, ['property', 'id'])}`}>
-                        <Typography.Link>
-                            {ticketAddress}
-                            {ticketAddressExtra && (
-                                <>
-                                    <br/>
-                                    <Typography.Text>
-                                        {ticketAddressExtra}
-                                    </Typography.Text>
-                                </>
-                            )}
-                        </Typography.Link>
-                    </Link>
+                    {propertyWasDeleted ?
+                        <Typography.Text type={'secondary'}>{ ticketAddress } ({ DeletedMessage })</Typography.Text> :
+                        <Link href={`/property/${get(ticket, ['property', 'id'])}`}>
+                            <Typography.Link>
+                                {ticketAddress}
+                                {ticketAddressExtra && (
+                                    <>
+                                        <br/>
+                                        <Typography.Text>
+                                            {ticketAddressExtra}
+                                        </Typography.Text>
+                                    </>
+                                )}
+                            </Typography.Link>
+                        </Link>
+                    }
                 </PageFieldRow>
                 <PageFieldRow title={ClientMessage} highlight>
                     <Link href={`/contact/${get(ticket, ['contact', 'id'])}`}>
@@ -233,7 +239,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const { query: { id } } = router as { query: { [key: string]: string } }
 
     const { refetch: refetchTicket, loading, obj: ticket, error } = Ticket.useObject({
-        where: { id },
+        where: { id: id, property: { OR: [{ deletedAt: null }, { deletedAt_not: null }] }, deletedAt: null },
     }, {
         fetchPolicy: 'network-only',
     })

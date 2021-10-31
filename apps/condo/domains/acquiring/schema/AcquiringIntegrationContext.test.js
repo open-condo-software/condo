@@ -176,7 +176,7 @@ describe('AcquiringIntegrationContext', () => {
                 const contexts = await AcquiringIntegrationContext.getAll(client)
                 expect(contexts).toBeDefined()
                 expect(contexts).toHaveLength(1)
-                expect(contexts[0]).toEqual(expect.objectContaining({ integration: { id: firstIntegration.id } }))
+                expect(contexts[0].integration.id).toEqual(firstIntegration.id)
             })
             test('Can\'t in other cases', async () => {
                 const admin = await makeLoggedInAdminClient()
@@ -217,9 +217,7 @@ describe('AcquiringIntegrationContext', () => {
             } )
 
             expect(newContext).toBeDefined()
-            expect(newContext).toEqual(expect.objectContaining({
-                integration: { id: newIntegration.id },
-            }))
+            expect(newContext.integration.id).toEqual(newIntegration.id)
         })
         test('support can\'t', async () => {
             const admin = await makeLoggedInAdminClient()

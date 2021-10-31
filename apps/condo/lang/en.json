@@ -336,6 +336,7 @@
   "pages.condo.ticket.field.Client": "Client (resident)",
   "pages.condo.ticket.field.Description": "Problem description",
   "pages.condo.ticket.field.Files": "Files list",
+  "pages.condo.ticket.field.PropertyWasDeleted": "Property was deleted",
   "pages.condo.ticket.field.Details": "Details",
   "pages.condo.ticket.field.Number": "Number",
   "pages.condo.ticket.field.Property": "Property",
@@ -690,6 +691,7 @@
   "subscription.type.default": "Default plan",
   "subscription.type.trial": "Trial version",
   "subscription.type.expiredDate": "Expired at",
+  "subscription.type.expiredMessage": "Number of days until the end of the trial subscription",
   "Seconds": "Seconds",
   "Update": "Update",
   "Updated": "Updated",
@@ -743,7 +745,7 @@
   "ErrorHappenedDuringIntegration": "An error occurred during the integration process. Please, contact support of «{company}»",
   "ErrorOccurred": "Error occurred",
   "NoBillingIntegrationYet": "You haven't integrated billing yet",
-  "AvailableBillings": "Unified Payment Service, 1C, loading registers",
+  "AvailableBillings": "dom.gosuslugi.ru",
   "CanIntegrateWithThisBillings": "You can connect {billingList} and others",
   "ConnectBilling": "Connect billing",
   "WillBeReadySoon": "Everything will be ready soon",
@@ -776,5 +778,9 @@
   "errors.import.EmptyUnitName": "Unit name should not be empty",
   "errors.import.IncorrectEmailFormat": "Wrong email format",
   "errors.import.IncorrectPhonesFormat": "None of the phones are in a valid format",
-  "errors.import.InvalidColumnTypes": "Required columns were empty or column's data types did not match required"
+  "errors.import.InvalidColumnTypes": "Required columns were empty or column's data types did not match required",
+  "IncludingFee": "including fee",
+  "MultiPayment.status.DONE": "Done",
+  "MultiPayment.status.PROCESSING": "Processing",
+  "MultiPayment.status.ERROR": "Error"
 }

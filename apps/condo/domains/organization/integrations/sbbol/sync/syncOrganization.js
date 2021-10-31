@@ -1,8 +1,27 @@
+const { getSchemaCtx } = require('@core/keystone/schema')
 const { REGISTER_NEW_ORGANIZATION_MUTATION } = require('@condo/domains/organization/gql.js')
 const { updateItem, getItems } = require('@keystonejs/server-side-graphql-client')
 const { createConfirmedEmployee } = require('@condo/domains/organization/utils/serverSchema/Organization')
 const { uniqBy } = require('lodash')
+const conf = require('@core/config')
 const { dvSenderFields } = require('../constants')
+const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
+const { CUSTOMER_IMPORTANT_NOTE_TYPE } = require('@condo/domains/notification/constants')
+
+const CUSTOMER_EMAIL = conf.NOTIFY_ABOUT_NEW_ORGANIZATION_EMAIL
+
+async function sendToCustomer (data) {
+    if (CUSTOMER_EMAIL) {
+        const { keystone } = await getSchemaCtx('Message')
+        await sendMessage(keystone, {
+            ...dvSenderFields,
+            to: { email: CUSTOMER_EMAIL },
+            lang: 'en',
+            type: CUSTOMER_IMPORTANT_NOTE_TYPE,
+            meta: { dv: 1, data },
+        })
+    }
+}
 
 const getUserOrganizations = async ({ context, user }) => {
     const links = await getItems({
@@ -52,6 +71,9 @@ const createOrganization = async ({ context, user, organizationInfo }) => {
         returnFields: 'id',
         ...context,
     })
+
+    await sendToCustomer({ organization })
+
     return organization
 }
 

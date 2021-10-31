@@ -1,19 +1,24 @@
+import React, { CSSProperties } from 'react'
+import get from 'lodash/get'
+import isFunction from 'lodash/isFunction'
+import dayjs from 'dayjs'
+import { Checkbox, Input, Select } from 'antd'
+import { FilterValue } from 'antd/es/table/interface'
+
 import { FilterFilled } from '@ant-design/icons'
 import { colors } from '@condo/domains/common/constants/style'
-import React, { CSSProperties } from 'react'
-import { Checkbox, Input, Select } from 'antd'
+
+import { OptionType, QueryArgType } from '../../utils/tables.utils'
+
 import DatePicker from '../Pickers/DatePicker'
 import { FilterContainer, SelectFilterContainer } from '../TableFilter'
-import { OptionType, QueryArgType } from '../../utils/tables.utils'
-import { FilterValue } from 'antd/es/table/interface'
-import get from 'lodash/get'
-import dayjs from 'dayjs'
 import { GraphQlSearchInput } from '../GraphQlSearchInput'
 import DateRangePicker from '../Pickers/DateRangePicker'
 
 type FilterIconType = (filtered?: boolean) => React.ReactNode
 type FilterValueType = (path: string | Array<string>, filters: { [x: string]: QueryArgType }) => FilterValue
 
+const FILTER_DROPDOWN_CHECKBOX_STYLES: CSSProperties = { display: 'flex', flexDirection: 'column' }
 
 export const getFilterIcon: FilterIconType = (filtered) => <FilterFilled style={{ color: filtered ? colors.sberPrimary[5] : undefined }} />
 export const getFilterValue: FilterValueType = (path, filters) => get(filters, path, null)
@@ -40,7 +45,7 @@ export const getTextFilterDropdown = (placeholder: string, containerStyles?: CSS
 }
 
 export const getOptionFilterDropdown = (options: Array<OptionType>, loading: boolean, containerStyles?: CSSProperties) => {
-    return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+    return ({ setSelectedKeys, selectedKeys, confirm, clearFilters, beforeChange }) => {
         return (
             <FilterContainer
                 clearFilters={clearFilters}
@@ -50,9 +55,10 @@ export const getOptionFilterDropdown = (options: Array<OptionType>, loading: boo
                 <Checkbox.Group
                     disabled={loading}
                     options={options}
-                    style={{ display: 'flex', flexDirection: 'column' }}
+                    style={FILTER_DROPDOWN_CHECKBOX_STYLES}
                     value={selectedKeys}
                     onChange={(e) => {
+                        if (isFunction(beforeChange)) beforeChange()
                         setSelectedKeys(e)
                         confirm({ closeDropdown: false })
                     }}

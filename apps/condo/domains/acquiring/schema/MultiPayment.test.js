@@ -79,14 +79,14 @@ describe('MultiPayment', () => {
                     const { payments: secondPayments, client: secondClient } = await makePayerAndPayments()
                     const [firstMultiPayment] = await createTestMultiPayment(admin, firstPayments, firstClient.user, firstAcquiringIntegration)
                     const [secondMultiPayment] = await createTestMultiPayment(admin, secondPayments, secondClient.user, firstAcquiringIntegration)
-                    let multiPayments = await MultiPayment.getAll(firstClient)
-                    expect(multiPayments).toBeDefined()
-                    expect(multiPayments).toHaveLength(1)
-                    expect(multiPayments).toHaveProperty(['0', 'id'], firstMultiPayment.id)
-                    multiPayments = await MultiPayment.getAll(secondClient)
-                    expect(multiPayments).toBeDefined()
-                    expect(multiPayments).toHaveLength(1)
-                    expect(multiPayments).toHaveProperty(['0', 'id'], secondMultiPayment.id)
+                    let { data: { objs: firstMultiPayments } } = await MultiPayment.getAll(firstClient, {}, { raw:true })
+                    expect(firstMultiPayments).toBeDefined()
+                    expect(firstMultiPayments).toHaveLength(1)
+                    expect(firstMultiPayments).toHaveProperty(['0', 'id'], firstMultiPayment.id)
+                    let { data: { objs: secondMultiPayments } } = await MultiPayment.getAll(secondClient, {}, { raw:true })
+                    expect(secondMultiPayments).toBeDefined()
+                    expect(secondMultiPayments).toHaveLength(1)
+                    expect(secondMultiPayments).toHaveProperty(['0', 'id'], secondMultiPayment.id)
                 })
                 test('integration account can see only multipayments linked to it\'s integration', async () => {
                     const { admin, payments, acquiringIntegration: firstIntegration, client, billingIntegration } = await makePayerAndPayments()
@@ -98,13 +98,13 @@ describe('MultiPayment', () => {
                     await createTestAcquiringIntegrationAccessRight(admin, firstIntegration, firstIntegrationClient.user)
                     await createTestAcquiringIntegrationAccessRight(admin, secondIntegration, secondIntegrationClient.user)
 
-                    let multiPayments = await MultiPayment.getAll(firstIntegrationClient)
-                    expect(multiPayments).toBeDefined()
-                    expect(multiPayments).toHaveLength(1)
-                    expect(multiPayments).toHaveProperty(['0', 'id'], multiPayment.id)
-                    multiPayments = await MultiPayment.getAll(secondIntegrationClient)
-                    expect(multiPayments).toBeDefined()
-                    expect(multiPayments).toHaveLength(0)
+                    let { data: { objs: firstMultiPayments } } = await MultiPayment.getAll(firstIntegrationClient, {}, { raw:true })
+                    expect(firstMultiPayments).toBeDefined()
+                    expect(firstMultiPayments).toHaveLength(1)
+                    expect(firstMultiPayments).toHaveProperty(['0', 'id'], multiPayment.id)
+                    let { data: { objs: secondMultiPayments } } = await MultiPayment.getAll(secondIntegrationClient, {}, { raw:true })
+                    expect(secondMultiPayments).toBeDefined()
+                    expect(secondMultiPayments).toHaveLength(0)
                 })
             })
             test('anonymous can\'t', async () => {
@@ -143,11 +143,11 @@ describe('MultiPayment', () => {
 
                     const integrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
                     await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
-                    const [updatedMultiPayment] = await updateTestMultiPayment(integrationClient, multiPayment.id, {
+                    const [_, updatedMultiPaymentAttrs] = await updateTestMultiPayment(integrationClient, multiPayment.id, {
                         status: MULTIPAYMENT_ERROR_STATUS,
-                    })
-                    expect(updatedMultiPayment).toBeDefined()
-                    expect(updatedMultiPayment).toHaveProperty('status', MULTIPAYMENT_ERROR_STATUS)
+                    }, { raw:true })
+                    expect(updatedMultiPaymentAttrs).toBeDefined()
+                    expect(updatedMultiPaymentAttrs).toHaveProperty('status', MULTIPAYMENT_ERROR_STATUS)
                 })
                 test('user can\'t', async () => {
                     const { admin, payments, acquiringIntegration, client } = await makePayerAndPayments()
@@ -209,7 +209,21 @@ describe('MultiPayment', () => {
             })
         })
     })
-    describe.skip('real-life cases', () => {
+    describe('real-life cases', () => {
         // TODO (savelevMatthew) write tests
+
+        test('mobile resident can\'t see his sensitive data in his own MultiPayments', async () => {
+            const { admin, payments, acquiringIntegration, client } = await makePayerAndPayments()
+            const [createdMultiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
+            // We use raw: true because when using field access, all fields that are not permitted result in error which stops the test
+            let { data: { objs: multiPayments } } = await MultiPayment.getAll(client, {}, { raw: true })
+            expect(multiPayments).toBeDefined()
+            expect(multiPayments).toHaveLength(1)
+            const retrievedMultiPayment = multiPayments[0]
+            expect(retrievedMultiPayment.id).toBe(createdMultiPayment.id)
+            expect(retrievedMultiPayment.implicitFee).toBeNull()
+            expect(retrievedMultiPayment.transactionId).toBeNull()
+            expect(retrievedMultiPayment.meta).toBeNull()
+        })
     })
 })

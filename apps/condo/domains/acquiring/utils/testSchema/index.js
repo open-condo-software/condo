@@ -208,7 +208,8 @@ async function createTestMultiPayment (client, payments, user, integration, extr
     return [obj, attrs]
 }
 
-async function updateTestMultiPayment (client, id, extraAttrs = {}) {
+// todo @toplenboren (why do we need to use params? maybe add some generic solution?)
+async function updateTestMultiPayment (client, id, extraAttrs = {}, params = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -218,7 +219,7 @@ async function updateTestMultiPayment (client, id, extraAttrs = {}) {
         sender,
         ...extraAttrs,
     }
-    const obj = await MultiPayment.update(client, id, attrs)
+    const obj = await MultiPayment.update(client, id, attrs, params)
     return [obj, attrs]
 }
 

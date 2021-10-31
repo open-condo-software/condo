@@ -2,8 +2,6 @@ const validate = require('validate.js')
 const nextCookies = require('next-cookies')
 const isNull = require('lodash/isNull')
 const isUndefined = require('lodash/isUndefined')
-const isString = require('lodash/isString')
-const isNumber = require('lodash/isNumber')
 const isObject = require('lodash/isObject')
 
 const {
@@ -12,7 +10,6 @@ const {
     JSON_EXPECT_OBJECT_ERROR,
     REQUIRED_NO_VALUE_ERROR,
 } = require('@condo/domains/common/constants/errors')
-const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { DV_FIELD_NAME, SENDER_FIELD_NAME } = require('@condo/domains/common/constants/utils')
 
 function hasDbFields (databaseRequired, resolvedData, existingItem = {}, context, addFieldValidationError) {

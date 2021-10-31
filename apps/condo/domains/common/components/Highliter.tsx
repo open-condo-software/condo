@@ -8,6 +8,10 @@ interface IHighliterProps {
     renderPart: (part: string, index: number) => React.ReactElement
 }
 
+/**
+ * @deprecated
+ * Please use TextHighlighter instead
+ */
 export const Highliter: React.FC<IHighliterProps> = (props) => {
     const { text, search, renderPart } = props
     if (!text) return null
