@@ -26,7 +26,7 @@ function perFieldAccess (schemaType, schemaName, schema) {
     if (schemaType === GQL_LIST_SCHEMA_TYPE) {
         Object.keys(schema.fields).forEach(field => {
             // field.access = true
-            if (schema.fields[field].access == true) {
+            if (schema.fields[field].access === true) {
                 const newAccessFn = function ({ authentication: { item: user }, listKey, operation }) {
                     const permissions = getFieldPermissions(user, listKey, field)
                     return denyIfHasNoPermission(user, permissions[operation], true)
