@@ -190,7 +190,7 @@ describe('AcquiringIntegration', () => {
             await expectToThrowValidationFailureError(async () => {
                 await createTestAcquiringIntegration(admin, [billingIntegration], {
                     dv: 2,
-                })
+                }, 'unknownDataVersion')
             })
             const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
             await expectToThrowValidationFailureError(async () => {
