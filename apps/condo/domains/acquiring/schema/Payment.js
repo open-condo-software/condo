@@ -10,6 +10,8 @@ const { SENDER_FIELD, DV_FIELD, CURRENCY_CODE_FIELD, MONEY_AMOUNT_FIELD } = requ
 const { PERIOD_FIELD } = require('@condo/domains/billing/schema/fields/common')
 const access = require('@condo/domains/acquiring/access/Payment')
 const { PAYMENT_STATUSES, PAYMENT_INIT_STATUS } = require('@condo/domains/acquiring/constants/payment')
+const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
+const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 
 
 const Payment = new GQLListSchema('Payment', {
@@ -120,6 +122,17 @@ const Payment = new GQLListSchema('Payment', {
         update: access.canManagePayments,
         delete: false,
         auth: true,
+    },
+    hooks: {
+        validateInput: ({ resolvedData, context, addValidationError }) => {
+            if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
+            const { dv } = resolvedData
+            if (dv === 1) {
+                // NOTE: version 1 specific translations. Don't optimize this logic
+            } else {
+                return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
+            }
+        },
     },
 })
 
