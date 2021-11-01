@@ -20,6 +20,9 @@ const {
 } = require('@condo/domains/common/utils/testSchema')
 const { MULTIPAYMENT_ERROR_STATUS } = require('../constants')
 
+const get = require('lodash/get')
+
+
 describe('MultiPayment', () => {
     describe('CRUD tests', () => {
         describe('create', () => {
@@ -143,11 +146,12 @@ describe('MultiPayment', () => {
 
                     const integrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
                     await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
-                    const [_, updatedMultiPaymentAttrs] = await updateTestMultiPayment(integrationClient, multiPayment.id, {
+                    let [updatedMultiPayment] = await updateTestMultiPayment(integrationClient, multiPayment.id, {
                         status: MULTIPAYMENT_ERROR_STATUS,
                     }, { raw:true })
-                    expect(updatedMultiPaymentAttrs).toBeDefined()
-                    expect(updatedMultiPaymentAttrs).toHaveProperty('status', MULTIPAYMENT_ERROR_STATUS)
+                    updatedMultiPayment = get(updatedMultiPayment, ['data', 'obj'])
+                    expect(updatedMultiPayment).toBeDefined()
+                    expect(updatedMultiPayment).toHaveProperty('status', MULTIPAYMENT_ERROR_STATUS)
                 })
                 test('user can\'t', async () => {
                     const { admin, payments, acquiringIntegration, client } = await makePayerAndPayments()
