@@ -1,41 +1,50 @@
 /** @jsx jsx */
-import { jsx } from '@emotion/core'
-import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
+import React, { useCallback } from 'react'
+import get from 'lodash/get'
+import qs from 'qs'
+import { Col, Input, Row, Typography, Checkbox } from 'antd'
 import { CloseOutlined, FilterFilled } from '@ant-design/icons'
-import { IFilters } from '@condo/domains/ticket/utils/helpers'
-import { useIntl } from '@core/next/intl'
-import { Col, Input, Row, Typography, Checkbox, Form } from 'antd'
+import { Gutter } from 'antd/lib/grid/row'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import { get } from 'lodash'
-import qs from 'qs'
-import React, { useCallback } from 'react'
-import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
-import { useEmergencySearch } from '@condo/domains/ticket/hooks/useEmergencySearch'
-import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { Button } from '@condo/domains/common/components/Button'
+
+import { css, jsx } from '@emotion/core'
+import { SortTicketsBy } from '@app/condo/schema'
+import { DatabaseFilled } from '@ant-design/icons'
+import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
-import { SortMeterReadingsBy, SortTicketsBy } from '@app/condo/schema'
+
+import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
+import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { Button } from '@condo/domains/common/components/Button'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
-import { fontSizes } from '@condo/domains/common/constants/style'
+import { SortMeterReadingsBy } from '@app/condo/schema'
 import { useTicketTableFilters } from '@condo/domains/ticket/hooks/useTicketTableFilters'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultipleFiltersModal'
-import { EXPORT_TICKETS_TO_EXCEL } from '@condo/domains/ticket/gql'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { usePaidSearch } from '@condo/domains/ticket/hooks/usePaidSearch'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
+
+import { EXPORT_TICKETS_TO_EXCEL } from '@condo/domains/ticket/gql'
+import { IFilters } from '@condo/domains/ticket/utils/helpers'
+import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
+import { useEmergencySearch } from '@condo/domains/ticket/hooks/useEmergencySearch'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+
+import { fontSizes } from '@condo/domains/common/constants/style'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
     requiredAccess?: React.FC
 }
 
+const PAGE_HEADER_TITLE_STYLES = { margin: 0 }
+const ROW_GUTTER: [Gutter, Gutter] = [0, 40]
 const CHECKBOX_STYLE = { paddingLeft: '0px', fontSize: fontSizes.content }
 
 export const TicketsPageContent = ({
@@ -111,7 +120,9 @@ export const TicketsPageContent = ({
                 <title>{PageTitleMessage}</title>
             </Head>
             <PageWrapper>
-                <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>}/>
+                <PageHeader title={
+                    <Typography.Title style={PAGE_HEADER_TITLE_STYLES}>{PageTitleMessage}</Typography.Title>
+                }/>
                 <PageContent>
                     {
                         !tickets.length && !filters
@@ -121,7 +132,7 @@ export const TicketsPageContent = ({
                                 createRoute='/ticket/create'
                                 createLabel={CreateTicket} />
                             : (
-                                <Row gutter={[0, 40]} align={'middle'} justify={'center'}>
+                                <Row gutter={ROW_GUTTER} align={'middle'} justify={'center'}>
                                     <Col span={23}>
                                         <FocusContainer padding={'16px'}>
                                             <Row justify={'space-between'}>
