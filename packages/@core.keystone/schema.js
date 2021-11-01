@@ -83,7 +83,7 @@ class GQLListSchema {
         if (SCHEMAS.has(this.name)) throw new Error(`Schema ${this.name} is already registered`)
         SCHEMAS.set(this.name, this)
         this._keystone = keystone
-        this._keystoneSchema = transformByPreprocessors(globalPreprocessors, this._type, this.name, this.schema)
+        this._keystoneSchema = transformByPreprocessors(globalPreprocessors, this._type, this.name, this.schema, keystone)
         keystone.createList(this.name, this._keystoneSchema)  // create this._keystone.lists[this.name] as List type
         const keystoneList = get(this._keystone, ['lists', this.name])
         if (keystoneList) {
@@ -157,12 +157,12 @@ class GQLCustomSchema {
     }
 }
 
-function transformByPreprocessors (preprocessors, schemaType, name, schema) {
+function transformByPreprocessors (preprocessors, schemaType, name, schema, keystone) {
     if (!isArray(preprocessors)) throw new Error('wrong preprocessors type')
-    if (preprocessors.length > 0 && IS_DEV) console.info('✔ Transform schema by global preprocessors')
+    // if (preprocessors.length > 0 && IS_DEV) console.info('✔ Transform schema by global preprocessors')
     return preprocessors.reduce((schema, fn) => {
         if (!isFunction(fn)) throw new Error('preprocessor is not a function! Check your global preprocessors')
-        const newSchema = fn(schemaType, name, schema)
+        const newSchema = fn(schemaType, name, schema, keystone)
         if (!newSchema) throw new Error('preprocessor should return a new schema object! Check your global preprocessors')
         return newSchema
     }, schema)
