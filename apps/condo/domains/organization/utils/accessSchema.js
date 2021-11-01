@@ -25,7 +25,6 @@ async function checkOrganizationPermission (context, userId, organizationId, per
     const [employeeRole] = await OrganizationEmployeeRole.getAll(context, {
         id: employee.role.id,
         organization: { id: organizationId },
-        deletedAt: null,
     })
 
     if (!employeeRole) return false
