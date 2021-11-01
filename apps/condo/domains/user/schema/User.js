@@ -71,7 +71,33 @@ const User = new GQLListSchema('User', {
         },
 
         permissions: {
-            schemaDoc: 'Can access to "/admin/" panel. And do support tasks',
+            /*
+            Contains lists and customs access configuration
+            value of list access and fields represents combination of symbols: 
+                [c] - create
+                [r] - read
+                [u] - update
+                [d] - delete
+            Like unix 'chmod' tool
+            Example:
+            lists: {
+                Organization: {
+                    fields: {
+                        __label__: 'ru',
+                        country: 'ru',
+                    }
+                    access: 'ru',
+                    where: {
+                        id_in: ['uud1', 'uuid2']
+                    }
+                }
+            }
+            custom: {
+                inviteNewOrganizationEmployee: true
+            }
+            where field could be defined to restrict list items by GraphQL selection
+            */
+            schemaDoc: 'Represents restrictions for services and supports for crud operations, mutations and queries',
             type: Json,
             access: false,
         },

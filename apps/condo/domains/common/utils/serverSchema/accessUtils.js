@@ -7,24 +7,7 @@ const { get } = require('lodash')
 function pullServiceAccess ({ authentication: { item: user }, operation, fields, originalInput, listKey }) {
     if (!user.permissions) return 'NOT_SERVICE'
     if (!user.permissions.lists[listKey]) return false
-    /*
-        Example of listConfig:
-    lists: {
-        Organization: {
-            fields: {
-                __label__: 'ru',
-                country: 'ru',
-            }
-            access: 'ru',
-            where: {
-                id_in: ['uud1', 'uuid2']
-            }
-        }
-    }
-    custom: {
-        inviteNewOrganizationEmployee: true
-    }
-    */
+
     const listPermissions = get(user, ['permissions', 'lists', listKey])
     if (!listPermissions) return false
     
