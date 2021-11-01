@@ -16,7 +16,7 @@ const {
 const { INTEGRATION_NO_BILLINGS_ERROR } = require('@condo/domains/acquiring/constants/errors')
 
 describe('AcquiringIntegration', () => {
-    describe('CRUD', () => {
+    describe('CRUD tests', () => {
         describe('create',  () => {
             test('user can\'t', async () => {
                 const admin = await makeLoggedInAdminClient()

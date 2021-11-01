@@ -17,8 +17,9 @@ const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAuthenticationErrorToObj,
+    expectToThrowValidationFailureError,
 } = require('@condo/domains/common/utils/testSchema')
-const { MULTIPAYMENT_ERROR_STATUS } = require('../constants')
+const { MULTIPAYMENT_ERROR_STATUS } = require('../constants/payment')
 
 describe('MultiPayment', () => {
     describe('CRUD tests', () => {
@@ -143,6 +144,7 @@ describe('MultiPayment', () => {
 
                     const integrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
                     await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
+                    // TODO(toplenboren): Fix this test
                     const [_, updatedMultiPaymentAttrs] = await updateTestMultiPayment(integrationClient, multiPayment.id, {
                         status: MULTIPAYMENT_ERROR_STATUS,
                     }, { raw:true })
@@ -205,6 +207,23 @@ describe('MultiPayment', () => {
                 const anonymousClient = await makeClient()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await MultiPayment.delete(anonymousClient, multiPayment.id)
+                })
+            })
+        })
+    })
+    describe('Validation tests', () => {
+        test('Should have correct dv field (=== 1)', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const { payments, acquiringIntegration, client } = await makePayerAndPayments()
+            await expectToThrowValidationFailureError(async () => {
+                await createTestMultiPayment(admin, payments, client.user, acquiringIntegration, {
+                    dv: 2,
+                })
+            }, 'unknownDataVersion')
+            const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestMultiPayment(admin, multiPayment.id, {
+                    dv: 2,
                 })
             })
         })

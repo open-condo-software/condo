@@ -23,7 +23,7 @@ const {
 } = require('@condo/domains/billing/utils/testSchema')
 
 describe('AcquiringIntegrationAccessRight', () => {
-    describe('CRUD', () => {
+    describe('CRUD tests', () => {
         describe('create', async () => {
             test('user can\'t', async () => {
                 const admin = await makeLoggedInAdminClient()
@@ -224,7 +224,7 @@ describe('AcquiringIntegrationAccessRight', () => {
             })
         })
     })
-    describe('validations', () => {
+    describe('Validation tests', () => {
         test('Should have correct dv field (=== 1)', async () => {
             const admin = await makeLoggedInAdminClient()
             const [billingIntegration] = await createTestBillingIntegration(admin)
