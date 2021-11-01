@@ -26,7 +26,7 @@ interface ITableProps extends TableProps<TableRecord> {
     applyQuery?: (queryParams) => Promise<boolean>
 }
 
-export const DEFAULT_PAGE_SIZE = 10
+export const DEFAULT_PAGE_SIZE = 30
 
 export const Table: React.FC<ITableProps> = ({
     keyPath,
