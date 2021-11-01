@@ -186,7 +186,7 @@ async function getById (schemaName, id) {
     return await getByCondition(schemaName, { id })
 }
 
-async function getSchemaCtx (schemaObjOrName) {
+function getSchemaCtx (schemaObjOrName) {
     let name
     if (typeof schemaObjOrName === 'object' && GQL_SCHEMA_TYPES.includes(schemaObjOrName._type) && schemaObjOrName.name) {
         name = schemaObjOrName.name

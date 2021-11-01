@@ -36,7 +36,6 @@ function pullServiceAccess ({ authentication: { item: user }, operation, fields,
 }
 
 function transformCRUDString (crudStr) {
-    if (!crudStr || typeof crudStr !== 'string') return null
     const access = {
         create: false,
         read: false,
