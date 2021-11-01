@@ -209,7 +209,7 @@ export const pageHeaderCss = css`
 
 export const pageContentCss = css`
   flex-grow: 1;
-  max-width: 1200px;
+  max-width: 1600px;
   padding-bottom: 56px;
   background: ${colors.white};
 `

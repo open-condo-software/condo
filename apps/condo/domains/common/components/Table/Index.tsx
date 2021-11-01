@@ -110,6 +110,7 @@ export const Table: React.FC<ITableProps> = ({
             <DefaultTable
                 bordered
                 tableLayout={'fixed'}
+                style={{ width: 'auto' }}
                 loading={loading}
                 rowKey={(record) => get(record, rowKey)}
                 dataSource={dataSource}
