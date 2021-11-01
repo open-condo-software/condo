@@ -6,7 +6,11 @@ import utc from 'dayjs/plugin/utc'
 dayjs.extend(utc)
 import { colors } from '@condo/domains/common/constants/style'
 import { useIntl } from '@core/next/intl'
-import { MULTIPAYMENT_DONE_STATUS, MULTIPAYMENT_ERROR_STATUS, MULTIPAYMENT_PROCESSING_STATUS } from '@condo/domains/acquiring/constants'
+import {
+    MULTIPAYMENT_DONE_STATUS,
+    MULTIPAYMENT_ERROR_STATUS,
+    MULTIPAYMENT_PROCESSING_STATUS,
+} from '@condo/domains/acquiring/constants/payment'
 import { createWrappedPdf } from '@condo/domains/common/utils/pdf'
 
 type PrintingOption = {
@@ -116,7 +120,7 @@ export const AcquiringReceipt: React.FC<IAcquiringReceiptProps> = (props) => {
         if (containerRef.current) {
             createWrappedPdf({ fileName: `Receipt_${documentNumber}`, element: containerRef.current })
         }
-    }, [containerRef])
+    }, [containerRef, documentNumber])
     return (
         <PageWrapper ref={containerRef}>
             <Row gutter={[0, 40]}>

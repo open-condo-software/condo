@@ -20,7 +20,7 @@ const { BillingIntegrationOrganizationContext } = require('@condo/domains/billin
 const { DEFAULT_BILLING_INTEGRATION_NAME } = require('@condo/domains/billing/constants')
 
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
-const { DEFAULT_ACQUIRING_INTEGRATION_NAME } = require('@condo/domains/acquiring/constants')
+const { DEFAULT_ACQUIRING_INTEGRATION_NAME } = require('@condo/domains/acquiring/constants/integration')
 
 
 const Resident = new GQLListSchema('Resident', {
