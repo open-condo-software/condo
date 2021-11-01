@@ -1,13 +1,15 @@
+const { get } = require('lodash')
+
 /**
  * Check whether user is support or user and it has access for requested list and fields
  * @returns {'NOT_SERVICE' | boolean}
  */
 function pullServiceAccess ({ authentication: { item: user }, operation, fields, originalInput, listKey }) {
     if (!user.permissions) return 'NOT_SERVICE'
-    if (!user.permissions[listKey]) return false
+    if (!user.permissions.lists[listKey]) return false
     /*
         Example of listConfig:
-
+    lists: {
         Organization: {
             fields: {
                 __label__: 'ru',
@@ -18,33 +20,23 @@ function pullServiceAccess ({ authentication: { item: user }, operation, fields,
                 id_in: ['uud1', 'uuid2']
             }
         }
+    }
+    custom: {
+        inviteNewOrganizationEmployee: true
+    }
     */
-    const { access: listAccess, where: listWhere } = parseCRUDAccess(user.permissions[listKey])
-
+    const listPermissions = get(user, ['permissions', 'lists', listKey])
+    if (!listPermissions) return false
+    
+    const { access, where } = listPermissions
     // If operation restricted on list level, we do not perform this request at all
-    if (!listAccess[operation]) return false
+    if (!access[operation]) return false
 
-    // if (operation !== 'delete') {
-    //     for (const reqField of fields) {
-    //         if (!listFields[reqField] || !listFields[reqField][operation]) {
-    //             return false
-    //         }
-    //     }
-    // }  
-
-    // We are not checking delete operation, cause it available only on list field
-    return listWhere || true    
+    return where || true    
 }
 
-function parseCRUDAccess (accessConfig) {
-    Object.keys(accessConfig.fields).forEach(field => {
-        accessConfig.fields[field] = parseCRUDString(accessConfig.fields[field])
-    })
-    accessConfig.access = parseCRUDString(accessConfig.access)
-    return accessConfig
-}
-
-function parseCRUDString (crudStr) {
+function transformCRUDString (crudStr) {
+    if (!crudStr || typeof crudStr !== 'string') return null
     const access = {
         create: false,
         read: false,
@@ -59,5 +51,5 @@ function parseCRUDString (crudStr) {
 }
 module.exports = {
     pullServiceAccess,
-    parseCRUDAccess,
+    transformCRUDString,
 }
