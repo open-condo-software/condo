@@ -22,6 +22,7 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowValidationFailureError,
 } = require('@condo/domains/common/utils/testSchema')
+const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 
 describe('Payment', () => {
     describe('CRUD tests', () => {
@@ -271,6 +272,20 @@ describe('Payment', () => {
             expect(payment).toHaveProperty('id')
             expect(payment).toHaveProperty('context', null)
             expect(payment).toHaveProperty('frozenReceipt', null)
+        })
+        test('Should have correct dv field (=== 1)', async () => {
+            const { admin, billingReceipts, acquiringContext } = await makePayer()
+            await expectToThrowValidationFailureError(async () => {
+                await createTestPayment(admin, billingReceipts[0], acquiringContext, {
+                    dv: 2,
+                }, DV_UNKNOWN_VERSION_ERROR)
+            })
+            const [payment] = await createTestPayment(admin, billingReceipts[0], acquiringContext)
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestPayment(admin, payment.id, {
+                    dv: 2,
+                })
+            }, DV_UNKNOWN_VERSION_ERROR)
         })
         test.skip('cannot link to multipayment, if it\'s not containing billing receipts', async () => {
             const { admin, billingReceipts, acquiringContext, client, acquiringIntegration } = await makePayer(2)
