@@ -20,8 +20,6 @@ const {
 } = require('@condo/domains/common/utils/testSchema')
 const { MULTIPAYMENT_ERROR_STATUS } = require('../constants')
 
-const get = require('lodash/get')
-
 
 describe('MultiPayment', () => {
     describe('CRUD tests', () => {
