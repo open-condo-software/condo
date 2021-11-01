@@ -17,7 +17,8 @@ async function validateListAccessControl ({
     itemId,
     itemIds,
     context,
-    readFields,
+    info,
+    fields,
 }) {
     // Either a boolean or an object describing a where clause
     let result = false
@@ -35,7 +36,8 @@ async function validateListAccessControl ({
             itemId,
             itemIds,
             context,
-            readFields,
+            info,
+            fields,
         })
     }
   
@@ -85,7 +87,7 @@ function enhanceKeystone (keystone){
                 listKey,
                 originalInput,
                 operation,
-                { gqlName, itemId, itemIds, context, readFields } = {}
+                { gqlName, itemId, itemIds, context, info, fields } = {}
             ) => {
                 return validateListAccessControl({
                     access: access[schemaName],
@@ -97,7 +99,8 @@ function enhanceKeystone (keystone){
                     itemId,
                     itemIds,
                     context,
-                    readFields,
+                    fields,
+                    info,
                 })
             },
             { isPromise: true }
@@ -153,12 +156,35 @@ function enhanceKeystone (keystone){
 
     keystone._getAccessControlContext = _getAccessControlContext.bind(keystone)
 
+    const getFieldsFromGqlNode = (node) => {
+        return node.fieldNodes[0].selectionSet.selections.map(s => s.name.value)
+    }
     Object.keys(keystone.lists).forEach(listKey => {
         const listQuery = async function (args, context, gqlName, info, from) {
             // const requestFields = 
-            const access = await this.checkListAccess(context, undefined, 'read', { gqlName, readFields: info.fieldNodes[0].selectionSet.selections.map(s => s.name.value) })
+            const access = await this.checkListAccess(context, undefined, 'read', { gqlName, info, fields: getFieldsFromGqlNode(info) })
             return this._itemsQuery(mergeWhereClause(args, access), { context, info, from })
         }
+        const listQueryMeta = async function (args, context, gqlName, info, from) {
+            return {
+                // Return these as functions so they're lazily evaluated depending
+                // on what the user requested
+                // Evaluation takes place in ../Keystone/index.js
+                getCount: async () => {
+                    const access = await this.checkListAccess(context, undefined, 'read', { gqlName, info, fields: getFieldsFromGqlNode(info) })
+        
+                    const { count } = await this._itemsQuery(mergeWhereClause(args, access), {
+                        meta: true,
+                        context,
+                        info,
+                        from,
+                    })
+        
+                    return count
+                },
+            }
+        }
+        keystone.lists[listKey].listQueryMeta = listQueryMeta.bind(keystone.lists[listKey])
         keystone.lists[listKey].listQuery = listQuery.bind(keystone.lists[listKey])
     })
 }
