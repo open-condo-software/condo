@@ -28,9 +28,27 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
             schemaDoc: 'Billing account, that will allow this resident to pay for certain service',
             type: Relationship,
             ref: 'BillingAccount',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
+            isRequired: false,
+            knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+        },
+
+        billingIntegrationContext: {
+            schemaDoc: 'Billing account, that will allow this resident to pay for certain service',
+            type: Relationship,
+            ref: 'BillingAccount',
+            isRequired: false,
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
+
+        acquiringIntegrationContext: {
+            schemaDoc: 'Billing account, that will allow this resident to pay for certain service',
+            type: Relationship,
+            ref: 'BillingAccount',
+            isRequired: true,
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
 
         accountNumber: {
