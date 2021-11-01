@@ -148,8 +148,7 @@ describe('MultiPayment', () => {
                     await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
                     let [updatedMultiPayment] = await updateTestMultiPayment(integrationClient, multiPayment.id, {
                         status: MULTIPAYMENT_ERROR_STATUS,
-                    }, { raw:true })
-                    updatedMultiPayment = get(updatedMultiPayment, ['data', 'obj'])
+                    })
                     expect(updatedMultiPayment).toBeDefined()
                     expect(updatedMultiPayment).toHaveProperty('status', MULTIPAYMENT_ERROR_STATUS)
                 })
