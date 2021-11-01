@@ -35,8 +35,8 @@ function perFieldAccess (schemaType, schemaName, schema, keystone) {
                     // field.access[create/read/update/delete] = () => boolean
                     else if (typeof schema.fields[field].access[operation] === 'function') {
                         const originalAccessFn = schema.fields[field].access[operation]
-                        newAccFn = function ({ authentication: { item: user, listKey } }) {
-                            const originalAccResult = originalAccessFn(...arguments)
+                        newAccFn = async function ({ authentication: { item: user, listKey } }) {
+                            const originalAccResult = await originalAccessFn(...arguments)
                             if (!originalAccResult) return false
                             if (user && user.permissions) {
                                 if (!user.permissions[listKey]) return false
