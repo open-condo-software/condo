@@ -3,12 +3,12 @@ import { Poster } from '../domains/common/components/Poster'
 import { colors, fontSizes } from '../domains/common/constants/style'
 import React from 'react'
 import { AuthHeader } from '../domains/user/components/containers/AuthHeader'
-import { useResponsive } from '../domains/common/hooks/useResponsive'
 import styled from '@emotion/styled'
 import { FormattedMessage } from 'react-intl'
 import { Button } from '../domains/common/components/Button'
 import { SUPPORT_EMAIL, SUPPORT_PHONE } from '../domains/common/constants/requisites'
 import { useIntl } from '@core/next/intl'
+import { useLayoutContext } from '../domains/common/components/LayoutContext'
 
 export interface AuthPage extends React.FC {
     container: React.FC
@@ -22,7 +22,7 @@ const ServerErrorWrapper = styled(Row)<{ isSmall: boolean }>`
 
 export default function Custom500 () {
     const intl = useIntl()
-    const { isSmall } = useResponsive()
+    const { isSmall } = useLayoutContext()
     const PageTitle = intl.formatMessage( { id: 'pages.condo.error.PageTitle' })
     const DescriptionMessage = intl.formatMessage({ id: 'pages.condo.error.Description' })
 
@@ -64,8 +64,8 @@ export const ErrorPosterWrapper = styled.div<{ isSmall: boolean }>`
 `
 
 const ErrorLayout = ({ children }) => {
-    const { isSmall } = useResponsive()
-
+    const { isSmall } = useLayoutContext()
+    
     return (
         <Layout style={{ backgroundColor: colors.selago, minHeight: '100vh' }}>
             <AuthHeader headerAction={null}/>
