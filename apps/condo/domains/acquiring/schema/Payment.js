@@ -12,6 +12,7 @@ const access = require('@condo/domains/acquiring/access/Payment')
 const { PAYMENT_STATUSES, PAYMENT_INIT_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
+const { ACQUIRING_CONTEXT_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
 
 
 const Payment = new GQLListSchema('Payment', {
@@ -87,11 +88,8 @@ const Payment = new GQLListSchema('Payment', {
             },
         },
 
-        // TODO (savelevMatthew): create FIELD later
         context: {
-            schemaDoc: 'Link to Acquiring Integration context to link payment with organization',
-            type: Relationship,
-            ref: 'AcquiringIntegrationContext',
+            ...ACQUIRING_CONTEXT_FIELD,
             isRequired: false,
             kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
         },

@@ -7,6 +7,7 @@ const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
+const { ACQUIRING_INTEGRATION_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
 const access = require('@condo/domains/acquiring/access/AcquiringIntegrationContext')
 const { hasValidJsonStructure, hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
@@ -18,14 +19,7 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
-        integration: {
-            schemaDoc: 'Acquiring integration',
-            type: Relationship,
-            ref: 'AcquiringIntegration',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
-        },
+        integration: ACQUIRING_INTEGRATION_FIELD,
 
         organization: {
             schemaDoc: 'Service provider (organization)',
