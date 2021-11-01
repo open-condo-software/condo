@@ -13,7 +13,7 @@ function perFieldAccess (schemaType, schemaName, schema, keystone) {
                         const permissions = parseCRUDAccess(user.permissions[listKey])
                         return Object.values(permissions.fields[field]).every(acc => acc === true)
                     }
-                    else return schema.fields[field].access
+                    else return true
                 }
                 schema.fields[field].access = newAccessFn.bind(schema)
             }
