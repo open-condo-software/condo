@@ -29,6 +29,7 @@ const { MultiPayment: MultiPaymentGQL } = require('@condo/domains/acquiring/gql'
 const { Payment: PaymentGQL } = require('@condo/domains/acquiring/gql')
 
 const dayjs = require('dayjs')
+const { REGISTER_MULTI_PAYMENT_MUTATION } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
@@ -266,6 +267,19 @@ async function updateTestPayment (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function registerMultiPaymentByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(REGISTER_MULTI_PAYMENT_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 // Utils used to generate bunch of entities for working with MultiPayments
@@ -331,5 +345,6 @@ module.exports = {
     makePayer,
     makePayerAndPayments,
     getRandomHiddenCard,
+registerMultiPaymentByTestClient
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
