@@ -1,24 +1,30 @@
-import { Checkbox, Space, Tag, Typography } from 'antd'
-import { FilterValue } from 'antd/es/table/interface'
-import { get, isEmpty } from 'lodash'
-import { useIntl } from '@core/next/intl'
-import React, { useMemo } from 'react'
-import { colors } from '@condo/domains/common/constants/style'
-import { EMERGENCY_TAG_COLOR } from '@condo/domains/ticket/constants/style'
-import { IFilters } from '../utils/helpers'
-import { getFilterIcon, FilterContainer } from '@condo/domains/common/components/TableFilter'
-import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
+import React, { CSSProperties, useMemo } from 'react'
 import { useRouter } from 'next/router'
-import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { TextHighlighter } from '@condo/domains/common/components/TextHighlighter'
-import getRenderer from '@condo/domains/common/components/helpers/tableCellRenderer'
-import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
-import { identity } from 'lodash/util'
-import { LOCALES } from '@condo/domains/common/constants/locale'
-import { TicketStatus } from '../utils/clientSchema'
+import get from 'lodash/get'
 import dayjs from 'dayjs'
+import isEmpty from 'lodash/isEmpty'
+import { identity } from 'lodash/util'
+import { Checkbox, Space, Tag, Typography } from 'antd'
 
-const getFilteredValue = (filters: IFilters, key: string | Array<string>): FilterValue => get(filters, key, null)
+import { useIntl } from '@core/next/intl'
+
+import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
+import { getAddressDetails, getFilteredValue } from '@condo/domains/common/utils/helpers'
+
+import { getHighlightedContents, getDateRender } from '@condo/domains/common/components/Table/Renders'
+import { getDateFilterDropdown, getOptionFilterDropdown } from '@condo/domains/common/components/Table/Filters'
+import { getTextFilterDropdown, getFilterIcon, FilterContainer } from '@condo/domains/common/components/TableFilter'
+import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
+
+import { EMERGENCY_TAG_COLOR } from '@condo/domains/ticket/constants/style'
+import { LOCALES } from '@condo/domains/common/constants/locale'
+import { colors } from '@condo/domains/common/constants/style'
+
+import { TicketStatus } from '../utils/clientSchema'
+import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
+import { createSorterMap, IFilters } from '../utils/helpers'
+import { TextHighlighter, TTextHighlighterProps } from '../../common/components/TextHighlighter'
+import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 
 export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const intl = useIntl()
@@ -38,117 +44,66 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
     const sorterMap = getSorterMap(sorters)
+    const search = getFilteredValue(filters, 'search')
 
     const { loading, objs: ticketStatuses } = TicketStatus.useObjects({})
 
-    const renderStatus = (status, record, search) => {
+    const renderStatus = (status, record) => {
         const { primary: color, secondary: backgroundColor } = status.colors
+        const extraProps = { style: { color } }
+        // TODO(DOMA-1518) find solution for cases where no status received
+        const highlightedContent = getHighlightedContents(search, null, extraProps)(status.name)
 
         return (
-            <Space direction='vertical' size={7}>
+            <Space direction='vertical' size={7} align='center'>
+                {status.name &&
                 <Tag color={backgroundColor}>
-                    {isEmpty(status.name)
-                        ? <Typography.Text style={{ color }}>{status.name}</Typography.Text>
-                        : (
-                            <TextHighlighter
-                                text={String(status.name)}
-                                search={String(search)}
-                                renderPart={(part, startIndex, marked) => (
-                                    <Typography.Text title={status.name} style={marked ? { backgroundColor: colors.markColor } : { color: color }}>
-                                        {part}
-                                    </Typography.Text>
-                                )}
-                            />
-                        )
-                    }
+                    {highlightedContent}
                 </Tag>
-                {
-                    record.isEmergency && (
-                        <Tag color={EMERGENCY_TAG_COLOR.background}>
-                            <Typography.Text style={{ color: EMERGENCY_TAG_COLOR.text }}>
-                                {EmergencyMessage}
-                            </Typography.Text>
-                        </Tag>
-                    )
                 }
-                {
-                    record.isPaid && (
-                        <Tag color={'orange'}>
-                            {PaidMessage}
-                        </Tag>
-                    )
+                {record.isEmergency &&
+                <Tag color={EMERGENCY_TAG_COLOR.background}>
+                    <Typography.Text type="danger">
+                        {EmergencyMessage.toLowerCase()}
+                    </Typography.Text>
+                </Tag>
+                }
+                {record.isPaid &&
+                <Tag color='orange'>
+                    {PaidMessage.toLowerCase()}
+                </Tag>
                 }
             </Space>
         )
     }
 
-    const renderAddress = (record, filteredValueSearch) => {
-        const propertyWasDeleted = !!get(record, ['property', 'deletedAt'])
-        const property = get(record, 'property')
-
-        const unitName = get(record, 'unitName')
-        const address = get(property, 'address')
-        const unitPrefix = unitName ? `${ShortFlatNumber} ${unitName}` : ''
-
-        if (propertyWasDeleted) {
-            return (
-                <>
-                    <TextHighlighter
-                        text={String(address)}
-                        search={String(filteredValueSearch)}
-                        renderPart={(part, startIndex, marked) => (
-                            <Typography.Text
-                                title={`${address} ${unitPrefix}`}
-                                type={'secondary'}
-                                style={marked ? { backgroundColor: colors.markColor } : {}}
-                            >
-                                {part}
-                            </Typography.Text>
-                        )}
-                    />
-                    <Typography.Text type={'secondary'} title={`${address} ${unitPrefix}`} >
-                        { ' ' + unitPrefix } ({DeletedMessage})
-                    </Typography.Text>
-                </>
-            )
+    const renderStatusFilterDropdown = ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+        const adaptedStatuses = ticketStatuses.map(convertGQLItemToFormSelectState).filter(identity)
+        const filterProps = {
+            setSelectedKeys,
+            selectedKeys,
+            confirm,
+            clearFilters,
         }
 
-        return getRenderer(filteredValueSearch, true, unitPrefix)(address)
+        return getOptionFilterDropdown(adaptedStatuses, loading)(filterProps)
     }
 
-    function getStatusFilterDropDown () {
-        return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
-            const adaptedStatuses = ticketStatuses.map(convertGQLItemToFormSelectState).filter(identity)
+    const renderAddress = (record) => {
+        const isDeleted = !!get(record, ['property', 'deletedAt'])
+        const { text, unitPrefix } = getAddressDetails(record, ShortFlatNumber)
+        const postfix = [unitPrefix]
+        const extraProps: Partial<TTextHighlighterProps> = {}
 
-            return (
-                <FilterContainer
-                    clearFilters={clearFilters}
-                    showClearButton={selectedKeys && selectedKeys.length > 0}
-                >
-                    <Checkbox.Group
-                        disabled={loading}
-                        options={adaptedStatuses}
-                        style={{ display: 'flex', flexDirection: 'column' }}
-                        value={selectedKeys}
-                        onChange={(e) => {
-                            setSelectedKeys(e)
-                            confirm({ closeDropdown: false })
-                        }}
-                    />
-                </FilterContainer>
-            )
+        if (isDeleted) {
+            postfix.push(`(${DeletedMessage})`)
+            extraProps.type = 'secondary'
         }
-    }
 
-    const renderDate = (createdAt) => {
-        const locale = get(LOCALES, intl.locale)
-        const date = locale ? dayjs(createdAt).locale(locale) : dayjs(createdAt)
-        return date.format('DD MMM')
+        return getTableCellRenderer(search, true, postfix.join(' '), extraProps)(text)
     }
 
     return useMemo(() => {
-        const search = getFilteredValue(filters, 'search')
-
         return [
             {
                 title: NumberMessage,
@@ -160,7 +115,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 width: '7%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'number'),
                 filterIcon: getFilterIcon,
-                render: getRenderer(search),
+                render: getTableCellRenderer(search),
                 align: 'right',
             },
             {
@@ -172,7 +127,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 sorter: true,
                 width: '8%',
                 ellipsis: true,
-                render: renderDate,
+                render: getDateRender(intl, String(search), true),
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'createdAt'),
                 filterIcon: getFilterIcon,
             },
@@ -185,7 +140,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 key: 'status',
                 sorter: true,
                 width: '10%',
-                filterDropdown: getStatusFilterDropDown(),
+                filterDropdown: renderStatusFilterDropdown,
                 filterIcon: getFilterIcon,
             },
             {
@@ -193,10 +148,10 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 dataIndex: 'details',
                 filteredValue: getFilteredValue(filters, 'details'),
                 key: 'details',
-                width: '18%',
+                width: '22%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'details'),
                 filterIcon: getFilterIcon,
-                render: getRenderer(search, true),
+                render: getTableCellRenderer(search, true),
             },
             {
                 title: AddressMessage,
@@ -205,7 +160,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 filteredValue: getFilteredValue(filters, 'address'),
                 key: 'address',
                 sorter: true,
-                width: '12%',
+                width: '19%',
                 render: renderAddress,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'address'),
                 filterIcon: getFilterIcon,
@@ -219,7 +174,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 sorter: true,
                 width: '12%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'clientName'),
-                render: getRenderer(search),
+                render: getTableCellRenderer(search),
                 filterIcon: getFilterIcon,
             },
             {
@@ -229,8 +184,8 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 dataIndex: 'executor',
                 key: 'executor',
                 sorter: true,
-                width: '15%',
-                render: (assignee) => getRenderer(search)(get(assignee, ['name'])),
+                width: '12%',
+                render: (executor) => getTableCellRenderer(search)(get(executor, ['name'])),
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'executor'),
                 filterIcon: getFilterIcon,
             },
@@ -241,8 +196,8 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 dataIndex: 'assignee',
                 key: 'assignee',
                 sorter: true,
-                width: '18%',
-                render: (assignee) => getRenderer(search)(get(assignee, ['name'])),
+                width: '12%',
+                render: (assignee) => getTableCellRenderer(search)(get(assignee, ['name'])),
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'assignee'),
                 filterIcon: getFilterIcon,
             },

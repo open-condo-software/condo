@@ -46,7 +46,7 @@ export const getTextFilterDropdown = (placeholder: string, containerStyles?: CSS
 }
 
 export const getOptionFilterDropdown = (options: Array<OptionType>, loading: boolean, containerStyles?: CSSProperties) => {
-    return ({ setSelectedKeys, selectedKeys, confirm, clearFilters, beforeChange }) => {
+    return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         return (
             <FilterContainer
                 clearFilters={clearFilters}
@@ -59,7 +59,6 @@ export const getOptionFilterDropdown = (options: Array<OptionType>, loading: boo
                     style={FILTER_DROPDOWN_CHECKBOX_STYLES}
                     value={selectedKeys}
                     onChange={(e) => {
-                        if (isFunction(beforeChange)) beforeChange()
                         setSelectedKeys(e)
                         confirm({ closeDropdown: false })
                     }}
