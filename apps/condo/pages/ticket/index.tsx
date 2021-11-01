@@ -15,7 +15,7 @@ import { useOrganization } from '@core/next/organization'
 
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
-import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageContent, PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Button } from '@condo/domains/common/components/Button'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
@@ -66,6 +66,7 @@ export const TicketsPageContent = ({
     const PaidLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PaidLabel' })
     const ResetFiltersLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.ResetFilters' })
 
+    const { isSmall } = useLayoutContext()
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
@@ -193,6 +194,7 @@ export const TicketsPageContent = ({
                                     </Col>
                                     <Col span={24}>
                                         <Table
+                                            scroll={isSmall ? { x: true } : {}}
                                             totalRows={total}
                                             loading={loading}
                                             dataSource={tickets}

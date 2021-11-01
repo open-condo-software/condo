@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react'
+import { useLayoutContext } from '../../../common/components/LayoutContext'
 import { IContextProps } from './index'
 import {
     QueryMeta,
@@ -41,6 +42,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const router = useRouter()
     const { filters, sorters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
+    const { isSmall } = useLayoutContext()
 
     const contextPeriod = get(context, ['lastReport', 'period'], null)
     const separator = get(context, ['integration', 'currency', 'displayInfo', 'delimiterNative'], '.')
@@ -136,6 +138,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
                 )}
                 <Col span={24}>
                     <Table
+                        scroll={isSmall ? { x: true } : {}}
                         loading={loading}
                         totalRows={total}
                         dataSource={receipts}

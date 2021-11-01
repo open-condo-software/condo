@@ -1,3 +1,4 @@
+import { jsx } from '@emotion/core'
 import React, { useState } from 'react'
 import { useRouter } from 'next/router'
 import { useLazyQuery } from '@apollo/client'
@@ -9,14 +10,14 @@ import { useIntl } from '@core/next/intl'
 import { EXPORT_PROPERTIES_TO_EXCEL } from '@condo/domains/property/gql'
 import { Col, Input, notification, Row, Space } from 'antd'
 import { Table } from '@condo/domains/common/components/Table/Index'
+import { useLayoutContext } from '../../common/components/LayoutContext'
 import { useImporterFunctions } from '../hooks/useImporterFunctions'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { DatabaseFilled, DiffOutlined } from '@ant-design/icons'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { Button } from '@condo/domains/common/components/Button'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { OrganizationEmployeeRole, PropertyWhereInput, SortPropertiesBy } from '@app/condo/schema'
-import styled from '@emotion/styled'
+import { OrganizationEmployeeRole, PropertyWhereInput } from '@app/condo/schema'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { ColumnsType } from 'antd/lib/table'
 
@@ -27,12 +28,6 @@ type BuildingTableProps = {
     sortBy: string[]
     onSearch?: (properties: Property.IPropertyUIState[]) => void
 }
-
-const CreateButtonsWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-`
 
 export default function BuildingsTable (props: BuildingTableProps) {
     const intl = useIntl()
@@ -48,6 +43,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
 
     const { role, searchPropertiesQuery, tableColumns, sortBy } = props
 
+    const { isSmall } = useLayoutContext()
     const router = useRouter()
     const { offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, PROPERTY_PAGE_SIZE)
@@ -73,9 +69,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
     }
 
     const [downloadLink, setDownloadLink] = useState(null)
-    const [
-        exportToExcel, { loading: isXlsLoading },
-    ] = useLazyQuery(
+    const [exportToExcel, { loading: isXlsLoading }] = useLazyQuery(
         EXPORT_PROPERTIES_TO_EXCEL,
         {
             onError: error => {
@@ -107,61 +101,73 @@ export default function BuildingsTable (props: BuildingTableProps) {
     }
 
     return (
-        <Row align={'middle'} gutter={[0, 40]}>
-            <Col span={6}>
+        <Row align={'middle'} justify={'start'} gutter={[0, 40]}>
+            <Col xs={24} lg={6}>
                 <Input
                     placeholder={SearchPlaceholder}
                     onChange={(e) => {handleSearchChange(e.target.value)}}
                     value={search}
                 />
             </Col>
-            <Col span={6} offset={1}>
-                {downloadLink
-                    ?
-                    <Button
-                        type={'inlineLink'}
-                        icon={<DatabaseFilled />}
-                        loading={isXlsLoading}
-                        target='_blank'
-                        href={downloadLink}
-                        rel='noreferrer'>{DownloadExcelLabel}
-                    </Button>
-                    :
-                    <Button
-                        type={'inlineLink'}
-                        icon={<DatabaseFilled />}
-                        loading={isXlsLoading}
-                        onClick={onExportToExcelButtonClicked}>{ExportAsExcel}
-                    </Button>}
+            <Col lg={6} offset={1} hidden={isSmall}>
+                {
+                    downloadLink
+                        ? (
+                            <Button
+                                type={'inlineLink'}
+                                icon={<DatabaseFilled />}
+                                loading={isXlsLoading}
+                                target='_blank'
+                                href={downloadLink}
+                                rel='noreferrer'>{DownloadExcelLabel}
+                            </Button>
+                        )
+                        : (
+                            <Button
+                                type={'inlineLink'}
+                                icon={<DatabaseFilled />}
+                                loading={isXlsLoading}
+                                onClick={onExportToExcelButtonClicked}>{ExportAsExcel}
+                            </Button>
+                        )
+                }
             </Col>
-            <Col span={6} offset={5}>
-                {role?.canManageProperties ? (
-                    <CreateButtonsWrapper>
-                        <Space size={16}>
-                            <ImportWrapper
-                                objectsName={PropertiesMessage}
-                                accessCheck={role?.canManageProperties}
-                                onFinish={refetch}
-                                columns={columns}
-                                rowNormalizer={propertyNormalizer}
-                                rowValidator={propertyValidator}
-                                domainTranslate={PropertyTitle}
-                                objectCreator={propertyCreator}
-                            >
-                                <Button
-                                    type={'sberPrimary'}
-                                    icon={<DiffOutlined />}
-                                    secondary />
-                            </ImportWrapper>
+            <Col lg={1} offset={7} hidden={isSmall}>
+                {
+                    role?.canManageProperties && (
+                        <ImportWrapper
+                            objectsName={PropertiesMessage}
+                            accessCheck={role?.canManageProperties}
+                            onFinish={refetch}
+                            columns={columns}
+                            rowNormalizer={propertyNormalizer}
+                            rowValidator={propertyValidator}
+                            domainTranslate={PropertyTitle}
+                            objectCreator={propertyCreator}
+                        >
+                            <Button
+                                type={'sberPrimary'}
+                                icon={<DiffOutlined />}
+                                secondary
+                            />
+                        </ImportWrapper>
+                    )
+                }
+            </Col>
+            <Col xs={24} lg={3}>
+                {
+                    role?.canManageProperties
+                        ? (
                             <Button type='sberPrimary' onClick={() => router.push('/property/create')}>
                                 {CreateLabel}
                             </Button>
-                        </Space>
-                    </CreateButtonsWrapper>
-                ) : null}
+                        )
+                        : null
+                }
             </Col>
             <Col span={24}>
                 <Table
+                    scroll={isSmall ? { x: true } : {}}
                     totalRows={total}
                     loading={loading}
                     dataSource={properties}

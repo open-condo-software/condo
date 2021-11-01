@@ -17,6 +17,7 @@ import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { colors } from '@condo/domains/common/constants/style'
 import { DivisionWhereInput, OrganizationEmployeeRole, SortDivisionsBy } from '@app/condo/schema'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
 
 type BuildingTableProps = {
@@ -39,6 +40,7 @@ export default function DivisionTable (props: BuildingTableProps) {
 
     const { role, searchDivisionsQuery, tableColumns, sortBy } = props
 
+    const { isSmall } = useLayoutContext()
     const router = useRouter()
     const { offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, PROPERTY_PAGE_SIZE)
@@ -71,14 +73,14 @@ export default function DivisionTable (props: BuildingTableProps) {
 
     return (
         <Row align={'middle'} gutter={[0, 40]}>
-            <Col span={6}>
+            <Col xs={24} lg={6}>
                 <Input
                     placeholder={SearchPlaceholder}
                     onChange={(e) => {handleSearchChange(e.target.value)}}
                     value={search}
                 />
             </Col>
-            <Col span={6} offset={1}>
+            <Col lg={6} offset={1} hidden={isSmall}>
                 <Tooltip title={NotImplementedYetMessage} >
                     <Typography.Text
                         style={{
@@ -94,19 +96,21 @@ export default function DivisionTable (props: BuildingTableProps) {
                         </Button>
                     </Typography.Text>
                 </Tooltip>
-
             </Col>
-            <Col span={4} offset={7} >
-                {role?.canManageDivisions ? (
-                    <Row justify={'end'}>
-                        <Button type='sberPrimary' onClick={() => router.push('/division/create')}>
-                            {CreateLabel}
-                        </Button>
-                    </Row>
-                ) : null}
+            <Col xs={24} lg={4} offset={isSmall ? 0 : 7}>
+                {
+                    role?.canManageDivisions && (
+                        <Row justify={isSmall ? 'start' : 'end'}>
+                            <Button type='sberPrimary' onClick={() => router.push('/division/create')}>
+                                {CreateLabel}
+                            </Button>
+                        </Row>
+                    )
+                }
             </Col>
             <Col span={24}>
                 <Table
+                    scroll={isSmall ? { x: true } : {}}
                     totalRows={total}
                     loading={loading}
                     dataSource={divisions}

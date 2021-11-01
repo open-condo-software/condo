@@ -1,6 +1,11 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core'
-import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import {
+    PageContent,
+    PageHeader,
+    PageWrapper,
+    useLayoutContext
+} from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { MeterReading } from '@condo/domains/meter/utils/clientSchema'
 import { DatabaseFilled, FilterFilled } from '@ant-design/icons'
@@ -60,9 +65,10 @@ export const MetersPageContent = ({
         fetchPolicy: 'network-only',
     })
 
-    const [search, handleSearchChange] = useSearch(loading)
+    const { isSmall } = useLayoutContext()
+    const [ search, handleSearchChange ] = useSearch(loading)
     const { MeterInfoModal, setIsMeterInfoModalVisible } = useMeterInfoModal()
-    const [selectedMeterId, setSelectedMeterId] = useState<string>()
+    const [ selectedMeterId, setSelectedMeterId ] = useState<string>()
     const { MultipleFiltersModal, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas)
 
     const handleRowAction = useCallback((record) => {
@@ -95,8 +101,8 @@ export const MetersPageContent = ({
                                 <Row gutter={[0, 40]} align={'middle'} justify={'center'}>
                                     <Col span={23}>
                                         <FocusContainer padding={'16px'}>
-                                            <Row justify={'space-between'}>
-                                                <Col span={7}>
+                                            <Row justify={'space-between'} gutter={[0, 40]}>
+                                                <Col xs={24} lg={7}>
                                                     <Input
                                                         placeholder={SearchPlaceholder}
                                                         onChange={(e) => {handleSearchChange(e.target.value)}}
@@ -118,6 +124,7 @@ export const MetersPageContent = ({
                                     </Col>
                                     <Col span={24}>
                                         <Table
+                                            scroll={isSmall ? { x: true } : {}}
                                             totalRows={total}
                                             loading={loading}
                                             dataSource={meterReadings}

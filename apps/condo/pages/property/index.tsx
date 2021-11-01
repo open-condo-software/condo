@@ -110,44 +110,53 @@ export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
                                 <Radio.Button value="map">{ShowMap}</Radio.Button>
                             </Radio.Group>
                         </Col>
-                        <Col xs={24}>
-                            {viewMode !== 'map' &&
-                            <Tabs
-                                defaultActiveKey={initialTab.current}
-                                onChange={(key: PropertiesType) => {
-                                    setPropertiesType(key)
-                                    router.push(`/property?tab=${key}`)
-                                }}>
-                                <Tabs.TabPane
-                                    key="buildings"
-                                    tab={BuildingsTabTitle}
-                                />
-                                <Tabs.TabPane
-                                    key="divisions"
-                                    tab={DivisionsTabTitle}
-                                />
-                            </Tabs>
-                            }
-                        </Col>
-                        {viewMode !== 'map' &&
-                            <Col span={24}>
-                                {propertiesType === 'buildings' ?
-                                    <BuildingsTable
-                                        role={role}
-                                        searchPropertiesQuery={searchPropertiesQuery}
-                                        tableColumns={propertiesTableColumns}
-                                        sortBy={sortPropertiesBy}
-                                        onSearch={(properties) => setShownProperties(properties)}
-                                    /> :
-                                    <DivisionTable
-                                        role={role}
-                                        searchDivisionsQuery={searchDivisionsQuery}
-                                        tableColumns={divisionTableColumns}
-                                        sortBy={sortDivisionsBy}
-                                        onSearch={(properties) => setShownProperties(properties)}
-                                    />
-                                }
-                            </Col>
+                        {
+                            viewMode !== 'map' && (
+                                <Col xs={24}>
+                                    <Tabs
+                                        defaultActiveKey={initialTab.current}
+                                        onChange={(key: PropertiesType) => {
+                                            setPropertiesType(key)
+                                            router.push(`/property?tab=${key}`)
+                                        }}>
+                                        <Tabs.TabPane
+                                            key="buildings"
+                                            tab={BuildingsTabTitle}
+                                        />
+                                        <Tabs.TabPane
+                                            key="divisions"
+                                            tab={DivisionsTabTitle}
+                                        />
+                                    </Tabs>
+                                </Col>
+                            )
+                        }
+                        {
+                            viewMode !== 'map' && (
+                                <Col span={24}>
+                                    {
+                                        propertiesType === 'buildings'
+                                            ? (
+                                                <BuildingsTable
+                                                    role={role}
+                                                    searchPropertiesQuery={searchPropertiesQuery}
+                                                    tableColumns={propertiesTableColumns}
+                                                    sortBy={sortPropertiesBy}
+                                                    onSearch={(properties) => setShownProperties(properties)}
+                                                />
+                                            )
+                                            : (
+                                                <DivisionTable
+                                                    role={role}
+                                                    searchDivisionsQuery={searchDivisionsQuery}
+                                                    tableColumns={divisionTableColumns}
+                                                    sortBy={sortDivisionsBy}
+                                                    onSearch={(properties) => setShownProperties(properties)}
+                                                />
+                                            )
+                                    }
+                                </Col>
+                            )
                         }
                     </Row>
                     {viewMode === 'map' && <PropertiesMap properties={properties} />}

@@ -11,7 +11,6 @@ import { WRONG_PASSWORD_ERROR, WRONG_PHONE_ERROR } from '@condo/domains/user/con
 import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } from '@condo/domains/user/gql'
 import { useMutation } from '@core/next/apollo'
 import { useAuth } from '@core/next/auth'
-import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
 import { useLayoutContext } from '../../../common/components/LayoutContext'
 
@@ -31,6 +30,7 @@ export const SignInForm = (): React.ReactElement => {
     const PasswordOrPhoneMismatch = intl.formatMessage({ id: 'pages.auth.WrongPhoneOrPassword' })
     const LoginBySbbolMessage = intl.formatMessage({ id: 'LoginBySBBOL' })
 
+    const { isSmall } = useLayoutContext()
     const [form] = Form.useForm()
     const { next } = getQueryParams()
     const { refetch } = useAuth()
@@ -112,7 +112,7 @@ export const SignInForm = (): React.ReactElement => {
                     <Row justify={'start'} align={'middle'} gutter={[0, 40]}>
                         <Col xs={24}>
                             <Row justify={'space-between'} gutter={[0, 12]}>
-                                <Col xs={24}>
+                                <Col xs={24} lg={7}>
                                     <Button
                                         key='submit'
                                         type='sberPrimary'
@@ -123,13 +123,13 @@ export const SignInForm = (): React.ReactElement => {
                                         {SignInMsg}
                                     </Button>
                                 </Col >
-                                <Col xs={24}>
+                                <Col xs={24} lg={14} offset={isSmall ? 0 : 3}>
                                     <Button
                                         key='submit'
                                         type='sberAction'
                                         icon={<SberIconWithoutLabel/>}
                                         href={'/api/sbbol/auth'}
-                                        block
+                                        block={isSmall}
                                     >
                                         {LoginBySbbolMessage}
                                     </Button>
