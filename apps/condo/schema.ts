@@ -23328,10 +23328,10 @@ export type ServiceConsumer = {
   resident?: Maybe<Resident>;
   /**  Billing account, that will allow this resident to pay for certain service  */
   billingAccount?: Maybe<BillingAccount>;
-  /**  Billing account, that will allow this resident to pay for certain service  */
-  billingIntegrationContext?: Maybe<BillingAccount>;
-  /**  Billing account, that will allow this resident to pay for certain service  */
-  acquiringIntegrationContext?: Maybe<BillingAccount>;
+  /**  Billing integration context, that this serviceConsumer is connected to  */
+  billingIntegrationContext?: Maybe<BillingIntegrationOrganizationContext>;
+  /**  Acquiring integration context, that this serviceConsumer is connected to  */
+  acquiringIntegrationContext?: Maybe<AcquiringIntegrationContext>;
   /**  Account number taken from resident. This is what resident think his account number is  */
   accountNumber?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -23349,8 +23349,8 @@ export type ServiceConsumerCreateInput = {
   sender?: Maybe<SenderFieldInput>;
   resident?: Maybe<ResidentRelateToOneInput>;
   billingAccount?: Maybe<BillingAccountRelateToOneInput>;
-  billingIntegrationContext?: Maybe<BillingAccountRelateToOneInput>;
-  acquiringIntegrationContext?: Maybe<BillingAccountRelateToOneInput>;
+  billingIntegrationContext?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
+  acquiringIntegrationContext?: Maybe<AcquiringIntegrationContextRelateToOneInput>;
   accountNumber?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -23571,8 +23571,8 @@ export type ServiceConsumerUpdateInput = {
   sender?: Maybe<SenderFieldInput>;
   resident?: Maybe<ResidentRelateToOneInput>;
   billingAccount?: Maybe<BillingAccountRelateToOneInput>;
-  billingIntegrationContext?: Maybe<BillingAccountRelateToOneInput>;
-  acquiringIntegrationContext?: Maybe<BillingAccountRelateToOneInput>;
+  billingIntegrationContext?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
+  acquiringIntegrationContext?: Maybe<AcquiringIntegrationContextRelateToOneInput>;
   accountNumber?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -23602,9 +23602,9 @@ export type ServiceConsumerWhereInput = {
   resident_is_null?: Maybe<Scalars['Boolean']>;
   billingAccount?: Maybe<BillingAccountWhereInput>;
   billingAccount_is_null?: Maybe<Scalars['Boolean']>;
-  billingIntegrationContext?: Maybe<BillingAccountWhereInput>;
+  billingIntegrationContext?: Maybe<BillingIntegrationOrganizationContextWhereInput>;
   billingIntegrationContext_is_null?: Maybe<Scalars['Boolean']>;
-  acquiringIntegrationContext?: Maybe<BillingAccountWhereInput>;
+  acquiringIntegrationContext?: Maybe<AcquiringIntegrationContextWhereInput>;
   acquiringIntegrationContext_is_null?: Maybe<Scalars['Boolean']>;
   accountNumber?: Maybe<Scalars['String']>;
   accountNumber_not?: Maybe<Scalars['String']>;

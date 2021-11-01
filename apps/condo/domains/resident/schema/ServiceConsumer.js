@@ -30,7 +30,7 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
             ref: 'BillingAccount',
             isRequired: false,
             knexOptions: { isNotNullable: false },
-            kmigratorOptions: { null: false, on_delete: 'models.SET_NULL' },
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
 
         billingIntegrationContext: {
