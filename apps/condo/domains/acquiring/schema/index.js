@@ -8,6 +8,7 @@ const { AcquiringIntegrationAccessRight } = require('./AcquiringIntegrationAcces
 const { AcquiringIntegrationContext } = require('./AcquiringIntegrationContext')
 const { MultiPayment } = require('./MultiPayment')
 const { Payment } = require('./Payment')
+const { RegisterMultiPaymentService } = require('./RegisterMultiPaymentService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -16,5 +17,6 @@ module.exports = {
     AcquiringIntegrationContext,
     MultiPayment,
     Payment,
+    RegisterMultiPaymentService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
