@@ -45,7 +45,7 @@ export const renderHighlightedPart: TTextHighlighterRenderPartFN = (
 /**
  * Type for getHighlightedContents fn
  */
-type TGetHighlightedFN = (search?: FilterValue | string, postfix?: string, extraProps?: Partial<TTextHighlighterProps>) => (text?: string) => React.ReactElement | string
+type TGetHighlightedFN = (search?: FilterValue | string, postfix?: string | React.FC, extraProps?: Partial<TTextHighlighterProps>) => (text?: string) => React.ReactElement | string
 
 /**
  * Returned function renders provided text with highlighted parts according to search value
@@ -56,6 +56,15 @@ export const getHighlightedContents: TGetHighlightedFN = (search, postfix, extra
     // Sometimes we can receive null/undefined as text
     const renderText = text ? String(text) : ''
 
+    let ResultPostfix
+    if (typeof postfix === 'function') {
+        ResultPostfix = postfix
+    } else {
+        ResultPostfix = () => (
+            <Typography.Text>{postfix}</Typography.Text>
+        )
+    }
+
     return (
         <TextHighlighter
             text={renderText}
@@ -63,7 +72,7 @@ export const getHighlightedContents: TGetHighlightedFN = (search, postfix, extra
             renderPart={renderHighlightedPart}
             {...extraProps}
         >
-            {postfix && ` ${postfix}`}
+            <ResultPostfix />
         </TextHighlighter>
     )
 }
@@ -72,7 +81,7 @@ export const getHighlightedContents: TGetHighlightedFN = (search, postfix, extra
 /**
  * Type for getTableCellRenderer fn
  */
-type TTableCellRendererFN =  (search?: FilterValue | string, ellipsis?: boolean, postfix?: string, extraHighlighterProps?: Partial<TTextHighlighterProps>) => (text?: string) => React.ReactElement
+type TTableCellRendererFN =  (search?: FilterValue | string, ellipsis?: boolean, postfix?: string | React.FC, extraHighlighterProps?: Partial<TTextHighlighterProps>) => (text?: string) => React.ReactElement
 
 /**
  * Returned function renders provided text as a cell with highlighted search and multi row ellipsis (if requested)
