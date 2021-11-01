@@ -140,7 +140,7 @@ class GQLCustomSchema {
         if (SCHEMAS.has(this.name)) throw new Error(`Schema ${this.name} is already registered`)
         SCHEMAS.set(this.name, this)
         this._keystone = keystone
-        this._keystoneSchema = transformByPreprocessors(globalPreprocessors, this._type, this.name, this.schema, keystone)
+        this._keystoneSchema = transformByPreprocessors(globalPreprocessors, this._type, this.name, this.schema)
         keystone.extendGraphQLSchema(this._keystoneSchema)
     }
 
