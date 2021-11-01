@@ -48,7 +48,7 @@ function getRandomHiddenCard() {
 
 async function createTestAcquiringIntegration (client, billings, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!billings || !billings.length) throw new Error('no billings')
+    if (!billings) throw new Error('no billings')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const name = faker.company.companyName().replace(/ /, '-').toUpperCase() + ' TEST ACQUIRING'
     const hostUrl = faker.internet.url()

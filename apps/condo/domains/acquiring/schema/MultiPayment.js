@@ -13,7 +13,7 @@ const {
     AVAILABLE_PAYMENT_METHODS,
     MULTIPAYMENT_STATUSES,
     MULTIPAYMENT_INIT_STATUS,
-} = require('../constants')
+} = require('../constants/payment')
 const { ACQUIRING_INTEGRATION_FIELD } = require('./fields/relations')
 const access = require('@condo/domains/acquiring/access/MultiPayment')
 const get = require('lodash/get')

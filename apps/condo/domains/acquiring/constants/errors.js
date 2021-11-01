@@ -18,7 +18,7 @@ const REGISTER_MP_MULTIPLE_CURRENCIES = '[groupedReceipts:receiptsIds:context:in
 const REGISTER_MP_BILLING_ACCOUNTS_NO_MATCH = '[groupedReceipts:receiptsIds:noCommonBillingAccount] Billing receipt with specified id doesn\'t have common billing account with specified ServiceConsumer'
 const REGISTER_MP_INVALID_SENDER = '[sender:invalidValue] Sender has invalid value.'
 const REGISTER_MP_NEGATIVE_TO_PAY = '[groupedReceipts:receiptsIds] Cannot pay for receipts with negative toPay.'
-
+const INTEGRATION_NO_BILLINGS_ERROR = '[acquiringIntegration:noBillings] Acquiring integration must cover at least 1 billing'
 
 module.exports = {
     REGISTER_MP_EMPTY_INPUT,
@@ -41,4 +41,5 @@ module.exports = {
     REGISTER_MP_DELETED_BILLING_CONTEXT,
     REGISTER_MP_DELETED_BILLING_INTEGRATION,
     REGISTER_MP_NEGATIVE_TO_PAY,
+    INTEGRATION_NO_BILLINGS_ERROR,
 }

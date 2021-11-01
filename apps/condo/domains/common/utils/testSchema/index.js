@@ -147,13 +147,25 @@ export const expectToThrowAuthenticationError = async (testFunc, path='objs') =>
     })
 }
 
-export const expectToThrowValidationFailureError = async (testFunc, path = 'obj') => {
-    await catchErrorFrom(testFunc, ({errors, data}) => {
+export const expectToThrowValidationFailureError = async (testFunc, messageContains = undefined, path = 'obj') => {
+    await catchErrorFrom(testFunc, ({errors}) => {
         expect(errors[0]).toMatchObject({
             message: 'You attempted to perform an invalid mutation',
             name: 'ValidationFailureError',
             path: [path],
         })
+        if (messageContains) {
+            expect(errors[0]).toMatchObject({
+                originalError: {
+                    data: {
+                        messages: expect.arrayContaining([
+                            expect.stringContaining(messageContains)
+                        ])
+
+                    }
+                }
+            })
+        }
     })
 }
 

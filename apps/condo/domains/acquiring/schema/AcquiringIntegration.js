@@ -7,6 +7,9 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/acquiring/access/AcquiringIntegration')
+const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
+const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
+const { INTEGRATION_NO_BILLINGS_ERROR } = require('@condo/domains/acquiring/constants/errors')
 
 
 const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
@@ -47,6 +50,13 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             ref: 'BillingIntegration',
             isRequired: true,
             many: true,
+            hooks: {
+                validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
+                    if (resolvedData[fieldPath] && !resolvedData[fieldPath].length) {
+                        addFieldValidationError(INTEGRATION_NO_BILLINGS_ERROR)
+                    }
+                },
+            },
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
@@ -56,6 +66,17 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
         update: access.canManageAcquiringIntegrations,
         delete: false,
         auth: true,
+    },
+    hooks: {
+        validateInput: ({ resolvedData, context, addValidationError }) => {
+            if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
+            const { dv } = resolvedData
+            if (dv === 1) {
+                // NOTE: version 1 specific translations. Don't optimize this logic
+            } else {
+                return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
+            }
+        },
     },
 })
 
