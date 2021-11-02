@@ -10,7 +10,7 @@ yarn lint --quiet
 Lint i18n translation files:
 
 ```shell
-yarn run -W lintI18nTranslations
+yarn run -W lint-i18n-translations
 ```
 
 Look at errors, reported by TypeScript project-wide in IDE, you are using.
