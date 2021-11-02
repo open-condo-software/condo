@@ -241,7 +241,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const { refetch: refetchTicket, loading, obj: ticket, error } = Ticket.useObject({
         where: { id: id, property: { OR: [{ deletedAt: null }, { deletedAt_not: null }] }, deletedAt: null },
     }, {
-        fetchPolicy: 'network-only',
+        fetchPolicy: 'no-cache',
     })
     // TODO(antonal): get rid of separate GraphQL query for TicketChanges
     const ticketChangesResult = TicketChange.useObjects({
@@ -251,7 +251,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
         // @ts-ignore
         sortBy: ['createdAt_DESC'],
     }, {
-        fetchPolicy: 'network-only',
+        fetchPolicy: 'no-cache',
     })
 
     const { objs: comments, refetch: refetchComments } = TicketComment.useObjects({
