@@ -1,20 +1,18 @@
 import React, { ComponentProps, CSSProperties } from 'react'
 import get from 'lodash/get'
-import isFunction from 'lodash/isFunction'
 import dayjs from 'dayjs'
 import { Checkbox, Input, Select } from 'antd'
 import { FilterValue } from 'antd/es/table/interface'
-
 import { FilterFilled } from '@ant-design/icons'
+import { ApolloClient } from '@apollo/client'
+
 import { colors } from '@condo/domains/common/constants/style'
 
 import { OptionType, QueryArgType } from '../../utils/tables.utils'
-
 import DatePicker from '../Pickers/DatePicker'
 import { FilterContainer, SelectFilterContainer } from '../TableFilter'
 import { GraphQlSearchInput } from '../GraphQlSearchInput'
 import DateRangePicker from '../Pickers/DateRangePicker'
-import { ApolloClient } from '@apollo/client'
 
 type FilterIconType = (filtered?: boolean) => React.ReactNode
 type FilterValueType = (path: string | Array<string>, filters: { [x: string]: QueryArgType }) => FilterValue

@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
-import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
-import { useRouter } from 'next/router'
-import qs from 'qs'
 import { pickBy, get, debounce } from 'lodash'
+import qs from 'qs'
+import { useRouter } from 'next/router'
+import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
+
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 
 export const useEmergencySearch = <F>(loading): [boolean, (e: CheckboxChangeEvent) => void] => {

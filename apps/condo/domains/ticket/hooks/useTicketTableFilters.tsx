@@ -1,4 +1,8 @@
-import React, { useMemo, useRef } from 'react'
+import React, { useMemo } from 'react'
+import { get } from 'lodash'
+import { useIntl } from '@core/next/intl'
+import { useOrganization } from '@core/next/organization'
+
 import { ComponentType, FilterComponentSize, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { MeterReadingWhereInput } from '@app/condo/schema'
 import {
@@ -8,11 +12,9 @@ import {
     getStringContainsFilter,
     getTicketAttributesFilter,
 } from '@condo/domains/common/utils/tables.utils'
+
 import { TicketSource, TicketStatus } from '../utils/clientSchema'
-import { useIntl } from '@core/next/intl'
 import { searchEmployeeUser, searchOrganizationDivision, searchOrganizationProperty } from '../utils/clientSchema/search'
-import { useOrganization } from '@core/next/organization'
-import { get } from 'lodash'
 import { useModalFilterClassifiers } from './useModalFilterClassifiers'
 
 export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {

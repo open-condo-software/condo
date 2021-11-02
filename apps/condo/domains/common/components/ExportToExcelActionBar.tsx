@@ -1,10 +1,12 @@
-import { useIntl } from '@core/next/intl'
 import { useState } from 'react'
-import { useLazyQuery } from '@core/next/apollo'
 import { Form, notification } from 'antd'
+import { DatabaseFilled } from '@ant-design/icons'
+
+import { useLazyQuery } from '@core/next/apollo'
+import { useIntl } from '@core/next/intl'
+
 import ActionBar from './ActionBar'
 import { Button } from './Button'
-import { DatabaseFilled } from '@ant-design/icons'
 
 export const ExportToExcelActionBar = (
     { searchObjectsQuery, sortBy, exportToExcelQuery }

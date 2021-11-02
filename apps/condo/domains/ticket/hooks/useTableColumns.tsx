@@ -1,10 +1,8 @@
-import React, { CSSProperties, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { useRouter } from 'next/router'
 import get from 'lodash/get'
-import dayjs from 'dayjs'
-import isEmpty from 'lodash/isEmpty'
 import { identity } from 'lodash/util'
-import { Checkbox, Space, Tag, Typography } from 'antd'
+import { Space, Tag, Typography } from 'antd'
 
 import { useIntl } from '@core/next/intl'
 
@@ -12,19 +10,16 @@ import { getTableCellRenderer } from '@condo/domains/common/components/Table/Ren
 import { getAddressDetails, getFilteredValue } from '@condo/domains/common/utils/helpers'
 
 import { getHighlightedContents, getDateRender } from '@condo/domains/common/components/Table/Renders'
-import { getDateFilterDropdown, getOptionFilterDropdown } from '@condo/domains/common/components/Table/Filters'
-import { getTextFilterDropdown, getFilterIcon, FilterContainer } from '@condo/domains/common/components/TableFilter'
+import { getOptionFilterDropdown } from '@condo/domains/common/components/Table/Filters'
+import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { TTextHighlighterProps } from '@condo/domains/common/components/TextHighlighter'
+import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 
 import { EMERGENCY_TAG_COLOR } from '@condo/domains/ticket/constants/style'
-import { LOCALES } from '@condo/domains/common/constants/locale'
-import { colors } from '@condo/domains/common/constants/style'
 
 import { TicketStatus } from '../utils/clientSchema'
 import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
-import { createSorterMap, IFilters } from '../utils/helpers'
-import { TextHighlighter, TTextHighlighterProps } from '../../common/components/TextHighlighter'
-import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 
 export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const intl = useIntl()

@@ -1,12 +1,13 @@
-import { QueryMeta } from './tables.utils'
+import React, { CSSProperties } from 'react'
+import { get } from 'lodash'
 import dayjs, { Dayjs } from 'dayjs'
 import { FormItemProps } from 'antd/es'
-import React, { CSSProperties } from 'react'
-import { ISearchInputProps } from '../components/GraphQlSearchInput'
 import { DatePickerProps, FormInstance, InputProps, SelectProps } from 'antd'
 import { CheckboxGroupProps } from 'antd/es/checkbox'
 import { RangePickerSharedProps } from 'rc-picker/lib/RangePicker'
-import { get } from 'lodash'
+
+import { QueryMeta } from './tables.utils'
+import { ISearchInputProps } from '../components/GraphQlSearchInput'
 import {
     getDateFilterDropdown,
     getDateRangeFilterDropdown, getGQLSelectFilterDropdown,

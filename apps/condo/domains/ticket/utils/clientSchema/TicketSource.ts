@@ -1,10 +1,9 @@
 import { pick, get } from 'lodash'
 
+import { TicketSource, TicketSourceUpdateInput, QueryAllTicketSourcesArgs } from '@app/condo/schema'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
-
 import { TicketSource as TicketSourceGQL } from '@condo/domains/ticket/gql'
-import { TicketSource, TicketSourceUpdateInput, QueryAllTicketSourcesArgs } from '@app/condo/schema'
 
 const FIELDS = ['id', 'organization', 'type', 'name']
 const RELATIONS = []
