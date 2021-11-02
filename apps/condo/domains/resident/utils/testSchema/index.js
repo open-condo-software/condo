@@ -15,8 +15,7 @@ const { ServiceConsumer: ServiceConsumerGQL } = require('@condo/domains/resident
 const { REGISTER_SERVICE_CONSUMER_MUTATION } = require('@condo/domains/resident/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { createTestBillingAccount, createTestBillingProperty, makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
+const { makeClientWithResidentUserAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 
 const Resident = generateGQLTestUtils(ResidentGQL)
@@ -84,7 +83,7 @@ async function registerResidentByTestClient(client, extraAttrs = {}, withFlat = 
     return [data.result, attrs]
 }
 
-async function createTestServiceConsumer (client, resident, billingAccount, extraAttrs = {}) {
+async function createTestServiceConsumer (client, resident, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!resident || !resident.id) throw new Error('no resident.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -94,7 +93,6 @@ async function createTestServiceConsumer (client, resident, billingAccount, extr
         sender,
         resident: { connect: { id: resident.id } },
         accountNumber: faker.random.alphaNumeric(8),
-        billingAccount: { connect: { id: billingAccount.id }},
         ...extraAttrs,
     }
     const obj = await ServiceConsumer.create(client, attrs)
@@ -132,25 +130,24 @@ async function registerServiceConsumerByTestClient (client, extraAttrs = {}) {
 }
 /* AUTOGENERATE MARKER <FACTORY> */
 
-async function createTestServiceConsumerForUserAsAdmin() {
-    const userClient = await makeClientWithProperty()
+async function makeClientWithServiceConsumer() {
+    const client = await makeClientWithResidentUserAndProperty()
     const adminClient = await makeLoggedInAdminClient()
 
-    const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
-    const [billingProperty] = await createTestBillingProperty(adminClient, context)
-    const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
+    const [resident] = await createTestResident(adminClient, client.user, client.organization, client.property)
+    const [consumer] = await createTestServiceConsumer(adminClient, resident)
 
-    const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
-    const [consumer] = await createTestServiceConsumer(adminClient, resident, billingAccount)
+    client.resident = resident
+    client.serviceConsumer = consumer
 
-    return [consumer, userClient, adminClient]
+    return client
 }
 
 module.exports = {
     Resident, createTestResident, updateTestResident,
     registerResidentByTestClient,
     ServiceConsumer, createTestServiceConsumer, updateTestServiceConsumer,
-    createTestServiceConsumerForUserAsAdmin,
-registerServiceConsumerByTestClient
+    makeClientWithServiceConsumer,
+    registerServiceConsumerByTestClient
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
