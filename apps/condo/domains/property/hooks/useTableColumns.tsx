@@ -1,14 +1,15 @@
-import { FilterValue } from 'antd/es/table/interface'
-
 import { useMemo } from 'react'
+import get from 'lodash/get'
+import { FilterValue } from 'antd/es/table/interface'
+import { useRouter } from 'next/router'
+
 import { useIntl } from '@core/next/intl'
 
-import { parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { get } from 'lodash'
-import { getTextRender } from '@condo/domains/common/components/Table/Renders'
-import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
-import { useRouter } from 'next/router'
 import { PropertyWhereInput } from '@app/condo/schema'
+
+import { parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
+import { getTextRender } from '@condo/domains/common/components/Table/Renders'
 
 export interface ITableColumn {
     title: string,
@@ -43,23 +44,23 @@ export const useTableColumns = (filterMetas: FiltersMeta<PropertyWhereInput>[]) 
                 dataIndex: 'address',
                 key: 'address',
                 sorter: true,
-                width: '50%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'address'),
-                render: !Array.isArray(search) ? getTextRender(search) : undefined,
+                render: getTextRender(search),
+                width: '70%',
             },
             {
                 title: UnitsCountMessage,
                 ellipsis: true,
                 dataIndex: 'unitsCount',
                 key: 'unitsCount',
-                width: '25%',
+                width: '15%',
             },
             {
                 title: TasksInWorkMessage,
                 ellipsis: true,
                 dataIndex: 'ticketsInWork',
                 key: 'ticketsInWork',
-                width: '25%',
+                width: '15%',
             },
         ]
         return columns

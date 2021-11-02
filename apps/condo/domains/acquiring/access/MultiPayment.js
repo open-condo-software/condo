@@ -3,7 +3,7 @@
  */
 
 const { checkAcquiringIntegrationAccessRight } = require(
-    '../utils/accessSchema')
+    '@condo/domains/acquiring/utils/accessSchema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
@@ -40,10 +40,11 @@ async function canManageMultiPayments ({ authentication: { item: user }, operati
     return false
 }
 
-async function canReadSensitiveData ({ authentication: { item: user }, existingItem }) {
+async function canReadMultiPaymentsSensitiveData ({ authentication: { item: user }, existingItem }) {
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
     if (await checkAcquiringIntegrationAccessRight(user, existingItem.integration)) return true
+    return false
 }
 
 /*
@@ -53,5 +54,5 @@ async function canReadSensitiveData ({ authentication: { item: user }, existingI
 module.exports = {
     canReadMultiPayments,
     canManageMultiPayments,
-    canReadSensitiveData,
+    canReadMultiPaymentsSensitiveData,
 }

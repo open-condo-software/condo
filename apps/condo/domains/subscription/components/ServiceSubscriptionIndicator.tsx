@@ -1,5 +1,5 @@
 import React from 'react'
-import { Badge, Typography } from 'antd'
+import { Tooltip, Typography } from 'antd'
 import { useIntl } from '@core/next/intl'
 import styled from '@emotion/styled'
 import { colors } from '@condo/domains/common/constants/style'
@@ -7,40 +7,49 @@ import { green, grey } from '@ant-design/colors'
 import { useServiceSubscriptionContext } from './SubscriptionContext'
 import get from 'lodash/get'
 
-const StyledPanel = styled.div`
-  margin-left: -25px;
-  margin-bottom: 15px;
-  padding: 15px;
-  border: ${colors.sberGrey[0]} thin solid;
-  border-radius: 8px;
+
+const DaysLeftContainer = styled.div`
+  width: 36px;
+  height: 36px;
+  padding: 4px;
+  border-radius: 50%;
+  background-color: ${colors.scampi};
+  box-sizing: border-box;
+`
+
+const DaysLeftWrapper = styled.div`
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: ${colors.white};
+  text-align: center;
+  line-height: 200%;
+  box-sizing: border-box;
 `
 
 export const ServiceSubscriptionIndicator: React.FC = () => {
-    const { subscription, daysLeft, daysLeftHumanized, isExpired } = useServiceSubscriptionContext()
+    const intl = useIntl()
+    const TrialDaysDescriptionMessage = intl.formatMessage({ id: 'subscription.type.expiredMessage' })
+
+    const { subscription, daysLeft, isExpired } = useServiceSubscriptionContext()
+
     if (!subscription || !get(subscription, 'isTrial')) {
         return null
     }
-    const badges = []
-    for (let i = 0; i < daysLeft; i++) {
-        badges.push(
-            <Badge
-                status="success"
-                style={{ marginLeft: i > 0 ? '-3px' : undefined }}
-            />
+
+    return isExpired
+        ? (<TrialExpiredMessage/>)
+        : (
+            <Tooltip title={TrialDaysDescriptionMessage}>
+                <DaysLeftContainer>
+                    <DaysLeftWrapper>
+                        <Typography.Text strong>
+                            {daysLeft}
+                        </Typography.Text>
+                    </DaysLeftWrapper>
+                </DaysLeftContainer>
+            </Tooltip>
         )
-    }
-    return (
-        <StyledPanel>
-            <div>
-                {badges}
-            </div>
-            {isExpired ? (
-                <TrialExpiredMessage/>
-            ) : (
-                <TrialActiveMessage daysLeftHumanized={daysLeftHumanized}/>
-            )}
-        </StyledPanel>
-    )
 }
 
 const textStyle = {
@@ -63,26 +72,5 @@ const TrialExpiredMessage: React.FC = () => {
                 {PromptMessage}
             </Typography.Text>
         </>
-    )
-}
-
-
-interface ITrialActiveMessage {
-    daysLeftHumanized: string
-}
-
-const TrialActiveMessage: React.FC<ITrialActiveMessage> = ({ daysLeftHumanized }) => {
-    const intl = useIntl()
-    const TrialActiveMessage = intl.formatMessage({ id: 'subscription.indicator.trial.active' })
-    const [before, after] = TrialActiveMessage.split('{days}')
-
-    return (
-        <Typography.Text style={textStyle}>
-            {before}
-            <Typography.Text style={textStyle} strong>
-                {daysLeftHumanized}
-            </Typography.Text>
-            {after}
-        </Typography.Text>
     )
 }

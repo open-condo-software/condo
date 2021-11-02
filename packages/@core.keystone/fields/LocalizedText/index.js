@@ -12,5 +12,6 @@ module.exports = {
     adapters: {
         mongoose: Text.adapters.mongoose,
         knex: Text.adapters.knex,
+        prisma: Text.adapters.prisma,
     },
 }

@@ -1,36 +1,49 @@
-import { isEmpty } from 'lodash'
 import React from 'react'
-const { ESCAPE_REGEX } = require('../constants/regexps')
+import isEmpty from 'lodash/isEmpty'
+import { Typography } from 'antd'
+import { BaseType } from 'antd/lib/typography/Base'
 
-interface ITextHighlighterProps {
+import { getEscaped } from '@condo/domains/common/utils/string.utils'
+
+export type TTextHighlighterRenderPartFN = (
+    part: string,
+    startIndex: number,
+    marked: boolean,
+    type?: BaseType,
+    style?: React.CSSProperties,
+) => React.ReactElement
+
+export type TTextHighlighterProps = {
     text: string
     search: string
-    renderPart: (part: string, startIndex: number, marked: boolean) => React.ReactElement
+    renderPart: TTextHighlighterRenderPartFN
+    type?: BaseType
+    style?: React.CSSProperties,
 }
 
-export const TextHighlighter: React.FC<ITextHighlighterProps> = ({ text, search, renderPart }) => {
-    if (!text) return null
+export const TextHighlighter: React.FC<TTextHighlighterProps> = (props) => {
+    const { text, search, renderPart, type, style, children } = props
 
-    if (isEmpty(search)) {
-        return <>{ renderPart(text, 0, false) }</>
+    if (isEmpty(text)) return null
+
+    let result
+    const searchRegexp = new RegExp(`(${getEscaped(search)})`, 'ig')
+
+    if (isEmpty(search) || !searchRegexp.test(text)) {
+        result = renderPart(text, 0, false, type, style)
+    } else {
+        let symbolsPassed = 0
+        const parts = text.split(searchRegexp)
+
+        result = parts.map((part) => {
+            const startSymbolIndex = symbolsPassed
+            const isMatch = searchRegexp.test(part)
+
+            symbolsPassed += part.length
+
+            return renderPart(part, startSymbolIndex, isMatch, type)
+        })
     }
 
-    const searchRegexp = new RegExp(`(${ESCAPE_REGEX(search)})`, 'ig')
-    if (!text.match(searchRegexp)) {
-        return <>{ renderPart(text, 0, false) }</>
-    }
-
-    const parts = text.split(searchRegexp)
-
-    let symbolsPassed = 0
-    const elements = parts.map((part) => {
-        const startSymbolIndex = symbolsPassed
-        symbolsPassed += part.length
-        if (part.match(searchRegexp)) {
-            return renderPart(part, startSymbolIndex, true)
-        }
-        return renderPart(part, startSymbolIndex, false)
-    })
-
-    return <>{elements}</>
+    return <Typography.Text title={text} type={type} style={style}>{result} {children}</Typography.Text>
 }

@@ -1371,21 +1371,6 @@ export type AddressMetaFieldInput = {
   data: AddressMetaDataFieldInput;
 };
 
-export type AdvanceAcceptance = {
-  __typename?: 'AdvanceAcceptance';
-  active?: Maybe<Scalars['Boolean']>;
-  payerAccount?: Maybe<Scalars['String']>;
-  payerBankBic?: Maybe<Scalars['String']>;
-  payerBankCorrAccount?: Maybe<Scalars['String']>;
-  payerInn?: Maybe<Scalars['String']>;
-  payerName?: Maybe<Scalars['String']>;
-  payerOrgIdHash?: Maybe<Scalars['String']>;
-  purpose?: Maybe<Scalars['String']>;
-  sinceDate?: Maybe<Scalars['String']>;
-  untilDate?: Maybe<Scalars['String']>;
-  bundles?: Maybe<Array<Maybe<AdvanceAcceptanceBundle>>>;
-};
-
 export type AdvanceAcceptanceBundle = {
   __typename?: 'AdvanceAcceptanceBundle';
   code?: Maybe<Scalars['String']>;
@@ -1401,20 +1386,6 @@ export type AdvanceAcceptanceBundleInput = {
   sinceDate?: Maybe<Scalars['String']>;
   untilDate?: Maybe<Scalars['String']>;
   currentState?: Maybe<CurrentStateType>;
-};
-
-export type AdvanceAcceptanceInput = {
-  active?: Maybe<Scalars['Boolean']>;
-  payerAccount?: Maybe<Scalars['String']>;
-  payerBankBic?: Maybe<Scalars['String']>;
-  payerBankCorrAccount?: Maybe<Scalars['String']>;
-  payerInn?: Maybe<Scalars['String']>;
-  payerName?: Maybe<Scalars['String']>;
-  payerOrgIdHash?: Maybe<Scalars['String']>;
-  purpose?: Maybe<Scalars['String']>;
-  sinceDate?: Maybe<Scalars['String']>;
-  untilDate?: Maybe<Scalars['String']>;
-  bundles?: Maybe<Array<Maybe<AdvanceAcceptanceBundleInput>>>;
 };
 
 export type AuthenticateUserWithPhoneAndPasswordInput = {
@@ -23261,12 +23232,32 @@ export type ResidentsUpdateInput = {
 export type SbbolOfferAccept = {
   __typename?: 'SbbolOfferAccept';
   dv?: Maybe<Scalars['Int']>;
-  data: AdvanceAcceptance;
+  active?: Maybe<Scalars['Boolean']>;
+  payerAccount?: Maybe<Scalars['String']>;
+  payerBankBic?: Maybe<Scalars['String']>;
+  payerBankCorrAccount?: Maybe<Scalars['String']>;
+  payerInn?: Maybe<Scalars['String']>;
+  payerName?: Maybe<Scalars['String']>;
+  payerOrgIdHash?: Maybe<Scalars['String']>;
+  purpose?: Maybe<Scalars['String']>;
+  sinceDate?: Maybe<Scalars['String']>;
+  untilDate?: Maybe<Scalars['String']>;
+  bundles?: Maybe<Array<Maybe<AdvanceAcceptanceBundle>>>;
 };
 
 export type SbbolOfferAcceptInput = {
   dv: Scalars['Int'];
-  data: AdvanceAcceptanceInput;
+  active?: Maybe<Scalars['Boolean']>;
+  payerAccount?: Maybe<Scalars['String']>;
+  payerBankBic?: Maybe<Scalars['String']>;
+  payerBankCorrAccount?: Maybe<Scalars['String']>;
+  payerInn?: Maybe<Scalars['String']>;
+  payerName?: Maybe<Scalars['String']>;
+  payerOrgIdHash?: Maybe<Scalars['String']>;
+  purpose?: Maybe<Scalars['String']>;
+  sinceDate?: Maybe<Scalars['String']>;
+  untilDate?: Maybe<Scalars['String']>;
+  bundles?: Maybe<Array<Maybe<AdvanceAcceptanceBundleInput>>>;
 };
 
 export type SendMessageInput = {
@@ -23302,7 +23293,9 @@ export enum SendMessageType {
   RegisterNewUser = 'REGISTER_NEW_USER',
   ResetPassword = 'RESET_PASSWORD',
   SmsVerify = 'SMS_VERIFY',
-  ShareTicket = 'SHARE_TICKET'
+  ShareTicket = 'SHARE_TICKET',
+  DeveloperImportantNoteType = 'DEVELOPER_IMPORTANT_NOTE_TYPE',
+  CustomerImportantNoteType = 'CUSTOMER_IMPORTANT_NOTE_TYPE'
 }
 
 export type SenderField = {
@@ -23335,6 +23328,10 @@ export type ServiceConsumer = {
   resident?: Maybe<Resident>;
   /**  Billing account, that will allow this resident to pay for certain service  */
   billingAccount?: Maybe<BillingAccount>;
+  /**  Billing integration context, that this serviceConsumer is connected to  */
+  billingIntegrationContext?: Maybe<BillingIntegrationOrganizationContext>;
+  /**  Acquiring integration context, that this serviceConsumer is connected to  */
+  acquiringIntegrationContext?: Maybe<AcquiringIntegrationContext>;
   /**  Account number taken from resident. This is what resident think his account number is  */
   accountNumber?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -23352,6 +23349,8 @@ export type ServiceConsumerCreateInput = {
   sender?: Maybe<SenderFieldInput>;
   resident?: Maybe<ResidentRelateToOneInput>;
   billingAccount?: Maybe<BillingAccountRelateToOneInput>;
+  billingIntegrationContext?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
+  acquiringIntegrationContext?: Maybe<AcquiringIntegrationContextRelateToOneInput>;
   accountNumber?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -23377,6 +23376,8 @@ export type ServiceConsumerHistoryRecord = {
   sender?: Maybe<Scalars['JSON']>;
   resident?: Maybe<Scalars['String']>;
   billingAccount?: Maybe<Scalars['String']>;
+  billingIntegrationContext?: Maybe<Scalars['String']>;
+  acquiringIntegrationContext?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -23396,6 +23397,8 @@ export type ServiceConsumerHistoryRecordCreateInput = {
   sender?: Maybe<Scalars['JSON']>;
   resident?: Maybe<Scalars['String']>;
   billingAccount?: Maybe<Scalars['String']>;
+  billingIntegrationContext?: Maybe<Scalars['String']>;
+  acquiringIntegrationContext?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -23420,6 +23423,8 @@ export type ServiceConsumerHistoryRecordUpdateInput = {
   sender?: Maybe<Scalars['JSON']>;
   resident?: Maybe<Scalars['String']>;
   billingAccount?: Maybe<Scalars['String']>;
+  billingIntegrationContext?: Maybe<Scalars['String']>;
+  acquiringIntegrationContext?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -23456,6 +23461,14 @@ export type ServiceConsumerHistoryRecordWhereInput = {
   billingAccount_not?: Maybe<Scalars['String']>;
   billingAccount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   billingAccount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  billingIntegrationContext?: Maybe<Scalars['String']>;
+  billingIntegrationContext_not?: Maybe<Scalars['String']>;
+  billingIntegrationContext_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  billingIntegrationContext_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  acquiringIntegrationContext?: Maybe<Scalars['String']>;
+  acquiringIntegrationContext_not?: Maybe<Scalars['String']>;
+  acquiringIntegrationContext_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  acquiringIntegrationContext_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   accountNumber?: Maybe<Scalars['String']>;
   accountNumber_not?: Maybe<Scalars['String']>;
   accountNumber_contains?: Maybe<Scalars['String']>;
@@ -23558,6 +23571,8 @@ export type ServiceConsumerUpdateInput = {
   sender?: Maybe<SenderFieldInput>;
   resident?: Maybe<ResidentRelateToOneInput>;
   billingAccount?: Maybe<BillingAccountRelateToOneInput>;
+  billingIntegrationContext?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
+  acquiringIntegrationContext?: Maybe<AcquiringIntegrationContextRelateToOneInput>;
   accountNumber?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -23587,6 +23602,10 @@ export type ServiceConsumerWhereInput = {
   resident_is_null?: Maybe<Scalars['Boolean']>;
   billingAccount?: Maybe<BillingAccountWhereInput>;
   billingAccount_is_null?: Maybe<Scalars['Boolean']>;
+  billingIntegrationContext?: Maybe<BillingIntegrationOrganizationContextWhereInput>;
+  billingIntegrationContext_is_null?: Maybe<Scalars['Boolean']>;
+  acquiringIntegrationContext?: Maybe<AcquiringIntegrationContextWhereInput>;
+  acquiringIntegrationContext_is_null?: Maybe<Scalars['Boolean']>;
   accountNumber?: Maybe<Scalars['String']>;
   accountNumber_not?: Maybe<Scalars['String']>;
   accountNumber_contains?: Maybe<Scalars['String']>;
@@ -26701,6 +26720,10 @@ export enum SortServiceConsumersBy {
   ResidentDesc = 'resident_DESC',
   BillingAccountAsc = 'billingAccount_ASC',
   BillingAccountDesc = 'billingAccount_DESC',
+  BillingIntegrationContextAsc = 'billingIntegrationContext_ASC',
+  BillingIntegrationContextDesc = 'billingIntegrationContext_DESC',
+  AcquiringIntegrationContextAsc = 'acquiringIntegrationContext_ASC',
+  AcquiringIntegrationContextDesc = 'acquiringIntegrationContext_DESC',
   AccountNumberAsc = 'accountNumber_ASC',
   AccountNumberDesc = 'accountNumber_DESC',
   IdAsc = 'id_ASC',

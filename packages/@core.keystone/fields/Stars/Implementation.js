@@ -10,4 +10,5 @@ module.exports = {
     Stars,
     MongoIntegerInterface: Integer.adapters.mongoose,
     KnexIntegerInterface: Integer.adapters.knex,
+    PrismaIntegerInterface: Integer.adapters.prisma,
 }

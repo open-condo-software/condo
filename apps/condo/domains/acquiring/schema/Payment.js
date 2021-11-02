@@ -33,6 +33,7 @@ const Payment = new GQLListSchema('Payment', {
             ...MONEY_AMOUNT_FIELD,
             schemaDoc: 'Amount of money which recipient pays from initial amount for transaction',
             isRequired: false,
+            access: { read: access.canReadPaymentsSensitiveData },
         },
 
         currencyCode: CURRENCY_CODE_FIELD,
@@ -68,6 +69,7 @@ const Payment = new GQLListSchema('Payment', {
             schemaDoc: 'Frozen billing receipt, used to resolving conflicts',
             type: Json,
             isRequired: true,
+            access: { read: access.canReadPaymentsSensitiveData },
             // TODO (savelevMatthew): create validation / type later
         },
 
@@ -89,6 +91,7 @@ const Payment = new GQLListSchema('Payment', {
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+            access: { read: access.canReadPaymentsSensitiveData },
         },
 
         status: {

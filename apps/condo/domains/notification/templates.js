@@ -1,5 +1,6 @@
 const conf = require('@core/config')
 const dayjs = require('dayjs')
+const get = require('lodash/get')
 
 const { RU_LOCALE, EN_LOCALE, LOCALES } = require('@condo/domains/common/constants/locale')
 
@@ -14,6 +15,7 @@ const {
     EMAIL_TRANSPORT,
     SMS_TRANSPORT,
     DEVELOPER_IMPORTANT_NOTE_TYPE,
+    CUSTOMER_IMPORTANT_NOTE_TYPE,
 } = require('./constants')
 
 async function renderTemplate (transport, message) {
@@ -237,6 +239,18 @@ async function renderTemplate (transport, message) {
         return {
             subject: String(type),
             text: JSON.stringify(data),
+        }
+    }
+
+    if (message.type === CUSTOMER_IMPORTANT_NOTE_TYPE) {
+        const { data } = message.meta
+
+        return {
+            subject: 'Новая организация. (СББОЛ)',
+            text: `
+                Название: ${get(data, ['organization', 'name'])},
+                ИНН: ${get(data, ['organization', 'meta', 'inn'])},
+            `,
         }
     }
 
