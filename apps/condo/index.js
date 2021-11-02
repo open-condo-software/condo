@@ -1,5 +1,7 @@
 const { identity } = require('lodash')
+const { v4 } = require('uuid')
 const { Keystone } = require('@keystonejs/keystone')
+const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { AdminUIApp } = require('@keystonejs/app-admin-ui')
 const { NextApp } = require('@keystonejs/app-next')
@@ -7,9 +9,8 @@ const { registerTriggers } = require('@core/triggers')
 const { createItems } = require('@keystonejs/server-side-graphql-client')
 const { obsRouterHandler } = require('@condo/domains/common/utils/sberCloudFileAdapter')
 const conf = require('@core/config')
-// const access = require('@core/keystone/access')
 const { registerTasks } = require('@core/keystone/tasks')
-const { prepareDefaultKeystoneConfig, getAuthStrategy } = require('@core/keystone/setup.utils')
+const { prepareDefaultKeystoneConfig, getAdapter } = require('@core/keystone/setup.utils')
 const { registerSchemas } = require('@core/keystone/schema')
 const express = require('express')
 const bodyParser = require('body-parser')
@@ -20,6 +21,7 @@ const { hasValidJsonStructure } = require('@condo/domains/common/utils/validatio
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production'
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
+const IS_BUILD_PHASE = conf.PHASE === 'build'
 // NOTE: should be disabled in production: https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/
 // WARN: https://github.com/graphql/graphql-playground/tree/main/packages/graphql-playground-html/examples/xss-attack
 const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND === 'true'
@@ -31,8 +33,9 @@ if (IS_ENABLE_DD_TRACE) {
     })
 }
 
+const keystoneConfig = (IS_BUILD_PHASE) ? { cookieSecret: v4(), adapter: getAdapter('undefined') } : prepareDefaultKeystoneConfig(conf)
 const keystone = new Keystone({
-    ...prepareDefaultKeystoneConfig(conf),
+    ...keystoneConfig,
     onConnect: async () => {
         // Initialise some data
         if (conf.NODE_ENV !== 'development' && conf.NODE_ENV !== 'test') return // Just for dev env purposes!
@@ -51,7 +54,8 @@ const keystone = new Keystone({
         }
     },
 })
-if (conf.PHASE !== 'build'){
+
+if (!IS_BUILD_PHASE) {
     registerSchemas(keystone, [
         require('@condo/domains/user/schema'),
         require('@condo/domains/organization/schema'),
@@ -76,6 +80,17 @@ if (conf.PHASE !== 'build'){
     registerTriggers([
         require('@condo/domains/ticket/triggers'),
     ])
+}
+
+let authStrategy
+if (!IS_BUILD_PHASE) {
+    authStrategy = keystone.createAuthStrategy({
+        type: PasswordAuthStrategy,
+        list: 'User',
+        config: {
+            protectIdentities: false,
+        },
+    })
 }
 
 class OBSFilesMiddleware {
@@ -127,7 +142,7 @@ module.exports = {
         new AdminUIApp({
             adminPath: '/admin',
             isAccessAllowed: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport)),
-            authStrategy: getAuthStrategy(keystone),
+            authStrategy,
         }),
         conf.NODE_ENV === 'test' ? undefined : new NextApp({ dir: '.' }),
     ].filter(identity),
