@@ -100,7 +100,7 @@
   "filters.FullSearch": "Search by any field of the application",
   "filters.Reset": "Reset Filters",
   "filters.UserName": "Full Name",
-  "FooterText": "Have any questions? Write to us {email}\nor call {phone}",
+  "FooterText": "Have any questions? Please email us at {email}\nor call {phone}",
   "From": "from",
   "FullscreenExit": "Exit Fullscreen",
   "FullscreenRequest": "Fullscreen",
