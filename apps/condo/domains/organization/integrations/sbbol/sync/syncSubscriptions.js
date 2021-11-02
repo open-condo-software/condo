@@ -116,7 +116,11 @@ const syncSubscriptions = async (date = null) => {
         // for organization, that will be queried in SBBOL using `SbbolFintechApi`.
         ourOrganizationAccessToken = await SbbolRequestApi.getOrganizationAccessToken(SBBOL_CONFIG.service_organization_hashOrgId)
     } catch (e) {
-        console.error('syncSubscriptions() Error:', e)
+        logger.error({
+            message: 'Failed to obtain organization access token from SBBOL',
+            error: e.message,
+            hashOrgId: SBBOL_CONFIG.service_organization_hashOrgId,
+        })
         return
     }
 
