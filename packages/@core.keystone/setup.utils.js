@@ -58,7 +58,10 @@ function getAdapter (databaseUrl) {
 }
 
 function prepareDefaultKeystoneConfig (conf) {
-    const baseConfig = {
+    const redisClient = new IORedis(conf.REDIS_URL)
+    const sessionStore = new RedisStore({ client: redisClient })
+
+    return {
         cookieSecret: getCookieSecret(conf.COOKIE_SECRET),
         cookie: {
             sameSite: false,
@@ -69,30 +72,12 @@ function prepareDefaultKeystoneConfig (conf) {
         adapter: getAdapter(conf.DATABASE_URL),
         defaultAccess: { list: false, field: true, custom: false },
         queryLimits: { maxTotalResults: 1000 },
-    }
-    if (config.PHASE === 'build') return baseConfig
-
-    const redisClient = new IORedis(conf.REDIS_URL)
-    const sessionStore = new RedisStore({ client: redisClient })
-    return {
-        ...baseConfig,
         sessionStore,
     }
 }
 
-function getAuthStrategy (keystone) {
-    if (config.PHASE === 'build') return undefined
-    return keystone.createAuthStrategy({
-        type: PasswordAuthStrategy,
-        list: 'User',
-        config: {
-            protectIdentities: false,
-        },
-    })
-}
 module.exports = {
     getCookieSecret,
     getAdapter,
-    getAuthStrategy,
     prepareDefaultKeystoneConfig,
 }
