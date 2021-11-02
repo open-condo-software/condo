@@ -141,7 +141,7 @@ describe('ServiceConsumer', () => {
 
     describe('Read', () => {
         it('can be read by admin', async () => {
-            const adminClient = makeLoggedInAdminClient()
+            const adminClient = await makeLoggedInAdminClient()
             await makeClientWithServiceConsumer()
 
             const objs = await ServiceConsumer.getAll(adminClient, {})
@@ -155,15 +155,6 @@ describe('ServiceConsumer', () => {
             const objs = await ServiceConsumer.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
             expect(objs.length === 1).toBeTruthy()
             expect(objs[0].id).toMatch(client.serviceConsumer.id)
-        })
-
-        it('cannot be read by user with type === resident', async () => {
-            await makeClientWithServiceConsumer()
-
-            const client = await makeClientWithServiceConsumer() // Other user
-
-            const objs = await ServiceConsumer.getAll(client)
-            expect(objs.length >= 1).toBeFalsy()
         })
 
         it('cannot be read by anonymous', async () => {
