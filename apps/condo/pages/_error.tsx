@@ -16,4 +16,6 @@ ErrorPage.getInitialProps = ({ res, err }) => {
         })
         res.end()
     }
+
+    return { }
 }
