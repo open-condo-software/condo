@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { CSSProperties, useCallback, useState } from 'react'
 import Form from 'antd/lib/form'
 import { Checkbox, Col, FormInstance, Input, Row, Select, Typography } from 'antd'
 import { useRouter } from 'next/router'
@@ -7,6 +7,7 @@ import { FormItemProps } from 'antd/es'
 import qs from 'qs'
 import styled from '@emotion/styled'
 import { CloseOutlined } from '@ant-design/icons'
+import { Gutter } from 'antd/es/grid/row'
 
 import { useIntl } from '@core/next/intl'
 
@@ -23,7 +24,6 @@ import { Button } from '../components/Button'
 import { BaseModalForm } from '../components/containers/FormList'
 
 import { ComponentType, FilterComponentType, FiltersMeta, getQueryToValueProcessorByType } from '../utils/filters.utils'
-
 
 enum FilterComponentSize {
     Medium = 12,
@@ -50,12 +50,13 @@ function FilterComponent<T> ({
     children,
 }: IFilterComponentProps<T>) {
     const value = get(filters, name)
+    const initialValue = queryToValueProcessor && value ? queryToValueProcessor(value) : value
 
     return (
         <Col span={size}>
             <Form.Item
                 name={name}
-                initialValue={queryToValueProcessor && value ? queryToValueProcessor(value) : value}
+                initialValue={initialValue}
                 label={label}
                 {...formItemProps}
             >
@@ -65,9 +66,14 @@ function FilterComponent<T> ({
     )
 }
 
+const DATE_PICKER_STYLE: CSSProperties = { width: '100%' }
+const DATE_RANGE_PICKER_STYLE: CSSProperties = { width: '100%' }
+const TAGS_SELECT_STYLE: CSSProperties = { width: '100%' }
+const TAGS_SELECT_DROPDOWN_STYLE = { display: 'none' }
+
 const FILTERS_POPUP_CONTAINER_ID = 'filtersPopupContainer'
 
-export const getModalFilterComponentByMeta = (filters, name, component: FilterComponentType): React.ReactElement => {
+export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string, component: FilterComponentType): React.ReactElement => {
     const type = get(component, 'type')
     const props = {
         // It is necessary so that dropdowns do not go along with the screen when scrolling the modal window
@@ -81,7 +87,7 @@ export const getModalFilterComponentByMeta = (filters, name, component: FilterCo
         }
 
         case ComponentType.Date: {
-            return <DatePicker format='DD.MM.YYYY' style={{ width: '100%' }} {...props} />
+            return <DatePicker format='DD.MM.YYYY' style={DATE_PICKER_STYLE} {...props} />
         }
 
         case ComponentType.CheckboxGroup: {
@@ -92,7 +98,7 @@ export const getModalFilterComponentByMeta = (filters, name, component: FilterCo
         case ComponentType.DateRange: {
             return <DateRangePicker
                 format='DD.MM.YYYY'
-                style={{ width: '100%' }}
+                style={DATE_RANGE_PICKER_STYLE}
                 separator={null}
                 {...props}
             />
@@ -100,9 +106,10 @@ export const getModalFilterComponentByMeta = (filters, name, component: FilterCo
 
         case ComponentType.Select: {
             const options = get(component, 'options')
+
             return (
                 <Select
-                    defaultValue={get(filters, name)}
+                    defaultValue={get(filters, keyword)}
                     {...props}
                 >
                     {options.map(option => (
@@ -127,8 +134,8 @@ export const getModalFilterComponentByMeta = (filters, name, component: FilterCo
             return <Select
                 mode="tags"
                 allowClear
-                style={{ width: '100%' }}
-                dropdownStyle={{ display: 'none' }}
+                style={TAGS_SELECT_STYLE}
+                dropdownStyle={TAGS_SELECT_DROPDOWN_STYLE}
                 {...props}
             />
         }
@@ -137,7 +144,7 @@ export const getModalFilterComponentByMeta = (filters, name, component: FilterCo
     }
 }
 
-function getModalComponents <T> (filters, filterMetas: Array<FiltersMeta<T>>, form: FormInstance): React.ReactElement[] {
+function getModalComponents <T> (filters: IFilters, filterMetas: Array<FiltersMeta<T>>, form: FormInstance): React.ReactElement[] {
     return filterMetas.map(filterMeta => {
         const { keyword, component } = filterMeta
 
@@ -180,6 +187,10 @@ const ResetFiltersModalButton = styled(Button)`
   left: 10px;
 `
 
+const MODAL_PROPS: CSSProperties = { width: 840 }
+const CLEAR_ALL_MESSAGE_STYLE: CSSProperties = { fontSize: '12px' }
+const FILTER_WRAPPERS_GUTTER: [Gutter, Gutter] = [24, 12]
+
 type MultipleFiltersModalProps = {
     isMultipleFiltersModalVisible: boolean,
     setIsMultipleFiltersModalVisible: React.Dispatch<React.SetStateAction<boolean>>,
@@ -191,11 +202,12 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     setIsMultipleFiltersModalVisible,
     filterMetas,
 }) => {
-    const [form, setForm] = useState<FormInstance>(null)
     const intl = useIntl()
     const FiltersModalTitle = intl.formatMessage({ id: 'FiltersLabel' })
     const ShowMessage = intl.formatMessage({ id: 'Show' })
     const ClearAllFiltersMessage = intl.formatMessage({ id: 'ClearAllFilters' })
+
+    const [form, setForm] = useState<FormInstance>(null)
 
     const router = useRouter()
     const { filters } = parseQuery(router.query)
@@ -231,7 +243,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     return (
         <BaseModalForm
             visible={isMultipleFiltersModalVisible}
-            modalProps={{ width: 840 }}
+            modalProps={MODAL_PROPS}
             cancelModal={() => setIsMultipleFiltersModalVisible(false)}
             ModalTitleMsg={FiltersModalTitle}
             ModalSaveButtonLabelMsg={ShowMessage}
@@ -245,7 +257,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
                     onClick={handleReset}
                 >
                     <Typography.Text strong type={'secondary'}>
-                        {ClearAllFiltersMessage} <CloseOutlined style={{ fontSize: '12px' }} />
+                        {ClearAllFiltersMessage} <CloseOutlined style={CLEAR_ALL_MESSAGE_STYLE} />
                     </Typography.Text>
                 </ResetFiltersModalButton>,
             ]}
@@ -255,7 +267,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
                     setForm(form)
 
                     return (
-                        <Row justify={'space-between'} gutter={[24, 12]} id={FILTERS_POPUP_CONTAINER_ID}>
+                        <Row justify={'space-between'} gutter={FILTER_WRAPPERS_GUTTER} id={FILTERS_POPUP_CONTAINER_ID}>
                             {getModalComponents(filters, filterMetas, form)}
                         </Row>
                     )

@@ -66,7 +66,9 @@ export const getOptionFilterDropdown = (options: Array<OptionType>, loading: boo
     }
 }
 
-export const getSelectFilterDropdown = (selectProps, containerStyles?: CSSProperties) => {
+const DROPDOWN_SELECT_STYLE: CSSProperties = { display: 'flex', flexDirection: 'column' }
+
+export const getSelectFilterDropdown = (selectProps: ComponentProps<typeof Select>, containerStyles?: CSSProperties) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         return (
             <SelectFilterContainer
@@ -76,7 +78,7 @@ export const getSelectFilterDropdown = (selectProps, containerStyles?: CSSProper
             >
                 <Select
                     showArrow
-                    style={{ display: 'flex', flexDirection: 'column' }}
+                    style={DROPDOWN_SELECT_STYLE}
                     value={selectedKeys}
                     onChange={(e) => {
                         setSelectedKeys(e)
@@ -92,6 +94,8 @@ export const getSelectFilterDropdown = (selectProps, containerStyles?: CSSProper
     }
 }
 
+const GRAPHQL_SEARCH_INPUT_STYLE: CSSProperties = { width: '100%' }
+
 export const getGQLSelectFilterDropdown = (
     props: ComponentProps<typeof GraphQlSearchInput>,
     search: (client: ApolloClient<Record<string, unknown>>, queryArguments: string) => Promise<Array<Record<string, unknown>>>,
@@ -106,7 +110,7 @@ export const getGQLSelectFilterDropdown = (
                 style={containerStyles}
             >
                 <GraphQlSearchInput
-                    style={{ width: '100%' }}
+                    style={GRAPHQL_SEARCH_INPUT_STYLE}
                     search={search}
                     showArrow
                     mode={mode}
