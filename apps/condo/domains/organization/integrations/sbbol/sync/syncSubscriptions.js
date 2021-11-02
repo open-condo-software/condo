@@ -39,7 +39,7 @@ const syncSubscriptionsFor = async (advanceAcceptance) => {
     const [organization] = result
 
     if (!organization) {
-        logger.warn({ message: `Not found organization with inn=${payerInn} to sync SBBOL subscriptions for`, payerInn })
+        logger.warn({ message: 'Not found organization to sync SBBOL subscriptions for', payerInn })
         return
     }
 
@@ -58,14 +58,14 @@ const syncSubscriptionsFor = async (advanceAcceptance) => {
     const existingSubscription = existingSubscriptions[0]
 
     if (existingSubscriptions.length > 1) {
-        console.error(`More than one subscription found for Organization(id=${organization.id}). It seems strange.`)
+        logger.error({ message: 'More than one subscription found for Organization', id: organization.id })
     }
 
     // Client has accepted our offer
     if (active) {
         // TODO: add trial for additional day when client accepts previously revoked (after accepting) offer
 
-        logger.info({ message: `User from organization(inn=${payerInn}) has accepted our offer in SBBOL`, payerInn })
+        logger.info({ message: `User from organization has accepted our offer in SBBOL`, payerInn })
 
         // In case of accepted SBBOL offer new subscription should be started and all current subscriptions will make no sense.
         // If active one is present, stop it by cutting it's period until now.
@@ -89,9 +89,9 @@ const syncSubscriptionsFor = async (advanceAcceptance) => {
                 ...advanceAcceptance, // TODO: Figure out, why it crashes here on `payerInn` field
             },
         })
-        logger.info({ message: 'Created trial subscription for SBBOL', trialServiceSubscription })
+        logger.info({ message: 'Created trial subscription for SBBOL', serviceSubscription: trialServiceSubscription })
     } else {
-        logger.info({ message: `User from organization(inn=${payerInn}) has declined our offer in SBBOL`, payerInn })
+        logger.info({ message: 'User from organization has declined our offer in SBBOL', payerInn })
         if (existingSubscription.type === SUBSCRIPTION_TYPE.SBBOL) {
             await stop(existingSubscription, context)
         }
