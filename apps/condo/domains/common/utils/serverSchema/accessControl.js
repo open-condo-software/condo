@@ -20,11 +20,11 @@ function hasDefinedPermissions (user) {
 }
 
 function denyIfHasNoPermission (user, permission, originalAccessResult) {
-    if (!originalAccessResult) return false
+    if (originalAccessResult === false) return false
     if (hasDefinedPermissions(user)) {
         return permission === true
     }
-    return true
+    return originalAccessResult
 }
 
 function createStaticAccessWrapper (permissionsGetter, defaultAccessValue = true, useOperationIndexing = true) {
@@ -39,9 +39,9 @@ function createDynamicAccessWrapper (permissionsGetter, originalAccessFn, useOpe
     return async function ({ authentication: { item: user }, operation }) {
         const permissions = permissionsGetter(...arguments)
         arguments[0].permissions = permissions
-        const originalAccResult = await originalAccessFn(...arguments)
-        if (!useOperationIndexing) return denyIfHasNoPermission(user, permissions, originalAccResult)
-        return denyIfHasNoPermission(user, permissions[operation], originalAccResult) 
+        const originalAccessResult = await originalAccessFn(...arguments)
+        if (!useOperationIndexing) return denyIfHasNoPermission(user, permissions, originalAccessResult)
+        return denyIfHasNoPermission(user, permissions[operation], originalAccessResult) 
     }
 }
 
@@ -71,7 +71,7 @@ function perListAccess (schemaType, schemaName, schema) {
             newAccFn = createDynamicAccessWrapper(permissionsGetter, originalAccessFn, true)
         }
         if (newAccFn) {
-            schema.access[operation] = newAccFn.bind(schema)
+            schema.access[operation] = newAccFn
         }
     })
     return schema
@@ -101,12 +101,12 @@ function perFieldAccess (schemaType, schemaName, schema) {
             }
             // field.access[create/read/update]: () => boolean
             else if (typeof access === 'function') {
-                const originalAccessFn = access
+                const originalAccessFn = access[operation]
                 const permissionsGetter = ({ authentication: { item: user }, listKey }) => getFieldPermissions(user, listKey, field)
                 newAccFn = createDynamicAccessWrapper(permissionsGetter, originalAccessFn, true)
             }
             if (newAccFn) {
-                schema.fields[field].access[operation] = newAccFn.bind(schema)
+                schema.fields[field].access[operation] = newAccFn
             }
         }) 
     })
@@ -138,7 +138,7 @@ function perCustomAccess (schemaType, schemaName, schema) {
             newAccFn = createDynamicAccessWrapper(permissionsGetter, originalAccessFn, false)
         }
         if (newAccFn) {
-            custom.access = newAccFn.bind(schema)
+            custom.access = newAccFn
         }
     })
     return schema
