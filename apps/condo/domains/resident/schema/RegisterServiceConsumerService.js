@@ -10,6 +10,25 @@ const { ServiceConsumer, Resident } = require('../utils/serverSchema')
 const { NOT_FOUND_ERROR, REQUIRED_NO_VALUE_ERROR } = require('@condo/domains/common/constants/errors')
 
 
+async function getResidentBillingAccount (context, billingIntegrationContext, unitName, accountNumber) {
+
+    let applicableBillingAccounts = await BillingAccount.getAll(context, {
+        context: { id: billingIntegrationContext.id },
+        unitName: unitName,
+    })
+    if (!Array.isArray(applicableBillingAccounts)) {
+        return [] // No accounts are found for this user
+    }
+
+    applicableBillingAccounts = applicableBillingAccounts.filter(
+        (billingAccount) => {
+            return accountNumber === billingAccount.number || accountNumber === billingAccount.globalId
+        }
+    )
+
+    return applicableBillingAccounts
+}
+
 async function getAccountsFromOrganizationIntegration (context, resident, unitName, accountNumber) {
     const [userOrganization] = await Organization.getAll(context, { id : resident.organization.id })
     if (!userOrganization) {
@@ -39,7 +58,6 @@ async function getAccountsFromOrganizationIntegration (context, resident, unitNa
     return applicableBillingAccounts
 }
 
-
 const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsumerService', {
     types: [
         {
@@ -60,36 +78,56 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
 
                 if (!accountNumber || accountNumber.length === 0) { throw new Error(`${REQUIRED_NO_VALUE_ERROR}accountNumber] Account number null or empty: ${accountNumber}`) }
 
-                const [resident] = await Resident.getAll(context, { id: residentId })
+                const [ resident ] = await Resident.getAll(context, { id: residentId })
                 if (!resident) {
                     throw new Error(`${NOT_FOUND_ERROR}resident] Resident not found for this user`)
                 }
 
-                let applicableBillingAccounts
+                const hasBillingData = get(resident, ['organizationFeatures','hasBillingData'])
+
+                let paymentFeatureAttrs = {}
+
+                if (hasBillingData) {
+                    const [ organization ] = await Organization.getAll(context, { id: resident.organization.id })
+                    const [ billingIntegrationContext ] = await BillingIntegrationOrganizationContext.getAll(context, { organization: { id: organization.id } })
+                    const [ acquiringIntegrationContext ] = await AquiringIntegrationContext.getAll(context, { organization: { id: organization.id } })
+                    const [ billingAccount ] = getResidentBillingAccount(billingIntegrationContext, accountNumber, unitName)
+
+                    paymentFeatureAttrs = {
+                        billingAccount: billingAccount || null,
+                        billingIntegrationContext: billingIntegrationContext || null,
+                        acquiringIntegrationContext: acquiringIntegrationContext || null,
+                    }
+                }
 
                 // todo(toplenboren) remove this once B2C integration case is ready
-                if (resident.organization) {
-                    applicableBillingAccounts = await getAccountsFromOrganizationIntegration(context, resident, unitName, accountNumber)
-                }
+                // if (resident.organization) {
+                //     applicableBillingAccounts = await getAccountsFromOrganizationIntegration(context, resident, unitName, accountNumber)
+                // }
+                //
+                // if (!Array.isArray(applicableBillingAccounts) || applicableBillingAccounts.length === 0) {
+                //     throw new Error(`${NOT_FOUND_ERROR}account] BillingAccounts not found for this user`)
+                // }
+                //
+                // // todo (toplenboren) learn what to do if there are a lot of applicable billing accounts
+                // const billingAccountId = applicableBillingAccounts[0].id
+                // { connect: { id: billingAccountId } }
 
-                if (!Array.isArray(applicableBillingAccounts) || applicableBillingAccounts.length === 0) {
-                    throw new Error(`${NOT_FOUND_ERROR}account] BillingAccounts not found for this user`)
-                }
-
-                // todo (toplenboren) learn what to do if there are a lot of applicable billing accounts
-                const billingAccountId = applicableBillingAccounts[0].id
-
-                const attrs = {
+                const requiredAttrs = {
                     dv,
                     sender,
                     resident: { connect: { id: residentId } },
                     accountNumber: accountNumber,
-                    billingAccount: { connect: { id: billingAccountId } },
+                }
+
+                const attrs = {
+                    ...requiredAttrs,
+                    ...paymentFeatureAttrs,
                 }
 
                 const [existingServiceConsumer] = await ServiceConsumer.getAll(context, {
                     resident: { id: residentId },
-                    billingAccount: { id: billingAccountId },
+                    accountNumber: accountNumber,
                 })
 
                 let id
@@ -109,7 +147,6 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
             },
         },
     ],
-    
 })
 
 module.exports = {
