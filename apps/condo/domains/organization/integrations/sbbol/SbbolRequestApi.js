@@ -85,7 +85,7 @@ class SbbolRequestApi {
     async request ({ method, path: basePath, body = null, headers = {} }){
         return new Promise((resolve, reject) => {
             const path = method === 'GET' && body ? `${basePath}?${querystring.stringify(body)}` : basePath
-            logger.info({ message: 'Sending request to SBBOL API', method, path, body })
+            logger.info({ message: 'Request to SBBOL API', method, path, body })
             const requestOptions = {
                 ...this.options,
                 method,
