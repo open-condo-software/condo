@@ -4,17 +4,35 @@
 
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/acquiring/access/RegisterMultiPaymentService')
+const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
+const {
+    REGISTER_MP_EMPTY_INPUT,
+    REGISTER_MP_EMPTY_RECEIPTS,
+    REGISTER_MP_CONSUMERS_DUPLICATE,
+    REGISTER_MP_RECEIPTS_DUPLICATE,
+    REGISTER_MP_REAL_CONSUMER_MISMATCH,
+    REGISTER_MP_NO_ACQUIRING_CONSUMERS,
+    REGISTER_MP_MULTIPLE_INTEGRATIONS,
+    REGISTER_MP_CANNOT_GROUP_RECEIPTS,
+    REGISTER_MP_UNSUPPORTED_BILLING,
+    REGISTER_MP_REAL_RECEIPTS_MISMATCH,
+} = require('@condo/domains/acquiring/constants/errors')
+const { ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
+const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
+const { BillingIntegrationOrganizationContext, BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
+const { getById } = require('@core/keystone/schema')
+const get = require('lodash/get')
 
 
 const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentService', {
     types: [
         {
             access: true,
-            type: 'input RegisterMultiPaymentServiceConsumerInput { serviceConsumerId: String!, receiptsIds: [String!]! }',
+            type: 'input RegisterMultiPaymentServiceConsumerInput { consumerId: String!, receiptsIds: [String!]! }',
         },
         {
             access: true,
-            type: 'input RegisterMultiPaymentInput { dv: Int!, sender: JSON!, data: [RegisterMultiPaymentServiceConsumerInput!]! }',
+            type: 'input RegisterMultiPaymentInput { dv: Int!, sender: SenderField!, groupedReceipts: [RegisterMultiPaymentServiceConsumerInput!]! }',
         },
         {
             access: true,
@@ -27,10 +45,90 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
             access: access.canRegisterMultiPayment,
             schema: 'registerMultiPayment(data: RegisterMultiPaymentInput!): RegisterMultiPaymentOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
-                // TODO(codegen): write RegisterMultiPaymentService logic!
                 const { data } = args
+                const { dv, sender, groupedReceipts } = data
+
+                // Stage 0. Check if input is valid
+                if (dv !== 1) {
+                    throw new Error(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
+                }
+                const { dv: senderDv, fingerprint } = sender
+                if (senderDv !== 1) {
+                    throw new Error(`${DV_UNKNOWN_VERSION_ERROR}sender.dv] Unknown \`dv\` of sender`)
+                }
+                if (!get(groupedReceipts, 'length')) {
+                    throw new Error(REGISTER_MP_EMPTY_INPUT)
+                }
+                if (groupedReceipts.some(group => !get(group, ['receiptsIds', 'length']))) {
+                    throw new Error(REGISTER_MP_EMPTY_RECEIPTS)
+                }
+
+                // Stage 0.1: Duplicates check
+                const consumersIds = groupedReceipts.map(group => group.consumerId)
+                const uniqueConsumerIds = new Set(consumersIds)
+                if (consumersIds.length !== uniqueConsumerIds.size) {
+                    throw new Error(REGISTER_MP_CONSUMERS_DUPLICATE)
+                }
+                const receiptsIds = groupedReceipts.flatMap(group => group.receiptsIds)
+                const uniqueReceiptsIds = new Set(receiptsIds)
+                if (receiptsIds.length !== uniqueReceiptsIds.size) {
+                    throw new Error(REGISTER_MP_RECEIPTS_DUPLICATE)
+                }
+
+                // Stage 1. Check Acquiring
+                const  consumers = await ServiceConsumer.getAll(context, {
+                    id_in: consumersIds,
+                })
+                if (consumers.length !== consumersIds.length) {
+                    const existingConsumerIds = consumers.map(consumer => consumer.id)
+                    const missingConsumerIds = consumersIds.filter(consumerId => !existingConsumerIds.includes(consumerId))
+                    throw new Error(`${REGISTER_MP_REAL_CONSUMER_MISMATCH} Missing: ${missingConsumerIds.join(', ')}`)
+                }
+                const contextMissingConsumers = consumers
+                    .filter(consumer => !get(consumer, 'acquiringIntegrationContext'))
+                    .map(consumer => consumer.id)
+                if (contextMissingConsumers.length) {
+                    throw new Error(`${REGISTER_MP_NO_ACQUIRING_CONSUMERS} (${contextMissingConsumers.join(', ')})`)
+                }
+                const uniqueAcquiringContextsIds = new Set(consumers.map(consumer => consumer.acquiringIntegrationContext))
+                const acquiringContexts = await AcquiringIntegrationContext.getAll(context, {
+                    id_in: Array.from(uniqueAcquiringContextsIds),
+                })
+                const acquiringIntegrations = new Set(acquiringContexts.map(context => context.integration))
+                if (acquiringIntegrations.size !== 1) {
+                    throw new Error(REGISTER_MP_MULTIPLE_INTEGRATIONS)
+                }
+                const acquiringIntegration = await getById('AcquiringIntegration', acquiringIntegrations[0])
+
+                // TODO (savelevMatthew): check that all receipts linked to right consumers?
+                // Stage 2. Check BillingReceipts
+                if (receiptsIds.length > 1 && !acquiringIntegration.canGroupReceipts) {
+                    throw new Error(REGISTER_MP_CANNOT_GROUP_RECEIPTS)
+                }
+                const receipts = await BillingReceipt.getAll(context, {
+                    id_in: receiptsIds,
+                })
+                if (receipts.length !== receiptsIds.length) {
+                    const existingReceiptsIds = new Set(receipts.map(receipt => receipt.id))
+                    const missingReceipts = receiptsIds.filter(receiptId => !existingReceiptsIds.has(receiptId))
+                    throw new Error(`${REGISTER_MP_REAL_RECEIPTS_MISMATCH} Missing: ${missingReceipts.join(', ')}`)
+                }
+                const uniqueBillingContextsIds = new Set(receipts.map(receipt => receipt.context))
+                const billingContexts = await BillingIntegrationOrganizationContext.getAll({
+                    id_in: Array.from(uniqueBillingContextsIds),
+                })
+                const supportedBillingIntegrations = get(acquiringIntegration, 'supportedBillingIntegrations', [])
+                const uniqueBillingIntegrationsIds = new Set(billingContexts.map(context => context.integration))
+                const unsupportedBillings = Array.from(uniqueBillingIntegrationsIds)
+                    .map(integration => !supportedBillingIntegrations.includes(integration))
+                if (unsupportedBillings.length) {
+                    throw new Error(`${REGISTER_MP_UNSUPPORTED_BILLING} (${unsupportedBillings.join(', ')})`)
+                }
+
+                // Stage 3 Generating payments
+
                 return {
-                    id: null,
+                    id: '123',
                 }
             },
         },
