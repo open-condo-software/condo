@@ -58,15 +58,14 @@ function perListAccess (schemaType, schemaName, schema) {
 
     Object.keys(schema.access).forEach(operation => {
         let newAccFn
-        const access = schema.access[operation]
         // schema.access: true
-        if (access === true) {
+        if (schema.access[operation] === true) {
             const permissionsGetter = ({ authentication: { item: user }, listKey }) => getListPermissions(user, listKey)
             newAccFn = createStaticAccessWrapper(permissionsGetter, true)
         }
         // schema.access[create/read/update/delete]: () => boolean
-        else if (typeof access === 'function') {
-            const originalAccessFn = access
+        else if (typeof schema.access[operation] === 'function') {
+            const originalAccessFn = schema.access[operation]
             const permissionsGetter = ({ authentication: { item: user }, listKey }) => getListPermissions(user, listKey)
             newAccFn = createDynamicAccessWrapper(permissionsGetter, originalAccessFn, true)
         }
@@ -93,15 +92,14 @@ function perFieldAccess (schemaType, schemaName, schema) {
         
         Object.keys(schema.fields[field].access).forEach(operation => {
             let newAccFn
-            const access = schema.fields[field].access[operation]
             // field.access[create/read/update]: true
-            if (access === true) {
+            if (schema.fields[field].access[operation] === true) {
                 const permissionsGetter = ({ authentication: { item: user }, listKey }) => getFieldPermissions(user, listKey, field)
                 newAccFn = createStaticAccessWrapper(permissionsGetter, true)
             }
             // field.access[create/read/update]: () => boolean
-            else if (typeof access === 'function') {
-                const originalAccessFn = access[operation]
+            else if (typeof schema.fields[field].access[operation] === 'function') {
+                const originalAccessFn = schema.fields[field].access[operation]
                 const permissionsGetter = ({ authentication: { item: user }, listKey }) => getFieldPermissions(user, listKey, field)
                 newAccFn = createDynamicAccessWrapper(permissionsGetter, originalAccessFn, true)
             }
