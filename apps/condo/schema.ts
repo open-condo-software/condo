@@ -12176,6 +12176,7 @@ export type Mutation = {
   registerResident?: Maybe<Resident>;
   registerServiceConsumer?: Maybe<ServiceConsumer>;
   createOnBoardingByType?: Maybe<OnBoarding>;
+  registerMultiPayment?: Maybe<RegisterMultiPaymentOutput>;
   /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
   authenticateUserWithPassword?: Maybe<AuthenticateUserOutput>;
   unauthenticateUser?: Maybe<UnauthenticateUserOutput>;
@@ -15212,6 +15213,11 @@ export type MutationRegisterServiceConsumerArgs = {
 
 export type MutationCreateOnBoardingByTypeArgs = {
   data: CreateOnBoardingInput;
+};
+
+
+export type MutationRegisterMultiPaymentArgs = {
+  data: RegisterMultiPaymentInput;
 };
 
 
@@ -22460,6 +22466,22 @@ export type ReInviteOrganizationEmployeeInput = {
   organization: OrganizationWhereUniqueInput;
   email?: Maybe<Scalars['String']>;
   phone: Scalars['String'];
+};
+
+export type RegisterMultiPaymentInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  data: Array<RegisterMultiPaymentServiceConsumerInput>;
+};
+
+export type RegisterMultiPaymentOutput = {
+  __typename?: 'RegisterMultiPaymentOutput';
+  id: Scalars['String'];
+};
+
+export type RegisterMultiPaymentServiceConsumerInput = {
+  serviceConsumerId: Scalars['String'];
+  receiptsIds: Array<Scalars['String']>;
 };
 
 export type RegisterNewOrganizationInput = {
