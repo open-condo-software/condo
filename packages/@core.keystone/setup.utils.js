@@ -1,7 +1,5 @@
 const { v5: uuidv5 } = require('uuid')
-const config = require('@core/config')
 
-const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
 const { KnexAdapter } = require('@keystonejs/adapter-knex')
 const { MongooseAdapter } = require('@keystonejs/adapter-mongoose')
 const IORedis = require('ioredis')
