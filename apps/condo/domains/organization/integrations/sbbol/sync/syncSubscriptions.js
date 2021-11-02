@@ -11,6 +11,9 @@ const { getSchemaCtx } = require('@core/keystone/schema')
 const conf = process.env
 const SBBOL_CONFIG = conf.SBBOL_CONFIG ? JSON.parse(conf.SBBOL_CONFIG) : {}
 
+// For logging
+const module = 'syncSubscriptions'
+
 async function stop (subscription, context) {
     logger.info({ message: 'Stopping subscription', subscription })
     return await ServiceSubscription.update(context, subscription.id, {
@@ -39,7 +42,7 @@ const syncSubscriptionsFor = async (advanceAcceptance) => {
     const [organization] = result
 
     if (!organization) {
-        logger.warn({ message: 'Not found organization to sync SBBOL subscriptions for', payerInn })
+        logger.warn({ message: 'Not found organization to sync SBBOL subscriptions for', payerInn, module })
         return
     }
 
@@ -58,14 +61,14 @@ const syncSubscriptionsFor = async (advanceAcceptance) => {
     const existingSubscription = existingSubscriptions[0]
 
     if (existingSubscriptions.length > 1) {
-        logger.error({ message: 'More than one subscription found for Organization', id: organization.id })
+        logger.error({ message: 'More than one subscription found for Organization', id: organization.id, module })
     }
 
     // Client has accepted our offer
     if (active) {
         // TODO: add trial for additional day when client accepts previously revoked (after accepting) offer
 
-        logger.info({ message: `User from organization has accepted our offer in SBBOL`, payerInn })
+        logger.info({ message: `User from organization has accepted our offer in SBBOL`, payerInn, module })
 
         // In case of accepted SBBOL offer new subscription should be started and all current subscriptions will make no sense.
         // If active one is present, stop it by cutting it's period until now.
@@ -89,9 +92,9 @@ const syncSubscriptionsFor = async (advanceAcceptance) => {
                 ...advanceAcceptance, // TODO: Figure out, why it crashes here on `payerInn` field
             },
         })
-        logger.info({ message: 'Created trial subscription for SBBOL', serviceSubscription: trialServiceSubscription })
+        logger.info({ message: 'Created trial subscription for SBBOL', serviceSubscription: trialServiceSubscription, module })
     } else {
-        logger.info({ message: 'User from organization has declined our offer in SBBOL', payerInn })
+        logger.info({ message: 'User from organization has declined our offer in SBBOL', payerInn, module })
         if (existingSubscription.type === SUBSCRIPTION_TYPE.SBBOL) {
             await stop(existingSubscription, context)
         }
@@ -108,7 +111,7 @@ const syncSubscriptionsFor = async (advanceAcceptance) => {
 const syncSubscriptions = async (date = null) => {
     if (!date) date = dayjs().format('YYYY-MM-DD')
 
-    logger.info({ message: 'Start syncSubscriptions' })
+    logger.info({ message: 'Start syncSubscriptions', module })
 
     let ourOrganizationAccessToken
     try {
@@ -120,21 +123,22 @@ const syncSubscriptions = async (date = null) => {
             message: 'Failed to obtain organization access token from SBBOL',
             error: e.message,
             hashOrgId: SBBOL_CONFIG.service_organization_hashOrgId,
+            module,
         })
         return
     }
 
     const fintechApi = new SbbolFintechApi(ourOrganizationAccessToken)
-    logger.info({ message: 'Checking, whether the user have ServiceSubscription items' })
+    logger.info({ message: 'Checking, whether the user have ServiceSubscription items', module })
 
     const advanceAcceptances = await fintechApi.fetchAdvanceAcceptances({ date, clientId: SBBOL_CONFIG.client_id })
 
     if (advanceAcceptances.length === 0) {
-        logger.info({ message: 'SBBOL returned no changes in offers, do nothing' })
+        logger.info({ message: 'SBBOL returned no changes in offers, do nothing', module })
     } else {
         await processArrayOf(advanceAcceptances).inSequenceWith(syncSubscriptionsFor)
     }
-    logger.info({ message: 'End syncSubscriptions' })
+    logger.info({ message: 'End syncSubscriptions', module })
 }
 
 module.exports = {
