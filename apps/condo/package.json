@@ -60,7 +60,7 @@
     "carbone": "3.2.3",
     "classnames": "^2.2.6",
     "dayjs": "^1.10.6",
-    "dd-trace": "^0.32.0",
+    "dd-trace": "1.5.1",
     "echarts": "^5.1.2",
     "echarts-for-react": "^3.0.1",
     "emotion": "^10.0.27",
