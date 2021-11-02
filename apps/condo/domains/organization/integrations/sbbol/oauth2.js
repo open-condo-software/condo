@@ -2,14 +2,18 @@
 
 const { Issuer, custom } = require('openid-client') // certified openid client will all checks
 const jwtDecode = require('jwt-decode') // decode jwt without validation
-const dayjs = require('dayjs')
-
+const pino = require('pino')
+const falsey = require('falsey')
+const util = require('util')
 const conf = require('@core/config')
 
 const SBBOL_CONFIG = conf.SBBOL_CONFIG ? JSON.parse(conf.SBBOL_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
 const SERVER_URL = conf.SERVER_URL
 const JWT_ALG = 'gost34.10-2012'
+
+// NOTE: same as keystone logger
+const logger = pino({ name: 'sbbol/auth', enabled: falsey(process.env.DISABLE_LOGGING) })
 
 class SbbolOauth2Api {
     constructor () {
@@ -133,22 +137,38 @@ class SbbolOauth2Api {
             hooks: {
                 beforeRequest: [
                     (options) => {
-                        console.debug(dayjs().format('YYYY-MM-DD HH:mm:ssZ[Z]'))
-                        console.log('--> %s %s', options.method.toUpperCase(), options.url.href)
-                        console.log('--> HEADERS %o', options.headers)
-                        if (options.body) {
-                            console.log('--> BODY %s', options.body)
+                        const logData = {
+                            method: options.method.toUpperCase(),
+                            url: options.url.href,
+                            headers: options.headers,
                         }
+                        if (options.body) {
+                            console.debug(options.body)
+                            logData.body = util.format('%s', options.body)
+                        }
+                        logger.info({
+                            message: 'Request',
+                            ...logData,
+                        })
                     },
                 ],
                 afterResponse: [
                     (response) => {
-                        console.debug(dayjs().format('YYYY-MM-DD HH:mm:ssZ[Z]'))
-                        console.log('<-- %i FROM %s %s', response.statusCode, response.request.options.method.toUpperCase(), response.request.options.url.href)
-                        console.log('<-- HEADERS %o', response.headers)
+                        const logData = {
+                            statusCode: response.statusCode,
+                            method: response.request.options.method.toUpperCase(),
+                            url: response.request.options.url.href,
+                            headers: response.headers,
+                        }
+                        console.log()
                         if (response.body) {
                             console.log('<-- BODY %s', response.body)
+                            logData.body = util.format('%s', response.body)
                         }
+                        logger.info({
+                            message: 'Response',
+                            ...logData,
+                        })
                         return response
                     },
                 ],
