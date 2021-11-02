@@ -342,7 +342,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                         {isPaid && <TicketTag color={'orange'}>{PaidMessage.toLowerCase()}</TicketTag>}
                                     </Space>
                                 </Col>
-                                <TicketContent ticket={ticket}/>
+                                <TicketContent ticket={null}/>
                                 <ActionBar>
                                     <Link href={`/ticket/${ticket.id}/update`}>
                                         <Button
