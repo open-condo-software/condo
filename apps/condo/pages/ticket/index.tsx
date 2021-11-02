@@ -8,9 +8,8 @@ import { Gutter } from 'antd/lib/grid/row'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 
-import { css, jsx } from '@emotion/core'
+import { jsx } from '@emotion/core'
 import { SortTicketsBy } from '@app/condo/schema'
-import { DatabaseFilled } from '@ant-design/icons'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
 

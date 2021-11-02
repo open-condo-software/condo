@@ -1,11 +1,13 @@
-import { useApolloClient } from '@core/next/apollo'
-import { ClassifiersQueryLocal, TicketClassifierTypes } from '../utils/clientSchema/classifierSearch'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { uniqBy } from 'lodash'
 import { FormInstance, Select } from 'antd'
 import { useRouter } from 'next/router'
-import { parseQuery } from '@condo/domains/common/utils/tables.utils'
+
 import { useIntl } from '@core/next/intl'
+import { useApolloClient } from '@core/next/apollo'
+
+import { parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { ClassifiersQueryLocal, TicketClassifierTypes } from '../utils/clientSchema/classifierSearch'
 
 const { Option } = Select
 
