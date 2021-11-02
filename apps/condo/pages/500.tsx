@@ -1,15 +1,15 @@
-import { Col, Layout, Row, Typography } from 'antd'
-import { Poster } from '../domains/common/components/Poster'
-import { colors, fontSizes } from '../domains/common/constants/style'
 import React from 'react'
-import { AuthHeader } from '../domains/user/components/containers/AuthHeader'
+import { Col, Layout, Row, Typography } from 'antd'
 import styled from '@emotion/styled'
 import { FormattedMessage } from 'react-intl'
-import { Button } from '../domains/common/components/Button'
-import { SUPPORT_EMAIL, SUPPORT_PHONE } from '../domains/common/constants/requisites'
 import { useIntl } from '@core/next/intl'
-import Router from 'next/router'
-import { useLayoutContext } from '../domains/common/components/LayoutContext'
+
+import { Poster } from '@condo/domains/common/components/Poster'
+import { colors, fontSizes } from '@condo/domains/common/constants/style'
+import { AuthHeader } from '@condo/domains/user/components/containers/AuthHeader'
+import { Button } from '@condo/domains/common/components/Button'
+import { SUPPORT_EMAIL, SUPPORT_PHONE } from '@condo/domains/common/constants/requisites'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
 export const ErrorPosterWrapper = styled.div<{ isSmall: boolean }>`
   height: ${({ isSmall }) => isSmall ? '55vh' : '100vh'}
