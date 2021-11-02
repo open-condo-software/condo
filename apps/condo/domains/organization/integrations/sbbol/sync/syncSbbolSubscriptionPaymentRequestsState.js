@@ -1,4 +1,4 @@
-const { logger } = require('../common')
+const { logger: baseLogger } = require('../common')
 const { SbbolRequestApi } = require('../SbbolRequestApi')
 const { getSchemaCtx } = require('@core/keystone/schema')
 const { SbbolFintechApi } = require('../SbbolFintechApi')
@@ -12,19 +12,17 @@ const dayjs = require('dayjs')
 const conf = process.env
 const SBBOL_CONFIG = conf.SBBOL_CONFIG ? JSON.parse(conf.SBBOL_CONFIG) : {}
 
-// For logging
-const module = 'syncSbbolSubscriptionPaymentRequestsState'
+const logger = baseLogger.child({ module: 'syncSbbolSubscriptionPaymentRequestsState' })
 
 const syncSbbolSubscriptionPaymentRequestStateFor = async (payment, fintechApi) => {
     const { data, error } = await fintechApi.getPaymentRequestState(payment.id)
     if (error) {
-        logger.error({ message: 'Error fetching status for payment', error, payment, module })
+        logger.error({ message: 'Error fetching status for payment', error, payment })
     } else {
         const { keystone: context } = await getSchemaCtx('ServiceSubscriptionPayment')
         if (!data.bankStatus) {
             logger.error({
                 message: 'Status response does not contains "bankStatus" field. Maybe, something was changed in setup of SBBOL Fintech API or in API itself.',
-                module
             })
         } else {
             if (get(payment.statusMeta, 'bankStatus') !== data.bankStatus) {
@@ -33,7 +31,6 @@ const syncSbbolSubscriptionPaymentRequestStateFor = async (payment, fintechApi) 
                     logger.error({
                         message: 'Value of bankStatus cannot be mapped to status values of ServiceSubscriptionPayment, because it does not belongs to the list of known statuses. Consider to add it.',
                         bankStatus: data.bankStatus,
-                        module,
                     })
                 } else {
                     await ServiceSubscriptionPayment.update(context, payment.id, {
@@ -58,7 +55,7 @@ const syncSbbolSubscriptionPaymentRequestStateFor = async (payment, fintechApi) 
 }
 
 const syncSbbolSubscriptionPaymentRequestsState = async () => {
-    logger.info({ message: 'Start', function: 'syncSbbolSubscriptionPaymentRequestsState', module })
+    logger.info({ message: 'Start', function: 'syncSbbolSubscriptionPaymentRequestsState' })
     const { keystone: context } = await getSchemaCtx('ServiceSubscriptionPayment')
 
     let ourOrganizationAccessToken
@@ -71,7 +68,6 @@ const syncSbbolSubscriptionPaymentRequestsState = async () => {
             message: 'Failed to obtain organization access token from SBBOL',
             error: e.message,
             hashOrgId: SBBOL_CONFIG.service_organization_hashOrgId,
-            module,
         })
         return
     }
@@ -88,14 +84,13 @@ const syncSbbolSubscriptionPaymentRequestsState = async () => {
     if (paymentsToSync.length === 0) {
         logger.info({
             message: 'No ServiceSubscriptionPayment found with state CREATED, PROCESSING or STOPPED. Do nothing.',
-            module,
         })
     } else {
         const syncTasks = paymentsToSync.map(payment => () => syncSbbolSubscriptionPaymentRequestStateFor(payment, fintechApi))
         await executeInSequence(syncTasks)
     }
 
-    logger.info({ message: 'End', function: 'syncSbbolSubscriptionPaymentRequestsState', module })
+    logger.info({ message: 'End', function: 'syncSbbolSubscriptionPaymentRequestsState' })
 }
 
 
