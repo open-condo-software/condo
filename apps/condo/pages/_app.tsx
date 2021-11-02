@@ -17,7 +17,6 @@ import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle
 import GoogleAnalytics from '@condo/domains/common/components/containers/GoogleAnalytics'
 import BehaviorRecorder from '@condo/domains/common/components/containers/BehaviorRecorder'
 import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
-import GlobalErrorBoundary from '@condo/domains/common/components/containers/GlobalErrorBoundery'
 import { extractReqLocale } from '@condo/domains/common/utils/locale'
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
 import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
@@ -40,6 +39,9 @@ import {
 } from '../domains/subscription/components/SubscriptionContext'
 import dayjs from 'dayjs'
 import { useEndTrialSubscriptionReminderPopup } from '../domains/subscription/hooks/useEndTrialSubscriptionReminderPopup'
+import ErrorPage from './_error'
+import Error from 'next/error'
+import GlobalErrorBoundary from '../domains/common/components/containers/GlobalErrorBoundery'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
@@ -150,35 +152,34 @@ const MyApp = ({ Component, pageProps }) => {
     } = useEndTrialSubscriptionReminderPopup()
 
     return (
-        <GlobalErrorBoundary>
-            <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize={'large'}>
-                <CacheProvider value={cache}>
-                    <GlobalStyle/>
-                    <FocusContextProvider>
-                        <OnBoardingProvider>
-                            <SubscriptionProvider>
-                                <LayoutContextProvider>
-                                    <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                        <RequiredAccess>
-                                            <Component {...pageProps} />
-                                            {
-                                                isEndTrialSubscriptionReminderPopupVisible && (
-                                                    <EndTrialSubscriptionReminderPopup/>
-                                                )
-                                            }
-                                        </RequiredAccess>
-                                    </LayoutComponent>
-                                </LayoutContextProvider>
-                            </SubscriptionProvider>
-                        </OnBoardingProvider>
-                    </FocusContextProvider>
-                    <GoogleAnalytics/>
-                    <BehaviorRecorder engine="plerdy"/>
-                </CacheProvider>
-            </ConfigProvider>
-        </GlobalErrorBoundary>
+        <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize={'large'}>
+            <CacheProvider value={cache}>
+                <GlobalStyle/>
+                <FocusContextProvider>
+                    <OnBoardingProvider>
+                        <SubscriptionProvider>
+                            <LayoutContextProvider>
+                                <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                    <RequiredAccess>
+                                        <Component {...pageProps} />
+                                        {
+                                            isEndTrialSubscriptionReminderPopupVisible && (
+                                                <EndTrialSubscriptionReminderPopup/>
+                                            )
+                                        }
+                                    </RequiredAccess>
+                                </LayoutComponent>
+                            </LayoutContextProvider>
+                        </SubscriptionProvider>
+                    </OnBoardingProvider>
+                </FocusContextProvider>
+                <GoogleAnalytics/>
+                <BehaviorRecorder engine="plerdy"/>
+            </CacheProvider>
+        </ConfigProvider>
     )
 }
+
 const { publicRuntimeConfig: { defaultLocale } } = getConfig()
 
 async function messagesImporter (locale) {

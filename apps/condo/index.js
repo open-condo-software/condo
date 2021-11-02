@@ -116,7 +116,6 @@ class CustomBodyParserMiddleware {
     }
 }
 
-
 module.exports = {
     keystone,
     apps: [
