@@ -8,7 +8,6 @@ const conf = require('@core/config')
 
 const SBBOL_CONFIG = conf.SBBOL_CONFIG ? JSON.parse(conf.SBBOL_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
-const SBBOL_DEBUG = conf.SBBOL_DEBUG || false
 const SERVER_URL = conf.SERVER_URL
 const JWT_ALG = 'gost34.10-2012'
 
@@ -18,9 +17,7 @@ class SbbolOauth2Api {
     }
 
     createClient () {
-        if (SBBOL_DEBUG) {
-            this.enableDebugMode()
-        }
+        this.enableDebugMode()
         this.createIssuer()
         const client = new this.issuer.Client({
             client_id: String(SBBOL_CONFIG.client_id),
