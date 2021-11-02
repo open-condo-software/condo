@@ -1,7 +1,7 @@
 const https = require('https')
 const querystring = require('querystring')
 const { URL } = require('url')
-const { debugMessage, SBBOL_IMPORT_NAME } = require('./common')
+const { logger, SBBOL_IMPORT_NAME } = require('./common')
 const { getSchemaCtx } = require('@core/keystone/schema')
 const { TokenSet: TokenSetApi } = require('@condo/domains/organization/utils/serverSchema')
 const conf = require('@core/config')
@@ -85,7 +85,7 @@ class SbbolRequestApi {
     async request ({ method, path: basePath, body = null, headers = {} }){
         return new Promise((resolve, reject) => {
             const path = method === 'GET' && body ? `${basePath}?${querystring.stringify(body)}` : basePath
-            debugMessage(`${method} ${ path }`)
+            logger.info({ message: 'Sending request to SBBOL API', method, path, body })
             const requestOptions = {
                 ...this.options,
                 method,
@@ -94,28 +94,27 @@ class SbbolRequestApi {
             requestOptions.headers.Authorization = `Bearer ${this.accessToken}`
             Object.assign(requestOptions.headers, headers)
             const request = https.request(requestOptions, response => {
-                let answer = ''
-                debugMessage(`Response ${response.statusCode}`)
-                debugMessage('Headers: ', response.headers)
-                response.on('data', data => {
-                    answer += data
+                let data = ''
+                const { statusCode, headers } = response
+                response.on('data', chunk => {
+                    data += chunk
                 })
                 response.on('end', () => {
-                    debugMessage('Body', answer)
-                    return resolve({ data: answer, statusCode: response.statusCode })
+                    logger.info({ message: 'Response from SBBOL API', method, path, statusCode, headers, body: data })
+                    return resolve({ data, statusCode })
                 })
             })
             request.on('timeout', () => {
                 request.destroy()
+                logger.warn({ message: 'Failed request to SBBOL API', reason: 'timeout', method, path })
                 return reject(`${REQUEST_TIMEOUT_ERROR}] sbbol request failed`)
             })
             request.on('error', error => {
-                console.error(`Failed request to ${path}`, error)
+                console.error({ message: 'Failed request to SBBOL API', reason: 'error', method, path, error })
                 return reject(error)
             })
             if (body && method === 'POST') {
                 const stringifiedBody = JSON.stringify(body)
-                debugMessage('Body', stringifiedBody)
                 request.write(stringifiedBody)
             }
             request.end()
