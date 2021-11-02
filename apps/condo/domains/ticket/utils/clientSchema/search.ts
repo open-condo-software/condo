@@ -123,7 +123,7 @@ export function searchOrganizationProperty (organizationId) {
     }
 }
 
-export function searchOrganizationDivision (organizationId) {
+export function searchOrganizationDivision (organizationId: string) {
     if (!organizationId) return
     return async function (client, value) {
         const where = {

@@ -83,7 +83,7 @@ export class ClassifiersQueryLocal implements IClassifiersSearch {
         return filter<ITicketClassifierRuleUIState>(this.rules, query)
     }
 
-    public async findRulesByIds (query, type, selectedIds): Promise<ITicketClassifierRuleUIState[]> {
+    public async findRulesByIds (query: ITicketClassifierRuleWhereInput, type: string, selectedIds: string[]): Promise<ITicketClassifierRuleUIState[]> {
         const filtered = []
         for (const key in query)
             filtered.push(...this.rules.filter(rule => query[key].ids.includes(rule[key].id)))
