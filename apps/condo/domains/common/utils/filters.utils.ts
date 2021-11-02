@@ -104,6 +104,8 @@ export const getQueryToValueProcessorByType = (type: ComponentType) => {
     }
 }
 
+const TAGS_SELECT_DROPDOWN_STYLE: CSSProperties = { display: 'none' }
+
 export function getFilterDropdownByKey <T> (filterMetas: Array<FiltersMeta<T>>, key: string) {
     const filterMeta = filterMetas.find(filterMeta => filterMeta.keyword === key)
     const component = get(filterMeta, 'component')
@@ -149,7 +151,7 @@ export function getFilterDropdownByKey <T> (filterMetas: Array<FiltersMeta<T>>, 
             return getSelectFilterDropdown(
                 {
                     mode: 'tags',
-                    dropdownStyle: { display: 'none' },
+                    dropdownStyle: TAGS_SELECT_DROPDOWN_STYLE,
                     allowClear: true,
                     ...props,
                 },

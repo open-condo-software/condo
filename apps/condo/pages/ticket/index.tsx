@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import React, { useCallback } from 'react'
+import React, { CSSProperties, useCallback } from 'react'
 import get from 'lodash/get'
 import qs from 'qs'
 import { Col, Input, Row, Typography, Checkbox } from 'antd'
@@ -42,9 +42,11 @@ interface ITicketIndexPage extends React.FC {
     requiredAccess?: React.FC
 }
 
-const PAGE_HEADER_TITLE_STYLES = { margin: 0 }
+const PAGE_HEADER_TITLE_STYLES: CSSProperties = { margin: 0 }
 const ROW_GUTTER: [Gutter, Gutter] = [0, 40]
-const CHECKBOX_STYLE = { paddingLeft: '0px', fontSize: fontSizes.content }
+const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.content }
+const TOP_BAR_FIRST_COLUMN_GUTTER: [Gutter, Gutter] = [40, 0]
+const CROSS_ICON_STYLE: CSSProperties = { fontSize: '12px' }
 
 export const TicketsPageContent = ({
     tableColumns,
@@ -136,7 +138,7 @@ export const TicketsPageContent = ({
                                         <FocusContainer padding={'16px'}>
                                             <Row justify={'space-between'}>
                                                 <Col span={15}>
-                                                    <Row gutter={[40, 0]} align={'middle'}>
+                                                    <Row gutter={TOP_BAR_FIRST_COLUMN_GUTTER} align={'middle'}>
                                                         <Col span={11}>
                                                             <Input
                                                                 placeholder={SearchPlaceholder}
@@ -176,7 +178,7 @@ export const TicketsPageContent = ({
                                                                         onClick={resetQuery}
                                                                     >
                                                                         <Typography.Text strong type={'secondary'}>
-                                                                            {ResetFiltersLabel} <CloseOutlined style={{ fontSize: '12px' }} />
+                                                                            {ResetFiltersLabel} <CloseOutlined style={CROSS_ICON_STYLE} />
                                                                         </Typography.Text>
                                                                     </Button>,
                                                                 </Col>
