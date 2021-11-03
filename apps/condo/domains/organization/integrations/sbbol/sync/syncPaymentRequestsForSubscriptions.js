@@ -151,7 +151,7 @@ const syncPaymentRequestsForSubscriptions = async () => {
         })
     } else {
         logger.info({
-            message: `Found expired ServiceSubscription records`,
+            message: 'Found expired ServiceSubscription records',
             count: expiredSubscriptions.length,
             where,
         })
