@@ -122,7 +122,6 @@ const syncSubscriptions = async (date = null) => {
             message: 'Failed to obtain organization access token from SBBOL',
             error: e.message,
             hashOrgId: SBBOL_CONFIG.service_organization_hashOrgId,
-            module,
         })
         return
     }
