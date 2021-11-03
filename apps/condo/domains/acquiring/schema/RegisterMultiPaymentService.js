@@ -16,12 +16,16 @@ const {
     REGISTER_MP_CANNOT_GROUP_RECEIPTS,
     REGISTER_MP_UNSUPPORTED_BILLING,
     REGISTER_MP_REAL_RECEIPTS_MISMATCH,
+    REGISTER_MP_DELETED_RECEIPTS,
+    REGISTER_MP_MULTIPLE_CURRENCIES,
 } = require('@condo/domains/acquiring/constants/errors')
-const { ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
-const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
-const { BillingIntegrationOrganizationContext, BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
+// TODO(savelevMatthew): REPLACE WITH SERVER SCHEMAS AFTER GQL REFACTORING
+const { find } = require('@core/keystone/schema')
 const { getById } = require('@core/keystone/schema')
+const { Payment, MultiPayment } = require('@condo/domains/acquiring/utils/serverSchema')
+const { freezeBillingReceipt } = require('@condo/domains/acquiring/utils/freezeBillingReceipt')
 const get = require('lodash/get')
+const Big = require('big.js')
 
 
 const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentService', {
@@ -32,11 +36,11 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
         },
         {
             access: true,
-            type: 'input RegisterMultiPaymentInput { dv: Int!, sender: SenderField!, groupedReceipts: [RegisterMultiPaymentServiceConsumerInput!]! }',
+            type: 'input RegisterMultiPaymentInput { dv: Int!, sender: SenderFieldInput!, groupedReceipts: [RegisterMultiPaymentServiceConsumerInput!]! }',
         },
         {
             access: true,
-            type: 'type RegisterMultiPaymentOutput { id: String! }',
+            type: 'type RegisterMultiPaymentOutput { multiPaymentId: String! }',
         },
     ],
     
@@ -44,7 +48,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
         {
             access: access.canRegisterMultiPayment,
             schema: 'registerMultiPayment(data: RegisterMultiPaymentInput!): RegisterMultiPaymentOutput',
-            resolver: async (parent, args, context, info, extra = {}) => {
+            resolver: async (parent, args, context) => {
                 const { data } = args
                 const { dv, sender, groupedReceipts } = data
 
@@ -76,7 +80,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 }
 
                 // Stage 1. Check Acquiring
-                const  consumers = await ServiceConsumer.getAll(context, {
+                const consumers = await find('ServiceConsumer', {
                     id_in: consumersIds,
                 })
                 if (consumers.length !== consumersIds.length) {
@@ -90,10 +94,16 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 if (contextMissingConsumers.length) {
                     throw new Error(`${REGISTER_MP_NO_ACQUIRING_CONSUMERS} (${contextMissingConsumers.join(', ')})`)
                 }
+
+                const consumersByIds = Object.assign({}, ...consumers.map(obj => ({ [obj.id]: obj })))
+
                 const uniqueAcquiringContextsIds = new Set(consumers.map(consumer => consumer.acquiringIntegrationContext))
-                const acquiringContexts = await AcquiringIntegrationContext.getAll(context, {
+                const acquiringContexts = await find('AcquiringIntegrationContext', {
                     id_in: Array.from(uniqueAcquiringContextsIds),
                 })
+
+                const acquiringContextsByIds = Object.assign({}, ...acquiringContexts.map(obj => ({ [obj.id]: obj })))
+
                 const acquiringIntegrations = new Set(acquiringContexts.map(context => context.integration))
                 if (acquiringIntegrations.size !== 1) {
                     throw new Error(REGISTER_MP_MULTIPLE_INTEGRATIONS)
@@ -105,16 +115,22 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 if (receiptsIds.length > 1 && !acquiringIntegration.canGroupReceipts) {
                     throw new Error(REGISTER_MP_CANNOT_GROUP_RECEIPTS)
                 }
-                const receipts = await BillingReceipt.getAll(context, {
+                const receipts = await find('BillingReceipt', {
                     id_in: receiptsIds,
                 })
+                const deletedReceiptsIds = receipts.filter(receipt => Boolean(receipt.deletedAt)).map(receipt => receipt.id)
+                if (deletedReceiptsIds.length) {
+                    throw new Error(`${REGISTER_MP_DELETED_RECEIPTS} (${deletedReceiptsIds.join(', ')})`)
+                }
                 if (receipts.length !== receiptsIds.length) {
                     const existingReceiptsIds = new Set(receipts.map(receipt => receipt.id))
                     const missingReceipts = receiptsIds.filter(receiptId => !existingReceiptsIds.has(receiptId))
                     throw new Error(`${REGISTER_MP_REAL_RECEIPTS_MISMATCH} Missing: ${missingReceipts.join(', ')}`)
                 }
+
+                const receiptsByIds = Object.assign({}, ...receipts.map(obj => ({ [obj.id]: obj })))
                 const uniqueBillingContextsIds = new Set(receipts.map(receipt => receipt.context))
-                const billingContexts = await BillingIntegrationOrganizationContext.getAll({
+                const billingContexts = await find('BillingIntegrationOrganizationContext', {
                     id_in: Array.from(uniqueBillingContextsIds),
                 })
                 const supportedBillingIntegrations = get(acquiringIntegration, 'supportedBillingIntegrations', [])
@@ -125,10 +141,59 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     throw new Error(`${REGISTER_MP_UNSUPPORTED_BILLING} (${unsupportedBillings.join(', ')})`)
                 }
 
+                const billingIntegrations = await find('BillingIntegration', {
+                    id_in: Array.from(uniqueBillingIntegrationsIds),
+                })
+
+                const currencies = new Set(billingIntegrations.map(integration => integration.currencyCode))
+                if (currencies.size > 1) {
+                    throw new Error(REGISTER_MP_MULTIPLE_CURRENCIES)
+                }
+                const currencyCode = currencies[0]
+
                 // Stage 3 Generating payments
+                const payments = []
+                for (let i = 0; i < groupedReceipts.length; i++) {
+                    const receiptsGroup = groupedReceipts[i]
+                    const consumer = consumersByIds[receiptsGroup.consumerId]
+                    const acquiringContext = acquiringContextsByIds[consumer.context]
+                    const groupReceipts = receiptsGroup.receiptsIds
+                    for (let j = 0; j < groupReceipts.length; j++) {
+                        const receipt = receiptsByIds[groupReceipts[j]]
+                        const frozenReceipt = await freezeBillingReceipt(receipt)
+                        const account = await getById('BillingAccount', receipt.account)
+                        const payment = await Payment.create({
+                            dv: 1,
+                            sender: { dv: 1, fingerprint },
+                            amount: receipt.toPay,
+                            currencyCode,
+                            accountNumber: account.number,
+                            period: receipt.period,
+                            receipt: { connect: { id: receipt.id } },
+                            frozenReceipt,
+                            context: { connect: { id: acquiringContext.id } },
+                            organization: { connect: { id: acquiringContext.organization } },
+                        })
+                        payments.push(payment)
+                    }
+                }
+
+                const paymentIds = payments.map(payment => ({ id: payment.id }))
+                const totalAmount = payments.reduce((acc, cur) => {
+                    return acc.plus(cur.amount)
+                }, Big('0.0'))
+                const multiPayment = await MultiPayment.create(context, {
+                    dv: 1,
+                    sender: { dv: 1, fingerprint },
+                    amountWithoutExplicitFee: totalAmount.toString(),
+                    currencyCode,
+                    user: { connect: { id: context.authedItem.id } },
+                    integration: { connect: { id: acquiringIntegration.id } },
+                    payments: { connect: paymentIds },
+                })
 
                 return {
-                    id: '123',
+                    multiPaymentId: multiPayment.id,
                 }
             },
         },
