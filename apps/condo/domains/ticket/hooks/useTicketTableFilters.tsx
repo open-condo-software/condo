@@ -17,26 +17,26 @@ import { TicketSource, TicketStatus } from '../utils/clientSchema'
 import { searchEmployeeUser, searchOrganizationDivision, searchOrganizationProperty } from '../utils/clientSchema/search'
 import { useModalFilterClassifiers } from './useModalFilterClassifiers'
 
-const numberFilter = getNumberFilter('number')
-const dateRangeFilter = getDayRangeFilter('createdAt')
-const statusFilter = getFilter(['status', 'id'], 'array', 'string', 'in')
-const detailsFilter = getStringContainsFilter('details')
-const propertyFilter = getFilter(['property', 'id'], 'array', 'string', 'in')
-const addressFilter = getStringContainsFilter(['property', 'address'])
-const clientNameFilter = getStringContainsFilter('clientName')
-const executorFilter = getFilter(['executor', 'id'], 'array', 'string', 'in')
-const assigneeFilter = getFilter(['assignee', 'id'], 'array', 'string', 'in')
-const executorNameFilter = getStringContainsFilter(['executor', 'name'])
-const assigneeNameFilter = getStringContainsFilter(['assignee', 'name'])
-const attributeFilter = getTicketAttributesFilter(['isEmergency', 'isPaid'])
-const sourceFilter = getFilter(['source', 'id'], 'array', 'string', 'in')
-const sectionFilter = getFilter('sectionName', 'array', 'string', 'in')
-const floorFilter = getFilter('floorName', 'array', 'string', 'in')
-const unitFilter = getFilter('unitName', 'array', 'string', 'in')
-const placeClassifierFilter = getFilter(['placeClassifier', 'id'], 'array', 'string', 'in')
-const categoryClassifierFilter = getFilter(['categoryClassifier', 'id'], 'array', 'string', 'in')
-const clientPhoneFilter = getFilter('clientPhone', 'array', 'string', 'in')
-const ticketAuthorFilter = getFilter(['createdBy', 'id'], 'array', 'string', 'in')
+const filterNumber = getNumberFilter('number')
+const filterDateRange = getDayRangeFilter('createdAt')
+const filterStatus = getFilter(['status', 'id'], 'array', 'string', 'in')
+const filterDetails = getStringContainsFilter('details')
+const filterProperty = getFilter(['property', 'id'], 'array', 'string', 'in')
+const filterAddress = getStringContainsFilter(['property', 'address'])
+const filterClientName = getStringContainsFilter('clientName')
+const filterExecutor = getFilter(['executor', 'id'], 'array', 'string', 'in')
+const filterAssignee = getFilter(['assignee', 'id'], 'array', 'string', 'in')
+const filterExecutorName = getStringContainsFilter(['executor', 'name'])
+const filterAssigneeName = getStringContainsFilter(['assignee', 'name'])
+const filterAttribute = getTicketAttributesFilter(['isEmergency', 'isPaid'])
+const filterSource = getFilter(['source', 'id'], 'array', 'string', 'in')
+const filterSection = getFilter('sectionName', 'array', 'string', 'in')
+const filterFloor = getFilter('floorName', 'array', 'string', 'in')
+const filterUnit = getFilter('unitName', 'array', 'string', 'in')
+const filterPlaceClassifier = getFilter(['placeClassifier', 'id'], 'array', 'string', 'in')
+const filterCategoryClassifier = getFilter(['categoryClassifier', 'id'], 'array', 'string', 'in')
+const filterClientPhone = getFilter('clientPhone', 'array', 'string', 'in')
+const filterTicketAuthor = getFilter(['createdBy', 'id'], 'array', 'string', 'in')
 
 export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
     const intl = useIntl()
@@ -86,18 +86,18 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
             {
                 keyword: 'search',
                 filters: [
-                    numberFilter,
-                    clientNameFilter,
-                    addressFilter,
-                    detailsFilter,
-                    executorNameFilter,
-                    assigneeNameFilter,
+                    filterNumber,
+                    filterClientName,
+                    filterAddress,
+                    filterDetails,
+                    filterExecutorName,
+                    filterAssigneeName,
                 ],
                 combineType: 'OR',
             },
             {
                 keyword: 'address',
-                filters: [addressFilter],
+                filters: [filterAddress],
                 component: {
                     type: ComponentType.Input,
                     props: {
@@ -107,7 +107,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
             },
             {
                 keyword: 'details',
-                filters: [detailsFilter],
+                filters: [filterDetails],
                 component: {
                     type: ComponentType.Input,
                     props: {
@@ -117,7 +117,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
             },
             {
                 keyword: 'clientName',
-                filters: [clientNameFilter],
+                filters: [filterClientName],
                 component: {
                     type: ComponentType.Input,
                     props: {
@@ -127,7 +127,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
             },
             {
                 keyword: 'number',
-                filters: [numberFilter],
+                filters: [filterNumber],
                 component: {
                     type: ComponentType.Input,
                     props: {
@@ -137,7 +137,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
             },
             {
                 keyword: 'property',
-                filters: [propertyFilter],
+                filters: [filterProperty],
                 component: {
                     type: ComponentType.GQLSelect,
                     props: {
@@ -157,7 +157,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
             },
             {
                 keyword: 'createdAt',
-                filters: [dateRangeFilter],
+                filters: [filterDateRange],
                 component: {
                     type: ComponentType.DateRange,
                     props: {
@@ -171,7 +171,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
             },
             {
                 keyword: 'source',
-                filters: [sourceFilter],
+                filters: [filterSource],
                 component: {
                     type: ComponentType.Select,
                     options: sourceOptions,
@@ -188,7 +188,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
             },
             {
                 keyword: 'division',
-                filters: [propertyFilter],
+                filters: [filterProperty],
                 queryToWhereProcessor: (queryDivisions) => {
                     // We define single division in the browser query as "propertyId1, propertyId2" ->
                     // in GQLWhere we need ["propertyId1", "propertyId2"]
@@ -210,7 +210,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
             },
             {
                 keyword: 'sectionName',
-                filters: [sectionFilter],
+                filters: [filterSection],
                 component: {
                     type: ComponentType.TagsSelect,
                     props: {
@@ -224,7 +224,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
             },
             {
                 keyword: 'floorName',
-                filters: [floorFilter],
+                filters: [filterFloor],
                 component: {
                     type: ComponentType.TagsSelect,
                     props: {
@@ -238,7 +238,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
             },
             {
                 keyword: 'unitName',
-                filters: [unitFilter],
+                filters: [filterUnit],
                 component: {
                     type: ComponentType.TagsSelect,
                     props: {
@@ -253,7 +253,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
             },
             {
                 keyword: 'placeClassifier',
-                filters: [placeClassifierFilter],
+                filters: [filterPlaceClassifier],
                 component: {
                     type: ComponentType.Custom,
                     modalFilterComponent: (form) => <PlaceSelect form={form} />,
@@ -265,7 +265,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
             },
             {
                 keyword: 'categoryClassifier',
-                filters: [categoryClassifierFilter],
+                filters: [filterCategoryClassifier],
                 component: {
                     type: ComponentType.Custom,
                     modalFilterComponent: (form) => <CategorySelect form={form} />,
@@ -277,7 +277,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
             },
             {
                 keyword: 'status',
-                filters: [statusFilter],
+                filters: [filterStatus],
                 component: {
                     type: ComponentType.Select,
                     options: statusOptions,
@@ -294,7 +294,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
             },
             {
                 keyword: 'attributes',
-                filters: [attributeFilter],
+                filters: [filterAttribute],
                 component: {
                     type: ComponentType.Select,
                     options: attributeOptions,
@@ -311,7 +311,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
             },
             {
                 keyword: 'clientPhone',
-                filters: [clientPhoneFilter],
+                filters: [filterClientPhone],
                 component: {
                     type: ComponentType.TagsSelect,
                     props: {
@@ -325,7 +325,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
             },
             {
                 keyword: 'executor',
-                filters: [executorFilter],
+                filters: [filterExecutor],
                 component: {
                     type: ComponentType.GQLSelect,
                     props: {
@@ -344,7 +344,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
             },
             {
                 keyword: 'assignee',
-                filters: [assigneeFilter],
+                filters: [filterAssignee],
                 component: {
                     type: ComponentType.GQLSelect,
                     props: {
@@ -363,7 +363,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
             },
             {
                 keyword: 'author',
-                filters: [ticketAuthorFilter],
+                filters: [filterTicketAuthor],
                 component: {
                     type: ComponentType.GQLSelect,
                     props: {

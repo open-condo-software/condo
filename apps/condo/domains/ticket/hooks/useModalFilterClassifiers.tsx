@@ -8,8 +8,8 @@ import { useIntl } from '@core/next/intl'
 import { useApolloClient } from '@core/next/apollo'
 
 import { FiltersFromQueryType, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { getFiltersModalPopupContainer } from '@condo/domains/common/utils/filters.utils'
 import { ClassifiersQueryLocal, TicketClassifierTypes } from '../utils/clientSchema/classifierSearch'
-import { getFiltersModalPopupContainer } from '../../common/utils/filters.utils'
 
 const { Option } = Select
 
