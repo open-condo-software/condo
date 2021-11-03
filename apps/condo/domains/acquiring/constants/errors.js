@@ -8,6 +8,8 @@ const REGISTER_MP_MULTIPLE_INTEGRATIONS = '[serviceConsumer:acquiringContext:mul
 const REGISTER_MP_CANNOT_GROUP_RECEIPTS = '[acquiringIntegration:canGroupReceipts:false:multipleReceipts] receiptsIds total length was > 1, but acquiring integration cannot group billing receipts'
 const REGISTER_MP_UNSUPPORTED_BILLING = '[acquiringIntegration:supportedBillingIntegrations:notIncludesReceiptBilling] Some of billing receipts is not supported by ServiceConsumer\'s acquiring integration'
 const REGISTER_MP_REAL_RECEIPTS_MISMATCH = '[groupedReceipts:receiptsIds:nonExistingReceipt] Cannot find all specified BillingReceipts.'
+const REGISTER_MP_DELETED_RECEIPTS = '[groupedReceipts:receiptsIds:deletedReceipt] Cannot pay for deleted receipts.'
+const REGISTER_MP_MULTIPLE_CURRENCIES = '[groupedReceipts:receiptsIds:context:integration:currencyCode:multipleFound] Cannot pay for receipts with multiple currencies.'
 
 
 module.exports = {
@@ -21,4 +23,6 @@ module.exports = {
     REGISTER_MP_CANNOT_GROUP_RECEIPTS,
     REGISTER_MP_UNSUPPORTED_BILLING,
     REGISTER_MP_REAL_RECEIPTS_MISMATCH,
+    REGISTER_MP_DELETED_RECEIPTS,
+    REGISTER_MP_MULTIPLE_CURRENCIES,
 }

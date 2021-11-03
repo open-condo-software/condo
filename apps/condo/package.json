@@ -55,6 +55,7 @@
     "ajv-formats": "^2.1.0",
     "antd": "^4.8.2",
     "antd-mask-input": "^0.1.15",
+    "big.js": "^6.1.1",
     "bull": "^3.22.0",
     "bull-repl": "^0.26.3",
     "carbone": "3.2.3",
