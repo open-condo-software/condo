@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import qs from 'qs'
-import { pickBy, get, debounce } from 'lodash'
-import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
+import { get, debounce } from 'lodash'
 
-export const useSearch = <F>(loading): [string, (search: string) => void] => {
+import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
+import { setFiltersToQuery } from '../utils/filters.utils'
+
+export const useSearch = <F> (loading: boolean): [string, (search: string) => void] => {
     const router = useRouter()
     const filtersFromQuery = getFiltersFromQuery<F>(router.query)
     const searchValue = get(filtersFromQuery, 'search')
@@ -16,14 +17,8 @@ export const useSearch = <F>(loading): [string, (search: string) => void] => {
         }
     }, [searchValue])
 
-    const searchChange = useCallback(debounce((e) => {
-        if ('offset' in router.query) router.query['offset'] = '0'
-        const query = qs.stringify(
-            { ...router.query, filters: JSON.stringify(pickBy({ ...filtersFromQuery, search: e })) },
-            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-        )
-
-        router.push(router.route + query)
+    const searchChange = useCallback(debounce(async (searchString) => {
+        await setFiltersToQuery(router, { ...filtersFromQuery, search: searchString }, true)
     }, 400), [loading, filtersFromQuery])
 
     const handleSearchChange = (value: string): void => {

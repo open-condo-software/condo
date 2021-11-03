@@ -19,7 +19,6 @@ import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/comp
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Button } from '@condo/domains/common/components/Button'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
-import { SortMeterReadingsBy } from '@app/condo/schema'
 import { useTicketTableFilters } from '@condo/domains/ticket/hooks/useTicketTableFilters'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -34,8 +33,10 @@ import { IFilters } from '@condo/domains/ticket/utils/helpers'
 import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { useEmergencySearch } from '@condo/domains/ticket/hooks/useEmergencySearch'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { setFiltersToQuery } from '@condo/domains/common/utils/filters.utils'
 
 import { fontSizes } from '@condo/domains/common/constants/style'
+
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -106,13 +107,7 @@ export const TicketsPageContent = ({
     const [paid, handlePaidChange] = usePaidSearch<IFilters>(loading)
 
     const resetQuery = async () => {
-        if ('offset' in router.query) router.query['offset'] = '0'
-        const query = qs.stringify(
-            { ...router.query, filters: JSON.stringify({}) },
-            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-        )
-
-        await router.push(router.route + query)
+        await setFiltersToQuery(router, {}, true)
     }
 
     return (

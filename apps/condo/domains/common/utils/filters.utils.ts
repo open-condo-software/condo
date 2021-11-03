@@ -1,12 +1,13 @@
 import React, { CSSProperties } from 'react'
-import { get } from 'lodash'
+import { get, pickBy } from 'lodash'
 import dayjs, { Dayjs } from 'dayjs'
 import { FormItemProps } from 'antd/es'
 import { DatePickerProps, FormInstance, InputProps, SelectProps } from 'antd'
 import { CheckboxGroupProps } from 'antd/es/checkbox'
 import { RangePickerSharedProps } from 'rc-picker/lib/RangePicker'
+import qs from 'qs'
 
-import { QueryMeta } from './tables.utils'
+import { FiltersFromQueryType, QueryMeta } from './tables.utils'
 import { ISearchInputProps } from '../components/GraphQlSearchInput'
 import {
     getDateFilterDropdown,
@@ -14,6 +15,7 @@ import {
     getOptionFilterDropdown, getSelectFilterDropdown,
     getTextFilterDropdown,
 } from '../components/Table/Filters'
+import { NextRouter } from 'next/router'
 
 export enum FilterComponentSize {
     Medium = 12,
@@ -165,4 +167,16 @@ export function getFilterDropdownByKey <T> (filterMetas: Array<FiltersMeta<T>>, 
 
         default: return
     }
+}
+
+export async function setFiltersToQuery (router: NextRouter, newFilters: FiltersFromQueryType, resetOffset?: boolean): Promise<boolean> {
+    if (resetOffset && 'offset' in router.query)
+        router.query['offset'] = '0'
+
+    const query = qs.stringify(
+        { ...router.query, filters: JSON.stringify(pickBy(newFilters)) },
+        { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
+    )
+
+    return await router.push(router.route + query)
 }

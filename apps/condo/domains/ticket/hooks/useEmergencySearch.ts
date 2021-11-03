@@ -5,6 +5,7 @@ import { useRouter } from 'next/router'
 import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
+import { setFiltersToQuery } from '@condo/domains/common/utils/filters.utils'
 
 export const useEmergencySearch = <F>(loading): [boolean, (e: CheckboxChangeEvent) => void] => {
     const router = useRouter()
@@ -19,15 +20,10 @@ export const useEmergencySearch = <F>(loading): [boolean, (e: CheckboxChangeEven
         setIsEmergency(searchValue)
     }, [searchValue])
 
-    const searchChange = useCallback(debounce((e) => {
-        const queryAttributes = e ? [...attributes, e && 'isEmergency'] : attributes.filter(attr => attr !== 'isEmergency')
+    const searchChange = useCallback(debounce(async (isEmergency) => {
+        const queryAttributes = isEmergency ? [...attributes, isEmergency && 'isEmergency'] : attributes.filter(attr => attr !== 'isEmergency')
 
-        const query = qs.stringify(
-            { ...router.query, filters: JSON.stringify(pickBy({ ...filtersFromQuery, attributes: queryAttributes })) },
-            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-        )
-
-        router.push(router.route + query)
+        await setFiltersToQuery(router, { ...filtersFromQuery, attributes: queryAttributes }, true)
     }, 400), [loading])
 
     const handleEmergencyChange = (e: CheckboxChangeEvent): void => {

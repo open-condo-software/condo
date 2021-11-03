@@ -28,6 +28,7 @@ import { TitleHeaderAction } from '@condo/domains/common/components/HeaderAction
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { DiffOutlined } from '@ant-design/icons'
 import { useImporterFunctions } from '@condo/domains/contact/hooks/useImporterFunctions'
+import { setFiltersToQuery } from '../../domains/common/utils/filters.utils'
 
 const ADD_CONTACT_ROUTE = '/contact/create/'
 
@@ -93,13 +94,8 @@ export const ContactsPageContent = ({
                 where: filters,
                 skip: offset,
                 first: CONTACT_PAGE_SIZE,
-            }).then(() => {
-                const query = qs.stringify(
-                    { ...router.query, sort, offset, filters: JSON.stringify(pickBy({ ...filtersFromQuery, ...nextFilters })) },
-                    { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-                )
-
-                router.push(router.route + query)
+            }).then(async () => {
+                await setFiltersToQuery(router, { ...filtersFromQuery, ...nextFilters })
             })
         }
     }, 400), [loading])

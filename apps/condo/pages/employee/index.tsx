@@ -26,6 +26,7 @@ import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSc
 import { Button } from '@condo/domains/common/components/Button'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { canManageEmployee } from '@condo/domains/organization/permissions'
+import { setFiltersToQuery } from '../../domains/common/utils/filters.utils'
 
 const ADD_EMPLOYEE_ROUTE = '/employee/create/'
 
@@ -90,13 +91,8 @@ export const EmployeesPageContent = ({
                 where: filters,
                 skip: offset,
                 first: EMPLOYEE_PAGE_SIZE,
-            }).then(() => {
-                const query = qs.stringify(
-                    { ...router.query, sort, offset, filters: JSON.stringify(pickBy({ ...filtersFromQuery, ...nextFilters })) },
-                    { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-                )
-
-                router.push(router.route + query)
+            }).then(async () => {
+                await setFiltersToQuery(router, { ...filtersFromQuery, ...nextFilters })
             })
         }
     }, 400), [loading])
