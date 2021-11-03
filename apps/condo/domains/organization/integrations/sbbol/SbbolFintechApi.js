@@ -1,4 +1,5 @@
 const { SbbolRequestApi } = require('./SbbolRequestApi')
+const { logger } = require('./common')
 
 /**
  * Error reponse from SBBOL Fintech API
@@ -135,7 +136,7 @@ class SbbolFintechApi extends SbbolRequestApi {
             return []
         }
         if (!Array.isArray(result)) {
-            console.error('Cannot parse advanceAcceptances')
+            logger.error('Cannot parse advanceAcceptances')
             return []
         }
         return result

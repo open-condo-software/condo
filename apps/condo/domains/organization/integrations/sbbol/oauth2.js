@@ -54,7 +54,7 @@ class SbbolOauth2Api {
                 await _validateJWT.call(client, jwt, expectedAlg, required)
             } catch (error) {
                 //TODO(zuch): find a way to force jose validate gost algorithm
-                console.error('Validate JWT ERROR:', error.message === 'failed to validate JWT signature', jwt, error)
+                logger.error({ message: error.message, jwt, error })
             }
             return { protected: jwtDecode(jwt, { header: true }), payload: jwtDecode(jwt) }
         }
@@ -143,7 +143,6 @@ class SbbolOauth2Api {
                             headers: options.headers,
                         }
                         if (options.body) {
-                            console.debug(options.body)
                             logData.body = util.format('%s', options.body)
                         }
                         logger.info({
@@ -160,9 +159,7 @@ class SbbolOauth2Api {
                             url: response.request.options.url.href,
                             headers: response.headers,
                         }
-                        console.log()
                         if (response.body) {
-                            console.log('<-- BODY %s', response.body)
                             logData.body = util.format('%s', response.body)
                         }
                         logger.info({

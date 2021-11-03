@@ -78,7 +78,6 @@ describe('syncOrganization from SBBOL', () => {
                 organization: { id: newOrganization.id },
                 user: { id: user.id },
             })
-            console.log(existedEmployee)
             expect(existedEmployee).toBeDefined()
             expect(existedEmployee.isAccepted).toBeTruthy()
             expect(existedEmployee.role.canManageEmployees).toBeTruthy()
