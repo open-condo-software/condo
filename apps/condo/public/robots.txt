@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /auth/
+
+User-agent: *
+Disallow: *
