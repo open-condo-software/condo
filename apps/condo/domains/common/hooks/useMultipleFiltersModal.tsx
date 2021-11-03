@@ -1,4 +1,4 @@
-import React, { CSSProperties, useCallback, useState } from 'react'
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import Form from 'antd/lib/form'
 import { Checkbox, Col, FormInstance, Input, Row, Select, Typography } from 'antd'
 import { useRouter } from 'next/router'
@@ -188,7 +188,7 @@ function getModalComponents <T> (filters: IFilters, filterMetas: Array<FiltersMe
     })
 }
 
-const ResetFiltersModalButton = styled(Button)`
+const StyledResetFiltersModalButton = styled(Button)`
   position: absolute;
   left: 10px;
 `
@@ -196,6 +196,24 @@ const ResetFiltersModalButton = styled(Button)`
 const MODAL_PROPS: CSSProperties = { width: 840 }
 const CLEAR_ALL_MESSAGE_STYLE: CSSProperties = { fontSize: '12px' }
 const FILTER_WRAPPERS_GUTTER: [Gutter, Gutter] = [24, 12]
+const MODAL_FORM_VALIDATE_TRIGGER: string[] = ['onBlur', 'onSubmit']
+
+const ResetFiltersModalButton = ({ handleReset }) => {
+    const intl = useIntl()
+    const ClearAllFiltersMessage = intl.formatMessage({ id: 'ClearAllFilters' })
+
+    return (
+        <StyledResetFiltersModalButton
+            key={'reset'}
+            type={'text'}
+            onClick={handleReset}
+        >
+            <Typography.Text strong type={'secondary'}>
+                {ClearAllFiltersMessage} <CloseOutlined style={CLEAR_ALL_MESSAGE_STYLE} />
+            </Typography.Text>
+        </StyledResetFiltersModalButton>
+    )
+}
 
 type MultipleFiltersModalProps = {
     isMultipleFiltersModalVisible: boolean,
@@ -211,7 +229,6 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const intl = useIntl()
     const FiltersModalTitle = intl.formatMessage({ id: 'FiltersLabel' })
     const ShowMessage = intl.formatMessage({ id: 'Show' })
-    const ClearAllFiltersMessage = intl.formatMessage({ id: 'ClearAllFilters' })
 
     const [form, setForm] = useState<FormInstance>(null)
 
@@ -234,6 +251,12 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         setIsMultipleFiltersModalVisible(false)
     }, [filters, router, setIsMultipleFiltersModalVisible])
 
+    const modalFooter = useMemo(() => {
+        return [
+            <ResetFiltersModalButton key={'reset'} handleReset={handleReset} />,
+        ]
+    }, [handleReset])
+
     return (
         <BaseModalForm
             visible={isMultipleFiltersModalVisible}
@@ -242,19 +265,9 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
             ModalTitleMsg={FiltersModalTitle}
             ModalSaveButtonLabelMsg={ShowMessage}
             showCancelButton={false}
-            validateTrigger={['onBlur', 'onSubmit']}
+            validateTrigger={MODAL_FORM_VALIDATE_TRIGGER}
             handleSubmit={handleSubmit}
-            modalExtraFooter={[
-                <ResetFiltersModalButton
-                    key={'reset'}
-                    type={'text'}
-                    onClick={handleReset}
-                >
-                    <Typography.Text strong type={'secondary'}>
-                        {ClearAllFiltersMessage} <CloseOutlined style={CLEAR_ALL_MESSAGE_STYLE} />
-                    </Typography.Text>
-                </ResetFiltersModalButton>,
-            ]}
+            modalExtraFooter={modalFooter}
         >
             {
                 (form: FormInstance) => {
