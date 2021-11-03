@@ -67,7 +67,6 @@ describe('syncUser from SBBOL', () => {
                 listKey: 'User',
                 returnFields: 'id name phone importId importRemoteSystem',
             })
-            console.log('updatedUser', updatedUser)
             expect(existedUser.id).toEqual(updatedUser.id)
             expect(existedUser.phone).toEqual(updatedUser.phone)
             expect(updatedUser.importId).toEqual(userData.importId)
