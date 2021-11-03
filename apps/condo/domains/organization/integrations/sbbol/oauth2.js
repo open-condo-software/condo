@@ -6,7 +6,7 @@ const { logger: baseLogger } = require('./common')
 const util = require('util')
 const conf = require('@core/config')
 
-const SBBOL_CONFIG = conf.SBBOL_CONFIG ? JSON.parse(conf.SBBOL_CONFIG) : {}
+const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
 const SERVER_URL = conf.SERVER_URL
 const JWT_ALG = 'gost34.10-2012'
@@ -22,8 +22,8 @@ class SbbolOauth2Api {
         this.enableDebugMode()
         this.createIssuer()
         const client = new this.issuer.Client({
-            client_id: String(SBBOL_CONFIG.client_id),
-            client_secret: SBBOL_CONFIG.client_secret,
+            client_id: String(SBBOL_AUTH_CONFIG.client_id),
+            client_secret: SBBOL_AUTH_CONFIG.client_secret,
             redirect_uris: [this.redirectUrl],
             response_types: ['code'],
             authorization_signed_response_alg: JWT_ALG,
@@ -61,7 +61,7 @@ class SbbolOauth2Api {
 
     createIssuer () {
         const sbbolIssuer = new Issuer({
-            issuer: SBBOL_CONFIG.issuer,
+            issuer: SBBOL_AUTH_CONFIG.issuer,
             authorization_endpoint: this.authUrl,
             token_endpoint: this.tokenUrl,
             userinfo_endpoint: this.userInfoUrl,
@@ -77,7 +77,7 @@ class SbbolOauth2Api {
     authorizationUrlWithParams (checks) {
         return this.client.authorizationUrl({
             response_type: 'code',
-            scope: SBBOL_CONFIG.scope,
+            scope: SBBOL_AUTH_CONFIG.scope,
             ...checks,
         })
     }
@@ -119,11 +119,11 @@ class SbbolOauth2Api {
     }
 
     get url () {
-        return `${SBBOL_CONFIG.host}:${SBBOL_CONFIG.port}`
+        return `${SBBOL_AUTH_CONFIG.host}:${SBBOL_AUTH_CONFIG.port}`
     }
 
     get protectedUrl () {
-        return `${SBBOL_CONFIG.protected_host}:${SBBOL_CONFIG.protected_port || SBBOL_CONFIG.port}`
+        return `${SBBOL_AUTH_CONFIG.protected_host}:${SBBOL_AUTH_CONFIG.protected_port || SBBOL_AUTH_CONFIG.port}`
     }
 
     /**

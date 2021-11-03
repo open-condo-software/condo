@@ -4,8 +4,11 @@ const dayjs = require('dayjs')
 const { SbbolRequestApi } = require('../SbbolRequestApi')
 const { SbbolFintechApi } = require('../SbbolFintechApi')
 const { SBBOL_YEARLY_SUBSCRIPTION_PRICE, SUBSCRIPTION_TYPE, SUBSCRIPTION_PAYMENT_STATUS, SUBSCRIPTION_PAYMENT_CURRENCY } = require('@condo/domains/subscription/constants')
+
 const conf = process.env
-const SBBOL_CONFIG = conf.SBBOL_CONFIG ? JSON.parse(conf.SBBOL_CONFIG) : {}
+const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
+const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
+
 const { logger: baseLogger } = require('../common')
 const { dvSenderFields, BANK_OPERATION_CODE } = require('../constants')
 const { SBBOL_OFFER_ACCEPT_IS_NULL_ERROR, SBBOL_OFFER_ACCEPT_HAS_INCORRECT_PAYER_REQUISITES_ERROR } = require('@condo/domains/subscription/constants/errors')
@@ -64,7 +67,7 @@ const postPaymentRequestFor = async (subscription, fintechApi) => {
 
     const today = dayjs()
 
-    const { payeeAccount, payeeBankBic, payeeBankCorrAccount, payeeInn, payeeName } = SBBOL_CONFIG.payee
+    const { payeeAccount, payeeBankBic, payeeBankCorrAccount, payeeInn, payeeName } = SBBOL_FINTECH_CONFIG.payee
 
     const response = await fintechApi.postPaymentRequest({
         acceptanceTerm: '5',
@@ -119,20 +122,27 @@ const postPaymentRequestFor = async (subscription, fintechApi) => {
 const syncPaymentRequestsForSubscriptions = async () => {
     logger.info({ message: 'Start', function: 'syncPaymentRequestsForSubscriptions' })
 
-    let ourOrganizationAccessToken
+    let accessToken
     try {
         // `service_organization_hashOrgId` is a `userInfo.HashOrgId` from SBBOL, that used to obtain accessToken
         // for organization, that will be queried in SBBOL using `SbbolFintechApi`.
-        ourOrganizationAccessToken = await SbbolRequestApi.getOrganizationAccessToken(SBBOL_CONFIG.service_organization_hashOrgId)
+        accessToken = await SbbolRequestApi.getOrganizationAccessToken(SBBOL_FINTECH_CONFIG.service_organization_hashOrgId)
     } catch (e) {
         logger.error({
             message: 'Failed to obtain organization access token from SBBOL',
             error: e.message,
-            hashOrgId: SBBOL_CONFIG.service_organization_hashOrgId,
+            hashOrgId: SBBOL_FINTECH_CONFIG.service_organization_hashOrgId,
         })
         return
     }
-    const fintechApi = new SbbolFintechApi(ourOrganizationAccessToken)
+
+    const fintechApi = new SbbolFintechApi({
+        accessToken,
+        host: SBBOL_FINTECH_CONFIG.host,
+        port: SBBOL_FINTECH_CONFIG.port,
+        certificate: SBBOL_PFX.certificate,
+        passphrase: SBBOL_PFX.passphrase,
+    })
 
     const { keystone: context } = await getSchemaCtx('ServiceSubscription')
     const today = dayjs()

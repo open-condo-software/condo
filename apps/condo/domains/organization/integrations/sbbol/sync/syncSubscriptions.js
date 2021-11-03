@@ -9,7 +9,8 @@ const { processArrayOf } = require('@condo/domains/common/utils/parallel')
 const { getSchemaCtx } = require('@core/keystone/schema')
 
 const conf = process.env
-const SBBOL_CONFIG = conf.SBBOL_CONFIG ? JSON.parse(conf.SBBOL_CONFIG) : {}
+const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
+const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
 
 const logger = baseLogger.child({ module: 'syncSubscriptions' })
 
@@ -112,24 +113,31 @@ const syncSubscriptions = async (date = null) => {
 
     logger.info({ message: 'Start syncSubscriptions' })
 
-    let ourOrganizationAccessToken
+    let accessToken
     try {
         // `service_organization_hashOrgId` is a `userInfo.HashOrgId` from SBBOL, that used to obtain accessToken
         // for organization, that will be queried in SBBOL using `SbbolFintechApi`.
-        ourOrganizationAccessToken = await SbbolRequestApi.getOrganizationAccessToken(SBBOL_CONFIG.service_organization_hashOrgId)
+        accessToken = await SbbolRequestApi.getOrganizationAccessToken(SBBOL_FINTECH_CONFIG.service_organization_hashOrgId)
     } catch (e) {
         logger.error({
             message: 'Failed to obtain organization access token from SBBOL',
             error: e.message,
-            hashOrgId: SBBOL_CONFIG.service_organization_hashOrgId,
+            hashOrgId: SBBOL_FINTECH_CONFIG.service_organization_hashOrgId,
         })
         return
     }
 
-    const fintechApi = new SbbolFintechApi(ourOrganizationAccessToken)
+    const fintechApi = new SbbolFintechApi({
+        accessToken,
+        host: SBBOL_FINTECH_CONFIG.host,
+        port: SBBOL_FINTECH_CONFIG.port,
+        certificate: SBBOL_PFX.certificate,
+        passphrase: SBBOL_PFX.passphrase,
+    })
+
     logger.info({ message: 'Checking, whether the user have ServiceSubscription items' })
 
-    const advanceAcceptances = await fintechApi.fetchAdvanceAcceptances({ date, clientId: SBBOL_CONFIG.client_id })
+    const advanceAcceptances = await fintechApi.fetchAdvanceAcceptances({ date, clientId: SBBOL_FINTECH_CONFIG.client_id })
 
     if (advanceAcceptances.length === 0) {
         logger.info({ message: 'SBBOL returned no changes in offers, do nothing' })

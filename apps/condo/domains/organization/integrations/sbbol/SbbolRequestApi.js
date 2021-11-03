@@ -4,9 +4,6 @@ const { URL } = require('url')
 const { logger: baseLogger, SBBOL_IMPORT_NAME } = require('./common')
 const { getSchemaCtx } = require('@core/keystone/schema')
 const { TokenSet: TokenSetApi } = require('@condo/domains/organization/utils/serverSchema')
-const conf = require('@core/config')
-const SBBOL_CONFIG = conf.SBBOL_CONFIG ? JSON.parse(conf.SBBOL_CONFIG) : {}
-const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
 const { SbbolOauth2Api } = require('./oauth2')
 
 const logger = baseLogger.child({ module: 'SbbolRequestApi' })
@@ -21,24 +18,34 @@ dayjs.extend(utc)
 const REFRESH_TOKEN_TTL = 30 * 24 * 60 * 60 // its real TTL is 180 days bit we need to update it earlier
 
 /**
+ * @typedef SbbolRequestApiOptions
+ * @property {String} accessToken
+ * @property {Number} host
+ * @property {String} certificate Base64 encoded certificate value, stored in `SBBOL_PFX`
+ * @property {String} passphrase used for certificate, stored in `SBBOL_PFX`
+ */
+
+/**
  * @typedef SbbolRequestApiResponse
  * @property {Object} data
  * @property {String} statusCode
  */
 
 class SbbolRequestApi {
-    constructor (accessToken) {
-        // TODO(pahaz): use protected_port?
-        const { protected_host: hostname, port } = SBBOL_CONFIG
-        let { host } = new URL(hostname)
+    /**
+     *
+     * @param {SbbolRequestApiOptions} options
+     */
+    constructor (options) {
+        const { accessToken, host, port, certificate, passphrase } = options
         this.options = {
-            hostname: host,
+            hostname: new URL(host),
             port,
             rejectUnauthorized: false,
             requestCert: true,
             timeout: REQUEST_TIMEOUT,
-            pfx: Buffer.from(SBBOL_PFX.certificate, 'base64'),
-            passphrase: SBBOL_PFX.passphrase,
+            pfx: Buffer.from(certificate, 'base64'),
+            passphrase,
             agent: null,
             headers: {
                 'Cache-Control': 'no-cache',
@@ -48,11 +55,6 @@ class SbbolRequestApi {
             },
         }
         this.accessToken = accessToken
-    }
-
-    static async getServiceOrganizationAccessToken () {
-        const accessToken = await SbbolRequestApi.getOrganizationAccessToken(SBBOL_CONFIG.service_organization_id)
-        return accessToken
     }
 
     static async getOrganizationAccessToken (organizationImportId) {
