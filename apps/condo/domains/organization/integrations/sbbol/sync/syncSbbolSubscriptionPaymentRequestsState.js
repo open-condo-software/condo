@@ -56,7 +56,6 @@ const syncSbbolSubscriptionPaymentRequestStateFor = async (payment, fintechApi) 
 }
 
 const syncSbbolSubscriptionPaymentRequestsState = async () => {
-    logger.info({ message: 'Start', function: 'syncSbbolSubscriptionPaymentRequestsState' })
     const { keystone: context } = await getSchemaCtx('ServiceSubscriptionPayment')
 
     let ourOrganizationAccessToken
@@ -84,14 +83,12 @@ const syncSbbolSubscriptionPaymentRequestsState = async () => {
 
     if (paymentsToSync.length === 0) {
         logger.info({
-            message: 'No ServiceSubscriptionPayment found with state CREATED, PROCESSING or STOPPED. Do nothing.',
+            message: 'No ServiceSubscriptionPayment found with state CREATED, PROCESSING or STOPPED. Do nothing',
         })
     } else {
         const syncTasks = paymentsToSync.map(payment => () => syncSbbolSubscriptionPaymentRequestStateFor(payment, fintechApi))
         await executeInSequence(syncTasks)
     }
-
-    logger.info({ message: 'End', function: 'syncSbbolSubscriptionPaymentRequestsState' })
 }
 
 

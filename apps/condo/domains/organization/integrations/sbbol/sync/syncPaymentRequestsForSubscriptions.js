@@ -166,14 +166,13 @@ const syncPaymentRequestsForSubscriptions = async () => {
                 await postPaymentRequestFor(expiredSubscription, fintechApi)
             } else {
                 logger.info({
-                    message: 'Subscription already has payments. Do nothing',
+                    message: 'Subscription already has payments',
                     subscription: expiredSubscription,
                     paymentsCount: paymentsForSubscription.length,
                 })
             }
         })
     }
-    logger.info({ message: 'End', function: 'syncPaymentRequestsForSubscriptions' })
 }
 
 module.exports = {
