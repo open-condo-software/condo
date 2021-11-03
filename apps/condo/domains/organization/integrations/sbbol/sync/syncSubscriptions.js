@@ -67,7 +67,7 @@ const syncSubscriptionsFor = async (advanceAcceptance) => {
     if (active) {
         // TODO: add trial for additional day when client accepts previously revoked (after accepting) offer
 
-        logger.info({ message: `User from organization has accepted our offer in SBBOL`, payerInn })
+        logger.info({ message: 'User from organization has accepted our offer in SBBOL', payerInn })
 
         // In case of accepted SBBOL offer new subscription should be started and all current subscriptions will make no sense.
         // If active one is present, stop it by cutting it's period until now.
