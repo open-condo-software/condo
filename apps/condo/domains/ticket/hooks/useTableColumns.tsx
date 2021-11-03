@@ -20,6 +20,7 @@ import { EMERGENCY_TAG_COLOR } from '@condo/domains/ticket/constants/style'
 
 import { TicketStatus } from '../utils/clientSchema'
 import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
+import { IFilters } from '../utils/helpers'
 
 export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const intl = useIntl()
@@ -103,7 +104,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
             {
                 title: NumberMessage,
                 sortOrder: get(sorterMap, 'number'),
-                filteredValue: getFilteredValue(filters, 'number'),
+                filteredValue: getFilteredValue<IFilters>(filters, 'number'),
                 dataIndex: 'number',
                 key: 'number',
                 sorter: true,
@@ -116,7 +117,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
             {
                 title: DateMessage,
                 sortOrder: get(sorterMap, 'createdAt'),
-                filteredValue: getFilteredValue(filters, 'createdAt'),
+                filteredValue: getFilteredValue<IFilters>(filters, 'createdAt'),
                 dataIndex: 'createdAt',
                 key: 'createdAt',
                 sorter: true,
@@ -129,7 +130,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
             {
                 title: StatusMessage,
                 sortOrder: get(sorterMap, 'status'),
-                filteredValue: getFilteredValue(filters, 'status'),
+                filteredValue: getFilteredValue<IFilters>(filters, 'status'),
                 render: renderStatus,
                 dataIndex: 'status',
                 key: 'status',
@@ -141,7 +142,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
             {
                 title: DescriptionMessage,
                 dataIndex: 'details',
-                filteredValue: getFilteredValue(filters, 'details'),
+                filteredValue: getFilteredValue<IFilters>(filters, 'details'),
                 key: 'details',
                 width: '22%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'details'),
@@ -152,7 +153,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 title: AddressMessage,
                 ellipsis: false,
                 sortOrder: get(sorterMap, 'address'),
-                filteredValue: getFilteredValue(filters, 'address'),
+                filteredValue: getFilteredValue<IFilters>(filters, 'address'),
                 key: 'address',
                 sorter: true,
                 width: '19%',
@@ -163,7 +164,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
             {
                 title: ClientNameMessage,
                 sortOrder: get(sorterMap, 'clientName'),
-                filteredValue: getFilteredValue(filters, 'clientName'),
+                filteredValue: getFilteredValue<IFilters>(filters, 'clientName'),
                 dataIndex: 'clientName',
                 key: 'clientName',
                 sorter: true,
@@ -175,7 +176,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
             {
                 title: ExecutorMessage,
                 sortOrder: get(sorterMap, 'executor'),
-                filteredValue: getFilteredValue(filters, 'executor'),
+                filteredValue: getFilteredValue<IFilters>(filters, 'executor'),
                 dataIndex: 'executor',
                 key: 'executor',
                 sorter: true,
@@ -187,7 +188,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
             {
                 title: ResponsibleMessage,
                 sortOrder: get(sorterMap, 'assignee'),
-                filteredValue: getFilteredValue(filters, 'assignee'),
+                filteredValue: getFilteredValue<IFilters>(filters, 'assignee'),
                 dataIndex: 'assignee',
                 key: 'assignee',
                 sorter: true,
