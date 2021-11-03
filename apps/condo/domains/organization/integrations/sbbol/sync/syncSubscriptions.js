@@ -136,7 +136,6 @@ const syncSubscriptions = async (date = null) => {
     } else {
         await processArrayOf(advanceAcceptances).inSequenceWith(syncSubscriptionsFor)
     }
-    logger.info({ message: 'End syncSubscriptions' })
 }
 
 module.exports = {
