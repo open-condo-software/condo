@@ -16,8 +16,8 @@ export const useQueryMappers = <F>(queryMetas: Array<QueryMeta<F>>, sortableColu
             const whereQueries = []
             validMetas.forEach((meta) => {
                 let searchValue = get(queryFilters, meta.keyword)
-
                 const queryToWhereProcessor = meta.queryToWhereProcessor
+
                 if (searchValue && queryToWhereProcessor) {
                     searchValue = queryToWhereProcessor(searchValue)
                 }

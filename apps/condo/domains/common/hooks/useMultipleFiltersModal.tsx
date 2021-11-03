@@ -2,9 +2,8 @@ import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import Form from 'antd/lib/form'
 import { Checkbox, Col, FormInstance, Input, Row, Select, Typography } from 'antd'
 import { useRouter } from 'next/router'
-import { get, pickBy } from 'lodash'
+import { get } from 'lodash'
 import { FormItemProps } from 'antd/es'
-import qs from 'qs'
 import styled from '@emotion/styled'
 import { CloseOutlined } from '@ant-design/icons'
 import { Gutter } from 'antd/es/grid/row'
@@ -22,14 +21,16 @@ import DateRangePicker from '../components/Pickers/DateRangePicker'
 import { GraphQlSearchInput } from '../components/GraphQlSearchInput'
 import { Button } from '../components/Button'
 import { BaseModalForm } from '../components/containers/FormList'
+import { FILTERS_POPUP_CONTAINER_ID } from '../constants/filters'
 
 import {
     ComponentType,
     FilterComponentType,
-    FiltersMeta,
+    FiltersMeta, getFiltersModalPopupContainer,
     getQueryToValueProcessorByType,
     setFiltersToQuery,
 } from '../utils/filters.utils'
+
 
 enum FilterComponentSize {
     Medium = 12,
@@ -77,13 +78,11 @@ const DATE_RANGE_PICKER_STYLE: CSSProperties = { width: '100%' }
 const TAGS_SELECT_STYLE: CSSProperties = { width: '100%' }
 const TAGS_SELECT_DROPDOWN_STYLE = { display: 'none' }
 
-const FILTERS_POPUP_CONTAINER_ID = 'filtersPopupContainer'
-
 export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string, component: FilterComponentType): React.ReactElement => {
     const type = get(component, 'type')
     const props = {
         // It is necessary so that dropdowns do not go along with the screen when scrolling the modal window
-        getPopupContainer: () => document.getElementById(FILTERS_POPUP_CONTAINER_ID),
+        getPopupContainer: getFiltersModalPopupContainer,
         ...get(component, 'props', {}),
     }
 
