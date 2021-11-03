@@ -1,5 +1,6 @@
 import React, { CSSProperties } from 'react'
-import { get, pickBy } from 'lodash'
+import get from 'lodash/get'
+import pickBy from 'lodash/pickBy'
 import dayjs, { Dayjs } from 'dayjs'
 import { FormItemProps } from 'antd/es'
 import { DatePickerProps, FormInstance, InputProps, SelectProps } from 'antd'
