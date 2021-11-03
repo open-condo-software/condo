@@ -1,21 +1,16 @@
 const https = require('https')
 const querystring = require('querystring')
 const { URL } = require('url')
-const { logger: baseLogger, SBBOL_IMPORT_NAME } = require('./common')
-const { getSchemaCtx } = require('@core/keystone/schema')
-const { TokenSet } = require('@condo/domains/organization/utils/serverSchema')
-const { SbbolOauth2Api } = require('./oauth2')
-
-const logger = baseLogger.child({ module: 'SbbolRequestApi' })
+const { logger: baseLogger } = require('./common')
+const dayjs = require('dayjs')
+const utc = require('dayjs/plugin/utc')
 
 const REQUEST_TIMEOUT = 10 * 1000
 const REQUEST_TIMEOUT_ERROR = '[request:timeout:expires'
 
-const dayjs = require('dayjs')
-const utc = require('dayjs/plugin/utc')
+const logger = baseLogger.child({ module: 'SbbolRequestApi' })
+
 dayjs.extend(utc)
-// TODO(zuch): move all constants to constants
-const REFRESH_TOKEN_TTL = 30 * 24 * 60 * 60 // its real TTL is 180 days bit we need to update it earlier
 
 /**
  * @typedef SbbolRequestApiOptions
@@ -23,6 +18,7 @@ const REFRESH_TOKEN_TTL = 30 * 24 * 60 * 60 // its real TTL is 180 days bit we n
  * @property {Number} host
  * @property {String} certificate Base64 encoded certificate value, stored in `SBBOL_PFX`
  * @property {String} passphrase used for certificate, stored in `SBBOL_PFX`
+ * @property {String} accessToken should be obtained either locally or from SBBOL API
  */
 
 /**
@@ -33,13 +29,13 @@ const REFRESH_TOKEN_TTL = 30 * 24 * 60 * 60 // its real TTL is 180 days bit we n
 
 class SbbolRequestApi {
     /**
-     *
      * @param {SbbolRequestApiOptions} options
      */
     constructor (options) {
         const { accessToken, host, port, certificate, passphrase } = options
+        const { host: hostname } = new URL(host)
         this.options = {
-            hostname: new URL(host),
+            hostname,
             port,
             rejectUnauthorized: false,
             requestCert: true,
@@ -55,35 +51,6 @@ class SbbolRequestApi {
             },
         }
         this.accessToken = accessToken
-    }
-
-    static async getOrganizationAccessToken (organizationImportId) {
-        const { keystone } = await getSchemaCtx('TokenSet')
-        const adminContext = await keystone.createContext({ skipAccessControl: true })
-        // TODO(pahaz): need to be fixed! it's looks so strange.
-        const [tokenSet] = await TokenSet.getAll(adminContext, { organization: { importId: organizationImportId, importRemoteSystem: SBBOL_IMPORT_NAME } }, { sortBy: ['createdAt_DESC'] })
-        const instructionsMessage = 'Please, login through SBBOL for this organization, so its accessToken and refreshToken will be obtained and saved in TokenSet table for further renewals'
-        if (!tokenSet) {
-            throw new Error(`[tokens:expired] record from TokenSet was not found for organization ${organizationImportId}. ${instructionsMessage}`)
-        }
-        const isRefreshTokenExpired = dayjs(dayjs()).isAfter(tokenSet.refreshTokenExpiresAt)
-        if (isRefreshTokenExpired) {
-            throw new Error(`[tokens:expired] refreshToken is expired for organization ${organizationImportId}. ${instructionsMessage}`)
-        }
-        const isAccessTokenExpired = dayjs(dayjs()).isAfter(tokenSet.accessTokenExpiresAt)
-        if (isAccessTokenExpired) {
-            const oauth2 = new SbbolOauth2Api()
-            const { access_token, refresh_token, expires_at } = await oauth2.refreshToken(tokenSet.refreshToken)
-            await TokenSet.update(adminContext, tokenSet.id, {
-                accessToken: access_token,
-                refreshToken: refresh_token,
-                accessTokenExpiresAt: new Date(Number(expires_at) * 1000).toISOString(),
-                refreshTokenExpiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL * 1000).toISOString(),
-            })
-            return access_token
-        } else {
-            return tokenSet.accessToken
-        }
     }
 
     async request ({ method, path: basePath, body = null, headers = {} }){
