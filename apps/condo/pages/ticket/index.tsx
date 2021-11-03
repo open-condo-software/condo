@@ -245,7 +245,7 @@ const TicketsPage: ITicketIndexPage = () => {
         <TicketsPageContent
             tableColumns={tableColumns}
             searchTicketsQuery={searchTicketsQuery}
-            sortBy={sortersToSortBy(sorters) as SortMeterReadingsBy[]}
+            sortBy={sortersToSortBy(sorters)}
             filterMetas={filterMetas}
         />
     )
