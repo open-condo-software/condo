@@ -16,6 +16,7 @@ import {
     getTextFilterDropdown,
 } from '../components/Table/Filters'
 import { NextRouter } from 'next/router'
+import { FILTERS_POPUP_CONTAINER_ID } from '../constants/filters'
 
 export enum FilterComponentSize {
     Medium = 12,
@@ -118,6 +119,7 @@ export function getFilterDropdownByKey <T> (filterMetas: Array<FiltersMeta<T>>, 
     switch (type) {
         case ComponentType.Input: {
             const placeholder = get(props, 'placeholder')
+
             return getTextFilterDropdown(placeholder, columnFilterComponentWrapperStyles)
         }
 
@@ -127,6 +129,7 @@ export function getFilterDropdownByKey <T> (filterMetas: Array<FiltersMeta<T>>, 
         case ComponentType.CheckboxGroup: {
             const options = get(component, 'options')
             const loading = get(component, 'props', 'loading')
+
             return getOptionFilterDropdown(options, loading, columnFilterComponentWrapperStyles)
         }
 
@@ -137,6 +140,7 @@ export function getFilterDropdownByKey <T> (filterMetas: Array<FiltersMeta<T>>, 
             const options = get(component, 'options')
             const loading = get(component, 'loading')
             const props = get(component, 'props', {})
+
             return getSelectFilterDropdown({ options, loading, ...props }, columnFilterComponentWrapperStyles)
         }
 
@@ -144,6 +148,7 @@ export function getFilterDropdownByKey <T> (filterMetas: Array<FiltersMeta<T>>, 
             const props = get(component, 'props', {})
             const search = get(props, 'search')
             const mode = get(props, 'mode')
+
             return getGQLSelectFilterDropdown(props, search, mode, columnFilterComponentWrapperStyles)
         }
 
@@ -161,9 +166,8 @@ export function getFilterDropdownByKey <T> (filterMetas: Array<FiltersMeta<T>>, 
             )
         }
 
-        case ComponentType.Custom: {
+        case ComponentType.Custom:
             return get(component, 'getComponentFilterDropdown')
-        }
 
         default: return
     }
@@ -179,4 +183,8 @@ export async function setFiltersToQuery (router: NextRouter, newFilters: Filters
     )
 
     return await router.push(router.route + query)
+}
+
+export function getFiltersModalPopupContainer (): HTMLElement {
+    return document.getElementById(FILTERS_POPUP_CONTAINER_ID)
 }

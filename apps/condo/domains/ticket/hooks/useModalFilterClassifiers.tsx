@@ -1,13 +1,15 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { uniqBy } from 'lodash'
+import uniqBy from 'lodash/uniqBy'
+import isFunction from 'lodash/isFunction'
 import { FormInstance, Select } from 'antd'
 import { useRouter } from 'next/router'
 
 import { useIntl } from '@core/next/intl'
 import { useApolloClient } from '@core/next/apollo'
 
-import { parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { FiltersFromQueryType, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { ClassifiersQueryLocal, TicketClassifierTypes } from '../utils/clientSchema/classifierSearch'
+import { getFiltersModalPopupContainer } from '../../common/utils/filters.utils'
 
 const { Option } = Select
 
@@ -15,6 +17,8 @@ interface Options {
     id: string
     name: string
 }
+
+const SHOW_SELECT_ACTIONS: ('focus' | 'click')[] = ['focus', 'click']
 
 const useTicketClassifierSelect = ({
     onChange,
@@ -30,8 +34,6 @@ const useTicketClassifierSelect = ({
     const classifiersRef = useRef(null)
     const optionsRef = useRef([])
 
-    const router = useRouter()
-
     const setClassifiers = (classifiers) => {
         setClassifiersFromRules(classifiers)
         setSearchClassifiers([])
@@ -46,7 +48,8 @@ const useTicketClassifierSelect = ({
     }, [classifiers, searchClassifiers])
 
     const handleChange = (form: FormInstance, value) => {
-        onChange && onChange(value)
+        if (isFunction(onChange)) onChange(value)
+
         form.setFieldsValue({ [keyword]: value })
     }
 
@@ -66,10 +69,10 @@ const useTicketClassifierSelect = ({
                 optionFilterProp={'title'}
                 disabled={disabled}
                 value={form.getFieldValue(keyword)}
-                showAction={['focus', 'click']}
+                showAction={SHOW_SELECT_ACTIONS}
                 mode={'multiple'}
                 placeholder={SelectMessage}
-                getPopupContainer={() => document.getElementById('filtersPopupContainer')}
+                getPopupContainer={getFiltersModalPopupContainer}
             >
                 {
                     optionsRef.current.map(classifier => (
@@ -80,7 +83,7 @@ const useTicketClassifierSelect = ({
                 }
             </Select>
         )
-    }, [router.query])
+    }, [SelectMessage, handleChange, keyword, stateForm])
 
     return {
         SelectComponent,
@@ -93,8 +96,13 @@ const useTicketClassifierSelect = ({
     }
 }
 
+const CLASSIFIER_TYPES = [TicketClassifierTypes.place, TicketClassifierTypes.category]
 const PLACE_CLASSIFIER_KEYWORD = 'placeClassifier'
 const CATEGORY_CLASSIFIER_KEYWORD = 'categoryClassifier'
+const getInitialClassifierValues = (filters: FiltersFromQueryType, keyword: string) => {
+    return Array.isArray(filters[keyword]) ?
+        [...filters[keyword]] : [filters[keyword]]
+}
 
 export function useModalFilterClassifiers () {
     const client = useApolloClient()
@@ -133,13 +141,10 @@ export function useModalFilterClassifiers () {
     }
 
     useEffect(() => {
+        const initialPlaceClassifierIds = getInitialClassifierValues(filters, PLACE_CLASSIFIER_KEYWORD)
+        const initialCategoryClassifierIds = getInitialClassifierValues(filters, CATEGORY_CLASSIFIER_KEYWORD)
+
         ClassifierLoaderRef.current = ClassifierLoader
-
-        const initialPlaceClassifierIds = Array.isArray(filters[PLACE_CLASSIFIER_KEYWORD]) ?
-            [...filters[PLACE_CLASSIFIER_KEYWORD]] : [filters[PLACE_CLASSIFIER_KEYWORD]]
-
-        const initialCategoryClassifierIds = Array.isArray(filters[CATEGORY_CLASSIFIER_KEYWORD]) ?
-            [...filters[CATEGORY_CLASSIFIER_KEYWORD]] : [filters[CATEGORY_CLASSIFIER_KEYWORD]]
 
         ClassifierLoaderRef.current.init().then(() => {
             if (initialPlaceClassifierIds.length > 0 || initialCategoryClassifierIds.length > 0) {
@@ -149,7 +154,7 @@ export function useModalFilterClassifiers () {
                 }
                 updateLevels()
             } else {
-                [TicketClassifierTypes.place, TicketClassifierTypes.category].forEach(type => {
+                CLASSIFIER_TYPES.forEach(type => {
                     ClassifierLoaderRef.current.search('', type).then(classifiers => {
                         Setter[type].all(classifiers)
                     })
@@ -176,8 +181,10 @@ export function useModalFilterClassifiers () {
             { place, type: 'category' },
         ].map(selector => {
             const { type, ...querySelectors } = selector
+
             return new Promise<[string, Options[]]>(resolve => {
                 const query = {}
+
                 for (const key in querySelectors) {
                     if (querySelectors[key]) {
                         query[key] = { ids: querySelectors[key] }
@@ -193,6 +200,7 @@ export function useModalFilterClassifiers () {
         }))
 
         const result = Object.fromEntries(loadedRules)
+
         return result
     }
 
