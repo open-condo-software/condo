@@ -5,18 +5,19 @@
  */
 const faker = require('faker')
 const get = require('lodash/get')
-const {createTestProperty} = require("@condo/domains/property/utils/testSchema");
+const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { createTestResident, createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const {
     createTestBillingIntegration,
     createTestBillingIntegrationOrganizationContext,
     createTestBillingAccount,
     createTestBillingProperty,
     createTestBillingReceipt,
-} = require("@condo/domains/billing/utils/testSchema");
-const {makeClientWithNewRegisteredAndLoggedInUser} = require("@condo/domains/user/utils/testSchema");
-const {createTestOrganizationEmployee, createTestOrganizationEmployeeRole} = require("@condo/domains/organization/utils/testSchema");
+} = require('@condo/domains/billing/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 
-const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
+const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 const { MULTIPAYMENT_INIT_STATUS } = require('../../constants')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
@@ -267,13 +268,14 @@ async function updateTestPayment (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function registerMultiPaymentByTestClient(client, extraAttrs = {}) {
+async function registerMultiPaymentByTestClient(client, groupedReceipts, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
         dv: 1,
         sender,
+        groupedReceipts,
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(REGISTER_MULTI_PAYMENT_MUTATION, { data: attrs })
@@ -303,6 +305,12 @@ async function makePayer (receiptsAmount = 1) {
     const [acquiringIntegration] = await createTestAcquiringIntegration(admin, [billingIntegration])
     const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration)
 
+    const [resident] = await createTestResident(admin, client.user, organization, property)
+    const [serviceConsumer] = await createTestServiceConsumer(admin, resident, billingAccount, {
+        acquiringIntegrationContext: { connect: {id: acquiringContext.id} },
+        billingIntegrationContext: { connect: { id: billingContext.id } }
+    })
+
     return {
         admin,
         client,
@@ -315,6 +323,8 @@ async function makePayer (receiptsAmount = 1) {
         billingProperty,
         billingAccount,
         billingReceipts,
+        resident,
+        serviceConsumer,
     }
 }
 
