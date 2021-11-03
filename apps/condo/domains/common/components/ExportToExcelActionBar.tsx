@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Form, notification } from 'antd'
 import { DatabaseFilled } from '@ant-design/icons'
 
@@ -34,6 +34,10 @@ export const ExportToExcelActionBar = (
         },
     )
 
+    const handleExportToExcel = useCallback(() => {
+        exportToExcel({ variables: { data: { where: searchObjectsQuery, sortBy: sortBy, timeZone } } })
+    }, [exportToExcel, searchObjectsQuery, sortBy, timeZone])
+
     return (
         <Form.Item noStyle>
             <ActionBar>
@@ -56,9 +60,8 @@ export const ExportToExcelActionBar = (
                             secondary
                             icon={<DatabaseFilled />}
                             loading={isXlsLoading}
-                            onClick={
-                                () => exportToExcel({ variables: { data: { where: searchObjectsQuery, sortBy: sortBy, timeZone } } })
-                            }>
+                            onClick={handleExportToExcel}
+                        >
                             {ExportAsExcelLabel}
                         </Button>
                 }

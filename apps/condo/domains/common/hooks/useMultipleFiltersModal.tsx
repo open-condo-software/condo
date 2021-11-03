@@ -23,7 +23,13 @@ import { GraphQlSearchInput } from '../components/GraphQlSearchInput'
 import { Button } from '../components/Button'
 import { BaseModalForm } from '../components/containers/FormList'
 
-import { ComponentType, FilterComponentType, FiltersMeta, getQueryToValueProcessorByType } from '../utils/filters.utils'
+import {
+    ComponentType,
+    FilterComponentType,
+    FiltersMeta,
+    getQueryToValueProcessorByType,
+    setFiltersToQuery,
+} from '../utils/filters.utils'
 
 enum FilterComponentSize {
     Medium = 12,
@@ -220,25 +226,13 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         })
         form.setFieldsValue(resetFields)
 
-        if ('offset' in router.query) router.query['offset'] = '0'
-        const query = qs.stringify(
-            { ...router.query, filters: JSON.stringify({}) },
-            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-        )
+        await setFiltersToQuery(router, {}, true)
+    }, [form, router])
 
-        await router.push(router.route + query)
-    }, [form])
-
-    const handleSubmit = useCallback((values) => {
-        if ('offset' in router.query) router.query['offset'] = '0'
-        const query = qs.stringify(
-            { ...router.query, filters: JSON.stringify(pickBy({ ...filters, ...values })) },
-            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-        )
-
-        router.push(router.route + query)
+    const handleSubmit = useCallback(async (values) => {
+        await setFiltersToQuery(router, { ...filters, ...values }, true)
         setIsMultipleFiltersModalVisible(false)
-    }, [])
+    }, [filters, router, setIsMultipleFiltersModalVisible])
 
     return (
         <BaseModalForm

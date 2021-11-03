@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import qs from 'qs'
-import { pickBy, get, debounce } from 'lodash'
+import { get, debounce } from 'lodash'
 import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
+import { setFiltersToQuery } from '@condo/domains/common/utils/filters.utils'
 
 export const usePaidSearch = <F>(loading): [boolean, (e: CheckboxChangeEvent) => void] => {
     const router = useRouter()
@@ -19,15 +19,10 @@ export const usePaidSearch = <F>(loading): [boolean, (e: CheckboxChangeEvent) =>
         setIsPaid(searchValue)
     }, [searchValue])
 
-    const searchChange = useCallback(debounce((e) => {
-        const queryAttributes = e ? [...attributes, e && 'isPaid'] : attributes.filter(attr => attr !== 'isPaid')
+    const searchChange = useCallback(debounce(async (isPaid) => {
+        const queryAttributes = isPaid ? [...attributes, isPaid && 'isPaid'] : attributes.filter(attr => attr !== 'isPaid')
 
-        const query = qs.stringify(
-            { ...router.query, filters: JSON.stringify(pickBy({ ...filtersFromQuery, attributes: queryAttributes })) },
-            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-        )
-
-        router.push(router.route + query)
+        await setFiltersToQuery(router, { ...filtersFromQuery, attributes: queryAttributes }, true)
     }, 400), [loading])
 
     const handleIsPaidChange = (e: CheckboxChangeEvent): void => {
