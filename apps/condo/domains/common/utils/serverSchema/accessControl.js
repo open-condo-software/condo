@@ -22,7 +22,7 @@ function hasDefinedPermissions (user) {
 function denyIfHasNoPermission (user, permission, originalAccessResult) {
     if (originalAccessResult === false) return false
     if (hasDefinedPermissions(user)) {
-        return permission === true
+        if (permission === true) return originalAccessResult
     }
     return originalAccessResult
 }
