@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import { get, debounce } from 'lodash'
+import get from 'lodash/get'
+import debounce from 'lodash/debounce'
 import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { setFiltersToQuery } from '@condo/domains/common/utils/filters.utils'
 
-export const usePaidSearch = <F>(loading): [boolean, (e: CheckboxChangeEvent) => void] => {
+export const usePaidSearch = <F>(loading: boolean): [boolean, (e: CheckboxChangeEvent) => void] => {
     const router = useRouter()
     const filtersFromQuery = getFiltersFromQuery<F>(router.query)
 

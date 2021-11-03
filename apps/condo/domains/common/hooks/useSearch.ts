@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import { get, debounce } from 'lodash'
+import get from 'lodash/get'
+import debounce from 'lodash/debounce'
 
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { setFiltersToQuery } from '../utils/filters.utils'
