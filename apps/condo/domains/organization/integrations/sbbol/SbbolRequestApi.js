@@ -3,7 +3,7 @@ const querystring = require('querystring')
 const { URL } = require('url')
 const { logger: baseLogger, SBBOL_IMPORT_NAME } = require('./common')
 const { getSchemaCtx } = require('@core/keystone/schema')
-const { TokenSet: TokenSetApi } = require('@condo/domains/organization/utils/serverSchema')
+const { TokenSet } = require('@condo/domains/organization/utils/serverSchema')
 const { SbbolOauth2Api } = require('./oauth2')
 
 const logger = baseLogger.child({ module: 'SbbolRequestApi' })
@@ -61,7 +61,7 @@ class SbbolRequestApi {
         const { keystone } = await getSchemaCtx('TokenSet')
         const adminContext = await keystone.createContext({ skipAccessControl: true })
         // TODO(pahaz): need to be fixed! it's looks so strange.
-        const [tokenSet] = await TokenSetApi.getAll(adminContext, { organization: { importId: organizationImportId, importRemoteSystem: SBBOL_IMPORT_NAME } }, { sortBy: ['createdAt_DESC'] })
+        const [tokenSet] = await TokenSet.getAll(adminContext, { organization: { importId: organizationImportId, importRemoteSystem: SBBOL_IMPORT_NAME } }, { sortBy: ['createdAt_DESC'] })
         const instructionsMessage = 'Please, login through SBBOL for this organization, so its accessToken and refreshToken will be obtained and saved in TokenSet table for further renewals'
         if (!tokenSet) {
             throw new Error(`[tokens:expired] record from TokenSet was not found for organization ${organizationImportId}. ${instructionsMessage}`)
@@ -74,7 +74,7 @@ class SbbolRequestApi {
         if (isAccessTokenExpired) {
             const oauth2 = new SbbolOauth2Api()
             const { access_token, refresh_token, expires_at } = await oauth2.refreshToken(tokenSet.refreshToken)
-            await TokenSetApi.update(adminContext, tokenSet.id, {
+            await TokenSet.update(adminContext, tokenSet.id, {
                 accessToken: access_token,
                 refreshToken: refresh_token,
                 accessTokenExpiresAt: new Date(Number(expires_at) * 1000).toISOString(),
