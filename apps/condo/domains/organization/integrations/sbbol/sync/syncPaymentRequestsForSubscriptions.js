@@ -33,9 +33,8 @@ const postPaymentRequestFor = async (subscription, fintechApi) => {
         logger.error({
             message: 'Latest ServiceSubscription has insufficient data in offer accept',
             error: SBBOL_OFFER_ACCEPT_HAS_INCORRECT_PAYER_REQUISITES_ERROR,
-            sbbolOfferAccept: subscription.sbbolOfferAccept,
+            subscription,
         })
-        logger.info({ message: 'Abort postPaymentRequestsFor', subscription })
         return
     }
 
