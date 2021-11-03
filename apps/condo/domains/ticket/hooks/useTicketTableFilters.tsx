@@ -17,6 +17,27 @@ import { TicketSource, TicketStatus } from '../utils/clientSchema'
 import { searchEmployeeUser, searchOrganizationDivision, searchOrganizationProperty } from '../utils/clientSchema/search'
 import { useModalFilterClassifiers } from './useModalFilterClassifiers'
 
+const numberFilter = getNumberFilter('number')
+const dateRangeFilter = getDayRangeFilter('createdAt')
+const statusFilter = getFilter(['status', 'id'], 'array', 'string', 'in')
+const detailsFilter = getStringContainsFilter('details')
+const propertyFilter = getFilter(['property', 'id'], 'array', 'string', 'in')
+const addressFilter = getStringContainsFilter(['property', 'address'])
+const clientNameFilter = getStringContainsFilter('clientName')
+const executorFilter = getFilter(['executor', 'id'], 'array', 'string', 'in')
+const assigneeFilter = getFilter(['assignee', 'id'], 'array', 'string', 'in')
+const executorNameFilter = getStringContainsFilter(['executor', 'name'])
+const assigneeNameFilter = getStringContainsFilter(['assignee', 'name'])
+const attributeFilter = getTicketAttributesFilter(['isEmergency', 'isPaid'])
+const sourceFilter = getFilter(['source', 'id'], 'array', 'string', 'in')
+const sectionFilter = getFilter('sectionName', 'array', 'string', 'in')
+const floorFilter = getFilter('floorName', 'array', 'string', 'in')
+const unitFilter = getFilter('unitName', 'array', 'string', 'in')
+const placeClassifierFilter = getFilter(['placeClassifier', 'id'], 'array', 'string', 'in')
+const categoryClassifierFilter = getFilter(['categoryClassifier', 'id'], 'array', 'string', 'in')
+const clientPhoneFilter = getFilter('clientPhone', 'array', 'string', 'in')
+const ticketAuthorFilter = getFilter(['createdBy', 'id'], 'array', 'string', 'in')
+
 export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
     const intl = useIntl()
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' }).toLowerCase()
@@ -46,34 +67,6 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
     const AttributeLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.Attribute' })
     const AuthorMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.Author' })
     const EnterFullNameMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.EnterFullName' })
-
-    const numberFilter = getNumberFilter('number')
-    const dateRangeFilter = getDayRangeFilter('createdAt')
-    const statusFilter = getFilter(['status', 'id'], 'array', 'string', 'in')
-    const detailsFilter = getStringContainsFilter('details')
-    const propertyFilter = getFilter(['property', 'id'], 'array', 'string', 'in')
-    const addressFilter = getStringContainsFilter(['property', 'address'])
-    const clientNameFilter = getStringContainsFilter('clientName')
-    const executorFilter = getFilter(['executor', 'id'], 'array', 'string', 'in')
-    const assigneeFilter = getFilter(['assignee', 'id'], 'array', 'string', 'in')
-    const executorNameFilter = getStringContainsFilter(['executor', 'name'])
-    const assigneeNameFilter = getStringContainsFilter(['assignee', 'name'])
-
-    const attributeFilter = getTicketAttributesFilter(['isEmergency', 'isPaid'])
-
-    // filters which display only in modal
-    const sourceFilter = getFilter(['source', 'id'], 'array', 'string', 'in')
-
-    const sectionFilter = getFilter('sectionName', 'array', 'string', 'in')
-    const floorFilter = getFilter('floorName', 'array', 'string', 'in')
-    const unitFilter = getFilter('unitName', 'array', 'string', 'in')
-
-    // classifier filters
-    const placeClassifierFilter = getFilter(['placeClassifier', 'id'], 'array', 'string', 'in')
-    const categoryClassifierFilter = getFilter(['categoryClassifier', 'id'], 'array', 'string', 'in')
-
-    const clientPhoneFilter = getFilter('clientPhone', 'array', 'string', 'in')
-    const ticketAuthorFilter = getFilter(['createdBy', 'id'], 'array', 'string', 'in')
 
     const { objs: statuses } = TicketStatus.useObjects({})
     const statusOptions = statuses.map(status => ({ label: status.name, value: status.id }))

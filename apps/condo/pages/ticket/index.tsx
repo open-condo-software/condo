@@ -96,8 +96,8 @@ export const TicketsPageContent = ({
 
     const handleRowAction = useCallback((record) => {
         return {
-            onClick: () => {
-                router.push(`/ticket/${record.id}/`)
+            onClick: async () => {
+                await router.push(`/ticket/${record.id}/`)
             },
         }
     }, [])
