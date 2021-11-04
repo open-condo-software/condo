@@ -7,7 +7,6 @@ const { AdminUIApp } = require('@keystonejs/app-admin-ui')
 const { NextApp } = require('@keystonejs/app-next')
 const { registerTriggers } = require('@core/triggers')
 const { createItems } = require('@keystonejs/server-side-graphql-client')
-const { obsRouterHandler } = require('@condo/domains/common/utils/sberCloudFileAdapter')
 const conf = require('@core/config')
 const { registerTasks } = require('@core/keystone/tasks')
 const { prepareDefaultKeystoneConfig, getAdapter } = require('@core/keystone/setup.utils')
@@ -18,6 +17,8 @@ const nextCookie = require('next-cookies')
 const { makeId } = require('@condo/domains/common/utils/makeid.utils')
 const { formatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
+const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/routes')
+const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production'
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
@@ -25,7 +26,6 @@ const IS_BUILD_PHASE = conf.PHASE === 'build'
 // NOTE: should be disabled in production: https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/
 // WARN: https://github.com/graphql/graphql-playground/tree/main/packages/graphql-playground-html/examples/xss-attack
 const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND === 'true'
-const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/routes')
 
 if (IS_ENABLE_DD_TRACE) {
     require('dd-trace').init({
@@ -93,14 +93,6 @@ if (!IS_BUILD_PHASE) {
     })
 }
 
-class OBSFilesMiddleware {
-    prepareMiddleware ({ keystone }) {
-        const app = express()
-        app.use('/api/files/:file(*)', obsRouterHandler({ keystone }))
-        return app
-    }
-}
-
 class SberBuisnessOnlineMiddleware {
     prepareMiddleware () {
         const Auth = new SbbolRoutes()
@@ -137,7 +129,7 @@ module.exports = {
                 playground: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
             },
         }),
-        new OBSFilesMiddleware(),
+        FileAdapter.makeFileAdapterMiddleware(),
         new SberBuisnessOnlineMiddleware(),
         new AdminUIApp({
             adminPath: '/admin',
