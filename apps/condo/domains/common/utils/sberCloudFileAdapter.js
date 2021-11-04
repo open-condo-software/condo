@@ -1,4 +1,5 @@
 const ObsClient = require('esdk-obs-nodejs')
+const express = require('express')
 const path = require('path')
 const { SERVER_URL, SBERCLOUD_OBS_CONFIG } = require('@core/config')
 const { getItem } = require('@keystonejs/server-side-graphql-client')
@@ -177,8 +178,16 @@ const obsRouterHandler = ({ keystone }) => {
     }
 }
 
+class OBSFilesMiddleware {
+    prepareMiddleware ({ keystone }) {
+        const app = express()
+        app.use('/api/files/:file(*)', obsRouterHandler({ keystone }))
+        return app
+    }
+}
+
 
 module.exports = {
     SberCloudFileAdapter,
-    obsRouterHandler,
+    OBSFilesMiddleware,
 }

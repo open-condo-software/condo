@@ -1,8 +1,10 @@
 const { isEmpty, get } = require('lodash')
+
 const { LocalFileAdapter } = require('@keystonejs/file-adapters')
-const { SberCloudFileAdapter } = require('./sberCloudFileAdapter')
+const { StaticApp } = require('@keystonejs/app-static')
 const conf = require('@core/config')
 
+const { SberCloudFileAdapter, OBSFilesMiddleware } = require('./sberCloudFileAdapter')
 const { DEFAULT_FILE_ADAPTER } = require('../constants/uploads')
 
 class NoFileAdapter {
@@ -43,9 +45,9 @@ class FileAdapter {
         if (!Adapter) {
             // No fallback to local file adapter
             if (conf.NODE_ENV === 'production') {
-                throw new Error('File adapter is not configured')
+                throw new Error('File adapter is not configured. You need to check FILE_FIELD_ADAPTER and their configs')
             } else {
-                // TODO(pahaz): DOMA-1569 remov this backward compatibility and throw error
+                // TODO(pahaz): DOMA-1569 remove this backward compatibility and throw an error
                 Adapter = new NoFileAdapter()
                 console.error('File adapter is not configured')
             }
@@ -91,6 +93,18 @@ class FileAdapter {
             return null
         }
         return new SberCloudFileAdapter({ ...config, folder: this.folder })
+    }
+
+    // TODO(pahaz): DOMA-1569 it's better to create just a function. But we already use FileAdapter in many places. I just want to save a backward compatibility
+    static makeFileAdapterMiddleware () {
+        const type = conf.FILE_FIELD_ADAPTER || DEFAULT_FILE_ADAPTER
+        if (type === 'local') {
+            return new StaticApp({ path: conf.MEDIA_URL, src: conf.MEDIA_ROOT })
+        } else if (type === 'sbercloud') {
+            return new OBSFilesMiddleware()
+        } else {
+            throw new Error('Unknown file field adapter. You need to check FILE_FIELD_ADAPTER')
+        }
     }
 
 }
