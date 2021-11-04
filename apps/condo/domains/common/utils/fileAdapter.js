@@ -1,7 +1,7 @@
 const { isEmpty, get } = require('lodash')
 const { LocalFileAdapter } = require('@keystonejs/file-adapters')
 const { SberCloudFileAdapter } = require('./sberCloudFileAdapter')
-const coreConfig = require('@core/config')
+const conf = require('@core/config')
 
 const { DEFAULT_FILE_ADAPTER } = require('../constants/uploads')
 
@@ -27,7 +27,8 @@ class NoFileAdapter {
 
 class FileAdapter {
 
-    constructor (folder, type = DEFAULT_FILE_ADAPTER) {
+    constructor (folder) {
+        const type = conf.FILE_FIELD_ADAPTER || DEFAULT_FILE_ADAPTER
         this.folder = folder
         this.type = type
         let Adapter = null
@@ -37,30 +38,33 @@ class FileAdapter {
                 break
             case 'sbercloud':
                 Adapter = this.createSbercloudFileApapter()
-                if (!Adapter) {
-                    // No fallback to local file adapter
-                    Adapter = new NoFileAdapter()
-                }
                 break
         }
         if (!Adapter) {
-            console.error('File adapter is not configured')
+            // No fallback to local file adapter
+            if (conf.NODE_ENV === 'production') {
+                throw new Error('File adapter is not configured')
+            } else {
+                // TODO(pahaz): DOMA-1569 remov this backward compatibility and throw error
+                Adapter = new NoFileAdapter()
+                console.error('File adapter is not configured')
+            }
         }
         return Adapter
     }
 
     createLocalFileApapter () {
-        if (!this.isConfigValid(coreConfig, [ 'MEDIA_ROOT', 'MEDIA_URL' ])) {
+        if (!this.isConfigValid(conf, [ 'MEDIA_ROOT', 'MEDIA_URL' ])) {
             return null
         }
         return new LocalFileAdapter({
-            src: `${coreConfig.MEDIA_ROOT}/${this.folder}`,
-            path: `${coreConfig.MEDIA_URL}/${this.folder}`,
+            src: `${conf.MEDIA_ROOT}/${this.folder}`,
+            path: `${conf.MEDIA_URL}/${this.folder}`,
         })
     }
 
     getEnvConfig (name, required) {
-        const config = coreConfig[name] ? JSON.parse(coreConfig[name]) : {}
+        const config = conf[name] ? JSON.parse(conf[name]) : {}
         if (!this.isConfigValid(config, required)) {
             return null
         }
@@ -70,7 +74,7 @@ class FileAdapter {
     isConfigValid (config, required = []) {
         const missedFields = required.filter(field => !get(config, field))
         if (!isEmpty(missedFields)) {
-            console.error(`FileAdapter ${this.type} has missing fields in config file: ${[missedFields.join(', ')]}`)
+            console.error(`FileAdapter type=${this.type} has missing fields in config variable: ${[missedFields.join(', ')]}`)
             return false
         }
         return true
