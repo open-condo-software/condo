@@ -5,6 +5,7 @@ import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3'
 import { useIntl } from '@core/next/intl'
 import getConfig from 'next/config'
 import { PosterLayout } from './PosterLayout'
+import { AuthLayoutContextProvider } from './AuthLayoutContext'
 
 const { publicRuntimeConfig: { googleCaptcha } } = getConfig()
 
@@ -15,10 +16,13 @@ export interface AuthPage extends React.FC {
 
 interface IAuthLayoutProps {
     headerAction: React.ReactElement
+    children: JSX.Element
 }
 
 const AuthLayout: React.FC<IAuthLayoutProps> = (props) => {
     const intl = useIntl()
+
+    const { children, ...otherProps } = props
 
     return (
         <GoogleReCaptchaProvider
@@ -31,7 +35,11 @@ const AuthLayout: React.FC<IAuthLayoutProps> = (props) => {
                 appendTo: 'body',
             }}>
             <Global styles={formInputFixCss}/>
-            <PosterLayout {...props} />
+            <PosterLayout {...otherProps}>
+                <AuthLayoutContextProvider>
+                    {children}
+                </AuthLayoutContextProvider>
+            </PosterLayout>
         </GoogleReCaptchaProvider>
     )
 }

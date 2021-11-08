@@ -6,7 +6,7 @@ import { useIntl } from '@core/next/intl'
 import { Poster } from '@condo/domains/common/components/Poster'
 import { colors, fontSizes } from '@condo/domains/common/constants/style'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { PosterLayout } from '../domains/user/components/containers/PosterLayout'
+import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
 
 export const ErrorPosterWrapper = styled.div<{ isSmall: boolean }>`
   height: 55vh;
