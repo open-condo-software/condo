@@ -56,13 +56,13 @@ type InputFilterType = {
 
 type CheckboxGroupFilterType = {
     type: ComponentType.CheckboxGroup
-    options: { value: string, label: string }[]
+    options: { value: string, text: string }[]
     props?: CheckboxGroupProps
 }
 
 type SelectFilterType = {
     type: ComponentType.Select
-    options: { value: string, label: string }[]
+    options: { value: string, text: string }[]
     props?: SelectProps<string>
 }
 

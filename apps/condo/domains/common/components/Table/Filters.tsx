@@ -84,9 +84,6 @@ export const getSelectFilterDropdown = (selectProps: ComponentProps<typeof Selec
                         setSelectedKeys(e)
                         confirm({ closeDropdown: false })
                     }}
-                    filterOption={(input, option: { value: string, label: string }) =>
-                        option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                    }
                     {...selectProps}
                 />
             </SelectFilterContainer>

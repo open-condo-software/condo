@@ -69,12 +69,12 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
     const EnterFullNameMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.EnterFullName' })
 
     const { objs: statuses } = TicketStatus.useObjects({})
-    const statusOptions = statuses.map(status => ({ label: status.name, value: status.id }))
+    const statusOptions = statuses.map(status => ({ text: status.name, value: status.id }))
 
     const { objs: sources } = TicketSource.useObjects({})
-    const sourceOptions = sources.map(source => ({ label: source.name, value: source.id }))
+    const sourceOptions = sources.map(source => ({ text: source.name, value: source.id }))
 
-    const attributeOptions = [{ label: PaidMessage, value: 'isPaid' }, { label: EmergencyMessage, value: 'isEmergency' }]
+    const attributeOptions = [{ text: PaidMessage, value: 'isPaid' }, { text: EmergencyMessage, value: 'isEmergency' }]
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
