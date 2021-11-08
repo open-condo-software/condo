@@ -109,7 +109,7 @@ const BaseDivisionForm: React.FC<IBaseDivisionFormProps> = (props) => {
                                 search={searchOrganizationProperty(organizationId)}
                                 showArrow={false}
                                 mode="multiple"
-                                initialValue={props.initialValues.properties}
+                                initialValue={get(props, ['initialValues', 'properties'], [])}
                             />
                         </Form.Item>
                     </Col>
