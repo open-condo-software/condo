@@ -22,16 +22,20 @@ fs.readdirSync(langDir).map(fileName => {
     } catch (e) {
         console.log(`Error reading file "${fileName}"`)
         console.error(e)
+        process.exit(1)
     }
     if (!data) {
+        console.error(`Loaded file "${fileName}" seems to be empty`)
+        process.exit(1)
         return
     }
     let parsedData
     try {
         parsedData = JSON.parse(data)
     } catch (e) {
-        console.log(`Error reading file "${fileName}"`)
+        console.log(`Error parsing file "${fileName}"`)
         console.error(e)
+        process.exit(1)
     }
     translations.push([lang, Object.keys(parsedData)])
 })
