@@ -17,11 +17,15 @@ interface IPosterLayoutProps {
     layoutBgColor?: string
 }
 
+const FOOTER_STYLE = { backgroundColor: 'inherit' }
+
 export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAction, layoutBgColor }) => {
     const { isSmall } = useLayoutContext()
 
+    const LAYOUT_STYLE = { backgroundColor: layoutBgColor }
+
     return (
-        <Layout style={{ backgroundColor: layoutBgColor }}>
+        <Layout style={LAYOUT_STYLE}>
             <AuthHeader headerAction={headerAction}/>
             <Row align={'stretch'}>
                 <Col lg={11} md={24} hidden={isSmall}>
@@ -43,7 +47,7 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAct
                                     </AuthLayoutContextProvider>
                                 </Col>
                             </Row>
-                            <Footer isSmall={isSmall} style={{ backgroundColor: 'inherit' }}>
+                            <Footer isSmall={isSmall} style={FOOTER_STYLE}>
                                 <Row>
                                     <Col lg={14} md={24} push={isSmall ? 0 : 4} pull={isSmall ? 0 : 6}>
                                         <FormattedMessage
