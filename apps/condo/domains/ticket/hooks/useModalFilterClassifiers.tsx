@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import uniqBy from 'lodash/uniqBy'
 import isFunction from 'lodash/isFunction'
 import { FormInstance, Select } from 'antd'
@@ -42,6 +42,12 @@ const useTicketClassifierSelect = ({
     function setSelected (value) {
         stateForm && stateForm.setFieldsValue({ [keyword]: value })
     }
+
+    const Setter = useMemo(() => ({
+        all: setClassifiers,
+        one: setSelected,
+        search: setSearchClassifiers,
+    }), [])
 
     useEffect(() => {
         optionsRef.current = uniqBy([...classifiers, ...searchClassifiers], 'id')
@@ -87,11 +93,7 @@ const useTicketClassifierSelect = ({
 
     return {
         SelectComponent,
-        set: {
-            all: setClassifiers,
-            one: setSelected,
-            search: setSearchClassifiers,
-        },
+        set: Setter,
         ref: classifiersRef,
     }
 }
@@ -106,18 +108,16 @@ const getInitialClassifierValues = (filters: FiltersFromQueryType, keyword: stri
 
 export function useModalFilterClassifiers () {
     const client = useApolloClient()
-    const ClassifierLoader = new ClassifiersQueryLocal(client)
+
+    const router = useRouter()
 
     const ClassifierLoaderRef = useRef<ClassifiersQueryLocal>()
     const ruleRef = useRef({ place: [], category: [] })
 
-    const router = useRouter()
-    const { filters } = parseQuery(router.query)
-
-    const onUserSelect = (id, type) => {
+    const onUserSelect = useCallback(async (id, type) => {
         ruleRef.current = { ...ruleRef.current, [type]: id }
-        updateLevels({ [type]: id })
-    }
+        await updateLevels({ [type]: id })
+    }, [])
 
     const {
         set: categorySet,
@@ -135,51 +135,22 @@ export function useModalFilterClassifiers () {
         keyword: PLACE_CLASSIFIER_KEYWORD,
     })
 
-    const Setter = {
-        place: placeSet,
-        category: categorySet,
-    }
-
-    useEffect(() => {
-        const initialPlaceClassifierIds = getInitialClassifierValues(filters, PLACE_CLASSIFIER_KEYWORD)
-        const initialCategoryClassifierIds = getInitialClassifierValues(filters, CATEGORY_CLASSIFIER_KEYWORD)
-
-        ClassifierLoaderRef.current = ClassifierLoader
-
-        ClassifierLoaderRef.current.init().then(() => {
-            if (initialPlaceClassifierIds.length > 0 || initialCategoryClassifierIds.length > 0) {
-                ruleRef.current = {
-                    place: initialPlaceClassifierIds,
-                    category: initialCategoryClassifierIds,
-                }
-                updateLevels()
-            } else {
-                CLASSIFIER_TYPES.forEach(type => {
-                    ClassifierLoaderRef.current.search('', type).then(classifiers => {
-                        Setter[type].all(classifiers)
-                    })
-                })
-
-                ruleRef.current = {
-                    place: [],
-                    category: [],
-                }
-            }
-        })
-
-        return () => {
-            ClassifierLoaderRef.current.clear()
+    const Setter = useMemo(() => (
+        {
+            place: placeSet,
+            category: categorySet,
         }
-    }, [router.query])
+    ), [placeSet, categorySet])
 
-
-    const loadLevels = async () => {
+    const loadLevels = useCallback(async () => {
         const { place, category } = ruleRef.current
 
-        const loadedRules = await Promise.all([
+        const LOAD_RULES_ARRAY = [
             { category, type: 'place' },
             { place, type: 'category' },
-        ].map(selector => {
+        ]
+
+        const loadedRules = await Promise.all(LOAD_RULES_ARRAY.map(selector => {
             const { type, ...querySelectors } = selector
 
             return new Promise<[string, Options[]]>(resolve => {
@@ -199,12 +170,10 @@ export function useModalFilterClassifiers () {
             })
         }))
 
-        const result = Object.fromEntries(loadedRules)
+        return Object.fromEntries(loadedRules)
+    }, [])
 
-        return result
-    }
-
-    const updateLevels = async (selected = {} ) => {
+    const updateLevels = useCallback(async (selected = {} ) => {
         ruleRef.current = { ...ruleRef.current, ...selected }
         const options = await loadLevels()
 
@@ -213,7 +182,40 @@ export function useModalFilterClassifiers () {
             const isExisted = options[type].find(option => ruleRef.current[type] && ruleRef.current[type].includes(option.id))
             Setter[type].one(isExisted ? ruleRef.current[type] : null)
         })
-    }
+    }, [Setter, loadLevels])
+
+    useEffect(() => {
+        const { filters } = parseQuery(router.query)
+        const initialPlaceClassifierIds = getInitialClassifierValues(filters, PLACE_CLASSIFIER_KEYWORD)
+        const initialCategoryClassifierIds = getInitialClassifierValues(filters, CATEGORY_CLASSIFIER_KEYWORD)
+
+        ClassifierLoaderRef.current = new ClassifiersQueryLocal(client)
+
+        ClassifierLoaderRef.current.init().then(async () => {
+            if (initialPlaceClassifierIds.length > 0 || initialCategoryClassifierIds.length > 0) {
+                ruleRef.current = {
+                    place: initialPlaceClassifierIds,
+                    category: initialCategoryClassifierIds,
+                }
+                await updateLevels()
+            } else {
+                CLASSIFIER_TYPES.forEach(type => {
+                    ClassifierLoaderRef.current.search('', type).then(classifiers => {
+                        Setter[type].all(classifiers)
+                    })
+                })
+
+                ruleRef.current = {
+                    place: [],
+                    category: [],
+                }
+            }
+        })
+
+        return () => {
+            ClassifierLoaderRef.current.clear()
+        }
+    }, [router.query, client, Setter, updateLevels])
 
     return { CategorySelect, PlaceSelect }
 }
