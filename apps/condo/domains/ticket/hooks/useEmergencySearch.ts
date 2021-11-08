@@ -12,13 +12,13 @@ export const useEmergencySearch = <F>(loading): [boolean, (e: CheckboxChangeEven
     const filtersFromQuery = getFiltersFromQuery<F>(router.query)
 
     const attributes = get(filtersFromQuery, 'attributes', [])
-    const searchValue = !!attributes.find(atr => atr === 'isEmergency')
+    const hasEmergency = attributes.includes('isEmergency')
 
-    const [isEmergency, setIsEmergency] = useState(searchValue)
+    const [isEmergency, setIsEmergency] = useState(hasEmergency)
 
     useEffect(() => {
-        setIsEmergency(searchValue)
-    }, [searchValue])
+        setIsEmergency(hasEmergency)
+    }, [hasEmergency])
 
     const searchChange = useCallback(debounce(async (isEmergency) => {
         const queryAttributes = isEmergency ? [...attributes, isEmergency && 'isEmergency'] : attributes.filter(attr => attr !== 'isEmergency')

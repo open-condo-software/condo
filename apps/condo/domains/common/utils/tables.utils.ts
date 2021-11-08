@@ -156,16 +156,10 @@ type TicketAttributesFilterGetterType = (dataIndices: MultipleDataIndexType) => 
 
 export const getTicketAttributesFilter: TicketAttributesFilterGetterType = (dataIndices) => {
     return function getWhereQuery (search) {
-        let args
-
         if (!search || search.length === 0) return
         if (dataIndices.length === 1) return
 
-        if (!Array.isArray(search)) {
-            args = [search]
-        } else {
-            args = search
-        }
+        const args = !Array.isArray(search) ? [search] : search
 
         return {
             OR: dataIndices.map(wrappedDataIndex => {

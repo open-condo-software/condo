@@ -12,13 +12,13 @@ export const usePaidSearch = <F>(loading: boolean): [boolean, (e: CheckboxChange
     const filtersFromQuery = getFiltersFromQuery<F>(router.query)
 
     const attributes = get(filtersFromQuery, 'attributes', [])
-    const searchValue = !!attributes.find(atr => atr === 'isPaid')
+    const hasPaid = attributes.includes('isPaid')
 
-    const [isPaid, setIsPaid] = useState(searchValue)
+    const [isPaid, setIsPaid] = useState(hasPaid)
 
     useEffect(() => {
-        setIsPaid(searchValue)
-    }, [searchValue])
+        setIsPaid(hasPaid)
+    }, [hasPaid])
 
     const searchChange = useCallback(debounce(async (isPaid) => {
         const queryAttributes = isPaid ? [...attributes, isPaid && 'isPaid'] : attributes.filter(attr => attr !== 'isPaid')

@@ -70,12 +70,8 @@ export const TicketsPageContent = ({
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
-    let appliedFiltersCount = 0
-    for (const filter in filters) {
-        if (Array.isArray(filters[filter]) && filters[filter].length > 0) {
-            appliedFiltersCount++
-        }
-    }
+    const reduceNonEmpty = (cnt, filter) => cnt + Number(Array.isArray(filters[filter]) && filters[filter].length > 0)
+    const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
 
     const { MultipleFiltersModal, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas)
 
@@ -219,15 +215,15 @@ export const TicketsPageContent = ({
     )
 }
 
+const SORTABLE_PROPERTIES = ['number', 'status', 'details', 'property', 'assignee', 'executor', 'createdAt', 'clientName']
+
 const TicketsPage: ITicketIndexPage = () => {
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
     const filterMetas = useTicketTableFilters()
 
-    const sortableProperties = ['number', 'status', 'details', 'property', 'assignee', 'executor', 'createdAt', 'clientName']
-
-    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, sortableProperties)
+    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, SORTABLE_PROPERTIES)
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)

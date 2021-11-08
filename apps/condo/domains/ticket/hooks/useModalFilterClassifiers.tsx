@@ -99,10 +99,10 @@ const useTicketClassifierSelect = ({
 const CLASSIFIER_TYPES = [TicketClassifierTypes.place, TicketClassifierTypes.category]
 const PLACE_CLASSIFIER_KEYWORD = 'placeClassifier'
 const CATEGORY_CLASSIFIER_KEYWORD = 'categoryClassifier'
-const getInitialClassifierValues = (filters: FiltersFromQueryType, keyword: string) => {
-    return Array.isArray(filters[keyword]) ?
+const getInitialClassifierValues = (filters: FiltersFromQueryType, keyword: string) => (
+    Array.isArray(filters[keyword]) ?
         [...filters[keyword]] : [filters[keyword]]
-}
+)
 
 export function useModalFilterClassifiers () {
     const client = useApolloClient()
