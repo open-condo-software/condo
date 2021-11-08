@@ -19,10 +19,11 @@ const {
     REGISTER_MP_DELETED_RECEIPTS,
     REGISTER_MP_MULTIPLE_CURRENCIES,
 } = require('@condo/domains/acquiring/constants/errors')
+const { DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY } = require('@condo/domains/acquiring/constants/payment')
 // TODO(savelevMatthew): REPLACE WITH SERVER SCHEMAS AFTER GQL REFACTORING
 const { find } = require('@core/keystone/schema')
 const { getById } = require('@core/keystone/schema')
-const { Payment, MultiPayment } = require('@condo/domains/acquiring/utils/serverSchema')
+const { Payment, MultiPayment, AcquiringIntegration } = require('@condo/domains/acquiring/utils/serverSchema')
 const { freezeBillingReceipt } = require('@condo/domains/acquiring/utils/freezeBillingReceipt')
 const get = require('lodash/get')
 const Big = require('big.js')
@@ -108,7 +109,13 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 if (acquiringIntegrations.size !== 1) {
                     throw new Error(REGISTER_MP_MULTIPLE_INTEGRATIONS)
                 }
-                const acquiringIntegration = await getById('AcquiringIntegration', acquiringIntegrations[0])
+
+                // NOTE: Here using serverSchema to get many relation
+                let acquiringIntegration = await AcquiringIntegration.getAll(context, {
+                    id: Array.from(acquiringIntegrations)[0],
+                })
+                acquiringIntegration = get(acquiringIntegration, '0')
+                // const acquiringIntegration = await getById('AcquiringIntegration', Array.from(acquiringIntegrations)[0])
 
                 // TODO (savelevMatthew): check that all receipts linked to right consumers?
                 // Stage 2. Check BillingReceipts
@@ -134,9 +141,10 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     id_in: Array.from(uniqueBillingContextsIds),
                 })
                 const supportedBillingIntegrations = get(acquiringIntegration, 'supportedBillingIntegrations', [])
+                    .map(integration => integration.id)
                 const uniqueBillingIntegrationsIds = new Set(billingContexts.map(context => context.integration))
                 const unsupportedBillings = Array.from(uniqueBillingIntegrationsIds)
-                    .map(integration => !supportedBillingIntegrations.includes(integration))
+                    .filter(integration => !supportedBillingIntegrations.includes(integration))
                 if (unsupportedBillings.length) {
                     throw new Error(`${REGISTER_MP_UNSUPPORTED_BILLING} (${unsupportedBillings.join(', ')})`)
                 }
@@ -149,20 +157,19 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 if (currencies.size > 1) {
                     throw new Error(REGISTER_MP_MULTIPLE_CURRENCIES)
                 }
-                const currencyCode = currencies[0]
-
+                const currencyCode = get(billingIntegrations, ['0', 'currencyCode'])
                 // Stage 3 Generating payments
                 const payments = []
                 for (let i = 0; i < groupedReceipts.length; i++) {
                     const receiptsGroup = groupedReceipts[i]
                     const consumer = consumersByIds[receiptsGroup.consumerId]
-                    const acquiringContext = acquiringContextsByIds[consumer.context]
+                    const acquiringContext = acquiringContextsByIds[consumer.acquiringIntegrationContext]
                     const groupReceipts = receiptsGroup.receiptsIds
                     for (let j = 0; j < groupReceipts.length; j++) {
                         const receipt = receiptsByIds[groupReceipts[j]]
                         const frozenReceipt = await freezeBillingReceipt(receipt)
                         const account = await getById('BillingAccount', receipt.account)
-                        const payment = await Payment.create({
+                        const payment = await Payment.create(context, {
                             dv: 1,
                             sender: { dv: 1, fingerprint },
                             amount: receipt.toPay,
@@ -190,6 +197,8 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     user: { connect: { id: context.authedItem.id } },
                     integration: { connect: { id: acquiringIntegration.id } },
                     payments: { connect: paymentIds },
+                    // TODO(DOMA-1574): add correct category
+                    serviceCategory: DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY,
                 })
 
                 return {

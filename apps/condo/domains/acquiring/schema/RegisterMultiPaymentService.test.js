@@ -3,31 +3,51 @@
  */
 
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
+const { makePayer } = require('@condo/domains/acquiring/utils/testSchema')
 const { expectToThrowAuthenticationErrorToObjects } = require('@condo/domains/common/utils/testSchema')
+const { Payment } = require('@condo/domains/acquiring/utils/testSchema')
 
 const { registerMultiPaymentByTestClient } = require('@condo/domains/acquiring/utils/testSchema')
  
 describe('RegisterMultiPaymentService', () => {
-    test('user: execute', async () => {
-        const client = await makeClient()  // TODO(codegen): use truly useful client!
-        const payload = {}  // TODO(codegen): change the 'user: update RegisterMultiPaymentService' payload
-        const [data, attrs] = await registerMultiPaymentByTestClient(client, payload)
-        // TODO(codegen): write user expect logic
-        throw new Error('Not implemented yet')
-    })
- 
-    test('anonymous: execute', async () => {
-        const client = await makeClient()
-        await expectToThrowAuthenticationErrorToObjects(async () => {
-            await registerMultiPaymentByTestClient(client)
+    describe('Execute', () => {
+        describe('Resident',  () => {
+            const cases = [[1, 1], [1, 2], [2, 1], [2, 2]]
+            test.each(cases)('Consumers: %p | Receipts in each consumer: %p', async (consumers, receipts) => {
+
+            })
+            test('Single consumer, single receipt', async () => {
+                const { client, serviceConsumer, billingReceipts } = await makePayer()
+                const payload = [
+                    { consumerId: serviceConsumer.id, receiptsIds: billingReceipts.map(receipt => receipt.id) },
+                ]
+                const [result] = await registerMultiPaymentByTestClient(client, payload)
+                expect(result).toBeDefined()
+                expect(result).toHaveProperty('multiPaymentId')
+                const { data: { objs } } = await Payment.getAll(client, {
+                    multiPayment: { id: result.multiPaymentId },
+                }, {
+                    raw: true,
+                })
+                expect(objs).toBeDefined()
+                expect(objs).toHaveLength(billingReceipts.length)
+            })
+            test('Single consumer, multiple receipts', async () => {
+                const { client, serviceConsumer, billingReceipts } = await makePayer(5)
+                const payload = [
+                    { consumerId: serviceConsumer.id, receiptsIds: billingReceipts.map(receipt => receipt.id) },
+                ]
+                const [result] = await registerMultiPaymentByTestClient(client, payload)
+                expect(result).toBeDefined()
+                expect(result).toHaveProperty('multiPaymentId')
+                const { data: { objs } } = await Payment.getAll(client, {
+                    multiPayment: { id: result.multiPaymentId },
+                }, {
+                    raw: true,
+                })
+                expect(objs).toBeDefined()
+                expect(objs).toHaveLength(billingReceipts.length)
+            })
         })
-    })
- 
-    test('admin: execute', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const payload = {}  // TODO(codegen): change the 'user: update RegisterMultiPaymentService' payload
-        const [data, attrs] = await registerMultiPaymentByTestClient(admin, payload)
-        // TODO(codegen): write admin expect logic
-        throw new Error('Not implemented yet')
     })
 })
