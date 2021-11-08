@@ -13,14 +13,14 @@ export const useEmergencySearch = <F>(loading: boolean): [boolean, (e: CheckboxC
     const attributes = get(filtersFromQuery, 'attributes', [])
     const isEmergency = attributes.includes('isEmergency')
 
-    const searchChange = useCallback(debounce(async (isEmergency) => {
+    const setIsEmergency = useCallback(debounce(async (isEmergency) => {
         const queryAttributes = isEmergency ? [...attributes, 'isEmergency'] : attributes.filter(attr => attr !== 'isEmergency')
 
         await setFiltersToQuery(router, { ...filtersFromQuery, attributes: queryAttributes }, true)
     }, 400), [loading, attributes, isEmergency])
 
     const handleEmergencyChange = (e: CheckboxChangeEvent): void => {
-        searchChange(e.target.checked)
+        setIsEmergency(e.target.checked)
     }
 
     return [isEmergency, handleEmergencyChange]
