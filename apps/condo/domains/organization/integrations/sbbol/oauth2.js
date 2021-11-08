@@ -2,8 +2,7 @@
 
 const { Issuer, custom } = require('openid-client') // certified openid client will all checks
 const jwtDecode = require('jwt-decode') // decode jwt without validation
-const pino = require('pino')
-const falsey = require('falsey')
+const { logger: baseLogger } = require('./common')
 const util = require('util')
 const conf = require('@core/config')
 
@@ -12,8 +11,7 @@ const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
 const SERVER_URL = conf.SERVER_URL
 const JWT_ALG = 'gost34.10-2012'
 
-// NOTE: same as keystone logger
-const logger = pino({ name: 'sbbol/auth', enabled: falsey(process.env.DISABLE_LOGGING) })
+const logger = baseLogger.child({ module: 'oauth2' })
 
 class SbbolOauth2Api {
     constructor () {

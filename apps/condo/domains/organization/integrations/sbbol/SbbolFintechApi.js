@@ -1,5 +1,7 @@
 const { SbbolRequestApi } = require('./SbbolRequestApi')
-const { logger } = require('./common')
+const { logger: baseLogger } = require('./common')
+
+const logger = baseLogger.child({ module: 'SbbolFintechApi' })
 
 /**
  * Error reponse from SBBOL Fintech API
