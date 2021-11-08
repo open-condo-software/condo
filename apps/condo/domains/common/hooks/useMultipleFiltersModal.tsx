@@ -115,14 +115,16 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
             return (
                 <Select
                     defaultValue={get(filters, keyword)}
+                    optionFilterProp={'title'}
                     {...props}
                 >
                     {options.map(option => (
                         <Select.Option
                             key={option.value}
                             value={option.value}
+                            title={option.text}
                         >
-                            {option.label}
+                            {option.text}
                         </Select.Option>
                     ))}
                 </Select>
