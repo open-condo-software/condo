@@ -42,7 +42,7 @@ const Payment = new GQLListSchema('Payment', {
         advancedAt: {
             schemaDoc: 'Time at which money was advanced to recipient\'s account',
             type: DateTimeUtc,
-            isRequired: true,
+            isRequired: false,
         },
 
         accountNumber: {

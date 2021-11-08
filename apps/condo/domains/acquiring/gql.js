@@ -24,11 +24,9 @@ const MultiPayment = generateGqlQueries('MultiPayment', MULTI_PAYMENT_FIELDS)
 const PAYMENT_FIELDS = `{ amount explicitFee implicitFee currencyCode advancedAt accountNumber purpose frozenReceipt multiPayment { id } context { id } status ${COMMON_FIELDS} period organization { id } }`
 const Payment = generateGqlQueries('Payment', PAYMENT_FIELDS)
 
-// TODO(codegen): write return type result!
-
 const REGISTER_MULTI_PAYMENT_MUTATION = gql`
     mutation registerMultiPayment ($data: RegisterMultiPaymentInput!) {
-        result: registerMultiPayment(data: $data) { id }
+        result: registerMultiPayment(data: $data) { multiPaymentId }
     }
 `
 
