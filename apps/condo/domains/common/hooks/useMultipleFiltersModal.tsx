@@ -253,11 +253,11 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         setIsMultipleFiltersModalVisible(false)
     }, [filters, router, setIsMultipleFiltersModalVisible])
 
-    const modalFooter = useMemo(() => {
-        return [
+    const modalFooter = useMemo(() => (
+        [
             <ResetFiltersModalButton key={'reset'} handleReset={handleReset} />,
         ]
-    }, [handleReset])
+    ), [handleReset])
 
     return (
         <BaseModalForm
