@@ -2,11 +2,12 @@ import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import Form from 'antd/lib/form'
 import { Checkbox, Col, FormInstance, Input, Row, Select, Typography } from 'antd'
 import { useRouter } from 'next/router'
-import { get } from 'lodash'
+import get from 'lodash/get'
 import { FormItemProps } from 'antd/es'
 import styled from '@emotion/styled'
 import { CloseOutlined } from '@ant-design/icons'
 import { Gutter } from 'antd/es/grid/row'
+import isFunction from 'lodash/isFunction'
 
 import { useIntl } from '@core/next/intl'
 
@@ -166,7 +167,7 @@ function getModalComponents <T> (filters: IFilters, filterMetas: Array<FiltersMe
         let Component
         if (type === ComponentType.Custom) {
             const componentGetter = get(component, 'modalFilterComponent')
-            Component = typeof componentGetter === 'function' ? componentGetter(form) : componentGetter
+            Component = isFunction(componentGetter) ? componentGetter(form) : componentGetter
         }
         else
             Component = getModalFilterComponentByMeta(filters, keyword, component)
@@ -246,7 +247,6 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
 
         form.setFieldsValue(emptyFields)
 
-
         await setFiltersToQuery(router, {}, true)
     }, [form, router])
 
@@ -260,6 +260,11 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
             <ResetFiltersModalButton key={'reset'} handleReset={handleReset} />,
         ]
     ), [handleReset])
+
+    const ModalFormFilters = useMemo(() => {
+        if (!form) return
+        return getModalComponents(filters, filterMetas, form)
+    }, [filters, filterMetas, form])
 
     return (
         <BaseModalForm
@@ -279,7 +284,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
 
                     return (
                         <Row justify={'space-between'} gutter={FILTER_WRAPPERS_GUTTER} id={FILTERS_POPUP_CONTAINER_ID}>
-                            {getModalComponents(filters, filterMetas, form)}
+                            {ModalFormFilters}
                         </Row>
                     )
                 }
