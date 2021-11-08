@@ -23,4 +23,4 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: yarn
       - run: yarn lint
-      - run: yarn lint-i18n-translations
+      - run: yarn workspace @app/condo lint-i18n-translations
