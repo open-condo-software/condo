@@ -149,11 +149,20 @@ export const expectToThrowAuthenticationError = async (testFunc, path='objs') =>
 
 export const expectToThrowValidationFailureError = async (testFunc, path = 'obj') => {
     await catchErrorFrom(testFunc, ({errors, data}) => {
-        console.log('asd')
         expect(errors[0]).toMatchObject({
             message: 'You attempted to perform an invalid mutation',
             name: 'ValidationFailureError',
             path: [path],
+        })
+    })
+}
+
+export const expectToThrowMutationError = async (testFunc, messageContains) => {
+    await catchErrorFrom(testFunc, ({errors}) => {
+        expect(errors[0]).toMatchObject({
+            message: expect.stringContaining(messageContains),
+            name: 'GraphQLError',
+            path: ['result']
         })
     })
 }
