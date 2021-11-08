@@ -47,6 +47,7 @@ function getRandomHiddenCard() {
 }
 
 async function createTestAcquiringIntegration (client, billings, extraAttrs = {}) {
+    console.log(billings)
     if (!client) throw new Error('no client')
     if (!billings || !billings.length) throw new Error('no billings')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -328,6 +329,63 @@ async function makePayer (receiptsAmount = 1) {
     }
 }
 
+async function makePayerWithMultipleConsumers(consumersAmount = 1, receiptsAmount = 1) {
+    const client = await makeClientWithResidentUser()
+    const admin = await makeLoggedInAdminClient()
+    const billings = []
+    const result = []
+    for (let i = 0; i < consumersAmount; i++) {
+        const [organization] = await registerNewOrganization(admin)
+        const [property] = await createTestProperty(admin, organization)
+        const [billingIntegration] = await createTestBillingIntegration(admin)
+        billings.push(billingIntegration)
+        const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, billingIntegration)
+        const [billingProperty] = await createTestBillingProperty(admin, billingContext, {address: property.address})
+        const [billingAccount] = await createTestBillingAccount(admin, billingContext, billingProperty)
+        const billingReceipts = []
+        for (let j = 0; j < receiptsAmount; j++) {
+            const [receipt] = await createTestBillingReceipt(admin, billingContext, billingProperty, billingAccount)
+            billingReceipts.push(receipt)
+        }
+        result.push({
+            organization,
+            property,
+            billingIntegration,
+            billingContext,
+            billingProperty,
+            billingAccount,
+            billingReceipts
+        })
+    }
+    const [acquiringIntegration] = await createTestAcquiringIntegration(admin, billings, {
+        canGroupReceipts: true
+    })
+    for (let i = 0; i < consumersAmount; i++) {
+        const organization = result[i].organization
+        const property = result[i].property
+        const billingAccount = result[i].billingAccount
+        const billingContext = result[i].billingContext
+        const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration)
+        const [resident] = await createTestResident(admin, client.user, organization, property)
+        const [serviceConsumer] = await createTestServiceConsumer(admin, resident, billingAccount, {
+            acquiringIntegrationContext: { connect: {id: acquiringContext.id} },
+            billingIntegrationContext: { connect: { id: billingContext.id } }
+        })
+        result[i].acquiringContext = acquiringContext
+        result[i].resident = resident
+        result[i].serviceConsumer = serviceConsumer
+    }
+    const commonData = {
+        client,
+        admin,
+        acquiringIntegration
+    }
+    return {
+        commonData,
+        batches: result
+    }
+}
+
 async function makePayerAndPayments (receiptsAmount = 1) {
     const data = await makePayer(receiptsAmount)
     const { admin, billingReceipts, acquiringContext, organization } = data
@@ -355,6 +413,7 @@ module.exports = {
     makePayer,
     makePayerAndPayments,
     getRandomHiddenCard,
-registerMultiPaymentByTestClient
+    registerMultiPaymentByTestClient,
+    makePayerWithMultipleConsumers
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
