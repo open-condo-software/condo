@@ -76,6 +76,6 @@ export const ChildrenWrapper = styled.div<IChildrenWrapperProps>`
   flex-direction: column;
   align-items: center;
   justify-content: ${({ isSmall }) => isSmall ? 'flex-start' : 'center'};
-  min-height: ${({ isSmall }) => '900px'};
+  min-height: 95vh;
   padding: ${({ isSmall }) => isSmall ? '60px 20px 0' : '0 20px'};
 `
