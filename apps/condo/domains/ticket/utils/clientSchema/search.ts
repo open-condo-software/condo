@@ -30,8 +30,8 @@ const GET_ALL_CLASSIFIERS_QUERY = gql`
 `
 
 const GET_ALL_PROPERTIES_BY_VALUE_QUERY = gql`
-    query selectProperty ($where: PropertyWhereInput, $orderBy: String) {
-        objs: allProperties(where: $where, orderBy: $orderBy, first: 10) {
+    query selectProperty ($where: PropertyWhereInput, $orderBy: String, $first: Int) {
+        objs: allProperties(where: $where, orderBy: $orderBy, first: $first) {
             id
             address
         }
@@ -39,7 +39,7 @@ const GET_ALL_PROPERTIES_BY_VALUE_QUERY = gql`
 `
 
 const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
-    query selectOrgarnizationEmployee ($value: String, $organizationId: ID) {
+    query selectOrganizationEmployee ($value: String, $organizationId: ID) {
         objs: allOrganizationEmployees(where: {name_contains_i: $value, organization: { id: $organizationId }}) {
             name
             id
@@ -57,7 +57,7 @@ const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
 `
 
 const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY_WITH_EMAIL = gql`
-    query selectOrgarnizationEmployee ($value: String, $organizationId: ID) {
+    query selectOrganizationEmployee ($value: String, $organizationId: ID) {
         objs: allOrganizationEmployees(where: {name_contains_i: $value, organization: { id: $organizationId } }) {
             id
             name
@@ -87,8 +87,8 @@ async function _search (client, query, variables) {
     })
 }
 
-export async function searchProperty (client, where, orderBy) {
-    const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_BY_VALUE_QUERY, { where, orderBy })
+export async function searchProperty (client, where, orderBy, first = 10) {
+    const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_BY_VALUE_QUERY, { where, orderBy, first })
     if (error) console.warn(error)
     if (data) return data.objs.map(x => ({ text: x.address, value: x.id }))
     return []
@@ -96,15 +96,16 @@ export async function searchProperty (client, where, orderBy) {
 
 export function searchOrganizationProperty (organizationId) {
     if (!organizationId) return
-    return async function (client, value) {
+    return async function (client, searchText, query = {}, first = 10) {
         const where = {
             organization: {
                 id: organizationId,
             },
-            address_contains_i: value,
+            ...!isEmpty(searchText) ? { address_contains_i: searchText } : {},
+            ...query,
         }
         const orderBy = 'address_ASC'
-        const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_BY_VALUE_QUERY, { where, orderBy })
+        const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_BY_VALUE_QUERY, { where, orderBy, first })
         if (error) console.warn(error)
         return data.objs.map(({ address, id }) => ({ text: address, value: id }))
     }
