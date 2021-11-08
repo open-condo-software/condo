@@ -235,12 +235,15 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const { filters } = parseQuery(router.query)
 
     const handleReset = useCallback(async () => {
-        const resetFields = {}
-        const formKeys = Object.keys(form.getFieldsValue())
-        formKeys.forEach(key => {
-            resetFields[key] = undefined
-        })
-        form.setFieldsValue(resetFields)
+        const keys = Object.keys(form.getFieldsValue())
+        const emptyFields = keys.reduce((acc, key) => {
+            acc[key] = undefined
+
+            return acc
+        }, {})
+
+        form.setFieldsValue(emptyFields)
+
 
         await setFiltersToQuery(router, {}, true)
     }, [form, router])
@@ -286,13 +289,13 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
 export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>) {
     const [isMultipleFiltersModalVisible, setIsMultipleFiltersModalVisible] = useState<boolean>()
 
-    const MultipleFiltersModal = useCallback(() => {
-        return <Modal
+    const MultipleFiltersModal = useCallback(() => (
+        <Modal
             isMultipleFiltersModalVisible={isMultipleFiltersModalVisible}
             setIsMultipleFiltersModalVisible={setIsMultipleFiltersModalVisible}
             filterMetas={filterMetas}
         />
-    }, [isMultipleFiltersModalVisible])
+    ), [isMultipleFiltersModalVisible])
 
     return { MultipleFiltersModal, setIsMultipleFiltersModalVisible }
 }

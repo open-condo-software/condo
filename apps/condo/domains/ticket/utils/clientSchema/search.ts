@@ -138,8 +138,6 @@ export function searchOrganizationDivision (organizationId: string) {
         const orderBy = 'name_ASC'
         const { data = [], error } = await _search(client, GET_ALL_DIVISIONS_BY_VALUE_QUERY, { where, orderBy })
 
-        console.warn('data', data.objs)
-
         if (error) console.warn(error)
 
         return data.objs.map(({ name, properties }) => ({ text: name, value: String(properties.map(property => property.id)) }))
