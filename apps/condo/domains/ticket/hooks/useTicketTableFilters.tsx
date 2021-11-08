@@ -18,9 +18,10 @@ import {
     getTicketAttributesFilter,
 } from '@condo/domains/common/utils/tables.utils'
 
-import { TicketSource, TicketStatus } from '../utils/clientSchema'
+import { TicketCategoryClassifier, TicketSource, TicketStatus } from '../utils/clientSchema'
 import { searchEmployeeUser, searchOrganizationDivision, searchOrganizationProperty } from '../utils/clientSchema/search'
 import { useModalFilterClassifiers } from './useModalFilterClassifiers'
+import { getGQLSelectFilterDropdown, getSelectFilterDropdown } from '../../common/components/Table/Filters'
 import { ITicketSourceUIState } from '../utils/clientSchema/TicketSource'
 import { ITicketStatusUIState } from '../utils/clientSchema/TicketStatus'
 
@@ -82,6 +83,10 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
     const sourceOptions = convertToOptions<ITicketSourceUIState>(sources, 'name', 'id')
 
     const attributeOptions = [{ label: PaidMessage, value: 'isPaid' }, { label: EmergencyMessage, value: 'isEmergency' }]
+    const { objs: categoryClassifiers } = TicketCategoryClassifier.useObjects({})
+    const categoryClassifiersOptions = categoryClassifiers.map(categoryClassifier => ({
+        label: categoryClassifier.name, value: categoryClassifier.id,
+    }))
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
@@ -280,6 +285,10 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                         label: CategoryClassifierLabel,
                         size: FilterComponentSize.Medium,
                     },
+                    getComponentFilterDropdown: getSelectFilterDropdown({
+                        options: categoryClassifiersOptions,
+                        mode: 'multiple',
+                    }),
                 },
             },
             {

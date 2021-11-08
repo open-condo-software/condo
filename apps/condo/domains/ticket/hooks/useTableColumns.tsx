@@ -6,7 +6,7 @@ import { Space, Tag, Typography } from 'antd'
 
 import { useIntl } from '@core/next/intl'
 
-import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
+import { getDateTimeRender, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { getAddressDetails, getFilteredValue } from '@condo/domains/common/utils/helpers'
 
 import { getHighlightedContents, getDateRender } from '@condo/domains/common/components/Table/Renders'
@@ -36,6 +36,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const ExecutorMessage = intl.formatMessage({ id: 'field.Executor' })
     const ResponsibleMessage = intl.formatMessage({ id: 'field.Responsible' })
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
+    const ClassifierTitle = intl.formatMessage({ id: 'Classifier' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
@@ -108,7 +109,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 dataIndex: 'number',
                 key: 'number',
                 sorter: true,
-                width: '7%',
+                width: '8%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'number'),
                 filterIcon: getFilterIcon,
                 render: getTableCellRenderer(search),
@@ -122,8 +123,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 key: 'createdAt',
                 sorter: true,
                 width: '8%',
-                ellipsis: true,
-                render: getDateRender(intl, String(search), true),
+                render: getDateTimeRender(intl, String(search)),
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'createdAt'),
                 filterIcon: getFilterIcon,
             },
@@ -135,19 +135,9 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 dataIndex: 'status',
                 key: 'status',
                 sorter: true,
-                width: '10%',
+                width: '8%',
                 filterDropdown: renderStatusFilterDropdown,
                 filterIcon: getFilterIcon,
-            },
-            {
-                title: DescriptionMessage,
-                dataIndex: 'details',
-                filteredValue: getFilteredValue<IFilters>(filters, 'details'),
-                key: 'details',
-                width: '18%',
-                filterDropdown: getFilterDropdownByKey(filterMetas, 'details'),
-                filterIcon: getFilterIcon,
-                render: getTableCellRenderer(search, true),
             },
             {
                 title: AddressMessage,
@@ -157,10 +147,50 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 filteredValue: getFilteredValue<IFilters>(filters, 'address'),
                 key: 'address',
                 sorter: true,
-                width: '19%',
+                width: '14%',
                 render: renderAddress,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'address'),
                 filterIcon: getFilterIcon,
+            },
+            {
+                title: 'Квартира',
+                dataIndex: 'unitName',
+                sortOrder: get(sorterMap, 'unitName'),
+                filteredValue: getFilteredValue(filters, 'unitName'),
+                key: 'unitName',
+                sorter: true,
+                width: '8%',
+                render: getTableCellRenderer(search),
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'unitName'),
+                filterIcon: getFilterIcon,
+            },
+            {
+                title: DescriptionMessage,
+                dataIndex: 'details',
+                filteredValue: getFilteredValue<IFilters>(filters, 'details'),
+                key: 'details',
+                width: '12%',
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'details'),
+                filterIcon: getFilterIcon,
+                render: getTableCellRenderer(search, true),
+            },
+            {
+                title: ClassifierTitle,
+                dataIndex: ['categoryClassifier', 'name'],
+                filteredValue: getFilteredValue(filters, 'categoryClassifier'),
+                key: 'categoryClassifier',
+                width: '12%',
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'categoryClassifier'),
+                filterIcon: getFilterIcon,
+                render: (text, record) => {
+                    const Postfix = () => (
+                        <Typography.Paragraph type={'secondary'}>
+                            {`(${record.placeClassifier.name})`}
+                        </Typography.Paragraph>
+                    )
+
+                    return getTableCellRenderer(search, true, Postfix)(text)
+                },
             },
             {
                 title: ClientNameMessage,
@@ -169,7 +199,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 dataIndex: 'clientName',
                 key: 'clientName',
                 sorter: true,
-                width: '12%',
+                width: '10%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'clientName'),
                 render: getTableCellRenderer(search),
                 filterIcon: getFilterIcon,
@@ -181,7 +211,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 dataIndex: 'executor',
                 key: 'executor',
                 sorter: true,
-                width: '13%',
+                width: '10%',
                 render: (executor) => getTableCellRenderer(search)(get(executor, ['name'])),
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'executor'),
                 filterIcon: getFilterIcon,
@@ -193,7 +223,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 dataIndex: 'assignee',
                 key: 'assignee',
                 sorter: true,
-                width: '15%',
+                width: '10%',
                 render: (assignee) => getTableCellRenderer(search)(get(assignee, ['name'])),
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'assignee'),
                 filterIcon: getFilterIcon,

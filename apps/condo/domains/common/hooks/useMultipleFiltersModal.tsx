@@ -243,7 +243,8 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const FiltersModalTitle = intl.formatMessage({ id: 'FiltersLabel' })
     const ShowMessage = intl.formatMessage({ id: 'Show' })
 
-    const [form, setForm] = useState<FormInstance>(null)
+    // const [form, setForm] = useState<FormInstance>(null)
+    const [form] = Form.useForm()
 
     const router = useRouter()
     const { filters } = parseQuery(router.query)
@@ -283,18 +284,19 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
             validateTrigger={MODAL_FORM_VALIDATE_TRIGGER}
             handleSubmit={handleSubmit}
             modalExtraFooter={modalFooter}
+            form={form}
         >
-            {
-                (form: FormInstance) => {
-                    setForm(form)
+            {/*{*/}
+            {/*    (form: FormInstance) => {*/}
+            {/*        setForm(form)*/}
 
-                    return (
-                        <Row justify={'space-between'} gutter={FILTER_WRAPPERS_GUTTER} id={FILTERS_POPUP_CONTAINER_ID}>
-                            {getModalComponents(filters, filterMetas, form)}
-                        </Row>
-                    )
-                }
-            }
+            {/*        return (*/}
+            <Row justify={'space-between'} gutter={FILTER_WRAPPERS_GUTTER} id={FILTERS_POPUP_CONTAINER_ID}>
+                {getModalComponents(filters, filterMetas, form)}
+            </Row>
+            {/*        )*/}
+            {/*    }*/}
+            {/*}*/}
         </BaseModalForm>
     )
 }

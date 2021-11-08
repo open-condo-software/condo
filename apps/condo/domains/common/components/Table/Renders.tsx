@@ -132,6 +132,26 @@ export const getDateRender = (intl, search?: string, short?: boolean) => {
     }
 }
 
+export const getDateTimeRender = (intl, search?: string) => {
+    return function render (stringDate: string): RenderReturnType {
+        if (!stringDate) return '—'
+
+        const locale = get(LOCALES, intl.locale)
+        const date = locale ? dayjs(stringDate).locale(locale) : dayjs(stringDate)
+        const dateFormat = 'DD.MM.YYYY'
+
+        const text = date.format(dateFormat) + ','
+
+        const Postfix = () => (
+            <Typography.Paragraph type={'secondary'}>
+                {date.format('hh:mm')}
+            </Typography.Paragraph>
+        )
+
+        return getTableCellRenderer(search, true, Postfix)(text)
+    }
+}
+
 export const getAddressRender = (search?: QueryArgType, unitPrefix?: string) => {
     return function render (text: string): RenderReturnType {
         if (isEmpty(search)) return `${text} ${unitPrefix}`
