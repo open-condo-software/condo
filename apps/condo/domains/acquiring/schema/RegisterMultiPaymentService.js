@@ -18,6 +18,7 @@ const {
     REGISTER_MP_REAL_RECEIPTS_MISMATCH,
     REGISTER_MP_DELETED_RECEIPTS,
     REGISTER_MP_MULTIPLE_CURRENCIES,
+    REGISTER_MP_BILLING_ACCOUNTS_NO_MATCH,
 } = require('@condo/domains/acquiring/constants/errors')
 const { DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY } = require('@condo/domains/acquiring/constants/payment')
 const { FEE_CALCULATION_PATH, WEB_VIEW_PATH } = require('@condo/domains/acquiring/constants/links')
@@ -126,17 +127,28 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 const receipts = await find('BillingReceipt', {
                     id_in: receiptsIds,
                 })
-                const deletedReceiptsIds = receipts.filter(receipt => Boolean(receipt.deletedAt)).map(receipt => receipt.id)
-                if (deletedReceiptsIds.length) {
-                    throw new Error(`${REGISTER_MP_DELETED_RECEIPTS} (${deletedReceiptsIds.join(', ')})`)
-                }
                 if (receipts.length !== receiptsIds.length) {
                     const existingReceiptsIds = new Set(receipts.map(receipt => receipt.id))
                     const missingReceipts = receiptsIds.filter(receiptId => !existingReceiptsIds.has(receiptId))
                     throw new Error(`${REGISTER_MP_REAL_RECEIPTS_MISMATCH} Missing: ${missingReceipts.join(', ')}`)
                 }
 
+                const deletedReceiptsIds = receipts.filter(receipt => Boolean(receipt.deletedAt)).map(receipt => receipt.id)
+                if (deletedReceiptsIds.length) {
+                    throw new Error(`${REGISTER_MP_DELETED_RECEIPTS} (${deletedReceiptsIds.join(', ')})`)
+                }
+
                 const receiptsByIds = Object.assign({}, ...receipts.map(obj => ({ [obj.id]: obj })))
+                groupedReceipts.forEach(group => {
+                    group.receiptsIds.forEach(receiptId => {
+                        const receipt = receiptsByIds[receiptId]
+                        const billingAccount = receipt.account
+                        const consumer = consumersByIds[group.consumerId]
+                        if (billingAccount !== consumer.billingAccount) {
+                            throw new Error(`${REGISTER_MP_BILLING_ACCOUNTS_NO_MATCH} (ReceiptId: ${receiptId}, ConsumerId: ${group.consumerId})`)
+                        }
+                    })
+                })
                 const uniqueBillingContextsIds = new Set(receipts.map(receipt => receipt.context))
                 const billingContexts = await find('BillingIntegrationOrganizationContext', {
                     id_in: Array.from(uniqueBillingContextsIds),
@@ -159,6 +171,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     throw new Error(REGISTER_MP_MULTIPLE_CURRENCIES)
                 }
                 const currencyCode = get(billingIntegrations, ['0', 'currencyCode'])
+
                 // Stage 3 Generating payments
                 const payments = []
                 for (let i = 0; i < groupedReceipts.length; i++) {

@@ -10,6 +10,7 @@ const REGISTER_MP_UNSUPPORTED_BILLING = '[acquiringIntegration:supportedBillingI
 const REGISTER_MP_REAL_RECEIPTS_MISMATCH = '[groupedReceipts:receiptsIds:nonExistingReceipt] Cannot find all specified BillingReceipts.'
 const REGISTER_MP_DELETED_RECEIPTS = '[groupedReceipts:receiptsIds:deletedReceipt] Cannot pay for deleted receipts.'
 const REGISTER_MP_MULTIPLE_CURRENCIES = '[groupedReceipts:receiptsIds:context:integration:currencyCode:multipleFound] Cannot pay for receipts with multiple currencies.'
+const REGISTER_MP_BILLING_ACCOUNTS_NO_MATCH = '[groupedReceipts:receiptsIds:noCommonBillingAccount] Billing receipt with specified id doesn\'t have common billing account with specified ServiceConsumer'
 
 
 module.exports = {
@@ -25,4 +26,5 @@ module.exports = {
     REGISTER_MP_REAL_RECEIPTS_MISMATCH,
     REGISTER_MP_DELETED_RECEIPTS,
     REGISTER_MP_MULTIPLE_CURRENCIES,
+    REGISTER_MP_BILLING_ACCOUNTS_NO_MATCH,
 }
