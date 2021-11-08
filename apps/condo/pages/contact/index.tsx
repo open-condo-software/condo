@@ -28,7 +28,7 @@ import { TitleHeaderAction } from '@condo/domains/common/components/HeaderAction
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { DiffOutlined } from '@ant-design/icons'
 import { useImporterFunctions } from '@condo/domains/contact/hooks/useImporterFunctions'
-import { setFiltersToQuery } from '../../domains/common/utils/filters.utils'
+import { setFiltersToQuery } from '@condo/domains/common/utils/filters.utils'
 
 const ADD_CONTACT_ROUTE = '/contact/create/'
 

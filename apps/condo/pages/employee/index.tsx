@@ -26,7 +26,7 @@ import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSc
 import { Button } from '@condo/domains/common/components/Button'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { canManageEmployee } from '@condo/domains/organization/permissions'
-import { setFiltersToQuery } from '../../domains/common/utils/filters.utils'
+import { setFiltersToQuery } from '@condo/domains/common/utils/filters.utils'
 
 const ADD_EMPLOYEE_ROUTE = '/employee/create/'
 
