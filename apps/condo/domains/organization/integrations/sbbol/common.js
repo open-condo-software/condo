@@ -2,7 +2,7 @@ const Ajv = require('ajv')
 const pino = require('pino')
 const falsey = require('falsey')
 // NOTE: same as keystone logger
-const logger = pino({ name: 'sbbol/subscriptions', enabled: falsey(process.env.DISABLE_LOGGING) })
+const logger = pino({ name: 'sbbol', enabled: falsey(process.env.DISABLE_LOGGING) })
 
 const SBBOL_IMPORT_NAME = 'sbbol'
 const SBBOL_SESSION_KEY = 'sbbol'

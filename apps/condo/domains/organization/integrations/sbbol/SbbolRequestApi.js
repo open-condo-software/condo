@@ -1,13 +1,15 @@
 const https = require('https')
 const querystring = require('querystring')
 const { URL } = require('url')
-const { logger, SBBOL_IMPORT_NAME } = require('./common')
+const { logger: baseLogger, SBBOL_IMPORT_NAME } = require('./common')
 const { getSchemaCtx } = require('@core/keystone/schema')
 const { TokenSet: TokenSetApi } = require('@condo/domains/organization/utils/serverSchema')
 const conf = require('@core/config')
 const SBBOL_CONFIG = conf.SBBOL_CONFIG ? JSON.parse(conf.SBBOL_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
 const { SbbolOauth2Api } = require('./oauth2')
+
+const logger = baseLogger.child({ module: 'SbbolRequestApi' })
 
 const REQUEST_TIMEOUT = 10 * 1000
 const REQUEST_TIMEOUT_ERROR = '[request:timeout:expires'
