@@ -9,7 +9,6 @@ import { SUPPORT_EMAIL, SUPPORT_PHONE } from '@condo/domains/common/constants/re
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
 import { ChildrenWrapper, Footer, Layout, PageContent, PosterWrapper } from './styles'
-import { AuthLayoutContextProvider } from './AuthLayoutContext'
 import { AuthHeader } from './AuthHeader'
 
 interface IPosterLayoutProps {
@@ -23,6 +22,10 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAct
     const { isSmall } = useLayoutContext()
 
     const LAYOUT_STYLE = { backgroundColor: layoutBgColor }
+    const CHILDREN_COL_PUSH = isSmall ? 0 : 4
+    const CHILDREN_COL_PULL = isSmall ? 0 : 6
+    const FOOTER_COL_PUSH = isSmall ? 0 : 4
+    const FOOTER_COL_PULL = isSmall ? 0 : 6
 
     return (
         <Layout style={LAYOUT_STYLE}>
@@ -41,15 +44,13 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAct
                     <PageContent isSmall={isSmall}>
                         <ChildrenWrapper isSmall={isSmall}>
                             <Row>
-                                <Col lg={14} md={24} push={isSmall ? 0 : 4} pull={isSmall ? 0 : 6}>
-                                    <AuthLayoutContextProvider>
-                                        {children}
-                                    </AuthLayoutContextProvider>
+                                <Col lg={14} md={24} push={CHILDREN_COL_PUSH} pull={CHILDREN_COL_PULL}>
+                                    {children}
                                 </Col>
                             </Row>
                             <Footer isSmall={isSmall} style={FOOTER_STYLE}>
                                 <Row>
-                                    <Col lg={14} md={24} push={isSmall ? 0 : 4} pull={isSmall ? 0 : 6}>
+                                    <Col lg={14} md={24} push={FOOTER_COL_PUSH} pull={FOOTER_COL_PULL}>
                                         <FormattedMessage
                                             id='FooterText'
                                             values={{
