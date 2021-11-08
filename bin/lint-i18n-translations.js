@@ -6,8 +6,11 @@
 */
 const fs = require('fs')
 const { diffLinesUnified, diffLinesRaw } = require('jest-diff')
+const path = require('path')
 
-const langDir = 'apps/condo/lang'
+const name = path.basename(process.cwd())
+const root = path.join(__dirname, '..', 'apps', name)
+const langDir = path.join(root, 'lang')
 
 const translations = []
 
