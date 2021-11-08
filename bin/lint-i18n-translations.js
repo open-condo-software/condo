@@ -1,8 +1,51 @@
 /*
-    Validating i18n translation keys
+    Validating i18n translation keys in lang files
+
+    It loads files from `lang` folder of current working directory (cwd)
+    and compares it pair-by-pair.
+    It exits with code 1 in case of spotted differences in keys set and order.
+
+    ## Validation rules
+
     Translation files should match following rules:
     1. All supported languages should have the same set of keys
     2. Each key should be on the same line in JSON-file for each language
+
+    ## Use-cases
+
+    Typical use cases would be to launch this util:
+    - As a pre-commit hook locally, to get instant feedback, containing inconsistencies,
+      made by changes, being committed
+    - As part of a CI/CD workflow
+
+    ### Locally as a pre-commit hook
+
+    To use it as a pre-commit hook, add following entry into `script` section of repository's `package.json`:
+
+    ```json
+    "lint-i18n-translations": "node ./../../bin/lint-i18n-translations.js",
+    ```
+
+    In `.husky/pre-commit` add a launch command, like following, supposing, that your repo
+    is named `your_repo` and located in `apps` folder:
+
+    ```
+    yarn workspace @app/your_repo lint-i18n-translations
+    ```
+
+    Update pre-commit hooks, for example, when husky is in `prepare` script, run
+
+    ```shell
+    npm run prepare
+    ```
+
+    ### As part of CI/CD workflow
+
+    Add following command to appropriate workflow configuration file:
+
+    ```
+    yarn workspace @app/condo lint-i18n-translations
+    ```
 */
 const fs = require('fs')
 const { diffLinesUnified, diffLinesRaw } = require('jest-diff')
