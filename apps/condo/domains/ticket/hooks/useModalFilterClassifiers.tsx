@@ -3,6 +3,7 @@ import uniqBy from 'lodash/uniqBy'
 import isFunction from 'lodash/isFunction'
 import { FormInstance, Select } from 'antd'
 import { useRouter } from 'next/router'
+import isEmpty from 'lodash/isEmpty'
 
 import { useIntl } from '@core/next/intl'
 import { useApolloClient } from '@core/next/apollo'
@@ -81,7 +82,7 @@ const useTicketClassifierSelect = ({
                 getPopupContainer={getFiltersModalPopupContainer}
             >
                 {
-                    optionsRef.current.map(classifier => (
+                    Array.isArray(optionsRef.current) && optionsRef.current.map(classifier => (
                         <Option value={classifier.id} key={classifier.id} title={classifier.name}>
                             {classifier.name}
                         </Option>
@@ -192,7 +193,7 @@ export function useModalFilterClassifiers () {
         ClassifierLoaderRef.current = new ClassifiersQueryLocal(client)
 
         ClassifierLoaderRef.current.init().then(async () => {
-            if (initialPlaceClassifierIds.length > 0 || initialCategoryClassifierIds.length > 0) {
+            if (!isEmpty(initialPlaceClassifierIds) || !isEmpty(initialCategoryClassifierIds)) {
                 ruleRef.current = {
                     place: initialPlaceClassifierIds,
                     category: initialCategoryClassifierIds,

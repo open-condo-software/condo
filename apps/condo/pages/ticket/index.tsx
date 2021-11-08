@@ -171,7 +171,7 @@ export const TicketsPageContent = ({
                                                                         <Typography.Text strong type={'secondary'}>
                                                                             {ResetFiltersLabel} <CloseOutlined style={CROSS_ICON_STYLE} />
                                                                         </Typography.Text>
-                                                                    </Button>,
+                                                                    </Button>
                                                                 </Col>
                                                             ) : null
                                                         }

@@ -13,6 +13,7 @@ import { TableRecord } from '@condo/domains/common/components/Table/Index'
 import { preciseFloor } from './helpers'
 import { FilterDropdownProps } from 'antd/es/table/interface'
 import dayjs from 'dayjs'
+import isString from 'lodash/isString'
 
 export type DataIndexType = string | Array<string>
 export type QueryArgType = string | Array<string>
@@ -156,14 +157,13 @@ type TicketAttributesFilterGetterType = (dataIndices: MultipleDataIndexType) => 
 
 export const getTicketAttributesFilter: TicketAttributesFilterGetterType = (dataIndices) => {
     return function getWhereQuery (search) {
-        if (!search || search.length === 0) return
-        if (dataIndices.length === 1) return
+        if (!search || search.length === 0 || dataIndices.length === 1) return
 
         const args = !Array.isArray(search) ? [search] : search
 
         return {
             OR: dataIndices.map(wrappedDataIndex => {
-                if (!args.find(arg => arg === wrappedDataIndex) || typeof wrappedDataIndex !== 'string') return
+                if (!args.find(arg => arg === wrappedDataIndex) || !isString(wrappedDataIndex)) return
 
                 return {
                     [wrappedDataIndex]: true,
