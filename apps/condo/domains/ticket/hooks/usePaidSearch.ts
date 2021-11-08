@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
 import { useRouter } from 'next/router'
 import get from 'lodash/get'
 import debounce from 'lodash/debounce'
@@ -12,13 +12,7 @@ export const usePaidSearch = <F>(loading: boolean): [boolean, (e: CheckboxChange
     const filtersFromQuery = getFiltersFromQuery<F>(router.query)
 
     const attributes = get(filtersFromQuery, 'attributes', [])
-    const hasPaid = attributes.includes('isPaid')
-
-    const [isPaid, setIsPaid] = useState(hasPaid)
-
-    useEffect(() => {
-        setIsPaid(hasPaid)
-    }, [hasPaid])
+    const isPaid = attributes.includes('isPaid')
 
     const searchChange = useCallback(debounce(async (isPaid) => {
         const queryAttributes = isPaid ? [...attributes, 'isPaid'] : attributes.filter(attr => attr !== 'isPaid')
@@ -27,7 +21,6 @@ export const usePaidSearch = <F>(loading: boolean): [boolean, (e: CheckboxChange
     }, 400), [loading, isPaid, attributes])
 
     const handleIsPaidChange = (e: CheckboxChangeEvent): void => {
-        setIsPaid(e.target.checked)
         searchChange(e.target.checked)
     }
 
