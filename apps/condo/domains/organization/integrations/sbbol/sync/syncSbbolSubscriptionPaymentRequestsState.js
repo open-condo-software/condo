@@ -31,7 +31,6 @@ const syncSbbolSubscriptionPaymentRequestStateFor = async (payment, fintechApi) 
                     logger.error({
                         message: 'Value of bankStatus from SBBOL Fintech API cannot be mapped to status values of ServiceSubscriptionPayment, because it does not belongs to the list of known statuses. Consider to add it.',
                         bankStatus: data.bankStatus,
-                        payment,
                     })
                 } else {
                     await ServiceSubscriptionPayment.update(context, payment.id, {
