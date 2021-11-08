@@ -17,3 +17,13 @@ NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
 
 With that configs you can easily use `debugger` or IDE breakpoints to debug.
 Check `package.json` for debug command (`node inspect`).
+
+## Pre-commit hooks
+
+Pre-commit hooks are managed with Husky.
+
+To install actual hook into Git, please run:
+
+```shell
+npm run prepare
+```
