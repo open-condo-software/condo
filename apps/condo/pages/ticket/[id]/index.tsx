@@ -330,7 +330,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                                 <TicketStatusSelect
                                                     organization={organization}
                                                     employee={employee}
-                                                    ticket={ticket}
+                                                    ticket={null}
                                                     onUpdate={handleTicketStatusChanged}
                                                     loading={loading}
                                                 />
