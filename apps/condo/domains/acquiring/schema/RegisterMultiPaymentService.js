@@ -20,6 +20,7 @@ const {
     REGISTER_MP_MULTIPLE_CURRENCIES,
 } = require('@condo/domains/acquiring/constants/errors')
 const { DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY } = require('@condo/domains/acquiring/constants/payment')
+const { FEE_CALCULATION_PATH, WEB_VIEW_PATH } = require('@condo/domains/acquiring/constants/links')
 // TODO(savelevMatthew): REPLACE WITH SERVER SCHEMAS AFTER GQL REFACTORING
 const { find } = require('@core/keystone/schema')
 const { getById } = require('@core/keystone/schema')
@@ -41,7 +42,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
         },
         {
             access: true,
-            type: 'type RegisterMultiPaymentOutput { multiPaymentId: String! }',
+            type: 'type RegisterMultiPaymentOutput { multiPaymentId: String!, webViewUrl: String!, feeCalculationUrl: String! }',
         },
     ],
     
@@ -203,6 +204,8 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
 
                 return {
                     multiPaymentId: multiPayment.id,
+                    webViewUrl: `${acquiringIntegration.hostUrl}${WEB_VIEW_PATH.replace('[id]', multiPayment.id)}`,
+                    feeCalculationUrl: `${acquiringIntegration.hostUrl}${FEE_CALCULATION_PATH.replace('[id]', multiPayment.id)}`,
                 }
             },
         },

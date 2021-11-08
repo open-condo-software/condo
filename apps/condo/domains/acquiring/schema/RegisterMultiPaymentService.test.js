@@ -6,6 +6,7 @@ const { makeClient } = require('@core/keystone/test.utils')
 const { makePayerWithMultipleConsumers, makePayer } = require('@condo/domains/acquiring/utils/testSchema')
 const { expectToThrowAuthenticationError, expectToThrowAccessDeniedErrorToResult } = require('@condo/domains/common/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { FEE_CALCULATION_PATH, WEB_VIEW_PATH } = require('@condo/domains/acquiring/constants/links')
 
 const { registerMultiPaymentByTestClient } = require('@condo/domains/acquiring/utils/testSchema')
  
@@ -15,6 +16,7 @@ describe('RegisterMultiPaymentService', () => {
             const cases = [[1, 1], [1, 2], [2, 1], [2, 2]]
             test.each(cases)('Consumers: %p | Receipts in each consumer: %p', async (consumers, receipts) => {
                 const { commonData, batches } = await makePayerWithMultipleConsumers(consumers, receipts)
+                const hostUrl = commonData.acquiringIntegration.hostUrl
                 const payload = batches.map(batch => ({
                     consumerId: batch.serviceConsumer.id,
                     receiptsIds: batch.billingReceipts.map(receipt => receipt.id),
@@ -22,6 +24,8 @@ describe('RegisterMultiPaymentService', () => {
                 const [result] = await registerMultiPaymentByTestClient(commonData.client, payload)
                 expect(result).toBeDefined()
                 expect(result).toHaveProperty('multiPaymentId')
+                expect(result).toHaveProperty('webViewUrl', `${hostUrl}${WEB_VIEW_PATH.replace('[id]', result.multiPaymentId )}`)
+                expect(result).toHaveProperty('feeCalculationUrl', `${hostUrl}${FEE_CALCULATION_PATH.replace('[id]', result.multiPaymentId )}`)
             })
         })
         test('Anonymous user', async () => {
