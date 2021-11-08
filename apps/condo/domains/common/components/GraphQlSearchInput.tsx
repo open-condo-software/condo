@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { useApolloClient } from '@core/next/apollo'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { Select, SelectProps } from 'antd'
 import { ApolloClient } from '@apollo/client'
 
@@ -26,7 +26,7 @@ export interface ISearchInputProps extends SelectProps<string> {
     allowClear?: boolean
     disabled?: boolean
     autoFocus?: boolean
-    initialValue?: string
+    initialValue?: string | string[]
     formatLabel?: (option: GraphQlSearchInputOption) => JSX.Element
     renderOptions?: (items: any[], renderOption: RenderOptionFunc) => JSX.Element[]
     /**
@@ -63,6 +63,18 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
     const options = renderOptions
         ? renderOptions(data, renderOption)
         : data.map(renderOption)
+
+    const initialValueLoad =  useCallback(async () => {
+        const initialValue = props.initialValue
+        if (Array.isArray(initialValue) && initialValue.length) {
+            const initialOptions = await search(client, null, { id_in: initialValue }, initialValue.length)
+            setData(initialOptions)
+        }
+    }, [])
+
+    useEffect(() => {
+        initialValueLoad()
+    }, [initialValueLoad])
 
     useEffect(() => {
         handleSearch('')
