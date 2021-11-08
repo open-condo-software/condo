@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
 import { pickBy, get, debounce } from 'lodash'
-import qs from 'qs'
 import { useRouter } from 'next/router'
 import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 
@@ -21,10 +20,10 @@ export const useEmergencySearch = <F>(loading): [boolean, (e: CheckboxChangeEven
     }, [hasEmergency])
 
     const searchChange = useCallback(debounce(async (isEmergency) => {
-        const queryAttributes = isEmergency ? [...attributes, isEmergency && 'isEmergency'] : attributes.filter(attr => attr !== 'isEmergency')
+        const queryAttributes = isEmergency ? [...attributes, 'isEmergency'] : attributes.filter(attr => attr !== 'isEmergency')
 
         await setFiltersToQuery(router, { ...filtersFromQuery, attributes: queryAttributes }, true)
-    }, 400), [loading])
+    }, 400), [loading, attributes, hasEmergency])
 
     const handleEmergencyChange = (e: CheckboxChangeEvent): void => {
         setIsEmergency(e.target.checked)
