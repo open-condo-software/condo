@@ -46,6 +46,18 @@ function getRandomHiddenCard() {
     return `${prefix}********${suffix}`
 }
 
+function getRandomFeeDistribution() {
+    const border = Math.random() * 6
+    const result = []
+    for (let i = 0; i < border; i++) {
+        result.push({
+            recipient: faker.company.companyName(),
+            percent: String(Math.round(Math.random() * 99 + 1) / 100)
+        })
+    }
+    return result
+}
+
 async function createTestAcquiringIntegration (client, billings, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!billings) throw new Error('no billings')
@@ -59,6 +71,7 @@ async function createTestAcquiringIntegration (client, billings, extraAttrs = {}
         name,
         hostUrl,
         supportedBillingIntegrations: { connect: billingsIds },
+        explicitFeeDistributionSchema: getRandomFeeDistribution(),
         ...extraAttrs
     }
     const obj = await AcquiringIntegration.create(client, attrs)

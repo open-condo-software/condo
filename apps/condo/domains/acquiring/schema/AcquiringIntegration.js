@@ -10,6 +10,7 @@ const access = require('@condo/domains/acquiring/access/AcquiringIntegration')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { INTEGRATION_NO_BILLINGS_ERROR } = require('@condo/domains/acquiring/constants/errors')
+const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
 
 
 const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
@@ -57,6 +58,11 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
                     }
                 },
             },
+        },
+
+        explicitFeeDistributionSchema: {
+            ...FEE_DISTRIBUTION_SCHEMA_FIELD,
+            schemaDoc: 'Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient',
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
