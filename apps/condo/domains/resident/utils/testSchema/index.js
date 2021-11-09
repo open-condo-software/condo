@@ -83,15 +83,17 @@ async function registerResidentByTestClient(client, extraAttrs = {}, withFlat = 
     return [data.result, attrs]
 }
 
-async function createTestServiceConsumer (client, resident, extraAttrs = {}) {
+async function createTestServiceConsumer (client, resident, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!resident || !resident.id) throw new Error('no resident.id')
+    if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
         dv: 1,
         sender,
         resident: { connect: { id: resident.id } },
+        organization: { connect: {id: organization.id } },
         accountNumber: faker.random.alphaNumeric(8),
         ...extraAttrs,
     }
