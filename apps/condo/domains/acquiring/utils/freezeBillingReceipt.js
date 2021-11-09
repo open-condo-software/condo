@@ -2,7 +2,9 @@ const { getById } = require('@core/keystone/schema')
 
 // TODO(savelevMatthew): Replace with single request from serverSchema after gql refactoring
 /**
- * Combine multiple billing entities into single object
+ * Combine current state of multiple billing entities into single object
+ * to make frozen copy of them if they change later
+ * This will allow support to resolve some customers conflicts
  *
  * @param {Object} flatReceipt BillingReceipt received by "find" from "@core/keystone/schema"
  */
