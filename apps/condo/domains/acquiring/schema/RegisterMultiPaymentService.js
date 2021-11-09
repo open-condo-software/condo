@@ -24,7 +24,6 @@ const { DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY } = require('@condo/domains/acquir
 const { FEE_CALCULATION_PATH, WEB_VIEW_PATH } = require('@condo/domains/acquiring/constants/links')
 // TODO(savelevMatthew): REPLACE WITH SERVER SCHEMAS AFTER GQL REFACTORING
 const { find } = require('@core/keystone/schema')
-const { getById } = require('@core/keystone/schema')
 const { Payment, MultiPayment, AcquiringIntegration } = require('@condo/domains/acquiring/utils/serverSchema')
 const { freezeBillingReceipt } = require('@condo/domains/acquiring/utils/freezeBillingReceipt')
 const get = require('lodash/get')
@@ -174,23 +173,21 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
 
                 // Stage 3 Generating payments
                 const payments = []
-                for (let i = 0; i < groupedReceipts.length; i++) {
-                    const receiptsGroup = groupedReceipts[i]
-                    const consumer = consumersByIds[receiptsGroup.consumerId]
-                    const acquiringContext = acquiringContextsByIds[consumer.acquiringIntegrationContext]
-                    const groupReceipts = receiptsGroup.receiptsIds
-                    for (let j = 0; j < groupReceipts.length; j++) {
-                        const receipt = receiptsByIds[groupReceipts[j]]
+                for (const group of groupedReceipts) {
+                    const serviceConsumer = consumersByIds[group.consumerId]
+                    const acquiringContext = acquiringContextsByIds[serviceConsumer.acquiringIntegrationContext]
+                    for (const receiptId of group.receiptsIds) {
+                        const receipt = receiptsByIds[receiptId]
                         const frozenReceipt = await freezeBillingReceipt(receipt)
-                        const account = await getById('BillingAccount', receipt.account)
+                        const billingAccountNumber = get(frozenReceipt, ['data', 'account', 'number'])
                         const payment = await Payment.create(context, {
                             dv: 1,
-                            sender: { dv: 1, fingerprint },
+                            sender: { dv:1, fingerprint },
                             amount: receipt.toPay,
                             currencyCode,
-                            accountNumber: account.number,
+                            accountNumber: billingAccountNumber,
                             period: receipt.period,
-                            receipt: { connect: { id: receipt.id } },
+                            receipt: { connect: { id: receiptId } },
                             frozenReceipt,
                             context: { connect: { id: acquiringContext.id } },
                             organization: { connect: { id: acquiringContext.organization } },
