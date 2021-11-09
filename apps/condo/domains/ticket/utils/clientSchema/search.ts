@@ -132,8 +132,10 @@ export function searchOrganizationDivision (organizationId: string) {
         const where = {
             organization: {
                 id: organizationId,
+                deletedAt: null,
             },
             name_contains_i: value,
+            deletedAt: null,
         }
         const orderBy = 'name_ASC'
         const { data = [], error } = await _search(client, GET_ALL_DIVISIONS_BY_VALUE_QUERY, { where, orderBy })
