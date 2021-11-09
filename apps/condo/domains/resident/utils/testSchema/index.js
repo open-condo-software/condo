@@ -137,7 +137,7 @@ async function makeClientWithServiceConsumer() {
     const adminClient = await makeLoggedInAdminClient()
 
     const [resident] = await createTestResident(adminClient, client.user, client.organization, client.property)
-    const [consumer] = await createTestServiceConsumer(adminClient, resident)
+    const [consumer] = await createTestServiceConsumer(adminClient, resident, client.organization)
 
     client.resident = resident
     client.serviceConsumer = consumer

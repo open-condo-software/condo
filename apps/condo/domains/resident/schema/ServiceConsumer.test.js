@@ -27,7 +27,7 @@ describe('ServiceConsumer', () => {
             const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
 
             const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
-            const [consumer] = await createTestServiceConsumer(adminClient, resident, { billingAccount: { connect: { id: billingAccount.id } } })
+            const [consumer] = await createTestServiceConsumer(adminClient, resident, userClient.organization, { billingAccount: { connect: { id: billingAccount.id } } })
             expect(consumer.resident.id).toEqual(resident.id)
         })
 
@@ -41,7 +41,7 @@ describe('ServiceConsumer', () => {
             const [resident] = await createTestResident(adminClient, userClient.user, anotherOrganization, userClient.property)
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await createTestServiceConsumer(userClient, resident)
+                await createTestServiceConsumer(userClient, resident, userClient.organization)
             })
         })
 
@@ -56,7 +56,7 @@ describe('ServiceConsumer', () => {
             const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await createTestServiceConsumer(anonymous, resident, { billingAccount: { connect: { id: billingAccount.id } } })
+                await createTestServiceConsumer(anonymous, resident, userClient.organization, { billingAccount: { connect: { id: billingAccount.id } } })
             })
         })
     })
@@ -183,40 +183,22 @@ describe('ServiceConsumer', () => {
          * To pay resident should have service consumer with receipts (with billing account and billing context) and acquiring (acquiring context)
          */
 
-        test('Resident tries to send meter readings', async () => {
-            const adminClient = await makeLoggedInAdminClient()
-            const userClient = await makeClientWithProperty()
-            const [organization] = await createTestOrganization(adminClient)
-            const [anotherOrganization] = await createTestOrganization(adminClient)
-            const [role] = await createTestOrganizationEmployeeRole(adminClient, organization)
-            await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
-            const [resident] = await createTestResident(adminClient, userClient.user, anotherOrganization, userClient.property)
-
-            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
-            const [billingProperty] = await createTestBillingProperty(adminClient, context)
-            const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
-
-            await createTestServiceConsumer(userClient, resident, billingAccount)
+        test.skip('Resident tries to send meter readings', async () => {
         })
 
-        test('Resident who can send meter readings tries to pay', async () => {
-            console.log('skipped')
+        test.skip('Resident who can send meter readings tries to pay', async () => {
         })
 
-        test('Resident tries to pay', async () => {
-            console.log('skipped')
+        test.skip('Resident tries to pay', async () => {
         })
 
-        test('Resident tries to pay for different payment documents using different service consumers', async () => {
-            console.log('skipped')
+        test.skip('Resident tries to pay for different payment documents using different service consumers', async () => {
         })
 
-        test('Resident\'s organization changes billing or acquiring integrations', async () => {
-            console.log('skipped')
+        test.skip('Resident\'s organization changes billing or acquiring integrations', async () => {
         })
 
         test('Resident who can pay tries to send meter readings', async () => {
-            console.log('skipped')
         })
     })
 })
