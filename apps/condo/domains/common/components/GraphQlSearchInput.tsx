@@ -1,9 +1,13 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import { useApolloClient } from '@core/next/apollo'
 import React, { useEffect, useState, useCallback } from 'react'
 import { Select, SelectProps } from 'antd'
+import isFunction from 'lodash/isFunction'
 import { ApolloClient } from '@apollo/client'
+import { useApolloClient } from '@core/next/apollo'
+
+import { WhereType } from '../utils/tables.utils'
+
 
 type GraphQlSearchInputOption = {
     value: string
@@ -27,6 +31,7 @@ export interface ISearchInputProps extends SelectProps<string> {
     disabled?: boolean
     autoFocus?: boolean
     initialValue?: string | string[]
+    getInitialValueQuery?: (initialValue: string | string[]) => WhereType
     formatLabel?: (option: GraphQlSearchInputOption) => JSX.Element
     renderOptions?: (items: any[], renderOption: RenderOptionFunc) => JSX.Element[]
     /**
@@ -66,9 +71,11 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
 
     const loadInitialOptions =  useCallback(async () => {
         const initialValue = props.initialValue
+        const initialValueQuery = isFunction(props.getInitialValueQuery) ? props.getInitialValueQuery(initialValue) : { id_in: initialValue }
 
         if (Array.isArray(initialValue) && initialValue.length) {
-            const initialOptions = await search(client, null, { id_in: initialValue }, initialValue.length)
+            const initialOptions = await search(client, null, initialValueQuery, initialValue.length)
+
             setData(data => [...initialOptions, ...data])
         }
     }, [props.initialValue, client, search])
