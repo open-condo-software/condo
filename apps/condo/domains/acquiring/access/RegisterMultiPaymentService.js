@@ -9,7 +9,6 @@ async function canRegisterMultiPayment ({ authentication: { item: user } }) {
     if (user.deletedAt) return false
     if (user.isAdmin) return true
     return user.type === RESIDENT
-
 }
 
 /*
