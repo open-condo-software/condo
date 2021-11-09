@@ -25,6 +25,7 @@ const {
     REGISTER_MP_DELETED_ACQUIRING_INTEGRATION,
     REGISTER_MP_DELETED_BILLING_CONTEXT,
     REGISTER_MP_DELETED_BILLING_INTEGRATION,
+    REGISTER_MP_NEGATIVE_TO_PAY,
 } = require('@condo/domains/acquiring/constants/errors')
 const { DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY } = require('@condo/domains/acquiring/constants/payment')
 const { FEE_CALCULATION_PATH, WEB_VIEW_PATH } = require('@condo/domains/acquiring/constants/links')
@@ -172,6 +173,14 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 if (deletedReceiptsIds.length) {
                     throw new Error(`${REGISTER_MP_DELETED_RECEIPTS} (${deletedReceiptsIds.join(', ')})`)
                 }
+
+                const negativeReceiptsIds = receipts
+                    .filter(receipt => Big(receipt.toPay).lte(0))
+                    .map(receipt => receipt.id)
+                if (negativeReceiptsIds.length) {
+                    throw new Error(`${REGISTER_MP_NEGATIVE_TO_PAY} [${negativeReceiptsIds.join(', ')}]`)
+                }
+
 
                 const receiptsByIds = Object.assign({}, ...receipts.map(obj => ({ [obj.id]: obj })))
                 groupedReceipts.forEach(group => {

@@ -52,6 +52,7 @@ const {
     REGISTER_MP_DELETED_ACQUIRING_INTEGRATION,
     REGISTER_MP_DELETED_BILLING_CONTEXT,
     REGISTER_MP_DELETED_BILLING_INTEGRATION,
+    REGISTER_MP_NEGATIVE_TO_PAY,
 } = require('@condo/domains/acquiring/constants/errors')
 const faker = require('faker')
 const dayjs = require('dayjs')
@@ -283,6 +284,22 @@ describe('RegisterMultiPaymentService', () => {
                 await expectToThrowMutationError(async () => {
                     await registerMultiPaymentByTestClient(commonData.client, payload)
                 }, REGISTER_MP_MULTIPLE_CURRENCIES)
+            })
+            describe('Cannot pay for receipts with negative toPay',  () => {
+                const cases = ['0.0', '-1', '-50.00', '-0.000000']
+                test.each(cases)('ToPay: %p', async (toPay) => {
+                    const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
+                    const payload = batches.map(batch => ({
+                        consumerId: batch.serviceConsumer.id,
+                        receiptsIds: batch.billingReceipts.map(receipt => receipt.id),
+                    }))
+                    await updateTestBillingReceipt(commonData.admin, batches[1].billingReceipts[0].id, {
+                        toPay,
+                    })
+                    await expectToThrowMutationError(async () => {
+                        await registerMultiPaymentByTestClient(commonData.client, payload)
+                    }, REGISTER_MP_NEGATIVE_TO_PAY)
+                })
             })
             test('Should have common billing account with ServiceConsumer', async () => {
                 const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
