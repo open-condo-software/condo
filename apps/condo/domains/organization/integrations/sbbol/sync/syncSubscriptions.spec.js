@@ -22,9 +22,10 @@ const mockResponseFromFintechApi = {
 
 jest.mock('../SbbolRequestApi')
 jest.mock('../SbbolFintechApi', () => ({
-    SbbolFintechApi: jest.fn().mockImplementation(() => ({
+    initSbbolFintechApi: jest.fn().mockImplementation(() => ({
         fetchAdvanceAcceptances: () => { return mockResponseFromFintechApi.advanceAcceptances() },
     })),
+
 }))
 
 let keystone
