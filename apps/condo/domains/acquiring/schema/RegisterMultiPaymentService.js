@@ -19,15 +19,28 @@ const {
     REGISTER_MP_DELETED_RECEIPTS,
     REGISTER_MP_MULTIPLE_CURRENCIES,
     REGISTER_MP_BILLING_ACCOUNTS_NO_MATCH,
+    REGISTER_MP_INVALID_SENDER,
 } = require('@condo/domains/acquiring/constants/errors')
 const { DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY } = require('@condo/domains/acquiring/constants/payment')
 const { FEE_CALCULATION_PATH, WEB_VIEW_PATH } = require('@condo/domains/acquiring/constants/links')
+const { JSON_STRUCTURE_FIELDS_CONSTRAINTS } = require('@condo/domains/common/utils/validation.utils')
 // TODO(savelevMatthew): REPLACE WITH SERVER SCHEMAS AFTER GQL REFACTORING
 const { find } = require('@core/keystone/schema')
 const { Payment, MultiPayment, AcquiringIntegration } = require('@condo/domains/acquiring/utils/serverSchema')
 const { freezeBillingReceipt } = require('@condo/domains/acquiring/utils/freezeBillingReceipt')
 const get = require('lodash/get')
 const Big = require('big.js')
+const validate = require('validate.js')
+
+const SENDER_FIELD_CONSTRAINTS = {
+    ...JSON_STRUCTURE_FIELDS_CONSTRAINTS,
+    dv: {
+        numericality: {
+            noStrings: true,
+            equalTo: 1,
+        },
+    },
+}
 
 
 const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentService', {
@@ -58,10 +71,15 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 if (dv !== 1) {
                     throw new Error(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
                 }
-                const { dv: senderDv, fingerprint } = sender
-                if (senderDv !== 1) {
-                    throw new Error(`${DV_UNKNOWN_VERSION_ERROR}sender.dv] Unknown \`dv\` of sender`)
+
+                const senderErrors = validate(sender, SENDER_FIELD_CONSTRAINTS)
+                if (senderErrors && Object.keys(senderErrors).length) {
+                    const details = Object.keys(senderErrors).map(field => {
+                        return `${field}: [${senderErrors[field].map(error => `'${error}'`).join(', ')}]`
+                    }).join(', ')
+                    throw new Error(`${REGISTER_MP_INVALID_SENDER}. ${details}`)
                 }
+
                 if (!get(groupedReceipts, 'length')) {
                     throw new Error(REGISTER_MP_EMPTY_INPUT)
                 }
@@ -182,7 +200,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                         const billingAccountNumber = get(frozenReceipt, ['data', 'account', 'number'])
                         const payment = await Payment.create(context, {
                             dv: 1,
-                            sender: { dv:1, fingerprint },
+                            sender,
                             amount: receipt.toPay,
                             currencyCode,
                             accountNumber: billingAccountNumber,
@@ -202,7 +220,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 }, Big('0.0'))
                 const multiPayment = await MultiPayment.create(context, {
                     dv: 1,
-                    sender: { dv: 1, fingerprint },
+                    sender,
                     amountWithoutExplicitFee: totalAmount.toString(),
                     currencyCode,
                     user: { connect: { id: context.authedItem.id } },

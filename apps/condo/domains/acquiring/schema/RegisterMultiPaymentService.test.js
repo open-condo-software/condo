@@ -41,6 +41,7 @@ const {
     REGISTER_MP_UNSUPPORTED_BILLING,
     REGISTER_MP_MULTIPLE_CURRENCIES,
     REGISTER_MP_BILLING_ACCOUNTS_NO_MATCH,
+    REGISTER_MP_INVALID_SENDER,
 } = require('@condo/domains/acquiring/constants/errors')
 const faker = require('faker')
 const dayjs = require('dayjs')
@@ -99,16 +100,32 @@ describe('RegisterMultiPaymentService', () => {
                     await registerMultiPaymentByTestClient(client, payload, { dv: 2 })
                 }, DV_UNKNOWN_VERSION_ERROR)
             })
-            test('Should check sender dv (=== 1)', async () => {
-                const { serviceConsumer, billingReceipts, client } = await makePayer()
-                const sender = { dv: 2, fingerprint: faker.random.alphaNumeric(8) }
-                const payload = {
-                    consumerId: serviceConsumer.id,
-                    receiptsIds: billingReceipts.map(receipt => receipt.id),
-                }
-                await expectToThrowMutationError(async () => {
-                    await registerMultiPaymentByTestClient(client, payload, { sender })
-                }, DV_UNKNOWN_VERSION_ERROR)
+            describe('Should check sender', () => {
+                let consumerId
+                let receiptsIds
+                let client
+                beforeAll(async () => {
+                    const data = await makePayer()
+                    consumerId = data.serviceConsumer.id
+                    receiptsIds = data.billingReceipts.map(receipt => receipt.id)
+                    client = data.client
+                })
+                const cases = [
+                    [2, faker.random.alphaNumeric(8)],
+                    [1, faker.random.alphaNumeric(3)],
+                    [1, faker.random.alphaNumeric(60)],
+                    [1, 'КиРиЛЛиЦА'],
+                ]
+                test.each(cases)('dv: %p, fingerprint: %p', async (dv, fingerprint) => {
+                    const sender = { dv, fingerprint }
+                    const payload = {
+                        consumerId,
+                        receiptsIds,
+                    }
+                    await expectToThrowMutationError(async () => {
+                        await registerMultiPaymentByTestClient(client, payload, { sender })
+                    }, REGISTER_MP_INVALID_SENDER)
+                })
             })
             test('Should check emptiness of input arrays', async () => {
                 const { serviceConsumer, client } = await makePayer()
