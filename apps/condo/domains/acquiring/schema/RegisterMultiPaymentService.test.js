@@ -17,7 +17,12 @@ const {
     updateTestAcquiringIntegration,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { updateTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
-const { updateTestBillingReceipt, updateTestBillingIntegration, createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
+const {
+    updateTestBillingReceipt,
+    updateTestBillingIntegration,
+    createTestBillingIntegration,
+    updateTestBillingIntegrationOrganizationContext,
+} = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { AcquiringIntegration } = require('@condo/domains/acquiring/utils/serverSchema')
 const {
@@ -42,6 +47,11 @@ const {
     REGISTER_MP_MULTIPLE_CURRENCIES,
     REGISTER_MP_BILLING_ACCOUNTS_NO_MATCH,
     REGISTER_MP_INVALID_SENDER,
+    REGISTER_MP_DELETED_CONSUMERS,
+    REGISTER_MP_DELETED_ACQUIRING_CONTEXTS,
+    REGISTER_MP_DELETED_ACQUIRING_INTEGRATION,
+    REGISTER_MP_DELETED_BILLING_CONTEXT,
+    REGISTER_MP_DELETED_BILLING_INTEGRATION,
 } = require('@condo/domains/acquiring/constants/errors')
 const faker = require('faker')
 const dayjs = require('dayjs')
@@ -248,19 +258,6 @@ describe('RegisterMultiPaymentService', () => {
                     await registerMultiPaymentByTestClient(client, payload)
                 }, REGISTER_MP_REAL_RECEIPTS_MISMATCH)
             })
-            test('Should not be able to pay for deleted receipts', async () => {
-                const { commonData, batches } = await makePayerWithMultipleConsumers(1, 2)
-                const payload = batches.map(batch => ({
-                    consumerId: batch.serviceConsumer.id,
-                    receiptsIds: batch.billingReceipts.map(receipt => receipt.id),
-                }))
-                await updateTestBillingReceipt(commonData.admin, batches[0].billingReceipts[0].id, {
-                    deletedAt: dayjs().toISOString(),
-                })
-                await expectToThrowMutationError(async () => {
-                    await registerMultiPaymentByTestClient(commonData.client, payload)
-                }, REGISTER_MP_DELETED_RECEIPTS)
-            })
             test('Should be linked to BillingIntegration which supported by acquiring', async () => {
                 const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
                 const payload = batches.map(batch => ({
@@ -298,6 +295,86 @@ describe('RegisterMultiPaymentService', () => {
                 await expectToThrowMutationError(async () => {
                     await registerMultiPaymentByTestClient(commonData.client, payload)
                 }, REGISTER_MP_BILLING_ACCOUNTS_NO_MATCH)
+            })
+        })
+        describe('deletedAt check', () => {
+            test('Should not be able to pay for deleted receipts', async () => {
+                const { commonData, batches } = await makePayerWithMultipleConsumers(1, 2)
+                const payload = batches.map(batch => ({
+                    consumerId: batch.serviceConsumer.id,
+                    receiptsIds: batch.billingReceipts.map(receipt => receipt.id),
+                }))
+                await updateTestBillingReceipt(commonData.admin, batches[0].billingReceipts[0].id, {
+                    deletedAt: dayjs().toISOString(),
+                })
+                await expectToThrowMutationError(async () => {
+                    await registerMultiPaymentByTestClient(commonData.client, payload)
+                }, REGISTER_MP_DELETED_RECEIPTS)
+            })
+            test('Should not be able to pay for deleted service consumer', async () => {
+                const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
+                const payload = batches.map(batch => ({
+                    consumerId: batch.serviceConsumer.id,
+                    receiptsIds: batch.billingReceipts.map(receipt => receipt.id),
+                }))
+                await updateTestServiceConsumer(commonData.admin, batches[0].serviceConsumer.id, {
+                    deletedAt: dayjs().toISOString(),
+                })
+                await expectToThrowMutationError(async () => {
+                    await registerMultiPaymentByTestClient(commonData.client, payload)
+                }, REGISTER_MP_DELETED_CONSUMERS)
+            })
+            test('Should not be able to pay for consumer with deleted acquiring context', async () => {
+                const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
+                const payload = batches.map(batch => ({
+                    consumerId: batch.serviceConsumer.id,
+                    receiptsIds: batch.billingReceipts.map(receipt => receipt.id),
+                }))
+                await updateTestAcquiringIntegrationContext(commonData.admin, batches[1].acquiringContext.id, {
+                    deletedAt: dayjs().toISOString(),
+                })
+                await expectToThrowMutationError(async () => {
+                    await registerMultiPaymentByTestClient(commonData.client, payload)
+                }, REGISTER_MP_DELETED_ACQUIRING_CONTEXTS)
+            })
+            test('Should not be able to pay using deleted acquiring integration', async () => {
+                const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
+                const payload = batches.map(batch => ({
+                    consumerId: batch.serviceConsumer.id,
+                    receiptsIds: batch.billingReceipts.map(receipt => receipt.id),
+                }))
+                await updateTestAcquiringIntegration(commonData.admin, commonData.acquiringIntegration.id, {
+                    deletedAt: dayjs().toISOString(),
+                })
+                await expectToThrowMutationError(async () => {
+                    await registerMultiPaymentByTestClient(commonData.client, payload)
+                }, REGISTER_MP_DELETED_ACQUIRING_INTEGRATION)
+            })
+            test('Should not be able to pay for receipt with deleted context', async () => {
+                const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
+                const payload = batches.map(batch => ({
+                    consumerId: batch.serviceConsumer.id,
+                    receiptsIds: batch.billingReceipts.map(receipt => receipt.id),
+                }))
+                await updateTestBillingIntegrationOrganizationContext(commonData.admin, batches[0].billingContext.id, {
+                    deletedAt: dayjs().toISOString(),
+                })
+                await expectToThrowMutationError(async () => {
+                    await registerMultiPaymentByTestClient(commonData.client, payload)
+                }, REGISTER_MP_DELETED_BILLING_CONTEXT)
+            })
+            test('Should not be able to pay for receipt with deleted integration', async () => {
+                const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
+                const payload = batches.map(batch => ({
+                    consumerId: batch.serviceConsumer.id,
+                    receiptsIds: batch.billingReceipts.map(receipt => receipt.id),
+                }))
+                await updateTestBillingIntegration(commonData.admin, batches[0].billingIntegration.id, {
+                    deletedAt: dayjs().toISOString(),
+                })
+                await expectToThrowMutationError(async () => {
+                    await registerMultiPaymentByTestClient(commonData.client, payload)
+                }, REGISTER_MP_DELETED_BILLING_INTEGRATION)
             })
         })
     })

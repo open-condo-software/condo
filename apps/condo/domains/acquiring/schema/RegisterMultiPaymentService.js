@@ -20,6 +20,11 @@ const {
     REGISTER_MP_MULTIPLE_CURRENCIES,
     REGISTER_MP_BILLING_ACCOUNTS_NO_MATCH,
     REGISTER_MP_INVALID_SENDER,
+    REGISTER_MP_DELETED_CONSUMERS,
+    REGISTER_MP_DELETED_ACQUIRING_CONTEXTS,
+    REGISTER_MP_DELETED_ACQUIRING_INTEGRATION,
+    REGISTER_MP_DELETED_BILLING_CONTEXT,
+    REGISTER_MP_DELETED_BILLING_INTEGRATION,
 } = require('@condo/domains/acquiring/constants/errors')
 const { DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY } = require('@condo/domains/acquiring/constants/payment')
 const { FEE_CALCULATION_PATH, WEB_VIEW_PATH } = require('@condo/domains/acquiring/constants/links')
@@ -108,6 +113,10 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     const missingConsumerIds = consumersIds.filter(consumerId => !existingConsumerIds.includes(consumerId))
                     throw new Error(`${REGISTER_MP_REAL_CONSUMER_MISMATCH} Missing: ${missingConsumerIds.join(', ')}`)
                 }
+                const deletedConsumersIds = consumers.filter(consumer => consumer.deletedAt).map(consumer => consumer.id)
+                if (deletedConsumersIds.length) {
+                    throw new Error(`${REGISTER_MP_DELETED_CONSUMERS} (${deletedConsumersIds.join(', ')})`)
+                }
                 const contextMissingConsumers = consumers
                     .filter(consumer => !get(consumer, 'acquiringIntegrationContext'))
                     .map(consumer => consumer.id)
@@ -122,6 +131,14 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     id_in: Array.from(uniqueAcquiringContextsIds),
                 })
 
+                const deletedAcquiringContextsIds = new Set(acquiringContexts.filter(context => context.deletedAt).map(context => context.id))
+                if (deletedAcquiringContextsIds.size) {
+                    const failedConsumers = consumers
+                        .filter(consumer => deletedAcquiringContextsIds.has(consumer.acquiringIntegrationContext))
+                        .map(consumer => `{ consumerId: ${consumer.id}, acquiringContextId: ${consumer.acquiringIntegrationContext} }`)
+                    throw new Error(`${REGISTER_MP_DELETED_ACQUIRING_CONTEXTS}. Failed consumers: [${failedConsumers.join(', ')}]`)
+                }
+
                 const acquiringContextsByIds = Object.assign({}, ...acquiringContexts.map(obj => ({ [obj.id]: obj })))
 
                 const acquiringIntegrations = new Set(acquiringContexts.map(context => context.integration))
@@ -130,11 +147,12 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 }
 
                 // NOTE: Here using serverSchema to get many relation
-                let acquiringIntegration = await AcquiringIntegration.getAll(context, {
+                const [acquiringIntegration] = await AcquiringIntegration.getAll(context, {
                     id: Array.from(acquiringIntegrations)[0],
                 })
-                acquiringIntegration = get(acquiringIntegration, '0')
-                // const acquiringIntegration = await getById('AcquiringIntegration', Array.from(acquiringIntegrations)[0])
+                if (acquiringIntegration.deletedAt) {
+                    throw new Error(`${REGISTER_MP_DELETED_ACQUIRING_INTEGRATION} (id: ${acquiringIntegration.id})`)
+                }
 
                 // TODO (savelevMatthew): check that all receipts linked to right consumers?
                 // Stage 2. Check BillingReceipts
@@ -170,6 +188,14 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 const billingContexts = await find('BillingIntegrationOrganizationContext', {
                     id_in: Array.from(uniqueBillingContextsIds),
                 })
+                const billingContextsById = Object.assign({}, ...billingContexts.map(obj => ({ [obj.id]: obj })))
+                const deletedBillingContextsIds = new Set(billingContexts.filter(context => context.deletedAt).map(context => context.id))
+                if (deletedBillingContextsIds.size) {
+                    const failedReceipts = receipts
+                        .filter(receipt => deletedBillingContextsIds.has(receipt.context))
+                        .map(receipt => `{ receiptId: ${receipt.id}, contextId: ${receipt.context} }`)
+                    throw new Error(`${REGISTER_MP_DELETED_BILLING_CONTEXT} Failed receipts: [${failedReceipts.join(', ')}]`)
+                }
                 const supportedBillingIntegrations = get(acquiringIntegration, 'supportedBillingIntegrations', [])
                     .map(integration => integration.id)
                 const uniqueBillingIntegrationsIds = new Set(billingContexts.map(context => context.integration))
@@ -182,6 +208,13 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 const billingIntegrations = await find('BillingIntegration', {
                     id_in: Array.from(uniqueBillingIntegrationsIds),
                 })
+                const deletedBillingIntegrationsIds = new Set(billingIntegrations.filter(integration => integration.deletedAt).map(integration => integration.id))
+                if (deletedBillingIntegrationsIds.size) {
+                    const failedReceipts = receipts
+                        .filter(receipt => deletedBillingIntegrationsIds.has(billingContextsById[receipt.context].integration))
+                        .map(receipt => `{ receiptId: ${receipt.id}, integrationId: ${billingContextsById[receipt.context].integration} }`)
+                    throw new Error(`${REGISTER_MP_DELETED_BILLING_INTEGRATION}. Failed receipts: [${failedReceipts.join(', ')}]`)
+                }
 
                 const currencies = new Set(billingIntegrations.map(integration => integration.currencyCode))
                 if (currencies.size > 1) {
