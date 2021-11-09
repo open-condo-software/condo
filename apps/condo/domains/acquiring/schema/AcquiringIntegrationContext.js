@@ -11,6 +11,7 @@ const { ACQUIRING_INTEGRATION_FIELD } = require('@condo/domains/acquiring/schema
 const access = require('@condo/domains/acquiring/access/AcquiringIntegrationContext')
 const { hasValidJsonStructure, hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
+const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
 
 
 const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationContext', {
@@ -50,6 +51,12 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
                     hasValidJsonStructure(args, true, 1, {})
                 },
             },
+        },
+
+        implicitFeeDistributionSchema: {
+            ...FEE_DISTRIBUTION_SCHEMA_FIELD,
+            isRequired: false,
+            schemaDoc: 'Contains information about the default distribution of implicit fee. Each part is paid by the recipient organization on deducted from payment amount. If part exists then explicit part with the same name from AcquiringIntegration.explicitFeeDistributionSchema is ignored',
         },
 
     },
