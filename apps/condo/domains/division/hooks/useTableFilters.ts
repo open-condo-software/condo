@@ -3,8 +3,7 @@ import { ComponentType, FiltersMeta } from '@condo/domains/common/utils/filters.
 import { DivisionWhereInput } from '@app/condo/schema'
 import { useIntl } from '@core/next/intl'
 
-const nameFilter = getStringContainsFilter('name')
-
+const filterName = getStringContainsFilter('name')
 const filterProperties = (search: string) => {
     if (!search) return
 
@@ -21,7 +20,6 @@ const filterProperties = (search: string) => {
         },
     }
 }
-
 const filterResponsible = (search: string) => {
     if (!search) return
 
@@ -31,7 +29,6 @@ const filterResponsible = (search: string) => {
         },
     }
 }
-
 const filterExecutors = (search: string) => {
     if (!search) return
 
@@ -49,7 +46,7 @@ export const useTableFilters = () => {
     const divisionFilterMetas: FiltersMeta<DivisionWhereInput>[] = [
         {
             keyword: 'name',
-            filters: [nameFilter],
+            filters: [filterName],
             component: {
                 type: ComponentType.Input,
                 props: {
@@ -60,7 +57,7 @@ export const useTableFilters = () => {
         {
             keyword: 'search',
             filters: [
-                nameFilter,
+                filterName,
                 filterProperties,
                 filterResponsible,
                 filterExecutors,
