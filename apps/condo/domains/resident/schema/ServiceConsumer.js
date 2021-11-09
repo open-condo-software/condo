@@ -56,6 +56,15 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
             type: Text,
             isRequired: true,
         },
+
+        organization: {
+            schemaDoc: 'Organization to which this service consumer pays to object',
+            type: Relationship,
+            ref: 'Organization',
+            isRequired: true,
+            knexOptions: { isNotNullable: true }, // Required relationship only!
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
