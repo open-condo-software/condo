@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { Select, SelectProps } from 'antd'
 import isFunction from 'lodash/isFunction'
+import uniqBy from 'lodash/uniqBy'
 import { ApolloClient } from '@apollo/client'
 import { useApolloClient } from '@core/next/apollo'
 
@@ -43,7 +44,17 @@ export interface ISearchInputProps extends SelectProps<string> {
 }
 
 export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
-    const { search, onSelect, formatLabel, renderOptions, autoClearSearchValue, searchAgainDependencies = [], ...restProps } = props
+    const {
+        search,
+        onSelect,
+        formatLabel,
+        renderOptions,
+        autoClearSearchValue,
+        searchAgainDependencies = [],
+        initialValue,
+        getInitialValueQuery,
+        ...restProps
+    } = props
     const client = useApolloClient()
     const [selected, setSelected] = useState('')
     const [isLoading, setLoading] = useState(false)
@@ -70,15 +81,14 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         : data.map(renderOption)
 
     const loadInitialOptions =  useCallback(async () => {
-        const initialValue = props.initialValue
-        const initialValueQuery = isFunction(props.getInitialValueQuery) ? props.getInitialValueQuery(initialValue) : { id_in: initialValue }
+        const initialValueQuery = isFunction(getInitialValueQuery) ? getInitialValueQuery(initialValue) : { id_in: initialValue }
 
         if (Array.isArray(initialValue) && initialValue.length) {
             const initialOptions = await search(client, null, initialValueQuery, initialValue.length)
 
-            setData(data => [...initialOptions, ...data])
+            setData(data => uniqBy([...initialOptions, ...data], 'value'))
         }
-    }, [props.initialValue, client, search])
+    }, [initialValue, getInitialValueQuery, client, search])
 
     useEffect(() => {
         loadInitialOptions().catch(err => console.error('failed to load initial options', err))
