@@ -64,7 +64,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         ? renderOptions(data, renderOption)
         : data.map(renderOption)
 
-    const initialValueLoad =  useCallback(async () => {
+    const loadInitialOptions =  useCallback(async () => {
         const initialValue = props.initialValue
         if (Array.isArray(initialValue) && initialValue.length) {
             const initialOptions = await search(client, null, { id_in: initialValue }, initialValue.length)
@@ -73,8 +73,8 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
     }, [])
 
     useEffect(() => {
-        initialValueLoad()
-    }, [initialValueLoad])
+        loadInitialOptions().catch(err => console.error('failed to load initial options', err))
+    }, [loadInitialOptions])
 
     useEffect(() => {
         handleSearch('')
