@@ -150,6 +150,7 @@ function hasValidJsonStructure (args, isRequired, dataVersion, fieldsConstraints
 }
 
 module.exports = {
+    JSON_STRUCTURE_FIELDS_CONSTRAINTS,
     hasDbFields,
     hasOneOfFields,
     hasDvAndSenderFields,

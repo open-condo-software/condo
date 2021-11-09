@@ -11,6 +11,7 @@ const REGISTER_MP_REAL_RECEIPTS_MISMATCH = '[groupedReceipts:receiptsIds:nonExis
 const REGISTER_MP_DELETED_RECEIPTS = '[groupedReceipts:receiptsIds:deletedReceipt] Cannot pay for deleted receipts.'
 const REGISTER_MP_MULTIPLE_CURRENCIES = '[groupedReceipts:receiptsIds:context:integration:currencyCode:multipleFound] Cannot pay for receipts with multiple currencies.'
 const REGISTER_MP_BILLING_ACCOUNTS_NO_MATCH = '[groupedReceipts:receiptsIds:noCommonBillingAccount] Billing receipt with specified id doesn\'t have common billing account with specified ServiceConsumer'
+const REGISTER_MP_INVALID_SENDER = '[sender:invalidValue] Sender has invalid value.'
 
 
 module.exports = {
@@ -27,4 +28,5 @@ module.exports = {
     REGISTER_MP_DELETED_RECEIPTS,
     REGISTER_MP_MULTIPLE_CURRENCIES,
     REGISTER_MP_BILLING_ACCOUNTS_NO_MATCH,
+    REGISTER_MP_INVALID_SENDER,
 }
