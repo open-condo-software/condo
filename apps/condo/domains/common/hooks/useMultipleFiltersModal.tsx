@@ -1,4 +1,4 @@
-import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 import Form from 'antd/lib/form'
 import { Checkbox, Col, FormInstance, Input, Row, Select, Typography } from 'antd'
 import { useRouter } from 'next/router'
@@ -79,7 +79,7 @@ const DATE_RANGE_PICKER_STYLE: CSSProperties = { width: '100%' }
 const TAGS_SELECT_STYLE: CSSProperties = { width: '100%' }
 const TAGS_SELECT_DROPDOWN_STYLE = { display: 'none' }
 
-export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string, component: FilterComponentType): React.ReactElement => {
+export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string, component: FilterComponentType, form: FormInstance): React.ReactElement => {
     const type = get(component, 'type')
     const props = {
         // It is necessary so that dropdowns do not go along with the screen when scrolling the modal window
@@ -102,12 +102,14 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
         }
 
         case ComponentType.DateRange: {
-            return <DateRangePicker
-                format='DD.MM.YYYY'
-                style={DATE_RANGE_PICKER_STYLE}
-                separator={null}
-                {...props}
-            />
+            return (
+                <DateRangePicker
+                    format='DD.MM.YYYY'
+                    style={DATE_RANGE_PICKER_STYLE}
+                    separator={null}
+                    {...props}
+                />
+            )
         }
 
         case ComponentType.Select: {
@@ -133,19 +135,26 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
         }
 
         case ComponentType.GQLSelect: {
-            return <GraphQlSearchInput
-                {...props}
-            />
+            const initialData = form.getFieldValue(keyword)
+
+            return (
+                <GraphQlSearchInput
+                    initialValue={initialData}
+                    {...props}
+                />
+            )
         }
 
         case ComponentType.TagsSelect: {
-            return <Select
-                mode="tags"
-                allowClear
-                style={TAGS_SELECT_STYLE}
-                dropdownStyle={TAGS_SELECT_DROPDOWN_STYLE}
-                {...props}
-            />
+            return (
+                <Select
+                    mode="tags"
+                    allowClear
+                    style={TAGS_SELECT_STYLE}
+                    dropdownStyle={TAGS_SELECT_DROPDOWN_STYLE}
+                    {...props}
+                />
+            )
         }
 
         default: return
@@ -170,7 +179,7 @@ function getModalComponents <T> (filters: IFilters, filterMetas: Array<FiltersMe
             Component = isFunction(componentGetter) ? componentGetter(form) : componentGetter
         }
         else
-            Component = getModalFilterComponentByMeta(filters, keyword, component)
+            Component = getModalFilterComponentByMeta(filters, keyword, component, form)
 
         const queryToValueProcessor = getQueryToValueProcessorByType(type)
 
@@ -260,12 +269,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
             <ResetFiltersModalButton key={'reset'} handleReset={handleReset} />,
         ]
     ), [handleReset])
-
-    const ModalFormFilters = useMemo(() => {
-        if (!form) return
-        return getModalComponents(filters, filterMetas, form)
-    }, [filters, filterMetas, form])
-
+    
     return (
         <BaseModalForm
             visible={isMultipleFiltersModalVisible}
@@ -284,7 +288,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
 
                     return (
                         <Row justify={'space-between'} gutter={FILTER_WRAPPERS_GUTTER} id={FILTERS_POPUP_CONTAINER_ID}>
-                            {ModalFormFilters}
+                            {getModalComponents(filters, filterMetas, form)}
                         </Row>
                     )
                 }
