@@ -337,7 +337,7 @@ describe('Resident', () => {
 
                 expect(obj.paymentCategories).toBeDefined()
                 expect(obj.paymentCategories[0].id).toBeDefined()
-                expect(obj.paymentCategories[0].name).toBeDefined()
+                expect(obj.paymentCategories[0].categoryName).toBeDefined()
                 expect(obj.paymentCategories[0].billingName).toEqual(billingIntegration.name)
                 expect(obj.paymentCategories[0].acquiringName).toEqual(acquiringIntegration.name)
                 expect(obj.paymentCategories[1].billingName).toEqual(DEFAULT_BILLING_INTEGRATION_NAME)
