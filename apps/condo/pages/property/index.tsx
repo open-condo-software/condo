@@ -166,14 +166,13 @@ export default function PropertiesPage (props: PropertiesPageProps) {
     const {
         filtersToWhere: filtersToPropertiesWhere,
         sortersToSortBy: sortersToSortPropertiesBy,
-    } = useQueryMappers(propertyFilterMetas, ['address'])
+    } = useQueryMappers<PropertyWhereInput>(propertyFilterMetas, ['address'])
 
     const searchPropertiesQuery = {
         ...filtersToPropertiesWhere(filters),
         organization: { id: organization.id, deletedAt: null },
         deletedAt: null,
     }
-
 
     const divisionFilterMetas = useDivisionTableFilters()
     const divisionTableColumns = useDivisionsTableColumns(divisionFilterMetas)
