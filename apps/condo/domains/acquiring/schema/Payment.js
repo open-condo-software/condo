@@ -60,7 +60,7 @@ const Payment = new GQLListSchema('Payment', {
         },
 
         receipt: {
-            schemaDoc: 'Link to a billing receipt that the user paid for. Can be undefined in cases of getting payments out of our system',
+            schemaDoc: 'Link to a billing receipt that the user paid for. Can be null in cases of getting payments out of our system',
             type: Relationship,
             ref: 'BillingReceipt',
             isRequired: false,

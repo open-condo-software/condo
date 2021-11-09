@@ -36,7 +36,7 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
         },
         
         hostUrl: {
-            schemaDoc: 'Url to acquiring integration service. Mobile devices will use it communicate with external acquiring. List of endpoints are the same for all of them.',
+            schemaDoc: 'Url to acquiring integration service. Mobile devices will use it communicate with external acquiring. List of endpoints is the same for all of them.',
             type: Text,
             isRequired: true,
         },
