@@ -43,7 +43,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
         },
         {
             access: true,
-            type: 'type RegisterMultiPaymentOutput { multiPaymentId: String!, webViewUrl: String!, feeCalculationUrl: String! }',
+            type: 'type RegisterMultiPaymentOutput { dv: Int!, multiPaymentId: String!, webViewUrl: String!, feeCalculationUrl: String! }',
         },
     ],
     
@@ -216,6 +216,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 })
 
                 return {
+                    dv: 1,
                     multiPaymentId: multiPayment.id,
                     webViewUrl: `${acquiringIntegration.hostUrl}${WEB_VIEW_PATH.replace('[id]', multiPayment.id)}`,
                     feeCalculationUrl: `${acquiringIntegration.hostUrl}${FEE_CALCULATION_PATH.replace('[id]', multiPayment.id)}`,

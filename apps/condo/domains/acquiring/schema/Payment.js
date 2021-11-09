@@ -64,7 +64,7 @@ const Payment = new GQLListSchema('Payment', {
             type: Relationship,
             ref: 'BillingReceipt',
             isRequired: false,
-            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
 
         frozenReceipt: {

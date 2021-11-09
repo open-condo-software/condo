@@ -58,6 +58,7 @@ describe('RegisterMultiPaymentService', () => {
                 }))
                 const [result] = await registerMultiPaymentByTestClient(commonData.client, payload)
                 expect(result).toBeDefined()
+                expect(result).toHaveProperty('dv', 1)
                 expect(result).toHaveProperty('multiPaymentId')
                 expect(result).toHaveProperty('webViewUrl', `${hostUrl}${WEB_VIEW_PATH.replace('[id]', result.multiPaymentId )}`)
                 expect(result).toHaveProperty('feeCalculationUrl', `${hostUrl}${FEE_CALCULATION_PATH.replace('[id]', result.multiPaymentId )}`)
