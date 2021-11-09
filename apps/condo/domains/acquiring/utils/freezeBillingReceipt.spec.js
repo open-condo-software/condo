@@ -15,6 +15,9 @@ describe('freezeBillingReceipt', () => {
     test('should contains correct dv (=== 1)', () => {
         expect(frozenReceipt).toHaveProperty('dv', 1)
     })
+    test('should contains accountNumber', () => {
+        expect(frozenReceipt).toHaveProperty(['data', 'account', 'number'])
+    })
     test('should provide information about receipt', () => {
         expect(frozenReceipt).toHaveProperty('data')
         const { data } = frozenReceipt
