@@ -94,7 +94,7 @@ describe('RegisterServiceConsumerService', () => {
     })
 
     // todo(toplenboren) remove this once B2C integration case is ready
-    it('does not create b2b-integration serviceConsumer without organization', async () => {
+    it('creates serviceConsumer without billingAccount for resident without organization', async () => {
 
         const userClient = await makeClientWithProperty()
         const adminClient = await makeLoggedInAdminClient()
@@ -122,7 +122,7 @@ describe('RegisterServiceConsumerService', () => {
         })
     })
 
-    it('does not create b2b-integration serviceConsumer for not valid unit name', async () => {
+    it('creates serviceConsumer without billingAccount for resident with wrong unitName', async () => {
 
         const userClient = await makeClientWithProperty()
         const adminClient = await makeLoggedInAdminClient()
@@ -150,7 +150,7 @@ describe('RegisterServiceConsumerService', () => {
         })
     })
 
-    it('does not create b2b-integration serviceConsumer for not valid account number', async () => {
+    it('creates serviceConsumer without billingAccount for resident with wrong accountNumber', async () => {
 
         const userClient = await makeClientWithProperty()
         const adminClient = await makeLoggedInAdminClient()
