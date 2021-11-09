@@ -33,7 +33,8 @@
  *
  * A hardcoded constant that is planned to move to separate model in the future.
  * 
- * Model PaymentCategory { 
+ * Model PaymentCategory {
+ *     id: ID
  *     name: str                             - Name of the category to pay for: Cold Water, Housing Payment, Bill
  *     canGetBillingFromOrganization: bool   - Whether or not to get billing from organization. If set to false, then default billing is used
  *     canGetAcquiringFromOrganization: bool - see canGetBillingFromOrganization field description
@@ -44,56 +45,67 @@
  */
 const PAYMENT_CATEGORIES_META = [
     {
+        id: '1',
         name: 'Квартплата',
         canGetBillingFromOrganization: true,
         canGetAcquiringFromOrganization: true,
     },
     {
+        id: '2',
         name: 'Интернет, ТВ, домашний телефон',
         canGetBillingFromOrganization: false,
         canGetAcquiringFromOrganization: false,
     },
     {
+        id: '3',
         name: 'Свет',
         canGetBillingFromOrganization: false,
         canGetAcquiringFromOrganization: false,
     },
     {
+        id: '4',
         name: 'Газ',
         canGetBillingFromOrganization: false,
         canGetAcquiringFromOrganization: false,
     },
     {
+        id: '5',
         name: 'Вода',
         canGetBillingFromOrganization: false,
         canGetAcquiringFromOrganization: false,
     },
     {
+        id: '6',
         name: 'Тепло',
         canGetBillingFromOrganization: false,
         canGetAcquiringFromOrganization: false,
     },
     {
+        id: '7',
         name: 'Твердые отходы',
         canGetBillingFromOrganization: false,
         canGetAcquiringFromOrganization: false,
     },
     {
+        id: '8',
         name: 'Охрана и домофон',
         canGetBillingFromOrganization: false,
         canGetAcquiringFromOrganization: false,
     },
     {
+        id: '9',
         name: 'Капремонт',
         canGetBillingFromOrganization: false,
         canGetAcquiringFromOrganization: false,
     },
     {
+        id: '10',
         name: 'Дача',
         canGetBillingFromOrganization: false,
         canGetAcquiringFromOrganization: false,
     },
     {
+        id: '11',
         name: 'Страхование',
         canGetBillingFromOrganization: false,
         canGetAcquiringFromOrganization: false,
