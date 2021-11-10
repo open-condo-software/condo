@@ -64,9 +64,9 @@ export const getAddressDetailsWithoutUnit = (property: Property) => {
     const cityName = get(addressMeta, 'city')
 
     const settlement = streetName ? `${streetType}. ${streetName}` : get(addressMeta, 'settlement_with_type')
-    const streetLine = `${settlement}, ${houseType}. ${houseName}`
-    const regionLine = `${regionName} ${regionType}`
-    const cityLine = `${cityType}. ${cityName}`
+    const streetLine = settlement && `${settlement}, ${houseType}. ${houseName}`
+    const regionLine = regionName && `${regionName} ${regionType}`
+    const cityLine = cityName && `${cityType}. ${cityName}`
 
     return { streetLine, regionLine, cityLine }
 }

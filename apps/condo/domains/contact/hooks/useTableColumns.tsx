@@ -1,11 +1,11 @@
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import get from 'lodash/get'
 
 import { useIntl } from '@core/next/intl'
 
 import { getAddressDetails, getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getTextFilterDropdown, getFilterIcon } from '@condo/domains/common/components/TableFilter'
-import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
+import { getAddressRender, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 
 import { createSorterMap, IFilters } from '../utils/helpers'
 
@@ -19,16 +19,16 @@ export const useTableColumns = (
     const PhoneMessage =  intl.formatMessage({ id: 'Phone' })
     const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
     const AddressMessage = intl.formatMessage({ id: 'pages.condo.property.field.Address' })
-    const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
+    const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
 
     const sorterMap = createSorterMap(sort)
     const search = getFilteredValue(filters, 'search')
     const render = getTableCellRenderer(search)
-    const renderAddress = (address, record) => {
-        const { text, unitPrefix } = getAddressDetails(record, ShortFlatNumber)
 
-        return getTableCellRenderer(search, true, unitPrefix)(text)
-    }
+    const renderAddress = useCallback(
+        (_, contact) => getAddressRender(get(contact, 'property'), DeletedMessage, search),
+        [DeletedMessage, search])
+
 
     return useMemo(() => {
         return [
