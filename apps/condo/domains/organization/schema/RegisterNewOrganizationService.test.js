@@ -10,6 +10,11 @@ const { ServiceSubscription } = require('@condo/domains/subscription/utils/testS
 
 const { DEFAULT_ROLES } = require('@condo/domains/organization/constants/common.js')
 
+const getPermissions = (roleName) => {
+    const excludeFields = ['name', 'description']
+    return Object.fromEntries(Object.entries(DEFAULT_ROLES[roleName]).filter(([key]) => !excludeFields.includes(key)))
+}
+
 describe('RegisterNewOrganizationService', () => {
     test('registerNewOrganization() by user', async () => {
         const admin = await makeLoggedInAdminClient()
@@ -61,31 +66,31 @@ describe('RegisterNewOrganizationService', () => {
             organization: { id: org.id },
             name_contains_i: 'administrator',
         })
-        expect(administratorRole).toMatchObject(DEFAULT_ROLES.Administrator)
+        expect(administratorRole).toMatchObject(getPermissions('Administrator'))
 
         const [dispatcherRole] = await OrganizationEmployeeRole.getAll(admin, {
             organization: { id: org.id },
             name_contains_i: 'dispatcher',
         })
-        expect(dispatcherRole).toMatchObject(DEFAULT_ROLES.Dispatcher)
+        expect(dispatcherRole).toMatchObject(getPermissions('Dispatcher'))
 
         const [managerRole] = await OrganizationEmployeeRole.getAll(admin, {
             organization: { id: org.id },
             name_contains_i: 'manager',
         })
-        expect(managerRole).toMatchObject(DEFAULT_ROLES.Manager)
+        expect(managerRole).toMatchObject(getPermissions('Manager'))
 
         const [foremanRole] = await OrganizationEmployeeRole.getAll(admin, {
             organization: { id: org.id },
             name_contains_i: 'foreman',
         })
-        expect(foremanRole).toMatchObject(DEFAULT_ROLES.Foreman)
+        expect(foremanRole).toMatchObject(getPermissions('Foreman'))
 
         const [technicianRole] = await OrganizationEmployeeRole.getAll(admin, {
             organization: { id: org.id },
             name_contains_i: 'technician',
         })
-        expect(technicianRole).toMatchObject(DEFAULT_ROLES.Technician)
+        expect(technicianRole).toMatchObject(getPermissions('Technician'))
     })
 
     it('creates trial subscription', async () => {
