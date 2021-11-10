@@ -6,7 +6,7 @@ import { useOrganization } from '@core/next/organization'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
 import { useApolloClient } from '@core/next/apollo'
-import { get, find, isEmpty, first } from 'lodash'
+import { get, find, isEmpty } from 'lodash'
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 import { Button } from '@condo/domains/common/components/Button'
 import {
@@ -17,7 +17,7 @@ import {
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { ErrorsContainer } from '@condo/domains/organization/components/ErrorsContainer'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
-import { useLayoutContext } from '../../../common/components/LayoutContext'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { EmployeeRoleSelect } from '../EmployeeRoleSelect'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
