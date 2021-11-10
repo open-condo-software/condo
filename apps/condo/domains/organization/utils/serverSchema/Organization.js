@@ -8,7 +8,7 @@ const { execGqlWithoutAccess } = require('./utils')
 const { getById } = require('@core/keystone/schema')
 const { DEFAULT_ROLES } = require('@condo/domains/organization/constants/common')
 
-const AMOCRM_WEBHOOK_URL = typeof config.AMOCRM_WEBHOOK_URL === 'string' && config.AMOCRM_WEBHOOK_URL
+const SALES_CRM_WEBHOOK_URL = typeof config.SALES_CRM_WEBHOOK_URL === 'string' && config.SALES_CRM_WEBHOOK_URL
 
 async function createOrganization (context, data) {
     return await execGqlWithoutAccess(context, {
@@ -91,16 +91,16 @@ async function findOrganizationEmployee (context, query) {
     })
 }
 
-const amoCRMRequestLogger = pino({ name: 'amocrm', enabled: falsey(process.env.DISABLE_LOGGING) })
+const salesCRMRequestLogger = pino({ name: 'sales_crm', enabled: falsey(process.env.DISABLE_LOGGING) })
 
-async function pushToAmoCRM (organization) {
-    if (!AMOCRM_WEBHOOK_URL) {
-        return amoCRMRequestLogger.warn('AMOCRM_WEBHOOK_URLS not specified correctly in config')
+async function pushToSalesCRM (organization) {
+    if (!SALES_CRM_WEBHOOK_URL) {
+        return salesCRMRequestLogger.warn('SALES_CRM_WEBHOOK_URL not specified correctly in config')
     }
     const { tin, name: orgName, createdBy } = organization
     const { phone: userPhone, name: userName, email } = await getById('User', createdBy.id)
     try {
-        await axios.post(AMOCRM_WEBHOOK_URL, {
+        await axios.post(SALES_CRM_WEBHOOK_URL, {
             orgName,
             userName,
             userPhone,
@@ -109,7 +109,7 @@ async function pushToAmoCRM (organization) {
         })
     }
     catch (e) {
-        amoCRMRequestLogger.warn('Request to amoCRM failed', e)
+        salesCRMRequestLogger.warn('Request to amoCRM failed', e)
     }
 }
 module.exports = {
@@ -119,5 +119,5 @@ module.exports = {
     createDefaultRoles,
     createConfirmedEmployee,
     findOrganizationEmployee,
-    pushToAmoCRM,
+    pushToSalesCRM,
 }
