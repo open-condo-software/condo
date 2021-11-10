@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useRouter } from 'next/router'
 import get from 'lodash/get'
 import { identity } from 'lodash/util'
@@ -6,8 +6,10 @@ import { Space, Tag, Typography } from 'antd'
 import { TextProps } from 'antd/es/typography/Text'
 
 import { useIntl } from '@core/next/intl'
+import { Property } from '@app/condo/schema'
 
 import {
+    getAddressRender,
     getDateTimeRender,
     getTableCellRenderer,
 } from '@condo/domains/common/components/Table/Renders'
@@ -38,7 +40,6 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const ClientNameMessage = intl.formatMessage({ id: 'Client' })
     const DescriptionMessage = intl.formatMessage({ id: 'Description' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
-    const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
     const ExecutorMessage = intl.formatMessage({ id: 'field.Executor' })
     const ResponsibleMessage = intl.formatMessage({ id: 'field.Responsible' })
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
@@ -54,7 +55,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
 
     const { loading, objs: ticketStatuses } = TicketStatus.useObjects({})
 
-    const renderStatus = (status, record) => {
+    const renderStatus = useCallback((status, record) => {
         const { primary: color, secondary: backgroundColor } = status.colors
         const extraProps = { style: { color } }
         // TODO(DOMA-1518) find solution for cases where no status received
@@ -62,28 +63,34 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
 
         return (
             <Space direction='vertical' size={7} align='center'>
-                {status.name &&
-                <Tag color={backgroundColor}>
-                    {highlightedContent}
-                </Tag>
+                {
+                    status.name && (
+                        <Tag color={backgroundColor}>
+                            {highlightedContent}
+                        </Tag>
+                    )
                 }
-                {record.isEmergency &&
-                <Tag color={EMERGENCY_TAG_COLOR.background}>
-                    <Typography.Text type="danger">
-                        {EmergencyMessage.toLowerCase()}
-                    </Typography.Text>
-                </Tag>
+                {
+                    record.isEmergency && (
+                        <Tag color={EMERGENCY_TAG_COLOR.background}>
+                            <Typography.Text type="danger">
+                                {EmergencyMessage.toLowerCase()}
+                            </Typography.Text>
+                        </Tag>
+                    )
                 }
-                {record.isPaid &&
-                <Tag color='orange'>
-                    {PaidMessage.toLowerCase()}
-                </Tag>
+                {
+                    record.isPaid && (
+                        <Tag color='orange'>
+                            {PaidMessage.toLowerCase()}
+                        </Tag>
+                    )
                 }
             </Space>
         )
-    }
+    }, [EmergencyMessage, PaidMessage, search])
 
-    const renderStatusFilterDropdown = ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+    const renderStatusFilterDropdown = useCallback(({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         const adaptedStatuses = ticketStatuses.map(convertGQLItemToFormSelectState).filter(identity)
         const filterProps = {
             setSelectedKeys,
@@ -93,28 +100,31 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
         }
 
         return getOptionFilterDropdown(adaptedStatuses, loading)(filterProps)
-    }
+    }, [loading, ticketStatuses])
 
-    const renderAddress = (_, record) => {
-        const isDeleted = !!get(record, ['property', 'deletedAt'])
-        const { streetLine, regionLine, cityLine } = getAddressDetailsWithoutUnit(record)
-        const extraProps: Partial<TTextHighlighterProps> = isDeleted && { type: 'secondary' }
-        const postfix = `\n${regionLine}, \n${cityLine} ${isDeleted ? `(${DeletedMessage})` : ''}`
-
-        return getTableCellRenderer(search, true, postfix, extraProps, POSTFIX_PROPS)(streetLine)
-    }
-
-    const renderClassifier = (text, record) => {
+    const renderClassifier = useCallback((text, record) => {
         const postfix = `\n(${record.placeClassifier.name})`
 
         return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS)(text)
-    }
+    }, [search])
 
-    const renderUnit = (text, record) => {
+    const renderUnit = useCallback((text, record) => {
         const postfix = `\n${ShortSectionNameMessage} ${record.sectionName},\n${ShortFloorNameMessage} ${record.floorName}`
 
         return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS)(text)
-    }
+    }, [ShortFloorNameMessage, ShortSectionNameMessage, search])
+
+    const renderAddress = useCallback(
+        (property) => getAddressRender(property, DeletedMessage, search),
+        [DeletedMessage, search])
+
+    const renderExecutor = useCallback(
+        (executor) => getTableCellRenderer(search)(get(executor, ['name'])),
+        [])
+
+    const renderAssignee = useCallback(
+        (assignee) => getTableCellRenderer(search)(get(assignee, ['name'])),
+        [])
 
     return useMemo(() => {
         return [
@@ -219,7 +229,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 key: 'executor',
                 sorter: true,
                 width: '10%',
-                render: (executor) => getTableCellRenderer(search)(get(executor, ['name'])),
+                render: renderExecutor,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'executor'),
                 filterIcon: getFilterIcon,
             },
@@ -231,7 +241,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 key: 'assignee',
                 sorter: true,
                 width: '10%',
-                render: (assignee) => getTableCellRenderer(search)(get(assignee, ['name'])),
+                render: renderAssignee,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'assignee'),
                 filterIcon: getFilterIcon,
             },

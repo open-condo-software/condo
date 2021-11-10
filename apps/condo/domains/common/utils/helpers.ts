@@ -3,6 +3,7 @@ import get from 'lodash/get'
 
 import { IRecordWithId, RecordWithAddressDetails } from '../types'
 import { FilterValue } from 'antd/es/table/interface'
+import { Property } from '@app/condo/schema'
 
 const DEFAULT_WIDTH_PRECISION = 2
 const PHONE_FORMAT_REGEXP = /(\d)(\d{3})(\d{3})(\d{2})(\d{2})/
@@ -47,8 +48,7 @@ export const getAddressDetails = (record: RecordWithAddressDetails, ShortFlatNum
     return { text, unitPrefix }
 }
 
-export const getAddressDetailsWithoutUnit = (record: RecordWithAddressDetails) => {
-    const property = get(record, 'property')
+export const getAddressDetailsWithoutUnit = (property: Property) => {
     const addressMeta = get(property, ['addressMeta', 'data'])
     const streetType = get(addressMeta, 'street_type')
     const streetName = get(addressMeta, 'street')

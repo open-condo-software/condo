@@ -15,6 +15,8 @@ import { TextHighlighter, TTextHighlighterProps } from '../TextHighlighter'
 import { ELLIPSIS_ROWS } from '../../constants/style'
 
 import { EmptyTableCell } from './EmptyTableCell'
+import { Property } from '../../../../schema'
+import { getAddressDetailsWithoutUnit } from '../../utils/helpers'
 
 type RenderReturnType = string | React.ReactNode
 
@@ -126,6 +128,15 @@ export const renderCellWithHighlightedContents = (search?: FilterValue | string,
     <EmptyTableCell>{getHighlightedContents(search)(text)}</EmptyTableCell>
 )
 
+export const getAddressRender = (property: Property, DeletedMessage: string, search?: FilterValue | string) => {
+    const isDeleted = !!get(property, 'deletedAt')
+    const { streetLine, regionLine, cityLine } = getAddressDetailsWithoutUnit(property)
+    const extraProps: Partial<TTextHighlighterProps> = isDeleted && { type: 'secondary' }
+    const postfix = `\n${regionLine}, \n${cityLine} ${isDeleted ? `(${DeletedMessage})` : ''}`
+
+    return getTableCellRenderer(search, false, postfix, extraProps, POSTFIX_PROPS)(streetLine)
+}
+
 export const getDateRender = (intl, search?: string, short?: boolean) => {
     return function render (stringDate: string): RenderReturnType {
         if (!stringDate) return '—'
@@ -153,23 +164,6 @@ export const getDateTimeRender = (intl, search?: string) => {
         const postfix = `\n${date.format('hh:mm')}`
 
         return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS)(text)
-    }
-}
-
-export const getAddressRender = (search?: QueryArgType, unitPrefix?: string) => {
-    return function render (text: string): RenderReturnType {
-        if (isEmpty(search)) return `${text} ${unitPrefix}`
-
-        return (
-            <>
-                <TextHighlighter
-                    text={text}
-                    search={String(search)}
-                    renderPart={renderHighlightedPart}
-                />
-                {unitPrefix ? ` ${unitPrefix}` : ''}
-            </>
-        )
     }
 }
 
