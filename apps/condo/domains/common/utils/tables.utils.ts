@@ -1,6 +1,7 @@
 import React from 'react'
 import get from 'lodash/get'
 import { ParsedUrlQuery } from 'querystring'
+import { TableProps as RcTableProps } from 'rc-table/lib/Table'
 import {
     getDateFilterDropdown,
     getFilterIcon,
@@ -364,4 +365,16 @@ export const convertColumns = (
 
 export const getSorterMap: SorterMapType = (sorters) => {
     return Object.assign({}, ...sorters.map((sorter) => ({ [sorter.columnKey]: sorter.order })))
+}
+
+type TableScrollProps = RcTableProps['scroll'] & { scrollToFirstRowOnChange?: boolean; }
+
+export const getTableScrollConfig = (isSmall: boolean): TableScrollProps => {
+    const props: TableScrollProps = {}
+
+    if (isSmall) {
+        props.x = true
+    }
+
+    return props
 }

@@ -16,11 +16,10 @@ import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { IFilters } from '@condo/domains/contact/utils/helpers'
 import { useIntl } from '@core/next/intl'
 
-import { Col, Input, Row, Space, Table, Typography } from 'antd'
+import { Col, Input, Row, Table, Typography } from 'antd'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import qs from 'qs'
-import { pickBy, get, debounce } from 'lodash'
+import { get, debounce } from 'lodash'
 import React, { useCallback, useState } from 'react'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useTableColumns } from '@condo/domains/contact/hooks/useTableColumns'
@@ -34,6 +33,7 @@ import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { DiffOutlined } from '@ant-design/icons'
 import { useImporterFunctions } from '@condo/domains/contact/hooks/useImporterFunctions'
 import { setFiltersToQuery } from '@condo/domains/common/utils/filters.utils'
+import { getTableScrollConfig } from '@condo/domains/common/utils/tables.utils'
 
 const ADD_CONTACT_ROUTE = '/contact/create/'
 
@@ -182,7 +182,7 @@ export const ContactsPageContent = ({
                                     <Col span={24}>
                                         <Table
                                             bordered
-                                            scroll={isSmall ? { x: true } : {}}
+                                            scroll={getTableScrollConfig(isSmall)}
                                             tableLayout={'fixed'}
                                             loading={loading}
                                             dataSource={contacts}

@@ -7,7 +7,7 @@ import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/P
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { AddressSuggestionsSearchInput } from '@condo/domains/property/components/AddressSuggestionsSearchInput'
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
-import { useLayoutContext } from '../../../common/components/LayoutContext'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { PropertyPanels } from '../panels'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { AddressMetaField } from '@app/condo/schema'
