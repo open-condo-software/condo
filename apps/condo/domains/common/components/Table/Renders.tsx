@@ -66,6 +66,8 @@ export const getHighlightedContents: TGetHighlightedFN = (search, postfix, extra
     const renderText = text ? String(text) : ''
     const Postfix = postfix && getPostfix(postfix)
 
+    if (!renderText) return
+
     return (
         <TextHighlighter
             text={renderText}
@@ -106,9 +108,13 @@ export const getTableCellRenderer: TTableCellRendererFN = (
 
         return (
             <EmptyTableCell>
-                <Typography.Paragraph ellipsis={ELLIPSIS_SETTINGS} title={`${text} ${textPostfix || ''}`} style={ELLIPSIS_STYLES}>
-                    {highlightedContent}
-                </Typography.Paragraph>
+                {
+                    text && (
+                        <Typography.Paragraph ellipsis={ELLIPSIS_SETTINGS} title={`${text} ${textPostfix || ''}`} style={ELLIPSIS_STYLES}>
+                            {highlightedContent}
+                        </Typography.Paragraph>
+                    )
+                }
             </EmptyTableCell>
         )
     }
