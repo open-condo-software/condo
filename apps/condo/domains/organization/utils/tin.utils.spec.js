@@ -2,14 +2,22 @@ const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { isValidTin } = require('@condo/domains/organization/utils/tin.utils')
 
 const VALID_RU_TIN_10 = '1654019570'
+const VALID_RU_TIN_10_1 = '6311095616'
+const VALID_RU_TIN_10_SPC = '    1654019570    '
 const VALID_RU_TIN_12 = '500110474504'
 const INVALID_RU_TIN_10 = '01234556789'
 const INVALID_RU_TIN_12 = '0123455678901'
 const SOME_RANDOM_LETTERS = 'ABCDEFGHIJ'
 
 describe('isValidTin()', () => {
-    test('for valid 10 char RU INN ', () => {
+    test('for valid 10 char RU INN #1', () => {
         expect(isValidTin(VALID_RU_TIN_10, RUSSIA_COUNTRY)).toBe(true)
+    })
+    test('for valid 10 char RU INN #2', () => {
+        expect(isValidTin(VALID_RU_TIN_10_1, RUSSIA_COUNTRY)).toBe(true)
+    })
+    test('for valid 10 char RU INN #1 with spaces', () => {
+        expect(isValidTin(VALID_RU_TIN_10_SPC, RUSSIA_COUNTRY)).toBe(true)
     })
     test('for valid 12 char RU INN ', () => {
         // NOTE: we need INNs only for organizations, that is of 10 chars length.
