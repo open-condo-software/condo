@@ -1,9 +1,9 @@
 import React from 'react'
 import { Typography } from 'antd'
+import { TextProps } from 'antd/es/typography/Text'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import isObject from 'lodash/isObject'
 import { FilterValue } from 'antd/es/table/interface'
 
 import { ELECTRICITY_METER_RESOURCE_ID } from '@condo/domains/meter/constants/constants'
@@ -43,47 +43,47 @@ export const renderHighlightedPart: TTextHighlighterRenderPartFN = (
     </Typography.Text>
 )
 
-export type TableCellPostfixType = string | {
-    text: string,
-    renderPostfix?: (text: string) => React.FC
-}
-
 /**
  * Type for getHighlightedContents fn
  */
-type TGetHighlightedFN = (search?: FilterValue | string, postfix?: TableCellPostfixType, extraProps?: Partial<TTextHighlighterProps>) => (text?: string) => React.ReactElement | string
-
-const getPostfix = (postfix: TableCellPostfixType) => isObject(postfix) ?
-    postfix.renderPostfix(postfix.text) : () => <Typography.Text>{postfix}</Typography.Text>
+type TGetHighlightedFN = (search?: FilterValue | string, postfix?: string, extraProps?: Partial<TTextHighlighterProps>, extraPostfixProps?: TextProps) => (text?: string) => React.ReactElement | string
 
 /**
  * Returned function renders provided text with highlighted parts according to search value
  * @param search
  * @param postfix
+ * @param extraProps
+ * @param extraPostfixProps
  */
-export const getHighlightedContents: TGetHighlightedFN = (search, postfix, extraProps) => (text) => {
+export const getHighlightedContents: TGetHighlightedFN = (search, postfix, extraProps, extraPostfixProps = {}) => (text) => {
     // Sometimes we can receive null/undefined as text
     const renderText = text ? String(text) : ''
-    const Postfix = postfix && getPostfix(postfix)
+    const title = `${text} ${postfix || ''}`
 
-    if (!renderText) return
+    const getPostfix = () => (
+        <Typography.Text title={title} {...extraPostfixProps}>
+            {postfix}
+        </Typography.Text>
+    )
 
     return (
         <TextHighlighter
             text={renderText}
             search={String(search)}
             renderPart={renderHighlightedPart}
+            title={title}
             {...extraProps}
         >
-            {Postfix && <Postfix />}
+            {postfix && getPostfix()}
         </TextHighlighter>
     )
 }
 
+
 /**
  * Type for getTableCellRenderer fn
  */
-type TTableCellRendererFN = (search?: FilterValue | string, ellipsis?: boolean, postfix?: TableCellPostfixType, extraHighlighterProps?: Partial<TTextHighlighterProps>) => (text?: string) => React.ReactElement
+type TTableCellRendererFN = (search?: FilterValue | string, ellipsis?: boolean, postfix?: string, extraHighlighterProps?: Partial<TTextHighlighterProps>, extraPostfixProps?: TextProps) => (text?: string) => React.ReactElement
 
 /**
  * Returned function renders provided text as a cell with highlighted search and multi row ellipsis (if requested)
@@ -92,29 +92,27 @@ type TTableCellRendererFN = (search?: FilterValue | string, ellipsis?: boolean, 
  * @param ellipsis
  * @param postfix
  * @param extraHighlighterProps
+ * @param extraPostfixProps
  * @return cell contents renderer fn
  */
 export const getTableCellRenderer: TTableCellRendererFN = (
     search,
     ellipsis = false,
     postfix = '',
-    extraHighlighterProps
+    extraHighlighterProps,
+    extraPostfixProps
 ) =>
     (text) => {
-        const highlightedContent = getHighlightedContents(search, postfix, extraHighlighterProps)(text)
-        const textPostfix = isObject(postfix) ? postfix.text : postfix
+        const title = `${text} ${postfix || ''}`
+        const highlightedContent = getHighlightedContents(search, postfix, extraHighlighterProps, extraPostfixProps)(text)
 
         if (!ellipsis) return <EmptyTableCell>{highlightedContent}</EmptyTableCell>
 
         return (
             <EmptyTableCell>
-                {
-                    text && (
-                        <Typography.Paragraph ellipsis={ELLIPSIS_SETTINGS} title={`${text} ${textPostfix || ''}`} style={ELLIPSIS_STYLES}>
-                            {highlightedContent}
-                        </Typography.Paragraph>
-                    )
-                }
+                <Typography.Paragraph ellipsis={ELLIPSIS_SETTINGS} title={title} style={ELLIPSIS_STYLES}>
+                    {highlightedContent}
+                </Typography.Paragraph>
             </EmptyTableCell>
         )
     }
@@ -140,6 +138,8 @@ export const getDateRender = (intl, search?: string, short?: boolean) => {
     }
 }
 
+const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
+
 export const getDateTimeRender = (intl, search?: string) => {
     return function render (stringDate: string): RenderReturnType {
         if (!stringDate) return '—'
@@ -150,16 +150,9 @@ export const getDateTimeRender = (intl, search?: string) => {
 
         const text = date.format(dateFormat) + ','
 
-        const postfix: TableCellPostfixType = {
-            text: date.format('hh:mm'),
-            renderPostfix: text => () => (
-                <Typography.Paragraph type={'secondary'}>
-                    {text}
-                </Typography.Paragraph>
-            ),
-        }
+        const postfix = `\n${date.format('hh:mm')}`
 
-        return getTableCellRenderer(search, true, postfix)(text)
+        return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS)(text)
     }
 }
 

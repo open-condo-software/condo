@@ -3,13 +3,13 @@ import { useRouter } from 'next/router'
 import get from 'lodash/get'
 import { identity } from 'lodash/util'
 import { Space, Tag, Typography } from 'antd'
+import { TextProps } from 'antd/es/typography/Text'
 
 import { useIntl } from '@core/next/intl'
 
 import {
     getDateTimeRender,
     getTableCellRenderer,
-    TableCellPostfixType,
 } from '@condo/domains/common/components/Table/Renders'
 import { getAddressDetails, getAddressDetailsWithoutUnit, getFilteredValue } from '@condo/domains/common/utils/helpers'
 
@@ -25,6 +25,8 @@ import { EMERGENCY_TAG_COLOR } from '@condo/domains/ticket/constants/style'
 import { TicketStatus } from '../utils/clientSchema'
 import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
 import { IFilters } from '../utils/helpers'
+
+const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
 
 export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const intl = useIntl()
@@ -96,61 +98,22 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const renderAddress = (_, record) => {
         const isDeleted = !!get(record, ['property', 'deletedAt'])
         const { streetLine, regionLine, cityLine } = getAddressDetailsWithoutUnit(record)
-        const extraProps: Partial<TTextHighlighterProps> = {}
+        const extraProps: Partial<TTextHighlighterProps> = isDeleted && { type: 'secondary' }
+        const postfix = `\n${regionLine}, \n${cityLine} ${isDeleted ? `(${DeletedMessage})` : ''}`
 
-        const AddressCellPostfix = ({ isDeleted }) => (
-            <>
-                <Typography.Paragraph style={{ margin: 0 }} type={'secondary'}>
-                    {regionLine},
-                </Typography.Paragraph>
-                <Typography.Paragraph style={{ margin: 0 }} type={'secondary'}>
-                    {cityLine}
-                    {isDeleted ? `(${DeletedMessage})` : null}
-                </Typography.Paragraph>
-            </>
-        )
-
-        if (isDeleted) {
-            extraProps.type = 'secondary'
-        }
-
-        const postfix: TableCellPostfixType = {
-            text: `${regionLine}, ${cityLine}`,
-            renderPostfix: () => () => <AddressCellPostfix isDeleted={isDeleted} />,
-        }
-
-        return getTableCellRenderer(search, true, postfix, extraProps)(streetLine)
+        return getTableCellRenderer(search, true, postfix, extraProps, POSTFIX_PROPS)(streetLine)
     }
 
     const renderClassifier = (text, record) => {
-        const postfix: TableCellPostfixType = {
-            text: `(${record.placeClassifier.name})`,
-            renderPostfix: text => () => (
-                <Typography.Paragraph type={'secondary'}>
-                    {text}
-                </Typography.Paragraph>
-            ),
-        }
+        const postfix = `\n(${record.placeClassifier.name})`
 
-        return getTableCellRenderer(search, true, postfix)(text)
+        return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS)(text)
     }
 
     const renderUnit = (text, record) => {
-        const postfix: TableCellPostfixType = {
-            text: `${ShortSectionNameMessage} ${record.sectionName}, ${ShortFloorNameMessage} ${record.floorName}`,
-            renderPostfix: () => () => (
-                <>
-                    <Typography.Paragraph style={{ margin: 0 }} type={'secondary'}>
-                        {ShortSectionNameMessage} {record.sectionName}
-                    </Typography.Paragraph>
-                    <Typography.Paragraph style={{ margin: 0 }} type={'secondary'}>
-                        {ShortFloorNameMessage} {record.floorName}
-                    </Typography.Paragraph>
-                </>
-            ),
-        }
+        const postfix = `\n${ShortSectionNameMessage} ${record.sectionName},\n${ShortFloorNameMessage} ${record.floorName}`
 
-        return getTableCellRenderer(search, true, postfix)(text)
+        return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS)(text)
     }
 
     return useMemo(() => {
