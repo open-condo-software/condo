@@ -4,13 +4,13 @@ import {
     PageContent,
     PageHeader,
     PageWrapper,
-    useLayoutContext
+    useLayoutContext,
 } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { MeterReading } from '@condo/domains/meter/utils/clientSchema'
-import { DatabaseFilled, FilterFilled } from '@ant-design/icons'
+import { FilterFilled } from '@ant-design/icons'
 import { useIntl } from '@core/next/intl'
-import { Col, Form, Input, notification, Row, Typography } from 'antd'
+import { Col, Input, Row, Typography } from 'antd'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { get } from 'lodash'
