@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { FilterValue } from 'antd/es/table/interface'
 import { get } from 'lodash'
 import { useRouter } from 'next/router'
@@ -13,7 +13,7 @@ import {
     getDateRender,
     renderMeterReading,
     getTextRender,
-    getTableCellRenderer,
+    getTableCellRenderer, getAddressRender,
 } from '@condo/domains/common/components/Table/Renders'
 
 const renderMeterRecord = (record) => {
@@ -38,22 +38,20 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const PlaceMessage = intl.formatMessage({ id: 'pages.condo.meter.Place' })
     const MeterReadingMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReading' })
     const SourceMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.Source' })
+    const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
     const sorterMap = getSorterMap(sorters)
 
+    const filtersSearch = String(get(filters, 'search'))
+    const search = !Array.isArray(filtersSearch) ? filtersSearch : null
+
+    const renderAddress = useCallback((_, meterReading) =>
+        getAddressRender(get(meterReading, ['meter', 'property']), DeletedMessage, search),
+    [DeletedMessage, search])
+
     return useMemo(() => {
-        let search = String(get(filters, 'search'))
-
-        if (Array.isArray(search)) search = null
-
-        const renderAddress = (record) => {
-            const { text, unitPrefix } = getAddressDetails(get(record, ['meter']), ShortFlatNumber)
-
-            return getTableCellRenderer(search, true, unitPrefix)(text)
-        }
-
         return [
             {
                 title: MeterReadingDateMessage,
@@ -68,7 +66,6 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
             },
             {
                 title: AddressMessage,
-                ellipsis: false,
                 filteredValue: getFilteredValue(filters, 'address'),
                 key: 'address',
                 width: '20%',
