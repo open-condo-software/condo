@@ -106,7 +106,6 @@ async function pushToAmoCRM (organization) {
     catch (e) {
         console.warn('Request to amoCRM failed', e)
     }
-    
 }
 module.exports = {
     createOrganization,
