@@ -109,6 +109,16 @@ async function makeClientWithSupportUser() {
     return client
 }
 
+async function makeClientWithServiceUser(permissions = {}) {
+    const [user, userAttrs] = await registerNewUser(await makeClient(), {
+        permissions,
+    })
+    const client = await makeLoggedInClient(userAttrs)
+    client.user = user
+    client.userAttrs = userAttrs
+    return client
+}
+
 async function makeClientWithResidentUser() {
     const [user, userAttrs] = await registerNewUser(await makeClient())
     const client = await makeLoggedInClient(userAttrs)
@@ -237,8 +247,8 @@ async function signinAsUserByTestClient(client, id, extraAttrs = {}) {
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    User, UserAdmin, createTestUser, updateTestUser, registerNewUser, makeLoggedInClient, makeClientWithResidentUser, makeClientWithStaffUser, makeClientWithSupportUser,
-    makeClientWithNewRegisteredAndLoggedInUser, addAdminAccess, addSupportAccess, addResidentAccess, addStaffAccess, createTestEmail, createTestPhone, createTestLandlineNumber,
+    User, UserAdmin, createTestUser, updateTestUser, registerNewUser, makeLoggedInClient, makeClientWithResidentUser, makeClientWithStaffUser, makeClientWithSupportUser, makeClientWithServiceUser,
+    makeClientWithNewRegisteredAndLoggedInUser, addAdminAccess, addSupportAccess, addResidentAccess, addStaffAccess, createTestEmail, createTestPhone,
     ConfirmPhoneAction, createTestConfirmPhoneAction, updateTestConfirmPhoneAction,
     ForgotPasswordAction, createTestForgotPasswordAction, updateTestForgotPasswordAction,
 signinAsUserByTestClient

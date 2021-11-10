@@ -15,6 +15,16 @@ module.exports = [
             },
             {
                 data: {
+                    name: 'Service',
+                    email: 'service@example.com',
+                    isEmailVerified: false,
+                    isActive: true,
+                    dob: '1990-01-02',
+                    password: 'w3QwCdMynmgv',
+                }
+            },
+            {
+                data: {
                     name: 'JustUser',
                     email: 'user@example.com',
                     isEmailVerified: false,

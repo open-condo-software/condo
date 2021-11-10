@@ -19,6 +19,7 @@ const { formatError } = require('@condo/domains/common/utils/apolloErrorFormatte
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/routes')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
+const { perListAccess, perFieldAccess, perCustomAccess } = require('@condo/domains/common/utils/serverSchema/accessControl')
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production'
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
@@ -77,7 +78,7 @@ if (!IS_BUILD_PHASE) {
         require('@condo/domains/meter/schema'),
         require('@condo/domains/subscription/schema'),
         require('@condo/domains/acquiring/schema'),
-    ])
+    ], [perListAccess, perFieldAccess, perCustomAccess])
 
     registerTasks([
         require('@condo/domains/notification/tasks'),
@@ -101,12 +102,12 @@ if (!IS_BUILD_PHASE) {
 }
 
 class SberBuisnessOnlineMiddleware {
-    prepareMiddleware () {
+    prepareMiddleware() {
         const Auth = new SbbolRoutes()
         const app = express()
         // TODO(zuch): find a way to remove bind
         app.get('/api/sbbol/auth', Auth.startAuth.bind(Auth))
-        app.get('/api/sbbol/auth/callback',  Auth.completeAuth.bind(Auth))
+        app.get('/api/sbbol/auth/callback', Auth.completeAuth.bind(Auth))
         return app
     }
 }
@@ -115,7 +116,7 @@ class SberBuisnessOnlineMiddleware {
  * We need a custom body parser for custom file upload limit
  */
 class CustomBodyParserMiddleware {
-    prepareMiddleware ({ keystone, dev, distDir }) {
+    prepareMiddleware({ keystone, dev, distDir }) {
         const app = express()
         app.use(bodyParser.json({ limit: '100mb', extended: true }))
         app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }))
