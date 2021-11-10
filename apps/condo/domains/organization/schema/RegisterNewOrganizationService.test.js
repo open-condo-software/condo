@@ -10,10 +10,15 @@ const { ServiceSubscription } = require('@condo/domains/subscription/utils/testS
 
 const { DEFAULT_ROLES } = require('@condo/domains/organization/constants/common.js')
 
-const getPermissions = (roleName) => {
-    const excludeFields = ['name', 'description']
-    return Object.fromEntries(Object.entries(DEFAULT_ROLES[roleName]).filter(([key]) => !excludeFields.includes(key)))
-}
+const EXCLUDE_CHECK_FIELDS = ['name', 'description']
+
+const getPermissions = (roleName) => Object.fromEntries(
+    Object.entries(DEFAULT_ROLES[roleName])
+        .filter(
+            ([key]) => !EXCLUDE_CHECK_FIELDS.includes(key)
+        )
+)
+
 
 describe('RegisterNewOrganizationService', () => {
     test('registerNewOrganization() by user', async () => {
