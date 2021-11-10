@@ -94,13 +94,14 @@ async function pushToAmoCRM (organization) {
         return console.warn('AMOCRM_WEBHOOK_URLS not specified correctly in config')
     }
     const { tin, name: orgName, createdBy } = organization
-    const { phone: userPhone, name: userName } = await getById('User', createdBy.id)
+    const { phone: userPhone, name: userName, email } = await getById('User', createdBy.id)
     try {
         await axios.post(AMOCRM_WEBHOOK_URL, {
             orgName,
             userName,
             userPhone,
             tin,
+            email,
         })
     }
     catch (e) {
