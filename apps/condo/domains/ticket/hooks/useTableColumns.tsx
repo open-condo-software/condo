@@ -11,7 +11,7 @@ import {
     getTableCellRenderer,
     TableCellPostfixType,
 } from '@condo/domains/common/components/Table/Renders'
-import { getAddressDetails, getFilteredValue } from '@condo/domains/common/utils/helpers'
+import { getAddressDetails, getAddressDetailsWithoutUnit, getFilteredValue } from '@condo/domains/common/utils/helpers'
 
 import { getHighlightedContents, getDateRender } from '@condo/domains/common/components/Table/Renders'
 import { getOptionFilterDropdown } from '@condo/domains/common/components/Table/Filters'
@@ -93,18 +93,33 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
         return getOptionFilterDropdown(adaptedStatuses, loading)(filterProps)
     }
 
-    const renderAddress = (property, record) => {
+    const renderAddress = (_, record) => {
         const isDeleted = !!get(record, ['property', 'deletedAt'])
-        const { text, unitPrefix } = getAddressDetails(record, ShortFlatNumber)
-        const postfix = [unitPrefix]
+        const { streetLine, regionLine, cityLine } = getAddressDetailsWithoutUnit(record)
         const extraProps: Partial<TTextHighlighterProps> = {}
 
+        const AddressCellPostfix = ({ isDeleted }) => (
+            <>
+                <Typography.Paragraph style={{ margin: 0 }} type={'secondary'}>
+                    {regionLine},
+                </Typography.Paragraph>
+                <Typography.Paragraph style={{ margin: 0 }} type={'secondary'}>
+                    {cityLine}
+                    {isDeleted ? `(${DeletedMessage})` : null}
+                </Typography.Paragraph>
+            </>
+        )
+
         if (isDeleted) {
-            postfix.push(`(${DeletedMessage})`)
             extraProps.type = 'secondary'
         }
 
-        return getTableCellRenderer(search, true, postfix.join(' '), extraProps)(text)
+        const postfix: TableCellPostfixType = {
+            text: `${regionLine}, ${cityLine}`,
+            renderPostfix: () => () => <AddressCellPostfix isDeleted={isDeleted} />,
+        }
+
+        return getTableCellRenderer(search, true, postfix, extraProps)(streetLine)
     }
 
     const renderClassifier = (text, record) => {
