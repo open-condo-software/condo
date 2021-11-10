@@ -23,8 +23,8 @@ const DEFAULT_CURRENCY_SEPARATOR = '.'
 const DEFAULT_CURRENCY_CODE = 'RUB'
 const ELLIPSIS_SETTINGS = { rows: ELLIPSIS_ROWS, expandable: false }
 const ELLIPSIS_STYLES = { marginBottom: 0 }
-const DATE_FORMAT_LONG = 'DD MMM YYYY'
-const DATE_FORMAT_SHORT = 'DD MMM'
+const DATE_FORMAT = 'DD.MM.YYYY'
+const TIME_FORMAT = 'hh:mm'
 
 /**
  * Marks text according to marked flag
@@ -131,6 +131,8 @@ export const renderCellWithHighlightedContents = (search?: FilterValue | string,
     <EmptyTableCell>{getHighlightedContents(search)(text)}</EmptyTableCell>
 )
 
+const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
+
 export const getAddressRender = (property: Property, DeletedMessage?: string, search?: FilterValue | string) => {
     const isDeleted = !!get(property, 'deletedAt')
     const { streetLine, regionLine, cityLine } = getAddressDetailsWithoutUnit(property)
@@ -140,31 +142,14 @@ export const getAddressRender = (property: Property, DeletedMessage?: string, se
     return getTableCellRenderer(search, false, postfix, extraProps, POSTFIX_PROPS)(streetLine)
 }
 
-export const getDateRender = (intl, search?: FilterValue | string, short?: boolean) => {
+export const getDateRender = (intl, search?: FilterValue | string) => {
     return function render (stringDate: string): RenderReturnType {
         if (!stringDate) return '—'
 
         const locale = get(LOCALES, intl.locale)
         const date = locale ? dayjs(stringDate).locale(locale) : dayjs(stringDate)
-        const dateFormat = short ? DATE_FORMAT_SHORT : DATE_FORMAT_LONG
-
-        return renderCellWithHighlightedContents(search, date.format(dateFormat))
-    }
-}
-
-const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
-
-export const getDateTimeRender = (intl, search?: FilterValue | string) => {
-    return function render (stringDate: string): RenderReturnType {
-        if (!stringDate) return '—'
-
-        const locale = get(LOCALES, intl.locale)
-        const date = locale ? dayjs(stringDate).locale(locale) : dayjs(stringDate)
-        const dateFormat = 'DD.MM.YYYY'
-
-        const text = date.format(dateFormat) + ','
-
-        const postfix = `\n${date.format('hh:mm')}`
+        const text = `${date.format(DATE_FORMAT)},`
+        const postfix = `\n${date.format(TIME_FORMAT)}`
 
         return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS)(text)
     }
