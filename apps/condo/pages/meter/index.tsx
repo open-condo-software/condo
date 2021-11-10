@@ -19,10 +19,7 @@ import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Button } from '@condo/domains/common/components/Button'
 import { useOrganization } from '@core/next/organization'
 import { SortMeterReadingsBy } from '@app/condo/schema'
-import {
-    getPageIndexFromOffset,
-    parseQuery,
-} from '@condo/domains/common/utils/tables.utils'
+import { getPageIndexFromOffset, getTableScrollConfig, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
@@ -124,7 +121,7 @@ export const MetersPageContent = ({
                                     </Col>
                                     <Col span={24}>
                                         <Table
-                                            scroll={isSmall ? { x: true } : {}}
+                                            scroll={getTableScrollConfig(isSmall)}
                                             totalRows={total}
                                             loading={loading}
                                             dataSource={meterReadings}
@@ -134,6 +131,7 @@ export const MetersPageContent = ({
                                     </Col>
 
                                     <ExportToExcelActionBar
+                                        hidden={isSmall}
                                         searchObjectsQuery={searchMeterReadingsQuery}
                                         exportToExcelQuery={EXPORT_METER_READINGS}
                                         sortBy={sortBy}

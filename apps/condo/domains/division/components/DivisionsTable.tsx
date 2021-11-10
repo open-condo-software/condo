@@ -11,7 +11,7 @@ import { Table } from '@condo/domains/common/components/Table/Index'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { DatabaseFilled } from '@ant-design/icons'
 import { Button } from '@condo/domains/common/components/Button'
-import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { getPageIndexFromOffset, getTableScrollConfig, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { Division } from '@condo/domains/division/utils/clientSchema'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { colors } from '@condo/domains/common/constants/style'
@@ -110,7 +110,7 @@ export default function DivisionTable (props: BuildingTableProps) {
             </Col>
             <Col span={24}>
                 <Table
-                    scroll={isSmall ? { x: true } : {}}
+                    scroll={getTableScrollConfig(isSmall)}
                     totalRows={total}
                     loading={loading}
                     dataSource={divisions}

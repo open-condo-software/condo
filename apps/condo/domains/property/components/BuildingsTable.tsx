@@ -1,4 +1,3 @@
-import { jsx } from '@emotion/core'
 import React, { useState } from 'react'
 import { useRouter } from 'next/router'
 import { useLazyQuery } from '@apollo/client'
@@ -8,15 +7,15 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 import { useIntl } from '@core/next/intl'
 
 import { EXPORT_PROPERTIES_TO_EXCEL } from '@condo/domains/property/gql'
-import { Col, Input, notification, Row, Space } from 'antd'
+import { Col, Input, notification, Row } from 'antd'
 import { Table } from '@condo/domains/common/components/Table/Index'
-import { useLayoutContext } from '../../common/components/LayoutContext'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { useImporterFunctions } from '../hooks/useImporterFunctions'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { DatabaseFilled, DiffOutlined } from '@ant-design/icons'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { Button } from '@condo/domains/common/components/Button'
-import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { getPageIndexFromOffset, getTableScrollConfig, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { OrganizationEmployeeRole, PropertyWhereInput } from '@app/condo/schema'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { ColumnsType } from 'antd/lib/table'
@@ -167,7 +166,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
             </Col>
             <Col span={24}>
                 <Table
-                    scroll={isSmall ? { x: true } : {}}
+                    scroll={getTableScrollConfig(isSmall)}
                     totalRows={total}
                     loading={loading}
                     dataSource={properties}

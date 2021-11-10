@@ -1,7 +1,6 @@
 /** @jsx jsx */
 import React, { CSSProperties, useCallback } from 'react'
 import get from 'lodash/get'
-import qs from 'qs'
 import { Col, Input, Row, Typography, Checkbox } from 'antd'
 import { CloseOutlined, FilterFilled } from '@ant-design/icons'
 import { Gutter } from 'antd/lib/grid/row'
@@ -21,7 +20,7 @@ import { Button } from '@condo/domains/common/components/Button'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { useTicketTableFilters } from '@condo/domains/ticket/hooks/useTicketTableFilters'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
-import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { getPageIndexFromOffset, getTableScrollConfig, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
@@ -37,7 +36,6 @@ import { setFiltersToQuery } from '@condo/domains/common/utils/filters.utils'
 
 import { fontSizes } from '@condo/domains/common/constants/style'
 
-
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
     requiredAccess?: React.FC
@@ -45,8 +43,9 @@ interface ITicketIndexPage extends React.FC {
 
 const PAGE_HEADER_TITLE_STYLES: CSSProperties = { margin: 0 }
 const ROW_GUTTER: [Gutter, Gutter] = [0, 40]
+const TAP_BAR_ROW_GUTTER: [Gutter, Gutter] = [0, 20]
 const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.content }
-const TOP_BAR_FIRST_COLUMN_GUTTER: [Gutter, Gutter] = [40, 0]
+const TOP_BAR_FIRST_COLUMN_GUTTER: [Gutter, Gutter] = [40, 20]
 const CROSS_ICON_STYLE: CSSProperties = { fontSize: '12px' }
 
 export const TicketsPageContent = ({
@@ -128,10 +127,10 @@ export const TicketsPageContent = ({
                                 <Row gutter={ROW_GUTTER} align={'middle'} justify={'center'}>
                                     <Col span={23}>
                                         <FocusContainer padding={'16px'}>
-                                            <Row justify={'space-between'}>
-                                                <Col span={15}>
+                                            <Row justify={'space-between'} gutter={TAP_BAR_ROW_GUTTER}>
+                                                <Col xs={24} lg={15}>
                                                     <Row gutter={TOP_BAR_FIRST_COLUMN_GUTTER} align={'middle'}>
-                                                        <Col span={11}>
+                                                        <Col xs={24} lg={11}>
                                                             <Input
                                                                 placeholder={SearchPlaceholder}
                                                                 onChange={(e) => {
@@ -194,7 +193,7 @@ export const TicketsPageContent = ({
                                     </Col>
                                     <Col span={24}>
                                         <Table
-                                            scroll={isSmall ? { x: true } : {}}
+                                            scroll={getTableScrollConfig(isSmall)}
                                             totalRows={total}
                                             loading={loading}
                                             dataSource={tickets}
@@ -203,6 +202,7 @@ export const TicketsPageContent = ({
                                         />
                                     </Col>
                                     <ExportToExcelActionBar
+                                        hidden={isSmall}
                                         searchObjectsQuery={searchTicketsQuery}
                                         sortBy={sortBy}
                                         exportToExcelQuery={EXPORT_TICKETS_TO_EXCEL}

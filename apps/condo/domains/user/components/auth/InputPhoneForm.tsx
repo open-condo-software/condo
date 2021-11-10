@@ -11,7 +11,7 @@ import { Col, Form, Row, Typography } from 'antd'
 import Router from 'next/router'
 import React, { useCallback, useContext, useMemo, useState } from 'react'
 import { FormattedMessage } from 'react-intl'
-import { useLayoutContext } from '../../../common/components/LayoutContext'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { RegisterContext } from './RegisterContextProvider'
 import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
 

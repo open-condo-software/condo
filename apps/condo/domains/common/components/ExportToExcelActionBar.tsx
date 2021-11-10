@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { Form, notification } from 'antd'
 import { DatabaseFilled } from '@ant-design/icons'
 
@@ -8,9 +8,16 @@ import { useIntl } from '@core/next/intl'
 import ActionBar from './ActionBar'
 import { Button } from './Button'
 
-export const ExportToExcelActionBar = (
-    { searchObjectsQuery, sortBy, exportToExcelQuery }
-) => {
+interface IExportToExcelActionBarProps {
+    hidden?: boolean
+    sortBy: string
+    searchObjectsQuery: string
+    exportToExcelQuery: string
+}
+
+export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (props) => {
+    const { searchObjectsQuery, sortBy, exportToExcelQuery, hidden = false } = props
+
     const intl = useIntl()
     const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.ticket.id.DownloadExcelLabel' })
     const ExportAsExcelLabel = intl.formatMessage({ id: 'ExportAsExcel' })
@@ -40,7 +47,7 @@ export const ExportToExcelActionBar = (
 
     return (
         <Form.Item noStyle>
-            <ActionBar>
+            <ActionBar hidden={hidden}>
                 {
                     downloadLink
                         ?

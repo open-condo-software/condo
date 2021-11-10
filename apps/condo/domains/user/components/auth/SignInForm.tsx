@@ -12,7 +12,7 @@ import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } from '@condo/domains/user/gql'
 import { useMutation } from '@core/next/apollo'
 import { useAuth } from '@core/next/auth'
 import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
-import { useLayoutContext } from '../../../common/components/LayoutContext'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
 const FORM_LAYOUT = {
     labelCol: { span: 10 },

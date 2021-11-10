@@ -2,7 +2,7 @@ import {
     PageContent,
     PageHeader,
     PageWrapper,
-    useLayoutContext
+    useLayoutContext,
 } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import {
@@ -20,8 +20,7 @@ import { Col, Input, Row, Table, Typography, Dropdown, Menu, Tooltip } from 'ant
 import { EllipsisOutlined } from '@ant-design/icons'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import qs from 'qs'
-import { pickBy, get, debounce } from 'lodash'
+import { get, debounce } from 'lodash'
 import React, { useCallback, useState } from 'react'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useTableColumns } from '@condo/domains/organization/hooks/useTableColumns'
@@ -32,6 +31,7 @@ import { Button } from '@condo/domains/common/components/Button'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { canManageEmployee } from '@condo/domains/organization/permissions'
 import { setFiltersToQuery } from '@condo/domains/common/utils/filters.utils'
+import { getTableScrollConfig } from '@condo/domains/common/utils/tables.utils'
 
 const ADD_EMPLOYEE_ROUTE = '/employee/create/'
 
@@ -168,7 +168,7 @@ export const EmployeesPageContent = ({
                                 </Col>
                                 <Col span={24}>
                                     <Table
-                                        scroll={isSmall ? { x: true } : {}}
+                                        scroll={getTableScrollConfig(isSmall)}
                                         bordered
                                         tableLayout={'fixed'}
                                         loading={loading}

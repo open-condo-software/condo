@@ -1,11 +1,11 @@
 import React, { useCallback, useState } from 'react'
-import { useLayoutContext } from '../../../common/components/LayoutContext'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { IContextProps } from './index'
 import {
     QueryMeta,
     getStringContainsFilter,
     getPageIndexFromOffset,
-    parseQuery,
+    parseQuery, getTableScrollConfig,
 } from '@condo/domains/common/utils/tables.utils'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useRouter } from 'next/router'
@@ -31,7 +31,7 @@ const staticQueryMetas: Array<QueryMeta<BillingReceiptWhereInput>> = [
     { keyword: 'account', filters: [accountFilter] },
 ]
 
-const sortableProperties = ['toPay']
+const SORTABLE_PROPERTIES = ['toPay']
 
 export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const intl = useIntl()
@@ -53,7 +53,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
         { keyword: 'toPay', filters: [toPayFilter] },
         { keyword: 'search', filters: [addressFilter, accountFilter, toPayFilter], combineType: 'OR' },
     ]
-    const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, sortableProperties)
+    const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, SORTABLE_PROPERTIES)
     const {
         loading,
         count: total,
@@ -106,6 +106,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
             </BasicEmptyListView>
         )
     }
+
     return (
         <>
             <Row gutter={[0, 40]}>
@@ -138,7 +139,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
                 )}
                 <Col span={24}>
                     <Table
-                        scroll={isSmall ? { x: true } : {}}
+                        scroll={getTableScrollConfig(isSmall)}
                         loading={loading}
                         totalRows={total}
                         dataSource={receipts}
