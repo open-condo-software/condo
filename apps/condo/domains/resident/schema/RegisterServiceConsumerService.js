@@ -76,6 +76,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     sender,
                     resident: { connect: { id: residentId } },
                     accountNumber: accountNumber,
+                    organization: { connect: { id: resident.organization.id } },
                 }
 
                 const attrs = {
