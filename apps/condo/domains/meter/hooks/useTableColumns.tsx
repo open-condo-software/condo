@@ -31,7 +31,6 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const intl = useIntl()
     const ClientNameMessage = intl.formatMessage({ id: 'Contact' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
-    const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
     const MeterReadingDateMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReadingDate' })
     const ServiceMessage = intl.formatMessage({ id: 'pages.condo.meter.Service' })
     const MeterNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterNumber' })
@@ -44,8 +43,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const { filters, sorters } = parseQuery(router.query)
     const sorterMap = getSorterMap(sorters)
 
-    const filtersSearch = String(get(filters, 'search'))
-    const search = !Array.isArray(filtersSearch) ? filtersSearch : null
+    const search = getFilteredValue(filters, 'search')
 
     const renderAddress = useCallback((_, meterReading) =>
         getAddressRender(get(meterReading, ['meter', 'property']), DeletedMessage, search),

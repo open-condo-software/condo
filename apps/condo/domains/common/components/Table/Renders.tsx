@@ -10,7 +10,6 @@ import { ELECTRICITY_METER_RESOURCE_ID } from '@condo/domains/meter/constants/co
 import { TTextHighlighterRenderPartFN } from '@condo/domains/common/components/TextHighlighter'
 
 import { LOCALES } from '../../constants/locale'
-import { QueryArgType } from '../../utils/tables.utils'
 import { TextHighlighter, TTextHighlighterProps } from '../TextHighlighter'
 import { ELLIPSIS_ROWS } from '../../constants/style'
 
@@ -128,16 +127,16 @@ export const renderCellWithHighlightedContents = (search?: FilterValue | string,
     <EmptyTableCell>{getHighlightedContents(search)(text)}</EmptyTableCell>
 )
 
-export const getAddressRender = (property: Property, DeletedMessage: string, search?: FilterValue | string) => {
+export const getAddressRender = (property: Property, DeletedMessage?: string, search?: FilterValue | string) => {
     const isDeleted = !!get(property, 'deletedAt')
     const { streetLine, regionLine, cityLine } = getAddressDetailsWithoutUnit(property)
     const extraProps: Partial<TTextHighlighterProps> = isDeleted && { type: 'secondary' }
-    const postfix = `\n${regionLine}, \n${cityLine} ${isDeleted ? `(${DeletedMessage})` : ''}`
+    const postfix = `\n${regionLine}, \n${cityLine} ${isDeleted && DeletedMessage ? `(${DeletedMessage})\n` : '\n'}`
 
     return getTableCellRenderer(search, false, postfix, extraProps, POSTFIX_PROPS)(streetLine)
 }
 
-export const getDateRender = (intl, search?: string, short?: boolean) => {
+export const getDateRender = (intl, search?: FilterValue | string, short?: boolean) => {
     return function render (stringDate: string): RenderReturnType {
         if (!stringDate) return '—'
 
@@ -151,7 +150,7 @@ export const getDateRender = (intl, search?: string, short?: boolean) => {
 
 const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
 
-export const getDateTimeRender = (intl, search?: string) => {
+export const getDateTimeRender = (intl, search?: FilterValue | string) => {
     return function render (stringDate: string): RenderReturnType {
         if (!stringDate) return '—'
 
@@ -167,7 +166,7 @@ export const getDateTimeRender = (intl, search?: string) => {
     }
 }
 
-export const getTextRender = (search?: string) => {
+export const getTextRender = (search?: FilterValue | string) => {
     return function render (text: string): RenderReturnType {
         return renderCellWithHighlightedContents(search, text)
     }

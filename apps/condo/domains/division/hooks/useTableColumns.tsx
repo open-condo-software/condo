@@ -1,20 +1,26 @@
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { ColumnType, FilterValue } from 'antd/es/table/interface'
 import { useRouter } from 'next/router'
 
 import { useIntl } from '@core/next/intl'
-import { DivisionWhereInput } from '@app/condo/schema'
+import { DivisionWhereInput, Property } from '@app/condo/schema'
 
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { EmptyTableCell } from '@condo/domains/common/components/Table/EmptyTableCell'
-import { renderHighlightedPart } from '@condo/domains/common/components/Table/Renders'
-import { TextHighlighter } from '@condo/domains/common/components/TextHighlighter'
+import {
+    getAddressRender,
+    getTableCellRenderer,
+    renderHighlightedPart,
+} from '@condo/domains/common/components/Table/Renders'
+import { TextHighlighter, TTextHighlighterProps } from '@condo/domains/common/components/TextHighlighter'
 import { getTextRender } from '@condo/domains/common/components/Table/Renders'
 
 import { Division } from '../utils/clientSchema'
+import { getAddressDetailsWithoutUnit, getFilteredValue } from '../../common/utils/helpers'
+import { TextProps } from 'antd/es/typography/Text'
 
 export interface ITableColumn {
     title: string,
@@ -29,6 +35,8 @@ export interface ITableColumn {
     filterIcon?: unknown
 }
 
+const ADDRESS_RENDER_POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
+
 export const useTableColumns = (filterMetas: FiltersMeta<DivisionWhereInput>[]) => {
     const intl = useIntl()
     const DivisionTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Division' })
@@ -39,6 +47,22 @@ export const useTableColumns = (filterMetas: FiltersMeta<DivisionWhereInput>[]) 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
 
+    const search = getFilteredValue(filters, 'search')
+
+    const getAddressRender = useCallback((property: Property, DeletedMessage?: string, search?: FilterValue | string) => {
+        const isDeleted = !!get(property, 'deletedAt')
+        const { streetLine, regionLine, cityLine } = getAddressDetailsWithoutUnit(property)
+        const extraProps: Partial<TTextHighlighterProps> = isDeleted && { type: 'secondary' }
+        const text = `${streetLine},`
+        const postfix = `${regionLine}, ${cityLine} ${isDeleted && DeletedMessage ? `(${DeletedMessage})\n` : '\n'}`
+
+        return getTableCellRenderer(search, false, postfix, extraProps, ADDRESS_RENDER_POSTFIX_PROPS)(text)
+    }, [])
+
+    const renderAddress = useCallback(
+        (properties) => properties.map((property) => getAddressRender(property, null, search)),
+        [search, getAddressRender])
+
     return useMemo(() => {
         type ColumnTypes = [
             ColumnType<string>,
@@ -46,9 +70,6 @@ export const useTableColumns = (filterMetas: FiltersMeta<DivisionWhereInput>[]) 
             ColumnType<Division.IDivisionUIState['responsible']>,
             ColumnType<Division.IDivisionUIState['executors']>,
         ]
-
-        let search = get(filters, 'search')
-        search = Array.isArray(search) ? null : search
 
         const render = (text, isArray = false) => {
             let result = text
@@ -82,7 +103,7 @@ export const useTableColumns = (filterMetas: FiltersMeta<DivisionWhereInput>[]) 
                 ellipsis: true,
                 dataIndex: 'properties',
                 key: 'properties',
-                render: (properties) => properties.map((property) => render(property.address, true)),
+                render: renderAddress,
                 width: '35%',
             },
             {
