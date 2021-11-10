@@ -8,6 +8,8 @@ const { registerNewOrganization } = require('@condo/domains/organization/utils/t
 const { OrganizationEmployee, OrganizationEmployeeRole } = require('../utils/testSchema')
 const { ServiceSubscription } = require('@condo/domains/subscription/utils/testSchema')
 
+const { DEFAULT_ROLES } = require('@condo/domains/organization/constants/common.js')
+
 describe('RegisterNewOrganizationService', () => {
     test('registerNewOrganization() by user', async () => {
         const admin = await makeLoggedInAdminClient()
@@ -59,116 +61,31 @@ describe('RegisterNewOrganizationService', () => {
             organization: { id: org.id },
             name_contains_i: 'administrator',
         })
-        expect(administratorRole).toMatchObject({
-            canManageOrganization: true,
-            canManageEmployees: true,
-            canManageRoles: true,
-            canManageIntegrations: true,
-            canManageProperties: true,
-            canManageTickets: true,
-            canManageContacts: true,
-            canManageTicketComments: true,
-            canManageDivisions: true,
-            canManageMeters: true,
-            canManageMeterReadings: true,
-            canShareTickets: true,
-            canBeAssignedAsResponsible: true,
-            canBeAssignedAsExecutor: true,
-            canReadBillingReceipts: true,
-            canReadPayments: true,
-        })
+        expect(administratorRole).toMatchObject(DEFAULT_ROLES.Administrator)
 
         const [dispatcherRole] = await OrganizationEmployeeRole.getAll(admin, {
             organization: { id: org.id },
             name_contains_i: 'dispatcher',
         })
-        expect(dispatcherRole).toMatchObject({
-            canManageOrganization: false,
-            canManageEmployees: false,
-            canManageRoles: false,
-            canManageIntegrations: false,
-            canManageProperties: true,
-            canManageTickets: true,
-            canManageContacts: true,
-            canManageMeters: true,
-            canManageMeterReadings: true,
-            canManageTicketComments: true,
-            canManageDivisions: false,
-            canShareTickets: true,
-            canBeAssignedAsResponsible: true,
-            canBeAssignedAsExecutor: true,
-            canReadBillingReceipts: true,
-            canReadPayments: true,
-        })
+        expect(dispatcherRole).toMatchObject(DEFAULT_ROLES.Dispatcher)
 
         const [managerRole] = await OrganizationEmployeeRole.getAll(admin, {
             organization: { id: org.id },
             name_contains_i: 'manager',
         })
-        expect(managerRole).toMatchObject({
-            canManageOrganization: false,
-            canManageEmployees: false,
-            canManageRoles: false,
-            canManageIntegrations: false,
-            canManageProperties: true,
-            canManageTickets: true,
-            canManageContacts: true,
-            canManageTicketComments: true,
-            canManageDivisions: false,
-            canManageMeters: true,
-            canManageMeterReadings: true,
-            canShareTickets: true,
-            canBeAssignedAsResponsible: true,
-            canBeAssignedAsExecutor: true,
-            canReadBillingReceipts: false,
-            canReadPayments: false,
-        })
+        expect(managerRole).toMatchObject(DEFAULT_ROLES.Manager)
 
         const [foremanRole] = await OrganizationEmployeeRole.getAll(admin, {
             organization: { id: org.id },
             name_contains_i: 'foreman',
         })
-        expect(foremanRole).toMatchObject({
-            canManageOrganization: false,
-            canManageEmployees: false,
-            canManageRoles: false,
-            canManageIntegrations: false,
-            canManageProperties: false,
-            canManageTickets: true,
-            canManageContacts: false,
-            canManageTicketComments: true,
-            canManageDivisions: false,
-            canManageMeters: true,
-            canManageMeterReadings: true,
-            canShareTickets: true,
-            canBeAssignedAsResponsible: true,
-            canBeAssignedAsExecutor: true,
-            canReadBillingReceipts: false,
-            canReadPayments: false,
-        })
+        expect(foremanRole).toMatchObject(DEFAULT_ROLES.Foreman)
 
         const [technicianRole] = await OrganizationEmployeeRole.getAll(admin, {
             organization: { id: org.id },
             name_contains_i: 'technician',
         })
-        expect(technicianRole).toMatchObject({
-            canManageOrganization: false,
-            canManageEmployees: false,
-            canManageRoles: false,
-            canManageIntegrations: false,
-            canManageProperties: false,
-            canManageTickets: true,
-            canManageContacts: false,
-            canManageTicketComments: true,
-            canManageDivisions: false,
-            canManageMeters: true,
-            canManageMeterReadings: true,
-            canShareTickets: true,
-            canBeAssignedAsResponsible: true,
-            canBeAssignedAsExecutor: true,
-            canReadBillingReceipts: false,
-            canReadPayments: false,
-        })
+        expect(technicianRole).toMatchObject(DEFAULT_ROLES.Technician)
     })
 
     it('creates trial subscription', async () => {
