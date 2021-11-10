@@ -176,29 +176,4 @@ describe('ServiceConsumer', () => {
             })
         })
     })
-
-    describe('Real-life cases', () => {
-        /**
-         * To send meter readings resident should have service consumer linked to the resident's organization
-         * To pay resident should have service consumer with receipts (with billing account and billing context) and acquiring (acquiring context)
-         */
-
-        test.skip('Resident tries to send meter readings', async () => {
-        })
-
-        test.skip('Resident who can send meter readings tries to pay', async () => {
-        })
-
-        test.skip('Resident tries to pay', async () => {
-        })
-
-        test.skip('Resident tries to pay for different payment documents using different service consumers', async () => {
-        })
-
-        test.skip('Resident\'s organization changes billing or acquiring integrations', async () => {
-        })
-
-        test('Resident who can pay tries to send meter readings', async () => {
-        })
-    })
 })
