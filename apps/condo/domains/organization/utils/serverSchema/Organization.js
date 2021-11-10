@@ -1,4 +1,6 @@
 const axios = require('axios').default
+const pino = require('pino')
+const falsey = require('falsey')
 const config = require('@core/config')
 const { Organization, OrganizationEmployee } = require('../../gql')
 const { OrganizationEmployeeRole } = require('./index')
@@ -89,9 +91,11 @@ async function findOrganizationEmployee (context, query) {
     })
 }
 
+const amoCRMRequestLogger = pino({ name: 'amocrm', enabled: falsey(process.env.DISABLE_LOGGING) })
+
 async function pushToAmoCRM (organization) {
     if (!AMOCRM_WEBHOOK_URL) {
-        return console.warn('AMOCRM_WEBHOOK_URLS not specified correctly in config')
+        return amoCRMRequestLogger.warn('AMOCRM_WEBHOOK_URLS not specified correctly in config')
     }
     const { tin, name: orgName, createdBy } = organization
     const { phone: userPhone, name: userName, email } = await getById('User', createdBy.id)
@@ -105,7 +109,7 @@ async function pushToAmoCRM (organization) {
         })
     }
     catch (e) {
-        console.warn('Request to amoCRM failed', e)
+        amoCRMRequestLogger.warn('Request to amoCRM failed', e)
     }
 }
 module.exports = {
