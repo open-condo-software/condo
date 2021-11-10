@@ -9,6 +9,7 @@ export const useQueryMappers = <F>(queryMetas: Array<QueryMeta<F>>, sortableColu
         const validSorts = sortableColumns.reduce((acc, cur) => {
             return [...acc, `${cur}_ASC`, `${cur}_DESC`]
         }, [])
+
         const validMetas = queryMetas
             .filter((meta) => meta && meta.keyword && meta.filters && meta.filters.length > 0)
 

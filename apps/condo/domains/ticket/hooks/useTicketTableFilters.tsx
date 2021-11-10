@@ -17,6 +17,7 @@ import {
     getStringContainsFilter,
     getTicketAttributesFilter,
 } from '@condo/domains/common/utils/tables.utils'
+import { getSelectFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 
 import { TicketCategoryClassifier, TicketSource, TicketStatus } from '../utils/clientSchema'
 import { searchEmployeeUser, searchOrganizationDivision, searchOrganizationProperty } from '../utils/clientSchema/search'

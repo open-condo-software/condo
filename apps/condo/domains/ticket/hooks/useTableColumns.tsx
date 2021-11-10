@@ -6,7 +6,11 @@ import { Space, Tag, Typography } from 'antd'
 
 import { useIntl } from '@core/next/intl'
 
-import { getDateTimeRender, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
+import {
+    getDateTimeRender,
+    getTableCellRenderer,
+    TableCellPostfixType,
+} from '@condo/domains/common/components/Table/Renders'
 import { getAddressDetails, getFilteredValue } from '@condo/domains/common/utils/helpers'
 
 import { getHighlightedContents, getDateRender } from '@condo/domains/common/components/Table/Renders'
@@ -37,6 +41,9 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const ResponsibleMessage = intl.formatMessage({ id: 'field.Responsible' })
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const ClassifierTitle = intl.formatMessage({ id: 'Classifier' })
+    const UnitMessage = intl.formatMessage({ id: 'field.UnitName' })
+    const ShortSectionNameMessage = intl.formatMessage({ id: 'field.ShortSectionName' })
+    const ShortFloorNameMessage = intl.formatMessage({ id: 'field.ShortFloorName' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
@@ -86,7 +93,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
         return getOptionFilterDropdown(adaptedStatuses, loading)(filterProps)
     }
 
-    const renderAddress = (_, record) => {
+    const renderAddress = (property, record) => {
         const isDeleted = !!get(record, ['property', 'deletedAt'])
         const { text, unitPrefix } = getAddressDetails(record, ShortFlatNumber)
         const postfix = [unitPrefix]
@@ -98,6 +105,37 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
         }
 
         return getTableCellRenderer(search, true, postfix.join(' '), extraProps)(text)
+    }
+
+    const renderClassifier = (text, record) => {
+        const postfix: TableCellPostfixType = {
+            text: `(${record.placeClassifier.name})`,
+            renderPostfix: text => () => (
+                <Typography.Paragraph type={'secondary'}>
+                    {text}
+                </Typography.Paragraph>
+            ),
+        }
+
+        return getTableCellRenderer(search, true, postfix)(text)
+    }
+
+    const renderUnit = (text, record) => {
+        const postfix: TableCellPostfixType = {
+            text: `${ShortSectionNameMessage} ${record.sectionName}, ${ShortFloorNameMessage} ${record.floorName}`,
+            renderPostfix: () => () => (
+                <>
+                    <Typography.Paragraph style={{ margin: 0 }} type={'secondary'}>
+                        {ShortSectionNameMessage} {record.sectionName}
+                    </Typography.Paragraph>
+                    <Typography.Paragraph style={{ margin: 0 }} type={'secondary'}>
+                        {ShortFloorNameMessage} {record.floorName}
+                    </Typography.Paragraph>
+                </>
+            ),
+        }
+
+        return getTableCellRenderer(search, true, postfix)(text)
     }
 
     return useMemo(() => {
@@ -141,7 +179,6 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
             },
             {
                 title: AddressMessage,
-                ellipsis: false,
                 dataIndex: 'property',
                 sortOrder: get(sorterMap, 'property'),
                 filteredValue: getFilteredValue<IFilters>(filters, 'address'),
@@ -153,14 +190,14 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 filterIcon: getFilterIcon,
             },
             {
-                title: 'Квартира',
+                title: UnitMessage,
                 dataIndex: 'unitName',
                 sortOrder: get(sorterMap, 'unitName'),
                 filteredValue: getFilteredValue(filters, 'unitName'),
                 key: 'unitName',
                 sorter: true,
                 width: '8%',
-                render: getTableCellRenderer(search),
+                render: renderUnit,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'unitName'),
                 filterIcon: getFilterIcon,
             },
@@ -182,15 +219,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 width: '12%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'categoryClassifier'),
                 filterIcon: getFilterIcon,
-                render: (text, record) => {
-                    const Postfix = () => (
-                        <Typography.Paragraph type={'secondary'}>
-                            {`(${record.placeClassifier.name})`}
-                        </Typography.Paragraph>
-                    )
-
-                    return getTableCellRenderer(search, true, Postfix)(text)
-                },
+                render: renderClassifier,
             },
             {
                 title: ClientNameMessage,

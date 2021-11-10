@@ -232,7 +232,6 @@ interface IFormWithAction<TRecordFormState, TRecordUIState> {
     onMutationCompleted?: (result) => void,
     style?: CSSProperties,
     children: IFormWithActionChildren
-    propsForm?: FormInstance
 }
 
 const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
@@ -259,12 +258,9 @@ const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
         layout = 'vertical',
         validateTrigger,
         style,
-        propsForm,
     } = props
 
-    const [hookForm] = Form.useForm()
-    const form = propsForm ? propsForm : hookForm
-
+    const [form] = Form.useForm()
     const [isLoading, setIsLoading] = useState(false)
 
     let create = null
@@ -323,7 +319,7 @@ const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
                 setIsLoading(false)
             },
             intl,
-            form: form,
+            form,
             ErrorToFormFieldMsgMapping,
             OnErrorMsg,
             OnCompletedMsg,
@@ -381,7 +377,6 @@ interface IBaseModalFormProps<TRecordFormState, TRecordUIState> extends IFormWit
     ModalSaveButtonLabelMsg?: string
     modalExtraFooter?: JSX.Element[]
     modalProps?: ModalProps
-    form?: FormInstance
 }
 
 const BaseModalForm: FunctionComponent<IBaseModalFormProps> = ({
@@ -430,7 +425,7 @@ const BaseModalForm: FunctionComponent<IBaseModalFormProps> = ({
                     handleSaveRef.current = handleSave
                     return (
                         <>
-                            {children}
+                            {typeof children === 'function' ? children(form) : children}
                         </>
                     )
                 }

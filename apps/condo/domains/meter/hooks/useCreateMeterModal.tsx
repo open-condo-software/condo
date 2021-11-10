@@ -9,7 +9,6 @@ import { FormattedMessage } from 'react-intl'
 import { IMeterResourceUIState } from '../utils/clientSchema/MeterResource'
 import { Modal } from 'antd'
 import { IMeterFormState } from '../utils/clientSchema/Meter'
-import Form from 'antd/lib/form'
 
 type MeterInfoModalTitleProps = {
     resourceId: string
@@ -43,8 +42,6 @@ export const useCreateMeterModal = ()=> {
     const [isCreateMeterModalVisible, setIsCreateMeterModalVisible] = useState<boolean>(false)
     const [selectedMeterResourceId, setSelectedMeterResourceId] = useState<string | null>(null)
 
-    const [form] = Form.useForm()
-
     useEffect(() => {
         setSelectedMeterResourceId(null)
     }, [isCreateMeterModalVisible])
@@ -77,13 +74,14 @@ export const useCreateMeterModal = ()=> {
                         setIsCreateMeterModalVisible(false)
                     }
                 }
-                form={form}
             >
-                <MeterInfo
-                    form={form}
-                    newMeters={newMeters}
-                    resource={resources.find(resource => resource.id === selectedMeterResourceId)}
-                />
+                {(form) => (
+                    <MeterInfo
+                        form={form}
+                        newMeters={newMeters}
+                        resource={resources.find(resource => resource.id === selectedMeterResourceId)}
+                    />
+                )}
             </BaseModalForm>
         )
     }
