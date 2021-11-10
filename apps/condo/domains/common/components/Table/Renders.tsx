@@ -3,6 +3,7 @@ import { Typography } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import isObject from 'lodash/isObject'
 import { FilterValue } from 'antd/es/table/interface'
 
 import { ELECTRICITY_METER_RESOURCE_ID } from '@condo/domains/meter/constants/constants'
@@ -42,10 +43,18 @@ export const renderHighlightedPart: TTextHighlighterRenderPartFN = (
     </Typography.Text>
 )
 
+export type TableCellPostfixType = string | {
+    text: string,
+    renderPostfix?: (text: string) => React.FC
+}
+
 /**
  * Type for getHighlightedContents fn
  */
-type TGetHighlightedFN = (search?: FilterValue | string, postfix?: string | React.FC, extraProps?: Partial<TTextHighlighterProps>) => (text?: string) => React.ReactElement | string
+type TGetHighlightedFN = (search?: FilterValue | string, postfix?: TableCellPostfixType, extraProps?: Partial<TTextHighlighterProps>) => (text?: string) => React.ReactElement | string
+
+const getPostfix = (postfix: TableCellPostfixType) => isObject(postfix) ?
+    postfix.renderPostfix(postfix.text) : () => <Typography.Text>{postfix}</Typography.Text>
 
 /**
  * Returned function renders provided text with highlighted parts according to search value
@@ -55,15 +64,7 @@ type TGetHighlightedFN = (search?: FilterValue | string, postfix?: string | Reac
 export const getHighlightedContents: TGetHighlightedFN = (search, postfix, extraProps) => (text) => {
     // Sometimes we can receive null/undefined as text
     const renderText = text ? String(text) : ''
-
-    let ResultPostfix
-    if (typeof postfix === 'function') {
-        ResultPostfix = postfix
-    } else {
-        ResultPostfix = () => (
-            <Typography.Text>{postfix}</Typography.Text>
-        )
-    }
+    const Postfix = postfix && getPostfix(postfix)
 
     return (
         <TextHighlighter
@@ -72,16 +73,15 @@ export const getHighlightedContents: TGetHighlightedFN = (search, postfix, extra
             renderPart={renderHighlightedPart}
             {...extraProps}
         >
-            <ResultPostfix />
+            {Postfix && <Postfix />}
         </TextHighlighter>
     )
 }
 
-
 /**
  * Type for getTableCellRenderer fn
  */
-type TTableCellRendererFN =  (search?: FilterValue | string, ellipsis?: boolean, postfix?: string | React.FC, extraHighlighterProps?: Partial<TTextHighlighterProps>) => (text?: string) => React.ReactElement
+type TTableCellRendererFN = (search?: FilterValue | string, ellipsis?: boolean, postfix?: TableCellPostfixType, extraHighlighterProps?: Partial<TTextHighlighterProps>) => (text?: string) => React.ReactElement
 
 /**
  * Returned function renders provided text as a cell with highlighted search and multi row ellipsis (if requested)
@@ -89,6 +89,7 @@ type TTableCellRendererFN =  (search?: FilterValue | string, ellipsis?: boolean,
  * @param search
  * @param ellipsis
  * @param postfix
+ * @param extraHighlighterProps
  * @return cell contents renderer fn
  */
 export const getTableCellRenderer: TTableCellRendererFN = (
@@ -99,12 +100,13 @@ export const getTableCellRenderer: TTableCellRendererFN = (
 ) =>
     (text) => {
         const highlightedContent = getHighlightedContents(search, postfix, extraHighlighterProps)(text)
+        const textPostfix = isObject(postfix) ? postfix.text : postfix
 
         if (!ellipsis) return <EmptyTableCell>{highlightedContent}</EmptyTableCell>
 
         return (
             <EmptyTableCell>
-                <Typography.Paragraph ellipsis={ELLIPSIS_SETTINGS} title={`${text} ${postfix || ''}`} style={ELLIPSIS_STYLES}>
+                <Typography.Paragraph ellipsis={ELLIPSIS_SETTINGS} title={`${text} ${textPostfix || ''}`} style={ELLIPSIS_STYLES}>
                     {highlightedContent}
                 </Typography.Paragraph>
             </EmptyTableCell>
@@ -142,13 +144,16 @@ export const getDateTimeRender = (intl, search?: string) => {
 
         const text = date.format(dateFormat) + ','
 
-        const Postfix = () => (
-            <Typography.Paragraph type={'secondary'}>
-                {date.format('hh:mm')}
-            </Typography.Paragraph>
-        )
+        const postfix: TableCellPostfixType = {
+            text: date.format('hh:mm'),
+            renderPostfix: text => () => (
+                <Typography.Paragraph type={'secondary'}>
+                    {text}
+                </Typography.Paragraph>
+            ),
+        }
 
-        return getTableCellRenderer(search, true, Postfix)(text)
+        return getTableCellRenderer(search, true, postfix)(text)
     }
 }
 

@@ -80,13 +80,11 @@ export const getSelectFilterDropdown = (selectProps: ComponentProps<typeof Selec
                     showArrow
                     style={DROPDOWN_SELECT_STYLE}
                     value={selectedKeys}
+                    optionFilterProp={'label'}
                     onChange={(e) => {
                         setSelectedKeys(e)
                         confirm({ closeDropdown: false })
                     }}
-                    filterOption={(input, option: OptionType) =>
-                        option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                    }
                     {...selectProps}
                 />
             </SelectFilterContainer>
@@ -144,7 +142,8 @@ export const getDateFilterDropdown = (containerStyles?: CSSProperties) => {
         return (
             <FilterContainer clearFilters={clearFilters}
                 style={containerStyles}
-                showClearButton={selectedKeys && selectedKeys.length > 0}>
+                showClearButton={selectedKeys && selectedKeys.length > 0}
+            >
                 <DatePicker {...pickerProps}/>
             </FilterContainer>
         )
