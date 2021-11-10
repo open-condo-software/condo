@@ -109,7 +109,7 @@ async function pushToSalesCRM (organization) {
         })
     }
     catch (e) {
-        salesCRMRequestLogger.warn('Request to amoCRM failed', e)
+        salesCRMRequestLogger.warn('Request to sales crm failed', e)
     }
 }
 module.exports = {
