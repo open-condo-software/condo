@@ -120,11 +120,11 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
 
     const renderExecutor = useCallback(
         (executor) => getTableCellRenderer(search)(get(executor, ['name'])),
-        [])
+        [search])
 
     const renderAssignee = useCallback(
         (assignee) => getTableCellRenderer(search)(get(assignee, ['name'])),
-        [])
+        [search])
 
     return useMemo(() => {
         return [

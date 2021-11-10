@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import get from 'lodash/get'
 import { FilterValue } from 'antd/es/table/interface'
 import { useRouter } from 'next/router'
@@ -9,7 +9,8 @@ import { PropertyWhereInput } from '@app/condo/schema'
 
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
-import { getTextRender } from '@condo/domains/common/components/Table/Renders'
+import { getAddressRender } from '@condo/domains/common/components/Table/Renders'
+import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 
 export interface ITableColumn {
     title: string,
@@ -33,10 +34,13 @@ export const useTableColumns = (filterMetas: FiltersMeta<PropertyWhereInput>[]) 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
 
-    return useMemo(() => {
-        let search = get(filters, 'search')
-        search = Array.isArray(search) ? null : search
+    const search = getFilteredValue(filters, 'search')
 
+    const renderAddress = useCallback(
+        (_, property) => getAddressRender(property, null, search),
+        [search])
+
+    return useMemo(() => {
         const columns = [
             {
                 title: AddressMessage,
@@ -45,7 +49,7 @@ export const useTableColumns = (filterMetas: FiltersMeta<PropertyWhereInput>[]) 
                 key: 'address',
                 sorter: true,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'address'),
-                render: getTextRender(search),
+                render: renderAddress,
                 width: '70%',
             },
             {

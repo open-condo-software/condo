@@ -50,16 +50,21 @@ export const getAddressDetails = (record: RecordWithAddressDetails, ShortFlatNum
 
 export const getAddressDetailsWithoutUnit = (property: Property) => {
     const addressMeta = get(property, ['addressMeta', 'data'])
+
     const streetType = get(addressMeta, 'street_type')
     const streetName = get(addressMeta, 'street')
+
     const houseType = get(addressMeta, 'house_type')
     const houseName = get(addressMeta, 'house')
+
     const regionType = get(addressMeta, 'region_type_full')
     const regionName = get(addressMeta, 'region')
+
     const cityType = get(addressMeta, 'city_type')
     const cityName = get(addressMeta, 'city')
 
-    const streetLine = `${streetType}. ${streetName}, ${houseType}. ${houseName}`
+    const settlement = streetName ? `${streetType}. ${streetName}` : get(addressMeta, 'settlement_with_type')
+    const streetLine = `${settlement}, ${houseType}. ${houseName}`
     const regionLine = `${regionName} ${regionType}`
     const cityLine = `${cityType}. ${cityName}`
 
