@@ -3,10 +3,6 @@ import get from 'lodash/get'
 
 import { IRecordWithId, RecordWithAddressDetails } from '../types'
 import { FilterValue } from 'antd/es/table/interface'
-import { IFilters } from '../../ticket/utils/helpers'
-import { TableCellPostfixType } from '../components/Table/Renders'
-import { Typography } from 'antd'
-import React from 'react'
 
 const DEFAULT_WIDTH_PRECISION = 2
 const PHONE_FORMAT_REGEXP = /(\d)(\d{3})(\d{3})(\d{2})(\d{2})/

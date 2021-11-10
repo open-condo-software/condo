@@ -19,10 +19,12 @@ export type TTextHighlighterProps = {
     renderPart: TTextHighlighterRenderPartFN
     type?: BaseType
     style?: React.CSSProperties,
+    title?: string
 }
 
 export const TextHighlighter: React.FC<TTextHighlighterProps> = (props) => {
-    const { text, search, renderPart, type, style, children } = props
+    const { text, search, renderPart, type, style, title: titleFromProps, children } = props
+    const title = titleFromProps ? titleFromProps : text
 
     if (isEmpty(text)) return null
 
@@ -45,5 +47,5 @@ export const TextHighlighter: React.FC<TTextHighlighterProps> = (props) => {
         })
     }
 
-    return <Typography.Text title={text} type={type} style={style}>{result} {children}</Typography.Text>
+    return <Typography.Text title={title} type={type} style={style}>{result} {children}</Typography.Text>
 }
