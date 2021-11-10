@@ -29,7 +29,6 @@ export const useTableColumns = (
         (_, contact) => getAddressRender(get(contact, 'property'), DeletedMessage, search),
         [DeletedMessage, search])
 
-
     return useMemo(() => {
         return [
             {
