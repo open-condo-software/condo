@@ -107,13 +107,17 @@ export const getTableCellRenderer: TTableCellRendererFN = (
         const title = `${text} ${postfix || ''}`
         const highlightedContent = getHighlightedContents(search, postfix, extraHighlighterProps, extraPostfixProps)(text)
 
-        if (!ellipsis) return <EmptyTableCell>{highlightedContent}</EmptyTableCell>
+        if (!ellipsis) return <EmptyTableCell>{text && highlightedContent}</EmptyTableCell>
 
         return (
             <EmptyTableCell>
-                <Typography.Paragraph ellipsis={ELLIPSIS_SETTINGS} title={title} style={ELLIPSIS_STYLES}>
-                    {highlightedContent}
-                </Typography.Paragraph>
+                {
+                    text && (
+                        <Typography.Paragraph ellipsis={ELLIPSIS_SETTINGS} title={title} style={ELLIPSIS_STYLES}>
+                            {highlightedContent}
+                        </Typography.Paragraph>
+                    )
+                }
             </EmptyTableCell>
         )
     }
