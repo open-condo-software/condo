@@ -37,9 +37,47 @@ const adaptOrganizationMeta = (values) => {
 
     return convertUIStateToGQLItem({
         name,
-        meta: { v: 1, inn: tin },
+        meta: { v: 1, inn: tin.trim() },
     })
 }
+const findPropByValue = (list, path, value) => list.find(item => get(item, path) === value)
+const prepareFetchParams = userId => ({
+    user: {
+        id: userId,
+    },
+    isRejected: false,
+    isBlocked: false,
+})
+const prepareFinishFetchParams = ({ id, userId }) => ({
+    where: {
+        organization: { id },
+        user: {
+            id: userId,
+        },
+    },
+})
+const prepareValidationErrorsMapping = ({ ValueIsTooShortMsg, TinTooShortMsg, TinValueIsInvalid }) => ({
+    [EMPTY_NAME_ERROR]: {
+        name: 'name',
+        errors: [ValueIsTooShortMsg],
+    },
+    [TIN_TOO_SHORT_ERROR]: {
+        name: 'tin',
+        errors: [TinTooShortMsg],
+    },
+    [TIN_VALUE_INVALID]: {
+        name: 'tin',
+        errors: [TinValueIsInvalid],
+    },
+})
+const prepareValidators = ({ requiredValidator, changeMessage, minLengthValidator, TinTooShortMsg, tinValidator }) => ({
+    name: [requiredValidator],
+    tin: [
+        requiredValidator,
+        changeMessage(minLengthValidator(TIN_LENGTH), TinTooShortMsg),
+        tinValidator(MUTATION_EXTRA_DATA.country),
+    ],
+})
 
 export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizationModalFormProps): ICreateOrganizationModalFormResult => {
     const intl = useIntl()
@@ -53,70 +91,47 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
     const TinTooShortMsg = intl.formatMessage({ id: 'pages.organizations.tin.TooShortMessage' })
     const TinValueIsInvalid = intl.formatMessage({ id: 'pages.organizations.tin.InvalidValue' })
 
-    const ErrorToFormFieldMsgMapping = React.useMemo(() => ({
-        [EMPTY_NAME_ERROR]: {
-            name: 'name',
-            errors: [ValueIsTooShortMsg],
-        },
-        [TIN_TOO_SHORT_ERROR]: {
-            name: 'tin',
-            errors: [TinTooShortMsg],
-        },
-        [TIN_VALUE_INVALID]: {
-            name: 'tin',
-            errors: [TinValueIsInvalid],
-        },
-    }), [ValueIsTooShortMsg, TinTooShortMsg, TinValueIsInvalid])
+    const ErrorToFormFieldMsgMapping = React.useMemo(
+        () => prepareValidationErrorsMapping({ ValueIsTooShortMsg, TinTooShortMsg, TinValueIsInvalid }),
+        [ValueIsTooShortMsg, TinTooShortMsg, TinValueIsInvalid]
+    )
 
     const [isVisible, setIsVisible] = useState<boolean>(false)
     const { selectLink } = useOrganization()
     const { user } = useAuth()
     const userId = get(user, 'id')
 
-    const { fetchMore } = OrganizationEmployee.useObjects(
-        { where: user ? { user: { id: userId }, isRejected: false, isBlocked: false } : {} },
-        FETCH_OPTIONS
+    const { requiredValidator, minLengthValidator, changeMessage, tinValidator } = useValidations()
+    const validators = React.useMemo(
+        () => prepareValidators({ requiredValidator, changeMessage, minLengthValidator, TinTooShortMsg, tinValidator }),
+        [requiredValidator, changeMessage, minLengthValidator, TinTooShortMsg, tinValidator]
     )
 
-    const handleFinish = useCallback((createResult) => {
+    const fetchParams = React.useMemo(() => ({ where: userId ? prepareFetchParams(userId) : {} }), [userId])
+    const { fetchMore } = OrganizationEmployee.useObjects(fetchParams, FETCH_OPTIONS)
+
+    const handleFinish = useCallback(async (createResult) => {
         const id = get(createResult, 'data.obj.id')
+        const data = await fetchMore(prepareFinishFetchParams({ id, userId }))
+        const userLinks = get(data, 'data.objs', [])
 
-        fetchMore({
-            where: { organization: { id }, user: { id: userId } },
-        }).then((data) => {
-            const userLinks = get(data, 'data.objs', [])
+        if (id) {
+            const newLink = findPropByValue(userLinks, ['organization', 'id'], id)
 
-            if (id) {
-                const newLink = userLinks.find(link => get(link, ['organization', 'id']) === id)
-
-                if (newLink) {
-                    selectLink({ id: get(newLink, 'id') }).then(() => {
-                        setIsVisible(false)
-                    })
-                }
+            if (newLink) {
+                await selectLink(newLink)
+                setIsVisible(false)
             }
+        }
 
-            if (isFunction(onFinish)) onFinish()
-        })
+        if (isFunction(onFinish)) onFinish()
 
         return null
-    }, [user, selectLink, setIsVisible, fetchMore, onFinish])
+    }, [userId, selectLink, setIsVisible, fetchMore, onFinish])
 
-    const { requiredValidator, minLengthValidator, changeMessage, tinValidator } = useValidations()
-
-    const validations = {
-        name: [requiredValidator],
-        tin: [
-            requiredValidator,
-            changeMessage(minLengthValidator(TIN_LENGTH), TinTooShortMsg),
-            tinValidator(MUTATION_EXTRA_DATA.country),
-        ],
-    }
-
-    const handleMutationCompleted = React.useCallback((result) => {
-        if (isFunction(handleFinish)) handleFinish(result)
-
+    const handleMutationCompleted = React.useCallback(async (result) => {
         setIsVisible(false)
+        await handleFinish(result)
     }, [handleFinish, setIsVisible])
 
     const handleCloseModal = React.useCallback(() => {
@@ -139,24 +154,18 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
             <Typography.Paragraph>
                 {CreateOrganizationModalMsg}
             </Typography.Paragraph>
-            <Form.Item
-                name='name'
-                label={NameMsg}
-                rules={validations.name}
-            >
+
+            <Form.Item name='name' label={NameMsg} rules={validators.name}>
                 <Input />
             </Form.Item>
-            <Form.Item
-                name='tin'
-                style={FORM_ITEM_STYLES}
-                label={InnMessage}
-                rules={validations.tin}
-            >
+
+            <Form.Item name='tin' style={FORM_ITEM_STYLES} label={InnMessage} rules={validators.tin}>
                 <Input />
             </Form.Item>
         </BaseModalForm>
     )
 
+    // TODO(DOMA-1588): Add memoization for hook members to prevent unnecessary rerenders
     return {
         isVisible,
         ModalForm,
