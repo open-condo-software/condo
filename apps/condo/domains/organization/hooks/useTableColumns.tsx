@@ -7,7 +7,7 @@ import { useIntl } from '@core/next/intl'
 
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getTextFilterDropdown, getFilterIcon, FilterContainer } from '@condo/domains/common/components/TableFilter'
-import { renderCellWithHighlightedContents } from '@condo/domains/common/components/Table/Renders'
+import { getTableCellRenderer, renderCellWithHighlightedContents } from '@condo/domains/common/components/Table/Renders'
 
 import { createSorterMap, IFilters } from '../utils/helpers'
 import { OrganizationEmployeeRole } from '../utils/clientSchema'
@@ -32,7 +32,7 @@ export const useTableColumns = (
     const { loading, objs: organizationEmployeeRoles } = OrganizationEmployeeRole.useObjects({ where: { organization: { id: organizationId } } })
     const search = getFilteredValue<IFilters>(filters, 'search')
 
-    const render = (text) => renderCellWithHighlightedContents(search, text)
+    const render = getTableCellRenderer(search)
 
     const renderCheckboxFilterDropdown = ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         const adaptedStatuses = organizationEmployeeRoles.map(OrganizationEmployeeRole.convertGQLItemToFormSelectState).filter(identity)
