@@ -6,20 +6,18 @@ import { Space, Tag, Typography } from 'antd'
 import { TextProps } from 'antd/es/typography/Text'
 
 import { useIntl } from '@core/next/intl'
-import { Property } from '@app/condo/schema'
 
 import {
     getAddressRender,
-    getDateTimeRender,
+    getDateRender,
     getTableCellRenderer,
+    getHighlightedContents,
 } from '@condo/domains/common/components/Table/Renders'
-import { getAddressDetails, getAddressDetailsWithoutUnit, getFilteredValue } from '@condo/domains/common/utils/helpers'
+import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 
-import { getHighlightedContents, getDateRender } from '@condo/domains/common/components/Table/Renders'
 import { getOptionFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { TTextHighlighterProps } from '@condo/domains/common/components/TextHighlighter'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 
 import { EMERGENCY_TAG_COLOR } from '@condo/domains/ticket/constants/style'
@@ -149,7 +147,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 key: 'createdAt',
                 sorter: true,
                 width: '8%',
-                render: getDateTimeRender(intl, String(search)),
+                render: getDateRender(intl, String(search)),
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'createdAt'),
                 filterIcon: getFilterIcon,
             },
