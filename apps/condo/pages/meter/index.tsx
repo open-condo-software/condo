@@ -158,7 +158,7 @@ const MetersPage: IMeterIndexPage = () => {
 
     const filterMetas = useFilters()
 
-    const sortableProperties = ['date', 'address', 'resource', 'number', 'place', 'value1', 'clientName', 'source']
+    const sortableProperties = ['date', 'clientName', 'source']
 
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, sortableProperties)
 
