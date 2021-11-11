@@ -1,3 +1,4 @@
+import { Gutter } from 'antd/lib/grid/row'
 import React from 'react'
 import { Col, Form, Input, Row, Space, Typography } from 'antd'
 import { useIntl } from '@core/next/intl'
@@ -24,6 +25,8 @@ const INPUT_LAYOUT_PROPS = {
         span: 13,
     },
 }
+
+const GUTTER_0_40: [Gutter, Gutter]  = [0, 40]
 
 export const EditContactForm: React.FC = () => {
     const intl = useIntl()
@@ -109,12 +112,12 @@ export const EditContactForm: React.FC = () => {
                 {
                     ({ handleSave, isLoading }) => {
                         return (
-                            <Row gutter={[0, 40]} justify={'center'}>
+                            <Row gutter={GUTTER_0_40} justify={'center'}>
                                 <Col xs={10} lg={3}>
                                     <UserAvatar borderRadius={24}/>
                                 </Col>
                                 <Col xs={24} lg={15} offset={isSmall ? 0 : 1}>
-                                    <Row gutter={[0, 40]}>
+                                    <Row gutter={GUTTER_0_40}>
                                         <Col span={24}>
                                             <Typography.Title
                                                 level={1}

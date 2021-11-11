@@ -38,7 +38,7 @@ export const MobileSideNav: React.FC<ISideNavProps> = (props) => {
         return () => {
             router.events.off('routeChangeComplete', hideSideNav)
         }
-    }, [])
+    }, [router])
 
 
     if (get(link, 'isBlocked', false)) {
