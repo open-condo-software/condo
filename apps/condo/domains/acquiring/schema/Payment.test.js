@@ -17,12 +17,20 @@ const {
     createTestAcquiringIntegration,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const {
+    createTestOrganization,
+} = require('@condo/domains/organization/utils/testSchema')
+const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowValidationFailureError,
 } = require('@condo/domains/common/utils/testSchema')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
+const {
+    PAYMENT_NO_PAIRED_FROZEN_RECEIPT,
+    PAYMENT_NO_PAIRED_RECEIPT,
+    PAYMENT_CONTEXT_ORGANIZATION_NOT_MATCH,
+} = require('@condo/domains/acquiring/constants/errors')
 
 describe('Payment', () => {
     describe('CRUD tests', () => {
@@ -32,8 +40,6 @@ describe('Payment', () => {
                 const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
                 expect(payment).toBeDefined()
                 expect(payment).toHaveProperty('id')
-                // TODO (savelevMatthew) Add receipts later (custom gql?)
-                // expect(payment).toHaveProperty(['receipt', 'id'], billingReceipts[0].id)
                 expect(payment).toHaveProperty(['context', 'id'], acquiringContext.id)
             })
             test('support can\t', async () => {
@@ -287,6 +293,37 @@ describe('Payment', () => {
                 })
             }, DV_UNKNOWN_VERSION_ERROR)
         })
+        describe('Should check for non-negative amount', () => {
+            const cases = [['0'], ['0.00'], ['-30'], ['-100.50']]
+            test.each(cases)('Amount: %p', async (amount) => {
+                const { admin, organization } = await makePayer()
+                await expectToThrowValidationFailureError(async () => {
+                    await createTestPayment(admin, organization, null, null, {
+                        amount,
+                    })
+                }, 'must be greater then 0')
+            })
+        })
+        test('Receipt and frozen receipt should be updated at the same time', async () => {
+            const { admin, organization, billingReceipts } = await makePayer()
+            await expectToThrowValidationFailureError(async () => {
+                await createTestPayment(admin, organization, billingReceipts[0], null, {
+                    frozenReceipt: null,
+                })
+            }, PAYMENT_NO_PAIRED_FROZEN_RECEIPT)
+            await expectToThrowValidationFailureError(async () => {
+                await createTestPayment(admin, organization, null, null, {
+                    frozenReceipt: { dv: 1, data: billingReceipts[0] },
+                }, PAYMENT_NO_PAIRED_RECEIPT)
+            })
+        })
+        test('context should should have same organization as payment',  async () => {
+            const { admin, acquiringContext } = await makePayer()
+            const [secondOrganization] = await createTestOrganization(admin)
+            await expectToThrowValidationFailureError(async () => {
+                await createTestPayment(admin, secondOrganization, null, acquiringContext)
+            }, PAYMENT_CONTEXT_ORGANIZATION_NOT_MATCH)
+        })
         test.skip('cannot link to multipayment, if it\'s not containing billing receipts', async () => {
             const { admin, billingReceipts, acquiringContext, client, acquiringIntegration } = await makePayer(2)
             const [multiPayment] = await createTestMultiPayment(admin, [billingReceipts[0]], client.user, acquiringIntegration)
@@ -318,7 +355,7 @@ describe('Payment', () => {
         })
     })
     describe('real-life cases', async () => {
-        test('mobile app requests payments by user and can\'t see sensetive data', async () => {
+        test('mobile app requests payments by user and can\'t see sensitive data', async () => {
             const { admin, payments: firstPayments, acquiringIntegration: firstAcquiringIntegration, client: firstClient } = await makePayerAndPayments()
             await createTestMultiPayment(admin, firstPayments, firstClient.user, firstAcquiringIntegration)
 

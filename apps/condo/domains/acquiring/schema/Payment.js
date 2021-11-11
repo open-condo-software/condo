@@ -4,15 +4,21 @@
 
 const { Text, Relationship, DateTimeUtc, Select } = require('@keystonejs/fields')
 const { Json } = require('@core/keystone/fields')
-const { GQLListSchema } = require('@core/keystone/schema')
+const { GQLListSchema, getById } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD, CURRENCY_CODE_FIELD, MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
+const { SENDER_FIELD, DV_FIELD, CURRENCY_CODE_FIELD, POSITIVE_MONEY_AMOUNT_FIELD, NON_NEGATIVE_MONEY_FIELD } = require('@condo/domains/common/schema/fields')
 const { PERIOD_FIELD } = require('@condo/domains/billing/schema/fields/common')
 const access = require('@condo/domains/acquiring/access/Payment')
 const { PAYMENT_STATUSES, PAYMENT_INIT_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { ACQUIRING_CONTEXT_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
+const {
+    PAYMENT_NO_PAIRED_RECEIPT,
+    PAYMENT_NO_PAIRED_FROZEN_RECEIPT,
+    PAYMENT_CONTEXT_ORGANIZATION_NOT_MATCH,
+} = require('@condo/domains/acquiring/constants/errors')
+const get = require('lodash/get')
 
 
 const Payment = new GQLListSchema('Payment', {
@@ -22,19 +28,19 @@ const Payment = new GQLListSchema('Payment', {
         sender: SENDER_FIELD,
 
         amount: {
-            ...MONEY_AMOUNT_FIELD,
+            ...POSITIVE_MONEY_AMOUNT_FIELD,
             schemaDoc: 'Amount of money from MultiPayment.amountWithOutExplicitFee to pay for billing receipt',
             isRequired: true,
         },
 
         explicitFee: {
-            ...MONEY_AMOUNT_FIELD,
+            ...NON_NEGATIVE_MONEY_FIELD,
             schemaDoc: 'Amount of money which payer pays on top of initial "amount"',
             isRequired: false,
         },
 
         implicitFee: {
-            ...MONEY_AMOUNT_FIELD,
+            ...NON_NEGATIVE_MONEY_FIELD,
             schemaDoc: 'Amount of money which recipient pays from initial amount for transaction',
             isRequired: false,
             access: { read: access.canReadPaymentsSensitiveData },
@@ -68,6 +74,13 @@ const Payment = new GQLListSchema('Payment', {
             ref: 'BillingReceipt',
             isRequired: false,
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+            hooks: {
+                validateInput: ({ resolvedData, addFieldValidationError, fieldPath }) => {
+                    if (resolvedData[fieldPath] && !resolvedData['frozenReceipt']) {
+                        addFieldValidationError(PAYMENT_NO_PAIRED_FROZEN_RECEIPT)
+                    }
+                },
+            },
         },
 
         frozenReceipt: {
@@ -75,7 +88,13 @@ const Payment = new GQLListSchema('Payment', {
             type: Json,
             isRequired: false,
             access: { read: access.canReadPaymentsSensitiveData },
-            // TODO (savelevMatthew): create validation / type later
+            hooks: {
+                validateInput: ({ resolvedData, addFieldValidationError, fieldPath }) => {
+                    if (resolvedData[fieldPath] && !resolvedData['receipt']) {
+                        addFieldValidationError(PAYMENT_NO_PAIRED_RECEIPT)
+                    }
+                },
+            },
         },
 
         multiPayment: {
@@ -83,15 +102,24 @@ const Payment = new GQLListSchema('Payment', {
             type: Relationship,
             ref: 'MultiPayment.payments',
             kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
-            hooks: {
-                // TODO (savelevMatthew): create validations later
-            },
         },
 
         context: {
             ...ACQUIRING_CONTEXT_FIELD,
             isRequired: false,
             kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
+            hooks: {
+                validateInput: async ({ resolvedData, addFieldValidationError, fieldPath, existingItem, operation }) => {
+                    if (resolvedData[fieldPath]) {
+                        const context = await getById('AcquiringIntegrationContext', resolvedData[fieldPath])
+                        // NOTE: CHECKS THAT CONTEXT EXIST AND NOT DELETED ARE DONE AUTOMATICALLY BEFORE
+                        const organization = operation === 'create' ? get(resolvedData, 'organization') : existingItem.organization
+                        if (context.organization !== organization) {
+                            return addFieldValidationError(PAYMENT_CONTEXT_ORGANIZATION_NOT_MATCH)
+                        }
+                    }
+                },
+            },
         },
 
         organization: {

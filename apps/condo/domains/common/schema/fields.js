@@ -7,6 +7,7 @@ const { Json } = require('@core/keystone/fields')
 const { JSON_UNKNOWN_VERSION_ERROR, REQUIRED_NO_VALUE_ERROR, JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/errors')
 const { ADDRESS_META_FIELD_GRAPHQL_TYPES } = require('@condo/domains/property/schema/fields/AddressMetaField')
 const { ISO_CODES } = require('../constants/currencies')
+const Big = require('big.js')
 
 const DV_FIELD = {
     type: Integer,
@@ -131,6 +132,34 @@ const MONEY_AMOUNT_FIELD = {
     },
 }
 
+const POSITIVE_MONEY_AMOUNT_FIELD = {
+    ...MONEY_AMOUNT_FIELD,
+    hooks: {
+        validateInput: ({ resolvedData, addFieldValidationError, fieldPath, listKey }) => {
+            if (resolvedData.hasOwnProperty(fieldPath)) {
+                const parsedDecimal = Big(resolvedData[fieldPath])
+                if (parsedDecimal.lte(0)) {
+                    addFieldValidationError(`[${listKey.toLowerCase()}:${fieldPath}:negative] Field "${fieldPath}" of "${listKey}" must be greater then 0`)
+                }
+            }
+        },
+    },
+}
+
+const NON_NEGATIVE_MONEY_FIELD = {
+    ...MONEY_AMOUNT_FIELD,
+    hooks: {
+        validateInput: ({ resolvedData, addFieldValidationError, fieldPath, listKey }) => {
+            if (resolvedData.hasOwnProperty(fieldPath)) {
+                const parsedDecimal = Big(resolvedData[fieldPath])
+                if (parsedDecimal.lt(0)) {
+                    addFieldValidationError(`[${listKey.toLowerCase()}:${fieldPath}:negative] Field "${fieldPath}" of "${listKey}" must be greater then 0`)
+                }
+            }
+        },
+    },
+}
+
 const CURRENCY_CODE_FIELD = {
     schemaDoc: 'Code of currency in ISO-4217 format',
     isRequired: true,
@@ -152,4 +181,6 @@ module.exports = {
     CLIENT_PHONE_LANDLINE_FIELD,
     MONEY_AMOUNT_FIELD,
     CURRENCY_CODE_FIELD,
+    POSITIVE_MONEY_AMOUNT_FIELD,
+    NON_NEGATIVE_MONEY_FIELD,
 }
