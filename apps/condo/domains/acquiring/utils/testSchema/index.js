@@ -257,7 +257,7 @@ async function createTestPayment (client, organization, receipt=null, context=nu
         advancedAt: dayjs().toISOString(),
         accountNumber: String(faker.datatype.number()),
         receipt: receiptId ? { connect: { id: receipt.id } } : null,
-        frozenReceipt: receiptId ? receipt : null,
+        frozenReceipt: receiptId ? { dv: 1, data: receipt } : null,
         organization: { connect: { id: organization.id } },
         context: contextId ? { connect: {id: contextId} } : null,
         period,
