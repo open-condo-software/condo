@@ -17,9 +17,9 @@ interface IStatsCardProps {
 }
 
 const cardCss = css`
-  box-shadow: 0 9px 28px rgba(0, 0, 0, 0.05), 
-    0 6px 16px rgba(0, 0, 0, 0.08), 
-    0 3px 6px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 9px 28px rgba(0, 0, 0, 0.05),
+  0 6px 16px rgba(0, 0, 0, 0.08),
+  0 3px 6px rgba(0, 0, 0, 0.12);
   border-radius: 8px;
   min-height: 210px;
 `
@@ -84,7 +84,9 @@ export const StatsCard: React.FC<IStatsCardProps> = ({ title, children, link, lo
                     bordered={false}
                     headStyle={{ fontSize: 20, fontWeight: 700, borderBottom: 'none' }}
                     extra={cardExtra}
-                >{loading ? <Skeleton active round paragraph={{ rows: 1 }} /> : children}</Card>
+                >
+                    {loading ? <Skeleton active round paragraph={{ rows: 1 }} /> : children}
+                </Card>
             </Col>
         </Row>
     )

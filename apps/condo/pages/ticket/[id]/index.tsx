@@ -366,15 +366,19 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                             />
                                             : null
                                     }
-                                    <Button
-                                        type={'sberPrimary'}
-                                        icon={<FilePdfFilled />}
-                                        href={`/ticket/${ticket.id}/pdf`}
-                                        target={'_blank'}
-                                        secondary
-                                    >
-                                        {PrintMessage}
-                                    </Button>
+                                    {
+                                        !isSmall && (
+                                            <Button
+                                                type={'sberPrimary'}
+                                                icon={<FilePdfFilled />}
+                                                href={`/ticket/${ticket.id}/pdf`}
+                                                target={'_blank'}
+                                                secondary
+                                            >
+                                                {PrintMessage}
+                                            </Button>
+                                        )
+                                    }
                                 </ActionBar>
                                 <TicketChanges
                                     loading={get(ticketChangesResult, 'loading')}

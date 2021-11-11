@@ -10,15 +10,18 @@ import { useLazyQuery } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { TicketReportData } from '@app/condo/schema'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
 export const TicketsWidget = () => {
     const intl = useIntl()
     const NoDataTitle = intl.formatMessage({ id: 'NoData' })
     const TicketsWidgetTitle = intl.formatMessage({ id: 'component.ticketswidget.Title' })
+    const TicketsWidgetShortTitle = intl.formatMessage({ id: 'component.ticketswidget.Title.Short' })
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
     const [ticketData, setTicketData] = useState<TicketReportData[]>([])
     const [loading, setLoading] = useState(false)
+    const { isSmall } = useLayoutContext()
 
     const [loadTicketsWidgetData] = useLazyQuery(GET_TICKET_WIDGET_REPORT_DATA, {
         onError: error => {
@@ -41,26 +44,31 @@ export const TicketsWidget = () => {
 
     return (
         <StatsCard
-            title={TicketsWidgetTitle}
+            title={isSmall ? TicketsWidgetShortTitle : TicketsWidgetTitle}
             link='/reports/detail/report-by-tickets'
             onFilterChange={filterChange}
             loading={loading}
-            dependencyArray={[userOrganizationId]}>
+            dependencyArray={[userOrganizationId]}
+        >
             <Row gutter={[40, 20]} justify={'center'}>
                 {
-                    ticketData === null ?
-                        <BasicEmptyListView>
-                            <Typography.Text>{NoDataTitle}</Typography.Text>
-                        </BasicEmptyListView> :
-                        ticketData.map((e, i) => (
-                            <StatsContainer key={i}>
-                                <Statistic
-                                    title={e.statusName}
-                                    prefix={<span style={{ fontSize: 30, fontWeight: 600 }}>{e.currentValue}</span>}
-                                    valueRender={() => <GrowthPanel value={e.growth}  />}
-                                />
-                            </StatsContainer>
-                        ))
+                    ticketData === null
+                        ? (
+                            <BasicEmptyListView>
+                                <Typography.Text>{NoDataTitle}</Typography.Text>
+                            </BasicEmptyListView>
+                        )
+                        : (
+                            ticketData.map((e, i) => (
+                                <StatsContainer key={i}>
+                                    <Statistic
+                                        title={e.statusName}
+                                        prefix={<span style={{ fontSize: 30, fontWeight: 600 }}>{e.currentValue}</span>}
+                                        valueRender={() => <GrowthPanel value={e.growth}  />}
+                                    />
+                                </StatsContainer>
+                            ))
+                        )
                 }
             </Row>
         </StatsCard>

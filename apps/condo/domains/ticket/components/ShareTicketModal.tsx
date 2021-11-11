@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
 import { EN_LOCALE } from '@condo/domains/common/constants/locale'
-import { Col, Collapse, Modal, notification, Row } from 'antd'
+import { Col, Collapse, Modal, notification, Row, Typography } from 'antd'
 import React, { useState } from 'react'
 import { CloseCircleFilled, RightOutlined, ShareAltOutlined } from '@ant-design/icons'
 import { Button } from '@condo/domains/common/components/Button'
@@ -21,6 +21,7 @@ import getConfig from 'next/config'
 import { ALGORITHM, CRYPTOENCODING, SALT } from '@condo/domains/ticket/constants/crypto'
 import { Organization } from '@core/keystone/schema'
 import { get, isEmpty } from 'lodash'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
 const collapse = css`
   border-radius: 8px;
@@ -185,6 +186,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     const OKMessage = intl.formatMessage({ id: 'OK' })
     const ShareSentMessage = intl.formatMessage({ id: 'ticket.shareSent' })
     const ShareSentToEmailMessage = intl.formatMessage({ id: 'ticket.shareSentToEmail' })
+    const { isSmall } = useLayoutContext()
 
     const { date, number, details, id, locale, organization } = props
     const cipher = crypto.createCipher(ALGORITHM, SALT)
@@ -294,7 +296,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                 visible={shareVisible}
                 footer={null}
                 onCancel={handleCancel}
-                title={ShareHeaderMessage}
+                title={<Typography.Title level={isSmall ? 5 : 3}>{ShareHeaderMessage}</Typography.Title>}
             >
                 <Row gutter={[0, 16]}>
                     <Col span={24}>
