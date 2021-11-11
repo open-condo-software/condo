@@ -3,6 +3,7 @@ import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { ColumnType, FilterValue } from 'antd/es/table/interface'
 import { useRouter } from 'next/router'
+import { TextProps } from 'antd/es/typography/Text'
 
 import { useIntl } from '@core/next/intl'
 import { DivisionWhereInput, Property } from '@app/condo/schema'
@@ -11,16 +12,14 @@ import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { EmptyTableCell } from '@condo/domains/common/components/Table/EmptyTableCell'
 import {
-    getAddressRender,
     getTableCellRenderer,
     renderHighlightedPart,
 } from '@condo/domains/common/components/Table/Renders'
 import { TextHighlighter, TTextHighlighterProps } from '@condo/domains/common/components/TextHighlighter'
 import { getTextRender } from '@condo/domains/common/components/Table/Renders'
+import { getAddressDetailsWithoutUnit, getFilteredValue } from '@condo/domains/common/utils/helpers'
 
 import { Division } from '../utils/clientSchema'
-import { getAddressDetailsWithoutUnit, getFilteredValue } from '../../common/utils/helpers'
-import { TextProps } from 'antd/es/typography/Text'
 
 export interface ITableColumn {
     title: string,
@@ -54,7 +53,8 @@ export const useTableColumns = (filterMetas: FiltersMeta<DivisionWhereInput>[]) 
         const { streetLine, regionLine, cityLine } = getAddressDetailsWithoutUnit(property)
         const extraProps: Partial<TTextHighlighterProps> = isDeleted && { type: 'secondary' }
         const text = `${streetLine},`
-        const postfix = `${regionLine}, ${cityLine} ${isDeleted && DeletedMessage ? `(${DeletedMessage})\n` : '\n'}`
+        const deletedMessage = isDeleted && DeletedMessage ? `(${DeletedMessage})\n` : '\n'
+        const postfix = `${regionLine}, ${cityLine} ${deletedMessage}`
 
         return getTableCellRenderer(search, false, postfix, extraProps, ADDRESS_RENDER_POSTFIX_PROPS)(text)
     }, [])

@@ -27,6 +27,7 @@ interface ITableProps extends TableProps<TableRecord> {
 }
 
 export const DEFAULT_PAGE_SIZE = 30
+const TABLE_STYLE = { width: 'auto' }
 
 export const Table: React.FC<ITableProps> = ({
     keyPath,
@@ -110,7 +111,7 @@ export const Table: React.FC<ITableProps> = ({
             <DefaultTable
                 bordered
                 tableLayout={'fixed'}
-                style={{ width: 'auto' }}
+                style={TABLE_STYLE}
                 loading={loading}
                 rowKey={(record) => get(record, rowKey)}
                 dataSource={dataSource}
