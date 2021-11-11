@@ -1,4 +1,9 @@
-import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import {
+    PageContent,
+    PageHeader,
+    PageWrapper,
+    useLayoutContext,
+} from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import {
     filtersToQuery,
@@ -15,8 +20,7 @@ import { Col, Input, Row, Table, Typography, Dropdown, Menu, Tooltip } from 'ant
 import { EllipsisOutlined } from '@ant-design/icons'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import qs from 'qs'
-import { pickBy, get, debounce } from 'lodash'
+import { get, debounce } from 'lodash'
 import React, { useCallback, useState } from 'react'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useTableColumns } from '@condo/domains/organization/hooks/useTableColumns'
@@ -26,6 +30,8 @@ import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSc
 import { Button } from '@condo/domains/common/components/Button'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { canManageEmployee } from '@condo/domains/organization/permissions'
+import { setFiltersToQuery } from '@condo/domains/common/utils/filters.utils'
+import { getTableScrollConfig } from '@condo/domains/common/utils/tables.utils'
 
 const ADD_EMPLOYEE_ROUTE = '/employee/create/'
 
@@ -45,12 +51,12 @@ export const EmployeesPageContent = ({
     const EmptyListMessage = intl.formatMessage({ id: 'employee.EmptyList.title' })
     const CreateEmployee = intl.formatMessage({ id: 'AddEmployee' })
     const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
-    const AddItemUsingFormLabel = intl.formatMessage({ id: 'AddItemUsingForm' })
     const AddItemUsingUploadLabel = intl.formatMessage({ id: 'AddItemUsingFileUpload' })
 
     const router = useRouter()
     const offsetFromQuery = getPageIndexFromQuery(router.query)
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
+    const { isSmall } = useLayoutContext()
 
     const {
         fetchMore,
@@ -90,13 +96,8 @@ export const EmployeesPageContent = ({
                 where: filters,
                 skip: offset,
                 first: EMPLOYEE_PAGE_SIZE,
-            }).then(() => {
-                const query = qs.stringify(
-                    { ...router.query, sort, offset, filters: JSON.stringify(pickBy({ ...filtersFromQuery, ...nextFilters })) },
-                    { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-                )
-
-                router.push(router.route + query)
+            }).then(async () => {
+                await setFiltersToQuery(router, { ...filtersFromQuery, ...nextFilters })
             })
         }
     }, 400), [loading])
@@ -132,8 +133,8 @@ export const EmployeesPageContent = ({
                                 createLabel={CreateEmployee} />
                             : <Row gutter={[0, 40]} align={'middle'}>
                                 <Col span={24}>
-                                    <Row justify={'space-between'}>
-                                        <Col span={6}>
+                                    <Row justify={'space-between'} gutter={[0, 40]}>
+                                        <Col xs={24} lg={6}>
                                             <Input
                                                 placeholder={SearchPlaceholder}
                                                 onChange={(e)=>{handleSearchChange(e.target.value)}}
@@ -141,7 +142,7 @@ export const EmployeesPageContent = ({
                                             />
                                         </Col>
                                         {
-                                            canManageEmployee ? (
+                                            canManageEmployee && (
                                                 <Dropdown.Button
                                                     overlay={dropDownMenu}
                                                     buttonsRender={() => [
@@ -161,12 +162,13 @@ export const EmployeesPageContent = ({
                                                         />,
                                                     ]}
                                                 />
-                                            ) : null
+                                            )
                                         }
                                     </Row>
                                 </Col>
                                 <Col span={24}>
                                     <Table
+                                        scroll={getTableScrollConfig(isSmall)}
                                         bordered
                                         tableLayout={'fixed'}
                                         loading={loading}

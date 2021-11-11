@@ -7,6 +7,12 @@ Apply linter:
 yarn lint --quiet
 ```
 
+Try to build:
+
+```shell
+yarn workspace @app/condo build
+```
+
 Look at errors, reported by TypeScript project-wide in IDE, you are using.
 
 Sync database schema with schemas in Keystone:

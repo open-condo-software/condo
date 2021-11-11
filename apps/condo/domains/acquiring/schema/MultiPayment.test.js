@@ -17,8 +17,9 @@ const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAuthenticationErrorToObj,
+    expectToThrowValidationFailureError,
 } = require('@condo/domains/common/utils/testSchema')
-const { MULTIPAYMENT_ERROR_STATUS } = require('../constants')
+const { MULTIPAYMENT_ERROR_STATUS } = require('../constants/payment')
 
 
 describe('MultiPayment', () => {
@@ -144,7 +145,8 @@ describe('MultiPayment', () => {
 
                     const integrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
                     await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
-                    let [updatedMultiPayment] = await updateTestMultiPayment(integrationClient, multiPayment.id, {
+                  
+                    const [updatedMultiPayment] = await updateTestMultiPayment(integrationClient, multiPayment.id, {
                         status: MULTIPAYMENT_ERROR_STATUS,
                     })
                     expect(updatedMultiPayment).toBeDefined()
@@ -210,8 +212,25 @@ describe('MultiPayment', () => {
             })
         })
     })
+    describe('Validation tests', () => {
+        test('Should have correct dv field (=== 1)', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const { payments, acquiringIntegration, client } = await makePayerAndPayments()
+            await expectToThrowValidationFailureError(async () => {
+                await createTestMultiPayment(admin, payments, client.user, acquiringIntegration, {
+                    dv: 2,
+                })
+            }, 'unknownDataVersion')
+            const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestMultiPayment(admin, multiPayment.id, {
+                    dv: 2,
+                })
+            })
+        })
+    })
     describe('real-life cases', () => {
-        // TODO (savelevMatthew) write tests
+        // TODO(DOMA-1452) write tests
 
         test('mobile resident can\'t see his sensitive data in his own MultiPayments', async () => {
             const { admin, payments, acquiringIntegration, client } = await makePayerAndPayments()

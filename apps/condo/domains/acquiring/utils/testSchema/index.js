@@ -5,19 +5,20 @@
  */
 const faker = require('faker')
 const get = require('lodash/get')
-const {createTestProperty} = require("@condo/domains/property/utils/testSchema");
+const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { createTestResident, createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const {
     createTestBillingIntegration,
     createTestBillingIntegrationOrganizationContext,
     createTestBillingAccount,
     createTestBillingProperty,
     createTestBillingReceipt,
-} = require("@condo/domains/billing/utils/testSchema");
-const {makeClientWithNewRegisteredAndLoggedInUser} = require("@condo/domains/user/utils/testSchema");
-const {createTestOrganizationEmployee, createTestOrganizationEmployeeRole} = require("@condo/domains/organization/utils/testSchema");
+} = require('@condo/domains/billing/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 
-const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
-const { MULTIPAYMENT_INIT_STATUS } = require('../../constants')
+const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
+const { MULTIPAYMENT_INIT_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
@@ -29,6 +30,7 @@ const { MultiPayment: MultiPaymentGQL } = require('@condo/domains/acquiring/gql'
 const { Payment: PaymentGQL } = require('@condo/domains/acquiring/gql')
 
 const dayjs = require('dayjs')
+const { REGISTER_MULTI_PAYMENT_MUTATION } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
@@ -44,21 +46,32 @@ function getRandomHiddenCard() {
     return `${prefix}********${suffix}`
 }
 
+function getRandomFeeDistribution() {
+    const border = Math.random() * 6
+    const result = []
+    for (let i = 0; i < border; i++) {
+        result.push({
+            recipient: faker.company.companyName(),
+            percent: String(Math.round(Math.random() * 99 + 1) / 100)
+        })
+    }
+    return result
+}
+
 async function createTestAcquiringIntegration (client, billings, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!billings || !billings.length) throw new Error('no billings')
+    if (!billings) throw new Error('no billings')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const name = faker.company.companyName().replace(/ /, '-').toUpperCase() + ' TEST ACQUIRING'
-    const feeCalculationUrl = faker.internet.url()
-    const paymentUrl = faker.internet.url()
+    const hostUrl = faker.internet.url()
     const billingsIds = billings.map(billing => ({id: billing.id}))
     const attrs = {
         dv: 1,
         sender,
         name,
-        feeCalculationUrl,
-        paymentUrl,
+        hostUrl,
         supportedBillingIntegrations: { connect: billingsIds },
+        explicitFeeDistributionSchema: getRandomFeeDistribution(),
         ...extraAttrs
     }
     const obj = await AcquiringIntegration.create(client, attrs)
@@ -223,14 +236,16 @@ async function updateTestMultiPayment (client, id, extraAttrs = {}, params = {})
     return [obj, attrs]
 }
 
-async function createTestPayment (client, receipt, context, extraAttrs = {}) {
+async function createTestPayment (client, organization, receipt=null, context=null, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!receipt || !receipt.id) throw new Error('no receipts.id')
-    if (!context || !context.id) throw new Error('no context.id')
+    if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const amount = get(receipt, 'toPay', '100.00')
     const explicitFee = String(Math.floor(Math.random() * 100) / 2)
     const implicitFee = String(Math.floor(Math.random() * 100) / 2)
+    const period = dayjs().format('YYYY-MM-01')
+    const contextId = get(context, 'id')
+    const receiptId = get(receipt, 'id')
 
     const attrs = {
         dv: 1,
@@ -241,9 +256,11 @@ async function createTestPayment (client, receipt, context, extraAttrs = {}) {
         currencyCode: 'RUB',
         advancedAt: dayjs().toISOString(),
         accountNumber: String(faker.datatype.number()),
-        receipt: { connect: { id: receipt.id } },
-        frozenReceipt: receipt,
-        context: { connect: { id: context.id } },
+        receipt: receiptId ? { connect: { id: receipt.id } } : null,
+        frozenReceipt: receiptId ? receipt : null,
+        organization: { connect: { id: organization.id } },
+        context: contextId ? { connect: {id: contextId} } : null,
+        period,
         ...extraAttrs,
     }
     const obj = await Payment.create(client, attrs)
@@ -264,6 +281,20 @@ async function updateTestPayment (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function registerMultiPaymentByTestClient(client, groupedReceipts, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        groupedReceipts,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(REGISTER_MULTI_PAYMENT_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 // Utils used to generate bunch of entities for working with MultiPayments
@@ -287,6 +318,12 @@ async function makePayer (receiptsAmount = 1) {
     const [acquiringIntegration] = await createTestAcquiringIntegration(admin, [billingIntegration])
     const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration)
 
+    const [resident] = await createTestResident(admin, client.user, organization, property)
+    const [serviceConsumer] = await createTestServiceConsumer(admin, resident, billingAccount, {
+        acquiringIntegrationContext: { connect: {id: acquiringContext.id} },
+        billingIntegrationContext: { connect: { id: billingContext.id } }
+    })
+
     return {
         admin,
         client,
@@ -299,15 +336,74 @@ async function makePayer (receiptsAmount = 1) {
         billingProperty,
         billingAccount,
         billingReceipts,
+        resident,
+        serviceConsumer,
+    }
+}
+
+async function makePayerWithMultipleConsumers(consumersAmount = 1, receiptsAmount = 1) {
+    const client = await makeClientWithResidentUser()
+    const admin = await makeLoggedInAdminClient()
+    const billings = []
+    const result = []
+    for (let i = 0; i < consumersAmount; i++) {
+        const [organization] = await registerNewOrganization(admin)
+        const [property] = await createTestProperty(admin, organization)
+        const [billingIntegration] = await createTestBillingIntegration(admin)
+        billings.push(billingIntegration)
+        const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, billingIntegration)
+        const [billingProperty] = await createTestBillingProperty(admin, billingContext, {address: property.address})
+        const [billingAccount] = await createTestBillingAccount(admin, billingContext, billingProperty)
+        const billingReceipts = []
+        for (let j = 0; j < receiptsAmount; j++) {
+            const [receipt] = await createTestBillingReceipt(admin, billingContext, billingProperty, billingAccount)
+            billingReceipts.push(receipt)
+        }
+        result.push({
+            organization,
+            property,
+            billingIntegration,
+            billingContext,
+            billingProperty,
+            billingAccount,
+            billingReceipts
+        })
+    }
+    const [acquiringIntegration] = await createTestAcquiringIntegration(admin, billings, {
+        canGroupReceipts: true
+    })
+    for (let i = 0; i < consumersAmount; i++) {
+        const organization = result[i].organization
+        const property = result[i].property
+        const billingAccount = result[i].billingAccount
+        const billingContext = result[i].billingContext
+        const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration)
+        const [resident] = await createTestResident(admin, client.user, organization, property)
+        const [serviceConsumer] = await createTestServiceConsumer(admin, resident, billingAccount, {
+            acquiringIntegrationContext: { connect: {id: acquiringContext.id} },
+            billingIntegrationContext: { connect: { id: billingContext.id } }
+        })
+        result[i].acquiringContext = acquiringContext
+        result[i].resident = resident
+        result[i].serviceConsumer = serviceConsumer
+    }
+    const commonData = {
+        client,
+        admin,
+        acquiringIntegration
+    }
+    return {
+        commonData,
+        batches: result
     }
 }
 
 async function makePayerAndPayments (receiptsAmount = 1) {
     const data = await makePayer(receiptsAmount)
-    const { admin, billingReceipts, acquiringContext } = data
+    const { admin, billingReceipts, acquiringContext, organization } = data
     const payments = []
     for (let i = 0; i < billingReceipts.length; i++) {
-        const [payment] = await createTestPayment(admin, billingReceipts[i], acquiringContext)
+        const [payment] = await createTestPayment(admin, organization, billingReceipts[i], acquiringContext)
         payments.push(payment)
     }
 
@@ -329,5 +425,7 @@ module.exports = {
     makePayer,
     makePayerAndPayments,
     getRandomHiddenCard,
+    registerMultiPaymentByTestClient,
+    makePayerWithMultipleConsumers
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

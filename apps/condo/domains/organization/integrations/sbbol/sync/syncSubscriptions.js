@@ -1,6 +1,5 @@
-const { SbbolRequestApi } = require('../SbbolRequestApi')
-const { SbbolFintechApi } = require('../SbbolFintechApi')
-const { debugMessage } = require('../common')
+const { initSbbolFintechApi } = require('../SbbolFintechApi')
+const { logger: baseLogger } = require('../common')
 const dayjs = require('dayjs')
 const { ServiceSubscription } = require('@condo/domains/subscription/utils/serverSchema')
 const { SUBSCRIPTION_TRIAL_PERIOD_DAYS, SUBSCRIPTION_TYPE } = require('@condo/domains/subscription/constants')
@@ -9,10 +8,12 @@ const { processArrayOf } = require('@condo/domains/common/utils/parallel')
 const { getSchemaCtx } = require('@core/keystone/schema')
 
 const conf = process.env
-const SBBOL_CONFIG = conf.SBBOL_CONFIG ? JSON.parse(conf.SBBOL_CONFIG) : {}
+const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
+
+const logger = baseLogger.child({ module: 'syncSubscriptions' })
 
 async function stop (subscription, context) {
-    debugMessage('Stopping subscription', subscription)
+    logger.info({ message: 'Stopping subscription', subscription })
     return await ServiceSubscription.update(context, subscription.id, {
         ...dvSenderFields,
         finishAt: dayjs().toISOString(),
@@ -39,7 +40,7 @@ const syncSubscriptionsFor = async (advanceAcceptance) => {
     const [organization] = result
 
     if (!organization) {
-        debugMessage(`Not found organization with inn=${payerInn} to sync SBBOL subscriptions for`)
+        logger.warn({ message: 'Not found organization to sync SBBOL subscriptions for', payerInn })
         return
     }
 
@@ -58,14 +59,14 @@ const syncSubscriptionsFor = async (advanceAcceptance) => {
     const existingSubscription = existingSubscriptions[0]
 
     if (existingSubscriptions.length > 1) {
-        console.error(`More than one subscription found for Organization(id=${organization.id}). It seems strange.`)
+        logger.error({ message: 'More than one subscription found for Organization', id: organization.id })
     }
 
     // Client has accepted our offer
     if (active) {
         // TODO: add trial for additional day when client accepts previously revoked (after accepting) offer
 
-        debugMessage(`User from organization(inn=${payerInn}) has accepted our offer in SBBOL`)
+        logger.info({ message: 'User from organization has accepted our offer in SBBOL', payerInn })
 
         // In case of accepted SBBOL offer new subscription should be started and all current subscriptions will make no sense.
         // If active one is present, stop it by cutting it's period until now.
@@ -89,9 +90,9 @@ const syncSubscriptionsFor = async (advanceAcceptance) => {
                 ...advanceAcceptance, // TODO: Figure out, why it crashes here on `payerInn` field
             },
         })
-        debugMessage('Created trial subscription for SBBOL', trialServiceSubscription)
+        logger.info({ message: 'Created trial subscription for SBBOL', serviceSubscription: trialServiceSubscription })
     } else {
-        debugMessage(`User from organization(inn=${payerInn}) has declined our offer in SBBOL`)
+        logger.info({ message: 'User from organization has declined our offer in SBBOL', payerInn })
         if (existingSubscription.type === SUBSCRIPTION_TYPE.SBBOL) {
             await stop(existingSubscription, context)
         }
@@ -108,29 +109,18 @@ const syncSubscriptionsFor = async (advanceAcceptance) => {
 const syncSubscriptions = async (date = null) => {
     if (!date) date = dayjs().format('YYYY-MM-DD')
 
-    debugMessage('Start syncSubscriptions')
+    const fintechApi = await initSbbolFintechApi()
+    if (!fintechApi) return
 
-    let ourOrganizationAccessToken
-    try {
-        // `service_organization_hashOrgId` is a `userInfo.HashOrgId` from SBBOL, that used to obtain accessToken
-        // for organization, that will be queried in SBBOL using `SbbolFintechApi`.
-        ourOrganizationAccessToken = await SbbolRequestApi.getOrganizationAccessToken(SBBOL_CONFIG.service_organization_hashOrgId)
-    } catch (e) {
-        console.error('syncSubscriptions() Error:', e)
-        return
-    }
+    logger.info({ message: 'Checking, whether the user have ServiceSubscription items' })
 
-    const fintechApi = new SbbolFintechApi(ourOrganizationAccessToken)
-    debugMessage('Checking, whether the user have ServiceSubscription items')
-
-    const advanceAcceptances = await fintechApi.fetchAdvanceAcceptances({ date, clientId: SBBOL_CONFIG.client_id })
+    const advanceAcceptances = await fintechApi.fetchAdvanceAcceptances({ date, clientId: SBBOL_FINTECH_CONFIG.client_id })
 
     if (advanceAcceptances.length === 0) {
-        debugMessage('SBBOL returned no changes in offers, do nothing')
+        logger.info({ message: 'SBBOL returned no changes in offers, do nothing' })
     } else {
         await processArrayOf(advanceAcceptances).inSequenceWith(syncSubscriptionsFor)
     }
-    debugMessage('End syncSubscriptions')
 }
 
 module.exports = {

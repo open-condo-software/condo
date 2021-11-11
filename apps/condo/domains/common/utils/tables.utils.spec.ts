@@ -13,7 +13,7 @@ import {
     getFiltersFromQuery,
     getPageIndexFromOffset,
     getSorterMap,
-    convertColumns,
+    convertColumns, getTicketAttributesFilter,
 } from './tables.utils'
 import dayjs from 'dayjs'
 
@@ -278,6 +278,31 @@ describe('Table utils', () => {
         })
         it('should accept only single argument', () => {
             const result = filter(['true', 'false'])
+            expect(result).toBeUndefined()
+        })
+    })
+    describe('getTicketAttributesFilter', () => {
+        const isEmergencyAttribute = 'isEmergency'
+        const isPaidAttribute = 'isPaid'
+        const filterAttribute = getTicketAttributesFilter([isEmergencyAttribute, isPaidAttribute])
+
+        it('should return filter query with one search argument', () => {
+            const result = filterAttribute(isEmergencyAttribute)
+
+            expect(result).toBeDefined()
+            expect(result).toStrictEqual({ OR: [ { [isEmergencyAttribute]: true } ] })
+        })
+
+        it('should return filter query with two search argument', () => {
+            const result = filterAttribute([isEmergencyAttribute, isPaidAttribute])
+
+            expect(result).toBeDefined()
+            expect(result).toStrictEqual({ OR: [ { [isEmergencyAttribute]: true }, { [isPaidAttribute]: true } ] })
+        })
+
+        it('should return undefined with wrong search argument', () => {
+            const result = filterAttribute('')
+
             expect(result).toBeUndefined()
         })
     })

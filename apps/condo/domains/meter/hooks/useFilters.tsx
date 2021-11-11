@@ -56,10 +56,10 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
     const resourceFilter = getFilter(['meter', 'resource', 'id'], 'array', 'string', 'in')
 
     const { objs: sources } = MeterReadingSource.useObjects({})
-    const sourcesOptions = sources.map(source => ({ label: source.name, value: source.id }))
+    const sourcesOptions = sources.map(source => ({ text: source.name, value: source.id }))
 
     const { objs: resources, loading: resourcesLoading } = MeterResource.useObjects({})
-    const resourcesOptions = resources.map(resource => ({ label: resource.name, value: resource.id }))
+    const resourcesOptions = resources.map(resource => ({ text: resource.name, value: resource.id }))
 
     return useMemo(() => {
         return [

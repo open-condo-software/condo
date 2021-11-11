@@ -24,9 +24,13 @@ export const EmployeeUpdatePage = () => {
     )
 }
 
-EmployeeUpdatePage.headerAction = <ReturnBackHeaderAction
-    descriptor={{ id: 'Back' }}
-    path={(id) => `/employee/${id}/`}/>
+EmployeeUpdatePage.headerAction = (
+    <ReturnBackHeaderAction
+        descriptor={{ id: 'Back' }}
+        path={(id) => `/employee/${id}/`}
+    />
+)
+
 EmployeeUpdatePage.requiredAccess = OrganizationRequired
 
 export default EmployeeUpdatePage

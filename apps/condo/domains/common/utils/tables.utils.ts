@@ -1,6 +1,7 @@
 import React from 'react'
 import get from 'lodash/get'
 import { ParsedUrlQuery } from 'querystring'
+import { TableProps as RcTableProps } from 'rc-table/lib/Table'
 import {
     getDateFilterDropdown,
     getFilterIcon,
@@ -13,6 +14,7 @@ import { TableRecord } from '@condo/domains/common/components/Table/Index'
 import { preciseFloor } from './helpers'
 import { FilterDropdownProps } from 'antd/es/table/interface'
 import dayjs from 'dayjs'
+import isString from 'lodash/isString'
 
 export type DataIndexType = string | Array<string>
 export type QueryArgType = string | Array<string>
@@ -75,6 +77,7 @@ export type QueryMeta<F> = {
     // by default === 'AND'
     combineType?: FiltersApplyMode
     defaultValue?: QueryArgType
+    queryToWhereProcessor?: (queryValue: string[]) => QueryArgType
 }
 
 export type SorterColumn = {
@@ -147,6 +150,27 @@ export const getFilter: (
             }
             return { [current]: acc }
         }, undefined)
+    }
+}
+
+type MultipleDataIndexType = DataIndexType[]
+type TicketAttributesFilterGetterType = (dataIndices: MultipleDataIndexType) => FilterType
+
+export const getTicketAttributesFilter: TicketAttributesFilterGetterType = (dataIndices) => {
+    return function getWhereQuery (search) {
+        if (!search || search.length === 0 || dataIndices.length === 1) return
+
+        const args = !Array.isArray(search) ? [search] : search
+
+        return {
+            OR: dataIndices.map(wrappedDataIndex => {
+                if (!args.find(arg => arg === wrappedDataIndex) || !isString(wrappedDataIndex)) return
+
+                return {
+                    [wrappedDataIndex]: true,
+                }
+            }).filter(Boolean),
+        }
     }
 }
 
@@ -341,4 +365,16 @@ export const convertColumns = (
 
 export const getSorterMap: SorterMapType = (sorters) => {
     return Object.assign({}, ...sorters.map((sorter) => ({ [sorter.columnKey]: sorter.order })))
+}
+
+type TableScrollProps = RcTableProps['scroll'] & { scrollToFirstRowOnChange?: boolean; }
+
+export const getTableScrollConfig = (isSmall: boolean): TableScrollProps => {
+    const props: TableScrollProps = {}
+
+    if (isSmall) {
+        props.x = true
+    }
+
+    return props
 }

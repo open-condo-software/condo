@@ -28,7 +28,7 @@ jobs:
           kube-config-base64-data: ${{ secrets.KUBE_CONFIG_BASE64_DATA }}
           github-token: ${{secrets.GITHUB_TOKEN}}
         env:
-          WERF_SET_CI_CONDO_URL: "global.ci_condo_url=condo-production.d.doma.ai"
-          WERF_SET_CI_CALLCENTER_URL: "global.ci_callcenter_url=callcenter-production.d.doma.ai"
+          WERF_SET_CI_CONDO_URL: "global.ci_condo_url=v1.doma.ai"
+          WERF_SET_CI_CALLCENTER_URL: "global.ci_callcenter_url=cc.doma.ai"
           WERF_NAMESPACE: "production"
           WERF_VIRTUAL_MERGE_FROM_COMMIT: "true"

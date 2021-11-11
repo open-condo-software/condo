@@ -7,8 +7,11 @@ const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
+const { ACQUIRING_INTEGRATION_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
 const access = require('@condo/domains/acquiring/access/AcquiringIntegrationContext')
-const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
+const { hasValidJsonStructure, hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
+const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
+const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
 
 
 const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationContext', {
@@ -17,14 +20,7 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
-        integration: {
-            schemaDoc: 'Acquiring integration',
-            type: Relationship,
-            ref: 'AcquiringIntegration',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
-        },
+        integration: ACQUIRING_INTEGRATION_FIELD,
 
         organization: {
             schemaDoc: 'Service provider (organization)',
@@ -57,6 +53,12 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
             },
         },
 
+        implicitFeeDistributionSchema: {
+            ...FEE_DISTRIBUTION_SCHEMA_FIELD,
+            isRequired: false,
+            schemaDoc: 'Contains information about the default distribution of implicit fee. Each part is paid by the recipient organization on deducted from payment amount. If part exists then explicit part with the same name from AcquiringIntegration.explicitFeeDistributionSchema is ignored',
+        },
+
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
@@ -65,6 +67,17 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
         update: access.canManageAcquiringIntegrationContexts,
         delete: false,
         auth: true,
+    },
+    hooks: {
+        validateInput: ({ resolvedData, context, addValidationError }) => {
+            if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
+            const { dv } = resolvedData
+            if (dv === 1) {
+                // NOTE: version 1 specific translations. Don't optimize this logic
+            } else {
+                return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
+            }
+        },
     },
 })
 

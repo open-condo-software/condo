@@ -12,11 +12,16 @@ export const useQueryMappers = <F>(queryMetas: Array<QueryMeta<F>>, sortableColu
         const validMetas = queryMetas
             .filter((meta) => meta && meta.keyword && meta.filters && meta.filters.length > 0)
 
-
         const filtersToWhere = (queryFilters) => {
             const whereQueries = []
             validMetas.forEach((meta) => {
-                const searchValue = get(queryFilters, meta.keyword)
+                let searchValue = get(queryFilters, meta.keyword)
+                const queryToWhereProcessor = meta.queryToWhereProcessor
+
+                if (searchValue && queryToWhereProcessor) {
+                    searchValue = queryToWhereProcessor(searchValue)
+                }
+
                 const createdFilters = meta.filters
                     .map((filter) => filter(searchValue || meta.defaultValue))
                     .filter(Boolean)
@@ -25,6 +30,7 @@ export const useQueryMappers = <F>(queryMetas: Array<QueryMeta<F>>, sortableColu
                     whereQueries.push({ [combineType]: createdFilters })
                 }
             })
+
             if (whereQueries.length) {
                 return {
                     AND: whereQueries,

@@ -6,7 +6,6 @@
 
 const { generateGqlQueries } = require('@condo/domains/common/utils/codegeneration/generate.gql')
 
-const gql = require('graphql-tag')
 const { SBBOL_OFFER_ACCEPT_FIELD_QUERY_LIST } = require('./schema/fields/SbbolOfferAcceptField')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'

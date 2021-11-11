@@ -2,15 +2,16 @@
 
 const { Issuer, custom } = require('openid-client') // certified openid client will all checks
 const jwtDecode = require('jwt-decode') // decode jwt without validation
-const dayjs = require('dayjs')
-
+const { logger: baseLogger } = require('./common')
+const util = require('util')
 const conf = require('@core/config')
 
-const SBBOL_CONFIG = conf.SBBOL_CONFIG ? JSON.parse(conf.SBBOL_CONFIG) : {}
+const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
-const SBBOL_DEBUG = conf.SBBOL_DEBUG || false
 const SERVER_URL = conf.SERVER_URL
 const JWT_ALG = 'gost34.10-2012'
+
+const logger = baseLogger.child({ module: 'oauth2' })
 
 class SbbolOauth2Api {
     constructor () {
@@ -18,13 +19,11 @@ class SbbolOauth2Api {
     }
 
     createClient () {
-        if (SBBOL_DEBUG) {
-            this.enableDebugMode()
-        }
+        this.enableDebugMode()
         this.createIssuer()
         const client = new this.issuer.Client({
-            client_id: String(SBBOL_CONFIG.client_id),
-            client_secret: SBBOL_CONFIG.client_secret,
+            client_id: String(SBBOL_AUTH_CONFIG.client_id),
+            client_secret: SBBOL_AUTH_CONFIG.client_secret,
             redirect_uris: [this.redirectUrl],
             response_types: ['code'],
             authorization_signed_response_alg: JWT_ALG,
@@ -53,7 +52,7 @@ class SbbolOauth2Api {
                 await _validateJWT.call(client, jwt, expectedAlg, required)
             } catch (error) {
                 //TODO(zuch): find a way to force jose validate gost algorithm
-                console.error('Validate JWT ERROR:', error.message === 'failed to validate JWT signature', jwt, error)
+                logger.error({ message: error.message, jwt, error })
             }
             return { protected: jwtDecode(jwt, { header: true }), payload: jwtDecode(jwt) }
         }
@@ -62,7 +61,7 @@ class SbbolOauth2Api {
 
     createIssuer () {
         const sbbolIssuer = new Issuer({
-            issuer: SBBOL_CONFIG.issuer,
+            issuer: SBBOL_AUTH_CONFIG.issuer,
             authorization_endpoint: this.authUrl,
             token_endpoint: this.tokenUrl,
             userinfo_endpoint: this.userInfoUrl,
@@ -78,7 +77,7 @@ class SbbolOauth2Api {
     authorizationUrlWithParams (checks) {
         return this.client.authorizationUrl({
             response_type: 'code',
-            scope: SBBOL_CONFIG.scope,
+            scope: SBBOL_AUTH_CONFIG.scope,
             ...checks,
         })
     }
@@ -120,11 +119,11 @@ class SbbolOauth2Api {
     }
 
     get url () {
-        return `${SBBOL_CONFIG.host}:${SBBOL_CONFIG.port}`
+        return `${SBBOL_AUTH_CONFIG.host}:${SBBOL_AUTH_CONFIG.port}`
     }
 
     get protectedUrl () {
-        return `${SBBOL_CONFIG.protected_host}:${SBBOL_CONFIG.protected_port || SBBOL_CONFIG.port}`
+        return `${SBBOL_AUTH_CONFIG.protected_host}:${SBBOL_AUTH_CONFIG.protected_port || SBBOL_AUTH_CONFIG.port}`
     }
 
     /**
@@ -136,22 +135,35 @@ class SbbolOauth2Api {
             hooks: {
                 beforeRequest: [
                     (options) => {
-                        console.debug(dayjs().format('YYYY-MM-DD HH:mm:ssZ[Z]'))
-                        console.log('--> %s %s', options.method.toUpperCase(), options.url.href)
-                        console.log('--> HEADERS %o', options.headers)
-                        if (options.body) {
-                            console.log('--> BODY %s', options.body)
+                        const logData = {
+                            method: options.method.toUpperCase(),
+                            url: options.url.href,
+                            headers: options.headers,
                         }
+                        if (options.body) {
+                            logData.body = util.format('%s', options.body)
+                        }
+                        logger.info({
+                            message: 'Request',
+                            ...logData,
+                        })
                     },
                 ],
                 afterResponse: [
                     (response) => {
-                        console.debug(dayjs().format('YYYY-MM-DD HH:mm:ssZ[Z]'))
-                        console.log('<-- %i FROM %s %s', response.statusCode, response.request.options.method.toUpperCase(), response.request.options.url.href)
-                        console.log('<-- HEADERS %o', response.headers)
-                        if (response.body) {
-                            console.log('<-- BODY %s', response.body)
+                        const logData = {
+                            statusCode: response.statusCode,
+                            method: response.request.options.method.toUpperCase(),
+                            url: response.request.options.url.href,
+                            headers: response.headers,
                         }
+                        if (response.body) {
+                            logData.body = util.format('%s', response.body)
+                        }
+                        logger.info({
+                            message: 'Response',
+                            ...logData,
+                        })
                         return response
                     },
                 ],

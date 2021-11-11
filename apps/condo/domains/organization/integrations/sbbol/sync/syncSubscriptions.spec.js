@@ -22,9 +22,10 @@ const mockResponseFromFintechApi = {
 
 jest.mock('../SbbolRequestApi')
 jest.mock('../SbbolFintechApi', () => ({
-    SbbolFintechApi: jest.fn().mockImplementation(() => ({
+    initSbbolFintechApi: jest.fn().mockImplementation(() => ({
         fetchAdvanceAcceptances: () => { return mockResponseFromFintechApi.advanceAcceptances() },
     })),
+
 }))
 
 let keystone
@@ -33,6 +34,9 @@ describe('syncSubscriptions', () => {
     setFakeClientMode(require.resolve('../../../../../index'))
 
     beforeAll(async () => {
+        // We don't have a way to obtain instance of initialized Keystone app, because
+        // a function `setFakeClientMode` does't returns it.
+        // Create another instance for exclusive usage in these test module
         const result = await prepareKeystoneExpressApp(require.resolve('../../../../../index'))
         keystone = result.keystone
     })

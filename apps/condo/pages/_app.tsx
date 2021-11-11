@@ -1,7 +1,7 @@
+import React from 'react'
 import { ConfigProvider } from 'antd'
 import enUS from 'antd/lib/locale/en_US'
 import ruRU from 'antd/lib/locale/ru_RU'
-import React from 'react'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
 import getConfig from 'next/config'
@@ -17,7 +17,6 @@ import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle
 import GoogleAnalytics from '@condo/domains/common/components/containers/GoogleAnalytics'
 import BehaviorRecorder from '@condo/domains/common/components/containers/BehaviorRecorder'
 import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
-import GlobalErrorBoundary from '@condo/domains/common/components/containers/GlobalErrorBoundery'
 import { extractReqLocale } from '@condo/domains/common/utils/locale'
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
 import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
@@ -33,13 +32,13 @@ import { OnBoardingProgressIconContainer } from '@condo/domains/onboarding/compo
 import {
     BILLING_RECEIPT_SERVICE_FIELD_NAME,
 } from '@condo/domains/billing/constants'
-import { MeterLog } from '../domains/common/components/icons/MeterLogIcon'
+import { MeterLog } from '@condo/domains/common/components/icons/MeterLogIcon'
 import {
     SubscriptionProvider,
     useServiceSubscriptionContext,
-} from '../domains/subscription/components/SubscriptionContext'
+} from '@condo/domains/subscription/components/SubscriptionContext'
 import dayjs from 'dayjs'
-import { useEndTrialSubscriptionReminderPopup } from '../domains/subscription/hooks/useEndTrialSubscriptionReminderPopup'
+import { useEndTrialSubscriptionReminderPopup } from '@condo/domains/subscription/hooks/useEndTrialSubscriptionReminderPopup'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
@@ -150,35 +149,34 @@ const MyApp = ({ Component, pageProps }) => {
     } = useEndTrialSubscriptionReminderPopup()
 
     return (
-        <GlobalErrorBoundary>
-            <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize={'large'}>
-                <CacheProvider value={cache}>
-                    <GlobalStyle/>
-                    <FocusContextProvider>
-                        <OnBoardingProvider>
-                            <SubscriptionProvider>
-                                <LayoutContextProvider>
-                                    <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                        <RequiredAccess>
-                                            <Component {...pageProps} />
-                                            {
-                                                isEndTrialSubscriptionReminderPopupVisible && (
-                                                    <EndTrialSubscriptionReminderPopup/>
-                                                )
-                                            }
-                                        </RequiredAccess>
-                                    </LayoutComponent>
-                                </LayoutContextProvider>
-                            </SubscriptionProvider>
-                        </OnBoardingProvider>
-                    </FocusContextProvider>
-                    <GoogleAnalytics/>
-                    <BehaviorRecorder engine="plerdy"/>
-                </CacheProvider>
-            </ConfigProvider>
-        </GlobalErrorBoundary>
+        <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize={'large'}>
+            <CacheProvider value={cache}>
+                <GlobalStyle/>
+                <FocusContextProvider>
+                    <OnBoardingProvider>
+                        <SubscriptionProvider>
+                            <LayoutContextProvider>
+                                <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                    <RequiredAccess>
+                                        <Component {...pageProps} />
+                                        {
+                                            isEndTrialSubscriptionReminderPopupVisible && (
+                                                <EndTrialSubscriptionReminderPopup/>
+                                            )
+                                        }
+                                    </RequiredAccess>
+                                </LayoutComponent>
+                            </LayoutContextProvider>
+                        </SubscriptionProvider>
+                    </OnBoardingProvider>
+                </FocusContextProvider>
+                <GoogleAnalytics/>
+                <BehaviorRecorder engine="plerdy"/>
+            </CacheProvider>
+        </ConfigProvider>
     )
 }
+
 const { publicRuntimeConfig: { defaultLocale } } = getConfig()
 
 async function messagesImporter (locale) {

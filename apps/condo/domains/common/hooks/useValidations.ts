@@ -27,6 +27,7 @@ type ValidationSettings = {
 
 type UseValidations = (settings?: ValidationSettings) => ValidatorTypes
 
+// TODO(DOMA-1588): Add memoization for hook members to prevent unnecessary rerenders
 export const useValidations: UseValidations = (settings = {}) => {
     const intl = useIntl()
     const ThisFieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })

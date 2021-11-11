@@ -1,10 +1,11 @@
-const SPACE_SYMBOLS = ' \t\n\r\v'
+const SPACE_SYMBOLS = ' \t\n\r\v\u00A0'
 const SPACE_SYMBOL_LABLES = {
     ' ': ' ',
     '\t': '\\t',
     '\n': '\\n',
     '\r': '\\r',
     '\v': '\\v',
+    '\u00A0': '\\u00A0 (&nbsp;)',
 }
 // eslint-disable-next-line no-useless-escape
 const ESCAPABLE_SYMBOLS = `-[]{}()*+?.,\\/^$|#${SPACE_SYMBOLS}`
@@ -19,4 +20,5 @@ module.exports = {
     ESCAPABLE_SYMBOLS,
     ESCAPABLE_SYMBOLS_REGEX,
     SPACE_SYMBOL_LABLES,
+    SPACE_SYMBOLS,
 }

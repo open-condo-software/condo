@@ -1,12 +1,16 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core'
-import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import {
+    PageContent,
+    PageHeader,
+    PageWrapper,
+    useLayoutContext,
+} from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { MeterReading } from '@condo/domains/meter/utils/clientSchema'
-import { DatabaseFilled, FilterFilled } from '@ant-design/icons'
+import { FilterFilled } from '@ant-design/icons'
 import { useIntl } from '@core/next/intl'
-import { useLazyQuery } from '@core/next/apollo'
-import { Col, Form, Input, notification, Row, Typography } from 'antd'
+import { Col, Input, Row, Typography } from 'antd'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { get } from 'lodash'
@@ -15,76 +19,17 @@ import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Button } from '@condo/domains/common/components/Button'
 import { useOrganization } from '@core/next/organization'
 import { SortMeterReadingsBy } from '@app/condo/schema'
-import {
-    getPageIndexFromOffset,
-    parseQuery,
-} from '@condo/domains/common/utils/tables.utils'
+import { getPageIndexFromOffset, getTableScrollConfig, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { EXPORT_METER_READINGS } from '@condo/domains/meter/gql'
-import ActionBar from '@condo/domains/common/components/ActionBar'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { useMeterInfoModal } from '@condo/domains/meter/hooks/useMeterInfoModal'
 import { useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { useFilters } from '@condo/domains/meter/hooks/useFilters'
-
-export const ExportToExcelActionBar = ({
-    searchMeterReadingsQuery,
-    sortBy,
-}) => {
-    const intl = useIntl()
-    const ExportAsExcel = intl.formatMessage({ id: 'ExportAsExcel' })
-    const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.ticket.id.DownloadExcelLabel' })
-    const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
-
-    const [downloadLink, setDownloadLink] = useState(null)
-
-    const [
-        exportToExcel,
-        { loading: isXlsLoading },
-    ] = useLazyQuery(
-        EXPORT_METER_READINGS,
-        {
-            onError: error => {
-                notification.error(error)
-            },
-            onCompleted: data => {
-                setDownloadLink(data.result.linkToFile)
-            },
-        },
-    )
-
-    return (
-        <Form.Item noStyle>
-            <ActionBar>
-                {
-                    downloadLink
-                        ?
-                        <Button
-                            type={'inlineLink'}
-                            icon={<DatabaseFilled />}
-                            loading={isXlsLoading}
-                            target='_blank'
-                            href={downloadLink}
-                            rel='noreferrer'>{DownloadExcelLabel}
-                        </Button>
-                        :
-                        <Button
-                            type={'sberPrimary'}
-                            secondary
-                            icon={<DatabaseFilled />}
-                            loading={isXlsLoading}
-                            onClick={
-                                () => exportToExcel({ variables: { data: { where: searchMeterReadingsQuery, sortBy: sortBy, timeZone } } })
-                            }>{ExportAsExcel}
-                        </Button>
-                }
-            </ActionBar>
-        </Form.Item>
-    )
-}
+import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 
 export const MetersPageContent = ({
     searchMeterReadingsQuery,
@@ -117,9 +62,10 @@ export const MetersPageContent = ({
         fetchPolicy: 'network-only',
     })
 
-    const [search, handleSearchChange] = useSearch(loading)
+    const { isSmall } = useLayoutContext()
+    const [ search, handleSearchChange ] = useSearch(loading)
     const { MeterInfoModal, setIsMeterInfoModalVisible } = useMeterInfoModal()
-    const [selectedMeterId, setSelectedMeterId] = useState<string>()
+    const [ selectedMeterId, setSelectedMeterId ] = useState<string>()
     const { MultipleFiltersModal, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas)
 
     const handleRowAction = useCallback((record) => {
@@ -152,8 +98,8 @@ export const MetersPageContent = ({
                                 <Row gutter={[0, 40]} align={'middle'} justify={'center'}>
                                     <Col span={23}>
                                         <FocusContainer padding={'16px'}>
-                                            <Row justify={'space-between'}>
-                                                <Col span={7}>
+                                            <Row justify={'space-between'} gutter={[0, 40]}>
+                                                <Col xs={24} lg={7}>
                                                     <Input
                                                         placeholder={SearchPlaceholder}
                                                         onChange={(e) => {handleSearchChange(e.target.value)}}
@@ -175,6 +121,7 @@ export const MetersPageContent = ({
                                     </Col>
                                     <Col span={24}>
                                         <Table
+                                            scroll={getTableScrollConfig(isSmall)}
                                             totalRows={total}
                                             loading={loading}
                                             dataSource={meterReadings}
@@ -184,7 +131,9 @@ export const MetersPageContent = ({
                                     </Col>
 
                                     <ExportToExcelActionBar
-                                        searchMeterReadingsQuery={searchMeterReadingsQuery}
+                                        hidden={isSmall}
+                                        searchObjectsQuery={searchMeterReadingsQuery}
+                                        exportToExcelQuery={EXPORT_METER_READINGS}
                                         sortBy={sortBy}
                                     />
                                 </Row>
@@ -209,7 +158,7 @@ const MetersPage: IMeterIndexPage = () => {
 
     const filterMetas = useFilters()
 
-    const sortableProperties = ['date', 'address', 'resource', 'number', 'place', 'value1', 'clientName', 'source']
+    const sortableProperties = ['date', 'clientName', 'source']
 
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, sortableProperties)
 

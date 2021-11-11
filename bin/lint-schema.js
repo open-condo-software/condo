@@ -1,5 +1,10 @@
-const { prepareKeystoneExpressApp } = require('@core/keystone/test.utils')
 const path = require('path')
+
+const { File } = require('@keystonejs/fields')
+const { LocalFileAdapter } = require('@keystonejs/file-adapters')
+
+const { prepareKeystoneExpressApp } = require('@core/keystone/test.utils')
+const { SberCloudFileAdapter } = require('@condo/domains/common/utils/sberCloudFileAdapter')
 
 const APPS = ['condo']
 
@@ -24,6 +29,13 @@ function verifySchema (keystone) {
                             report(`${list.key}->${field.path} knexOptions should not contain on_delete key!`)
                         }
                     }
+                }
+            }
+            if (field instanceof File.implementation) {
+                const isLocalFileAdapter = field.config.adapter instanceof LocalFileAdapter
+                const isSberCloudFileAdapter = field.config.adapter instanceof SberCloudFileAdapter
+                if (!isLocalFileAdapter && !isSberCloudFileAdapter) {
+                    report(`${list.key}->${field.path} unknown file field adapter! Probably, you have a wrong FILE_FIELD_ADAPTER value`)
                 }
             }
         })

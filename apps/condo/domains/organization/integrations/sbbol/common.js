@@ -1,6 +1,8 @@
 const Ajv = require('ajv')
-const conf = process.env
-const dayjs = require('dayjs')
+const pino = require('pino')
+const falsey = require('falsey')
+// NOTE: same as keystone logger
+const logger = pino({ name: 'sbbol', enabled: falsey(process.env.DISABLE_LOGGING) })
 
 const SBBOL_IMPORT_NAME = 'sbbol'
 const SBBOL_SESSION_KEY = 'sbbol'
@@ -34,17 +36,9 @@ function getSbbolUserInfoErrors (userInfo) {
     return (ajv.errors) ? ajv.errors.map(x => x.message) : []
 }
 
-// eslint-disable-next-line no-shadow-restricted-names
-const debugMessage = (...arguments) => {
-    if (conf.SBBOL_DEBUG) {
-        console.debug(dayjs().format('YYYY-MM-DD HH:mm:ssZ[Z]'))
-        console.debug(...arguments)
-    }
-}
-
 module.exports = {
     getSbbolUserInfoErrors,
     SBBOL_IMPORT_NAME,
     SBBOL_SESSION_KEY,
-    debugMessage,
+    logger,
 }

@@ -1,28 +1,26 @@
-import { useCallback, useState } from 'react'
-import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
+import { useCallback } from 'react'
+import { get, debounce } from 'lodash'
 import { useRouter } from 'next/router'
-import qs from 'qs'
-import { pickBy, get, debounce } from 'lodash'
-import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
+import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 
-export const useEmergencySearch = <F>(loading): [boolean, (e: CheckboxChangeEvent) => void] => {
+import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
+import { setFiltersToQuery } from '@condo/domains/common/utils/filters.utils'
+
+export const useEmergencySearch = <F>(loading: boolean): [boolean, (e: CheckboxChangeEvent) => void] => {
     const router = useRouter()
     const filtersFromQuery = getFiltersFromQuery<F>(router.query)
-    const searchValue = get(filtersFromQuery, 'isEmergency') === true
-    const [isEmergency, setIsEmergency] = useState(searchValue)
 
-    const searchChange = useCallback(debounce((e) => {
-        const query = qs.stringify(
-            { ...router.query, filters: JSON.stringify(pickBy({ ...filtersFromQuery, isEmergency: e })) },
-            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-        )
+    const attributes = get(filtersFromQuery, 'attributes', [])
+    const isEmergency = attributes.includes('isEmergency')
 
-        router.push(router.route + query)
-    }, 400), [loading])
+    const setIsEmergency = useCallback(debounce(async (isEmergency) => {
+        const queryAttributes = isEmergency ? [...attributes, 'isEmergency'] : attributes.filter(attr => attr !== 'isEmergency')
+
+        await setFiltersToQuery(router, { ...filtersFromQuery, attributes: queryAttributes }, true)
+    }, 400), [loading, attributes, isEmergency])
 
     const handleEmergencyChange = (e: CheckboxChangeEvent): void => {
         setIsEmergency(e.target.checked)
-        searchChange(e.target.checked)
     }
 
     return [isEmergency, handleEmergencyChange]

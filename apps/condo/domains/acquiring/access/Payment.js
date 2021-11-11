@@ -25,7 +25,7 @@ async function canReadPayments ({ authentication: { item: user } }) {
             // Acquiring integration account can see it's payments
             { context: { integration: { accessRights_some: { user: { id: user.id } } } } },
             // Employee with `canReadPayments` can see theirs organization payments
-            { context: { organization: { employees_some: { user: { id: user.id }, role: { canReadPayments: true }, deletedAt: null, isBlocked: false } } } },
+            { organization: { employees_some: { user: { id: user.id }, role: { canReadPayments: true }, deletedAt: null, isBlocked: false } } },
         ],
     }
 }
@@ -50,13 +50,14 @@ async function canReadPaymentsSensitiveData ({ authentication: { item: user }, e
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
     const [acquiringContext] = await AcquiringIntegrationContext.getAll(context, { id: existingItem.context })
-    if (!acquiringContext) return false
-    // If user is acquiring integration
-    const integrationId = get(acquiringContext, ['integration', 'id'])
-    if (await checkAcquiringIntegrationAccessRight(user.id, integrationId)) return true
-    // If user has `canReadPayments` attribute
-    const organizationId = get(acquiringContext, ['organization', 'id'])
-    return !!(await checkOrganizationPermission(context, user.id, organizationId, 'canReadPayments'))
+    // If context exist => check is it's integration account
+    if (acquiringContext) {
+        const integrationId = get(acquiringContext, ['integration', 'id'])
+        if (await checkAcquiringIntegrationAccessRight(user.id, integrationId)) return true
+    }
+
+    // Otherwise check if it's employee or not
+    return !!(await checkOrganizationPermission(context, user.id, existingItem.organization, 'canReadPayments'))
 }
 
 

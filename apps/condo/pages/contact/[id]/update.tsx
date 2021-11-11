@@ -26,9 +26,13 @@ const ContactUpdatePage = () => {
     )
 }
 
-ContactUpdatePage.headerAction = <ReturnBackHeaderAction
-    descriptor={{ id: 'pages.condo.contact.PageTitle' }}
-    path={(id) => `/contact/${id}/`} />
+ContactUpdatePage.headerAction = (
+    <ReturnBackHeaderAction
+        descriptor={{ id: 'pages.condo.contact.PageTitle' }}
+        path={(id) => `/contact/${id}/`}
+    />
+)
+
 ContactUpdatePage.requiredAccess = OrganizationRequired
 
 export default ContactUpdatePage

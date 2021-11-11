@@ -7,12 +7,12 @@ import { TOO_MANY_REQUESTS } from '@condo/domains/user/constants/errors'
 import { START_CONFIRM_PHONE_MUTATION } from '@condo/domains/user/gql'
 import { useMutation } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
-import { Col, Form, Row, Tooltip, Typography } from 'antd'
+import { Col, Form, Row, Typography } from 'antd'
 import Router from 'next/router'
 import React, { useCallback, useContext, useMemo, useState } from 'react'
 import { FormattedMessage } from 'react-intl'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { RegisterContext } from './RegisterContextProvider'
-import { FeatureFlagRequired, hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
 
 
@@ -37,6 +37,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
     const SberIdRegisterMsg = intl.formatMessage({ id: 'SberIdRegister' })
 
+    const { isSmall } = useLayoutContext()
     const { setToken, setPhone, handleReCaptchaVerify } = useContext(RegisterContext)
     const [smsSendError, setSmsSendError] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
@@ -137,22 +138,24 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
                 </Col>
                 <Col span={24}>
                     <Row justify={'space-between'} gutter={[0, 12]}>
-                        <Col lg={24} xl={11}>
+                        <Col xs={24} lg={11}>
                             <Button
                                 key='submit'
                                 type='sberPrimary'
                                 htmlType='submit'
                                 loading={isLoading}
+                                block={isSmall}
                             >
                                 {RegisterMsg}
                             </Button>
                         </Col>
-                        <Col lg={24} xl={11}>
+                        <Col xs={24} lg={11}>
                             <Button
                                 key='submit'
                                 type='sberAction'
                                 icon={<SberIconWithoutLabel/>}
                                 href={'/api/sbbol/auth'}
+                                block={isSmall}
                             >
                                 {SberIdRegisterMsg}
                             </Button>

@@ -1,15 +1,28 @@
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
+const { SPACE_SYMBOLS, SPACE_SYMBOL_LABLES } = require('@condo/domains/common/utils/string.utils')
 const { isValidTin } = require('@condo/domains/organization/utils/tin.utils')
 
+const SPACES = SPACE_SYMBOLS.split('')
 const VALID_RU_TIN_10 = '1654019570'
+const VALID_RU_TIN_10_1 = '6311095616'
+const VALID_TINS = [VALID_RU_TIN_10, VALID_RU_TIN_10_1]
 const VALID_RU_TIN_12 = '500110474504'
 const INVALID_RU_TIN_10 = '01234556789'
 const INVALID_RU_TIN_12 = '0123455678901'
 const SOME_RANDOM_LETTERS = 'ABCDEFGHIJ'
 
 describe('isValidTin()', () => {
-    test('for valid 10 char RU INN ', () => {
-        expect(isValidTin(VALID_RU_TIN_10, RUSSIA_COUNTRY)).toBe(true)
+    VALID_TINS.forEach(tin => {
+        test(`for valid 10 char RU INN (${tin})`, () => {
+            expect(isValidTin(tin, RUSSIA_COUNTRY)).toBe(true)
+        })
+        SPACES.forEach(spaceSymbol => {
+            test(`for valid 10 char RU INN (${tin}) with spaces symbol (${SPACE_SYMBOL_LABLES[spaceSymbol] || spaceSymbol})`, () => {
+                const tinValue = `${spaceSymbol}${tin}${spaceSymbol}`
+
+                expect(isValidTin(tinValue, RUSSIA_COUNTRY)).toBe(true)
+            })
+        })
     })
     test('for valid 12 char RU INN ', () => {
         // NOTE: we need INNs only for organizations, that is of 10 chars length.

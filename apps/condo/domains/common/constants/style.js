@@ -100,6 +100,10 @@ const gradients = {
     fadeOutGradient: 'linear-gradient(180deg, #FFFFFF 21.92%,rgba(255,255,255,0) 106.02%)',
 }
 
+const zIndex = {
+    mobileSidenav: 100,
+}
+
 const DEFAULT_BORDER_WIDTH = '2px'
 const DEFAULT_STRONG_TEXT_FONT_WEIGHT = 800
 
@@ -154,6 +158,7 @@ const antGlobalVariables = {
 const ELLIPSIS_ROWS = 3
 
 module.exports = {
+    zIndex,
     colors,
     gradients,
     antGlobalVariables,

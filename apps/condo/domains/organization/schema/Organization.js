@@ -52,8 +52,8 @@ const Organization = new GQLListSchema('Organization', {
 
                 if (!country || !meta) return null
 
-                // TODO: DOMA-663 rename Organization.meta.inn to Organization.meta.tin and fix corresponding code
-                const innValue = get(meta, 'inn')
+                // TODO(DOMA-663): rename Organization.meta.inn to Organization.meta.tin and fix corresponding code
+                const innValue = get(meta, 'inn', '').toString().trim()
                 const isValid = isValidTin(innValue, item.country)
 
                 return isValid ? innValue : null

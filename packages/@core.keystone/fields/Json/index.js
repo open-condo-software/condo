@@ -1,4 +1,4 @@
-const { JsonImplementation, JsonKnexFieldAdapter, JsonMongooseFieldAdapter } = require('./Implementation')
+const { JsonImplementation, JsonKnexFieldAdapter, JsonMongooseFieldAdapter, JsonPrismaFieldAdapter } = require('./Implementation')
 const { Text } = require('@keystonejs/fields')
 
 module.exports = {
@@ -7,6 +7,7 @@ module.exports = {
     adapters: {
         knex: JsonKnexFieldAdapter,
         mongoose: JsonMongooseFieldAdapter,
+        prisma: JsonPrismaFieldAdapter,
     },
     views: {
         // Note: You cannot currently import and extend a controller

@@ -6,7 +6,7 @@ import { useOrganization } from '@core/next/organization'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
 import { useApolloClient } from '@core/next/apollo'
-import { get, find, isEmpty, first } from 'lodash'
+import { get, find, isEmpty } from 'lodash'
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 import { Button } from '@condo/domains/common/components/Button'
 import {
@@ -17,6 +17,7 @@ import {
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { ErrorsContainer } from '@condo/domains/organization/components/ErrorsContainer'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { EmployeeRoleSelect } from '../EmployeeRoleSelect'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
@@ -39,9 +40,9 @@ const INPUT_LAYOUT_PROPS = {
 }
 
 const CardCss = css`
-    width: 300px;
-    height: fit-content;
-    box-shadow: ${shadows.elevated};
+  width: 300px;
+  height: fit-content;
+  box-shadow: ${shadows.elevated};
 `
 
 export const CreateEmployeeForm: React.FC = () => {
@@ -64,6 +65,7 @@ export const CreateEmployeeForm: React.FC = () => {
     const classifiersLoader = new ClassifiersQueryRemote(useApolloClient())
     const { organization } = useOrganization()
     const router = useRouter()
+    const { isSmall } = useLayoutContext()
 
     const { objs: employee } = OrganizationEmployee.useObjects(
         { where: { organization: { id: organization.id } } },
@@ -108,19 +110,19 @@ export const CreateEmployeeForm: React.FC = () => {
         // Load all of them.
         classifiersLoader.search(input, TicketClassifierTypes.category, { first: undefined })
             .then(result=>result.map((classifier)=> ({ text: classifier.name, value: classifier.id })))
-        
+
     useEffect(()=> {
         classifiersLoader.init()
         return () => classifiersLoader.clear()
     }, [])
 
-    if (loading || error) 
+    if (loading || error)
         return <LoadingOrErrorPage title={InviteEmployeeLabel} loading={loading} error={error ? ServerErrorMsg : null} />
 
     const initialValues = {
         role: get(employeeRoles, [0, 'id'], ''),
     }
-   
+
     return (
         <FormWithAction
             action={action}
@@ -148,7 +150,7 @@ export const CreateEmployeeForm: React.FC = () => {
                     return (
                         <>
                             <Row>
-                                <Col span={14}>
+                                <Col lg={14} xs={24}>
                                     <Row gutter={[0, 40]}>
                                         <Col span={24}>
                                             <Row gutter={[0, 24]}>
@@ -227,29 +229,31 @@ export const CreateEmployeeForm: React.FC = () => {
                                         </Col>
                                     </Row>
                                 </Col>
-                                <Col span={10}>
-                                    <Form.Item dependencies={['role']}>
-                                        {({ getFieldValue }) => {
-                                            const roleId = getFieldValue('role')
-                                            const role = employeeRoles.find(x => x.id === roleId)
-                                            if (!role) return null
-                                            return (
-                                                <Card
-                                                    title={role.name}
-                                                    bordered={false}
-                                                    css={CardCss}
-                                                    headStyle={{
-                                                        color: colors.lightGrey[10],
-                                                        fontSize: 24,
-                                                        fontWeight: 'bold',
-                                                    }}
-                                                >
-                                                    {role.description}
-                                                </Card>
-                                            )
-                                        }}
-                                    </Form.Item>
-                                </Col>
+                                {!isSmall && (
+                                    <Col span={10}>
+                                        <Form.Item dependencies={['role']}>
+                                            {({ getFieldValue }) => {
+                                                const roleId = getFieldValue('role')
+                                                const role = employeeRoles.find(x => x.id === roleId)
+                                                if (!role) return null
+                                                return (
+                                                    <Card
+                                                        title={role.name}
+                                                        bordered={false}
+                                                        css={CardCss}
+                                                        headStyle={{
+                                                            color: colors.lightGrey[10],
+                                                            fontSize: 24,
+                                                            fontWeight: 'bold',
+                                                        }}
+                                                    >
+                                                        {role.description}
+                                                    </Card>
+                                                )
+                                            }}
+                                        </Form.Item>
+                                    </Col>
+                                )}
                             </Row>
                             <Form.Item noStyle dependencies={['phone']}>
                                 {

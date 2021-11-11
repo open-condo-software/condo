@@ -78,6 +78,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
     const intl = useIntl()
 
     const [isActive, setIsActive] = useState(false)
+
     useEffect(() => {
         setIsActive(path === '/' ? route === path : route.includes(path))
     }, [route, path])

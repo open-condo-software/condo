@@ -3,6 +3,9 @@ const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/integrations/sbbol/common')
 const { SbbolRequestApi } = require('@condo/domains/organization/integrations/sbbol/SbbolRequestApi')
 const { TokenSet: TokenSetApi, Organization: OrganizationApi } = require('@condo/domains/organization/utils/serverSchema')
+const conf = require('@core/config')
+const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
+
 
 class SbbolTokenManager {
 
@@ -18,8 +21,8 @@ class SbbolTokenManager {
         this.context = await keystone.createContext({ skipAccessControl: true })
     }
 
-    async getAccessToken ( organizationImportId = null ) {
-        const serviceToken = await SbbolRequestApi.getServiceOrganizationAccessToken()
+    async getAccessToken () {
+        const serviceToken = await SbbolRequestApi.getOrganizationAccessToken(SBBOL_FINTECH_CONFIG.service_organization_hashOrgId)
         return serviceToken
     }
 

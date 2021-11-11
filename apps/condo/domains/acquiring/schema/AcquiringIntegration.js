@@ -7,6 +7,10 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/acquiring/access/AcquiringIntegration')
+const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
+const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
+const { INTEGRATION_NO_BILLINGS_ERROR } = require('@condo/domains/acquiring/constants/errors')
+const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
 
 
 const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
@@ -35,14 +39,8 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             isRequired: true,
         },
         
-        feeCalculationUrl: {
-            schemaDoc: 'Url to acquiring integration service. Mobile devices will use it to pass MultiPayment ID and get know about explicitFee. All fees will also be calculated there',
-            type: Text,
-            isRequired: true,
-        },
-
-        paymentUrl: {
-            schemaDoc: 'Url to acquiring integration service. Mobile devices will use it to pass MultiPayment ID and start payment process',
+        hostUrl: {
+            schemaDoc: 'Url to acquiring integration service. Mobile devices will use it communicate with external acquiring. List of endpoints is the same for all of them.',
             type: Text,
             isRequired: true,
         },
@@ -53,6 +51,18 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             ref: 'BillingIntegration',
             isRequired: true,
             many: true,
+            hooks: {
+                validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
+                    if (resolvedData[fieldPath] && !resolvedData[fieldPath].length) {
+                        addFieldValidationError(INTEGRATION_NO_BILLINGS_ERROR)
+                    }
+                },
+            },
+        },
+
+        explicitFeeDistributionSchema: {
+            ...FEE_DISTRIBUTION_SCHEMA_FIELD,
+            schemaDoc: 'Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient',
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
@@ -62,6 +72,17 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
         update: access.canManageAcquiringIntegrations,
         delete: false,
         auth: true,
+    },
+    hooks: {
+        validateInput: ({ resolvedData, context, addValidationError }) => {
+            if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
+            const { dv } = resolvedData
+            if (dv === 1) {
+                // NOTE: version 1 specific translations. Don't optimize this logic
+            } else {
+                return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
+            }
+        },
     },
 })
 

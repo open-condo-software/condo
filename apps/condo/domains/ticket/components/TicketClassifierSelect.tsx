@@ -130,6 +130,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
         ruleRef.current = { ...ruleRef.current, [type]: id, ...clearProblem }
         updateLevels({ [type]: id })
     }
+
     const onUserSearch = async (input, type) => {
         const classifiers = await ClassifierLoader.search(input, type)
         Setter[type].search(classifiers)
@@ -237,7 +238,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     }
 
     // Every time user choose some option from select we are trying to find what exact rule is matching for this combination
-    // When  place and category are chosen we set rule with problem=null
+    // When place and category are chosen we set rule with problem=null
     const updateRuleId = async () => {
         const querySelectors = pick(ruleRef.current, ['place', 'category', 'problem'])
         const query = {}

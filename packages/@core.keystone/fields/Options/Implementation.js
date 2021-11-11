@@ -1,5 +1,5 @@
 const { Implementation } = require('@keystonejs/fields')
-const { JsonKnexFieldAdapter, JsonMongooseFieldAdapter } = require('../Json/Implementation')
+const { JsonKnexFieldAdapter, JsonMongooseFieldAdapter, JsonPrismaFieldAdapter } = require('../Json/Implementation')
 
 class OptionsImplementation extends Implementation {
     constructor (path, { options }, listConfig) {
@@ -149,4 +149,5 @@ module.exports = {
     OptionsImplementation,
     OptionsKnexFieldAdapter: JsonKnexFieldAdapter,
     OptionsMongooseFieldAdapter: JsonMongooseFieldAdapter,
+    OptionsPrismaFieldAdapter: JsonPrismaFieldAdapter,
 }

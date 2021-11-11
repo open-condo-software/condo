@@ -36,9 +36,7 @@ interface ITicketAnalyticsPageChartProps extends ITicketAnalyticsPageWidgetProps
 }
 
 const ChartViewContainer = styled.div`
-    & {
-      position: relative;
-    }
+  position: relative;
 `
 
 const ScrollContainer = styled.div<{ height: string }>`
@@ -48,22 +46,25 @@ const ScrollContainer = styled.div<{ height: string }>`
   height: ${({ height }) => height};
 `
 
-const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = ({
-    children,
-    data,
-    viewMode,
-    loading = false,
-    onChartReady,
-    chartConfig,
-    mapperInstance,
-    mainGroup = 'ticket',
-}) => {
+const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {
+    const {
+        children,
+        data,
+        viewMode,
+        loading = false,
+        onChartReady,
+        chartConfig,
+        mapperInstance,
+        mainGroup = 'ticket',
+    } = props
+
     const intl = useIntl()
     const NoData = intl.formatMessage({ id: 'NoData' })
     const LoadMoreTitle = intl.formatMessage(
         { id: 'pages.condo.analytics.TicketAnalyticsPage.TicketChartView.LoadMoreTitle' },
         { entity: intl.formatMessage({ id: `component.TicketWarningModal.Entity.${mainGroup}` }) }
     )
+
     let legend = [], tooltip = null, color = CHART_COLOR_SET
     const [chartReadyCounter, setChartReadyCounter] = useState<number>(0)
     // Start from 1 because used as multiplier with TICKET_CHART_PAGE_SIZE

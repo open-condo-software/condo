@@ -30,16 +30,28 @@ const GET_ALL_CLASSIFIERS_QUERY = gql`
 `
 
 const GET_ALL_PROPERTIES_BY_VALUE_QUERY = gql`
-    query selectProperty ($where: PropertyWhereInput, $orderBy: String) {
-        objs: allProperties(where: $where, orderBy: $orderBy, first: 10) {
+    query selectProperty ($where: PropertyWhereInput, $orderBy: String, $first: Int) {
+        objs: allProperties(where: $where, orderBy: $orderBy, first: $first) {
             id
             address
         }
     }
 `
 
+const GET_ALL_DIVISIONS_BY_VALUE_QUERY = gql`
+    query selectDivision ($where: DivisionWhereInput, $orderBy: String) {
+        objs: allDivisions(where: $where, orderBy: $orderBy, first: 10) {
+            id
+            name
+            properties { 
+                id
+            }
+        }
+    }
+`
+
 const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
-    query selectOrgarnizationEmployee ($value: String, $organizationId: ID) {
+    query selectOrganizationEmployee ($value: String, $organizationId: ID) {
         objs: allOrganizationEmployees(where: {name_contains_i: $value, organization: { id: $organizationId }}) {
             name
             id
@@ -57,7 +69,7 @@ const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
 `
 
 const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY_WITH_EMAIL = gql`
-    query selectOrgarnizationEmployee ($value: String, $organizationId: ID) {
+    query selectOrganizationEmployee ($value: String, $organizationId: ID) {
         objs: allOrganizationEmployees(where: {name_contains_i: $value, organization: { id: $organizationId } }) {
             id
             name
@@ -87,61 +99,87 @@ async function _search (client, query, variables) {
     })
 }
 
-export async function searchProperty (client, where, orderBy) {
-    const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_BY_VALUE_QUERY, { where, orderBy })
+export async function searchProperty (client, where, orderBy, first = 10) {
+    const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_BY_VALUE_QUERY, { where, orderBy, first })
     if (error) console.warn(error)
     if (data) return data.objs.map(x => ({ text: x.address, value: x.id }))
+
     return []
 }
 
 export function searchOrganizationProperty (organizationId) {
     if (!organizationId) return
-    return async function (client, value) {
+    return async function (client, searchText, query = {}, first = 10) {
         const where = {
             organization: {
                 id: organizationId,
             },
-            address_contains_i: value,
+            ...!isEmpty(searchText) ? { address_contains_i: searchText } : {},
+            ...query,
         }
         const orderBy = 'address_ASC'
-        const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_BY_VALUE_QUERY, { where, orderBy })
+        const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_BY_VALUE_QUERY, { where, orderBy, first })
         if (error) console.warn(error)
+
         return data.objs.map(({ address, id }) => ({ text: address, value: id }))
+    }
+}
+
+export function searchOrganizationDivision (organizationId: string) {
+    if (!organizationId) return
+
+    return async function (client, value) {
+        const where = {
+            organization: {
+                id: organizationId,
+                deletedAt: null,
+            },
+            name_contains_i: value,
+            deletedAt: null,
+        }
+        const orderBy = 'name_ASC'
+        const { data = [], error } = await _search(client, GET_ALL_DIVISIONS_BY_VALUE_QUERY, { where, orderBy })
+
+        if (error) console.warn(error)
+
+        return data.objs.map(({ name, properties }) => ({ text: name, value: String(properties.map(property => property.id)) }))
     }
 }
 
 export async function searchSingleProperty (client, propertyId, organizationId) {
     const { data, error } = await _search(client, GET_PROPERTY_BY_ID_QUERY, { propertyId, organizationId })
 
-    if (error) {
-        console.warn(error)
-    }
+    if (error) console.warn(error)
 
-    if (!data) {
-        return undefined
-    }
+    if (!data) return undefined
 
     return data.objs[0]
 }
 
 export async function searchTicketSources (client, value) {
     const { data, error } = await _search(client, GET_ALL_SOURCES_QUERY, { value })
+
     if (error) console.warn(error)
     if (data) return data.objs.map(x => ({ text: x.name, value: x.id }))
+
     return []
 }
 
 export async function searchTicketClassifier (client, value) {
     const { data, error } = await _search(client, GET_ALL_CLASSIFIERS_QUERY, { value })
+
     if (error) console.warn(error)
     if (data) return data.objs.map(x => ({ text: x.name, value: x.id }))
+
     return []
 }
 
 export function searchEmployeeUser (organizationId, filter = null) {
     if (!organizationId) return
+
     return async function (client, value) {
         const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, organizationId })
+
         if (error) console.warn(error)
 
         const result = data.objs
@@ -157,8 +195,10 @@ export function searchEmployeeUser (organizationId, filter = null) {
 
 export function searchEmployee (organizationId, filter) {
     if (!organizationId) return
+
     return async function (client, value) {
         const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, organizationId })
+
         if (error) console.warn(error)
 
         return data.objs
@@ -170,12 +210,15 @@ export function searchEmployee (organizationId, filter) {
 export function getEmployeeWithEmail (organizationId) {
     return async function (client, value) {
         const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY_WITH_EMAIL, { value, organizationId })
+
         if (error) console.warn(error)
+
         const result = data.objs.map(object => {
             if (object.user) {
                 return ({ text: object.name, id: object.id, value: { id: object.user.id, hasEmail: !isEmpty(object.email) } })
             }
         }).filter(Boolean)
+
         return result
     }
 }

@@ -1,19 +1,30 @@
+import { TableProps as RcTableProps } from 'rc-table/lib/Table'
 import React from 'react'
 import { useIntl } from '@core/next/intl'
 import { Skeleton, Table, TableColumnsType } from 'antd'
 import { ticketAnalyticsPageFilters } from '@condo/domains/ticket/utils/helpers'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { ITicketAnalyticsPageWidgetProps } from './TicketChartView'
 
 interface ITicketAnalyticsPageListViewProps extends ITicketAnalyticsPageWidgetProps {
     filters: null | ticketAnalyticsPageFilters
 }
 
-const TicketListView: React.FC<ITicketAnalyticsPageListViewProps> = ({
-    loading = false,
-    data,
-    viewMode,
-    mapperInstance,
-    filters }) => {
+const getScrollConfig = (isSmall: boolean) => {
+    const config: RcTableProps['scroll'] & { scrollToFirstRowOnChange?: boolean; } = {
+        scrollToFirstRowOnChange: true,
+    }
+
+    if (isSmall) {
+        config.x = true
+    }
+
+    return config
+}
+
+const TicketListView: React.FC<ITicketAnalyticsPageListViewProps> = (props) => {
+    const { loading = false, data, viewMode, mapperInstance, filters } = props
+
     const intl = useIntl()
     const DateTitle = intl.formatMessage({ id: 'Date' })
     const AddressTitle = intl.formatMessage({ id: 'field.Address' })
@@ -24,9 +35,12 @@ const TicketListView: React.FC<ITicketAnalyticsPageListViewProps> = ({
     const AllCategoryClassifiersTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllClassifiers' })
     const AllExecutorsTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllExecutors' })
     const AllAssigneesTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllAssignees' })
+    const { isSmall } = useLayoutContext()
+
     if (data === null || filters === null || loading) {
         return <Skeleton loading={loading} active paragraph={{ rows: 10 }} />
     }
+
     const restOptions = {
         translations: {
             date: DateTitle,
@@ -46,12 +60,14 @@ const TicketListView: React.FC<ITicketAnalyticsPageListViewProps> = ({
             assignee: filters.responsibleList.map(({ value }) => value),
         },
     }
+
     const { tableColumns, dataSource } = mapperInstance.getTableConfig(viewMode, data, restOptions)
+
     return (
         <Table
             bordered
             tableLayout={'fixed'}
-            scroll={{ scrollToFirstRowOnChange: false }}
+            scroll={getScrollConfig(isSmall)}
             dataSource={dataSource}
             columns={tableColumns as TableColumnsType}
             pagination={false}

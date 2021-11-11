@@ -1,4 +1,9 @@
-import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import {
+    PageContent,
+    PageHeader,
+    PageWrapper,
+    useLayoutContext,
+} from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import {
     filtersToQuery,
@@ -11,11 +16,10 @@ import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { IFilters } from '@condo/domains/contact/utils/helpers'
 import { useIntl } from '@core/next/intl'
 
-import { Col, Input, Row, Space, Table, Typography } from 'antd'
+import { Col, Input, Row, Table, Typography } from 'antd'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import qs from 'qs'
-import { pickBy, get, debounce } from 'lodash'
+import { get, debounce } from 'lodash'
 import React, { useCallback, useState } from 'react'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useTableColumns } from '@condo/domains/contact/hooks/useTableColumns'
@@ -28,6 +32,8 @@ import { TitleHeaderAction } from '@condo/domains/common/components/HeaderAction
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { DiffOutlined } from '@ant-design/icons'
 import { useImporterFunctions } from '@condo/domains/contact/hooks/useImporterFunctions'
+import { setFiltersToQuery } from '@condo/domains/common/utils/filters.utils'
+import { getTableScrollConfig } from '@condo/domains/common/utils/tables.utils'
 
 const ADD_CONTACT_ROUTE = '/contact/create/'
 
@@ -52,6 +58,7 @@ export const ContactsPageContent = ({
     const router = useRouter()
     const offsetFromQuery = getPageIndexFromQuery(router.query)
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
+    const { isSmall } = useLayoutContext()
 
     const canManageContacts = get(role, 'canManageContacts', false)
 
@@ -93,13 +100,8 @@ export const ContactsPageContent = ({
                 where: filters,
                 skip: offset,
                 first: CONTACT_PAGE_SIZE,
-            }).then(() => {
-                const query = qs.stringify(
-                    { ...router.query, sort, offset, filters: JSON.stringify(pickBy({ ...filtersFromQuery, ...nextFilters })) },
-                    { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-                )
-
-                router.push(router.route + query)
+            }).then(async () => {
+                await setFiltersToQuery(router, { ...filtersFromQuery, ...nextFilters })
             })
         }
     }, 400), [loading])
@@ -118,73 +120,87 @@ export const ContactsPageContent = ({
                 <PageContent>
                     {
                         !contacts.length && !filtersFromQuery
-                            ? <EmptyListView
-                                label={EmptyListLabel}
-                                message={EmptyListMessage}
-                                createRoute={ADD_CONTACT_ROUTE}
-                                createLabel={CreateContact} />
-                            : <Row gutter={[0, 40]} align={'middle'}>
-                                <Col span={24}>
-                                    <Row justify={'space-between'}>
-                                        <Col span={6}>
-                                            <Input
-                                                placeholder={SearchPlaceholder}
-                                                onChange={(e) => {handleSearchChange(e.target.value)}}
-                                                value={search}
-                                            />
-                                        </Col>
-                                        {
-                                            canManageContacts ? (
-                                                <Space size={16}>
-                                                    <ImportWrapper
-                                                        objectsName={ContactsMessage}
-                                                        accessCheck={canManageContacts}
-                                                        onFinish={refetch}
-                                                        columns={columns}
-                                                        rowNormalizer={contactNormalizer}
-                                                        rowValidator={contactValidator}
-                                                        objectCreator={contactCreator}
-                                                        domainTranslate={ContactTitle}
-                                                        exampleTemplateLink={'/contact-import-example.xlsx'}
-                                                    >
+                            ? (
+                                <EmptyListView
+                                    label={EmptyListLabel}
+                                    message={EmptyListMessage}
+                                    createRoute={ADD_CONTACT_ROUTE}
+                                    createLabel={CreateContact}
+                                />
+                            )
+                            : (
+                                <Row gutter={[0, 40]} align={'middle'} justify={'start'}>
+                                    <Col span={24}>
+                                        <Row justify={'start'} gutter={[0, 40]}>
+                                            <Col xs={24} lg={6}>
+                                                <Input
+                                                    placeholder={SearchPlaceholder}
+                                                    onChange={(e) => {handleSearchChange(e.target.value)}}
+                                                    value={search}
+                                                />
+                                            </Col>
+                                            <Col lg={1} offset={13} hidden={isSmall}>
+                                                {
+                                                    canManageContacts && (
+                                                        <ImportWrapper
+                                                            objectsName={ContactsMessage}
+                                                            accessCheck={canManageContacts}
+                                                            onFinish={refetch}
+                                                            columns={columns}
+                                                            rowNormalizer={contactNormalizer}
+                                                            rowValidator={contactValidator}
+                                                            objectCreator={contactCreator}
+                                                            domainTranslate={ContactTitle}
+                                                            exampleTemplateLink={'/contact-import-example.xlsx'}
+                                                        >
+                                                            <Button
+                                                                type={'sberPrimary'}
+                                                                icon={<DiffOutlined />}
+                                                                block
+                                                                secondary
+                                                            />
+                                                        </ImportWrapper>
+                                                    )
+                                                }
+                                            </Col>
+                                            <Col xs={24} lg={4}>
+                                                {
+                                                    canManageContacts && (
                                                         <Button
+                                                            block={!isSmall}
+                                                            key='left'
                                                             type={'sberPrimary'}
-                                                            icon={<DiffOutlined />}
-                                                            secondary
-                                                        />
-                                                    </ImportWrapper>
-                                                    <Button
-                                                        key='left'
-                                                        type={'sberPrimary'}
-                                                        onClick={() => router.push(ADD_CONTACT_ROUTE)}
-                                                    >
-                                                        {CreateContact}
-                                                    </Button>
-                                                </Space>
-                                            ) : null
-                                        }
-                                    </Row>
-                                </Col>
-                                <Col span={24}>
-                                    <Table
-                                        bordered
-                                        tableLayout={'fixed'}
-                                        loading={loading}
-                                        dataSource={contacts}
-                                        columns={tableColumns}
-                                        rowKey={record =>  record.id}
-                                        onRow={handleRowAction}
-                                        onChange={handleTableChange}
-                                        pagination={{
-                                            showSizeChanger: false,
-                                            total,
-                                            current: offsetFromQuery,
-                                            pageSize: CONTACT_PAGE_SIZE,
-                                            position: ['bottomLeft'],
-                                        }}
-                                    />
-                                </Col>
-                            </Row>
+                                                            onClick={() => router.push(ADD_CONTACT_ROUTE)}
+                                                        >
+                                                            {CreateContact}
+                                                        </Button>
+                                                    )
+                                                }
+                                            </Col>
+                                        </Row>
+                                    </Col>
+                                    <Col span={24}>
+                                        <Table
+                                            bordered
+                                            scroll={getTableScrollConfig(isSmall)}
+                                            tableLayout={'fixed'}
+                                            loading={loading}
+                                            dataSource={contacts}
+                                            columns={tableColumns}
+                                            rowKey={record =>  record.id}
+                                            onRow={handleRowAction}
+                                            onChange={handleTableChange}
+                                            pagination={{
+                                                showSizeChanger: false,
+                                                total,
+                                                current: offsetFromQuery,
+                                                pageSize: CONTACT_PAGE_SIZE,
+                                                position: ['bottomLeft'],
+                                            }}
+                                        />
+                                    </Col>
+                                </Row>
+                            )
                     }
                 </PageContent>
             </PageWrapper>

@@ -20,7 +20,7 @@ const { BillingIntegrationOrganizationContext } = require('@condo/domains/billin
 const { DEFAULT_BILLING_INTEGRATION_NAME } = require('@condo/domains/billing/constants')
 
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
-const { DEFAULT_ACQUIRING_INTEGRATION_NAME } = require('@condo/domains/acquiring/constants')
+const { DEFAULT_ACQUIRING_INTEGRATION_NAME } = require('@condo/domains/acquiring/constants/integration')
 
 
 const Resident = new GQLListSchema('Resident', {
@@ -129,7 +129,7 @@ const Resident = new GQLListSchema('Resident', {
         paymentCategories: {
             schemaDoc: 'Contains billing and acquiring integration names that are enabled for this resident per category',
             type: Virtual,
-            extendGraphQLTypes: ['type PaymentCategory { categoryName: String!, billingName: String! acquiringName: String! }'],
+            extendGraphQLTypes: ['type PaymentCategory { id: String!, categoryName: String!, billingName: String! acquiringName: String! }'],
             graphQLReturnType: '[PaymentCategory]',
             resolver: async (item, _, context) => {
                 return PAYMENT_CATEGORIES_META.map(async category => {
@@ -152,6 +152,7 @@ const Resident = new GQLListSchema('Resident', {
                     }
 
                     return {
+                        id: category.id,
                         categoryName: category.name,
                         billingName: billingName,
                         acquiringName: acquiringName,

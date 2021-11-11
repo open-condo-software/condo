@@ -13,8 +13,10 @@ const {
     AVAILABLE_PAYMENT_METHODS,
     MULTIPAYMENT_STATUSES,
     MULTIPAYMENT_INIT_STATUS,
-} = require('../constants')
+} = require('../constants/payment')
 const { ACQUIRING_INTEGRATION_FIELD } = require('./fields/relations')
+const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
+const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const access = require('@condo/domains/acquiring/access/MultiPayment')
 const get = require('lodash/get')
 
@@ -153,7 +155,16 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
         integration: ACQUIRING_INTEGRATION_FIELD,
     },
     hooks: {
-        // TODO (savelevMatthew): Create proper validations
+        validateInput: ({ resolvedData, context, addValidationError }) => {
+            if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
+            const { dv } = resolvedData
+            if (dv === 1) {
+                // TODO(DOMA-1449): Write more complex validations
+                // NOTE: version 1 specific translations. Don't optimize this logic
+            } else {
+                return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
+            }
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {

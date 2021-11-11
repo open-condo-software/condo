@@ -1,14 +1,13 @@
-import { getFilter } from '@condo/domains/common/utils/tables.utils'
+import { getStringContainsFilter } from '@condo/domains/common/utils/tables.utils'
 import { ComponentType, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { DivisionWhereInput } from '@app/condo/schema'
 import { useIntl } from '@core/next/intl'
 
-export const useTableFilters = () => {
-    const intl = useIntl()
-    const DivisionTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Division' })
+const filterName = getStringContainsFilter('name')
+const filterProperties = (search: string) => {
+    if (!search) return
 
-    const nameFilter = getFilter('name', 'single', 'string', 'contains_i')
-    const propertiesFilter = (search: string) => ({
+    return {
         properties_some: {
             OR: [
                 {
@@ -19,22 +18,35 @@ export const useTableFilters = () => {
                 },
             ],
         },
-    })
-    const responsibleFilter = (search: string) => ({
+    }
+}
+const filterResponsible = (search: string) => {
+    if (!search) return
+
+    return {
         responsible: {
             name_contains_i: search,
         },
-    })
-    const executorsFilter = (search: string) => ({
+    }
+}
+const filterExecutors = (search: string) => {
+    if (!search) return
+
+    return {
         executors_some: {
             name_contains_i: search,
         },
-    })
+    }
+}
+
+export const useTableFilters = () => {
+    const intl = useIntl()
+    const DivisionTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Division' })
 
     const divisionFilterMetas: FiltersMeta<DivisionWhereInput>[] = [
         {
             keyword: 'name',
-            filters: [nameFilter],
+            filters: [filterName],
             component: {
                 type: ComponentType.Input,
                 props: {
@@ -45,10 +57,10 @@ export const useTableFilters = () => {
         {
             keyword: 'search',
             filters: [
-                nameFilter,
-                propertiesFilter,
-                responsibleFilter,
-                executorsFilter,
+                filterName,
+                filterProperties,
+                filterResponsible,
+                filterExecutors,
             ],
             combineType: 'OR',
         },

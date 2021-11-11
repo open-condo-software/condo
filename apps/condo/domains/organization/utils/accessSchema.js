@@ -56,6 +56,7 @@ async function checkUserBelongsToOrganization (userId, organizationId) {
         isAccepted: true,
         isBlocked: false,
         isRejected: false,
+        deletedAt: null,
     })
 
     if (!employee) {

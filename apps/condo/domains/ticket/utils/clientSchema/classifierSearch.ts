@@ -1,13 +1,13 @@
 import { ITicketClassifierRuleUIState, ITicketClassifierRuleWhereInput } from './TicketClassifierRule'
 import {
+    TicketCategoryClassifier as TicketCategoryClassifierGQL,
     TicketClassifierRule as TicketClassifierRuleGQL,
     TicketPlaceClassifier as TicketPlaceClassifierGQL,
-    TicketCategoryClassifier as TicketCategoryClassifierGQL,
     TicketProblemClassifier as TicketProblemClassifierGQL,
 } from '@condo/domains/ticket/gql'
 import { ApolloClient } from '@core/next/apollo'
-import { sortBy, isEmpty, filter } from 'lodash'
-import { QueryAllTicketCategoryClassifiersArgs, TicketCategoryClassifierWhereInput } from '@app/condo/schema'
+import { filter, isEmpty, sortBy } from 'lodash'
+import { QueryAllTicketCategoryClassifiersArgs } from '@app/condo/schema'
 
 const MAX_SEARCH_COUNT = 20
 
@@ -80,7 +80,23 @@ export class ClassifiersQueryLocal implements IClassifiersSearch {
     }
 
     public async findRules (query: ITicketClassifierRuleWhereInput): Promise<ITicketClassifierRuleUIState[]> {
-        const filtered = filter<ITicketClassifierRuleUIState>(this.rules, query)
+        return filter<ITicketClassifierRuleUIState>(this.rules, query)
+    }
+
+    public async findRulesByIds (query: ITicketClassifierRuleWhereInput, type: string, selectedIds: string[]): Promise<ITicketClassifierRuleUIState[]> {
+        const filtered = []
+        for (const key in query)
+            filtered.push(...this.rules.filter(rule => query[key].ids.includes(rule[key].id)))
+
+        if (filtered.length === 0)
+            return this.rules
+
+        for (const selectedId of selectedIds) {
+            if (!filtered.find(rule => rule[type].id === selectedId)) {
+                filtered.push(...this.rules.filter(rule => rule[type].id === selectedId))
+            }
+        }
+
         return filtered
     }
 
@@ -128,17 +144,14 @@ async function searchClassifiers (client: ApolloClient, query, input: string, va
     return data.data.objs
 }
 async function searchPlaceClassifiers (client: ApolloClient, input: string, variables: QueryAllTicketCategoryClassifiersArgs): Promise<Options[]> {
-    const result = await searchClassifiers(client, TicketPlaceClassifierGQL.GET_ALL_OBJS_QUERY, input, variables)
-    return result
+    return await searchClassifiers(client, TicketPlaceClassifierGQL.GET_ALL_OBJS_QUERY, input, variables)
 }
 async function searchCategoryClassifiers (client: ApolloClient, input: string, variables: QueryAllTicketCategoryClassifiersArgs): Promise<Options[]> {
-    const result = await searchClassifiers(client, TicketCategoryClassifierGQL.GET_ALL_OBJS_QUERY, input, variables)
-    return result
+    return await searchClassifiers(client, TicketCategoryClassifierGQL.GET_ALL_OBJS_QUERY, input, variables)
 }
 
 async function searchProblemClassifiers (client: ApolloClient, input: string, variables: QueryAllTicketCategoryClassifiersArgs): Promise<Options[]> {
-    const result = await searchClassifiers(client, TicketProblemClassifierGQL.GET_ALL_OBJS_QUERY, input, variables)
-    return result
+    return await searchClassifiers(client, TicketProblemClassifierGQL.GET_ALL_OBJS_QUERY, input, variables)
 }
 
 const searchClassifiersByType = {
@@ -172,16 +185,14 @@ export class ClassifiersQueryRemote implements IClassifiersSearch {
     }
 
     public async findRules (query: ITicketClassifierRuleWhereInput): Promise<ITicketClassifierRuleUIState[]> {
-        const filtered = await loadClassifierRules(this.client, {
+        return await loadClassifierRules(this.client, {
             where: query,
             first: 100,
         })
-        return filtered
     }
 
     public async search (input: string, type: string, variables: QueryAllTicketCategoryClassifiersArgs): Promise<Options[]> {
-        const result = await searchClassifiersByType[type](this.client, input, variables)
-        return result
+        return await searchClassifiersByType[type](this.client, input, variables)
     }
 
     public clear (): void {

@@ -1,37 +1,45 @@
 const { ServiceSubscription, ServiceSubscriptionPayment } = require('@condo/domains/subscription/utils/serverSchema')
 const { getSchemaCtx } = require('@core/keystone/schema')
 const dayjs = require('dayjs')
-const { SbbolRequestApi } = require('../SbbolRequestApi')
-const { SbbolFintechApi } = require('../SbbolFintechApi')
+const { initSbbolFintechApi } = require('../SbbolFintechApi')
 const { SBBOL_YEARLY_SUBSCRIPTION_PRICE, SUBSCRIPTION_TYPE, SUBSCRIPTION_PAYMENT_STATUS, SUBSCRIPTION_PAYMENT_CURRENCY } = require('@condo/domains/subscription/constants')
+
 const conf = process.env
-const SBBOL_CONFIG = conf.SBBOL_CONFIG ? JSON.parse(conf.SBBOL_CONFIG) : {}
-const { debugMessage } = require('../common')
+const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
+
+const { logger: baseLogger } = require('../common')
 const { dvSenderFields, BANK_OPERATION_CODE } = require('../constants')
 const { SBBOL_OFFER_ACCEPT_IS_NULL_ERROR, SBBOL_OFFER_ACCEPT_HAS_INCORRECT_PAYER_REQUISITES_ERROR } = require('@condo/domains/subscription/constants/errors')
+
+const logger = baseLogger.child({ module: 'syncPaymentRequestsForSubscriptions' })
 
 // TODO(antonal): Add 3 days for trial subscription when payment is emitted to compensate payment processing lag and subsequent in service unavailability
 
 const postPaymentRequestFor = async (subscription, fintechApi) => {
     const { keystone: context } = await getSchemaCtx('ServiceSubscriptionPayment')
-    debugMessage('Start postPaymentRequestsFor', subscription)
-    debugMessage(`Processing ServiceSubscription(type="sbbol", id="${subscription.id}")`)
+    logger.info({ message: 'Start postPaymentRequestsFor', subscription })
 
     if (!subscription.sbbolOfferAccept) {
-        console.error(`${SBBOL_OFFER_ACCEPT_IS_NULL_ERROR} Cannot obtain requisites for payer from latest ServiceSubscription`)
-        debugMessage('Abort postPaymentRequestsFor')
+        logger.error({
+            message: 'Latest ServiceSubscription does not have information about offer accept',
+            error: SBBOL_OFFER_ACCEPT_IS_NULL_ERROR,
+            subscription,
+        })
         return
     }
 
     const { payerAccount, payerBankBic, payerBankCorrAccount, payerInn, payerName } = subscription.sbbolOfferAccept
 
     if (!payerAccount || !payerBankBic || !payerBankCorrAccount || !payerInn || !payerName) {
-        console.error(SBBOL_OFFER_ACCEPT_HAS_INCORRECT_PAYER_REQUISITES_ERROR, subscription.sbbolOfferAccept)
-        debugMessage('Abort postPaymentRequestsFor')
+        logger.error({
+            message: 'Latest ServiceSubscription has insufficient data in offer accept',
+            error: SBBOL_OFFER_ACCEPT_HAS_INCORRECT_PAYER_REQUISITES_ERROR,
+            subscription,
+        })
         return
     }
 
-    const newPayment = await ServiceSubscriptionPayment.create(context, {
+    const data = {
         ...dvSenderFields,
         type: SUBSCRIPTION_TYPE.SBBOL,
         status: SUBSCRIPTION_PAYMENT_STATUS.CREATED,
@@ -39,16 +47,25 @@ const postPaymentRequestFor = async (subscription, fintechApi) => {
         currency: SUBSCRIPTION_PAYMENT_CURRENCY.RUB,
         subscription: { connect: { id: subscription.id } },
         organization: { connect: { id: subscription.organization.id } },
-    })
+    }
+
+    const newPayment = await ServiceSubscriptionPayment.create(context, data)
     if (!newPayment) {
-        console.error(`Error by creating ServiceSubscriptionPayment to prolong expired ServiceSubscription(id=${subscription.id})`)
-        debugMessage('Abort postPaymentRequestsFor')
+        logger.error({
+            message: 'Error by creating ServiceSubscriptionPayment',
+            data,
+        })
         return
     }
 
+    logger.info({
+        message: 'Created ServiceSubscriptionPayment',
+        record: newPayment,
+    })
+
     const today = dayjs()
 
-    const { payeeAccount, payeeBankBic, payeeBankCorrAccount, payeeInn, payeeName } = SBBOL_CONFIG.payee
+    const { payeeAccount, payeeBankBic, payeeBankCorrAccount, payeeInn, payeeName } = SBBOL_FINTECH_CONFIG.payee
 
     const response = await fintechApi.postPaymentRequest({
         acceptanceTerm: '5',
@@ -95,40 +112,38 @@ const postPaymentRequestFor = async (subscription, fintechApi) => {
             meta: error,
         })
     }
-
-    debugMessage('End postPaymentRequestsFor')
 }
 
 /**
  * For each expired SBBOL-subscription post payment request to SBBOL
  */
 const syncPaymentRequestsForSubscriptions = async () => {
-    debugMessage('Start syncPaymentRequestsForSubscriptions')
+    logger.info({ message: 'Start', function: 'syncPaymentRequestsForSubscriptions' })
 
-    let ourOrganizationAccessToken
-    try {
-        // `service_organization_hashOrgId` is a `userInfo.HashOrgId` from SBBOL, that used to obtain accessToken
-        // for organization, that will be queried in SBBOL using `SbbolFintechApi`.
-        ourOrganizationAccessToken = await SbbolRequestApi.getOrganizationAccessToken(SBBOL_CONFIG.service_organization_hashOrgId)
-    } catch (e) {
-        console.error(e.message)
-        return
-    }
-    const fintechApi = new SbbolFintechApi(ourOrganizationAccessToken)
+    const fintechApi = await initSbbolFintechApi()
+    if (!fintechApi) return
 
     const { keystone: context } = await getSchemaCtx('ServiceSubscription')
     const today = dayjs()
     // By product case it is supposed to automatically renew expired paid SBBOL-subscription, not only trial.
     // That's why `isTrial` is missing in `where` conditions.
-    const expiredSubscriptions = await ServiceSubscription.getAll(context, {
+    const where = {
         type: SUBSCRIPTION_TYPE.SBBOL,
         finishAt_lt: today.toISOString(),
-    })
+    }
+    const expiredSubscriptions = await ServiceSubscription.getAll(context, where)
 
     if (expiredSubscriptions.length === 0) {
-        debugMessage('No expired ServiceSubscription(type="sbbol") found. Do nothing.')
+        logger.info({
+            message: 'No expired subscriptions found for today',
+            where,
+        })
     } else {
-        debugMessage(`Found ${expiredSubscriptions.length} expired ServiceSubscription records`)
+        logger.info({
+            message: 'Found expired ServiceSubscription records',
+            count: expiredSubscriptions.length,
+            where,
+        })
         expiredSubscriptions.map(async (expiredSubscription) => {
             // Payments without external id are not created at SBBOL side
             // Try to repost them
@@ -139,11 +154,14 @@ const syncPaymentRequestsForSubscriptions = async () => {
             if (paymentsForSubscription.length === 0) {
                 await postPaymentRequestFor(expiredSubscription, fintechApi)
             } else {
-                debugMessage(`Found ${paymentsForSubscription.length} ServiceSubscriptionPaymentRequest records. Do nothing.`)
+                logger.info({
+                    message: 'Subscription already has payments',
+                    subscription: expiredSubscription,
+                    paymentsCount: paymentsForSubscription.length,
+                })
             }
         })
     }
-    debugMessage('End syncPaymentRequestsForSubscriptions')
 }
 
 module.exports = {

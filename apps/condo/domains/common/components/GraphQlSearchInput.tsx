@@ -1,9 +1,14 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import { useApolloClient } from '@core/next/apollo'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { Select, SelectProps } from 'antd'
+import isFunction from 'lodash/isFunction'
+import uniqBy from 'lodash/uniqBy'
 import { ApolloClient } from '@apollo/client'
+import { useApolloClient } from '@core/next/apollo'
+
+import { WhereType } from '../utils/tables.utils'
+
 
 type GraphQlSearchInputOption = {
     value: string
@@ -26,7 +31,8 @@ export interface ISearchInputProps extends SelectProps<string> {
     allowClear?: boolean
     disabled?: boolean
     autoFocus?: boolean
-    initialValue?: string
+    initialValue?: string | string[]
+    getInitialValueQuery?: (initialValue: string | string[]) => WhereType
     formatLabel?: (option: GraphQlSearchInputOption) => JSX.Element
     renderOptions?: (items: any[], renderOption: RenderOptionFunc) => JSX.Element[]
     /**
@@ -38,7 +44,17 @@ export interface ISearchInputProps extends SelectProps<string> {
 }
 
 export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
-    const { search, onSelect, formatLabel, renderOptions, autoClearSearchValue, searchAgainDependencies = [], ...restProps } = props
+    const {
+        search,
+        onSelect,
+        formatLabel,
+        renderOptions,
+        autoClearSearchValue,
+        searchAgainDependencies = [],
+        initialValue,
+        getInitialValueQuery,
+        ...restProps
+    } = props
     const client = useApolloClient()
     const [selected, setSelected] = useState('')
     const [isLoading, setLoading] = useState(false)
@@ -63,6 +79,20 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
     const options = renderOptions
         ? renderOptions(data, renderOption)
         : data.map(renderOption)
+
+    const loadInitialOptions =  useCallback(async () => {
+        const initialValueQuery = isFunction(getInitialValueQuery) ? getInitialValueQuery(initialValue) : { id_in: initialValue }
+
+        if (Array.isArray(initialValue) && initialValue.length) {
+            const initialOptions = await search(client, null, initialValueQuery, initialValue.length)
+
+            setData(data => uniqBy([...initialOptions, ...data], 'value'))
+        }
+    }, [initialValue, getInitialValueQuery, client, search])
+
+    useEffect(() => {
+        loadInitialOptions().catch(err => console.error('failed to load initial options', err))
+    }, [loadInitialOptions])
 
     useEffect(() => {
         handleSearch('')

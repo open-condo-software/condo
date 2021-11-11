@@ -1,15 +1,14 @@
-import React, { CSSProperties } from 'react'
+import React, { ComponentProps, CSSProperties } from 'react'
 import get from 'lodash/get'
-import isFunction from 'lodash/isFunction'
 import dayjs from 'dayjs'
 import { Checkbox, Input, Select } from 'antd'
 import { FilterValue } from 'antd/es/table/interface'
-
 import { FilterFilled } from '@ant-design/icons'
+import { ApolloClient } from '@apollo/client'
+
 import { colors } from '@condo/domains/common/constants/style'
 
 import { OptionType, QueryArgType } from '../../utils/tables.utils'
-
 import DatePicker from '../Pickers/DatePicker'
 import { FilterContainer, SelectFilterContainer } from '../TableFilter'
 import { GraphQlSearchInput } from '../GraphQlSearchInput'
@@ -45,7 +44,7 @@ export const getTextFilterDropdown = (placeholder: string, containerStyles?: CSS
 }
 
 export const getOptionFilterDropdown = (options: Array<OptionType>, loading: boolean, containerStyles?: CSSProperties) => {
-    return ({ setSelectedKeys, selectedKeys, confirm, clearFilters, beforeChange }) => {
+    return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         return (
             <FilterContainer
                 clearFilters={clearFilters}
@@ -58,7 +57,6 @@ export const getOptionFilterDropdown = (options: Array<OptionType>, loading: boo
                     style={FILTER_DROPDOWN_CHECKBOX_STYLES}
                     value={selectedKeys}
                     onChange={(e) => {
-                        if (isFunction(beforeChange)) beforeChange()
                         setSelectedKeys(e)
                         confirm({ closeDropdown: false })
                     }}
@@ -68,7 +66,9 @@ export const getOptionFilterDropdown = (options: Array<OptionType>, loading: boo
     }
 }
 
-export const getSelectFilterDropdown = (options: Array<OptionType>, loading: boolean, mode?: 'multiple' | 'tags', containerStyles?: CSSProperties) => {
+const DROPDOWN_SELECT_STYLE: CSSProperties = { display: 'flex', flexDirection: 'column' }
+
+export const getSelectFilterDropdown = (selectProps: ComponentProps<typeof Select>, containerStyles?: CSSProperties) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         return (
             <SelectFilterContainer
@@ -77,26 +77,28 @@ export const getSelectFilterDropdown = (options: Array<OptionType>, loading: boo
                 style={containerStyles}
             >
                 <Select
-                    disabled={loading}
-                    mode={mode}
-                    options={options}
                     showArrow
-                    style={{ display: 'flex', flexDirection: 'column', width: '200px' }}
+                    style={DROPDOWN_SELECT_STYLE}
                     value={selectedKeys}
                     onChange={(e) => {
                         setSelectedKeys(e)
                         confirm({ closeDropdown: false })
                     }}
-                    filterOption={(input, option: { value: string, label: string }) =>
-                        option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                    }
+                    {...selectProps}
                 />
             </SelectFilterContainer>
         )
     }
 }
 
-export const getGQLSelectFilterDropdown = (search, mode?: 'multiple' | 'tag', containerStyles?: CSSProperties) => {
+const GRAPHQL_SEARCH_INPUT_STYLE: CSSProperties = { width: '100%' }
+
+export const getGQLSelectFilterDropdown = (
+    props: ComponentProps<typeof GraphQlSearchInput>,
+    search: (client: ApolloClient<Record<string, unknown>>, queryArguments: string) => Promise<Array<Record<string, unknown>>>,
+    mode?: 'multiple' | 'tag',
+    containerStyles?: CSSProperties
+) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         return (
             <SelectFilterContainer
@@ -105,7 +107,7 @@ export const getGQLSelectFilterDropdown = (search, mode?: 'multiple' | 'tag', co
                 style={containerStyles}
             >
                 <GraphQlSearchInput
-                    style={{ width: '100%' }}
+                    style={GRAPHQL_SEARCH_INPUT_STYLE}
                     search={search}
                     showArrow
                     mode={mode}
@@ -114,6 +116,7 @@ export const getGQLSelectFilterDropdown = (search, mode?: 'multiple' | 'tag', co
                         setSelectedKeys(e)
                         confirm({ closeDropdown: false })
                     }}
+                    {...props}
                 />
             </SelectFilterContainer>
         )
@@ -145,7 +148,10 @@ export const getDateFilterDropdown = (containerStyles?: CSSProperties) => {
     }
 }
 
-export const getDateRangeFilterDropdown = (containerStyles?: CSSProperties) => {
+export const getDateRangeFilterDropdown = (
+    props: ComponentProps<typeof DateRangePicker>,
+    containerStyles?: CSSProperties
+) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         const pickerProps = {
             value: undefined,
@@ -165,7 +171,7 @@ export const getDateRangeFilterDropdown = (containerStyles?: CSSProperties) => {
                 showClearButton={selectedKeys && selectedKeys.length > 0}
                 style={containerStyles}
             >
-                <DateRangePicker {...pickerProps}/>
+                <DateRangePicker {...pickerProps} {...props}/>
             </FilterContainer>
         )
     }

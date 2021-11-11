@@ -8,7 +8,7 @@ import React from 'react'
 import { useRouter } from 'next/router'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
@@ -54,19 +54,21 @@ export const ContactPageContent = ({ organization, contact, isContactEditable })
     const unitSuffix = contactUnitName ? `${UnitShortMessage} ${contactUnitName}` : ''
     const contactAddress = `${get(contact, ['property', 'address'], DeletedMessage)} ${unitSuffix}`
 
+    const { isSmall } = useLayoutContext()
+
     return (
         <>
             <Head>
                 <title>{contactName}</title>
             </Head>
             <PageWrapper>
-                <Row gutter={[0, 40]}>
-                    <Col span={3}>
+                <Row gutter={[0, 40]} justify={'center'}>
+                    <Col xs={10} lg={3}>
                         <UserAvatar borderRadius={24}/>
                     </Col>
-                    <Col span={20} push={1}>
+                    <Col xs={24} lg={20} offset={isSmall ? 0 : 1}>
                         <Row gutter={[0, 60]}>
-                            <Col span={15}>
+                            <Col lg={15} xs={24}>
                                 <Row gutter={[0, 40]}>
                                     <Col span={24}>
                                         <Typography.Title>
@@ -117,8 +119,7 @@ export const ContactPageContent = ({ organization, contact, isContactEditable })
                                     )}
                                 </Row>
                             </Col>
-                            <Col span={1}/>
-                            <Col span={8}>
+                            <Col xs={24} lg={8} offset={isSmall ? 0 : 1}>
                                 <Affix offsetTop={40}>
                                     <TicketCard
                                         organizationId={String(organization.id)}

@@ -5,10 +5,11 @@
  */
 
 const { generateGqlQueries } = require('@condo/domains/common/utils/codegeneration/generate.gql')
+const { gql } = require('graphql-tag')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const ACQUIRING_INTEGRATION_FIELDS = `{ name canGroupReceipts feeCalculationUrl paymentUrl supportedBillingIntegrations { id } ${COMMON_FIELDS} }`
+const ACQUIRING_INTEGRATION_FIELDS = `{ name canGroupReceipts hostUrl supportedBillingIntegrations { id } ${COMMON_FIELDS} }`
 const AcquiringIntegration = generateGqlQueries('AcquiringIntegration', ACQUIRING_INTEGRATION_FIELDS)
 
 const ACQUIRING_INTEGRATION_ACCESS_RIGHT_FIELDS = `{ user { id } integration { id } ${COMMON_FIELDS} }`
@@ -20,8 +21,14 @@ const AcquiringIntegrationContext = generateGqlQueries('AcquiringIntegrationCont
 const MULTI_PAYMENT_FIELDS = `{ amount explicitFee implicitFee amountWithoutExplicitFee currencyCode withdrawnAt cardNumber paymentWay serviceCategory payerEmail serviceCategory transactionId meta status payments { id } integration { id } ${COMMON_FIELDS} }`
 const MultiPayment = generateGqlQueries('MultiPayment', MULTI_PAYMENT_FIELDS)
 
-const PAYMENT_FIELDS = `{ amount explicitFee implicitFee currencyCode advancedAt accountNumber purpose frozenReceipt multiPayment { id } context { id } status ${COMMON_FIELDS} }`
+const PAYMENT_FIELDS = `{ amount explicitFee implicitFee currencyCode advancedAt accountNumber purpose frozenReceipt multiPayment { id } context { id } status ${COMMON_FIELDS} period organization { id } }`
 const Payment = generateGqlQueries('Payment', PAYMENT_FIELDS)
+
+const REGISTER_MULTI_PAYMENT_MUTATION = gql`
+    mutation registerMultiPayment ($data: RegisterMultiPaymentInput!) {
+        result: registerMultiPayment(data: $data) { dv multiPaymentId webViewUrl feeCalculationUrl }
+    }
+`
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -31,5 +38,8 @@ module.exports = {
     AcquiringIntegrationContext,
     MultiPayment,
     Payment,
+
+    REGISTER_MULTI_PAYMENT_MUTATION,
+
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
