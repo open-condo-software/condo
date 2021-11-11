@@ -151,6 +151,7 @@
   "component.statscard.periodtypes.Year": "год",
   "component.statscard.ExtraTitle": "Подробнее",
   "component.ticketswidget.Title": "Заявки за",
+  "component.ticketswidget.Title.Short": "За",
   "component.ticketclassifier.ProblemLabel": "В чём проблема (не обязательно)",
   "component.ticketclassifier.CategoryLabel": "Тип работ",
   "component.ticketclassifier.PlaceLabel": "Место инцидента",

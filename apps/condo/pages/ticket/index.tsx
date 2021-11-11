@@ -139,7 +139,7 @@ export const TicketsPageContent = ({
                                                                 value={search}
                                                             />
                                                         </Col>
-                                                        <Col span={5}>
+                                                        <Col xs={24} lg={5}>
                                                             <Checkbox
                                                                 onChange={handleEmergencyChange}
                                                                 checked={emergency}
@@ -148,7 +148,7 @@ export const TicketsPageContent = ({
                                                                 {EmergenciesLabel}
                                                             </Checkbox>
                                                         </Col>
-                                                        <Col span={5}>
+                                                        <Col xs={24} lg={5}>
                                                             <Checkbox
                                                                 onChange={handlePaidChange}
                                                                 checked={paid}
