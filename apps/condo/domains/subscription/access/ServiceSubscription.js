@@ -17,7 +17,7 @@ async function canManageServiceSubscriptions ({ authentication: { item: user }, 
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     if (operation === 'create') {
-        return false
+        return (user.isSupport)
     } else if (operation === 'update') {
         return (user.isSupport)
     }

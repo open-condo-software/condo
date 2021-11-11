@@ -462,6 +462,29 @@ describe('ServiceSubscription', () => {
             expect(obj.currency).toEqual('RUB')
         })
 
+        it('can be created by support', async () => {
+            const supportClient = await makeClientWithSupportUser()
+            const [organization] = await createTestOrganization(supportClient)
+
+            const [obj, attrs] = await createTestServiceSubscription(supportClient, organization)
+            console.debug('obj.unitPrice', obj.unitPrice)
+            console.debug('attrs.unitPrice', attrs.unitPrice)
+            expect(obj.id).toMatch(UUID_RE)
+            expect(obj.dv).toEqual(1)
+            expect(obj.sender).toEqual(attrs.sender)
+            expect(obj.v).toEqual(1)
+            expect(obj.newId).toEqual(null)
+            expect(obj.deletedAt).toEqual(null)
+            expect(obj.createdBy).toEqual(expect.objectContaining({ id: supportClient.user.id }))
+            expect(obj.updatedBy).toEqual(expect.objectContaining({ id: supportClient.user.id }))
+            expect(obj.createdAt).toMatch(DATETIME_RE)
+            expect(obj.updatedAt).toMatch(DATETIME_RE)
+            expect(obj.organization.id).toEqual(organization.id)
+            expect(obj.unitsCount).toEqual(attrs.unitsCount)
+            expect(parseFloat(obj.unitPrice)).toBeCloseTo(parseFloat(attrs.unitPrice), 2)
+            expect(obj.currency).toEqual('RUB')
+        })
+
         it('cannot be created by user', async () => {
             const userClient = await makeClientWithRegisteredOrganization()
             await expectToThrowAccessDeniedErrorToObj(async () => {
