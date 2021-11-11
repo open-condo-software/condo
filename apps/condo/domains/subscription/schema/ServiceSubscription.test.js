@@ -463,9 +463,9 @@ describe('ServiceSubscription', () => {
         })
 
         it('can be created by support', async () => {
+            const adminClient = await makeLoggedInAdminClient()
             const supportClient = await makeClientWithSupportUser()
-            const [organization] = await createTestOrganization(supportClient)
-
+            const [organization] = await createTestOrganization(adminClient)
             const [obj, attrs] = await createTestServiceSubscription(supportClient, organization)
             console.debug('obj.unitPrice', obj.unitPrice)
             console.debug('attrs.unitPrice', attrs.unitPrice)
