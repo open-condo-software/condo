@@ -212,7 +212,7 @@ describe('AcquiringIntegration', () => {
                 await updateTestAcquiringIntegration(admin, integration.id, {
                     supportedBillingIntegrations: { disconnectAll: true },
                 })
-            })
+            }, INTEGRATION_NO_BILLINGS_ERROR)
         })
     })
 })
