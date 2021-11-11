@@ -8,7 +8,7 @@ import { CheckboxGroupProps } from 'antd/es/checkbox'
 import { RangePickerSharedProps } from 'rc-picker/lib/RangePicker'
 import qs from 'qs'
 
-import { FiltersFromQueryType, QueryMeta } from './tables.utils'
+import { FiltersFromQueryType, OptionType, QueryMeta } from './tables.utils'
 import { ISearchInputProps } from '../components/GraphQlSearchInput'
 import {
     getDateFilterDropdown,
@@ -56,13 +56,13 @@ type InputFilterType = {
 
 type CheckboxGroupFilterType = {
     type: ComponentType.CheckboxGroup
-    options: { value: string, text: string }[]
+    options: OptionType[]
     props?: CheckboxGroupProps
 }
 
 type SelectFilterType = {
     type: ComponentType.Select
-    options: { value: string, text: string }[]
+    options: OptionType[]
     props?: SelectProps<string>
 }
 
@@ -172,6 +172,10 @@ export function getFilterDropdownByKey <T> (filterMetas: Array<FiltersMeta<T>>, 
 
         default: return
     }
+}
+
+export function convertToOptions <T> (objects: T[], labelField: string, valueField: string): OptionType[] {
+    return objects.map(object => ({ label: object[labelField], value: object[valueField] }))
 }
 
 export async function updateQuery (router: NextRouter, newFilters?: FiltersFromQueryType, sort?: string[], offset?: number): Promise<boolean> {

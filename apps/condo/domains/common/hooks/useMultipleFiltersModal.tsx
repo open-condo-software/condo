@@ -12,6 +12,7 @@ import isFunction from 'lodash/isFunction'
 import { useIntl } from '@core/next/intl'
 
 import {
+    OptionType,
     parseQuery,
     QueryArgType,
 } from '@condo/domains/common/utils/tables.utils'
@@ -97,7 +98,8 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
         }
 
         case ComponentType.CheckboxGroup: {
-            const options = get(component, 'options')
+            const options: OptionType[] = get(component, 'options')
+
             return <Checkbox.Group options={options} {...props} />
         }
 
@@ -113,7 +115,7 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
         }
 
         case ComponentType.Select: {
-            const options = get(component, 'options')
+            const options: OptionType[] = get(component, 'options')
 
             return (
                 <Select
@@ -125,9 +127,9 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
                         <Select.Option
                             key={option.value}
                             value={option.value}
-                            title={option.text}
+                            title={option.label}
                         >
-                            {option.text}
+                            {option.label}
                         </Select.Option>
                     ))}
                 </Select>

@@ -1,5 +1,10 @@
 import { useMemo } from 'react'
-import { ComponentType, FilterComponentSize, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
+import {
+    ComponentType,
+    convertToOptions,
+    FilterComponentSize,
+    FiltersMeta,
+} from '@condo/domains/common/utils/filters.utils'
 import { MeterReadingWhereInput } from '@app/condo/schema'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 import { get } from 'lodash'
@@ -10,6 +15,8 @@ import {
 import { MeterReadingSource, MeterResource } from '../utils/clientSchema'
 import { useOrganization } from '@core/next/organization'
 import { useIntl } from '@core/next/intl'
+import { IMeterReadingSourceUIState } from '../utils/clientSchema/MeterReadingSource'
+import { IMeterResourceUIState } from '../utils/clientSchema/MeterResource'
 
 export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
     const intl = useIntl()
@@ -56,10 +63,10 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
     const resourceFilter = getFilter(['meter', 'resource', 'id'], 'array', 'string', 'in')
 
     const { objs: sources } = MeterReadingSource.useObjects({})
-    const sourcesOptions = sources.map(source => ({ text: source.name, value: source.id }))
+    const sourcesOptions = convertToOptions<IMeterReadingSourceUIState>(sources, 'name', 'id')
 
     const { objs: resources, loading: resourcesLoading } = MeterResource.useObjects({})
-    const resourcesOptions = resources.map(resource => ({ text: resource.name, value: resource.id }))
+    const resourcesOptions = convertToOptions<IMeterResourceUIState>(resources, 'name', 'id')
 
     return useMemo(() => {
         return [
