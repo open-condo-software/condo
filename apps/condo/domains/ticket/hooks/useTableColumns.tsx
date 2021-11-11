@@ -85,7 +85,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
         return getOptionFilterDropdown(adaptedStatuses, loading)(filterProps)
     }
 
-    const renderAddress = (record) => {
+    const renderAddress = (_, record) => {
         const isDeleted = !!get(record, ['property', 'deletedAt'])
         const { text, unitPrefix } = getAddressDetails(record, ShortFlatNumber)
         const postfix = [unitPrefix]
@@ -152,7 +152,8 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
             {
                 title: AddressMessage,
                 ellipsis: false,
-                sortOrder: get(sorterMap, 'address'),
+                dataIndex: 'property',
+                sortOrder: get(sorterMap, 'property'),
                 filteredValue: getFilteredValue<IFilters>(filters, 'address'),
                 key: 'address',
                 sorter: true,
