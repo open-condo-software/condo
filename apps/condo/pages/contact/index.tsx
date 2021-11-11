@@ -32,7 +32,7 @@ import { TitleHeaderAction } from '@condo/domains/common/components/HeaderAction
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { DiffOutlined } from '@ant-design/icons'
 import { useImporterFunctions } from '@condo/domains/contact/hooks/useImporterFunctions'
-import { setFiltersToQuery } from '@condo/domains/common/utils/filters.utils'
+import { updateQuery } from '@condo/domains/common/utils/filters.utils'
 import { getTableScrollConfig } from '@condo/domains/common/utils/tables.utils'
 
 const ADD_CONTACT_ROUTE = '/contact/create/'
@@ -101,7 +101,7 @@ export const ContactsPageContent = ({
                 skip: offset,
                 first: CONTACT_PAGE_SIZE,
             }).then(async () => {
-                await setFiltersToQuery(router, { ...filtersFromQuery, ...nextFilters })
+                await updateQuery(router, { ...filtersFromQuery, ...nextFilters }, sort, offset)
             })
         }
     }, 400), [loading])
