@@ -274,13 +274,13 @@ describe('Payment', () => {
             expect(payment).toHaveProperty('frozenReceipt', null)
         })
         test('Should have correct dv field (=== 1)', async () => {
-            const { admin, billingReceipts, acquiringContext } = await makePayer()
+            const { admin, organization } = await makePayer()
             await expectToThrowValidationFailureError(async () => {
-                await createTestPayment(admin, billingReceipts[0], acquiringContext, {
+                await createTestPayment(admin, organization, null, null, {
                     dv: 2,
                 }, DV_UNKNOWN_VERSION_ERROR)
             })
-            const [payment] = await createTestPayment(admin, billingReceipts[0], acquiringContext)
+            const [payment] = await createTestPayment(admin, organization, null, null)
             await expectToThrowValidationFailureError(async () => {
                 await updateTestPayment(admin, payment.id, {
                     dv: 2,
