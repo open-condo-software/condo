@@ -57,7 +57,7 @@ export const CreateTicketForm: React.FC = () => {
             source: DEFAULT_TICKET_SOURCE_CALL_ID,
         },
         () => {
-            router.push('/ticket/')
+            router.push('/ticket?sort=status_ASC,createdAt_DESC')
         })
 
     const initialValues = {
