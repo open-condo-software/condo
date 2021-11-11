@@ -29,9 +29,10 @@ describe('RegisterServiceConsumerService', () => {
 
         const payload = {
             residentId: resident.id,
-            unitName: billingAccountAttrs.unitName,
             accountNumber: billingAccountAttrs.number,
+            tin: userClient.organization.tin,
         }
+
         const out = await registerServiceConsumerByTestClient(userClient, payload)
         expect(out).not.toEqual(undefined)
 
@@ -56,8 +57,8 @@ describe('RegisterServiceConsumerService', () => {
 
         const payload = {
             residentId: resident.id,
-            unitName: billingAccountAttrs.unitName,
             accountNumber: billingAccountAttrs.number,
+            tin: userClient.organization.tin,
         }
         const [out] = await registerServiceConsumerByTestClient(userClient, payload)
         expect(out).not.toEqual(undefined)
@@ -85,15 +86,15 @@ describe('RegisterServiceConsumerService', () => {
 
         const payload = {
             residentId: resident.id,
-            unitName: billingAccountAttrs.unitName,
             accountNumber: billingAccountAttrs.number,
+            tin: userClient.organization.tin,
         }
-        const out = await registerServiceConsumerByTestClient(userClient, payload)
+        const [ out ] = await registerServiceConsumerByTestClient(userClient, payload)
 
-        expect(out).not.toEqual(undefined)
+        expect(out).toBeDefined()
+        expect(out.billingAccount.id).toEqual(billingAccountAttrs.id)
     })
 
-    // todo(toplenboren) remove this once B2C integration case is ready
     it('creates serviceConsumer without billingAccount for resident without organization', async () => {
 
         const userClient = await makeClientWithProperty()
@@ -111,15 +112,13 @@ describe('RegisterServiceConsumerService', () => {
 
         const payload = {
             residentId: resident.id,
-            unitName: billingAccountAttrs.unitName,
             accountNumber: billingAccountAttrs.number,
+            tin: userClient.organization.tin,
         }
 
-        await catchErrorFrom(async () => {
-            await registerServiceConsumerByTestClient(userClient, payload)
-        }, (e) => {
-            expect(e.errors[0].message).toContain('BillingAccounts not found')
-        })
+        const [ out ] = await registerServiceConsumerByTestClient(userClient, payload)
+        expect(out).toBeDefined()
+        expect(out.billingAccount).toBeNull()
     })
 
     it('creates serviceConsumer without billingAccount for resident with wrong unitName', async () => {
@@ -134,20 +133,18 @@ describe('RegisterServiceConsumerService', () => {
 
         await updateTestUser(adminClient, userClient.user.id, { type: RESIDENT })
         const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
-            unitName: billingAccountAttrs.unitName,
+            unitName: billingAccountAttrs.unitName + 'not-valid-buddy',
         })
 
         const payload = {
             residentId: resident.id,
-            unitName: billingAccountAttrs.unitName + 'not-valid-buddy',
             accountNumber: billingAccountAttrs.number,
+            tin: userClient.organization.tin,
         }
 
-        await catchErrorFrom(async () => {
-            await registerServiceConsumerByTestClient(userClient, payload)
-        }, (e) => {
-            expect(e.errors[0].message).toContain('BillingAccounts not found')
-        })
+        const [ out ] = await registerServiceConsumerByTestClient(userClient, payload)
+        expect(out).toBeDefined()
+        expect(out.billingAccount).toBeNull()
     })
 
     it('creates serviceConsumer without billingAccount for resident with wrong accountNumber', async () => {
@@ -167,15 +164,13 @@ describe('RegisterServiceConsumerService', () => {
 
         const payload = {
             residentId: resident.id,
-            unitName: billingAccountAttrs.unitName,
             accountNumber: billingAccountAttrs.number + 'not-valid-buddy',
+            tin: userClient.organization.tin,
         }
 
-        await catchErrorFrom(async () => {
-            await registerServiceConsumerByTestClient(userClient, payload)
-        }, (e) => {
-            expect(e.errors[0].message).toContain('BillingAccounts not found')
-        })
+        const [ out ] = await registerServiceConsumerByTestClient(userClient, payload)
+        expect(out).toBeDefined()
+        expect(out.billingAccount).toBeNull()
     })
 
     it('does not create b2b-integration serviceConsumer for nullish data', async () => {
@@ -195,38 +190,14 @@ describe('RegisterServiceConsumerService', () => {
 
         const payloadWithNullishAccountName = {
             residentId: resident.id,
-            unitName: billingAccountAttrs.unitName,
             accountNumber: '',
+            tin: userClient.organization.tin,
         }
 
         await catchErrorFrom(async () => {
             await registerServiceConsumerByTestClient(userClient, payloadWithNullishAccountName)
         }, (e) => {
             expect(e.errors[0].message).toContain('Account number null or empty')
-        })
-
-        const payloadWithNullishUnitName = {
-            residentId: resident.id,
-            unitName: '',
-            accountNumber: billingAccountAttrs.number,
-        }
-
-        await catchErrorFrom(async () => {
-            await registerServiceConsumerByTestClient(userClient, payloadWithNullishUnitName)
-        }, (e) => {
-            expect(e.errors[0].message).toContain('Unit name null or empty')
-        })
-
-        const payloadWithNullishUnitNameAndAccountName = {
-            residentId: resident.id,
-            unitName: '',
-            accountNumber: billingAccountAttrs.number,
-        }
-
-        await catchErrorFrom(async () => {
-            await registerServiceConsumerByTestClient(userClient, payloadWithNullishUnitNameAndAccountName)
-        }, (e) => {
-            expect(e.errors[0].message).toContain('Unit name null or empty')
         })
     })
 
@@ -236,8 +207,8 @@ describe('RegisterServiceConsumerService', () => {
 
         const payload = {
             residentId: 'test-id',
-            unitName: 'test-unitname',
             accountNumber: 'test-number',
+            tin: userClient.organization.tin,
         }
 
         await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -251,8 +222,8 @@ describe('RegisterServiceConsumerService', () => {
 
         const payload = {
             residentId: 'test-id',
-            unitName: 'test-unitname',
             accountNumber: 'test-number',
+            tin: '1111111',
         }
 
         await expectToThrowAuthenticationErrorToObj(async () => {

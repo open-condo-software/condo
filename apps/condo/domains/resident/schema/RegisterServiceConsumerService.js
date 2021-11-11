@@ -12,7 +12,7 @@ const { NOT_FOUND_ERROR, REQUIRED_NO_VALUE_ERROR } = require('@condo/domains/com
 
 const get = require('lodash/get')
 
-async function getResidentBillingAccount (context, billingIntegrationContext, unitName, accountNumber) {
+async function getResidentBillingAccount (context, billingIntegrationContext, accountNumber, unitName) {
 
     let applicableBillingAccounts = await BillingAccount.getAll(context, {
         context: { id: billingIntegrationContext.id },
@@ -68,17 +68,23 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
 
                 const unitName = get(resident, ['unitName'])
 
-                const hasBillingData = get(resident, ['organizationFeatures', 'hasBillingData'])
                 let paymentFeatureAttrs = {}
-                if (hasBillingData) {
-                    const [ billingIntegrationContext ] = await BillingIntegrationOrganizationContext.getAll(context, { organization: { id: organization.id } })
-                    const [ acquiringIntegrationContext ] = await AcquiringIntegrationContext.getAll(context, { organization: { id: organization.id } })
-                    const [ billingAccount ] = getResidentBillingAccount(billingIntegrationContext, accountNumber, unitName)
 
-                    paymentFeatureAttrs = {
-                        billingAccount: billingAccount || null,
-                        billingIntegrationContext: billingIntegrationContext || null,
-                        acquiringIntegrationContext: acquiringIntegrationContext || null,
+                const [ billingIntegrationContext ] = await BillingIntegrationOrganizationContext.getAll(context, { organization: { id: organization.id } })
+                if (billingIntegrationContext) {
+
+                    const [acquiringIntegrationContext] = await AcquiringIntegrationContext.getAll(context, { organization: { id: organization.id } })
+                    const [billingAccount] = await getResidentBillingAccount(context, billingIntegrationContext, accountNumber, unitName)
+
+                    paymentFeatureAttrs = { billingAccount: billingAccount
+                        ? { connect: { id: billingAccount.id } }
+                        : null,
+                    billingIntegrationContext: billingIntegrationContext
+                        ? { connect: { id: billingIntegrationContext.id } }
+                        : null,
+                    acquiringIntegrationContext: acquiringIntegrationContext
+                        ? { connect: { id: acquiringIntegrationContext.id } }
+                        : null,
                     }
                 }
 
@@ -87,7 +93,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     sender,
                     resident: { connect: { id: residentId } },
                     accountNumber: accountNumber,
-                    organization: { connect: { id: resident.organization.id } },
+                    organization: { connect: { id: organization.id } },
                 }
 
                 const attrs = {
