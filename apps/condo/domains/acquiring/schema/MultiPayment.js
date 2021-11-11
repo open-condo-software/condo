@@ -159,7 +159,7 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
             if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
             const { dv } = resolvedData
             if (dv === 1) {
-                // TODO (savelevMatthew): Write more complex validations
+                // TODO(DOMA): Write more complex validations
                 // NOTE: version 1 specific translations. Don't optimize this logic
             } else {
                 return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
