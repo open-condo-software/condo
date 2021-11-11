@@ -44,11 +44,13 @@ export type AcquiringIntegration = {
   _accessRightsMeta?: Maybe<_QueryMeta>;
   /**  Can multiple receipts be united through this acquiring  */
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
-  /**  Url to acquiring integration service. Mobile devices will use it communicate with external acquiring. List of endpoints are the same for all of them.  */
+  /**  Url to acquiring integration service. Mobile devices will use it communicate with external acquiring. List of endpoints is the same for all of them.  */
   hostUrl?: Maybe<Scalars['String']>;
   /**  List of supported billing integrations. If one of them is here, it means that this acquiring can accept receipts from it  */
   supportedBillingIntegrations: Array<BillingIntegration>;
   _supportedBillingIntegrationsMeta?: Maybe<_QueryMeta>;
+  /**  Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient  */
+  explicitFeeDistributionSchema: Array<FeeDistributionField>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -118,7 +120,7 @@ export type AcquiringIntegrationAccessRight = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
-  /**  Acquiring Integration  */
+  /**  Acquiring integration. Determines way of user's payment  */
   integration?: Maybe<AcquiringIntegration>;
   /**  User  */
   user?: Maybe<User>;
@@ -430,7 +432,7 @@ export type AcquiringIntegrationContext = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
-  /**  Acquiring integration  */
+  /**  Acquiring integration. Determines way of user's payment  */
   integration?: Maybe<AcquiringIntegration>;
   /**  Service provider (organization)  */
   organization?: Maybe<Organization>;
@@ -438,6 +440,8 @@ export type AcquiringIntegrationContext = {
   settings?: Maybe<Scalars['JSON']>;
   /**  The current state of the integration process. Some integration need to store past state here, additional data and etc.  */
   state?: Maybe<Scalars['JSON']>;
+  /**  Contains information about the default distribution of implicit fee. Each part is paid by the recipient organization on deducted from payment amount. If part exists then explicit part with the same name from AcquiringIntegration.explicitFeeDistributionSchema is ignored  */
+  implicitFeeDistributionSchema: Array<FeeDistributionField>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -455,6 +459,7 @@ export type AcquiringIntegrationContextCreateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   settings?: Maybe<Scalars['JSON']>;
   state?: Maybe<Scalars['JSON']>;
+  implicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -481,6 +486,7 @@ export type AcquiringIntegrationContextHistoryRecord = {
   organization?: Maybe<Scalars['String']>;
   settings?: Maybe<Scalars['JSON']>;
   state?: Maybe<Scalars['JSON']>;
+  implicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -501,6 +507,7 @@ export type AcquiringIntegrationContextHistoryRecordCreateInput = {
   organization?: Maybe<Scalars['String']>;
   settings?: Maybe<Scalars['JSON']>;
   state?: Maybe<Scalars['JSON']>;
+  implicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -526,6 +533,7 @@ export type AcquiringIntegrationContextHistoryRecordUpdateInput = {
   organization?: Maybe<Scalars['String']>;
   settings?: Maybe<Scalars['JSON']>;
   state?: Maybe<Scalars['JSON']>;
+  implicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -569,6 +577,10 @@ export type AcquiringIntegrationContextHistoryRecordWhereInput = {
   state_not?: Maybe<Scalars['JSON']>;
   state_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   state_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  implicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
+  implicitFeeDistributionSchema_not?: Maybe<Scalars['JSON']>;
+  implicitFeeDistributionSchema_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  implicitFeeDistributionSchema_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -662,6 +674,7 @@ export type AcquiringIntegrationContextUpdateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   settings?: Maybe<Scalars['JSON']>;
   state?: Maybe<Scalars['JSON']>;
+  implicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -698,6 +711,10 @@ export type AcquiringIntegrationContextWhereInput = {
   state_not?: Maybe<Scalars['JSON']>;
   state_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   state_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  implicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
+  implicitFeeDistributionSchema_not?: Maybe<Array<FeeDistributionFieldInput>>;
+  implicitFeeDistributionSchema_in?: Maybe<Array<Maybe<Array<FeeDistributionFieldInput>>>>;
+  implicitFeeDistributionSchema_not_in?: Maybe<Array<Maybe<Array<FeeDistributionFieldInput>>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -765,6 +782,7 @@ export type AcquiringIntegrationCreateInput = {
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrations?: Maybe<BillingIntegrationRelateToManyInput>;
+  explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -790,6 +808,7 @@ export type AcquiringIntegrationHistoryRecord = {
   name?: Maybe<Scalars['String']>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
+  explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -809,6 +828,7 @@ export type AcquiringIntegrationHistoryRecordCreateInput = {
   name?: Maybe<Scalars['String']>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
+  explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -833,6 +853,7 @@ export type AcquiringIntegrationHistoryRecordUpdateInput = {
   name?: Maybe<Scalars['String']>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
+  explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -898,6 +919,10 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   hostUrl_not_ends_with_i?: Maybe<Scalars['String']>;
   hostUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   hostUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
+  explicitFeeDistributionSchema_not?: Maybe<Scalars['JSON']>;
+  explicitFeeDistributionSchema_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  explicitFeeDistributionSchema_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -992,6 +1017,7 @@ export type AcquiringIntegrationUpdateInput = {
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrations?: Maybe<BillingIntegrationRelateToManyInput>;
+  explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -1066,6 +1092,10 @@ export type AcquiringIntegrationWhereInput = {
   supportedBillingIntegrations_some?: Maybe<BillingIntegrationWhereInput>;
   /**  condition must be false for all nodes  */
   supportedBillingIntegrations_none?: Maybe<BillingIntegrationWhereInput>;
+  explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
+  explicitFeeDistributionSchema_not?: Maybe<Array<FeeDistributionFieldInput>>;
+  explicitFeeDistributionSchema_in?: Maybe<Array<Maybe<Array<FeeDistributionFieldInput>>>>;
+  explicitFeeDistributionSchema_not_in?: Maybe<Array<Maybe<Array<FeeDistributionFieldInput>>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -7306,6 +7336,17 @@ export type ExportTicketsToExcelOutput = {
   linkToFile: Scalars['String'];
 };
 
+export type FeeDistributionField = {
+  __typename?: 'FeeDistributionField';
+  recipient: Scalars['String'];
+  percent: Scalars['String'];
+};
+
+export type FeeDistributionFieldInput = {
+  recipient: Scalars['String'];
+  percent: Scalars['String'];
+};
+
 export type File = {
   __typename?: 'File';
   id?: Maybe<Scalars['ID']>;
@@ -10328,7 +10369,7 @@ export type MultiPayment = {
   /**  Link to all related payments  */
   payments: Array<Payment>;
   _paymentsMeta?: Maybe<_QueryMeta>;
-  /**  Link to acquiring integration  */
+  /**  Acquiring integration. Determines way of user's payment  */
   integration?: Maybe<AcquiringIntegration>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -18187,13 +18228,13 @@ export type Payment = {
   period?: Maybe<Scalars['String']>;
   /**  Purpose of payment. Mostly used as title such as "Payment by agreement №123"  */
   purpose?: Maybe<Scalars['String']>;
-  /**  Link to a billing receipt that the user paid for. Can be undefined in cases of getting payments out of our system  */
+  /**  Link to a billing receipt that the user paid for. Can be null in cases of getting payments out of our system  */
   receipt?: Maybe<BillingReceipt>;
   /**  Frozen billing receipt, used to resolving conflicts  */
   frozenReceipt?: Maybe<Scalars['JSON']>;
   /**  Link to a payment related MultiPayment. Required field to update, but initially created unlinked  */
   multiPayment?: Maybe<MultiPayment>;
-  /**  Link to Acquiring Integration context to link payment with organization  */
+  /**  Acquiring context, which used to link organization and acquiring integration and provide storage for organization-acquiring-specific settings / state  */
   context?: Maybe<AcquiringIntegrationContext>;
   /**  Direct link to organization, since acquiring context cannot be defined for some payments  */
   organization?: Maybe<Organization>;
@@ -18211,6 +18252,7 @@ export type Payment = {
 
 export type PaymentCategory = {
   __typename?: 'PaymentCategory';
+  id: Scalars['String'];
   categoryName: Scalars['String'];
   billingName: Scalars['String'];
   acquiringName: Scalars['String'];
@@ -22470,17 +22512,20 @@ export type ReInviteOrganizationEmployeeInput = {
 
 export type RegisterMultiPaymentInput = {
   dv: Scalars['Int'];
-  sender: Scalars['JSON'];
-  data: Array<RegisterMultiPaymentServiceConsumerInput>;
+  sender: SenderFieldInput;
+  groupedReceipts: Array<RegisterMultiPaymentServiceConsumerInput>;
 };
 
 export type RegisterMultiPaymentOutput = {
   __typename?: 'RegisterMultiPaymentOutput';
-  id: Scalars['String'];
+  dv: Scalars['Int'];
+  multiPaymentId: Scalars['String'];
+  webViewUrl: Scalars['String'];
+  feeCalculationUrl: Scalars['String'];
 };
 
 export type RegisterMultiPaymentServiceConsumerInput = {
-  serviceConsumerId: Scalars['String'];
+  consumerId: Scalars['String'];
   receiptsIds: Array<Scalars['String']>;
 };
 
