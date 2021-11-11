@@ -3,7 +3,12 @@ import { get } from 'lodash'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
 
-import { ComponentType, FilterComponentSize, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
+import {
+    ComponentType,
+    convertToOptions,
+    FilterComponentSize,
+    FiltersMeta,
+} from '@condo/domains/common/utils/filters.utils'
 import { MeterReadingWhereInput } from '@app/condo/schema'
 import {
     getDayRangeFilter,
@@ -16,6 +21,8 @@ import {
 import { TicketSource, TicketStatus } from '../utils/clientSchema'
 import { searchEmployeeUser, searchOrganizationDivision, searchOrganizationProperty } from '../utils/clientSchema/search'
 import { useModalFilterClassifiers } from './useModalFilterClassifiers'
+import { ITicketSourceUIState } from '../utils/clientSchema/TicketSource'
+import { ITicketStatusUIState } from '../utils/clientSchema/TicketStatus'
 
 const filterNumber = getNumberFilter('number')
 const filterDateRange = getDayRangeFilter('createdAt')
@@ -69,12 +76,12 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
     const EnterFullNameMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.EnterFullName' })
 
     const { objs: statuses } = TicketStatus.useObjects({})
-    const statusOptions = statuses.map(status => ({ text: status.name, value: status.id }))
+    const statusOptions = convertToOptions<ITicketStatusUIState>(statuses, 'name', 'id')
 
     const { objs: sources } = TicketSource.useObjects({})
-    const sourceOptions = sources.map(source => ({ text: source.name, value: source.id }))
+    const sourceOptions = convertToOptions<ITicketSourceUIState>(sources, 'name', 'id')
 
-    const attributeOptions = [{ text: PaidMessage, value: 'isPaid' }, { text: EmergencyMessage, value: 'isEmergency' }]
+    const attributeOptions = [{ label: PaidMessage, value: 'isPaid' }, { label: EmergencyMessage, value: 'isEmergency' }]
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
