@@ -144,7 +144,7 @@ describe('MultiPayment', () => {
 
                     const integrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
                     await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
-                    // TODO(toplenboren): Fix this test
+                    // TODO(DOMA-1554): Fix this test
                     const [_, updatedMultiPaymentAttrs] = await updateTestMultiPayment(integrationClient, multiPayment.id, {
                         status: MULTIPAYMENT_ERROR_STATUS,
                     }, { raw:true })
@@ -229,7 +229,7 @@ describe('MultiPayment', () => {
         })
     })
     describe('real-life cases', () => {
-        // TODO (savelevMatthew) write tests
+        // TODO(DOMA-1452) write tests
 
         test('mobile resident can\'t see his sensitive data in his own MultiPayments', async () => {
             const { admin, payments, acquiringIntegration, client } = await makePayerAndPayments()
