@@ -14,7 +14,7 @@ import { TextHighlighter, TTextHighlighterProps } from '../TextHighlighter'
 import { ELLIPSIS_ROWS } from '../../constants/style'
 
 import { EmptyTableCell } from './EmptyTableCell'
-import { Property } from '../../../../schema'
+import { Property } from '@app/condo/schema'
 import { getAddressDetailsWithoutUnit } from '../../utils/helpers'
 
 type RenderReturnType = string | React.ReactNode
@@ -137,7 +137,8 @@ export const getAddressRender = (property: Property, DeletedMessage?: string, se
     const isDeleted = !!get(property, 'deletedAt')
     const { streetLine, regionLine, cityLine } = getAddressDetailsWithoutUnit(property)
     const extraProps: Partial<TTextHighlighterProps> = isDeleted && { type: 'secondary' }
-    const postfix = `\n${regionLine}, \n${cityLine} ${isDeleted && DeletedMessage ? `(${DeletedMessage})\n` : '\n'}`
+    const deletedMessage = isDeleted && DeletedMessage ? `(${DeletedMessage})\n` : '\n'
+    const postfix = `\n${regionLine}, \n${cityLine} ${deletedMessage}`
 
     return getTableCellRenderer(search, false, postfix, extraProps, POSTFIX_PROPS)(streetLine)
 }
