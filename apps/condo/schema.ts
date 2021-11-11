@@ -22562,8 +22562,8 @@ export type RegisterServiceConsumerInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
   residentId: Scalars['ID'];
-  unitName: Scalars['String'];
   accountNumber: Scalars['String'];
+  tin: Scalars['String'];
 };
 
 export type ResendConfirmPhoneActionSmsInput = {
@@ -23394,6 +23394,8 @@ export type ServiceConsumer = {
   acquiringIntegrationContext?: Maybe<AcquiringIntegrationContext>;
   /**  Account number taken from resident. This is what resident think his account number is  */
   accountNumber?: Maybe<Scalars['String']>;
+  /**  Organization to which this service consumer pays to object  */
+  organization?: Maybe<Organization>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -23412,6 +23414,7 @@ export type ServiceConsumerCreateInput = {
   billingIntegrationContext?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
   acquiringIntegrationContext?: Maybe<AcquiringIntegrationContextRelateToOneInput>;
   accountNumber?: Maybe<Scalars['String']>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -23439,6 +23442,7 @@ export type ServiceConsumerHistoryRecord = {
   billingIntegrationContext?: Maybe<Scalars['String']>;
   acquiringIntegrationContext?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -23460,6 +23464,7 @@ export type ServiceConsumerHistoryRecordCreateInput = {
   billingIntegrationContext?: Maybe<Scalars['String']>;
   acquiringIntegrationContext?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -23486,6 +23491,7 @@ export type ServiceConsumerHistoryRecordUpdateInput = {
   billingIntegrationContext?: Maybe<Scalars['String']>;
   acquiringIntegrationContext?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -23547,6 +23553,10 @@ export type ServiceConsumerHistoryRecordWhereInput = {
   accountNumber_not_ends_with_i?: Maybe<Scalars['String']>;
   accountNumber_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   accountNumber_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -23634,6 +23644,7 @@ export type ServiceConsumerUpdateInput = {
   billingIntegrationContext?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
   acquiringIntegrationContext?: Maybe<AcquiringIntegrationContextRelateToOneInput>;
   accountNumber?: Maybe<Scalars['String']>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -23684,6 +23695,8 @@ export type ServiceConsumerWhereInput = {
   accountNumber_not_ends_with_i?: Maybe<Scalars['String']>;
   accountNumber_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   accountNumber_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -26788,6 +26801,8 @@ export enum SortServiceConsumersBy {
   AcquiringIntegrationContextDesc = 'acquiringIntegrationContext_DESC',
   AccountNumberAsc = 'accountNumber_ASC',
   AccountNumberDesc = 'accountNumber_DESC',
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
