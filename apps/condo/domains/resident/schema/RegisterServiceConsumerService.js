@@ -35,7 +35,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
     types: [
         {
             access: true,
-            type: 'input RegisterServiceConsumerInput { dv: Int!, sender: SenderFieldInput!, residentId: ID!, unitName: String!, accountNumber: String! }',
+            type: 'input RegisterServiceConsumerInput { dv: Int!, sender: SenderFieldInput!, residentId: ID!, accountNumber: String!, tin: String! }',
         },
     ],
 
@@ -45,9 +45,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
             access: access.canRegisterServiceConsumer,
             schema: 'registerServiceConsumer(data: RegisterServiceConsumerInput!): ServiceConsumer',
             resolver: async (parent, args, context = {}) => {
-                const { data: { dv, sender, residentId, unitName, accountNumber } } = args
-
-                if (!unitName || unitName.length === 0) { throw new Error(`${REQUIRED_NO_VALUE_ERROR}unitName] Unit name null or empty: ${unitName}`) }
+                const { data: { dv, sender, residentId, accountNumber, tin } } = args
 
                 if (!accountNumber || accountNumber.length === 0) { throw new Error(`${REQUIRED_NO_VALUE_ERROR}accountNumber] Account number null or empty: ${accountNumber}`) }
 
@@ -56,10 +54,23 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     throw new Error(`${NOT_FOUND_ERROR}resident] Resident not found for this user`)
                 }
 
+                if (!tin) { throw new Error(`${REQUIRED_NO_VALUE_ERROR}tin] tin null or empty: ${tin}`) }
+
+                // Todo (DOMA-1604) add filtering by tin
+                // Right now we don't actaully use tin for getting an organization, but get organization from resident. Reasons:
+                // 1. We can't optimally filter on tin: (DOMA-1604)
+                // 2. Right now it's okay to get organiation from resident. We would need to get organization by tin when we add new Acquiring
+                // const [ organization ] = await Organization.getAll(context, { meta_in: { tin: tin } })
+                const [ organization ] = await Organization.getAll(context, { id: get(resident, ['organization', 'id']) })
+                if (!organization) {
+                    throw new Error(`${NOT_FOUND_ERROR}organization] Organization is not found by this tin: ${tin}`)
+                }
+
+                const unitName = get(resident, ['unitName'])
+
                 const hasBillingData = get(resident, ['organizationFeatures', 'hasBillingData'])
                 let paymentFeatureAttrs = {}
                 if (hasBillingData) {
-                    const [ organization ] = await Organization.getAll(context, { id: resident.organization.id })
                     const [ billingIntegrationContext ] = await BillingIntegrationOrganizationContext.getAll(context, { organization: { id: organization.id } })
                     const [ acquiringIntegrationContext ] = await AcquiringIntegrationContext.getAll(context, { organization: { id: organization.id } })
                     const [ billingAccount ] = getResidentBillingAccount(billingIntegrationContext, accountNumber, unitName)
