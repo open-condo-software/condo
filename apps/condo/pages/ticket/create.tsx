@@ -30,7 +30,7 @@ const CreateTicketPage = () => {
     )
 }
 
-CreateTicketPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllTickets' }} path={'/ticket/'} />
+CreateTicketPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllTickets' }} path={'/ticket?sort=status_ASC,createdAt_DESC'} />
 CreateTicketPage.requiredAccess = OrganizationRequired
 
 export default CreateTicketPage

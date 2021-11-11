@@ -145,7 +145,9 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 filteredValue: getFilteredValue<IFilters>(filters, 'createdAt'),
                 dataIndex: 'createdAt',
                 key: 'createdAt',
-                sorter: true,
+                sorter: {
+                    multiple: 1,
+                },
                 width: '8%',
                 render: getDateRender(intl, String(search)),
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'createdAt'),
@@ -158,7 +160,9 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 render: renderStatus,
                 dataIndex: 'status',
                 key: 'status',
-                sorter: true,
+                sorter: {
+                    multiple: 2,
+                },
                 width: '8%',
                 filterDropdown: renderStatusFilterDropdown,
                 filterIcon: getFilterIcon,
