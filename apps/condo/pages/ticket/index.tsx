@@ -32,7 +32,7 @@ import { IFilters } from '@condo/domains/ticket/utils/helpers'
 import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { useEmergencySearch } from '@condo/domains/ticket/hooks/useEmergencySearch'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { setFiltersToQuery } from '@condo/domains/common/utils/filters.utils'
+import { updateQuery } from '@condo/domains/common/utils/filters.utils'
 
 import { fontSizes } from '@condo/domains/common/constants/style'
 
@@ -103,7 +103,7 @@ export const TicketsPageContent = ({
     const [paid, handlePaidChange] = usePaidSearch<IFilters>(loading)
 
     const resetQuery = async () => {
-        await setFiltersToQuery(router, {}, true)
+        await updateQuery(router, {})
     }
 
     return (

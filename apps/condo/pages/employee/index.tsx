@@ -30,7 +30,7 @@ import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSc
 import { Button } from '@condo/domains/common/components/Button'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { canManageEmployee } from '@condo/domains/organization/permissions'
-import { setFiltersToQuery } from '@condo/domains/common/utils/filters.utils'
+import { updateQuery } from '@condo/domains/common/utils/filters.utils'
 import { getTableScrollConfig } from '@condo/domains/common/utils/tables.utils'
 
 const ADD_EMPLOYEE_ROUTE = '/employee/create/'
@@ -97,7 +97,7 @@ export const EmployeesPageContent = ({
                 skip: offset,
                 first: EMPLOYEE_PAGE_SIZE,
             }).then(async () => {
-                await setFiltersToQuery(router, { ...filtersFromQuery, ...nextFilters })
+                await updateQuery(router, { ...filtersFromQuery, ...nextFilters }, sort, offset)
             })
         }
     }, 400), [loading])

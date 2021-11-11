@@ -174,12 +174,12 @@ export function getFilterDropdownByKey <T> (filterMetas: Array<FiltersMeta<T>>, 
     }
 }
 
-export async function setFiltersToQuery (router: NextRouter, newFilters: FiltersFromQueryType, resetOffset?: boolean): Promise<boolean> {
-    if (resetOffset && 'offset' in router.query)
+export async function updateQuery (router: NextRouter, newFilters?: FiltersFromQueryType, sort?: string[], offset?: number): Promise<boolean> {
+    if (!offset && 'offset' in router.query)
         router.query['offset'] = '0'
 
     const query = qs.stringify(
-        { ...router.query, filters: JSON.stringify(pickBy(newFilters)) },
+        { ...router.query, sort, offset, filters: JSON.stringify(pickBy(newFilters)) },
         { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
     )
 

@@ -29,7 +29,7 @@ import {
     FilterComponentType,
     FiltersMeta, getFiltersModalPopupContainer,
     getQueryToValueProcessorByType,
-    setFiltersToQuery,
+    updateQuery,
 } from '../utils/filters.utils'
 
 
@@ -256,11 +256,11 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
 
         form.setFieldsValue(emptyFields)
 
-        await setFiltersToQuery(router, {}, true)
+        await updateQuery(router, {})
     }, [form, router])
 
     const handleSubmit = useCallback(async (values) => {
-        await setFiltersToQuery(router, { ...filters, ...values }, true)
+        await updateQuery(router, { ...filters, ...values })
         setIsMultipleFiltersModalVisible(false)
     }, [filters, router, setIsMultipleFiltersModalVisible])
 
