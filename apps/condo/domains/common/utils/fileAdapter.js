@@ -98,6 +98,9 @@ class FileAdapter {
     // TODO(pahaz): DOMA-1569 it's better to create just a function. But we already use FileAdapter in many places. I just want to save a backward compatibility
     static makeFileAdapterMiddleware () {
         const type = conf.FILE_FIELD_ADAPTER || DEFAULT_FILE_ADAPTER
+        if (conf.PHASE === 'build') {
+            return
+        }
         if (type === 'local') {
             return new StaticApp({ path: conf.MEDIA_URL, src: conf.MEDIA_ROOT })
         } else if (type === 'sbercloud') {
