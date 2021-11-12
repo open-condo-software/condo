@@ -418,7 +418,7 @@ const TicketIdPage = () => {
     return <TicketPageContent organization={organization} employee={link} TicketContent={TicketContent} />
 }
 
-TicketIdPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllTickets' }} path={'/ticket?sort=status_ASC,createdAt_DESC'}/>
+TicketIdPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllTickets' }} path={'/ticket'}/>
 TicketIdPage.requiredAccess = OrganizationRequired
 
 export default TicketIdPage

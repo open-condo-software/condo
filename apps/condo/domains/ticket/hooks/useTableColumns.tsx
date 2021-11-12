@@ -101,7 +101,8 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     }, [loading, ticketStatuses])
 
     const renderClassifier = useCallback((text, record) => {
-        const postfix = `\n(${record.placeClassifier.name})`
+        const placeClassifier = get(record, ['placeClassifier', 'name'])
+        const postfix = `\n(${placeClassifier})`
 
         return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS)(text)
     }, [search])
@@ -145,6 +146,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 filteredValue: getFilteredValue<IFilters>(filters, 'createdAt'),
                 dataIndex: 'createdAt',
                 key: 'createdAt',
+                // sorter: true,
                 sorter: {
                     multiple: 1,
                 },
@@ -160,9 +162,10 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 render: renderStatus,
                 dataIndex: 'status',
                 key: 'status',
-                sorter: {
-                    multiple: 2,
-                },
+                sorter: true,
+                // sorter: {
+                //     multiple: 2,
+                // },
                 width: '8%',
                 filterDropdown: renderStatusFilterDropdown,
                 filterIcon: getFilterIcon,

@@ -149,7 +149,7 @@ export const getDateRender = (intl, search?: FilterValue | string) => {
 
         const locale = get(LOCALES, intl.locale)
         const date = locale ? dayjs(stringDate).locale(locale) : dayjs(stringDate)
-        const text = `${date.format(DATE_FORMAT)},`
+        const text = `${date.format(DATE_FORMAT)}`
         const postfix = `\n${date.format(TIME_FORMAT)}`
 
         return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS)(text)
