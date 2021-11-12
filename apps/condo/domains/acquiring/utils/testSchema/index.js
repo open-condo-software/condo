@@ -319,7 +319,8 @@ async function makePayer (receiptsAmount = 1) {
     const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration)
 
     const [resident] = await createTestResident(admin, client.user, organization, property)
-    const [serviceConsumer] = await createTestServiceConsumer(admin, resident, billingAccount, {
+    const [serviceConsumer] = await createTestServiceConsumer(admin, resident, organization , {
+        billingAccount: { connect: { id: billingAccount.id } },
         acquiringIntegrationContext: { connect: {id: acquiringContext.id} },
         billingIntegrationContext: { connect: { id: billingContext.id } }
     })
@@ -379,9 +380,10 @@ async function makePayerWithMultipleConsumers(consumersAmount = 1, receiptsAmoun
         const billingContext = result[i].billingContext
         const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration)
         const [resident] = await createTestResident(admin, client.user, organization, property)
-        const [serviceConsumer] = await createTestServiceConsumer(admin, resident, billingAccount, {
+        const [serviceConsumer] = await createTestServiceConsumer(admin, resident, organization, {
             acquiringIntegrationContext: { connect: {id: acquiringContext.id} },
-            billingIntegrationContext: { connect: { id: billingContext.id } }
+            billingIntegrationContext: { connect: { id: billingContext.id } },
+            billingAccount: { connect: { id: billingAccount.id } },
         })
         result[i].acquiringContext = acquiringContext
         result[i].resident = resident
