@@ -81,7 +81,7 @@ const MenuItems: React.FC = () => {
                     isCollapsed={isCollapsed}
                 />
                 <MenuItem
-                    path={'/ticket?sort=status_ASC,createdAt_DESC'}
+                    path={'/ticket?sort=order_ASC'}
                     icon={ThunderboltFilled}
                     label={'menu.ControlRoom'}
                     disabled={disabled}

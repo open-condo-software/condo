@@ -217,7 +217,7 @@ export const TicketsPageContent = ({
     )
 }
 
-const SORTABLE_PROPERTIES = ['number', 'status', 'details', 'property', 'unitName', 'assignee', 'executor', 'createdAt', 'clientName']
+const SORTABLE_PROPERTIES = ['number', 'status', 'order', 'details', 'property', 'unitName', 'assignee', 'executor', 'createdAt', 'clientName']
 
 const TicketsPage: ITicketIndexPage = () => {
     const userOrganization = useOrganization()

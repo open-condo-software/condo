@@ -11,7 +11,6 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { queryOrganizationEmployeeFromRelatedOrganizationFor, queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 const { get } = require('lodash')
 
-
 async function canReadMeters ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin || user.isSupport) return {}

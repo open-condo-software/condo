@@ -22,9 +22,9 @@ import { getSelectFilterDropdown } from '@condo/domains/common/components/Table/
 import { TicketCategoryClassifier, TicketSource, TicketStatus } from '../utils/clientSchema'
 import { searchEmployeeUser, searchOrganizationDivision, searchOrganizationProperty } from '../utils/clientSchema/search'
 import { useModalFilterClassifiers } from './useModalFilterClassifiers'
-import { getGQLSelectFilterDropdown, getSelectFilterDropdown } from '../../common/components/Table/Filters'
 import { ITicketSourceUIState } from '../utils/clientSchema/TicketSource'
 import { ITicketStatusUIState } from '../utils/clientSchema/TicketStatus'
+import { ITicketCategoryClassifierUIState } from '../utils/clientSchema/TicketCategoryClassifier'
 
 const filterNumber = getNumberFilter('number')
 const filterDateRange = getDayRangeFilter('createdAt')
@@ -85,9 +85,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
 
     const attributeOptions = [{ label: PaidMessage, value: 'isPaid' }, { label: EmergencyMessage, value: 'isEmergency' }]
     const { objs: categoryClassifiers } = TicketCategoryClassifier.useObjects({})
-    const categoryClassifiersOptions = categoryClassifiers.map(categoryClassifier => ({
-        label: categoryClassifier.name, value: categoryClassifier.id,
-    }))
+    const categoryClassifiersOptions = convertToOptions<ITicketCategoryClassifierUIState>(categoryClassifiers, 'name', 'id')
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
