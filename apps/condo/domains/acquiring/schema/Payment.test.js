@@ -26,10 +26,14 @@ const {
     expectToThrowValidationFailureError,
 } = require('@condo/domains/common/utils/testSchema')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
+const { PAYMENT_ERROR_STATUS, PAYMENT_INIT_STATUS, PAYMENT_PROCESSING_STATUS, PAYMENT_REQUIRED_FIELDS, PAYMENT_FROZEN_FIELDS } = require('@condo/domains/acquiring/constants/payment')
 const {
     PAYMENT_NO_PAIRED_FROZEN_RECEIPT,
     PAYMENT_NO_PAIRED_RECEIPT,
     PAYMENT_CONTEXT_ORGANIZATION_NOT_MATCH,
+    PAYMENT_NOT_ALLOWED_TRANSITION,
+    PAYMENT_MISSING_REQUIRED_FIELDS,
+    PAYMENT_FROZEN_FIELD_INCLUDED,
 } = require('@condo/domains/acquiring/constants/errors')
 
 describe('Payment', () => {
@@ -176,7 +180,7 @@ describe('Payment', () => {
                 const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
                 const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
                 const payload = {
-                    purpose: 'TEST',
+                    status: PAYMENT_ERROR_STATUS,
                 }
                 const [updatedPayment] = await updateTestPayment(admin, payment.id, payload)
                 expect(updatedPayment).toBeDefined()
@@ -200,7 +204,7 @@ describe('Payment', () => {
                     await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
 
                     const payload = {
-                        purpose: 'TEST',
+                        status: PAYMENT_ERROR_STATUS,
                     }
 
                     const [updatedPayment] = await updateTestPayment(integrationClient, payment.id, payload)
@@ -271,59 +275,147 @@ describe('Payment', () => {
         })
     })
     describe('validation tests', () => {
-        test('can be created without context and receipt', async () => {
-            const { admin, organization } = await makePayer()
-            const [payment] = await createTestPayment(admin, organization)
-            expect(payment).toBeDefined()
-            expect(payment).toHaveProperty('id')
-            expect(payment).toHaveProperty('context', null)
-            expect(payment).toHaveProperty('frozenReceipt', null)
-        })
-        test('Should have correct dv field (=== 1)', async () => {
-            const { admin, organization } = await makePayer()
-            await expectToThrowValidationFailureError(async () => {
-                await createTestPayment(admin, organization, null, null, {
-                    dv: 2,
-                }, DV_UNKNOWN_VERSION_ERROR)
+        describe('Fields validations', () => {
+            test('can be created without context and receipt', async () => {
+                const { admin, organization } = await makePayer()
+                const [payment] = await createTestPayment(admin, organization)
+                expect(payment).toBeDefined()
+                expect(payment).toHaveProperty('id')
+                expect(payment).toHaveProperty('context', null)
+                expect(payment).toHaveProperty('frozenReceipt', null)
             })
-            const [payment] = await createTestPayment(admin, organization, null, null)
-            await expectToThrowValidationFailureError(async () => {
-                await updateTestPayment(admin, payment.id, {
-                    dv: 2,
-                })
-            }, DV_UNKNOWN_VERSION_ERROR)
-        })
-        describe('Should check for non-negative amount', () => {
-            const cases = [['0'], ['0.00'], ['-30'], ['-100.50']]
-            test.each(cases)('Amount: %p', async (amount) => {
+            test('Should have correct dv field (=== 1)', async () => {
                 const { admin, organization } = await makePayer()
                 await expectToThrowValidationFailureError(async () => {
                     await createTestPayment(admin, organization, null, null, {
-                        amount,
-                    })
-                }, 'must be greater then 0')
-            })
-        })
-        test('Receipt and frozen receipt should be updated at the same time', async () => {
-            const { admin, organization, billingReceipts } = await makePayer()
-            await expectToThrowValidationFailureError(async () => {
-                await createTestPayment(admin, organization, billingReceipts[0], null, {
-                    frozenReceipt: null,
+                        dv: 2,
+                    }, DV_UNKNOWN_VERSION_ERROR)
                 })
-            }, PAYMENT_NO_PAIRED_FROZEN_RECEIPT)
-            await expectToThrowValidationFailureError(async () => {
-                await createTestPayment(admin, organization, null, null, {
-                    frozenReceipt: { dv: 1, data: billingReceipts[0] },
-                }, PAYMENT_NO_PAIRED_RECEIPT)
+                const [payment] = await createTestPayment(admin, organization, null, null)
+                await expectToThrowValidationFailureError(async () => {
+                    await updateTestPayment(admin, payment.id, {
+                        dv: 2,
+                    })
+                }, DV_UNKNOWN_VERSION_ERROR)
+            })
+            describe('Should check for non-negative amount', () => {
+                const cases = [['0'], ['0.00'], ['-30'], ['-100.50']]
+                test.each(cases)('Amount: %p', async (amount) => {
+                    const { admin, organization } = await makePayer()
+                    await expectToThrowValidationFailureError(async () => {
+                        await createTestPayment(admin, organization, null, null, {
+                            amount,
+                        })
+                    }, 'must be greater then 0')
+                })
+            })
+            test('Receipt and frozen receipt should be updated at the same time', async () => {
+                const { admin, organization, billingReceipts } = await makePayer()
+                await expectToThrowValidationFailureError(async () => {
+                    await createTestPayment(admin, organization, billingReceipts[0], null, {
+                        frozenReceipt: null,
+                    })
+                }, PAYMENT_NO_PAIRED_FROZEN_RECEIPT)
+                await expectToThrowValidationFailureError(async () => {
+                    await createTestPayment(admin, organization, null, null, {
+                        frozenReceipt: { dv: 1, data: billingReceipts[0] },
+                    }, PAYMENT_NO_PAIRED_RECEIPT)
+                })
+            })
+            test('context should should have same organization as payment',  async () => {
+                const { admin, acquiringContext } = await makePayer()
+                const [secondOrganization] = await createTestOrganization(admin)
+                await expectToThrowValidationFailureError(async () => {
+                    await createTestPayment(admin, secondOrganization, null, acquiringContext)
+                }, PAYMENT_CONTEXT_ORGANIZATION_NOT_MATCH)
             })
         })
-        test('context should should have same organization as payment',  async () => {
-            const { admin, acquiringContext } = await makePayer()
-            const [secondOrganization] = await createTestOrganization(admin)
-            await expectToThrowValidationFailureError(async () => {
-                await createTestPayment(admin, secondOrganization, null, acquiringContext)
-            }, PAYMENT_CONTEXT_ORGANIZATION_NOT_MATCH)
+        describe('Status-dependent model validations', () => {
+            test('Cannot change statuses if it\'s transition is not specified', async () => {
+                const { admin, organization, acquiringContext, billingReceipts } = await makePayer()
+                const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext, {
+                    status: PAYMENT_ERROR_STATUS,
+                })
+                await expectToThrowValidationFailureError(async () => {
+                    await updateTestPayment(admin, payment.id, {
+                        status: PAYMENT_INIT_STATUS,
+                    })
+                }, PAYMENT_NOT_ALLOWED_TRANSITION)
+            })
+            describe('Cannot updated payment without specifying required fields', () => {
+                const cases = Object.keys(PAYMENT_REQUIRED_FIELDS).map(status => {
+                    return PAYMENT_REQUIRED_FIELDS[status].map(field => [status, field])
+                }).flat(1)
+                test.each(cases)('Status: %p,  missing field: %p', async (status, field) => {
+                    const { admin, organization, acquiringContext, billingReceipts } = await makePayer()
+                    const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext, {
+                        [field]: null,
+                    })
+                    await expectToThrowValidationFailureError(async () => {
+                        await updateTestPayment(admin, payment.id, {
+                            status,
+                        })
+                    }, PAYMENT_MISSING_REQUIRED_FIELDS)
+                })
+            })
+            describe('Cannot update frozen fields', () => {
+                const relationFields = ['organization', 'context', 'multiPayment', 'receipt']
+                const valueFields = ['amount', 'currencyCode', 'period', 'accountNumber']
+                // NOTE: Cannot transit from other statuses, so checking only this ones
+                const statuses = [PAYMENT_INIT_STATUS, PAYMENT_PROCESSING_STATUS]
+                describe('Value-fields', async () => {
+                    const fieldCases = Object.keys(PAYMENT_FROZEN_FIELDS)
+                        .filter(status => statuses.includes(status))
+                        .map(status => {
+                            const frozenFields = PAYMENT_FROZEN_FIELDS[status]
+                                .filter(field => valueFields.includes(field))
+                            return frozenFields.map(field => [status, field])
+                        }).flat(1)
+                    test.each(fieldCases)('From: %p, field: %p', async (status, field) => {
+                        const { payments, admin, client, acquiringIntegration } = await makePayerAndPayments()
+                        await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
+                        const [payment] = payments
+                        if (payment.status !== status) {
+                            await updateTestPayment(admin, payment.id, {
+                                status,
+                            })
+                        }
+                        await expectToThrowValidationFailureError(async () => {
+                            await updateTestPayment(admin, payment.id, {
+                                status: PAYMENT_ERROR_STATUS,
+                                [field]: payment[field],
+                            })
+                        }, PAYMENT_FROZEN_FIELD_INCLUDED)
+                    })
+                })
+                describe('Relation-fields', () => {
+                    const relationCases = Object.keys(PAYMENT_FROZEN_FIELDS)
+                        .filter(status => statuses.includes(status))
+                        .map(status => {
+                            const frozenFields = PAYMENT_FROZEN_FIELDS[status]
+                                .filter(field => relationFields.includes(field))
+                            return frozenFields.map(field => [status, field])
+                        }).flat(1)
+                    test.each(relationCases)('From: %p, relation: %p', async (status, field) => {
+                        const { payments, admin, client, acquiringIntegration } = await makePayerAndPayments()
+                        await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
+                        const [payment] = payments
+                        if (payment.status !== status) {
+                            await updateTestPayment(admin, payment.id, {
+                                status,
+                            })
+                        }
+                        await expectToThrowValidationFailureError(async () => {
+                            await updateTestPayment(admin, payment.id, {
+                                status: PAYMENT_ERROR_STATUS,
+                                [field]: { disconnectAll: true },
+                            })
+                        }, PAYMENT_FROZEN_FIELD_INCLUDED)
+                    })
+                })
+            })
         })
+
         test.skip('cannot link to multipayment, if it\'s not containing billing receipts', async () => {
             const { admin, billingReceipts, acquiringContext, client, acquiringIntegration } = await makePayer(2)
             const [multiPayment] = await createTestMultiPayment(admin, [billingReceipts[0]], client.user, acquiringIntegration)

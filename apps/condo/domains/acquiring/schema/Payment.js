@@ -9,7 +9,6 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD, CURRENCY_CODE_FIELD, POSITIVE_MONEY_AMOUNT_FIELD, NON_NEGATIVE_MONEY_FIELD } = require('@condo/domains/common/schema/fields')
 const { PERIOD_FIELD } = require('@condo/domains/billing/schema/fields/common')
 const access = require('@condo/domains/acquiring/access/Payment')
-const { PAYMENT_STATUSES, PAYMENT_INIT_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { ACQUIRING_CONTEXT_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
@@ -17,7 +16,17 @@ const {
     PAYMENT_NO_PAIRED_RECEIPT,
     PAYMENT_NO_PAIRED_FROZEN_RECEIPT,
     PAYMENT_CONTEXT_ORGANIZATION_NOT_MATCH,
+    PAYMENT_NOT_ALLOWED_TRANSITION,
+    PAYMENT_MISSING_REQUIRED_FIELDS,
+    PAYMENT_FROZEN_FIELD_INCLUDED,
 } = require('@condo/domains/acquiring/constants/errors')
+const {
+    PAYMENT_STATUSES,
+    PAYMENT_INIT_STATUS,
+    PAYMENT_TRANSITIONS,
+    PAYMENT_REQUIRED_FIELDS,
+    PAYMENT_FROZEN_FIELDS,
+} = require('@condo/domains/acquiring/constants/payment')
 const get = require('lodash/get')
 
 
@@ -150,13 +159,40 @@ const Payment = new GQLListSchema('Payment', {
         auth: true,
     },
     hooks: {
-        validateInput: ({ resolvedData, context, addValidationError }) => {
-            if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
+        validateInput: ({ resolvedData, context, addValidationError, operation, existingItem }) => {
+            if (!hasDvAndSenderFields(resolvedData, context, addValidationError )) return
             const { dv } = resolvedData
             if (dv === 1) {
                 // NOTE: version 1 specific translations. Don't optimize this logic
             } else {
                 return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
+            }
+
+            if (operation === 'update') {
+                const oldStatus = existingItem.status
+                const newStatus = get(resolvedData, 'status', oldStatus)
+                if (!PAYMENT_TRANSITIONS[oldStatus].includes(newStatus)) {
+                    return addValidationError(`${PAYMENT_NOT_ALLOWED_TRANSITION} Cannot move from "${oldStatus}" status to "${newStatus}"`)
+                }
+                const newItem = {
+                    ...existingItem,
+                    ...resolvedData,
+                }
+                const requiredFields = PAYMENT_REQUIRED_FIELDS[newStatus]
+                let requiredMissing = false
+                for (const field of requiredFields) {
+                    if (!newItem.hasOwnProperty(field) || newItem[field] === null) {
+                        addValidationError(`${PAYMENT_MISSING_REQUIRED_FIELDS} Field ${field} was not provided`)
+                        requiredMissing = true
+                    }
+                }
+                if (requiredMissing) return
+                const frozenFields = PAYMENT_FROZEN_FIELDS[oldStatus]
+                for (const field of frozenFields) {
+                    if (resolvedData.hasOwnProperty(field)) {
+                        addValidationError(`${PAYMENT_FROZEN_FIELD_INCLUDED} (${field})`)
+                    }
+                }
             }
         },
     },
