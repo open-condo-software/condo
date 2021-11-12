@@ -175,7 +175,12 @@ export function getFilterDropdownByKey <T> (filterMetas: Array<FiltersMeta<T>>, 
 }
 
 export function convertToOptions <T> (objects: T[], labelField: string, valueField: string): OptionType[] {
-    return objects.map(object => ({ label: object[labelField], value: object[valueField] }))
+    return objects.map(object => {
+        const label = get(object, labelField)
+        const value = get(object, valueField)
+
+        return { label, value }
+    })
 }
 
 export async function updateQuery (router: NextRouter, newFilters?: FiltersFromQueryType, sort?: string[], offset?: number): Promise<boolean> {
