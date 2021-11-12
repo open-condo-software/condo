@@ -136,7 +136,7 @@ const POSITIVE_MONEY_AMOUNT_FIELD = {
     ...MONEY_AMOUNT_FIELD,
     hooks: {
         validateInput: ({ resolvedData, addFieldValidationError, fieldPath, listKey }) => {
-            if (resolvedData.hasOwnProperty(fieldPath)) {
+            if (resolvedData.hasOwnProperty(fieldPath) && resolvedData[fieldPath] !== null) {
                 const parsedDecimal = Big(resolvedData[fieldPath])
                 if (parsedDecimal.lte(0)) {
                     addFieldValidationError(`[${listKey.toLowerCase()}:${fieldPath}:negative] Field "${fieldPath}" of "${listKey}" must be greater then 0`)
@@ -150,7 +150,7 @@ const NON_NEGATIVE_MONEY_FIELD = {
     ...MONEY_AMOUNT_FIELD,
     hooks: {
         validateInput: ({ resolvedData, addFieldValidationError, fieldPath, listKey }) => {
-            if (resolvedData.hasOwnProperty(fieldPath)) {
+            if (resolvedData.hasOwnProperty(fieldPath) && resolvedData[fieldPath] !== null) {
                 const parsedDecimal = Big(resolvedData[fieldPath])
                 if (parsedDecimal.lt(0)) {
                     addFieldValidationError(`[${listKey.toLowerCase()}:${fieldPath}:negative] Field "${fieldPath}" of "${listKey}" must be greater then 0`)
