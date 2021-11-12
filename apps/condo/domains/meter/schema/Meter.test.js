@@ -242,8 +242,9 @@ describe('Meter', () => {
                 unitName,
             })
 
-            await createTestServiceConsumer(adminClient, resident, billingAccount, {
+            await createTestServiceConsumer(adminClient, resident, organization, {
                 accountNumber: billingAccount.number,
+                billingAccount: { connect: { id: billingAccount.id } },
             })
 
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
@@ -448,8 +449,9 @@ describe('Meter', () => {
             const [resident] = await createTestResident(adminClient, client.user, organization, property, {
                 unitName,
             })
-            await createTestServiceConsumer(adminClient, resident, billingAccount, {
+            await createTestServiceConsumer(adminClient, resident, organization, {
                 accountNumber: billingAccount.number,
+                billingAccount: { connect: { id: billingAccount.id } },
             })
 
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
@@ -560,8 +562,9 @@ describe('Meter', () => {
             const [resident] = await createTestResident(adminClient, client.user, organization, property, {
                 unitName,
             })
-            await createTestServiceConsumer(adminClient, resident, billingAccount, {
+            await createTestServiceConsumer(adminClient, resident, organization, {
                 accountNumber: billingAccount.number,
+                billingAccount: { connect: { id: billingAccount.id } },
             })
 
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
@@ -588,8 +591,9 @@ describe('Meter', () => {
             const [resident1] = await createTestResident(adminClient, client1.user, organization1, property1, {
                 unitName,
             })
-            await createTestServiceConsumer(adminClient, resident1, billingAccount1, {
+            await createTestServiceConsumer(adminClient, resident1, organization1, {
                 accountNumber: billingAccount1.number,
+                billingAccount: { connect: { id: billingAccount1.id } },
             })
 
             const { context: context2, organization: organization2 } = await makeContextWithOrganizationAndIntegrationAsAdmin()
@@ -599,8 +603,9 @@ describe('Meter', () => {
             const [resident2] = await createTestResident(adminClient, client2.user, organization2, property2, {
                 unitName,
             })
-            await createTestServiceConsumer(adminClient, resident2, billingAccount2, {
+            await createTestServiceConsumer(adminClient, resident2, organization2, {
                 accountNumber: billingAccount2.number,
+                billingAccount: { connect: { id: billingAccount2.id } },
             })
 
             const [resource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
@@ -628,8 +633,9 @@ describe('Meter', () => {
             const [resident1] = await createTestResident(adminClient, client1.user, organization, property1, {
                 unitName,
             })
-            await createTestServiceConsumer(adminClient, resident1, billingAccount1, {
+            await createTestServiceConsumer(adminClient, resident1, organization, {
                 accountNumber: billingAccount1.number,
+                billingAccount: { connect: { id: billingAccount1.id } },
             })
 
             const [property2] = await createTestProperty(adminClient, organization)
@@ -638,8 +644,9 @@ describe('Meter', () => {
             const [resident2] = await createTestResident(adminClient, client2.user, organization, property2, {
                 unitName,
             })
-            await createTestServiceConsumer(adminClient, resident2, billingAccount2, {
+            await createTestServiceConsumer(adminClient, resident2, organization, {
                 accountNumber: billingAccount2.number,
+                billingAccount: { connect: { id: billingAccount2.id } },
             })
 
             const [resource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
@@ -668,16 +675,18 @@ describe('Meter', () => {
             const [resident1] = await createTestResident(adminClient, client1.user, organization, property, {
                 unitName: unitName1,
             })
-            await createTestServiceConsumer(adminClient, resident1, billingAccount1, {
+            await createTestServiceConsumer(adminClient, resident1, organization, {
                 accountNumber: billingAccount1.number,
+                billingAccount: { connect: { id: billingAccount1.id } },
             })
 
             const [billingAccount2] = await createTestBillingAccount(adminClient, context, billingProperty)
             const [resident2] = await createTestResident(adminClient, client2.user, organization, property, {
                 unitName: unitName2,
             })
-            await createTestServiceConsumer(adminClient, resident2, billingAccount2, {
+            await createTestServiceConsumer(adminClient, resident2, organization, {
                 accountNumber: billingAccount2.number,
+                billingAccount: { connect: { id: billingAccount2.id } },
             })
 
             const [resource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
