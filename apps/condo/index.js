@@ -24,7 +24,9 @@ const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production'
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 
 let IS_BUILD_PHASE = conf.PHASE === 'build'
-
+if (IS_BUILD_PHASE) {
+    process.env.FILE_FIELD_ADAPTER = 'local' // Test
+}
 // TODO(DOMA-1614): if set to true adminUi will failed to load after build + start is launched
 IS_BUILD_PHASE = false
 
