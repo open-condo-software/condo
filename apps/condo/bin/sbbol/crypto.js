@@ -4,6 +4,7 @@ const { SbbolCryptoApi } = require('@condo/domains/organization/integrations/sbb
 const { logger: baseLogger } = require('@condo/domains/organization/integrations/sbbol/common')
 const path = require('path')
 const { prepareKeystoneExpressApp } = require('@core/keystone/test.utils')
+const { values } = require('lodash')
 
 const logger = baseLogger.child({ module: 'crypto' })
 
@@ -12,7 +13,22 @@ const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
 
 const STEP_BACK_TO_CONDO_REPO_ROOT_PATH = '../..'
 
+const COMMAND = {
+    GET_CRYPTO_INFO: 'get-crypto-info',
+}
+
+const validateAndGetCommand = () => {
+    const [command] = process.argv.slice(2)
+    if (values(COMMAND).includes(command)) {
+        return command
+    } else {
+        throw new Error('Wrong `command` argument value')
+    }
+}
+
 async function main () {
+    const command = validateAndGetCommand()
+
     const name = path.basename(process.cwd())
     const namePath = path.join(__dirname, STEP_BACK_TO_CONDO_REPO_ROOT_PATH, 'apps', name)
     const keystoneModule = require(path.join(namePath, 'index'))
@@ -32,16 +48,19 @@ async function main () {
         return null
     }
 
-    const cryptoApi = new SbbolCryptoApi({
-        accessToken,
-        host: SBBOL_FINTECH_CONFIG.host,
-        port: SBBOL_FINTECH_CONFIG.port,
-        certificate: SBBOL_PFX.certificate,
-        passphrase: SBBOL_PFX.passphrase,
-    })
+        const cryptoApi = new SbbolCryptoApi({
+            accessToken,
+            host: SBBOL_FINTECH_CONFIG.host,
+            port: SBBOL_FINTECH_CONFIG.port,
+            certificate: SBBOL_PFX.certificate,
+            passphrase: SBBOL_PFX.passphrase,
+        })
 
-    const result = await cryptoApi.getCryptoInfo()
-    console.debug('result', result)
+    if (command === COMMAND.GET_CRYPTO_INFO) {
+        const result = await cryptoApi.getCryptoInfo()
+        console.debug('result', result)
+    }
+
 
     await keystone.disconnect()
     process.exit(0)
