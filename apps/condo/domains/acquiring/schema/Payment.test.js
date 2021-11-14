@@ -15,7 +15,11 @@ const {
     createTestAcquiringIntegrationAccessRight,
     createTestMultiPayment,
     createTestAcquiringIntegration,
+    createTestAcquiringIntegrationContext,
 } = require('@condo/domains/acquiring/utils/testSchema')
+const {
+    createTestBillingIntegration,
+} = require('@condo/domains/billing/utils/testSchema')
 const {
     createTestOrganization,
 } = require('@condo/domains/organization/utils/testSchema')
@@ -35,6 +39,8 @@ const {
     PAYMENT_MISSING_REQUIRED_FIELDS,
     PAYMENT_FROZEN_FIELD_INCLUDED,
     PAYMENT_TOO_BIG_IMPLICIT_FEE,
+    PAYMENT_NO_PAIRED_CONTEXT,
+    PAYMENT_NO_SUPPORTED_CONTEXT,
 } = require('@condo/domains/acquiring/constants/errors')
 
 describe('Payment', () => {
@@ -99,9 +105,9 @@ describe('Payment', () => {
                     })
                     test('linked', async () => {
                         const { admin, payments: firstPayments, acquiringIntegration: firstAcquiringIntegration, client: firstClient } = await makePayerAndPayments()
-                        const { payments: secondPayments, client: secondClient } = await makePayerAndPayments()
+                        const { payments: secondPayments, acquiringIntegration: secondAcquiringIntegration, client: secondClient } = await makePayerAndPayments()
                         const [firstMultiPayment] = await createTestMultiPayment(admin, firstPayments, firstClient.user, firstAcquiringIntegration)
-                        const [secondMultiPayment] = await createTestMultiPayment(admin, secondPayments, secondClient.user, firstAcquiringIntegration)
+                        const [secondMultiPayment] = await createTestMultiPayment(admin, secondPayments, secondClient.user, secondAcquiringIntegration)
 
                         let { data: { objs: firstUserPayments } } = await Payment.getAll(firstClient, {}, { raw:true })
                         expect(firstUserPayments).toBeDefined()
@@ -347,6 +353,23 @@ describe('Payment', () => {
                 }, PAYMENT_TOO_BIG_IMPLICIT_FEE)
             })
         })
+        describe('Model validation', () => {
+            test('Context is required if receipt was specified', async () => {
+                const { admin, organization, billingReceipts } = await makePayer()
+                await expectToThrowValidationFailureError(async () => {
+                    await createTestPayment(admin, organization, billingReceipts[0], null)
+                }, PAYMENT_NO_PAIRED_CONTEXT)
+            })
+            test('Receipt\'s billing should be supported by acquiring', async () => {
+                const { admin, organization, billingReceipts } = await makePayer()
+                const [billing] = await createTestBillingIntegration(admin)
+                const [acquiring] = await createTestAcquiringIntegration(admin, [billing])
+                const [context] = await createTestAcquiringIntegrationContext(admin, organization, acquiring)
+                await expectToThrowValidationFailureError(async () => {
+                    await createTestPayment(admin, organization, billingReceipts[0], context)
+                }, PAYMENT_NO_SUPPORTED_CONTEXT)
+            })
+        })
         describe('Status-dependent model validations', () => {
             test('Cannot change statuses if it\'s transition is not specified', async () => {
                 const { admin, organization, acquiringContext, billingReceipts } = await makePayer()
@@ -365,12 +388,11 @@ describe('Payment', () => {
                 }).flat(1)
                 test.each(cases)('Status: %p,  missing field: %p', async (status, field) => {
                     const { admin, organization, acquiringContext, billingReceipts } = await makePayer()
-                    const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext, {
-                        [field]: null,
-                    })
+                    const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
                     await expectToThrowValidationFailureError(async () => {
                         await updateTestPayment(admin, payment.id, {
                             status,
+                            [field]: null,
                         })
                     }, PAYMENT_MISSING_REQUIRED_FIELDS)
                 })
@@ -432,38 +454,8 @@ describe('Payment', () => {
                 })
             })
         })
-
-        test.skip('cannot link to multipayment, if it\'s not containing billing receipts', async () => {
-            const { admin, billingReceipts, acquiringContext, client, acquiringIntegration } = await makePayer(2)
-            const [multiPayment] = await createTestMultiPayment(admin, [billingReceipts[0]], client.user, acquiringIntegration)
-
-            await expectToThrowValidationFailureError(async () => {
-                await createTestPayment(admin, billingReceipts[1], multiPayment, acquiringContext)
-            })
-        })
-        test.skip('cannot link to multipayment, if currency codes does not match', async () => {
-            const { admin, billingReceipts, acquiringContext, client, acquiringIntegration } = await makePayer()
-            const [multiPayment] = await createTestMultiPayment(admin, [billingReceipts[0]], client.user, acquiringIntegration)
-
-            await expectToThrowValidationFailureError(async () => {
-                await createTestPayment(admin, billingReceipts[0], multiPayment, acquiringContext, {
-                    currencyCode: 'USD',
-                })
-            })
-        })
-        test.skip('cannot link to multipayment with different integration', async () => {
-            const { admin, billingReceipts, acquiringContext, client } = await makePayer()
-            const [secondIntegration] = await createTestAcquiringIntegration(admin)
-            const integrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
-            await createTestAcquiringIntegrationAccessRight(admin, secondIntegration, integrationClient.user)
-            const [multiPayment] = await createTestMultiPayment(admin, billingReceipts, client.user, secondIntegration)
-
-            await expectToThrowValidationFailureError(async () => {
-                await createTestPayment(admin, billingReceipts[0], multiPayment, acquiringContext)
-            })
-        })
     })
-    describe('real-life cases', async () => {
+    describe('real-life cases', () => {
         test('mobile app requests payments by user and can\'t see sensitive data', async () => {
             const { admin, payments: firstPayments, acquiringIntegration: firstAcquiringIntegration, client: firstClient } = await makePayerAndPayments()
             await createTestMultiPayment(admin, firstPayments, firstClient.user, firstAcquiringIntegration)

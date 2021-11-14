@@ -28,8 +28,18 @@ const PAYMENT_NOT_ALLOWED_TRANSITION = '[payment:status:transitionNotAllowed] Re
 const PAYMENT_MISSING_REQUIRED_FIELDS = '[payment:requiredFieldsMissing] Some required fields for this status are missing.'
 const PAYMENT_FROZEN_FIELD_INCLUDED = '[payment:frozenFieldsIncluding] It is impossible to change some fields at the current stage of the payment\'s life.'
 const PAYMENT_TOO_BIG_IMPLICIT_FEE = '[payment:implicitFee:tooBig] Implicit fee cannot be greater than amount'
+const PAYMENT_NO_PAIRED_CONTEXT = '[payment:receipts:noContext] Input is containing "receipt", but "context" was not provided'
+const PAYMENT_NO_SUPPORTED_CONTEXT = '[payment:context:integration:supportedBillings] Acquiring integration of specified context does not support billing of specified receipt'
 const MULTIPAYMENT_EMPTY_PAYMENTS = '[multiPayment:payments:empty] Cannot create multipayment without payments'
 const MULTIPAYMENT_TOO_BIG_IMPLICIT_FEE = '[multiPayment:implicitFee:tooBig] Implicit fee cannot be greater than amount (without explicit fee)'
+const MULTIPAYMENT_NO_RECEIPT_PAYMENTS = '[multiPayment:payments:noReceipt] Some of listed payments have no receipts.'
+const MULTIPAYMENT_MULTIPLE_CURRENCIES = '[multiPayment:payments:currencyCode:mismatch] Some of listed payments have currency code which is not equal to multiPayment\'s one.'
+const MULTIPAYMENT_NOT_UNIQUE_RECEIPTS = '[multiPayment:payments:receipt:duplicates] Some of listed payments have same billing receipt which is not allowed. Please group all payments with same receipt into single one and repeat process.'
+const MULTIPAYMENT_TOTAL_AMOUNT_MISMATCH = '[multiPayment:amount:formulaMismatch] Amount equality is not satisfied (multiPayment.amountWithoutExplicitFee = sum of multiPayment.payments.amount)'
+const MULTIPAYMENT_IMPLICIT_FEE_MISMATCH = '[multiPayment:implicitFee:formulaMismatch] Implicit fee equality is not satisfied (multiPayment.implicitFee = sum of multiPayment.payments.implicitFee if specified otherwise 0).'
+const MULTIPAYMENT_MULTIPLE_ACQUIRING_INTEGRATIONS = '[multiPayment:receipt:context:integration:multiple] Cannot create multiPayment form payments linked to different acquiring integrations (integrations amount not equal to 1)'
+const MULTIPAYMENT_ACQUIRING_INTEGRATIONS_MISMATCH = '[multiPayment:integration:mismatch] Acquiring integration from payment\'s receipts does not equal to multiPayment.integration'
+const MULTIPAYMENT_CANNOT_GROUP_RECEIPTS = '[multiPayment:integration:canGroupReceipts:false:multipleReceipts] Cannot create multipayment with multiple payments since acquiring integration cannot group receipts'
 
 module.exports = {
     REGISTER_MP_EMPTY_INPUT,
@@ -61,7 +71,17 @@ module.exports = {
     PAYMENT_NOT_ALLOWED_TRANSITION,
     PAYMENT_MISSING_REQUIRED_FIELDS,
     PAYMENT_FROZEN_FIELD_INCLUDED,
-    MULTIPAYMENT_EMPTY_PAYMENTS,
+    PAYMENT_NO_PAIRED_CONTEXT,
     PAYMENT_TOO_BIG_IMPLICIT_FEE,
+    PAYMENT_NO_SUPPORTED_CONTEXT,
+    MULTIPAYMENT_EMPTY_PAYMENTS,
     MULTIPAYMENT_TOO_BIG_IMPLICIT_FEE,
+    MULTIPAYMENT_NO_RECEIPT_PAYMENTS,
+    MULTIPAYMENT_MULTIPLE_CURRENCIES,
+    MULTIPAYMENT_NOT_UNIQUE_RECEIPTS,
+    MULTIPAYMENT_TOTAL_AMOUNT_MISMATCH,
+    // MULTIPAYMENT_IMPLICIT_FEE_MISMATCH,
+    MULTIPAYMENT_MULTIPLE_ACQUIRING_INTEGRATIONS,
+    MULTIPAYMENT_ACQUIRING_INTEGRATIONS_MISMATCH,
+    MULTIPAYMENT_CANNOT_GROUP_RECEIPTS,
 }
