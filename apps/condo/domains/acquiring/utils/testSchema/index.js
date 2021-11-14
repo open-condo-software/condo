@@ -30,6 +30,7 @@ const { MultiPayment: MultiPaymentGQL } = require('@condo/domains/acquiring/gql'
 const { Payment: PaymentGQL } = require('@condo/domains/acquiring/gql')
 
 const dayjs = require('dayjs')
+const Big = require('big.js')
 const { REGISTER_MULTI_PAYMENT_MUTATION } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -201,7 +202,7 @@ async function createTestMultiPayment (client, payments, user, integration, extr
     if (!user) throw new Error('no user')
     if (!integration) throw new Error('no integration')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const amountWithoutExplicitFee = String(payments.reduce((acc, cur) => acc + parseFloat(cur.amount), 0))
+    const amountWithoutExplicitFee = payments.reduce((acc, cur) => acc.plus(cur.amount), Big(0)).toString()
     const explicitFee = String(Math.floor(Math.random() * 100) / 2)
 
     const attrs = {
@@ -240,7 +241,7 @@ async function createTestPayment (client, organization, receipt=null, context=nu
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const amount = receipt ? receipt.toPay : Math.round(Math.random() * 100000) / 100 + 100
+    const amount = receipt ? receipt.toPay : String(Math.round(Math.random() * 100000) / 100 + 100)
     const explicitFee = String(Math.floor(Math.random() * 100) / 2)
     const implicitFee = String(Math.floor(Math.random() * 100) / 2)
     const period = dayjs().format('YYYY-MM-01')

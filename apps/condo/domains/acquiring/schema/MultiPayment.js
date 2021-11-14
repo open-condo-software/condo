@@ -3,7 +3,7 @@
  */
 
 const { Text, DateTimeUtc, Select, Relationship, Virtual } = require('@keystonejs/fields')
-const { getById } = require('@core/keystone/schema')
+const { getById, find } = require('@core/keystone/schema')
 const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
@@ -17,6 +17,13 @@ const {
 const {
     MULTIPAYMENT_EMPTY_PAYMENTS,
     MULTIPAYMENT_TOO_BIG_IMPLICIT_FEE,
+    MULTIPAYMENT_NO_RECEIPT_PAYMENTS,
+    MULTIPAYMENT_MULTIPLE_CURRENCIES,
+    MULTIPAYMENT_NOT_UNIQUE_RECEIPTS,
+    MULTIPAYMENT_TOTAL_AMOUNT_MISMATCH,
+    MULTIPAYMENT_MULTIPLE_ACQUIRING_INTEGRATIONS,
+    MULTIPAYMENT_ACQUIRING_INTEGRATIONS_MISMATCH,
+    MULTIPAYMENT_CANNOT_GROUP_RECEIPTS,
 } = require('@condo/domains/acquiring/constants/errors')
 const { ACQUIRING_INTEGRATION_FIELD } = require('./fields/relations')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
@@ -182,13 +189,65 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
         integration: ACQUIRING_INTEGRATION_FIELD,
     },
     hooks: {
-        validateInput: ({ resolvedData, context, addValidationError }) => {
+        validateInput: async ({ resolvedData, context, addValidationError, operation }) => {
             if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
             const { dv } = resolvedData
             if (dv === 1) {
                 // NOTE: version 1 specific translations. Don't optimize this logic
             } else {
                 return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
+            }
+            const paymentsIds = resolvedData['payments']
+            const payments = await find('Payment', {
+                id_in: paymentsIds,
+            })
+
+            // if (payments.some(payment => payment.implicitFee)) {
+            //     const implicitFee = get(resolvedData, 'implicitFee')
+            //     if (!implicitFee) {
+            //         return addValidationError(`${MULTIPAYMENT_IMPLICIT_FEE_MISMATCH} Some payments have implicit fee, but implicit fee of multiPayment is not specified`)
+            //     }
+            //     const totalImplicitFee = payments
+            //         .filter(payments.implicitFee)
+            //         .reduce((acc, cur) => cur.plus(acc), Big(0))
+            //     if (!totalImplicitFee.eq(implicitFee)) {
+            //         return addValidationError(`${MULTIPAYMENT_IMPLICIT_FEE_MISMATCH} (Total sum of existing implicit fees)`)
+            //     }
+            // }
+
+            if (operation === 'create') {
+                const noReceiptPayments = payments.filter(payment => !payment.receipt).map(payment => `"${payment.id}"`)
+                if (noReceiptPayments.length) {
+                    return addValidationError(`${MULTIPAYMENT_NO_RECEIPT_PAYMENTS} [${noReceiptPayments.join(', ')}]`)
+                }
+                const currencyCode = resolvedData['currencyCode']
+                const anotherCurrencyPayments = payments.filter(payment => payment.currencyCode !== currencyCode).map(payment => `"${payment.id}"`)
+                if (anotherCurrencyPayments.length) {
+                    return addValidationError(`${MULTIPAYMENT_MULTIPLE_CURRENCIES} [${anotherCurrencyPayments.join(', ')}]`)
+                }
+                const receiptsIds = new Set(payments.map(payment => payment.receipt))
+                if (receiptsIds.size !== payments.length) {
+                    return addValidationError(MULTIPAYMENT_NOT_UNIQUE_RECEIPTS)
+                }
+                const totalAmount = payments.reduce((acc, cur) => acc.plus(cur.amount), new Big(0))
+                if (!totalAmount.eq(resolvedData['amountWithoutExplicitFee'])) {
+                    return addValidationError(MULTIPAYMENT_TOTAL_AMOUNT_MISMATCH)
+                }
+                const contexts = await find('AcquiringIntegrationContext', {
+                    id_in: payments.map(payment => payment.context),
+                })
+                const integrations = new Set(contexts.map(context => context.integration))
+                if (integrations.size !== 1) {
+                    return addValidationError(MULTIPAYMENT_MULTIPLE_ACQUIRING_INTEGRATIONS)
+                }
+                const integrationId = contexts[0].integration
+                if (resolvedData['integration'] !== integrationId) {
+                    return addValidationError(MULTIPAYMENT_ACQUIRING_INTEGRATIONS_MISMATCH)
+                }
+                const integration = await getById('AcquiringIntegration', integrationId)
+                if (!integration.canGroupReceipts && payments.length > 1) {
+                    return addValidationError(MULTIPAYMENT_CANNOT_GROUP_RECEIPTS)
+                }
             }
         },
     },

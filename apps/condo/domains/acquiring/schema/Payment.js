@@ -20,6 +20,8 @@ const {
     PAYMENT_MISSING_REQUIRED_FIELDS,
     PAYMENT_FROZEN_FIELD_INCLUDED,
     PAYMENT_TOO_BIG_IMPLICIT_FEE,
+    PAYMENT_NO_PAIRED_CONTEXT,
+    PAYMENT_NO_SUPPORTED_CONTEXT,
 } = require('@condo/domains/acquiring/constants/errors')
 const {
     PAYMENT_STATUSES,
@@ -28,6 +30,7 @@ const {
     PAYMENT_REQUIRED_FIELDS,
     PAYMENT_FROZEN_FIELDS,
 } = require('@condo/domains/acquiring/constants/payment')
+const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
 const get = require('lodash/get')
 const Big = require('big.js')
 
@@ -176,7 +179,7 @@ const Payment = new GQLListSchema('Payment', {
         auth: true,
     },
     hooks: {
-        validateInput: ({ resolvedData, context, addValidationError, operation, existingItem }) => {
+        validateInput: async ({ resolvedData, context, addValidationError, operation, existingItem }) => {
             if (!hasDvAndSenderFields(resolvedData, context, addValidationError )) return
             const { dv } = resolvedData
             if (dv === 1) {
@@ -184,8 +187,27 @@ const Payment = new GQLListSchema('Payment', {
             } else {
                 return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
             }
-
-            if (operation === 'update') {
+            if (operation === 'create') {
+                if (resolvedData['receipt']) {
+                    if (!resolvedData['context']) {
+                        return addValidationError(PAYMENT_NO_PAIRED_CONTEXT)
+                    }
+                    const receipt = await getById('BillingReceipt', resolvedData['receipt'])
+                    const billingContext = await getById('BillingIntegrationOrganizationContext', receipt.context)
+                    const acquiringContexts = await AcquiringIntegrationContext.getAll(context, {
+                        id: resolvedData['context'],
+                        integration: {
+                            supportedBillingIntegrations_some: {
+                                id: billingContext.integration,
+                            },
+                        },
+                        organization: { id: resolvedData['organization'] },
+                    })
+                    if (!acquiringContexts.length) {
+                        return addValidationError(PAYMENT_NO_SUPPORTED_CONTEXT)
+                    }
+                }
+            } else if (operation === 'update') {
                 const oldStatus = existingItem.status
                 const newStatus = get(resolvedData, 'status', oldStatus)
                 if (!PAYMENT_TRANSITIONS[oldStatus].includes(newStatus)) {

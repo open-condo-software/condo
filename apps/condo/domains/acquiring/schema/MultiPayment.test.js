@@ -24,7 +24,15 @@ const { MULTIPAYMENT_ERROR_STATUS } = require('@condo/domains/acquiring/constant
 const {
     MULTIPAYMENT_EMPTY_PAYMENTS,
     MULTIPAYMENT_TOO_BIG_IMPLICIT_FEE,
+    MULTIPAYMENT_NO_RECEIPT_PAYMENTS,
+    MULTIPAYMENT_MULTIPLE_CURRENCIES,
+    MULTIPAYMENT_NOT_UNIQUE_RECEIPTS,
+    MULTIPAYMENT_TOTAL_AMOUNT_MISMATCH,
+    MULTIPAYMENT_MULTIPLE_ACQUIRING_INTEGRATIONS,
+    MULTIPAYMENT_ACQUIRING_INTEGRATIONS_MISMATCH,
+    MULTIPAYMENT_CANNOT_GROUP_RECEIPTS,
 } = require('@condo/domains/acquiring/constants/errors')
+const Big = require('big.js')
 
 describe('MultiPayment', () => {
     describe('CRUD tests', () => {
@@ -82,9 +90,9 @@ describe('MultiPayment', () => {
             describe('user', () => {
                 test('user can see only it\'s own multipayments', async () => {
                     const { admin, payments: firstPayments, acquiringIntegration: firstAcquiringIntegration, client: firstClient } = await makePayerAndPayments()
-                    const { payments: secondPayments, client: secondClient } = await makePayerAndPayments()
+                    const { payments: secondPayments, client: secondClient, acquiringIntegration: secondAcquiringIntegration } = await makePayerAndPayments()
                     const [firstMultiPayment] = await createTestMultiPayment(admin, firstPayments, firstClient.user, firstAcquiringIntegration)
-                    const [secondMultiPayment] = await createTestMultiPayment(admin, secondPayments, secondClient.user, firstAcquiringIntegration)
+                    const [secondMultiPayment] = await createTestMultiPayment(admin, secondPayments, secondClient.user, secondAcquiringIntegration)
                     let { data: { objs: firstMultiPayments } } = await MultiPayment.getAll(firstClient, {}, { raw:true })
                     expect(firstMultiPayments).toBeDefined()
                     expect(firstMultiPayments).toHaveLength(1)
@@ -124,10 +132,8 @@ describe('MultiPayment', () => {
             test('admin can', async () => {
                 const { admin, payments, acquiringIntegration, client } = await makePayerAndPayments()
                 const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
-
-                const [updatedMultiPayment] = await updateTestMultiPayment(admin, multiPayment.id, {
-                    status: MULTIPAYMENT_ERROR_STATUS,
-                })
+                const payload = {}
+                const [updatedMultiPayment] = await updateTestMultiPayment(admin, multiPayment.id, payload)
                 expect(updatedMultiPayment).toBeDefined()
                 expect(updatedMultiPayment).toHaveProperty('status', MULTIPAYMENT_ERROR_STATUS)
 
@@ -264,6 +270,72 @@ describe('MultiPayment', () => {
                         implicitFee: '105',
                     })
                 }, MULTIPAYMENT_TOO_BIG_IMPLICIT_FEE)
+            })
+        })
+        describe('Model validation', () => {
+            describe('All linked payments should have', () => {
+                test('Billing receipt', async () => {
+                    const { admin, organization, billingReceipts, acquiringContext, client, acquiringIntegration } = await makePayer()
+                    const [firstPayment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext, {
+                        amount: '100.00',
+                        implicitFee: null,
+                    })
+                    const [secondPayment] = await createTestPayment(admin, organization, null, acquiringContext, {
+                        amount: '100.00',
+                        implicitFee: null,
+                    })
+                    await expectToThrowValidationFailureError(async () => {
+                        await createTestMultiPayment(admin, [firstPayment, secondPayment], client.user, acquiringIntegration)
+                    }, MULTIPAYMENT_NO_RECEIPT_PAYMENTS)
+                })
+                test('Same currency code', async () => {
+                    const { admin, organization, billingReceipts, acquiringContext, client, acquiringIntegration } = await makePayer(2)
+                    const [firstPayment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
+                    const [secondPayment] = await createTestPayment(admin, organization, billingReceipts[1], acquiringContext, {
+                        currencyCode: 'USD',
+                    })
+                    await expectToThrowValidationFailureError(async () => {
+                        await createTestMultiPayment(admin, [firstPayment, secondPayment], client.user, acquiringIntegration)
+                    }, MULTIPAYMENT_MULTIPLE_CURRENCIES)
+                })
+                test('Unique receipts', async () => {
+                    const { admin, organization, billingReceipts, acquiringContext, client, acquiringIntegration } = await makePayer()
+                    const [firstPayment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
+                    const [secondPayment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
+                    await expectToThrowValidationFailureError(async () => {
+                        await createTestMultiPayment(admin, [firstPayment, secondPayment], client.user, acquiringIntegration)
+                    }, MULTIPAYMENT_NOT_UNIQUE_RECEIPTS)
+                })
+                test('Matching amount', async () => {
+                    const { admin, organization, billingReceipts, acquiringContext, client, acquiringIntegration } = await makePayer(2)
+                    const [firstPayment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
+                    const [secondPayment] = await createTestPayment(admin, organization, billingReceipts[1], acquiringContext)
+                    await expectToThrowValidationFailureError(async () => {
+                        await createTestMultiPayment(admin, [firstPayment, secondPayment], client.user, acquiringIntegration, {
+                            amountWithoutExplicitFee: Big(billingReceipts[0].toPay).plus(Big(billingReceipts[1].toPay)).plus(Big(50)).toString(),
+                        })
+                    }, MULTIPAYMENT_TOTAL_AMOUNT_MISMATCH)
+                })
+                test('Same acquiring', async () => {
+                    const { admin, payments, client, acquiringIntegration } = await makePayerAndPayments()
+                    const { payments: secondPayments } = await makePayerAndPayments()
+                    await expectToThrowValidationFailureError(async () => {
+                        await createTestMultiPayment(admin, [payments[0], secondPayments[0]], client.user, acquiringIntegration)
+                    }, MULTIPAYMENT_MULTIPLE_ACQUIRING_INTEGRATIONS)
+                })
+            })
+            test('Cannot accept payments with different acquiring', async () => {
+                const { billingIntegration, admin, payments, client } = await makePayerAndPayments()
+                const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
+                await expectToThrowValidationFailureError(async () => {
+                    await createTestMultiPayment(admin, payments, client.user, integration)
+                }, MULTIPAYMENT_ACQUIRING_INTEGRATIONS_MISMATCH)
+            })
+            test('Cannot accept multiple receipts if acquiring cannot group receipts', async () => {
+                const { admin, payments, client, acquiringIntegration } = await makePayerAndPayments(2)
+                await expectToThrowValidationFailureError(async () => {
+                    await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
+                }, MULTIPAYMENT_CANNOT_GROUP_RECEIPTS)
             })
         })
     })
