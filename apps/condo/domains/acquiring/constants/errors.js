@@ -27,6 +27,9 @@ const PAYMENT_CONTEXT_ORGANIZATION_NOT_MATCH = '[payment:context:organization:no
 const PAYMENT_NOT_ALLOWED_TRANSITION = '[payment:status:transitionNotAllowed] Restricted status transition.'
 const PAYMENT_MISSING_REQUIRED_FIELDS = '[payment:requiredFieldsMissing] Some required fields for this status are missing.'
 const PAYMENT_FROZEN_FIELD_INCLUDED = '[payment:frozenFieldsIncluding] It is impossible to change some fields at the current stage of the payment\'s life.'
+const PAYMENT_TOO_BIG_IMPLICIT_FEE = '[payment:implicitFee:tooBig] Implicit fee cannot be greater than amount'
+const MULTIPAYMENT_EMPTY_PAYMENTS = '[multiPayment:payments:empty] Cannot create multipayment without payments'
+const MULTIPAYMENT_TOO_BIG_IMPLICIT_FEE = '[multiPayment:implicitFee:tooBig] Implicit fee cannot be greater than amount (without explicit fee)'
 
 module.exports = {
     REGISTER_MP_EMPTY_INPUT,
@@ -58,4 +61,7 @@ module.exports = {
     PAYMENT_NOT_ALLOWED_TRANSITION,
     PAYMENT_MISSING_REQUIRED_FIELDS,
     PAYMENT_FROZEN_FIELD_INCLUDED,
+    MULTIPAYMENT_EMPTY_PAYMENTS,
+    PAYMENT_TOO_BIG_IMPLICIT_FEE,
+    MULTIPAYMENT_TOO_BIG_IMPLICIT_FEE,
 }

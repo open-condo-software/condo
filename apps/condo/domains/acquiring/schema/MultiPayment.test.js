@@ -4,7 +4,7 @@
 
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-const { makePayerAndPayments } = require('@condo/domains/acquiring/utils/testSchema')
+const { makePayerAndPayments, makePayer } = require('@condo/domains/acquiring/utils/testSchema')
 
 const {
     MultiPayment,
@@ -12,6 +12,7 @@ const {
     updateTestMultiPayment,
     createTestAcquiringIntegration,
     createTestAcquiringIntegrationAccessRight,
+    createTestPayment,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const {
     expectToThrowAccessDeniedErrorToObj,
@@ -19,7 +20,11 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowValidationFailureError,
 } = require('@condo/domains/common/utils/testSchema')
-const { MULTIPAYMENT_ERROR_STATUS } = require('../constants/payment')
+const { MULTIPAYMENT_ERROR_STATUS } = require('@condo/domains/acquiring/constants/payment')
+const {
+    MULTIPAYMENT_EMPTY_PAYMENTS,
+    MULTIPAYMENT_TOO_BIG_IMPLICIT_FEE,
+} = require('@condo/domains/acquiring/constants/errors')
 
 describe('MultiPayment', () => {
     describe('CRUD tests', () => {
@@ -212,19 +217,53 @@ describe('MultiPayment', () => {
         })
     })
     describe('Validation tests', () => {
-        test('Should have correct dv field (=== 1)', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const { payments, acquiringIntegration, client } = await makePayerAndPayments()
-            await expectToThrowValidationFailureError(async () => {
-                await createTestMultiPayment(admin, payments, client.user, acquiringIntegration, {
-                    dv: 2,
+        describe('Fields validation', () => {
+            test('Should have correct dv field (=== 1)', async () => {
+                const { payments, acquiringIntegration, client, admin } = await makePayerAndPayments()
+                await expectToThrowValidationFailureError(async () => {
+                    await createTestMultiPayment(admin, payments, client.user, acquiringIntegration, {
+                        dv: 2,
+                    })
+                }, 'unknownDataVersion')
+                const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
+                await expectToThrowValidationFailureError(async () => {
+                    await updateTestMultiPayment(admin, multiPayment.id, {
+                        dv: 2,
+                    })
+                }, 'unknownDataVersion')
+            })
+            test('Payments should not be empty', async () => {
+                const { payments, acquiringIntegration, client, admin } = await makePayerAndPayments()
+                await expectToThrowValidationFailureError(async () => {
+                    await createTestMultiPayment(admin, payments, client.user, acquiringIntegration, {
+                        payments: { disconnectAll: true },
+                    })
+                }, MULTIPAYMENT_EMPTY_PAYMENTS)
+            })
+            describe('Should check for non-negative money fields', () => {
+                const cases = [
+                    ['explicitFee', '-0.01'], ['explicitFee', '-30'], ['explicitFee', '-10.50'],
+                    ['serviceFee', '-0.01'], ['serviceFee', '-30'], ['serviceFee', '-10.50'],
+                ]
+                test.each(cases)('%p: %p', async (field, amount) => {
+                    const { payments, acquiringIntegration, client, admin } = await makePayerAndPayments()
+                    await expectToThrowValidationFailureError(async () => {
+                        await createTestMultiPayment(admin, payments, client.user, acquiringIntegration, {
+                            [field]: amount,
+                        })
+                    }, 'must be greater')
                 })
-            }, 'unknownDataVersion')
-            const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
-            await expectToThrowValidationFailureError(async () => {
-                await updateTestMultiPayment(admin, multiPayment.id, {
-                    dv: 2,
+            })
+            test('Implicit fee cannot be greater than amountWithoutExplicitFee', async () => {
+                const { admin, organization, billingReceipts, acquiringContext, client, acquiringIntegration  } = await makePayer()
+                const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext, {
+                    amount: '100',
                 })
+                await expectToThrowValidationFailureError(async () => {
+                    await createTestMultiPayment(admin, [payment], client.user, acquiringIntegration, {
+                        implicitFee: '105',
+                    })
+                }, MULTIPAYMENT_TOO_BIG_IMPLICIT_FEE)
             })
         })
     })

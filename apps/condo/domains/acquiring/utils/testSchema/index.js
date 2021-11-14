@@ -197,7 +197,7 @@ async function makeAcquiringContextAndIntegrationAccount() {
 
 async function createTestMultiPayment (client, payments, user, integration, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!payments || !payments.length) throw new Error('no receipts')
+    if (!payments) throw new Error('no payments')
     if (!user) throw new Error('no user')
     if (!integration) throw new Error('no integration')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -240,7 +240,7 @@ async function createTestPayment (client, organization, receipt=null, context=nu
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const amount = get(receipt, 'toPay', '100.00')
+    const amount = receipt ? receipt.toPay : Math.round(Math.random() * 100000) / 100 + 100
     const explicitFee = String(Math.floor(Math.random() * 100) / 2)
     const implicitFee = String(Math.floor(Math.random() * 100) / 2)
     const period = dayjs().format('YYYY-MM-01')
