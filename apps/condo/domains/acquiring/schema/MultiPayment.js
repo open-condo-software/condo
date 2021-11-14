@@ -7,18 +7,23 @@ const { getById } = require('@core/keystone/schema')
 const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD, CURRENCY_CODE_FIELD, MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
+const { SENDER_FIELD, DV_FIELD, CURRENCY_CODE_FIELD, NON_NEGATIVE_MONEY_FIELD, POSITIVE_MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const {
     AVAILABLE_PAYMENT_METHODS,
     MULTIPAYMENT_STATUSES,
     MULTIPAYMENT_INIT_STATUS,
-} = require('../constants/payment')
+} = require('@condo/domains/acquiring/constants/payment')
+const {
+    MULTIPAYMENT_EMPTY_PAYMENTS,
+    MULTIPAYMENT_TOO_BIG_IMPLICIT_FEE,
+} = require('@condo/domains/acquiring/constants/errors')
 const { ACQUIRING_INTEGRATION_FIELD } = require('./fields/relations')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const access = require('@condo/domains/acquiring/access/MultiPayment')
 const get = require('lodash/get')
+const Big = require('big.js')
 
 
 const MultiPayment = new GQLListSchema('MultiPayment', {
@@ -32,33 +37,48 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
             type: Virtual,
             resolver: (item) => {
                 const explicitFee = get(item, 'explicitFee')
-                const floatFee = parseFloat(explicitFee || '0')
-                const floatAmount = parseFloat(item.amountWithOutExplicitFee)
-                return String(floatAmount + floatFee)
+                const floatFee = new Big(explicitFee || '0')
+                const floatAmount = new Big(item.amountWithoutExplicitFee)
+                return floatAmount.plus(floatFee).toString()
             },
         },
 
         explicitFee: {
-            ...MONEY_AMOUNT_FIELD,
+            ...NON_NEGATIVE_MONEY_FIELD,
             schemaDoc: 'The amount of commission which resident pay on top of amount',
             isRequired: false,
         },
 
         serviceFee: {
-            ...MONEY_AMOUNT_FIELD,
+            ...NON_NEGATIVE_MONEY_FIELD,
             schemaDoc: 'The amount of money charged by service (Doma) for the provision of service. Can be explicit or implicit',
             isRequired: false,
         },
 
         implicitFee: {
-            ...MONEY_AMOUNT_FIELD,
+            ...NON_NEGATIVE_MONEY_FIELD,
             schemaDoc: 'Total amount of money charged from recipients of multipayment as fee for transaction',
             isRequired: false,
             access: { read: access.canReadMultiPaymentsSensitiveData },
+            hooks: {
+                validateInput: ({ resolvedData, addFieldValidationError, fieldPath, listKey, operation, existingItem }) => {
+                    if (resolvedData.hasOwnProperty(fieldPath) && resolvedData[fieldPath] !== null) {
+                        const parsedDecimal = Big(resolvedData[fieldPath])
+                        if (parsedDecimal.lt(0)) {
+                            addFieldValidationError(`[${listKey.toLowerCase()}:${fieldPath}:negative] Field "${fieldPath}" of "${listKey}" must be greater then 0`)
+                        }
+                        const amount = Big(operation === 'create' ? resolvedData['amountWithoutExplicitFee'] : existingItem['amountWithoutExplicitFee'])
+                        const fee = Big(resolvedData[fieldPath])
+                        if (fee.gt(amount)) {
+                            addFieldValidationError(MULTIPAYMENT_TOO_BIG_IMPLICIT_FEE)
+                        }
+                    }
+                },
+            },
         },
 
         amountWithoutExplicitFee: {
-            ...MONEY_AMOUNT_FIELD,
+            ...POSITIVE_MONEY_AMOUNT_FIELD,
             schemaDoc: 'The amount of money used to pay bills, initialized by resident.',
             isRequired: true,
         },
@@ -150,6 +170,13 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
             ref: 'Payment.multiPayment',
             isRequired: true,
             many: true,
+            hooks: {
+                validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
+                    if (resolvedData[fieldPath] && !resolvedData[fieldPath].length) {
+                        addFieldValidationError(MULTIPAYMENT_EMPTY_PAYMENTS)
+                    }
+                },
+            },
         },
 
         integration: ACQUIRING_INTEGRATION_FIELD,
@@ -159,7 +186,6 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
             if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
             const { dv } = resolvedData
             if (dv === 1) {
-                // TODO(DOMA-1449): Write more complex validations
                 // NOTE: version 1 specific translations. Don't optimize this logic
             } else {
                 return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)

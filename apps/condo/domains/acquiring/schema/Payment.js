@@ -19,6 +19,7 @@ const {
     PAYMENT_NOT_ALLOWED_TRANSITION,
     PAYMENT_MISSING_REQUIRED_FIELDS,
     PAYMENT_FROZEN_FIELD_INCLUDED,
+    PAYMENT_TOO_BIG_IMPLICIT_FEE,
 } = require('@condo/domains/acquiring/constants/errors')
 const {
     PAYMENT_STATUSES,
@@ -28,6 +29,7 @@ const {
     PAYMENT_FROZEN_FIELDS,
 } = require('@condo/domains/acquiring/constants/payment')
 const get = require('lodash/get')
+const Big = require('big.js')
 
 
 const Payment = new GQLListSchema('Payment', {
@@ -53,6 +55,21 @@ const Payment = new GQLListSchema('Payment', {
             schemaDoc: 'Amount of money which recipient pays from initial amount for transaction',
             isRequired: false,
             access: { read: access.canReadPaymentsSensitiveData },
+            hooks: {
+                validateInput: ({ resolvedData, addFieldValidationError, fieldPath, listKey, operation, existingItem }) => {
+                    if (resolvedData.hasOwnProperty(fieldPath) && resolvedData[fieldPath] !== null) {
+                        const parsedDecimal = Big(resolvedData[fieldPath])
+                        if (parsedDecimal.lt(0)) {
+                            addFieldValidationError(`[${listKey.toLowerCase()}:${fieldPath}:negative] Field "${fieldPath}" of "${listKey}" must be greater then 0`)
+                        }
+                        const amount = Big(operation === 'create' ? resolvedData['amount'] : existingItem['amount'])
+                        const fee = Big(resolvedData[fieldPath])
+                        if (fee.gt(amount)) {
+                            addFieldValidationError(PAYMENT_TOO_BIG_IMPLICIT_FEE)
+                        }
+                    }
+                },
+            },
         },
 
         currencyCode: CURRENCY_CODE_FIELD,

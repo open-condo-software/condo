@@ -34,6 +34,7 @@ const {
     PAYMENT_NOT_ALLOWED_TRANSITION,
     PAYMENT_MISSING_REQUIRED_FIELDS,
     PAYMENT_FROZEN_FIELD_INCLUDED,
+    PAYMENT_TOO_BIG_IMPLICIT_FEE,
 } = require('@condo/domains/acquiring/constants/errors')
 
 describe('Payment', () => {
@@ -298,15 +299,21 @@ describe('Payment', () => {
                     })
                 }, DV_UNKNOWN_VERSION_ERROR)
             })
-            describe('Should check for non-negative amount', () => {
-                const cases = [['0'], ['0.00'], ['-30'], ['-100.50']]
-                test.each(cases)('Amount: %p', async (amount) => {
+            describe('Should check for non-negative money fields', () => {
+                const cases = [
+                    ['amount', '0'], ['amount', '0.00'], ['amount', '-30'], ['amount', '-100.50'],
+                    ['implicitFee', '-0.01'], ['implicitFee', '-30'], ['implicitFee', '-10.50'],
+                    ['explicitFee', '-0.01'], ['explicitFee', '-30'], ['explicitFee', '-10.50'],
+                ]
+                test.each(cases)('%p: %p', async (field, amount) => {
                     const { admin, organization } = await makePayer()
                     await expectToThrowValidationFailureError(async () => {
                         await createTestPayment(admin, organization, null, null, {
-                            amount,
+                            implicitFee: null,
+                            explicitFee: null,
+                            [field]: amount,
                         })
-                    }, 'must be greater then 0')
+                    }, 'must be greater')
                 })
             })
             test('Receipt and frozen receipt should be updated at the same time', async () => {
@@ -328,6 +335,16 @@ describe('Payment', () => {
                 await expectToThrowValidationFailureError(async () => {
                     await createTestPayment(admin, secondOrganization, null, acquiringContext)
                 }, PAYMENT_CONTEXT_ORGANIZATION_NOT_MATCH)
+            })
+            test('Implicit fee cannot be greater than amount', async () => {
+                const { admin, organization } = await makePayer()
+                const payload = {
+                    amount: '100',
+                    implicitFee: '105.50',
+                }
+                await expectToThrowValidationFailureError(async () => {
+                    await createTestPayment(admin, organization, null, null, payload)
+                }, PAYMENT_TOO_BIG_IMPLICIT_FEE)
             })
         })
         describe('Status-dependent model validations', () => {

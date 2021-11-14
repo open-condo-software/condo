@@ -153,7 +153,7 @@ const NON_NEGATIVE_MONEY_FIELD = {
             if (resolvedData.hasOwnProperty(fieldPath) && resolvedData[fieldPath] !== null) {
                 const parsedDecimal = Big(resolvedData[fieldPath])
                 if (parsedDecimal.lt(0)) {
-                    addFieldValidationError(`[${listKey.toLowerCase()}:${fieldPath}:negative] Field "${fieldPath}" of "${listKey}" must be greater then 0`)
+                    addFieldValidationError(`[${listKey.toLowerCase()}:${fieldPath}:negative] Field "${fieldPath}" of "${listKey}" must be greater than or equal to 0`)
                 }
             }
         },
