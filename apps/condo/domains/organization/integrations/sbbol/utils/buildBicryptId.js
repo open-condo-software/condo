@@ -1,5 +1,25 @@
 const { padStart } = require('lodash')
 const { logger: baseLogger } = require('../common')
+const Ajv = require('ajv')
+const addFormats = require('ajv-formats')
+
+const ajv = new Ajv()
+addFormats(ajv)
+
+const BUILD_BICRYPT_ID_CRYPTO_INFO_SCHEMA = {
+    type: 'object',
+    properties: {
+        certCenterCode: { type: 'string', format: 'regex', pattern:  '^(?:[0-9A-Z]{4}|[0-9A-Z]{6})$' },
+        certCenterNum: { type: 'string', format: 'regex', pattern: '^[0-9A-Z]{2}$' },
+        firstName: { type: 'string', minLength: 1 },
+        lastName: { type: 'string', minLength: 1 },
+        patronymic: { type: 'string', minLength: 1 },
+
+    },
+    required: ['certCenterCode', 'certCenterNum', 'firstName', 'lastName', 'patronymic'],
+}
+
+const formatValidator = ajv.compile(BUILD_BICRYPT_ID_CRYPTO_INFO_SCHEMA)
 
 const logger = baseLogger.child({ func: 'buildBicryptId' })
 
@@ -13,35 +33,18 @@ const logger = baseLogger.child({ func: 'buildBicryptId' })
  * @param patronymic of certificate owner
  * @return {String}
  */
-function buildBicryptId ({ certCenterCode, certCenterNum, firstName, lastName, patronymic }) {
-    if (certCenterCode === null || typeof certCenterCode === 'undefined' || certCenterCode.length === 0) {
-        logger.error({ message: 'certCenterCode is not specified' })
-        throw new Error('certCenterCode is not specified')
-    }
-    if (![4, 6].includes(certCenterCode.length)) {
-        logger.error({ message: 'certCenterCode has incorrect length', certCenterCode })
-        throw new Error('certCenterCode has incorrect length')
-    }
-    if (certCenterNum === null || typeof certCenterNum === 'undefined' || certCenterNum.length === 0) {
-        logger.error({ message: 'certCenterNum is not specified' })
-        throw new Error('certCenterNum is not specified')
-    }
-    const validCertCenterNumRegexp = /^[0-9A-Z]{2}$/
-    if (!certCenterNum.match(validCertCenterNumRegexp)) {
-        logger.error({ message: 'certCenterNum has invalid format', certCenterCode })
-        throw new Error('certCenterNum has invalid format')
-    }
-    if (firstName === null || typeof firstName === 'undefined' || firstName.length === 0) {
-        logger.error({ message: 'firstName is not specified' })
-        throw new Error('firstName is not specified')
-    }
-    if (lastName === null || typeof lastName === 'undefined' || lastName.length === 0) {
-        logger.error({ message: 'lastName is not specified' })
-        throw new Error('lastName is not specified')
-    }
-    if (patronymic === null || typeof patronymic === 'undefined' || patronymic.length === 0) {
-        logger.error({ message: 'patronymic is not specified' })
-        throw new Error('patronymic is not specified')
+function buildBicryptId (cryptoInfo) {
+    const { certCenterCode, certCenterNum, firstName, lastName, patronymic } = cryptoInfo
+    if (!formatValidator(cryptoInfo)) {
+        const errors = formatValidator.errors.map(({ message, instancePath }) => ({
+            instancePath,
+            message,
+        }))
+        logger.error('Wrong format of arguments', {
+            cryptoInfo,
+            errors,
+        })
+        throw new Error('Wrong format of arguments, passed to `buildBicryptId` function')
     }
     const paddedCertCenterNum = certCenterCode.length === 4
         ? padStart(certCenterNum, 4, '0')
