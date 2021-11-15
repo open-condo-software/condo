@@ -13,6 +13,9 @@ const {
     AVAILABLE_PAYMENT_METHODS,
     MULTIPAYMENT_STATUSES,
     MULTIPAYMENT_INIT_STATUS,
+    MULTIPAYMENT_TRANSITIONS,
+    MULTIPAYMENT_REQUIRED_FIELDS,
+    MULTIPAYMENT_FROZEN_FIELDS,
 } = require('@condo/domains/acquiring/constants/payment')
 const {
     MULTIPAYMENT_EMPTY_PAYMENTS,
@@ -24,6 +27,9 @@ const {
     MULTIPAYMENT_MULTIPLE_ACQUIRING_INTEGRATIONS,
     MULTIPAYMENT_ACQUIRING_INTEGRATIONS_MISMATCH,
     MULTIPAYMENT_CANNOT_GROUP_RECEIPTS,
+    MULTIPAYMENT_NOT_ALLOWED_TRANSITION,
+    MULTIPAYMENT_MISSING_REQUIRED_FIELDS,
+    MULTIPAYMENT_FROZEN_FIELD_INCLUDED,
 } = require('@condo/domains/acquiring/constants/errors')
 const { ACQUIRING_INTEGRATION_FIELD } = require('./fields/relations')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
@@ -250,6 +256,35 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                 if (!integration.canGroupReceipts && payments.length > 1) {
                     return addValidationError(MULTIPAYMENT_CANNOT_GROUP_RECEIPTS)
                 }
+            } else if (operation === 'update') {
+                const oldStatus = existingItem.status
+                const newStatus = get(resolvedData, 'status', oldStatus)
+                if (!MULTIPAYMENT_TRANSITIONS[oldStatus].includes(newStatus)) {
+                    return addValidationError(`${MULTIPAYMENT_NOT_ALLOWED_TRANSITION} Cannot move from "${oldStatus}" status to "${newStatus}"`)
+                }
+                const newItem = {
+                    ...existingItem,
+                    ...resolvedData,
+                }
+                const requiredFields = MULTIPAYMENT_REQUIRED_FIELDS[newStatus]
+                let requiredMissing = false
+                for (const field of requiredFields) {
+                    if (!newItem.hasOwnProperty(field) || newItem[field] === null) {
+                        addValidationError(`${MULTIPAYMENT_MISSING_REQUIRED_FIELDS} Field ${field} was not provided`)
+                        requiredMissing = true
+                    }
+                }
+                if (requiredMissing) return
+                const frozenFields = MULTIPAYMENT_FROZEN_FIELDS[oldStatus]
+                let frozenIncluded = false
+                for (const field of frozenFields) {
+                    if (resolvedData.hasOwnProperty(field)) {
+                        addValidationError(`${MULTIPAYMENT_FROZEN_FIELD_INCLUDED} (${field})`)
+                        frozenIncluded = true
+                    }
+                }
+                if (frozenIncluded) return
+
             }
         },
     },

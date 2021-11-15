@@ -40,6 +40,9 @@ const MULTIPAYMENT_IMPLICIT_FEE_MISMATCH = '[multiPayment:implicitFee:formulaMis
 const MULTIPAYMENT_MULTIPLE_ACQUIRING_INTEGRATIONS = '[multiPayment:receipt:context:integration:multiple] Cannot create multiPayment form payments linked to different acquiring integrations (integrations amount not equal to 1)'
 const MULTIPAYMENT_ACQUIRING_INTEGRATIONS_MISMATCH = '[multiPayment:integration:mismatch] Acquiring integration from payment\'s receipts does not equal to multiPayment.integration'
 const MULTIPAYMENT_CANNOT_GROUP_RECEIPTS = '[multiPayment:integration:canGroupReceipts:false:multipleReceipts] Cannot create multipayment with multiple payments since acquiring integration cannot group receipts'
+const MULTIPAYMENT_NOT_ALLOWED_TRANSITION = '[multiPayment:status:transitionNotAllowed] Restricted status transition.'
+const MULTIPAYMENT_MISSING_REQUIRED_FIELDS = '[multiPayment:requiredFieldsMissing] Some required fields for this status are missing.'
+const MULTIPAYMENT_FROZEN_FIELD_INCLUDED = '[multiPayment:frozenFieldsIncluding] It is impossible to change some fields at the current stage of the multiPayment\'s life.'
 
 module.exports = {
     REGISTER_MP_EMPTY_INPUT,
@@ -84,4 +87,7 @@ module.exports = {
     MULTIPAYMENT_MULTIPLE_ACQUIRING_INTEGRATIONS,
     MULTIPAYMENT_ACQUIRING_INTEGRATIONS_MISMATCH,
     MULTIPAYMENT_CANNOT_GROUP_RECEIPTS,
+    MULTIPAYMENT_NOT_ALLOWED_TRANSITION,
+    MULTIPAYMENT_MISSING_REQUIRED_FIELDS,
+    MULTIPAYMENT_FROZEN_FIELD_INCLUDED,
 }

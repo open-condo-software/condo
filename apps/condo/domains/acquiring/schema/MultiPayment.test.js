@@ -13,6 +13,8 @@ const {
     createTestAcquiringIntegration,
     createTestAcquiringIntegrationAccessRight,
     createTestPayment,
+    updateTestPayment,
+    getRandomHiddenCard,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const {
     expectToThrowAccessDeniedErrorToObj,
@@ -20,7 +22,14 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowValidationFailureError,
 } = require('@condo/domains/common/utils/testSchema')
-const { MULTIPAYMENT_ERROR_STATUS } = require('@condo/domains/acquiring/constants/payment')
+const {
+    MULTIPAYMENT_INIT_STATUS,
+    MULTIPAYMENT_PROCESSING_STATUS,
+    MULTIPAYMENT_ERROR_STATUS,
+    MULTIPAYMENT_DONE_STATUS,
+    PAYMENT_DONE_STATUS,
+    MULTIPAYMENT_FROZEN_FIELDS,
+} = require('@condo/domains/acquiring/constants/payment')
 const {
     MULTIPAYMENT_EMPTY_PAYMENTS,
     MULTIPAYMENT_TOO_BIG_IMPLICIT_FEE,
@@ -31,8 +40,15 @@ const {
     MULTIPAYMENT_MULTIPLE_ACQUIRING_INTEGRATIONS,
     MULTIPAYMENT_ACQUIRING_INTEGRATIONS_MISMATCH,
     MULTIPAYMENT_CANNOT_GROUP_RECEIPTS,
+    MULTIPAYMENT_NOT_ALLOWED_TRANSITION,
+    MULTIPAYMENT_MISSING_REQUIRED_FIELDS,
+    MULTIPAYMENT_FROZEN_FIELD_INCLUDED,
 } = require('@condo/domains/acquiring/constants/errors')
 const Big = require('big.js')
+const dayjs = require('dayjs')
+const faker = require('faker')
+const omit = require('lodash/omit')
+const get = require('lodash/get')
 
 describe('MultiPayment', () => {
     describe('CRUD tests', () => {
@@ -337,6 +353,87 @@ describe('MultiPayment', () => {
                 await expectToThrowValidationFailureError(async () => {
                     await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
                 }, MULTIPAYMENT_CANNOT_GROUP_RECEIPTS)
+            })
+        })
+        describe('Status-dependent model validations', () => {
+            test('Cannot change statuses if it\'s transition is not specified', async () => {
+                const { admin, payments, client, acquiringIntegration } = await makePayerAndPayments()
+                const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration, {
+                    status: MULTIPAYMENT_ERROR_STATUS,
+                })
+                await expectToThrowValidationFailureError(async () => {
+                    await updateTestMultiPayment(admin, multiPayment.id, {
+                        status: MULTIPAYMENT_ERROR_STATUS,
+                    })
+                }, MULTIPAYMENT_NOT_ALLOWED_TRANSITION)
+            })
+            describe('Should include all status-required fields for successful transition', () => {
+                const requiredPayload = {
+                    withdrawnAt: dayjs().toISOString(),
+                    cardNumber: getRandomHiddenCard(),
+                    paymentWay: 'CARD',
+                    transactionId: faker.datatype.uuid(),
+                }
+                const cases = Object.keys(requiredPayload)
+                test.each(cases)(`Status ${MULTIPAYMENT_DONE_STATUS}, missing %p field`, async (field) => {
+                    const { admin, payments, client, acquiringIntegration } = await makePayerAndPayments(1)
+                    const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
+                    for (const payment of payments) {
+                        await updateTestPayment(admin, payment.id, {
+                            status: PAYMENT_DONE_STATUS,
+                            advancedAt: dayjs().toISOString(),
+                        })
+                    }
+                    await expectToThrowValidationFailureError(async () => {
+                        await updateTestMultiPayment(admin, multiPayment.id, {
+                            status: MULTIPAYMENT_DONE_STATUS,
+                            ...omit(requiredPayload, field),
+                        })
+                    }, MULTIPAYMENT_MISSING_REQUIRED_FIELDS)
+                })
+            })
+            describe('Frozen fields cannot be changed', async () => {
+                const relations = ['integration', 'user']
+                const values = ['amountWithoutExplicitFee', 'currencyCode']
+                const statuses = [MULTIPAYMENT_INIT_STATUS, MULTIPAYMENT_PROCESSING_STATUS]
+                describe('Relation-fields', () => {
+                    const cases = statuses.map(status => {
+                        return MULTIPAYMENT_FROZEN_FIELDS[status]
+                            .filter(field => relations.includes(field))
+                            .map(field => [status, field])
+                    }).flat(1)
+                    test.each(cases)('Old status: %p, Field: %p', async (status, field) => {
+                        const { admin, client, payments, acquiringIntegration } = await makePayerAndPayments()
+                        const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration, {
+                            status,
+                        })
+                        await expectToThrowValidationFailureError(async () => {
+                            await updateTestMultiPayment(admin, multiPayment.id, {
+                                status: MULTIPAYMENT_ERROR_STATUS,
+                                [field]: { disconnectAll: true },
+                            })
+                        }, MULTIPAYMENT_FROZEN_FIELD_INCLUDED)
+                    })
+                })
+                describe('Value-fields', () => {
+                    const cases = statuses.map(status => {
+                        return MULTIPAYMENT_FROZEN_FIELDS[status]
+                            .filter(field => values.includes(field))
+                            .map(field => [status, field])
+                    }).flat(1)
+                    test.each(cases)('Old status: %p, Field: %p', async (status, field) => {
+                        const { admin, client, payments, acquiringIntegration } = await makePayerAndPayments()
+                        const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration, {
+                            status,
+                        })
+                        await expectToThrowValidationFailureError(async () => {
+                            await updateTestMultiPayment(admin, multiPayment.id, {
+                                status: MULTIPAYMENT_ERROR_STATUS,
+                                [field]: get(multiPayment, field, null),
+                            })
+                        }, MULTIPAYMENT_FROZEN_FIELD_INCLUDED)
+                    })
+                })
             })
         })
     })
