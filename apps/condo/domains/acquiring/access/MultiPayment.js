@@ -43,7 +43,7 @@ async function canManageMultiPayments ({ authentication: { item: user }, operati
 async function canReadMultiPaymentsSensitiveData ({ authentication: { item: user }, existingItem }) {
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
-    if (await checkAcquiringIntegrationAccessRight(user, existingItem.integration)) return true
+    if (await checkAcquiringIntegrationAccessRight(user.id, existingItem.integration)) return true
     return false
 }
 
