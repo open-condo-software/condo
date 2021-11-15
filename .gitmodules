@@ -14,3 +14,6 @@
 [submodule "apps/amocrm"]
 	path = apps/amocrm
 	url = git@github.com:open-condo-software/amocrm_service.git
+[submodule "apps/registry_import_billing"]
+	path = apps/registry_import_billing
+	url = https://github.com/open-condo-software/registry-import-billing
