@@ -31,3 +31,4 @@ npm-debug.*
 .kmigratorknex.schema.json
 
 .vscode
+.werf_secret_key
