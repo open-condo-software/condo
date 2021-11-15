@@ -46,7 +46,7 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
             schemaDoc: 'Acquiring integration context, that this serviceConsumer is connected to',
             type: Relationship,
             ref: 'AcquiringIntegrationContext',
-            isRequired: true,
+            isRequired: false,
             knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
