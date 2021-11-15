@@ -48,13 +48,13 @@ async function main () {
         return null
     }
 
-        const cryptoApi = new SbbolCryptoApi({
-            accessToken,
-            host: SBBOL_FINTECH_CONFIG.host,
-            port: SBBOL_FINTECH_CONFIG.port,
-            certificate: SBBOL_PFX.certificate,
-            passphrase: SBBOL_PFX.passphrase,
-        })
+    const cryptoApi = new SbbolCryptoApi({
+        accessToken,
+        host: SBBOL_FINTECH_CONFIG.host,
+        port: SBBOL_FINTECH_CONFIG.port,
+        certificate: SBBOL_PFX.certificate,
+        passphrase: SBBOL_PFX.passphrase,
+    })
 
     if (command === COMMAND.GET_CRYPTO_INFO) {
         const result = await cryptoApi.getCryptoInfo()
