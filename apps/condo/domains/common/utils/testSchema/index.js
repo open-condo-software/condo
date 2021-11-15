@@ -10,8 +10,8 @@
  */
 
 /**
- * Implements correct expecting of GraphQLError, thrown by Keystone.
- * Expectation checks inside of `catch` are not covering a case,
+ * Implements correct expecting of an error for running async (!) `testFunc`.
+ * The reason of this function is because expectation checks inside of `catch` are not covering a case,
  * when no exception is thrown, — test will pass, but should fail.
  * https://stackoverflow.com/questions/48707111/asserting-against-thrown-error-objects-in-jest
  *
@@ -23,7 +23,7 @@
  * })
  *
  *
- * @param {TestFunc} testFunc - Function, expected to throw an error
+ * @param {TestFunc} testFunc - Async only function, expected to throw an error
  * @param {ErrorInspectionCallback} inspect - Function, that should inspect the error in details
  * @return {Promise<*>}
  */
@@ -31,6 +31,34 @@ export const catchErrorFrom = async (testFunc, inspect) => {
     let thrownError
     try {
         await testFunc()
+    } catch (e) {
+        thrownError = e
+    }
+    expect(thrownError).toBeDefined()
+    return inspect(thrownError)
+}
+
+/**
+ * Implements correct expecting of an error for running sync (!) `testFunc`.
+ * The reason of this function is because expectation checks inside of `catch` are not covering a case,
+ * when no exception is thrown, — test will pass, but should fail.
+ * https://stackoverflow.com/questions/48707111/asserting-against-thrown-error-objects-in-jest
+ *
+ * @example
+ * catchSyncErrorFrom(() => {
+ *     doSomethingThatShouldThrowAnError()
+ * }, (e) => {
+ *     // any `expect` checks for catched error
+ * })
+ *
+ *
+ * @param {TestFunc} testFunc - Sync only function, expected to throw an error
+ * @param {ErrorInspectionCallback} inspect - Function, that should inspect the error in details
+ */
+export const catchSyncErrorFrom = (testFunc, inspect) => {
+    let thrownError
+    try {
+        testFunc()
     } catch (e) {
         thrownError = e
     }
