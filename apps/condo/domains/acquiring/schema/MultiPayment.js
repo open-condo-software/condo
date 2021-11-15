@@ -189,7 +189,7 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
         integration: ACQUIRING_INTEGRATION_FIELD,
     },
     hooks: {
-        validateInput: async ({ resolvedData, context, addValidationError, operation }) => {
+        validateInput: async ({ resolvedData, context, addValidationError, operation, existingItem }) => {
             if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
             const { dv } = resolvedData
             if (dv === 1) {
@@ -197,7 +197,9 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
             } else {
                 return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
             }
-            const paymentsIds = resolvedData['payments']
+            const paymentsIds = operation === 'create'
+                ? get(resolvedData, 'payments', [])
+                : get(existingItem, 'payments', [])
             const payments = await find('Payment', {
                 id_in: paymentsIds,
             })

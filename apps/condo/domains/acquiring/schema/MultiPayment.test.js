@@ -132,7 +132,9 @@ describe('MultiPayment', () => {
             test('admin can', async () => {
                 const { admin, payments, acquiringIntegration, client } = await makePayerAndPayments()
                 const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
-                const payload = {}
+                const payload = {
+                    status: MULTIPAYMENT_ERROR_STATUS,
+                }
                 const [updatedMultiPayment] = await updateTestMultiPayment(admin, multiPayment.id, payload)
                 expect(updatedMultiPayment).toBeDefined()
                 expect(updatedMultiPayment).toHaveProperty('status', MULTIPAYMENT_ERROR_STATUS)
@@ -155,12 +157,11 @@ describe('MultiPayment', () => {
 
                     const integrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
                     await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
-                    // TODO(DOMA-1554): Fix this test
-                    const [_, updatedMultiPaymentAttrs] = await updateTestMultiPayment(integrationClient, multiPayment.id, {
+                    const [updatedMultiPayment] = await updateTestMultiPayment(integrationClient, multiPayment.id, {
                         status: MULTIPAYMENT_ERROR_STATUS,
-                    }, { raw:true })
-                    expect(updatedMultiPaymentAttrs).toBeDefined()
-                    expect(updatedMultiPaymentAttrs).toHaveProperty('status', MULTIPAYMENT_ERROR_STATUS)
+                    })
+                    expect(updatedMultiPayment).toBeDefined()
+                    expect(updatedMultiPayment).toHaveProperty('status', MULTIPAYMENT_ERROR_STATUS)
                 })
                 test('user can\'t', async () => {
                     const { admin, payments, acquiringIntegration, client } = await makePayerAndPayments()
