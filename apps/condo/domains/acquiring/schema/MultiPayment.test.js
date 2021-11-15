@@ -7,6 +7,7 @@ const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } 
 const { makePayerAndPayments, makePayer } = require('@condo/domains/acquiring/utils/testSchema')
 
 const {
+    Payment,
     MultiPayment,
     createTestMultiPayment,
     updateTestMultiPayment,
@@ -15,6 +16,7 @@ const {
     createTestPayment,
     updateTestPayment,
     getRandomHiddenCard,
+    registerMultiPaymentByTestClient,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const {
     expectToThrowAccessDeniedErrorToObj,
@@ -28,6 +30,8 @@ const {
     MULTIPAYMENT_ERROR_STATUS,
     MULTIPAYMENT_DONE_STATUS,
     PAYMENT_DONE_STATUS,
+    PAYMENT_PROCESSING_STATUS,
+    PAYMENT_ERROR_STATUS,
     MULTIPAYMENT_FROZEN_FIELDS,
 } = require('@condo/domains/acquiring/constants/payment')
 const {
@@ -438,7 +442,108 @@ describe('MultiPayment', () => {
         })
     })
     describe('real-life cases', () => {
-        // TODO(DOMA-1452) write tests
+        describe('UPS', () => {
+            let integrationClient
+            let registerMPResult
+            beforeEach(async () => {
+                const {
+                    admin,
+                    acquiringIntegration,
+                    billingReceipts,
+                    serviceConsumer,
+                    client,
+                } = await makePayer(1)
+                integrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
+                const [obj] = await registerMultiPaymentByTestClient(client, [
+                    { consumerId: serviceConsumer.id, receiptsIds: [billingReceipts[0].id] },
+                ], { sender: client.userAttrs.sender })
+                registerMPResult = obj
+            })
+            test('Successful payment', async () => {
+                // Stage 1. User goes to service and confirm payment with fees...
+                // After that Acquiring Integration Manager move MP and P to PROCESSING and setting explicit fees
+                const { multiPaymentId } = registerMPResult
+                const payments = await Payment.getAll(integrationClient, {
+                    multiPayment: { id: multiPaymentId },
+                })
+                expect(payments).toBeDefined()
+                expect(payments).toHaveLength(1)
+                const explicitFee = '100.00'
+                let [payment] = payments
+                let multiPayment = await MultiPayment.update(integrationClient, multiPaymentId, {
+                    status: MULTIPAYMENT_PROCESSING_STATUS,
+                    explicitFee,
+                })
+                expect(multiPayment).toBeDefined()
+                expect(multiPayment).toHaveProperty('status', MULTIPAYMENT_PROCESSING_STATUS)
+                expect(multiPayment).toHaveProperty('explicitFee')
+                expect(Big(multiPayment.explicitFee).eq(explicitFee)).toBeTruthy()
+                payment = await Payment.update(integrationClient, payment.id, {
+                    status: PAYMENT_PROCESSING_STATUS,
+                    explicitFee,
+                })
+                expect(payment).toBeDefined()
+                expect(payment).toHaveProperty('status', PAYMENT_PROCESSING_STATUS)
+                expect(Big(payment.explicitFee).eq(explicitFee)).toBeTruthy()
+
+                // Stage 2. Acquiring Integration Manager after polling UPS service move everything to DONE
+                const transactionTime = dayjs().toISOString()
+                const cardNumber = getRandomHiddenCard()
+                const paymentWay = 'CARD'
+                const transactionId = faker.datatype.uuid()
+                payment = await Payment.update(integrationClient, payment.id, {
+                    status: PAYMENT_DONE_STATUS,
+                    advancedAt: transactionTime,
+                })
+                expect(payment).toBeDefined()
+                expect(payment).toHaveProperty('status', PAYMENT_DONE_STATUS)
+                expect(payment).toHaveProperty('advancedAt', transactionTime)
+                multiPayment = await MultiPayment.update(integrationClient, multiPaymentId, {
+                    withdrawnAt: transactionTime,
+                    cardNumber,
+                    paymentWay,
+                    transactionId,
+                    status: MULTIPAYMENT_DONE_STATUS,
+                })
+                expect(multiPayment).toBeDefined()
+                expect(multiPayment).toHaveProperty('withdrawnAt', transactionTime)
+                expect(multiPayment).toHaveProperty('cardNumber', cardNumber)
+                expect(multiPayment).toHaveProperty('paymentWay', paymentWay)
+                expect(multiPayment).toHaveProperty('transactionId', transactionId)
+                expect(multiPayment).toHaveProperty('status', MULTIPAYMENT_DONE_STATUS)
+            })
+            test('Payment failed during money processing', async () => {
+                // Stage 1. Same as above
+                const { multiPaymentId } = registerMPResult
+                const payments = await Payment.getAll(integrationClient, {
+                    multiPayment: { id: multiPaymentId },
+                })
+                const explicitFee = '100.00'
+                let [payment] = payments
+                await MultiPayment.update(integrationClient, multiPaymentId, {
+                    status: MULTIPAYMENT_PROCESSING_STATUS,
+                    explicitFee,
+                })
+                await Payment.update(integrationClient, payment.id, {
+                    status: PAYMENT_PROCESSING_STATUS,
+                    explicitFee,
+                })
+
+                // Stage 2. Acquiring Integration Manager after polling UPS service move everything to ERROR
+                payment = await Payment.update(integrationClient, payment.id, {
+                    status: PAYMENT_ERROR_STATUS,
+                })
+                expect(payment).toBeDefined()
+                expect(payment).toHaveProperty('status', PAYMENT_ERROR_STATUS)
+                const multiPayment = await MultiPayment.update(integrationClient, multiPaymentId, {
+                    status: MULTIPAYMENT_ERROR_STATUS,
+                })
+                expect(multiPayment).toBeDefined()
+                expect(multiPayment).toHaveProperty('status', MULTIPAYMENT_ERROR_STATUS)
+            })
+        })
+
 
         test('mobile resident can\'t see his sensitive data in his own MultiPayments', async () => {
             const { admin, payments, acquiringIntegration, client } = await makePayerAndPayments()
