@@ -26,6 +26,7 @@ const {
     REGISTER_MP_DELETED_BILLING_CONTEXT,
     REGISTER_MP_DELETED_BILLING_INTEGRATION,
     REGISTER_MP_NEGATIVE_TO_PAY,
+    REGISTER_MP_NO_BILLING_ACCOUNT_CONSUMERS,
 } = require('@condo/domains/acquiring/constants/errors')
 const { DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY } = require('@condo/domains/acquiring/constants/payment')
 const { FEE_CALCULATION_PATH, WEB_VIEW_PATH } = require('@condo/domains/acquiring/constants/links')
@@ -123,6 +124,13 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     .map(consumer => consumer.id)
                 if (contextMissingConsumers.length) {
                     throw new Error(`${REGISTER_MP_NO_ACQUIRING_CONSUMERS} (${contextMissingConsumers.join(', ')})`)
+                }
+
+                const accountMissingConsumers = consumers
+                    .filter(consumer =>  !get(consumer, 'billingAccount'))
+                    .map(consumer => consumer.id)
+                if (accountMissingConsumers.length) {
+                    throw new Error(`${REGISTER_MP_NO_BILLING_ACCOUNT_CONSUMERS} (${accountMissingConsumers.join(', ')})`)
                 }
 
                 const consumersByIds = Object.assign({}, ...consumers.map(obj => ({ [obj.id]: obj })))

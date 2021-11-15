@@ -53,6 +53,7 @@ const {
     REGISTER_MP_DELETED_BILLING_CONTEXT,
     REGISTER_MP_DELETED_BILLING_INTEGRATION,
     REGISTER_MP_NEGATIVE_TO_PAY,
+    REGISTER_MP_NO_BILLING_ACCOUNT_CONSUMERS,
 } = require('@condo/domains/acquiring/constants/errors')
 const faker = require('faker')
 const dayjs = require('dayjs')
@@ -211,6 +212,19 @@ describe('RegisterMultiPaymentService', () => {
                 await expectToThrowMutationError(async () => {
                     await registerMultiPaymentByTestClient(commonData.client, payload)
                 }, REGISTER_MP_NO_ACQUIRING_CONSUMERS)
+            })
+            test('All ServiceConsumers should have BillingAccount', async () => {
+                const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
+                const payload = batches.map(batch => ({
+                    consumerId: batch.serviceConsumer.id,
+                    receiptsIds: batch.billingReceipts.map(receipt => receipt.id),
+                }))
+                await updateTestServiceConsumer(commonData.admin, batches[0].serviceConsumer.id, {
+                    billingAccount: { disconnectAll: true },
+                })
+                await expectToThrowMutationError(async () => {
+                    await registerMultiPaymentByTestClient(commonData.client, payload)
+                }, REGISTER_MP_NO_BILLING_ACCOUNT_CONSUMERS)
             })
             describe('AcquiringIntegrationContext', () => {
                 test('All should be linked to same AcquiringIntegration', async () => {

@@ -65,11 +65,12 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
                     serviceConsumerWhere.deletedAt = null
                 }
 
-                const allServiceConsumers = await ServiceConsumer.getAll(context, serviceConsumerWhere)
+                const allServiceConsumers = await ServiceConsumer
+                    .getAll(context, serviceConsumerWhere)
+                    .filter(consumer => get(consumer, ['billingAccount', 'id']))
                 if (!Array.isArray(allServiceConsumers) || !allServiceConsumers.length) {
                     return []
                 }
-
                 const billingReceipts = []
                 for (let i = 0; i < allServiceConsumers.length; ++i) {
                     const receiptsQuery = { ...receiptsWhere, ...{ account: { id: allServiceConsumers[i].billingAccount.id } } }
