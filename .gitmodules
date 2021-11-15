@@ -16,4 +16,4 @@
 	url = git@github.com:open-condo-software/amocrm_service.git
 [submodule "apps/condorb"]
 	path = apps/condorb
-	url = https://github.com/open-condo-software/condorb
+	url = ../condorb.git
