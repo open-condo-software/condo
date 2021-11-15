@@ -5,6 +5,7 @@ const REGISTER_MP_RECEIPTS_DUPLICATE = '[groupedReceipts:consumerId:duplicate] F
 const REGISTER_MP_REAL_CONSUMER_MISMATCH = '[groupedReceipts:consumerId:nonExistingConsumer] Cannot find all specified ServiceConsumers.'
 const REGISTER_MP_DELETED_CONSUMERS = '[groupedReceipts:consumerId:deleted] Some of specified ServiceConsumers were deleted, so you cannot pay for them anymore'
 const REGISTER_MP_NO_ACQUIRING_CONSUMERS = '[serviceConsumer:noAcquiringContext] Some of ServiceConsumers doesn\'t have Acquiring context.'
+const REGISTER_MP_NO_BILLING_ACCOUNT_CONSUMERS = '[serviceConsumer:noBillingAccount] Some of ServiceConsumers doesn\'t have Billing account, so receipt-consumer relation cannot be defined.'
 const REGISTER_MP_DELETED_ACQUIRING_CONTEXTS = '[groupedReceipts:consumerId:acquiringContext:deleted] Some of specified ServiceConsumers has deleted acquiring integration context, so you cannot pay for them anymore'
 const REGISTER_MP_MULTIPLE_INTEGRATIONS = '[serviceConsumer:acquiringContext:multipleIntegrations] Listed consumerIds are linked to different acquiring integrations'
 const REGISTER_MP_DELETED_ACQUIRING_INTEGRATION = '[serviceConsumer:acquiringContext:acquiringIntegration:deleted] Cannot pay via deleted acquiring.'
@@ -27,6 +28,7 @@ module.exports = {
     REGISTER_MP_RECEIPTS_DUPLICATE,
     REGISTER_MP_REAL_CONSUMER_MISMATCH,
     REGISTER_MP_NO_ACQUIRING_CONSUMERS,
+    REGISTER_MP_NO_BILLING_ACCOUNT_CONSUMERS,
     REGISTER_MP_MULTIPLE_INTEGRATIONS,
     REGISTER_MP_CANNOT_GROUP_RECEIPTS,
     REGISTER_MP_UNSUPPORTED_BILLING,
