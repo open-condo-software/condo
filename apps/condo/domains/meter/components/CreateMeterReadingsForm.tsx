@@ -254,19 +254,6 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
 
         const { property, accountNumber, newMeters, existedMeters, floorName, sectionName, unitName, ...clientInfo } = variables
         const getNewMeterReadingVariables = (meterReading) => {
-            console.log({
-                organization: organization.id,
-                contact: get(createdContact, 'id') || variables.contact,
-                value1: normalizeReading(meterReading.value1),
-                value2: normalizeReading(meterReading.value2),
-                value3: normalizeReading(meterReading.value3),
-                value4: normalizeReading(meterReading.value4),
-                meter: meterReading.id,
-                date: new Date(),
-                property: property,
-                unitName: unitName,
-                ...clientInfo,
-            })
             return {
                 organization: organization.id,
                 contact: get(createdContact, 'id') || variables.contact,
