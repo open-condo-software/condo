@@ -6,7 +6,7 @@ import { DeleteFilled } from '@ant-design/icons'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { useIntl } from '@core/next/intl'
 
-interface IDeleteActionButtonWithConfirmModal {
+export interface IDeleteActionButtonWithConfirmModal {
     title: string
     message: string
     okButtonLabel: string

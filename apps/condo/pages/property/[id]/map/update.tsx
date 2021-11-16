@@ -2,10 +2,12 @@ import React from 'react'
 import Head from 'next/head'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
-import { Row, Col } from 'antd'
+import { Row, Col, RowProps } from 'antd'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
 import CreatePropertyMapForm from '@condo/domains/property/components/PropertyMapForm/CreatePropertyMapForm'
+
+const PAGE_ROW_GUTTER: RowProps['gutter'] = [0, 40]
 
 const CreatePropertyMapPage = () => {
     const intl = useIntl()
@@ -19,7 +21,7 @@ const CreatePropertyMapPage = () => {
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <Row gutter={[0, 40]}>
+                    <Row gutter={PAGE_ROW_GUTTER}>
                         <Col span={24}>
                             <CreatePropertyMapForm id={id as string} />
                         </Col>

@@ -4,7 +4,7 @@ import {
     PageWrapper,
     useLayoutContext,
 } from '@condo/domains/common/components/containers/BaseLayout'
-import { Col, Radio, Row, Tabs, Typography } from 'antd'
+import { Col, Radio, Row, RowProps, Tabs, Typography } from 'antd'
 import Head from 'next/head'
 import { jsx } from '@emotion/core'
 import { useIntl } from '@core/next/intl'
@@ -61,6 +61,8 @@ type PropertiesContentProps = {
     tab?: PropertiesType
 }
 
+const PAGE_ROW_GUTTER: RowProps['gutter'] = [0, 40]
+
 export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
     const intl = useIntl()
     const router = useRouter()
@@ -98,7 +100,7 @@ export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
             </Head>
             <PageWrapper>
                 <TablePageContent>
-                    <Row gutter={[0, 40]} align={'top'}>
+                    <Row gutter={PAGE_ROW_GUTTER} align={'top'}>
                         <Col lg={6} xs={24}>
                             <Typography.Title>
                                 {PageTitleMessage}

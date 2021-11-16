@@ -19,6 +19,10 @@ interface IPropertyPanels {
     mapValidationError?: string
 }
 
+const FOCUS_CONTAINER_STYLE: React.CSSProperties = {
+    margin: 'initial',
+    marginTop: '40px',
+}
 
 export const PropertyPanels: React.FC<IPropertyPanels> = ({ mapValidationError, mode, map, updateMap, handleSave, address }) => {
     const intl = useIntl()
@@ -27,7 +31,7 @@ export const PropertyPanels: React.FC<IPropertyPanels> = ({ mapValidationError, 
     return (
         <Tabs defaultActiveKey='1'>
             <TabPane tab={BuildingTabTitle} key='1'>
-                <FocusContainer style={{ margin: 'initial', marginTop: '40px' }}>
+                <FocusContainer style={FOCUS_CONTAINER_STYLE}>
                     {
                         mode === 'view'
                             ? <BuildingPanelView
@@ -44,7 +48,7 @@ export const PropertyPanels: React.FC<IPropertyPanels> = ({ mapValidationError, 
                 </FocusContainer>
             </TabPane>
             <TabPane tab={ResidentsTabTitle} key='2' disabled>
-                <FocusContainer style={{ margin: 'initial', marginTop: '40px' }}>
+                <FocusContainer style={FOCUS_CONTAINER_STYLE}>
                     {
                         mode === 'view' ? <ResidentPanelView /> : <ResidentPanelEdit />
                     }
