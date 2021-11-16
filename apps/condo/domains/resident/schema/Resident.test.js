@@ -342,7 +342,7 @@ describe('Resident', () => {
                 expect(obj.organizationFeatures.hasMeters).toBe(true)
             })
 
-            it('correctly sets the hasMeters: "false" if meters no meters existing in resident property and unit', async () => {
+            it('correctly sets the hasMeters: "false" if no meters existing in resident property and unit', async () => {
                 const adminClient = await makeLoggedInAdminClient()
                 const client = await makeClientWithResidentUser()
                 const [organization] = await createTestOrganization(adminClient)
