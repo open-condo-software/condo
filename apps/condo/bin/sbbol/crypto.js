@@ -11,11 +11,13 @@ const logger = baseLogger.child({ module: 'crypto' })
 
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
+const SBBOL_CSR_REQUEST_DATA = conf.SBBOL_CSR_REQUEST_DATA ? JSON.parse(conf.SBBOL_CSR_REQUEST_DATA) : {}
 
 const STEP_BACK_TO_CONDO_REPO_ROOT_PATH = '../..'
 
 const COMMAND = {
     GET_CRYPTO_INFO: 'get-crypto-info',
+    POST_CMS: 'post-cms',
 }
 
 const validateAndGetCommand = () => {
@@ -59,11 +61,27 @@ async function main () {
         passphrase: SBBOL_PFX.passphrase,
     })
 
-    if (command === COMMAND.GET_CRYPTO_INFO) {
-        const result = await cryptoApi.getCryptoInfo()
-        console.debug('result', result)
+    let cryptoInfo
+
+    if ([COMMAND.GET_CRYPTO_INFO, COMMAND.POST_CMS].includes(command)) {
+        cryptoInfo = await cryptoApi.getCryptoInfo()
     }
 
+    if (cryptoInfo && command === COMMAND.POST_CMS) {
+        const response = await cryptoApi.postCertificateSigningRequest({
+            cryptoInfo,
+            cms: SBBOL_CSR_REQUEST_DATA.cms,
+            email: SBBOL_CSR_REQUEST_DATA.email,
+            externalId: SBBOL_CSR_REQUEST_DATA.externalId,
+            number: SBBOL_CSR_REQUEST_DATA.number,
+            orgName: SBBOL_CSR_REQUEST_DATA.orgName,
+            firstName: SBBOL_CSR_REQUEST_DATA.firstName,
+            lastName: SBBOL_CSR_REQUEST_DATA.lastName,
+            patronymic: SBBOL_CSR_REQUEST_DATA.patronymic,
+            userPosition: SBBOL_CSR_REQUEST_DATA.userPosition,
+        })
+        console.log('response from cryptoApi.postCertificateSigningRequest', response)
+    }
 
     await keystone.disconnect()
     process.exit(0)
