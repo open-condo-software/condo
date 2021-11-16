@@ -390,6 +390,7 @@ class MapEdit extends MapView {
         const newSection = this.generateSection(section)
         this.map.sections.push(newSection)
         this.notifyUpdater()
+        this.editMode = 'addSection'
     }
 
     public updateSection (section: BuildingSection): void {
