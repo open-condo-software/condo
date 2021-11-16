@@ -12,10 +12,12 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 const {
     AVAILABLE_PAYMENT_METHODS,
     MULTIPAYMENT_STATUSES,
+    MULTIPAYMENT_DONE_STATUS,
     MULTIPAYMENT_INIT_STATUS,
     MULTIPAYMENT_TRANSITIONS,
     MULTIPAYMENT_REQUIRED_FIELDS,
     MULTIPAYMENT_FROZEN_FIELDS,
+    PAYMENT_DONE_STATUS,
 } = require('@condo/domains/acquiring/constants/payment')
 const {
     MULTIPAYMENT_EMPTY_PAYMENTS,
@@ -30,6 +32,10 @@ const {
     MULTIPAYMENT_NOT_ALLOWED_TRANSITION,
     MULTIPAYMENT_MISSING_REQUIRED_FIELDS,
     MULTIPAYMENT_FROZEN_FIELD_INCLUDED,
+    MULTIPAYMENT_UNDONE_PAYMENTS,
+    MULTIPAYMENT_EXPLICIT_FEE_MISMATCH,
+    MULTIPAYMENT_INCONSISTENT_IMPLICIT_FEE,
+    MULTIPAYMENT_IMPLICIT_FEE_MISMATCH,
 } = require('@condo/domains/acquiring/constants/errors')
 const { ACQUIRING_INTEGRATION_FIELD } = require('./fields/relations')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
@@ -203,12 +209,6 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
             } else {
                 return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
             }
-            const paymentsIds = operation === 'create'
-                ? get(resolvedData, 'payments', [])
-                : get(existingItem, 'payments', [])
-            const payments = await find('Payment', {
-                id_in: paymentsIds,
-            })
 
             // if (payments.some(payment => payment.implicitFee)) {
             //     const implicitFee = get(resolvedData, 'implicitFee')
@@ -224,6 +224,10 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
             // }
 
             if (operation === 'create') {
+                const paymentsIds = get(resolvedData, 'payments', [])
+                const payments = await find('Payment', {
+                    id_in: paymentsIds,
+                })
                 const noReceiptPayments = payments.filter(payment => !payment.receipt).map(payment => `"${payment.id}"`)
                 if (noReceiptPayments.length) {
                     return addValidationError(`${MULTIPAYMENT_NO_RECEIPT_PAYMENTS} [${noReceiptPayments.join(', ')}]`)
@@ -257,6 +261,9 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                     return addValidationError(MULTIPAYMENT_CANNOT_GROUP_RECEIPTS)
                 }
             } else if (operation === 'update') {
+                const payments = await find('Payment', {
+                    multiPayment: { id: existingItem.id },
+                })
                 const oldStatus = existingItem.status
                 const newStatus = get(resolvedData, 'status', oldStatus)
                 if (!MULTIPAYMENT_TRANSITIONS[oldStatus].includes(newStatus)) {
@@ -284,7 +291,28 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                     }
                 }
                 if (frozenIncluded) return
-
+                if (newStatus === MULTIPAYMENT_DONE_STATUS) {
+                    const undonePayments = payments
+                        .filter(payment => payment.status !== PAYMENT_DONE_STATUS)
+                        .map(payment => payment.id)
+                    if (undonePayments.length) {
+                        addValidationError(`${MULTIPAYMENT_UNDONE_PAYMENTS} Undone payments ids: ${undonePayments.join(', ')}`)
+                    }
+                    const totalFee = payments.reduce((acc, cur) => acc.plus(cur.explicitFee || '0'), Big(0))
+                    if (!newItem.explicitFee || !totalFee.eq(newItem.explicitFee)) {
+                        addValidationError(`${MULTIPAYMENT_EXPLICIT_FEE_MISMATCH}`)
+                    }
+                    const paymentsWithImplicitFee = payments.filter(payment => payment.implicitFee)
+                    if (paymentsWithImplicitFee.length !== payments.length && paymentsWithImplicitFee.length !== 0) {
+                        addValidationError(MULTIPAYMENT_INCONSISTENT_IMPLICIT_FEE)
+                    }
+                    if (paymentsWithImplicitFee.length === payments.length) {
+                        const totalImplicitFee = payments.reduce((acc, cur) => acc.plus(cur.implicitFee), Big(0))
+                        if (!newItem.explicitFee || !totalImplicitFee.eq(newItem.explicitFee)) {
+                            addValidationError(MULTIPAYMENT_IMPLICIT_FEE_MISMATCH)
+                        }
+                    }
+                }
             }
         },
     },

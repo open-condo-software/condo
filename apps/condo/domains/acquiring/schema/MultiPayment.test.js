@@ -12,6 +12,7 @@ const {
     createTestMultiPayment,
     updateTestMultiPayment,
     createTestAcquiringIntegration,
+    updateTestAcquiringIntegration,
     createTestAcquiringIntegrationAccessRight,
     createTestPayment,
     updateTestPayment,
@@ -47,6 +48,10 @@ const {
     MULTIPAYMENT_NOT_ALLOWED_TRANSITION,
     MULTIPAYMENT_MISSING_REQUIRED_FIELDS,
     MULTIPAYMENT_FROZEN_FIELD_INCLUDED,
+    MULTIPAYMENT_UNDONE_PAYMENTS,
+    MULTIPAYMENT_EXPLICIT_FEE_MISMATCH,
+    MULTIPAYMENT_INCONSISTENT_IMPLICIT_FEE,
+    MULTIPAYMENT_IMPLICIT_FEE_MISMATCH,
 } = require('@condo/domains/acquiring/constants/errors')
 const Big = require('big.js')
 const dayjs = require('dayjs')
@@ -378,20 +383,27 @@ describe('MultiPayment', () => {
                     paymentWay: 'CARD',
                     transactionId: faker.datatype.uuid(),
                 }
-                const cases = Object.keys(requiredPayload)
+                const cases = ['withdrawnAt', 'cardNumber', 'paymentWay', 'transactionId', 'explicitFee']
                 test.each(cases)(`Status ${MULTIPAYMENT_DONE_STATUS}, missing %p field`, async (field) => {
                     const { admin, payments, client, acquiringIntegration } = await makePayerAndPayments(1)
-                    const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
+                    const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration, {
+                        explicitFee: null,
+                    })
+                    const explicitFee = payments[0].explicitFee
                     for (const payment of payments) {
                         await updateTestPayment(admin, payment.id, {
                             status: PAYMENT_DONE_STATUS,
                             advancedAt: dayjs().toISOString(),
                         })
                     }
+                    const payload = {
+                        ...requiredPayload,
+                        explicitFee,
+                    }
                     await expectToThrowValidationFailureError(async () => {
                         await updateTestMultiPayment(admin, multiPayment.id, {
                             status: MULTIPAYMENT_DONE_STATUS,
-                            ...omit(requiredPayload, field),
+                            ...omit(payload, field),
                         })
                     }, MULTIPAYMENT_MISSING_REQUIRED_FIELDS)
                 })
@@ -436,6 +448,88 @@ describe('MultiPayment', () => {
                                 [field]: get(multiPayment, field, null),
                             })
                         }, MULTIPAYMENT_FROZEN_FIELD_INCLUDED)
+                    })
+                })
+            })
+            // NOTE: APPROVED BY ALEXANDER
+            describe('DONE-status checks', () => {
+                const multiPaymentDonePayload = {
+                    withdrawnAt: dayjs().toISOString(),
+                    cardNumber: getRandomHiddenCard(),
+                    paymentWay: 'CARD',
+                    transactionId: faker.datatype.uuid(),
+                    status: MULTIPAYMENT_DONE_STATUS,
+                }
+                test('All payments must have done status before moving MP to done', async () => {
+                    const { payments, acquiringIntegration, admin, client } = await makePayerAndPayments(2)
+                    await updateTestAcquiringIntegration(admin, acquiringIntegration.id, {
+                        canGroupReceipts: true,
+                    })
+                    const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
+                    await updateTestPayment(admin, payments[0].id, {
+                        status: PAYMENT_DONE_STATUS,
+                    })
+                    await expectToThrowValidationFailureError(async () => {
+                        await updateTestMultiPayment(admin, multiPayment.id, multiPaymentDonePayload)
+                    }, MULTIPAYMENT_UNDONE_PAYMENTS)
+                })
+                test('Sum of all Payment\'s explicit fees should be equal to MP one', async () => {
+                    const { payments, acquiringIntegration, admin, client } = await makePayerAndPayments(2)
+                    const explicitFee = Big(payments[0].explicitFee).plus(payments[1].explicitFee).plus(50).toString()
+                    await updateTestAcquiringIntegration(admin, acquiringIntegration.id, {
+                        canGroupReceipts: true,
+                    })
+                    const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
+                    await updateTestPayment(admin, payments[0].id, {
+                        status: PAYMENT_DONE_STATUS,
+                    })
+                    await updateTestPayment(admin, payments[1].id, {
+                        status: PAYMENT_DONE_STATUS,
+                    })
+                    await expectToThrowValidationFailureError(async () => {
+                        await updateTestMultiPayment(admin, multiPayment.id, {
+                            ...multiPaymentDonePayload,
+                            explicitFee,
+                        }, MULTIPAYMENT_EXPLICIT_FEE_MISMATCH)
+                    })
+                })
+                test('All payments inside single MP should have / not have implicit fee', async () => {
+                    const { payments, acquiringIntegration, admin, client } = await makePayerAndPayments(2)
+                    await updateTestAcquiringIntegration(admin, acquiringIntegration.id, {
+                        canGroupReceipts: true,
+                    })
+                    const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
+                    await updateTestPayment(admin, payments[0].id, {
+                        status: PAYMENT_DONE_STATUS,
+                    })
+                    await updateTestPayment(admin, payments[1].id, {
+                        status: PAYMENT_DONE_STATUS,
+                        implicitFee: null,
+                    })
+                    await expectToThrowValidationFailureError(async () => {
+                        await updateTestMultiPayment(admin, multiPayment.id, {
+                            ...multiPaymentDonePayload,
+                        }, MULTIPAYMENT_INCONSISTENT_IMPLICIT_FEE)
+                    })
+                })
+                test('If payments implicit fees are specified, their sum should match with multiPayment one', async () => {
+                    const { payments, acquiringIntegration, admin, client } = await makePayerAndPayments(2)
+                    const implicitFee = Big(payments[0].implicitFee).plus(payments[1].implicitFee).plus(1).toString()
+                    await updateTestAcquiringIntegration(admin, acquiringIntegration.id, {
+                        canGroupReceipts: true,
+                    })
+                    const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
+                    await updateTestPayment(admin, payments[0].id, {
+                        status: PAYMENT_DONE_STATUS,
+                    })
+                    await updateTestPayment(admin, payments[1].id, {
+                        status: PAYMENT_DONE_STATUS,
+                    })
+                    await expectToThrowValidationFailureError(async () => {
+                        await updateTestMultiPayment(admin, multiPayment.id, {
+                            ...multiPaymentDonePayload,
+                            implicitFee,
+                        }, MULTIPAYMENT_IMPLICIT_FEE_MISMATCH)
                     })
                 })
             })
