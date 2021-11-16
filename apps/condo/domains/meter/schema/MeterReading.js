@@ -26,6 +26,7 @@ const MeterReading = new GQLListSchema('MeterReading', {
             schemaDoc: 'Link to property which contains unit with meter which readings belong to',
             type: Relationship,
             ref: 'Property',
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
 
         unitName: {
