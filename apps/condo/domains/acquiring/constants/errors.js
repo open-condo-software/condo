@@ -1,3 +1,5 @@
+const { PAYMENT_DONE_STATUS, MULTIPAYMENT_DONE_STATUS } = require('./payment')
+
 const REGISTER_MP_EMPTY_INPUT = '[groupedReceipts:empty] GroupedReceipts was empty'
 const REGISTER_MP_EMPTY_RECEIPTS = '[groupedReceipts:receiptsIds:empty] Each group of receipts should contain at least 1 receipt'
 const REGISTER_MP_CONSUMERS_DUPLICATE = '[groupedReceipts:consumerId:duplicate] There are some groupedReceipts with same consumerId'
@@ -43,6 +45,9 @@ const MULTIPAYMENT_CANNOT_GROUP_RECEIPTS = '[multiPayment:integration:canGroupRe
 const MULTIPAYMENT_NOT_ALLOWED_TRANSITION = '[multiPayment:status:transitionNotAllowed] Restricted status transition.'
 const MULTIPAYMENT_MISSING_REQUIRED_FIELDS = '[multiPayment:requiredFieldsMissing] Some required fields for this status are missing.'
 const MULTIPAYMENT_FROZEN_FIELD_INCLUDED = '[multiPayment:frozenFieldsIncluding] It is impossible to change some fields at the current stage of the multiPayment\'s life.'
+const MULTIPAYMENT_UNDONE_PAYMENTS = `[multiPayment:payments:status:not:done] Cannot move multipayment status to "${MULTIPAYMENT_DONE_STATUS}" if at least 1 of it's payments have status not equal to "${PAYMENT_DONE_STATUS}".`
+const MULTIPAYMENT_EXPLICIT_FEE_MISMATCH = '[multiPayment:explicitFee:formulaMismatch] Explicit fee equality is not satisfied (multiPayment.explicitFee = sum of multiPayment.payments.explicitFee)'
+const MULTIPAYMENT_INCONSISTENT_IMPLICIT_FEE = '[multiPayment:payments:implicitFee:inconsistentBehaviour] Implicit fee must be indicated either for all payments, or for none of them, but was partially indicated'
 
 module.exports = {
     REGISTER_MP_EMPTY_INPUT,
@@ -83,11 +88,14 @@ module.exports = {
     MULTIPAYMENT_MULTIPLE_CURRENCIES,
     MULTIPAYMENT_NOT_UNIQUE_RECEIPTS,
     MULTIPAYMENT_TOTAL_AMOUNT_MISMATCH,
-    // MULTIPAYMENT_IMPLICIT_FEE_MISMATCH,
+    MULTIPAYMENT_IMPLICIT_FEE_MISMATCH,
     MULTIPAYMENT_MULTIPLE_ACQUIRING_INTEGRATIONS,
     MULTIPAYMENT_ACQUIRING_INTEGRATIONS_MISMATCH,
     MULTIPAYMENT_CANNOT_GROUP_RECEIPTS,
     MULTIPAYMENT_NOT_ALLOWED_TRANSITION,
     MULTIPAYMENT_MISSING_REQUIRED_FIELDS,
     MULTIPAYMENT_FROZEN_FIELD_INCLUDED,
+    MULTIPAYMENT_UNDONE_PAYMENTS,
+    MULTIPAYMENT_EXPLICIT_FEE_MISMATCH,
+    MULTIPAYMENT_INCONSISTENT_IMPLICIT_FEE,
 }

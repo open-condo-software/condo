@@ -82,11 +82,10 @@ const MULTIPAYMENT_TRANSITIONS = {
 // Some of fields is required only in late-stage of multipayment,
 // that's why we setting isRequired: false in schemas and checking it manually
 // This is only fields, which has isRequired: false in schema, but will be required later
-// TODO(DOMA-1443)(dkoviazin): clarify required fields on different stages of MultiPayment
 const MULTIPAYMENT_REQUIRED_FIELDS = {
     [MULTIPAYMENT_INIT_STATUS]: [],
-    [MULTIPAYMENT_PROCESSING_STATUS]: [],
-    [MULTIPAYMENT_DONE_STATUS]: ['withdrawnAt', 'cardNumber', 'paymentWay', 'transactionId'],
+    [MULTIPAYMENT_PROCESSING_STATUS]: ['explicitFee'],
+    [MULTIPAYMENT_DONE_STATUS]: ['explicitFee', 'withdrawnAt', 'cardNumber', 'paymentWay', 'transactionId'],
     [MULTIPAYMENT_ERROR_STATUS]: [],
 }
 
@@ -94,7 +93,6 @@ const MULTIPAYMENT_REQUIRED_FIELDS = {
 const MULTIPAYMENT_FROZEN_BY_DEFAULT_FIELDS = ['user', 'integration', 'amountWithoutExplicitFee', 'currencyCode', 'payments']
 const MULTIPAYMENT_FROZEN_FIELDS = {
     [MULTIPAYMENT_INIT_STATUS]: MULTIPAYMENT_FROZEN_BY_DEFAULT_FIELDS,
-    // TODO(DOMA-1443)(savelevMatthew) same as DONE?
     [MULTIPAYMENT_PROCESSING_STATUS]: MULTIPAYMENT_FROZEN_BY_DEFAULT_FIELDS,
     [MULTIPAYMENT_DONE_STATUS]: [...MULTIPAYMENT_FROZEN_BY_DEFAULT_FIELDS, 'time', 'cardNumber', 'paymentWay', 'transactionId'],
     [MULTIPAYMENT_ERROR_STATUS]: MULTIPAYMENT_FROZEN_BY_DEFAULT_FIELDS,
