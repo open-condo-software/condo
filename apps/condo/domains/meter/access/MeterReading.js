@@ -23,10 +23,12 @@ async function canReadMeterReadings ({ authentication: { item: user }, context }
             user: { id: userId },
             property,
             unitName,
+            deletedAt: null,
         })
         const residentId = get(resident, 'id', null)
         const serviceConsumers = await ServiceConsumer.getAll(context, {
             resident: { id: residentId },
+            deletedAt: null,
         })
         const serviceConsumerAccounts = serviceConsumers.map(serviceConsumer => serviceConsumer.accountNumber)
 
@@ -75,6 +77,7 @@ async function canManageMeterReadings ({ authentication: { item: user }, origina
                 user: { id: user.id },
                 property: { id: propertyId },
                 unitName: unitName,
+                deletedAt: null,
             })
 
             const residentPropertyId = get(resident, ['property', 'id'], null)
@@ -83,6 +86,7 @@ async function canManageMeterReadings ({ authentication: { item: user }, origina
 
             const serviceConsumers = await ServiceConsumer.getAll(context, {
                 resident: { id: residentId },
+                deletedAt: null,
             })
             const serviceConsumerAccounts = serviceConsumers.map(serviceConsumer => serviceConsumer.accountNumber)
 
@@ -91,6 +95,7 @@ async function canManageMeterReadings ({ authentication: { item: user }, origina
                 property: { id: residentPropertyId },
                 unitName: residentUnitName,
                 accountNumber_in: serviceConsumerAccounts,
+                deletedAt: null,
             })
 
             if (meters.length > 0) return true

@@ -25,10 +25,12 @@ async function canReadMeters ({ authentication: { item: user }, context }) {
             user: { id: userId },
             property,
             unitName,
+            deletedAt: null,
         })
         const residentId = get(resident, 'id', null)
         const serviceConsumers = await ServiceConsumer.getAll(context, {
             resident: { id: residentId },
+            deletedAt: null,
         })
         const serviceConsumerAccounts = serviceConsumers.map(serviceConsumer => serviceConsumer.accountNumber)
 

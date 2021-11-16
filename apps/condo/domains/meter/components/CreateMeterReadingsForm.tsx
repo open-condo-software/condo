@@ -249,7 +249,6 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         if (role && role.canManageContacts && canCreateContactRef.current) {
             createdContact = await createContact(organization.id, selectPropertyIdRef.current, selectedUnitNameRef.current)
         }
-
         const normalizeReading = (reading) => reading?.replace(',', '.')
 
         const { property, accountNumber, newMeters, existedMeters, floorName, sectionName, unitName, ...clientInfo } = variables
