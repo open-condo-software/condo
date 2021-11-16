@@ -582,6 +582,7 @@ describe('MeterReading', () => {
             const adminClient = await makeLoggedInAdminClient()
             const client = await makeClientWithResidentUser()
             const unitName = faker.random.alphaNumeric(8)
+            const accountNumber = faker.random.alphaNumeric(8)
             const [organization] = await createTestOrganization(adminClient)
 
             const [property] = await createTestProperty(adminClient, organization)
@@ -589,19 +590,65 @@ describe('MeterReading', () => {
                 unitName,
             })
             await createTestServiceConsumer(adminClient, resident, organization, {
-                accountNumber: '12345',
+                accountNumber,
             })
 
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
             const [meter] = await createTestMeter(adminClient, organization, property, resource, {
                 unitName,
-                accountNumber: '12345',
+                accountNumber,
             })
             const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
             const [meterReading] = await createTestMeterReading(client, meter, organization, source)
 
-            const meterReadings = await MeterReading.getAll(client, { id: meterReading.id, meter: { id: meter.id } })
+            const meterReadings = await MeterReading.getAll(client, {
+                id: meterReading.id,
+                meter: { id: meter.id },
+                property: { id: property.id },
+                unitName,
+            })
             expect(meterReadings).toHaveLength(1)
+        })
+
+        test('resident: cannot read MeterReadings when meter, property or unitName not provided', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const client = await makeClientWithResidentUser()
+            const unitName = faker.random.alphaNumeric(8)
+            const [organization] = await createTestOrganization(adminClient)
+            const [property] = await createTestProperty(adminClient, organization)
+            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+            const [resident] = await createTestResident(adminClient, client.user, organization, property, {
+                unitName,
+            })
+            const accountNumber1 = faker.random.alphaNumeric(8)
+            await createTestServiceConsumer(adminClient, resident, organization, {
+                accountNumber: accountNumber1,
+            })
+            const [meter] = await createTestMeter(adminClient, organization, property, resource, {
+                accountNumber: accountNumber1,
+                unitName,
+            })
+            const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
+            await createTestMeterReading(client, meter, organization, source)
+
+            const meterReadingsWithoutMeter = await MeterReading.getAll(client, {
+                property: { id: property.id },
+                unitName,
+            })
+
+            const meterReadingsWithoutProperty = await MeterReading.getAll(client, {
+                meter: { id: meter.id },
+                unitName,
+            })
+
+            const meterReadingsWithoutUnit = await MeterReading.getAll(client, {
+                property: { id: property.id },
+                meter: { id: meter.id },
+            })
+
+            expect(meterReadingsWithoutMeter).toHaveLength(0)
+            expect(meterReadingsWithoutProperty).toHaveLength(0)
+            expect(meterReadingsWithoutUnit).toHaveLength(0)
         })
 
         test('resident: cannot read MeterReadings in other organization', async () => {
@@ -641,7 +688,11 @@ describe('MeterReading', () => {
             const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
             const [meterReading] = await createTestMeterReading(client2, meter, organization2, source)
 
-            const meterReadings = await MeterReading.getAll(client1, { id: meterReading.id })
+            const meterReadings = await MeterReading.getAll(client1, {
+                id: meterReading.id,
+                property: { id: property2.id },
+                unitName,
+            })
             expect(meterReadings).toHaveLength(0)
         })
 
@@ -681,7 +732,11 @@ describe('MeterReading', () => {
             const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
             const [meterReading] = await createTestMeterReading(client2, meter, organization, source)
 
-            const meterReadings = await MeterReading.getAll(client1, { id: meterReading.id })
+            const meterReadings = await MeterReading.getAll(client1, {
+                id: meterReading.id,
+                property: { id: property2.id },
+                unitName,
+            })
             expect(meterReadings).toHaveLength(0)
         })
 
@@ -720,7 +775,11 @@ describe('MeterReading', () => {
             const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
             const [meterReading] = await createTestMeterReading(client2, meter, organization, source)
 
-            const meterReadings = await MeterReading.getAll(client1, { id: meterReading.id })
+            const meterReadings = await MeterReading.getAll(client1, {
+                id: meterReading.id,
+                property: { id: property.id },
+                unitName: unitName1,
+            })
             expect(meterReadings).toHaveLength(0)
         })
 

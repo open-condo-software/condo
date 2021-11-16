@@ -10,6 +10,7 @@ const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
 const { MeterReadingSource: MeterReadingSourceGQL } = require('@condo/domains/meter/gql')
 const { Meter: MeterGQL } = require('@condo/domains/meter/gql')
 const { MeterReading: MeterReadingGQL } = require('@condo/domains/meter/gql')
+const get = require('lodash/get')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateServerUtils(MeterResourceGQL)
@@ -38,11 +39,50 @@ const getLastBillingAccountMeterReading = async (context, resolvedData) => {
     return lastMeterReading
 }
 
+const getMetersDataFromPostRequestBody = (context) => {
+    const variables = get(context, ['req', 'body', 'variables'])
+    const body = JSON.parse(variables)
+    const data = get(body, 'data', null)
+
+    const property = get(data, ['property', 'connect'], null)
+    const meter = get(data, ['meter', 'connect'], null)
+    const unitName = get(data, 'unitName', null)
+
+    return { meter, property, unitName }
+}
+
+const getMetersDataFromGetRequestQuery = (context) => {
+    const variables = get(context, ['req', 'query', 'variables'], {})
+    const body = JSON.parse(variables)
+    const data = get(body, 'where', null)
+    const emptyQueryObj = { id: null }
+
+    const property = get(data, ['property'], emptyQueryObj)
+    const meter = get(data, ['meter'], emptyQueryObj)
+    const unitName = get(data, 'unitName', null)
+
+    return { meter, property, unitName }
+}
+
+const getMetersDataFromRequestBody = (context) => {
+    const method = get(context, ['req', 'method'])
+
+    switch (method) {
+        case 'POST': {
+            return getMetersDataFromPostRequestBody(context)
+        }
+        case 'GET': {
+            return getMetersDataFromGetRequestQuery(context)
+        }
+    }
+}
+
 module.exports = {
     MeterResource,
     MeterReadingSource,
     Meter,
     MeterReading,
     getLastBillingAccountMeterReading,
+    getMetersDataFromRequestBody,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
