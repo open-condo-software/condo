@@ -15,6 +15,7 @@ interface IUpdatePropertyForm {
 const FORM_SUBMIT_BUTTON_STYLES = {
     marginTop: '60px',
 }
+const FORM_DEPENDENCIES = ['address']
 
 export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
     const intl = useIntl()
@@ -50,7 +51,7 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
             {({ handleSave, isLoading }) => {
                 return (
                     <>
-                        <Form.Item noStyle dependencies={['address']}>
+                        <Form.Item noStyle dependencies={FORM_DEPENDENCIES}>
                             {
                                 ({ getFieldsValue }) => {
                                     const { address } = getFieldsValue(['address'])
