@@ -3,6 +3,8 @@ import { useIntl } from '@core/next/intl'
 import { Row, Col, Typography, Tag, Space, RowProps } from 'antd'
 import { useRouter } from 'next/router'
 import dayjs from 'dayjs'
+import get from 'lodash/get'
+import isNull from 'lodash/isNull'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { useObject, useSoftDelete } from '@condo/domains/property/utils/clientSchema/Property'
@@ -122,7 +124,7 @@ export const PropertyPageContent = ({ property, role }) => {
                                 </span>
                             </Link>
                             {
-                                property.map !== null && (
+                                !isNull(get(property, 'map')) && (
                                     <Link href={`/property/${property.id}/map/update`}>
                                         <Button
                                             color={'green'}

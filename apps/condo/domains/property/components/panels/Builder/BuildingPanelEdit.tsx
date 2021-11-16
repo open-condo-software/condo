@@ -9,6 +9,7 @@ import { fontSizes } from '@condo/domains/common/constants/style'
 import { DeleteFilled, DownOutlined } from '@ant-design/icons'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
+import isNull from 'lodash/isNull'
 import { transitions } from '@condo/domains/common/constants/style'
 import {
     EmptyBuildingBlock,
@@ -37,6 +38,7 @@ import {
     SectionIcon,
     CeilIcon,
 } from '@condo/domains/common/components/icons/PropertyMapIcons'
+import { MIN_SECTIONS_TO_SHOW_FILTER } from '@condo/domains/property/constants/property'
 
 const { Option } = Select
 
@@ -254,7 +256,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                         <Col flex={0}>
                             <Space size={20}>
                                 <AddressTopTextContainer>{address}</AddressTopTextContainer>
-                                {sections.length >= 2 && (
+                                {sections.length >= MIN_SECTIONS_TO_SHOW_FILTER && (
                                     <Select value={Map.visibleSections} onSelect={onSelectSection}>
                                         <Select.Option value={null} >{AllSectionsTitle}</Select.Option>
                                         {
@@ -275,12 +277,12 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                         </Dropdown>
                     </Col>
                     <Modal
-                        visible={mode !== null}
+                        visible={!isNull(mode)}
                         onCancel={onModalCancel}
                         css={ModalContainerCss}
                         footer={null}
                         mask={false}
-                        title={mode !== null && (
+                        title={!isNull(mode) && (
                             <Typography.Text>
                                 {intl.formatMessage({ id: `pages.condo.property.modal.title.${mode}` })}
                             </Typography.Text>

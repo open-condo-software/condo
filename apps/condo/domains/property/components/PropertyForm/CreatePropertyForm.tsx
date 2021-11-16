@@ -12,6 +12,7 @@ const DEFAULT_PROPERTY_TYPE = 'building'
 const FORM_SUBMIT_BUTTON_STYLES = {
     marginTop: '60px',
 }
+const FORM_DEPENDENCIES = ['address']
 
 export const CreatePropertyForm: React.FC = () => {
     const intl = useIntl()
@@ -37,7 +38,7 @@ export const CreatePropertyForm: React.FC = () => {
         >
             {({ handleSave, isLoading }) => {
                 return (
-                    <Form.Item noStyle dependencies={['address']}>
+                    <Form.Item noStyle dependencies={FORM_DEPENDENCIES}>
                         {
                             ({ getFieldsValue }) => {
                                 const { address } = getFieldsValue(['address'])
