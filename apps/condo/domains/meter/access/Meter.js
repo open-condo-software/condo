@@ -21,7 +21,7 @@ async function canReadMeters ({ authentication: { item: user }, context }) {
     if (user.type === RESIDENT) {
         const rawQuery = get(context, ['req', 'query', 'variables'], null)
         const where = get(JSON.parse(rawQuery), 'where', null)
-        const propertyFromWhere = get(where, 'property', null)
+        const propertyFromWhere = get(where, 'property', { id: null })
         const unitNameFromWhere = get(where, 'unitName', null)
 
         const [resident] = await ResidentServerUtils.getAll(context, {
