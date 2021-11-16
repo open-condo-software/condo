@@ -53,6 +53,7 @@ async function canReadMeters ({ authentication: { item: user }, context }) {
             property,
             unitName,
             accountNumber_in: serviceConsumerAccounts,
+            deletedAt: null,
         }
     }
 

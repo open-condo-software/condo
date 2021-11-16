@@ -45,6 +45,7 @@ async function canReadMeterReadings ({ authentication: { item: user }, context }
                 accountNumber_in: serviceConsumerAccounts,
                 deletedAt: null,
             },
+            deletedAt: null,
         }
     }
 
