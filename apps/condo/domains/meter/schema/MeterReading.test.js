@@ -604,13 +604,12 @@ describe('MeterReading', () => {
             const meterReadings = await MeterReading.getAll(client, {
                 id: meterReading.id,
                 meter: { id: meter.id },
-                property: { id: property.id },
-                unitName,
             })
+
             expect(meterReadings).toHaveLength(1)
         })
 
-        test('resident: cannot read MeterReadings when meter, property or unitName not provided', async () => {
+        test('resident: cannot read MeterReadings when meter not provided', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const client = await makeClientWithResidentUser()
             const unitName = faker.random.alphaNumeric(8)
@@ -631,24 +630,9 @@ describe('MeterReading', () => {
             const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
             await createTestMeterReading(client, meter, organization, source)
 
-            const meterReadingsWithoutMeter = await MeterReading.getAll(client, {
-                property: { id: property.id },
-                unitName,
-            })
+            const meterReadingsWithoutProvidedMeter = await MeterReading.getAll(client, {})
 
-            const meterReadingsWithoutProperty = await MeterReading.getAll(client, {
-                meter: { id: meter.id },
-                unitName,
-            })
-
-            const meterReadingsWithoutUnit = await MeterReading.getAll(client, {
-                property: { id: property.id },
-                meter: { id: meter.id },
-            })
-
-            expect(meterReadingsWithoutMeter).toHaveLength(0)
-            expect(meterReadingsWithoutProperty).toHaveLength(0)
-            expect(meterReadingsWithoutUnit).toHaveLength(0)
+            expect(meterReadingsWithoutProvidedMeter).toHaveLength(0)
         })
 
         test('resident: cannot read MeterReadings in other organization', async () => {
@@ -690,8 +674,6 @@ describe('MeterReading', () => {
 
             const meterReadings = await MeterReading.getAll(client1, {
                 id: meterReading.id,
-                property: { id: property2.id },
-                unitName,
             })
             expect(meterReadings).toHaveLength(0)
         })
@@ -734,8 +716,6 @@ describe('MeterReading', () => {
 
             const meterReadings = await MeterReading.getAll(client1, {
                 id: meterReading.id,
-                property: { id: property2.id },
-                unitName,
             })
             expect(meterReadings).toHaveLength(0)
         })
@@ -777,8 +757,6 @@ describe('MeterReading', () => {
 
             const meterReadings = await MeterReading.getAll(client1, {
                 id: meterReading.id,
-                property: { id: property.id },
-                unitName: unitName1,
             })
             expect(meterReadings).toHaveLength(0)
         })

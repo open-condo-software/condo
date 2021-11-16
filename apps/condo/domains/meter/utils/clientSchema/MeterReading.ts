@@ -10,8 +10,8 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { MeterReading as MeterReadingGQL } from '@condo/domains/meter/gql'
 import { MeterReading, MeterReadingUpdateInput, QueryAllMeterReadingsArgs } from '@app/condo/schema'
 
-const FIELDS = ['id', 'property', 'unitName', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'date', 'meter', 'value1', 'value2', 'value3', 'value4', 'client', 'clientName', 'clientEmail', 'clientPhone', 'contact', 'source']
-const RELATIONS = ['meter', 'organization', 'property', 'client', 'contact', 'source']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'date', 'meter', 'value1', 'value2', 'value3', 'value4', 'client', 'clientName', 'clientEmail', 'clientPhone', 'contact', 'source']
+const RELATIONS = ['meter', 'organization', 'client', 'contact', 'source']
 
 export interface IMeterReadingUIState extends MeterReading {
     id: string

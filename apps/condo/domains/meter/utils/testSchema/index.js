@@ -124,8 +124,6 @@ async function createTestMeterReading (client, meter, organization, source, extr
         sender,
         meter: { connect: { id: meter.id } },
         organization: { connect: { id: organization.id } },
-        property: { connect: { id: meter.property.id }},
-        unitName: meter.unitName,
         source: { connect: { id: source.id } },
         date: faker.date.recent(),
         value1: String(faker.random.number()),
