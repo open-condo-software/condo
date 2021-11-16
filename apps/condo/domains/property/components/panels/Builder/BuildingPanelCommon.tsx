@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import React, { useRef, useEffect, useCallback } from 'react'
-import { Col, Row, Typography } from 'antd'
+import { Col, Row, Typography, RowProps } from 'antd'
 import { FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
@@ -44,6 +44,10 @@ const DESCRIPTION_STYLE = {
     margin: 'auto',
 }
 
+const EMPTY_BUILDING_BLOCK_BUTTON_STYLE = {
+    marginTop: '20px',
+}
+
 export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view' }) => {
     const intl = useIntl()
     const EmptyPropertyBuildingHeader = intl.formatMessage({ id: `pages.condo.property.EmptyBuildingBlock.${mode}.EmptyBuildingHeader` })
@@ -73,7 +77,7 @@ export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view
             {mode === 'view' && (
                 <Button
                     type={'sberDefaultGradient'}
-                    style={{ marginTop: 20 }}
+                    style={EMPTY_BUILDING_BLOCK_BUTTON_STYLE}
                     secondary
                     onClick={createMapCallback}
                 >{MapCreateTitle}</Button>
@@ -107,6 +111,11 @@ interface IBuildingChooseSectionsProps {
     mode?: 'view' | 'edit'
 }
 
+const FULLSCREEN_BUTTON_STYLE: React.CSSProperties = {
+    position: 'relative',
+}
+const FULLSCREEN_FOOTER_GUTTER: RowProps['gutter'] = [40, 40]
+
 export const BuildingChooseSections: React.FC<IBuildingChooseSectionsProps> = (props) => {
     const intl = useIntl()
     const RequestFullscreenMessage = intl.formatMessage({ id: 'FullscreenRequest' })
@@ -123,12 +132,12 @@ export const BuildingChooseSections: React.FC<IBuildingChooseSectionsProps> = (p
 
         <Row
             css={FullscreenFooter}
-            gutter={[40, 40]}
+            gutter={FULLSCREEN_FOOTER_GUTTER}
         >
             <Col>
                 {mode === 'view' ? (
                     <Button
-                        style={{ position: 'relative' }}
+                        style={FULLSCREEN_BUTTON_STYLE}
                         type={'sberDefaultGradient'}
                         secondary
                         icon={isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}

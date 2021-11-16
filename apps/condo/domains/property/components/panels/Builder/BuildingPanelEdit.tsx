@@ -2,12 +2,13 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
-import { Col, Row, Typography, Input, Select, InputNumber, Space, Dropdown, Menu, Modal } from 'antd'
+import { Col, Row, Typography, Input, Select, InputNumber, Space, Dropdown, Menu, Modal, RowProps } from 'antd'
 import { css, jsx } from '@emotion/core'
 import styled from '@emotion/styled'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { DeleteFilled, DownOutlined } from '@ant-design/icons'
 import cloneDeep from 'lodash/cloneDeep'
+import isEmpty from 'lodash/isEmpty'
 import { transitions } from '@condo/domains/common/constants/style'
 import {
     EmptyBuildingBlock,
@@ -344,6 +345,24 @@ interface IChessBoardProps {
     isFullscreen?: boolean
 }
 
+const CHESS_ROW_STYLE: React.CSSProperties = {
+    width: '100%',
+    textAlign: 'center',
+}
+const CHESS_COL_STYLE: React.CSSProperties = {
+    paddingTop: '60px',
+    paddingBottom: '60px',
+}
+const CHESS_SCROLL_HOLDER_STYLE: React.CSSProperties = {
+    whiteSpace: 'nowrap',
+    position: 'static',
+    ...CHESS_COL_STYLE,
+}
+const CHESS_SCROLL_CONTAINER_STYLE: React.CSSProperties = {
+    paddingBottom: '60px',
+    width: '100%',
+    overflowY: 'hidden',
+}
 
 const ChessBoard: React.FC<IChessBoardProps> = (props) => {
     const { Builder, refresh, scrollToForm, toggleFullscreen, isFullscreen, children } = props
@@ -357,13 +376,8 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
         }
     }, [Builder])
 
-    const CHESS_COL_STYLE = {
-        paddingTop: '60px',
-        paddingBottom: '60px',
-    }
-
     return (
-        <Row align='bottom' style={{ width: '100%', textAlign: 'center' }} >
+        <Row align='bottom' style={CHESS_ROW_STYLE} >
             {
                 Builder.isEmpty ?
                     <Col span={24} style={CHESS_COL_STYLE}>
@@ -379,18 +393,20 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
                         </BuildingChooseSections>
                     </Col>
                     :
-                    <Col span={24} style={{ whiteSpace: 'nowrap', position: 'static', ...CHESS_COL_STYLE }}>
+                    <Col span={24} style={CHESS_SCROLL_HOLDER_STYLE}>
                         <ScrollContainer
                             className="scroll-container"
                             vertical={false}
                             horizontal={true}
-                            style={{ paddingBottom: '60px', width: '100%', overflowY: 'hidden' }}
+                            style={CHESS_SCROLL_CONTAINER_STYLE}
                             hideScrollbars={false}
                             nativeMobileScroll={true}
                             innerRef={container}
                         >
                             {
-                                Builder.sections.length > 0 ? <BuildingAxisY floors={Builder.possibleChosenFloors} /> : null
+                                !isEmpty(Builder.sections) && (
+                                    <BuildingAxisY floors={Builder.possibleChosenFloors} />
+                                )
                             }
                             {
                                 Builder.sections.map(section => {
@@ -524,6 +540,9 @@ interface IAddSectionFormProps {
     Builder: MapEdit
     refresh(): void
 }
+const MODAL_FORM_ROW_GUTTER: RowProps['gutter'] = [0, 20]
+const MODAL_FORM_ROW_BUTTONS_GUTTER: RowProps['gutter'] = [0, 16]
+const MODAL_FORM_BUTTON_STYLE: React.CSSProperties = { marginTop: '30px' }
 
 const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) => {
     const intl = useIntl()
@@ -567,8 +586,10 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) =>
         refresh()
         resetForm()
     }
+    const isSubmitDisabled = !(name.length && minFloor && maxFloor && unitsOnFloor && !maxMinError)
+
     return (
-        <Row gutter={[0, 20]} css={FormModalCss}>
+        <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
             <Col span={24}>
                 <Space direction={'vertical'} size={8}>
                     <Typography.Text type={'secondary'}>{NameLabel}</Typography.Text>
@@ -599,8 +620,8 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) =>
                     secondary
                     onClick={handleFinish}
                     type='sberDefaultGradient'
-                    style={{ marginTop: '30px' }}
-                    disabled={!(name.length && minFloor && maxFloor && unitsOnFloor && !maxMinError)}
+                    style={MODAL_FORM_BUTTON_STYLE}
+                    disabled={isSubmitDisabled}
                 > {AddLabel} </Button>
             </Col>
         </Row>
@@ -692,7 +713,7 @@ const UnitForm: React.FC<IUnitFormProps> = ({ Builder, refresh }) => {
     }
 
     return (
-        <Row gutter={[0, 20]} css={FormModalCss}>
+        <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
             <Col span={24}>
                 <Space direction={'vertical'} size={8}>
                     <Typography.Text type={'secondary'}>{NameLabel}</Typography.Text>
@@ -719,7 +740,7 @@ const UnitForm: React.FC<IUnitFormProps> = ({ Builder, refresh }) => {
                             })}
                         </Select>
                     </Space>
-                    <Row gutter={[0, 16]}>
+                    <Row gutter={MODAL_FORM_ROW_BUTTONS_GUTTER}>
                         <Col span={24}>
                             <Button
                                 secondary
@@ -753,13 +774,14 @@ interface IEditSectionFormProps {
 }
 
 const EditSectionForm: React.FC<IEditSectionFormProps> = ({ Builder, refresh }) => {
-    const section = Builder.getSelectedSection()
-    const [name, setName] = useState('')
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
     const DeleteLabel = intl.formatMessage({ id: 'Delete' })
     const NameLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
     const NamePlaceholderLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name.placeholder' })
+
+    const [name, setName] = useState('')
+    const section = Builder.getSelectedSection()
 
     useEffect(() => {
         setName(section ? section.name : '')
@@ -776,7 +798,7 @@ const EditSectionForm: React.FC<IEditSectionFormProps> = ({ Builder, refresh }) 
     }
 
     return (
-        <Row gutter={[0, 20]} css={FormModalCss}>
+        <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
             <Col span={24}>
                 <Space direction={'vertical'} size={8}>
                     <Typography.Text type={'secondary'}>{NameLabel}</Typography.Text>

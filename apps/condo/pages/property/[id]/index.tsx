@@ -1,6 +1,6 @@
 import React from 'react'
 import { useIntl } from '@core/next/intl'
-import { Row, Col, Typography, Tag, Space } from 'antd'
+import { Row, Col, Typography, Tag, Space, RowProps } from 'antd'
 import { useRouter } from 'next/router'
 import dayjs from 'dayjs'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
@@ -16,7 +16,10 @@ import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { PropertyPanels } from '@condo/domains/property/components/panels'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
-import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
+import {
+    DeleteButtonWithConfirmModal,
+    IDeleteActionButtonWithConfirmModal,
+} from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { useOrganization } from '@core/next/organization'
 
 interface IPropertyInfoPanelProps {
@@ -38,6 +41,14 @@ const PropertyInfoPanel: React.FC<IPropertyInfoPanelProps> = ({ title, message, 
 
 }
 
+const PROPERTY_PAGE_CONTENT_ROW_GUTTER: RowProps['gutter'] = [12, 40]
+const PROPERTY_PAGE_CONTENT_ROW_CARDS_GUTTER: RowProps['gutter'] = [24, 40]
+const PROPERTY_PAGE_CONTENT_ROW_STYLE: React.CSSProperties = { marginTop: '40px' }
+const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCustomProps'] = {
+    type: 'sberDangerGhost',
+    icon: <DeleteFilled />,
+}
+
 export const PropertyPageContent = ({ property, role }) => {
     const intl = useIntl()
     const UnitsCountTitle = intl.formatMessage({ id: 'pages.condo.property.id.UnitsCount' })
@@ -50,13 +61,17 @@ export const PropertyPageContent = ({ property, role }) => {
     const YearOfConstructionTitle = intl.formatMessage({ id: 'pages.condo.property.form.YearOfConstructionTitle' })
     const EditPropertyTitle = intl.formatMessage({ id: 'pages.condo.property.id.EditPropertyTitle' })
     const EditPropertyMapTitle = intl.formatMessage({ id: 'pages.condo.property.id.EditPropertyMapTitle' })
-
     const UnknownValueTitle = intl.formatMessage({ id: 'pages.condo.property.id.UnknownMessage' })
+
     const { push } = useRouter()
     const softDeleteAction = useSoftDelete({}, () => push('/property/'))
+    const yearOfConstructionCardLabel = property.yearOfConstruction
+        ? dayjs(property.yearOfConstruction).format('YYYY')
+        : UnknownValueTitle
+
     return (
         <>
-            <Row gutter={[12, 40]} align='top'>
+            <Row gutter={PROPERTY_PAGE_CONTENT_ROW_GUTTER} align='top'>
                 <Col span={24}>
                     <Typography.Title level={1} style={{ margin: 0 }}>{property.address}</Typography.Title>
                     {
@@ -66,7 +81,11 @@ export const PropertyPageContent = ({ property, role }) => {
                     }
                 </Col>
             </Row>
-            <Row gutter={[47, 40]} style={{ marginTop: '40px' }} justify='start'>
+            <Row
+                gutter={PROPERTY_PAGE_CONTENT_ROW_CARDS_GUTTER}
+                style={PROPERTY_PAGE_CONTENT_ROW_STYLE}
+                justify='start'
+            >
                 <Col flex={0} >
                     <PropertyInfoPanel title={UnitsCountTitle} message={property.unitsCount} />
                 </Col>
@@ -80,15 +99,10 @@ export const PropertyPageContent = ({ property, role }) => {
                     <PropertyInfoPanel title={AreaTitle} message={property.area ? property.area : UnknownValueTitle } />
                 </Col>
                 <Col flex={0}>
-                    <PropertyInfoPanel
-                        title={YearOfConstructionTitle}
-                        message={property.yearOfConstruction
-                            ? dayjs(property.yearOfConstruction).format('YYYY')
-                            : UnknownValueTitle}
-                    />
+                    <PropertyInfoPanel title={YearOfConstructionTitle} message={yearOfConstructionCardLabel} />
                 </Col>
             </Row>
-            <Row gutter={[12, 40]} style={{ marginTop: '40px' }}>
+            <Row gutter={PROPERTY_PAGE_CONTENT_ROW_GUTTER} style={PROPERTY_PAGE_CONTENT_ROW_STYLE}>
                 <Col span={24}>
                     <PropertyPanels mode='view' map={property.map} address={property.address} />
                 </Col>
@@ -126,7 +140,7 @@ export const PropertyPageContent = ({ property, role }) => {
                                 message={ConfirmDeleteMessage}
                                 okButtonLabel={DeletePropertyLabel}
                                 action={() => softDeleteAction({}, property)}
-                                buttonCustomProps={{ type: 'sberDangerGhost', icon: <DeleteFilled /> }}
+                                buttonCustomProps={DELETE_BUTTON_CUSTOM_PROPS}
                                 buttonContent={<span>{DeletePropertyLabel}</span>}
                             />
                         </Space>

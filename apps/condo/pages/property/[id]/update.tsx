@@ -1,5 +1,5 @@
 import React from 'react'
-import { Typography, Row, Col } from 'antd'
+import { Typography, Row, Col, RowProps } from 'antd'
 import Head from 'next/head'
 import { PropertyForm } from '@condo/domains/property/components/PropertyForm'
 import { useIntl } from '@core/next/intl'
@@ -13,6 +13,8 @@ interface IUpdatePropertyPage extends React.FC {
     requiredAccess?: React.FC
 }
 
+const PAGE_ROW_GUTTER: RowProps['gutter'] = [0, 40]
+
 const UpdatePropertyPage: IUpdatePropertyPage = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id:'pages.condo.property.index.UpdatePropertyTitle' })
@@ -24,9 +26,9 @@ const UpdatePropertyPage: IUpdatePropertyPage = () => {
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <Row gutter={[0, 40]}>
+                    <Row gutter={PAGE_ROW_GUTTER}>
                         <Col span={24}>
-                            <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
+                            <Typography.Title level={1}>{PageTitleMsg}</Typography.Title>
                         </Col>
                         <PropertyForm id={id as string}/>
                     </Row>
