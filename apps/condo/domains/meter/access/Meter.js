@@ -28,6 +28,7 @@ async function canReadMeters ({ authentication: { item: user }, context }) {
         if (!property || !unitName) {
             const [meter] = await Meter.getAll(context, {
                 ...meterFromQuery,
+                deletedAt: null,
             })
 
             const propertyId = get(meter, ['property', 'id'], null)
@@ -37,13 +38,13 @@ async function canReadMeters ({ authentication: { item: user }, context }) {
 
         const [resident] = await ResidentServerUtils.getAll(context, {
             user: { id: userId },
-            property,
+            property: { ...property, deletedAt: null },
             unitName,
             deletedAt: null,
         })
         const residentId = get(resident, 'id', null)
         const serviceConsumers = await ServiceConsumer.getAll(context, {
-            resident: { id: residentId },
+            resident: { id: residentId, deletedAt: null },
             deletedAt: null,
         })
         const serviceConsumerAccounts = serviceConsumers.map(serviceConsumer => serviceConsumer.accountNumber)
@@ -76,7 +77,7 @@ async function canManageMeters ({ authentication: { item: user }, originalInput,
             return false
         }
         const propertyId = get(originalInput, ['property', 'connect', 'id'])
-        const [property] = await Property.getAll(context, { id: propertyId })
+        const [property] = await Property.getAll(context, { id: propertyId, deletedAt: null })
 
         if (!property) {
             return false
@@ -93,7 +94,7 @@ async function canManageMeters ({ authentication: { item: user }, originalInput,
             return false
         }
 
-        const [meter] = await Meter.getAll(context, { id: itemId })
+        const [meter] = await Meter.getAll(context, { id: itemId, deletedAt: null })
         if (!meter)
             return false
 
@@ -101,7 +102,7 @@ async function canManageMeters ({ authentication: { item: user }, originalInput,
         const organizationIdFromMeter = get(meter, ['organization', 'id'])
         const propertyId = get(originalInput, ['property', 'connect', 'id'])
         if (propertyId) {
-            const [property] = await Property.getAll(context, { id: propertyId })
+            const [property] = await Property.getAll(context, { id: propertyId, deletedAt: null })
             if (!property)
                 return false
 
