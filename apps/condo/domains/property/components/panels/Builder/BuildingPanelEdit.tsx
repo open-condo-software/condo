@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import React, { useEffect, useState, useRef, useCallback } from 'react'
+import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
 import { Col, Row, Typography, Input, Select, InputNumber, Space, Dropdown, Menu, Modal, RowProps } from 'antd'
@@ -287,12 +287,12 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                         )}
                     >
                         {
-                            {
+                            useMemo(() => ({
                                 addSection: <AddSectionForm Builder={Map} refresh={refresh}/>,
                                 addUnit: <UnitForm Builder={Map} refresh={refresh}/>,
                                 editSection: <EditSectionForm Builder={Map} refresh={refresh}/>,
                                 editUnit: <UnitForm Builder={Map} refresh={refresh}/>,
-                            }[mode] || null
+                            }[mode] || null), [mode, Map, refresh])
                         }
                     </Modal>
                 </Row>
