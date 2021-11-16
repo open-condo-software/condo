@@ -19,22 +19,52 @@ async function canReadMeterReadings ({ authentication: { item: user }, context }
     if (user.type === RESIDENT) {
         const residents = await ResidentServerUtils.getAll(context, { user: { id: userId } })
 
-        for (const resident of residents) {
-            const residentPropertyId = get(resident, ['property', 'id'])
-            const residentUnitName = get(resident, 'unitName')
+        // for (const resident of residents) {
+        //     const residentPropertyId = get(resident, ['property', 'id'])
+        //     const residentUnitName = get(resident, 'unitName')
+        //
+        //     const serviceConsumers = await ServiceConsumer.getAll(context, {
+        //         resident: { id: resident.id },
+        //     })
+        //     const serviceConsumerAccounts = serviceConsumers.map(serviceConsumer => serviceConsumer.accountNumber)
+        //
+        //     const meters = await Meter.getAll(context, {
+        //         property: { id: residentPropertyId },
+        //         unitName: residentUnitName,
+        //         accountNumber_in: serviceConsumerAccounts,
+        //     })
+        //
+        //     if (meters.length > 0) return {}
+        // }
+        if (user.type === RESIDENT) {
+            const rawQuery = get(context, ['req', 'query', 'variables'], null)
+            const where = get(JSON.parse(rawQuery), 'where', null)
+            const meterFromWhere = get(where, 'meter', null)
+            // const unitNameFromWhere = get(where, 'unitName', null)
+
+            const [meter] = await Meter.getAll(context, meterFromWhere)
+
+            const meterPropertyId = get(meter, 'property')
+            const meterUnitName = get(meter, 'unitName')
+
+            const [resident] = await ResidentServerUtils.getAll(context, {
+                user: { id: userId },
+                property: { id: meterPropertyId },
+                unitName: meterUnitName,
+            })
+
+            const residentId = get(resident, 'id', null)
 
             const serviceConsumers = await ServiceConsumer.getAll(context, {
-                resident: { id: resident.id },
+                resident: { id: residentId },
             })
             const serviceConsumerAccounts = serviceConsumers.map(serviceConsumer => serviceConsumer.accountNumber)
 
-            const meters = await Meter.getAll(context, {
-                property: { id: residentPropertyId },
-                unitName: residentUnitName,
+            return {
+                property: propertyFromWhere,
+                unitName: unitNameFromWhere,
                 accountNumber_in: serviceConsumerAccounts,
-            })
-
-            if (meters.length > 0) return {}
+            }
         }
     }
 

@@ -19,24 +19,28 @@ async function canReadMeters ({ authentication: { item: user }, context }) {
 
     const userId = user.id
     if (user.type === RESIDENT) {
-        const residents = await ResidentServerUtils.getAll(context, { user: { id: userId } })
+        const rawQuery = get(context, ['req', 'query', 'variables'], null)
+        const where = get(JSON.parse(rawQuery), 'where', null)
+        const propertyFromWhere = get(where, 'property', null)
+        const unitNameFromWhere = get(where, 'unitName', null)
 
-        for (const resident of residents) {
-            const residentPropertyId = get(resident, ['property', 'id'])
-            const residentUnitName = get(resident, 'unitName')
+        const [resident] = await ResidentServerUtils.getAll(context, {
+            user: { id: userId },
+            property: propertyFromWhere,
+            unitName: unitNameFromWhere,
+        })
 
-            const serviceConsumers = await ServiceConsumer.getAll(context, {
-                resident: { id: resident.id },
-            })
-            const serviceConsumerAccounts = serviceConsumers.map(serviceConsumer => serviceConsumer.accountNumber)
+        const residentId = get(resident, 'id', null)
 
-            const meters = await Meter.getAll(context, {
-                property: { id: residentPropertyId },
-                unitName: residentUnitName,
-                accountNumber_in: serviceConsumerAccounts,
-            })
+        const serviceConsumers = await ServiceConsumer.getAll(context, {
+            resident: { id: residentId },
+        })
+        const serviceConsumerAccounts = serviceConsumers.map(serviceConsumer => serviceConsumer.accountNumber)
 
-            if (meters.length > 0) return {}
+        return {
+            property: propertyFromWhere,
+            unitName: unitNameFromWhere,
+            accountNumber_in: serviceConsumerAccounts,
         }
     }
 

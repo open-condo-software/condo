@@ -22,6 +22,7 @@ const { DEFAULT_BILLING_INTEGRATION_NAME } = require('@condo/domains/billing/con
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
 const { DEFAULT_ACQUIRING_INTEGRATION_NAME } = require('@condo/domains/acquiring/constants/integration')
 
+const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 
 const Resident = new GQLListSchema('Resident', {
     schemaDoc: 'Person, that resides in a specified property and unit',
@@ -107,17 +108,27 @@ const Resident = new GQLListSchema('Resident', {
         organizationFeatures: {
             schemaDoc: 'Contains features that are enabled for user organization',
             type: Virtual,
-            extendGraphQLTypes: ['type OrganizationFeatures { hasBillingData: Boolean! }'],
+            extendGraphQLTypes: ['type OrganizationFeatures { hasBillingData: Boolean!, hasMeters: Boolean! }'],
             graphQLReturnType: 'OrganizationFeatures',
             resolver: async (item, _, context) => {
                 if (item.organization) {
-                    const organizationId = item.organization
-                    const count = await BillingIntegrationOrganizationContext.count(context, {
+                    const organizationId = get(item, 'organization', null)
+                    const billingContextsCount = await BillingIntegrationOrganizationContext.count(context, {
                         organization: { id: organizationId },
                         lastReport_not: null,
                     })
+
+                    const propertyId = get(item, 'property', null)
+                    const unitName = get(item, 'unitName', null)
+                    const metersCount = await Meter.count(context, {
+                        organization: { id: organizationId },
+                        property: { id: propertyId },
+                        unitName: unitName,
+                    })
+
                     return {
-                        hasBillingData: count > 0,
+                        hasBillingData: billingContextsCount > 0,
+                        hasMeters: metersCount > 0,
                     }
                 } else {
                     return null
