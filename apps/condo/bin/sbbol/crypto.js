@@ -5,6 +5,7 @@ const { logger: baseLogger } = require('@condo/domains/organization/integrations
 const path = require('path')
 const { prepareKeystoneExpressApp } = require('@core/keystone/test.utils')
 const { values } = require('lodash')
+const { GraphQLApp } = require('@keystonejs/app-graphql')
 
 const logger = baseLogger.child({ module: 'crypto' })
 
@@ -29,10 +30,12 @@ const validateAndGetCommand = () => {
 async function main () {
     const command = validateAndGetCommand()
 
-    const name = path.basename(process.cwd())
-    const namePath = path.join(__dirname, STEP_BACK_TO_CONDO_REPO_ROOT_PATH, 'apps', name)
-    const keystoneModule = require(path.join(namePath, 'index'))
-    const { keystone } = await prepareKeystoneExpressApp(keystoneModule)
+    const resolved = path.resolve('./index.js')
+    const { distDir, keystone, apps } = require(resolved)
+    const graphqlIndex = apps.findIndex(app => app instanceof GraphQLApp)
+    // we need only apollo
+    await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
+    await keystone.connect()
 
     let accessToken
     try {
