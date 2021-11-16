@@ -19,8 +19,22 @@ async function canReadMeters ({ authentication: { item: user }, context }) {
     if (user.isAdmin || user.isSupport) return {}
 
     const userId = user.id
+
     if (user.type === RESIDENT) {
-        const { property, unitName } = getMetersDataFromRequestBody(context)
+        const { property: propertyFromQuery, unitName: unitNameFromQuery, meter: meterFromQuery } = getMetersDataFromRequestBody(context)
+        let property = propertyFromQuery
+        let unitName = unitNameFromQuery
+
+        if (!property || !unitName) {
+            const [meter] = await Meter.getAll(context, {
+                ...meterFromQuery,
+            })
+
+            const propertyId = get(meter, ['property', 'id'], null)
+            property = { id: propertyId }
+            unitName = get(meter, 'unitName', null)
+        }
+
         const [resident] = await ResidentServerUtils.getAll(context, {
             user: { id: userId },
             property,

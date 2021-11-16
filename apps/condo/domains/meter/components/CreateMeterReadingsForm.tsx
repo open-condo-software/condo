@@ -262,8 +262,6 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                 value4: normalizeReading(meterReading.value4),
                 meter: meterReading.id,
                 date: new Date(),
-                property: property,
-                unitName: unitName,
                 ...clientInfo,
             }
         }

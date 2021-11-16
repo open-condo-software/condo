@@ -18,10 +18,15 @@ async function canReadMeterReadings ({ authentication: { item: user }, context }
 
     const userId = user.id
     if (user.type === RESIDENT) {
-        const { property, unitName, meter } = getMetersDataFromRequestBody(context)
+        const { meter: meterQuery } = getMetersDataFromRequestBody(context)
+        const [meter] = await Meter.getAll(context, {
+            ...meterQuery,
+        })
+        const propertyId = get(meter, ['property', 'id'], null)
+        const unitName = get(meter, 'unitName', null)
         const [resident] = await ResidentServerUtils.getAll(context, {
             user: { id: userId },
-            property,
+            property: { id: propertyId },
             unitName,
             deletedAt: null,
         })
@@ -35,7 +40,7 @@ async function canReadMeterReadings ({ authentication: { item: user }, context }
         return {
             meter: {
                 ...meter,
-                property: { id: property. id },
+                property: { id: propertyId },
                 unitName,
                 accountNumber_in: serviceConsumerAccounts,
             },
@@ -70,8 +75,11 @@ async function canManageMeterReadings ({ authentication: { item: user }, origina
 
         if (user.type === RESIDENT) {
             const meterId = get(originalInput, ['meter', 'connect', 'id'], null)
-            const propertyId = get(originalInput, ['property', 'connect', 'id'], null)
-            const unitName = get(originalInput, 'unitName', null)
+            const [meter] = await Meter.getAll(context, {
+                id: meterId,
+            }) 
+            const propertyId = get(meter, ['property', 'id'], null)
+            const unitName = get(meter, 'unitName', null)
 
             const [resident] = await ResidentServerUtils.getAll(context, {
                 user: { id: user.id },
