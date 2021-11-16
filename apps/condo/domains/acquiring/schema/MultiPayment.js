@@ -210,19 +210,6 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                 return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
             }
 
-            // if (payments.some(payment => payment.implicitFee)) {
-            //     const implicitFee = get(resolvedData, 'implicitFee')
-            //     if (!implicitFee) {
-            //         return addValidationError(`${MULTIPAYMENT_IMPLICIT_FEE_MISMATCH} Some payments have implicit fee, but implicit fee of multiPayment is not specified`)
-            //     }
-            //     const totalImplicitFee = payments
-            //         .filter(payments.implicitFee)
-            //         .reduce((acc, cur) => cur.plus(acc), Big(0))
-            //     if (!totalImplicitFee.eq(implicitFee)) {
-            //         return addValidationError(`${MULTIPAYMENT_IMPLICIT_FEE_MISMATCH} (Total sum of existing implicit fees)`)
-            //     }
-            // }
-
             if (operation === 'create') {
                 const paymentsIds = get(resolvedData, 'payments', [])
                 const payments = await find('Payment', {
