@@ -1,4 +1,4 @@
-const { GQLCustomSchema } = require('@core/keystone/schema')
+const { GQLCustomSchema, getById } = require('@core/keystone/schema')
 const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/constants')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
@@ -120,7 +120,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                         sender: data.sender,
                     })
                 }))
-                return user
+                return await getById('User', user.id)
             },
         },
     ],

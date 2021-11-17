@@ -5,7 +5,7 @@
 const { WRONG_EMAIL_ERROR } = require('@condo/domains/user/constants/errors')
 const { getRandomString, makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 
-const { User, UserAdmin, createTestUser, updateTestUser, makeClientWithNewRegisteredAndLoggedInUser, makeLoggedInClient, createTestLandlineNumber } = require('@condo/domains/user/utils/testSchema')
+const { User, UserAdmin, createTestUser, updateTestUser, makeClientWithNewRegisteredAndLoggedInUser, makeLoggedInClient, createTestLandlineNumber, createTestPhone, createTestEmail } = require('@condo/domains/user/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObjects,  expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { GET_MY_USERINFO, SIGNIN_MUTATION } = require('@condo/domains/user/gql')
 const { DEFAULT_TEST_USER_IDENTITY, DEFAULT_TEST_USER_SECRET } = require('@core/keystone/test.utils')
@@ -83,14 +83,14 @@ describe('User', () => {
 
     test('user: read User', async () => {
         const admin = await makeLoggedInAdminClient()
-        await createTestUser(admin)
+        const [anotherUser] = await createTestUser(admin)
 
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
         const { data } = await UserAdmin.getAll(client, {}, { raw: true, sortBy: ['updatedAt_DESC'] })
         expect(data.objs).toEqual(
             expect.arrayContaining([
-                expect.objectContaining({ id: client.user.id, email: client.userAttrs.email }),
-                expect.objectContaining({ email: null }),
+                expect.objectContaining({ id: client.user.id, email: client.userAttrs.email, phone: client.userAttrs.phone }),
+                expect.objectContaining({ id: anotherUser.id, email: null, phone: null }),
             ]),
         )
         expect(data.objs.length >= 1).toBeTruthy()
@@ -103,7 +103,53 @@ describe('User', () => {
         })
     })
 
-    test('user: update User', async () => {
+    test('user: update self User', async () => {
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+        const payload = {}
+        const [obj, attrs] = await updateTestUser(client, client.user.id, payload)
+        expect(obj.updatedBy).toMatchObject({ id: client.user.id })
+        expect(obj.sender).toMatchObject(attrs.sender)
+        expect(obj.v).toBeGreaterThan(client.user.v)
+    })
+
+    test('user: update self User phone should fail', async () => {
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+        const payload = { phone: createTestPhone() }
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await updateTestUser(client, client.user.id, payload)
+        })
+    })
+
+    test('user: update self User email should fail', async () => {
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+        const payload = { email: createTestEmail() }
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await updateTestUser(client, client.user.id, payload)
+        })
+    })
+
+    test('user: update self User isAdmin should fail', async () => {
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+        const payload = { isAdmin: true }
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await updateTestUser(client, client.user.id, payload)
+        })
+    })
+
+    test('user: update self User password', async () => {
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+        const password = getRandomString()
+        const payload = { password }
+        const [obj, attrs] = await updateTestUser(client, client.user.id, payload)
+        expect(obj.updatedBy).toMatchObject({ id: client.user.id })
+        expect(obj.sender).toMatchObject(attrs.sender)
+        expect(obj.v).toBeGreaterThan(client.user.v)
+
+        const client2 = await makeLoggedInClient({ phone: client.userAttrs.phone, password })
+        expect(client2.user.id).toEqual(client.user.id)
+    })
+
+    test('user: update another User should fail', async () => {
         const admin = await makeLoggedInAdminClient()
         const [objCreated] = await createTestUser(admin)
 
