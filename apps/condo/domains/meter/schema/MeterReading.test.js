@@ -184,54 +184,56 @@ describe('MeterReading', () => {
             expect(meterReading.id).toMatch(UUID_RE)
         })
 
-        test('resident: cannot create MeterReadings when last BillingAccountMeterReading less', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const client = await makeClientWithResidentUser()
+        // For now we have decided to refuse the validation of new readings relative to previous ones
 
-            const meterNumber = faker.random.alphaNumeric(8)
-            const accountNumber = faker.random.alphaNumeric(8)
-            const value1 = faker.datatype.number()
-
-            const { context, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
-            const [billingProperty] = await createTestBillingProperty(admin, context)
-            const [billingAccount] = await createTestBillingAccount(admin, context, billingProperty, {
-                number: accountNumber,
-            })
-            const [billingMeterResource] = await createTestBillingMeterResource(admin)
-            const [billingMeter] = await createTestBillingAccountMeter(admin, context, billingProperty, billingAccount, billingMeterResource, {
-                number: meterNumber,
-            })
-            await createTestBillingAccountMeterReading(admin, context, billingProperty, billingAccount, billingMeter, {
-                value1: value1,
-            })
-
-            const [property] = await createTestProperty(admin, organization)
-            const unitName = faker.random.alphaNumeric(8)
-            const [resident] = await createTestResident(admin, client.user, organization, property, {
-                unitName,
-            })
-            await createTestServiceConsumer(admin, resident, organization, {
-                accountNumber,
-            })
-
-            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-            const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
-            const [meter] = await createTestMeter(admin, organization, property, resource, {
-                accountNumber: accountNumber,
-                number: meterNumber,
-                unitName,
-            })
-
-            await catchErrorFrom(async () => {
-                await createTestMeterReading(client, meter, organization, source, {
-                    value1: String(value1 - 10),
-                })
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toContain('Meter reading value less than previous')
-                expect(data).toEqual({ 'obj': null })
-            })
-        })
+        // test('resident: cannot create MeterReadings when last BillingAccountMeterReading less', async () => {
+        //     const admin = await makeLoggedInAdminClient()
+        //     const client = await makeClientWithResidentUser()
+        //
+        //     const meterNumber = faker.random.alphaNumeric(8)
+        //     const accountNumber = faker.random.alphaNumeric(8)
+        //     const value1 = faker.datatype.number()
+        //
+        //     const { context, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+        //     const [billingProperty] = await createTestBillingProperty(admin, context)
+        //     const [billingAccount] = await createTestBillingAccount(admin, context, billingProperty, {
+        //         number: accountNumber,
+        //     })
+        //     const [billingMeterResource] = await createTestBillingMeterResource(admin)
+        //     const [billingMeter] = await createTestBillingAccountMeter(admin, context, billingProperty, billingAccount, billingMeterResource, {
+        //         number: meterNumber,
+        //     })
+        //     await createTestBillingAccountMeterReading(admin, context, billingProperty, billingAccount, billingMeter, {
+        //         value1: value1,
+        //     })
+        //
+        //     const [property] = await createTestProperty(admin, organization)
+        //     const unitName = faker.random.alphaNumeric(8)
+        //     const [resident] = await createTestResident(admin, client.user, organization, property, {
+        //         unitName,
+        //     })
+        //     await createTestServiceConsumer(admin, resident, organization, {
+        //         accountNumber,
+        //     })
+        //
+        //     const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+        //     const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+        //     const [meter] = await createTestMeter(admin, organization, property, resource, {
+        //         accountNumber: accountNumber,
+        //         number: meterNumber,
+        //         unitName,
+        //     })
+        //
+        //     await catchErrorFrom(async () => {
+        //         await createTestMeterReading(client, meter, organization, source, {
+        //             value1: String(value1 - 10),
+        //         })
+        //     }, ({ errors, data }) => {
+        //         expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+        //         expect(errors[0].data.messages[0]).toContain('Meter reading value less than previous')
+        //         expect(data).toEqual({ 'obj': null })
+        //     })
+        // })
 
         test('resident: cannot create MeterReadings in other organization', async () => {
             const adminClient = await makeLoggedInAdminClient()
