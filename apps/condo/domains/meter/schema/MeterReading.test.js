@@ -609,32 +609,6 @@ describe('MeterReading', () => {
             expect(meterReadings).toHaveLength(1)
         })
 
-        test('resident: cannot read MeterReadings when meter not provided', async () => {
-            const adminClient = await makeLoggedInAdminClient()
-            const client = await makeClientWithResidentUser()
-            const unitName = faker.random.alphaNumeric(8)
-            const [organization] = await createTestOrganization(adminClient)
-            const [property] = await createTestProperty(adminClient, organization)
-            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-            const [resident] = await createTestResident(adminClient, client.user, organization, property, {
-                unitName,
-            })
-            const accountNumber1 = faker.random.alphaNumeric(8)
-            await createTestServiceConsumer(adminClient, resident, organization, {
-                accountNumber: accountNumber1,
-            })
-            const [meter] = await createTestMeter(adminClient, organization, property, resource, {
-                accountNumber: accountNumber1,
-                unitName,
-            })
-            const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
-            await createTestMeterReading(client, meter, organization, source)
-
-            const meterReadingsWithoutProvidedMeter = await MeterReading.getAll(client, {})
-
-            expect(meterReadingsWithoutProvidedMeter).toHaveLength(0)
-        })
-
         test('resident: cannot read MeterReadings in other organization', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const client1 = await makeClientWithResidentUser()
