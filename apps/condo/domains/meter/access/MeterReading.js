@@ -19,7 +19,8 @@ async function canReadMeterReadings ({ authentication: { item: user }, context }
         const idsArray = availableMeterIds.map(obj => obj.id)
 
         return {
-            meter: { id_in: idsArray },
+            meter: { id_in: idsArray, deletedAt: null },
+            deletedAt: null,
         }
     }
 
