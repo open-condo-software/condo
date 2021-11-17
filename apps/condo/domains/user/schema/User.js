@@ -9,14 +9,14 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/user/access/User')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
-const { get, isEmpty } = require('lodash')
+const { get, isEmpty, isUndefined, isNull } = require('lodash')
 
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { updateEmployeesRelatedToUser, User: UserAPI } = require('@condo/domains/user/utils/serverSchema')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const AVATAR_FILE_ADAPTER = new FileAdapter('avatars')
 const { STAFF, USER_TYPES } = require('@condo/domains/user/constants/common')
-const { EMAIL_ALREADY_REGISTERED_ERROR, PHONE_ALREADY_REGISTERED_ERROR, EMAIL_WRONG_FORMAT_ERROR, PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/user/constants/errors')
+const { EMAIL_ALREADY_REGISTERED_ERROR, PHONE_ALREADY_REGISTERED_ERROR, EMAIL_WRONG_FORMAT_ERROR, PHONE_WRONG_FORMAT_ERROR, PHONE_IS_REQUIRED_ERROR } = require('@condo/domains/user/constants/errors')
 
 const User = new GQLListSchema('User', {
     schemaDoc: 'Individual / person / service account / impersonal company account',
@@ -76,11 +76,9 @@ const User = new GQLListSchema('User', {
             kmigratorOptions: { null: true, unique: false },
             hooks: {
                 resolveInput: ({ resolvedData }) => {
-                    // If there is no email we need to set it to null
-                    // Empty string will not pass uniq constraints check
-                    if (isEmpty(resolvedData['email'])) {
-                        return null
-                    }
+                    // NOTE: undefined and null are different!
+                    if (isUndefined(resolvedData.email)) return undefined
+                    if (isNull(resolvedData.email) || isEmpty(resolvedData.email)) return null
                     return normalizeEmail(resolvedData['email']) || resolvedData['email']
                 },
                 validateInput: async ({ context, operation, resolvedData, existingItem, addFieldValidationError }) => {
@@ -119,21 +117,20 @@ const User = new GQLListSchema('User', {
             access: access.canAccessToPhoneField,
             hooks: {
                 resolveInput: ({ resolvedData }) => {
-                    // If there is no phone we need to set it to null
-                    // Empty string will not pass uniq constraints check
-                    if (isEmpty(resolvedData['phone'])) {
-                        return null
-                    }
+                    // NOTE: undefined and null are different!
+                    if (isUndefined(resolvedData.phone)) return undefined
+                    if (isNull(resolvedData.phone) || isEmpty(resolvedData.phone)) return null
                     return normalizePhone(resolvedData['phone']) || resolvedData['phone']
                 },
                 validateInput: async ({ context, operation, resolvedData, existingItem, addFieldValidationError }) => {
                     if (resolvedData['phone'] && normalizePhone(resolvedData['phone']) !== resolvedData['phone']) {
                         addFieldValidationError(`${PHONE_WRONG_FORMAT_ERROR}] invalid format`)
-                    }
-                    if (resolvedData.phone === null) {
                         return
                     }
-                    if (get(resolvedData, 'phone', '').length) {
+                    if (isUndefined(resolvedData.phone) && operation === 'update') return
+                    if (!resolvedData.phone) {
+                        addFieldValidationError(`${PHONE_IS_REQUIRED_ERROR}] phone is required`)
+                    } else if (get(resolvedData, 'phone', '').length) {
                         let existedUsers = []
                         const userType = resolvedData.type || STAFF
                         if (operation === 'create') {

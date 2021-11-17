@@ -17,6 +17,8 @@ const PHONE_ALREADY_REGISTERED_ERROR = '[unique:phone:multipleFound'
 const EMAIL_WRONG_FORMAT_ERROR = '[format:email'
 const PHONE_WRONG_FORMAT_ERROR = '[format:phone'
 
+const PHONE_IS_REQUIRED_ERROR = '[phone:required'
+
 const CONFIRM_PHONE_ACTION_EXPIRED = '[confirm:phone:expired'
 const CONFIRM_PHONE_SMS_CODE_EXPIRED = '[confirm:phone:smscode:expired'
 const CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED = '[confirm:phone:smscode:verify:failed'
@@ -41,6 +43,7 @@ module.exports = {
     PHONE_ALREADY_REGISTERED_ERROR,
     EMAIL_WRONG_FORMAT_ERROR,
     PHONE_WRONG_FORMAT_ERROR,
+    PHONE_IS_REQUIRED_ERROR,
     RESET_TOKEN_NOT_FOUND,
     TOKEN_EXPIRED_ERROR,
     MIN_PASSWORD_LENGTH_ERROR,
