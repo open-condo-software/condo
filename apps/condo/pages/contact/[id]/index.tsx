@@ -1,10 +1,10 @@
+import React from 'react'
 import get from 'lodash/get'
 import { useIntl } from '@core/next/intl'
 import { EditFilled } from '@ant-design/icons'
-import { Affix, Col, Row, Space, Typography } from 'antd'
+import { Col, Row, Space, Typography } from 'antd'
 import Head from 'next/head'
 import Link from 'next/link'
-import React from 'react'
 import { useRouter } from 'next/router'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -120,15 +120,11 @@ export const ContactPageContent = ({ organization, contact, isContactEditable })
                                 </Row>
                             </Col>
                             <Col xs={24} lg={8} offset={isSmall ? 0 : 1}>
-                                <Affix offsetTop={40}>
-                                    <TicketCard
-                                        organizationId={String(organization.id)}
-                                        contactId={String(get(contact, 'id'))}
-                                        contactName={contactName}
-                                        address={get(contact, ['property', 'address'])}
-                                        unitName={contactUnitName}
-                                    />
-                                </Affix>
+                                <TicketCard
+                                    organizationId={String(organization.id)}
+                                    contactPhone={String(get(contact, 'phone'))}
+                                    contactName={contactName}
+                                />
                             </Col>
                         </Row>
                     </Col>
