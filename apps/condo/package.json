@@ -25,7 +25,7 @@
     "refresh-sbbol-tokens": "node ./../../bin/sbbol.js",
     "create-integration": "node ./../../bin/create-integration.js",
     "sbbol:crypto:get-crypto-info": "node ./../../bin/sbbol/crypto.js get-crypto-info",
-    "sbbol:crypto:post-cms": "node ./../../bin/sbbol/crypto.js post-cms"
+    "sbbol:crypto:post-csr": "node ./../../bin/sbbol/crypto.js post-csr"
   },
   "dependencies": {
     "@2gis/mapgl": "^1.12.0",
