@@ -1,9 +1,9 @@
 const { GQLCustomSchema } = require('@core/keystone/schema')
-const { REGISTER_NEW_USER_MESSAGE_TYPE, SMS_TRANSPORT, EMAIL_TRANSPORT } = require('@condo/domains/notification/constants')
+const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/constants')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { MIN_PASSWORD_LENGTH_ERROR } = require('@condo/domains/user/constants/errors')
+const { MIN_PASSWORD_LENGTH_ERROR, PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/user/constants/errors')
 const { MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
 const { ConfirmPhoneAction: ConfirmPhoneActionServerUtils, User: UserServerUtils } = require('@condo/domains/user/utils/serverSchema')
 const {
@@ -11,6 +11,7 @@ const {
 } = require('@condo/domains/user/constants/errors')
 const { STAFF } = require('@condo/domains/user/constants/common')
 const { isEmpty } = require('lodash')
+const { normalizePhone } = require('@condo/domains/common/utils/phone')
 
 async function ensureNotExists (context, field, value) {
     const existed = await UserServerUtils.getAll(context, { [field]: value, type: STAFF })
@@ -54,6 +55,9 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     const { phone, isPhoneVerified } = action
                     userData.phone = phone
                     userData.isPhoneVerified = isPhoneVerified
+                }
+                if (!normalizePhone(userData.phone)) {
+                    throw new Error(`${PHONE_WRONG_FORMAT_ERROR}] invalid format`)
                 }
                 await ensureNotExists(context, 'phone', userData.phone)
                 if (!isEmpty(userData.email)) {
