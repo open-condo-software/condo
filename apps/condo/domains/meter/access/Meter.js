@@ -23,6 +23,7 @@ async function canReadMeters ({ authentication: { item: user }, context }) {
 
         return {
             OR: availableMetersIds,
+            deletedAt: null,
         }
     }
 

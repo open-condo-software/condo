@@ -21,25 +21,27 @@ const Meter = generateServerUtils(MeterGQL)
 const MeterReading = generateServerUtils(MeterReadingGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-const getLastBillingAccountMeterReading = async (context, resolvedData) => {
-    const { meter: meterId } = resolvedData
+// For now we have decided to refuse the validation of new readings relative to previous ones
 
-    const [meter] = await Meter.getAll(context, {
-        id: meterId,
-    })
-
-    const [lastMeterReading] = await BillingAccountMeterReading.getAll(context, {
-        meter: { number: meter.number },
-        account: { number: meter.account },
-        context: {
-            organization: { id: meter.organization.id },
-        },
-    }, {
-        sortBy: ['createdAt_DESC'],
-    })
-
-    return lastMeterReading
-}
+// const getLastBillingAccountMeterReading = async (context, resolvedData) => {
+//     const { meter: meterId } = resolvedData
+//
+//     const [meter] = await Meter.getAll(context, {
+//         id: meterId,
+//     })
+//
+//     const [lastMeterReading] = await BillingAccountMeterReading.getAll(context, {
+//         meter: { number: meter.number },
+//         account: { number: meter.account },
+//         context: {
+//             organization: { id: meter.organization.id },
+//         },
+//     }, {
+//         sortBy: ['createdAt_DESC'],
+//     })
+//
+//     return lastMeterReading
+// }
 
 const getAvailableResidentMeters = async (context, userId) => {
     const propertyUnitAccountNumberObjects = []
@@ -67,6 +69,7 @@ const getAvailableResidentMeters = async (context, userId) => {
 
     const availableMeters = await Meter.getAll(context, {
         OR: orStatement,
+        deletedAt: null,
     })
 
     return availableMeters.map(meter => ({ id: meter.id }))
@@ -77,7 +80,7 @@ module.exports = {
     MeterReadingSource,
     Meter,
     MeterReading,
-    getLastBillingAccountMeterReading,
+    // getLastBillingAccountMeterReading,
     getAvailableResidentMeters,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
