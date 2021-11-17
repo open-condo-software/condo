@@ -27,7 +27,7 @@ const {
 } = require('@condo/domains/user/constants/common')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 
-async function createTestUser (client, extraAttrs = {}) {
+async function createTestUser (client, extraAttrs = {},  { raw = false } = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) }
     const name = faker.name.firstName()
@@ -46,8 +46,9 @@ async function createTestUser (client, extraAttrs = {}) {
         type: STAFF,
         ...extraAttrs,
     }
-    const obj = await User.create(client, attrs)
-    return [obj, attrs]
+    const result = await User.create(client, attrs, { raw })
+    if (raw) return result
+    return [result, attrs]
 }
 
 async function updateTestUser (client, id, extraAttrs = {}) {
@@ -70,7 +71,7 @@ async function registerNewUser (client, extraAttrs = {}, { raw = false } = {}) {
     const name = faker.name.firstName()
     const email = createTestEmail()
     const password = getRandomString()
-    const phone = extraAttrs.landlinePhone ? createTestLandlineNumber() : createTestPhone()
+    const phone = createTestPhone()
     const meta = {
         dv: 1, city: faker.address.city(), county: faker.address.county(),
     }
@@ -237,7 +238,7 @@ async function signinAsUserByTestClient(client, id, extraAttrs = {}) {
 
 module.exports = {
     User, UserAdmin, createTestUser, updateTestUser, registerNewUser, makeLoggedInClient, makeClientWithResidentUser, makeClientWithStaffUser, makeClientWithSupportUser,
-    makeClientWithNewRegisteredAndLoggedInUser, addAdminAccess, addSupportAccess, addResidentAccess, addStaffAccess, createTestEmail, createTestPhone,
+    makeClientWithNewRegisteredAndLoggedInUser, addAdminAccess, addSupportAccess, addResidentAccess, addStaffAccess, createTestEmail, createTestPhone, createTestLandlineNumber,
     ConfirmPhoneAction, createTestConfirmPhoneAction, updateTestConfirmPhoneAction,
     ForgotPasswordAction, createTestForgotPasswordAction, updateTestForgotPasswordAction,
 signinAsUserByTestClient
