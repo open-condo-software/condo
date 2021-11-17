@@ -6,7 +6,6 @@
 
 const { ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
-const { BillingAccountMeterReading } = require('@condo/domains/billing/utils/serverSchema')
 const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
 const { MeterReadingSource: MeterReadingSourceGQL } = require('@condo/domains/meter/gql')
@@ -20,28 +19,6 @@ const MeterReadingSource = generateServerUtils(MeterReadingSourceGQL)
 const Meter = generateServerUtils(MeterGQL)
 const MeterReading = generateServerUtils(MeterReadingGQL)
 /* AUTOGENERATE MARKER <CONST> */
-
-// For now we have decided to refuse the validation of new readings relative to previous ones
-
-// const getLastBillingAccountMeterReading = async (context, resolvedData) => {
-//     const { meter: meterId } = resolvedData
-//
-//     const [meter] = await Meter.getAll(context, {
-//         id: meterId,
-//     })
-//
-//     const [lastMeterReading] = await BillingAccountMeterReading.getAll(context, {
-//         meter: { number: meter.number },
-//         account: { number: meter.account },
-//         context: {
-//             organization: { id: meter.organization.id },
-//         },
-//     }, {
-//         sortBy: ['createdAt_DESC'],
-//     })
-//
-//     return lastMeterReading
-// }
 
 const getAvailableResidentMeters = async (context, userId) => {
     const propertyUnitAccountNumberObjects = []
@@ -80,7 +57,6 @@ module.exports = {
     MeterReadingSource,
     Meter,
     MeterReading,
-    // getLastBillingAccountMeterReading,
     getAvailableResidentMeters,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

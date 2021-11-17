@@ -3,13 +3,10 @@
  */
 const { getAvailableResidentMeters } = require('../utils/serverSchema')
 const { STAFF } = require('@condo/domains/user/constants/common')
-const { ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
-const { Meter } = require('../utils/serverSchema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('../../organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { queryOrganizationEmployeeFromRelatedOrganizationFor, queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
-const { Resident: ResidentServerUtils } = require('@condo/domains/resident/utils/serverSchema')
 const { get } = require('lodash')
 
 async function canReadMeterReadings ({ authentication: { item: user }, context }) {
