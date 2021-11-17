@@ -27,7 +27,7 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
                 if (!phone) {
                     throw new Error(`${WRONG_PHONE_ERROR}] phone format is not valid`)
                 }
-                const users = await UserServerUtils.getAll(context, { phone, type: STAFF })
+                const users = await UserServerUtils.getAll(context, { phone })
                 if (users.length !== 1) {
                     const msg = `${WRONG_EMAIL_ERROR}] Unable to find user. Try to register`
                     throw new Error(msg)

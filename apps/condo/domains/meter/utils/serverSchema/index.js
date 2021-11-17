@@ -4,6 +4,8 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
+const { ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
+const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 const { BillingAccountMeterReading } = require('@condo/domains/billing/utils/serverSchema')
 const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
@@ -39,42 +41,35 @@ const getLastBillingAccountMeterReading = async (context, resolvedData) => {
     return lastMeterReading
 }
 
-const getMetersDataFromPostRequestBody = (context) => {
-    const variables = get(context, ['req', 'body', 'variables'])
-    const body = JSON.parse(variables)
-    const data = get(body, 'data', null)
+const getAvailableResidentMeters = async (context, userId) => {
+    const propertyUnitAccountNumberObjects = []
+    const residents = await Resident.getAll(context, { user: { id: userId } })
 
-    const property = get(data, ['property', 'connect'], null)
-    const meter = get(data, ['meter', 'connect'], null)
-    const unitName = get(data, 'unitName', null)
+    for (const resident of residents) {
+        const residentPropertyId = get(resident, ['property', 'id'])
+        const residentUnitName = get(resident, 'unitName')
 
-    return { meter, property, unitName }
-}
-
-const getMetersDataFromGetRequestQuery = (context) => {
-    const variables = get(context, ['req', 'query', 'variables'], {})
-    const body = JSON.parse(variables)
-    const data = get(body, 'where', null)
-    const emptyQueryObj = { id: null }
-
-    const property = get(data, ['property'], emptyQueryObj)
-    const meter = get(data, ['meter'], emptyQueryObj)
-    const unitName = get(data, 'unitName', null)
-
-    return { meter, property, unitName }
-}
-
-const getMetersDataFromRequestBody = (context) => {
-    const method = get(context, ['req', 'method'])
-
-    switch (method) {
-        case 'POST': {
-            return getMetersDataFromPostRequestBody(context)
-        }
-        case 'GET': {
-            return getMetersDataFromGetRequestQuery(context)
-        }
+        const serviceConsumers = await ServiceConsumer.getAll(context, {
+            resident: { id: resident.id },
+        })
+        propertyUnitAccountNumberObjects.push(...serviceConsumers.map(serviceConsumer => ({
+            property: { id: residentPropertyId },
+            unitName: residentUnitName,
+            accountNumber: serviceConsumer.accountNumber,
+        })))
     }
+
+    const orStatement = propertyUnitAccountNumberObjects.map(propertyUnitAccountNumber => ({
+        AND: [
+            propertyUnitAccountNumber,
+        ],
+    }))
+
+    const availableMeters = await Meter.getAll(context, {
+        OR: orStatement,
+    })
+
+    return availableMeters.map(meter => ({ id: meter.id }))
 }
 
 module.exports = {
@@ -83,6 +78,6 @@ module.exports = {
     Meter,
     MeterReading,
     getLastBillingAccountMeterReading,
-    getMetersDataFromRequestBody,
+    getAvailableResidentMeters,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -571,7 +571,7 @@ describe('Meter', () => {
                 unitName,
             })
 
-            const meters = await Meter.getAll(client, { id: meter.id, property: { id: property.id }, unitName: unitName })
+            const meters = await Meter.getAll(client, { id: meter.id })
             expect(meters).toHaveLength(1)
         })
 
@@ -610,7 +610,7 @@ describe('Meter', () => {
                 unitName,
             })
 
-            const meters = await Meter.getAll(client1, { id: meter.id, property: { id: property2.id }, unitName: unitName })
+            const meters = await Meter.getAll(client1, { id: meter.id })
 
             expect(meters).toHaveLength(0)
         })
@@ -716,31 +716,7 @@ describe('Meter', () => {
                 unitName,
             })
 
-            const meters = await Meter.getAll(client, { id: meter2.id, property: { id: property.id }, unitName })
-            expect(meters).toHaveLength(0)
-        })
-
-        test('resident: cannot read Meters when property or unitName not provided', async () => {
-            const adminClient = await makeLoggedInAdminClient()
-            const client = await makeClientWithResidentUser()
-            const unitName1 = faker.random.alphaNumeric(8)
-            const [organization] = await createTestOrganization(adminClient)
-            const [property] = await createTestProperty(adminClient, organization)
-            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-            const [resident] = await createTestResident(adminClient, client.user, organization, property, {
-                unitName: unitName1,
-            })
-            const accountNumber1 = faker.random.alphaNumeric(8)
-
-            await createTestServiceConsumer(adminClient, resident, organization, {
-                accountNumber: accountNumber1,
-            })
-            await createTestMeter(adminClient, organization, property, resource, {
-                accountNumber: accountNumber1,
-                unitName: unitName1,
-            })
-
-            const meters = await Meter.getAll(client, {})
+            const meters = await Meter.getAll(client, { id: meter2.id })
             expect(meters).toHaveLength(0)
         })
 
