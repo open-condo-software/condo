@@ -5,12 +5,11 @@
 const { WRONG_EMAIL_ERROR } = require('@condo/domains/user/constants/errors')
 const { getRandomString, makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 
-const { User, UserAdmin, createTestUser, updateTestUser, makeClientWithNewRegisteredAndLoggedInUser, makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
+const { User, UserAdmin, createTestUser, updateTestUser, makeClientWithNewRegisteredAndLoggedInUser, makeLoggedInClient, createTestLandlineNumber } = require('@condo/domains/user/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObjects,  expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { GET_MY_USERINFO, SIGNIN_MUTATION } = require('@condo/domains/user/gql')
 const { DEFAULT_TEST_USER_IDENTITY, DEFAULT_TEST_USER_SECRET } = require('@core/keystone/test.utils')
 const { WRONG_PASSWORD_ERROR, EMPTY_PASSWORD_ERROR } = require('@condo/domains/user/constants/errors')
-
 
 describe('SIGNIN', () => {
     test('anonymous: SIGNIN_MUTATION', async () => {
@@ -176,6 +175,22 @@ describe('User utils', () => {
         expect(userAttrs.password).toBeTruthy()
     })
 
+    test('createUser() with landline phone number', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const phone = createTestLandlineNumber()
+
+        const { data, errors } = await createTestUser(admin, { phone }, { raw: true })
+
+        expect(data).toEqual({ 'obj': null })
+        expect(errors).toMatchObject([{
+            message: 'You attempted to perform an invalid mutation',
+            name: 'ValidationFailureError',
+            path: ['obj'],
+            data: {
+                messages: [ '[format:phone] invalid format' ],
+            },
+        }])
+    })
 })
 
 describe('User fields', () => {
