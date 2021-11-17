@@ -3,7 +3,6 @@ const { getOrganizationAccessToken } = require('@condo/domains/organization/inte
 const { SbbolCryptoApi } = require('@condo/domains/organization/integrations/sbbol/SbbolCryptoApi')
 const { logger: baseLogger } = require('@condo/domains/organization/integrations/sbbol/common')
 const path = require('path')
-const { prepareKeystoneExpressApp } = require('@core/keystone/test.utils')
 const { values } = require('lodash')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 
@@ -12,8 +11,6 @@ const logger = baseLogger.child({ module: 'crypto' })
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
 const SBBOL_CSR_REQUEST_DATA = conf.SBBOL_CSR_REQUEST_DATA ? JSON.parse(conf.SBBOL_CSR_REQUEST_DATA) : {}
-
-const STEP_BACK_TO_CONDO_REPO_ROOT_PATH = '../..'
 
 const COMMAND = {
     GET_CRYPTO_INFO: 'get-crypto-info',
