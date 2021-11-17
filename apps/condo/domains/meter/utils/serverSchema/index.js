@@ -22,14 +22,21 @@ const MeterReading = generateServerUtils(MeterReadingGQL)
 
 const getAvailableResidentMeters = async (context, userId) => {
     const propertyUnitAccountNumberObjects = []
-    const residents = await Resident.getAll(context, { user: { id: userId } })
+    const residents = await Resident.getAll(context, {
+        user: { id: userId, deletedAt: null },
+        property: { deletedAt: null },
+        organization: { deletedAt: null },
+        deletedAt: null,
+    })
 
     for (const resident of residents) {
         const residentPropertyId = get(resident, ['property', 'id'])
         const residentUnitName = get(resident, 'unitName')
 
         const serviceConsumers = await ServiceConsumer.getAll(context, {
-            resident: { id: resident.id },
+            resident: { id: resident.id, deletedAt: null },
+            organization: { deletedAt: null },
+            deletedAt: null,
         })
         propertyUnitAccountNumberObjects.push(...serviceConsumers.map(serviceConsumer => ({
             property: { id: residentPropertyId },

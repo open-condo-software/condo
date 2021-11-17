@@ -18,6 +18,9 @@ const { expectToThrowAuthenticationErrorToObjects } = require('@condo/domains/co
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { UUID_RE } = require('@core/keystone/test.utils')
 const faker = require('faker')
+const { updateTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { updateTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { updateTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { createTestBillingAccount } = require('@condo/domains/billing/utils/testSchema')
 const { createTestBillingProperty } = require('@condo/domains/billing/utils/testSchema')
@@ -717,6 +720,82 @@ describe('Meter', () => {
             })
 
             const meters = await Meter.getAll(client, { id: meter2.id })
+            expect(meters).toHaveLength(0)
+        })
+
+        test('resident: cannot read Meters with accountNumber, which present in deleted serviceConsumer', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const client = await makeClientWithResidentUser()
+            const unitName = faker.random.alphaNumeric(8)
+            const [organization] = await createTestOrganization(adminClient)
+            const [property] = await createTestProperty(adminClient, organization)
+            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+            const [resident] = await createTestResident(adminClient, client.user, organization, property, {
+                unitName,
+            })
+            const accountNumber1 = faker.random.alphaNumeric(8)
+
+            const [serviceConsumer] = await createTestServiceConsumer(adminClient, resident, organization, {
+                accountNumber: accountNumber1,
+            })
+            await updateTestServiceConsumer(client, serviceConsumer.id, { deletedAt: 'true' })
+
+            const [meter] = await createTestMeter(adminClient, organization, property, resource, {
+                accountNumber: accountNumber1,
+                unitName,
+            })
+
+            const meters = await Meter.getAll(client, { id: meter.id })
+            expect(meters).toHaveLength(0)
+        })
+
+        test('resident: cannot read Meters with deleted organization', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const client = await makeClientWithResidentUser()
+            const unitName = faker.random.alphaNumeric(8)
+            const [organization] = await createTestOrganization(adminClient)
+            const [property] = await createTestProperty(adminClient, organization)
+            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+            const [resident] = await createTestResident(adminClient, client.user, organization, property, {
+                unitName,
+            })
+            const accountNumber1 = faker.random.alphaNumeric(8)
+            await createTestServiceConsumer(adminClient, resident, organization, {
+                accountNumber: accountNumber1,
+            })
+            const [meter] = await createTestMeter(adminClient, organization, property, resource, {
+                accountNumber: accountNumber1,
+                unitName,
+            })
+
+            await updateTestOrganization(adminClient, organization.id, { deletedAt: 'true' })
+
+            const meters = await Meter.getAll(client, { id: meter.id })
+            expect(meters).toHaveLength(0)
+        })
+
+        test('resident: cannot read Meters with deleted property', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const client = await makeClientWithResidentUser()
+            const unitName = faker.random.alphaNumeric(8)
+            const [organization] = await createTestOrganization(adminClient)
+            const [property] = await createTestProperty(adminClient, organization)
+            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+            const [resident] = await createTestResident(adminClient, client.user, organization, property, {
+                unitName,
+            })
+            const accountNumber1 = faker.random.alphaNumeric(8)
+            await createTestServiceConsumer(adminClient, resident, organization, {
+                accountNumber: accountNumber1,
+            })
+            const [meter] = await createTestMeter(adminClient, organization, property, resource, {
+                accountNumber: accountNumber1,
+                unitName,
+            })
+
+            await updateTestProperty(adminClient, property.id, { deletedAt: 'true' })
+
+            const meters = await Meter.getAll(client, { id: meter.id })
             expect(meters).toHaveLength(0)
         })
 
