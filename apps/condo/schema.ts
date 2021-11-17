@@ -8778,10 +8778,6 @@ export type MeterReading = {
   sender?: Maybe<SenderField>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
-  /**  Link to property which contains unit with this meter reading  */
-  property?: Maybe<Property>;
-  /**  Unit with this meter reading  */
-  unitName?: Maybe<Scalars['String']>;
   /**  Date when the readings were taken  */
   date?: Maybe<Scalars['String']>;
   /**  Meter from which readings were taken  */
@@ -8820,8 +8816,6 @@ export type MeterReadingCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
-  property?: Maybe<PropertyRelateToOneInput>;
-  unitName?: Maybe<Scalars['String']>;
   date?: Maybe<Scalars['String']>;
   meter?: Maybe<MeterRelateToOneInput>;
   value1?: Maybe<Scalars['String']>;
@@ -8857,8 +8851,6 @@ export type MeterReadingHistoryRecord = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   organization?: Maybe<Scalars['String']>;
-  property?: Maybe<Scalars['String']>;
-  unitName?: Maybe<Scalars['String']>;
   date?: Maybe<Scalars['String']>;
   meter?: Maybe<Scalars['String']>;
   value1?: Maybe<Scalars['String']>;
@@ -8888,8 +8880,6 @@ export type MeterReadingHistoryRecordCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   organization?: Maybe<Scalars['String']>;
-  property?: Maybe<Scalars['String']>;
-  unitName?: Maybe<Scalars['String']>;
   date?: Maybe<Scalars['String']>;
   meter?: Maybe<Scalars['String']>;
   value1?: Maybe<Scalars['String']>;
@@ -8924,8 +8914,6 @@ export type MeterReadingHistoryRecordUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   organization?: Maybe<Scalars['String']>;
-  property?: Maybe<Scalars['String']>;
-  unitName?: Maybe<Scalars['String']>;
   date?: Maybe<Scalars['String']>;
   meter?: Maybe<Scalars['String']>;
   value1?: Maybe<Scalars['String']>;
@@ -8969,28 +8957,6 @@ export type MeterReadingHistoryRecordWhereInput = {
   organization_not?: Maybe<Scalars['String']>;
   organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  property?: Maybe<Scalars['String']>;
-  property_not?: Maybe<Scalars['String']>;
-  property_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  property_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  unitName?: Maybe<Scalars['String']>;
-  unitName_not?: Maybe<Scalars['String']>;
-  unitName_contains?: Maybe<Scalars['String']>;
-  unitName_not_contains?: Maybe<Scalars['String']>;
-  unitName_starts_with?: Maybe<Scalars['String']>;
-  unitName_not_starts_with?: Maybe<Scalars['String']>;
-  unitName_ends_with?: Maybe<Scalars['String']>;
-  unitName_not_ends_with?: Maybe<Scalars['String']>;
-  unitName_i?: Maybe<Scalars['String']>;
-  unitName_not_i?: Maybe<Scalars['String']>;
-  unitName_contains_i?: Maybe<Scalars['String']>;
-  unitName_not_contains_i?: Maybe<Scalars['String']>;
-  unitName_starts_with_i?: Maybe<Scalars['String']>;
-  unitName_not_starts_with_i?: Maybe<Scalars['String']>;
-  unitName_ends_with_i?: Maybe<Scalars['String']>;
-  unitName_not_ends_with_i?: Maybe<Scalars['String']>;
-  unitName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  unitName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   date?: Maybe<Scalars['String']>;
   date_not?: Maybe<Scalars['String']>;
   date_lt?: Maybe<Scalars['String']>;
@@ -9545,8 +9511,6 @@ export type MeterReadingUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
-  property?: Maybe<PropertyRelateToOneInput>;
-  unitName?: Maybe<Scalars['String']>;
   date?: Maybe<Scalars['String']>;
   meter?: Maybe<MeterRelateToOneInput>;
   value1?: Maybe<Scalars['String']>;
@@ -9585,26 +9549,6 @@ export type MeterReadingWhereInput = {
   sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
-  property?: Maybe<PropertyWhereInput>;
-  property_is_null?: Maybe<Scalars['Boolean']>;
-  unitName?: Maybe<Scalars['String']>;
-  unitName_not?: Maybe<Scalars['String']>;
-  unitName_contains?: Maybe<Scalars['String']>;
-  unitName_not_contains?: Maybe<Scalars['String']>;
-  unitName_starts_with?: Maybe<Scalars['String']>;
-  unitName_not_starts_with?: Maybe<Scalars['String']>;
-  unitName_ends_with?: Maybe<Scalars['String']>;
-  unitName_not_ends_with?: Maybe<Scalars['String']>;
-  unitName_i?: Maybe<Scalars['String']>;
-  unitName_not_i?: Maybe<Scalars['String']>;
-  unitName_contains_i?: Maybe<Scalars['String']>;
-  unitName_not_contains_i?: Maybe<Scalars['String']>;
-  unitName_starts_with_i?: Maybe<Scalars['String']>;
-  unitName_not_starts_with_i?: Maybe<Scalars['String']>;
-  unitName_ends_with_i?: Maybe<Scalars['String']>;
-  unitName_not_ends_with_i?: Maybe<Scalars['String']>;
-  unitName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  unitName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   date?: Maybe<Scalars['String']>;
   date_not?: Maybe<Scalars['String']>;
   date_lt?: Maybe<Scalars['String']>;
@@ -25870,8 +25814,6 @@ export enum SortMeterHistoryRecordsBy {
 export enum SortMeterReadingHistoryRecordsBy {
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
-  UnitNameAsc = 'unitName_ASC',
-  UnitNameDesc = 'unitName_DESC',
   DateAsc = 'date_ASC',
   DateDesc = 'date_DESC',
   Value1Asc = 'value1_ASC',
@@ -25955,10 +25897,6 @@ export enum SortMeterReadingsBy {
   DvDesc = 'dv_DESC',
   OrganizationAsc = 'organization_ASC',
   OrganizationDesc = 'organization_DESC',
-  PropertyAsc = 'property_ASC',
-  PropertyDesc = 'property_DESC',
-  UnitNameAsc = 'unitName_ASC',
-  UnitNameDesc = 'unitName_DESC',
   DateAsc = 'date_ASC',
   DateDesc = 'date_DESC',
   MeterAsc = 'meter_ASC',
