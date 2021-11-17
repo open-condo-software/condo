@@ -245,7 +245,7 @@ const makeLoggedInClient = async (args) => {
     if (!(args.email || args.phone) && !args.password) throw new Error('no credentials')
     const client = await makeClient()
     if (args.email) {
-        const {data, errors} = await client.mutate(SIGNIN_BY_EMAIL_MUTATION, {
+        const { data, errors } = await client.mutate(SIGNIN_BY_EMAIL_MUTATION, {
             identity: args.email,
             secret: args.password,
         })
@@ -258,7 +258,7 @@ const makeLoggedInClient = async (args) => {
             id: data.auth.user.id,
         }
     } else if (args.phone) {
-        const {data, errors} = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, {
+        const { data, errors } = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, {
             phone: args.phone,
             password: args.password,
         })
@@ -270,6 +270,8 @@ const makeLoggedInClient = async (args) => {
             password: args.password,
             id: data.obj.item.id,
         }
+    } else {
+        throw new Error('no credentials')
     }
     return client
 }
