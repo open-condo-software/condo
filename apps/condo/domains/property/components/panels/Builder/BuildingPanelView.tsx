@@ -12,12 +12,10 @@ import { MapView } from './MapConstructor'
 import { BuildingMap } from '@app/condo/schema'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
 import { useRouter } from 'next/router'
-import { EditFilled } from '@ant-design/icons'
 import ScrollContainer from 'react-indiana-drag-scroll'
-import Link from 'next/link'
-import { Button } from '@condo/domains/common/components/Button'
 import { FullscreenWrapper, FullscreenHeader } from './Fullscreen'
 import get from 'lodash/get'
+import { AddressTopTextContainer } from './BuildingPanelEdit'
 
 interface IBuildingPanelViewProps {
     map: BuildingMap
@@ -36,6 +34,26 @@ export const BuildingPanelView: React.FC<IBuildingPanelViewProps> = ({ map }) =>
 interface IPropertyMapViewProps {
     Builder: MapView
     refresh(): void
+}
+
+const CHESS_ROW_STYLE: React.CSSProperties = {
+    width: '100%',
+    height: '100%',
+    textAlign: 'center',
+}
+const CHESS_COL_STYLE: React.CSSProperties = {
+    paddingTop: '60px',
+    paddingBottom: '60px',
+}
+const CHESS_SCROLL_HOLDER_STYLE: React.CSSProperties = {
+    whiteSpace: 'nowrap',
+    position: 'static',
+    ...CHESS_COL_STYLE,
+}
+const CHESS_SCROLL_CONTAINER_STYLE: React.CSSProperties = {
+    paddingBottom: '60px',
+    width: '100%',
+    overflowY: 'hidden',
 }
 
 export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refresh }) => {
@@ -57,20 +75,22 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
         <FullscreenWrapper mode={'view'} className={isFullscreen ? 'fullscreen' : '' }>
             <FullscreenHeader edit={false}>
                 <Row>
-                    <Col flex={0} style={{ marginTop: '10px' }}><b>{get(property, 'address')}</b></Col>
+                    <Col flex={0}>
+                        <AddressTopTextContainer>{get(property, 'address')}</AddressTopTextContainer>
+                    </Col>
                 </Row>
             </FullscreenHeader>
-            <Row align='bottom' style={{ width: '100%', textAlign: 'center' }} >
+            <Row align='middle' style={CHESS_ROW_STYLE}>
                 {
                     Builder.isEmpty ?
-                        <Col span={24} style={{ paddingTop: '60px', paddingBottom: '60px' }}>
+                        <Col span={24} style={CHESS_COL_STYLE}>
                             <EmptyBuildingBlock />
                         </Col>
                         :
-                        <Col span={24} style={{ whiteSpace: 'nowrap', position: 'static' }}>
+                        <Col span={24} style={CHESS_SCROLL_HOLDER_STYLE}>
                             <ScrollContainer
                                 className="scroll-container"
-                                style={{ paddingTop: '16px', width: '100%', overflowY: 'hidden' }}
+                                style={CHESS_SCROLL_CONTAINER_STYLE}
                                 vertical={false}
                                 horizontal={true}
                                 hideScrollbars={false}

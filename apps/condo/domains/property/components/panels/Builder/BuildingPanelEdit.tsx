@@ -74,7 +74,6 @@ const TopRowCss = css`
   & .ant-select.ant-select-single.ant-select-open .ant-select-arrow {
     color: white;
   }
-  
 `
 
 const DropdownCss = css`
@@ -127,7 +126,7 @@ const FormModalCss = css`
   }
 `
 
-const AddressTopTextContainer = styled.div`
+export const AddressTopTextContainer = styled.div`
   font-size: ${fontSizes.content};
   line-height: 24px;
   font-weight: bold;
