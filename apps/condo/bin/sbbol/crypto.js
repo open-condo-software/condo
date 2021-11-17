@@ -14,7 +14,7 @@ const SBBOL_CSR_REQUEST_DATA = conf.SBBOL_CSR_REQUEST_DATA ? JSON.parse(conf.SBB
 
 const COMMAND = {
     GET_CRYPTO_INFO: 'get-crypto-info',
-    POST_CMS: 'post-cms',
+    POST_CSR: 'post-csr',
 }
 
 const validateAndGetCommand = () => {
@@ -60,11 +60,11 @@ async function main () {
 
     let cryptoInfo
 
-    if ([COMMAND.GET_CRYPTO_INFO, COMMAND.POST_CMS].includes(command)) {
+    if ([COMMAND.GET_CRYPTO_INFO, COMMAND.POST_CSR].includes(command)) {
         cryptoInfo = await cryptoApi.getCryptoInfo()
     }
 
-    if (cryptoInfo && command === COMMAND.POST_CMS) {
+    if (cryptoInfo && command === COMMAND.POST_CSR) {
         const response = await cryptoApi.postCertificateSigningRequest({
             cryptoInfo,
             cms: SBBOL_CSR_REQUEST_DATA.cms,
