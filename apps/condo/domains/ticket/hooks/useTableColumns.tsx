@@ -35,7 +35,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const PaidMessage = intl.formatMessage({ id: 'Paid' }).toLowerCase()
     const DateMessage = intl.formatMessage({ id: 'Date' })
     const StatusMessage = intl.formatMessage({ id: 'Status' })
-    const ClientNameMessage = intl.formatMessage({ id: 'Client' })
+    const ClientNameMessage = intl.formatMessage({ id: 'Contact' })
     const DescriptionMessage = intl.formatMessage({ id: 'Description' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
     const ExecutorMessage = intl.formatMessage({ id: 'field.Executor' })
@@ -60,7 +60,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
         const highlightedContent = getHighlightedContents(search, null, extraProps)(status.name)
 
         return (
-            <Space direction='vertical' size={7} align='center'>
+            <Space direction='vertical' size={7}>
                 {
                     status.name && (
                         <Tag color={backgroundColor}>
@@ -146,10 +146,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 filteredValue: getFilteredValue<IFilters>(filters, 'createdAt'),
                 dataIndex: 'createdAt',
                 key: 'createdAt',
-                // sorter: true,
-                sorter: {
-                    multiple: 1,
-                },
+                sorter: true,
                 width: '8%',
                 render: getDateRender(intl, String(search)),
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'createdAt'),
