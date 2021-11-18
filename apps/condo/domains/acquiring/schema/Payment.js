@@ -59,12 +59,8 @@ const Payment = new GQLListSchema('Payment', {
             isRequired: false,
             access: { read: access.canReadPaymentsSensitiveData },
             hooks: {
-                validateInput: ({ resolvedData, addFieldValidationError, fieldPath, listKey, operation, existingItem }) => {
+                validateInput: ({ resolvedData, addFieldValidationError, fieldPath, operation, existingItem }) => {
                     if (resolvedData.hasOwnProperty(fieldPath) && resolvedData[fieldPath] !== null) {
-                        const parsedDecimal = Big(resolvedData[fieldPath])
-                        if (parsedDecimal.lt(0)) {
-                            addFieldValidationError(`[${listKey.toLowerCase()}:${fieldPath}:negative] Field "${fieldPath}" of "${listKey}" must be greater then 0`)
-                        }
                         const amount = Big(operation === 'create' ? resolvedData['amount'] : existingItem['amount'])
                         const fee = Big(resolvedData[fieldPath])
                         if (fee.gt(amount)) {
