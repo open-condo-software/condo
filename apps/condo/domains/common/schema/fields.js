@@ -3,11 +3,10 @@ const { Decimal } = require('@keystonejs/fields')
 const { PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
-const { Json } = require('@core/keystone/fields')
+const { Json, SignedDecimal } = require('@core/keystone/fields')
 const { JSON_UNKNOWN_VERSION_ERROR, REQUIRED_NO_VALUE_ERROR, JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/errors')
 const { ADDRESS_META_FIELD_GRAPHQL_TYPES } = require('@condo/domains/property/schema/fields/AddressMetaField')
 const { ISO_CODES } = require('../constants/currencies')
-const Big = require('big.js')
 
 const DV_FIELD = {
     type: Integer,
@@ -134,30 +133,14 @@ const MONEY_AMOUNT_FIELD = {
 
 const POSITIVE_MONEY_AMOUNT_FIELD = {
     ...MONEY_AMOUNT_FIELD,
-    hooks: {
-        validateInput: ({ resolvedData, addFieldValidationError, fieldPath, listKey }) => {
-            if (resolvedData.hasOwnProperty(fieldPath) && resolvedData[fieldPath] !== null) {
-                const parsedDecimal = Big(resolvedData[fieldPath])
-                if (parsedDecimal.lte(0)) {
-                    addFieldValidationError(`[${listKey.toLowerCase()}:${fieldPath}:negative] Field "${fieldPath}" of "${listKey}" must be greater then 0`)
-                }
-            }
-        },
-    },
+    type: SignedDecimal,
+    template: 'positive',
 }
 
 const NON_NEGATIVE_MONEY_FIELD = {
     ...MONEY_AMOUNT_FIELD,
-    hooks: {
-        validateInput: ({ resolvedData, addFieldValidationError, fieldPath, listKey }) => {
-            if (resolvedData.hasOwnProperty(fieldPath) && resolvedData[fieldPath] !== null) {
-                const parsedDecimal = Big(resolvedData[fieldPath])
-                if (parsedDecimal.lt(0)) {
-                    addFieldValidationError(`[${listKey.toLowerCase()}:${fieldPath}:negative] Field "${fieldPath}" of "${listKey}" must be greater than or equal to 0`)
-                }
-            }
-        },
-    },
+    type: SignedDecimal,
+    template: 'non-negative',
 }
 
 const CURRENCY_CODE_FIELD = {

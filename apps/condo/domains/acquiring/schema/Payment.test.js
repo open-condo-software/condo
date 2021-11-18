@@ -319,7 +319,7 @@ describe('Payment', () => {
                             explicitFee: null,
                             [field]: amount,
                         })
-                    }, 'must be greater')
+                    }, 'Specified number has an invalid sign')
                 })
             })
             test('Receipt and frozen receipt should be updated at the same time', async () => {
