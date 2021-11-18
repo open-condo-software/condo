@@ -15,7 +15,7 @@ import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayer
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { Button } from '@condo/domains/common/components/Button'
 import { useOrganization } from '@core/next/organization'
-import  { TicketCard } from '@condo/domains/common/components/TicketCard/TicketCard'
+import  { TicketCardList } from '@condo/domains/common/components/TicketCard/TicketCardList'
 import { canManageContacts } from '@condo/domains/organization/permissions'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
@@ -120,7 +120,7 @@ export const ContactPageContent = ({ organization, contact, isContactEditable })
                                 </Row>
                             </Col>
                             <Col xs={24} lg={8} offset={isSmall ? 0 : 1}>
-                                <TicketCard
+                                <TicketCardList
                                     organizationId={String(organization.id)}
                                     contactPhone={String(get(contact, 'phone'))}
                                     contactName={contactName}
