@@ -22,12 +22,7 @@ ALTER TABLE "TicketChange" ADD COLUMN "orderTo" integer NULL;
 ALTER TABLE "TicketHistoryRecord" ADD COLUMN "order" integer NULL;
 
     UPDATE "Ticket" SET "order" = 100 WHERE "id" = '6ef3abc4-022f-481b-90fb-8430345ebfc2';
---    UPDATE "Ticket" SET "order" = 200 WHERE "id" = 'aa5ed9c2-90ca-4042-8194-d3ed23cb7919';
---    UPDATE "Ticket" SET "order" = 300 WHERE "id" = 'f0fa0093-8d86-4e69-ae1a-70a2914da82f'; 
---    UPDATE "Ticket" SET "order" = 400 WHERE "id" = '5b9decd7-792c-42bb-b16d-822142fd2d69';
---    UPDATE "Ticket" SET "order" = 500 WHERE "id" = 'c14a58e0-6b5d-4ec2-b91c-980a90509c7f';
---    UPDATE "Ticket" SET "order" = 600 WHERE "id" = 'c14a58e0-6b5d-4ec2-b91c-980a90111c7d';
-
+    
 COMMIT;
 
     `)

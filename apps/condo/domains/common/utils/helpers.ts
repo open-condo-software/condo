@@ -35,20 +35,10 @@ export const preciseFloor = (x: number, precision: number = DEFAULT_WIDTH_PRECIS
 }
 
 /**
- * Tries to extract address details from a record
- * @param record
- * @param ShortFlatNumber
+ * Tries to extract address details from a property
+ * @param property
  */
-export const getAddressDetails = (record: RecordWithAddressDetails, ShortFlatNumber?: string) => {
-    const property = get(record, 'property')
-    const unitName = get(record, 'unitName')
-    const text = get(property, 'address')
-    const unitPrefix = unitName ? `${ShortFlatNumber} ${unitName}` : ''
-
-    return { text, unitPrefix }
-}
-
-export const getAddressDetailsWithoutUnit = (property: Property) => {
+export const getAddressDetails = (property: Property) => {
     const addressMeta = get(property, ['addressMeta', 'data'])
 
     const streetType = get(addressMeta, 'street_type')
