@@ -54,11 +54,11 @@ export const getAddressDetails = (property: Property) => {
     const cityName = get(addressMeta, 'city')
 
     const settlement = streetName ? `${streetType}. ${streetName}` : get(addressMeta, 'settlement_with_type')
-    const streetLine = settlement && `${settlement}, ${houseType}. ${houseName}`
-    const regionLine = regionName && `${regionName} ${regionType}`
-    const cityLine = cityName && `${cityType}. ${cityName}`
+    const streetPart = settlement && `${settlement}, ${houseType}. ${houseName}`
+    const regionPart = regionName && `${regionName} ${regionType}`
+    const cityPart = cityName && `${cityType}. ${cityName}`
 
-    return { streetLine, regionLine, cityLine }
+    return { streetPart, regionPart, cityPart }
 }
 
 /**

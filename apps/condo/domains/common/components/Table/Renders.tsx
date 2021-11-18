@@ -135,12 +135,12 @@ const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-
 
 export const getAddressRender = (property: Property, DeletedMessage?: string, search?: FilterValue | string) => {
     const isDeleted = !!get(property, 'deletedAt')
-    const { streetLine, regionLine, cityLine } = getAddressDetails(property)
+    const { streetPart, regionPart, cityPart } = getAddressDetails(property)
     const extraProps: Partial<TTextHighlighterProps> = isDeleted && { type: 'secondary' }
     const deletedMessage = isDeleted && DeletedMessage ? `(${DeletedMessage})\n` : '\n'
-    const postfix = `\n${regionLine}, \n${cityLine} ${deletedMessage}`
+    const postfix = `\n${regionPart}, \n${cityPart} ${deletedMessage}`
 
-    return getTableCellRenderer(search, false, postfix, extraProps, POSTFIX_PROPS)(streetLine)
+    return getTableCellRenderer(search, false, postfix, extraProps, POSTFIX_PROPS)(streetPart)
 }
 
 export const getDateRender = (intl, search?: FilterValue | string) => {
