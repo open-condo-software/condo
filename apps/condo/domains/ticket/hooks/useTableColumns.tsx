@@ -245,5 +245,5 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 filterIcon: getFilterIcon,
             },
         ]
-    }, [sorters, filters])
+    }, [NumberMessage, sorterMap, filters, filterMetas, search, DateMessage, intl, StatusMessage, renderStatus, renderStatusFilterDropdown, AddressMessage, renderAddress, UnitMessage, renderUnit, DescriptionMessage, ClassifierTitle, renderClassifier, ClientNameMessage, ExecutorMessage, renderExecutor, ResponsibleMessage, renderAssignee])
 }

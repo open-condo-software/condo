@@ -143,6 +143,17 @@ export const getAddressRender = (property: Property, DeletedMessage?: string, se
     return getTableCellRenderer(search, false, postfix, extraProps, POSTFIX_PROPS)(streetLine)
 }
 
+export const getAddressWithUnitRender = (property: Property, unitName: string, ShortFlatNumber: string, DeletedMessage?: string, search?: FilterValue | string) => {
+    const isDeleted = !!get(property, 'deletedAt')
+    const { streetLine, regionLine, cityLine } = getAddressDetailsWithoutUnit(property)
+    const extraProps: Partial<TTextHighlighterProps> = isDeleted && { type: 'secondary' }
+    const deletedMessage = isDeleted && DeletedMessage ? `(${DeletedMessage})\n` : '\n'
+    const postfix = `\n${regionLine}, \n${cityLine} ${deletedMessage}`
+    const text = `${streetLine}, ${ShortFlatNumber} ${unitName}`
+
+    return getTableCellRenderer(search, false, postfix, extraProps, POSTFIX_PROPS)(text)
+}
+
 export const getDateRender = (intl, search?: FilterValue | string) => {
     return function render (stringDate: string): RenderReturnType {
         if (!stringDate) return '—'
