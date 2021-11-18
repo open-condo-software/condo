@@ -3,13 +3,13 @@ import Head from 'next/head'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { useIntl } from '@core/next/intl'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { Typography } from 'antd'
 import { BillingPageContent } from '@condo/domains/billing/components/BillingPageContent'
 import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
 import { BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
-
+import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 
 const BillingPage = () => {
     const intl = useIntl()
@@ -43,14 +43,14 @@ const BillingPage = () => {
             </Head>
             <PageWrapper>
                 <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitle}</Typography.Title>}/>
-                <PageContent>
+                <TablePageContent>
                     <BillingPageContent
                         access={canReadBillingReceipts}
                         contextLoading={contextLoading}
                         contextError={contextError}
                         context={currentContext}
                     />
-                </PageContent>
+                </TablePageContent>
             </PageWrapper>
         </>
     )

@@ -163,9 +163,6 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 dataIndex: 'status',
                 key: 'status',
                 sorter: true,
-                // sorter: {
-                //     multiple: 2,
-                // },
                 width: '8%',
                 filterDropdown: renderStatusFilterDropdown,
                 filterIcon: getFilterIcon,

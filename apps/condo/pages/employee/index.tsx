@@ -1,5 +1,4 @@
 import {
-    PageContent,
     PageHeader,
     PageWrapper,
     useLayoutContext,
@@ -32,6 +31,7 @@ import { TitleHeaderAction } from '@condo/domains/common/components/HeaderAction
 import { canManageEmployee } from '@condo/domains/organization/permissions'
 import { updateQuery } from '@condo/domains/common/utils/filters.utils'
 import { getTableScrollConfig } from '@condo/domains/common/utils/tables.utils'
+import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 
 const ADD_EMPLOYEE_ROUTE = '/employee/create/'
 
@@ -123,7 +123,7 @@ export const EmployeesPageContent = ({
             </Head>
             <PageWrapper>
                 <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>}/>
-                <PageContent>
+                <TablePageContent>
                     {
                         !employees.length && !filtersFromQuery
                             ? <EmptyListView
@@ -187,7 +187,7 @@ export const EmployeesPageContent = ({
                                 </Col>
                             </Row>
                     }
-                </PageContent>
+                </TablePageContent>
             </PageWrapper>
         </>
     )

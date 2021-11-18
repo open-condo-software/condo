@@ -1,5 +1,4 @@
 import {
-    PageContent,
     PageHeader,
     PageWrapper,
     useLayoutContext,
@@ -34,6 +33,7 @@ import { DiffOutlined } from '@ant-design/icons'
 import { useImporterFunctions } from '@condo/domains/contact/hooks/useImporterFunctions'
 import { updateQuery } from '@condo/domains/common/utils/filters.utils'
 import { getTableScrollConfig } from '@condo/domains/common/utils/tables.utils'
+import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 
 const ADD_CONTACT_ROUTE = '/contact/create/'
 
@@ -117,7 +117,7 @@ export const ContactsPageContent = ({
             </Head>
             <PageWrapper>
                 <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>}/>
-                <PageContent>
+                <TablePageContent>
                     {
                         !contacts.length && !filtersFromQuery
                             ? (
@@ -202,7 +202,7 @@ export const ContactsPageContent = ({
                                 </Row>
                             )
                     }
-                </PageContent>
+                </TablePageContent>
             </PageWrapper>
         </>
     )
