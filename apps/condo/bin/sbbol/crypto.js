@@ -15,6 +15,7 @@ const SBBOL_CSR_REQUEST_DATA = conf.SBBOL_CSR_REQUEST_DATA ? JSON.parse(conf.SBB
 const COMMAND = {
     GET_CRYPTO_INFO: 'get-crypto-info',
     POST_CSR: 'post-csr',
+    GET_CSR_STATE: 'get-csr-state',
 }
 
 const validateAndGetCommand = () => {
@@ -78,6 +79,11 @@ async function main () {
             userPosition: SBBOL_CSR_REQUEST_DATA.userPosition,
         })
         console.log('response from cryptoApi.postCertificateSigningRequest', response)
+    }
+
+    if (command === COMMAND.GET_CSR_STATE) {
+        const response = await cryptoApi.getCertificateSigningRequestState(SBBOL_CSR_REQUEST_DATA.externalId)
+        console.log('response from cryptoApi.getCertificateSigningRequestState', response)
     }
 
     await keystone.disconnect()

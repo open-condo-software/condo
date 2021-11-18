@@ -117,12 +117,30 @@ class SbbolCryptoApi extends SbbolRequestApi {
         return result
     }
 
+    /**
+     *
+     * @param externalId means at our site, with is external relative to SBBOL
+     * @return {Promise<void>}
+     */
+    async getCertificateSigningRequestState(externalId) {
+        const { data } = await this.request({
+            method: 'GET',
+            path: this.certificateSigningRequestStatePath.replace(':externalId', externalId)
+        })
+        const parsedData = JSON.parse(data)
+        return parsedData
+    }
+
     get cryptoInfoPath () {
         return `${this.apiPrefix}/v1/crypto`
     }
 
     get certificateSigningRequestPath () {
         return `${this.apiPrefix}/v1/crypto/cert-requests`
+    }
+
+    get certificateSigningRequestStatePath () {
+        return `${this.apiPrefix}/v1/crypto/cert-requests/:externalId/state`
     }
 
     get apiPrefix () {
