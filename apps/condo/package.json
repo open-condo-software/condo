@@ -22,11 +22,12 @@
     "generate-excel-template": "node ./../../bin/create-xlsx-template.js",
     "lint-schema": "NODE_ENV=test node ./../../bin/lint-schema.js",
     "lint-i18n-translations": "node ./../../bin/lint-i18n-translations.js",
-    "refresh-sbbol-tokens": "node ./../../bin/sbbol.js",
     "create-integration": "node ./../../bin/create-integration.js",
-    "sbbol:crypto:get-crypto-info": "node ./../../bin/sbbol/crypto.js get-crypto-info",
-    "sbbol:crypto:post-csr": "node ./../../bin/sbbol/crypto.js post-csr",
-    "sbbol:crypto:get-csr-state": "node ./../../bin/sbbol/crypto.js get-csr-state"
+    "sbbol:oauth:refresh-tokens": "node ../../bin/sbbol-token-manager.js",
+    "sbbol:oauth:test-by-hands.js": "node ../../bin/sbbol-test-oauth-by-hands.js",
+    "sbbol:crypto:get-crypto-info": "node ../../bin/sbbol-crypto.js get-crypto-info",
+    "sbbol:crypto:post-csr": "node ../../bin/sbbol-crypto.js post-csr",
+    "sbbol:crypto:get-csr-state": "node ../../bin/sbbol-crypto.js get-csr-state"
   },
   "dependencies": {
     "@2gis/mapgl": "^1.12.0",
