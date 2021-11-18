@@ -14,7 +14,7 @@ import { useOrganization } from '@core/next/organization'
 
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
-import { PageContent, PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Button } from '@condo/domains/common/components/Button'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
@@ -35,6 +35,7 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { updateQuery } from '@condo/domains/common/utils/filters.utils'
 
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -77,6 +78,8 @@ export const TicketsPageContent = ({
 
     searchTicketsQuery = { ...searchTicketsQuery, ...{ deletedAt: null } }
 
+    console.log('sortBy', sortBy)
+
     const {
         loading,
         count: total,
@@ -115,7 +118,7 @@ export const TicketsPageContent = ({
                 <PageHeader title={
                     <Typography.Title style={PAGE_HEADER_TITLE_STYLES}>{PageTitleMessage}</Typography.Title>
                 }/>
-                <PageContent>
+                <TablePageContent>
                     {
                         !tickets.length && !filters
                             ? <EmptyListView
@@ -211,13 +214,14 @@ export const TicketsPageContent = ({
                             )
                     }
                     <MultipleFiltersModal />
-                </PageContent>
+                </TablePageContent>
             </PageWrapper>
         </>
     )
 }
 
 const SORTABLE_PROPERTIES = ['number', 'status', 'order', 'details', 'property', 'unitName', 'assignee', 'executor', 'createdAt', 'clientName']
+const TICKETS_DEFAULT_SORT_BY = ['order_ASC', 'createdAt_DESC']
 
 const TicketsPage: ITicketIndexPage = () => {
     const userOrganization = useOrganization()
@@ -238,7 +242,7 @@ const TicketsPage: ITicketIndexPage = () => {
         <TicketsPageContent
             tableColumns={tableColumns}
             searchTicketsQuery={searchTicketsQuery}
-            sortBy={sortersToSortBy(sorters)}
+            sortBy={sortersToSortBy(sorters, TICKETS_DEFAULT_SORT_BY)}
             filterMetas={filterMetas}
         />
     )

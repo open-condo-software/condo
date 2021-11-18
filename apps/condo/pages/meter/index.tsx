@@ -30,6 +30,7 @@ import { useMeterInfoModal } from '@condo/domains/meter/hooks/useMeterInfoModal'
 import { useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { useFilters } from '@condo/domains/meter/hooks/useFilters'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
+import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 
 export const MetersPageContent = ({
     searchMeterReadingsQuery,
@@ -84,7 +85,7 @@ export const MetersPageContent = ({
             </Head>
             <PageWrapper>
                 <PageHeader title={<Typography.Title>{PageTitleMessage}</Typography.Title>}/>
-                <PageContent>
+                <TablePageContent>
                     {
                         !meterReadings.length && !filters
                             ? (
@@ -141,7 +142,7 @@ export const MetersPageContent = ({
                     }
                     <MeterInfoModal meterId={selectedMeterId} />
                     <MultipleFiltersModal />
-                </PageContent>
+                </TablePageContent>
             </PageWrapper>
         </>
     )

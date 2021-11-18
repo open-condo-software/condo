@@ -24,6 +24,7 @@ import { useTableColumns } from '@condo/domains/division/hooks/useTechniciansTab
 import { IOrganizationEmployeeRoleUIState } from '@condo/domains/organization/utils/clientSchema/OrganizationEmployeeRole'
 import { useOrganization } from '@core/next/organization'
 import qs from 'qs'
+import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 
 type DivisionPageContentProps = {
     division: ReturnType<typeof useObject>['obj']
@@ -190,14 +191,14 @@ function DivisionPage () {
                 <title>{PageTitleMsg}</title>
             </Head>
             <PageWrapper>
-                <PageContent>
+                <TablePageContent>
                     <DivisionPageContent
                         division={division}
                         loading={loading}
                         columns={columns}
                         role={link.role}
                     />
-                </PageContent>
+                </TablePageContent>
             </PageWrapper>
         </>
     )

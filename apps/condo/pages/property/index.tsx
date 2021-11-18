@@ -1,7 +1,6 @@
 /** @jsx jsx */
 import React, { useEffect, useRef, useState } from 'react'
 import {
-    PageContent,
     PageWrapper,
     useLayoutContext,
 } from '@condo/domains/common/components/containers/BaseLayout'
@@ -30,6 +29,7 @@ import { useTableColumns as useDivisionsTableColumns } from '@condo/domains/divi
 import { ColumnsType } from 'antd/lib/table'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useTableFilters as useDivisionTableFilters } from '@condo/domains/division/hooks/useTableFilters'
+import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 
 
 type PropertiesType = 'buildings' | 'divisions'
@@ -97,7 +97,7 @@ export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
                 <title>{PageTitleMessage}</title>
             </Head>
             <PageWrapper>
-                <PageContent>
+                <TablePageContent>
                     <Row gutter={[0, 40]} align={'top'}>
                         <Col lg={6} xs={24}>
                             <Typography.Title>
@@ -160,7 +160,7 @@ export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
                         }
                     </Row>
                     {viewMode === 'map' && <PropertiesMap properties={properties} />}
-                </PageContent>
+                </TablePageContent>
             </PageWrapper>
         </>
     )

@@ -7,7 +7,14 @@ import { SideNav } from './components/SideNav'
 import Router from 'next/router'
 import classnames from 'classnames'
 import 'antd/dist/antd.less'
-import { layoutCss, pageContentCss, pageHeaderCss, StyledPageWrapper, subLayoutCss } from './components/styles'
+import {
+    layoutCss,
+    pageContentCss,
+    pageHeaderCss,
+    StyledPageWrapper,
+    subLayoutCss,
+    tablePageContentCss,
+} from './components/styles'
 import { ElementType } from 'react'
 import MenuItem from 'antd/lib/menu/MenuItem'
 import { Header } from './Header'
@@ -93,10 +100,19 @@ const PageContent: FunctionComponent<IPageContentProps> = ({ children, className
     )
 }
 
+const TablePageContent: FunctionComponent<IPageContentProps> = ({ children, className, style }) => {
+    return (
+        <div className={classnames('page-content', className)} css={tablePageContentCss} style={style}>
+            {children}
+        </div>
+    )
+}
+
 export default BaseLayout
 export {
     useLayoutContext,
     PageWrapper,
     PageHeader,
     PageContent,
+    TablePageContent,
 }
