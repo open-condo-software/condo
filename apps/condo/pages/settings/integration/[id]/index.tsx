@@ -18,7 +18,6 @@ import Link from 'next/link'
 import { ExclamationCircleOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import Error from 'next/error'
-import { FeatureFlagRequired } from '@condo/domains/common/components/containers/FeatureFlag'
 
 
 const SETTINGS_PAGE_ROUTE = '/settings/'
@@ -111,6 +110,10 @@ const BillingIntegrationDetailsPage = () => {
         )
     }
 
+    if (!integration) {
+        return <Error statusCode={404}/>
+    }
+
     const pageTitle = get(integration, 'detailsTitle')
     const markDownText = get(integration, 'detailsText')
     const startButtonMessage = get(integration, 'detailsConfirmButtonText') || DefaultStartButtonMessage
@@ -119,6 +122,7 @@ const BillingIntegrationDetailsPage = () => {
 
     const disabledIntegration = !!currentContext
     const shouldNotifyWithAlert = !!currentContext && currentContext.integration.id !== integrationId
+    const isHiddenIntegration = get(integration, 'isHidden', false)
     return (
         <>
             <Head>
@@ -168,7 +172,7 @@ const BillingIntegrationDetailsPage = () => {
                                                                 <Button
                                                                     type='sberPrimary'
                                                                     onClick={showConfirmModal}
-                                                                    disabled={disabledIntegration}
+                                                                    disabled={disabledIntegration || isHiddenIntegration}
                                                                     style={{ pointerEvents: disabledIntegration ? 'none' : 'auto' }}
                                                                 >
                                                                     {startButtonMessage}

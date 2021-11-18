@@ -53,6 +53,7 @@ async function createTestBillingIntegration (client, extraAttrs = {}) {
         name,
         detailsTitle,
         currencyCode,
+        isHidden: true,
         ...extraAttrs,
     }
     const obj = await BillingIntegration.create(client, attrs)
