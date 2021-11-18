@@ -59,7 +59,6 @@ class SbbolCryptoApi extends SbbolRequestApi {
     async getCryptoInfo () {
         const { data } = await this.request({ method: 'GET', path: this.cryptoInfoPath })
         const parsedData = JSON.parse(data)
-        console.debug('parsedData in getCryptoInfo', parsedData)
         return parsedData
     }
 
