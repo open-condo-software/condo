@@ -2920,6 +2920,8 @@ export type BillingIntegration = {
   currencyCode?: Maybe<Scalars['String']>;
   accessRights: Array<BillingIntegrationAccessRight>;
   _accessRightsMeta?: Maybe<_QueryMeta>;
+  /**  Indicates whether the integration is hidden inside the CRM  */
+  isHidden?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3221,6 +3223,7 @@ export type BillingIntegrationCreateInput = {
   dataFormat?: Maybe<Scalars['JSON']>;
   currencyCode?: Maybe<Scalars['String']>;
   accessRights?: Maybe<BillingIntegrationAccessRightRelateToManyInput>;
+  isHidden?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3254,6 +3257,7 @@ export type BillingIntegrationHistoryRecord = {
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<Scalars['JSON']>;
   currencyCode?: Maybe<Scalars['String']>;
+  isHidden?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3281,6 +3285,7 @@ export type BillingIntegrationHistoryRecordCreateInput = {
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<Scalars['JSON']>;
   currencyCode?: Maybe<Scalars['String']>;
+  isHidden?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3313,6 +3318,7 @@ export type BillingIntegrationHistoryRecordUpdateInput = {
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<Scalars['JSON']>;
   currencyCode?: Maybe<Scalars['String']>;
+  isHidden?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3524,6 +3530,8 @@ export type BillingIntegrationHistoryRecordWhereInput = {
   currencyCode_not_ends_with_i?: Maybe<Scalars['String']>;
   currencyCode_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   currencyCode_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isHidden?: Maybe<Scalars['Boolean']>;
+  isHidden_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -4199,6 +4207,7 @@ export type BillingIntegrationUpdateInput = {
   dataFormat?: Maybe<Scalars['JSON']>;
   currencyCode?: Maybe<Scalars['String']>;
   accessRights?: Maybe<BillingIntegrationAccessRightRelateToManyInput>;
+  isHidden?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -4385,6 +4394,8 @@ export type BillingIntegrationWhereInput = {
   accessRights_some?: Maybe<BillingIntegrationAccessRightWhereInput>;
   /**  condition must be false for all nodes  */
   accessRights_none?: Maybe<BillingIntegrationAccessRightWhereInput>;
+  isHidden?: Maybe<Scalars['Boolean']>;
+  isHidden_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -25196,6 +25207,8 @@ export enum SortBillingIntegrationHistoryRecordsBy {
   ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   CurrencyCodeAsc = 'currencyCode_ASC',
   CurrencyCodeDesc = 'currencyCode_DESC',
+  IsHiddenAsc = 'isHidden_ASC',
+  IsHiddenDesc = 'isHidden_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -25308,6 +25321,8 @@ export enum SortBillingIntegrationsBy {
   CurrencyCodeDesc = 'currencyCode_DESC',
   AccessRightsAsc = 'accessRights_ASC',
   AccessRightsDesc = 'accessRights_DESC',
+  IsHiddenAsc = 'isHidden_ASC',
+  IsHiddenDesc = 'isHidden_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

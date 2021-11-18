@@ -25,7 +25,11 @@ export const BillingChooser: React.FC = () => {
         objs: integrations,
         loading: integrationsLoading,
         error: integrationsError,
-    } = BillingIntegration.useObjects({})
+    } = BillingIntegration.useObjects({
+        where: {
+            isHidden: false,
+        },
+    })
 
     const {
         obj: currentContext,
