@@ -3,6 +3,7 @@ import { useIntl } from '@core/next/intl'
 import Link from 'next/link'
 import qs, { IStringifyOptions } from 'qs'
 import { Row, Col, Typography, RowProps, Space } from 'antd'
+import get from 'lodash/get'
 import pickBy from 'lodash/pickBy'
 import groupBy from 'lodash/groupBy'
 import styled from '@emotion/styled'
@@ -12,8 +13,13 @@ import { SortTicketsBy, Ticket as TicketSchema } from '@app/condo/schema'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { TicketOverview } from './TicketOverview'
 import { green } from '@ant-design/colors'
+import { useLayoutContext } from '../LayoutContext'
 
-const Container = styled.div`
+interface IContainerProps {
+    isSmall: boolean
+}
+
+const Container = styled.div<IContainerProps>`
   &:last-child {
     margin-bottom: 24px;
   }
@@ -21,7 +27,7 @@ const Container = styled.div`
   border: 1px solid ${colors.inputBorderGrey};
   border-radius: 8px;
   width: 100%;
-  max-width: 310px;
+  max-width: ${({ isSmall }) => isSmall ? 'unset' : '310px'};
   display: flex;
   flex-flow: column nowrap;
   align-content: center;
@@ -58,25 +64,24 @@ const TICKET_CARD_HAS_MORE_LINK_STYLE: React.CSSProperties = { fontSize: 12, mar
 const TicketCard: React.FC<ITicketCardProps> = ({ address, tickets, contactName }) => {
     const intl = useIntl()
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
-    const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const TicketsByContactMessage = intl.formatMessage({ id: 'TicketsByContact' })
     const NoTicketsOnAddressMessage = intl.formatMessage({ id: 'Contact.NoTicketOnAddress' })
 
-    const addressPrefix = address ? address : DeletedMessage
+    const { isSmall } = useLayoutContext()
     const hasMoreTickets = tickets.length >= TICKETS_ON_CARD ? tickets.length - TICKETS_ON_CARD : 0
 
     const filters = { clientName: contactName, address }
     const query = qs.stringify({ filters: JSON.stringify(pickBy(filters)) }, TICKET_QUERY_STRINGIFY_OPTIONS)
 
     return (
-        <Container >
+        <Container isSmall={isSmall}>
             <AddressPartContainer>
                 <Space size={8} direction={'vertical'}>
                     <Typography.Text type='secondary'>
                         {AddressLabel}
                     </Typography.Text>
                     <Typography.Title level={4}>
-                        {addressPrefix}
+                        {address}
                     </Typography.Title>
                 </Space>
             </AddressPartContainer>
@@ -125,6 +130,9 @@ const TicketCard: React.FC<ITicketCardProps> = ({ address, tickets, contactName 
 }
 
 const TicketCardList: React.FC<ITicketCardListProps> = ({ organizationId, contactPhone, contactName }) => {
+    const intl = useIntl()
+    const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
+
     const {
         loading,
         objs: tickets,
@@ -137,14 +145,16 @@ const TicketCardList: React.FC<ITicketCardListProps> = ({ organizationId, contac
     }, {
         fetchPolicy: 'cache-first',
     })
-    const addresses = useMemo(() => Object.entries(groupBy(tickets, (ticket) => ticket.property.address)), [tickets])
+    const addresses = useMemo(() => {
+        return Object.entries(groupBy(tickets, (ticket) => get(ticket, 'property.address', DeletedMessage)))
+    }, [tickets])
 
     if (loading) {
         return <Loader size={'large'} spinning fill />
     }
 
     return (
-        <Row gutter={TICKET_CARD_LIST_GUTTER} justify={'end'}>
+        <Row gutter={TICKET_CARD_LIST_GUTTER} justify={'end'} align={'top'}>
             {
                 addresses.map(([address, tickets], key) => (
                     <TicketCard
