@@ -78,8 +78,6 @@ export const TicketsPageContent = ({
 
     searchTicketsQuery = { ...searchTicketsQuery, ...{ deletedAt: null } }
 
-    console.log('sortBy', sortBy)
-
     const {
         loading,
         count: total,
