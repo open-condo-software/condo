@@ -50,11 +50,11 @@ export const useTableColumns = (filterMetas: FiltersMeta<DivisionWhereInput>[]) 
 
     const getAddressRender = useCallback((property: Property, DeletedMessage?: string, search?: FilterValue | string) => {
         const isDeleted = !!get(property, 'deletedAt')
-        const { streetLine, regionLine, cityLine } = getAddressDetails(property)
+        const { streetPart, regionPart, cityPart } = getAddressDetails(property)
         const extraProps: Partial<TTextHighlighterProps> = isDeleted && { type: 'secondary' }
-        const text = `${streetLine},`
+        const text = `${streetPart},`
         const deletedMessage = isDeleted && DeletedMessage ? `(${DeletedMessage})\n` : '\n'
-        const postfix = `${regionLine}, ${cityLine} ${deletedMessage}`
+        const postfix = `${regionPart}, ${cityPart} ${deletedMessage}`
 
         return getTableCellRenderer(search, false, postfix, extraProps, ADDRESS_RENDER_POSTFIX_PROPS)(text)
     }, [])

@@ -1,6 +1,7 @@
 /** @jsx jsx */
 import React, { CSSProperties, useCallback } from 'react'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import { Col, Input, Row, Typography, Checkbox } from 'antd'
 import { CloseOutlined, FilterFilled } from '@ant-design/icons'
 import { Gutter } from 'antd/lib/grid/row'
@@ -102,7 +103,7 @@ export const TicketsPageContent = ({
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
     const [emergency, handleEmergencyChange] = useEmergencySearch<IFilters>(loading)
     const [paid, handlePaidChange] = usePaidSearch<IFilters>(loading)
-
+    const isNoTicketsData = !tickets.length && isEmpty(filters) && !loading
     const resetQuery = async () => {
         await updateQuery(router, {})
     }
@@ -118,7 +119,7 @@ export const TicketsPageContent = ({
                 }/>
                 <TablePageContent>
                     {
-                        !tickets.length && !filters
+                        isNoTicketsData
                             ? <EmptyListView
                                 label={EmptyListLabel}
                                 message={EmptyListMessage}

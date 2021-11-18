@@ -1,7 +1,6 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core'
 import {
-    PageContent,
     PageHeader,
     PageWrapper,
     useLayoutContext,
@@ -13,7 +12,7 @@ import { useIntl } from '@core/next/intl'
 import { Col, Input, Row, Typography } from 'antd'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import { get } from 'lodash'
+import get from 'lodash/get'
 import React, { useCallback, useState } from 'react'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Button } from '@condo/domains/common/components/Button'
@@ -68,7 +67,6 @@ export const MetersPageContent = ({
     const { MeterInfoModal, setIsMeterInfoModalVisible } = useMeterInfoModal()
     const [ selectedMeterId, setSelectedMeterId ] = useState<string>()
     const { MultipleFiltersModal, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas)
-
     const handleRowAction = useCallback((record) => {
         return {
             onClick: () => {
