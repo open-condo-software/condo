@@ -11,6 +11,7 @@ const get = require('lodash/get')
 const { SENDER_FIELD, DV_FIELD, CLIENT_PHONE_LANDLINE_FIELD, CLIENT_EMAIL_FIELD, CLIENT_NAME_FIELD, CONTACT_FIELD, CLIENT_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/ticket/access/Ticket')
+const { TICKET_ORDER_BY_STATUS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { STATUS_IDS } = require('../constants/statusTransitions')
 const { triggersManager } = require('@core/triggers')
 const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS } = require('../constants')
@@ -62,7 +63,7 @@ const Ticket = new GQLListSchema('Ticket', {
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
         },
         order: {
-            schemaDoc: '',
+            schemaDoc: 'Field required for specific sorting of model objects',
             type: Integer,
         },
         number: {
@@ -254,43 +255,15 @@ const Ticket = new GQLListSchema('Ticket', {
     hooks: {
         resolveInput: async ({ operation, listKey, context, resolvedData, existingItem }) => {
             await triggersManager.executeTrigger({ operation, data: { resolvedData, existingItem }, listKey }, context)
-
             const statusId = get(resolvedData, 'status')
-            if (statusId) {
-                switch (statusId) {
-                    case STATUS_IDS.OPEN: {
-                        resolvedData.order = 100
-                        break
-                    }
 
-                    default: {
-                        resolvedData.order = null
-                        break
-                    }
-                    // case STATUS_IDS.IN_PROGRESS: {
-                    //     resolvedData.order = 200
-                    //     break
-                    // }
-                    // case STATUS_IDS.DECLINED: {
-                    //     resolvedData.order = 300
-                    //     break
-                    // }
-                    // case STATUS_IDS.COMPLETED: {
-                    //     resolvedData.order = 400
-                    //     break
-                    // }
-                    // case STATUS_IDS.DEFERRED: {
-                    //     resolvedData.order = 500
-                    //     break
-                    // }
-                    // case STATUS_IDS.CLOSED: {
-                    //     resolvedData.order = 600
-                    //     break
-                    // }
+            if (statusId) {
+                if (statusId === STATUS_IDS.OPEN) {
+                    resolvedData.order = TICKET_ORDER_BY_STATUS[STATUS_IDS.OPEN]
+                } else {
+                    resolvedData.order = null
                 }
             }
-
-            console.log('resolvedData', resolvedData)
 
             return resolvedData
         },

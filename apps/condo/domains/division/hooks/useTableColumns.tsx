@@ -17,7 +17,7 @@ import {
 } from '@condo/domains/common/components/Table/Renders'
 import { TextHighlighter, TTextHighlighterProps } from '@condo/domains/common/components/TextHighlighter'
 import { getTextRender } from '@condo/domains/common/components/Table/Renders'
-import { getAddressDetailsWithoutUnit, getFilteredValue } from '@condo/domains/common/utils/helpers'
+import { getAddressDetails, getFilteredValue } from '@condo/domains/common/utils/helpers'
 
 import { Division } from '../utils/clientSchema'
 
@@ -50,7 +50,7 @@ export const useTableColumns = (filterMetas: FiltersMeta<DivisionWhereInput>[]) 
 
     const getAddressRender = useCallback((property: Property, DeletedMessage?: string, search?: FilterValue | string) => {
         const isDeleted = !!get(property, 'deletedAt')
-        const { streetLine, regionLine, cityLine } = getAddressDetailsWithoutUnit(property)
+        const { streetLine, regionLine, cityLine } = getAddressDetails(property)
         const extraProps: Partial<TTextHighlighterProps> = isDeleted && { type: 'secondary' }
         const text = `${streetLine},`
         const deletedMessage = isDeleted && DeletedMessage ? `(${DeletedMessage})\n` : '\n'

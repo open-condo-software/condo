@@ -1,12 +1,11 @@
-import React, { useCallback, useEffect, useMemo } from 'react'
-import { FilterValue } from 'antd/es/table/interface'
+import React, { useCallback, useMemo } from 'react'
 import { get } from 'lodash'
 import { useRouter } from 'next/router'
 
 import { useIntl } from '@core/next/intl'
 
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
-import { getAddressDetails, getFilteredValue } from '@condo/domains/common/utils/helpers'
+import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { getFilterIcon } from '@condo/domains/common/components/Table/Filters'
 import {

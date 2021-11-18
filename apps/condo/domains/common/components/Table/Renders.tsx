@@ -15,7 +15,7 @@ import { ELLIPSIS_ROWS } from '../../constants/style'
 
 import { EmptyTableCell } from './EmptyTableCell'
 import { Property } from '@app/condo/schema'
-import { getAddressDetailsWithoutUnit } from '../../utils/helpers'
+import { getAddressDetails } from '../../utils/helpers'
 
 type RenderReturnType = string | React.ReactNode
 
@@ -135,7 +135,7 @@ const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-
 
 export const getAddressRender = (property: Property, DeletedMessage?: string, search?: FilterValue | string) => {
     const isDeleted = !!get(property, 'deletedAt')
-    const { streetLine, regionLine, cityLine } = getAddressDetailsWithoutUnit(property)
+    const { streetLine, regionLine, cityLine } = getAddressDetails(property)
     const extraProps: Partial<TTextHighlighterProps> = isDeleted && { type: 'secondary' }
     const deletedMessage = isDeleted && DeletedMessage ? `(${DeletedMessage})\n` : '\n'
     const postfix = `\n${regionLine}, \n${cityLine} ${deletedMessage}`

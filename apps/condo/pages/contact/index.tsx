@@ -26,16 +26,13 @@ import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { useOrganization } from '@core/next/organization'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { Button } from '@condo/domains/common/components/Button'
-import { SortContactsBy } from '@app/condo/schema'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { DiffOutlined } from '@ant-design/icons'
 import { useImporterFunctions } from '@condo/domains/contact/hooks/useImporterFunctions'
-import { updateQuery } from '@condo/domains/common/utils/filters.utils'
 import { getTableScrollConfig, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import { useTicketTableFilters } from '../../domains/ticket/hooks/useTicketTableFilters'
-import { useQueryMappers } from '../../domains/common/hooks/useQueryMappers'
+import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { useContactsTableFilters } from '@condo/domains/contact/hooks/useTableFilters'
 
@@ -76,8 +73,6 @@ export const ContactsPageContent = ({
     }, {
         fetchPolicy: 'network-only',
     })
-
-    console.log('contacts', contacts)
 
     const handleRowAction = useCallback((record) => {
         return {

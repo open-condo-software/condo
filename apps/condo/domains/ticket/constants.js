@@ -18,8 +18,6 @@ const TICKET_STATUS_TYPES = [
     CLOSED_STATUS_TYPE,
 ]
 
-
-
 /*
     To keep everything, we have a `TicketChangeHistoryRecord`, being created by `historical` Keystone plugin for a `Ticket`.
     `TicketChange` – is a feature for an end user and data, that makes sense for end user is kept tracked.
