@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useIntl } from '@core/next/intl'
 import Link from 'next/link'
-import qs from 'qs'
+import qs, { IStringifyOptions } from 'qs'
 import { Row, Col, Typography, RowProps, Space } from 'antd'
 import pickBy from 'lodash/pickBy'
 import groupBy from 'lodash/groupBy'
@@ -49,15 +49,13 @@ interface ITicketCardProps {
 }
 
 const TICKETS_ON_CARD = 2
+const TICKET_SORT_BY = ['createdAt_DESC'] as SortTicketsBy[]
+const TICKET_QUERY_STRINGIFY_OPTIONS: IStringifyOptions = { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true }
 const TICKET_CARD_LIST_GUTTER: RowProps['gutter'] = [0, 24]
 const TICKET_CARD_GUTTER: RowProps['gutter'] = [0, 12]
 const TICKET_CARD_HAS_MORE_LINK_STYLE: React.CSSProperties = { fontSize: 12, marginTop: 16, color: `${green[6]}` }
 
-const TicketCard: React.FC<ITicketCardProps> = ({
-    address,
-    tickets,
-    contactName,
-}) => {
+const TicketCard: React.FC<ITicketCardProps> = ({ address, tickets, contactName }) => {
     const intl = useIntl()
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
@@ -68,12 +66,7 @@ const TicketCard: React.FC<ITicketCardProps> = ({
     const hasMoreTickets = tickets.length >= TICKETS_ON_CARD ? tickets.length - TICKETS_ON_CARD : 0
 
     const filters = { clientName: contactName, address }
-    const query = qs.stringify(
-        {
-            filters: JSON.stringify(pickBy(filters)),
-        },
-        { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-    )
+    const query = qs.stringify({ filters: JSON.stringify(pickBy(filters)) }, TICKET_QUERY_STRINGIFY_OPTIONS)
 
     return (
         <Container >
@@ -136,20 +129,20 @@ const TicketCardList: React.FC<ITicketCardListProps> = ({ organizationId, contac
         loading,
         objs: tickets,
     } = Ticket.useObjects({
-        sortBy: ['createdAt_DESC'] as SortTicketsBy[],
+        sortBy: TICKET_SORT_BY,
         where: {
             organization: { id: organizationId },
             contact: { phone: contactPhone },
         },
     }, {
-        fetchPolicy: 'network-only',
+        fetchPolicy: 'cache-first',
     })
+    const addresses = useMemo(() => Object.entries(groupBy(tickets, (ticket) => ticket.property.address)), [tickets])
 
     if (loading) {
         return <Loader size={'large'} spinning fill />
     }
 
-    const addresses = Object.entries(groupBy(tickets, (ticket) => ticket.property.address))
     return (
         <Row gutter={TICKET_CARD_LIST_GUTTER} justify={'end'}>
             {
