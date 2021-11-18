@@ -21,9 +21,9 @@ ALTER TABLE "TicketChange" ADD COLUMN "orderTo" integer NULL;
 --
 ALTER TABLE "TicketHistoryRecord" ADD COLUMN "order" integer NULL;
     
-    -- update the order for all tickets that have the open status
-    UPDATE "Ticket" SET "order" = 100 WHERE "status" = '6ef3abc4-022f-481b-90fb-8430345ebfc2';
-    
+-- update the order for all tickets that have the open status
+UPDATE "Ticket" SET "order" = 100 WHERE "status" = '6ef3abc4-022f-481b-90fb-8430345ebfc2';
+
 COMMIT;
 
     `)
