@@ -41,7 +41,11 @@ const canAccessToEmailField = {
 const canAccessToPhoneField = {
     read: access.userIsAdminOrIsThisItem,
     create: access.userIsAdmin,
-    update: access.userIsAdmin,
+    // TODO(pahaz): !!! change it to access.userIsAdmin
+    update: ({ authentication: { item: user }, existingItem, originalInput }) => {
+        const updateByResidentToTheSamePhone = Boolean(existingItem && user.type === 'resident' && existingItem.id === user.id && originalInput.phone === existingItem.phone)
+        return Boolean(user && user.isAdmin) || updateByResidentToTheSamePhone
+    },
 }
 const canAccessToPasswordField = {
     // 3. Only admins can see if a password is set. No-one can read their own or other user's passwords.
