@@ -5,8 +5,8 @@ import { useRouter } from 'next/router'
 import { Col, Row, Typography, Input, Select, InputNumber, Space, Dropdown, Menu, Modal, RowProps } from 'antd'
 import { css, jsx } from '@emotion/core'
 import styled from '@emotion/styled'
-import { fontSizes } from '@condo/domains/common/constants/style'
-import { DeleteFilled, DownOutlined } from '@ant-design/icons'
+import { fontSizes, colors, shadows } from '@condo/domains/common/constants/style'
+import { DeleteFilled, DownOutlined, CloseOutlined } from '@ant-design/icons'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
 import isNull from 'lodash/isNull'
@@ -39,6 +39,7 @@ import {
     CeilIcon,
 } from '@condo/domains/common/components/icons/PropertyMapIcons'
 import { MIN_SECTIONS_TO_SHOW_FILTER } from '@condo/domains/property/constants/property'
+
 
 const { Option } = Select
 
@@ -113,10 +114,29 @@ const MenuCss = css`
   }
 `
 
-const ModalContainerCss = css`
-  top: 12px;
-  right: 24px;
+interface ITopModalProps {
+    visible: boolean
+}
+
+const TopModal = styled.div<ITopModalProps>`
   position: absolute;
+  top: 60px;
+  right: 24px;
+  display: ${({ visible }) => visible ? 'flex' : 'none'};
+  flex-direction: column;
+  align-items: flex-start;
+  border-radius: 12px;
+  background-color: ${colors.white};
+  padding: 20px;
+  width: 315px;
+  box-shadow: ${shadows.elevated};
+  
+  & .ant-row {
+    width: 100%;
+  }
+  & > .ant-row:first-child {
+    margin-bottom: 20px;
+  }
 `
 
 const FormModalCss = css`
@@ -140,6 +160,30 @@ interface IBuildingPanelEditProps {
     address?: string
     mapValidationError?: string
 }
+
+interface IBuildingPanelTopModalProps {
+    visible: boolean
+    title: string | null
+    onClose: () => void
+}
+
+const BuildingPanelTopModal: React.FC<IBuildingPanelTopModalProps> = ({ visible, onClose, title, children }) => (
+    <TopModal visible={visible}>
+        <Row justify={'space-between'} align={'middle'}>
+            <Col span={22}>
+                {title !== null && (
+                    <Typography.Title level={4} ellipsis>{title}</Typography.Title>
+                )}
+            </Col>
+            <Col span={2}>
+                <Button onClick={onClose} icon={<CloseOutlined />} size={'small'} type={'text'} />
+            </Col>
+        </Row>
+        <Row>
+            {children}
+        </Row>
+    </TopModal>
+)
 
 export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const intl = useIntl()
@@ -275,28 +319,24 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                             <Button type='sberBlack'>{AddElementTitle}<DownOutlined /></Button>
                         </Dropdown>
                     </Col>
-                    <Modal
-                        visible={!isNull(mode)}
-                        onCancel={onModalCancel}
-                        css={ModalContainerCss}
-                        footer={null}
-                        mask={false}
-                        title={!isNull(mode) && (
-                            <Typography.Text>
-                                {intl.formatMessage({ id: `pages.condo.property.modal.title.${mode}` })}
-                            </Typography.Text>
-                        )}
-                    >
-                        {
-                            useMemo(() => ({
-                                addSection: <AddSectionForm Builder={Map} refresh={refresh}/>,
-                                addUnit: <UnitForm Builder={Map} refresh={refresh}/>,
-                                editSection: <EditSectionForm Builder={Map} refresh={refresh}/>,
-                                editUnit: <UnitForm Builder={Map} refresh={refresh}/>,
-                            }[mode] || null), [mode, Map, refresh])
-                        }
-                    </Modal>
                 </Row>
+                <BuildingPanelTopModal
+                    visible={!isNull(mode)}
+                    title={!isNull(mode) ?
+                        intl.formatMessage({ id: `pages.condo.property.modal.title.${mode}` })
+                        : null
+                    }
+                    onClose={onModalCancel}
+                >
+                    {
+                        useMemo(() => ({
+                            addSection: <AddSectionForm Builder={Map} refresh={refresh}/>,
+                            addUnit: <UnitForm Builder={Map} refresh={refresh}/>,
+                            editSection: <EditSectionForm Builder={Map} refresh={refresh}/>,
+                            editUnit: <UnitForm Builder={Map} refresh={refresh}/>,
+                        }[mode] || null), [mode, Map, refresh])
+                    }
+                </BuildingPanelTopModal>
             </FullscreenHeader>
             <Row align='middle' style={{ height: '100%' }}>
                 {

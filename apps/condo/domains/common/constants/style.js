@@ -23,7 +23,7 @@ const ultraLightGrey = '#F0F0F0'
 const inputBorderGrey = '#D0D3E5'
 const backgroundLightGrey = '#F2F3F7'
 const inputBorderHover = '#989EB7'
-const black = '#000'
+const black = '#222'
 const beautifulBlue = '#eFF7FF'
 const markColor = '#B5CCFF'
 const lightRed = '#FFF1F0'
@@ -112,11 +112,13 @@ const zIndex = {
 }
 
 const DEFAULT_BORDER_WIDTH = '2px'
-const DEFAULT_STRONG_TEXT_FONT_WEIGHT = 800
+const DEFAULT_BORDER_RADIUS = '12px'
+const DEFAULT_STRONG_TEXT_FONT_WEIGHT = 600
 
 // Possible customizations can be found at https://github.com/ant-design/ant-design/blob/master/components/style/themes/default.less
 const antGlobalVariables = {
     '@border-radius-base': '8px',
+    '@card-radius': '12px',
     '@white': white,
     '@black': black,
     '@form-item-label-height': '22px',
@@ -181,6 +183,7 @@ module.exports = {
     CHART_COLOR_SET,
     DEFAULT_BORDER_WIDTH,
     DEFAULT_STRONG_TEXT_FONT_WEIGHT,
+    DEFAULT_BORDER_RADIUS,
     fontSizes,
     ELLIPSIS_ROWS,
 }

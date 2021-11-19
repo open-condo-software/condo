@@ -1,13 +1,13 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
-import { colors } from '@condo/domains/common/constants/style'
+import { colors, DEFAULT_BORDER_RADIUS } from '@condo/domains/common/constants/style'
 import styled from '@emotion/styled'
 
 export const FullscreenWrapper = styled.div<{
     mode?: 'view' | 'edit';
 }>`
   margin: -24px;
-  border-radius: 8px;
+  border-radius: ${DEFAULT_BORDER_RADIUS};
   padding: 24px;
   background: ${colors.backgroundLightGrey};
   &.fullscreen {
