@@ -28,7 +28,8 @@
     "sbbol:crypto:get-crypto-info": "node ../../bin/sbbol-crypto.js get-crypto-info",
     "sbbol:crypto:post-csr": "node ../../bin/sbbol-crypto.js post-csr",
     "sbbol:crypto:get-csr-state": "node ../../bin/sbbol-crypto.js get-csr-state",
-    "sbbol:crypto:get-csr-print": "node ../../bin/sbbol-crypto.js get-csr-print"
+    "sbbol:crypto:get-csr-print": "node ../../bin/sbbol-crypto.js get-csr-print",
+    "sbbol:crypto:activate-certificate": "node ../../bin/sbbol-crypto.js activate-certificate"
   },
   "dependencies": {
     "@2gis/mapgl": "^1.12.0",

@@ -140,6 +140,15 @@ class SbbolCryptoApi extends SbbolRequestApi {
         return parsedData
     }
 
+    async activateCertificate(externalId) {
+        const { data } = await this.request({
+            method: 'POST',
+            path: this.activateCertificatePath.replace(':externalId', externalId)
+        })
+        const parsedData = JSON.parse(data)
+        return parsedData
+    }
+
     get cryptoInfoPath () {
         return `${this.apiPrefix}/v1/crypto`
     }
@@ -154,6 +163,10 @@ class SbbolCryptoApi extends SbbolRequestApi {
 
     get certificateSigningRequestPrintPath () {
         return `${this.apiPrefix}/v1/crypto/cert-requests/:externalId/print`
+    }
+
+    get activateCertificatePath () {
+        return `${this.apiPrefix}/v1/crypto/cert-requests/:externalId/activate`
     }
 
     get apiPrefix () {
