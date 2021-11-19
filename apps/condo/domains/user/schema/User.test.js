@@ -120,6 +120,16 @@ describe('User', () => {
         })
     })
 
+    // TODO(pahaz): !!! remove this test in the FUTURE
+    test('user: update self resident phone should ok', async () => {
+        const client = await makeClientWithResidentUser()
+        const payload = { phone: client.userAttrs.phone }
+        await updateTestUser(client, client.user.id, payload)
+
+        const objs = await UserAdmin.getAll(client, { id: client.user.id })
+        expect(objs[0]).toEqual(expect.objectContaining({ phone: client.userAttrs.phone }))
+    })
+
     // TODO(pahaz): !!! unskip!
     test.skip('user: update self User email should fail', async () => {
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -129,7 +139,7 @@ describe('User', () => {
         })
     })
 
-    test('user: update self User name should fail', async () => {
+    test('user: update self User name', async () => {
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
         const payload = { name: createTestEmail() }
         const [obj] = await updateTestUser(client, client.user.id, payload)
