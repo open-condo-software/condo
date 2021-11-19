@@ -283,7 +283,7 @@ describe('MultiPayment', () => {
                         await createTestMultiPayment(admin, payments, client.user, acquiringIntegration, {
                             [field]: amount,
                         })
-                    }, 'must be greater')
+                    }, 'Specified number has an invalid sign')
                 })
             })
             test('Implicit fee cannot be greater than amountWithoutExplicitFee', async () => {
