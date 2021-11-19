@@ -13,6 +13,7 @@ import styled from '@emotion/styled'
 interface IReturnBackHeaderActionProps {
     descriptor: MessageDescriptor
     path: ((id: string) => string) | string
+    useBrowserHistory?: boolean
 }
 
 interface ITitleHeaderActionProps {
@@ -49,8 +50,7 @@ const StyledButton = styled(Button)`
   }
 `
 
-export const ReturnBackHeaderAction: React.FC<IReturnBackHeaderActionProps> = (props) => {
-    const { descriptor, path } = props
+export const ReturnBackHeaderAction: React.FC<IReturnBackHeaderActionProps> = ({ descriptor, path, useBrowserHistory = true }) => {
     const intl = useIntl()
     const BackMessage = intl.formatMessage(descriptor)
     const [hasBrowserHistory, setHasBrowserHistory] = useState<boolean>(false)
@@ -64,7 +64,7 @@ export const ReturnBackHeaderAction: React.FC<IReturnBackHeaderActionProps> = (p
     }, [])
 
     const handleClick = useCallback(() => {
-        if (hasBrowserHistory) {
+        if (hasBrowserHistory && useBrowserHistory) {
             back()
             return
         }
