@@ -1,3 +1,23 @@
+/**
+ * Utility to work with SBBOL Crypto API to obtain Digital Signature Certificate (DSC)
+ *
+ * A process of obtaining a DSC consist from following steps:
+ * 1. Get cert center code, using 'get-crypto-info' command
+ * 2. Manually create a Certificate Signing Request (CSR) with some desktop crypto-program or some crypto-API,
+ *    better with that, that is approved by government
+ * 3. Post CSR using `post-csr` command
+ * 4. Get state of CSR using `get-csr-state` command.
+ *    When status will get `Accepted`, then go to next step
+ * 5. Download CSR in print-friendly format using `get-csr-print`
+ * 6. Send printed CSR to appropriate responsible employee
+ * 7. Get status of CSR again. When status will get `Published_by_Bank`, then go to next step
+ * 8. Download published DSC using 'get-crypto-info' command
+ * 9. Activate DSC using `activate-certificate` command
+ *
+ * Steps, described above, are presenting an one-off manual process.
+ * Each step is supposed to be called manually and output is supposed to be read, stored (!)
+ * and processed from console.
+ */
 const conf = require('@core/config')
 const { getOrganizationAccessToken } = require('@condo/domains/organization/integrations/sbbol/accessToken')
 const { SbbolCryptoApi } = require('@condo/domains/organization/integrations/sbbol/SbbolCryptoApi')
