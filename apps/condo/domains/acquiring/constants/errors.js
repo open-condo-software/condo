@@ -1,4 +1,4 @@
-const { PAYMENT_DONE_STATUS, MULTIPAYMENT_DONE_STATUS } = require('./payment')
+const { PAYMENT_DONE_STATUS, MULTIPAYMENT_DONE_STATUS, PAYMENT_INIT_STATUS } = require('./payment')
 
 const REGISTER_MP_EMPTY_INPUT = '[groupedReceipts:empty] GroupedReceipts was empty'
 const REGISTER_MP_EMPTY_RECEIPTS = '[groupedReceipts:receiptsIds:empty] Each group of receipts should contain at least 1 receipt'
@@ -46,8 +46,11 @@ const MULTIPAYMENT_NOT_ALLOWED_TRANSITION = '[multiPayment:status:transitionNotA
 const MULTIPAYMENT_MISSING_REQUIRED_FIELDS = '[multiPayment:requiredFieldsMissing] Some required fields for this status are missing.'
 const MULTIPAYMENT_FROZEN_FIELD_INCLUDED = '[multiPayment:frozenFieldsIncluding] It is impossible to change some fields at the current stage of the multiPayment\'s life.'
 const MULTIPAYMENT_UNDONE_PAYMENTS = `[multiPayment:payments:status:not:done] Cannot move multipayment status to "${MULTIPAYMENT_DONE_STATUS}" if at least 1 of it's payments have status not equal to "${PAYMENT_DONE_STATUS}".`
+const MULTIPAYMENT_DELETED_PAYMENTS = `[multiPayment:payments:deletedAt:not:null] Cannot move multipayment status to "${MULTIPAYMENT_DONE_STATUS}" if at least 1 of it's payments was deleted.`
 const MULTIPAYMENT_EXPLICIT_FEE_MISMATCH = '[multiPayment:explicitFee:formulaMismatch] Explicit fee equality is not satisfied (multiPayment.explicitFee = sum of multiPayment.payments.explicitFee)'
 const MULTIPAYMENT_INCONSISTENT_IMPLICIT_FEE = '[multiPayment:payments:implicitFee:inconsistentBehaviour] Implicit fee must be indicated either for all payments, or for none of them, but was partially indicated'
+const MULTIPAYMENT_NON_INIT_PAYMENTS = `[multiPayment:payments:status:not:initial] MultiPayment cannot be created if any of payments has status not equal to "${PAYMENT_INIT_STATUS}".`
+const MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP = '[multiPayment:payments:multiPayment:not:null] Some of payments are already linked to multipayments.'
 
 module.exports = {
     REGISTER_MP_EMPTY_INPUT,
@@ -98,4 +101,7 @@ module.exports = {
     MULTIPAYMENT_UNDONE_PAYMENTS,
     MULTIPAYMENT_EXPLICIT_FEE_MISMATCH,
     MULTIPAYMENT_INCONSISTENT_IMPLICIT_FEE,
+    MULTIPAYMENT_DELETED_PAYMENTS,
+    MULTIPAYMENT_NON_INIT_PAYMENTS,
+    MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP,
 }

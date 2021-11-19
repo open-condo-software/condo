@@ -52,6 +52,9 @@ const {
     MULTIPAYMENT_EXPLICIT_FEE_MISMATCH,
     MULTIPAYMENT_INCONSISTENT_IMPLICIT_FEE,
     MULTIPAYMENT_IMPLICIT_FEE_MISMATCH,
+    MULTIPAYMENT_DELETED_PAYMENTS,
+    MULTIPAYMENT_NON_INIT_PAYMENTS,
+    MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP,
 } = require('@condo/domains/acquiring/constants/errors')
 const Big = require('big.js')
 const dayjs = require('dayjs')
@@ -451,6 +454,24 @@ describe('MultiPayment', () => {
                     })
                 })
             })
+            describe('Cannot be created if any of payments', () => {
+                test('Has not init status', async () => {
+                    const { admin, billingReceipts, organization, acquiringContext, client, acquiringIntegration } = await makePayer(1)
+                    const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext, {
+                        status: PAYMENT_DONE_STATUS,
+                    })
+                    await expectToThrowValidationFailureError(async () => {
+                        await createTestMultiPayment(admin, [payment], client.user, acquiringIntegration)
+                    }, MULTIPAYMENT_NON_INIT_PAYMENTS)
+                })
+                test('Already has multipayment', async () => {
+                    const { admin, client, acquiringIntegration, payments } = await makePayerAndPayments()
+                    await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
+                    await expectToThrowValidationFailureError(async () => {
+                        await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
+                    }, MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP)
+                })
+            })
             // NOTE: APPROVED BY ALEXANDER
             describe('DONE-status checks', () => {
                 const multiPaymentDonePayload = {
@@ -531,6 +552,17 @@ describe('MultiPayment', () => {
                             implicitFee,
                         }, MULTIPAYMENT_IMPLICIT_FEE_MISMATCH)
                     })
+                })
+                test('All payments should not be deleted', async () => {
+                    const { admin, payments, client, acquiringIntegration } = await makePayerAndPayments(1)
+                    const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
+                    await updateTestPayment(admin, payments[0].id, {
+                        status: PAYMENT_DONE_STATUS,
+                        deletedAt: dayjs().toISOString(),
+                    })
+                    await expectToThrowValidationFailureError(async () => {
+                        await updateTestMultiPayment(admin, multiPayment.id, multiPaymentDonePayload)
+                    }, MULTIPAYMENT_DELETED_PAYMENTS)
                 })
             })
         })

@@ -18,6 +18,7 @@ const {
     MULTIPAYMENT_REQUIRED_FIELDS,
     MULTIPAYMENT_FROZEN_FIELDS,
     PAYMENT_DONE_STATUS,
+    PAYMENT_INIT_STATUS,
 } = require('@condo/domains/acquiring/constants/payment')
 const {
     MULTIPAYMENT_EMPTY_PAYMENTS,
@@ -36,6 +37,9 @@ const {
     MULTIPAYMENT_EXPLICIT_FEE_MISMATCH,
     MULTIPAYMENT_INCONSISTENT_IMPLICIT_FEE,
     MULTIPAYMENT_IMPLICIT_FEE_MISMATCH,
+    MULTIPAYMENT_DELETED_PAYMENTS,
+    MULTIPAYMENT_NON_INIT_PAYMENTS,
+    MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP,
 } = require('@condo/domains/acquiring/constants/errors')
 const { ACQUIRING_INTEGRATION_FIELD } = require('./fields/relations')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
@@ -215,6 +219,18 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                 const payments = await find('Payment', {
                     id_in: paymentsIds,
                 })
+                const noInitPayments = payments
+                    .filter(payment => payment.status !== PAYMENT_INIT_STATUS)
+                    .map(payment => payment.id)
+                if (noInitPayments.length) {
+                    addValidationError(`${MULTIPAYMENT_NON_INIT_PAYMENTS} Failed ids: ${noInitPayments.join(', ')}`)
+                }
+                const alreadyWithMPPayments = payments
+                    .filter(payment => payment.multiPayment)
+                    .map(payment => payment.id)
+                if (alreadyWithMPPayments.length) {
+                    addValidationError(`${MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP} Failed ids: ${alreadyWithMPPayments.join(', ')}`)
+                }
                 const noReceiptPayments = payments.filter(payment => !payment.receipt).map(payment => `"${payment.id}"`)
                 if (noReceiptPayments.length) {
                     return addValidationError(`${MULTIPAYMENT_NO_RECEIPT_PAYMENTS} [${noReceiptPayments.join(', ')}]`)
@@ -279,6 +295,12 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                 }
                 if (frozenIncluded) return
                 if (newStatus === MULTIPAYMENT_DONE_STATUS) {
+                    const deletedPayments = payments
+                        .filter(payment => payment.deletedAt)
+                        .map(payment => payment.id)
+                    if (deletedPayments.length) {
+                        return addValidationError(`${MULTIPAYMENT_DELETED_PAYMENTS} Failed ids: ${deletedPayments.join(', ')}`)
+                    }
                     const undonePayments = payments
                         .filter(payment => payment.status !== PAYMENT_DONE_STATUS)
                         .map(payment => payment.id)
