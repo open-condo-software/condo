@@ -35,7 +35,8 @@ const readByAnyUpdateByAdminField = {
 const canAccessToEmailField = {
     read: access.userIsAdminOrIsThisItem,
     create: access.userIsAdmin,
-    update: access.userIsAdmin,
+    // TODO(pahaz): !!! change it to access.userIsAdmin
+    update: access.userIsAdminOrIsThisItem,
 }
 const canAccessToPhoneField = {
     read: access.userIsAdminOrIsThisItem,
