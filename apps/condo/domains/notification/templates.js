@@ -176,9 +176,9 @@ async function renderTemplate (transport, message) {
                             <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${serverUrl}/ticket/${id}" style="height:40px;v-text-anchor:middle;width:330px;" arcsize="10%" stroke="f" fill="t">
                                 <v:fill type="tile" src="" color="#4CD174" />
                                 <w:anchorlock/>
-                                <center style="color:#ffffff;font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif;font-size:16px;font-weight:bold;">Перейти в карточку завяки в Doma.ai</center>
+                                <center style="color:#ffffff;font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif;font-size:16px;font-weight:bold;">Перейти в карточку заявки в Doma.ai</center>
                             </v:roundrect>
-                            <![endif]--><a href="${serverUrl}/ticket/${id}" style="background-color:#4CD174;border-radius:4px;color:#ffffff;display:inline-block;font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif;font-size:16px;font-weight:bold;line-height:40px;text-align:center;text-decoration:none;width:330px;-webkit-text-size-adjust:none;mso-hide:all;">Перейти в карточку завяки в Doma.ai</a></div>
+                            <![endif]--><a href="${serverUrl}/ticket/${id}" style="background-color:#4CD174;border-radius:4px;color:#ffffff;display:inline-block;font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif;font-size:16px;font-weight:bold;line-height:40px;text-align:center;text-decoration:none;width:330px;-webkit-text-size-adjust:none;mso-hide:all;">Перейти в карточку заявки в Doma.ai</a></div>
                         </body>
                     </html>
                 `,
