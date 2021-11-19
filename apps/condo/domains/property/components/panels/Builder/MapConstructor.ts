@@ -405,7 +405,7 @@ class MapEdit extends MapView {
     public removeSection (id: string): void {
         const sectionIndex = this.map.sections.findIndex(mapSection => mapSection.id === id)
         this.map.sections.splice(sectionIndex, 1)
-        this.editMode = null
+        this.editMode = 'addSection'
         this.notifyUpdater()
     }
 
