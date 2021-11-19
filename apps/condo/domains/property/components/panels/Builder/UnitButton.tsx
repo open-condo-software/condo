@@ -26,9 +26,8 @@ const buttonCss = css`
     }
     
     &:hover {
-        background: ${gradients.sberActionGradient};
-        color: ${colors.white};
-        border-color: transparent;
+        color: ${colors.black};
+        border-color: ${colors.inputBorderHover};
     }
     &:focus {
         background-color: ${gradients.sberActionGradient};
@@ -68,9 +67,9 @@ const buttonSecondaryCss = css`
     box-shadow: none;
 
     &:hover {
-        background: ${gradients.sberActionGradient};
-        color: white;
-        border-color: transparent;
+        color: ${colors.black};
+        background-color: transparent;
+        border-color: ${colors.black};
     }
     &:focus {
         background: ${gradients.sberActionGradient};
@@ -95,22 +94,17 @@ const selectedCss = css`
     background: ${gradients.sberActionInversed};
     color: white;
     border-color: transparent;
-    &:hover {
-        background-color: black;
-        color: white;
-        border-color: black;
-    }
-
-    &:focus {
-        background-color: black;
+    
+    &:hover, &:focus {
+        background: ${gradients.sberActionGradient};
         color: white;
         border-color: transparent;
     }
 
     &:active {
-        background-color: black;
+        background: ${gradients.sberActionInversed};
         color: white;
-        border-color: black;
+        border-color: transparent;
     }    
 `
 const previewCss = css`

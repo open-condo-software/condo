@@ -42,6 +42,7 @@ const DESCRIPTION_STYLE = {
     maxWidth: '350px',
     color: colors.inputBorderHover,
     margin: 'auto',
+    marginTop: '8px',
 }
 
 const EMPTY_BUILDING_BLOCK_BUTTON_STYLE = {
@@ -64,7 +65,7 @@ export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view
 
     return (
         <BasicEmptyListView image='/propertyEmpty.svg'>
-            <Typography.Title level={3}>
+            <Typography.Title level={3} style={EMPTY_BUILDING_BLOCK_BUTTON_STYLE}>
                 {EmptyPropertyBuildingHeader}
             </Typography.Title>
             <Typography.Text style={DESCRIPTION_STYLE}>

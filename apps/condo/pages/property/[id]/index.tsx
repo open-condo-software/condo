@@ -30,13 +30,25 @@ interface IPropertyInfoPanelProps {
     type?:  'success' | 'warning'
 }
 
+const PROPERTY_INFO_PANEL_STYLE: React.CSSProperties = {
+    margin: 'initial',
+    padding: '20px 18px',
+    width: '220px',
+    height: '96px',
+}
+const PROPERTY_INFO_PANEL_MESSAGE_STYLE: React.CSSProperties = {
+    fontSize: '20px',
+    lineHeight: '32px',
+    fontWeight: 'bold',
+}
+
 const PropertyInfoPanel: React.FC<IPropertyInfoPanelProps> = ({ title, message, type }) => {
 
     return (
-        <FocusContainer style={{ margin: 'initial', width: '180px', height: '105px' }}>
+        <FocusContainer style={PROPERTY_INFO_PANEL_STYLE}>
             <Space direction={'vertical'} size={8}>
+                <Typography.Text {...{ type }} style={PROPERTY_INFO_PANEL_MESSAGE_STYLE}>{message}</Typography.Text>
                 <Typography.Text type={'secondary'}>{title}</Typography.Text>
-                <Typography.Text {...{ type }} style={{ fontSize: '20px', fontWeight: 'bold' }}>{message}</Typography.Text>
             </Space>
         </FocusContainer>
     )
