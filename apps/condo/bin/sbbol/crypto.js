@@ -16,6 +16,7 @@ const COMMAND = {
     GET_CRYPTO_INFO: 'get-crypto-info',
     POST_CSR: 'post-csr',
     GET_CSR_STATE: 'get-csr-state',
+    GET_CSR_PRINT: 'get-csr-print',
 }
 
 const validateAndGetCommand = () => {
@@ -84,6 +85,11 @@ async function main () {
     if (command === COMMAND.GET_CSR_STATE) {
         const response = await cryptoApi.getCertificateSigningRequestState(SBBOL_CSR_REQUEST_DATA.externalId)
         console.log('response from cryptoApi.getCertificateSigningRequestState', response)
+    }
+
+    if (command === COMMAND.GET_CSR_PRINT) {
+        const response = await cryptoApi.getCertificateSigningRequestPrint(SBBOL_CSR_REQUEST_DATA.externalId)
+        console.log('response from cryptoApi.getCertificateSigningRequestPrint', response)
     }
 
     await keystone.disconnect()
