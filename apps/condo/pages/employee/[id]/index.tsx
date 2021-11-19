@@ -33,7 +33,7 @@ const ReInviteActionAlert = ({ employee }) => {
 
     if (isEmployeeRejected) {
         return (
-            <Alert showIcon type='warning' message={EmployeeRejectedMessage} />
+            <Alert showIcon type='warning' message={EmployeeRejectedMessage}/>
         )
     }
 
@@ -41,7 +41,7 @@ const ReInviteActionAlert = ({ employee }) => {
         <Alert showIcon type='warning' message={
             <>
                 {EmployeeDidntEnteredMessage}&nbsp;
-                <EmployeeInviteRetryButton employee={employee} />
+                <EmployeeInviteRetryButton employee={employee}/>
             </>
         } />
     )
@@ -95,7 +95,7 @@ export const EmployeePageContent = ({
                 <PageContent>
                     <Row gutter={[0, 40]} justify={'center'}>
                         <Col xs={10} lg={3}>
-                            <UserAvatar borderRadius={24} isBlocked={isEmployeeBlocked} />
+                            <UserAvatar borderRadius={24} isBlocked={isEmployeeBlocked}/>
                         </Col>
                         <Col xs={24} lg={20} offset={isSmall ? 0 : 1}>
                             <Row gutter={[0, 60]}>
@@ -157,7 +157,7 @@ export const EmployeePageContent = ({
                                                         </Typography.Text>
                                                     </Col>
                                                     <Col lg={18} xs={13} offset={1}>
-                                                        <NotDefinedField value={get(employee, 'phone')} />
+                                                        <NotDefinedField value={get(employee, 'phone')}/>
                                                     </Col>
 
                                                     <Col lg={4} xs={10}>
@@ -217,7 +217,7 @@ export const EmployeePageContent = ({
                                                                 </Typography.Text>
                                                             </Col>
                                                             <Col lg={18} xs={13} offset={1}>
-                                                                <NotDefinedField value={email} />
+                                                                <NotDefinedField value={email}/>
                                                             </Col>
                                                         </>
                                                     }
@@ -282,7 +282,7 @@ export const EmployeeInfoPage = () => {
     const isEmployeeReinvitable = canReinviteEmployee(link, employee)
 
     if (error || loading) {
-        return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null} />
+        return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null}/>
     }
 
     return (
