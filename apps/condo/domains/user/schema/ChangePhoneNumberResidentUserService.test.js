@@ -20,7 +20,11 @@ describe('ChangePhoneNumberResidentUserService', () => {
                 token: token.token,
             }
             const { errors: [error] } = await client.mutate(CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION, { data })
-            expect(error.name).toEqual('AuthenticationError')
+            expect(error).toMatchObject({
+                name: 'AuthenticationError',
+                message: 'No or incorrect authentication credentials',
+                path: [ 'result' ],
+            })
         })
     })
 
