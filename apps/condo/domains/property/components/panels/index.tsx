@@ -1,3 +1,4 @@
+import React from 'react'
 import { BuildingPanelView } from './Builder/BuildingPanelView'
 import { BuildingPanelEdit } from './Builder/BuildingPanelEdit'
 import { ResidentPanelEdit, ResidentPanelView } from './ResidentPanel'
@@ -30,19 +31,19 @@ export const PropertyPanels: React.FC<IPropertyPanels> = ({ mapValidationError, 
                     {
                         mode === 'view'
                             ? <BuildingPanelView
-                                map={map as BuildingMap}
+                                map={map}
                             />
                             : <BuildingPanelEdit
                                 mapValidationError={mapValidationError}
                                 handleSave={handleSave}
-                                map={map as BuildingMap}
+                                map={map}
                                 updateMap={updateMap}
                                 address={address}
                             />
                     }
                 </FocusContainer>
             </TabPane>
-            <TabPane tab={ResidentsTabTitle} key='2'>
+            <TabPane tab={ResidentsTabTitle} key='2' disabled>
                 <FocusContainer style={{ margin: 'initial', marginTop: '40px' }}>
                     {
                         mode === 'view' ? <ResidentPanelView /> : <ResidentPanelEdit />

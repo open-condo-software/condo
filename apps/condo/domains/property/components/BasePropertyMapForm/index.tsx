@@ -6,7 +6,8 @@ import { useIntl } from '@core/next/intl'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'
-import { PropertyPanels } from '../panels'
+import { BuildingMap } from '@app/condo/schema'
+import { BuildingPanelEdit } from '../panels/Builder/BuildingPanelEdit'
 
 interface IPropertyMapFormProps {
     id: string
@@ -81,11 +82,10 @@ const BasePropertyMapForm: React.FC<IPropertyMapFormProps> = ({ action, initialV
                             ({ getFieldsValue, setFieldsValue }) => {
                                 const { map } = getFieldsValue(['map'])
                                 return (
-                                    <PropertyPanels
+                                    <BuildingPanelEdit
                                         mapValidationError={mapValidationError}
-                                        mode='edit'
-                                        map={map}
                                         handleSave={handleSave}
+                                        map={map as BuildingMap}
                                         updateMap={map => setFieldsValue({ map })}
                                         address={property.address}
                                     />

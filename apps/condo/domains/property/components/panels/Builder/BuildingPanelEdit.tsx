@@ -1,6 +1,7 @@
+import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { useIntl } from '@core/next/intl'
+import { useRouter } from 'next/router'
 import { Col, Row, Typography, Input, Select, InputNumber, Space } from 'antd'
-import React, { useEffect, useState, useRef } from 'react'
 import { DeleteFilled } from '@ant-design/icons'
 import cloneDeep from 'lodash/cloneDeep'
 import {
@@ -40,9 +41,12 @@ interface IBuildingPanelEditProps {
 export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ mapValidationError, map, updateMap: updateFormField, handleSave, address }) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
+    const CancelLabel = intl.formatMessage({ id: 'Cancel' })
     const AddSection = intl.formatMessage({ id: 'pages.condo.property.select.option.section' })
     const AddUnit = intl.formatMessage({ id: 'pages.condo.property.select.option.unit' })
     const AddLabel = intl.formatMessage({ id: 'Add' })
+
+    const { push, query: { id } } = useRouter()
     const builderFormRef = useRef<HTMLDivElement | null>(null)
     const [Map, setMap] = useState(new MapEdit(map, updateFormField))
     const scrollToForm = () => {
@@ -66,32 +70,27 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ mapValida
     }
     const mode = Map.editMode
 
-    const [isFullscreen, setFullscreen] = useState(false)
+    // TODO(sitozzz): remove usages of isFullscreen state
+    const [isFullscreen, setFullscreen] = useState(true)
 
     const toggleFullscreen = () => {
         localStorage && localStorage.setItem('isFullscreen', String(!isFullscreen))
         setFullscreen(!isFullscreen)
     }
 
-    useEffect(() => {
-        setFullscreen(address && localStorage && localStorage.getItem('isFullscreen') === 'true')
+    const onCancel = useCallback(() => {
+        push(`/property/${id}`)
     }, [])
+
+    // useEffect(() => {
+    //     setFullscreen(address && localStorage && localStorage.getItem('isFullscreen') === 'true')
+    // }, [])
 
     return (
         <FullscreenWrapper mode={'edit'} className={isFullscreen ? 'fullscreen' : ''}>
             <FullscreenHeader edit={true}>
                 <Row style={{ paddingBottom: '39px', marginRight: '36px' }}>
                     {address && <Col style={{ marginTop: '10px' }}><b>{address}</b></Col>}
-                    <Col style={{ marginLeft: 'auto' }}>
-                        <Button
-                            key='submit'
-                            onClick={handleSave}
-                            type='sberPrimary'
-                            disabled={!address}
-                        >
-                            {SaveLabel}
-                        </Button>
-                    </Col>
                 </Row>
                 <Row align='middle' style={{ paddingBottom: '24px' }} gutter={[45, 10]} ref={builderFormRef} justify='start'>
                     {
@@ -119,19 +118,32 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ mapValida
             </FullscreenHeader>
             <Row>
                 {
-                    Map.isEmpty
-                        ?
-                        <Col span={24}>
-                            <EmptyBuildingBlock />
-                        </Col>
-                        :
-                        <ChessBoard
-                            Builder={Map}
-                            refresh={refresh}
-                            scrollToForm={scrollToForm}
-                            toggleFullscreen={toggleFullscreen}
-                            isFullscreen={isFullscreen}
-                        />
+                    <ChessBoard
+                        Builder={Map}
+                        refresh={refresh}
+                        scrollToForm={scrollToForm}
+                        toggleFullscreen={toggleFullscreen}
+                        isFullscreen={isFullscreen}
+                    >
+                        <Space size={20}>
+                            <Button
+                                key='submit'
+                                onClick={handleSave}
+                                type='sberDefaultGradient'
+                                disabled={!address}
+                            >
+                                {SaveLabel}
+                            </Button>
+                            <Button
+                                key='cancel'
+                                onClick={onCancel}
+                                type='sberDefaultGradient'
+                                secondary
+                            >
+                                {CancelLabel}
+                            </Button>
+                        </Space>
+                    </ChessBoard>
                 }
                 {
                     mapValidationError ? (
@@ -154,7 +166,7 @@ interface IChessBoardProps {
 }
 
 
-const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh, scrollToForm, toggleFullscreen, isFullscreen }) => {
+const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh, scrollToForm, toggleFullscreen, isFullscreen, children }) => {
     const container = useRef<HTMLElement | null>(null)
     useEffect(() => {
         if (container.current) {
@@ -170,7 +182,16 @@ const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh, scrollToForm
             {
                 Builder.isEmpty ?
                     <Col span={24} style={{ paddingTop: '60px', paddingBottom: '60px' }}>
-                        <EmptyBuildingBlock />
+                        <EmptyBuildingBlock mode="edit" />
+                        <BuildingChooseSections
+                            isFullscreen={isFullscreen}
+                            toggleFullscreen={toggleFullscreen}
+                            Builder={Builder}
+                            refresh={refresh}
+                            mode="edit"
+                        >
+                            {children}
+                        </BuildingChooseSections>
                     </Col>
                     :
                     <Col span={24} style={{ whiteSpace: 'nowrap', position: 'static' }}>
@@ -229,14 +250,15 @@ const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh, scrollToForm
                                 })
                             }
                         </ScrollContainer>
-                        {
-                            <BuildingChooseSections
-                                isFullscreen={isFullscreen}
-                                toggleFullscreen={toggleFullscreen}
-                                Builder={Builder}
-                                refresh={refresh}
-                            />
-                        }
+                        <BuildingChooseSections
+                            isFullscreen={isFullscreen}
+                            toggleFullscreen={toggleFullscreen}
+                            Builder={Builder}
+                            refresh={refresh}
+                            mode="edit"
+                        >
+                            {children}
+                        </BuildingChooseSections>
                     </Col>
             }
         </Row>

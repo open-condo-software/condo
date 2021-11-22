@@ -142,6 +142,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
                                     refresh={refresh}
                                     toggleFullscreen={toggleFullscreen}
                                     isFullscreen={isFullscreen}
+                                    mode="view"
                                 />
                             }
                         </Col>
