@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
-import { Col, Row, Typography, Input, Select, InputNumber, Space, Dropdown, Menu } from 'antd'
+import { Col, Row, Typography, Input, Select, InputNumber, Space, Dropdown, Menu, Modal } from 'antd'
 import { css, jsx } from '@emotion/core'
 import styled from '@emotion/styled'
 import { fontSizes } from '@condo/domains/common/constants/style'
@@ -31,14 +31,18 @@ import ScrollContainer from 'react-indiana-drag-scroll'
 const { Option } = Select
 
 const INPUT_STYLE = {
-    width: '136px',
+    width: '100%',
 }
 
 const TopRowCss = css`
-  margin-top: 24px;
+  margin-top: 12px;
+  position: relative;
 `
 
 const DropdownCss = css`
+  height: 40px;
+  padding: 6px 14px;
+  
   &.ant-dropdown-open .anticon-down,
   &:hover .anticon-down {
     transition: ${transitions.allDefault};
@@ -49,10 +53,36 @@ const DropdownCss = css`
 const MenuCss = css`
   padding: 16px;
   max-width: 280px;
-  
-  & button {
-    margin-bottom: 8px;
+
+  & .ant-dropdown-menu-item {
+    padding: 8px 12px;
+  }
+  & .ant-dropdown-menu-item,
+  & .ant-dropdown-menu-item .ant-dropdown-menu-title-content {
+    width: 100%;
+  }
+  & .ant-dropdown-menu-item:hover,
+  & .ant-dropdown-menu-item-active {
+    background-color: unset;
+  }
+  & .ant-dropdown-menu-item button {
     text-align: left;
+    width: 100%;
+    padding: 16px 18px;
+    height: 60px;
+  }
+`
+
+const ModalContainerCss = css`
+  top: 20px;
+  right: 40px;
+  position: absolute;
+`
+
+const FormModalCss = css`
+  & .ant-space,
+  & button {
+    width: 100%;
   }
 `
 
@@ -88,6 +118,8 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ mapValida
     const { push, query: { id } } = useRouter()
     const builderFormRef = useRef<HTMLDivElement | null>(null)
     const [Map, setMap] = useState(new MapEdit(map, updateFormField))
+    // const [modalVisible, setModalVisible] = useState<boolean>(false)
+
     const scrollToForm = () => {
         if (builderFormRef && builderFormRef.current) {
             const rect = builderFormRef.current.getBoundingClientRect()
@@ -113,69 +145,86 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ mapValida
         push(`/property/${id}`)
     }, [id])
 
+    const menuClick = useCallback((event) => {
+        changeMode(event.key)
+        // setModalVisible(true)
+    }, [])
+
+    const onModalCancel = useCallback(() => {
+        // setModalVisible(false)
+        changeMode(null)
+    }, [])
+
     const menuOverlay = (
-        <Menu css={MenuCss}>
-            <Button type={'sberDefaultGradient'} secondary block>
-                {AddSection}
-            </Button>
-            <Button type={'sberDefaultGradient'} secondary block disabled>
-                {AddFloor}
-            </Button>
-            <Button type={'sberDefaultGradient'} secondary block disabled>
-                {AddParking}
-            </Button>
-            <Button type={'sberDefaultGradient'} secondary block>
-                {AddUnit}
-            </Button>
-            <Button type={'sberDefaultGradient'} secondary block disabled>
-                {AddInterFloorRoom}
-            </Button>
-            <Button type={'sberDefaultGradient'} secondary block disabled>
-                {AddBasement}
-            </Button>
-            <Button type={'sberDefaultGradient'} secondary block disabled>
-                {AddCeil}
-            </Button>
+        <Menu css={MenuCss} onClick={menuClick}>
+            <Menu.Item key={'addSection'}>
+                <Button type={'sberDefaultGradient'} secondary>
+                    {AddSection}
+                </Button>
+            </Menu.Item>
+            <Menu.Item key={'addFloor'}>
+                <Button type={'sberDefaultGradient'} secondary disabled>
+                    {AddFloor}
+                </Button>
+            </Menu.Item>
+            <Menu.Item key={'addParking'}>
+                <Button type={'sberDefaultGradient'} secondary disabled>
+                    {AddParking}
+                </Button>
+            </Menu.Item>
+            <Menu.Item key={'addUnit'}>
+                <Button type={'sberDefaultGradient'} secondary>
+                    {AddUnit}
+                </Button>
+            </Menu.Item>
+            <Menu.Item key={'addInterFloorRoom'}>
+                <Button type={'sberDefaultGradient'} secondary disabled>
+                    {AddInterFloorRoom}
+                </Button>
+            </Menu.Item>
+            <Menu.Item key={'addBasement'}>
+                <Button type={'sberDefaultGradient'} secondary disabled>
+                    {AddBasement}
+                </Button>
+            </Menu.Item>
+            <Menu.Item key={'addCeil'}>
+                <Button type={'sberDefaultGradient'} secondary disabled>
+                    {AddCeil}
+                </Button>
+            </Menu.Item>
         </Menu>
     )
 
     return (
         <FullscreenWrapper mode={'edit'} className='fullscreen'>
             <FullscreenHeader edit={true}>
-                <Row css={TopRowCss} style={{ paddingBottom: '39px', marginRight: '36px' }}>
+                <Row css={TopRowCss} justify='space-between'>
                     {address && (
-                        <Col flex={1}>
+                        <Col flex={0}>
                             <AddressTopTextContainer>{address}</AddressTopTextContainer>
                         </Col>
                     )}
                     <Col span={3}>
                         <Dropdown overlay={menuOverlay} css={DropdownCss}>
-                            <Button type={'sberDefaultGradient'} secondary>{AddElementTitle}<DownOutlined /></Button>
+                            <Button type='sberDefaultGradient' secondary>{AddElementTitle}<DownOutlined /></Button>
                         </Dropdown>
                     </Col>
-                </Row>
-                <Row align='middle' style={{ paddingBottom: '24px' }} gutter={[45, 10]} ref={builderFormRef} justify='start'>
-                    {
-                        (mode === 'addSection' || mode === 'addUnit') ? (
-                            <Col flex={0} style={{ maxWidth: '400px' }}>
-                                <Space direction={'vertical'} size={8} style={INPUT_STYLE}>
-                                    <Typography.Text type={'secondary'} >{AddLabel}</Typography.Text>
-                                    <Select value={mode} onChange={value => changeMode(value)} style={INPUT_STYLE}>
-                                        <Option value='addSection'>{AddSection}</Option>
-                                        <Option value='addUnit'>{AddUnit}</Option>
-                                    </Select>
-                                </Space>
-                            </Col>
-                        ) : null
-                    }
-                    {
+                    <Modal
+                        visible={mode !== null}
+                        onCancel={onModalCancel}
+                        css={ModalContainerCss}
+                        footer={null}
+                        mask={false}
+                    >
                         {
-                            addSection: <AddSectionForm Builder={Map} refresh={refresh}/>,
-                            addUnit: <UnitForm Builder={Map} refresh={refresh}/>,
-                            editSection: <EditSectionForm Builder={Map} refresh={refresh}/>,
-                            editUnit: <UnitForm Builder={Map} refresh={refresh}/>,
-                        }[mode] || null
-                    }
+                            {
+                                addSection: <AddSectionForm Builder={Map} refresh={refresh}/>,
+                                addUnit: <UnitForm Builder={Map} refresh={refresh}/>,
+                                editSection: <EditSectionForm Builder={Map} refresh={refresh}/>,
+                                editUnit: <UnitForm Builder={Map} refresh={refresh}/>,
+                            }[mode] || null
+                        }
+                    </Modal>
                 </Row>
             </FullscreenHeader>
             <Row>
@@ -444,43 +493,42 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) =>
         resetForm()
     }
     return (
-        <>
-            <Col flex={0}>
+        <Row gutter={[0, 20]} css={FormModalCss}>
+            <Col span={24}>
                 <Space direction={'vertical'} size={8}>
                     <Typography.Text type={'secondary'}>{NameLabel}</Typography.Text>
                     <Input allowClear={true} value={name} placeholder={NamePlaceholderLabel} onChange={e => setName(e.target.value)} style={INPUT_STYLE} />
                 </Space>
             </Col>
-            <Col flex={0}>
+            <Col span={24}>
                 <Space direction={'vertical'} size={8} className={maxMinError ? 'ant-form-item-has-error' : ''}>
                     <Typography.Text type={'secondary'}>{MinFloorLabel}</Typography.Text>
                     <InputNumber value={minFloor} onChange={setMinFloor} style={INPUT_STYLE} type={'number'}/>
                 </Space>
             </Col>
-            <Col flex={0}>
+            <Col span={24}>
                 <Space direction={'vertical'} size={8} className={maxMinError ? 'ant-form-item-has-error' : ''}>
                     <Typography.Text type={'secondary'}>{MaxFloorLabel}</Typography.Text>
                     <InputNumber value={maxFloor} onChange={setMaxFloor} style={INPUT_STYLE} type={'number'} />
                 </Space>
             </Col>
-            <Col flex={0}>
+            <Col span={24}>
                 <Space direction={'vertical'} size={8}>
                     <Typography.Text type={'secondary'}>{UnitsOnFloorLabel}</Typography.Text>
                     <InputNumber min={1} value={unitsOnFloor} onChange={setUnitsOnFloor} style={INPUT_STYLE} type={'number'}/>
                 </Space>
             </Col>
-            <Col flex={0}>
+            <Col span={24}>
                 <Button
                     key='submit'
                     secondary
                     onClick={handleFinish}
-                    type='sberPrimary'
+                    type='sberDefaultGradient'
                     style={{ marginTop: '30px' }}
                     disabled={!(name.length && minFloor && maxFloor && unitsOnFloor && !maxMinError)}
                 > {AddLabel} </Button>
             </Col>
-            <Col flex="auto" />
-        </>
+        </Row>
     )
 }
 
@@ -629,6 +677,7 @@ const EditSectionForm: React.FC<IEditSectionFormProps> = ({ Builder, refresh }) 
     const [name, setName] = useState('')
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
+    const DeleteLabel = intl.formatMessage({ id: 'Delete' })
     const NameLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
     const NamePlaceholderLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name.placeholder' })
 
@@ -647,30 +696,29 @@ const EditSectionForm: React.FC<IEditSectionFormProps> = ({ Builder, refresh }) 
     }
 
     return (
-        <>
-            <Col flex={0} >
+        <Row gutter={[0, 20]} css={FormModalCss}>
+            <Col span={24}>
                 <Space direction={'vertical'} size={8}>
                     <Typography.Text type={'secondary'}>{NameLabel}</Typography.Text>
                     <Input value={name} placeholder={NamePlaceholderLabel} onChange={e => setName(e.target.value)} style={INPUT_STYLE} />
                 </Space>
             </Col>
-            <Col flex={0} >
+            <Col span={24}>
                 <Button
                     secondary
                     onClick={updateSection}
-                    type='sberPrimary'
-                    style={{ marginTop: '30px' }}
-                > {SaveLabel} </Button>
+                    type='sberDefaultGradient'
+                >{SaveLabel}</Button>
+            </Col>
+            <Col span={24}>
                 <Button
-                    secondary
                     danger
                     onClick={deleteSection}
-                    type='default'
+                    type='sberDangerGhost'
                     icon={<DeleteFilled />}
-                    style={{ marginLeft: '40px', marginTop: '30px', width: '48px' }}
-                > </Button>
+                >{DeleteLabel}</Button>
             </Col>
             <Col flex="auto" />
-        </>
+        </Row>
     )
 }
