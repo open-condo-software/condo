@@ -21,6 +21,7 @@ const lightGrey = '#D9D9D9'
 const sberGrey = '#999999'
 const ultraLightGrey = '#F0F0F0'
 const inputBorderGrey = '#D0D3E5'
+const backgroundLightGrey = '#F2F3F7'
 const inputBorderHover = '#989EB7'
 const black = '#000'
 const beautifulBlue = '#eFF7FF'
@@ -81,6 +82,7 @@ const colors = {
     zircon,
     logoPurple,
     sberDangerRed,
+    backgroundLightGrey,
 }
 
 const fontSizes = {

@@ -5,7 +5,7 @@ import { Button, ButtonProps, Tooltip } from 'antd'
 
 const buttonCss = css`
     display: inline-block;
-    background-color: #F5F5F5;
+    background-color: #FFF;
     border: 1px solid #F5F5F5;
     color: black;
     font-size: 14px;
@@ -131,7 +131,7 @@ interface CustomButtonProps extends ButtonProps {
 
 export const UnitButton: React.FC<CustomButtonProps> = ({ secondary, selected, preview, noninteractive, children, ...restProps }) => {
     const OriginalLabel = children ? children.toString() : ''
-    if (!secondary && OriginalLabel.length > 4) {        
+    if (!secondary && OriginalLabel.length > 4) {
         let ButtonLabel = OriginalLabel
         if (!isNaN(Number(ButtonLabel))) {
             ButtonLabel = `…${ButtonLabel.substring(ButtonLabel.length - 2)}`
@@ -146,7 +146,7 @@ export const UnitButton: React.FC<CustomButtonProps> = ({ secondary, selected, p
                     ${noninteractive ? noninteractiveCss : ''};                    
                     ${preview ? previewCss : ''};
                 `} {...restProps}>{ButtonLabel}</Button>
-            </Tooltip>            
+            </Tooltip>
         )
     } else {
         return (
@@ -158,5 +158,5 @@ export const UnitButton: React.FC<CustomButtonProps> = ({ secondary, selected, p
             `} {...restProps}>{children || ' ' }</Button>
         )
     }
-    
+
 }

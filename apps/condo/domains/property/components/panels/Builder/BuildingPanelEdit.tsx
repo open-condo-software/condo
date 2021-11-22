@@ -153,7 +153,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ mapValida
     const onModalCancel = useCallback(() => {
         changeMode('addSection')
         setModalVisible(false)
-    }, [])
+    }, [changeMode])
 
     useEffect(() => {
         switch (mode) {
@@ -226,6 +226,11 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ mapValida
                         css={ModalContainerCss}
                         footer={null}
                         mask={false}
+                        title={
+                            <Typography.Text>
+                                {intl.formatMessage({ id: `pages.condo.property.modal.title.${mode}` })}
+                            </Typography.Text>
+                        }
                     >
                         {
                             {
@@ -552,6 +557,7 @@ const UnitForm: React.FC<IUnitFormProps> = ({ Builder, refresh }) => {
     const intl = useIntl()
     const mode = Builder.editMode
     const SaveLabel = intl.formatMessage({ id: mode === 'editUnit' ? 'Save' : 'Add' })
+    const DeleteLabel = intl.formatMessage({ id: 'Delete' })
     const NameLabel = intl.formatMessage({ id: 'pages.condo.property.unit.Name' })
     const SectionLabel = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
     const FloorLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
@@ -627,54 +633,58 @@ const UnitForm: React.FC<IUnitFormProps> = ({ Builder, refresh }) => {
     }
 
     return (
-        <>
-            <Col flex={0}>
+        <Row gutter={[0, 20]} css={FormModalCss}>
+            <Col span={24}>
                 <Space direction={'vertical'} size={8}>
                     <Typography.Text type={'secondary'}>{NameLabel}</Typography.Text>
                     <Input allowClear={true} value={label} onChange={e => setLabel(e.target.value)} style={INPUT_STYLE} />
                 </Space>
             </Col>
-            <Col flex={0}>
+            <Col span={24}>
                 <Space direction={'vertical'} size={8} style={INPUT_STYLE}>
                     <Typography.Text type={'secondary'} >{SectionLabel}</Typography.Text>
-                    <Select value={section} onSelect={updateSection} style={INPUT_STYLE} >
+                    <Select value={section} onSelect={updateSection} style={INPUT_STYLE}>
                         {sections.map((sec) => {
                             return <Option key={sec.id} value={sec.id}>{sec.label}</Option>
                         })}
                     </Select>
                 </Space>
             </Col>
-            <Col flex={0}>
-                <Space direction={'vertical'} size={8} style={INPUT_STYLE}>
-                    <Typography.Text type={'secondary'} >{FloorLabel}</Typography.Text>
-                    <Select value={floor} onSelect={setFloor} style={INPUT_STYLE} >
-                        {floors.map(floorOption => {
-                            return <Option key={floorOption.id} value={floorOption.id}>{floorOption.label}</Option>
-                        })}
-                    </Select>
+            <Col span={24}>
+                <Space direction={'vertical'} size={28}>
+                    <Space direction={'vertical'} size={8} style={INPUT_STYLE}>
+                        <Typography.Text type={'secondary'} >{FloorLabel}</Typography.Text>
+                        <Select value={floor} onSelect={setFloor} style={INPUT_STYLE}>
+                            {floors.map(floorOption => {
+                                return <Option key={floorOption.id} value={floorOption.id}>{floorOption.label}</Option>
+                            })}
+                        </Select>
+                    </Space>
+                    <Row gutter={[0, 16]}>
+                        <Col span={24}>
+                            <Button
+                                secondary
+                                onClick={applyChanges}
+                                type='sberDefaultGradient'
+                                disabled={!(floor && section)}
+                            > {SaveLabel} </Button>
+                        </Col>
+                        {
+                            mode === 'editUnit' && (
+                                <Col span={24}>
+                                    <Button
+                                        secondary
+                                        onClick={deleteUnit}
+                                        type='sberDangerGhost'
+                                        icon={<DeleteFilled />}
+                                    >{DeleteLabel}</Button>
+                                </Col>
+                            )
+                        }
+                    </Row>
                 </Space>
             </Col>
-            <Col flex={0}>
-                <Button
-                    secondary
-                    onClick={applyChanges}
-                    type='sberPrimary'
-                    disabled={!(floor && section)}
-                    style={{ marginTop: '30px' }}
-                > {SaveLabel} </Button>
-                {
-                    mode === 'editUnit' ?
-                        <Button
-                            secondary
-                            danger
-                            onClick={deleteUnit}
-                            type='default'
-                            icon={<DeleteFilled />}
-                            style={{ marginLeft: '40px', marginTop: '30px', width: '48px' }}
-                        > </Button> : null
-                }
-            </Col>
-        </>
+        </Row>
     )
 }
 
@@ -723,13 +733,12 @@ const EditSectionForm: React.FC<IEditSectionFormProps> = ({ Builder, refresh }) 
             </Col>
             <Col span={24}>
                 <Button
-                    danger
+                    secondary
                     onClick={deleteSection}
                     type='sberDangerGhost'
                     icon={<DeleteFilled />}
                 >{DeleteLabel}</Button>
             </Col>
-            <Col flex="auto" />
         </Row>
     )
 }
