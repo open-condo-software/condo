@@ -47,7 +47,7 @@ export const renderHighlightedPart: TTextHighlighterRenderPartFN = (
 /**
  * Type for getHighlightedContents fn
  */
-type TGetHighlightedFN = (search?: FilterValue | string, postfix?: string, extraProps?: Partial<TTextHighlighterProps>, extraPostfixProps?: TextProps) => (text?: string) => React.ReactElement | string
+type TGetHighlightedFN = (search?: FilterValue | string, postfix?: string, extraProps?: Partial<TTextHighlighterProps>, extraPostfixProps?: TextProps, extraTitle?: string) => (text?: string) => React.ReactElement | string
 
 /**
  * Returned function renders provided text with highlighted parts according to search value
@@ -55,11 +55,12 @@ type TGetHighlightedFN = (search?: FilterValue | string, postfix?: string, extra
  * @param postfix
  * @param extraProps
  * @param extraPostfixProps
+ * @param extraTitle
  */
-export const getHighlightedContents: TGetHighlightedFN = (search, postfix, extraProps, extraPostfixProps = {}) => (text) => {
+export const getHighlightedContents: TGetHighlightedFN = (search, postfix, extraProps, extraPostfixProps = {}, extraTitle) => (text) => {
     // Sometimes we can receive null/undefined as text
     const renderText = text ? String(text) : ''
-    const title = `${text} ${postfix || ''}`
+    const title = extraTitle ? extraTitle : `${text} ${postfix || ''}`
 
     const getPostfix = () => (
         <Typography.Text title={title} {...extraPostfixProps}>
@@ -84,7 +85,7 @@ export const getHighlightedContents: TGetHighlightedFN = (search, postfix, extra
 /**
  * Type for getTableCellRenderer fn
  */
-type TTableCellRendererFN = (search?: FilterValue | string, ellipsis?: boolean, postfix?: string, extraHighlighterProps?: Partial<TTextHighlighterProps>, extraPostfixProps?: TextProps) => (text?: string) => React.ReactElement
+type TTableCellRendererFN = (search?: FilterValue | string, ellipsis?: boolean, postfix?: string, extraHighlighterProps?: Partial<TTextHighlighterProps>, extraPostfixProps?: TextProps, extraTitle?: string) => (text?: string) => React.ReactElement
 
 /**
  * Returned function renders provided text as a cell with highlighted search and multi row ellipsis (if requested)
@@ -94,6 +95,7 @@ type TTableCellRendererFN = (search?: FilterValue | string, ellipsis?: boolean, 
  * @param postfix
  * @param extraHighlighterProps
  * @param extraPostfixProps
+ * @param extraTitle
  * @return cell contents renderer fn
  */
 export const getTableCellRenderer: TTableCellRendererFN = (
@@ -101,11 +103,12 @@ export const getTableCellRenderer: TTableCellRendererFN = (
     ellipsis = false,
     postfix = '',
     extraHighlighterProps,
-    extraPostfixProps
+    extraPostfixProps,
+    extraTitle,
 ) =>
     (text) => {
-        const title = `${text} ${postfix || ''}`
-        const highlightedContent = getHighlightedContents(search, postfix, extraHighlighterProps, extraPostfixProps)(text)
+        const title = extraTitle ? extraTitle : `${text} ${postfix || ''}`
+        const highlightedContent = getHighlightedContents(search, postfix, extraHighlighterProps, extraPostfixProps, title)(text)
 
         if (!ellipsis) return <EmptyTableCell>{text && highlightedContent}</EmptyTableCell>
 
