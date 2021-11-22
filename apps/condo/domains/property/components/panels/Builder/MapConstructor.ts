@@ -317,6 +317,8 @@ class MapEdit extends MapView {
                 this.selectedSection = null
                 break
             default:
+                this.selectedSection = null
+                this.selectedUnit = null
                 this.mode = null
         }
         this.mode = mode
