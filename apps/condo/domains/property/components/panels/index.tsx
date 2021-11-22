@@ -22,6 +22,8 @@ interface IPropertyPanels {
 const FOCUS_CONTAINER_STYLE: React.CSSProperties = {
     margin: 'initial',
     marginTop: '40px',
+    marginBottom: '60px',
+    padding: 0,
 }
 
 export const PropertyPanels: React.FC<IPropertyPanels> = ({ mapValidationError, mode, map, updateMap, handleSave, address }) => {

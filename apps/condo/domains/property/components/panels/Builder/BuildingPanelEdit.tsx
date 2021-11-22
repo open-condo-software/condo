@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
-import { Col, Row, Typography, Input, Select, InputNumber, Space, Dropdown, Menu, Modal, RowProps } from 'antd'
+import { Col, Row, Typography, Input, Select, InputNumber, Space, Dropdown, Menu, RowProps } from 'antd'
 import { css, jsx } from '@emotion/core'
 import styled from '@emotion/styled'
 import { fontSizes, colors, shadows } from '@condo/domains/common/constants/style'

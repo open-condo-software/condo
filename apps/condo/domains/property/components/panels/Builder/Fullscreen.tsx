@@ -6,7 +6,6 @@ import styled from '@emotion/styled'
 export const FullscreenWrapper = styled.div<{
     mode?: 'view' | 'edit';
 }>`
-  margin: -24px;
   border-radius: ${DEFAULT_BORDER_RADIUS};
   padding: 24px;
   background: ${colors.backgroundLightGrey};
@@ -18,15 +17,11 @@ export const FullscreenWrapper = styled.div<{
     position: fixed;
     top: 0;
     left: 0;
-    width: 100wv;
-    height: 100hv;
+    width: 100%;
+    height: calc(100vh - 62px);
     right: 0;
     bottom: 0;
     z-index: 20;
-  }
-
-  &.fullscreen .scroll-container {
-    overflow: initial !important;
   }
 `
 
