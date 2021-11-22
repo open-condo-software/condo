@@ -74,8 +74,8 @@ const MenuCss = css`
 `
 
 const ModalContainerCss = css`
-  top: 20px;
-  right: 40px;
+  top: 12px;
+  right: 24px;
   position: absolute;
 `
 
@@ -215,7 +215,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ mapValida
                             <AddressTopTextContainer>{address}</AddressTopTextContainer>
                         </Col>
                     )}
-                    <Col span={3}>
+                    <Col flex={0}>
                         <Dropdown overlay={menuOverlay} css={DropdownCss}>
                             <Button type='sberDefaultGradient' secondary>{AddElementTitle}<DownOutlined /></Button>
                         </Dropdown>
@@ -243,7 +243,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ mapValida
                     </Modal>
                 </Row>
             </FullscreenHeader>
-            <Row>
+            <Row align='middle' style={{ height: '100%' }}>
                 {
                     <ChessBoard
                         Builder={Map}
@@ -303,11 +303,16 @@ const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh, scrollToForm
         }
     }, [Builder])
 
+    const CHESS_COL_STYLE = {
+        paddingTop: '60px',
+        paddingBottom: '60px',
+    }
+
     return (
         <Row align='bottom' style={{ width: '100%', textAlign: 'center' }} >
             {
                 Builder.isEmpty ?
-                    <Col span={24} style={{ paddingTop: '60px', paddingBottom: '60px' }}>
+                    <Col span={24} style={CHESS_COL_STYLE}>
                         <EmptyBuildingBlock mode="edit" />
                         <BuildingChooseSections
                             isFullscreen={isFullscreen}
@@ -320,7 +325,7 @@ const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh, scrollToForm
                         </BuildingChooseSections>
                     </Col>
                     :
-                    <Col span={24} style={{ whiteSpace: 'nowrap', position: 'static' }}>
+                    <Col span={24} style={{ whiteSpace: 'nowrap', position: 'static', ...CHESS_COL_STYLE }}>
                         <ScrollContainer
                             className="scroll-container"
                             vertical={false}
