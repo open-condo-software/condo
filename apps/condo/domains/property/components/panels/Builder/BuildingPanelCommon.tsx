@@ -39,7 +39,7 @@ export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view
 
     const { push, asPath } = useRouter()
     const createMapCallback = useCallback(() => {
-        push(asPath + '/map/create')
+        push(asPath + '/map/update')
     }, [asPath])
 
     const descriptionStyle = {
