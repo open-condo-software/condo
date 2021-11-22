@@ -1,25 +1,23 @@
 import React, { useCallback, useMemo } from 'react'
-import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { ColumnType, FilterValue } from 'antd/es/table/interface'
 import { useRouter } from 'next/router'
-import { TextProps } from 'antd/es/typography/Text'
 
 import { useIntl } from '@core/next/intl'
-import { DivisionWhereInput, Property } from '@app/condo/schema'
+import { DivisionWhereInput } from '@app/condo/schema'
 
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { EmptyTableCell } from '@condo/domains/common/components/Table/EmptyTableCell'
 import {
-    getTableCellRenderer,
     renderHighlightedPart,
 } from '@condo/domains/common/components/Table/Renders'
-import { TextHighlighter, TTextHighlighterProps } from '@condo/domains/common/components/TextHighlighter'
+import { TextHighlighter } from '@condo/domains/common/components/TextHighlighter'
 import { getTextRender } from '@condo/domains/common/components/Table/Renders'
-import { getAddressDetails, getFilteredValue } from '@condo/domains/common/utils/helpers'
+import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 
 import { Division } from '../utils/clientSchema'
+import { getAddressRender } from '../utils/clientSchema/Renders'
 
 export interface ITableColumn {
     title: string,
@@ -34,34 +32,22 @@ export interface ITableColumn {
     filterIcon?: unknown
 }
 
-const ADDRESS_RENDER_POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
-
 export const useTableColumns = (filterMetas: FiltersMeta<DivisionWhereInput>[]) => {
     const intl = useIntl()
     const DivisionTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Division' })
     const BuildingsTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Buildings' })
     const ForemanTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Foreman' })
     const TechniciansTitleMessage  = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Technicians' })
+    const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
 
     const search = getFilteredValue(filters, 'search')
 
-    const getAddressRender = useCallback((property: Property, DeletedMessage?: string, search?: FilterValue | string) => {
-        const isDeleted = !!get(property, 'deletedAt')
-        const { streetPart, regionPart, cityPart } = getAddressDetails(property)
-        const extraProps: Partial<TTextHighlighterProps> = isDeleted && { type: 'secondary' }
-        const text = `${streetPart},`
-        const deletedMessage = isDeleted && DeletedMessage ? `(${DeletedMessage})\n` : '\n'
-        const postfix = `${regionPart}, ${cityPart} ${deletedMessage}`
-
-        return getTableCellRenderer(search, false, postfix, extraProps, ADDRESS_RENDER_POSTFIX_PROPS)(text)
-    }, [])
-
     const renderAddress = useCallback(
-        (properties) => properties.map((property) => getAddressRender(property, null, search)),
-        [search, getAddressRender])
+        (properties) => properties.map((property) => getAddressRender(property, DeletedMessage, search)),
+        [search])
 
     return useMemo(() => {
         type ColumnTypes = [

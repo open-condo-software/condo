@@ -141,7 +141,9 @@ export const getAddressRender = (property: Property, DeletedMessage?: string, se
     const { streetPart, regionPart, cityPart } = getAddressDetails(property)
     const extraProps: Partial<TTextHighlighterProps> = isDeleted && { type: 'secondary' }
     const deletedMessage = isDeleted && DeletedMessage ? `(${DeletedMessage})\n` : '\n'
-    const postfix = `\n${regionPart}, \n${cityPart} ${deletedMessage}`
+    const regionLine = regionPart ? `\n${regionPart}` : ''
+    const cityLine = cityPart ? `,\n${cityPart}` : ''
+    const postfix = regionLine + cityLine + deletedMessage
 
     return getTableCellRenderer(search, false, postfix, extraProps, POSTFIX_PROPS)(streetPart)
 }
