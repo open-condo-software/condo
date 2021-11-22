@@ -144,33 +144,39 @@ const buttonGradientCss = css`
         }
       }
     `
-const buttonDefaultGradientCss = css`
-  background: ${colors.black};
-  border-radius: 8px;
-  color: ${colors.defaultWhite[5]};
-  box-shadow: none;
-  padding: 12px 18px;
-  height: auto;
-  font-weight: 700;
-  transition: none;
-  outline: none;
-  border: none;
-
-  &:hover, &:focus {
-    color: ${colors.defaultWhite[5]};
-    background: ${gradients.sberActionGradient};
-  }
-
-  &:active {
-    color: ${colors.defaultWhite[5]};
-    background: ${gradients.sberActionInversed};    
-  }
-
-  &:disabled, &:hover:disabled {
-    color: #989EB7;
-    background: #E6E8F1;
-  }
-`
+const buttonDefaultGradientCss = (secondary = false) => {
+    const border = secondary ? `1px solid ${colors.inputBorderHover}` : 'none'
+    return  css`
+      background: ${secondary ? 'transparent' : colors.black};
+      border-radius: 8px;
+      color: ${secondary ? colors.black : colors.defaultWhite[5]};
+      box-shadow: none;
+      padding: 12px 18px;
+      height: auto;
+      font-weight: 700;
+      transition: none;
+      outline: none;
+      border: ${border};
+    
+      &:hover, &:focus {
+        color: ${colors.defaultWhite[5]};
+        background: ${gradients.sberActionGradient};
+      }
+    
+      &:active {
+        color: ${colors.defaultWhite[5]};
+        background: ${gradients.sberActionInversed};    
+      }
+    
+      &:disabled, &:hover:disabled {
+        color: ${colors.inputBorderHover};
+        background: ${secondary ? 'transparent' : '#E6E8F1'};
+        & {
+          opacity: 70%;
+        }
+      }
+    `
+}
 const buttonGhostCss = css`
   & {
     color: ${green[5]};
@@ -220,7 +226,7 @@ export const Button: React.FC<CustomButtonProps> = ({ type, secondary, ...restPr
         } else if (type === 'ghost') {
             buttonStyles = buttonGhostCss
         } else if (type === 'sberDefaultGradient') {
-            buttonStyles = buttonDefaultGradientCss
+            buttonStyles = buttonDefaultGradientCss(secondary)
         } else {
             buttonStyles = secondary ? buttonSecondaryCss(colors[type]) : buttonCss(colors[type])
         }

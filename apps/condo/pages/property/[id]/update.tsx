@@ -1,6 +1,6 @@
+import React from 'react'
 import { Typography, Row, Col } from 'antd'
 import Head from 'next/head'
-import React from 'react'
 import { PropertyForm } from '@condo/domains/property/components/PropertyForm'
 import { useIntl } from '@core/next/intl'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
@@ -24,7 +24,7 @@ const UpdatePropertyPage: IUpdatePropertyPage = () => {
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <Row gutter={[0, 40]} style={{ height: '100%' }}>
+                    <Row gutter={[0, 40]}>
                         <Col span={24}>
                             <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
                         </Col>

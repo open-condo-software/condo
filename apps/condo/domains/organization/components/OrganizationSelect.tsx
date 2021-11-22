@@ -8,7 +8,7 @@ import { useAuth } from '@core/next/auth'
 import get from 'lodash/get'
 import { css, jsx } from '@emotion/core'
 import { useIntl } from '@core/next/intl'
-import { colors, gradients, transitions } from '@condo/domains/common/constants/style'
+import { colors, gradients } from '@condo/domains/common/constants/style'
 import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'
 
 const blackSelectCss = css`
@@ -28,23 +28,7 @@ const blackSelectCss = css`
     line-height: 38px;
     transition: none;
   }
-
-  //& {
-    //  transition: ${transitions.allDefault};
-  //}
-    //color: ${colors.white};
-  // &.ant-select:not(.ant-select-customize-input) .ant-select-selector {
-    //   border: 1px solid ${colors.black};
-  //   border-radius: 4px;
-  // }
-  // &.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector {
-    //   border-color: ${colors.sberGrey[6]};
-    //   background-color: ${colors.black};
-    //   color: ${colors.white};
-  // }
-  // &.ant-select:not(.ant-select-customize-input) .ant-select-selector {
-    //   background-color: ${colors.black};
-  // }
+  
   & .ant-select-arrow {
     color: ${colors.black};
   }
@@ -54,6 +38,7 @@ const blackSelectCss = css`
   &.ant-select.ant-select-single.ant-select-open .ant-select-selector {
     background: ${gradients.sberActionGradient};
     border: none;
+    border-color: unset;
   }
   &.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selection-item,
   &.ant-select:not(.ant-select-disabled):hover .ant-select-selection-item,
@@ -71,16 +56,10 @@ const blackSelectCss = css`
 
   &.ant-select.ant-select-single.ant-select-open .ant-select-selector {
     background: ${gradients.sberActionGradient};
-    border: none unset;
+    border: none;
   }
-
-  //&.ant-select-single.ant-select-open .ant-select-selection-item{
-    //  color: ${colors.white};
-  //}
-  //& .ant-select-item-option-selected:not(.ant-select-item-option-disabled){
-    //    background: ${colors.white};
-  //}
 `
+
 // TODO(zuch): can't use emotion css here
 const optionStyle: React.CSSProperties = {
     fontSize: '14px',

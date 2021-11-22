@@ -3,7 +3,7 @@
  */
 
 import { pick, get } from 'lodash'
-
+import dayjs from 'dayjs'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
@@ -52,6 +52,9 @@ function convertToUIFormState (state: IPropertyUIState): IPropertyFormState | un
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
         result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
+        if (attr === 'yearOfConstruction' && state[attr].length) {
+            result[attr] = dayjs(state[attr]).format('YYYY')
+        }
     }
     return result as IPropertyFormState
 }

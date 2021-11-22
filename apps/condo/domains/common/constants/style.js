@@ -68,6 +68,7 @@ const colors = {
     yellow,
     ultraLightGrey,
     inputBorderGrey,
+    inputBorderHover,
     whiteTranslucent,
     lightRed,
     brightRed,
