@@ -264,6 +264,8 @@
   "pages.condo.property.EmptyBuildingBlock.edit.EmptyBuildingHeader": "Press on «Add element» button",
   "pages.condo.property.EmptyBuildingBlock.view.EmptyBuildingHeader": "Map has not been created yet",
   "pages.condo.property.EmptyBuildingBlock.view.ImportDataTitle": "Import Excel-file",
+  "pages.condo.property.SectionSelect.AllTitle": "All sections",
+  "pages.condo.property.SectionSelect.OptionPrefix": "Section №",
   "pages.condo.property.field.Address": "Address",
   "pages.condo.property.field.Name": "Name",
   "pages.condo.property.field.Organization": "Organization",

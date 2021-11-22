@@ -27,6 +27,15 @@ import {
 } from '@app/condo/schema'
 import { FullscreenWrapper, FullscreenHeader } from './Fullscreen'
 import ScrollContainer from 'react-indiana-drag-scroll'
+import {
+    InterFloorIcon,
+    FlatIcon,
+    BasementIcon,
+    FloorIcon,
+    ParkingIcon,
+    SectionIcon,
+    CeilIcon,
+} from '@condo/domains/common/components/icons/PropertyMapIcons'
 
 const { Option } = Select
 
@@ -37,6 +46,32 @@ const INPUT_STYLE = {
 const TopRowCss = css`
   margin-top: 12px;
   position: relative;
+  
+  & .ant-select.ant-select-single .ant-select-selector {
+    background-color: transparent;
+    color: black;
+    font-weight: 600;
+    height: 40px;
+  }
+  & .ant-select.ant-select-single .ant-select-selection-search-input,
+  & .ant-select.ant-select-single .ant-select-selector .ant-select-selection-item {
+    height: 40px;
+    line-height: 40px;
+  }
+  & .ant-select.ant-select-single .ant-select-arrow {
+    color: black;
+  }
+  
+  & .ant-select.ant-select-single.ant-select-open .ant-select-selector {
+    background-color: black;
+    color: white;
+    border-color: transparent;
+  }
+  & .ant-select.ant-select-single.ant-select-open .ant-select-selection-item,
+  & .ant-select.ant-select-single.ant-select-open .ant-select-arrow {
+    color: white;
+  }
+  
 `
 
 const DropdownCss = css`
@@ -52,7 +87,6 @@ const DropdownCss = css`
 
 const MenuCss = css`
   padding: 16px;
-  max-width: 280px;
 
   & .ant-dropdown-menu-item {
     padding: 8px 12px;
@@ -70,6 +104,10 @@ const MenuCss = css`
     width: 100%;
     padding: 16px 18px;
     height: 60px;
+    display: flex;
+  }
+  & .ant-dropdown-menu-item button svg {
+    margin-right: 8px;
   }
 `
 
@@ -101,7 +139,7 @@ interface IBuildingPanelEditProps {
     mapValidationError?: string
 }
 
-export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ mapValidationError, map, updateMap: updateFormField, handleSave, address }) => {
+export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
     const CancelLabel = intl.formatMessage({ id: 'Cancel' })
@@ -113,12 +151,17 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ mapValida
     const AddBasement = intl.formatMessage({ id: 'pages.condo.property.select.option.basement' })
     const AddCeil = intl.formatMessage({ id: 'pages.condo.property.select.option.ceil' })
     const AddElementTitle = intl.formatMessage({ id: 'pages.condo.property.menu.MenuPlaceholder' })
+    const AllSectionsTitle = intl.formatMessage({ id: 'pages.condo.property.SectionSelect.AllTitle' })
+    const SectionPrefixTitle = intl.formatMessage({ id: 'pages.condo.property.SectionSelect.OptionPrefix' })
+
+    const { mapValidationError, map, updateMap: updateFormField, handleSave, address } = props
 
     const { push, query: { id } } = useRouter()
     const builderFormRef = useRef<HTMLDivElement | null>(null)
     const [Map, setMap] = useState(new MapEdit(map, updateFormField))
 
     const mode = Map.editMode
+    const sections = Map.sections
 
     const scrollToForm = () => {
         if (builderFormRef && builderFormRef.current) {
@@ -157,45 +200,52 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ mapValida
         changeMode(null)
     }, [changeMode])
 
+    const onSelectSection = useCallback((id) => {
+        Map.setVisibleSections(id)
+        refresh()
+    }, [Map, refresh])
+
     const menuOverlay = (
         <Menu css={MenuCss} onClick={menuClick}>
             <Menu.Item key={'addSection'}>
-                <Button type={'sberDefaultGradient'} secondary>
+                <Button type={'sberDefaultGradient'} secondary icon={<SectionIcon />}>
                     {AddSection}
                 </Button>
             </Menu.Item>
             <Menu.Item key={'addFloor'}>
-                <Button type={'sberDefaultGradient'} secondary disabled>
+                <Button type={'sberDefaultGradient'} secondary disabled icon={<FloorIcon />}>
                     {AddFloor}
                 </Button>
             </Menu.Item>
             <Menu.Item key={'addParking'}>
-                <Button type={'sberDefaultGradient'} secondary disabled>
+                <Button type={'sberDefaultGradient'} secondary disabled icon={<ParkingIcon />}>
                     {AddParking}
                 </Button>
             </Menu.Item>
             <Menu.Item key={'addUnit'}>
-                <Button type={'sberDefaultGradient'} secondary>
+                <Button type={'sberDefaultGradient'} secondary icon={<FlatIcon />}>
                     {AddUnit}
                 </Button>
             </Menu.Item>
             <Menu.Item key={'addInterFloorRoom'}>
-                <Button type={'sberDefaultGradient'} secondary disabled>
+                <Button type={'sberDefaultGradient'} secondary disabled icon={<InterFloorIcon />}>
                     {AddInterFloorRoom}
                 </Button>
             </Menu.Item>
             <Menu.Item key={'addBasement'}>
-                <Button type={'sberDefaultGradient'} secondary disabled>
+                <Button type={'sberDefaultGradient'} secondary disabled icon={<BasementIcon />}>
                     {AddBasement}
                 </Button>
             </Menu.Item>
             <Menu.Item key={'addCeil'}>
-                <Button type={'sberDefaultGradient'} secondary disabled>
+                <Button type={'sberDefaultGradient'} secondary disabled icon={<CeilIcon />}>
                     {AddCeil}
                 </Button>
             </Menu.Item>
         </Menu>
     )
+
+    console.log(mode)
 
     return (
         <FullscreenWrapper mode={'edit'} className='fullscreen'>
@@ -203,12 +253,26 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ mapValida
                 <Row css={TopRowCss} justify='space-between'>
                     {address && (
                         <Col flex={0}>
-                            <AddressTopTextContainer>{address}</AddressTopTextContainer>
+                            <Space size={20}>
+                                <AddressTopTextContainer>{address}</AddressTopTextContainer>
+                                {sections.length >= 2 && (
+                                    <Select value={Map.visibleSections} onSelect={onSelectSection}>
+                                        <Select.Option value={null} >{AllSectionsTitle}</Select.Option>
+                                        {
+                                            sections.map(section => (
+                                                <Select.Option key={section.id} value={section.id}>
+                                                    {SectionPrefixTitle}{section.name}
+                                                </Select.Option>
+                                            ))
+                                        }
+                                    </Select>
+                                )}
+                            </Space>
                         </Col>
                     )}
                     <Col flex={0}>
                         <Dropdown overlay={menuOverlay} css={DropdownCss}>
-                            <Button type='sberDefaultGradient' secondary>{AddElementTitle}<DownOutlined /></Button>
+                            <Button type='sberBlack'>{AddElementTitle}<DownOutlined /></Button>
                         </Dropdown>
                     </Col>
                     <Modal
@@ -283,7 +347,8 @@ interface IChessBoardProps {
 }
 
 
-const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh, scrollToForm, toggleFullscreen, isFullscreen, children }) => {
+const ChessBoard: React.FC<IChessBoardProps> = (props) => {
+    const { Builder, refresh, scrollToForm, toggleFullscreen, isFullscreen, children } = props
     const container = useRef<HTMLElement | null>(null)
     useEffect(() => {
         if (container.current) {
@@ -321,13 +386,13 @@ const ChessBoard: React.FC<IChessBoardProps> = ({ Builder, refresh, scrollToForm
                             className="scroll-container"
                             vertical={false}
                             horizontal={true}
-                            style={{ paddingTop: '16px', width: '100%', overflowY: 'hidden' }}
+                            style={{ paddingBottom: '60px', width: '100%', overflowY: 'hidden' }}
                             hideScrollbars={false}
                             nativeMobileScroll={true}
                             innerRef={container}
                         >
                             {
-                                Builder.visibleSections.length > 0 ? <BuildingAxisY floors={Builder.possibleChosenFloors} /> : null
+                                Builder.sections.length > 0 ? <BuildingAxisY floors={Builder.possibleChosenFloors} /> : null
                             }
                             {
                                 Builder.sections.map(section => {
