@@ -70,7 +70,9 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
         if (isAddressFieldTouched) {
             try {
                 const addressMeta = addressApi.getAddressMeta(formData.address)
-                const yearOfConstruction = dayjs().year(formData.yearOfConstruction).format('YYYY-MM-DD')
+                const yearOfConstruction = formData.yearOfConstruction && formData.yearOfConstruction.length > 0
+                    ? dayjs().year(formData.yearOfConstruction).format('YYYY-MM-DD')
+                    : null
                 return { ...formData, addressMeta: { dv: 1, ...addressMeta }, yearOfConstruction }
             } catch (e) {
                 notification.error({
@@ -102,7 +104,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const yearOfConstructionValidator = {
         validator (_, val) {
             const receivedDate = dayjs().year(val)
-            if (val.length === 4 && receivedDate.isValid() && receivedDate.isBefore(dayjs().add(1, 'day'))) {
+            if (val.length === 0 || val.length === 4 && receivedDate.isValid() && receivedDate.isBefore(dayjs().add(1, 'day'))) {
                 return Promise.resolve()
             }
             return Promise.reject(WrongYearErrorMsg)

@@ -34,7 +34,7 @@ const getPhoneInputStyles = (style, size: SizeType, block?: boolean) => {
     let height = '32px'
 
     if (size === 'large') {
-        height = '40px'
+        height = '48px'
     } else if (size === 'small') {
         height = '22px'
     }

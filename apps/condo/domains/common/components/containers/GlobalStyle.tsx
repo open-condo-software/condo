@@ -53,10 +53,6 @@ export default function GlobalStyle () {
               .ant-select-single.ant-select-open .ant-select-selection-item {
                 color: #434343;
               }
-              
-              .ant-form-large .ant-form-item-label > label {
-                height: inherit;
-              }
 
               .react-tel-input .ant-input {
                 background-color: ${colors.whiteTranslucent} !important;

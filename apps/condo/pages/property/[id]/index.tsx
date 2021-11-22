@@ -48,7 +48,9 @@ export const PropertyPageContent = ({ property, role }) => {
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'pages.condo.property.form.ConfirmDeleteMessage' })
     const AreaTitle = intl.formatMessage({ id: 'pages.condo.property.form.AreaTitle' })
     const YearOfConstructionTitle = intl.formatMessage({ id: 'pages.condo.property.form.YearOfConstructionTitle' })
-    const UpdateTitle = intl.formatMessage({ id: 'Edit' })
+    const EditPropertyTitle = intl.formatMessage({ id: 'pages.condo.property.id.EditPropertyTitle' })
+    const EditPropertyMapTitle = intl.formatMessage({ id: 'pages.condo.property.id.EditPropertyMapTitle' })
+
     const UnknownValueTitle = intl.formatMessage({ id: 'pages.condo.property.id.UnknownMessage' })
     const { push } = useRouter()
     const softDeleteAction = useSoftDelete({}, () => push('/property/'))
@@ -94,25 +96,38 @@ export const PropertyPageContent = ({ property, role }) => {
             {
                 role && role.canManageProperties ? (
                     <ActionBar>
-                        <Link href={`/property/${property.id}/update`}>
-                            <span>
-                                <Button
-                                    color={'green'}
-                                    type={'sberPrimary'}
-                                    secondary
-                                    icon={<EditFilled />}
-                                    size={'large'}
-                                >
-                                    {UpdateTitle}
-                                </Button>
-                            </span>
-                        </Link>
-                        <DeleteButtonWithConfirmModal
-                            title={ConfirmDeleteTitle}
-                            message={ConfirmDeleteMessage}
-                            okButtonLabel={DeletePropertyLabel}
-                            action={() => softDeleteAction({}, property)}
-                        />
+                        <Space size={20}>
+                            <Link href={`/property/${property.id}/update`}>
+                                <span>
+                                    <Button
+                                        type={'sberDefaultGradient'}
+                                        size={'large'}
+                                    >
+                                        {EditPropertyTitle}
+                                    </Button>
+                                </span>
+                            </Link>
+                            {
+                                property.map !== null && (
+                                    <Link href={`/property/${property.id}/map/update`}>
+                                        <Button
+                                            color={'green'}
+                                            type={'sberDefaultGradient'}
+                                            secondary
+                                            size={'large'}
+                                        >
+                                            {EditPropertyMapTitle}
+                                        </Button>
+                                    </Link>
+                                )
+                            }
+                            <DeleteButtonWithConfirmModal
+                                title={ConfirmDeleteTitle}
+                                message={ConfirmDeleteMessage}
+                                okButtonLabel={DeletePropertyLabel}
+                                action={() => softDeleteAction({}, property)}
+                            />
+                        </Space>
                     </ActionBar>
                 ) : null
             }

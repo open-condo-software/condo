@@ -1,26 +1,31 @@
 import React, { useEffect } from 'react'
-import { Form, Typography } from 'antd'
+import { Form, Space, Typography } from 'antd'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
-import BasePropertyForm from '../BasePropertyForm'
-import { Button } from '@condo/domains/common/components/Button'
+import BasePropertyMapForm from '../BasePropertyMapForm'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { useOrganization } from '@core/next/organization'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { Button } from '@condo/domains/common/components/Button'
+import ActionBar from '@condo/domains/common/components/ActionBar'
 
-interface IUpdatePropertyForm {
+interface ICreatePropertyForm {
     id: string
 }
 
-export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
+const CreatePropertyMapForm: React.FC<ICreatePropertyForm> = ({ id }) => {
     const intl = useIntl()
     const ApplyChangesLabel = intl.formatMessage({ id: 'ApplyChanges' })
+
     const { push } = useRouter()
     const { organization } = useOrganization()
+
     const { refetch, obj: property, loading, error } = Property.useObject({ where: { id } })
+    const action = Property.useUpdate({}, (property) => push(`property/${id}`))
+    const createAction = (value) => action(value, property)
+
     const initialValues = Property.convertToUIFormState(property)
-    const action = Property.useUpdate({}, (property) => push(`/property/${property.id}`))
-    const updateAction = (value) => action(value, property)
+
 
     useEffect(() => {
         refetch()
@@ -36,38 +41,38 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
     }
 
     return (
-        <BasePropertyForm
-            action={updateAction}
+        <BasePropertyMapForm
+            id={id}
+            action={createAction}
+            type='building'
             initialValues={initialValues}
             organization={organization}
-            type='building'
-            address={property.address}
+            property={property}
         >
             {({ handleSave, isLoading }) => {
                 return (
-                    <>
-                        <Form.Item noStyle dependencies={['address']}>
-                            {
-                                ({ getFieldsValue }) => {
-                                    const { address } = getFieldsValue(['address'])
-                                    return (
+                    <Form.Item noStyle dependencies={['address']}>
+                        {
+                            () => (
+                                <ActionBar>
+                                    <Space size={12}>
                                         <Button
                                             key='submit'
                                             onClick={handleSave}
                                             type='sberDefaultGradient'
                                             loading={isLoading}
-                                            disabled={!address}
-                                            style={{ marginTop: 60 }}
                                         >
                                             {ApplyChangesLabel}
                                         </Button>
-                                    )
-                                }
-                            }
-                        </Form.Item>
-                    </>
+                                    </Space>
+                                </ActionBar>
+                            )
+                        }
+                    </Form.Item>
                 )
             }}
-        </BasePropertyForm>
+        </BasePropertyMapForm>
     )
 }
+
+export default CreatePropertyMapForm
