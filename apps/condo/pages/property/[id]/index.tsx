@@ -45,12 +45,13 @@ export const PropertyPageContent = ({ property, role }) => {
     const DeletePropertyLabel = intl.formatMessage({ id: 'pages.condo.property.form.DeleteLabel' })
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'pages.condo.property.form.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'pages.condo.property.form.ConfirmDeleteMessage' })
+    const AreaTitle = intl.formatMessage({ id: 'pages.condo.property.form.AreaTitle' })
+    const YearOfConstructionTitle = intl.formatMessage({ id: 'pages.condo.property.form.YearOfConstructionTitle' })
     const UpdateTitle = intl.formatMessage({ id: 'Edit' })
+    const UnknownValueTitle = intl.formatMessage({ id: 'pages.condo.property.id.UnknownMessage' })
 
     const { push } = useRouter()
-
     const softDeleteAction = useSoftDelete({}, () => push('/property/'))
-
     return (
         <>
             <Row gutter={[12, 40]} align='top'>
@@ -72,6 +73,12 @@ export const PropertyPageContent = ({ property, role }) => {
                 </Col>
                 <Col flex={0}>
                     <PropertyInfoPanel title={TicketsInWorkTitle} message={property.ticketsInWork}  type='warning' />
+                </Col>
+                <Col flex={0}>
+                    <PropertyInfoPanel title={AreaTitle} message={property.area ? property.area : UnknownValueTitle } />
+                </Col>
+                <Col flex={0}>
+                    <PropertyInfoPanel title={YearOfConstructionTitle} message={property.yearOfConstruction ?  property.yearOfConstruction : UnknownValueTitle} />
                 </Col>
             </Row>
             <Row gutter={[12, 40]} style={{ marginTop: '40px' }}>
@@ -120,7 +127,6 @@ const PropertyIdPage: IPropertyIdPage = () => {
 
     const { query: { id } } = useRouter()
     const { loading, obj: property, error } = useObject({ where: { id: id as string } })
-
     const { link } = useOrganization()
 
     if (error || loading) {

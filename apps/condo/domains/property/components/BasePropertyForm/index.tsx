@@ -45,6 +45,8 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const intl = useIntl()
     const AddressLabel = intl.formatMessage({ id: 'pages.condo.property.field.Address' })
     const NameMsg = intl.formatMessage({ id: 'pages.condo.property.form.field.Name' })
+    const AreaTitle = intl.formatMessage({ id: 'pages.condo.property.form.AreaTitle' })
+    const YearOfConstructionTitle = intl.formatMessage({ id: 'pages.condo.property.form.YearOfConstructionTitle' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const AddressMetaError = intl.formatMessage({ id: 'errors.AddressMetaParse' })
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.property.warning.modal.Title' })
@@ -157,14 +159,16 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                             </Row>
                             <Row gutter={[50, 40]}>
                                 <Col span={4}>
-                                    <Form.Item name="square" label="Площадь" {...INPUT_LAYOUT_PROPS}>
-                                        <Input />
+                                    <Form.Item name="area" label={AreaTitle} {...INPUT_LAYOUT_PROPS}>
+                                        <Input type={'number'} />
                                     </Form.Item>
                                 </Col>
                                 <Col span={4}>
-                                    <Form.Item name="buildYear" label="Год постройки" {...INPUT_LAYOUT_PROPS}>
-                                        <Input />
-                                    </Form.Item>
+                                    <Form.Item
+                                        name="yearOfConstruction"
+                                        label={YearOfConstructionTitle}
+                                        {...INPUT_LAYOUT_PROPS}
+                                    ><Input /></Form.Item>
                                 </Col>
                             </Row>
                             <Row gutter={[0, 40]}>
