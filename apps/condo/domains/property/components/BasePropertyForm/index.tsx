@@ -29,6 +29,18 @@ interface IPropertyFormProps {
     address?: string
 }
 
+const INPUT_LAYOUT_PROPS = {
+    // labelCol: {
+    //     span: 8,
+    // },
+    // wrapperCol: {
+    //     span: 14,
+    // },
+    style: {
+        paddingBottom: '24px',
+    },
+}
+
 const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const intl = useIntl()
     const AddressLabel = intl.formatMessage({ id: 'pages.condo.property.field.Address' })
@@ -121,6 +133,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                         name="address"
                                         label={AddressLabel}
                                         rules={validations.address}
+                                        {...INPUT_LAYOUT_PROPS}
                                     >
                                         <AddressSuggestionsSearchInput
                                             onSelect={(_, option) => {
@@ -136,6 +149,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                     <Form.Item
                                         name="name"
                                         label={NameMsg}
+                                        {...INPUT_LAYOUT_PROPS}
                                     >
                                         <Input allowClear={true}/>
                                     </Form.Item>
@@ -143,12 +157,12 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                             </Row>
                             <Row gutter={[50, 40]}>
                                 <Col span={4}>
-                                    <Form.Item name="square" label="Площадь">
-                                        <Input type="number" />
+                                    <Form.Item name="square" label="Площадь" {...INPUT_LAYOUT_PROPS}>
+                                        <Input />
                                     </Form.Item>
                                 </Col>
                                 <Col span={4}>
-                                    <Form.Item name="buildYear" label="Год постройки">
+                                    <Form.Item name="buildYear" label="Год постройки" {...INPUT_LAYOUT_PROPS}>
                                         <Input />
                                     </Form.Item>
                                 </Col>
