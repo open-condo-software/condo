@@ -118,7 +118,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ mapValida
     const { push, query: { id } } = useRouter()
     const builderFormRef = useRef<HTMLDivElement | null>(null)
     const [Map, setMap] = useState(new MapEdit(map, updateFormField))
-    // const [modalVisible, setModalVisible] = useState<boolean>(false)
+    const [modalVisible, setModalVisible] = useState<boolean>(false)
 
     const scrollToForm = () => {
         if (builderFormRef && builderFormRef.current) {
@@ -145,15 +145,26 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ mapValida
         push(`/property/${id}`)
     }, [id])
 
-    const menuClick = useCallback((event) => {
+    const menuClick = (event) => {
         changeMode(event.key)
-        // setModalVisible(true)
-    }, [])
+        setModalVisible(true)
+    }
 
     const onModalCancel = useCallback(() => {
-        // setModalVisible(false)
-        changeMode(null)
+        changeMode('addSection')
+        setModalVisible(false)
     }, [])
+
+    useEffect(() => {
+        switch (mode) {
+            case 'editSection':
+            case 'editUnit':
+                setModalVisible(true)
+                break
+            default:
+                break
+        }
+    }, [mode])
 
     const menuOverlay = (
         <Menu css={MenuCss} onClick={menuClick}>
@@ -210,7 +221,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ mapValida
                         </Dropdown>
                     </Col>
                     <Modal
-                        visible={mode !== null}
+                        visible={modalVisible}
                         onCancel={onModalCancel}
                         css={ModalContainerCss}
                         footer={null}
