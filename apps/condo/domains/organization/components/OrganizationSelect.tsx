@@ -1,46 +1,85 @@
 /** @jsx jsx */
+import React, { useRef, useEffect } from 'react'
 import { Select } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
-import React, { useRef } from 'react'
 import { useOrganization } from '@core/next/organization'
 import { useAuth } from '@core/next/auth'
 import get from 'lodash/get'
 import { css, jsx } from '@emotion/core'
 import { useIntl } from '@core/next/intl'
-import { colors } from '@condo/domains/common/constants/style'
+import { colors, gradients, transitions } from '@condo/domains/common/constants/style'
 import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'
-import { useEffect } from 'react'
 
 const blackSelectCss = css`
   width: 200px;
-  color: ${colors.white};
-  &.ant-select:not(.ant-select-customize-input) .ant-select-selector {
-    border: 1px solid ${colors.black};
-    border-radius: 4px;
+  font-size: 16px;
+  font-weight: 600;
+
+  &.ant-select .ant-select-selector {
+    background: ${colors.white};
   }
-  &.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector {
-    border-color: ${colors.sberGrey[6]};
-    background-color: ${colors.black};
-    color: ${colors.white};
+
+  &.ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+    height: 40px;
   }
-  &.ant-select:not(.ant-select-customize-input) .ant-select-selector {
-    background-color: ${colors.black};
+
+  &.ant-select-single:not(.ant-select-customize-input) .ant-select-selection-item {
+    line-height: 38px;
+    transition: none;
   }
-  & .ant-select-arrow{
-    color: ${colors.white};
+
+  //& {
+    //  transition: ${transitions.allDefault};
+  //}
+    //color: ${colors.white};
+  // &.ant-select:not(.ant-select-customize-input) .ant-select-selector {
+    //   border: 1px solid ${colors.black};
+  //   border-radius: 4px;
+  // }
+  // &.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector {
+    //   border-color: ${colors.sberGrey[6]};
+    //   background-color: ${colors.black};
+    //   color: ${colors.white};
+  // }
+  // &.ant-select:not(.ant-select-customize-input) .ant-select-selector {
+    //   background-color: ${colors.black};
+  // }
+  & .ant-select-arrow {
+    color: ${colors.black};
   }
+
   &.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector,
-  &.ant-select:not(.ant-select-disabled):hover .ant-select-selector{
-    border-color: ${colors.sberGrey[6]};
-    box-shadow: 0 0 0 1px ${colors.sberGrey[6]};
+  &.ant-select:not(.ant-select-disabled):hover .ant-select-selector,
+  &.ant-select.ant-select-single.ant-select-open .ant-select-selector {
+    background: ${gradients.sberActionGradient};
+    border: none;
   }
-  &.ant-select-single.ant-select-open .ant-select-selection-item{
+  &.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selection-item,
+  &.ant-select:not(.ant-select-disabled):hover .ant-select-selection-item,
+  &.ant-select.ant-select-single.ant-select-open .ant-select-selection-item {
     color: ${colors.white};
   }
-  & .ant-select-item-option-selected:not(.ant-select-item-option-disabled){
-      background: ${colors.white};
+  &.ant-select:not(.ant-select-disabled):hover .ant-select-arrow,
+  &.ant-select.ant-select-single.ant-select-open .ant-select-arrow {
+    color: ${colors.white};
   }
+
+  &.ant-select:not(.ant-select-disabled):active .ant-select-selector {
+    background: ${gradients.sberActionInversed};
+  }
+
+  &.ant-select.ant-select-single.ant-select-open .ant-select-selector {
+    background: ${gradients.sberActionGradient};
+    border: none unset;
+  }
+
+  //&.ant-select-single.ant-select-open .ant-select-selection-item{
+    //  color: ${colors.white};
+  //}
+  //& .ant-select-item-option-selected:not(.ant-select-item-option-disabled){
+    //    background: ${colors.white};
+  //}
 `
 // TODO(zuch): can't use emotion css here
 const optionStyle: React.CSSProperties = {
