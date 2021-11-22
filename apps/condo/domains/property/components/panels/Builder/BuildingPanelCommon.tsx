@@ -28,7 +28,10 @@ export const EmptyFloor: React.FC = () => {
     )
 }
 
-export const EmptyBuildingBlock: React.FC = () => {
+interface IEmptyBuildingBlock {
+    mode?: 'view' | 'edit'
+}
+export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view' }) => {
     const intl = useIntl()
     const EmptyPropertyBuildingHeader = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingHeader' })
     const EmptyPropertyBuildingDescription = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingDescription' })
@@ -52,16 +55,17 @@ export const EmptyBuildingBlock: React.FC = () => {
             <Typography.Text style={descriptionStyle}>
                 {EmptyPropertyBuildingDescription}
             </Typography.Text>
-            <Button
-                type={'sberDefaultGradient'}
-                style={{ marginTop: 20 }}
-                secondary
-                onClick={createMapCallback}
-            >{MapCreateTitle}</Button>
+            {mode === 'view' && (
+                <Button
+                    type={'sberDefaultGradient'}
+                    style={{ marginTop: 20 }}
+                    secondary
+                    onClick={createMapCallback}
+                >{MapCreateTitle}</Button>
+            )}
         </BasicEmptyListView>
     )
 }
-
 
 interface IBuildingAxisYProps {
     floors: number[]
@@ -85,6 +89,7 @@ interface IBuildingChooseSectionsProps {
     refresh(): void
     toggleFullscreen?(): void
     isFullscreen?: boolean
+    mode?: 'view' | 'edit'
 }
 
 export const BuildingChooseSections: React.FC<IBuildingChooseSectionsProps> = ({
@@ -92,6 +97,8 @@ export const BuildingChooseSections: React.FC<IBuildingChooseSectionsProps> = ({
     refresh,
     toggleFullscreen,
     isFullscreen,
+    mode = 'view',
+    children,
 }) => {
     const intl = useIntl()
     const RequestFullscreenMessage = intl.formatMessage({ id: 'FullscreenRequest' })
@@ -119,7 +126,7 @@ export const BuildingChooseSections: React.FC<IBuildingChooseSectionsProps> = ({
                     ))
                 }
                 <Col style={{ marginLeft: 'auto' }}>
-                    <span>
+                    {mode === 'view' && (
                         <Button
                             style={{ position: 'relative' }}
                             color={'green'}
@@ -133,7 +140,8 @@ export const BuildingChooseSections: React.FC<IBuildingChooseSectionsProps> = ({
                                 ? ExitFullscreenMessage
                                 : RequestFullscreenMessage}
                         </Button>
-                    </span>
+                    )}
+                    {mode === 'edit' && children}
                 </Col>
             </Row>
         </Checkbox.Group>
