@@ -27,6 +27,7 @@ const beautifulBlue = '#eFF7FF'
 const markColor = '#B5CCFF'
 const lightRed = '#FFF1F0'
 const brightRed = '#F5222D'
+const sberDangerRed = '#EB3468'
 const whiteTranslucent = 'rgba(255, 255, 255, 0.9)'
 const indigo = '#5473C3'
 const turquoiseBlue = '#6BEAC7'
@@ -79,6 +80,7 @@ const colors = {
     scampi,
     zircon,
     logoPurple,
+    sberDangerRed,
 }
 
 const fontSizes = {
