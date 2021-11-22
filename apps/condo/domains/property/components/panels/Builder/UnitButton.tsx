@@ -2,80 +2,86 @@
 import React from 'react'
 import { css, jsx } from '@emotion/core'
 import { Button, ButtonProps, Tooltip } from 'antd'
+import { colors, gradients } from '@condo/domains/common/constants/style'
 
 const buttonCss = css`
     display: inline-block;
     background-color: #FFF;
     border: 1px solid #F5F5F5;
     color: black;
-    font-size: 14px;
-    line-height: 40px;
-    font-weight: bold;
-    border-radius: 5px;
-    margin-top: 2px;
-    margin-right: 2px;
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 600;
+    border-radius: 8px;
+    margin-top: 8px;
+    margin-right: 8px;
     text-align: center;
-    height: 40px;
-    width: 40px;
-    padding: 0px;
+    height: 44px;
+    width: 44px;
+    padding: 0;
     box-shadow: none;
-
+    
+    &:last-child {
+      margin-right: 0;
+    }
+    
     &:hover {
-        background-color: #F5F5F5;
-        color: black;
-        border-color:  black;
+        background: ${gradients.sberActionGradient};
+        color: ${colors.white};
+        border-color: transparent;
     }
     &:focus {
-        background-color: #F5F5F5;
-        color: black;
-        border-color:  #F5F5F5;
+        background-color: ${gradients.sberActionGradient};
+        color: ${colors.white};
+        border-color: transparent;
     }
-
+    
     &:active {
-        background-color: #F5F5F5;
-        color: black;
-        border-color: black;
+        background-color: ${gradients.sberActionGradient};
+        color: ${colors.white};
+        border-color: transparent;
     }
-
+    
     &:disabled, &:disabled:hover {
-        background-color: #F5F5F5;
+        background-color: ${colors.white};
         cursor: default;
+        pointer-events: none;
         color: black;
-        border: 1px solid #F5F5F5;
+        border: transparent;
     }
- `
+`
 
 const buttonSecondaryCss = css`
     display: inline-block;
     background-color: transparent;
-    border: 1px solid transparent;
+    border: 1px solid ${colors.inputBorderHover};
     color: black;
-    font-size: 12px;
+    font-size: 14px;
     line-height: 40px;
-    border-radius: 5px;
-    margin-top: 2px;
-    margin-right: 2px;
+    border-radius: 8px;
+    margin-top: 8px;
+    margin-right: 8px;
     text-align: center;
-    height: 40px;
-    width: 40px;
-    padding: 0px;
+    height: 44px;
+    width: 44px;
+    padding: 0;
     box-shadow: none;
 
     &:hover {
-        background-color: transparent;
-        color: black;
-        border-color: black;
+        background: ${gradients.sberActionGradient};
+        color: white;
+        border-color: transparent;
     }
     &:focus {
-        background-color: transparent;
-        color: black;
+        background: ${gradients.sberActionGradient};
+        color: white;
         border-color: transparent;
     }
 
     &:active {
-        background-color: transparent;
-        color: black;
-        border-color: black;
+        background: ${gradients.sberActionGradient};
+        color: white;
+        border-color: transparent;
     }
 
     &:disabled, &:hover:disabled {
@@ -86,9 +92,9 @@ const buttonSecondaryCss = css`
     }    
 `
 const selectedCss = css`
-    background-color: black;
+    background: ${gradients.sberActionInversed};
     color: white;
-    border-color: black;
+    border-color: transparent;
     &:hover {
         background-color: black;
         color: white;
@@ -108,10 +114,11 @@ const selectedCss = css`
     }    
 `
 const previewCss = css`
-    opacity: 0.3;
+    opacity: 0.5;
 `
 const noninteractiveCss = css`
     cursor: default;
+    pointer-events: none;
     &:after {
         animation: none !important;
     }    

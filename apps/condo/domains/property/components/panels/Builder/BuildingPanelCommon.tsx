@@ -135,8 +135,7 @@ export const BuildingChooseSections: React.FC<IBuildingChooseSectionsProps> = ({
                     {mode === 'view' && (
                         <Button
                             style={{ position: 'relative' }}
-                            color={'green'}
-                            type={'sberPrimary'}
+                            type={'sberDefaultGradient'}
                             secondary
                             icon={isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
                             size={'large'}

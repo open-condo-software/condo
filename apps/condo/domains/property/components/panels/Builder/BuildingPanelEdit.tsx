@@ -112,7 +112,6 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ mapValida
     const AddInterFloorRoom = intl.formatMessage({ id: 'pages.condo.property.select.option.interflootroom' })
     const AddBasement = intl.formatMessage({ id: 'pages.condo.property.select.option.basement' })
     const AddCeil = intl.formatMessage({ id: 'pages.condo.property.select.option.ceil' })
-    const AddLabel = intl.formatMessage({ id: 'Add' })
     const AddElementTitle = intl.formatMessage({ id: 'pages.condo.property.menu.MenuPlaceholder' })
 
     const { push, query: { id } } = useRouter()

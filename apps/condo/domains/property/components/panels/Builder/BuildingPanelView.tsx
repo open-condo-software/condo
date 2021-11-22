@@ -58,19 +58,6 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
             <FullscreenHeader edit={false}>
                 <Row>
                     <Col flex={0} style={{ marginTop: '10px' }}><b>{get(property, 'address')}</b></Col>
-                    <Col style={{ marginLeft: 'auto',  marginRight: '36px' }}>
-                        <Link href={`/property/${get(property, 'id')}/update`}>
-                            <span>
-                                <Button
-                                    color={'green'}
-                                    type={'sberPrimary'}
-                                    secondary
-                                    icon={<EditFilled />}
-                                    size={'large'}
-                                />
-                            </span>
-                        </Link>
-                    </Col>
                 </Row>
             </FullscreenHeader>
             <Row align='bottom' style={{ width: '100%', textAlign: 'center' }} >
