@@ -245,8 +245,6 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
         </Menu>
     )
 
-    console.log(mode)
-
     return (
         <FullscreenWrapper mode={'edit'} className='fullscreen'>
             <FullscreenHeader edit={true}>
