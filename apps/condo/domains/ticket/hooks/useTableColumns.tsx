@@ -25,6 +25,7 @@ import { EMERGENCY_TAG_COLOR } from '@condo/domains/ticket/constants/style'
 import { TicketStatus } from '../utils/clientSchema'
 import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
 import { IFilters } from '../utils/helpers'
+import { getTicketDetailsRender } from '../utils/clientSchema/Renders'
 
 const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
 
@@ -196,7 +197,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 width: '12%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'details'),
                 filterIcon: getFilterIcon,
-                render: getTableCellRenderer(search, true),
+                render: getTicketDetailsRender(search),
             },
             {
                 title: ClassifierTitle,

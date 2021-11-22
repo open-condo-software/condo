@@ -173,7 +173,7 @@ export const ContactsPageContent = ({
     )
 }
 
-const SORTABLE_PROPERTIES = ['name', 'phone', 'email']
+const SORTABLE_PROPERTIES = ['name', 'unitName', 'phone', 'email']
 
 const ContactsPage = () => {
     const router = useRouter()
