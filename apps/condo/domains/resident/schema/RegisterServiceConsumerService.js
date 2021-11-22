@@ -5,12 +5,12 @@
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
 const { getById, GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/resident/access/RegisterServiceConsumerService')
-const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const { BillingIntegrationOrganizationContext, BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 const { ServiceConsumer, Resident } = require('../utils/serverSchema')
 const { NOT_FOUND_ERROR, REQUIRED_NO_VALUE_ERROR } = require('@condo/domains/common/constants/errors')
 
 const get = require('lodash/get')
+const { getSchemaCtx } = require('@core/keystone/schema')
 
 async function getResidentBillingAccount (context, billingIntegrationContext, accountNumber, unitName) {
 
@@ -60,12 +60,16 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
 
                 if (!tin) { throw new Error(`${REQUIRED_NO_VALUE_ERROR}tin] tin null or empty: ${tin}`) }
 
-                // Todo (DOMA-1604) add filtering by tin
-                // Right now we don't actaully use tin for getting an organization, but get organization from resident. Reasons:
-                // 1. We can't optimally filter on tin: (DOMA-1604)
-                // 2. Right now it's okay to get organiation from resident. We would need to get organization by tin when we add new Acquiring
-                // const [ organization ] = await Organization.getAll(context, { meta_in: { tin: tin } })
-                const [ organization ] = await Organization.getAll(context, { id: get(resident, ['organization', 'id']) })
+                // GraphQL from Keystone does not supports querying of database fields of type JSON.
+                const { keystone } = await getSchemaCtx('Organization')
+                const knex = keystone.adapter.knex
+                const result = await knex('Organization')
+                    .whereRaw('meta->>\'inn\' = ?', [tin])
+                    .orderBy('createdAt', 'desc')
+                    .select('id')
+
+                const [organization] = result
+
                 if (!organization) {
                     throw new Error(`${NOT_FOUND_ERROR}organization] Organization is not found by this tin: ${tin}`)
                 }
