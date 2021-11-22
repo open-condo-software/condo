@@ -75,7 +75,7 @@ const getVolumeRender = (decimals: number) => {
             )
         }
         return (
-            <Tooltip title={text}>{roundedVolume}...</Tooltip>
+            <Tooltip title={text}>{roundedVolume}…</Tooltip>
         )
     }
 }
