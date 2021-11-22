@@ -1,16 +1,17 @@
 /** @jsx jsx */
-import { jsx } from '@emotion/core'
-import { useIntl } from '@core/next/intl'
-import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import React, { useRef, useEffect, useCallback } from 'react'
 import { Col, Row, Typography, Checkbox } from 'antd'
 import { FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons'
+import { useIntl } from '@core/next/intl'
+import { useRouter } from 'next/router'
+import { jsx } from '@emotion/core'
+import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { fontSizes, colors } from '@condo/domains/common/constants/style'
 import { Button } from '@condo/domains/common/components/Button'
-import React, { useRef, useEffect, useCallback } from 'react'
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import { MapEdit, MapView } from './MapConstructor'
 import { FullscreenFooter } from './Fullscreen'
-import { fontSizes } from '@condo/domains/common/constants/style'
-import { useRouter } from 'next/router'
 
 export const PropertyMapFloor: React.FC = ({ children }) => {
     return (
@@ -33,9 +34,11 @@ interface IEmptyBuildingBlock {
 }
 export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view' }) => {
     const intl = useIntl()
-    const EmptyPropertyBuildingHeader = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingHeader' })
-    const EmptyPropertyBuildingDescription = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingDescription' })
-    const MapCreateTitle = intl.formatMessage({ id: 'pages.condo.property.CreateMapTitle' })
+    const EmptyPropertyBuildingHeader = intl.formatMessage({ id: `pages.condo.property.EmptyBuildingBlock.${mode}.EmptyBuildingHeader` })
+    const EmptyPropertyBuildingDescription = intl.formatMessage({ id: `pages.condo.property.EmptyBuildingBlock.${mode}.EmptyBuildingDescription` })
+    const MapCreateTitle = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingBlock.view.CreateMapTitle' })
+    const ImportExcelTitle = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingBlock.view.ImportDataTitle' })
+    const NotImplementedMessage = intl.formatMessage({ id: 'NotImplementedYet' })
 
     const { push, asPath } = useRouter()
     const createMapCallback = useCallback(() => {
@@ -43,17 +46,27 @@ export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view
     }, [asPath])
 
     const descriptionStyle = {
-        display: 'flex',
+        display: 'block',
         fontSize: fontSizes.content,
         maxWidth: '350px',
+        color: colors.inputBorderHover,
+        margin: 'auto',
     }
+    const importLinkStyle = {
+        color: colors.black,
+    }
+
     return (
         <BasicEmptyListView image='/propertyEmpty.svg'>
-            <Typography.Title level={3} >
+            <Typography.Title level={3}>
                 {EmptyPropertyBuildingHeader}
             </Typography.Title>
             <Typography.Text style={descriptionStyle}>
-                {EmptyPropertyBuildingDescription}
+                {EmptyPropertyBuildingDescription}{mode === 'view' && (
+                    <Tooltip title={NotImplementedMessage}>
+                        <Typography.Link style={importLinkStyle}>{ImportExcelTitle}</Typography.Link>
+                    </Tooltip>
+                )}
             </Typography.Text>
             {mode === 'view' && (
                 <Button
