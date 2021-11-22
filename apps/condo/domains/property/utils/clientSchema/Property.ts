@@ -52,7 +52,7 @@ function convertToUIFormState (state: IPropertyUIState): IPropertyFormState | un
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
         result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
-        if (attr === 'yearOfConstruction' && state[attr].length) {
+        if (attr === 'yearOfConstruction' && state[attr] !== null) {
             result[attr] = dayjs(state[attr]).format('YYYY')
         }
     }
