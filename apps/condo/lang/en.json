@@ -86,6 +86,7 @@
   "field.Phone.lengthError": "The value of the field \" Phone \"is too long (Maximum: 15 characters)",
   "field.Phone.requiredError": "Enter your phone",
   "field.Property.requiredError": "Enter the address",
+  "field.Property.nonSelectedError": "Select address from the list",
   "field.Unit.requiredError": "Select unit",
   "field.email.requiredError": "Enter email",
   "field.FullName.requiredError": "Enter contact name",
