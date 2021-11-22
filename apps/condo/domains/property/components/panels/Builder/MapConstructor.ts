@@ -323,7 +323,7 @@ class MapEdit extends MapView {
         })
     }
 
-    private mode = 'addSection'
+    private mode = null
 
     get editMode (): string {
         return this.mode
@@ -352,7 +352,10 @@ class MapEdit extends MapView {
                 this.selectedSection = null
                 break
             default:
-                this.mode = 'addSection'
+                this.removePreviewUnit()
+                this.removePreviewSection()
+                this.selectedSection = null
+                this.selectedUnit = null
         }
         this.mode = mode
     }
