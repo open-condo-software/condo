@@ -147,7 +147,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const AddUnit = intl.formatMessage({ id: 'pages.condo.property.select.option.unit' })
     const AddFloor = intl.formatMessage({ id: 'pages.condo.property.select.option.floor' })
     const AddParking = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
-    const AddInterFloorRoom = intl.formatMessage({ id: 'pages.condo.property.select.option.interflootroom' })
+    const AddInterFloorRoom = intl.formatMessage({ id: 'pages.condo.property.select.option.interfloorroom' })
     const AddBasement = intl.formatMessage({ id: 'pages.condo.property.select.option.basement' })
     const AddCeil = intl.formatMessage({ id: 'pages.condo.property.select.option.ceil' })
     const AddElementTitle = intl.formatMessage({ id: 'pages.condo.property.menu.MenuPlaceholder' })
