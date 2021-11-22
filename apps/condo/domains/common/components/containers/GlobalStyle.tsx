@@ -55,11 +55,11 @@ export default function GlobalStyle () {
               }
 
               /*TODO(Dimitreee): remove input style ovveride after select customization*/
-              .ant-input{
-                &:focus, &:active, &:focus:hover, &:active:hover {
-                  background-color: ${colors.ultraLightGrey} !important;
-                }
-              }
+              // .ant-input{
+              //   &:focus, &:active, &:focus:hover, &:active:hover {
+              //     background-color: ${colors.ultraLightGrey} !important;
+              //   }
+              // }
 
               .react-tel-input .ant-input {
                 background-color: ${colors.ultraLightGrey} !important;
@@ -80,15 +80,15 @@ export default function GlobalStyle () {
               }
 
               .ant-input-affix-wrapper, .ant-input-affix-wrapper-focused {
-                background-color: ${colors.ultraLightGrey} !important;
+                background-color: ${colors.whiteTranslucent} !important;
               }
 
               /*TODO(Dimitreee): remove select style ovveride after select customization*/
-              .ant-select-focused {
-                &.ant-select:not(.ant-select-customize-input):not(disabled) .ant-select-selector {
-                  background-color: ${colors.ultraLightGrey};
-                }
-              }
+              // .ant-select-focused {
+              //   &.ant-select:not(.ant-select-customize-input):not(disabled) .ant-select-selector {
+              //     background-color: ${colors.ultraLightGrey};
+              //   }
+              // }
               
               .ant-checkbox {
                 border-color: ${colors.inputBorderGrey};

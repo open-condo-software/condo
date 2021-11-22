@@ -38,7 +38,6 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.property.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.property.warning.modal.HelpMessage' })
     const AddressValidationErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.AddressValidationErrorMsg' })
-    const SameUnitNamesErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameUnitNamesErrorMsg' })
     const SamePropertyErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SamePropertyErrorMsg' })
 
     const { addressApi } = useAddressApi()
@@ -141,55 +140,20 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                         <Input allowClear={true}/>
                                     </Form.Item>
                                 </Col>
-                                <Col span={24} >
-                                    <Form.Item
-                                        hidden
-                                        name='map'
-                                        rules={[
-                                            {
-                                                validator (rule, value) {
-                                                    const unitLabels = value?.sections
-                                                        ?.map((section) => section.floors
-                                                            ?.map(floor => floor.units
-                                                                ?.map(unit => unit.label)
-                                                            )
-                                                        )
-                                                        .flat(2)
-
-                                                    if (unitLabels && unitLabels.length !== new Set(unitLabels).size) {
-                                                        setMapValidationError(SameUnitNamesErrorMsg)
-                                                        return Promise.reject()
-                                                    }
-
-                                                    setMapValidationError(null)
-                                                    return Promise.resolve()
-                                                },
-                                            },
-                                        ]}
-                                    >
-                                        <Input />
-                                    </Form.Item>
-                                    <Form.Item
-                                        shouldUpdate={true}
-                                        onBlur={() => setMapValidationError(null)}
-                                    >
-                                        {
-                                            ({ getFieldsValue, setFieldsValue }) => {
-                                                const { map } = getFieldsValue(['map'])
-                                                return (
-                                                    <PropertyPanels
-                                                        mapValidationError={mapValidationError}
-                                                        mode='edit'
-                                                        map={map}
-                                                        handleSave={handleSave}
-                                                        updateMap={map => setFieldsValue({ map })}
-                                                        address={props.address}
-                                                    />
-                                                )
-                                            }
-                                        }
+                            </Row>
+                            <Row gutter={[50, 40]}>
+                                <Col span={4}>
+                                    <Form.Item name="square" label="Площадь">
+                                        <Input type="number" />
                                     </Form.Item>
                                 </Col>
+                                <Col span={4}>
+                                    <Form.Item name="buildYear" label="Год постройки">
+                                        <Input />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                            <Row gutter={[0, 40]}>
                                 <Col span={24}>
                                     {props.children({ handleSave, isLoading, form })}
                                 </Col>
