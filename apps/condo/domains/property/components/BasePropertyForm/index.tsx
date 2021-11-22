@@ -9,7 +9,6 @@ import { FormWithAction } from '@condo/domains/common/components/containers/Form
 import { AddressSuggestionsSearchInput } from '@condo/domains/property/components/AddressSuggestionsSearchInput'
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { PropertyPanels } from '../panels'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { AddressMetaField } from '@app/condo/schema'
 import { useState } from 'react'
@@ -17,7 +16,6 @@ import { validHouseTypes } from '@condo/domains/property/constants/property'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { PROPERTY_WITH_SAME_ADDRESS_EXIST } from '../../constants/errors'
 import { omitRecursively } from '@core/keystone/fields/Json/utils/cleaner'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
 interface IOrganization {
     id: string
@@ -32,12 +30,12 @@ interface IPropertyFormProps {
 }
 
 const INPUT_LAYOUT_PROPS = {
-    labelCol: {
-        span: 12,
-    },
-    wrapperCol: {
-        span: 12,
-    },
+    // labelCol: {
+    //     span: 12,
+    // },
+    // wrapperCol: {
+    //     span: 12,
+    // },
     style: {
         paddingBottom: '24px',
     },
@@ -61,8 +59,6 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const { addressApi } = useAddressApi()
     const { action, initialValues } = props
 
-    const { isSmall } = useLayoutContext()
-    const [mapValidationError, setMapValidationError] = useState<string | null>(null)
     const [addressValidatorError, setAddressValidatorError] = useState<string | null>(null)
     const formValuesToMutationDataPreprocessor = useCallback((formData, _, form) => {
         const isAddressFieldTouched = form.isFieldsTouched(['address'])
@@ -146,7 +142,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                 </Typography.Paragraph>
                             </Prompt>
                             <Row gutter={[0, 40]}>
-                                <Col xs={24} lg={7}>
+                                <Col xs={24} lg={11}>
                                     <Form.Item
                                         name="address"
                                         label={AddressLabel}
@@ -163,7 +159,10 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                             }} />
                                     </Form.Item>
                                 </Col>
-                                <Col xs={24} lg={7} offset={isSmall ? 0 : 1}>
+                                
+                            </Row>
+                            <Row gutter={[0, 40]}>
+                                <Col xs={24} lg={11}>
                                     <Form.Item
                                         name="name"
                                         label={NameMsg}
