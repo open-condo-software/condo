@@ -3,6 +3,7 @@
 import React, { useCallback } from 'react'
 import { useIntl } from '@core/next/intl'
 import { Col, Form, Input, notification, Row, Typography } from 'antd'
+import isEmpty from 'lodash/isEmpty'
 import dayjs from 'dayjs'
 import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
@@ -30,16 +31,18 @@ interface IPropertyFormProps {
 }
 
 const INPUT_LAYOUT_PROPS = {
-    // labelCol: {
-    //     span: 12,
-    // },
-    // wrapperCol: {
-    //     span: 12,
-    // },
     style: {
         paddingBottom: '24px',
     },
 }
+const FORM_WITH_ACTION_STYLES = {
+    width: '100%',
+}
+const PROPERTY_FULLSCREEN_ROW_GUTTER = [0, 40]
+const PROPERTY_ROW_GUTTER = [50, 40]
+
+const FORM_WITH_ACTION_VALIDATION_TRIGGERS = ['onBlur', 'onSubmit']
+
 
 const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const intl = useIntl()
@@ -66,7 +69,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
         if (isAddressFieldTouched) {
             try {
                 const addressMeta = addressApi.getAddressMeta(formData.address)
-                const yearOfConstruction = formData.yearOfConstruction && formData.yearOfConstruction.length > 0
+                const yearOfConstruction = formData.yearOfConstruction && !isEmpty(formData.yearOfConstruction)
                     ? dayjs().year(formData.yearOfConstruction).format('YYYY-MM-DD')
                     : null
                 return { ...formData, addressMeta: { dv: 1, ...addressMeta }, yearOfConstruction }
@@ -124,10 +127,10 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
             <FormWithAction
                 action={action}
                 initialValues={initialValues}
-                validateTrigger={['onBlur', 'onSubmit']}
+                validateTrigger={FORM_WITH_ACTION_VALIDATION_TRIGGERS}
                 formValuesToMutationDataPreprocessor={formValuesToMutationDataPreprocessor}
                 ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
-                style={{ width: '100%' }}
+                style={FORM_WITH_ACTION_STYLES}
             >
                 {({ handleSave, isLoading, form }) => {
                     return (
@@ -141,7 +144,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                     {PromptHelpMessage}
                                 </Typography.Paragraph>
                             </Prompt>
-                            <Row gutter={[0, 40]}>
+                            <Row gutter={PROPERTY_FULLSCREEN_ROW_GUTTER}>
                                 <Col xs={24} lg={11}>
                                     <Form.Item
                                         name="address"
@@ -159,9 +162,9 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                             }} />
                                     </Form.Item>
                                 </Col>
-                                
+
                             </Row>
-                            <Row gutter={[0, 40]}>
+                            <Row gutter={PROPERTY_FULLSCREEN_ROW_GUTTER}>
                                 <Col xs={24} lg={11}>
                                     <Form.Item
                                         name="name"
@@ -172,7 +175,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                     </Form.Item>
                                 </Col>
                             </Row>
-                            <Row gutter={[50, 40]}>
+                            <Row gutter={PROPERTY_ROW_GUTTER}>
                                 <Col span={isSmall ? 12 : 4} >
                                     <Form.Item
                                         name="area"
@@ -188,7 +191,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                     ><Input /></Form.Item>
                                 </Col>
                             </Row>
-                            <Row gutter={[0, 40]}>
+                            <Row gutter={PROPERTY_FULLSCREEN_ROW_GUTTER}>
                                 <Col span={24}>
                                     {props.children({ handleSave, isLoading, form })}
                                 </Col>

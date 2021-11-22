@@ -71,10 +71,6 @@ export default function GlobalStyle () {
                 -webkit-box-shadow: none !important;
                 box-shadow: none !important;
               }
-
-              .ant-input-affix-wrapper, .ant-input-affix-wrapper-focused {
-                background-color: ${colors.whiteTranslucent} !important;
-              }
               
               .ant-checkbox {
                 border-color: ${colors.inputBorderGrey};

@@ -235,40 +235,32 @@ export interface CustomButtonProps extends Omit<ButtonProps, 'type'>{
     secondary?: boolean
 }
 
+const SKIP_BUTTON_TYPES_FOR_DEFAULT = [
+    'sberDefault', 'sberGradient', 'sberDefaultGradient', 'sberPrimary', 'sberAction', 'sberDanger',
+    'sberDangerGhost', 'sberGrey', 'inlineLink', 'sberBlack', 'ghost',
+]
+
+const BUTTON_TYPE_STYLES = {
+    sberGradient: buttonGradientCss,
+    inlineLink: buttonLinkCss,
+    ghost: buttonGhostCss,
+    sberDangerGhost: sberDangerGhost,
+    sberBlack: sberBlackCss,
+}
+
 export const Button: React.FC<CustomButtonProps> = ({ type, secondary, ...restProps }) => {
-    if (
-        type !== 'sberDefault' &&
-        type !== 'sberGradient' &&
-        type !== 'sberDefaultGradient' &&
-        type !== 'sberPrimary' &&
-        type !== 'sberAction' &&
-        type !== 'sberDanger' &&
-        type !== 'sberDangerGhost' &&
-        type !== 'sberGrey' &&
-        type !== 'inlineLink' &&
-        type !== 'sberBlack' &&
-        type !== 'ghost'
-    ) {
-        return <DefaultButton {...{ ...restProps, type }}/>
-    } else {
-        let buttonStyles
-
-        if (type === 'sberGradient') {
-            buttonStyles = buttonGradientCss
-        } else if (type === 'inlineLink') {
-            buttonStyles = buttonLinkCss
-        } else if (type === 'ghost') {
-            buttonStyles = buttonGhostCss
-        } else if (type === 'sberDefaultGradient') {
-            buttonStyles = buttonDefaultGradientCss(secondary)
-        } else if (type === 'sberDangerGhost') {
-            buttonStyles = sberDangerGhost
-        } else if (type === 'sberBlack') {
-            buttonStyles = sberBlackCss
-        } else {
-            buttonStyles = secondary ? buttonSecondaryCss(colors[type]) : buttonCss(colors[type])
-        }
-
-        return <DefaultButton css={buttonStyles} {...restProps}/>
+    if (!SKIP_BUTTON_TYPES_FOR_DEFAULT.includes(type)) {
+        return <DefaultButton {...restProps} type={type as ButtonProps['type']}/>
     }
+
+    let buttonStyles
+    if (BUTTON_TYPE_STYLES[type]) {
+        buttonStyles = BUTTON_TYPE_STYLES[type]
+    } else if (type === 'sberDefaultGradient') {
+        buttonStyles = buttonDefaultGradientCss(secondary)
+    } else {
+        buttonStyles = secondary ? buttonSecondaryCss(colors[type]) : buttonCss(colors[type])
+    }
+
+    return <DefaultButton css={buttonStyles} {...restProps}/>
 }

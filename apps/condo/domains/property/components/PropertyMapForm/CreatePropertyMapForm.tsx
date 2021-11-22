@@ -14,6 +14,8 @@ interface ICreatePropertyForm {
     id: string
 }
 
+const PROPERTY_FORM_DEPENDENCIES = ['address']
+
 const CreatePropertyMapForm: React.FC<ICreatePropertyForm> = ({ id }) => {
     const intl = useIntl()
     const ApplyChangesLabel = intl.formatMessage({ id: 'ApplyChanges' })
@@ -33,13 +35,12 @@ const CreatePropertyMapForm: React.FC<ICreatePropertyForm> = ({ id }) => {
         refetch()
     }, [refetch])
 
-    if (error || loading) {
-        return (
-            <>
-                {(loading) ? <Loader size={'large'} fill/> : null}
-                {(error) ? <Typography.Title>{error}</Typography.Title> : null}
-            </>
-        )
+    if (error) {
+        return <Typography.Title>{error}</Typography.Title>
+    }
+
+    if (loading) {
+        return <Loader size={'large'} fill />
     }
 
     return (
@@ -53,31 +54,27 @@ const CreatePropertyMapForm: React.FC<ICreatePropertyForm> = ({ id }) => {
         >
             {({ handleSave, isLoading }) => {
                 return (
-                    <Form.Item noStyle dependencies={['address']}>
-                        {
-                            () => (
-                                <ActionBar>
-                                    <Space size={12}>
-                                        <Button
-                                            key='submit'
-                                            onClick={handleSave}
-                                            type='sberDefaultGradient'
-                                            loading={isLoading}
-                                        >
-                                            {ApplyChangesLabel}
-                                        </Button>
-                                        <Link href={`/property/${id}`}>
-                                            <Button
-                                                key='cancel'
-                                                secondary
-                                                type='sberDefaultGradient'>
-                                                {CancelChangesLabel}
-                                            </Button>
-                                        </Link>
-                                    </Space>
-                                </ActionBar>
-                            )
-                        }
+                    <Form.Item noStyle dependencies={PROPERTY_FORM_DEPENDENCIES}>
+                        <ActionBar>
+                            <Space size={12}>
+                                <Button
+                                    key='submit'
+                                    onClick={handleSave}
+                                    type='sberDefaultGradient'
+                                    loading={isLoading}
+                                >
+                                    {ApplyChangesLabel}
+                                </Button>
+                                <Link href={`/property/${id}`}>
+                                    <Button
+                                        key='cancel'
+                                        secondary
+                                        type='sberDefaultGradient'>
+                                        {CancelChangesLabel}
+                                    </Button>
+                                </Link>
+                            </Space>
+                        </ActionBar>
                     </Form.Item>
                 )
             }}
