@@ -50,8 +50,6 @@ export const FullscreenHeader = styled.div<{
         z-index: 2;
         margin: 0;
         display: block;
-        padding-left: 47px;
-        padding-right: 11px;
     }
 
     ${({ edit }) => (edit ? `
