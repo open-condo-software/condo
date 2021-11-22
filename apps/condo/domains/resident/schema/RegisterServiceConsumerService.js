@@ -35,7 +35,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
     types: [
         {
             access: true,
-            type: 'input RegisterServiceConsumerInput { dv: Int!, sender: SenderFieldInput!, residentId: ID!, accountNumber: String!, tin: String! }',
+            type: 'input RegisterServiceConsumerInput { dv: Int!, sender: SenderFieldInput!, residentId: ID!, accountNumber: String!, tin: String!, validations: [String] }',
         },
     ],
 
@@ -45,7 +45,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
             access: access.canRegisterServiceConsumer,
             schema: 'registerServiceConsumer(data: RegisterServiceConsumerInput!): ServiceConsumer',
             resolver: async (parent, args, context = {}) => {
-                const { data: { dv, sender, residentId, accountNumber, tin } } = args
+                const { data: { dv, sender, residentId, accountNumber, tin, validations } } = args
 
                 if (!accountNumber || accountNumber.length === 0) { throw new Error(`${REQUIRED_NO_VALUE_ERROR}accountNumber] Account number null or empty: ${accountNumber}`) }
 
@@ -69,22 +69,16 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                 const unitName = get(resident, ['unitName'])
 
                 let paymentFeatureAttrs = {}
-
                 const [ billingIntegrationContext ] = await BillingIntegrationOrganizationContext.getAll(context, { organization: { id: organization.id } })
                 if (billingIntegrationContext) {
 
                     const [acquiringIntegrationContext] = await AcquiringIntegrationContext.getAll(context, { organization: { id: organization.id } })
                     const [billingAccount] = await getResidentBillingAccount(context, billingIntegrationContext, accountNumber, unitName)
 
-                    paymentFeatureAttrs = { billingAccount: billingAccount
-                        ? { connect: { id: billingAccount.id } }
-                        : null,
-                    billingIntegrationContext: billingIntegrationContext
-                        ? { connect: { id: billingIntegrationContext.id } }
-                        : null,
-                    acquiringIntegrationContext: acquiringIntegrationContext
-                        ? { connect: { id: acquiringIntegrationContext.id } }
-                        : null,
+                    paymentFeatureAttrs = {
+                        billingAccount: billingAccount ? { connect: { id: billingAccount.id } } : null,
+                        billingIntegrationContext: billingIntegrationContext ? { connect: { id: billingIntegrationContext.id } } : null,
+                        acquiringIntegrationContext: acquiringIntegrationContext ? { connect: { id: acquiringIntegrationContext.id } } : null,
                     }
                 }
 
@@ -96,9 +90,22 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     organization: { connect: { id: organization.id } },
                 }
 
+                const optionalAttrs = {
+                    ...paymentFeatureAttrs,
+                }
+
+                // User can request explicit validation of some fields. This is required for iOS and Android mobile clients
+                if (Array.isArray(validations)) {
+                    validations.forEach(field => {
+                        if (!get(optionalAttrs, [field], false)) {
+                            throw new Error(`${NOT_FOUND_ERROR}${field}] ${field} is not found, but required in custom validations`)
+                        }
+                    })
+                }
+
                 const attrs = {
                     ...requiredAttrs,
-                    ...paymentFeatureAttrs,
+                    ...optionalAttrs,
                 }
 
                 const [existingServiceConsumer] = await ServiceConsumer.getAll(context, {
