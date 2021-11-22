@@ -146,13 +146,14 @@ const buttonGradientCss = css`
     `
 const buttonDefaultGradientCss = (secondary = false) => {
     const border = secondary ? `1px solid ${colors.inputBorderHover}` : 'none'
+    const height =  '48px'
     return  css`
       background: ${secondary ? 'transparent' : colors.black};
       border-radius: 8px;
       color: ${secondary ? colors.black : colors.defaultWhite[5]};
       box-shadow: none;
       padding: 12px 18px;
-      height: auto;
+      height: ${height};
       font-weight: 700;
       transition: none;
       outline: none;
@@ -161,11 +162,13 @@ const buttonDefaultGradientCss = (secondary = false) => {
       &:hover, &:focus {
         color: ${colors.defaultWhite[5]};
         background: ${gradients.sberActionGradient};
+        border-color: transparent;
       }
     
       &:active {
         color: ${colors.defaultWhite[5]};
-        background: ${gradients.sberActionInversed};    
+        background: ${gradients.sberActionInversed};
+        border-color: transparent;
       }
     
       &:disabled, &:hover:disabled {
