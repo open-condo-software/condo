@@ -319,7 +319,7 @@
   "pages.condo.property.select.option.unit": "Помещение",
   "pages.condo.property.select.option.floor": "Этаж",
   "pages.condo.property.select.option.parking": "Паркинг",
-  "pages.condo.property.select.option.interflootroom": "Межэтажное помещение",
+  "pages.condo.property.select.option.interfloorroom": "Межэтажное помещение",
   "pages.condo.property.select.option.basement": "Подвал",
   "pages.condo.property.select.option.ceil": "Чердак",
   "pages.condo.property.modal.title.addSection": "Добавить подъезд",
