@@ -118,14 +118,7 @@ export const BuildingChooseSections: React.FC<IBuildingChooseSectionsProps> = ({
                 css={FullscreenFooter}
                 gutter={[40, 40]}
             >
-                {
-                    sections.length >= 2 && sections.map(section => (
-                        <Col key={section.id} flex={0} style={{ paddingTop: '10px' }}>
-                            <Checkbox value={section.id}>{section.name}</Checkbox>
-                        </Col>
-                    ))
-                }
-                <Col style={{ marginLeft: 'auto' }}>
+                <Col>
                     {mode === 'view' && (
                         <Button
                             style={{ position: 'relative' }}
@@ -143,6 +136,13 @@ export const BuildingChooseSections: React.FC<IBuildingChooseSectionsProps> = ({
                     )}
                     {mode === 'edit' && children}
                 </Col>
+                {
+                    sections.length >= 2 && sections.map(section => (
+                        <Col key={section.id} flex={0} style={{ paddingTop: '10px' }}>
+                            <Checkbox value={section.id}>{section.name}</Checkbox>
+                        </Col>
+                    ))
+                }
             </Row>
         </Checkbox.Group>
     )
