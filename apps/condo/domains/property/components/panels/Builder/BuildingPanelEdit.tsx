@@ -117,7 +117,8 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ mapValida
     const { push, query: { id } } = useRouter()
     const builderFormRef = useRef<HTMLDivElement | null>(null)
     const [Map, setMap] = useState(new MapEdit(map, updateFormField))
-    const [modalVisible, setModalVisible] = useState<boolean>(false)
+
+    const mode = Map.editMode
 
     const scrollToForm = () => {
         if (builderFormRef && builderFormRef.current) {
@@ -133,37 +134,28 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ mapValida
             }
         }
     }
-    const refresh = () => setMap(cloneDeep(Map))
-    const changeMode = (mode) => {
+
+    const refresh = useCallback(() => {
+        setMap(cloneDeep(Map))
+    }, [Map])
+
+    const changeMode = useCallback((mode) => {
         Map.editMode = mode
         refresh()
-    }
-    const mode = Map.editMode
+    }, [Map, refresh])
+
 
     const onCancel = useCallback(() => {
         push(`/property/${id}`)
-    }, [id])
+    }, [id, push])
 
-    const menuClick = (event) => {
+    const menuClick = useCallback((event) => {
         changeMode(event.key)
-        setModalVisible(true)
-    }
-
-    const onModalCancel = useCallback(() => {
-        changeMode('addSection')
-        setModalVisible(false)
     }, [changeMode])
 
-    useEffect(() => {
-        switch (mode) {
-            case 'editSection':
-            case 'editUnit':
-                setModalVisible(true)
-                break
-            default:
-                break
-        }
-    }, [mode])
+    const onModalCancel = useCallback(() => {
+        changeMode(null)
+    }, [changeMode])
 
     const menuOverlay = (
         <Menu css={MenuCss} onClick={menuClick}>
@@ -220,16 +212,16 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ mapValida
                         </Dropdown>
                     </Col>
                     <Modal
-                        visible={modalVisible}
+                        visible={mode !== null}
                         onCancel={onModalCancel}
                         css={ModalContainerCss}
                         footer={null}
                         mask={false}
-                        title={
+                        title={mode !== null && (
                             <Typography.Text>
                                 {intl.formatMessage({ id: `pages.condo.property.modal.title.${mode}` })}
                             </Typography.Text>
-                        }
+                        )}
                     >
                         {
                             {
