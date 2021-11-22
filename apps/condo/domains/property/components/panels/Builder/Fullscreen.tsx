@@ -43,7 +43,6 @@ export const FullscreenHeader = styled.div<{
     ` : '')}
 
     div.fullscreen & {
-        border-bottom: 1px solid ${colors.lightGrey[5]};
         background: ${colors.whiteTranslucent};
         position: fixed;
         left: 0;
