@@ -12,6 +12,10 @@ interface IUpdatePropertyForm {
     id: string
 }
 
+const FORM_SUBMIT_BUTTON_STYLES = {
+    marginTop: '60px',
+}
+
 export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
     const intl = useIntl()
     const ApplyChangesLabel = intl.formatMessage({ id: 'ApplyChanges' })
@@ -57,7 +61,7 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
                                             type='sberDefaultGradient'
                                             loading={isLoading}
                                             disabled={!address}
-                                            style={{ marginTop: 60 }}
+                                            style={FORM_SUBMIT_BUTTON_STYLES}
                                         >
                                             {ApplyChangesLabel}
                                         </Button>

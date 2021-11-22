@@ -9,6 +9,10 @@ import { useOrganization } from '@core/next/organization'
 
 const DEFAULT_PROPERTY_TYPE = 'building'
 
+const FORM_SUBMIT_BUTTON_STYLES = {
+    marginTop: '60px',
+}
+
 export const CreatePropertyForm: React.FC = () => {
     const intl = useIntl()
     const CreatePropertyMessage = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
@@ -45,7 +49,7 @@ export const CreatePropertyForm: React.FC = () => {
                                         type='sberDefaultGradient'
                                         loading={isLoading}
                                         disabled={!address}
-                                        style={{ marginTop: 60 }}
+                                        style={FORM_SUBMIT_BUTTON_STYLES}
                                     >{CreatePropertyMessage}</Button>
                                 )
                             }

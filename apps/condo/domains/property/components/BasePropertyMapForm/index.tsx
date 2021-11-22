@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import { Typography, Form, Input } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
@@ -20,6 +20,12 @@ interface IPropertyMapFormProps {
     action?: (...args) => void
 }
 
+const PROPERTY_MAP_FORM_STYLES = {
+    width: '100%',
+}
+
+const PROPERTY_FORM_VALIDATION_TRIGGER = ['onBlur', 'onSubmit']
+
 const BasePropertyMapForm: React.FC<IPropertyMapFormProps> = ({ action, initialValues, property, children }) => {
     const intl = useIntl()
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.property.warning.modal.Title' })
@@ -28,12 +34,16 @@ const BasePropertyMapForm: React.FC<IPropertyMapFormProps> = ({ action, initialV
 
     const [mapValidationError, setMapValidationError] = useState<string | null>(null)
 
+    const onFormBlur = useCallback(() => {
+        setMapValidationError(null)
+    }, [])
+
     return (
         <FormWithAction
             action={action}
             initialValues={initialValues}
-            validateTrigger={['onBlur', 'onSubmit']}
-            style={{ width: '100%' }}
+            validateTrigger={PROPERTY_FORM_VALIDATION_TRIGGER}
+            style={PROPERTY_MAP_FORM_STYLES}
         >
             {({ handleSave, isLoading, form }) => (
                 <>
@@ -76,7 +86,7 @@ const BasePropertyMapForm: React.FC<IPropertyMapFormProps> = ({ action, initialV
                     <Form.Item
                         shouldUpdate={true}
                         // @ts-ignore
-                        onBlur={() => setMapValidationError(null)}
+                        onBlur={onFormBlur}
                     >
                         {
                             ({ getFieldsValue, setFieldsValue }) => {

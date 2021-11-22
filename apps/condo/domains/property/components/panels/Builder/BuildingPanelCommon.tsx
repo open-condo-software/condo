@@ -32,6 +32,18 @@ export const EmptyFloor: React.FC = () => {
 interface IEmptyBuildingBlock {
     mode?: 'view' | 'edit'
 }
+
+const IMPORT_LINK_STYLE = {
+    color: colors.black,
+}
+const DESCRIPTION_STYLE = {
+    display: 'block',
+    fontSize: fontSizes.content,
+    maxWidth: '350px',
+    color: colors.inputBorderHover,
+    margin: 'auto',
+}
+
 export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view' }) => {
     const intl = useIntl()
     const EmptyPropertyBuildingHeader = intl.formatMessage({ id: `pages.condo.property.EmptyBuildingBlock.${mode}.EmptyBuildingHeader` })
@@ -45,26 +57,16 @@ export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view
         push(asPath + '/map/update')
     }, [asPath])
 
-    const descriptionStyle = {
-        display: 'block',
-        fontSize: fontSizes.content,
-        maxWidth: '350px',
-        color: colors.inputBorderHover,
-        margin: 'auto',
-    }
-    const importLinkStyle = {
-        color: colors.black,
-    }
 
     return (
         <BasicEmptyListView image='/propertyEmpty.svg'>
             <Typography.Title level={3}>
                 {EmptyPropertyBuildingHeader}
             </Typography.Title>
-            <Typography.Text style={descriptionStyle}>
+            <Typography.Text style={DESCRIPTION_STYLE}>
                 {EmptyPropertyBuildingDescription}{mode === 'view' && (
                     <Tooltip title={NotImplementedMessage}>
-                        <Typography.Link style={importLinkStyle}>{ImportExcelTitle}</Typography.Link>
+                        <Typography.Link style={IMPORT_LINK_STYLE}>{ImportExcelTitle}</Typography.Link>
                     </Tooltip>
                 )}
             </Typography.Text>
