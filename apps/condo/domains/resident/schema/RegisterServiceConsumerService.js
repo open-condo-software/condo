@@ -41,7 +41,10 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
 
     mutations: [
         {
-            schemaDoc: 'This mutation tries to create service consumer',
+            schemaDoc: 'This mutation creates service consumer with default data, and automatically populates the optional data fields, such as `billingAccount`.' +
+                ' Validation argument allows to explicitly set the array of fields that needs to be populated in resulting serviceConsumer.' +
+                ' If some field is not populated, the mutation will fail. If validations is omitted, then no validations would be performed. ' +
+                'Example: registerServiceConsumer(...args, validations: ["billingAccount"]) would explicitly run billing account validations',
             access: access.canRegisterServiceConsumer,
             schema: 'registerServiceConsumer(data: RegisterServiceConsumerInput!): ServiceConsumer',
             resolver: async (parent, args, context = {}) => {
