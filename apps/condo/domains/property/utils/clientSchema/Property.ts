@@ -10,7 +10,7 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { Property as PropertyGQL } from '@condo/domains/property/gql'
 import { Property, PropertyUpdateInput, QueryAllPropertiesArgs } from '@condo/domains/property/schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'name', 'address', 'addressMeta', 'type', 'map', 'ticketsInWork', 'ticketsClosed', 'unitsCount']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'name', 'address', 'addressMeta', 'type', 'map', 'ticketsInWork', 'ticketsClosed', 'unitsCount', 'yearOfConstruction', 'area']
 const RELATIONS = ['organization']
 import { BuildingMap, AddressMetaField } from '@app/condo/schema'
 
@@ -23,6 +23,7 @@ export interface IPropertyUIState extends Property {
     ticketsClosed: string
     unitsCount: string
     map?: BuildingMap
+    area?: number
 }
 
 function convertToUIState (item: Property): IPropertyUIState {
@@ -38,6 +39,7 @@ export interface IPropertyFormState {
     name?: string
     address?: string
     map?: BuildingMap
+    area?: number
     // address: string,
     // TODO(codegen): write IPropertyUIFormState or extends it from
 }

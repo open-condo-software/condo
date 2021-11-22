@@ -18871,6 +18871,10 @@ export type Property = {
   ticketsClosed?: Maybe<Scalars['String']>;
   /**  Counter for not closed tickets  */
   ticketsInWork?: Maybe<Scalars['String']>;
+  /**  Year of the property was built  */
+  yearOfConstruction?: Maybe<Scalars['String']>;
+  /**  Property area in square meters  */
+  area?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -18891,6 +18895,8 @@ export type PropertyCreateInput = {
   type?: Maybe<PropertyTypeType>;
   map?: Maybe<Scalars['JSON']>;
   unitsCount?: Maybe<Scalars['Int']>;
+  yearOfConstruction?: Maybe<Scalars['String']>;
+  area?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -18922,6 +18928,8 @@ export type PropertyHistoryRecord = {
   unitsCount?: Maybe<Scalars['Int']>;
   ticketsClosed?: Maybe<Scalars['JSON']>;
   ticketsInWork?: Maybe<Scalars['JSON']>;
+  yearOfConstruction?: Maybe<Scalars['String']>;
+  area?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -18947,6 +18955,8 @@ export type PropertyHistoryRecordCreateInput = {
   unitsCount?: Maybe<Scalars['Int']>;
   ticketsClosed?: Maybe<Scalars['JSON']>;
   ticketsInWork?: Maybe<Scalars['JSON']>;
+  yearOfConstruction?: Maybe<Scalars['String']>;
+  area?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -18977,6 +18987,8 @@ export type PropertyHistoryRecordUpdateInput = {
   unitsCount?: Maybe<Scalars['Int']>;
   ticketsClosed?: Maybe<Scalars['JSON']>;
   ticketsInWork?: Maybe<Scalars['JSON']>;
+  yearOfConstruction?: Maybe<Scalars['String']>;
+  area?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -19086,6 +19098,22 @@ export type PropertyHistoryRecordWhereInput = {
   ticketsInWork_not?: Maybe<Scalars['JSON']>;
   ticketsInWork_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   ticketsInWork_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  yearOfConstruction?: Maybe<Scalars['String']>;
+  yearOfConstruction_not?: Maybe<Scalars['String']>;
+  yearOfConstruction_lt?: Maybe<Scalars['String']>;
+  yearOfConstruction_lte?: Maybe<Scalars['String']>;
+  yearOfConstruction_gt?: Maybe<Scalars['String']>;
+  yearOfConstruction_gte?: Maybe<Scalars['String']>;
+  yearOfConstruction_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  yearOfConstruction_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  area?: Maybe<Scalars['String']>;
+  area_not?: Maybe<Scalars['String']>;
+  area_lt?: Maybe<Scalars['String']>;
+  area_lte?: Maybe<Scalars['String']>;
+  area_gt?: Maybe<Scalars['String']>;
+  area_gte?: Maybe<Scalars['String']>;
+  area_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  area_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -19194,6 +19222,8 @@ export type PropertyUpdateInput = {
   type?: Maybe<PropertyTypeType>;
   map?: Maybe<Scalars['JSON']>;
   unitsCount?: Maybe<Scalars['Int']>;
+  yearOfConstruction?: Maybe<Scalars['String']>;
+  area?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -19276,6 +19306,22 @@ export type PropertyWhereInput = {
   unitsCount_gte?: Maybe<Scalars['Int']>;
   unitsCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   unitsCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  yearOfConstruction?: Maybe<Scalars['String']>;
+  yearOfConstruction_not?: Maybe<Scalars['String']>;
+  yearOfConstruction_lt?: Maybe<Scalars['String']>;
+  yearOfConstruction_lte?: Maybe<Scalars['String']>;
+  yearOfConstruction_gt?: Maybe<Scalars['String']>;
+  yearOfConstruction_gte?: Maybe<Scalars['String']>;
+  yearOfConstruction_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  yearOfConstruction_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  area?: Maybe<Scalars['String']>;
+  area_not?: Maybe<Scalars['String']>;
+  area_lt?: Maybe<Scalars['String']>;
+  area_lte?: Maybe<Scalars['String']>;
+  area_gt?: Maybe<Scalars['String']>;
+  area_gte?: Maybe<Scalars['String']>;
+  area_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  area_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -26640,6 +26686,10 @@ export enum SortPropertiesBy {
   TypeDesc = 'type_DESC',
   UnitsCountAsc = 'unitsCount_ASC',
   UnitsCountDesc = 'unitsCount_DESC',
+  YearOfConstructionAsc = 'yearOfConstruction_ASC',
+  YearOfConstructionDesc = 'yearOfConstruction_DESC',
+  AreaAsc = 'area_ASC',
+  AreaDesc = 'area_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -26667,6 +26717,10 @@ export enum SortPropertyHistoryRecordsBy {
   TypeDesc = 'type_DESC',
   UnitsCountAsc = 'unitsCount_ASC',
   UnitsCountDesc = 'unitsCount_DESC',
+  YearOfConstructionAsc = 'yearOfConstruction_ASC',
+  YearOfConstructionDesc = 'yearOfConstruction_DESC',
+  AreaAsc = 'area_ASC',
+  AreaDesc = 'area_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
