@@ -126,6 +126,8 @@ const antGlobalVariables = {
     '@input-hover-border-color': inputBorderHover,
     '@input-height-base': '48px',
     '@input-height-lg': '48px',
+    '@btn-height-lg': '48px',
+    '@btn-padding-horizontal-lg': '20px',
     '@input-disabled-bg': whiteTranslucent,
     '@select-background': whiteTranslucent,
     '@select-clear-background': whiteTranslucent,

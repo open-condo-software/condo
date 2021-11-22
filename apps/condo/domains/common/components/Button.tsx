@@ -118,8 +118,6 @@ const buttonGradientCss = css`
       border-radius: 8px;
       color: ${colors.defaultWhite[5]};
       box-shadow: none;
-      padding: 12px 18px;
-      height: auto;
       font-weight: 700;
       transition: none;
       outline: none;
@@ -146,14 +144,11 @@ const buttonGradientCss = css`
     `
 const buttonDefaultGradientCss = (secondary = false) => {
     const border = secondary ? `1px solid ${colors.inputBorderHover}` : 'none'
-    const height =  '48px'
     return  css`
       background: ${secondary ? 'transparent' : colors.black};
       border-radius: 8px;
       color: ${secondary ? colors.black : colors.defaultWhite[5]};
       box-shadow: none;
-      padding: 12px 18px;
-      height: ${height};
       font-weight: 700;
       transition: none;
       outline: none;
@@ -206,8 +201,6 @@ const sberDangerGhost = css`
     font-weight: bold;
     border-color: ${colors.sberDangerRed};
     background-color: transparent;
-    padding: 12px 18px;
-    height: auto;
   }
   &:hover, &:focus {
     border-color: unset;
