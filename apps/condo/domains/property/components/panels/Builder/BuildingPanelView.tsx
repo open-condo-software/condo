@@ -77,7 +77,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
                                 nativeMobileScroll={true}
                             >
                                 {
-                                    Builder.visibleSections.length > 0 ? <BuildingAxisY floors={Builder.possibleChosenFloors} /> : null
+                                    Builder.sections.length > 0 ? <BuildingAxisY floors={Builder.possibleChosenFloors} /> : null
                                 }
                                 {
                                     Builder.sections.map(section => {

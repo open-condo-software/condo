@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import React, { useRef, useEffect, useCallback } from 'react'
-import { Col, Row, Typography, Checkbox } from 'antd'
+import { Col, Row, Typography } from 'antd'
 import { FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
@@ -105,58 +105,42 @@ interface IBuildingChooseSectionsProps {
     mode?: 'view' | 'edit'
 }
 
-export const BuildingChooseSections: React.FC<IBuildingChooseSectionsProps> = ({
-    Builder,
-    refresh,
-    toggleFullscreen,
-    isFullscreen,
-    mode = 'view',
-    children,
-}) => {
+export const BuildingChooseSections: React.FC<IBuildingChooseSectionsProps> = (props) => {
     const intl = useIntl()
     const RequestFullscreenMessage = intl.formatMessage({ id: 'FullscreenRequest' })
     const ExitFullscreenMessage = intl.formatMessage({ id: 'FullscreenExit' })
 
-    const updateVisibleSections = (value) => {
-        Builder.setVisibleSections(value)
-        refresh()
-    }
-    const sections = Builder.sections
+    const {
+        toggleFullscreen,
+        isFullscreen,
+        mode = 'view',
+        children,
+    } = props
 
     return (
-        <Checkbox.Group onChange={updateVisibleSections} value={Builder.visibleSections}
-            style={{ width: '100%', marginTop: '36px' }} >
 
-            <Row
-                css={FullscreenFooter}
-                gutter={[40, 40]}
-            >
-                <Col>
-                    {mode === 'view' && (
-                        <Button
-                            style={{ position: 'relative' }}
-                            type={'sberDefaultGradient'}
-                            secondary
-                            icon={isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
-                            size={'large'}
-                            onClick={toggleFullscreen}
-                        >
-                            {isFullscreen
-                                ? ExitFullscreenMessage
-                                : RequestFullscreenMessage}
-                        </Button>
-                    )}
-                    {mode === 'edit' && children}
-                </Col>
-                {
-                    sections.length >= 2 && sections.map(section => (
-                        <Col key={section.id} flex={0} style={{ paddingTop: '10px' }}>
-                            <Checkbox value={section.id}>{section.name}</Checkbox>
-                        </Col>
-                    ))
-                }
-            </Row>
-        </Checkbox.Group>
+        <Row
+            css={FullscreenFooter}
+            gutter={[40, 40]}
+        >
+            <Col>
+                {mode === 'view' ? (
+                    <Button
+                        style={{ position: 'relative' }}
+                        type={'sberDefaultGradient'}
+                        secondary
+                        icon={isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
+                        size={'large'}
+                        onClick={toggleFullscreen}
+                    >
+                        {isFullscreen
+                            ? ExitFullscreenMessage
+                            : RequestFullscreenMessage}
+                    </Button>
+                ) : children}
+            </Col>
+        </Row>
+
     )
 }
 

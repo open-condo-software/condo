@@ -265,6 +265,8 @@
   "pages.condo.property.EmptyBuildingBlock.edit.EmptyBuildingHeader": "Нажмите кнопку «Добавить элемент»",
   "pages.condo.property.EmptyBuildingBlock.view.EmptyBuildingHeader": "Шахматка пока не создана",
   "pages.condo.property.EmptyBuildingBlock.view.ImportDataTitle": "импортировать Excel-файл",
+  "pages.condo.property.SectionSelect.AllTitle": "Все подъезды",
+  "pages.condo.property.SectionSelect.OptionPrefix": "Подъезд №",
   "pages.condo.property.field.Address": "Адрес",
   "pages.condo.property.field.Name": "Название ",
   "pages.condo.property.field.Organization": "Организация",

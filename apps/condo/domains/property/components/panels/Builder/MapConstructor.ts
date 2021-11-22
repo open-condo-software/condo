@@ -165,7 +165,6 @@ class MapView extends Map {
         if (!this.isMapValid) {
             console.log('Invalid JSON for property:map', this.validationErrors)
         }
-        this.setVisibleSections(this.sections.map(section => section.id))
     }
 
     get maxFloor (): number {
@@ -196,7 +195,7 @@ class MapView extends Map {
 
     get possibleChosenFloors (): number[] {
         const allIndexes = this.map.sections
-            .filter(section => this.visibleSections.includes(section.id))
+            .filter(section => this.visibleSections === null || this.visibleSections === section.id)
             .map(section => section.floors
                 .map(floor => floor.index))
             .flat()
@@ -209,14 +208,14 @@ class MapView extends Map {
     }
 
     // view or hide sections
-    public visibleSections: CheckboxValueType[]
+    public visibleSections: string | null = null
 
-    public setVisibleSections (ids: CheckboxValueType[]): void {
-        this.visibleSections = ids
+    public setVisibleSections (id: string | null): void {
+        this.visibleSections = id
     }
 
-    public isSectionVisible (id: string): boolean {
-        return this.visibleSections.includes(id)
+    public isSectionVisible (id: string | null): boolean {
+        return this.visibleSections === null || this.visibleSections === id
     }
 
     get sections (): BuildingSection[] {
@@ -383,13 +382,11 @@ class MapEdit extends MapView {
         }))
         this.previewSectionId = newSection.id
         this.map.sections.push(newSection)
-        this.visibleSections.push(newSection.id)
     }
 
     public addSection (section: Partial<BuildingSectionArg>): void {
         const newSection = this.generateSection(section)
         this.map.sections.push(newSection)
-        this.visibleSections.push(newSection.id)
         this.notifyUpdater()
     }
 
@@ -405,7 +402,7 @@ class MapEdit extends MapView {
     public removeSection (id: string): void {
         const sectionIndex = this.map.sections.findIndex(mapSection => mapSection.id === id)
         this.map.sections.splice(sectionIndex, 1)
-        this.editMode = 'addSection'
+        this.editMode = null
         this.notifyUpdater()
     }
 
@@ -495,7 +492,7 @@ class MapEdit extends MapView {
             this.map.sections[unitIndex.section].floors[unitIndex.floor].units[unitIndex.unit].label = unit.label
             this.updateUnitNumbers(unit)
         }
-        this.editMode = 'addSection'
+        this.editMode = null
         this.notifyUpdater()
     }
 
