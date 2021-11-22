@@ -22,6 +22,8 @@ export const StyledMenu = styled(Menu)`
   transform: translate(-5%, 10px);
 `
 
+const USER_ACTIONS_OPEN_DROPDOWN_TRIGGERS: ('hover' | 'click' | 'contextMenu')[] = ['hover', 'click']
+
 export const MobileUserMenu: React.FC = () => {
     const intl = useIntl()
     const SignInMessage = intl.formatMessage({ id: 'SignIn' })
@@ -51,7 +53,11 @@ export const MobileUserMenu: React.FC = () => {
     return (
         auth.isAuthenticated
             ? (
-                <Dropdown overlay={DropdownOverlay} placement='bottomLeft'>
+                <Dropdown
+                    overlay={DropdownOverlay}
+                    placement='bottomLeft'
+                    trigger={USER_ACTIONS_OPEN_DROPDOWN_TRIGGERS}
+                >
                     <Button type={'inlineLink'} icon={<Avatar size={40} icon={<UserOutlined/>}/>}/>
                 </Dropdown>
             )
