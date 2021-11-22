@@ -44,6 +44,8 @@ interface IResidentActionsProps {
     minified: boolean
 }
 
+const RESIDENT_ACTIONS_OPEN_DROPDOWN_TRIGGERS: ('hover' | 'click' | 'contextMenu')[] = ['hover', 'click']
+
 export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
     const intl = useIntl()
     const { minified } = props
@@ -53,6 +55,7 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
         <Dropdown
             overlay={ResidentAppealDropdownOverlay}
             placement={minified ? 'bottomRight' : 'bottomCenter'}
+            trigger={RESIDENT_ACTIONS_OPEN_DROPDOWN_TRIGGERS}
         >
             {
                 minified
