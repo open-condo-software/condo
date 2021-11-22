@@ -1,5 +1,5 @@
-import { ButtonProps, Typography } from 'antd'
-import { Button } from './Button'
+import { Typography } from 'antd'
+import { Button, CustomButtonProps } from './Button'
 import Modal from 'antd/lib/modal/Modal'
 import React, { useState } from 'react'
 import { DeleteFilled } from '@ant-design/icons'
@@ -10,7 +10,7 @@ interface IDeleteActionButtonWithConfirmModal {
     title: string
     message: string
     okButtonLabel: string
-    buttonCustomProps?: ButtonProps
+    buttonCustomProps?: CustomButtonProps
     buttonContent?: React.ReactNode
     action: () => Promise<any>
 }

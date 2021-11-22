@@ -6,7 +6,7 @@ import dayjs from 'dayjs'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { useObject, useSoftDelete } from '@condo/domains/property/utils/clientSchema/Property'
-import { EditFilled } from '@ant-design/icons'
+import { DeleteFilled } from '@ant-design/icons'
 import { colors } from '@condo/domains/common/constants/style'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import Head from 'next/head'
@@ -126,6 +126,8 @@ export const PropertyPageContent = ({ property, role }) => {
                                 message={ConfirmDeleteMessage}
                                 okButtonLabel={DeletePropertyLabel}
                                 action={() => softDeleteAction({}, property)}
+                                buttonCustomProps={{ type: 'sberDangerGhost', icon: <DeleteFilled /> }}
+                                buttonContent={<span>{DeletePropertyLabel}</span>}
                             />
                         </Space>
                     </ActionBar>
