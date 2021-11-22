@@ -121,6 +121,62 @@ describe('RegisterServiceConsumerService', () => {
         expect(out.billingAccount).toBeNull()
     })
 
+    it('creates b2b-integration serviceConsumer for valid input as resident and not fails with error even with explicit validations set', async () => {
+
+        const userClient = await makeClientWithProperty()
+        const adminClient = await makeLoggedInAdminClient()
+
+        const [integration] = await createTestBillingIntegration(adminClient)
+        const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
+        const [billingProperty] = await createTestBillingProperty(adminClient, context)
+        const [billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
+
+        await updateTestUser(adminClient, userClient.user.id, { type: RESIDENT })
+        const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
+            unitName: billingAccountAttrs.unitName,
+        })
+
+        const payload = {
+            residentId: resident.id,
+            accountNumber: billingAccountAttrs.number,
+            tin: userClient.organization.tin,
+            validations: ['billingAccount'],
+        }
+        const [ out ] = await registerServiceConsumerByTestClient(userClient, payload)
+
+        expect(out).toBeDefined()
+        expect(out.billingAccount.id).toEqual(billingAccountAttrs.id)
+    })
+
+    it('fails with error if billingAccount not found for resident without organization, but explicit validation is enabled', async () => {
+
+        const userClient = await makeClientWithProperty()
+        const adminClient = await makeLoggedInAdminClient()
+
+        const [integration] = await createTestBillingIntegration(adminClient)
+        const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
+        const [billingProperty] = await createTestBillingProperty(adminClient, context)
+        const [billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
+
+        await updateTestUser(adminClient, userClient.user.id, { type: RESIDENT })
+        const [resident] = await createTestResident(adminClient, userClient.user, undefined, userClient.property, {
+            unitName: billingAccountAttrs.unitName,
+        })
+
+        const payload = {
+            residentId: resident.id,
+            accountNumber: billingAccountAttrs.number,
+            tin: userClient.organization.tin,
+            validations: ['billingAccount'],
+        }
+
+        await catchErrorFrom(async () => {
+            await registerServiceConsumerByTestClient(userClient, payload)
+        }, (e) => {
+            expect(e.errors[0].message).toContain('billingAccount is not found')
+        })
+    })
+
     it('creates serviceConsumer without billingAccount for resident with wrong unitName', async () => {
 
         const userClient = await makeClientWithProperty()
