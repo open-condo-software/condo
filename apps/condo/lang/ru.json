@@ -86,6 +86,7 @@
   "field.Phone.lengthError": "Значение поля \"Телефон\" слишком длинное (Максимум: 15 симв.)",
   "field.Phone.requiredError": "Укажите телефон",
   "field.Property.requiredError": "Укажите адрес",
+  "field.Property.nonSelectedError": "Выберите адрес из списка",
   "field.Unit.requiredError": "Выберете квартиру",
   "field.email.requiredError": "Укажите email",
   "field.FullName.requiredError": "Укажите имя жителя",

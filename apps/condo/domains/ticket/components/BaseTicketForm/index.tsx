@@ -3,7 +3,7 @@
 import { useIntl } from '@core/next/intl'
 import { Checkbox, Col, Form, Input, Row, Typography, Tooltip, Tabs, Alert } from 'antd'
 import { get } from 'lodash'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
@@ -164,6 +164,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.Address' })
     const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
+    const AddressNotSelected = intl.formatMessage({ id: 'field.Property.nonSelectedError' })
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.HelpMessage' })
     const NoPropertiesMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.NoProperties' })
@@ -217,6 +218,17 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         canCreateContactRef.current = canCreateContact
     }, [canCreateContact])
 
+    const addressValidation = useCallback((_, value) => {
+        const searchValueLength = get(value, 'length', 0)
+        if (searchValueLength === 0) {
+            return Promise.resolve()
+        }
+
+        return selectedPropertyId !== undefined
+            ? Promise.resolve()
+            : Promise.reject(AddressNotSelected)
+    }, [selectedPropertyId])
+
     const action = async (variables, ...args) => {
         const { details, ...otherVariables } = variables
         let createdContact
@@ -236,7 +248,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         if (afterActionCompleted) {
             return afterActionCompleted(result)
         }
-
         return result
     }
 
@@ -295,8 +306,11 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                             ) : null
                                         }
                                         <Col span={24}>
-                                            <Form.Item name={'property'} label={AddressLabel}
-                                                rules={validations.property}>
+                                            <Form.Item
+                                                name={'property'}
+                                                label={AddressLabel}
+                                                rules={[...validations.property, { validator: addressValidation }]}
+                                            >
                                                 <PropertyAddressSearchInput
                                                     organization={organization}
                                                     autoFocus={true}
