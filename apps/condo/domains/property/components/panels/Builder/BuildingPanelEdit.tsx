@@ -1,9 +1,14 @@
+/** @jsx jsx */
 import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
-import { Col, Row, Typography, Input, Select, InputNumber, Space } from 'antd'
-import { DeleteFilled } from '@ant-design/icons'
+import { Col, Row, Typography, Input, Select, InputNumber, Space, Dropdown, Menu } from 'antd'
+import { css, jsx } from '@emotion/core'
+import styled from '@emotion/styled'
+import { fontSizes } from '@condo/domains/common/constants/style'
+import { DeleteFilled, DownOutlined } from '@ant-design/icons'
 import cloneDeep from 'lodash/cloneDeep'
+import { transitions } from '@condo/domains/common/constants/style'
 import {
     EmptyBuildingBlock,
     EmptyFloor,
@@ -21,7 +26,6 @@ import {
     BuildingSection,
 } from '@app/condo/schema'
 import { FullscreenWrapper, FullscreenHeader } from './Fullscreen'
-
 import ScrollContainer from 'react-indiana-drag-scroll'
 
 const { Option } = Select
@@ -29,6 +33,35 @@ const { Option } = Select
 const INPUT_STYLE = {
     width: '136px',
 }
+
+const TopRowCss = css`
+  margin-top: 24px;
+`
+
+const DropdownCss = css`
+  &.ant-dropdown-open .anticon-down,
+  &:hover .anticon-down {
+    transition: ${transitions.allDefault};
+    transform: rotate(180deg);
+  }
+`
+
+const MenuCss = css`
+  padding: 16px;
+  max-width: 280px;
+  
+  & button {
+    margin-bottom: 8px;
+    text-align: left;
+  }
+`
+
+const AddressTopTextContainer = styled.div`
+  font-size: ${fontSizes.content};
+  line-height: 24px;
+  font-weight: bold;
+  padding: 8px;
+`
 
 interface IBuildingPanelEditProps {
     map: BuildingMap
@@ -44,7 +77,13 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ mapValida
     const CancelLabel = intl.formatMessage({ id: 'Cancel' })
     const AddSection = intl.formatMessage({ id: 'pages.condo.property.select.option.section' })
     const AddUnit = intl.formatMessage({ id: 'pages.condo.property.select.option.unit' })
+    const AddFloor = intl.formatMessage({ id: 'pages.condo.property.select.option.floor' })
+    const AddParking = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
+    const AddInterFloorRoom = intl.formatMessage({ id: 'pages.condo.property.select.option.interflootroom' })
+    const AddBasement = intl.formatMessage({ id: 'pages.condo.property.select.option.basement' })
+    const AddCeil = intl.formatMessage({ id: 'pages.condo.property.select.option.ceil' })
     const AddLabel = intl.formatMessage({ id: 'Add' })
+    const AddElementTitle = intl.formatMessage({ id: 'pages.condo.property.menu.MenuPlaceholder' })
 
     const { push, query: { id } } = useRouter()
     const builderFormRef = useRef<HTMLDivElement | null>(null)
@@ -72,13 +111,48 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ mapValida
 
     const onCancel = useCallback(() => {
         push(`/property/${id}`)
-    }, [])
+    }, [id])
+
+    const menuOverlay = (
+        <Menu css={MenuCss}>
+            <Button type={'sberDefaultGradient'} secondary block>
+                {AddSection}
+            </Button>
+            <Button type={'sberDefaultGradient'} secondary block disabled>
+                {AddFloor}
+            </Button>
+            <Button type={'sberDefaultGradient'} secondary block disabled>
+                {AddParking}
+            </Button>
+            <Button type={'sberDefaultGradient'} secondary block>
+                {AddUnit}
+            </Button>
+            <Button type={'sberDefaultGradient'} secondary block disabled>
+                {AddInterFloorRoom}
+            </Button>
+            <Button type={'sberDefaultGradient'} secondary block disabled>
+                {AddBasement}
+            </Button>
+            <Button type={'sberDefaultGradient'} secondary block disabled>
+                {AddCeil}
+            </Button>
+        </Menu>
+    )
 
     return (
         <FullscreenWrapper mode={'edit'} className='fullscreen'>
             <FullscreenHeader edit={true}>
-                <Row style={{ paddingBottom: '39px', marginRight: '36px' }}>
-                    {address && <Col style={{ marginTop: '10px' }}><b>{address}</b></Col>}
+                <Row css={TopRowCss} style={{ paddingBottom: '39px', marginRight: '36px' }}>
+                    {address && (
+                        <Col flex={1}>
+                            <AddressTopTextContainer>{address}</AddressTopTextContainer>
+                        </Col>
+                    )}
+                    <Col span={3}>
+                        <Dropdown overlay={menuOverlay} css={DropdownCss}>
+                            <Button type={'sberDefaultGradient'} secondary>{AddElementTitle}<DownOutlined /></Button>
+                        </Dropdown>
+                    </Col>
                 </Row>
                 <Row align='middle' style={{ paddingBottom: '24px' }} gutter={[45, 10]} ref={builderFormRef} justify='start'>
                     {
