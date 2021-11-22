@@ -1,7 +1,8 @@
-import { useIntl } from '@core/next/intl'
 import React from 'react'
+import { useIntl } from '@core/next/intl'
 import { Row, Col, Typography, Tag, Space } from 'antd'
 import { useRouter } from 'next/router'
+import dayjs from 'dayjs'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { useObject, useSoftDelete } from '@condo/domains/property/utils/clientSchema/Property'
@@ -49,7 +50,6 @@ export const PropertyPageContent = ({ property, role }) => {
     const YearOfConstructionTitle = intl.formatMessage({ id: 'pages.condo.property.form.YearOfConstructionTitle' })
     const UpdateTitle = intl.formatMessage({ id: 'Edit' })
     const UnknownValueTitle = intl.formatMessage({ id: 'pages.condo.property.id.UnknownMessage' })
-
     const { push } = useRouter()
     const softDeleteAction = useSoftDelete({}, () => push('/property/'))
     return (
@@ -78,7 +78,12 @@ export const PropertyPageContent = ({ property, role }) => {
                     <PropertyInfoPanel title={AreaTitle} message={property.area ? property.area : UnknownValueTitle } />
                 </Col>
                 <Col flex={0}>
-                    <PropertyInfoPanel title={YearOfConstructionTitle} message={property.yearOfConstruction ?  property.yearOfConstruction : UnknownValueTitle} />
+                    <PropertyInfoPanel
+                        title={YearOfConstructionTitle}
+                        message={property.yearOfConstruction
+                            ? dayjs(property.yearOfConstruction).format('YYYY')
+                            : UnknownValueTitle}
+                    />
                 </Col>
             </Row>
             <Row gutter={[12, 40]} style={{ marginTop: '40px' }}>

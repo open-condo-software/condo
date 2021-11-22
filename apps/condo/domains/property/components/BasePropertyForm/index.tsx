@@ -1,8 +1,9 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
+import React, { useCallback } from 'react'
 import { useIntl } from '@core/next/intl'
 import { Col, Form, Input, notification, Row, Typography } from 'antd'
-import React, { useCallback } from 'react'
+import dayjs from 'dayjs'
 import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { AddressSuggestionsSearchInput } from '@condo/domains/property/components/AddressSuggestionsSearchInput'
@@ -16,6 +17,7 @@ import { validHouseTypes } from '@condo/domains/property/constants/property'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { PROPERTY_WITH_SAME_ADDRESS_EXIST } from '../../constants/errors'
 import { omitRecursively } from '@core/keystone/fields/Json/utils/cleaner'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
 interface IOrganization {
     id: string
@@ -30,12 +32,12 @@ interface IPropertyFormProps {
 }
 
 const INPUT_LAYOUT_PROPS = {
-    // labelCol: {
-    //     span: 8,
-    // },
-    // wrapperCol: {
-    //     span: 14,
-    // },
+    labelCol: {
+        span: 12,
+    },
+    wrapperCol: {
+        span: 12,
+    },
     style: {
         paddingBottom: '24px',
     },
@@ -53,9 +55,10 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.property.warning.modal.HelpMessage' })
     const AddressValidationErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.AddressValidationErrorMsg' })
     const SamePropertyErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SamePropertyErrorMsg' })
+    const WrongYearErrorMsg = intl.formatMessage({ id: 'pages.condo.property.form.YearValidationError' })
 
+    const { isSmall } = useLayoutContext()
     const { addressApi } = useAddressApi()
-
     const { action, initialValues } = props
 
     const { isSmall } = useLayoutContext()
@@ -67,8 +70,8 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
         if (isAddressFieldTouched) {
             try {
                 const addressMeta = addressApi.getAddressMeta(formData.address)
-
-                return { ...formData, addressMeta: { dv: 1, ...addressMeta } }
+                const yearOfConstruction = dayjs().year(formData.yearOfConstruction).format('YYYY-MM-DD')
+                return { ...formData, addressMeta: { dv: 1, ...addressMeta }, yearOfConstruction }
             } catch (e) {
                 notification.error({
                     message: ServerErrorMsg,
@@ -87,7 +90,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
         return cleanedFormData
     }, [initialValues])
 
-    const { requiredValidator } = useValidations()
+    const { requiredValidator, numberValidator } = useValidations()
     const addressValidator = {
         validator () {
             if (!addressValidatorError) {
@@ -96,8 +99,19 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
             return Promise.reject(addressValidatorError)
         },
     }
+    const yearOfConstructionValidator = {
+        validator (_, val) {
+            const receivedDate = dayjs().year(val)
+            if (val.length === 4 && receivedDate.isValid() && receivedDate.isBefore(dayjs().add(1, 'day'))) {
+                return Promise.resolve()
+            }
+            return Promise.reject(WrongYearErrorMsg)
+        },
+    }
     const validations = {
         address: [requiredValidator, addressValidator],
+        area: [numberValidator],
+        yearOfConstruction: [yearOfConstructionValidator],
     }
 
     const ErrorToFormFieldMsgMapping = {
@@ -158,16 +172,18 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                 </Col>
                             </Row>
                             <Row gutter={[50, 40]}>
-                                <Col span={4}>
-                                    <Form.Item name="area" label={AreaTitle} {...INPUT_LAYOUT_PROPS}>
-                                        <Input type={'number'} />
-                                    </Form.Item>
+                                <Col span={isSmall ? 12 : 4} >
+                                    <Form.Item
+                                        name="area"
+                                        label={AreaTitle}
+                                        rules={validations.area}
+                                    ><Input /></Form.Item>
                                 </Col>
-                                <Col span={4}>
+                                <Col span={isSmall ? 12 : 4} >
                                     <Form.Item
                                         name="yearOfConstruction"
                                         label={YearOfConstructionTitle}
-                                        {...INPUT_LAYOUT_PROPS}
+                                        rules={validations.yearOfConstruction}
                                     ><Input /></Form.Item>
                                 </Col>
                             </Row>

@@ -24,6 +24,7 @@ export interface IPropertyUIState extends Property {
     unitsCount: string
     map?: BuildingMap
     area?: number
+    yearOfConstruction?: string
 }
 
 function convertToUIState (item: Property): IPropertyUIState {
@@ -40,6 +41,7 @@ export interface IPropertyFormState {
     address?: string
     map?: BuildingMap
     area?: number
+    yearOfConstruction?: string
     // address: string,
     // TODO(codegen): write IPropertyUIFormState or extends it from
 }
