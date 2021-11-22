@@ -20,7 +20,8 @@ const white = '#fff'
 const lightGrey = '#D9D9D9'
 const sberGrey = '#999999'
 const ultraLightGrey = '#F0F0F0'
-const inputBorderGrey = '#BFBFBF'
+const inputBorderGrey = '#D0D3E5'
+const inputBorderHover = '#989EB7'
 const black = '#000'
 const beautifulBlue = '#eFF7FF'
 const markColor = '#B5CCFF'
@@ -33,6 +34,7 @@ const selago = '#F1F3FE'
 const scampi = '#525FA8'
 const zircon = '#F1F3FF'
 const logoPurple = '#525FAB'
+
 
 const CHART_COLOR_SET = [blue[5], green[5], red[4], gold[5], volcano[5], purple[5],
     lime[7], sberGrey, magenta[5], blue[4], gold[6], cyan[6],
@@ -112,16 +114,19 @@ const antGlobalVariables = {
     '@border-radius-base': '4px',
     '@white': white,
     '@black': black,
-    '@input-height-base': '32px',
-    '@form-item-label-height': '@input-height-base',
+    '@form-item-label-height': '22px',
     '@label-color': grey[2],
     '@input-border-color': inputBorderGrey,
     '@input-bg': whiteTranslucent,
-    '@input-hover-border-color': sberGreen,
-    '@select-background': ultraLightGrey,
-    '@select-clear-background': ultraLightGrey,
+    '@input-hover-border-color': inputBorderHover,
+    '@input-height-base': '48px',
+    '@input-height-lg': '48px',
+    '@input-disabled-bg': whiteTranslucent,
+    '@select-background': whiteTranslucent,
+    '@select-clear-background': whiteTranslucent,
+    '@select-single-item-height-lg': '48px',
     '@select-border-color': inputBorderGrey,
-    '@outline-color': sberGreen,
+    '@outline-color': inputBorderHover,
     '@outline-fade:': 0,
     '@outline-width': '1px',
     '@checkbox-color': sberGreen,
@@ -150,7 +155,7 @@ const antGlobalVariables = {
     '@success-color': green[6],
     '@warning-color': colors.orange[6],
     '@error-color': colors.red[5],
-    '@disabled-color': colors.sberGrey[2],
+    '@disabled-color': inputBorderGrey,
     '@link-color': green[6],
     '@link-hover-color': green[8],
     '@link-active-color': colors.sberPrimary[6],
