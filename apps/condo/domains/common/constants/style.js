@@ -111,7 +111,7 @@ const DEFAULT_STRONG_TEXT_FONT_WEIGHT = 800
 
 // Possible customizations can be found at https://github.com/ant-design/ant-design/blob/master/components/style/themes/default.less
 const antGlobalVariables = {
-    '@border-radius-base': '4px',
+    '@border-radius-base': '8px',
     '@white': white,
     '@black': black,
     '@form-item-label-height': '22px',
@@ -125,6 +125,7 @@ const antGlobalVariables = {
     '@select-background': whiteTranslucent,
     '@select-clear-background': whiteTranslucent,
     '@select-single-item-height-lg': '48px',
+    '@select-single-item-height-md': '40px',
     '@select-border-color': inputBorderGrey,
     '@outline-color': inputBorderHover,
     '@outline-fade:': 0,
