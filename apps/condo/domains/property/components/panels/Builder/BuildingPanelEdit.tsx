@@ -70,24 +70,12 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ mapValida
     }
     const mode = Map.editMode
 
-    // TODO(sitozzz): remove usages of isFullscreen state
-    const [isFullscreen, setFullscreen] = useState(true)
-
-    const toggleFullscreen = () => {
-        localStorage && localStorage.setItem('isFullscreen', String(!isFullscreen))
-        setFullscreen(!isFullscreen)
-    }
-
     const onCancel = useCallback(() => {
         push(`/property/${id}`)
     }, [])
 
-    // useEffect(() => {
-    //     setFullscreen(address && localStorage && localStorage.getItem('isFullscreen') === 'true')
-    // }, [])
-
     return (
-        <FullscreenWrapper mode={'edit'} className={isFullscreen ? 'fullscreen' : ''}>
+        <FullscreenWrapper mode={'edit'} className='fullscreen'>
             <FullscreenHeader edit={true}>
                 <Row style={{ paddingBottom: '39px', marginRight: '36px' }}>
                     {address && <Col style={{ marginTop: '10px' }}><b>{address}</b></Col>}
@@ -122,8 +110,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = ({ mapValida
                         Builder={Map}
                         refresh={refresh}
                         scrollToForm={scrollToForm}
-                        toggleFullscreen={toggleFullscreen}
-                        isFullscreen={isFullscreen}
+                        isFullscreen
                     >
                         <Space size={20}>
                             <Button
