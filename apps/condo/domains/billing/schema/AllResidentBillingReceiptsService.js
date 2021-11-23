@@ -13,7 +13,7 @@ const {
     BILLING_RECEIPT_RECIPIENT_FIELD_NAME,
     BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME,
     BILLING_RECEIPT_SERVICES_FIELD,
-} = require('@condo/domains/billing/constants')
+} = require('@condo/domains/billing/constants/constants')
 
 const fieldsObj = {
     id: 'ID',

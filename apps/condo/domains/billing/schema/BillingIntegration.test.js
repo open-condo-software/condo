@@ -52,9 +52,9 @@ describe('BillingIntegration', () => {
 
         test('Can be created with options', async () => {
             const support = await makeClientWithSupportUser()
-            const firstOption = { name: '1C', billingPageTitle: 'Биллиг "Реестры 1C"', details: { detailsText: 'о формате', detailsLink: faker.internet.url() } }
+            const firstOption = { name: '1C', billingPageTitle: 'Биллиг "Реестры 1C"', descriptionDetails: { detailsText: 'о формате', detailsLink: faker.internet.url() } }
             const secondOption = { name: 'Сббол 9_2', billingPageTitle: 'Биллиг "Реестрыыыыыы"' }
-            const thirdOption = { name: 'Сббол 8_1', details: { detailsText: 'о формате', detailsLink: faker.internet.url() } }
+            const thirdOption = { name: 'Сббол 8_1', descriptionDetails: { detailsText: 'о формате', detailsLink: faker.internet.url() } }
             const title = 'Формат ваших реестров'
             const payload = {
                 availableOptions: {

@@ -6,7 +6,7 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import {
     BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IN_PROGRESS_STATUS,
     BILLING_INTEGRATION_ORGANIZATION_CONTEXT_ERROR_STATUS,
-} from '@condo/domains/billing/constants'
+} from '@condo/domains/billing/constants/constants'
 import { ApolloError } from '@apollo/client'
 import { IBillingIntegrationOrganizationContextUIState } from '../../utils/clientSchema/BillingIntegrationOrganizationContext'
 import { MainContent } from './MainContent'

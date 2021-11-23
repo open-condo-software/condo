@@ -1,6 +1,6 @@
 const Ajv = require('ajv')
 const { render, getValidator } = require('@condo/domains/billing/schema/fields/utils/json.utils')
-const { BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME, BILLING_RECEIPT_TO_PAY_DETAILS_INPUT_NAME } = require('@condo/domains/billing/constants')
+const { BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME, BILLING_RECEIPT_TO_PAY_DETAILS_INPUT_NAME } = require('@condo/domains/billing/constants/constants')
 const { Json } = require('@core/keystone/fields')
 
 const ToPayDetailsFields = {
