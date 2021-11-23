@@ -229,6 +229,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
             : Promise.reject(AddressNotSelected)
     }, [selectedPropertyId])
 
+    const PROPERTY_VALIDATION_RULES = [...validations.property, { validator: addressValidation }]
+
     const action = async (variables, ...args) => {
         const { details, ...otherVariables } = variables
         let createdContact
@@ -309,7 +311,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                             <Form.Item
                                                 name={'property'}
                                                 label={AddressLabel}
-                                                rules={[...validations.property, { validator: addressValidation }]}
+                                                rules={PROPERTY_VALIDATION_RULES}
                                             >
                                                 <PropertyAddressSearchInput
                                                     organization={organization}
