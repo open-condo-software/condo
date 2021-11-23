@@ -9,6 +9,9 @@ const { expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorT
 const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { createTestOrganizationLink, createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
 const faker = require('faker')
+const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
+const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithResidentUserAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 
@@ -58,6 +61,16 @@ describe('Ticket', () => {
         const TICKET_OPEN_STATUS_ID = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
 
         expect(obj.status).toEqual(expect.objectContaining({ id: TICKET_OPEN_STATUS_ID }))
+    })
+
+    test('user with resident type: can create Ticket', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const userClient = await makeClientWithResidentUserAndProperty()
+        const [resident] = await createTestResident(admin, userClient.user, userClient.organization, userClient.property)
+
+        const [obj] = await createTestTicket(userClient, userClient.organization, userClient.property)
+
+        expect(obj.client).toBeDefined()
     })
 
     test('anonymous: create Ticket', async () => {

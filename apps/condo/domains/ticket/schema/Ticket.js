@@ -7,12 +7,11 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { Json, AutoIncrementInteger } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const get = require('lodash/get')
+const { addClientInfoToResidentTicket, addOrderToTicket } = require('../utils/serverSchema/resolveHelpers')
 
 const { SENDER_FIELD, DV_FIELD, CLIENT_PHONE_LANDLINE_FIELD, CLIENT_EMAIL_FIELD, CLIENT_NAME_FIELD, CONTACT_FIELD, CLIENT_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/ticket/access/Ticket')
-const { TICKET_ORDER_BY_STATUS } = require('@condo/domains/ticket/constants/statusTransitions')
-const { STATUS_IDS } = require('../constants/statusTransitions')
 const { triggersManager } = require('@core/triggers')
 const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS } = require('../constants')
 const { buildSetOfFieldsToTrackFrom } = require('@condo/domains/common/utils/serverSchema/changeTrackable')
@@ -21,6 +20,7 @@ const { hasDbFields, hasDvAndSenderFields } = require('@condo/domains/common/uti
 const { JSON_EXPECT_OBJECT_ERROR, DV_UNKNOWN_VERSION_ERROR, STATUS_UPDATED_AT_ERROR, JSON_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { createTicketChange, ticketChangeDisplayNameResolversForSingleRelations, relatedManyToManyResolvers } = require('../utils/serverSchema/TicketChange')
 const { normalizeText } = require('@condo/domains/common/utils/text')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user',
@@ -255,14 +255,15 @@ const Ticket = new GQLListSchema('Ticket', {
     hooks: {
         resolveInput: async ({ operation, listKey, context, resolvedData, existingItem }) => {
             await triggersManager.executeTrigger({ operation, data: { resolvedData, existingItem }, listKey }, context)
+            const user = get(context, ['req', 'user'])
             const statusId = get(resolvedData, 'status')
 
             if (statusId) {
-                if (statusId === STATUS_IDS.OPEN) {
-                    resolvedData.order = TICKET_ORDER_BY_STATUS[STATUS_IDS.OPEN]
-                } else {
-                    resolvedData.order = null
-                }
+                addOrderToTicket(resolvedData, statusId)
+            }
+
+            if (user.type === RESIDENT) {
+                await addClientInfoToResidentTicket(context, resolvedData)
             }
 
             return resolvedData
