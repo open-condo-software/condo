@@ -150,22 +150,21 @@ const buttonDefaultGradientCss = (secondary = false) => {
       color: ${secondary ? colors.black : colors.defaultWhite[5]};
       box-shadow: none;
       font-weight: 700;
-      transition: none;
       outline: none;
       border: ${border};
-    
+
       &:hover, &:focus {
         color: ${colors.defaultWhite[5]};
         background: ${gradients.sberActionGradient};
-        border-color: transparent;
+        border: 1px solid transparent;
       }
-    
+
       &:active {
         color: ${colors.defaultWhite[5]};
         background: ${gradients.sberActionInversed};
-        border-color: transparent;
+        border: 1px solid transparent;
       }
-    
+
       &:disabled, &:hover:disabled {
         color: ${colors.inputBorderHover};
         background: ${secondary ? 'transparent' : '#E6E8F1'};
