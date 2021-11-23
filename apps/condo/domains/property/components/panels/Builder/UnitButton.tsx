@@ -93,19 +93,19 @@ const buttonSecondaryCss = css`
 const selectedCss = css`
     background: ${gradients.sberActionInversed};
     color: white;
-    border-color: transparent;
+    border: 1px solid transparent;
     
     &:hover, &:focus {
         background: ${gradients.sberActionGradient};
         color: white;
-        border-color: transparent;
+        border: 1px solid transparent;
     }
 
     &:active {
         background: ${gradients.sberActionInversed};
         color: white;
-        border-color: transparent;
-    }    
+        border: 1px solid transparent;
+    }
 `
 const previewCss = css`
     opacity: 0.5;

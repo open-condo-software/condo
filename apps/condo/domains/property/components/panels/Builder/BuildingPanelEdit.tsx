@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
-import { Col, Row, Typography, Input, Select, InputNumber, Space, Dropdown, Menu, RowProps } from 'antd'
+import { Col, Row, Typography, Input, Select, InputNumber, Space, Dropdown, Menu, RowProps, DropDownProps } from 'antd'
 import { css, jsx } from '@emotion/core'
 import styled from '@emotion/styled'
 import { fontSizes, colors, shadows } from '@condo/domains/common/constants/style'
@@ -43,9 +43,8 @@ import { MIN_SECTIONS_TO_SHOW_FILTER } from '@condo/domains/property/constants/p
 
 const { Option } = Select
 
-const INPUT_STYLE = {
-    width: '100%',
-}
+const INPUT_STYLE = { width: '100%' }
+const DROPDOWN_TRIGGER: DropDownProps['trigger'] = ['hover', 'click']
 
 const TopRowCss = css`
   margin-top: 12px;
@@ -89,10 +88,16 @@ const DropdownCss = css`
 `
 
 const MenuCss = css`
-  padding: 16px;
+  padding: 0;
 
   & .ant-dropdown-menu-item {
-    padding: 8px 12px;
+    padding: 4px 16px;
+  }
+  & .ant-dropdown-menu-item:first-child {
+    padding: 16px 16px 4px 16px;
+  }
+  & .ant-dropdown-menu-item:last-child {
+    padding: 4px 16px 16px 16px;
   }
   & .ant-dropdown-menu-item,
   & .ant-dropdown-menu-item .ant-dropdown-menu-title-content {
@@ -129,7 +134,7 @@ const TopModal = styled.div<ITopModalProps>`
   background-color: ${colors.white};
   padding: 20px;
   width: 315px;
-  box-shadow: ${shadows.elevated};
+  box-shadow: ${shadows.main};
   
   & .ant-row {
     width: 100%;
@@ -315,7 +320,12 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                         </Col>
                     )}
                     <Col flex={0}>
-                        <Dropdown overlay={menuOverlay} css={DropdownCss}>
+                        <Dropdown
+                            trigger={DROPDOWN_TRIGGER}
+                            overlay={menuOverlay}
+                            css={DropdownCss}
+                            mouseEnterDelay={0}
+                        >
                             <Button type='sberBlack'>{AddElementTitle}<DownOutlined /></Button>
                         </Dropdown>
                     </Col>
@@ -583,7 +593,7 @@ interface IAddSectionFormProps {
 }
 const MODAL_FORM_ROW_GUTTER: RowProps['gutter'] = [0, 20]
 const MODAL_FORM_ROW_BUTTONS_GUTTER: RowProps['gutter'] = [0, 16]
-const MODAL_FORM_BUTTON_STYLE: React.CSSProperties = { marginTop: '30px' }
+const MODAL_FORM_BUTTON_STYLE: React.CSSProperties = { marginTop: '12px' }
 
 const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) => {
     const intl = useIntl()
@@ -772,7 +782,7 @@ const UnitForm: React.FC<IUnitFormProps> = ({ Builder, refresh }) => {
                 </Space>
             </Col>
             <Col span={24}>
-                <Space direction={'vertical'} size={28}>
+                <Space direction={'vertical'} size={32}>
                     <Space direction={'vertical'} size={8} style={INPUT_STYLE}>
                         <Typography.Text type={'secondary'} >{FloorLabel}</Typography.Text>
                         <Select value={floor} onSelect={setFloor} style={INPUT_STYLE}>
@@ -813,6 +823,8 @@ interface IEditSectionFormProps {
     Builder: MapEdit
     refresh(): void
 }
+const MODAL_FORM_EDIT_GUTTER: RowProps['gutter'] = [0, 32]
+const MODAL_FORM_BUTTON_GUTTER: RowProps['gutter'] = [0, 16]
 
 const EditSectionForm: React.FC<IEditSectionFormProps> = ({ Builder, refresh }) => {
     const intl = useIntl()
@@ -839,28 +851,30 @@ const EditSectionForm: React.FC<IEditSectionFormProps> = ({ Builder, refresh }) 
     }
 
     return (
-        <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
+        <Row gutter={MODAL_FORM_EDIT_GUTTER} css={FormModalCss}>
             <Col span={24}>
                 <Space direction={'vertical'} size={8}>
                     <Typography.Text type={'secondary'}>{NameLabel}</Typography.Text>
                     <Input value={name} placeholder={NamePlaceholderLabel} onChange={e => setName(e.target.value)} style={INPUT_STYLE} />
                 </Space>
             </Col>
-            <Col span={24}>
-                <Button
-                    secondary
-                    onClick={updateSection}
-                    type='sberDefaultGradient'
-                >{SaveLabel}</Button>
-            </Col>
-            <Col span={24}>
-                <Button
-                    secondary
-                    onClick={deleteSection}
-                    type='sberDangerGhost'
-                    icon={<DeleteFilled />}
-                >{DeleteLabel}</Button>
-            </Col>
+            <Row gutter={MODAL_FORM_BUTTON_GUTTER}>
+                <Col span={24}>
+                    <Button
+                        secondary
+                        onClick={updateSection}
+                        type='sberDefaultGradient'
+                    >{SaveLabel}</Button>
+                </Col>
+                <Col span={24}>
+                    <Button
+                        secondary
+                        onClick={deleteSection}
+                        type='sberDangerGhost'
+                        icon={<DeleteFilled />}
+                    >{DeleteLabel}</Button>
+                </Col>
+            </Row>
         </Row>
     )
 }

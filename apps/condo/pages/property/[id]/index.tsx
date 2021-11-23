@@ -36,7 +36,7 @@ interface IPropertyInfoPanelProps {
 
 const PROPERTY_INFO_PANEL_STYLE: React.CSSProperties = {
     margin: 'initial',
-    padding: '20px 18px',
+    padding: '20px',
     width: '220px',
     height: '96px',
 }
