@@ -1,3 +1,4 @@
+/** @jsx jsx */
 import React from 'react'
 import { useIntl } from '@core/next/intl'
 import { Row, Col, Typography, Tag, Space, RowProps } from 'antd'
@@ -5,6 +6,7 @@ import { useRouter } from 'next/router'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isNull from 'lodash/isNull'
+import { jsx } from '@emotion/core'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { useObject, useSoftDelete } from '@condo/domains/property/utils/clientSchema/Property'
@@ -16,6 +18,7 @@ import Link from 'next/link'
 import { Button } from '@condo/domains/common/components/Button'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { PropertyPanels } from '@condo/domains/property/components/panels'
+import { CustomScrollbarCss } from '@condo/domains/property/components/panels/Builder/BuildingPanelCommon'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import {
@@ -117,7 +120,7 @@ export const PropertyPageContent = ({ property, role }) => {
                 </Col>
             </Row>
             <Row gutter={PROPERTY_PAGE_CONTENT_ROW_GUTTER} style={PROPERTY_PAGE_CONTENT_ROW_STYLE}>
-                <Col span={24}>
+                <Col span={24} css={CustomScrollbarCss}>
                     <PropertyPanels mode='view' map={property.map} address={property.address} />
                 </Col>
             </Row>

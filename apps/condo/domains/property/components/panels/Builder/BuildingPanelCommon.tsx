@@ -4,7 +4,7 @@ import { Col, Row, Typography, RowProps } from 'antd'
 import { FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
-import { jsx } from '@emotion/core'
+import { jsx, css } from '@emotion/core'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { fontSizes, colors } from '@condo/domains/common/constants/style'
 import { Button } from '@condo/domains/common/components/Button'
@@ -12,6 +12,27 @@ import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import { MapEdit, MapView } from './MapConstructor'
 import { FullscreenFooter } from './Fullscreen'
+
+export const CustomScrollbarCss = css`
+  & div::-webkit-scrollbar {
+    width: 14px;
+    border-right: 5px solid transparent;
+  }
+  & div::-webkit-scrollbar-thumb {
+    background-color: ${colors.inputBorderGrey};
+    border-radius: 10px;
+    border: 4px solid transparent;
+    background-clip: padding-box;
+    width: 5px;
+  }
+  & div::-webkit-scrollbar-thumb:hover {
+    background-color: ${colors.inputBorderHover};
+    border: 2px solid transparent;
+  }
+  & div::-webkit-scrollbar-track {
+    border-radius: 10px;
+  }
+`
 
 export const PropertyMapFloor: React.FC = ({ children }) => {
     return (
