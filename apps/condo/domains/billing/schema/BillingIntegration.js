@@ -14,6 +14,7 @@ const {
     BILLING_INTEGRATION_ORGANIZATION_CONTEXT_STATUSES,
     BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IN_PROGRESS_STATUS,
 } = require('../constants')
+const { AVAILABLE_OPTIONS_FIELD } = require('./fields/BillingIntegration/AvailableOptions')
 
 
 const BillingIntegration = new GQLListSchema('BillingIntegration', {
@@ -102,6 +103,7 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
             ref: 'BillingIntegrationAccessRight.integration',
             many: true,
         },
+
         // TODO(DOMA-1647): Need better solution, used to test UPS flow for now
         isHidden: {
             schemaDoc: 'Indicates whether the integration is hidden inside the CRM',
@@ -109,6 +111,8 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
             defaultValue: false,
             isRequired: true,
         },
+
+        availableOptions: AVAILABLE_OPTIONS_FIELD,
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {

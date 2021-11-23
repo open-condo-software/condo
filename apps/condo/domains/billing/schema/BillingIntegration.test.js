@@ -8,6 +8,7 @@ const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } 
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { BillingIntegration, createTestBillingIntegration, updateTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj  } = require('@condo/domains/common/utils/testSchema')
+const faker = require('faker')
 
 describe('BillingIntegration', () => {
 
@@ -47,6 +48,33 @@ describe('BillingIntegration', () => {
             }, (err) => {
                 expect(err).toBeDefined()
             })
+        })
+
+        test('Can be created with options', async () => {
+            const support = await makeClientWithSupportUser()
+            const firstOption = { name: '1C', billingPageTitle: 'Биллиг "Реестры 1C"', details: { detailsText: 'о формате', detailsLink: faker.internet.url() } }
+            const secondOption = { name: 'Сббол 9_2', billingPageTitle: 'Биллиг "Реестрыыыыыы"' }
+            const thirdOption = { name: 'Сббол 8_1', details: { detailsText: 'о формате', detailsLink: faker.internet.url() } }
+            const title = 'Формат ваших реестров'
+            const payload = {
+                availableOptions: {
+                    title,
+                    options: [
+                        firstOption,
+                        secondOption,
+                        thirdOption,
+                    ],
+                },
+            }
+            const [billing] = await createTestBillingIntegration(support, payload)
+            expect(billing).toBeDefined()
+            expect(billing).toHaveProperty(['availableOptions', 'title'], title)
+            expect(billing).toHaveProperty(['availableOptions', 'options'])
+            expect(billing.availableOptions.options).toEqual(expect.arrayContaining([
+                expect.objectContaining(firstOption),
+                expect.objectContaining(secondOption),
+                expect.objectContaining(thirdOption),
+            ]))
         })
     })
 
