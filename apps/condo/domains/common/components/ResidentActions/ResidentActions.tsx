@@ -1,6 +1,6 @@
 import { PlusOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
-import { Divider, Dropdown, Menu } from 'antd'
+import { Divider, Dropdown, DropDownProps, Menu } from 'antd'
 import React from 'react'
 import { useIntl } from '@core/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
@@ -44,7 +44,7 @@ interface IResidentActionsProps {
     minified: boolean
 }
 
-const RESIDENT_ACTIONS_OPEN_DROPDOWN_TRIGGERS: ('hover' | 'click' | 'contextMenu')[] = ['hover', 'click']
+const RESIDENT_ACTIONS_OPEN_DROPDOWN_TRIGGERS: DropDownProps['trigger'] = ['hover', 'click']
 
 export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
     const intl = useIntl()

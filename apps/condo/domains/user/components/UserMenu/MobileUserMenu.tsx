@@ -1,5 +1,5 @@
 import styled from '@emotion/styled'
-import { Dropdown, Space, Menu, Avatar } from 'antd'
+import { Dropdown, Space, Menu, Avatar, DropDownProps } from 'antd'
 import { RestFilled } from '@ant-design/icons'
 import { StyledMenuItem, menuIconStyles } from '@condo/domains/common/components/containers/BaseLayout/components/styles'
 import React from 'react'
@@ -22,7 +22,7 @@ export const StyledMenu = styled(Menu)`
   transform: translate(-5%, 10px);
 `
 
-const USER_ACTIONS_OPEN_DROPDOWN_TRIGGERS: ('hover' | 'click' | 'contextMenu')[] = ['hover', 'click']
+const USER_ACTIONS_OPEN_DROPDOWN_TRIGGERS: DropDownProps['trigger'] = ['hover', 'click']
 
 export const MobileUserMenu: React.FC = () => {
     const intl = useIntl()
