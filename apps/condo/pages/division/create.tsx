@@ -1,5 +1,4 @@
 import { Typography, Row, Col } from 'antd'
-import Error from 'next/error'
 import Head from 'next/head'
 import React from 'react'
 import { DivisionForm } from '@condo/domains/division/components/DivisionForm'

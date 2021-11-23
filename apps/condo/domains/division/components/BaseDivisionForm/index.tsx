@@ -63,8 +63,7 @@ const BaseDivisionForm: React.FC<IBaseDivisionFormProps> = (props) => {
     }
 
     const organizationId = get(props.organization, 'id')
-
-
+    
     const action = (variables) => {
         props.action(variables)
             .then(result => {

@@ -70,7 +70,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         const value = ['string', 'number'].includes(typeof option.value) ? option.value : JSON.stringify(option)
 
         return (
-            <Select.Option key={option.key || value } value={value} title={option.text}>
+            <Select.Option key={option.key || value} value={value} title={option.text}>
                 {optionLabel}
             </Select.Option>
         )
