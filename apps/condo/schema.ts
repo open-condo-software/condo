@@ -2922,6 +2922,8 @@ export type BillingIntegration = {
   _accessRightsMeta?: Maybe<_QueryMeta>;
   /**  Indicates whether the integration is hidden inside the CRM  */
   isHidden?: Maybe<Scalars['Boolean']>;
+  /**  List of available billing options. If it exists, it means that several options are available for connecting billing  */
+  availableOptions?: Maybe<BillingIntegrationOptionsField>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3224,6 +3226,7 @@ export type BillingIntegrationCreateInput = {
   currencyCode?: Maybe<Scalars['String']>;
   accessRights?: Maybe<BillingIntegrationAccessRightRelateToManyInput>;
   isHidden?: Maybe<Scalars['Boolean']>;
+  availableOptions?: Maybe<BillingIntegrationOptionsFieldInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3258,6 +3261,7 @@ export type BillingIntegrationHistoryRecord = {
   dataFormat?: Maybe<Scalars['JSON']>;
   currencyCode?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
+  availableOptions?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3286,6 +3290,7 @@ export type BillingIntegrationHistoryRecordCreateInput = {
   dataFormat?: Maybe<Scalars['JSON']>;
   currencyCode?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
+  availableOptions?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3319,6 +3324,7 @@ export type BillingIntegrationHistoryRecordUpdateInput = {
   dataFormat?: Maybe<Scalars['JSON']>;
   currencyCode?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
+  availableOptions?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3532,6 +3538,10 @@ export type BillingIntegrationHistoryRecordWhereInput = {
   currencyCode_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isHidden?: Maybe<Scalars['Boolean']>;
   isHidden_not?: Maybe<Scalars['Boolean']>;
+  availableOptions?: Maybe<Scalars['JSON']>;
+  availableOptions_not?: Maybe<Scalars['JSON']>;
+  availableOptions_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  availableOptions_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -3790,6 +3800,41 @@ export type BillingIntegrationLogsCreateInput = {
 export type BillingIntegrationLogsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<BillingIntegrationLogUpdateInput>;
+};
+
+export type BillingIntegrationOptionDetailsField = {
+  __typename?: 'BillingIntegrationOptionDetailsField';
+  detailsText: Scalars['String'];
+  detailsLink: Scalars['String'];
+};
+
+export type BillingIntegrationOptionDetailsFieldInput = {
+  detailsText: Scalars['String'];
+  detailsLink: Scalars['String'];
+};
+
+export type BillingIntegrationOptionField = {
+  __typename?: 'BillingIntegrationOptionField';
+  name: Scalars['String'];
+  billingPageTitle?: Maybe<Scalars['String']>;
+  details?: Maybe<BillingIntegrationOptionDetailsField>;
+};
+
+export type BillingIntegrationOptionFieldInput = {
+  name: Scalars['String'];
+  billingPageTitle?: Maybe<Scalars['String']>;
+  details?: Maybe<BillingIntegrationOptionDetailsFieldInput>;
+};
+
+export type BillingIntegrationOptionsField = {
+  __typename?: 'BillingIntegrationOptionsField';
+  title: Scalars['String'];
+  options: Array<BillingIntegrationOptionField>;
+};
+
+export type BillingIntegrationOptionsFieldInput = {
+  title: Scalars['String'];
+  options: Array<BillingIntegrationOptionFieldInput>;
 };
 
 /**  Integration state and settings for all organizations. The existence of this object means that there is a configured integration between the `billing data source` and `this API`  */
@@ -4208,6 +4253,7 @@ export type BillingIntegrationUpdateInput = {
   currencyCode?: Maybe<Scalars['String']>;
   accessRights?: Maybe<BillingIntegrationAccessRightRelateToManyInput>;
   isHidden?: Maybe<Scalars['Boolean']>;
+  availableOptions?: Maybe<BillingIntegrationOptionsFieldInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -4396,6 +4442,10 @@ export type BillingIntegrationWhereInput = {
   accessRights_none?: Maybe<BillingIntegrationAccessRightWhereInput>;
   isHidden?: Maybe<Scalars['Boolean']>;
   isHidden_not?: Maybe<Scalars['Boolean']>;
+  availableOptions?: Maybe<BillingIntegrationOptionsFieldInput>;
+  availableOptions_not?: Maybe<BillingIntegrationOptionsFieldInput>;
+  availableOptions_in?: Maybe<Array<Maybe<BillingIntegrationOptionsFieldInput>>>;
+  availableOptions_not_in?: Maybe<Array<Maybe<BillingIntegrationOptionsFieldInput>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
