@@ -1,5 +1,7 @@
 name: Deploy to Develop
 
+concurrency: deploy_develop.yaml
+
 on:
   workflow_dispatch:
     branches:
