@@ -113,6 +113,9 @@ class SbbolCryptoApi extends SbbolRequestApi {
             method: 'POST',
             path: this.certificateSigningRequestPath,
             body: csrRequestParams,
+            headers: {
+                'Content-Type': 'application/json',
+            },
         })
         return result
     }
