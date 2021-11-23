@@ -31,6 +31,7 @@ interface IPropertyInfoPanelProps {
     title: string
     message: string
     type?:  'success' | 'warning'
+    large?: boolean
 }
 
 const PROPERTY_INFO_PANEL_STYLE: React.CSSProperties = {
@@ -40,23 +41,28 @@ const PROPERTY_INFO_PANEL_STYLE: React.CSSProperties = {
     height: '96px',
 }
 const PROPERTY_INFO_PANEL_MESSAGE_STYLE: React.CSSProperties = {
-    fontSize: '20px',
+    fontSize: '24px',
     lineHeight: '32px',
     fontWeight: 'bold',
 }
-
-const PropertyInfoPanel: React.FC<IPropertyInfoPanelProps> = ({ title, message, type }) => {
-
-    return (
-        <FocusContainer style={PROPERTY_INFO_PANEL_STYLE}>
-            <Space direction={'vertical'} size={8}>
-                <Typography.Text {...{ type }} style={PROPERTY_INFO_PANEL_MESSAGE_STYLE}>{message}</Typography.Text>
-                <Typography.Text type={'secondary'}>{title}</Typography.Text>
-            </Space>
-        </FocusContainer>
-    )
-
+const PROPERTY_INFO_PANEL_MESSAGE_TEXT_STYLE: React.CSSProperties = {
+    ...PROPERTY_INFO_PANEL_MESSAGE_STYLE,
+    fontSize: '20px',
 }
+
+const PropertyInfoPanel: React.FC<IPropertyInfoPanelProps> = ({ title, message, type, large = false }) => (
+    <FocusContainer style={PROPERTY_INFO_PANEL_STYLE}>
+        <Space direction={'vertical'} size={8}>
+            <Typography.Text
+                {...{ type }}
+                style={large ? PROPERTY_INFO_PANEL_MESSAGE_STYLE : PROPERTY_INFO_PANEL_MESSAGE_TEXT_STYLE}
+            >
+                {message}
+            </Typography.Text>
+            <Typography.Text type={'secondary'}>{title}</Typography.Text>
+        </Space>
+    </FocusContainer>
+)
 
 const PROPERTY_PAGE_CONTENT_ROW_GUTTER: RowProps['gutter'] = [12, 40]
 const PROPERTY_PAGE_CONTENT_ROW_CARDS_GUTTER: RowProps['gutter'] = [24, 40]
@@ -104,13 +110,13 @@ export const PropertyPageContent = ({ property, role }) => {
                 justify='start'
             >
                 <Col flex={0} >
-                    <PropertyInfoPanel title={UnitsCountTitle} message={property.unitsCount} />
+                    <PropertyInfoPanel title={UnitsCountTitle} message={property.unitsCount} large />
                 </Col>
                 <Col flex={0}>
-                    <PropertyInfoPanel title={TicketsClosedTitle} message={property.ticketsClosed} type='success' />
+                    <PropertyInfoPanel title={TicketsClosedTitle} message={property.ticketsClosed} type='success' large />
                 </Col>
                 <Col flex={0}>
-                    <PropertyInfoPanel title={TicketsInWorkTitle} message={property.ticketsInWork}  type='warning' />
+                    <PropertyInfoPanel title={TicketsInWorkTitle} message={property.ticketsInWork}  type='warning' large />
                 </Col>
                 <Col flex={0}>
                     <PropertyInfoPanel title={AreaTitle} message={property.area ? property.area : UnknownValueTitle } />

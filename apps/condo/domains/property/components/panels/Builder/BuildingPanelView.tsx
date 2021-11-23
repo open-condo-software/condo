@@ -48,10 +48,10 @@ const CHESS_COL_STYLE: React.CSSProperties = {
 const CHESS_SCROLL_HOLDER_STYLE: React.CSSProperties = {
     whiteSpace: 'nowrap',
     position: 'static',
-    paddingTop: '60px',
+    paddingTop: '20px',
 }
 const CHESS_SCROLL_CONTAINER_STYLE: React.CSSProperties = {
-    paddingBottom: '60px',
+    paddingBottom: '20px',
     width: '100%',
     overflowY: 'hidden',
 }
