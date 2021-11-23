@@ -31,7 +31,7 @@ import { LayoutContextProvider } from '@condo/domains/common/components/LayoutCo
 import { OnBoardingProgressIconContainer } from '@condo/domains/onboarding/components/OnBoardingProgressIconContainer'
 import {
     BILLING_RECEIPT_SERVICE_FIELD_NAME,
-} from '@condo/domains/billing/constants'
+} from '@condo/domains/billing/constants/constants'
 import { MeterLog } from '@condo/domains/common/components/icons/MeterLogIcon'
 import {
     SubscriptionProvider,

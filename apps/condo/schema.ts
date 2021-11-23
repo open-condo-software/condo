@@ -3817,13 +3817,13 @@ export type BillingIntegrationOptionField = {
   __typename?: 'BillingIntegrationOptionField';
   name: Scalars['String'];
   billingPageTitle?: Maybe<Scalars['String']>;
-  details?: Maybe<BillingIntegrationOptionDetailsField>;
+  descriptionDetails?: Maybe<BillingIntegrationOptionDetailsField>;
 };
 
 export type BillingIntegrationOptionFieldInput = {
   name: Scalars['String'];
   billingPageTitle?: Maybe<Scalars['String']>;
-  details?: Maybe<BillingIntegrationOptionDetailsFieldInput>;
+  descriptionDetails?: Maybe<BillingIntegrationOptionDetailsFieldInput>;
 };
 
 export type BillingIntegrationOptionsField = {
@@ -3864,6 +3864,8 @@ export type BillingIntegrationOrganizationContext = {
   state?: Maybe<Scalars['JSON']>;
   /**  Information about last report, such as time of report, period of report, amount of loaded data and etc  */
   lastReport?: Maybe<Scalars['JSON']>;
+  /**  Option of billing integration, if it has more than 1 variants. Example: registry format. Using "name" as identifier inside single billing  */
+  integrationOption?: Maybe<BillingIntegrationOrganizationContextIntegrationOptionField>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3883,6 +3885,7 @@ export type BillingIntegrationOrganizationContextCreateInput = {
   status?: Maybe<Scalars['String']>;
   state?: Maybe<Scalars['JSON']>;
   lastReport?: Maybe<Scalars['JSON']>;
+  integrationOption?: Maybe<BillingIntegrationOrganizationContextIntegrationOptionFieldInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3911,6 +3914,7 @@ export type BillingIntegrationOrganizationContextHistoryRecord = {
   status?: Maybe<Scalars['String']>;
   state?: Maybe<Scalars['JSON']>;
   lastReport?: Maybe<Scalars['JSON']>;
+  integrationOption?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3933,6 +3937,7 @@ export type BillingIntegrationOrganizationContextHistoryRecordCreateInput = {
   status?: Maybe<Scalars['String']>;
   state?: Maybe<Scalars['JSON']>;
   lastReport?: Maybe<Scalars['JSON']>;
+  integrationOption?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3960,6 +3965,7 @@ export type BillingIntegrationOrganizationContextHistoryRecordUpdateInput = {
   status?: Maybe<Scalars['String']>;
   state?: Maybe<Scalars['JSON']>;
   lastReport?: Maybe<Scalars['JSON']>;
+  integrationOption?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -4025,6 +4031,10 @@ export type BillingIntegrationOrganizationContextHistoryRecordWhereInput = {
   lastReport_not?: Maybe<Scalars['JSON']>;
   lastReport_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   lastReport_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  integrationOption?: Maybe<Scalars['JSON']>;
+  integrationOption_not?: Maybe<Scalars['JSON']>;
+  integrationOption_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  integrationOption_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -4104,6 +4114,17 @@ export type BillingIntegrationOrganizationContextHistoryRecordsUpdateInput = {
   data?: Maybe<BillingIntegrationOrganizationContextHistoryRecordUpdateInput>;
 };
 
+export type BillingIntegrationOrganizationContextIntegrationOptionField = {
+  __typename?: 'BillingIntegrationOrganizationContextIntegrationOptionField';
+  name: Scalars['String'];
+  billingPageTitle?: Maybe<Scalars['String']>;
+};
+
+export type BillingIntegrationOrganizationContextIntegrationOptionFieldInput = {
+  name: Scalars['String'];
+  billingPageTitle?: Maybe<Scalars['String']>;
+};
+
 export type BillingIntegrationOrganizationContextRelateToOneInput = {
   create?: Maybe<BillingIntegrationOrganizationContextCreateInput>;
   connect?: Maybe<BillingIntegrationOrganizationContextWhereUniqueInput>;
@@ -4120,6 +4141,7 @@ export type BillingIntegrationOrganizationContextUpdateInput = {
   status?: Maybe<Scalars['String']>;
   state?: Maybe<Scalars['JSON']>;
   lastReport?: Maybe<Scalars['JSON']>;
+  integrationOption?: Maybe<BillingIntegrationOrganizationContextIntegrationOptionFieldInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -4164,6 +4186,10 @@ export type BillingIntegrationOrganizationContextWhereInput = {
   lastReport_not?: Maybe<Scalars['JSON']>;
   lastReport_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   lastReport_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  integrationOption?: Maybe<BillingIntegrationOrganizationContextIntegrationOptionFieldInput>;
+  integrationOption_not?: Maybe<BillingIntegrationOrganizationContextIntegrationOptionFieldInput>;
+  integrationOption_in?: Maybe<Array<Maybe<BillingIntegrationOrganizationContextIntegrationOptionFieldInput>>>;
+  integrationOption_not_in?: Maybe<Array<Maybe<BillingIntegrationOrganizationContextIntegrationOptionFieldInput>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;

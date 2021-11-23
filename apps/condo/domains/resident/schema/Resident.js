@@ -18,7 +18,7 @@ const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { getAddressUpToBuildingFrom } = require('@condo/domains/property/utils/serverSchema/helpers')
 
 const { BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/serverSchema')
-const { DEFAULT_BILLING_INTEGRATION_NAME } = require('@condo/domains/billing/constants')
+const { DEFAULT_BILLING_INTEGRATION_NAME } = require('@condo/domains/billing/constants/constants')
 
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
 const { DEFAULT_ACQUIRING_INTEGRATION_NAME } = require('@condo/domains/acquiring/constants/integration')

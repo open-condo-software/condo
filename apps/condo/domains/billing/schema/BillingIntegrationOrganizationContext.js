@@ -4,17 +4,24 @@
 
 const { Relationship, Select } = require('@keystonejs/fields')
 const { Json } = require('@core/keystone/fields')
-const { GQLListSchema } = require('@core/keystone/schema')
+const { GQLListSchema, getById } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
+const { INTEGRATION_OPTION_FIELD } = require('@condo/domains/billing/schema/fields/BillingContext/IntegrationOption')
 const access = require('@condo/domains/billing/access/BillingIntegrationOrganizationContext')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 const { validateReport } = require('@condo/domains/billing/utils/validation.utils')
 const {
     BILLING_INTEGRATION_ORGANIZATION_CONTEXT_STATUSES,
     BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IN_PROGRESS_STATUS,
-} = require('../constants')
+} = require('@condo/domains/billing/constants/constants')
+const {
+    CONTEXT_NO_OPTION_PROVIDED,
+    CONTEXT_REDUNDANT_OPTION,
+    CONTEXT_OPTION_NAME_MATCH,
+} = require('@condo/domains/billing/constants/errors')
+const get = require('lodash/get')
 
 
 const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrationOrganizationContext', {
@@ -74,6 +81,28 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
             },
         },
 
+        integrationOption: INTEGRATION_OPTION_FIELD,
+
+    },
+    hooks: {
+        validateInput: async ({ existingItem, resolvedData, operation, addValidationError }) => {
+            const integrationId = operation === 'create' ? resolvedData['integration'] : existingItem['integration']
+            // NOTE: Item will always exist, since field "integration" is required and keystone does existence-checks automatically
+            const integration = await getById('BillingIntegration', integrationId)
+            const options = get(integration, ['availableOptions', 'options'], [])
+            if (resolvedData.hasOwnProperty('integrationOption') && !options.length) {
+                return addValidationError(CONTEXT_REDUNDANT_OPTION)
+            }
+            if ((!resolvedData.hasOwnProperty('integrationOption') || resolvedData['integrationOption'] === null) && options.length) {
+                return addValidationError(CONTEXT_NO_OPTION_PROVIDED)
+            }
+            const optionName = get(resolvedData, ['integrationOption', 'name'])
+            const matchingOptions = options
+                .filter(option => option.name === optionName)
+            if (!matchingOptions.length) {
+                addValidationError(CONTEXT_OPTION_NAME_MATCH)
+            }
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {

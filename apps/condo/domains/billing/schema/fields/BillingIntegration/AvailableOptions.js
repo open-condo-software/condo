@@ -6,7 +6,7 @@ const {
     BILLING_INTEGRATION_OPTION_INPUT_NAME,
     BILLING_INTEGRATION_OPTION_DETAILS_FIELD_NAME,
     BILLING_INTEGRATION_OPTION_DETAILS_INPUT_NAME,
-} = require('@condo/domains/billing/constants')
+} = require('@condo/domains/billing/constants/constants')
 const { render, getValidator } = require('@condo/domains/billing/schema/fields/utils/json.utils')
 const { Json } = require('@core/keystone/fields')
 
@@ -17,13 +17,14 @@ const AvailableOptionDetailsFields = {
 
 const AvailableOptionFields = {
     name: 'String!',
+    displayName: 'String',
     billingPageTitle: 'String',
-    details: BILLING_INTEGRATION_OPTION_DETAILS_FIELD_NAME,
+    descriptionDetails: BILLING_INTEGRATION_OPTION_DETAILS_FIELD_NAME,
 }
 
 const AvailableOptionInputs = {
     ...AvailableOptionFields,
-    details: BILLING_INTEGRATION_OPTION_DETAILS_INPUT_NAME,
+    descriptionDetails: BILLING_INTEGRATION_OPTION_DETAILS_INPUT_NAME,
 }
 
 const AvailableOptionsFields = {
@@ -62,30 +63,32 @@ const AVAILABLE_OPTIONS_GRAPHQL_TYPES = `
     }
 `
 
+const AvailableOptionSchema = {
+    type: 'object',
+    properties: {
+        name: { type: 'string' },
+        billingPageTitle: { type: 'string' },
+        descriptionDetails: {
+            type: 'object',
+            properties: {
+                detailsText: { type: 'string' },
+                detailsLink: { type: 'string' },
+            },
+            required: ['detailsText', 'detailsLink'],
+            additionalProperties: false,
+        },
+    },
+    required: ['name'],
+    additionalProperties: false,
+}
+
 const AvailableOptionsSchema = {
     type: 'object',
     properties: {
         title: { type: 'string' },
         options: {
             type: 'array',
-            items: {
-                type: 'object',
-                properties: {
-                    name: { type: 'string' },
-                    billingPageTitle: { type: 'string' },
-                    details: {
-                        type: 'object',
-                        properties: {
-                            detailsText: { type: 'string' },
-                            detailsLink: { type: 'string' },
-                        },
-                        required: ['detailsText', 'detailsLink'],
-                        additionalProperties: false,
-                    },
-                },
-                required: ['name'],
-                additionalProperties: false,
-            },
+            items: AvailableOptionSchema,
         },
     },
     required: ['title', 'options'],
@@ -95,7 +98,7 @@ const AvailableOptionsSchema = {
 const ajv = new Ajv()
 const AvailableOptionsSchemaValidator = ajv.compile(AvailableOptionsSchema)
 const validateAvailableOptions = getValidator(AvailableOptionsSchemaValidator)
-const AVAILABLE_OPTIONS_QUERY_LIST = 'title options { name billingPageTitle details { detailsText detailsLink } }'
+const AVAILABLE_OPTIONS_QUERY_LIST = 'title options { name billingPageTitle descriptionDetails { detailsText detailsLink } }'
 
 const AVAILABLE_OPTIONS_FIELD = {
     schemaDoc: 'List of available billing options. If it exists, it means that several options are available for connecting billing',
@@ -112,5 +115,8 @@ const AVAILABLE_OPTIONS_FIELD = {
 
 module.exports = {
     AVAILABLE_OPTIONS_FIELD,
+    AvailableOptionFields,
+    AvailableOptionInputs,
+    AvailableOptionSchema,
 }
 

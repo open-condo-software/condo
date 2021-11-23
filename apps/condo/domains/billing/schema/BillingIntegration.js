@@ -13,7 +13,7 @@ const { validateDataFormat } = require('../utils/validation.utils')
 const {
     BILLING_INTEGRATION_ORGANIZATION_CONTEXT_STATUSES,
     BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IN_PROGRESS_STATUS,
-} = require('../constants')
+} = require('@condo/domains/billing/constants/constants')
 const { AVAILABLE_OPTIONS_FIELD } = require('./fields/BillingIntegration/AvailableOptions')
 
 

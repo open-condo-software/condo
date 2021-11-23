@@ -6,7 +6,7 @@ const {
     BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IN_PROGRESS_STATUS,
     BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
     BILLING_INTEGRATION_ORGANIZATION_CONTEXT_ERROR_STATUS,
-} = require('@condo/domains/billing/constants')
+} = require('@condo/domains/billing/constants/constants')
 
 const DV = 1
 const SENDER = { dv: DV, fingerprint: faker.random.alphaNumeric(8) }
