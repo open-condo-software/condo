@@ -278,7 +278,7 @@ describe('BillingIntegrationOrganizationContext', () => {
                 const [organization] = await registerNewOrganization(admin)
                 await expectToThrowValidationFailureError(async () => {
                     await createTestBillingIntegrationOrganizationContext(admin, organization, integration, {
-                        integrationOption: { name: 'bla-bla' },
+                        integrationOption: 'bla-bla',
                     })
                 }, CONTEXT_OPTION_NAME_MATCH)
             })
@@ -288,7 +288,7 @@ describe('BillingIntegrationOrganizationContext', () => {
                 const [organization] = await registerNewOrganization(admin)
                 await expectToThrowValidationFailureError(async () => {
                     await createTestBillingIntegrationOrganizationContext(admin, organization, integration, {
-                        integrationOption: { name: 'bla-bla' },
+                        integrationOption: 'bla-bla',
                     })
                 }, CONTEXT_REDUNDANT_OPTION)
             })
@@ -305,10 +305,10 @@ describe('BillingIntegrationOrganizationContext', () => {
                 })
                 const [organization] = await registerNewOrganization(admin)
                 const [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration, {
-                    integrationOption: { name },
+                    integrationOption: name,
                 })
                 expect(context).toBeDefined()
-                expect(context).toHaveProperty(['integrationOption', 'name'], name)
+                expect(context).toHaveProperty(['integrationOption'], name)
             })
         })
     })
