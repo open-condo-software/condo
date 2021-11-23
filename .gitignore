@@ -19,6 +19,7 @@ schema.graphql
 # yarn + npm
 yarn-error.log
 npm-debug.*
+ignore.*
 
 # mobile
 *.jks
