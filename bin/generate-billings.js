@@ -40,7 +40,7 @@ const Lvl3DataFormat = {
 const InProgressBilling = {
     dv: DV,
     sender: SENDER,
-    name: 'In progress',
+    name: 'ГИС ЖКХ (IN PROGRESS STATUS)',
     shortDescription: 'Государственная информационная система ЖКХ',
     detailsTitle: 'Подключение ГИС ЖКХ',
     detailsText: 'Вам нужно подать заявку на интеграцию через ваш личный кабинет в ГИС ЖКХ. Дальше, мы сделаем всё сами.\n' +
@@ -56,30 +56,55 @@ const InProgressBilling = {
 const SuccessfulBilling = {
     dv: DV,
     sender: SENDER,
-    name: 'Success',
-    shortDescription: 'Шаблон СБ Бизнес Онлайн 8_2',
+    name: 'Интеграция через загрузку вашего реестра (DONE STATUS)',
+    shortDescription: 'Поддерживаемые форматы: 1С, СБ Бизнес Онлайн 8_2 и 9_1',
     detailsTitle: 'Подключение реестрового обмена',
     detailsText: 'Выбрав данный вариант интеграции, вам будет необходимо загрузить ваши реестры к нам самостоятельно',
     detailsConfirmButtonText: 'Подключить',
-    detailsInstructionButtonText: 'Подробнее про шаблон',
-    detailsInstructionButtonLink: 'https://www.sberbank.ru/ru/s_m_business/new_sbbol',
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
     billingPageTitle: 'Биллинг, реестровый обмен',
-    dataFormat: Lvl1DataFormat,
+    dataFormat: Lvl3DataFormat,
+    availableOptions: {
+        title: 'Формат ваших реестров',
+        options: [
+            {
+                name: '1C',
+                displayName: '1C',
+                billingPageTitle: 'Интеграция через загрузку реестров 1С',
+                descriptionDetails: {
+                    detailsText: 'о формате',
+                    detailsLink: 'https://help.doma.ai',
+                },
+            },
+            {
+                name: 'SBBOL_8_2',
+                displayName: 'СБ Бизнес Онлайн 8_2',
+                billingPageTitle: 'Интеграция через загрузку реестров СББОЛ',
+                descriptionDetails: {
+                    detailsText: 'о формате',
+                    detailsLink: 'https://help.doma.ai',
+                },
+            },
+            {
+                name: 'SBBOL_9_1',
+                displayName: 'СБ Бизнес Онлайн 9_1',
+                billingPageTitle: 'Интеграция через загрузку реестров СББОЛ',
+                descriptionDetails: {
+                    detailsText: 'о формате',
+                    detailsLink: 'https://help.doma.ai',
+                },
+            },
+        ],
+    },
 }
 
 const ErrorBilling = {
     dv: DV,
     sender: SENDER,
     name: 'Error',
-    shortDescription: 'Шаблон СБ Бизнес Онлайн 9_1',
-    detailsTitle: 'Подключение реестрового обмена',
-    detailsText: 'Выбрав данный вариант интеграции, вам будет необходимо загрузить ваши реестры к нам самостоятельно',
-    detailsConfirmButtonText: 'Подключить',
-    detailsInstructionButtonText: 'Подробнее про шаблон',
-    detailsInstructionButtonLink: 'https://www.sberbank.ru/ru/s_m_business/new_sbbol',
+    shortDescription: 'Billing that will never be completed :)',
+    detailsTitle: 'You won\'t do this',
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_ERROR_STATUS,
-    billingPageTitle: 'Биллинг, реестровый обмен',
     dataFormat: Lvl1DataFormat,
 }
 
