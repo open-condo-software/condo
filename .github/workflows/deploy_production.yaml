@@ -1,5 +1,7 @@
 name: Deploy to Production
 
+concurrency: deploy_production.yaml
+
 on:
   push:
     tags:
