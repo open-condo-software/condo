@@ -49,6 +49,23 @@ const validateAndGetCommand = () => {
     }
 }
 
+const getAccessTokenFor = async (hashOrgId) => {
+    let accessToken
+    try {
+        // `service_organization_hashOrgId` is a `userInfo.HashOrgId` from SBBOL, that used to obtain accessToken
+        // for organization, that will be queried in SBBOL using `SbbolFintechApi`.
+        accessToken = await getOrganizationAccessToken(hashOrgId)
+    } catch (e) {
+        logger.error({
+            message: 'Failed to obtain organization access token from SBBOL',
+            error: e.message,
+            hashOrgId: SBBOL_FINTECH_CONFIG.service_organization_hashOrgId,
+        })
+        return null
+    }
+    return accessToken
+}
+
 async function main () {
     const command = validateAndGetCommand()
 
@@ -59,19 +76,7 @@ async function main () {
     await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
     await keystone.connect()
 
-    let accessToken
-    try {
-        // `service_organization_hashOrgId` is a `userInfo.HashOrgId` from SBBOL, that used to obtain accessToken
-        // for organization, that will be queried in SBBOL using `SbbolFintechApi`.
-        accessToken = await getOrganizationAccessToken(SBBOL_FINTECH_CONFIG.service_organization_hashOrgId)
-    } catch (e) {
-        logger.error({
-            message: 'Failed to obtain organization access token from SBBOL',
-            error: e.message,
-            hashOrgId: SBBOL_FINTECH_CONFIG.service_organization_hashOrgId,
-        })
-        return null
-    }
+    const accessToken = await getAccessTokenFor(SBBOL_FINTECH_CONFIG.service_organization_hashOrgId)
 
     const cryptoApi = new SbbolCryptoApi({
         accessToken,
@@ -88,7 +93,18 @@ async function main () {
     }
 
     if (cryptoInfo && command === COMMAND.POST_CSR) {
-        const response = await cryptoApi.postCertificateSigningRequest({
+        // Use id of different ogranization, to that SBBOL support specifically granted rights to post CSR
+        const accessTokenForCSR = await getAccessTokenFor(SBBOL_CSR_REQUEST_DATA.service_organization_hashOrgId)
+
+        const cryptoApiForCSR = new SbbolCryptoApi({
+            accessToken: accessTokenForCSR,
+            host: SBBOL_FINTECH_CONFIG.host,
+            port: SBBOL_FINTECH_CONFIG.port,
+            certificate: SBBOL_PFX.certificate,
+            passphrase: SBBOL_PFX.passphrase,
+        })
+
+        const response = await cryptoApiForCSR.postCertificateSigningRequest({
             cryptoInfo,
             cms: SBBOL_CSR_REQUEST_DATA.cms,
             email: SBBOL_CSR_REQUEST_DATA.email,
