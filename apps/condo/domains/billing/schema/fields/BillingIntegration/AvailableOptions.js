@@ -68,6 +68,7 @@ const AvailableOptionSchema = {
     properties: {
         name: { type: 'string' },
         billingPageTitle: { type: 'string' },
+        displayName: { type: 'string' },
         descriptionDetails: {
             type: 'object',
             properties: {
