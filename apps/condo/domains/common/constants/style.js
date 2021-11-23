@@ -24,6 +24,7 @@ const inputBorderGrey = '#D0D3E5'
 const backgroundLightGrey = '#F2F3F7'
 const inputBorderHover = '#989EB7'
 const black = '#222'
+const textSecondary = '#82879F'
 const beautifulBlue = '#eFF7FF'
 const markColor = '#B5CCFF'
 const lightRed = '#FFF1F0'
@@ -92,6 +93,8 @@ const fontSizes = {
 
 const shadows = {
     elevated: '0px 9px 28px rgba(0, 0, 0, 0.05), 0px 6px 16px rgba(0, 0, 0, 0.08), 0px 3px 6px rgba(0, 0, 0, 0.12)',
+    main: '0px 28px 65px rgba(208, 216, 225, 0.24), 0px 6px 15px rgba(208, 216, 225, 0.28), 0px 2px 6px rgba(208, 216, 225, 0.16)',
+    big: '0px 14px 34px rgba(208, 216, 225, 0.4), 0px 15px 38px rgba(208, 216, 225, 0.4), 0px 7px 17px rgba(208, 216, 225, 0.6)',
 }
 
 const transitions = {
@@ -121,6 +124,7 @@ const antGlobalVariables = {
     '@card-radius': '12px',
     '@white': white,
     '@black': black,
+    '@heading-color': black,
     '@form-item-label-height': '22px',
     '@label-color': grey[2],
     '@input-border-color': inputBorderGrey,
@@ -161,7 +165,7 @@ const antGlobalVariables = {
     '@typography-title-margin-bottom': 0,
     '@tooltip-bg': 'rgba(0, 0, 0)',
     '@text-color': colors.sberGrey[9],
-    '@text-color-secondary': colors.lightGrey[7],
+    '@text-color-secondary': textSecondary,
     '@success-color': green[6],
     '@warning-color': colors.orange[6],
     '@error-color': colors.red[5],
