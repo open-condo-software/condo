@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
@@ -7,7 +7,7 @@ import { BillingIntegration, BillingIntegrationOrganizationContext } from '@cond
 import { useRouter } from 'next/router'
 import get from 'lodash/get'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { Typography, Col, Row, Space, Modal, Alert, Tooltip } from 'antd'
+import { Typography, Col, Row, Space, Modal, Alert, Tooltip, Radio } from 'antd'
 const ReactMarkdown = require('react-markdown')
 const gfm = require('remark-gfm')
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
@@ -76,6 +76,24 @@ const BillingIntegrationDetailsPage = () => {
     }, {
         fetchPolicy: 'network-only',
     })
+    const options = get(integration, ['availableOptions', 'options'])
+    const optionsTitle = get(integration, ['availableOptions', 'title'])
+    let defaultOption = get(options, ['0', 'name'], null)
+    if (currentContext && integration) {
+        defaultOption = get(currentContext, ['integration', 'id']) === get(integration, 'id')
+            ? get(currentContext, 'integrationOption')
+            : null
+    }
+    const [option, setOption] = useState(defaultOption)
+
+    useEffect(() => {
+        setOption(defaultOption)
+    }, [defaultOption])
+
+    const handleOptionChange = (e) => {
+        setOption(e.target.value)
+    }
+
 
     const createContextAction = BillingIntegrationOrganizationContext.useCreate({
         integration: String(integrationId),
@@ -95,7 +113,10 @@ const BillingIntegrationDetailsPage = () => {
             okText: ContinueMessage,
             cancelText: CancelMessage,
             onOk () {
-                return createContextAction({ status: get(integration, 'contextDefaultStatus') })
+                return createContextAction({
+                    status: get(integration, 'contextDefaultStatus'),
+                    integrationOption: option,
+                })
             },
         })
     }
@@ -123,6 +144,7 @@ const BillingIntegrationDetailsPage = () => {
     const disabledIntegration = !!currentContext
     const shouldNotifyWithAlert = !!currentContext && currentContext.integration.id !== integrationId
     const isHiddenIntegration = get(integration, 'isHidden', false)
+
     return (
         <>
             <Head>
@@ -140,7 +162,7 @@ const BillingIntegrationDetailsPage = () => {
                                     />
                                     <PageContent>
                                         <Col span={20}>
-                                            <Row gutter={[0, 50]}>
+                                            <Row gutter={[0, 40]}>
                                                 {
                                                     shouldNotifyWithAlert && (
                                                         <Col span={24}>
@@ -160,6 +182,47 @@ const BillingIntegrationDetailsPage = () => {
                                                                 {markDownText}
                                                             </ReactMarkdown>
                                                         </Col>
+                                                    )
+                                                }
+                                                {
+                                                    options && optionsTitle && (
+                                                        <>
+                                                            <Col span={24}>
+                                                                <Typography.Title level={4}>
+                                                                    {optionsTitle}
+                                                                </Typography.Title>
+                                                            </Col>
+                                                            <Col span={24} style={{ paddingBottom: 20 }}>
+                                                                <Tooltip
+                                                                    title={ContextAlreadyCreatedMessage}
+                                                                    visible={!disabledIntegration ? false : undefined}
+                                                                >
+                                                                    <Radio.Group onChange={handleOptionChange} value={option} disabled={disabledIntegration}>
+                                                                        <Space direction={'vertical'} size={22}>
+                                                                            {options.map(integrationOption => {
+                                                                                return (
+                                                                                    <Radio value={integrationOption.name} key={integrationOption.name}>
+                                                                                        {integrationOption.displayName}
+                                                                                    &nbsp;
+                                                                                        <Typography.Text type={'secondary'}>
+                                                                                        (
+                                                                                            <Link href={integrationOption.descriptionDetails.detailsLink}>
+                                                                                                <a target='_blank'>
+                                                                                                    <Typography.Text type={'secondary'}>
+                                                                                                        {integrationOption.descriptionDetails.detailsText}
+                                                                                                    </Typography.Text>
+                                                                                                </a>
+                                                                                            </Link>
+                                                                                        )
+                                                                                        </Typography.Text>
+                                                                                    </Radio>
+                                                                                )
+                                                                            })}
+                                                                        </Space>
+                                                                    </Radio.Group>
+                                                                </Tooltip>
+                                                            </Col>
+                                                        </>
                                                     )
                                                 }
                                                 <Col span={24}>

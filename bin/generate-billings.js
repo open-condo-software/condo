@@ -58,8 +58,9 @@ const SuccessfulBilling = {
     sender: SENDER,
     name: 'Интеграция через загрузку вашего реестра (DONE STATUS)',
     shortDescription: 'Поддерживаемые форматы: 1С, СБ Бизнес Онлайн 8_2 и 9_1',
-    detailsTitle: 'Подключение реестрового обмена',
-    detailsText: 'Выбрав данный вариант интеграции, вам будет необходимо загрузить ваши реестры к нам самостоятельно',
+    detailsTitle: 'Интеграция через загрузку реестров',
+    detailsText: 'Выберите формат, в котором хотите загружать ваши реестры в Домá.\n' +
+        'Мы запомним ваш выбор и в следующий раз не будем спрашивать про формат файлов.',
     detailsConfirmButtonText: 'Подключить',
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
     billingPageTitle: 'Биллинг, реестровый обмен',

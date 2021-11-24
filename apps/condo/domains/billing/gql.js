@@ -8,7 +8,7 @@ const { generateGqlQueries } = require('@condo/domains/common/utils/codegenerati
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const BILLING_INTEGRATION_OPTIONS_FIELDS = '{ title options { name billingPageTitle descriptionDetails { detailsText detailsLink } } }'
+const BILLING_INTEGRATION_OPTIONS_FIELDS = '{ title options { name displayName billingPageTitle descriptionDetails { detailsText detailsLink } } }'
 const BILLING_INTEGRATION_FIELDS = `{ name shortDescription detailsTitle detailsText detailsConfirmButtonText detailsInstructionButtonText detailsInstructionButtonLink contextDefaultStatus dataFormat currencyCode billingPageTitle isHidden availableOptions ${BILLING_INTEGRATION_OPTIONS_FIELDS} ${COMMON_FIELDS} }`
 const BillingIntegration = generateGqlQueries('BillingIntegration', BILLING_INTEGRATION_FIELDS)
 
