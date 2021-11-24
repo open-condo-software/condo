@@ -97,8 +97,12 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
             if (resolvedData.hasOwnProperty('integrationOption') && !options.length) {
                 return addValidationError(CONTEXT_REDUNDANT_OPTION)
             }
-            const optionName = get(resolvedData, ['integrationOption'])
-            if (!optionName && options.length) {
+            const newItem = {
+                ...existingItem,
+                ...resolvedData,
+            }
+            const optionName = get(newItem, ['integrationOption'])
+            if (operation === 'create' && !optionName && options.length) {
                 return addValidationError(CONTEXT_NO_OPTION_PROVIDED)
             }
             const matchingOptions = options
