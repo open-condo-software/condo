@@ -143,7 +143,7 @@ const buttonGradientCss = css`
       }
     `
 const buttonDefaultGradientCss = (secondary = false) => {
-    const border = secondary ? `1px solid ${colors.inputBorderHover}` : 'none'
+    const border = secondary ? `1px solid ${colors.inputBorderHover}` : '1px solid transparent'
     return  css`
       background: ${secondary ? 'transparent' : colors.black};
       border-radius: 8px;

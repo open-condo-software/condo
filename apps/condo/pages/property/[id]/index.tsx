@@ -133,7 +133,7 @@ export const PropertyPageContent = ({ property, role }) => {
             {
                 role && role.canManageProperties ? (
                     <ActionBar>
-                        <Space size={20}>
+                        <Space size={20} wrap>
                             <Link href={`/property/${property.id}/update`}>
                                 <span>
                                     <Button
