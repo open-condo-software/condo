@@ -80,6 +80,7 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
                         mode: 'multiple',
                         showArrow: true,
                         placeholder: EnterAddressMessage,
+                        infinityScroll: true,
                     },
                     modalFilterComponentWrapper: {
                         label: AddressMessage,

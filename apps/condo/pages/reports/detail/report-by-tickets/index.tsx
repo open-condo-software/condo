@@ -40,7 +40,11 @@ import {
     ticketAnalyticsPageFilters,
 } from '@condo/domains/ticket/utils/helpers'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
-import { searchEmployeeUser, searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
+import {
+    searchEmployeeUser,
+    searchOrganizationProperty,
+    searchProperty,
+} from '@condo/domains/ticket/utils/clientSchema/search'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import TicketChartView from '@condo/domains/ticket/components/analytics/TicketChartView'
 import TicketListView from '@condo/domains/ticket/components/analytics/TicketListView'
@@ -222,18 +226,6 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
         })
     }, [dateRange, specification, addressList, classifierList, executorList, responsibleList, viewMode, groupTicketsBy])
 
-    const searchAddress = useCallback(
-        (client, query) => {
-            const where = {
-                address_contains_i: query,
-                organization: { id: userOrganizationId },
-            }
-
-            return searchProperty(client, where, 'unitsCount_DESC')
-        },
-        [userOrganizationId],
-    )
-
     const onAddressChange = useCallback((labelsList, searchObjectsList) => {
         setAddressList(labelsList as string[])
         addressListRef.current = [...searchObjectsList.map(({ key: id, title: value }) => ({ id, value }))]
@@ -297,8 +289,9 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                     <Form.Item label={AddressTitle} {...FORM_ITEM_STYLE}>
                         <GraphQlSearchInput
                             allowClear
-                            search={searchAddress}
+                            search={searchOrganizationProperty(userOrganizationId)}
                             mode={'multiple'}
+                            infinityScroll
                             value={addressList}
                             onChange={onAddressChange}
                             maxTagCount='responsive'

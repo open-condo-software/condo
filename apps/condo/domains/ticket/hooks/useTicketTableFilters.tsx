@@ -156,6 +156,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                         mode: 'multiple',
                         showArrow: true,
                         placeholder: EnterAddressMessage,
+                        infinityScroll: true,
                     },
                     modalFilterComponentWrapper: {
                         label: AddressMessage,
