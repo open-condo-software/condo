@@ -116,6 +116,7 @@ const MenuCss = css`
   }
   & .ant-dropdown-menu-item button svg {
     margin-right: 8px;
+    z-index: 1;
   }
 `
 
