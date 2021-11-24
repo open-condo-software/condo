@@ -32,7 +32,10 @@ const BillingPage = () => {
         fetchPolicy: 'network-only',
     })
 
-    const PageTitle = get(currentContext, ['integration', 'billingPageTitle'], BillingTitle)
+    const options = get(currentContext, ['integration', 'availableOptions', 'options'], [])
+    const namedOptions = options.filter(option => option.name === get(currentContext, 'integrationOption'))
+    const integrationPageTitle = get(currentContext, ['integration', 'billingPageTitle'], BillingTitle)
+    const PageTitle = get(namedOptions, ['0', 'billingPageTitle'], integrationPageTitle)
 
     return (
         <>
