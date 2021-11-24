@@ -20,7 +20,6 @@ interface ISearchInput<S> extends Omit<SelectProps<S>, 'onSelect'> {
     search: (searchText, skip?) => Promise<Array<Record<string, any>>>
     initialValueGetter?: InitialValuesGetter
     onSelect?: (value: string, option: OptionProps) => void
-
     infinityScroll?: boolean
 }
 
@@ -57,13 +56,11 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
     const [initialValue, isInitialValueFetching] = useInitialValueGetter(value, initialValueGetter)
     const [scrollInputCaretToEnd, setSelectRef, selectInputNode] = useSelectCareeteControls(restSelectProps.id)
 
-    const searchTextValue = (selected) ? selected + ' ' + value : value
-
     const searchSuggestions = useCallback(
         async (value) => {
             setIsAllData(false)
             setFetching(true)
-            const data = await search(searchTextValue)
+            const data = await search((selected) ? selected + ' ' + value : value)
             setFetching(false)
             setData(data)
         },
@@ -82,7 +79,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
             if (isAllData) return
 
             setFetching(true)
-            const data = await search(searchTextValue, skip)
+            const data = await search(selected ? undefined : value, skip)
             setFetching(false)
 
             if (data.length > 0) {
@@ -91,7 +88,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
                 setIsAllData(true)
             }
         },
-        [],
+        [isAllData, search, selected],
     )
 
     const throttledSearchMore = useMemo(
