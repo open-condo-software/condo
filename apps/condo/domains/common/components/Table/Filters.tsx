@@ -97,7 +97,7 @@ const GRAPHQL_SEARCH_INPUT_STYLE: CSSProperties = { width: '100%' }
 export const getGQLSelectFilterDropdown = (
     props: ComponentProps<typeof GraphQlSearchInput>,
     search: (client: ApolloClient<Record<string, unknown>>, queryArguments: string) => Promise<Array<Record<string, unknown>>>,
-    mode?: 'multiple' | 'tag',
+    mode?: ComponentProps<typeof GraphQlSearchInput>['mode'],
     containerStyles?: CSSProperties
 ) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
