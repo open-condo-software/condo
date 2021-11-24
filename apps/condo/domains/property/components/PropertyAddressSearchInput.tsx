@@ -38,13 +38,13 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
     )
 
     const searchAddress = useCallback(
-        (query) => {
+        (query, skip) => {
             const where = {
                 address_contains_i: query,
                 organization: { id: organizationId },
             }
 
-            return searchProperty(client, where, 'unitsCount_DESC')
+            return searchProperty(client, where, 'name_DESC', 10, skip)
         },
         [],
     )
@@ -53,13 +53,14 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
      * TODO(DOMA-1513) replace HighLighter with apps/condo/domains/common/components/TextHighlighter.tsx and renderHighlightedPart
      */
     const renderOption = useCallback(
-        (dataItem, searchValue) => {
+        (dataItem, searchValue, index) => {
             return (
                 <Select.Option
                     style={{ direction: 'rtl', textAlign: 'left', color: grey[6] }}
                     key={dataItem.value}
                     value={dataItem.text}
                     title={dataItem.text}
+                    id={index}
                 >
                     {
                         searchValue === dataItem.text
@@ -95,6 +96,7 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
             search={searchAddress}
             renderOption={renderOption}
             initialValueGetter={initialValueGetter}
+            infinityScroll
         />
     )
 }
