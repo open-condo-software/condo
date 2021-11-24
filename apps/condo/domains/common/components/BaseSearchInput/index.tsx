@@ -7,6 +7,7 @@ import { useIntl } from '@core/next/intl'
 import { InitialValuesGetter, useInitialValueGetter } from './useInitialValueGetter'
 import { useSelectCareeteControls } from './useSelectCareeteControls'
 import { Loader } from '../Loader'
+import { isNeedToLoadNewElements } from '../../utils/select.utils'
 
 const { Option } = Select
 
@@ -16,12 +17,14 @@ interface ISearchInput<S> extends Omit<SelectProps<S>, 'onSelect'> {
     loadOptionsOnFocus?: boolean
     renderOption: (dataItem, value, index?) => React.ReactElement
     // TODO(Dimtireee): remove any
-    search: (queryString, skip?) => Promise<Array<Record<string, any>>>
+    search: (searchText, skip?) => Promise<Array<Record<string, any>>>
     initialValueGetter?: InitialValuesGetter
     onSelect?: (value: string, option: OptionProps) => void
 
     infinityScroll?: boolean
 }
+
+const SELECT_LOADER_STYLE = { display: 'flex', justifyContent: 'center', padding: '10px 0' }
 
 export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
     const intl = useIntl()
@@ -48,15 +51,19 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
     const [selected, setSelected] = useState('')
     const [fetching, setFetching] = useState(false)
     const [data, setData] = useState([])
+    const [isAllData, setIsAllData] = useState(false)
     const [searchValue, setSearchValue] = useState('')
     const [initialOptionsLoaded, setInitialOptionsLoaded] = useState(false)
     const [initialValue, isInitialValueFetching] = useInitialValueGetter(value, initialValueGetter)
     const [scrollInputCaretToEnd, setSelectRef, selectInputNode] = useSelectCareeteControls(restSelectProps.id)
 
+    const searchTextValue = (selected) ? selected + ' ' + value : value
+
     const searchSuggestions = useCallback(
         async (value) => {
+            setIsAllData(false)
             setFetching(true)
-            const data = await search((selected) ? selected + ' ' + value : value)
+            const data = await search(searchTextValue)
             setFetching(false)
             setData(data)
         },
@@ -72,16 +79,22 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
 
     const searchMoreSuggestions = useCallback(
         async (value, skip) => {
+            if (isAllData) return
+
             setFetching(true)
-            const data = await search((selected) ? selected + ' ' + value : value, skip)
-            console.log('data', skip, data)
+            const data = await search(searchTextValue, skip)
             setFetching(false)
-            setData(prevData => [...prevData, ...data])
+
+            if (data.length > 0) {
+                setData(prevData => [...prevData, ...data])
+            } else {
+                setIsAllData(true)
+            }
         },
         [],
     )
 
-    const debouncedSearchMore = useMemo(
+    const throttledSearchMore = useMemo(
         () => {
             return throttle(searchMoreSuggestions, DEBOUNCE_TIMEOUT)
         },
@@ -127,17 +140,13 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
         onChange(value, options)
     }
 
-    const handleScroll = async (e) => {
-        const dropdown = e.currentTarget
-        const containerTop = dropdown.getBoundingClientRect().top
-        const containerHeight = dropdown.getBoundingClientRect().height
-        const lastElement = document.getElementById(String((data || []).length - 1))
-        const lastElementTopPos = lastElement && lastElement.getBoundingClientRect().top - containerTop
+    const handleScroll = useCallback(async (scrollEvent) => {
+        const lastElementId = String((data || []).length - 1)
 
-        if (lastElementTopPos && lastElementTopPos < containerHeight && !fetching) {
-            await debouncedSearchMore(value, data.length)
+        if (isNeedToLoadNewElements(scrollEvent, lastElementId, fetching)) {
+            await throttledSearchMore(value, data.length)
         }
-    }
+    }, [data, fetching, throttledSearchMore, value])
 
     useEffect(
         () => {
@@ -164,9 +173,11 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
         () => {
             const dataOptions = data.map((option, index) => renderOption(option, value, index))
 
-            return fetching ? [...dataOptions, <Option value={null} key={'loader'} disabled>
-                <Loader style={{ display: 'flex', justifyContent: 'center', padding: '10px 0' }}/>
-            </Option>] : dataOptions
+            return fetching ? [...dataOptions, (
+                <Option key={'loader'} value={null} disabled>
+                    <Loader style={SELECT_LOADER_STYLE}/>
+                </Option>
+            )] : dataOptions
         },
         [data, fetching, value],
     )
