@@ -3,7 +3,7 @@ import React from 'react'
 import { css, jsx } from '@emotion/core'
 import { green } from '@ant-design/colors'
 import { Button as DefaultButton, ButtonProps } from 'antd'
-import { colors, gradients } from '../constants/style'
+import { colors, gradients, transitions } from '../constants/style'
 
 const buttonCss = (color) => {
     // Ant returns an array of hue-separated colors, check them out here
@@ -152,17 +152,45 @@ const buttonDefaultGradientCss = (secondary = false) => {
       font-weight: 700;
       outline: none;
       border: ${border};
+      transition: ${transitions.allDefault};
+      
+      & span {
+        position: relative;
+        z-index: 1;
+      }
+      
+      &:before {
+        border-radius: inherit;
+        background: ${gradients.sberActionGradient};
+        content: '';
+        display: block;
+        position: absolute;
+        top: -1px;
+        left: -1px;
+        height: inherit;
+        width: inherit;
+        color: black;
+        opacity: 0;
+        border: none;
+        padding: inherit;
+      }
 
       &:hover, &:focus {
         color: ${colors.defaultWhite[5]};
-        background: ${gradients.sberActionGradient};
         border: 1px solid transparent;
+      }
+      &:hover:not(:disabled):before,
+      &:focus:not(:disabled):before {
+        opacity: 1;
       }
 
       &:active {
         color: ${colors.defaultWhite[5]};
-        background: ${gradients.sberActionInversed};
         border: 1px solid transparent;
+      }
+      &:active:before {
+        background: ${gradients.sberActionInversed};
+        opacity: 1;
       }
 
       &:disabled, &:hover:disabled {
