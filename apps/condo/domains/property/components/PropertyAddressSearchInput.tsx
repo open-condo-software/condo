@@ -44,7 +44,7 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
                 organization: { id: organizationId },
             }
 
-            return searchProperty(client, where, 'name_DESC', 10, skip)
+            return searchProperty(client, where, 'address_ASC', 10, skip)
         },
         [],
     )
