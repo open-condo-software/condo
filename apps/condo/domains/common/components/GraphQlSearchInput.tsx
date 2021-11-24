@@ -80,7 +80,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         ? renderOptions(data, renderOption)
         : data.map(renderOption)
 
-    const loadInitialOptions =  useCallback(async () => {
+    const loadInitialOptions = useCallback(async () => {
         const initialValueQuery = isFunction(getInitialValueQuery) ? getInitialValueQuery(initialValue) : { id_in: initialValue }
 
         if (Array.isArray(initialValue) && initialValue.length) {
