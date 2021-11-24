@@ -35,10 +35,11 @@ const blackSelectCss = css`
 
   &.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector,
   &.ant-select:not(.ant-select-disabled):hover .ant-select-selector,
-  &.ant-select.ant-select-single.ant-select-open .ant-select-selector {
+  &.ant-select.ant-select-single.ant-select-open .ant-select-selector,
+  &.ant-select.ant-select-single.ant-select-focused .ant-select-selector {
     background: ${gradients.sberActionGradient};
-    border: none;
-    border-color: unset;
+    border: 1px solid transparent;
+    box-shadow: none;
   }
   &.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selection-item,
   &.ant-select:not(.ant-select-disabled):hover .ant-select-selection-item,
@@ -52,11 +53,12 @@ const blackSelectCss = css`
 
   &.ant-select:not(.ant-select-disabled):active .ant-select-selector {
     background: ${gradients.sberActionInversed};
+    border: 1px solid transparent;
   }
 
   &.ant-select.ant-select-single.ant-select-open .ant-select-selector {
     background: ${gradients.sberActionGradient};
-    border: none;
+    border: 1px solid transparent;
   }
 `
 
