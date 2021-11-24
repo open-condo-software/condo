@@ -94,21 +94,22 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
             // NOTE: Item will always exist, since field "integration" is required and keystone does existence-checks automatically
             const integration = await getById('BillingIntegration', integrationId)
             const options = get(integration, ['availableOptions', 'options'], [])
-            if (resolvedData.hasOwnProperty('integrationOption') && !options.length) {
+            if (options.length) {
+                const newItem = {
+                    ...existingItem,
+                    ...resolvedData,
+                }
+                const optionName = get(newItem, ['integrationOption'])
+                if (!optionName) {
+                    return addValidationError(CONTEXT_NO_OPTION_PROVIDED)
+                }
+                const matchingOptions = options
+                    .filter(option => option.name === optionName)
+                if (!matchingOptions.length) {
+                    addValidationError(CONTEXT_OPTION_NAME_MATCH)
+                }
+            } else if (resolvedData.hasOwnProperty('integrationOption')) {
                 return addValidationError(CONTEXT_REDUNDANT_OPTION)
-            }
-            const newItem = {
-                ...existingItem,
-                ...resolvedData,
-            }
-            const optionName = get(newItem, ['integrationOption'])
-            if (operation === 'create' && !optionName && options.length) {
-                return addValidationError(CONTEXT_NO_OPTION_PROVIDED)
-            }
-            const matchingOptions = options
-                .filter(option => option.name === optionName)
-            if (!matchingOptions.length) {
-                addValidationError(CONTEXT_OPTION_NAME_MATCH)
             }
         },
     },
