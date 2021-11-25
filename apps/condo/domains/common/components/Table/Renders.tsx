@@ -24,7 +24,7 @@ const DEFAULT_CURRENCY_CODE = 'RUB'
 const ELLIPSIS_SETTINGS = { rows: ELLIPSIS_ROWS, expandable: false }
 const ELLIPSIS_STYLES = { marginBottom: 0 }
 const DATE_FORMAT = 'DD.MM.YYYY'
-const TIME_FORMAT = 'hh:mm'
+const TIME_FORMAT = 'HH:mm'
 
 /**
  * Marks text according to marked flag
