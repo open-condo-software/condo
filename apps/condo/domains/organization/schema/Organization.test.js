@@ -5,7 +5,6 @@ const faker = require('faker')
 const { makeClientWithResident } = require(
     '@condo/domains/resident/utils/testSchema')
 
-const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
@@ -37,9 +36,7 @@ const {
 
 const { createTestBillingProperty, createTestBillingAccount, createTestBillingIntegration, createTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
 
-const { makeClientWithResidentUserAndProperty } = require('@condo/domains/property/utils/testSchema')
-
-const { registerServiceConsumerByTestClient, createTestResident } = require('@condo/domains/resident/utils/testSchema')
+const { registerServiceConsumerByTestClient } = require('@condo/domains/resident/utils/testSchema')
 
 const { createTestOrganizationEmployeeRole } = require('../utils/testSchema')
 const { createTestOrganizationEmployee } = require('../utils/testSchema')
@@ -353,7 +350,7 @@ describe('Organization', () => {
         // Now user has registered ServiceConsumer and is able to get InternetProviderOrganization and his Management company organization
         const consumerOrganizations = await Organization.getAll(residentClient, {}, { raw: true })
         expect(consumerOrganizations.data.objs).toHaveLength(1)
-        expect(consumerOrganizations.data.objs.name).toBeDefined()
+        expect(consumerOrganizations.data.objs[0].name).toBeDefined()
     })
 })
 
