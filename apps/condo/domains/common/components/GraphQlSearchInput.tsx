@@ -65,7 +65,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
     const [selected, setSelected] = useState('')
     const [isLoading, setLoading] = useState(false)
     const [data, setData] = useState([])
-    const [isAllData, setIsAllData] = useState(false)
+    const [isAllDataLoaded, setIsAllDataLoaded] = useState(false)
     const [value, setValue] = useState('')
 
     const renderOption = (option, index?) => {
@@ -141,7 +141,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
 
     const searchMoreSuggestions = useCallback(
         async (value, skip) => {
-            if (isAllData) return
+            if (isAllDataLoaded) return
 
             setLoading(true)
 
@@ -158,7 +158,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
             if (data.length > 0) {
                 setData(prevData => [...prevData, ...data])
             } else {
-                setIsAllData(true)
+                setIsAllDataLoaded(true)
             }
         },
         [],
@@ -171,13 +171,13 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         [searchMoreSuggestions],
     )
 
-    const handleScroll = async (scrollEvent) => {
-        const lastElementId = String((data || []).length - 1)
+    const handleScroll = useCallback(async (scrollEvent) => {
+        const lastElementIdx = String((data || []).length - 1)
 
-        if (isNeedToLoadNewElements(scrollEvent, lastElementId, isLoading)) {
+        if (isNeedToLoadNewElements(scrollEvent, lastElementIdx, isLoading)) {
             await throttledSearchMore(value, data.length)
         }
-    }
+    }, [data, isLoading, throttledSearchMore, value])
 
     return (
         <Select

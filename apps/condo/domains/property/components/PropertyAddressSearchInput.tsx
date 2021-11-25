@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import React, { useCallback } from 'react'
+import React, { CSSProperties, useCallback } from 'react'
 import get from 'lodash/get'
 import { Select, SelectProps, Typography } from 'antd'
 
@@ -18,6 +18,8 @@ import { colors } from '@condo/domains/common/constants/style'
 type IAddressSearchInput = SelectProps<string> & {
     organization: Organization
 }
+
+const SELECT_OPTION_STYLE: CSSProperties = { direction: 'rtl', textAlign: 'left', color: grey[6] }
 
 export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props) => {
     // TODO(Dimitree):remove ts ignore after useOrganizationTypo
@@ -56,7 +58,7 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
         (dataItem, searchValue, index) => {
             return (
                 <Select.Option
-                    style={{ direction: 'rtl', textAlign: 'left', color: grey[6] }}
+                    style={SELECT_OPTION_STYLE}
                     key={dataItem.value}
                     value={dataItem.text}
                     title={dataItem.text}

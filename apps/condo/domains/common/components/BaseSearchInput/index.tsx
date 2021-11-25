@@ -50,7 +50,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
     const [selected, setSelected] = useState('')
     const [fetching, setFetching] = useState(false)
     const [data, setData] = useState([])
-    const [isAllData, setIsAllData] = useState(false)
+    const [isAllDataLoaded, setIsAllDataLoaded] = useState(false)
     const [searchValue, setSearchValue] = useState('')
     const [initialOptionsLoaded, setInitialOptionsLoaded] = useState(false)
     const [initialValue, isInitialValueFetching] = useInitialValueGetter(value, initialValueGetter)
@@ -58,7 +58,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
 
     const searchSuggestions = useCallback(
         async (value) => {
-            setIsAllData(false)
+            setIsAllDataLoaded(false)
             setFetching(true)
             const data = await search((selected) ? selected + ' ' + value : value)
             setFetching(false)
@@ -76,7 +76,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
 
     const searchMoreSuggestions = useCallback(
         async (value, skip) => {
-            if (isAllData) return
+            if (isAllDataLoaded) return
 
             setFetching(true)
             const data = await search(selected ? undefined : value, skip)
@@ -85,10 +85,10 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
             if (data.length > 0) {
                 setData(prevData => [...prevData, ...data])
             } else {
-                setIsAllData(true)
+                setIsAllDataLoaded(true)
             }
         },
-        [isAllData, search, selected],
+        [isAllDataLoaded, search, selected],
     )
 
     const throttledSearchMore = useMemo(
@@ -132,15 +132,15 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
         [],
     )
 
-    const handleChange = (value, options) => {
+    const handleChange = useCallback((value, options) => {
         setSearchValue(value)
         onChange(value, options)
-    }
+    }, [onChange])
 
     const handleScroll = useCallback(async (scrollEvent) => {
-        const lastElementId = String((data || []).length - 1)
+        const lastElementIdx = String((data || []).length - 1)
 
-        if (isNeedToLoadNewElements(scrollEvent, lastElementId, fetching)) {
+        if (isNeedToLoadNewElements(scrollEvent, lastElementIdx, fetching)) {
             await throttledSearchMore(value, data.length)
         }
     }, [data, fetching, throttledSearchMore, value])
