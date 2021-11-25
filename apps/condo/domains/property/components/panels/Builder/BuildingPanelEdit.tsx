@@ -391,7 +391,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                         scrollToForm={scrollToForm}
                         isFullscreen
                     >
-                        <Space size={20}>
+                        <Space size={20} align={'center'}>
                             <Button
                                 key='submit'
                                 onClick={handleSave}
@@ -408,15 +408,15 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                             >
                                 {CancelLabel}
                             </Button>
+                            {
+                                mapValidationError ? (
+                                    <Typography.Paragraph type="danger" style={{ width: '100%', textAlign: 'center' }}>
+                                        {mapValidationError}
+                                    </Typography.Paragraph>
+                                ) : null
+                            }
                         </Space>
                     </ChessBoard>
-                }
-                {
-                    mapValidationError ? (
-                        <Typography.Paragraph type="danger" style={{ width: '100%', textAlign: 'center' }}>
-                            {mapValidationError}
-                        </Typography.Paragraph>
-                    ) : null
                 }
             </Row>
         </FullscreenWrapper>

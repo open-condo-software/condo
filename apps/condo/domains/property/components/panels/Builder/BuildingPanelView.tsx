@@ -5,7 +5,7 @@ import {
     BuildingChooseSections,
 } from './BuildingPanelCommon'
 import { Col, Row } from 'antd'
-import React, { useEffect, useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import cloneDeep from 'lodash/cloneDeep'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import { MapView } from './MapConstructor'
@@ -62,14 +62,9 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
 
     const [isFullscreen, setFullscreen] = useState(false)
 
-    const toggleFullscreen = () => {
-        localStorage && localStorage.setItem('isFullscreen', String(!isFullscreen))
+    const toggleFullscreen = useCallback(() => {
         setFullscreen(!isFullscreen)
-    }
-
-    useEffect(() => {
-        setFullscreen(localStorage && localStorage.getItem('isFullscreen') === 'true')
-    }, [])
+    }, [isFullscreen])
 
     return (
         <FullscreenWrapper mode={'view'} className={isFullscreen ? 'fullscreen' : '' }>
