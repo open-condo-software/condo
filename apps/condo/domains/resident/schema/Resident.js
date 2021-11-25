@@ -143,32 +143,33 @@ const Resident = new GQLListSchema('Resident', {
             extendGraphQLTypes: ['type PaymentCategory { id: String!, categoryName: String!, billingName: String! acquiringName: String! }'],
             graphQLReturnType: '[PaymentCategory]',
             resolver: async (item, _, context) => {
-                return PAYMENT_CATEGORIES_META.map(async category => {
+                return PAYMENT_CATEGORIES_META
+                    .filter(x => x.active)
+                    .map(async category => {
+                        let billingName = DEFAULT_BILLING_INTEGRATION_NAME
+                        let acquiringName = DEFAULT_ACQUIRING_INTEGRATION_NAME
 
-                    let billingName = DEFAULT_BILLING_INTEGRATION_NAME
-                    let acquiringName = DEFAULT_ACQUIRING_INTEGRATION_NAME
+                        if (category.canGetBillingFromOrganization && item.organization) {
+                            const [billingCtx] = await BillingIntegrationOrganizationContext.getAll(
+                                context, { organization: { id: item.organization } }
+                            )
+                            billingName = get(billingCtx, ['integration', 'name'], DEFAULT_BILLING_INTEGRATION_NAME)
+                        }
 
-                    if (category.canGetBillingFromOrganization && item.organization) {
-                        const [billingCtx] = await BillingIntegrationOrganizationContext.getAll(
-                            context, { organization: { id: item.organization } }
-                        )
-                        billingName = get(billingCtx, ['integration', 'name'], DEFAULT_BILLING_INTEGRATION_NAME)
-                    }
+                        if (category.canGetAcquiringFromOrganization && item.organization) {
+                            const [acquiringCtx] = await AcquiringIntegrationContext.getAll(
+                                context, { organization: { id: item.organization } }
+                            )
+                            acquiringName = get(acquiringCtx, ['integration', 'name'], DEFAULT_ACQUIRING_INTEGRATION_NAME)
+                        }
 
-                    if (category.canGetAcquiringFromOrganization && item.organization) {
-                        const [acquiringCtx] = await AcquiringIntegrationContext.getAll(
-                            context, { organization: { id: item.organization } }
-                        )
-                        acquiringName = get(acquiringCtx, ['integration', 'name'], DEFAULT_ACQUIRING_INTEGRATION_NAME)
-                    }
-
-                    return {
-                        id: category.id,
-                        categoryName: category.name,
-                        billingName: billingName,
-                        acquiringName: acquiringName,
-                    }
-                })
+                        return {
+                            id: category.id,
+                            categoryName: category.name,
+                            billingName: billingName,
+                            acquiringName: acquiringName,
+                        }
+                    })
             },
         },
 
