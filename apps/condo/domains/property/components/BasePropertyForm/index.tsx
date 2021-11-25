@@ -65,13 +65,13 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const [addressValidatorError, setAddressValidatorError] = useState<string | null>(null)
     const formValuesToMutationDataPreprocessor = useCallback((formData, _, form) => {
         const isAddressFieldTouched = form.isFieldsTouched(['address'])
+        const yearOfConstruction = formData.yearOfConstruction && !isEmpty(formData.yearOfConstruction)
+            ? dayjs().year(formData.yearOfConstruction).format('YYYY-MM-DD')
+            : null
 
         if (isAddressFieldTouched) {
             try {
                 const addressMeta = addressApi.getAddressMeta(formData.address)
-                const yearOfConstruction = formData.yearOfConstruction && !isEmpty(formData.yearOfConstruction)
-                    ? dayjs().year(formData.yearOfConstruction).format('YYYY-MM-DD')
-                    : null
                 return { ...formData, addressMeta: { dv: 1, ...addressMeta }, yearOfConstruction }
             } catch (e) {
                 notification.error({
@@ -88,10 +88,9 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
         // It seems, like we cannot control it.
         // So, these fields should be cleaned, because it will result to incorrect input into update-mutation
         const cleanedFormData = omitRecursively(formData, '__typename')
-        return cleanedFormData
+        return { ...cleanedFormData, yearOfConstruction }
     }, [initialValues])
-
-    const { requiredValidator, numberValidator } = useValidations()
+    const { requiredValidator, numberValidator, maxLengthValidator } = useValidations()
     const addressValidator = {
         validator () {
             if (!addressValidatorError) {
@@ -102,6 +101,9 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     }
     const yearOfConstructionValidator = {
         validator (_, val) {
+            if (val === null) {
+                return Promise.resolve()
+            }
             const receivedDate = dayjs().year(val)
             if (val.length === 0 || val.length === 4 && receivedDate.isValid() && receivedDate.isBefore(dayjs().add(1, 'day'))) {
                 return Promise.resolve()
@@ -111,7 +113,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     }
     const validations = {
         address: [requiredValidator, addressValidator],
-        area: [numberValidator],
+        area: [numberValidator, maxLengthValidator(12)],
         yearOfConstruction: [yearOfConstructionValidator],
     }
 
