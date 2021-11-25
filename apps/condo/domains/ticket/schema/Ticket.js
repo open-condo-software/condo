@@ -262,7 +262,7 @@ const Ticket = new GQLListSchema('Ticket', {
                 addOrderToTicket(resolvedData, statusId)
             }
 
-            if (user.type === RESIDENT) {
+            if (user.type === RESIDENT && operation === 'create') {
                 await addClientInfoToResidentTicket(context, resolvedData)
             }
 
