@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import React, { useEffect, useState, useCallback } from 'react'
-import { Select, SelectProps } from 'antd'
+import { Select, SelectProps, Typography } from 'antd'
 import isFunction from 'lodash/isFunction'
 import uniqBy from 'lodash/uniqBy'
 import { ApolloClient } from '@apollo/client'
@@ -70,8 +70,8 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         const value = ['string', 'number'].includes(typeof option.value) ? option.value : JSON.stringify(option)
 
         return (
-            <Select.Option key={option.key || value} value={value} title={option.text}>
-                {optionLabel}
+            <Select.Option key={option.key || value} value={value}>
+                <Typography.Text title={option.text}>{optionLabel}</Typography.Text>
             </Select.Option>
         )
     }
