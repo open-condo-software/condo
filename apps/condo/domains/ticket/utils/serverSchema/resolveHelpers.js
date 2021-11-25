@@ -1,5 +1,6 @@
 const get = require('lodash/get')
-
+const { getSectionAndFloorByUnitName } = require('@condo/domains/ticket/utils/unit')
+const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { TICKET_ORDER_BY_STATUS, STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 
@@ -13,9 +14,17 @@ function addOrderToTicket (resolvedData, statusId) {
 
 async function addClientInfoToResidentTicket (context, resolvedData) {
     const user = get(context, ['req', 'user'])
-    const organizationId = get(resolvedData, 'organization')
-    const propertyId = get(resolvedData, 'property')
-    const unitName = get(resolvedData, 'unitName')
+    const organizationId = get(resolvedData, 'organization', null)
+    const propertyId = get(resolvedData, 'property', null)
+    const unitName = get(resolvedData, 'unitName', null)
+
+    const [property] = await Property.getAll(context, {
+        id: propertyId,
+    })
+
+    const { sectionName, floorName } = getSectionAndFloorByUnitName(property, unitName)
+    resolvedData.sectionName = sectionName
+    resolvedData.floorName = floorName
 
     const residentName = user.name
     const residentPhone = user.phone
