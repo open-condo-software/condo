@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
-import { Col, Row, Typography, Input, Select, InputNumber, Space, Dropdown, Menu, RowProps, DropDownProps } from 'antd'
+import { Col, Row, Typography, Input, Select, InputNumber, Space, Dropdown, Menu, RowProps, DropDownProps, notification } from 'antd'
 import { css, jsx } from '@emotion/core'
 import styled from '@emotion/styled'
 import { fontSizes, colors, shadows } from '@condo/domains/common/constants/style'
@@ -10,6 +10,9 @@ import { DeleteFilled, DownOutlined, CloseOutlined } from '@ant-design/icons'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
 import isNull from 'lodash/isNull'
+import get from 'lodash/get'
+import debounce from 'lodash/debounce'
+import { useHotkeys } from 'react-hotkeys-hook'
 import { transitions } from '@condo/domains/common/constants/style'
 import {
     EmptyBuildingBlock,
@@ -27,6 +30,9 @@ import {
     BuildingUnit,
     BuildingSection,
 } from '@app/condo/schema'
+import { Property } from '@condo/domains/property/utils/clientSchema'
+import { IPropertyUIState } from '@condo/domains/property/utils/clientSchema/Property'
+
 import { FullscreenWrapper, FullscreenHeader } from './Fullscreen'
 import ScrollContainer from 'react-indiana-drag-scroll'
 import {
@@ -163,7 +169,7 @@ interface IBuildingPanelEditProps {
     map: BuildingMap
     updateMap: (map: BuildingMap) => void
     handleSave(): void
-    address?: string
+    property?: IPropertyUIState
     mapValidationError?: string
 }
 
@@ -195,6 +201,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
     const CancelLabel = intl.formatMessage({ id: 'Cancel' })
+    const ChangesSaved = intl.formatMessage({ id: 'ChangesSaved' })
     const AddSection = intl.formatMessage({ id: 'pages.condo.property.select.option.section' })
     const AddUnit = intl.formatMessage({ id: 'pages.condo.property.select.option.unit' })
     const AddFloor = intl.formatMessage({ id: 'pages.condo.property.select.option.floor' })
@@ -206,7 +213,19 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const AllSectionsTitle = intl.formatMessage({ id: 'pages.condo.property.SectionSelect.AllTitle' })
     const SectionPrefixTitle = intl.formatMessage({ id: 'pages.condo.property.SectionSelect.OptionPrefix' })
 
-    const { mapValidationError, map, updateMap: updateFormField, handleSave, address } = props
+    const { mapValidationError, map, updateMap: updateFormField, handleSave, property } = props
+
+    const quickSave = Property.useUpdate({}, () => notification.success({
+        message: ChangesSaved,
+        placement: 'bottomRight',
+    }))
+    const debouncedQuickSave = useCallback(debounce(() => quickSave({ map }, property), 800), [map, property])
+    const quickSaveCallback = useCallback((event) => {
+        event.preventDefault()
+        debouncedQuickSave()
+    }, [debouncedQuickSave])
+
+    useHotkeys('ctrl+s', quickSaveCallback, [map, property])
 
     const { push, query: { id } } = useRouter()
     const builderFormRef = useRef<HTMLDivElement | null>(null)
@@ -214,6 +233,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
 
     const mode = Map.editMode
     const sections = Map.sections
+    const address = get(property, 'address')
 
     const scrollToForm = () => {
         if (builderFormRef && builderFormRef.current) {
