@@ -51,6 +51,7 @@ const { Option } = Select
 
 const INPUT_STYLE = { width: '100%' }
 const DROPDOWN_TRIGGER: DropDownProps['trigger'] = ['hover', 'click']
+const DEBOUNCE_TIMEOUT = 800
 
 const TopRowCss = css`
   margin-top: 12px;
@@ -212,6 +213,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const AddElementTitle = intl.formatMessage({ id: 'pages.condo.property.menu.MenuPlaceholder' })
     const AllSectionsTitle = intl.formatMessage({ id: 'pages.condo.property.SectionSelect.AllTitle' })
     const SectionPrefixTitle = intl.formatMessage({ id: 'pages.condo.property.SectionSelect.OptionPrefix' })
+    const MapValidationError = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameUnitNamesErrorMsg' })
 
     const { mapValidationError, map, updateMap: updateFormField, handleSave, property } = props
 
@@ -219,13 +221,10 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
         message: ChangesSaved,
         placement: 'bottomRight',
     }))
-    const debouncedQuickSave = useCallback(debounce(() => quickSave({ map }, property), 800), [map, property])
-    const quickSaveCallback = useCallback((event) => {
-        event.preventDefault()
-        debouncedQuickSave()
-    }, [debouncedQuickSave])
-
-    useHotkeys('ctrl+s', quickSaveCallback, [map, property])
+    const debouncedQuickSave = useCallback(
+        debounce(() => quickSave({ map }, property), DEBOUNCE_TIMEOUT),
+        [map, property]
+    )
 
     const { push, query: { id } } = useRouter()
     const builderFormRef = useRef<HTMLDivElement | null>(null)
@@ -234,6 +233,21 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const mode = Map.editMode
     const sections = Map.sections
     const address = get(property, 'address')
+
+    const quickSaveCallback = useCallback((event) => {
+        event.preventDefault()
+
+        if (Map.validate()) {
+            debouncedQuickSave()
+            return
+        }
+        notification.error({
+            message: MapValidationError,
+            placement: 'bottomRight',
+        })
+    }, [debouncedQuickSave, Map])
+
+    useHotkeys('ctrl+s', quickSaveCallback, [map, property])
 
     const scrollToForm = () => {
         if (builderFormRef && builderFormRef.current) {

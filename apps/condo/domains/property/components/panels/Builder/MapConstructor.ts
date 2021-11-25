@@ -81,7 +81,7 @@ class Map {
     }
 
     public validate (): boolean {
-        return this.validateSchema() && this.validateUniqueIds()
+        return this.validateSchema() && this.validateUniqueIds() && this.validateUniqueUnitLabel()
     }
 
     public validateSchema (): boolean {
@@ -100,6 +100,21 @@ class Map {
         const uniqArray = uniq(compact(ids))
         if (ids.length !== uniqArray.length){
             this.validationErrors = ['ID field must be unique']
+            return false
+        }
+        return true
+    }
+
+    public validateUniqueUnitLabel (): boolean {
+        const unitLabels = this.map.sections
+            ?.map((section) => section.floors
+                ?.map(floor => floor.units
+                    ?.map(unit => unit.label)
+                )
+            )
+            .flat(2)
+        if (unitLabels && unitLabels.length !== new Set(unitLabels).size) {
+            this.validationErrors = ['Name of unit label must be unique']
             return false
         }
         return true

@@ -141,6 +141,23 @@ describe('Map constructor', () => {
                 expect(info.floor).toEqual(newJsonMap.sections[2].floors[2].id)
                 expect(info.section).toEqual(newJsonMap.sections[2].id)
             })
+            it('should not save map if section name is not unique', () => {
+                const Building = createBuildingMap(10)
+                const jsonMap = Building.getMap()
+                const updatedUnit = jsonMap.sections[5].floors[5].units[5]
+                Building.updateUnit({ ...updatedUnit, ...{
+                    floor: jsonMap.sections[5].floors[5].id,
+                    section: jsonMap.sections[5].id,
+                    label: jsonMap.sections[0].floors[0].units[0].label,
+                } })
+                const newJsonMap = Building.getMap()
+                const unitToCompare = newJsonMap.sections[5].floors[5].units[5]
+
+                expect(unitToCompare.name).toEqual(jsonMap.sections[0].floors[0].units[0].label)
+                expect(Building.validate()).not.toBeTruthy()
+                expect(Building.validationErrors).toHaveLength(1)
+                expect(Building.validationErrors[0]).toEqual('Name of unit label must be unique')
+            })
         })
 
         describe('Delete unit', () => {
