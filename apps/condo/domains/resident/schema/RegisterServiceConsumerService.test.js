@@ -99,7 +99,7 @@ describe('RegisterServiceConsumerService', () => {
 
         const [ out ] = await registerServiceConsumerByTestClient(userClient, payload)
         expect(out).toBeDefined()
-        expect(out.billingAccount).toBeDefined()
+        expect(out.billingAccount.id).toBeDefined()
     })
 
     it('creates serviceConsumer with billingAccount and Meters', async () => {
