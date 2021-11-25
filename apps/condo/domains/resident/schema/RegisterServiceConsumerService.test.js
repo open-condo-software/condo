@@ -99,7 +99,8 @@ describe('RegisterServiceConsumerService', () => {
 
         const [ out ] = await registerServiceConsumerByTestClient(userClient, payload)
         expect(out).toBeDefined()
-        expect(out.billingAccount.id).toBeDefined()
+        expect(out.residentBillingAccount.id).toEqual(billingAccountAttrs.id)
+        expect(out.residentOrganization.id).toEqual(organization.id)
     })
 
     it('creates serviceConsumer with billingAccount and Meters', async () => {
@@ -139,7 +140,7 @@ describe('RegisterServiceConsumerService', () => {
         const [ out ] = await registerServiceConsumerByTestClient(userClient, payload)
 
         expect(out).toBeDefined()
-        expect(out.billingAccount.id).toEqual(billingAccountAttrs.id)
+        expect(out.residentBillingAccount.id).toEqual(billingAccountAttrs.id)
     })
 
     it('creates serviceConsumer with billingAccount without Meters', async () => {
@@ -165,7 +166,7 @@ describe('RegisterServiceConsumerService', () => {
         const [ out ] = await registerServiceConsumerByTestClient(userClient, payload)
 
         expect(out).toBeDefined()
-        expect(out.billingAccount.id).toEqual(billingAccountAttrs.id)
+        expect(out.residentBillingAccount.id).toEqual(billingAccountAttrs.id)
     })
 
     it('creates serviceConsumer without billingAccount when Meters are found', async () => {
@@ -199,6 +200,7 @@ describe('RegisterServiceConsumerService', () => {
         const [ out ] = await registerServiceConsumerByTestClient(userClient, payload)
         expect(out).toBeDefined()
         expect(out.billingAccount).toBeNull()
+        expect(out.residentBillingAccount).toBeNull()
     })
 
     it('fails with error when billingAccount not found, and Meters are not found', async () => {

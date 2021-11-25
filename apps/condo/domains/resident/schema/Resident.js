@@ -10,6 +10,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD, ADDRESS_META_FIELD } = require('@condo/domains/common/schema/fields')
 
 const access = require('@condo/domains/resident/access/Resident')
+const { RESIDENT_ORGANIZATION_FIELD } = require('./fields')
 const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverSchema')
 const { PAYMENT_CATEGORIES_META } = require('@condo/domains/resident/constants')
 
@@ -51,19 +52,7 @@ const Resident = new GQLListSchema('Resident', {
         // The reason for this field is to avoid adding check for resident user into global Organization read access.
         // This field have specific use case for mobile client.
         residentOrganization: {
-            schemaDoc: 'Organization data, that is returned for current resident in mobile client',
-            type: Virtual,
-            extendGraphQLTypes: ['type ResidentOrganization { id: ID!, name: String }'],
-            graphQLReturnType: 'ResidentOrganization',
-            resolver: async (item) => {
-                if (item.organization) {
-                    const organization = await getById('Organization', item.organization)
-                    return pick(organization, ['id', 'name'])
-                } else {
-                    return null
-                }
-            },
-            access: true,
+            ...RESIDENT_ORGANIZATION_FIELD,
         },
 
         property: {
