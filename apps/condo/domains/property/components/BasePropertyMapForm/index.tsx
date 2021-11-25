@@ -5,7 +5,7 @@ import { Typography, Form, Input } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import Prompt from '@condo/domains/common/components/Prompt'
-import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'
+import { IPropertyFormState, IPropertyUIState } from '@condo/domains/property/utils/clientSchema/Property'
 import { BuildingMap } from '@app/condo/schema'
 import { BuildingPanelEdit } from '../panels/Builder/BuildingPanelEdit'
 
@@ -13,9 +13,7 @@ interface IPropertyMapFormProps {
     id: string
     organization: { id: string }
     type: string
-    property: {
-        address: string
-    }
+    property: IPropertyUIState
     initialValues?: IPropertyFormState
     action?: (...args) => void
 }
@@ -97,7 +95,7 @@ const BasePropertyMapForm: React.FC<IPropertyMapFormProps> = ({ action, initialV
                                         handleSave={handleSave}
                                         map={map as BuildingMap}
                                         updateMap={map => setFieldsValue({ map })}
-                                        address={property.address}
+                                        property={property}
                                     />
                                 )
                             }
