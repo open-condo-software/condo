@@ -169,12 +169,17 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
     const options = useMemo(
         () => {
             const dataOptions = data.map((option, index) => renderOption(option, value, index))
+            
+            if (!fetching) return dataOptions
 
-            return fetching ? [...dataOptions, (
-                <Option key={'loader'} value={null} disabled>
-                    <Loader style={SELECT_LOADER_STYLE}/>
-                </Option>
-            )] : dataOptions
+            return [
+                ...dataOptions,
+                (
+                    <Option key={'loader'} value={null} disabled>
+                        <Loader style={SELECT_LOADER_STYLE}/>
+                    </Option>
+                ),
+            ]
         },
         [data, fetching, value],
     )
