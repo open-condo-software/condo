@@ -59,13 +59,13 @@ async function makeClientWithProperty (includeFlat = false) {
     return client
 }
 
+// TODO(DOMA-1699): make create Resident for client. Rewrite tests where this utility is used.
 async function makeClientWithResidentAccessAndProperty () {
     const clientWithOrganization = await makeClientWithProperty()
     const client = await makeClientWithResidentUser()
     const organization = clientWithOrganization.organization
     const property = clientWithOrganization.property
 
-    await addResidentAccess(client.user)
     client.organization = organization
     client.property = property
 
