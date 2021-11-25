@@ -84,6 +84,9 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
 
                 if (!attrs.billingAccount) {
                     const meters = await Meter.getAll(context, { accountNumber: accountNumber, unitName: unitName, organization: { id: organizationId } })
+                    if (meters.length < 1) {
+                        throw (`${NOT_FOUND_ERROR}accountNumber] Can't find billingAccount and any meters with this accountNumber, unitName and organization combination`)
+                    }
                 }
 
                 const [existingServiceConsumer] = await ServiceConsumer.getAll(context, {
