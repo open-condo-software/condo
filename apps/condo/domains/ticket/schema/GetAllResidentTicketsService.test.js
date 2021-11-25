@@ -4,14 +4,14 @@
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { expectToThrowAuthenticationErrorToObjects } = require('@condo/domains/common/utils/testSchema')
 const { UUID_RE } = require('@core/keystone/test.utils')
-const { makeClientWithResidentUserAndProperty } = require('@condo/domains/property/utils/testSchema')
+const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { createResidentTicketByTestClient } = require('@condo/domains/ticket/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { ResidentTicket } = require('@condo/domains/ticket/utils/testSchema')
 
 describe('GetAllResidentTicketsService', () => {
     test('resident: can read resident ticket', async () => {
-        const userClient = await makeClientWithResidentUserAndProperty()
+        const userClient = await makeClientWithResidentAccessAndProperty()
         const [residentTicket] = await createResidentTicketByTestClient(userClient, userClient.property)
         const [ticket] = await ResidentTicket.getAll(userClient, {})
 
@@ -31,7 +31,7 @@ describe('GetAllResidentTicketsService', () => {
     })
 
     test('resident: cannot read ticket fields which not in ResidentTicketOutput', async () =>{
-        const userClient = await makeClientWithResidentUserAndProperty()
+        const userClient = await makeClientWithResidentAccessAndProperty()
         await createResidentTicketByTestClient(userClient, userClient.property)
 
         const [ticket] = await ResidentTicket.getAll(userClient, {})
@@ -47,8 +47,8 @@ describe('GetAllResidentTicketsService', () => {
     })
 
     test('resident: can read only own resident ticket', async () => {
-        const client = await makeClientWithResidentUserAndProperty()
-        const client1 = await makeClientWithResidentUserAndProperty()
+        const client = await makeClientWithResidentAccessAndProperty()
+        const client1 = await makeClientWithResidentAccessAndProperty()
         const [clientTicket] = await createResidentTicketByTestClient(client, client.property)
         await createResidentTicketByTestClient(client1, client1.property)
 
@@ -66,7 +66,7 @@ describe('GetAllResidentTicketsService', () => {
 
     test('user: cannot read resident tickets', async () => {
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
-        const userClient = await makeClientWithResidentUserAndProperty()
+        const userClient = await makeClientWithResidentAccessAndProperty()
         await createResidentTicketByTestClient(userClient, userClient.property)
 
         const tickets = await ResidentTicket.getAll(client, {})
@@ -75,7 +75,7 @@ describe('GetAllResidentTicketsService', () => {
 
     test('admin: get resident tickets', async () => {
         const admin = await makeLoggedInAdminClient()
-        const client = await makeClientWithResidentUserAndProperty()
+        const client = await makeClientWithResidentAccessAndProperty()
         const [ticket] = await createResidentTicketByTestClient(client, client.property)
 
         const tickets = await ResidentTicket.getAll(admin, { id: ticket.id })

@@ -12,7 +12,7 @@ const faker = require('faker')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
-const { makeClientWithResidentUserAndProperty } = require('@condo/domains/property/utils/testSchema')
+const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 
@@ -66,7 +66,7 @@ describe('Ticket', () => {
 
     test('user with resident type without resident: cannot create Ticket', async () => {
         const admin = await makeLoggedInAdminClient()
-        const userClient = await makeClientWithResidentUserAndProperty()
+        const userClient = await makeClientWithResidentAccessAndProperty()
         await createTestResident(admin, userClient.user, userClient.organization, userClient.property)
 
         await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -76,7 +76,7 @@ describe('Ticket', () => {
 
     test('resident: can create Ticket and client info save in new ticket', async () => {
         const admin = await makeLoggedInAdminClient()
-        const userClient = await makeClientWithResidentUserAndProperty()
+        const userClient = await makeClientWithResidentAccessAndProperty()
         const unitName = faker.random.alphaNumeric(5)
         await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
             unitName,
@@ -97,7 +97,7 @@ describe('Ticket', () => {
 
     test('user with 2 residents: can create Ticket for each resident', async () => {
         const admin = await makeLoggedInAdminClient()
-        const userClient = await makeClientWithResidentUserAndProperty()
+        const userClient = await makeClientWithResidentAccessAndProperty()
         const [organization] = await createTestOrganization(admin)
         const [property] = await createTestProperty(admin, organization)
         const unitName1 = faker.random.alphaNumeric(5)
@@ -122,7 +122,7 @@ describe('Ticket', () => {
 
     test('resident: cannot create Ticket without unitName', async () => {
         const admin = await makeLoggedInAdminClient()
-        const userClient = await makeClientWithResidentUserAndProperty()
+        const userClient = await makeClientWithResidentAccessAndProperty()
         const unitName = faker.random.alphaNumeric(5)
         await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
             unitName,
@@ -135,7 +135,7 @@ describe('Ticket', () => {
 
     test('resident: cannot create Ticket in other unitName', async () => {
         const admin = await makeLoggedInAdminClient()
-        const userClient = await makeClientWithResidentUserAndProperty()
+        const userClient = await makeClientWithResidentAccessAndProperty()
         const unitName1 = faker.random.alphaNumeric(5)
         const unitName2 = faker.random.alphaNumeric(5)
         await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
@@ -151,7 +151,7 @@ describe('Ticket', () => {
 
     test('resident: cannot create Ticket in other property', async () => {
         const admin = await makeLoggedInAdminClient()
-        const userClient = await makeClientWithResidentUserAndProperty()
+        const userClient = await makeClientWithResidentAccessAndProperty()
         const [property] = await createTestProperty(admin, userClient.organization)
         const unitName = faker.random.alphaNumeric(5)
         await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
@@ -167,7 +167,7 @@ describe('Ticket', () => {
 
     test('resident: can update his Ticket details', async () => {
         const admin = await makeLoggedInAdminClient()
-        const userClient = await makeClientWithResidentUserAndProperty()
+        const userClient = await makeClientWithResidentAccessAndProperty()
         const unitName = faker.random.alphaNumeric(5)
         const newDetails = faker.random.alphaNumeric(5)
         await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
@@ -188,7 +188,7 @@ describe('Ticket', () => {
 
     test('resident: cannot update his Ticket fields other than details', async () => {
         const admin = await makeLoggedInAdminClient()
-        const userClient = await makeClientWithResidentUserAndProperty()
+        const userClient = await makeClientWithResidentAccessAndProperty()
         const unitName = faker.random.alphaNumeric(5)
         const unitName2 = faker.random.alphaNumeric(5)
         const newDetails = faker.random.alphaNumeric(5)
@@ -210,8 +210,8 @@ describe('Ticket', () => {
 
     test('resident: cannot update not his Ticket', async () => {
         const admin = await makeLoggedInAdminClient()
-        const userClient = await makeClientWithResidentUserAndProperty()
-        const userClient2 = await makeClientWithResidentUserAndProperty()
+        const userClient = await makeClientWithResidentAccessAndProperty()
+        const userClient2 = await makeClientWithResidentAccessAndProperty()
         const unitName = faker.random.alphaNumeric(5)
         const unitName2 = faker.random.alphaNumeric(5)
         const newDetails = faker.random.alphaNumeric(5)
@@ -236,7 +236,7 @@ describe('Ticket', () => {
 
     test('resident: can read his Tickets', async () => {
         const admin = await makeLoggedInAdminClient()
-        const userClient = await makeClientWithResidentUserAndProperty()
+        const userClient = await makeClientWithResidentAccessAndProperty()
         const unitName = faker.random.alphaNumeric(5)
         await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
             unitName,
@@ -251,9 +251,9 @@ describe('Ticket', () => {
 
     test('resident: cannot read not his Tickets', async () => {
         const admin = await makeLoggedInAdminClient()
-        const userClient = await makeClientWithResidentUserAndProperty()
-        const userInOtherProperty = await makeClientWithResidentUserAndProperty()
-        const userInOtherUnit = await makeClientWithResidentUserAndProperty()
+        const userClient = await makeClientWithResidentAccessAndProperty()
+        const userInOtherProperty = await makeClientWithResidentAccessAndProperty()
+        const userInOtherUnit = await makeClientWithResidentAccessAndProperty()
         const unitName = faker.random.alphaNumeric(5)
         const unitName2 = faker.random.alphaNumeric(5)
         await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {

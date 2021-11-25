@@ -9,7 +9,7 @@ const { cloneDeep } = require('lodash')
 
 const { createTestBillingIntegrationOrganizationContext, createTestBillingIntegration, createTestBillingAccount, createTestBillingProperty, makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
 const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
-const { createTestProperty, makeClientWithResidentUserAndProperty, makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
+const { createTestProperty, makeClientWithResidentAccessAndProperty, makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
@@ -616,11 +616,11 @@ describe('Resident', () => {
         })
 
         it('cannot be updated by other user with type resident', async () => {
-            const userClient = await makeClientWithResidentUserAndProperty()
+            const userClient = await makeClientWithResidentAccessAndProperty()
             const adminClient = await makeLoggedInAdminClient()
             const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
 
-            const otherUserClient = await makeClientWithResidentUserAndProperty()
+            const otherUserClient = await makeClientWithResidentAccessAndProperty()
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestResident(otherUserClient, obj.id, {})
@@ -711,7 +711,7 @@ describe('Resident', () => {
         })
 
         it('can be soft-deleted using update operation by current user with type resident', async () => {
-            const userClient = await makeClientWithResidentUserAndProperty()
+            const userClient = await makeClientWithResidentAccessAndProperty()
             const adminClient = await makeLoggedInAdminClient()
             const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
 
@@ -726,7 +726,7 @@ describe('Resident', () => {
         })
 
         it('cannot be soft-deleted using update operation by current user with type resident when other fields gets passed as variables', async () => {
-            const userClient = await makeClientWithResidentUserAndProperty()
+            const userClient = await makeClientWithResidentAccessAndProperty()
             const adminClient = await makeLoggedInAdminClient()
             const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
 
@@ -740,11 +740,11 @@ describe('Resident', () => {
         })
 
         it('cannot be soft-deleted using update operation by other user with type resident', async () => {
-            const userClient = await makeClientWithResidentUserAndProperty()
+            const userClient = await makeClientWithResidentAccessAndProperty()
             const adminClient = await makeLoggedInAdminClient()
             const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
 
-            const otherUserClient = await makeClientWithResidentUserAndProperty()
+            const otherUserClient = await makeClientWithResidentAccessAndProperty()
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await Resident.softDelete(otherUserClient, obj.id)
