@@ -22621,7 +22621,7 @@ export type RegisterServiceConsumerInput = {
   sender: SenderFieldInput;
   residentId: Scalars['ID'];
   accountNumber: Scalars['String'];
-  tin: Scalars['String'];
+  organizationId: Scalars['ID'];
 };
 
 export type ResendConfirmPhoneActionSmsInput = {
@@ -23036,12 +23036,6 @@ export type ResidentHistoryRecordsUpdateInput = {
   data?: Maybe<ResidentHistoryRecordUpdateInput>;
 };
 
-export type ResidentOrganization = {
-  __typename?: 'ResidentOrganization';
-  id: Scalars['ID'];
-  name?: Maybe<Scalars['String']>;
-};
-
 export type ResidentProperty = {
   __typename?: 'ResidentProperty';
   id: Scalars['ID'];
@@ -23442,10 +23436,14 @@ export type ServiceConsumer = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
+  /**  A payment category for this resident  */
+  paymentCategory?: Maybe<Scalars['String']>;
   /**  Resident object  */
   resident?: Maybe<Resident>;
   /**  Billing account, that will allow this resident to pay for certain service  */
   billingAccount?: Maybe<BillingAccount>;
+  /**  BillingAccount id, that is returned for current serviceConsumer in mobile client  */
+  residentBillingAccount?: Maybe<ServiceConsumerBillingAccount>;
   /**  Billing integration context, that this serviceConsumer is connected to  */
   billingIntegrationContext?: Maybe<BillingIntegrationOrganizationContext>;
   /**  Acquiring integration context, that this serviceConsumer is connected to  */
@@ -23454,6 +23452,8 @@ export type ServiceConsumer = {
   accountNumber?: Maybe<Scalars['String']>;
   /**  Organization to which this service consumer pays to object  */
   organization?: Maybe<Organization>;
+  /**  Organization data, that is returned for current resident in mobile client  */
+  residentOrganization?: Maybe<ResidentOrganization>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -23464,9 +23464,15 @@ export type ServiceConsumer = {
   newId?: Maybe<Scalars['String']>;
 };
 
+export type ServiceConsumerBillingAccount = {
+  __typename?: 'ServiceConsumerBillingAccount';
+  id: Scalars['ID'];
+};
+
 export type ServiceConsumerCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
+  paymentCategory?: Maybe<Scalars['String']>;
   resident?: Maybe<ResidentRelateToOneInput>;
   billingAccount?: Maybe<BillingAccountRelateToOneInput>;
   billingIntegrationContext?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
@@ -23495,12 +23501,15 @@ export type ServiceConsumerHistoryRecord = {
   _label_?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
+  paymentCategory?: Maybe<Scalars['String']>;
   resident?: Maybe<Scalars['String']>;
   billingAccount?: Maybe<Scalars['String']>;
+  residentBillingAccount?: Maybe<Scalars['JSON']>;
   billingIntegrationContext?: Maybe<Scalars['String']>;
   acquiringIntegrationContext?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
+  residentOrganization?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -23517,12 +23526,15 @@ export type ServiceConsumerHistoryRecord = {
 export type ServiceConsumerHistoryRecordCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
+  paymentCategory?: Maybe<Scalars['String']>;
   resident?: Maybe<Scalars['String']>;
   billingAccount?: Maybe<Scalars['String']>;
+  residentBillingAccount?: Maybe<Scalars['JSON']>;
   billingIntegrationContext?: Maybe<Scalars['String']>;
   acquiringIntegrationContext?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
+  residentOrganization?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -23544,12 +23556,15 @@ export enum ServiceConsumerHistoryRecordHistoryActionType {
 export type ServiceConsumerHistoryRecordUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
+  paymentCategory?: Maybe<Scalars['String']>;
   resident?: Maybe<Scalars['String']>;
   billingAccount?: Maybe<Scalars['String']>;
+  residentBillingAccount?: Maybe<Scalars['JSON']>;
   billingIntegrationContext?: Maybe<Scalars['String']>;
   acquiringIntegrationContext?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
+  residentOrganization?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -23577,6 +23592,24 @@ export type ServiceConsumerHistoryRecordWhereInput = {
   sender_not?: Maybe<Scalars['JSON']>;
   sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  paymentCategory?: Maybe<Scalars['String']>;
+  paymentCategory_not?: Maybe<Scalars['String']>;
+  paymentCategory_contains?: Maybe<Scalars['String']>;
+  paymentCategory_not_contains?: Maybe<Scalars['String']>;
+  paymentCategory_starts_with?: Maybe<Scalars['String']>;
+  paymentCategory_not_starts_with?: Maybe<Scalars['String']>;
+  paymentCategory_ends_with?: Maybe<Scalars['String']>;
+  paymentCategory_not_ends_with?: Maybe<Scalars['String']>;
+  paymentCategory_i?: Maybe<Scalars['String']>;
+  paymentCategory_not_i?: Maybe<Scalars['String']>;
+  paymentCategory_contains_i?: Maybe<Scalars['String']>;
+  paymentCategory_not_contains_i?: Maybe<Scalars['String']>;
+  paymentCategory_starts_with_i?: Maybe<Scalars['String']>;
+  paymentCategory_not_starts_with_i?: Maybe<Scalars['String']>;
+  paymentCategory_ends_with_i?: Maybe<Scalars['String']>;
+  paymentCategory_not_ends_with_i?: Maybe<Scalars['String']>;
+  paymentCategory_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  paymentCategory_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   resident?: Maybe<Scalars['String']>;
   resident_not?: Maybe<Scalars['String']>;
   resident_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -23585,6 +23618,10 @@ export type ServiceConsumerHistoryRecordWhereInput = {
   billingAccount_not?: Maybe<Scalars['String']>;
   billingAccount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   billingAccount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  residentBillingAccount?: Maybe<Scalars['JSON']>;
+  residentBillingAccount_not?: Maybe<Scalars['JSON']>;
+  residentBillingAccount_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  residentBillingAccount_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   billingIntegrationContext?: Maybe<Scalars['String']>;
   billingIntegrationContext_not?: Maybe<Scalars['String']>;
   billingIntegrationContext_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -23615,6 +23652,10 @@ export type ServiceConsumerHistoryRecordWhereInput = {
   organization_not?: Maybe<Scalars['String']>;
   organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  residentOrganization?: Maybe<Scalars['JSON']>;
+  residentOrganization_not?: Maybe<Scalars['JSON']>;
+  residentOrganization_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  residentOrganization_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -23697,6 +23738,7 @@ export type ServiceConsumerHistoryRecordsUpdateInput = {
 export type ServiceConsumerUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
+  paymentCategory?: Maybe<Scalars['String']>;
   resident?: Maybe<ResidentRelateToOneInput>;
   billingAccount?: Maybe<BillingAccountRelateToOneInput>;
   billingIntegrationContext?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
@@ -23727,6 +23769,24 @@ export type ServiceConsumerWhereInput = {
   sender_not?: Maybe<SenderFieldInput>;
   sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  paymentCategory?: Maybe<Scalars['String']>;
+  paymentCategory_not?: Maybe<Scalars['String']>;
+  paymentCategory_contains?: Maybe<Scalars['String']>;
+  paymentCategory_not_contains?: Maybe<Scalars['String']>;
+  paymentCategory_starts_with?: Maybe<Scalars['String']>;
+  paymentCategory_not_starts_with?: Maybe<Scalars['String']>;
+  paymentCategory_ends_with?: Maybe<Scalars['String']>;
+  paymentCategory_not_ends_with?: Maybe<Scalars['String']>;
+  paymentCategory_i?: Maybe<Scalars['String']>;
+  paymentCategory_not_i?: Maybe<Scalars['String']>;
+  paymentCategory_contains_i?: Maybe<Scalars['String']>;
+  paymentCategory_not_contains_i?: Maybe<Scalars['String']>;
+  paymentCategory_starts_with_i?: Maybe<Scalars['String']>;
+  paymentCategory_not_starts_with_i?: Maybe<Scalars['String']>;
+  paymentCategory_ends_with_i?: Maybe<Scalars['String']>;
+  paymentCategory_not_ends_with_i?: Maybe<Scalars['String']>;
+  paymentCategory_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  paymentCategory_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   resident?: Maybe<ResidentWhereInput>;
   resident_is_null?: Maybe<Scalars['Boolean']>;
   billingAccount?: Maybe<BillingAccountWhereInput>;
@@ -26840,6 +26900,8 @@ export enum SortResidentsBy {
 export enum SortServiceConsumerHistoryRecordsBy {
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
+  PaymentCategoryAsc = 'paymentCategory_ASC',
+  PaymentCategoryDesc = 'paymentCategory_DESC',
   AccountNumberAsc = 'accountNumber_ASC',
   AccountNumberDesc = 'accountNumber_DESC',
   IdAsc = 'id_ASC',
@@ -26861,6 +26923,8 @@ export enum SortServiceConsumerHistoryRecordsBy {
 export enum SortServiceConsumersBy {
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
+  PaymentCategoryAsc = 'paymentCategory_ASC',
+  PaymentCategoryDesc = 'paymentCategory_DESC',
   ResidentAsc = 'resident_ASC',
   ResidentDesc = 'resident_DESC',
   BillingAccountAsc = 'billingAccount_ASC',
@@ -27932,6 +27996,7 @@ export type Ticket = {
   statusReason?: Maybe<Scalars['String']>;
   /**  Status is the step of the ticket processing workflow. Companies may have different ticket processing workflows  */
   status?: Maybe<TicketStatus>;
+  /**  Field required for specific sorting of model objects  */
   order?: Maybe<Scalars['Int']>;
   /**  Autogenerated ticket human readable ID  */
   number?: Maybe<Scalars['Int']>;
@@ -28421,7 +28486,9 @@ export type TicketChange = {
   statusReasonFrom?: Maybe<Scalars['String']>;
   /**  Text reason for status changes. Sometimes you should describe the reason why you change the `status`  */
   statusReasonTo?: Maybe<Scalars['String']>;
+  /**  Field required for specific sorting of model objects  */
   orderFrom?: Maybe<Scalars['Int']>;
+  /**  Field required for specific sorting of model objects  */
   orderTo?: Maybe<Scalars['Int']>;
   /**  Autogenerated ticket human readable ID  */
   numberFrom?: Maybe<Scalars['Int']>;
@@ -34935,6 +35002,13 @@ export type AuthenticateUserOutput = {
   token?: Maybe<Scalars['String']>;
   /**  Retrieve information on the newly authenticated User here.  */
   item?: Maybe<User>;
+};
+
+export type ResidentOrganization = {
+  __typename?: 'residentOrganization';
+  id: Scalars['ID'];
+  name?: Maybe<Scalars['String']>;
+  tin?: Maybe<Scalars['String']>;
 };
 
 export type UnauthenticateUserOutput = {
