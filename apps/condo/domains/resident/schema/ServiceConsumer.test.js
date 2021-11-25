@@ -87,7 +87,10 @@ describe('ServiceConsumer', () => {
 
             const newAccountNumber = faker.random.alphaNumeric(8)
 
-            const [updatedConsumer] = await updateTestServiceConsumer(adminClient, client.serviceConsumer.id, { accountNumber: newAccountNumber })
+            const [updatedConsumer] = await updateTestServiceConsumer(adminClient, client.serviceConsumer.id, {
+                accountNumber: newAccountNumber,
+                paymentCategory: 'Квартплата',
+            })
             expect(updatedConsumer.id).toEqual(client.serviceConsumer.id)
             expect(updatedConsumer.accountNumber).toEqual(newAccountNumber)
         })
@@ -155,6 +158,7 @@ describe('ServiceConsumer', () => {
             const objs = await ServiceConsumer.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
             expect(objs.length === 1).toBeTruthy()
             expect(objs[0].id).toMatch(client.serviceConsumer.id)
+            expect(objs[0].residentOrganization).toBeDefined()
         })
 
         it('cannot be read by anonymous', async () => {
