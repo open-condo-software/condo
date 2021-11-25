@@ -8,9 +8,10 @@ const access = require('@condo/domains/resident/access/RegisterServiceConsumerSe
 const { BillingIntegrationOrganizationContext, BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 const { ServiceConsumer, Resident } = require('../utils/serverSchema')
 const { NOT_FOUND_ERROR, REQUIRED_NO_VALUE_ERROR } = require('@condo/domains/common/constants/errors')
+const { Meter } = require('@condo/domains/meter/utils/serverSchema')
+const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 
 const get = require('lodash/get')
-const { getSchemaCtx } = require('@core/keystone/schema')
 
 async function getResidentBillingAccount (context, billingIntegrationContext, accountNumber, unitName) {
 
@@ -35,21 +36,18 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
     types: [
         {
             access: true,
-            type: 'input RegisterServiceConsumerInput { dv: Int!, sender: SenderFieldInput!, residentId: ID!, accountNumber: String!, tin: String!, validations: [String] }',
+            type: 'input RegisterServiceConsumerInput { dv: Int!, sender: SenderFieldInput!, residentId: ID!, accountNumber: String!, organizationId: ID! }',
         },
     ],
 
     mutations: [
         {
             schemaDoc: 'This mutation creates service consumer with default data, and automatically populates the optional data fields, such as `billingAccount`.' +
-                ' Validation argument allows to explicitly set the array of fields that needs to be populated in resulting serviceConsumer.' +
-                ' If some of specified fields is not populated, the mutation will fail with error. If validations is omitted, then no validations would be performed. ' +
-                'Example: registerServiceConsumer(...args, validations: ["billingAccount"]) would explicitly run billing account validations' +
-                'Validations are used in iOS and Android applications, to ensure data consistency and avoid making more then one http request',
+                ' To be successfully created accountNumber and unitName should at least have billingAccount with same data or Meter with same data',
             access: access.canRegisterServiceConsumer,
             schema: 'registerServiceConsumer(data: RegisterServiceConsumerInput!): ServiceConsumer',
             resolver: async (parent, args, context = {}) => {
-                const { data: { dv, sender, residentId, accountNumber, tin, validations } } = args
+                const { data: { dv, sender, residentId, accountNumber, organizationId } } = args
 
                 if (!accountNumber || accountNumber.length === 0) { throw new Error(`${REQUIRED_NO_VALUE_ERROR}accountNumber] Account number null or empty: ${accountNumber}`) }
 
@@ -58,39 +56,14 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     throw new Error(`${NOT_FOUND_ERROR}resident] Resident not found for this user`)
                 }
 
-                if (!tin) { throw new Error(`${REQUIRED_NO_VALUE_ERROR}tin] tin null or empty: ${tin}`) }
-
-                // GraphQL from Keystone does not supports querying of database fields of type JSON.
-                const { keystone } = await getSchemaCtx('Organization')
-                const knex = keystone.adapter.knex
-                const result = await knex('Organization')
-                    .whereRaw('meta->>\'inn\' = ?', [tin])
-                    .orderBy('createdAt', 'desc')
-                    .select('id')
-
-                const [organization] = result
-
+                const [ organization ] = await Organization.getAll(context, { id: organizationId })
                 if (!organization) {
-                    throw new Error(`${NOT_FOUND_ERROR}organization] Organization is not found by this tin: ${tin}`)
+                    throw new Error(`${NOT_FOUND_ERROR}organization] Organization not found for this id`)
                 }
 
                 const unitName = get(resident, ['unitName'])
 
-                let paymentFeatureAttrs = {}
-                const [ billingIntegrationContext ] = await BillingIntegrationOrganizationContext.getAll(context, { organization: { id: organization.id } })
-                if (billingIntegrationContext) {
-
-                    const [acquiringIntegrationContext] = await AcquiringIntegrationContext.getAll(context, { organization: { id: organization.id } })
-                    const [billingAccount] = await getResidentBillingAccount(context, billingIntegrationContext, accountNumber, unitName)
-
-                    paymentFeatureAttrs = {
-                        billingAccount: billingAccount ? { connect: { id: billingAccount.id } } : null,
-                        billingIntegrationContext: billingIntegrationContext ? { connect: { id: billingIntegrationContext.id } } : null,
-                        acquiringIntegrationContext: acquiringIntegrationContext ? { connect: { id: acquiringIntegrationContext.id } } : null,
-                    }
-                }
-
-                const requiredAttrs = {
+                const attrs = {
                     dv,
                     sender,
                     resident: { connect: { id: residentId } },
@@ -98,22 +71,19 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     organization: { connect: { id: organization.id } },
                 }
 
-                const optionalAttrs = {
-                    ...paymentFeatureAttrs,
+                const [ billingIntegrationContext ] = await BillingIntegrationOrganizationContext.getAll(context, { organization: { id: organization.id } })
+                if (billingIntegrationContext) {
+
+                    const [acquiringIntegrationContext] = await AcquiringIntegrationContext.getAll(context, { organization: { id: organization.id } })
+                    const [billingAccount] = await getResidentBillingAccount(context, billingIntegrationContext, accountNumber, unitName)
+
+                    attrs.billingAccount = billingAccount ? { connect: { id: billingAccount.id } } : null
+                    attrs.billingIntegrationContext = billingAccount ? { connect: { id: billingIntegrationContext.id } } : null
+                    attrs.acquiringIntegrationContext = billingAccount && acquiringIntegrationContext ? { connect: { id: acquiringIntegrationContext.id } } : null
                 }
 
-                // User can request explicit validation of some fields. This is required for iOS and Android mobile clients
-                if (Array.isArray(validations)) {
-                    validations.forEach(field => {
-                        if (!get(optionalAttrs, [field], false)) {
-                            throw new Error(`${NOT_FOUND_ERROR}${field}] ${field} is not found, but required in custom validations`)
-                        }
-                    })
-                }
-
-                const attrs = {
-                    ...requiredAttrs,
-                    ...optionalAttrs,
+                if (!attrs.billingAccount) {
+                    const meters = await Meter.getAll(context, { accountNumber: accountNumber, unitName: unitName, organization: { id: organizationId } })
                 }
 
                 const [existingServiceConsumer] = await ServiceConsumer.getAll(context, {
