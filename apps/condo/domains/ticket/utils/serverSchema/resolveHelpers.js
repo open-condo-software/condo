@@ -3,7 +3,7 @@ const get = require('lodash/get')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { TICKET_ORDER_BY_STATUS, STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 
-export function addOrderToTicket (resolvedData, statusId) {
+function addOrderToTicket (resolvedData, statusId) {
     if (statusId === STATUS_IDS.OPEN) {
         resolvedData.order = TICKET_ORDER_BY_STATUS[STATUS_IDS.OPEN]
     } else {
@@ -11,7 +11,7 @@ export function addOrderToTicket (resolvedData, statusId) {
     }
 }
 
-export async function addClientInfoToResidentTicket (context, resolvedData) {
+async function addClientInfoToResidentTicket (context, resolvedData) {
     const user = get(context, ['req', 'user'])
     const organizationId = get(resolvedData, 'organization')
     const propertyId = get(resolvedData, 'property')
@@ -44,4 +44,9 @@ export async function addClientInfoToResidentTicket (context, resolvedData) {
     resolvedData.clientName = user.name
     resolvedData.clientPhone = user.phone
     resolvedData.clientEmail = user.email
+}
+
+module.exports = {
+    addOrderToTicket,
+    addClientInfoToResidentTicket,
 }

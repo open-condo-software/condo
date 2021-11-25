@@ -9,6 +9,8 @@ const { expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorT
 const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { createTestOrganizationLink, createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
 const faker = require('faker')
+const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithResidentUserAndProperty } = require('@condo/domains/property/utils/testSchema')
@@ -63,14 +65,217 @@ describe('Ticket', () => {
         expect(obj.status).toEqual(expect.objectContaining({ id: TICKET_OPEN_STATUS_ID }))
     })
 
-    test('user with resident type: can create Ticket', async () => {
+    test('user with resident type without resident: cannot create Ticket', async () => {
         const admin = await makeLoggedInAdminClient()
         const userClient = await makeClientWithResidentUserAndProperty()
-        const [resident] = await createTestResident(admin, userClient.user, userClient.organization, userClient.property)
+        await createTestResident(admin, userClient.user, userClient.organization, userClient.property)
 
-        const [obj] = await createTestTicket(userClient, userClient.organization, userClient.property)
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await createTestTicket(userClient, userClient.organization, userClient.property)
+        })
+    })
 
-        expect(obj.client).toBeDefined()
+    test('resident: can create Ticket and client info save in new ticket', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const userClient = await makeClientWithResidentUserAndProperty()
+        const unitName = faker.random.alphaNumeric(5)
+        await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
+            unitName,
+        })
+
+        const [obj] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+            unitName,
+        })
+
+        const user = userClient.user
+        const { name, email, phone } = userClient.userAttrs
+
+        expect(obj.client.id).toEqual(user.id)
+        expect(obj.clientName).toEqual(name)
+        expect(obj.clientPhone).toEqual(phone)
+        expect(obj.clientEmail).toEqual(email)
+    })
+
+    test('user with 2 residents: can create Ticket for each resident', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const userClient = await makeClientWithResidentUserAndProperty()
+        const [organization] = await createTestOrganization(admin)
+        const [property] = await createTestProperty(admin, organization)
+        const unitName1 = faker.random.alphaNumeric(5)
+        const unitName2 = faker.random.alphaNumeric(5)
+        await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
+            unitName: unitName1,
+        })
+        await createTestResident(admin, userClient.user, organization, property, {
+            unitName: unitName2,
+        })
+
+        const [ticket1] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+            unitName: unitName1,
+        })
+        const [ticket2] = await createTestTicket(userClient, organization, property, {
+            unitName: unitName2,
+        })
+
+        expect(ticket1.id).toMatch(UUID_RE)
+        expect(ticket2.id).toMatch(UUID_RE)
+    })
+
+    test('resident: cannot create Ticket without unitName', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const userClient = await makeClientWithResidentUserAndProperty()
+        const unitName = faker.random.alphaNumeric(5)
+        await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
+            unitName,
+        })
+
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await createTestTicket(userClient, userClient.organization, userClient.property)
+        })
+    })
+
+    test('resident: cannot create Ticket in other unitName', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const userClient = await makeClientWithResidentUserAndProperty()
+        const unitName1 = faker.random.alphaNumeric(5)
+        const unitName2 = faker.random.alphaNumeric(5)
+        await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
+            unitName: unitName1,
+        })
+
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName: unitName2,
+            })
+        })
+    })
+
+    test('resident: cannot create Ticket in other property', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const userClient = await makeClientWithResidentUserAndProperty()
+        const [property] = await createTestProperty(admin, userClient.organization)
+        const unitName = faker.random.alphaNumeric(5)
+        await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
+            unitName,
+        })
+
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await createTestTicket(userClient, userClient.organization, property, {
+                unitName,
+            })
+        })
+    })
+
+    test('resident: can update his Ticket details', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const userClient = await makeClientWithResidentUserAndProperty()
+        const unitName = faker.random.alphaNumeric(5)
+        const newDetails = faker.random.alphaNumeric(5)
+        await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
+            unitName,
+        })
+
+        const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+            unitName,
+        })
+
+        const [updatedTicket] = await updateTestTicket(userClient, ticket.id, {
+            details: newDetails,
+        })
+
+        expect(ticket.id).toEqual(updatedTicket.id)
+        expect(updatedTicket.details).toEqual(newDetails)
+    })
+
+    test('resident: cannot update his Ticket fields other than details', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const userClient = await makeClientWithResidentUserAndProperty()
+        const unitName = faker.random.alphaNumeric(5)
+        const unitName2 = faker.random.alphaNumeric(5)
+        const newDetails = faker.random.alphaNumeric(5)
+        await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
+            unitName,
+        })
+
+        const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+            unitName,
+        })
+
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await updateTestTicket(userClient, ticket.id, {
+                details: newDetails,
+                unitName: unitName2,
+            })
+        })
+    })
+
+    test('resident: cannot update not his Ticket', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const userClient = await makeClientWithResidentUserAndProperty()
+        const userClient2 = await makeClientWithResidentUserAndProperty()
+        const unitName = faker.random.alphaNumeric(5)
+        const unitName2 = faker.random.alphaNumeric(5)
+        const newDetails = faker.random.alphaNumeric(5)
+        await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
+            unitName,
+        })
+        await createTestResident(admin, userClient2.user, userClient.organization, userClient.property, {
+            unitName: unitName2,
+        })
+
+        const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+            unitName,
+        })
+
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await updateTestTicket(userClient2, ticket.id, {
+                details: newDetails,
+                unitName: unitName2,
+            })
+        })
+    })
+
+    test('resident: can read his Tickets', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const userClient = await makeClientWithResidentUserAndProperty()
+        const unitName = faker.random.alphaNumeric(5)
+        await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
+            unitName,
+        })
+        const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+            unitName,
+        })
+        const [readTicket] = await Ticket.getAll(userClient, { id: ticket.id })
+
+        expect(readTicket.id).toEqual(ticket.id)
+    })
+
+    test('resident: cannot read not his Tickets', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const userClient = await makeClientWithResidentUserAndProperty()
+        const userInOtherProperty = await makeClientWithResidentUserAndProperty()
+        const userInOtherUnit = await makeClientWithResidentUserAndProperty()
+        const unitName = faker.random.alphaNumeric(5)
+        const unitName2 = faker.random.alphaNumeric(5)
+        await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
+            unitName,
+        })
+        await createTestResident(admin, userInOtherProperty.user, userInOtherProperty.organization, userInOtherProperty.property, {
+            unitName,
+        })
+        await createTestResident(admin, userInOtherUnit.user, userClient.organization, userClient.property, {
+            unitName: unitName2,
+        })
+        const [ticketInOtherProperty] = await createTestTicket(userInOtherProperty, userInOtherProperty.organization, userInOtherProperty.property, {
+            unitName,
+        })
+        const [ticketInOtherUnit] = await createTestTicket(userInOtherUnit, userClient.organization, userClient.property, {
+            unitName: unitName2,
+        })
+
+        const readTickets = await Ticket.getAll(userClient, { id_in: [ticketInOtherProperty.id, ticketInOtherUnit.id] })
+
+        expect(readTickets).toHaveLength(0)
     })
 
     test('anonymous: create Ticket', async () => {
