@@ -171,8 +171,13 @@ describe('Resident', () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
-            await createTestResident(adminClient, residentClient.user, userClient.organization, userClient.property)
-            const [ticket] = await createTestTicket(residentClient, userClient.organization, userClient.property)
+            const unitName = faker.random.alphaNumeric(8)
+            await createTestResident(adminClient, residentClient.user, userClient.organization, userClient.property, {
+                unitName,
+            })
+            const [ticket] = await createTestTicket(residentClient, userClient.organization, userClient.property, {
+                unitName,
+            })
             expect(ticket.createdBy.id).toEqual(residentClient.user.id)
         })
 
@@ -180,8 +185,13 @@ describe('Resident', () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
-            await createTestResident(adminClient, residentClient.user, userClient.organization, userClient.property)
-            const [ticket] = await createTestTicket(residentClient, userClient.organization, userClient.property)
+            const unitName = faker.random.alphaNumeric(8)
+            await createTestResident(adminClient, residentClient.user, userClient.organization, userClient.property, {
+                unitName,
+            })
+            const [ticket] = await createTestTicket(residentClient, userClient.organization, userClient.property, {
+                unitName,
+            })
             const details = faker.lorem.sentence()
             const [updatedTicket] = await updateTestTicket(residentClient, ticket.id, { details })
             expect(updatedTicket.details).toBe(details)
@@ -192,9 +202,14 @@ describe('Resident', () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
-            await createTestResident(adminClient, residentClient.user, userClient.organization, userClient.property)
+            const unitName = faker.random.alphaNumeric(8)
+            await createTestResident(adminClient, residentClient.user, userClient.organization, userClient.property, {
+                unitName,
+            })
             const [ticketFile] = await createTestTicketFile(residentClient, userClient.organization)
-            const [ticket] = await createTestTicket(residentClient, userClient.organization, userClient.property)
+            const [ticket] = await createTestTicket(residentClient, userClient.organization, userClient.property, {
+                unitName,
+            })
             const [updatedTicketFile] = await updateTestTicketFile(residentClient, ticketFile.id, { ticket: { connect: { id: ticket.id } } })
             expect(updatedTicketFile.ticket.id).toEqual(ticket.id)
         })
