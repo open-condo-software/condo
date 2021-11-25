@@ -1,6 +1,5 @@
 import React from 'react'
 import { BuildingPanelView } from './Builder/BuildingPanelView'
-import { BuildingPanelEdit } from './Builder/BuildingPanelEdit'
 import { ResidentPanelEdit, ResidentPanelView } from './ResidentPanel'
 import { BuildingMap } from '@app/condo/schema'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
@@ -34,19 +33,9 @@ export const PropertyPanels: React.FC<IPropertyPanels> = ({ mapValidationError, 
         <Tabs defaultActiveKey='1'>
             <TabPane tab={BuildingTabTitle} key='1'>
                 <FocusContainer style={FOCUS_CONTAINER_STYLE}>
-                    {
-                        mode === 'view'
-                            ? <BuildingPanelView
-                                map={map}
-                            />
-                            : <BuildingPanelEdit
-                                mapValidationError={mapValidationError}
-                                handleSave={handleSave}
-                                map={map}
-                                updateMap={updateMap}
-                                address={address}
-                            />
-                    }
+                    <BuildingPanelView
+                        map={map}
+                    />
                 </FocusContainer>
             </TabPane>
             <TabPane tab={ResidentsTabTitle} key='2' disabled>
