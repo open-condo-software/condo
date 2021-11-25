@@ -34,6 +34,7 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
             return {
                 organization: {
                     id_in: uniq(organizationIds),
+                    deletedAt: null,
                 },
                 createdBy: { id: userId },
                 deletedAt: null,
@@ -48,6 +49,7 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
                 queryOrganizationEmployeeFor(userId),
                 queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
             ],
+            deletedAt: null,
         },
     }
 }
@@ -79,8 +81,10 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
                 },
                 property: {
                     id: propertyId,
+                    deletedAt: null,
                 },
                 unitName: ticketUnitName,
+                deletedAt: null,
             })
 
             return residents.length > 0
@@ -125,8 +129,10 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
                 },
                 property: {
                     id: propertyIdFromTicket,
+                    deletedAt: null,
                 },
                 unitName: unitNameFromTicket,
+                deletedAt: null,
             })
 
             return residents.length > 0
