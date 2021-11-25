@@ -20,6 +20,7 @@ const REGISTER_MP_BILLING_ACCOUNTS_NO_MATCH = '[groupedReceipts:receiptsIds:noCo
 const REGISTER_MP_INVALID_SENDER = '[sender:invalidValue] Sender has invalid value.'
 const REGISTER_MP_NEGATIVE_TO_PAY = '[groupedReceipts:receiptsIds] Cannot pay for receipts with negative toPay.'
 const INTEGRATION_NO_BILLINGS_ERROR = '[acquiringIntegration:noBillings] Acquiring integration must cover at least 1 billing'
+const CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT = '[acquiringIntegrationContext:alreadyCreated] Specified organization already have active acquiring context'
 
 module.exports = {
     REGISTER_MP_EMPTY_INPUT,
@@ -44,4 +45,5 @@ module.exports = {
     REGISTER_MP_DELETED_BILLING_INTEGRATION,
     REGISTER_MP_NEGATIVE_TO_PAY,
     INTEGRATION_NO_BILLINGS_ERROR,
+    CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT,
 }

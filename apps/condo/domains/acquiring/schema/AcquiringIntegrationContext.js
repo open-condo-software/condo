@@ -12,6 +12,8 @@ const access = require('@condo/domains/acquiring/access/AcquiringIntegrationCont
 const { hasValidJsonStructure, hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
+const { AcquiringIntegrationContext: ContextServerSchema } = require('@condo/domains/acquiring/utils/serverSchema')
+const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquiring/constants/errors')
 
 
 const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationContext', {
@@ -69,13 +71,22 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
         auth: true,
     },
     hooks: {
-        validateInput: ({ resolvedData, context, addValidationError }) => {
+        validateInput: async ({ resolvedData, context, addValidationError, operation }) => {
             if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
             const { dv } = resolvedData
             if (dv === 1) {
                 // NOTE: version 1 specific translations. Don't optimize this logic
             } else {
                 return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
+            }
+            if (operation === 'create') {
+                const activeContexts = await ContextServerSchema.getAll(context, {
+                    organization: { id: resolvedData['organization'] },
+                    deletedAt: null,
+                })
+                if (activeContexts.length) {
+                    addValidationError(CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+                }
             }
         },
     },
