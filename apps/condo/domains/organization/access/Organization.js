@@ -33,11 +33,9 @@ async function canReadOrganizations ({ authentication: { item: user }, context }
     })
 
     // Acquiring integration can have access to organizations created by it
-    // TODO (savelevMatthew): Better way to get access for acquiring integrations?
+    // TODO(DOMA-1700): Better way to get access for acquiring integrations?
     if (acquiringIntegrationRights && acquiringIntegrationRights.length) {
-        return {
-            createdBy: { id: userId },
-        }
+        return {}
     }
 
     return {
