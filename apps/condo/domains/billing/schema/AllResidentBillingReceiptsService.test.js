@@ -31,7 +31,7 @@ describe('AllResidentBillingReceipts', () => {
         const payload = {
             residentId: resident.id,
             accountNumber: billingAccountAttrs.number,
-            tin: userClient.organization.tin,
+            organizationId: userClient.organization.id,
         }
 
         await registerServiceConsumerByTestClient(userClient, payload)
@@ -75,7 +75,7 @@ describe('AllResidentBillingReceipts', () => {
         const [serviceConsumerHusband] = await registerServiceConsumerByTestClient(husbandClient, {
             residentId: residentHusband.id,
             accountNumber: billingAccountAttrs.number,
-            tin: organization.meta.inn,
+            organizationId: organization.id,
         })
         // you can't read billingAccount field as resident, so we should get true serviceConsumer here to further check
         const [serviceConsumerHusbandWithAccount] = await ServiceConsumer.getAll(adminClient, { id: serviceConsumerHusband.id })
@@ -88,7 +88,7 @@ describe('AllResidentBillingReceipts', () => {
         const [serviceConsumerWife] = await registerServiceConsumerByTestClient(wifeClient, {
             residentId: residentWife.id,
             accountNumber: billingAccountAttrs.number,
-            tin: organization.meta.inn,
+            organizationId: organization.id,
         })
         // you can't read billingAccount field as resident, so we should get true serviceConsumer here to further check
         const [serviceConsumerWifeWithAccount] = await ServiceConsumer.getAll(adminClient, { id: serviceConsumerWife.id })
@@ -134,7 +134,7 @@ describe('AllResidentBillingReceipts', () => {
         const [firstServiceConsumer] = await registerServiceConsumerByTestClient(client, {
             residentId: resident.id,
             accountNumber: billingAccountAttrs.number,
-            tin: organization.meta.inn,
+            organizationId: organization.id,
         })
         const [updatedServiceConsumer] = await updateTestServiceConsumer(client, firstServiceConsumer.id, { deletedAt: 'true' })
         expect(updatedServiceConsumer.deletedAt).not.toBeNull()
@@ -145,7 +145,7 @@ describe('AllResidentBillingReceipts', () => {
         await registerServiceConsumerByTestClient(client, {
             residentId: resident.id,
             accountNumber: billingAccountAttrs.number,
-            tin: organization.meta.inn,
+            organizationId: organization.id,
         })
 
         const objsSecond = await ResidentBillingReceipt.getAll(client, { serviceConsumer: { resident: { id: resident.id } } })
@@ -177,7 +177,7 @@ describe('AllResidentBillingReceipts', () => {
         const serviceConsumerPayloadA = {
             residentId: residentA.id,
             accountNumber: billingAccountAttrsA.number,
-            tin: userClient.organization.meta.inn,
+            organizationId: userClient.organization.id,
         }
         await registerServiceConsumerByTestClient(userClient, serviceConsumerPayloadA)
 
@@ -188,7 +188,7 @@ describe('AllResidentBillingReceipts', () => {
         const serviceConsumerPayloadA2 = {
             residentId: residentA2.id,
             accountNumber: billingAccountAttrsA2.number,
-            tin: userClient.organization.meta.inn,
+            organizationId: userClient.organization.id,
         }
         await registerServiceConsumerByTestClient(userClient, serviceConsumerPayloadA2)
 
@@ -210,7 +210,7 @@ describe('AllResidentBillingReceipts', () => {
         const payloadForServiceConsumerB = {
             residentId: residentB.id,
             accountNumber: billingAccountAttrsB.number,
-            tin: organizationB.meta.inn,
+            organizationId: organizationB.id,
         }
         await registerServiceConsumerByTestClient(userClient, payloadForServiceConsumerB)
 
@@ -247,7 +247,7 @@ describe('AllResidentBillingReceipts', () => {
         const payload = {
             residentId: resident.id,
             accountNumber: billingAccountAttrs.number,
-            tin: userClient.organization.meta.inn,
+            organizationId: userClient.organization.id,
         }
         await registerServiceConsumerByTestClient(userClient, payload)
 
@@ -258,7 +258,7 @@ describe('AllResidentBillingReceipts', () => {
         const payload2 = {
             residentId: resident2.id,
             accountNumber: billingAccountAttrs2.number,
-            tin: userClient.organization.meta.inn,
+            organizationId: userClient.organization.id,
         }
         await registerServiceConsumerByTestClient(userClient, payload2)
 
@@ -286,7 +286,7 @@ describe('AllResidentBillingReceipts', () => {
         const payload = {
             residentId: resident.id,
             accountNumber: billingAccountAttrs.number,
-            tin: userClient.organization.tin,
+            organizationId: userClient.organization.id,
         }
 
         await registerServiceConsumerByTestClient(userClient, payload)
@@ -318,7 +318,7 @@ describe('AllResidentBillingReceipts', () => {
         const payload = {
             residentId: resident.id,
             accountNumber: billingAccountAttrs.number,
-            tin: userClient.organization.meta.inn,
+            organizationId: userClient.organization.id,
         }
         await registerServiceConsumerByTestClient(userClient, payload)
 
@@ -334,7 +334,7 @@ describe('AllResidentBillingReceipts', () => {
         const hackerPayload = {
             residentId: hackerResident.id,
             accountNumber: billingAccount2.number,
-            tin: userClient.organization.meta.inn,
+            organizationId: userClient.organization.id,
         }
         await registerServiceConsumerByTestClient(hackerClient, hackerPayload)
 
