@@ -4,6 +4,10 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
+const { makeClientWithResidentUser } = require(
+    '@condo/domains/user/utils/testSchema')
+const { makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
+const { makeClient } = require('@core/keystone/test.utils')
 const { get } = require('lodash')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 
@@ -145,9 +149,23 @@ async function makeClientWithServiceConsumer() {
     return client
 }
 
+/**
+ * Creates a user with type resident and resident entity.
+ * If you want to create only user with type resident use makeClientWithResidentUser
+ */
+async function makeClientWithResident() {
+    const client = await makeClientWithResidentUser()
+    const [ resident, residentAttrs ] = await registerResidentByTestClient(client)
+
+    client.resident = resident
+    client.residentAttrs = residentAttrs
+
+    return client
+}
+
 module.exports = {
     Resident, createTestResident, updateTestResident,
-    registerResidentByTestClient,
+    registerResidentByTestClient, makeClientWithResident,
     ServiceConsumer, createTestServiceConsumer, updateTestServiceConsumer,
     makeClientWithServiceConsumer,
     registerServiceConsumerByTestClient
