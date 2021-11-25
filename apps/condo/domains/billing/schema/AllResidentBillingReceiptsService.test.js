@@ -336,10 +336,9 @@ describe('AllResidentBillingReceipts', () => {
             accountNumber: billingAccount2.number,
             organizationId: userClient.organization.id,
         }
-        await registerServiceConsumerByTestClient(hackerClient, hackerPayload)
-
         // Hacker is connected to billingAccount2 and tries to get receipts for billingAccount
         await catchErrorFrom(async () => {
+            await registerServiceConsumerByTestClient(hackerClient, hackerPayload)
             await ResidentBillingReceipt.getAll(hackerClient, { account: { id: billingAccountAttrs.id } })
         }, (err) => {
             expect(err).toBeDefined()
