@@ -71,19 +71,19 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     organization: { connect: { id: organization.id } },
                 }
 
-                const [ billingIntegrationContext ] = await BillingIntegrationOrganizationContext.getAll(context, { organization: { id: organization.id } })
+                const [ billingIntegrationContext ] = await BillingIntegrationOrganizationContext.getAll(context, { organization: { id: organization.id, deletedAt: null }, deletedAt: null })
                 if (billingIntegrationContext) {
 
-                    const [acquiringIntegrationContext] = await AcquiringIntegrationContext.getAll(context, { organization: { id: organization.id } })
+                    const [acquiringIntegrationContext] = await AcquiringIntegrationContext.getAll(context, { organization: { id: organization.id, deletedAt: null }, deletedAt: null })
                     const [billingAccount] = await getResidentBillingAccount(context, billingIntegrationContext, accountNumber, unitName)
 
                     attrs.billingAccount = billingAccount ? { connect: { id: billingAccount.id } } : null
                     attrs.billingIntegrationContext = billingAccount ? { connect: { id: billingIntegrationContext.id } } : null
-                    attrs.acquiringIntegrationContext = billingAccount && acquiringIntegrationContext ? { connect: { id: acquiringIntegrationContext.id } } : null
+                    attrs.acquiringIntegrationContext = billingAccount && acquiringIntegrationContext ? { connect: { id: acquiringIntegrationContext.id }, deletedAt: null } : null
                 }
 
                 if (!attrs.billingAccount) {
-                    const meters = await Meter.getAll(context, { accountNumber: accountNumber, unitName: unitName, organization: { id: organizationId } })
+                    const meters = await Meter.getAll(context, { accountNumber: accountNumber, unitName: unitName, organization: { id: organizationId, deletedAt: null }, deletedAt: null })
                     if (meters.length < 1) {
                         throw (`${NOT_FOUND_ERROR}accountNumber] Can't find billingAccount and any meters with this accountNumber, unitName and organization combination`)
                     }
