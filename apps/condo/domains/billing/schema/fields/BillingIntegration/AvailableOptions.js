@@ -67,10 +67,10 @@ const AvailableOptionSchema = {
     type: 'object',
     properties: {
         name: { type: 'string' },
-        billingPageTitle: { type: 'string' },
-        displayName: { type: 'string' },
+        billingPageTitle: { type: ['string', 'null'] },
+        displayName: { type: ['string', 'null'] },
         descriptionDetails: {
-            type: 'object',
+            type: ['object', 'null'],
             properties: {
                 urlText: { type: 'string' },
                 url: { type: 'string' },
@@ -99,7 +99,7 @@ const AvailableOptionsSchema = {
 const ajv = new Ajv()
 const AvailableOptionsSchemaValidator = ajv.compile(AvailableOptionsSchema)
 const validateAvailableOptions = getValidator(AvailableOptionsSchemaValidator)
-const AVAILABLE_OPTIONS_QUERY_LIST = 'title options { name billingPageTitle descriptionDetails { urlText url } }'
+const AVAILABLE_OPTIONS_QUERY_LIST = 'title options { name displayName billingPageTitle descriptionDetails { urlText url } }'
 
 const AVAILABLE_OPTIONS_FIELD = {
     schemaDoc: 'List of available billing options. If it exists, it means that several options are available for connecting billing',

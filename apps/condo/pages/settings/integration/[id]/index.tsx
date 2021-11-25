@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { CSSProperties, useEffect, useState } from 'react'
 import Head from 'next/head'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
@@ -18,6 +18,7 @@ import Link from 'next/link'
 import { ExclamationCircleOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import Error from 'next/error'
+import { Gutter } from 'antd/es/grid/row'
 
 
 const SETTINGS_PAGE_ROUTE = '/settings/'
@@ -26,6 +27,14 @@ const ButtonWrap = styled.div`
    width: fit-content;
    cursor: ${({ disabled }: { disabled: boolean }) => disabled ? 'not-allowed' : 'pointer'};
  `
+
+const ROW_GUTTER: [Gutter, Gutter] = [0, 40]
+const DESCRIPTION_TEXT_STYLE = { fontSize: 16 }
+const PAGE_HEADER_STYLE = { margin: 30 }
+const PAGE_HEADER_TITLE_STYLE = { margin: 0 }
+const NO_CHANGE_ALERT_STYLE = { width: 'fit-content' }
+const RADIO_GROUP_CONTAINER_STYLE = { paddingBottom: 20 }
+const BUTTONS_SPACE_STYLE: CSSProperties = { width: '100%', flexWrap: 'wrap' }
 
 const BillingIntegrationDetailsPage = () => {
     const intl = useIntl()
@@ -157,12 +166,12 @@ const BillingIntegrationDetailsPage = () => {
                             ? (
                                 <>
                                     <PageHeader
-                                        title={<Typography.Title style={{ margin: 0 }}>{pageTitle}</Typography.Title>}
-                                        style={{ marginTop: 30 }}
+                                        title={<Typography.Title style={PAGE_HEADER_TITLE_STYLE}>{pageTitle}</Typography.Title>}
+                                        style={PAGE_HEADER_STYLE}
                                     />
                                     <PageContent>
                                         <Col span={20}>
-                                            <Row gutter={[0, 40]}>
+                                            <Row gutter={ROW_GUTTER}>
                                                 {
                                                     shouldNotifyWithAlert && (
                                                         <Col span={24}>
@@ -170,14 +179,14 @@ const BillingIntegrationDetailsPage = () => {
                                                                 message={AnotherContextAlreadyCreatedMessage}
                                                                 type={'warning'}
                                                                 showIcon
-                                                                style={{ width: 'fit-content' }}
+                                                                style={NO_CHANGE_ALERT_STYLE}
                                                             />
                                                         </Col>
                                                     )
                                                 }
                                                 {
                                                     markDownText && (
-                                                        <Col span={24} style={{ fontSize: 16 }}>
+                                                        <Col span={24} style={DESCRIPTION_TEXT_STYLE}>
                                                             <ReactMarkdown remarkPlugins={[gfm]}>
                                                                 {markDownText}
                                                             </ReactMarkdown>
@@ -192,7 +201,7 @@ const BillingIntegrationDetailsPage = () => {
                                                                     {optionsTitle}
                                                                 </Typography.Title>
                                                             </Col>
-                                                            <Col span={24} style={{ paddingBottom: 20 }}>
+                                                            <Col span={24} style={RADIO_GROUP_CONTAINER_STYLE}>
                                                                 <Tooltip
                                                                     title={ContextAlreadyCreatedMessage}
                                                                     visible={!disabledIntegration ? false : undefined}
@@ -202,19 +211,26 @@ const BillingIntegrationDetailsPage = () => {
                                                                             {options.map(integrationOption => {
                                                                                 return (
                                                                                     <Radio value={integrationOption.name} key={integrationOption.name}>
-                                                                                        {integrationOption.displayName}
-                                                                                    &nbsp;
-                                                                                        <Typography.Text type={'secondary'}>
-                                                                                        (
-                                                                                            <Link href={integrationOption.descriptionDetails.url}>
-                                                                                                <a target='_blank'>
+                                                                                        {get(integrationOption, 'displayName') || integrationOption.name}
+                                                                                        {
+                                                                                            integrationOption.descriptionDetails && (
+                                                                                                <>
+                                                                                                    &nbsp;
                                                                                                     <Typography.Text type={'secondary'}>
-                                                                                                        {integrationOption.descriptionDetails.urlText}
+                                                                                                        (
+                                                                                                        <Link href={integrationOption.descriptionDetails.url}>
+                                                                                                            <a target='_blank'>
+                                                                                                                <Typography.Text type={'secondary'}>
+                                                                                                                    {integrationOption.descriptionDetails.urlText}
+                                                                                                                </Typography.Text>
+                                                                                                            </a>
+                                                                                                        </Link>
+                                                                                                        )
                                                                                                     </Typography.Text>
-                                                                                                </a>
-                                                                                            </Link>
-                                                                                        )
-                                                                                        </Typography.Text>
+                                                                                                </>
+                                                                                            )
+
+                                                                                        }
                                                                                     </Radio>
                                                                                 )
                                                                             })}
@@ -226,7 +242,7 @@ const BillingIntegrationDetailsPage = () => {
                                                     )
                                                 }
                                                 <Col span={24}>
-                                                    <Space size={20} style={{ width: '100%', flexWrap: 'wrap' }}>
+                                                    <Space size={20} style={BUTTONS_SPACE_STYLE}>
                                                         <Tooltip
                                                             title={ContextAlreadyCreatedMessage}
                                                             visible={!disabledIntegration ? false : undefined}
