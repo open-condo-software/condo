@@ -9,21 +9,21 @@ const { createResidentTicketByTestClient } = require('@condo/domains/ticket/util
 const { UUID_RE } = require('@core/keystone/test.utils')
 const faker = require('faker')
 const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
-const { makeClientWithResidentUserAndProperty } = require('@condo/domains/property/utils/testSchema')
+const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { NOT_FOUND_ERROR } = require('@condo/domains/common/constants/errors')
 const { expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 
 describe('CreateResidentTicketService', () => {
 
     test('resident: can create resident ticket', async () => {
-        const userClient = await makeClientWithResidentUserAndProperty()
+        const userClient = await makeClientWithResidentAccessAndProperty()
 
         const [ticket] = await createResidentTicketByTestClient(userClient, userClient.property)
         expect(ticket.id).toMatch(UUID_RE)
     })
 
     test('resident: can create resident ticket with unit name which does not exist at property map', async () => {
-        const userClient = await makeClientWithResidentUserAndProperty()
+        const userClient = await makeClientWithResidentAccessAndProperty()
         const unitName = faker.random.alphaNumeric(10)
 
         const [ticket] =  await createResidentTicketByTestClient(userClient, userClient.property, { unitName })
@@ -32,7 +32,7 @@ describe('CreateResidentTicketService', () => {
     })
 
     test('resident: cannot create resident ticket without details', async () => {
-        const userClient = await makeClientWithResidentUserAndProperty()
+        const userClient = await makeClientWithResidentAccessAndProperty()
 
         await catchErrorFrom(async () => {
             await createResidentTicketByTestClient(userClient, userClient.property, { details: null })
@@ -43,7 +43,7 @@ describe('CreateResidentTicketService', () => {
     })
 
     test('resident: cannot create resident ticket with wrong property id', async () => {
-        const userClient = await makeClientWithResidentUserAndProperty()
+        const userClient = await makeClientWithResidentAccessAndProperty()
 
         const wrongProperty = {
             id: faker.random.uuid(),
@@ -59,7 +59,7 @@ describe('CreateResidentTicketService', () => {
     })
 
     test('resident: cannot create resident ticket with wrong source id', async () => {
-        const userClient = await makeClientWithResidentUserAndProperty()
+        const userClient = await makeClientWithResidentAccessAndProperty()
         const wrongSource = {
             connect: {
                 id: faker.random.uuid(),
@@ -78,7 +78,7 @@ describe('CreateResidentTicketService', () => {
 
     test('resident: create contact when create resident ticket without contact', async () => {
         const admin = await makeLoggedInAdminClient()
-        const userClient = await makeClientWithResidentUserAndProperty()
+        const userClient = await makeClientWithResidentAccessAndProperty()
 
         await createResidentTicketByTestClient(userClient, userClient.property)
         const [contact] = await Contact.getAll(admin, {
@@ -93,7 +93,7 @@ describe('CreateResidentTicketService', () => {
 
     test('resident: do not create contact when create resident ticket with contact with same data', async () => {
         const admin = await makeLoggedInAdminClient()
-        const userClient = await makeClientWithResidentUserAndProperty()
+        const userClient = await makeClientWithResidentAccessAndProperty()
 
         await createResidentTicketByTestClient(userClient, userClient.property)
         await createResidentTicketByTestClient(userClient, userClient.property)

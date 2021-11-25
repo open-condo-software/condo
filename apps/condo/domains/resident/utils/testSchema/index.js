@@ -15,7 +15,7 @@ const { ServiceConsumer: ServiceConsumerGQL } = require('@condo/domains/resident
 const { REGISTER_SERVICE_CONSUMER_MUTATION } = require('@condo/domains/resident/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const { makeClientWithResidentUserAndProperty } = require('@condo/domains/property/utils/testSchema')
+const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 
 const Resident = generateGQLTestUtils(ResidentGQL)
@@ -133,7 +133,7 @@ async function registerServiceConsumerByTestClient (client, extraAttrs = {}) {
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithServiceConsumer() {
-    const client = await makeClientWithResidentUserAndProperty()
+    const client = await makeClientWithResidentAccessAndProperty()
     const adminClient = await makeLoggedInAdminClient()
 
     const [resident] = await createTestResident(adminClient, client.user, client.organization, client.property)

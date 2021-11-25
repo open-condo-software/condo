@@ -4,6 +4,9 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
+const {createTestResident} = require("@condo/domains/resident/utils/testSchema");
+const {createTestOrganization} = require("@condo/domains/organization/utils/testSchema");
+const {makeClientWithResidentUser} = require("@condo/domains/user/utils/testSchema");
 const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
 const { CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY } = require('../../gql')
 const { throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
@@ -58,10 +61,17 @@ async function makeClientWithProperty (includeFlat = false) {
     return client
 }
 
-async function makeClientWithResidentUserAndProperty () {
-    const userClient = await makeClientWithProperty()
-    await addResidentAccess(userClient.user)
-    return userClient
+async function makeClientWithResidentAccessAndProperty () {
+    const clientWithOrganization = await makeClientWithProperty()
+    const client = await makeClientWithResidentUser()
+    const organization = clientWithOrganization.organization
+    const property = clientWithOrganization.property
+
+    await addResidentAccess(client.user)
+    client.organization = organization
+    client.property = property
+
+    return client
 }
 
 async function checkPropertyWithAddressExistByTestClient(client, extraAttrs = {}) {
@@ -93,7 +103,7 @@ module.exports = {
     updateTestProperty,
     makeClientWithProperty,
     checkPropertyWithAddressExistByTestClient,
-    makeClientWithResidentUserAndProperty,
+    makeClientWithResidentAccessAndProperty,
     exportPropertiesToExcelByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

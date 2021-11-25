@@ -4,7 +4,7 @@
 
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { createTestProperty, makeClientWithResidentUserAndProperty } = require('@condo/domains/property/utils/testSchema')
+const { createTestProperty, makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@core/keystone/test.utils')
 const { expectToThrowAuthenticationError, expectToThrowAccessDeniedErrorToResult } = require('@condo/domains/common/utils/testSchema')
@@ -147,7 +147,7 @@ describe('RegisterResidentService', () => {
     })
 
     it('restore deleted Resident for the same address and unitName (property not exists)', async () => {
-        const userClient = await makeClientWithResidentUserAndProperty()
+        const userClient = await makeClientWithResidentAccessAndProperty()
         const [resident, attrs] = await registerResidentByTestClient(userClient)
         const [softDeletedResident] = await Resident.softDelete(userClient, resident.id)
 
@@ -163,7 +163,7 @@ describe('RegisterResidentService', () => {
 
     it('restore deleted Resident for the same address and unitName (property exists)', async () => {
         const adminClient = await makeLoggedInAdminClient()
-        const userClient = await makeClientWithResidentUserAndProperty()
+        const userClient = await makeClientWithResidentAccessAndProperty()
 
         const [resident, attrs] = await registerResidentByTestClient(userClient)
         const [deletedResident] = await Resident.softDelete(userClient, resident.id)
