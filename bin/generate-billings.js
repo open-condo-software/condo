@@ -73,8 +73,8 @@ const SuccessfulBilling = {
                 displayName: '1C',
                 billingPageTitle: 'Интеграция через загрузку реестров 1С',
                 descriptionDetails: {
-                    detailsText: 'о формате',
-                    detailsLink: 'https://help.doma.ai',
+                    urlText: 'о формате',
+                    url: 'https://help.doma.ai',
                 },
             },
             {
@@ -82,8 +82,8 @@ const SuccessfulBilling = {
                 displayName: 'СБ Бизнес Онлайн 8_2',
                 billingPageTitle: 'Интеграция через загрузку реестров СББОЛ',
                 descriptionDetails: {
-                    detailsText: 'о формате',
-                    detailsLink: 'https://help.doma.ai',
+                    urlText: 'о формате',
+                    url: 'https://help.doma.ai',
                 },
             },
             {
@@ -91,8 +91,8 @@ const SuccessfulBilling = {
                 displayName: 'СБ Бизнес Онлайн 9_1',
                 billingPageTitle: 'Интеграция через загрузку реестров СББОЛ',
                 descriptionDetails: {
-                    detailsText: 'о формате',
-                    detailsLink: 'https://help.doma.ai',
+                    urlText: 'о формате',
+                    url: 'https://help.doma.ai',
                 },
             },
         ],

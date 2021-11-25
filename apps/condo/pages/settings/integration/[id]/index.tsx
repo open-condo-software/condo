@@ -206,10 +206,10 @@ const BillingIntegrationDetailsPage = () => {
                                                                                     &nbsp;
                                                                                         <Typography.Text type={'secondary'}>
                                                                                         (
-                                                                                            <Link href={integrationOption.descriptionDetails.detailsLink}>
+                                                                                            <Link href={integrationOption.descriptionDetails.url}>
                                                                                                 <a target='_blank'>
                                                                                                     <Typography.Text type={'secondary'}>
-                                                                                                        {integrationOption.descriptionDetails.detailsText}
+                                                                                                        {integrationOption.descriptionDetails.urlText}
                                                                                                     </Typography.Text>
                                                                                                 </a>
                                                                                             </Link>

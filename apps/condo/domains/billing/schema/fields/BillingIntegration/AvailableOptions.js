@@ -11,8 +11,8 @@ const { render, getValidator } = require('@condo/domains/billing/schema/fields/u
 const { Json } = require('@core/keystone/fields')
 
 const AvailableOptionDetailsFields = {
-    detailsText: 'String!',
-    detailsLink: 'String!',
+    urlText: 'String!',
+    url: 'String!',
 }
 
 const AvailableOptionFields = {
@@ -72,10 +72,10 @@ const AvailableOptionSchema = {
         descriptionDetails: {
             type: 'object',
             properties: {
-                detailsText: { type: 'string' },
-                detailsLink: { type: 'string' },
+                urlText: { type: 'string' },
+                url: { type: 'string' },
             },
-            required: ['detailsText', 'detailsLink'],
+            required: ['urlText', 'url'],
             additionalProperties: false,
         },
     },
@@ -99,7 +99,7 @@ const AvailableOptionsSchema = {
 const ajv = new Ajv()
 const AvailableOptionsSchemaValidator = ajv.compile(AvailableOptionsSchema)
 const validateAvailableOptions = getValidator(AvailableOptionsSchemaValidator)
-const AVAILABLE_OPTIONS_QUERY_LIST = 'title options { name billingPageTitle descriptionDetails { detailsText detailsLink } }'
+const AVAILABLE_OPTIONS_QUERY_LIST = 'title options { name billingPageTitle descriptionDetails { urlText url } }'
 
 const AVAILABLE_OPTIONS_FIELD = {
     schemaDoc: 'List of available billing options. If it exists, it means that several options are available for connecting billing',

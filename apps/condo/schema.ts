@@ -3804,13 +3804,13 @@ export type BillingIntegrationLogsUpdateInput = {
 
 export type BillingIntegrationOptionDetailsField = {
   __typename?: 'BillingIntegrationOptionDetailsField';
-  detailsText: Scalars['String'];
-  detailsLink: Scalars['String'];
+  urlText: Scalars['String'];
+  url: Scalars['String'];
 };
 
 export type BillingIntegrationOptionDetailsFieldInput = {
-  detailsText: Scalars['String'];
-  detailsLink: Scalars['String'];
+  urlText: Scalars['String'];
+  url: Scalars['String'];
 };
 
 export type BillingIntegrationOptionField = {
