@@ -84,9 +84,7 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
             schemaDoc: 'Name of billing integration option, if it has more than 1 variants. Example: registry format. Using "name" as unique identifier inside single billing',
             isRequired: false,
             type: Text,
-
         },
-
     },
     hooks: {
         validateInput: async ({ existingItem, resolvedData, operation, addValidationError }) => {
