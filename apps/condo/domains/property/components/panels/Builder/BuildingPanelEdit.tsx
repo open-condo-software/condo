@@ -19,6 +19,7 @@ import {
     EmptyFloor,
     BuildingAxisY,
     BuildingChooseSections,
+    MapSectionContainer,
 } from './BuildingPanelCommon'
 import { Button } from '@condo/domains/common/components/Button'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
@@ -517,7 +518,10 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
                         >
                             {
                                 !isEmpty(Builder.sections) && (
-                                    <BuildingAxisY floors={Builder.possibleChosenFloors} />
+                                    <BuildingAxisY
+                                        hasBasement={Builder.possibleBasements}
+                                        floors={Builder.possibleChosenFloors}
+                                    />
                                 )
                             }
                             {
@@ -584,33 +588,53 @@ interface IPropertyMapSectionProps {
     refresh: () => void
     scrollToForm: () => void
 }
+const FULL_SIZE_UNIT_STYLE: React.CSSProperties = { width: '100%', marginTop: '8px', display: 'block' }
 
 const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ section, children, Builder, refresh, scrollToForm }) => {
-    const chooseSection = (section) => {
+    const chooseSection = useCallback((section) => {
         Builder.setSelectedSection(section)
         if (Builder.getSelectedSection()) {
             scrollToForm()
         }
         refresh()
-    }
+    }, [Builder, refresh, scrollToForm])
+
     return (
-        <div
-            style={{
-                display: Builder.isSectionVisible(section.id) ? 'inline-block' : 'none',
-                marginRight: '12px',
-                textAlign: 'center',
-            }}
-        >
+        <MapSectionContainer visible={Builder.isSectionVisible(section.id)}>
+            {section.roof && (
+                <UnitButton
+                    style={FULL_SIZE_UNIT_STYLE}
+                    preview={section.preview}
+                    ellipsis={false}
+                    disabled={section.preview}
+                >{section.roof.name}</UnitButton>
+            )}
+            {section.attic && (
+                <UnitButton
+                    style={FULL_SIZE_UNIT_STYLE}
+                    preview={section.preview}
+                    ellipsis={false}
+                    disabled={section.preview}
+                >{section.attic.name}</UnitButton>
+            )}
             {children}
+            {section.basement && (
+                <UnitButton
+                    style={FULL_SIZE_UNIT_STYLE}
+                    ellipsis={false}
+                    preview={section.preview}
+                    disabled={section.preview}
+                >{section.basement.name}</UnitButton>
+            )}
             <UnitButton
                 secondary
-                style={{ width: '100%', marginTop: '8px' }}
+                style={FULL_SIZE_UNIT_STYLE}
                 disabled={section.preview}
                 preview={section.preview}
                 onClick={() => chooseSection(section)}
                 selected={Builder.isSectionSelected(section.id)}
             >{section.name}</UnitButton>
-        </div>
+        </MapSectionContainer>
     )
 }
 

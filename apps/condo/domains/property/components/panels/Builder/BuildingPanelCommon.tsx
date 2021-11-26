@@ -5,6 +5,7 @@ import { FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
 import { jsx, css } from '@emotion/core'
+import styled from '@emotion/styled'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { fontSizes, colors } from '@condo/domains/common/constants/style'
 import { Button } from '@condo/domains/common/components/Button'
@@ -32,6 +33,12 @@ export const CustomScrollbarCss = css`
   & div::-webkit-scrollbar-track {
     border-radius: 10px;
   }
+`
+
+export const MapSectionContainer = styled.div<{ visible: boolean }>`
+  display: ${({ visible }) => visible ? 'inline-block' : 'none'};
+  margin-right: 12px;
+  text-align: center;
 `
 
 export const PropertyMapFloor: React.FC = ({ children }) => {
@@ -110,18 +117,28 @@ export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view
 
 interface IBuildingAxisYProps {
     floors: number[]
+    hasBasement?: boolean
 }
 
-export const BuildingAxisY: React.FC<IBuildingAxisYProps> = ({ floors }) => {
+const BuildingAxisContainer = styled.div`
+  display: inline-block;
+  margin-right: 12px;
+`
+const AXIS_UNIT_STYLE: React.CSSProperties = { display: 'block' }
+
+export const BuildingAxisY: React.FC<IBuildingAxisYProps> = ({ floors, hasBasement = false }) => {
     return (
-        <div style={{ display: 'inline-block', marginRight: '12px' }}>
+        <BuildingAxisContainer>
             {
                 floors.map(floorNum => (
-                    <UnitButton secondary disabled key={`floor_${floorNum}`} style={{ display: 'block' }}>{floorNum}</UnitButton>
+                    <UnitButton secondary disabled key={`floor_${floorNum}`} style={AXIS_UNIT_STYLE}>{floorNum}</UnitButton>
                 ))
             }
-            <UnitButton secondary disabled >&nbsp;</UnitButton>
-        </div>
+            <UnitButton secondary disabled style={AXIS_UNIT_STYLE}>&nbsp;</UnitButton>
+            {hasBasement && (
+                <UnitButton secondary disabled style={AXIS_UNIT_STYLE}>&nbsp;</UnitButton>
+            )}
+        </BuildingAxisContainer>
     )
 }
 
