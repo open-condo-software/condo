@@ -472,7 +472,7 @@ describe('MultiPayment', () => {
                     }, MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP)
                 })
             })
-            // NOTE: APPROVED BY ALEXANDER
+            // NOTE: SUM OF FEES AS WELL AS AVAILABILITY OF ALL/NONE IMPLICIT FEES WAS APPROVED BY ALEXANDER
             describe('DONE-status checks', () => {
                 const multiPaymentDonePayload = {
                     withdrawnAt: dayjs().toISOString(),
@@ -588,7 +588,7 @@ describe('MultiPayment', () => {
             })
             test('Successful payment', async () => {
                 // Stage 1. User goes to service and confirm payment with fees...
-                // After that Acquiring Integration Manager move MP and P to PROCESSING and setting explicit fees
+                // After that our acquiring integration service move MP and P to PROCESSING and setting explicit fees
                 const { multiPaymentId } = registerMPResult
                 const payments = await Payment.getAll(integrationClient, {
                     multiPayment: { id: multiPaymentId },
@@ -613,7 +613,7 @@ describe('MultiPayment', () => {
                 expect(payment).toHaveProperty('status', PAYMENT_PROCESSING_STATUS)
                 expect(Big(payment.explicitFee).eq(explicitFee)).toBeTruthy()
 
-                // Stage 2. Acquiring Integration Manager after polling UPS service move everything to DONE
+                // Stage 2. Our acquiring integration service after polling UPS service move everything to DONE
                 const transactionTime = dayjs().toISOString()
                 const cardNumber = getRandomHiddenCard()
                 const paymentWay = 'CARD'
@@ -656,7 +656,7 @@ describe('MultiPayment', () => {
                     explicitFee,
                 })
 
-                // Stage 2. Acquiring Integration Manager after polling UPS service move everything to ERROR
+                // Stage 2. Our acquiring integration service after polling UPS service move everything to ERROR
                 payment = await Payment.update(integrationClient, payment.id, {
                     status: PAYMENT_ERROR_STATUS,
                 })
