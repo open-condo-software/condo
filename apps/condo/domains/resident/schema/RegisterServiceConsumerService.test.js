@@ -164,6 +164,7 @@ describe('RegisterServiceConsumerService', () => {
 
         const [integration] = await createTestBillingIntegration(adminClient)
         const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
+
         const [billingProperty] = await createTestBillingProperty(adminClient, context)
         const [billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
 
