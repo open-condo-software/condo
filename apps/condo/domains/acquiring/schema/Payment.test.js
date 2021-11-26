@@ -16,6 +16,7 @@ const {
     createTestMultiPayment,
     createTestAcquiringIntegration,
     createTestAcquiringIntegrationContext,
+    updateTestAcquiringIntegrationContext,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const {
     createTestBillingIntegration,
@@ -42,6 +43,7 @@ const {
     PAYMENT_NO_PAIRED_CONTEXT,
     PAYMENT_NO_SUPPORTED_CONTEXT,
 } = require('@condo/domains/acquiring/constants/errors')
+const dayjs = require('dayjs')
 
 describe('Payment', () => {
     describe('CRUD tests', () => {
@@ -361,9 +363,12 @@ describe('Payment', () => {
                 }, PAYMENT_NO_PAIRED_CONTEXT)
             })
             test('Receipt\'s billing should be supported by acquiring', async () => {
-                const { admin, organization, billingReceipts } = await makePayer()
+                const { admin, organization, billingReceipts, acquiringContext } = await makePayer()
                 const [billing] = await createTestBillingIntegration(admin)
                 const [acquiring] = await createTestAcquiringIntegration(admin, [billing])
+                await updateTestAcquiringIntegrationContext(admin, acquiringContext.id, {
+                    deletedAt: dayjs().toString(),
+                })
                 const [context] = await createTestAcquiringIntegrationContext(admin, organization, acquiring)
                 await expectToThrowValidationFailureError(async () => {
                     await createTestPayment(admin, organization, billingReceipts[0], context)
