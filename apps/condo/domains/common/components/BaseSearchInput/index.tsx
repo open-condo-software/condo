@@ -8,6 +8,7 @@ import { InitialValuesGetter, useInitialValueGetter } from './useInitialValueGet
 import { useSelectCareeteControls } from './useSelectCareeteControls'
 import { Loader } from '../Loader'
 import { isNeedToLoadNewElements } from '../../utils/select.utils'
+import uniqBy from 'lodash/uniqBy'
 
 const { Option } = Select
 
@@ -83,7 +84,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
             setFetching(false)
 
             if (data.length > 0) {
-                setData(prevData => [...prevData, ...data])
+                setData(prevData => uniqBy([...prevData, ...data], 'text'))
             } else {
                 setIsAllDataLoaded(true)
             }
