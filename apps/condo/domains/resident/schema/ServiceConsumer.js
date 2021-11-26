@@ -49,8 +49,8 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
         residentBillingAccount: {
             schemaDoc: 'BillingAccount id, that is returned for current serviceConsumer in mobile client',
             type: Virtual,
-            extendGraphQLTypes: ['type ServiceConsumerBillingAccount { id: ID! }'],
-            graphQLReturnType: 'ServiceConsumerBillingAccount',
+            extendGraphQLTypes: ['type ResidentBillingAccount { id: ID! }'],
+            graphQLReturnType: 'ResidentBillingAccount',
             resolver: async (item) => {
                 if (item.billingAccount) {
                     const billingAccount = await getById('BillingAccount', item.billingAccount)
@@ -78,6 +78,25 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
             isRequired: false,
             knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
+
+        // todo(@toplenboren) DOMA-1701 Make this deprecated and add mobile an ability to move away from these fields
+        // The reason for this field is to avoid adding check for resident user into global BillingAccount read access.
+        // This field have specific use case for mobile client.
+        residentAcquiringIntegrationContext: {
+            schemaDoc: 'AcquiringIntegration, that is returned for current serviceConsumer in mobile client',
+            type: Virtual,
+            extendGraphQLTypes: ['type ResidentAcquiringIntegrationContext { id: ID!, integration: ID,  }'],
+            graphQLReturnType: 'ResidentAcquiringIntegrationContext',
+            resolver: async (item) => {
+                if (item.acquiringIntegrationContext) {
+                    const acquiringIntegrationContext = await getById('AcquiringIntegrationContext', item.acquiringIntegrationContext)
+                    return pick(acquiringIntegrationContext, ['id', 'integration'])
+                } else {
+                    return null
+                }
+            },
+            access: true,
         },
 
         accountNumber: {
