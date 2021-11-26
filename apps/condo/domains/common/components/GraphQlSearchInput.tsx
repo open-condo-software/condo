@@ -77,7 +77,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         const value = ['string', 'number'].includes(typeof option.value) ? option.value : JSON.stringify(option)
 
         return (
-            <Select.Option id={index} key={option.key || value} value={value}>
+            <Select.Option id={index} key={option.key || value} value={value} title={option.text}>
                 <Typography.Text title={option.text}>{optionLabel}</Typography.Text>
             </Select.Option>
         )
@@ -109,18 +109,18 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         handleSearch('')
     }, [...searchAgainDependencies])
 
-    async function handleSearch (value) {
+    async function handleSearch (searchingValue) {
         if (!search) return
+        setValue(searchingValue)
         setLoading(true)
 
         const data = await search(
             client,
-            getSearchTextValue(value)
+            getSearchTextValue(searchingValue)
         )
 
         setLoading(false)
         if (data.length) setData(data)
-        setValue(value)
     }
 
     function handleSelect (value, option) {
@@ -144,7 +144,6 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
             if (isAllDataLoaded) return
 
             setLoading(true)
-
             const data = await search(
                 client,
                 getSearchTextValue(value),
@@ -152,7 +151,6 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
                 10,
                 skip
             )
-
             setLoading(false)
 
             if (data.length > 0) {
@@ -191,6 +189,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
             onClear={handleClear}
             onPopupScroll={infinityScroll && handleScroll}
             searchValue={value}
+            value={value}
             loading={isLoading}
             {...restProps}
         >
