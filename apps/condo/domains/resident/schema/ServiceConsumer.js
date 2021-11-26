@@ -52,12 +52,9 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
             extendGraphQLTypes: ['type ResidentBillingAccount { id: ID! }'],
             graphQLReturnType: 'ResidentBillingAccount',
             resolver: async (item) => {
-                if (item.billingAccount) {
-                    const billingAccount = await getById('BillingAccount', item.billingAccount)
-                    return pick(billingAccount, ['id'])
-                } else {
-                    return null
-                }
+                if (!item.billingAccount) { return null }
+                const billingAccount = await getById('BillingAccount', item.billingAccount)
+                return pick(billingAccount, ['id'])
             },
             access: true,
         },
@@ -89,12 +86,9 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
             extendGraphQLTypes: ['type ResidentAcquiringIntegrationContext { id: ID!, integration: ID,  }'],
             graphQLReturnType: 'ResidentAcquiringIntegrationContext',
             resolver: async (item) => {
-                if (item.acquiringIntegrationContext) {
-                    const acquiringIntegrationContext = await getById('AcquiringIntegrationContext', item.acquiringIntegrationContext)
-                    return pick(acquiringIntegrationContext, ['id', 'integration'])
-                } else {
-                    return null
-                }
+                if (!item.acquiringIntegrationContext) { return null }
+                const acquiringIntegrationContext = await getById('AcquiringIntegrationContext', item.acquiringIntegrationContext)
+                return pick(acquiringIntegrationContext, ['id', 'integration'])
             },
             access: true,
         },
