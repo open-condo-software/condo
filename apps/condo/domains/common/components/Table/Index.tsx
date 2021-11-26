@@ -91,7 +91,6 @@ export const Table: React.FC<ITableProps> = ({
 
         const newOffset = shouldResetOffset ? 0 : (current - 1) * rowsPerPage
 
-
         const queryParams = {
             filters: JSON.stringify(newFilters),
             offset: newOffset,
