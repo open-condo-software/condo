@@ -154,7 +154,7 @@ describe('RegisterServiceConsumerService', () => {
         expect(out.residentAcquiringIntegrationContext.id).toEqual(acquiringIntegrationContext.id)
         expect(out.residentAcquiringIntegrationContext.integration).toEqual(acquiringIntegration.id)
         expect(meter).toBeDefined()
-        expect(meter.name).toBeDefined()
+        expect(meter.number).toBeDefined()
     })
 
     it('creates serviceConsumer with billingAccount without Meters', async () => {
