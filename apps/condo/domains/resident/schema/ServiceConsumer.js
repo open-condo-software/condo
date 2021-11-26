@@ -81,7 +81,7 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
         },
 
         // todo(@toplenboren) DOMA-1701 Make this deprecated and add mobile an ability to move away from these fields
-        // The reason for this field is to avoid adding check for resident user into global BillingAccount read access.
+        // The reason for this field is to avoid adding check for resident user into global AcquiringIntegrationContext read access.
         // This field have specific use case for mobile client.
         residentAcquiringIntegrationContext: {
             schemaDoc: 'AcquiringIntegration, that is returned for current serviceConsumer in mobile client',
