@@ -474,7 +474,22 @@ async function makeClientWithIntegrationAccess () {
  * Simplifies creating series of instances
  */
 
-async function createContextWithOrganizationAndIntegrationAsAdmin() {
+async function addBillingIntegrationAndContext(client, organization) {
+    if (!organization || !organization.id) {
+        throw new Error('No organization')
+    }
+
+    const [ billingIntegration ] = await createTestBillingIntegration(client)
+    const [ billingIntegrationContext ] = await createTestBillingIntegrationOrganizationContext(client, organization, billingIntegration)
+
+    return {
+        billingIntegration,
+        billingIntegrationContext,
+        client
+    }
+}
+
+async function makeContextWithOrganizationAndIntegrationAsAdmin() {
     const admin = await makeLoggedInAdminClient()
     const [integration] = await createTestBillingIntegration(admin)
     const [organization] = await registerNewOrganization(admin)
@@ -483,7 +498,7 @@ async function createContextWithOrganizationAndIntegrationAsAdmin() {
     return { context, integration, organization }
 }
 
-async function createOrganizationIntegrationManager() {
+async function makeOrganizationIntegrationManager() {
     const admin = await makeLoggedInAdminClient()
     const [organization] = await createTestOrganization(admin)
     const [integration] = await createTestBillingIntegration(admin)
@@ -517,9 +532,9 @@ module.exports = {
     BillingAccountMeter, createTestBillingAccountMeter, updateTestBillingAccountMeter,
     BillingAccountMeterReading, createTestBillingAccountMeterReading, updateTestBillingAccountMeterReading,
     BillingReceipt, createTestBillingReceipt, updateTestBillingReceipt,
-    makeContextWithOrganizationAndIntegrationAsAdmin: createContextWithOrganizationAndIntegrationAsAdmin,
-    makeOrganizationIntegrationManager: createOrganizationIntegrationManager,
-    BillingOrganization, createTestBillingOrganization, updateTestBillingOrganization,
+    makeContextWithOrganizationAndIntegrationAsAdmin,
+    makeOrganizationIntegrationManager, addBillingIntegrationAndContext,
+    BillingOrganization, updateTestBillingOrganization,
     ResidentBillingReceipt,
     createReceiptsReader,
 /* AUTOGENERATE MARKER <EXPORTS> */

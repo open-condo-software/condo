@@ -183,10 +183,24 @@ async function makeAcquiringContextAndIntegrationManager() {
     }
 }
 
+async function addAcquiringIntegrationAndContext(client, organization, allowedBillingIntegrationIds = []) {
+    if (!organization || !organization.id) {
+        throw ('No organization')
+    }
+
+    const [ acquiringIntegration ] = await createTestAcquiringIntegration(client, allowedBillingIntegrationIds)
+    const [ acquiringIntegrationContext ] = await createTestAcquiringIntegrationContext(client, organization, acquiringIntegration)
+
+    return {
+        acquiringIntegration,
+        acquiringIntegrationContext,
+        client
+    }
+}
+
 async function makeAcquiringContextAndIntegrationAccount() {
     const admin = await makeLoggedInAdminClient()
     const [integration] = await createTestAcquiringIntegration(admin)
-    const [organization] = await registerNewOrganization(admin)
     const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
     const client = await makeClientWithNewRegisteredAndLoggedInUser()
     await createTestAcquiringIntegrationAccessRight(admin, integration, client.user)
@@ -420,7 +434,7 @@ module.exports = {
     AcquiringIntegration, createTestAcquiringIntegration, updateTestAcquiringIntegration,
     AcquiringIntegrationAccessRight, createTestAcquiringIntegrationAccessRight, updateTestAcquiringIntegrationAccessRight,
     AcquiringIntegrationContext, createTestAcquiringIntegrationContext, updateTestAcquiringIntegrationContext,
-    MultiPayment, createTestMultiPayment, updateTestMultiPayment,
+    MultiPayment, createTestMultiPayment, updateTestMultiPayment, addAcquiringIntegrationAndContext,
     makeAcquiringContext,
     makeAcquiringContextAndIntegrationAccount,
     makeAcquiringContextAndIntegrationManager,
