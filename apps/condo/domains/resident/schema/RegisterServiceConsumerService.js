@@ -79,7 +79,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
 
                     attrs.billingAccount = billingAccount ? { connect: { id: billingAccount.id } } : null
                     attrs.billingIntegrationContext = billingAccount ? { connect: { id: billingIntegrationContext.id } } : null
-                    attrs.acquiringIntegrationContext = billingAccount && acquiringIntegrationContext ? { connect: { id: acquiringIntegrationContext.id }, deletedAt: null } : null
+                    attrs.acquiringIntegrationContext = billingAccount && acquiringIntegrationContext ? { connect: { id: acquiringIntegrationContext.id } } : null
                 }
 
                 if (!attrs.billingAccount) {
