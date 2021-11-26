@@ -20,6 +20,9 @@ const PROPERTY_MAP_GRAPHQL_TYPES = `
         floor
         unit
         village
+        roof
+        attic
+        basement
     }
 
     type BuildingUnit {
@@ -37,14 +40,38 @@ const PROPERTY_MAP_GRAPHQL_TYPES = `
         name: String!
         units: [BuildingUnit]!
     }
+    
+    type BuildingRoof {
+        id: String!
+        type: BuildingMapEntityType!
+        index: Int!
+        name: String!
+    }
+    
+    type BuildingAttic {
+        id: String!
+        type: BuildingMapEntityType!
+        index: Int!
+        name: String!
+    }
+    
+    type BuildingBasement {
+        id: String!
+        type: BuildingMapEntityType!
+        index: Int!
+        name: String!
+    }
 
     type BuildingSection {
         id: String!
         type: BuildingMapEntityType!
         index: Int!
         name: String!
+        roof: BuildingRoof
+        attic: BuildingAttic
         floors: [BuildingFloor]!
-        preview: Boolean  
+        basement: BuildingBasement
+        preview: Boolean
     }
 
     type BuildingMap {

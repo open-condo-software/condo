@@ -3,6 +3,7 @@ import {
     EmptyFloor,
     BuildingAxisY,
     BuildingChooseSections,
+    MapSectionContainer,
 } from './BuildingPanelCommon'
 import { Col, Row } from 'antd'
 import React, { useState, useCallback } from 'react'
@@ -15,6 +16,7 @@ import { useRouter } from 'next/router'
 import ScrollContainer from 'react-indiana-drag-scroll'
 import { FullscreenWrapper, FullscreenHeader } from './Fullscreen'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import { AddressTopTextContainer } from './BuildingPanelEdit'
 
 interface IBuildingPanelViewProps {
@@ -92,17 +94,19 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
                                 nativeMobileScroll={true}
                             >
                                 {
-                                    Builder.sections.length > 0 ? <BuildingAxisY floors={Builder.possibleChosenFloors} /> : null
+                                    !isEmpty(Builder.sections) && (
+                                        <BuildingAxisY
+                                            floors={Builder.possibleChosenFloors}
+                                            hasBasement={Builder.possibleBasements}
+                                        />
+                                    )
                                 }
                                 {
                                     Builder.sections.map(section => {
                                         return (
-                                            <div key={section.id}
-                                                style={{
-                                                    display: Builder.isSectionVisible(section.id) ? 'inline-block' : 'none',
-                                                    marginRight: '12px',
-                                                    textAlign: 'center',
-                                                }}
+                                            <MapSectionContainer
+                                                key={section.id}
+                                                visible={Builder.isSectionVisible(section.id)}
                                             >{
                                                     Builder.possibleChosenFloors.map(floorIndex => {
                                                         const floorInfo = section.floors.find(floor => floor.index === floorIndex)
@@ -133,7 +137,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
                                                     style={{ width: '100%', marginTop: '8px' }}
                                                     disabled
                                                 >{section.name}</UnitButton>
-                                            </div>
+                                            </MapSectionContainer>
                                         )
                                     })
                                 }

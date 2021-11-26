@@ -1,14 +1,8 @@
 import { buildingEmptyMapJson } from '@condo/domains/property/constants/property'
-import { cloneDeep, compact, has, uniq, get } from 'lodash'
-import { CheckboxValueType } from 'antd/lib/checkbox/Group'
+import { cloneDeep, compact, get, has, uniq } from 'lodash'
 import MapSchemaJSON from './MapJsonSchema.json'
 import Ajv from 'ajv'
-import {
-    BuildingMap,
-    BuildingMapEntityType,
-    BuildingUnit,
-    BuildingSection,
-} from '@app/condo/schema'
+import { BuildingMap, BuildingMapEntityType, BuildingSection, BuildingUnit } from '@app/condo/schema'
 
 const ajv = new Ajv()
 const validator = ajv.compile(MapSchemaJSON)
@@ -217,6 +211,10 @@ class MapView extends Map {
             .flat()
         const uniqueIndexes = [...new Set(allIndexes)].sort((a, b) => (b - a))
         return uniqueIndexes
+    }
+
+    get possibleBasements (): boolean {
+        return this.map.sections.some(section => get(section, 'basement', false))
     }
 
     get isEmpty (): boolean {
@@ -558,14 +556,31 @@ class MapEdit extends MapView {
     private generateSection (section: Partial<BuildingSectionArg>): BuildingSection {
         let unitNumber = this.nextUnitNumber
         const { name, minFloor, maxFloor, unitsOnFloor } = section
-        const newSection = {
+        const newSection: BuildingSection = {
             id: String(++this.autoincrement),
             floors: [],
             name,
             index: this.sections.length + 1,
-            type: null,
+            type: BuildingMapEntityType.Section,
         }
-        newSection.type = BuildingMapEntityType.Section
+        newSection.roof = {
+            id: String(++this.autoincrement),
+            type: BuildingMapEntityType.Roof,
+            name: `Крыша ${name}`,
+            index: this.sections.length + 1,
+        }
+        newSection.attic = {
+            id: String(++this.autoincrement),
+            type: BuildingMapEntityType.Attic,
+            name: `Чердак ${name}`,
+            index: this.sections.length + 1,
+        }
+        newSection.basement = {
+            id: String(++this.autoincrement),
+            type: BuildingMapEntityType.Basement,
+            name: `Подвал ${name}`,
+            index: this.sections.length + 1,
+        }
         for (let floor = minFloor; floor <= maxFloor; floor++) {
             if (floor === 0) {
                 continue

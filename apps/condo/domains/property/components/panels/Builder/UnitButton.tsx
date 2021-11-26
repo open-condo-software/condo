@@ -128,11 +128,13 @@ interface CustomButtonProps extends ButtonProps {
     selected?: boolean
     noninteractive?: boolean
     preview?: boolean
+    ellipsis?: boolean
 }
 
-export const UnitButton: React.FC<CustomButtonProps> = ({ secondary, selected, preview, noninteractive, children, ...restProps }) => {
+export const UnitButton: React.FC<CustomButtonProps> = (props) => {
+    const { secondary, selected, preview, noninteractive, ellipsis = true, children, ...restProps } = props
     const OriginalLabel = children ? children.toString() : ''
-    if (!secondary && OriginalLabel.length > 4) {
+    if (!secondary && OriginalLabel.length > 4 && ellipsis) {
         let ButtonLabel = OriginalLabel
         if (!isNaN(Number(ButtonLabel))) {
             ButtonLabel = `…${ButtonLabel.substring(ButtonLabel.length - 2)}`
