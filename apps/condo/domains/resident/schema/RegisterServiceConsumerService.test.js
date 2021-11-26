@@ -12,7 +12,7 @@ const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthen
 const { updateTestUser } = require('@condo/domains/user/utils/testSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
-const { MeterResource, createTestMeter } = require('@condo/domains/meter/utils/testSchema')
+const { MeterResource, createTestMeter, Meter } = require('@condo/domains/meter/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestBillingProperty, createTestBillingAccount, createTestBillingIntegration, createTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
@@ -146,11 +146,15 @@ describe('RegisterServiceConsumerService', () => {
         }
         const [ out ] = await registerServiceConsumerByTestClient(userClient, payload)
 
+        const [ meter ] = await Meter.getAll(userClient)
+
         expect(out).toBeDefined()
         expect(out.residentBillingAccount.id).toEqual(billingAccountAttrs.id)
         expect(out.residentOrganization.id).toEqual(userClient.organization.id)
         expect(out.residentAcquiringIntegrationContext.id).toEqual(acquiringIntegrationContext.id)
         expect(out.residentAcquiringIntegrationContext.integration).toEqual(acquiringIntegration.id)
+        expect(meter).toBeDefined()
+        expect(meter.name).toBeDefined()
     })
 
     it('creates serviceConsumer with billingAccount without Meters', async () => {
