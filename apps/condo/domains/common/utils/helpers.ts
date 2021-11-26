@@ -47,18 +47,25 @@ export const getAddressDetails = (property: Property) => {
     const houseType = get(addressMeta, 'house_type')
     const houseName = get(addressMeta, 'house')
 
+    const blockType = get(addressMeta, 'block_type')
+    const blockName = get(addressMeta, 'block')
+
     const regionType = get(addressMeta, 'region_type_full')
     const regionName = get(addressMeta, 'region')
 
     const cityType = get(addressMeta, 'city_type')
     const cityName = get(addressMeta, 'city')
 
-    const settlement = streetName ? `${streetType}. ${streetName}` : get(addressMeta, 'settlement_with_type')
-    const streetPart = settlement && `${settlement}, ${houseType}. ${houseName}`
+    const areaPart = get(addressMeta, 'area_with_type')
+    const settlementPart = get(addressMeta, 'settlement_with_type')
+
+    const block = blockType ? `, ${blockType} ${blockName}` : ''
+    const settlement = streetName ? `${streetType}. ${streetName}` : settlementPart
+    const streetPart = settlement && `${settlement}, ${houseType}. ${houseName} ${block}`
     const regionPart = regionName && `${regionName} ${regionType}`
     const cityPart = cityName && `${cityType}. ${cityName}`
 
-    return { streetPart, regionPart, cityPart }
+    return { streetPart, areaPart, settlementPart, regionPart, cityPart }
 }
 
 /**
