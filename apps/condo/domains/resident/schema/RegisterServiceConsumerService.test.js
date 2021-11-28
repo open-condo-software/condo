@@ -115,8 +115,8 @@ describe('RegisterServiceConsumerService', () => {
         const userClient = await makeClientWithProperty()
         const adminClient = await makeLoggedInAdminClient()
 
-        const USER_UNIT_NAME = String(faker.random.number())
-        const USER_ACCOUNT_NUMBER = String(faker.random.number())
+        const USER_UNIT_NAME = String(faker.datatype.number())
+        const USER_ACCOUNT_NUMBER = String(faker.datatype.number())
 
         const { billingIntegration, billingIntegrationContext } = await addBillingIntegrationAndContext(adminClient, userClient.organization)
         const [billingProperty] = await createTestBillingProperty(adminClient, billingIntegrationContext)
@@ -145,7 +145,6 @@ describe('RegisterServiceConsumerService', () => {
             organizationId: userClient.organization.id,
         }
         const [ out ] = await registerServiceConsumerByTestClient(userClient, payload)
-
         const [ meter ] = await Meter.getAll(userClient)
 
         expect(out).toBeDefined()
@@ -192,8 +191,8 @@ describe('RegisterServiceConsumerService', () => {
         const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
         const [integration] = await createTestBillingIntegration(adminClient)
 
-        const USER_UNIT_NAME = String(faker.random.number())
-        const USER_ACCOUNT_NUMBER = String(faker.random.number())
+        const USER_UNIT_NAME = String(faker.datatype.number())
+        const USER_ACCOUNT_NUMBER = String(faker.datatype.number())
 
         await createTestMeter(adminClient, userClient.organization, userClient.property, resource, {
             unitName: USER_UNIT_NAME,
