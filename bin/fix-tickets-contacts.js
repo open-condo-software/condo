@@ -39,7 +39,6 @@ class FixTicketClients {
         const usersByIds = Object.assign({}, ...users.map(user => ({ [user.id]: user })))
         for (const ticket of this.brokenTickets) {
             const user = get(usersByIds, ticket.client)
-            console.log(user)
             await Ticket.update(this.context, ticket.id, {
                 clientName: get(user, 'name'),
                 clientPhone: get(user, 'phone'),
