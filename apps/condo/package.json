@@ -25,7 +25,8 @@
     "refresh-sbbol-tokens": "node ./../../bin/sbbol.js",
     "create-integration": "node ./../../bin/create-integration.js",
     "sbbol:crypto:get": "node ./../../bin/sbbol/crypto.js",
-    "fix:ticket:contacts": "node ./../../bin/fix-tickets-contacts.js"
+    "fix:ticket:contacts": "node ./../../bin/fix-tickets-contacts.js",
+    "subscription:prolong": "node ../../bin/prolong-subscription.js"
   },
   "dependencies": {
     "@2gis/mapgl": "^1.12.0",
