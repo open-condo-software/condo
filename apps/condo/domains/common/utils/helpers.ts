@@ -41,8 +41,7 @@ export const preciseFloor = (x: number, precision: number = DEFAULT_WIDTH_PRECIS
 export const getAddressDetails = (property: Property) => {
     const addressMeta = get(property, ['addressMeta', 'data'])
 
-    const streetType = get(addressMeta, 'street_type')
-    const streetName = get(addressMeta, 'street')
+    const streetWithType = get(addressMeta, 'street_with_type')
 
     const houseType = get(addressMeta, 'house_type')
     const houseName = get(addressMeta, 'house')
@@ -53,17 +52,16 @@ export const getAddressDetails = (property: Property) => {
     const regionType = get(addressMeta, 'region_type_full')
     const regionName = get(addressMeta, 'region')
 
-    const cityType = get(addressMeta, 'city_type')
-    const cityName = get(addressMeta, 'city')
+    const cityWithType = get(addressMeta, 'city_with_type')
 
     const areaPart = get(addressMeta, 'area_with_type')
     const settlementPart = get(addressMeta, 'settlement_with_type')
 
     const block = blockType ? `, ${blockType} ${blockName}` : ''
-    const settlement = streetName ? `${streetType}. ${streetName}` : settlementPart
-    const streetPart = settlement && `${settlement}, ${houseType}. ${houseName} ${block}`
+    const settlement = streetWithType ? streetWithType : settlementPart
+    const streetPart = settlement && `${settlement}, ${houseType} ${houseName}${block}`
     const regionPart = regionName && `${regionName} ${regionType}`
-    const cityPart = cityName && `${cityType}. ${cityName}`
+    const cityPart = cityWithType && cityWithType
 
     return { streetPart, areaPart, settlementPart, regionPart, cityPart }
 }
