@@ -61,11 +61,11 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
         async (value) => {
             setIsAllDataLoaded(false)
             setFetching(true)
-            const data = await search((selected) ? selected + ' ' + value : value)
+            const data = await search(value)
             setFetching(false)
             setData(data)
         },
-        [],
+        [search],
     )
 
     const debouncedSearch = useMemo(
@@ -110,7 +110,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
                 setInitialOptionsLoaded(true)
             }
         },
-        [initialOptionsLoaded],
+        [loadOptionsOnFocus, searchValue, props,  debouncedSearch, initialOptionsLoaded],
     )
 
     const handleSelect = useCallback(
@@ -119,7 +119,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
                 props.onSelect(value, option)
             }
 
-            setSelected(option.children)
+            setSelected(value)
         },
         [],
     )
@@ -148,13 +148,6 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
 
     useEffect(
         () => {
-            setSearchValue(value)
-        },
-        [value]
-    )
-
-    useEffect(
-        () => {
             setSearchValue(initialValue)
         },
         [initialValue],
@@ -164,7 +157,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
         () => {
             scrollInputCaretToEnd(selectInputNode)
         },
-        [selectInputNode, selected],
+        [scrollInputCaretToEnd, selectInputNode, selected],
     )
 
     const options = useMemo(

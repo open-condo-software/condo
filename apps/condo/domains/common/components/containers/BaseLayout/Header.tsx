@@ -8,7 +8,7 @@ import { useAuth } from '@core/next/auth'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
 import { Logo } from '../../Logo'
 import { ResidentActions } from '../../ResidentActions/ResidentActions'
-import { ITopMenuItemsProps, TopMenuItems as BaseTopMenuItems } from './components/TopMenuItems'
+import { ITopMenuItemsProps, TopMenuItems } from './components/TopMenuItems'
 import { MenuOutlined } from '@ant-design/icons'
 import { useOrganizationInvites } from '@condo/domains/organization/hooks/useOrganizationInvites'
 
@@ -43,7 +43,6 @@ export const Header: React.FC<IHeaderProps> = (props) => {
     const router = useRouter()
     const { isAuthenticated } = useAuth()
 
-    const TopMenuItems = props.TopMenuItems ? props.TopMenuItems : BaseTopMenuItems
     useOrganizationInvites()
 
     const handleLogoClick = useCallback(() => {

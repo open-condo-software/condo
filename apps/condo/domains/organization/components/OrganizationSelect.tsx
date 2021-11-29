@@ -121,7 +121,7 @@ export const OrganizationSelect: React.FC = () => {
                         ref={selectRef}
                         css={blackSelectCss}
                         size={'middle'}
-                        showAction={['focus', 'click' ]}
+                        showAction={['focus', 'click']}
                         dropdownRender={menu => (
                             <div>
                                 {menu}
