@@ -4,7 +4,6 @@ import { useAuth } from '@core/next/auth'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
 import { useOrganization } from '@core/next/organization'
 import { OrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
-import { useOrganizationInvites } from '@condo/domains/organization/hooks/useOrganizationInvites'
 import { ServiceSubscriptionIndicator } from '@condo/domains/subscription/components/ServiceSubscriptionIndicator'
 
 export interface ITopMenuItemsProps {
@@ -14,9 +13,8 @@ export interface ITopMenuItemsProps {
 export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
     const auth = useAuth()
     const { isLoading } = useOrganization()
-    const { loading: isInvitesLoading } = useOrganizationInvites()
 
-    if (!isLoading && !auth.isLoading && !isInvitesLoading) {
+    if (!isLoading && !auth.isLoading) {
         return (
             <>
                 {props.headerAction && props.headerAction}
