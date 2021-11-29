@@ -352,6 +352,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                 property,
                                                 categoryClassifier,
                                             } = getFieldsValue(['property', 'categoryClassifier'])
+
                                             const disableUserInteraction = !property
 
                                             return (
