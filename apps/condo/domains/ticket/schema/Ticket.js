@@ -262,13 +262,13 @@ const Ticket = new GQLListSchema('Ticket', {
                 addOrderToTicket(resolvedData, statusId)
             }
 
-            if (user.type === RESIDENT && operation === 'create') {
+            if (operation === 'create' && user.type === RESIDENT) {
                 await addClientInfoToResidentTicket(context, resolvedData)
             }
 
             return resolvedData
         },
-        validateInput: ({ resolvedData, existingItem, addValidationError, context, operation }) => {
+        validateInput: ({ resolvedData, existingItem, addValidationError, context }) => {
             // Todo(zuch): add placeClassifier, categoryClassifier and classifierRule
             if (!hasDbFields(['organization', 'source', 'status', 'details'], resolvedData, existingItem, context, addValidationError)) return
             if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return

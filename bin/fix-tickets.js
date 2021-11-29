@@ -9,7 +9,7 @@ class FixTicketClients {
     brokenTickets = []
 
     async connect () {
-        const resolved = path.resolve('@condo//index.js')
+        const resolved = path.resolve('./index.js')
         const { distDir, keystone, apps } = require(resolved)
         const graphqlIndex = apps.findIndex(app => app instanceof GraphQLApp)
         await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
@@ -20,7 +20,7 @@ class FixTicketClients {
     async findBrokenTickets () {
         this.brokenTickets = await find('Ticket', {
             AND: [
-                { client: null },
+                { client_is_null: false },
                 {
                     OR: [
                         { clientName: null },
@@ -34,14 +34,17 @@ class FixTicketClients {
     async fixBrokenTickets () {
         if (!get(this.brokenTickets, 'length')) return
         const users = await find('User', {
-            id_in: this.brokenTickets.map(ticket => ticket.id),
+            id_in: this.brokenTickets.map(ticket => ticket.client),
         })
         const usersByIds = Object.assign({}, ...users.map(user => ({ [user.id]: user })))
         for (const ticket of this.brokenTickets) {
             const user = get(usersByIds, ticket.client)
+            console.log(user)
             await Ticket.update(this.context, ticket.id, {
-                clientName: get(user, 'id'),
+                clientName: get(user, 'name'),
                 clientPhone: get(user, 'phone'),
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'fixTicketScript' },
             })
         }
     }
