@@ -2,7 +2,14 @@ import { buildingEmptyMapJson } from '@condo/domains/property/constants/property
 import { cloneDeep, compact, get, has, uniq } from 'lodash'
 import MapSchemaJSON from './MapJsonSchema.json'
 import Ajv from 'ajv'
-import { BuildingMap, BuildingMapEntityType, BuildingSection, BuildingUnit } from '@app/condo/schema'
+import {
+    BuildingAttic,
+    BuildingBasement,
+    BuildingMap,
+    BuildingMapEntityType,
+    BuildingSection,
+    BuildingUnit,
+} from '@app/condo/schema'
 
 const ajv = new Ajv()
 const validator = ajv.compile(MapSchemaJSON)
@@ -32,6 +39,12 @@ type IndexLocation = {
     section: number
     floor: number
     unit: number
+}
+
+export type BuildingUnitPrefix = {
+    roof: string
+    attic: string
+    basement: string
 }
 
 
@@ -69,6 +82,14 @@ class Map {
                 .map(floor => floor.units
                     .map(unit => unit.id)))
             .flat(2)
+    }
+
+    get hasAttic (): boolean {
+        return this.map.sections.length === 0 || this.map.sections.some(section => get(section, 'attic', false))
+    }
+
+    get hasBasement (): boolean {
+        return this.map.sections.length === 0 || this.map.sections.some(section => get(section, 'basement', false))
     }
 
     public getMap (): BuildingMap {
@@ -295,8 +316,10 @@ class MapEdit extends MapView {
     public previewSectionId: string
     public previewUnitId: string
     private mode = null
+    private isBasementSelected: boolean
+    private isAtticSelected: boolean
 
-    constructor (map: Maybe<BuildingMap>, private updateMap?: Maybe<(map: BuildingMap) => void>) {
+    constructor (map: Maybe<BuildingMap>, private updateMap?: Maybe<(map: BuildingMap) => void>, private unitPrefixes?: BuildingUnitPrefix) {
         super(map)
     }
 
@@ -319,33 +342,55 @@ class MapEdit extends MapView {
                 this.removePreviewUnit()
                 this.selectedUnit = null
                 this.selectedSection = null
+                this.isBasementSelected = false
+                this.isAtticSelected = false
                 break
             case 'editSection':
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.selectedUnit = null
+                this.isBasementSelected = false
+                this.isAtticSelected = false
                 break
             case 'addUnit':
                 this.removePreviewSection()
                 this.selectedSection = null
                 this.selectedUnit = null
+                this.isBasementSelected = false
+                this.isAtticSelected = false
                 break
             case 'editUnit':
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.selectedSection = null
+                this.isBasementSelected = false
+                this.isAtticSelected = false
+                break
+            case 'removeBasement':
+                this.removePreviewUnit()
+                this.removePreviewSection()
+                this.selectedSection = null
+                this.isAtticSelected = false
+                break
+            case 'removeAttic':
+                this.removePreviewUnit()
+                this.removePreviewSection()
+                this.selectedSection = null
+                this.isBasementSelected = false
                 break
             default:
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.selectedSection = null
                 this.selectedUnit = null
+                this.isBasementSelected = false
+                this.isAtticSelected = false
                 this.mode = null
         }
         this.mode = mode
     }
 
-    public setSelectedSection (section: BuildingSection): void{
+    public setSelectedSection (section: BuildingSection): void {
         if (this.isSectionSelected(section.id)) {
             this.selectedSection = null
             this.editMode = 'addSection'
@@ -361,6 +406,60 @@ class MapEdit extends MapView {
 
     public isSectionSelected (id: string): boolean {
         return this.selectedSection && this.selectedSection.id === id
+    }
+
+    public getIsAtticSelected (): boolean {
+        return this.isAtticSelected
+    }
+
+    public setIsAtticSelected (): void {
+        this.isAtticSelected = true
+        this.editMode = 'removeAttic'
+    }
+
+    public addAttic (): void {
+        this.map.sections.forEach((section) => {
+            section.attic = this.generateAttic(section)
+        })
+        this.notifyUpdater()
+        this.editMode = null
+    }
+
+    public removeAttic (): void {
+        this.map.sections.forEach((section) => {
+            if (get(section, 'attic')) {
+                delete section.attic
+            }
+        })
+        this.editMode = null
+        this.notifyUpdater()
+    }
+
+    public getIsBasementSelected (): boolean {
+        return this.isBasementSelected
+    }
+
+    public setIsBasementSelected (): void {
+        this.isBasementSelected = true
+        this.editMode = 'removeBasement'
+    }
+
+    public addBasement (): void {
+        this.map.sections.forEach((section) => {
+            section.basement = this.generateBasement(section)
+        })
+        this.notifyUpdater()
+        this.editMode = null
+    }
+
+    public removeBasement (): void {
+        this.map.sections.forEach((section) => {
+            if (get(section, 'basement')) {
+                delete section.basement
+            }
+        })
+        this.editMode = null
+        this.notifyUpdater()
     }
 
     public setSelectedUnit (unit: BuildingUnit): void {
@@ -563,23 +662,35 @@ class MapEdit extends MapView {
             index: this.sections.length + 1,
             type: BuildingMapEntityType.Section,
         }
+
         newSection.roof = {
             id: String(++this.autoincrement),
             type: BuildingMapEntityType.Roof,
-            name: `Крыша ${name}`,
+            name: get(this.unitPrefixes, 'roof', String(name)),
             index: this.sections.length + 1,
         }
-        newSection.attic = {
-            id: String(++this.autoincrement),
-            type: BuildingMapEntityType.Attic,
-            name: `Чердак ${name}`,
-            index: this.sections.length + 1,
+
+        if (this.hasAttic) {
+            const atticName = this.unitPrefixes
+                ? `${this.unitPrefixes.attic} ${name}`
+                : String(name)
+            newSection.attic = {
+                id: String(++this.autoincrement),
+                type: BuildingMapEntityType.Attic,
+                name: atticName,
+                index: this.sections.length + 1,
+            }
         }
-        newSection.basement = {
-            id: String(++this.autoincrement),
-            type: BuildingMapEntityType.Basement,
-            name: `Подвал ${name}`,
-            index: this.sections.length + 1,
+        if (this.hasBasement) {
+            const basementName = this.unitPrefixes
+                ? `${this.unitPrefixes.basement} ${name}`
+                : String(name)
+            newSection.basement = {
+                id: String(++this.autoincrement),
+                type: BuildingMapEntityType.Basement,
+                name: basementName,
+                index: this.sections.length + 1,
+            }
         }
         for (let floor = minFloor; floor <= maxFloor; floor++) {
             if (floor === 0) {
@@ -616,6 +727,29 @@ class MapEdit extends MapView {
         return units[nextIndex] || null
     }
 
+    private generateAttic (section: Partial<BuildingSectionArg>): BuildingAttic {
+        const { name, index } = section
+        const atticName = this.unitPrefixes ? `${this.unitPrefixes.attic} ${name}` : String(name)
+
+        return {
+            id: String(++this.autoincrement),
+            index,
+            type: BuildingMapEntityType.Attic,
+            name: atticName,
+        }
+    }
+
+    private generateBasement (section: Partial<BuildingSectionArg>): BuildingBasement {
+        const { name, index } = section
+        const basementName = this.unitPrefixes ? `${this.unitPrefixes.basement} ${name}` : String(name)
+
+        return {
+            id: String(++this.autoincrement),
+            index: index,
+            type: BuildingMapEntityType.Basement,
+            name: basementName,
+        }
+    }
 
     private removeFloor (sectionIdx: number, floorIndex: number): void {
         if (!get(this.map, `sections[${sectionIdx}].floors[${floorIndex}]`, false)){
