@@ -12,16 +12,18 @@ import { FormResetButton } from '@condo/domains/common/components/FormResetButto
 import { Ticket, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { REQUIRED_TICKET_FIELDS } from '@condo/domains/ticket/constants/common'
 
 export const ApplyChangesActionBar = ({ handleSave, isLoading }) => {
     const intl = useIntl()
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
 
     return (
-        <Form.Item noStyle dependencies={['property']}>
+        <Form.Item noStyle shouldUpdate>
             {
                 ({ getFieldsValue }) => {
-                    const { property } = getFieldsValue(['property'])
+                    const { property, details, placeClassifier, categoryClassifier } = getFieldsValue(REQUIRED_TICKET_FIELDS)
+                    const disabledCondition = !property || !details || !placeClassifier || !categoryClassifier
 
                     return (
                         <ActionBar>
@@ -39,7 +41,13 @@ export const ApplyChangesActionBar = ({ handleSave, isLoading }) => {
                                 >
                                     {ApplyChangesMessage}
                                 </Button>
-                                <ErrorsContainer property={property} />
+                                <ErrorsContainer
+                                    isVisible={disabledCondition}
+                                    property={property}
+                                    details={details}
+                                    placeClassifier={placeClassifier}
+                                    categoryClassifier={categoryClassifier}
+                                />
                             </Space>
                         </ActionBar>
                     )
