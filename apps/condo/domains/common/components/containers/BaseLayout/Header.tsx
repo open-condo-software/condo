@@ -10,6 +10,7 @@ import { Logo } from '../../Logo'
 import { ResidentActions } from '../../ResidentActions/ResidentActions'
 import { ITopMenuItemsProps, TopMenuItems as BaseTopMenuItems } from './components/TopMenuItems'
 import { MenuOutlined } from '@ant-design/icons'
+import { useOrganizationInvites } from '@condo/domains/organization/hooks/useOrganizationInvites'
 
 const DesktopHeader = styled(Layout.Header)`
   z-index: 9;
@@ -43,6 +44,7 @@ export const Header: React.FC<IHeaderProps> = (props) => {
     const { isAuthenticated } = useAuth()
 
     const TopMenuItems = props.TopMenuItems ? props.TopMenuItems : BaseTopMenuItems
+    useOrganizationInvites()
 
     const handleLogoClick = useCallback(() => {
         if (isAuthenticated) {
