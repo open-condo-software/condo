@@ -20,6 +20,39 @@ const { registerServiceConsumerByTestClient, updateTestServiceConsumer, createTe
  
 describe('RegisterServiceConsumerService', () => {
 
+    describe('execute', async () => {
+        it('cannot be invoked by non-resident user', async () => {
+
+            const userClient = await makeClientWithProperty()
+
+            const payload = {
+                residentId: 'test-id',
+                accountNumber: 'test-number',
+                organizationId: userClient.organization.id,
+            }
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await registerServiceConsumerByTestClient(userClient, payload)
+            })
+        })
+
+        it('cannot be invoked by anonymous', async () => {
+
+            const userClient = await makeClient()
+            const userClient2 = await makeClientWithProperty()
+
+            const payload = {
+                residentId: 'test-id',
+                accountNumber: 'test-number',
+                organizationId: userClient2.organization.id,
+            }
+
+            await expectToThrowAuthenticationErrorToObj(async () => {
+                await registerServiceConsumerByTestClient(userClient, payload)
+            })
+        })
+    })
+
     it('does not create same service consumer twice', async () => {
 
         const userClient = await makeClientWithProperty()
@@ -272,37 +305,6 @@ describe('RegisterServiceConsumerService', () => {
             await registerServiceConsumerByTestClient(userClient, payloadWithNullishAccountName)
         }, (e) => {
             expect(e.errors[0].message).toContain('Account number null or empty')
-        })
-    })
-
-    it('cannot be invoked by non-resident user', async () => {
-
-        const userClient = await makeClientWithProperty()
-
-        const payload = {
-            residentId: 'test-id',
-            accountNumber: 'test-number',
-            organizationId: userClient.organization.id,
-        }
-
-        await expectToThrowAccessDeniedErrorToObj(async () => {
-            await registerServiceConsumerByTestClient(userClient, payload)
-        })
-    })
-
-    it('cannot be invoked by anonymous', async () => {
-
-        const userClient = await makeClient()
-        const userClient2 = await makeClientWithProperty()
-
-        const payload = {
-            residentId: 'test-id',
-            accountNumber: 'test-number',
-            organizationId: userClient2.organization.id,
-        }
-
-        await expectToThrowAuthenticationErrorToObj(async () => {
-            await registerServiceConsumerByTestClient(userClient, payload)
         })
     })
 })
