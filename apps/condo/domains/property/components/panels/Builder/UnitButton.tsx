@@ -18,7 +18,7 @@ const buttonCss = css`
     text-align: center;
     height: 44px;
     width: 44px;
-    padding: 0;
+    padding: 0 8px;
     box-shadow: none;
     
     &:last-child {
@@ -63,7 +63,7 @@ const buttonSecondaryCss = css`
     text-align: center;
     height: 44px;
     width: 44px;
-    padding: 0;
+    padding: 0 8px;
     box-shadow: none;
 
     &:hover {
