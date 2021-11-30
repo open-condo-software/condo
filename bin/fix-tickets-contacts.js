@@ -3,6 +3,7 @@ const { find } = require('@core/keystone/schema')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const get = require('lodash/get')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 class FixTicketClients {
     context = null
@@ -18,11 +19,13 @@ class FixTicketClients {
     }
 
     async findBrokenTickets () {
+        // Ticket created from resident, but has missing fields
         this.brokenTickets = await find('Ticket', {
             AND: [
-                { client_is_null: false },
+                { createdBy: { type: RESIDENT } },
                 {
                     OR: [
+                        { client_is_null: true },
                         { clientName: null },
                         { clientPhone: null },
                     ],
@@ -34,14 +37,15 @@ class FixTicketClients {
     async fixBrokenTickets () {
         if (!get(this.brokenTickets, 'length')) return
         const users = await find('User', {
-            id_in: this.brokenTickets.map(ticket => ticket.client),
+            id_in: this.brokenTickets.map(ticket => ticket.createdBy),
         })
         const usersByIds = Object.assign({}, ...users.map(user => ({ [user.id]: user })))
         for (const ticket of this.brokenTickets) {
-            const user = get(usersByIds, ticket.client)
+            const user = get(usersByIds, ticket.createdBy)
             await Ticket.update(this.context, ticket.id, {
                 clientName: get(user, 'name'),
                 clientPhone: get(user, 'phone'),
+                client: { connect: { id: get(user, 'id') } },
                 dv: 1,
                 sender: { dv: 1, fingerprint: 'fixTicketScript' },
             })
