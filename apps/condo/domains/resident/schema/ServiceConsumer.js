@@ -100,7 +100,7 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
         },
 
         organization: {
-            schemaDoc: 'Organization to which this service consumer pays to object',
+            schemaDoc: 'The organization providing the service (performing the work). Payments for the service will eventually be sent to this organization (it is possible that the payment will come to the partner, but in the end some of the money will still come to this organization). This organization may differ from the Resident.organization, which means that the service is provided by another organization',
             type: Relationship,
             ref: 'Organization',
             isRequired: true,
