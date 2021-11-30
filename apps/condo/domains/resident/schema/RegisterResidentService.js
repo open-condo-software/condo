@@ -8,6 +8,13 @@ const { Resident } = require('../utils/serverSchema/index')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { Resident: ResidentAPI } = require('../utils/serverSchema')
 
+/**
+ * Removes flat type and number from address string, if flatType provided and address contains it.
+ * @param address
+ * @param flatType
+ * @returns {*}
+ */
+const removeFlatNum = (address, flatType) => flatType ? address.split(`, ${flatType}`)[0] : address
 
 const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
     types: [
@@ -36,8 +43,13 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                     unitName,
                     user: { id: context.authedItem.id },
                 })
+                const propertyAddress = removeFlatNum(address, addressMeta.data.flat_type)
+                const [property] = await Property.getAll(
+                    context,
+                    { address_i: propertyAddress, deletedAt: null },
+                    { sortBy: ['createdAt_ASC'], first: 1 }
+                )
 
-                const [property] = await Property.getAll(context, { address_i: address, deletedAt: null }, { sortBy: ['createdAt_ASC'] })
                 if (property) {
                     attrs.property = { connect: { id: property.id } }
                     attrs.organization = { connect: { id: property.organization.id } }
@@ -48,9 +60,9 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                     await ResidentAPI.update(context, existingResident.id, {
                         ...attrs,
                         deletedAt: null,
-                        address: undefined,
-                        addressMeta: undefined,
-                        unitName: undefined,
+                        address: undefined, // skip value from attrs
+                        addressMeta: undefined, // skip value from attrs
+                        unitName: undefined, // skip value from attrs
                     })
                     id = existingResident.id
                 } else {

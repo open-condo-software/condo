@@ -9,6 +9,9 @@
  * @callback TestFunc
  */
 
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
+
 /**
  * Implements correct expecting of GraphQLError, thrown by Keystone.
  * Expectation checks inside of `catch` are not covering a case,
@@ -36,6 +39,43 @@ export const catchErrorFrom = async (testFunc, inspect) => {
     }
     expect(thrownError).toBeDefined()
     return inspect(thrownError)
+}
+
+/**
+ * Expects a GraphQLError of type 'AccessDeniedError', thrown by Keystone on access to a specified path.
+ * Should be used to examine access to operation of GraphQL utility wrapper for complex paths.
+ * If path is skipped, than nor it, neither value won't be checked. This option is useful,
+ * when we have unstable errors contents, for example when there are sub-requests that are executed in parallel
+ * and we get different errors, depending on which sub-request finishes first.
+ * @example
+ *
+ * test('something, that should throw an error', async () => {
+ *     const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+ *     await expectToThrowAccessDeniedError(async () => {
+ *         await createTestResident(userClient, ...)
+ *     }, [ 'objs', 0, 'organization' ])
+ * })
+ *
+ * @param {TestFunc} testFunc - Function, expected to throw an error
+ * @return {Promise<void>}
+ */
+export const expectToThrowAccessDeniedError = async (testFunc, path ) => {
+    await catchErrorFrom(testFunc, ({errors, data}) => {
+        const expectedError = {
+            'message': 'You do not have access to this resource',
+            'name': 'AccessDeniedError',
+        }
+
+        if (path) {
+            expect(Array.isArray(path)).toBeTruthy()
+            expect(isEmpty(path)).toBeFalsy()
+            expectedError.path = path
+        }
+
+        expect(errors[0]).toMatchObject(expectedError)
+
+        if (path) expect(get(data, path)).toBeNull()
+    })
 }
 
 /**
@@ -169,12 +209,12 @@ export const expectToThrowValidationFailureError = async (testFunc, messageConta
     })
 }
 
-export const expectToThrowMutationError = async (testFunc, messageContains) => {
+export const expectToThrowMutationError = async (testFunc, messageContains, path = ['result']) => {
     await catchErrorFrom(testFunc, ({errors}) => {
         expect(errors[0]).toMatchObject({
             message: expect.stringContaining(messageContains),
             name: 'GraphQLError',
-            path: ['result']
+            path
         })
     })
 }

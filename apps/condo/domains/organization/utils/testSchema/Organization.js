@@ -123,7 +123,9 @@ async function acceptOrRejectOrganizationInviteById (client, invite, extraAttrs 
 async function makeClientWithRegisteredOrganization () {
     const client = await makeClientWithNewRegisteredAndLoggedInUser()
     const [organization] = await registerNewOrganization(client)
+
     client.organization = organization
+
     return client
 }
 
