@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react'
 import { OptionProps } from 'antd/lib/mentions'
-import { AutoComplete, Col, Radio, Select, Input } from 'antd'
+import isString from 'lodash/isString'
+import { AutoComplete, Col, Radio, Select } from 'antd'
 import { green, grey } from '@ant-design/colors'
 import { get, pick } from 'lodash'
 import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInput'
@@ -9,8 +10,6 @@ import { Contact as TContact } from '@condo/domains/contact/schema'
 import { ContactValue } from './index'
 import { PhoneInput } from '../../../common/components/PhoneInput'
 import { useIntl } from '@core/next/intl'
-
-const { TextArea } = Input
 
 /**
  * Prevent crash of `String.match`, when providing a regular expression string value,
@@ -23,7 +22,7 @@ const { TextArea } = Input
  * @see https://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript
  */
 function escapeRegex (string) {
-    return string.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
+    return isString(string) && string.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
 }
 
 interface IContactSyncedAutocompleteFieldsProps {
