@@ -325,7 +325,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                 </Button>
             </Menu.Item>
             <Menu.Item key={'addUnit'}>
-                <Button type={'sberDefaultGradient'} secondary disabled={isEmpty(sections.length)} icon={<FlatIcon />}>
+                <Button type={'sberDefaultGradient'} secondary disabled={isEmpty(sections)} icon={<FlatIcon />}>
                     {AddUnit}
                 </Button>
             </Menu.Item>
@@ -714,17 +714,18 @@ const MODAL_FORM_BUTTON_STYLE: React.CSSProperties = { marginTop: '12px' }
 const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) => {
     const intl = useIntl()
     const NameLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
-    const NamePlaceholderLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name.placeholder' })
     const MinFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.minfloor' })
     const MaxFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.maxFloor' })
     const UnitsOnFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.unitsOnFloor' })
+    const CreateNewLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.mode.create' })
+    const CopyLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.mode.copy' })
     const AddLabel = intl.formatMessage({ id: 'Add' })
 
-    const [name, setName] = useState('')
+    const [name, setName] = useState<string>('')
     const [minFloor, setMinFloor] = useState(null)
     const [maxFloor, setMaxFloor] = useState(null)
     const [unitsOnFloor, setUnitsOnFloor] = useState(null)
-
+    const [copyId, setCopyId] = useState<string | null>(null)
     const [maxMinError, setMaxMinError] = useState(false)
 
     const resetForm = () => {
@@ -747,6 +748,16 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) =>
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [name, minFloor, maxFloor, unitsOnFloor])
 
+    useEffect(() => {
+        if (copyId !== null) {
+            const sectionToCopy = Builder.map.sections.find((section) => section.id === copyId)
+            const floorIndexes = sectionToCopy.floors.map((floor) => floor.index)
+            setMinFloor(Math.min(...floorIndexes))
+            setMaxFloor(Math.max(...floorIndexes))
+            setUnitsOnFloor(get(sectionToCopy, 'floors.0.units.length', 0))
+        }
+    }, [copyId])
+
     const handleFinish = () => {
         Builder.removePreviewSection()
         Builder.addSection({ id: '', name, minFloor, maxFloor, unitsOnFloor })
@@ -754,28 +765,47 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) =>
         resetForm()
     }
     const isSubmitDisabled = !(name.length && minFloor && maxFloor && unitsOnFloor && !maxMinError)
+    const isCreateColumnsHidden = copyId !== null
 
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
             <Col span={24}>
-                <Space direction={'vertical'} size={8}>
-                    <Typography.Text type={'secondary'}>{NameLabel}</Typography.Text>
-                    <Input allowClear={true} value={name} placeholder={NamePlaceholderLabel} onChange={e => setName(e.target.value)} style={INPUT_STYLE} />
-                </Space>
+                <Select value={copyId} onSelect={setCopyId} disabled={Builder.isEmpty}>
+                    <Select.Option key={'create'} value={null}>{CreateNewLabel}</Select.Option>
+                    {Builder.map.sections.filter(section => !section.preview).map(section => (
+                        <Select.Option
+                            key={`copy-${section.id}`}
+                            value={section.id}
+                        >
+                            {CopyLabel}{section.name}
+                        </Select.Option>
+                    ))}
+                </Select>
             </Col>
             <Col span={24}>
+                <Space direction={'vertical'} size={8}>
+                    <Typography.Text type={'secondary'}>{NameLabel}</Typography.Text>
+                    <Input
+                        allowClear={true}
+                        value={name}
+                        onChange={e => setName(e.target.value)}
+                        style={INPUT_STYLE}
+                    />
+                </Space>
+            </Col>
+            <Col span={24} hidden={isCreateColumnsHidden}>
                 <Space direction={'vertical'} size={8} className={maxMinError ? 'ant-form-item-has-error' : ''}>
                     <Typography.Text type={'secondary'}>{MinFloorLabel}</Typography.Text>
                     <InputNumber value={minFloor} onChange={setMinFloor} style={INPUT_STYLE} type={'number'}/>
                 </Space>
             </Col>
-            <Col span={24}>
+            <Col span={24} hidden={isCreateColumnsHidden}>
                 <Space direction={'vertical'} size={8} className={maxMinError ? 'ant-form-item-has-error' : ''}>
                     <Typography.Text type={'secondary'}>{MaxFloorLabel}</Typography.Text>
                     <InputNumber value={maxFloor} onChange={setMaxFloor} style={INPUT_STYLE} type={'number'} />
                 </Space>
             </Col>
-            <Col span={24}>
+            <Col span={24} hidden={isCreateColumnsHidden}>
                 <Space direction={'vertical'} size={8}>
                     <Typography.Text type={'secondary'}>{UnitsOnFloorLabel}</Typography.Text>
                     <InputNumber min={1} value={unitsOnFloor} onChange={setUnitsOnFloor} style={INPUT_STYLE} type={'number'}/>
