@@ -43,7 +43,7 @@ const connectResidents = async (ResidentAPI, context, residents, property, recon
             if (residentProperty && !currCreatedAt) console.error(`${NOT_FOUND_ERROR}createdAt] 'resident.property.createdAt' is missing`)
 
             // NOTE: resident already has non-deleted property and it's older than property.createdAt
-            if (residentProperty && !currDeletedAt && dayjs(currCreatedAt).isSameOrBefore(dayjs(property.createdAt))) break
+            if (residentProperty && !currDeletedAt && currCreatedAt && dayjs(currCreatedAt).isSameOrBefore(dayjs(property.createdAt))) break
         }
 
         const attrs = {
