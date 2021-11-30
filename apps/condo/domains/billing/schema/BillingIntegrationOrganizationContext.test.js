@@ -292,23 +292,35 @@ describe('BillingIntegrationOrganizationContext', () => {
                     })
                 }, CONTEXT_REDUNDANT_OPTION)
             })
-            test('Valid flow', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const name = 'name'
-                const [integration] = await createTestBillingIntegration(admin, {
-                    availableOptions: {
-                        title: 'title',
-                        options: [
-                            { name },
-                        ],
-                    },
+            describe('Valid flow', () => {
+                test('Option-containing billing', async () => {
+                    const admin = await makeLoggedInAdminClient()
+                    const name = 'name'
+                    const [integration] = await createTestBillingIntegration(admin, {
+                        availableOptions: {
+                            title: 'title',
+                            options: [
+                                { name },
+                            ],
+                        },
+                    })
+                    const [organization] = await registerNewOrganization(admin)
+                    const [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration, {
+                        integrationOption: name,
+                    })
+                    expect(context).toBeDefined()
+                    expect(context).toHaveProperty(['integrationOption'], name)
                 })
-                const [organization] = await registerNewOrganization(admin)
-                const [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration, {
-                    integrationOption: name,
+                test('No-option billing, and passed null as an option', async () => {
+                    const admin = await makeLoggedInAdminClient()
+                    const [integration] = await createTestBillingIntegration(admin)
+                    const [organization] = await registerNewOrganization(admin)
+                    const [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration, {
+                        integrationOption: null,
+                    })
+                    expect(context).toBeDefined()
+                    expect(context).toHaveProperty(['integrationOption'], null)
                 })
-                expect(context).toBeDefined()
-                expect(context).toHaveProperty(['integrationOption'], name)
             })
         })
     })
