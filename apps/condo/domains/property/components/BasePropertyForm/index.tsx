@@ -68,6 +68,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
         const yearOfConstruction = formData.yearOfConstruction && !isEmpty(formData.yearOfConstruction)
             ? dayjs().year(formData.yearOfConstruction).format('YYYY-MM-DD')
             : null
+        // TODO (DOMA-1725) Replace it with better parsing
         const area = formData.area ? formData.area.replace(',', '.') : null
 
         if (isAddressFieldTouched) {

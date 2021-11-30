@@ -80,6 +80,7 @@ export const useValidations: UseValidations = (settings = {}) => {
         }
     }
 
+    // TODO (DOMA-1725): Replace this with normal validations
     const numberValidator: Rule = {
         validator: (_, value: string) => {
             const normalizedValue = value?.replace(',', '.')
