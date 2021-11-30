@@ -106,7 +106,8 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
                 if (!matchingOptions.length) {
                     addValidationError(CONTEXT_OPTION_NAME_MATCH)
                 }
-            } else if (resolvedData.hasOwnProperty('integrationOption')) {
+                // NOTE: not lodash get, since "" is invalid input, but null / undefined is valid
+            } else if (resolvedData.hasOwnProperty('integrationOption') && resolvedData['integrationOption'] !== null) {
                 return addValidationError(CONTEXT_REDUNDANT_OPTION)
             }
         },
