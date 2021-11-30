@@ -8,7 +8,7 @@ const { makeClientWithRegisteredOrganization } = require('@condo/domains/organiz
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { createTestProperty, Property } = require('@condo/domains/property/utils/testSchema')
 const { connectResidents } = require('./helpers')
-const {makeLoggedInAdminClient} = require("@core/keystone/test.utils");
+const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 
 // NOTE: here we test only 1 case: for forced re-connection of already connected to non-deleted property residents
 // to oldest non-deleted property. All other cases are tested by the way in apps/condo/domains/resident/schema/RegisterResidentService.test.js

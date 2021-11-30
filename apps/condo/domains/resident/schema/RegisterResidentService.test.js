@@ -249,7 +249,7 @@ describe('RegisterResidentService connections', () => {
     })
 })
 
-describe.skip('RegisterResidentService', () => {
+describe('RegisterResidentService', () => {
     test('can be executed by user with "resident" type', async () => {
         const userClient = await makeClientWithResidentUser()
         const [obj, attrs] = await registerResidentByTestClient(userClient)
