@@ -325,7 +325,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                 </Button>
             </Menu.Item>
             <Menu.Item key={'addUnit'}>
-                <Button type={'sberDefaultGradient'} secondary icon={<FlatIcon />}>
+                <Button type={'sberDefaultGradient'} secondary disabled={isEmpty(sections.length)} icon={<FlatIcon />}>
                     {AddUnit}
                 </Button>
             </Menu.Item>
