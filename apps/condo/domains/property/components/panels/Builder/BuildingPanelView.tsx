@@ -57,6 +57,7 @@ const CHESS_SCROLL_CONTAINER_STYLE: React.CSSProperties = {
     width: '100%',
     overflowY: 'hidden',
 }
+const FULL_SIZE_UNIT_STYLE: React.CSSProperties = { width: '100%', marginTop: '8px', display: 'block' }
 
 export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refresh }) => {
     const { query: { id } } = useRouter()
@@ -102,44 +103,65 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
                                     )
                                 }
                                 {
-                                    Builder.sections.map(section => {
-                                        return (
-                                            <MapSectionContainer
-                                                key={section.id}
-                                                visible={Builder.isSectionVisible(section.id)}
-                                            >{
-                                                    Builder.possibleChosenFloors.map(floorIndex => {
-                                                        const floorInfo = section.floors.find(floor => floor.index === floorIndex)
-                                                        if (floorInfo && floorInfo.units.length) {
-                                                            return (
-                                                                <div key={floorInfo.id} style={{ display: 'block' }}>
-                                                                    {
-                                                                        floorInfo.units.map(unit => {
-                                                                            return (
-                                                                                <UnitButton
-                                                                                    key={unit.id}
-                                                                                    noninteractive
-                                                                                >{unit.label}</UnitButton>
-                                                                            )
-                                                                        })
-                                                                    }
-                                                                </div>
-                                                            )
-                                                        } else {
-                                                            return (
-                                                                <EmptyFloor key={`empty_${section.id}_${floorIndex}`} />
-                                                            )
-                                                        }
-                                                    })
-                                                }
+                                    Builder.sections.map(section => (
+                                        <MapSectionContainer
+                                            key={section.id}
+                                            visible={Builder.isSectionVisible(section.id)}
+                                        >
+                                            {section.roof && (
                                                 <UnitButton
-                                                    secondary
-                                                    style={{ width: '100%', marginTop: '8px' }}
+                                                    ellipsis={false}
                                                     disabled
-                                                >{section.name}</UnitButton>
-                                            </MapSectionContainer>
-                                        )
-                                    })
+                                                    style={FULL_SIZE_UNIT_STYLE}
+                                                >{section.roof.name}</UnitButton>
+                                            )}
+                                            {section.attic && (
+                                                <UnitButton
+                                                    ellipsis={false}
+                                                    disabled
+                                                    style={FULL_SIZE_UNIT_STYLE}
+                                                >{section.attic.name}</UnitButton>
+                                            )}
+                                            {
+                                                Builder.possibleChosenFloors.map(floorIndex => {
+                                                    const floorInfo = section.floors.find(floor => floor.index === floorIndex)
+                                                    if (floorInfo && floorInfo.units.length) {
+                                                        return (
+                                                            <div key={floorInfo.id} style={{ display: 'block' }}>
+                                                                {
+                                                                    floorInfo.units.map(unit => {
+                                                                        return (
+                                                                            <UnitButton
+                                                                                key={unit.id}
+                                                                                noninteractive
+                                                                            >{unit.label}</UnitButton>
+                                                                        )
+                                                                    })
+                                                                }
+                                                            </div>
+                                                        )
+                                                    } else {
+                                                        return (
+                                                            <EmptyFloor key={`empty_${section.id}_${floorIndex}`} />
+                                                        )
+                                                    }
+                                                })
+                                            }
+                                            {section.basement && (
+                                                <UnitButton
+                                                    ellipsis={false}
+                                                    disabled
+                                                    style={FULL_SIZE_UNIT_STYLE}
+                                                >{section.basement.name}</UnitButton>
+                                            )}
+                                            <UnitButton
+                                                secondary
+                                                style={{ width: '100%', marginTop: '8px' }}
+                                                disabled
+                                            >{section.name}</UnitButton>
+                                        </MapSectionContainer>
+                                    )
+                                    )
                                 }
                             </ScrollContainer>
                             {
