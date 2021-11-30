@@ -5,17 +5,21 @@
 const faker = require('faker')
 const get = require('lodash/get')
 
-const { buildingMapJson } = require('@condo/domains/property/constants/property')
-const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { createTestProperty, makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
-const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@core/keystone/test.utils')
+
 const { expectToThrowAuthenticationError, expectToThrowAccessDeniedErrorToResult } = require('@condo/domains/common/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
-const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { registerResidentByTestClient, Resident } = require('@condo/domains/resident/utils/testSchema')
+
+const { registerNewOrganization, makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+
+const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { Property } = require('@condo/domains/property/utils/testSchema')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
+const { createTestProperty, makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
+
+const { registerResidentByTestClient, Resident } = require('@condo/domains/resident/utils/testSchema')
+
+const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('RegisterResidentService connections', () => {
     it('connects new property with matched address to existing orphan residents (no other props)', async () => {

@@ -1,14 +1,19 @@
 const faker = require('faker')
 const get = require('lodash/get')
 
-const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
-const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
-const { registerResidentByTestClient, Resident } = require('@condo/domains/resident/utils/testSchema')
+const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+
+const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { createTestProperty, Property } = require('@condo/domains/property/utils/testSchema')
+
+const { registerResidentByTestClient, Resident } = require('@condo/domains/resident/utils/testSchema')
+
+const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+
 const { connectResidents } = require('./helpers')
-const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 
 // NOTE: here we test only 1 case: for forced re-connection of already connected to non-deleted property residents
 // to oldest non-deleted property. All other cases are tested by the way in apps/condo/domains/resident/schema/RegisterResidentService.test.js
