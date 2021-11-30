@@ -14,15 +14,16 @@ const { Organization } = require('@condo/domains/organization/utils/serverSchema
 const get = require('lodash/get')
 
 async function getResidentBillingAccount (context, billingIntegrationContext, accountNumber, unitName) {
-
-    let applicableBillingAccounts = await BillingAccount.getAll(context, {
+    const [applicableBillingAccount] = await BillingAccount.getAll(context, {
         context: { id: billingIntegrationContext.id },
-        unitName: unitName,
+        number: accountNumber,
     })
+    return applicableBillingAccount
+    /*
+    // TODO(zuch): Replace accountNumber: accountNumber from unitName, maybe smth will stop working
     if (!Array.isArray(applicableBillingAccounts)) {
         return [] // No accounts are found for this user
     }
-
     applicableBillingAccounts = applicableBillingAccounts.filter(
         (billingAccount) => {
             return accountNumber === billingAccount.number || accountNumber === billingAccount.globalId
@@ -30,6 +31,7 @@ async function getResidentBillingAccount (context, billingIntegrationContext, ac
     )
 
     return applicableBillingAccounts
+     */
 }
 
 const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsumerService', {
@@ -60,7 +62,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                 if (!organization) {
                     throw new Error(`${NOT_FOUND_ERROR}organization] Organization not found for this id`)
                 }
-
+                //TODO(zuch): Ask about wrong logic - resident unit name do not match billing account unitName
                 const unitName = get(resident, ['unitName'])
 
                 const attrs = {
@@ -75,13 +77,11 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                 if (billingIntegrationContext) {
 
                     const [acquiringIntegrationContext] = await AcquiringIntegrationContext.getAll(context, { organization: { id: organization.id, deletedAt: null }, deletedAt: null })
-                    const [billingAccount] = await getResidentBillingAccount(context, billingIntegrationContext, accountNumber, unitName)
-
+                    const billingAccount = await getResidentBillingAccount(context, billingIntegrationContext, accountNumber, unitName)
                     attrs.billingAccount = billingAccount ? { connect: { id: billingAccount.id } } : null
                     attrs.billingIntegrationContext = billingAccount ? { connect: { id: billingIntegrationContext.id } } : null
                     attrs.acquiringIntegrationContext = billingAccount && acquiringIntegrationContext ? { connect: { id: acquiringIntegrationContext.id } } : null
                 }
-
                 if (!attrs.billingAccount) {
                     const meters = await Meter.getAll(context, { accountNumber: accountNumber, unitName: unitName, organization: { id: organizationId, deletedAt: null }, deletedAt: null })
                     if (meters.length < 1) {
