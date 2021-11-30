@@ -48,7 +48,7 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
 
             return searchProperty(client, where, 'address_ASC', 10, skip)
         },
-        [],
+        [client, organizationId],
     )
 
     /**
@@ -99,6 +99,7 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
             renderOption={renderOption}
             initialValueGetter={initialValueGetter}
             infinityScroll
+            searchAgainDependencies={[organizationId]}
         />
     )
 }
