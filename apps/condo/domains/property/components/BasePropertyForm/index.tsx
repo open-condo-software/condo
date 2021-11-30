@@ -68,11 +68,12 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
         const yearOfConstruction = formData.yearOfConstruction && !isEmpty(formData.yearOfConstruction)
             ? dayjs().year(formData.yearOfConstruction).format('YYYY-MM-DD')
             : null
+        const area = formData.area ? formData.area.replace(',', '.') : null
 
         if (isAddressFieldTouched) {
             try {
                 const addressMeta = addressApi.getAddressMeta(formData.address)
-                return { ...formData, addressMeta: { dv: 1, ...addressMeta }, yearOfConstruction }
+                return { ...formData, addressMeta: { dv: 1, ...addressMeta }, yearOfConstruction, area }
             } catch (e) {
                 notification.error({
                     message: ServerErrorMsg,
@@ -88,7 +89,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
         // It seems, like we cannot control it.
         // So, these fields should be cleaned, because it will result to incorrect input into update-mutation
         const cleanedFormData = omitRecursively(formData, '__typename')
-        return { ...cleanedFormData, yearOfConstruction }
+        return { ...cleanedFormData, yearOfConstruction, area }
     }, [initialValues])
     const { requiredValidator, numberValidator, maxLengthValidator } = useValidations()
     const addressValidator = {
@@ -183,7 +184,9 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                         name="area"
                                         label={AreaTitle}
                                         rules={validations.area}
-                                    ><Input /></Form.Item>
+                                    >
+                                        <Input />
+                                    </Form.Item>
                                 </Col>
                                 <Col span={isSmall ? 12 : 4} >
                                     <Form.Item
