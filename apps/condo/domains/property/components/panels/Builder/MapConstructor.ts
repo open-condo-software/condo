@@ -385,6 +385,8 @@ class MapEdit extends MapView {
                 this.selectedUnit = null
                 this.isBasementSelected = false
                 this.isAtticSelected = false
+                this.removePreviewUnit()
+                this.removePreviewSection()
                 this.mode = null
         }
         this.mode = mode
