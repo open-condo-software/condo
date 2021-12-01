@@ -115,13 +115,14 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
                                                     style={FULL_SIZE_UNIT_STYLE}
                                                 >{section.roof.name}</UnitButton>
                                             )}
-                                            {section.attic && (
+                                            {section.attic && section.attic.map(attic => (
                                                 <UnitButton
+                                                    key={attic.id}
                                                     ellipsis={false}
                                                     disabled
                                                     style={FULL_SIZE_UNIT_STYLE}
-                                                >{section.attic.name}</UnitButton>
-                                            )}
+                                                >{attic.name}</UnitButton>
+                                            ))}
                                             {
                                                 Builder.possibleChosenFloors.map(floorIndex => {
                                                     const floorInfo = section.floors.find(floor => floor.index === floorIndex)
@@ -147,13 +148,14 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
                                                     }
                                                 })
                                             }
-                                            {section.basement && (
+                                            {section.basement && section.basement.map(basement => (
                                                 <UnitButton
+                                                    key={basement.id}
                                                     ellipsis={false}
                                                     disabled
                                                     style={FULL_SIZE_UNIT_STYLE}
-                                                >{section.basement.name}</UnitButton>
-                                            )}
+                                                >{basement.name}</UnitButton>
+                                            ))}
                                             <UnitButton
                                                 secondary
                                                 style={{ width: '100%', marginTop: '8px' }}
