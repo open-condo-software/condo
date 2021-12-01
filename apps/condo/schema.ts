@@ -5947,18 +5947,18 @@ export type BillingReceiptsUpdateInput = {
 
 export type BuildingAttic = {
   __typename?: 'BuildingAttic';
-  id: Scalars['String'];
   type: BuildingMapEntityType;
   index: Scalars['Int'];
-  name: Scalars['String'];
+  label: Scalars['String'];
+  name?: Maybe<Scalars['String']>;
 };
 
 export type BuildingBasement = {
   __typename?: 'BuildingBasement';
-  id: Scalars['String'];
   type: BuildingMapEntityType;
   index: Scalars['Int'];
-  name: Scalars['String'];
+  label: Scalars['String'];
+  name?: Maybe<Scalars['String']>;
 };
 
 export type BuildingFloor = {
@@ -5990,10 +5990,10 @@ export enum BuildingMapEntityType {
 
 export type BuildingRoof = {
   __typename?: 'BuildingRoof';
-  id: Scalars['String'];
   type: BuildingMapEntityType;
   index: Scalars['Int'];
-  name: Scalars['String'];
+  label: Scalars['String'];
+  name?: Maybe<Scalars['String']>;
 };
 
 export type BuildingSection = {

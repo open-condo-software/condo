@@ -41,12 +41,6 @@ type IndexLocation = {
     unit: number
 }
 
-export type BuildingUnitPrefix = {
-    roof: string
-    attic: string
-    basement: string
-}
-
 
 class Map {
     public isMapValid: boolean
@@ -319,7 +313,7 @@ class MapEdit extends MapView {
     private isBasementSelected: boolean
     private isAtticSelected: boolean
 
-    constructor (map: Maybe<BuildingMap>, private updateMap?: Maybe<(map: BuildingMap) => void>, private unitPrefixes?: BuildingUnitPrefix) {
+    constructor (map: Maybe<BuildingMap>, private updateMap?: Maybe<(map: BuildingMap) => void>) {
         super(map)
     }
 
@@ -666,31 +660,22 @@ class MapEdit extends MapView {
         }
 
         newSection.roof = {
-            id: String(++this.autoincrement),
             type: BuildingMapEntityType.Roof,
-            name: get(this.unitPrefixes, 'roof', String(name)),
+            label: String(name),
             index: this.sections.length + 1,
         }
 
         if (this.hasAttic) {
-            const atticName = this.unitPrefixes
-                ? `${this.unitPrefixes.attic} ${name}`
-                : String(name)
             newSection.attic = [{
-                id: String(++this.autoincrement),
                 type: BuildingMapEntityType.Attic,
-                name: atticName,
+                label: String(name),
                 index: this.sections.length + 1,
             }]
         }
         if (this.hasBasement) {
-            const basementName = this.unitPrefixes
-                ? `${this.unitPrefixes.basement} ${name}`
-                : String(name)
             newSection.basement = [{
-                id: String(++this.autoincrement),
                 type: BuildingMapEntityType.Basement,
-                name: basementName,
+                label: String(name),
                 index: this.sections.length + 1,
             }]
         }
@@ -731,25 +716,19 @@ class MapEdit extends MapView {
 
     private generateAttic (section: Partial<BuildingSectionArg>): BuildingAttic {
         const { name, index } = section
-        const atticName = this.unitPrefixes ? `${this.unitPrefixes.attic} ${name}` : String(name)
-
         return {
-            id: String(++this.autoincrement),
             index,
             type: BuildingMapEntityType.Attic,
-            name: atticName,
+            label: name,
         }
     }
 
     private generateBasement (section: Partial<BuildingSectionArg>): BuildingBasement {
         const { name, index } = section
-        const basementName = this.unitPrefixes ? `${this.unitPrefixes.basement} ${name}` : String(name)
-
         return {
-            id: String(++this.autoincrement),
             index: index,
             type: BuildingMapEntityType.Basement,
-            name: basementName,
+            label: name,
         }
     }
 

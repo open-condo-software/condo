@@ -328,7 +328,7 @@
   "pages.condo.property.select.option.ceil": "Ceil",
   "pages.condo.property.modal.title.addSection": "Add section",
   "pages.condo.property.modal.title.addUnit": "Add unit",
-  "pages.condo.property.modal.title.editSection": "Edit section",
+  "pages.condo.property.modal.title.editSection": "Remove section",
   "pages.condo.property.modal.title.editUnit": "Edit unit",
   "pages.condo.property.modal.title.removeBasement": "Remove basement",
   "pages.condo.property.modal.title.removeAttic": "Remove attic",
