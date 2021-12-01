@@ -10,6 +10,10 @@ const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema
 const access = require('@condo/domains/meter/access/MeterReading')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
+const { triggersManager } = require('@core/triggers')
+const get = require('lodash/get')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { addClientInfoToResidentMeterReading } = require('../utils/serverSchema/resolveHelpers')
 
 const MeterReading = new GQLListSchema('MeterReading', {
     schemaDoc: 'Meter reading taken from a client or billing',
@@ -72,6 +76,16 @@ const MeterReading = new GQLListSchema('MeterReading', {
 
     },
     hooks: {
+        resolveInput: async ({ operation, listKey, context, resolvedData, existingItem }) => {
+            await triggersManager.executeTrigger({ operation, data: { resolvedData, existingItem }, listKey }, context)
+            const user = get(context, ['req', 'user'])
+
+            if (operation === 'create' && user.type === RESIDENT) {
+                await addClientInfoToResidentMeterReading(context, resolvedData)
+            }
+
+            return resolvedData
+        },
         validateInput: ({ resolvedData, context, addValidationError }) => {
             if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
             const { dv } = resolvedData
