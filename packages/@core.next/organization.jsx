@@ -67,6 +67,12 @@ const OrganizationProvider = ({ children, initialLinkValue }) => {
     const [linkIdState, setLinkIdState] = useState(initialLinkValue && initialLinkValue.id || cookieOrganizationEmployee)
     const [link, setLink] = useState(initialLinkValue)
 
+    useEffect(() => {
+        if (!(initialLinkValue && initialLinkValue.id || cookieOrganizationEmployee)) {
+            setLinkIdState(null)
+        }
+    }, [initialLinkValue, cookieOrganizationEmployee])
+
     const { loading: linkLoading, refetch } = useQuery(GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY, {
         variables: { id: linkIdState },
         skip: auth.isLoading || !auth.user || !linkIdState,
