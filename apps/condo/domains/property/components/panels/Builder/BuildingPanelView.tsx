@@ -1,3 +1,10 @@
+import React, { useState, useCallback } from 'react'
+import { useIntl } from '@core/next/intl'
+import { Col, Row } from 'antd'
+import { useRouter } from 'next/router'
+import cloneDeep from 'lodash/cloneDeep'
+import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import {
     EmptyBuildingBlock,
     EmptyFloor,
@@ -5,18 +12,12 @@ import {
     BuildingChooseSections,
     MapSectionContainer,
 } from './BuildingPanelCommon'
-import { Col, Row } from 'antd'
-import React, { useState, useCallback } from 'react'
-import cloneDeep from 'lodash/cloneDeep'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import { MapView } from './MapConstructor'
 import { BuildingMap } from '@app/condo/schema'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
-import { useRouter } from 'next/router'
 import ScrollContainer from 'react-indiana-drag-scroll'
 import { FullscreenWrapper, FullscreenHeader } from './Fullscreen'
-import get from 'lodash/get'
-import isEmpty from 'lodash/isEmpty'
 import { AddressTopTextContainer } from './BuildingPanelEdit'
 
 interface IBuildingPanelViewProps {
@@ -60,6 +61,11 @@ const CHESS_SCROLL_CONTAINER_STYLE: React.CSSProperties = {
 const FULL_SIZE_UNIT_STYLE: React.CSSProperties = { width: '100%', marginTop: '8px', display: 'block' }
 
 export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refresh }) => {
+    const intl = useIntl()
+    const AtticTitlePrefix = intl.formatMessage({ id: 'Attic' })
+    const BasementTitlePrefix = intl.formatMessage({ id: 'Basement' })
+    const RoofTitlePrefix = intl.formatMessage({ id: 'Roof' })
+
     const { query: { id } } = useRouter()
     const { obj: property } = useObject({ where: { id: id as string } })
 
@@ -113,15 +119,15 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
                                                     ellipsis={false}
                                                     disabled
                                                     style={FULL_SIZE_UNIT_STYLE}
-                                                >{section.roof.name}</UnitButton>
+                                                >{RoofTitlePrefix}</UnitButton>
                                             )}
                                             {section.attic && section.attic.map(attic => (
                                                 <UnitButton
-                                                    key={attic.id}
+                                                    key={attic.index}
                                                     ellipsis={false}
                                                     disabled
                                                     style={FULL_SIZE_UNIT_STYLE}
-                                                >{attic.name}</UnitButton>
+                                                >{AtticTitlePrefix} {attic.label}</UnitButton>
                                             ))}
                                             {
                                                 Builder.possibleChosenFloors.map(floorIndex => {
@@ -150,11 +156,11 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
                                             }
                                             {section.basement && section.basement.map(basement => (
                                                 <UnitButton
-                                                    key={basement.id}
+                                                    key={basement.index}
                                                     ellipsis={false}
                                                     disabled
                                                     style={FULL_SIZE_UNIT_STYLE}
-                                                >{basement.name}</UnitButton>
+                                                >{BasementTitlePrefix} {basement.label}</UnitButton>
                                             ))}
                                             <UnitButton
                                                 secondary
@@ -162,8 +168,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
                                                 disabled
                                             >{section.name}</UnitButton>
                                         </MapSectionContainer>
-                                    )
-                                    )
+                                    ))
                                 }
                             </ScrollContainer>
                             {

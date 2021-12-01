@@ -23,10 +23,7 @@ import {
 } from './BuildingPanelCommon'
 import { Button } from '@condo/domains/common/components/Button'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
-import {
-    BuildingUnitPrefix,
-    MapEdit,
-} from './MapConstructor'
+import { MapEdit } from './MapConstructor'
 import {
     BuildingMap,
     BuildingUnit,
@@ -217,15 +214,6 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const AllSectionsTitle = intl.formatMessage({ id: 'pages.condo.property.SectionSelect.AllTitle' })
     const SectionPrefixTitle = intl.formatMessage({ id: 'pages.condo.property.SectionSelect.OptionPrefix' })
     const MapValidationError = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameUnitNamesErrorMsg' })
-    const AtticTitle = intl.formatMessage({ id: 'Attic' })
-    const BasementTitle = intl.formatMessage({ id: 'Basement' })
-    const RoofTitle = intl.formatMessage({ id: 'Roof' })
-
-    const buildingUnitPrefix: BuildingUnitPrefix = {
-        attic: AtticTitle,
-        basement: BasementTitle,
-        roof: RoofTitle,
-    }
 
     const { mapValidationError, map, updateMap: updateFormField, handleSave, property } = props
 
@@ -240,7 +228,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
 
     const { push, query: { id } } = useRouter()
     const builderFormRef = useRef<HTMLDivElement | null>(null)
-    const [Map, setMap] = useState(new MapEdit(map, updateFormField, buildingUnitPrefix))
+    const [Map, setMap] = useState(new MapEdit(map, updateFormField))
 
     const mode = Map.editMode
     const sections = Map.sections
@@ -608,6 +596,11 @@ interface IPropertyMapSectionProps {
 const FULL_SIZE_UNIT_STYLE: React.CSSProperties = { width: '100%', marginTop: '8px', display: 'block' }
 
 const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ section, children, Builder, refresh, scrollToForm }) => {
+    const intl = useIntl()
+    const AtticTitlePrefix = intl.formatMessage({ id: 'Attic' })
+    const BasementTitlePrefix = intl.formatMessage({ id: 'Basement' })
+    const RoofTitlePrefix = intl.formatMessage({ id: 'Roof' })
+
     const chooseSection = useCallback((section) => {
         Builder.setSelectedSection(section)
         if (Builder.getSelectedSection()) {
@@ -634,30 +627,30 @@ const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ section, child
                     preview={section.preview}
                     ellipsis={false}
                     disabled
-                >{section.roof.name}</UnitButton>
+                >{RoofTitlePrefix}</UnitButton>
             )}
             {section.attic && section.attic.map(attic => (
                 <UnitButton
-                    key={attic.id}
+                    key={attic.index}
                     style={FULL_SIZE_UNIT_STYLE}
                     ellipsis={false}
                     preview={section.preview}
                     disabled={section.preview}
                     selected={Builder.getIsAtticSelected()}
                     onClick={chooseAttic}
-                >{attic.name}</UnitButton>
+                >{AtticTitlePrefix} {attic.label}</UnitButton>
             ))}
             {children}
             {section.basement && section.basement.map(basement => (
                 <UnitButton
-                    key={basement.id}
+                    key={basement.index}
                     style={FULL_SIZE_UNIT_STYLE}
                     ellipsis={false}
                     preview={section.preview}
                     disabled={section.preview}
                     selected={Builder.getIsBasementSelected()}
                     onClick={chooseBasement}
-                >{basement.name}</UnitButton>
+                >{BasementTitlePrefix} {basement.label}</UnitButton>
             ))}
             <UnitButton
                 secondary
@@ -715,7 +708,6 @@ const MODAL_FORM_BUTTON_STYLE: React.CSSProperties = { marginTop: '12px' }
 
 const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) => {
     const intl = useIntl()
-    const NameLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
     const MinFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.minfloor' })
     const MaxFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.maxFloor' })
     const UnitsOnFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.unitsOnFloor' })
@@ -723,15 +715,15 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) =>
     const CopyLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.mode.copy' })
     const AddLabel = intl.formatMessage({ id: 'Add' })
 
-    const [name, setName] = useState<string>('')
     const [minFloor, setMinFloor] = useState(null)
     const [maxFloor, setMaxFloor] = useState(null)
     const [unitsOnFloor, setUnitsOnFloor] = useState(null)
     const [copyId, setCopyId] = useState<string | null>(null)
     const [maxMinError, setMaxMinError] = useState(false)
 
+    const name = useRef<string>('0')
+
     const resetForm = () => {
-        setName('')
         setMinFloor(null)
         setMaxFloor(null)
         setUnitsOnFloor(null)
@@ -741,14 +733,21 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) =>
         if (minFloor && maxFloor) {
             setMaxMinError((maxFloor < minFloor))
         }
-        if (name && minFloor && maxFloor && unitsOnFloor && !maxMinError) {
-            Builder.addPreviewSection({ id: '', name, minFloor, maxFloor, unitsOnFloor })
+        if (minFloor && maxFloor && unitsOnFloor && !maxMinError) {
+            name.current = String(Builder.sections.filter(section => !section.preview).length + 1)
+            Builder.addPreviewSection({
+                id: '',
+                name: name.current,
+                minFloor,
+                maxFloor,
+                unitsOnFloor,
+            })
             refresh()
         } else {
             Builder.removePreviewSection()
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [name, minFloor, maxFloor, unitsOnFloor])
+    }, [minFloor, maxFloor, unitsOnFloor])
 
     useEffect(() => {
         if (copyId !== null) {
@@ -762,11 +761,11 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) =>
 
     const handleFinish = () => {
         Builder.removePreviewSection()
-        Builder.addSection({ id: '', name, minFloor, maxFloor, unitsOnFloor })
+        Builder.addSection({ id: '', name: name.current, minFloor, maxFloor, unitsOnFloor })
         refresh()
         resetForm()
     }
-    const isSubmitDisabled = !(name.length && minFloor && maxFloor && unitsOnFloor && !maxMinError)
+    const isSubmitDisabled = !(minFloor && maxFloor && unitsOnFloor && !maxMinError)
     const isCreateColumnsHidden = copyId !== null
 
     return (
@@ -783,17 +782,6 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) =>
                         </Select.Option>
                     ))}
                 </Select>
-            </Col>
-            <Col span={24}>
-                <Space direction={'vertical'} size={8}>
-                    <Typography.Text type={'secondary'}>{NameLabel}</Typography.Text>
-                    <Input
-                        allowClear={true}
-                        value={name}
-                        onChange={e => setName(e.target.value)}
-                        style={INPUT_STYLE}
-                    />
-                </Space>
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden}>
                 <Space direction={'vertical'} size={8} className={maxMinError ? 'ant-form-item-has-error' : ''}>
@@ -976,22 +964,9 @@ const MODAL_FORM_BUTTON_GUTTER: RowProps['gutter'] = [0, 16]
 
 const EditSectionForm: React.FC<IEditSectionFormProps> = ({ Builder, refresh }) => {
     const intl = useIntl()
-    const SaveLabel = intl.formatMessage({ id: 'Save' })
     const DeleteLabel = intl.formatMessage({ id: 'Delete' })
-    const NameLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
-    const NamePlaceholderLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name.placeholder' })
 
-    const [name, setName] = useState('')
     const section = Builder.getSelectedSection()
-
-    useEffect(() => {
-        setName(section ? section.name : '')
-    }, [section])
-
-    const updateSection = () => {
-        Builder.updateSection({ ...section, name })
-        refresh()
-    }
 
     const deleteSection = () => {
         Builder.removeSection(section.id)
@@ -1000,26 +975,14 @@ const EditSectionForm: React.FC<IEditSectionFormProps> = ({ Builder, refresh }) 
 
     return (
         <Row gutter={MODAL_FORM_EDIT_GUTTER} css={FormModalCss}>
-            <Col span={24}>
-                <Space direction={'vertical'} size={8}>
-                    <Typography.Text type={'secondary'}>{NameLabel}</Typography.Text>
-                    <Input value={name} placeholder={NamePlaceholderLabel} onChange={e => setName(e.target.value)} style={INPUT_STYLE} />
-                </Space>
-            </Col>
             <Row gutter={MODAL_FORM_BUTTON_GUTTER}>
-                <Col span={24}>
-                    <Button
-                        secondary
-                        onClick={updateSection}
-                        type='sberDefaultGradient'
-                    >{SaveLabel}</Button>
-                </Col>
                 <Col span={24}>
                     <Button
                         secondary
                         onClick={deleteSection}
                         type='sberDangerGhost'
                         icon={<DeleteFilled />}
+                        style={FULL_SIZE_UNIT_STYLE}
                     >{DeleteLabel}</Button>
                 </Col>
             </Row>

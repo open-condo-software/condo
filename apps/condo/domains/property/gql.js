@@ -9,7 +9,7 @@ const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('./schema/fields/AddressMe
 const { gql } = require('graphql-tag')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt organization { id name} newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
-const PROPERTY_MAP_JSON_FIELDS = 'dv type sections { id type index name preview basement { id type index name } roof { id type index name } attic { id type index name } floors { id type index name units { id type name label preview } } }'
+const PROPERTY_MAP_JSON_FIELDS = 'dv type sections { id type index name preview basement { type index label name } roof { type index label name } attic { type index label name } floors { id type index name units { id type name label preview } } }'
 const PROPERTY_FIELDS = `{ name address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } type ticketsInWork yearOfConstruction area ticketsClosed unitsCount map { ${PROPERTY_MAP_JSON_FIELDS} } ${COMMON_FIELDS} }`
 const Property = generateGqlQueries('Property', PROPERTY_FIELDS)
 
@@ -42,24 +42,24 @@ const PROPERTY_MAP_GRAPHQL_TYPES = `
     }
     
     type BuildingRoof {
-        id: String!
         type: BuildingMapEntityType!
         index: Int!
-        name: String!
+        label: String!
+        name: String
     }
     
     type BuildingAttic {
-        id: String!
         type: BuildingMapEntityType!
         index: Int!
-        name: String!
+        label: String!
+        name: String
     }
     
     type BuildingBasement {
-        id: String!
         type: BuildingMapEntityType!
         index: Int!
-        name: String!
+        label: String!
+        name: String
     }
 
     type BuildingSection {
