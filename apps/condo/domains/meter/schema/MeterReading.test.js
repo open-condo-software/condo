@@ -159,20 +159,39 @@ describe('MeterReading', () => {
             })
         })
 
-        test('resident: can create MeterReadings in his unit and client info save in new reading', async () => {
+        test('resident: can create MeterReadings in his unit', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithResidentAccessAndProperty()
             const unitName = faker.random.alphaNumeric(8)
             const accountNumber = faker.random.alphaNumeric(8)
-
             const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
                 unitName,
             })
-
             await createTestServiceConsumer(adminClient, resident, userClient.organization,  {
                 accountNumber,
             })
+            const [resource] = await MeterResource.getAll(userClient, { id: COLD_WATER_METER_RESOURCE_ID })
+            const [meter] = await createTestMeter(adminClient, userClient.organization, userClient.property, resource, {
+                unitName,
+                accountNumber,
+            })
+            const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
+            const [meterReading] = await createTestMeterReading(userClient, meter, userClient.organization, source)
 
+            expect(meterReading.id).toMatch(UUID_RE)
+        })
+
+        test('resident: client info saved in new reading', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(8)
+            const accountNumber = faker.random.alphaNumeric(8)
+            const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
+                unitName,
+            })
+            await createTestServiceConsumer(adminClient, resident, userClient.organization,  {
+                accountNumber,
+            })
             const [resource] = await MeterResource.getAll(userClient, { id: COLD_WATER_METER_RESOURCE_ID })
             const [meter] = await createTestMeter(adminClient, userClient.organization, userClient.property, resource, {
                 unitName,
@@ -184,7 +203,6 @@ describe('MeterReading', () => {
             const user = userClient.user
             const { name, email, phone } = userClient.userAttrs
 
-            expect(meterReading.id).toMatch(UUID_RE)
             expect(meterReading.client.id).toEqual(user.id)
             expect(meterReading.clientName).toEqual(name)
             expect(meterReading.clientPhone).toEqual(phone)
