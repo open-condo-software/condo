@@ -26,6 +26,7 @@
     "create-integration": "node ./../../bin/create-integration.js",
     "sbbol:crypto:get": "node ./../../bin/sbbol/crypto.js",
     "fix:ticket:contacts": "node ./../../bin/fix-tickets-contacts.js",
+    "fix:meterReadings:contacts": "node ./../../bin/fix-meter-readings-contacts.js",
     "subscription:prolong": "node ../../bin/prolong-subscription.js"
   },
   "dependencies": {
