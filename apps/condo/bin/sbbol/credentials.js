@@ -7,7 +7,7 @@ const conf = require('@core/config')
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
 
 
-class SbbolTokenManager {
+class SbbolCredentials {
 
     context = null
 
@@ -47,7 +47,7 @@ class SbbolTokenManager {
 }
 
 const workerJob = async () => {
-    const tokensJob = new SbbolTokenManager()
+    const tokensJob = new SbbolCredentials()
     await tokensJob.connect()
     await tokensJob.refreshAllTokens()
 }
