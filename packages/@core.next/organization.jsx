@@ -63,8 +63,8 @@ let extractReqLinkId = (req) => {
 
 const OrganizationProvider = ({ children, initialLinkValue }) => {
     const auth = useAuth()
-    const cookieOrganization = getLinkId()
-    const [linkIdState, setLinkIdState] = useState(initialLinkValue && initialLinkValue.id || cookieOrganization)
+    const cookieOrganizationEmployee = getLinkId()
+    const [linkIdState, setLinkIdState] = useState(initialLinkValue && initialLinkValue.id || cookieOrganizationEmployee)
     const [link, setLink] = useState(initialLinkValue)
 
     const { loading: linkLoading, refetch } = useQuery(GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY, {
@@ -214,4 +214,5 @@ const withOrganization = ({ ssr = false, ...opts } = {}) => PageComponent => {
 export {
     withOrganization,
     useOrganization,
+    setCookieLinkId,
 }
