@@ -10,9 +10,10 @@ const { values } = require('lodash')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/integrations/sbbol/common')
 const { SbbolRequestApi } = require('@condo/domains/organization/integrations/sbbol/SbbolRequestApi')
-const { TokenSet: TokenSetApi, Organization: OrganizationApi } = require('@condo/domains/organization/utils/serverSchema')
+const { TokenSet, Organization: OrganizationApi } = require('@condo/domains/organization/utils/serverSchema')
 const conf = require('@core/config')
 const { getOrganizationAccessToken } = require('@condo/domains/organization/integrations/sbbol/accessToken')
+const { REFRESH_TOKEN_TTL } = require('./constants')
 
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
@@ -40,12 +41,12 @@ class SbbolCredentials {
     async getAccessToken () {
         // `service_organization_hashOrgId` is a `userInfo.HashOrgId` from SBBOL, that used to obtain accessToken
         // for organization, that will be queried in SBBOL using `SbbolFintechApi`.
-        const accessToken = await getOrganizationAccessToken(SBBOL_FINTECH_CONFIG.service_organization_hashOrgId)
-        return accessToken
+        const result = await getOrganizationAccessToken(SBBOL_FINTECH_CONFIG.service_organization_hashOrgId)
+        return result
     }
 
     async refreshClientSecret ({ clientId, clientSecret }) {
-        const accessToken = this.getAccessToken()
+        const { accessToken, tokenSet } = this.getAccessToken()
         const requestApi = new SbbolRequestApi({
             accessToken,
             host: SBBOL_FINTECH_CONFIG.host,
@@ -67,10 +68,22 @@ class SbbolCredentials {
         })
         if (statusCode !== 200) {
             throw new Error('Something went wrong')
-        }
-        if (data) {
-            const jsonData = JSON.parse(data)
-            console.log(jsonData)
+        } else {
+            if (data) {
+                let jsonData
+                try {
+                    jsonData = JSON.parse(data)
+                    const { new_client_secret } = jsonData
+                    if (!new_client_secret) {
+                        throw new Error('New client secret is not obtained from SBBOL')
+                    }
+                    await TokenSet.update(this.context, tokenSet.id, {
+                        clientSecret: new_client_secret,
+                    })
+                } catch (e) {
+                    throw new Error('Unable to parse response as JSON')
+                }
+            }
         }
     }
 
