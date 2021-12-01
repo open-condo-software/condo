@@ -421,7 +421,7 @@ class MapEdit extends MapView {
 
     public addAttic (): void {
         this.map.sections.forEach((section) => {
-            section.attic = this.generateAttic(section)
+            section.attic = [this.generateAttic(section)]
         })
         this.notifyUpdater()
         this.editMode = null
@@ -448,7 +448,7 @@ class MapEdit extends MapView {
 
     public addBasement (): void {
         this.map.sections.forEach((section) => {
-            section.basement = this.generateBasement(section)
+            section.basement = [this.generateBasement(section)]
         })
         this.notifyUpdater()
         this.editMode = null
@@ -676,23 +676,23 @@ class MapEdit extends MapView {
             const atticName = this.unitPrefixes
                 ? `${this.unitPrefixes.attic} ${name}`
                 : String(name)
-            newSection.attic = {
+            newSection.attic = [{
                 id: String(++this.autoincrement),
                 type: BuildingMapEntityType.Attic,
                 name: atticName,
                 index: this.sections.length + 1,
-            }
+            }]
         }
         if (this.hasBasement) {
             const basementName = this.unitPrefixes
                 ? `${this.unitPrefixes.basement} ${name}`
                 : String(name)
-            newSection.basement = {
+            newSection.basement = [{
                 id: String(++this.autoincrement),
                 type: BuildingMapEntityType.Basement,
                 name: basementName,
                 index: this.sections.length + 1,
-            }
+            }]
         }
         for (let floor = minFloor; floor <= maxFloor; floor++) {
             if (floor === 0) {

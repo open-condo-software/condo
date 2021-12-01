@@ -6003,9 +6003,9 @@ export type BuildingSection = {
   index: Scalars['Int'];
   name: Scalars['String'];
   roof?: Maybe<BuildingRoof>;
-  attic?: Maybe<BuildingAttic>;
+  attic?: Maybe<Array<Maybe<BuildingAttic>>>;
   floors: Array<Maybe<BuildingFloor>>;
-  basement?: Maybe<BuildingBasement>;
+  basement?: Maybe<Array<Maybe<BuildingBasement>>>;
   preview?: Maybe<Scalars['Boolean']>;
 };
 

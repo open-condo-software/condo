@@ -68,9 +68,9 @@ const PROPERTY_MAP_GRAPHQL_TYPES = `
         index: Int!
         name: String!
         roof: BuildingRoof
-        attic: BuildingAttic
+        attic: [BuildingAttic]
         floors: [BuildingFloor]!
-        basement: BuildingBasement
+        basement: [BuildingBasement]
         preview: Boolean
     }
 

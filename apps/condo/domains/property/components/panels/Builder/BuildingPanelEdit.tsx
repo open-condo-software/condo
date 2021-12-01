@@ -636,27 +636,29 @@ const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ section, child
                     disabled
                 >{section.roof.name}</UnitButton>
             )}
-            {section.attic && (
+            {section.attic && section.attic.map(attic => (
                 <UnitButton
+                    key={attic.id}
                     style={FULL_SIZE_UNIT_STYLE}
                     ellipsis={false}
                     preview={section.preview}
                     disabled={section.preview}
                     selected={Builder.getIsAtticSelected()}
                     onClick={chooseAttic}
-                >{section.attic.name}</UnitButton>
-            )}
+                >{attic.name}</UnitButton>
+            ))}
             {children}
-            {section.basement && (
+            {section.basement && section.basement.map(basement => (
                 <UnitButton
+                    key={basement.id}
                     style={FULL_SIZE_UNIT_STYLE}
                     ellipsis={false}
                     preview={section.preview}
                     disabled={section.preview}
                     selected={Builder.getIsBasementSelected()}
                     onClick={chooseBasement}
-                >{section.basement.name}</UnitButton>
-            )}
+                >{basement.name}</UnitButton>
+            ))}
             <UnitButton
                 secondary
                 style={FULL_SIZE_UNIT_STYLE}
