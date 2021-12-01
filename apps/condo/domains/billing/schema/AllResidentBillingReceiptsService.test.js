@@ -25,9 +25,7 @@ describe('AllResidentBillingReceipts', () => {
 
         await addResidentAccess(userClient.user)
 
-        const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
-            unitName: billingAccountAttrs.unitName,
-        })
+        const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, { unitName: billingAccountAttrs.unitName })
         const payload = {
             residentId: resident.id,
             accountNumber: billingAccountAttrs.number,

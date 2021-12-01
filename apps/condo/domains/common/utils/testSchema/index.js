@@ -9,6 +9,8 @@
  * @callback TestFunc
  */
 
+const get = require('lodash/get')
+
 /**
  * Implements correct expecting of GraphQLError, thrown by Keystone.
  * Expectation checks inside of `catch` are not covering a case,
@@ -53,14 +55,14 @@ export const catchErrorFrom = async (testFunc, inspect) => {
  * @param {TestFunc} testFunc - Function, expected to throw an error
  * @return {Promise<void>}
  */
-export const expectToThrowAccessDeniedErrorToObj = async (testFunc) => {
+export const expectToThrowAccessDeniedErrorToObj = async (testFunc, path = ['obj']) => {
     await catchErrorFrom(testFunc, ({errors, data}) => {
         expect(errors[0]).toMatchObject({
             'message': 'You do not have access to this resource',
             'name': 'AccessDeniedError',
-            'path': ['obj'],
+            'path': path,
         })
-        expect(data).toEqual({ 'obj': null })
+        expect(get(data, path)).toBeNull()
     })
 }
 
@@ -79,14 +81,14 @@ export const expectToThrowAccessDeniedErrorToObj = async (testFunc) => {
  * @param {TestFunc} testFunc - Function, expected to throw an error
  * @return {Promise<void>}
  */
-export const expectToThrowAccessDeniedErrorToObjects = async (testFunc) => {
+export const expectToThrowAccessDeniedErrorToObjects = async (testFunc, path = ['objs']) => {
     await catchErrorFrom(testFunc, ({errors, data}) => {
         expect(errors[0]).toMatchObject({
             'message': 'You do not have access to this resource',
             'name': 'AccessDeniedError',
-            'path': ['objs'],
+            'path': path,
         })
-        expect(data).toEqual({ 'objs': null })
+        expect(get(data, path)).toBeNull()
     })
 }
 
@@ -169,12 +171,12 @@ export const expectToThrowValidationFailureError = async (testFunc, messageConta
     })
 }
 
-export const expectToThrowMutationError = async (testFunc, messageContains) => {
+export const expectToThrowMutationError = async (testFunc, messageContains, path = ['result']) => {
     await catchErrorFrom(testFunc, ({errors}) => {
         expect(errors[0]).toMatchObject({
             message: expect.stringContaining(messageContains),
             name: 'GraphQLError',
-            path: ['result']
+            path
         })
     })
 }
