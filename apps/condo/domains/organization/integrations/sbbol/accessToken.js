@@ -35,9 +35,9 @@ async function getOrganizationAccessToken (organizationImportId) {
             accessTokenExpiresAt: new Date(Number(expires_at) * 1000).toISOString(),
             refreshTokenExpiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL * 1000).toISOString(),
         })
-        return access_token
+        return { accessToken: access_token, tokenSet }
     } else {
-        return tokenSet.accessToken
+        return { accessToken: tokenSet.accessToken, tokenSet }
     }
 }
 

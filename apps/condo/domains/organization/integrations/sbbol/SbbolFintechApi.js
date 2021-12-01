@@ -241,7 +241,8 @@ const initSbbolFintechApi = async () => {
     try {
         // `service_organization_hashOrgId` is a `userInfo.HashOrgId` from SBBOL, that used to obtain accessToken
         // for organization, that will be queried in SBBOL using `SbbolFintechApi`.
-        accessToken = await getOrganizationAccessToken(SBBOL_FINTECH_CONFIG.service_organization_hashOrgId)
+        const result = await getOrganizationAccessToken(SBBOL_FINTECH_CONFIG.service_organization_hashOrgId)
+        accessToken = result.accessToken
     } catch (e) {
         logger.error({
             message: 'Failed to obtain organization access token from SBBOL',
