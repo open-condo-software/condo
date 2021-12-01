@@ -14,16 +14,14 @@ const { Organization } = require('@condo/domains/organization/utils/serverSchema
 const get = require('lodash/get')
 
 async function getResidentBillingAccount (context, billingIntegrationContext, accountNumber, unitName) {
-    const [applicableBillingAccount] = await BillingAccount.getAll(context, {
+    let applicableBillingAccounts = await BillingAccount.getAll(context, {
         context: { id: billingIntegrationContext.id },
-        number: accountNumber,
+        unitName: unitName,
     })
-    return applicableBillingAccount
-    /*
-    // TODO(zuch): Replace accountNumber: accountNumber from unitName, maybe smth will stop working
     if (!Array.isArray(applicableBillingAccounts)) {
         return [] // No accounts are found for this user
     }
+
     applicableBillingAccounts = applicableBillingAccounts.filter(
         (billingAccount) => {
             return accountNumber === billingAccount.number || accountNumber === billingAccount.globalId
@@ -31,7 +29,6 @@ async function getResidentBillingAccount (context, billingIntegrationContext, ac
     )
 
     return applicableBillingAccounts
-     */
 }
 
 const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsumerService', {
