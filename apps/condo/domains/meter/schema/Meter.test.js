@@ -10,7 +10,7 @@ const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
 const { expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { makeEmployeeUserClientWithAbilities } = require('@condo/domains/organization/utils/testSchema')
 const { MeterResource, Meter, createTestMeter, updateTestMeter } = require('../utils/testSchema')
@@ -18,7 +18,7 @@ const { expectToThrowAuthenticationErrorToObjects } = require('@condo/domains/co
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { UUID_RE } = require('@core/keystone/test.utils')
 const faker = require('faker')
-const { updateTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { TestProperty } = require('@condo/domains/property/utils/testSchema')
 const { updateTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { updateTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
@@ -793,10 +793,18 @@ describe('Meter', () => {
                 unitName,
             })
 
-            await updateTestProperty(adminClient, property.id, { deletedAt: 'true' })
+            await TestProperty.softDelete(adminClient, property.id)
 
-            const meters = await Meter.getAll(client, { id: meter.id })
-            expect(meters).toHaveLength(0)
+            const testFunc = async () => {
+                await Meter.getAll(client, { id: meter.id })
+            }
+
+            // NOTE: This place is unstable. Because of parallel sub-requests inside Meter.getAll
+            // we get different path in error payload, and get either organization or property error
+            // in random order from request to request. So we skip testing path/value here.
+            // Exception message and error type is enough.
+            await expectToThrowAccessDeniedErrorToObjects(testFunc, null)
+
         })
 
         test('user: cannot read Meters', async () => {

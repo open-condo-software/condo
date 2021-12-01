@@ -57,12 +57,16 @@ export const catchErrorFrom = async (testFunc, inspect) => {
  */
 export const expectToThrowAccessDeniedErrorToObj = async (testFunc, path = ['obj']) => {
     await catchErrorFrom(testFunc, ({errors, data}) => {
-        expect(errors[0]).toMatchObject({
+        const expectedError = {
             'message': 'You do not have access to this resource',
             'name': 'AccessDeniedError',
-            'path': path,
-        })
-        expect(get(data, path)).toBeNull()
+        }
+
+        if (path) expectedError.path = path
+
+        expect(errors[0]).toMatchObject(expectedError)
+
+        if (path) expect(get(data, path)).toBeNull()
     })
 }
 
@@ -83,12 +87,16 @@ export const expectToThrowAccessDeniedErrorToObj = async (testFunc, path = ['obj
  */
 export const expectToThrowAccessDeniedErrorToObjects = async (testFunc, path = ['objs']) => {
     await catchErrorFrom(testFunc, ({errors, data}) => {
-        expect(errors[0]).toMatchObject({
+        const expectedError = {
             'message': 'You do not have access to this resource',
             'name': 'AccessDeniedError',
-            'path': path,
-        })
-        expect(get(data, path)).toBeNull()
+        }
+
+        if (path) expectedError.path = path
+
+        expect(errors[0]).toMatchObject(expectedError)
+
+        if (path) expect(get(data, path)).toBeNull()
     })
 }
 
