@@ -24,6 +24,7 @@
     "lint-i18n-translations": "node ./../../bin/lint-i18n-translations.js",
     "refresh-sbbol-tokens": "node ./../../bin/sbbol.js",
     "create-integration": "node ./../../bin/create-integration.js",
+    "update-property-map": "node ./../../bin/update-property-map.js",
     "sbbol:crypto:get": "node ./../../bin/sbbol/crypto.js",
     "fix:ticket:contacts": "node ./../../bin/fix-tickets-contacts.js",
     "fix:meterReadings:contacts": "node ./../../bin/fix-meter-readings-contacts.js",
