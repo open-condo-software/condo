@@ -2,13 +2,16 @@ import styled from '@emotion/styled'
 import React from 'react'
 import ProgressiveImage from 'react-progressive-image'
 import { transitions, colors } from '@condo/domains/common/constants/style'
+import isPropValid from '@emotion/is-prop-valid'
 
 interface IImageProps {
     src: string
     placeholderColor: string
 }
 
-export const PosterContainer = styled.div<IImageProps>`
+export const PosterContainer = styled('div', {
+    shouldForwardProp: isPropValid,
+})<IImageProps>`
   background: url(${({ src }) => src}) no-repeat center center;
   background-color: ${({ placeholderColor }) => placeholderColor ? placeholderColor : colors.white};
   background-size: cover;

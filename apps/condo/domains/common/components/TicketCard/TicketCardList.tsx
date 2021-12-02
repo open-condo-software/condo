@@ -7,6 +7,7 @@ import get from 'lodash/get'
 import pickBy from 'lodash/pickBy'
 import groupBy from 'lodash/groupBy'
 import styled from '@emotion/styled'
+import isPropValid from '@emotion/is-prop-valid'
 import { colors } from '@condo/domains/common/constants/style'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { SortTicketsBy, Ticket as TicketSchema } from '@app/condo/schema'
@@ -19,7 +20,7 @@ interface IContainerProps {
     isSmall: boolean
 }
 
-const Container = styled.div<IContainerProps>`
+const Container = styled('div', { shouldForwardProp: isPropValid })<IContainerProps>`
   &:last-child {
     margin-bottom: 24px;
   }

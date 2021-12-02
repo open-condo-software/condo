@@ -1,6 +1,7 @@
+import React from 'react'
 import { RightOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
-import React from 'react'
+import isPropValid from '@emotion/is-prop-valid'
 import { shadows, transitions, colors, DEFAULT_BORDER_WIDTH } from '@condo/domains/common/constants/style'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { OnBoardingStepType } from './index'
@@ -13,7 +14,7 @@ export const ActivateStepIcon = styled(RightOutlined)`
   opacity: 0;
 `
 
-export const IconContainer = styled.div<{ type: OnBoardingStepType }>`
+export const IconContainer = styled('div', { shouldForwardProp: isPropValid })<{ type: OnBoardingStepType }>`
   border-radius: 50%;
   width: 44px;
   height: 44px;
@@ -38,7 +39,7 @@ export const IconContainer = styled.div<{ type: OnBoardingStepType }>`
     }}
 `
 
-export const StepContainer = styled(FocusContainer)<{ type: OnBoardingStepType }>`
+export const StepContainer = styled(FocusContainer, { shouldForwardProp: isPropValid })<{ type: OnBoardingStepType }>`
   width: 100%;
   display: flex;
   flex-direction: row;
