@@ -2,14 +2,12 @@ import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import Form from 'antd/lib/form'
 import { Checkbox, Col, FormInstance, Input, Row, Select, Typography } from 'antd'
 import { useRouter } from 'next/router'
+import { useIntl } from '@core/next/intl'
 import get from 'lodash/get'
 import { FormItemProps } from 'antd/es'
-import styled from '@emotion/styled'
 import { CloseOutlined } from '@ant-design/icons'
 import { Gutter } from 'antd/es/grid/row'
 import isFunction from 'lodash/isFunction'
-
-import { useIntl } from '@core/next/intl'
 
 import {
     OptionType,
@@ -32,6 +30,7 @@ import {
     getQueryToValueProcessorByType,
     updateQuery,
 } from '../utils/filters.utils'
+import { FiltersStorage, FILTER_TABLE_KEYS } from '../utils/FiltersStorage'
 
 
 enum FilterComponentSize {
@@ -201,22 +200,38 @@ function getModalComponents <T> (filters: IFilters, filterMetas: Array<FiltersMe
     })
 }
 
-const StyledResetFiltersModalButton = styled(Button)`
-  position: absolute;
-  left: 10px;
-`
-
+const RESET_FILTERS_BUTTON_STYLE: CSSProperties = { position: 'absolute', left: '10px' }
 const MODAL_PROPS: CSSProperties = { width: 840 }
 const CLEAR_ALL_MESSAGE_STYLE: CSSProperties = { fontSize: '12px' }
 const FILTER_WRAPPERS_GUTTER: [Gutter, Gutter] = [24, 12]
 const MODAL_FORM_VALIDATE_TRIGGER: string[] = ['onBlur', 'onSubmit']
 
-const ResetFiltersModalButton = ({ handleReset }) => {
+type ResetFiltersModalButtonProps = {
+    filterTableKey?: FILTER_TABLE_KEYS
+    handleReset?: () => void
+    style?: CSSProperties
+}
+
+const ResetFiltersModalButton: React.FC<ResetFiltersModalButtonProps> = ({ filterTableKey, handleReset: handleResetFromProps, style }) => {
     const intl = useIntl()
     const ClearAllFiltersMessage = intl.formatMessage({ id: 'ClearAllFilters' })
+    const router = useRouter()
+
+    const handleReset = useCallback(async () => {
+        await updateQuery(router, {})
+
+        if (filterTableKey) {
+            FiltersStorage.clearFilters(filterTableKey)
+        }
+
+        if (isFunction(handleResetFromProps)) {
+            await handleResetFromProps()
+        }
+    }, [filterTableKey, handleResetFromProps, router])
 
     return (
-        <StyledResetFiltersModalButton
+        <Button
+            style={style}
             key={'reset'}
             type={'text'}
             onClick={handleReset}
@@ -224,20 +239,22 @@ const ResetFiltersModalButton = ({ handleReset }) => {
             <Typography.Text strong type={'secondary'}>
                 {ClearAllFiltersMessage} <CloseOutlined style={CLEAR_ALL_MESSAGE_STYLE} />
             </Typography.Text>
-        </StyledResetFiltersModalButton>
+        </Button>
     )
 }
 
 type MultipleFiltersModalProps = {
-    isMultipleFiltersModalVisible: boolean,
-    setIsMultipleFiltersModalVisible: React.Dispatch<React.SetStateAction<boolean>>,
+    isMultipleFiltersModalVisible: boolean
+    setIsMultipleFiltersModalVisible: React.Dispatch<React.SetStateAction<boolean>>
     filterMetas: Array<FiltersMeta<unknown>>
+    filterTableKey?: FILTER_TABLE_KEYS
 }
 
 const Modal: React.FC<MultipleFiltersModalProps> = ({
     isMultipleFiltersModalVisible,
     setIsMultipleFiltersModalVisible,
     filterMetas,
+    filterTableKey,
 }) => {
     const intl = useIntl()
     const FiltersModalTitle = intl.formatMessage({ id: 'FiltersLabel' })
@@ -257,18 +274,26 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         }, {})
 
         form.setFieldsValue(emptyFields)
-
-        await updateQuery(router, {})
     }, [form, router])
 
     const handleSubmit = useCallback(async (values) => {
-        await updateQuery(router, { ...filters, ...values })
+        const newFilters = { ...filters, ...values }
+        await updateQuery(router, newFilters)
         setIsMultipleFiltersModalVisible(false)
-    }, [filters, router, setIsMultipleFiltersModalVisible])
+
+        if (filterTableKey) {
+            FiltersStorage.saveFilters(filterTableKey, newFilters)
+        }
+    }, [filterTableKey, filters, router, setIsMultipleFiltersModalVisible])
 
     const modalFooter = useMemo(() => (
         [
-            <ResetFiltersModalButton key={'reset'} handleReset={handleReset} />,
+            <ResetFiltersModalButton
+                filterTableKey={filterTableKey}
+                key={'reset'}
+                handleReset={handleReset}
+                style={RESET_FILTERS_BUTTON_STYLE}
+            />,
         ]
     ), [handleReset])
     
@@ -299,7 +324,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     )
 }
 
-export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>) {
+export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>, filterTableKey?: FILTER_TABLE_KEYS) {
     const [isMultipleFiltersModalVisible, setIsMultipleFiltersModalVisible] = useState<boolean>()
 
     const MultipleFiltersModal = useCallback(() => (
@@ -307,8 +332,9 @@ export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>)
             isMultipleFiltersModalVisible={isMultipleFiltersModalVisible}
             setIsMultipleFiltersModalVisible={setIsMultipleFiltersModalVisible}
             filterMetas={filterMetas}
+            filterTableKey={filterTableKey}
         />
     ), [isMultipleFiltersModalVisible])
 
-    return { MultipleFiltersModal, setIsMultipleFiltersModalVisible }
+    return { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible }
 }
