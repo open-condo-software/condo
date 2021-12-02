@@ -5,6 +5,7 @@ import ruRU from 'antd/lib/locale/ru_RU'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
 import getConfig from 'next/config'
+import Head from 'next/head'
 import { ThunderboltFilled, HomeFilled, SettingFilled, ApiFilled } from '@ant-design/icons'
 import whyDidYouRender from '@welldone-software/why-did-you-render'
 
@@ -149,31 +150,36 @@ const MyApp = ({ Component, pageProps }) => {
     } = useEndTrialSubscriptionReminderPopup()
 
     return (
-        <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize={'large'}>
-            <CacheProvider value={cache}>
-                <GlobalStyle/>
-                <FocusContextProvider>
-                    <OnBoardingProvider>
-                        <SubscriptionProvider>
-                            <LayoutContextProvider>
-                                <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                    <RequiredAccess>
-                                        <Component {...pageProps} />
-                                        {
-                                            isEndTrialSubscriptionReminderPopupVisible && (
-                                                <EndTrialSubscriptionReminderPopup/>
-                                            )
-                                        }
-                                    </RequiredAccess>
-                                </LayoutComponent>
-                            </LayoutContextProvider>
-                        </SubscriptionProvider>
-                    </OnBoardingProvider>
-                </FocusContextProvider>
-                <GoogleAnalytics/>
-                <BehaviorRecorder engine="plerdy"/>
-            </CacheProvider>
-        </ConfigProvider>
+        <>
+            <Head>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            </Head>
+            <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize={'large'}>
+                <CacheProvider value={cache}>
+                    <GlobalStyle/>
+                    <FocusContextProvider>
+                        <OnBoardingProvider>
+                            <SubscriptionProvider>
+                                <LayoutContextProvider>
+                                    <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                        <RequiredAccess>
+                                            <Component {...pageProps} />
+                                            {
+                                                isEndTrialSubscriptionReminderPopupVisible && (
+                                                    <EndTrialSubscriptionReminderPopup/>
+                                                )
+                                            }
+                                        </RequiredAccess>
+                                    </LayoutComponent>
+                                </LayoutContextProvider>
+                            </SubscriptionProvider>
+                        </OnBoardingProvider>
+                    </FocusContextProvider>
+                    <GoogleAnalytics/>
+                    <BehaviorRecorder engine="plerdy"/>
+                </CacheProvider>
+            </ConfigProvider>
+        </>
     )
 }
 
