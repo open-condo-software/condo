@@ -3,7 +3,7 @@
  *
  * Example:
  *      yarn workspace @app/condo sbbol:credentials refresh-all-tokens
- *      yarn workspace @app/condo sbbol:credentials refresh-client-secret
+ *      yarn workspace @app/condo sbbol:credentials refresh-client-secret 1234 a1b2c3d4
  */
 const path = require('path')
 const { values } = require('lodash')
@@ -13,7 +13,6 @@ const { SbbolRequestApi } = require('@condo/domains/organization/integrations/sb
 const { TokenSet, Organization: OrganizationApi } = require('@condo/domains/organization/utils/serverSchema')
 const conf = require('@core/config')
 const { getOrganizationAccessToken } = require('@condo/domains/organization/integrations/sbbol/accessToken')
-const { REFRESH_TOKEN_TTL } = require('./constants')
 
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
