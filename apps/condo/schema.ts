@@ -2915,7 +2915,7 @@ export type BillingIntegration = {
   /**  Status, which BillingIntegrationOrganizationContext, linked to this integration, will have after creation  */
   contextDefaultStatus?: Maybe<Scalars['String']>;
   /**  Format of the data, that is output of this integration. This field specifies the detail and size of columns. If not specified we can only show first level of detail (address, account, toPay)  */
-  dataFormat?: Maybe<Scalars['JSON']>;
+  dataFormat?: Maybe<BillingIntegrationDataFormatField>;
   /**  Currency which this billing uses  */
   currencyCode?: Maybe<Scalars['String']>;
   accessRights: Array<BillingIntegrationAccessRight>;
@@ -3222,7 +3222,7 @@ export type BillingIntegrationCreateInput = {
   detailsInstructionButtonLink?: Maybe<Scalars['String']>;
   billingPageTitle?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
-  dataFormat?: Maybe<Scalars['JSON']>;
+  dataFormat?: Maybe<BillingIntegrationDataFormatFieldInput>;
   currencyCode?: Maybe<Scalars['String']>;
   accessRights?: Maybe<BillingIntegrationAccessRightRelateToManyInput>;
   isHidden?: Maybe<Scalars['Boolean']>;
@@ -3234,6 +3234,19 @@ export type BillingIntegrationCreateInput = {
   updatedBy?: Maybe<UserRelateToOneInput>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
+};
+
+export type BillingIntegrationDataFormatField = {
+  __typename?: 'BillingIntegrationDataFormatField';
+  hasToPayDetails: Scalars['Boolean'];
+  hasServices: Scalars['Boolean'];
+  hasServicesDetails: Scalars['Boolean'];
+};
+
+export type BillingIntegrationDataFormatFieldInput = {
+  hasToPayDetails: Scalars['Boolean'];
+  hasServices: Scalars['Boolean'];
+  hasServicesDetails: Scalars['Boolean'];
 };
 
 /**  A keystone list  */
@@ -3819,6 +3832,7 @@ export type BillingIntegrationOptionField = {
   displayName?: Maybe<Scalars['String']>;
   billingPageTitle?: Maybe<Scalars['String']>;
   descriptionDetails?: Maybe<BillingIntegrationOptionDetailsField>;
+  dataFormat?: Maybe<BillingIntegrationDataFormatField>;
 };
 
 export type BillingIntegrationOptionFieldInput = {
@@ -3826,6 +3840,7 @@ export type BillingIntegrationOptionFieldInput = {
   displayName?: Maybe<Scalars['String']>;
   billingPageTitle?: Maybe<Scalars['String']>;
   descriptionDetails?: Maybe<BillingIntegrationOptionDetailsFieldInput>;
+  dataFormat?: Maybe<BillingIntegrationDataFormatFieldInput>;
 };
 
 export type BillingIntegrationOptionsField = {
@@ -4294,7 +4309,7 @@ export type BillingIntegrationUpdateInput = {
   detailsInstructionButtonLink?: Maybe<Scalars['String']>;
   billingPageTitle?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
-  dataFormat?: Maybe<Scalars['JSON']>;
+  dataFormat?: Maybe<BillingIntegrationDataFormatFieldInput>;
   currencyCode?: Maybe<Scalars['String']>;
   accessRights?: Maybe<BillingIntegrationAccessRightRelateToManyInput>;
   isHidden?: Maybe<Scalars['Boolean']>;
@@ -4471,10 +4486,10 @@ export type BillingIntegrationWhereInput = {
   contextDefaultStatus_not?: Maybe<Scalars['String']>;
   contextDefaultStatus_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   contextDefaultStatus_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  dataFormat?: Maybe<Scalars['JSON']>;
-  dataFormat_not?: Maybe<Scalars['JSON']>;
-  dataFormat_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  dataFormat_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dataFormat?: Maybe<BillingIntegrationDataFormatFieldInput>;
+  dataFormat_not?: Maybe<BillingIntegrationDataFormatFieldInput>;
+  dataFormat_in?: Maybe<Array<Maybe<BillingIntegrationDataFormatFieldInput>>>;
+  dataFormat_not_in?: Maybe<Array<Maybe<BillingIntegrationDataFormatFieldInput>>>;
   currencyCode?: Maybe<Scalars['String']>;
   currencyCode_not?: Maybe<Scalars['String']>;
   currencyCode_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -22787,6 +22802,17 @@ export type Resident = {
   newId?: Maybe<Scalars['String']>;
 };
 
+export type ResidentAcquiringIntegrationContext = {
+  __typename?: 'ResidentAcquiringIntegrationContext';
+  id: Scalars['ID'];
+  integration?: Maybe<Scalars['ID']>;
+};
+
+export type ResidentBillingAccount = {
+  __typename?: 'ResidentBillingAccount';
+  id: Scalars['ID'];
+};
+
 export type ResidentBillingReceiptOutput = {
   __typename?: 'ResidentBillingReceiptOutput';
   dv: Scalars['String'];
@@ -23538,14 +23564,16 @@ export type ServiceConsumer = {
   /**  Billing account, that will allow this resident to pay for certain service  */
   billingAccount?: Maybe<BillingAccount>;
   /**  BillingAccount id, that is returned for current serviceConsumer in mobile client  */
-  residentBillingAccount?: Maybe<ServiceConsumerBillingAccount>;
+  residentBillingAccount?: Maybe<ResidentBillingAccount>;
   /**  Billing integration context, that this serviceConsumer is connected to  */
   billingIntegrationContext?: Maybe<BillingIntegrationOrganizationContext>;
   /**  Acquiring integration context, that this serviceConsumer is connected to  */
   acquiringIntegrationContext?: Maybe<AcquiringIntegrationContext>;
+  /**  AcquiringIntegration, that is returned for current serviceConsumer in mobile client  */
+  residentAcquiringIntegrationContext?: Maybe<ResidentAcquiringIntegrationContext>;
   /**  Account number taken from resident. This is what resident think his account number is  */
   accountNumber?: Maybe<Scalars['String']>;
-  /**  Organization to which this service consumer pays to object  */
+  /**  The organization providing the service (performing the work). Payments for the service will eventually be sent to this organization (it is possible that the payment will come to the partner, but in the end some of the money will still come to this organization). This organization may differ from the Resident.organization, which means that the service is provided by another organization  */
   organization?: Maybe<Organization>;
   /**  Organization data, that is returned for current resident in mobile client  */
   residentOrganization?: Maybe<ResidentOrganization>;
@@ -23557,11 +23585,6 @@ export type ServiceConsumer = {
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
-};
-
-export type ServiceConsumerBillingAccount = {
-  __typename?: 'ServiceConsumerBillingAccount';
-  id: Scalars['ID'];
 };
 
 export type ServiceConsumerCreateInput = {
@@ -23602,6 +23625,7 @@ export type ServiceConsumerHistoryRecord = {
   residentBillingAccount?: Maybe<Scalars['JSON']>;
   billingIntegrationContext?: Maybe<Scalars['String']>;
   acquiringIntegrationContext?: Maybe<Scalars['String']>;
+  residentAcquiringIntegrationContext?: Maybe<Scalars['JSON']>;
   accountNumber?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   residentOrganization?: Maybe<Scalars['JSON']>;
@@ -23627,6 +23651,7 @@ export type ServiceConsumerHistoryRecordCreateInput = {
   residentBillingAccount?: Maybe<Scalars['JSON']>;
   billingIntegrationContext?: Maybe<Scalars['String']>;
   acquiringIntegrationContext?: Maybe<Scalars['String']>;
+  residentAcquiringIntegrationContext?: Maybe<Scalars['JSON']>;
   accountNumber?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   residentOrganization?: Maybe<Scalars['JSON']>;
@@ -23657,6 +23682,7 @@ export type ServiceConsumerHistoryRecordUpdateInput = {
   residentBillingAccount?: Maybe<Scalars['JSON']>;
   billingIntegrationContext?: Maybe<Scalars['String']>;
   acquiringIntegrationContext?: Maybe<Scalars['String']>;
+  residentAcquiringIntegrationContext?: Maybe<Scalars['JSON']>;
   accountNumber?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   residentOrganization?: Maybe<Scalars['JSON']>;
@@ -23725,6 +23751,10 @@ export type ServiceConsumerHistoryRecordWhereInput = {
   acquiringIntegrationContext_not?: Maybe<Scalars['String']>;
   acquiringIntegrationContext_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   acquiringIntegrationContext_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  residentAcquiringIntegrationContext?: Maybe<Scalars['JSON']>;
+  residentAcquiringIntegrationContext_not?: Maybe<Scalars['JSON']>;
+  residentAcquiringIntegrationContext_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  residentAcquiringIntegrationContext_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   accountNumber?: Maybe<Scalars['String']>;
   accountNumber_not?: Maybe<Scalars['String']>;
   accountNumber_contains?: Maybe<Scalars['String']>;
