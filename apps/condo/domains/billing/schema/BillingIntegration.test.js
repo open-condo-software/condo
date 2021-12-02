@@ -19,16 +19,16 @@ describe('BillingIntegration', () => {
 
             const payload = {
                 dataFormat: {
-                    hasToPayDetail: true,
+                    hasToPayDetails: true,
                     hasServices: true,
-                    hasServicesDetail: true,
+                    hasServicesDetails: true,
                 },
             }
 
             const [updatedIntegration] = await updateTestBillingIntegration(admin, objCreated.id, payload)
 
             expect(updatedIntegration.id).toEqual(objCreated.id)
-            expect(updatedIntegration.dataFormat.hasToPayDetail).toEqual(true)
+            expect(updatedIntegration.dataFormat.hasToPayDetails).toEqual(true)
         })
 
         test('update format with wrong payload', async () => {
@@ -53,16 +53,24 @@ describe('BillingIntegration', () => {
         test('Can be created with options', async () => {
             const support = await makeClientWithSupportUser()
             const firstOption = { name: '1C', billingPageTitle: 'Биллиг "Реестры 1C"', descriptionDetails: { urlText: 'о формате', url: faker.internet.url() } }
-            const secondOption = { name: 'Сббол 9_2', billingPageTitle: 'Биллиг "Реестрыыыыыы"' }
-            const thirdOption = { name: 'Сббол 8_1', descriptionDetails: { urlText: 'о формате', url: faker.internet.url() } }
+            const noDescriptionOption = { name: 'Сббол 9_2', billingPageTitle: 'Биллиг "Реестрыыыыыы"' }
+            const dataFormatOverrideOption = {
+                name: 'Сббол 8_1',
+                descriptionDetails: { urlText: 'о формате', url: faker.internet.url() },
+                dataFormat: {
+                    hasToPayDetails: true,
+                    hasServices: true,
+                    hasServicesDetails: false,
+                },
+            }
             const title = 'Формат ваших реестров'
             const payload = {
                 availableOptions: {
                     title,
                     options: [
                         firstOption,
-                        secondOption,
-                        thirdOption,
+                        noDescriptionOption,
+                        dataFormatOverrideOption,
                     ],
                 },
             }
@@ -72,8 +80,8 @@ describe('BillingIntegration', () => {
             expect(billing).toHaveProperty(['availableOptions', 'options'])
             expect(billing.availableOptions.options).toEqual(expect.arrayContaining([
                 expect.objectContaining(firstOption),
-                expect.objectContaining(secondOption),
-                expect.objectContaining(thirdOption),
+                expect.objectContaining(noDescriptionOption),
+                expect.objectContaining(dataFormatOverrideOption),
             ]))
         })
     })
