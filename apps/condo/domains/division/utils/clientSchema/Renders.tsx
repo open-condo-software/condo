@@ -17,7 +17,7 @@ export const getAddressRender = (property: Property, DeletedMessage?: string, se
     const deletedMessage = isDeleted && DeletedMessage ? `(${DeletedMessage})\n` : '\n'
     const region = regionPart ? regionPart : ''
     const area = areaPart ? `, ${areaPart}` : ''
-    const city = cityPart ? `, ${cityPart}` : ''
+    const city = cityPart ? `${region ? ',' : ''} ${cityPart}` : ''
     const settlement = settlementPart ? `, ${settlementPart}` : ''
     const postfix = region + area + settlement + city + deletedMessage
 
