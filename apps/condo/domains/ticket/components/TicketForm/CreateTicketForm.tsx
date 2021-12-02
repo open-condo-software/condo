@@ -72,7 +72,7 @@ export const CreateTicketForm: React.FC = () => {
             router.push('/ticket')
         })
 
-    const cb = (attrs) => action({ ...attrs, organization: organizationRef.current })
+    const createAction = (attrs) => action({ ...attrs, organization: organizationRef.current })
 
     const initialValues = {
         assignee: auth.user.id,
@@ -81,7 +81,7 @@ export const CreateTicketForm: React.FC = () => {
 
     return (
         <BaseTicketForm
-            action={cb}
+            action={createAction}
             initialValues={initialValues}
             organization={organization}
             role={link.role}
