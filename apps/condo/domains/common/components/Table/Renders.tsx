@@ -4,6 +4,7 @@ import { TextProps } from 'antd/es/typography/Text'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import isBoolean from 'lodash/isBoolean'
 import { FilterValue } from 'antd/es/table/interface'
 
 import { ELECTRICITY_METER_RESOURCE_ID } from '@condo/domains/meter/constants/constants'
@@ -16,6 +17,7 @@ import { ELLIPSIS_ROWS } from '../../constants/style'
 import { EmptyTableCell } from './EmptyTableCell'
 import { Property } from '@app/condo/schema'
 import { getAddressDetails } from '../../utils/helpers'
+import { EllipsisConfig } from 'antd/es/typography/Base'
 
 type RenderReturnType = string | React.ReactNode
 
@@ -85,7 +87,7 @@ export const getHighlightedContents: TGetHighlightedFN = (search, postfix, extra
 /**
  * Type for getTableCellRenderer fn
  */
-type TTableCellRendererFN = (search?: FilterValue | string, ellipsis?: boolean, postfix?: string, extraHighlighterProps?: Partial<TTextHighlighterProps>, extraPostfixProps?: TextProps, extraTitle?: string) => (text?: string) => React.ReactElement
+type TTableCellRendererFN = (search?: FilterValue | string, ellipsis?: boolean | EllipsisConfig, postfix?: string, extraHighlighterProps?: Partial<TTextHighlighterProps>, extraPostfixProps?: TextProps, extraTitle?: string) => (text?: string) => React.ReactElement
 
 /**
  * Returned function renders provided text as a cell with highlighted search and multi row ellipsis (if requested)
@@ -112,11 +114,13 @@ export const getTableCellRenderer: TTableCellRendererFN = (
 
         if (!ellipsis) return <EmptyTableCell>{text && highlightedContent}</EmptyTableCell>
 
+        const ellipsisConfig = isBoolean(ellipsis) ? ELLIPSIS_SETTINGS : ellipsis
+
         return (
             <EmptyTableCell>
                 {
                     text && (
-                        <Typography.Paragraph ellipsis={ELLIPSIS_SETTINGS} title={title} style={ELLIPSIS_STYLES}>
+                        <Typography.Paragraph ellipsis={ellipsisConfig} title={title} style={ELLIPSIS_STYLES}>
                             {highlightedContent}
                         </Typography.Paragraph>
                     )
