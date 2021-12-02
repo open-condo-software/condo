@@ -73,7 +73,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
 
     let hasToPayDetails = get(context, ['integration', 'dataFormat', 'hasToPayDetail'], false)
     let hasServices = get(context, ['integration', 'dataFormat', 'hasServices'], false)
-    let hasServicesDetails = get(context, ['integration', 'dataFormat', 'hasServicesDetail'], false)
+    let hasServicesDetails = get(context, ['integration', 'dataFormat', 'hasServicesDetails'], false)
 
     const integrationOptionName = get(context, 'integrationOption')
     if (integrationOptionName) {
