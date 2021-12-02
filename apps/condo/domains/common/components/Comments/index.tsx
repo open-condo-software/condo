@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import styled from '@emotion/styled'
+import isPropValid from '@emotion/is-prop-valid'
 import { useIntl } from '@core/next/intl'
 import { Empty, Typography } from 'antd'
 import { useLayoutContext } from '../LayoutContext'
@@ -24,7 +25,7 @@ interface IContainerProps {
     isSmall: boolean
 }
 
-const Container = styled.aside<IContainerProps>`
+const Container = styled('aside', { shouldForwardProp: isPropValid })<IContainerProps>`
   background: #F5F5F5;
   border-radius: 8px;
   
@@ -57,7 +58,7 @@ const Body = styled.div`
   flex: 1 1 auto;
   padding-top: 12px;
 `
-const Footer = styled.div<{
+const Footer = styled('div', { shouldForwardProp: isPropValid })<{
     hasComments?: boolean
 }>`
   ${({ hasComments }) => hasComments ? 'border-top: solid thin #D9D9D9;' : ''}
