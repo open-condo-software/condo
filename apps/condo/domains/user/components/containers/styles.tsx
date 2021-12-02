@@ -1,4 +1,5 @@
 import styled from '@emotion/styled'
+import isPropValid from '@emotion/is-prop-valid'
 import { colors } from '@condo/domains/common/constants/style'
 import { Layout as AntLayout, PageHeader } from 'antd'
 
@@ -6,7 +7,7 @@ interface IFooterProps {
     isSmall: boolean
 }
 
-export const Footer = styled.div<IFooterProps>`
+export const Footer = styled('div', { shouldForwardProp: isPropValid })<IFooterProps>`
   ${({ isSmall }) => isSmall
         ? 'padding: 20px 0 0;'
         : `
@@ -69,7 +70,9 @@ interface IChildrenWrapperProps {
     isSmall: boolean
 }
 
-export const ChildrenWrapper = styled.div<IChildrenWrapperProps>`
+export const ChildrenWrapper = styled('div', {
+    shouldForwardProp: isPropValid,
+})<IChildrenWrapperProps>`
   margin: ${({ isSmall }) => isSmall ? 'inherit' : 'auto'};
   position: relative;
   display: flex;

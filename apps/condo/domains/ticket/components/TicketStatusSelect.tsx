@@ -7,6 +7,7 @@ import {
 } from '@condo/domains/ticket/utils/helpers'
 import { useIntl } from '@core/next/intl'
 import styled from '@emotion/styled'
+import isPropValid from '@emotion/is-prop-valid'
 import { Select, Typography } from 'antd'
 import get from 'lodash/get'
 import React, { useCallback, useMemo } from 'react'
@@ -17,7 +18,7 @@ interface IStyledSelect {
     backgroundColor: string
 }
 
-const StyledSelect = styled(Select)<IStyledSelect>`
+const StyledSelect = styled(Select, { shouldForwardProp: isPropValid })<IStyledSelect>`
   width: 100%;
   font-weight: 700;
   border-radius: 4px;
