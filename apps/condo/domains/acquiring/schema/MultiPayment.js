@@ -269,7 +269,7 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                 })
                 const oldStatus = existingItem.status
                 const newStatus = get(resolvedData, 'status', oldStatus)
-                if (oldStatus !== newStatus && !MULTIPAYMENT_TRANSITIONS[oldStatus].includes(newStatus)) {
+                if (!MULTIPAYMENT_TRANSITIONS[oldStatus].includes(newStatus)) {
                     return addValidationError(`${MULTIPAYMENT_NOT_ALLOWED_TRANSITION} Cannot move from "${oldStatus}" status to "${newStatus}"`)
                 }
                 const newItem = {
