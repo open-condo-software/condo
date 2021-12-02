@@ -21,13 +21,11 @@ async function getResidentBillingAccount (context, billingIntegrationContext, ac
     if (!Array.isArray(applicableBillingAccounts)) {
         return [] // No accounts are found for this user
     }
-
     applicableBillingAccounts = applicableBillingAccounts.filter(
         (billingAccount) => {
             return accountNumber === billingAccount.number || accountNumber === billingAccount.globalId
         }
     )
-
     return applicableBillingAccounts
 }
 
@@ -74,7 +72,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                 if (billingIntegrationContext) {
 
                     const [acquiringIntegrationContext] = await AcquiringIntegrationContext.getAll(context, { organization: { id: organization.id, deletedAt: null }, deletedAt: null })
-                    const billingAccount = await getResidentBillingAccount(context, billingIntegrationContext, accountNumber, unitName)
+                    const [billingAccount] = await getResidentBillingAccount(context, billingIntegrationContext, accountNumber, unitName)
                     attrs.billingAccount = billingAccount ? { connect: { id: billingAccount.id } } : null
                     attrs.billingIntegrationContext = billingAccount ? { connect: { id: billingIntegrationContext.id } } : null
                     attrs.acquiringIntegrationContext = billingAccount && acquiringIntegrationContext ? { connect: { id: acquiringIntegrationContext.id } } : null
