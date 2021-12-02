@@ -1,5 +1,5 @@
 import { Form, Space } from 'antd'
-import React from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { useOrganization } from '@core/next/organization'
 import { useRouter } from 'next/router'
 import { useAuth } from '@core/next/auth'
@@ -58,15 +58,21 @@ export const CreateTicketForm: React.FC = () => {
     const router = useRouter()
     const auth = useAuth() as { user: { id: string } }
 
+    const organizationRef = useRef()
+    useEffect(() => {
+        organizationRef.current = organization
+    }, [organization])
+
     const action = Ticket.useCreate(
         {
-            organization: organization.id,
             status: OPEN_STATUS,
             source: DEFAULT_TICKET_SOURCE_CALL_ID,
         },
         () => {
             router.push('/ticket')
         })
+
+    const cb = (attrs) => action({ ...attrs, organization: organizationRef.current })
 
     const initialValues = {
         assignee: auth.user.id,
@@ -75,7 +81,7 @@ export const CreateTicketForm: React.FC = () => {
 
     return (
         <BaseTicketForm
-            action={action}
+            action={cb}
             initialValues={initialValues}
             organization={organization}
             role={link.role}
