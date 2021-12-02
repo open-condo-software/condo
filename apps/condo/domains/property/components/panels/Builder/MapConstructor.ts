@@ -26,6 +26,7 @@ export type BuildingUnitArg = BuildingUnit & {
     name?: string
     floor?: string
     section?: string
+    sectionIndex?: number
 }
 
 type BuildingSelectOption = {
@@ -237,6 +238,10 @@ class MapView extends Map {
         return this.map.sections
     }
 
+    get lastSectionIndex (): number {
+        return Math.max(...this.map.sections.map(section => section.index))
+    }
+
     public getUnitInfo (id: string): BuildingUnitArg {
         const newUnit: BuildingUnitArg = { id: '', label: '', floor: '', section: '', type: BuildingMapEntityType.Unit }
         if (!id) {
@@ -252,6 +257,7 @@ class MapView extends Map {
             label,
             type,
             section: this.map.sections[unitIndex.section].id,
+            sectionIndex: this.map.sections[unitIndex.section].index,
             floor: this.map.sections[unitIndex.section].floors[unitIndex.floor].id,
         }
     }
@@ -332,6 +338,8 @@ class MapEdit extends MapView {
                 this.selectedSection = null
                 break
             default:
+                this.removePreviewUnit()
+                this.removePreviewSection()
                 this.selectedSection = null
                 this.selectedUnit = null
                 this.mode = null
