@@ -4,17 +4,16 @@
 
 const { Text, Relationship, Select, Checkbox } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
-const { Json } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingIntegration')
 const { CURRENCY_CODE_FIELD } = require('@condo/domains/common/schema/fields')
-const { validateDataFormat } = require('../utils/validation.utils')
 const {
     BILLING_INTEGRATION_ORGANIZATION_CONTEXT_STATUSES,
     BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IN_PROGRESS_STATUS,
 } = require('@condo/domains/billing/constants/constants')
 const { AVAILABLE_OPTIONS_FIELD } = require('./fields/BillingIntegration/AvailableOptions')
+const { DATA_FORMAT_FIELD } = require('./fields/BillingIntegration/DataFormat')
 
 
 const BillingIntegration = new GQLListSchema('BillingIntegration', {
@@ -80,14 +79,7 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
             defaultValue: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IN_PROGRESS_STATUS,
         },
 
-        dataFormat: {
-            schemaDoc: 'Format of the data, that is output of this integration. This field specifies the detail and size of columns. If not specified we can only show first level of detail (address, account, toPay)',
-            type: Json,
-            isRequired: false,
-            hooks: {
-                validateInput: validateDataFormat,
-            },
-        },
+        dataFormat: DATA_FORMAT_FIELD,
 
         currencyCode: {
             ...CURRENCY_CODE_FIELD,

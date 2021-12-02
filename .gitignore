@@ -33,3 +33,4 @@ ignore.*
 
 .vscode
 .werf_secret_key
+/bin/werf
