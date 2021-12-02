@@ -14,27 +14,27 @@ const RUB_CURRENCY_CODE = 'RUB'
 const USD_CURRENCY_CODE = 'USD'
 
 const Lvl1DataFormat = {
-    hasToPayDetail: false,
+    hasToPayDetails: false,
     hasServices: false,
-    hasServicesDetail: false,
+    hasServicesDetails: false,
 }
 
 const Lvl1PlusDataFormat = {
-    hasToPayDetail: true,
+    hasToPayDetails: true,
     hasServices: false,
-    hasServicesDetail: false,
+    hasServicesDetails: false,
 }
 
 const Lvl2DataFormat = {
-    hasToPayDetail: true,
+    hasToPayDetails: true,
     hasServices: true,
-    hasServicesDetail: false,
+    hasServicesDetails: false,
 }
 
 const Lvl3DataFormat = {
-    hasToPayDetail: true,
+    hasToPayDetails: true,
     hasServices: true,
-    hasServicesDetail: true,
+    hasServicesDetails: true,
 }
 
 const InProgressBilling = {
@@ -85,6 +85,7 @@ const SuccessfulBilling = {
                     urlText: 'о формате',
                     url: 'https://help.doma.ai',
                 },
+                dataFormat: Lvl1DataFormat,
             },
             {
                 name: 'SBBOL_9_1',
