@@ -134,7 +134,7 @@ interface ITopModalProps {
 
 const TopModal = styled('div', { shouldForwardProp: isPropValid })<ITopModalProps>`
   position: absolute;
-  top: 60px;
+  top: 10px;
   right: 24px;
   display: ${({ visible }) => visible ? 'flex' : 'none'};
   flex-direction: column;
@@ -450,16 +450,38 @@ const CHESS_SCROLL_CONTAINER_STYLE: React.CSSProperties = {
     width: '100%',
     overflowY: 'hidden',
 }
+const SCROLL_CONTAINER_EDIT_PADDING = '330px'
+const MENU_COVER_MAP_WIDTH = 800
 
 const ChessBoard: React.FC<IChessBoardProps> = (props) => {
     const { Builder, refresh, scrollToForm, toggleFullscreen, isFullscreen, children } = props
     const container = useRef<HTMLElement | null>(null)
+
     useEffect(() => {
-        if (container.current) {
-            if (Builder.previewSectionId) {
-                const { scrollWidth, clientWidth, scrollHeight, clientHeight } = container.current
-                container.current.scrollTo(scrollWidth - clientWidth, scrollHeight - clientHeight)
+        const childTotalWidth = container.current !== null
+            ? Array.from(container.current.children).reduce((total, element) => total + element.clientWidth, 0)
+            : 0
+        const isNeedToMoveContainer = Builder.editMode !== null && !Builder.isEmpty && childTotalWidth > MENU_COVER_MAP_WIDTH
+        if (isNeedToMoveContainer) {
+            // Always if modal for new section was opened we need to move container to the left
+            if (Builder.editMode === 'addSection') {
+                container.current.style.paddingRight = SCROLL_CONTAINER_EDIT_PADDING
+            } else if (Builder.editMode === 'editSection') {
+                // When user select last section we actually need to move container to the left side of screen
+                const needToAddPadding = get(Builder.getSelectedSection(), 'index') === Builder.lastSectionIndex
+                needToAddPadding && (container.current.style.paddingRight = SCROLL_CONTAINER_EDIT_PADDING)
+            } else if (Builder.editMode === 'addUnit' || Builder.editMode === 'editUnit') {
+                // Last case when user want to add or edit unit only at the last section
+                const needToAddPadding = get(Builder.getSelectedUnit(), 'sectionIndex') === Builder.lastSectionIndex
+                needToAddPadding && (container.current.style.paddingRight = SCROLL_CONTAINER_EDIT_PADDING)
             }
+        } else {
+            container.current.style.paddingRight = '0px'
+        }
+
+        if (container.current && container.current.style.paddingRight !== '0px') {
+            const { scrollWidth, clientWidth, scrollHeight, clientHeight } = container.current
+            container.current.scrollTo(scrollWidth - clientWidth, scrollHeight - clientHeight)
         }
     }, [Builder])
 
