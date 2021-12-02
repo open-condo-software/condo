@@ -1,9 +1,9 @@
 /** @jsx jsx */
-import React, { CSSProperties, useCallback } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import { Col, Input, Row, Typography, Checkbox } from 'antd'
-import { CloseOutlined, FilterFilled } from '@ant-design/icons'
+import { Checkbox, Col, Input, Row, Typography } from 'antd'
+import { FilterFilled } from '@ant-design/icons'
 import { Gutter } from 'antd/lib/grid/row'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -33,10 +33,10 @@ import { IFilters } from '@condo/domains/ticket/utils/helpers'
 import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { useEmergencySearch } from '@condo/domains/ticket/hooks/useEmergencySearch'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { updateQuery } from '@condo/domains/common/utils/filters.utils'
 
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
+import { FILTER_TABLE_KEYS, FiltersStorage } from '../../domains/common/utils/FiltersStorage'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -75,12 +75,18 @@ export const TicketsPageContent = ({
     const reduceNonEmpty = (cnt, filter) => cnt + Number(Array.isArray(filters[filter]) && filters[filter].length > 0)
     const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
 
-    const { MultipleFiltersModal, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas)
+    const [isInitialFiltersApplied, setIsInitialFiltersApplied] = useState(false)
+    const { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, FILTER_TABLE_KEYS.TICKET)
+    useEffect(() => {
+        FiltersStorage
+            .loadFilters(FILTER_TABLE_KEYS.TICKET, router)
+            .then(() => setIsInitialFiltersApplied(true))
+    }, [])
 
     searchTicketsQuery = { ...searchTicketsQuery, ...{ deletedAt: null } }
 
     const {
-        loading,
+        loading: isTicketsFetching,
         count: total,
         objs: tickets,
     } = Ticket.useObjects({
@@ -91,6 +97,8 @@ export const TicketsPageContent = ({
     }, {
         fetchPolicy: 'network-only',
     })
+
+    const loading = isTicketsFetching || !isInitialFiltersApplied
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -104,9 +112,6 @@ export const TicketsPageContent = ({
     const [emergency, handleEmergencyChange] = useEmergencySearch<IFilters>(loading)
     const [paid, handlePaidChange] = usePaidSearch<IFilters>(loading)
     const isNoTicketsData = !tickets.length && isEmpty(filters) && !loading
-    const resetQuery = async () => {
-        await updateQuery(router, {})
-    }
 
     return (
         <>
@@ -166,14 +171,9 @@ export const TicketsPageContent = ({
                                                         {
                                                             appliedFiltersCount > 0 ? (
                                                                 <Col>
-                                                                    <Button
-                                                                        type={'text'}
-                                                                        onClick={resetQuery}
-                                                                    >
-                                                                        <Typography.Text strong type={'secondary'}>
-                                                                            {ResetFiltersLabel} <CloseOutlined style={CROSS_ICON_STYLE} />
-                                                                        </Typography.Text>
-                                                                    </Button>
+                                                                    <ResetFiltersModalButton
+                                                                        filterTableKey={FILTER_TABLE_KEYS.TICKET}
+                                                                    />
                                                                 </Col>
                                                             ) : null
                                                         }
@@ -225,18 +225,13 @@ const TICKETS_DEFAULT_SORT_BY = ['order_ASC', 'createdAt_DESC']
 const TicketsPage: ITicketIndexPage = () => {
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
-
     const filterMetas = useTicketTableFilters()
-
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, SORTABLE_PROPERTIES)
-
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
-
     const tableColumns = useTableColumns(filterMetas)
-
     const searchTicketsQuery = { ...filtersToWhere(filters), organization: { id: userOrganizationId } }
-
+    
     return (
         <TicketsPageContent
             tableColumns={tableColumns}
