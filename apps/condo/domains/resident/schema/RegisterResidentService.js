@@ -32,12 +32,12 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                     user: { connect: { id: context.authedItem.id } },
                 }
                 const [existingResident] = await ResidentAPI.getAll(context, {
-                    address,
+                    address_i: address,
                     unitName,
                     user: { id: context.authedItem.id },
                 })
 
-                const [property] = await Property.getAll(context, { address, deletedAt: null }, { sortBy: ['createdAt_ASC'] })
+                const [property] = await Property.getAll(context, { address_i: address, deletedAt: null }, { sortBy: ['createdAt_ASC'] })
                 if (property) {
                     attrs.property = { connect: { id: property.id } }
                     attrs.organization = { connect: { id: property.organization.id } }
