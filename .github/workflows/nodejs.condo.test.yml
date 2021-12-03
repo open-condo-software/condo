@@ -62,7 +62,7 @@ jobs:
           [[ $(jobs | wc -l | tr -d ' ') != '2' ]] && exit 2
           sleep 3
 
-          yarn workspace @app/condo test domains/resident --silent --coverage --testTimeout=15000 --forceExit --detectOpenHandles
+          yarn workspace @app/condo test domains/billing domains/resident --silent --coverage --testTimeout=15000 --forceExit --detectOpenHandles
 
           # Note: we need to stop background worker! because packages tests use the same redis queue
           kill $(jobs -p) || echo 'background worker and dev server is already killed!'
