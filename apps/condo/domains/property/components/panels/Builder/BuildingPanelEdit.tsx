@@ -228,16 +228,16 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
 
     const { push, query: { id } } = useRouter()
     const builderFormRef = useRef<HTMLDivElement | null>(null)
-    const [Map, setMap] = useState(new MapEdit(map, updateFormField))
+    const [mapEdit, setMapEdit] = useState(new MapEdit(map, updateFormField))
 
-    const mode = Map.editMode
-    const sections = Map.sections
+    const mode = mapEdit.editMode
+    const sections = mapEdit.sections
     const address = get(property, 'address')
 
     const quickSaveCallback = useCallback((event) => {
         event.preventDefault()
 
-        if (Map.validate()) {
+        if (mapEdit.validate()) {
             debouncedQuickSave()
             return
         }
@@ -245,7 +245,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
             message: MapValidationError,
             placement: 'bottomRight',
         })
-    }, [debouncedQuickSave, Map])
+    }, [debouncedQuickSave, mapEdit])
 
     useHotkeys('ctrl+s', quickSaveCallback, [map, property])
 
@@ -265,13 +265,13 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     }
 
     const refresh = useCallback(() => {
-        setMap(cloneDeep(Map))
-    }, [Map])
+        setMapEdit(cloneDeep(mapEdit))
+    }, [mapEdit])
 
     const changeMode = useCallback((mode) => {
-        Map.editMode = mode
+        mapEdit.editMode = mode
         refresh()
-    }, [Map, refresh])
+    }, [mapEdit, refresh])
 
 
     const onCancel = useCallback(() => {
@@ -280,7 +280,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
 
     const menuClick = useCallback((event) => {
         if (INSTANT_ACTIONS.includes(event.key)) {
-            Map[event.key]()
+            mapEdit[event.key]()
             return
         }
         changeMode(event.key)
@@ -291,9 +291,9 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     }, [changeMode])
 
     const onSelectSection = useCallback((id) => {
-        Map.setVisibleSections(id)
+        mapEdit.setVisibleSections(id)
         refresh()
-    }, [Map, refresh])
+    }, [mapEdit, refresh])
 
     const menuOverlay = useMemo(() => (
         <Menu css={MenuCss} onClick={menuClick}>
@@ -344,7 +344,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                             <Space size={20}>
                                 <AddressTopTextContainer>{address}</AddressTopTextContainer>
                                 {sections.length >= MIN_SECTIONS_TO_SHOW_FILTER && (
-                                    <Select value={Map.visibleSections} onSelect={onSelectSection}>
+                                    <Select value={mapEdit.visibleSections} onSelect={onSelectSection}>
                                         <Select.Option value={null} >{AllSectionsTitle}</Select.Option>
                                         {
                                             sections.map(section => (
@@ -379,18 +379,18 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                 >
                     {
                         useMemo(() => ({
-                            addSection: <AddSectionForm Builder={Map} refresh={refresh}/>,
-                            addUnit: <UnitForm Builder={Map} refresh={refresh}/>,
-                            editSection: <EditSectionForm Builder={Map} refresh={refresh}/>,
-                            editUnit: <UnitForm Builder={Map} refresh={refresh}/>,
-                        }[mode] || null), [mode, Map, refresh])
+                            addSection: <AddSectionForm builder={mapEdit} refresh={refresh}/>,
+                            addUnit: <UnitForm builder={mapEdit} refresh={refresh}/>,
+                            removeSection: <RemoveSectionForm builder={mapEdit} refresh={refresh}/>,
+                            editUnit: <UnitForm builder={mapEdit} refresh={refresh}/>,
+                        }[mode] || null), [mode, mapEdit, refresh])
                     }
                 </BuildingPanelTopModal>
             </FullscreenHeader>
             <Row align='middle' style={{ height: '100%' }}>
                 {
                     <ChessBoard
-                        Builder={Map}
+                        builder={mapEdit}
                         refresh={refresh}
                         scrollToForm={scrollToForm}
                         isFullscreen
@@ -428,7 +428,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
 }
 
 interface IChessBoardProps {
-    Builder: MapEdit
+    builder: MapEdit
     refresh(): void
     scrollToForm(): void
     toggleFullscreen?(): void
@@ -457,27 +457,27 @@ const SCROLL_CONTAINER_EDIT_PADDING = '330px'
 const MENU_COVER_MAP_WIDTH = 800
 
 const ChessBoard: React.FC<IChessBoardProps> = (props) => {
-    const { Builder, refresh, scrollToForm, toggleFullscreen, isFullscreen, children } = props
+    const { builder, refresh, scrollToForm, toggleFullscreen, isFullscreen, children } = props
     const container = useRef<HTMLElement | null>(null)
 
     useEffect(() => {
         const childTotalWidth = container.current !== null
             ? Array.from(container.current.children).reduce((total, element) => total + element.clientWidth, 0)
             : 0
-        const shouldMoveContainer = Builder.editMode !== null && !Builder.isEmpty && childTotalWidth > MENU_COVER_MAP_WIDTH
+        const shouldMoveContainer = builder.editMode !== null && !builder.isEmpty && childTotalWidth > MENU_COVER_MAP_WIDTH
 
         if (shouldMoveContainer) {
             // Always if modal for new section was opened we need to move container to the left
-            if (Builder.editMode === 'addSection') {
+            if (builder.editMode === 'addSection') {
                 container.current.style.paddingRight = SCROLL_CONTAINER_EDIT_PADDING
-            } else if (Builder.editMode === 'editSection') {
+            } else if (builder.editMode === 'editSection') {
                 // When user select last section we actually need to move container to the left side of screen
-                const shouldAddPadding = get(Builder.getSelectedSection(), 'index') === Builder.lastSectionIndex
+                const shouldAddPadding = get(builder.getSelectedSection(), 'index') === builder.lastSectionIndex
 
                 if (shouldAddPadding) container.current.style.paddingRight = SCROLL_CONTAINER_EDIT_PADDING
-            } else if (Builder.editMode === 'addUnit' || Builder.editMode === 'editUnit') {
+            } else if (builder.editMode === 'addUnit' || builder.editMode === 'editUnit') {
                 // Last case when user want to add or edit unit only at the last section
-                const shouldAddPadding = get(Builder.getSelectedUnit(), 'sectionIndex') === Builder.lastSectionIndex
+                const shouldAddPadding = get(builder.getSelectedUnit(), 'sectionIndex') === builder.lastSectionIndex
 
                 if (shouldAddPadding) container.current.style.paddingRight = SCROLL_CONTAINER_EDIT_PADDING
             }
@@ -490,18 +490,18 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
 
             container.current.scrollTo(scrollWidth - clientWidth, scrollHeight - clientHeight)
         }
-    }, [Builder])
+    }, [builder])
 
     return (
         <Row align='bottom' style={CHESS_ROW_STYLE} >
             {
-                Builder.isEmpty ?
+                builder.isEmpty ?
                     <Col span={24} style={CHESS_COL_STYLE}>
                         <EmptyBuildingBlock mode="edit" />
                         <BuildingChooseSections
                             isFullscreen={isFullscreen}
                             toggleFullscreen={toggleFullscreen}
-                            Builder={Builder}
+                            builder={builder}
                             refresh={refresh}
                             mode="edit"
                         >
@@ -520,22 +520,22 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
                             innerRef={container}
                         >
                             {
-                                !isEmpty(Builder.sections) && (
-                                    <BuildingAxisY floors={Builder.possibleChosenFloors} />
+                                !isEmpty(builder.sections) && (
+                                    <BuildingAxisY floors={builder.possibleChosenFloors} />
                                 )
                             }
                             {
-                                Builder.sections.map(section => {
+                                builder.sections.map(section => {
                                     return (
                                         <PropertyMapSection
                                             key={section.id}
                                             section={section}
-                                            Builder={Builder}
+                                            builder={builder}
                                             refresh={refresh}
                                             scrollToForm={scrollToForm}
                                         >
                                             {
-                                                Builder.possibleChosenFloors.map(floorIndex => {
+                                                builder.possibleChosenFloors.map(floorIndex => {
                                                     const floorInfo = section.floors.find(floor => floor.index === floorIndex)
                                                     if (floorInfo && floorInfo.units.length) {
                                                         return (
@@ -546,7 +546,7 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
                                                                             <PropertyMapUnit
                                                                                 key={unit.id}
                                                                                 unit={unit}
-                                                                                Builder={Builder}
+                                                                                builder={builder}
                                                                                 refresh={refresh}
                                                                                 scrollToForm={scrollToForm}
                                                                             />
@@ -570,7 +570,7 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
                         <BuildingChooseSections
                             isFullscreen={isFullscreen}
                             toggleFullscreen={toggleFullscreen}
-                            Builder={Builder}
+                            builder={builder}
                             refresh={refresh}
                             mode="edit"
                         >
@@ -584,23 +584,23 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
 
 interface IPropertyMapSectionProps {
     section: BuildingSection
-    Builder: MapEdit
+    builder: MapEdit
     refresh: () => void
     scrollToForm: () => void
 }
 const FULL_SIZE_UNIT_STYLE: React.CSSProperties = { width: '100%', marginTop: '8px', display: 'block' }
 
-const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ section, children, Builder, refresh, scrollToForm }) => {
+const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ section, children, builder, refresh, scrollToForm }) => {
     const chooseSection = useCallback((section) => {
-        Builder.setSelectedSection(section)
-        if (Builder.getSelectedSection()) {
+        builder.setSelectedSection(section)
+        if (builder.getSelectedSection()) {
             scrollToForm()
         }
         refresh()
-    }, [Builder, refresh, scrollToForm])
+    }, [builder, refresh, scrollToForm])
 
     return (
-        <MapSectionContainer visible={Builder.isSectionVisible(section.id)}>
+        <MapSectionContainer visible={builder.isSectionVisible(section.id)}>
             {children}
             <UnitButton
                 secondary
@@ -608,7 +608,7 @@ const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ section, child
                 disabled={section.preview}
                 preview={section.preview}
                 onClick={() => chooseSection(section)}
-                selected={Builder.isSectionSelected(section.id)}
+                selected={builder.isSectionSelected(section.id)}
             >{section.name}</UnitButton>
         </MapSectionContainer>
     )
@@ -624,15 +624,15 @@ const PropertyMapFloor: React.FC = ({ children }) => {
 
 interface IPropertyMapUnitProps {
     unit: BuildingUnit
-    Builder: MapEdit
+    builder: MapEdit
     refresh: () => void
     scrollToForm: () => void
 }
 
-const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ Builder, refresh, unit, scrollToForm }) => {
+const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ builder, refresh, unit, scrollToForm }) => {
     const selectUnit = (unit) => {
-        Builder.setSelectedUnit(unit)
-        if (Builder.getSelectedUnit()) {
+        builder.setSelectedUnit(unit)
+        if (builder.getSelectedUnit()) {
             scrollToForm()
         }
         refresh()
@@ -642,21 +642,21 @@ const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ Builder, refresh, un
             onClick={() => selectUnit(unit)}
             disabled={unit.preview}
             preview={unit.preview}
-            selected={Builder.isUnitSelected(unit.id)}
+            selected={builder.isUnitSelected(unit.id)}
         >{unit.label}</UnitButton>
     )
 }
 
 
 interface IAddSectionFormProps {
-    Builder: MapEdit
+    builder: MapEdit
     refresh(): void
 }
 const MODAL_FORM_ROW_GUTTER: RowProps['gutter'] = [0, 20]
 const MODAL_FORM_ROW_BUTTONS_GUTTER: RowProps['gutter'] = [0, 16]
 const MODAL_FORM_BUTTON_STYLE: React.CSSProperties = { marginTop: '12px' }
 
-const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) => {
+const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) => {
     const intl = useIntl()
     const MinFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.minfloor' })
     const MaxFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.maxFloor' })
@@ -684,8 +684,8 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) =>
             setMaxMinError((maxFloor < minFloor))
         }
         if (minFloor && maxFloor && unitsOnFloor && !maxMinError) {
-            name.current = String(Builder.sections.filter(section => !section.preview).length + 1)
-            Builder.addPreviewSection({
+            name.current = String(builder.sections.filter(section => !section.preview).length + 1)
+            builder.addPreviewSection({
                 id: '',
                 name: name.current,
                 minFloor,
@@ -694,24 +694,24 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) =>
             })
             refresh()
         } else {
-            Builder.removePreviewSection()
+            builder.removePreviewSection()
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [minFloor, maxFloor, unitsOnFloor])
 
     useEffect(() => {
         if (copyId !== null) {
-            const sectionToCopy = Builder.map.sections.find((section) => section.id === copyId)
+            const sectionToCopy = builder.map.sections.find((section) => section.id === copyId)
             const floorIndexes = sectionToCopy.floors.map((floor) => floor.index)
             setMinFloor(Math.min(...floorIndexes))
             setMaxFloor(Math.max(...floorIndexes))
             setUnitsOnFloor(get(sectionToCopy, 'floors.0.units.length', 0))
         }
-    }, [copyId])
+    }, [builder, copyId])
 
     const handleFinish = () => {
-        Builder.removePreviewSection()
-        Builder.addSection({ id: '', name: name.current, minFloor, maxFloor, unitsOnFloor })
+        builder.removePreviewSection()
+        builder.addSection({ id: '', name: name.current, minFloor, maxFloor, unitsOnFloor })
         refresh()
         resetForm()
     }
@@ -721,9 +721,9 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) =>
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
             <Col span={24}>
-                <Select value={copyId} onSelect={setCopyId} disabled={Builder.isEmpty}>
+                <Select value={copyId} onSelect={setCopyId} disabled={builder.isEmpty}>
                     <Select.Option key={'create'} value={null}>{CreateNewLabel}</Select.Option>
-                    {Builder.map.sections.filter(section => !section.preview).map(section => (
+                    {builder.map.sections.filter(section => !section.preview).map(section => (
                         <Select.Option
                             key={`copy-${section.id}`}
                             value={section.id}
@@ -766,13 +766,13 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ Builder, refresh }) =>
 }
 
 interface IUnitFormProps {
-    Builder: MapEdit
+    builder: MapEdit
     refresh(): void
 }
 
-const UnitForm: React.FC<IUnitFormProps> = ({ Builder, refresh }) => {
+const UnitForm: React.FC<IUnitFormProps> = ({ builder, refresh }) => {
     const intl = useIntl()
-    const mode = Builder.editMode
+    const mode = builder.editMode
     const SaveLabel = intl.formatMessage({ id: mode === 'editUnit' ? 'Save' : 'Add' })
     const DeleteLabel = intl.formatMessage({ id: 'Delete' })
     const NameLabel = intl.formatMessage({ id: 'pages.condo.property.unit.Name' })
@@ -788,9 +788,9 @@ const UnitForm: React.FC<IUnitFormProps> = ({ Builder, refresh }) => {
 
     const updateSection = (value) => {
         setSection(value)
-        setFloors(Builder.getSectionFloorOptions(value))
+        setFloors(builder.getSectionFloorOptions(value))
         if (mode === 'editUnit') {
-            const mapUnit = Builder.getSelectedUnit()
+            const mapUnit = builder.getSelectedUnit()
             if (value === mapUnit.section) {
                 setFloor(mapUnit.floor)
             } else {
@@ -802,16 +802,16 @@ const UnitForm: React.FC<IUnitFormProps> = ({ Builder, refresh }) => {
     }
 
     useEffect(() => {
-        setSections(Builder.getSectionOptions())
-        const mapUnit = Builder.getSelectedUnit()
+        setSections(builder.getSectionOptions())
+        const mapUnit = builder.getSelectedUnit()
         if (mapUnit) {
-            setFloors(Builder.getSectionFloorOptions(mapUnit.section))
+            setFloors(builder.getSectionFloorOptions(mapUnit.section))
             setLabel(mapUnit.label)
             setSection(mapUnit.section)
             setFloor(mapUnit.floor)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [Builder])
+    }, [builder])
 
     const resetForm = () => {
         setLabel('')
@@ -821,30 +821,30 @@ const UnitForm: React.FC<IUnitFormProps> = ({ Builder, refresh }) => {
 
     useEffect(() => {
         if (label && floor && section && mode === 'addUnit') {
-            Builder.addPreviewUnit({ id: '', label, floor, section })
+            builder.addPreviewUnit({ id: '', label, floor, section })
             refresh()
         } else {
-            Builder.removePreviewUnit()
+            builder.removePreviewUnit()
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [label, floor, section, mode])
 
 
     const applyChanges = () => {
-        const mapUnit = Builder.getSelectedUnit()
+        const mapUnit = builder.getSelectedUnit()
         if (mapUnit) {
-            Builder.updateUnit({ ...mapUnit, label, floor, section })
+            builder.updateUnit({ ...mapUnit, label, floor, section })
         } else {
-            Builder.removePreviewUnit()
-            Builder.addUnit({ id: '', label, floor, section })
+            builder.removePreviewUnit()
+            builder.addUnit({ id: '', label, floor, section })
             resetForm()
         }
         refresh()
     }
 
     const deleteUnit = () => {
-        const mapUnit = Builder.getSelectedUnit()
-        Builder.removeUnit(mapUnit.id)
+        const mapUnit = builder.getSelectedUnit()
+        builder.removeUnit(mapUnit.id)
         refresh()
         resetForm()
     }
@@ -905,21 +905,21 @@ const UnitForm: React.FC<IUnitFormProps> = ({ Builder, refresh }) => {
     )
 }
 
-interface IEditSectionFormProps {
-    Builder: MapEdit
+interface IRemoveSectionFormProps {
+    builder: MapEdit
     refresh(): void
 }
 const MODAL_FORM_EDIT_GUTTER: RowProps['gutter'] = [0, 32]
 const MODAL_FORM_BUTTON_GUTTER: RowProps['gutter'] = [0, 16]
 
-const EditSectionForm: React.FC<IEditSectionFormProps> = ({ Builder, refresh }) => {
+const RemoveSectionForm: React.FC<IRemoveSectionFormProps> = ({ builder, refresh }) => {
     const intl = useIntl()
     const DeleteLabel = intl.formatMessage({ id: 'Delete' })
 
-    const section = Builder.getSelectedSection()
+    const section = builder.getSelectedSection()
 
     const deleteSection = () => {
-        Builder.removeSection(section.id)
+        builder.removeSection(section.id)
         refresh()
     }
 

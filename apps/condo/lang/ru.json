@@ -328,7 +328,7 @@
   "pages.condo.property.select.option.ceil": "Чердак",
   "pages.condo.property.modal.title.addSection": "Добавить подъезд",
   "pages.condo.property.modal.title.addUnit": "Добавить помещение",
-  "pages.condo.property.modal.title.editSection": "Удалить подъезд",
+  "pages.condo.property.modal.title.removeSection": "Удалить подъезд",
   "pages.condo.property.modal.title.editUnit": "Редактировать помещение",
   "pages.condo.property.menu.MenuPlaceholder": "Добавить элемент",
   "pages.condo.property.type.building": "Многоквартирный дом",
