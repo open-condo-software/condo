@@ -17,7 +17,7 @@ type TicketAssignmentsProps = {
     autoAssign: boolean,
     categoryClassifier: string,
     form: FormInstance
-    searchEmployeesAgainDependencies?: any[]
+    // searchEmployeesAgainDependencies?: any[]
 }
 
 const TicketAssignments = ({
@@ -28,7 +28,7 @@ const TicketAssignments = ({
     autoAssign,
     categoryClassifier,
     form,
-    searchEmployeesAgainDependencies,
+    // searchEmployeesAgainDependencies,
 }: TicketAssignmentsProps) => {
     const intl = useIntl()
     const TicketAssignmentTitle = intl.formatMessage({ id: 'TicketAssignment' })
@@ -175,7 +175,6 @@ const TicketAssignments = ({
                             search={searchEmployeeUser(organizationId, ({ role }) => (
                                 get(role, 'canBeAssignedAsExecutor', false)
                             ))}
-                            searchAgainDependencies={searchEmployeesAgainDependencies}
                         />
                     </Form.Item>
                 </Col>
@@ -193,7 +192,6 @@ const TicketAssignments = ({
                             search={searchEmployeeUser(organizationId, ({ role }) => (
                                 get(role, 'canBeAssignedAsResponsible', false)
                             ))}
-                            searchAgainDependencies={searchEmployeesAgainDependencies}
                         />
                     </Form.Item>
                 </Col>

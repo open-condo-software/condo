@@ -381,7 +381,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                 autoAssign={autoAssign}
                                                                 categoryClassifier={categoryClassifier}
                                                                 form={form}
-                                                                searchEmployeesAgainDependencies={[organization]}
                                                             />
                                                         </Row>
                                                     </FrontLayerContainer>
