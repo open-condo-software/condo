@@ -17,6 +17,8 @@ const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSc
 
 const { connectResidents } = require('./helpers')
 
+jest.setTimeout(10000)
+
 // NOTE: here we test only 1 case: for forced re-connection of already connected to non-deleted property residents
 // to oldest non-deleted property. All other cases are tested by the way in apps/condo/domains/resident/schema/RegisterResidentService.test.js
 describe('connectResidents', () => {
@@ -38,7 +40,7 @@ describe('connectResidents', () => {
         expect(deletedProperty.deletedAt).not.toBeNull()
 
         // NOTE: give worker some time
-        await sleep(1000)
+        await sleep(2500)
 
         // resident should be connected to property1 automatically by RegisterResidentService custom mutation
         await registerResidentByTestClient(userClient, { address: addressMeta.value, addressMeta })
@@ -50,12 +52,13 @@ describe('connectResidents', () => {
         expect(get(resident, 'property.id')).toEqual(property1.id)
 
         const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+        // restore deleted property
         const restoredProperty = await PropertyAPI.update(organizationClient, property.id, { deletedAt: null, dv: 1, sender })
 
         expect(restoredProperty.deletedAt).toBeNull()
 
         // NOTE: give worker some time
-        await sleep(1500)
+        await sleep(2500)
 
         const residents = await ResidentAPI.getAll(userClient, { id: userClient.id })
 
