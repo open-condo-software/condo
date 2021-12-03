@@ -66,7 +66,9 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                     })
                     id = existingResident.id
                 } else {
-                    const resident = await ResidentAPI.create(context, attrs)
+                    const propertyAddress = removeFlatNum(address, addressMeta.data.flat_type)
+                    const residentAttrs = { ...attrs, address: propertyAddress }
+                    const resident = await ResidentAPI.create(context, residentAttrs)
                     id = resident.id
                 }
                 // Hack that helps to resolve all subfields in result of this mutation
