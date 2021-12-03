@@ -65,7 +65,6 @@ export const TicketsPageContent = ({
     const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
     const EmergenciesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.EmergenciesLabel' })
     const PaidLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PaidLabel' })
-    const ResetFiltersLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.ResetFilters' })
 
     const { isSmall } = useLayoutContext()
     const router = useRouter()

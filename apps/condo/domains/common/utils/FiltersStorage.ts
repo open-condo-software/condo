@@ -17,7 +17,11 @@ export class FiltersStorage {
         const filters = localStorage.getItem(tableKey)
 
         if (isString(filters)) {
-            await updateQuery(router, JSON.parse(filters) as FiltersFromQueryType)
+            try {
+                await updateQuery(router, JSON.parse(filters) as FiltersFromQueryType)
+            } catch {
+                return
+            }
         }
     }
 
