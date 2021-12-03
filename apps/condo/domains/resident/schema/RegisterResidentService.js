@@ -3,10 +3,10 @@
  */
 
 const { getById, GQLCustomSchema } = require('@core/keystone/schema')
-const access = require('../access/RegisterResidentService')
-const { Resident } = require('../utils/serverSchema/index')
-const { Property } = require('@condo/domains/property/utils/serverSchema')
-const { Resident: ResidentAPI } = require('../utils/serverSchema')
+
+const { Property: PropertyAPI } = require('@condo/domains/property/utils/serverSchema')
+const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverSchema')
+const access = require('@condo/domains/resident/access/RegisterResidentService')
 
 /**
  * Removes flat type and number from address string, if flatType provided and address contains it.
@@ -44,7 +44,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                     user: { id: context.authedItem.id },
                 })
                 const propertyAddress = removeFlatNum(address, addressMeta.data.flat_type)
-                const [property] = await Property.getAll(
+                const [property] = await PropertyAPI.getAll(
                     context,
                     { address_i: propertyAddress, deletedAt: null },
                     { sortBy: ['createdAt_ASC'], first: 1 }
@@ -66,7 +66,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                     })
                     id = existingResident.id
                 } else {
-                    const resident = await Resident.create(context, attrs)
+                    const resident = await ResidentAPI.create(context, attrs)
                     id = resident.id
                 }
                 // Hack that helps to resolve all subfields in result of this mutation
