@@ -139,7 +139,7 @@ export const BuildingAxisY: React.FC<IBuildingAxisYProps> = ({ floors }) => {
 }
 
 interface IBuildingChooseSectionsProps {
-    Builder: MapEdit | MapView
+    builder: MapEdit | MapView
     refresh(): void
     toggleFullscreen?(): void
     isFullscreen?: boolean
