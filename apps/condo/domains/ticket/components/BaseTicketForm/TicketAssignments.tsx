@@ -17,7 +17,6 @@ type TicketAssignmentsProps = {
     autoAssign: boolean,
     categoryClassifier: string,
     form: FormInstance
-    // searchEmployeesAgainDependencies?: any[]
 }
 
 const TicketAssignments = ({
@@ -28,7 +27,6 @@ const TicketAssignments = ({
     autoAssign,
     categoryClassifier,
     form,
-    // searchEmployeesAgainDependencies,
 }: TicketAssignmentsProps) => {
     const intl = useIntl()
     const TicketAssignmentTitle = intl.formatMessage({ id: 'TicketAssignment' })

@@ -1,5 +1,3 @@
-const isString = require('lodash/isString')
-
 const SPACE_SYMBOLS = ' \t\n\r\v\u00A0'
 const SPACE_SYMBOL_LABLES = {
     ' ': ' ',
@@ -15,7 +13,7 @@ const ESCAPABLE_SYMBOLS_REGEX = /[-[\]{}()*+?.,\\/^$|#\s]/g
 const ESCAPE_WITH = '\\$&'
 
 // ESCAPES SPECIAL REGEX CHARACTERS OF STRING TO ENABLE ITS USAGE INSIDE REGEX
-const getEscaped = (text) => isString(text) && text.replace(ESCAPABLE_SYMBOLS_REGEX, ESCAPE_WITH)
+const getEscaped = (text) => String(text).replace(ESCAPABLE_SYMBOLS_REGEX, ESCAPE_WITH)
 
 module.exports = {
     getEscaped,
