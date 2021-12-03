@@ -42,6 +42,8 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                     address_i: address,
                     unitName,
                     user: { id: context.authedItem.id },
+                }, {
+                    first: 1,
                 })
                 const propertyAddress = removeFlatNum(address, addressMeta.data.flat_type)
                 const [property] = await PropertyAPI.getAll(
