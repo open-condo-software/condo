@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react'
-import { useIntl } from '@core/next/intl'
 import { Col, Row } from 'antd'
 import { useRouter } from 'next/router'
 import cloneDeep from 'lodash/cloneDeep'
@@ -58,14 +57,8 @@ const CHESS_SCROLL_CONTAINER_STYLE: React.CSSProperties = {
     width: '100%',
     overflowY: 'hidden',
 }
-const FULL_SIZE_UNIT_STYLE: React.CSSProperties = { width: '100%', marginTop: '8px', display: 'block' }
 
 export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refresh }) => {
-    const intl = useIntl()
-    const AtticTitlePrefix = intl.formatMessage({ id: 'Attic' })
-    const BasementTitlePrefix = intl.formatMessage({ id: 'Basement' })
-    const RoofTitlePrefix = intl.formatMessage({ id: 'Roof' })
-
     const { query: { id } } = useRouter()
     const { obj: property } = useObject({ where: { id: id as string } })
 
@@ -102,10 +95,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
                             >
                                 {
                                     !isEmpty(Builder.sections) && (
-                                        <BuildingAxisY
-                                            floors={Builder.possibleChosenFloors}
-                                            hasBasement={Builder.possibleBasements}
-                                        />
+                                        <BuildingAxisY floors={Builder.possibleChosenFloors} />
                                     )
                                 }
                                 {
@@ -114,21 +104,6 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
                                             key={section.id}
                                             visible={Builder.isSectionVisible(section.id)}
                                         >
-                                            {section.roof && (
-                                                <UnitButton
-                                                    ellipsis={false}
-                                                    disabled
-                                                    style={FULL_SIZE_UNIT_STYLE}
-                                                >{RoofTitlePrefix}</UnitButton>
-                                            )}
-                                            {section.attic && section.attic.map(attic => (
-                                                <UnitButton
-                                                    key={attic.index}
-                                                    ellipsis={false}
-                                                    disabled
-                                                    style={FULL_SIZE_UNIT_STYLE}
-                                                >{AtticTitlePrefix} {attic.label}</UnitButton>
-                                            ))}
                                             {
                                                 Builder.possibleChosenFloors.map(floorIndex => {
                                                     const floorInfo = section.floors.find(floor => floor.index === floorIndex)
@@ -154,14 +129,6 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
                                                     }
                                                 })
                                             }
-                                            {section.basement && section.basement.map(basement => (
-                                                <UnitButton
-                                                    key={basement.index}
-                                                    ellipsis={false}
-                                                    disabled
-                                                    style={FULL_SIZE_UNIT_STYLE}
-                                                >{BasementTitlePrefix} {basement.label}</UnitButton>
-                                            ))}
                                             <UnitButton
                                                 secondary
                                                 style={{ width: '100%', marginTop: '8px' }}
