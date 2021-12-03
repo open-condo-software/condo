@@ -17,7 +17,7 @@ async function manageResidentToPropertyAndOrganizationConnections (propertyId) {
 
     //  get oldest non-deleted property with same address
     const [oldestProperty] = await PropertyAPI.getAll(context, {
-        address_starts_with: property.address,
+        address: property.address,
         deletedAt: null,
     }, {
         sortBy: 'createdAt_ASC', // sorting order is essential here
@@ -26,7 +26,7 @@ async function manageResidentToPropertyAndOrganizationConnections (propertyId) {
 
     // get all non-deleted residents with same address
     const residents = await ResidentAPI.getAll(context, {
-        address_starts_with: property.address,
+        address: property.address,
         deletedAt: null,
     })
 
