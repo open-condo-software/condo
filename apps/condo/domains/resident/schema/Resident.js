@@ -195,6 +195,8 @@ const Resident = new GQLListSchema('Resident', {
                     unitName_i: unitName,
                     user: { id: userId },
                     deletedAt: null,
+                }, {
+                    first: 1,
                 })
                 if (resident) {
                     return addValidationError('Cannot create resident, because another resident with the same provided "address" and "unitName" already exists for current user')
