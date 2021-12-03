@@ -105,6 +105,7 @@ const Resident = new GQLListSchema('Resident', {
                     const billingContextsCount = await BillingIntegrationOrganizationContext.count(context, {
                         organization: { id: organizationId },
                         lastReport_not: null,
+                        deletedAt: null,
                     })
 
                     const propertyId = get(item, 'property', null)
@@ -113,6 +114,7 @@ const Resident = new GQLListSchema('Resident', {
                         organization: { id: organizationId },
                         property: { id: propertyId },
                         unitName: unitName,
+                        deletedAt: null,
                     })
 
                     return {
@@ -192,6 +194,7 @@ const Resident = new GQLListSchema('Resident', {
                     address_i: addressUpToBuilding,
                     unitName_i: unitName,
                     user: { id: userId },
+                    deletedAt: null,
                 })
                 if (resident) {
                     return addValidationError('Cannot create resident, because another resident with the same provided "address" and "unitName" already exists for current user')
