@@ -461,6 +461,7 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
             ? Array.from(container.current.children).reduce((total, element) => total + element.clientWidth, 0)
             : 0
         const shouldMoveContainer = Builder.editMode !== null && !Builder.isEmpty && childTotalWidth > MENU_COVER_MAP_WIDTH
+
         if (shouldMoveContainer) {
             // Always if modal for new section was opened we need to move container to the left
             if (Builder.editMode === 'addSection') {
@@ -468,10 +469,12 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
             } else if (Builder.editMode === 'editSection') {
                 // When user select last section we actually need to move container to the left side of screen
                 const shouldAddPadding = get(Builder.getSelectedSection(), 'index') === Builder.lastSectionIndex
+
                 if (shouldAddPadding) container.current.style.paddingRight = SCROLL_CONTAINER_EDIT_PADDING
             } else if (Builder.editMode === 'addUnit' || Builder.editMode === 'editUnit') {
                 // Last case when user want to add or edit unit only at the last section
                 const shouldAddPadding = get(Builder.getSelectedUnit(), 'sectionIndex') === Builder.lastSectionIndex
+
                 if (shouldAddPadding) container.current.style.paddingRight = SCROLL_CONTAINER_EDIT_PADDING
             }
         } else {
@@ -480,6 +483,7 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
 
         if (container.current && container.current.style.paddingRight !== '0px') {
             const { scrollWidth, clientWidth, scrollHeight, clientHeight } = container.current
+
             container.current.scrollTo(scrollWidth - clientWidth, scrollHeight - clientHeight)
         }
     }, [Builder])
