@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import React, { CSSProperties, useCallback } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
 import get from 'lodash/get'
 import { Select, SelectProps, Typography } from 'antd'
 
@@ -91,7 +91,7 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
         [],
     )
 
-    return (
+    const MemoizedBaseSearchInput = useCallback(() => (
         <BaseSearchInput
             {...props}
             id={'propertyAddressSearchInput'}
@@ -99,7 +99,8 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
             renderOption={renderOption}
             initialValueGetter={initialValueGetter}
             infinityScroll
-            searchAgainDependencies={[organizationId]}
         />
-    )
+    ), [organizationId])
+
+    return <MemoizedBaseSearchInput />
 }

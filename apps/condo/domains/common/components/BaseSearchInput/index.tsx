@@ -22,7 +22,6 @@ interface ISearchInput<S> extends Omit<SelectProps<S>, 'onSelect'> {
     initialValueGetter?: InitialValuesGetter
     onSelect?: (value: string, option: OptionProps) => void
     infinityScroll?: boolean
-    searchAgainDependencies?: unknown[]
 }
 
 const SELECT_LOADER_STYLE = { display: 'flex', justifyContent: 'center', padding: '10px 0' }
@@ -46,7 +45,6 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
         style,
         infinityScroll,
         value,
-        searchAgainDependencies = [],
         ...restSelectProps
     } = props
 
@@ -76,12 +74,6 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
         },
         [searchSuggestions],
     )
-
-    useEffect(() => {
-        if (initialOptionsLoaded) {
-            debouncedSearch(value)
-        }
-    }, [...searchAgainDependencies])
 
     const searchMoreSuggestions = useCallback(
         async (value, skip) => {
