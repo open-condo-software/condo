@@ -115,6 +115,35 @@ describe('OrganizationEmployee', () => {
         expect(objs[0].updatedAt).toMatch(obj.updatedAt)
     })
 
+    test('user with deleted employee: can read his employee', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+        const [organization] = await createTestOrganization(admin)
+        const [role] = await createTestOrganizationEmployeeRole(admin, organization)
+        const [employee] = await createTestOrganizationEmployee(admin, organization, userClient.user, role)
+        await updateTestOrganizationEmployee(admin, employee.id, { deletedAt: 'true' })
+
+        const objs = await OrganizationEmployee.getAll(userClient, { OR: [{ deletedAt: null }, { deletedAt_not: null }] })
+
+        expect(objs).toHaveLength(1)
+        expect(objs[0].id).toEqual(employee.id)
+    })
+
+    test('user with deleted employee: cannot read other employees', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const userClient1 = await makeClientWithNewRegisteredAndLoggedInUser()
+        const userClient2 = await makeClientWithNewRegisteredAndLoggedInUser()
+        const [organization] = await createTestOrganization(admin)
+        const [role] = await createTestOrganizationEmployeeRole(admin, organization)
+        const [employee1] = await createTestOrganizationEmployee(admin, organization, userClient1.user, role)
+        await createTestOrganizationEmployee(admin, organization, userClient2.user, role)
+        await updateTestOrganizationEmployee(admin, employee1.id, { deletedAt: 'true' })
+
+        const objs = await OrganizationEmployee.getAll(userClient1, {})
+
+        expect(objs).toHaveLength(0)
+    })
+
     test('anonymous: read OrganizationEmployee', async () => {
         const client = await makeClient()
 
