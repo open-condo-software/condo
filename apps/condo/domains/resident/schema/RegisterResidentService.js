@@ -44,7 +44,11 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                     user: { id: context.authedItem.id },
                 })
                 const propertyAddress = removeFlatNum(address, addressMeta.data.flat_type)
-                const [property] = await Property.getAll(context, { address: propertyAddress, deletedAt: null }, { sortBy: ['createdAt_ASC'] })
+                const [property] = await Property.getAll(
+                    context,
+                    { address: propertyAddress, deletedAt: null },
+                    { sortBy: ['createdAt_ASC'], first: 1 }
+                )
 
                 if (property) {
                     attrs.property = { connect: { id: property.id } }

@@ -8,6 +8,7 @@ const get = require('lodash/get')
 const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@core/keystone/test.utils')
 
 const { expectToThrowAuthenticationError, expectToThrowAccessDeniedErrorToResult } = require('@condo/domains/common/utils/testSchema')
+const { sleep } = require('@condo/domains/common/utils/sleep')
 
 const { registerNewOrganization, makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 
@@ -35,6 +36,10 @@ describe('RegisterResidentService connections', () => {
         const orgAddressMeta = { ...addressMeta, value: address }
         const propertyData = { address, addressMeta: orgAddressMeta, map: buildingMapJson }
         const [property] = await createTestProperty(organizationClient, organizationClient.organization, propertyData)
+
+        // NOTE: give worker some time
+        await sleep(1000)
+
         const [resident] = await Resident.getAll(userClient, { id: userClient.id })
 
         expect(get(resident, 'organization.id')).toEqual(organizationClient.organization.id)
@@ -58,6 +63,10 @@ describe('RegisterResidentService connections', () => {
         await registerResidentByTestClient(userClient, { address: addressMeta.value, addressMeta })
 
         const [property] = await createTestProperty(organizationClient, organizationClient.organization, propertyPayload)
+
+        // NOTE: give worker some time
+        await sleep(1000)
+
         const [resident] = await Resident.getAll(userClient, { id: userClient.id })
 
         expect(resident.organization.id).toEqual(organizationClient.organization.id)
@@ -65,6 +74,9 @@ describe('RegisterResidentService connections', () => {
 
         // add one more property with same address, should not reconnect residents to it
         await createTestProperty(organizationClient2, organizationClient2.organization, propertyPayload)
+
+        // NOTE: give worker some time
+        await sleep(1000)
 
         const [resident1] = await Resident.getAll(userClient, { id: userClient.id })
 
@@ -101,13 +113,16 @@ describe('RegisterResidentService connections', () => {
 
         expect(restoredProperty.deletedAt).toBeNull()
 
+        // NOTE: give worker some time
+        await sleep(1000)
+
         const [resident1] = await Resident.getAll(userClient, { id: userClient.id })
 
         expect(get(resident1, 'organization.id')).toEqual(organizationClient.organization.id)
         expect(get(resident1, 'property.id')).toEqual(property.id)
     })
 
-    it('connects restored property with matched address to existing residents, ignores deleted and younger props, and residents connected to other non-deleted props', async () => {
+    it('connects restored property with matched address to existing residents (including connected to other props), ignores deleted props', async () => {
         const { address, addressMeta } = buildFakeAddressAndMeta(true)
         const userClient1 = await makeClientWithResidentUser()
         const userClient2 = await makeClientWithResidentUser()
@@ -135,6 +150,9 @@ describe('RegisterResidentService connections', () => {
 
         const [property2] = await createTestProperty(organizationClient2, organizationClient2.organization, propertyPayload)
 
+        // NOTE: give worker some time
+        await sleep(1000)
+
         const [resident1_1] = await Resident.getAll(userClient1, { id: userClient1.id })
 
         // after property2 registration resident1 still stays connected to property1
@@ -145,6 +163,9 @@ describe('RegisterResidentService connections', () => {
 
         // make sure property1 is softDeleted
         expect(deletedProperty1.deletedAt).not.toBeNull()
+
+        // NOTE: give worker some time
+        await sleep(1000)
 
         const [resident1_2] = await Resident.getAll(userClient1, { id: userClient1.id })
 
@@ -157,11 +178,14 @@ describe('RegisterResidentService connections', () => {
 
         expect(restoredProperty1.deletedAt).toBeNull()
 
+        // NOTE: give worker some time
+        await sleep(1000)
+
         const [resident1_3] = await Resident.getAll(userClient1, { id: userClient1.id })
 
-        // after property1 restored resident1 should not reconnect to property1 and stay connected to property2
-        expect(get(resident1_3, 'organization.id')).toEqual(organizationClient2.organization.id)
-        expect(get(resident1_3, 'property.id')).toEqual(property2.id)
+        // after property1 restored resident1 should reconnect to property1
+        expect(get(resident1_3, 'organization.id')).toEqual(organizationClient1.organization.id)
+        expect(get(resident1_3, 'property.id')).toEqual(property1.id)
 
         // Resident #2 should connect to the oldest non-deleted property1
         await registerResidentByTestClient(userClient2, { address: addressMeta.value, addressMeta })
@@ -182,14 +206,21 @@ describe('RegisterResidentService connections', () => {
         const propertyPayload = { address, addressMeta: orgAddressMeta, map: buildingMapJson }
         const payload = { address: addressMeta.value, addressMeta }
         const [property] = await createTestProperty(organizationClient, organizationClient.organization, propertyPayload)
+
+        // NOTE: give worker some time
+        await sleep(1000)
+
         const [resident] = await registerResidentByTestClient(userClient, payload)
 
-        expect(resident.organization.id).toEqual(organizationClient.organization.id)
-        expect(resident.property.id).toEqual(property.id)
+        expect(get(resident, 'organization.id')).toEqual(get(organizationClient, 'organization.id'))
+        expect(get(resident, 'property.id')).toEqual(get(property, 'id'))
 
-        await Property.softDelete(organizationClient, property.id)
+        await Property.softDelete(organizationClient, get(property, 'id'))
 
-        const [resident1] = await Resident.getAll(userClient, { id: userClient.id })
+        // NOTE: give worker some time
+        await sleep(1000)
+
+        const [resident1] = await Resident.getAll(userClient, { id: get(userClient, 'id') })
 
         expect(resident1.organization).toBeNull()
         expect(resident1.property).toBeNull()
@@ -208,6 +239,9 @@ describe('RegisterResidentService connections', () => {
 
         await Property.softDelete(organizationClient1, property1.id)
 
+        // NOTE: give worker some time
+        await sleep(1000)
+
         const payload = { address: addressMeta.value, addressMeta }
         const [resident] = await registerResidentByTestClient(userClient, payload)
         // const [resident] = await Resident.getAll(userClient, { id: userClient.id })
@@ -216,6 +250,9 @@ describe('RegisterResidentService connections', () => {
         expect(resident.property.id).toEqual(property.id)
 
         await Property.softDelete(organizationClient, property.id)
+
+        // NOTE: give worker some time
+        await sleep(1000)
 
         const [resident1] = await Resident.getAll(userClient, { id: userClient.id })
 
@@ -245,6 +282,9 @@ describe('RegisterResidentService connections', () => {
         expect(resident.property.id).toEqual(property.id)
 
         await Property.softDelete(organizationClient, property.id)
+
+        // NOTE: give worker some time
+        await sleep(1000)
 
         const [resident1] = await Resident.getAll(userClient, { id: userClient.id })
 

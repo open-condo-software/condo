@@ -19,15 +19,17 @@ const { hasDbFields, hasDvAndSenderFields } = require('@condo/domains/common/uti
 const { DV_UNKNOWN_VERSION_ERROR, JSON_UNKNOWN_VERSION_ERROR, JSON_SCHEMA_VALIDATION_ERROR, JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/errors')
 
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
+
 const access = require('@condo/domains/property/access/Property')
 const MapSchemaJSON = require('@condo/domains/property/components/panels/Builder/MapJsonSchema.json')
+
+const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverSchema')
+const { manageResidentToPropertyAndOrganizationConnections } = require('@condo/domains/resident/tasks')
+const { connectResidents, disconnectResidents } = require('@condo/domains/resident/utils/helpers')
 
 const { PROPERTY_MAP_GRAPHQL_TYPES, GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY, GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY } = require('../gql')
 const { Property: PropertyAPI } = require('../utils/serverSchema')
 const { normalizePropertyMap } = require('../utils/serverSchema/helpers')
-const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverSchema')
-
-const { connectResidents, disconnectResidents } = require('./helpers')
 
 const ajv = new Ajv()
 const jsonMapValidator = ajv.compile(MapSchemaJSON)
@@ -54,23 +56,32 @@ const Property = new GQLListSchema('Property', {
             isRequired: true,
             hooks: {
                 validateInput: async ({ resolvedData, fieldPath, addFieldValidationError, context, existingItem, operation }) => {
-                    const value = get(resolvedData, fieldPath, null)
-
-                    if (operation === 'create' || operation === 'update' && get(resolvedData, 'address') !== get(existingItem, 'address')) {
-                        const id = get(existingItem, 'organization')
-
-                        if (id) {
-                            const where = {
-                                address: value,
-                                organization: { id },
-                                deletedAt: null,
-                            }
-                            const sameAddressProps = await PropertyAPI.getAll(context, where)
-
-                            if (!isEmpty(sameAddressProps)) {
-                                addFieldValidationError(`${UNIQUE_ALREADY_EXISTS_ERROR}${fieldPath}] Property with same address exist in current organization`)
-                            }
+                    const value = resolvedData[fieldPath]
+                    let propertiesWithSameAddressInOrganization
+                    if (operation === 'create') {
+                        const where = {
+                            address: value,
+                            organization: {
+                                id: resolvedData.organization,
+                            },
+                            deletedAt: null,
                         }
+
+                        propertiesWithSameAddressInOrganization = await PropertyAPI.getAll(context, where, { first: 1 })
+                    } else if (operation === 'update' && resolvedData.address !== existingItem.address) {
+                        const where = {
+                            address: value,
+                            organization: {
+                                id: existingItem.organization,
+                            },
+                            deletedAt: null,
+                        }
+
+                        propertiesWithSameAddressInOrganization = await PropertyAPI.getAll(context, where, { first: 1 })
+                    }
+
+                    if (!isEmpty(propertiesWithSameAddressInOrganization)) {
+                        addFieldValidationError(`${UNIQUE_ALREADY_EXISTS_ERROR}${fieldPath}] Property with same address exist in current organization`)
                     }
                 },
             },
@@ -241,75 +252,14 @@ const Property = new GQLListSchema('Property', {
                 return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown 'dv'`)
             }
         },
-        afterChange: async ({ operation, existingItem, updatedItem, context }) => {
+        afterChange: async ({ operation, existingItem, updatedItem }) => {
             const isSoftDeleteOperation = operation === 'update' && !existingItem.deletedAt && Boolean(updatedItem.deletedAt)
             const isCreatedProperty = operation === 'create' && Boolean(updatedItem.address)
             const isRestoredProperty = operation === 'update' && Boolean(existingItem.deletedAt) && !updatedItem.deletedAt
+            const id = isSoftDeleteOperation ? existingItem.id : updatedItem.id
 
-            // softDelete operation does not trigger afterDelete hook, so we have to handle it here
-            if (isSoftDeleteOperation) {
-
-                // get all residents of deleted prop
-                const propertyResidents = await ResidentAPI.getAll(context, {
-                    property: { id: existingItem.id },
-                })
-
-                if (isEmpty(propertyResidents)) return
-
-                // Deleted property has some residents
-                // Need to decide, whether to disconnect them at all or reconnect to different property
-
-                //  get all non-deleted props with same address ordered by creation date (oldest first)
-                const properties = await PropertyAPI.getAll(context, {
-                    address_starts_with: existingItem.address,
-                    deletedAt: null,
-                }, {
-                    sortBy: 'createdAt_ASC', // sorting order is essential here
-                    first: 1,
-                })
-
-                if (isEmpty(properties)) {
-                    // No properties to move residents to
-                    await disconnectResidents(ResidentAPI, context, propertyResidents)
-
-                } else {
-                    const oldestProperty = properties[0]
-                    // Move residents to oldest non-deleted property with same address
-                    await connectResidents(ResidentAPI, context, propertyResidents, oldestProperty)
-                }
-            }
-
-            // new property added by an organization or previously deleted property is being restored somehow
-            // we have to check if there are any residents with same address (excluding connected to other non-deleted properties)
-            // and reconnect them either to this prop if it's the only one, or to other non-deleted property, which is oldest
-            // Do nothing if residents already connected to oldest non-deleted property
-            if (isCreatedProperty || isRestoredProperty) {
-                // get all residents with same address
-                const residents = await ResidentAPI.getAll(context, {
-                    address_starts_with: updatedItem.address,
-                })
-
-                if (isEmpty(residents)) return
-
-                //  get all non-deleted props with same address ordered by creation date (oldest first)
-                const properties = await PropertyAPI.getAll(context, {
-                    address_starts_with: updatedItem.address,
-                    deletedAt: null,
-                }, {
-                    sortBy: 'createdAt_ASC', // sorting order is essential here
-                    first: 1,
-                })
-
-                const oldestProperty = properties[0]
-
-                // connect ORPHAN residents to oldest prop with same address in the list
-                // it is either the only and just created/restored prop, or the oldest non-deleted prop
-                // property will be connected to resident only if it has no property at all,
-                // or it's property is deleted
-                // all this checks & logic are handled in connectResidents
-                // NOTE: if we need to reconnect residents with non-deleted property to older one (restored)
-                //       5th argument (reconnectToOlder) of connectResidents should be set to true
-                await connectResidents(ResidentAPI, context, residents, oldestProperty)
+            if (isSoftDeleteOperation || isCreatedProperty || isRestoredProperty) {
+                await manageResidentToPropertyAndOrganizationConnections.delay(id)
             }
         },
     },

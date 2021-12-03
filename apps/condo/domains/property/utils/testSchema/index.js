@@ -22,6 +22,7 @@ const Property = generateGQLTestUtils(PropertyGQL)
 async function createTestProperty (client, organization, extraAttrs = {}, withFlat = false) {
     if (!client) throw new Error('no client')
     if (!organization) throw new Error('no organization')
+
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const name = faker.address.streetAddress(true)
     const { address, addressMeta } = buildFakeAddressAndMeta(withFlat)
@@ -36,6 +37,7 @@ async function createTestProperty (client, organization, extraAttrs = {}, withFl
         ...extraAttrs,
     }
     const obj = await Property.create(client, attrs)
+
     return [obj, attrs]
 }
 

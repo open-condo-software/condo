@@ -2,7 +2,6 @@ const get = require('lodash/get')
 const dayjs = require('dayjs')
 const isSameOrBefore = require('dayjs/plugin/isSameOrBefore')
 const { NOT_FOUND_ERROR } = require('@condo/domains/common/constants/errors')
-// const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverSchema')
 
 dayjs.extend(isSameOrBefore)
 

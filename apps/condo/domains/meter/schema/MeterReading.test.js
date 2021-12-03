@@ -6,13 +6,15 @@ const faker = require('faker')
 
 const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@core/keystone/test.utils')
 
+const { sleep } = require('@condo/domains/common/utils/sleep')
+
 const {
     catchErrorFrom,
     expectToThrowMutationError,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAccessDeniedErrorToObj,
-    expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowAccessDeniedError,
 } = require('@condo/domains/common/utils/testSchema')
 
 const {
@@ -307,6 +309,10 @@ describe('MeterReading', () => {
                 unitName,
             })
             await TestProperty.softDelete(adminClient, property.id)
+
+            // NOTE: give worker some time
+            await sleep(1000)
+
             const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
             const testFunc = async () => {
                 await createTestMeterReading(client, meter, organization, source)
@@ -1011,11 +1017,14 @@ describe('MeterReading', () => {
 
             await TestProperty.softDelete(adminClient, property.id)
 
+            // NOTE: give worker some time
+            await sleep(1000)
+
             const testFunc = async () => {
                 await MeterReading.getAll(client, { id: meterReading.id })
             }
 
-            await expectToThrowAccessDeniedErrorToObjects(testFunc, [ 'objs', 0, 'organization' ])
+            await expectToThrowAccessDeniedError(testFunc, [ 'objs', 0, 'organization' ])
         })
 
         test('user: cannot read MeterReadings', async () => {

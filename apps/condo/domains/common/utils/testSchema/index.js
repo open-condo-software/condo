@@ -10,6 +10,7 @@
  */
 
 const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
 
 /**
  * Implements correct expecting of GraphQLError, thrown by Keystone.
@@ -41,6 +42,43 @@ export const catchErrorFrom = async (testFunc, inspect) => {
 }
 
 /**
+ * Expects a GraphQLError of type 'AccessDeniedError', thrown by Keystone on access to a specified path.
+ * Should be used to examine access to operation of GraphQL utility wrapper for complex paths.
+ * If path is skipped, than nor it, neither value won't be checked. This option is useful,
+ * when we have unstable errors contents, for example when there are sub-requests that are executed in parallel
+ * and we get different errors, depending on which sub-request finishes first.
+ * @example
+ *
+ * test('something, that should throw an error', async () => {
+ *     const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+ *     await expectToThrowAccessDeniedError(async () => {
+ *         await createTestResident(userClient, ...)
+ *     }, [ 'objs', 0, 'organization' ])
+ * })
+ *
+ * @param {TestFunc} testFunc - Function, expected to throw an error
+ * @return {Promise<void>}
+ */
+export const expectToThrowAccessDeniedError = async (testFunc, path ) => {
+    await catchErrorFrom(testFunc, ({errors, data}) => {
+        const expectedError = {
+            'message': 'You do not have access to this resource',
+            'name': 'AccessDeniedError',
+        }
+
+        if (path) {
+            expect(Array.isArray(path)).toBeTruthy()
+            expect(isEmpty(path)).toBeFalsy()
+            expectedError.path = path
+        }
+
+        expect(errors[0]).toMatchObject(expectedError)
+
+        if (path) expect(get(data, path)).toBeNull()
+    })
+}
+
+/**
  * Expects a GraphQLError of type 'AccessDeniedError', thrown by Keystone on access to a single schema object.
  * Should be used to examine access to operation of GraphQL utility wrapper, that returns `obj`.
  * @example
@@ -55,18 +93,14 @@ export const catchErrorFrom = async (testFunc, inspect) => {
  * @param {TestFunc} testFunc - Function, expected to throw an error
  * @return {Promise<void>}
  */
-export const expectToThrowAccessDeniedErrorToObj = async (testFunc, path = ['obj']) => {
+export const expectToThrowAccessDeniedErrorToObj = async (testFunc) => {
     await catchErrorFrom(testFunc, ({errors, data}) => {
-        const expectedError = {
+        expect(errors[0]).toMatchObject({
             'message': 'You do not have access to this resource',
             'name': 'AccessDeniedError',
-        }
-
-        if (path) expectedError.path = path
-
-        expect(errors[0]).toMatchObject(expectedError)
-
-        if (path) expect(get(data, path)).toBeNull()
+            'path': ['obj'],
+        })
+        expect(data).toEqual({ 'obj': null })
     })
 }
 
@@ -85,18 +119,14 @@ export const expectToThrowAccessDeniedErrorToObj = async (testFunc, path = ['obj
  * @param {TestFunc} testFunc - Function, expected to throw an error
  * @return {Promise<void>}
  */
-export const expectToThrowAccessDeniedErrorToObjects = async (testFunc, path = ['objs']) => {
+export const expectToThrowAccessDeniedErrorToObjects = async (testFunc) => {
     await catchErrorFrom(testFunc, ({errors, data}) => {
-        const expectedError = {
+        expect(errors[0]).toMatchObject({
             'message': 'You do not have access to this resource',
             'name': 'AccessDeniedError',
-        }
-
-        if (path) expectedError.path = path
-
-        expect(errors[0]).toMatchObject(expectedError)
-
-        if (path) expect(get(data, path)).toBeNull()
+            'path': ['objs'],
+        })
+        expect(data).toEqual({ 'objs': null })
     })
 }
 

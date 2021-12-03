@@ -3,6 +3,8 @@ const get = require('lodash/get')
 
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 
+const { sleep } = require('@condo/domains/common/utils/sleep')
+
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
@@ -35,6 +37,10 @@ describe('connectResidents', () => {
 
         expect(deletedProperty.deletedAt).not.toBeNull()
 
+        // NOTE: give worker some time
+        await sleep(1000)
+
+        // resident should be connected to property1 automatically by RegisterResidentService custom mutation
         await registerResidentByTestClient(userClient, { address: addressMeta.value, addressMeta })
 
         const [resident] = await Resident.getAll(userClient, { id: userClient.id })
@@ -48,6 +54,9 @@ describe('connectResidents', () => {
 
         expect(restoredProperty.deletedAt).toBeNull()
 
+        // NOTE: give worker some time
+        await sleep(1000)
+
         const residents = await Resident.getAll(userClient, { id: userClient.id })
 
         // Resident should be still connected to oldest non-deleted property1
@@ -55,6 +64,9 @@ describe('connectResidents', () => {
         expect(get(residents[0], 'property.id')).toEqual(property1.id)
 
         await connectResidents(Resident, adminClient, residents, restoredProperty, true)
+
+        // NOTE: give worker some time
+        await sleep(1000)
 
         const [resident1] = await Resident.getAll(userClient, { id: userClient.id })
 
