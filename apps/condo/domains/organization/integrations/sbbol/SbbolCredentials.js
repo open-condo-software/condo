@@ -48,7 +48,7 @@ class SbbolCredentials {
             },
             body: {
                 client_id: clientId,
-                client_secret: clientSecret,
+                client_secret: clientSecret || tokenSet.clientSecret,
             },
         })
         if (statusCode !== 200) {
