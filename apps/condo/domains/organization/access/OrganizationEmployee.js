@@ -10,13 +10,21 @@ async function canReadOrganizationEmployees ({ authentication: { item: user } })
     if (!user) return throwAuthenticationError()
     if (user.isAdmin || user.isSupport) return {}
     const userId = user.id
+
     return {
-        organization: {
-            OR: [
-                queryOrganizationEmployeeFor(userId),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
-            ],
-        },
+        OR: [
+            {
+                organization: {
+                    OR: [
+                        queryOrganizationEmployeeFor(userId),
+                        queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
+                    ],
+                },
+            },
+            {
+                user: { id: userId },
+            },
+        ],
     }
 }
 
