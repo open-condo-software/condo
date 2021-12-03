@@ -38,17 +38,6 @@ jobs:
           pip3 install django
           pip3 install psycopg2-binary
 
-      - name: test front build
-        run: |
-          set -x
-          echo '# Build time .env config!' > .env
-          echo 'COOKIE_SECRET=undefined' >> .env
-          echo 'DATABASE_URL=undefined' >> .env
-          echo 'WORKER_REDIS_URL=undefined' >> .env
-          echo 'NODE_ENV=production' >> .env
-
-          yarn workspace @app/condo build
-
       - name: run tests for ${{ matrix.database }}
         run: |
           set -x
