@@ -137,7 +137,10 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     }, [search])
 
     const renderUnit = useCallback((text, record) => {
-        const postfix = `\n${ShortSectionNameMessage} ${record.sectionName},\n${ShortFloorNameMessage} ${record.floorName}`
+        const sectionName = get(record, 'sectionName')
+        const floorName = get(record, 'floorName')
+        const postfix = sectionName && floorName &&
+            `\n${ShortSectionNameMessage} ${record.sectionName},\n${ShortFloorNameMessage} ${record.floorName}`
 
         return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS)(text)
     }, [ShortFloorNameMessage, ShortSectionNameMessage, search])
