@@ -31,7 +31,7 @@ const {
     updateTestOrganization,
 } = require('@condo/domains/organization/utils/testSchema')
 
-const { createTestProperty, TestProperty } = require('@condo/domains/property/utils/testSchema')
+const { createTestProperty, Property: PropertyAPI } = require('@condo/domains/property/utils/testSchema')
 
 const { createTestResident, updateTestServiceConsumer, createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 
@@ -804,7 +804,7 @@ describe('Meter', () => {
                 unitName,
             })
 
-            await TestProperty.softDelete(adminClient, property.id)
+            await PropertyAPI.softDelete(adminClient, property.id)
 
             // NOTE: give worker some time
             await sleep(1000)

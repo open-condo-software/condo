@@ -23,9 +23,7 @@ const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema
 const access = require('@condo/domains/property/access/Property')
 const MapSchemaJSON = require('@condo/domains/property/components/panels/Builder/MapJsonSchema.json')
 
-const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverSchema')
 const { manageResidentToPropertyAndOrganizationConnections } = require('@condo/domains/resident/tasks')
-const { connectResidents, disconnectResidents } = require('@condo/domains/resident/utils/helpers')
 
 const { PROPERTY_MAP_GRAPHQL_TYPES, GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY, GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY } = require('../gql')
 const { Property: PropertyAPI } = require('../utils/serverSchema')

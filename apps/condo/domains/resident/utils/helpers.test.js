@@ -9,9 +9,9 @@ const { makeClientWithRegisteredOrganization } = require('@condo/domains/organiz
 
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
-const { createTestProperty, Property } = require('@condo/domains/property/utils/testSchema')
+const { createTestProperty, Property: PropertyAPI } = require('@condo/domains/property/utils/testSchema')
 
-const { registerResidentByTestClient, Resident } = require('@condo/domains/resident/utils/testSchema')
+const { registerResidentByTestClient, Resident: ResidentAPI } = require('@condo/domains/resident/utils/testSchema')
 
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -33,7 +33,7 @@ describe('connectResidents', () => {
         const [property] = await createTestProperty(organizationClient, organizationClient.organization, propertyPayload)
         const [property1] = await createTestProperty(organizationClient1, organizationClient1.organization, propertyPayload)
 
-        const [deletedProperty] = await Property.softDelete(organizationClient, property.id)
+        const [deletedProperty] = await PropertyAPI.softDelete(organizationClient, property.id)
 
         expect(deletedProperty.deletedAt).not.toBeNull()
 
@@ -43,32 +43,32 @@ describe('connectResidents', () => {
         // resident should be connected to property1 automatically by RegisterResidentService custom mutation
         await registerResidentByTestClient(userClient, { address: addressMeta.value, addressMeta })
 
-        const [resident] = await Resident.getAll(userClient, { id: userClient.id })
+        const [resident] = await ResidentAPI.getAll(userClient, { id: userClient.id })
 
         // Resident should be connected to oldest non-deleted property1
         expect(get(resident, 'organization.id')).toEqual(organizationClient1.organization.id)
         expect(get(resident, 'property.id')).toEqual(property1.id)
 
         const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-        const restoredProperty = await Property.update(organizationClient, property.id, { deletedAt: null, dv: 1, sender })
+        const restoredProperty = await PropertyAPI.update(organizationClient, property.id, { deletedAt: null, dv: 1, sender })
 
         expect(restoredProperty.deletedAt).toBeNull()
 
         // NOTE: give worker some time
         await sleep(1500)
 
-        const residents = await Resident.getAll(userClient, { id: userClient.id })
+        const residents = await ResidentAPI.getAll(userClient, { id: userClient.id })
 
         // Resident should be still connected to oldest non-deleted property1
         expect(get(residents[0], 'organization.id')).toEqual(organizationClient1.organization.id)
         expect(get(residents[0], 'property.id')).toEqual(property1.id)
 
-        await connectResidents(Resident, adminClient, residents, restoredProperty, true)
+        await connectResidents(ResidentAPI, adminClient, residents, restoredProperty, true)
 
         // NOTE: give worker some time
         await sleep(1000)
 
-        const [resident1] = await Resident.getAll(userClient, { id: userClient.id })
+        const [resident1] = await ResidentAPI.getAll(userClient, { id: userClient.id })
 
         // Resident should be connected to restoredProperty
         expect(get(resident1, 'organization.id')).toEqual(organizationClient.organization.id)
