@@ -1,8 +1,11 @@
+const conf = require('@core/config')
 const { get } = require('lodash')
 const { getItems } = require('@keystonejs/server-side-graphql-client')
 const { SBBOL_IMPORT_NAME } = require('./../common')
 const { TokenSet: TokenSetAPI } = require('@condo/domains/organization/utils/serverSchema')
 const { dvSenderFields } = require('../constants')
+
+const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
 
 const REFRESH_TOKEN_TTL = 30 * 24 * 60 * 60 // its real TTL is 180 days bit we need to update it earlier
 
@@ -54,7 +57,11 @@ const syncTokens = async ({ context, tokenInfoFromOAuth, organization, user }) =
     if (currentTokenSet) {
         await TokenSetAPI.update(adminContext, currentTokenSet.id, item)
     } else {
-        await TokenSetAPI.create(adminContext, { ...connectOwner, ...item })
+        await TokenSetAPI.create(adminContext, {
+            ...connectOwner,
+            ...item,
+            clientSecret: SBBOL_AUTH_CONFIG.client_secret, // Save client_secret only for first time. Later it will be refreshed by script
+        })
     }
 }
 
