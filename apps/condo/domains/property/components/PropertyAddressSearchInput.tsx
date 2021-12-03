@@ -102,12 +102,5 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
         />
     ), [organizationId])
 
-    return <BaseSearchInput
-        {...props}
-        id={'propertyAddressSearchInput'}
-        search={searchAddress}
-        renderOption={renderOption}
-        initialValueGetter={initialValueGetter}
-        infinityScroll
-    />
+    return <MemoizedBaseSearchInput />
 }

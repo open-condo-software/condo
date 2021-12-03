@@ -22,7 +22,7 @@ import { useIntl } from '@core/next/intl'
  * @see https://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript
  */
 function escapeRegex (string) {
-    return isString(string) && string.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
+    return String(string).replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
 }
 
 interface IContactSyncedAutocompleteFieldsProps {

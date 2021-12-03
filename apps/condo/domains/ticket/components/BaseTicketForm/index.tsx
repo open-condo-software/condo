@@ -199,12 +199,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         selectedUnitNameRef.current = selectedUnitName
     }, [selectedUnitName])
 
-    const organizationRef = useRef()
-
-    useEffect(() => {
-        organizationRef.current = organization
-    }, [organization])
-
     const { UploadComponent, syncModifiedFiles } = useMultipleFileUploadHook({
         Model: TicketFile,
         relationField: 'ticket',
@@ -242,7 +236,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         let createdContact
 
         if (role.canManageContacts && canCreateContactRef.current) {
-            createdContact = await createContact(organizationRef.current.id, selectPropertyIdRef.current, selectedUnitNameRef.current)
+            createdContact = await createContact(organization.id, selectPropertyIdRef.current, selectedUnitNameRef.current)
         }
 
         const result = await _action({
