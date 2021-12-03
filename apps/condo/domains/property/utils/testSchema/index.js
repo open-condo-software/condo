@@ -105,6 +105,5 @@ module.exports = {
     checkPropertyWithAddressExistByTestClient,
     makeClientWithResidentAccessAndProperty,
     exportPropertiesToExcelByTestClient,
-    TestProperty: Property,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

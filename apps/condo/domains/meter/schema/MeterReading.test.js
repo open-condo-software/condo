@@ -28,7 +28,7 @@ const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser }
 const {
     createTestProperty,
     makeClientWithProperty,
-    TestProperty,
+    Property: PropertyAPI,
     makeClientWithResidentAccessAndProperty,
 } = require('@condo/domains/property/utils/testSchema')
 
@@ -336,7 +336,7 @@ describe('MeterReading', () => {
                 accountNumber: accountNumber1,
                 unitName,
             })
-            await TestProperty.softDelete(adminClient, property.id)
+            await PropertyAPI.softDelete(adminClient, property.id)
 
             // NOTE: give worker some time
             await sleep(1000)
@@ -1043,7 +1043,7 @@ describe('MeterReading', () => {
             const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
             const [meterReading] = await createTestMeterReading(client, meter, organization, source)
 
-            await TestProperty.softDelete(adminClient, property.id)
+            await PropertyAPI.softDelete(adminClient, property.id)
 
             // NOTE: give worker some time
             await sleep(1000)
