@@ -55,7 +55,7 @@ describe('connectResidents', () => {
         expect(restoredProperty.deletedAt).toBeNull()
 
         // NOTE: give worker some time
-        await sleep(1000)
+        await sleep(1500)
 
         const residents = await Resident.getAll(userClient, { id: userClient.id })
 
