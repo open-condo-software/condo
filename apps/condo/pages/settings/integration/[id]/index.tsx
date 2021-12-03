@@ -17,14 +17,13 @@ import { Button } from '@condo/domains/common/components/Button'
 import Link from 'next/link'
 import { ExclamationCircleOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
-import isPropValid from '@emotion/is-prop-valid'
 import Error from 'next/error'
 import { Gutter } from 'antd/es/grid/row'
 
 
 const SETTINGS_PAGE_ROUTE = '/settings/'
 
-const ButtonWrap = styled('div', { shouldForwardProp: isPropValid })`
+const ButtonWrap = styled.div`
    width: fit-content;
    cursor: ${({ disabled }: { disabled: boolean }) => disabled ? 'not-allowed' : 'pointer'};
  `

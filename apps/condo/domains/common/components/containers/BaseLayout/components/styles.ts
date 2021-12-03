@@ -2,7 +2,6 @@ import { colors, shadows, zIndex } from '@condo/domains/common/constants/style'
 const { red } = require('@ant-design/colors')
 import { css } from '@emotion/core'
 import styled from '@emotion/styled'
-import isPropValid from '@emotion/is-prop-valid'
 import { Layout, Menu } from 'antd'
 import { gradients } from '@condo/domains/common/constants/style'
 
@@ -195,9 +194,7 @@ interface IPageWrapper {
     isSmall: boolean
 }
 
-export const StyledPageWrapper = styled(Layout.Content, {
-    shouldForwardProp: isPropValid,
-})<IPageWrapper>`
+export const StyledPageWrapper = styled(Layout.Content)<IPageWrapper>`
   padding: ${({ isSmall }) => isSmall ? '20px 20px 0' : '20px 48px 0'};
   margin: 0;
   height: 100%;
