@@ -140,14 +140,14 @@ const Resident = new GQLListSchema('Resident', {
 
                         if (category.canGetBillingFromOrganization && item.organization) {
                             const [billingCtx] = await BillingIntegrationOrganizationContext.getAll(
-                                context, { organization: { id: item.organization } }
+                                context, { organization: { id: item.organization, deletedAt: null }, deletedAt: null }
                             )
                             billingName = get(billingCtx, ['integration', 'name'], DEFAULT_BILLING_INTEGRATION_NAME)
                         }
 
                         if (category.canGetAcquiringFromOrganization && item.organization) {
                             const [acquiringCtx] = await AcquiringIntegrationContext.getAll(
-                                context, { organization: { id: item.organization } }
+                                context, { organization: { id: item.organization, deletedAt: null }, deletedAt: null }
                             )
                             acquiringName = get(acquiringCtx, ['integration', 'name'], DEFAULT_ACQUIRING_INTEGRATION_NAME)
                         }
