@@ -1,3 +1,4 @@
+const faker = require('faker')
 const { syncOrganization } = require('./syncOrganization')
 const { prepareKeystoneExpressApp, setFakeClientMode } = require('@core/keystone/test.utils')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
@@ -38,7 +39,7 @@ describe('syncOrganization from SBBOL', () => {
             await syncOrganization({
                 context,
                 user: user,
-                userInfo: userData,
+                userData,
                 dvSenderFields,
                 organizationInfo: organizationData,
             })
@@ -65,7 +66,7 @@ describe('syncOrganization from SBBOL', () => {
             await syncOrganization({
                 context,
                 user: user,
-                userInfo: userData,
+                userData,
                 dvSenderFields,
                 organizationInfo: organizationData,
             })
@@ -83,6 +84,7 @@ describe('syncOrganization from SBBOL', () => {
             expect(existedEmployee.role.canManageEmployees).toBeTruthy()
         })
     })
+
     describe('Organization already exists', () => {
         it('should make user an employee with admin role', async () => {
             const { userData, organizationData, dvSenderFields } = MockSbbolResponses.getUserAndOrganizationInfo()
@@ -113,8 +115,8 @@ describe('syncOrganization from SBBOL', () => {
             })
             await syncOrganization({
                 context,
-                user: user,
-                userInfo: userData,
+                user,
+                userData,
                 dvSenderFields,
                 organizationInfo: organizationData,
             })
@@ -125,6 +127,34 @@ describe('syncOrganization from SBBOL', () => {
             expect(existedEmployee).toBeDefined()
             expect(existedEmployee.isAccepted).toBeTruthy()
             expect(existedEmployee.role.canManageEmployees).toBeTruthy()
+
+            const newUserClient2 = await makeClientWithNewRegisteredAndLoggedInUser()
+            const user2 = await getItem({
+                keystone,
+                itemId: newUserClient2.user.id,
+                listKey: 'User',
+                returnFields: 'id name phone',
+            })
+            const userData2 = {
+                ...userData,
+                importId: faker.random.uuid(),
+                email: faker.internet.email(),
+                phone: faker.phone.phoneNumber('+79#########'),
+            }
+            await syncOrganization({
+                context,
+                user: user2,
+                userData: userData2,
+                dvSenderFields,
+                organizationInfo: organizationData,
+            })
+            const [ existedEmployee2 ] = await OrganizationEmployeeApi.getAll(adminContext, {
+                organization: { id: existedOrganizationClient.organization.id },
+                user: { id: user2.id },
+            })
+            expect(existedEmployee2).toBeDefined()
+            expect(existedEmployee2.isAccepted).toBeTruthy()
+            expect(existedEmployee2.role.canManageEmployees).toBeTruthy()
         })
     })
 })
