@@ -5,7 +5,6 @@ import { useRouter } from 'next/router'
 import { Col, Row, Typography, Input, Select, InputNumber, Space, Dropdown, Menu, RowProps, DropDownProps, notification } from 'antd'
 import { css, jsx } from '@emotion/core'
 import styled from '@emotion/styled'
-import isPropValid from '@emotion/is-prop-valid'
 import { fontSizes, colors, shadows } from '@condo/domains/common/constants/style'
 import { DeleteFilled, DownOutlined, CloseOutlined } from '@ant-design/icons'
 import cloneDeep from 'lodash/cloneDeep'
@@ -132,7 +131,7 @@ interface ITopModalProps {
     visible: boolean
 }
 
-const TopModal = styled('div', { shouldForwardProp: isPropValid })<ITopModalProps>`
+const TopModal = styled.div<ITopModalProps>`
   position: absolute;
   top: 10px;
   right: 24px;

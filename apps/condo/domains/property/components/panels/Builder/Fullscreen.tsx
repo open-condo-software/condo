@@ -2,9 +2,8 @@
 import { css, jsx } from '@emotion/core'
 import { colors, DEFAULT_BORDER_RADIUS } from '@condo/domains/common/constants/style'
 import styled from '@emotion/styled'
-import isPropValid from '@emotion/is-prop-valid'
 
-export const FullscreenWrapper = styled('div', { shouldForwardProp: isPropValid })<{
+export const FullscreenWrapper = styled.div<{
     mode?: 'view' | 'edit';
 }>`
   border-radius: ${DEFAULT_BORDER_RADIUS};
@@ -26,7 +25,7 @@ export const FullscreenWrapper = styled('div', { shouldForwardProp: isPropValid 
   }
 `
 
-export const FullscreenHeader = styled('div', { shouldForwardProp: isPropValid })<{
+export const FullscreenHeader = styled.div<{
     edit?: boolean
 }>`
     margin: -24px -24px 0;
