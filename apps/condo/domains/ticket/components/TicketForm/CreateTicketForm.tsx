@@ -58,11 +58,6 @@ export const CreateTicketForm: React.FC = () => {
     const router = useRouter()
     const auth = useAuth() as { user: { id: string } }
 
-    const organizationRef = useRef()
-    useEffect(() => {
-        organizationRef.current = organization
-    }, [organization])
-
     const action = Ticket.useCreate(
         {
             status: OPEN_STATUS,
@@ -72,14 +67,14 @@ export const CreateTicketForm: React.FC = () => {
             router.push('/ticket')
         })
 
-    const createAction = (attrs) => action({ ...attrs, organization: organizationRef.current })
+    const createAction = useCallback((attrs) => action({ ...attrs, organization }), [organization])
 
     const initialValues = {
         assignee: auth.user.id,
         executor: auth.user.id,
     }
 
-    return (
+    const MemoizedBaseTicketForm = useCallback(() => (
         <BaseTicketForm
             action={createAction}
             initialValues={initialValues}
@@ -89,5 +84,7 @@ export const CreateTicketForm: React.FC = () => {
         >
             {({ handleSave, isLoading }) => <CreateTicketActionBar handleSave={handleSave} isLoading={isLoading}/>}
         </BaseTicketForm>
-    )
+    ), [createAction, initialValues, link.role, organization])
+
+    return <MemoizedBaseTicketForm />
 }
