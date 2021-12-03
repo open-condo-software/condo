@@ -5945,22 +5945,6 @@ export type BillingReceiptsUpdateInput = {
   data?: Maybe<BillingReceiptUpdateInput>;
 };
 
-export type BuildingAttic = {
-  __typename?: 'BuildingAttic';
-  type: BuildingMapEntityType;
-  index: Scalars['Int'];
-  label: Scalars['String'];
-  name?: Maybe<Scalars['String']>;
-};
-
-export type BuildingBasement = {
-  __typename?: 'BuildingBasement';
-  type: BuildingMapEntityType;
-  index: Scalars['Int'];
-  label: Scalars['String'];
-  name?: Maybe<Scalars['String']>;
-};
-
 export type BuildingFloor = {
   __typename?: 'BuildingFloor';
   id: Scalars['String'];
@@ -5982,19 +5966,8 @@ export enum BuildingMapEntityType {
   Section = 'section',
   Floor = 'floor',
   Unit = 'unit',
-  Village = 'village',
-  Roof = 'roof',
-  Attic = 'attic',
-  Basement = 'basement'
+  Village = 'village'
 }
-
-export type BuildingRoof = {
-  __typename?: 'BuildingRoof';
-  type: BuildingMapEntityType;
-  index: Scalars['Int'];
-  label: Scalars['String'];
-  name?: Maybe<Scalars['String']>;
-};
 
 export type BuildingSection = {
   __typename?: 'BuildingSection';
@@ -6002,10 +5975,7 @@ export type BuildingSection = {
   type: BuildingMapEntityType;
   index: Scalars['Int'];
   name: Scalars['String'];
-  roof?: Maybe<BuildingRoof>;
-  attic?: Maybe<Array<Maybe<BuildingAttic>>>;
   floors: Array<Maybe<BuildingFloor>>;
-  basement?: Maybe<Array<Maybe<BuildingBasement>>>;
   preview?: Maybe<Scalars['Boolean']>;
 };
 

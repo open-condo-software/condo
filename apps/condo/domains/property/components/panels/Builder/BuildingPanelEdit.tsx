@@ -323,17 +323,17 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                 </Button>
             </Menu.Item>
             <Menu.Item key={'addBasement'}>
-                <Button type={'sberDefaultGradient'} secondary disabled={Map.hasBasement} icon={<BasementIcon />}>
+                <Button type={'sberDefaultGradient'} secondary disabled icon={<BasementIcon />}>
                     {AddBasement}
                 </Button>
             </Menu.Item>
             <Menu.Item key={'addAttic'}>
-                <Button type={'sberDefaultGradient'} secondary disabled={Map.hasAttic} icon={<CeilIcon />}>
+                <Button type={'sberDefaultGradient'} secondary disabled icon={<CeilIcon />}>
                     {AddCeil}
                 </Button>
             </Menu.Item>
         </Menu>
-    ), [menuClick, Map.hasBasement, Map.hasAttic])
+    ), [menuClick])
 
     return (
         <FullscreenWrapper mode={'edit'} className='fullscreen'>
@@ -383,8 +383,6 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                             addUnit: <UnitForm Builder={Map} refresh={refresh}/>,
                             editSection: <EditSectionForm Builder={Map} refresh={refresh}/>,
                             editUnit: <UnitForm Builder={Map} refresh={refresh}/>,
-                            removeBasement: <RemoveBasementForm Builder={Map} refresh={refresh} />,
-                            removeAttic: <RemoveAtticForm Builder={Map} refresh={refresh} />,
                         }[mode] || null), [mode, Map, refresh])
                     }
                 </BuildingPanelTopModal>
@@ -523,10 +521,7 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
                         >
                             {
                                 !isEmpty(Builder.sections) && (
-                                    <BuildingAxisY
-                                        hasBasement={Builder.possibleBasements}
-                                        floors={Builder.possibleChosenFloors}
-                                    />
+                                    <BuildingAxisY floors={Builder.possibleChosenFloors} />
                                 )
                             }
                             {
@@ -596,11 +591,6 @@ interface IPropertyMapSectionProps {
 const FULL_SIZE_UNIT_STYLE: React.CSSProperties = { width: '100%', marginTop: '8px', display: 'block' }
 
 const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ section, children, Builder, refresh, scrollToForm }) => {
-    const intl = useIntl()
-    const AtticTitlePrefix = intl.formatMessage({ id: 'Attic' })
-    const BasementTitlePrefix = intl.formatMessage({ id: 'Basement' })
-    const RoofTitlePrefix = intl.formatMessage({ id: 'Roof' })
-
     const chooseSection = useCallback((section) => {
         Builder.setSelectedSection(section)
         if (Builder.getSelectedSection()) {
@@ -609,49 +599,9 @@ const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ section, child
         refresh()
     }, [Builder, refresh, scrollToForm])
 
-    const chooseBasement = useCallback(() => {
-        Builder.setIsBasementSelected()
-        refresh()
-    }, [Builder, refresh])
-
-    const chooseAttic = useCallback(() => {
-        Builder.setIsAtticSelected()
-        refresh()
-    }, [Builder, refresh])
-
     return (
         <MapSectionContainer visible={Builder.isSectionVisible(section.id)}>
-            {section.roof && (
-                <UnitButton
-                    style={FULL_SIZE_UNIT_STYLE}
-                    preview={section.preview}
-                    ellipsis={false}
-                    disabled
-                >{RoofTitlePrefix}</UnitButton>
-            )}
-            {section.attic && section.attic.map(attic => (
-                <UnitButton
-                    key={attic.index}
-                    style={FULL_SIZE_UNIT_STYLE}
-                    ellipsis={false}
-                    preview={section.preview}
-                    disabled={section.preview}
-                    selected={Builder.getIsAtticSelected()}
-                    onClick={chooseAttic}
-                >{AtticTitlePrefix} {attic.label}</UnitButton>
-            ))}
             {children}
-            {section.basement && section.basement.map(basement => (
-                <UnitButton
-                    key={basement.index}
-                    style={FULL_SIZE_UNIT_STYLE}
-                    ellipsis={false}
-                    preview={section.preview}
-                    disabled={section.preview}
-                    selected={Builder.getIsBasementSelected()}
-                    onClick={chooseBasement}
-                >{BasementTitlePrefix} {basement.label}</UnitButton>
-            ))}
             <UnitButton
                 secondary
                 style={FULL_SIZE_UNIT_STYLE}
@@ -986,64 +936,6 @@ const EditSectionForm: React.FC<IEditSectionFormProps> = ({ Builder, refresh }) 
                     >{DeleteLabel}</Button>
                 </Col>
             </Row>
-        </Row>
-    )
-}
-
-interface IRemoveBasementForm {
-    Builder: MapEdit
-    refresh(): void
-}
-
-const RemoveBasementForm: React.FC<IRemoveBasementForm> = ({ Builder, refresh }) => {
-    const intl = useIntl()
-    const DeleteLabel = intl.formatMessage({ id: 'Delete' })
-
-    const deleteBasement = useCallback(() => {
-        Builder.removeBasement()
-        refresh()
-    }, [Builder, refresh])
-
-    return (
-        <Row gutter={MODAL_FORM_ROW_GUTTER}>
-            <Col span={24}>
-                <Button
-                    secondary
-                    onClick={deleteBasement}
-                    type='sberDangerGhost'
-                    icon={<DeleteFilled />}
-                    style={INPUT_STYLE}
-                >{DeleteLabel}</Button>
-            </Col>
-        </Row>
-    )
-}
-
-interface IRemoveAtticForm {
-    Builder: MapEdit
-    refresh(): void
-}
-
-const RemoveAtticForm: React.FC<IRemoveAtticForm> = ({ Builder, refresh }) => {
-    const intl = useIntl()
-    const DeleteLabel = intl.formatMessage({ id: 'Delete' })
-
-    const deleteAttic = useCallback(() => {
-        Builder.removeAttic()
-        refresh()
-    }, [Builder, refresh])
-
-    return (
-        <Row gutter={MODAL_FORM_ROW_GUTTER}>
-            <Col span={24}>
-                <Button
-                    secondary
-                    onClick={deleteAttic}
-                    type={'sberDangerGhost'}
-                    icon={<DeleteFilled />}
-                    style={INPUT_STYLE}
-                >{DeleteLabel}</Button>
-            </Col>
         </Row>
     )
 }

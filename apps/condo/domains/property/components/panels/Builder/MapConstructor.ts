@@ -3,8 +3,6 @@ import { cloneDeep, compact, get, has, uniq } from 'lodash'
 import MapSchemaJSON from './MapJsonSchema.json'
 import Ajv from 'ajv'
 import {
-    BuildingAttic,
-    BuildingBasement,
     BuildingMap,
     BuildingMapEntityType,
     BuildingSection,
@@ -76,14 +74,6 @@ class Map {
                 .map(floor => floor.units
                     .map(unit => unit.id)))
             .flat(2)
-    }
-
-    get hasAttic (): boolean {
-        return this.map.sections.length === 0 || this.map.sections.some(section => get(section, 'attic', false))
-    }
-
-    get hasBasement (): boolean {
-        return this.map.sections.length === 0 || this.map.sections.some(section => get(section, 'basement', false))
     }
 
     public getMap (): BuildingMap {
@@ -310,8 +300,6 @@ class MapEdit extends MapView {
     public previewSectionId: string
     public previewUnitId: string
     private mode = null
-    private isBasementSelected: boolean
-    private isAtticSelected: boolean
 
     constructor (map: Maybe<BuildingMap>, private updateMap?: Maybe<(map: BuildingMap) => void>) {
         super(map)
@@ -336,49 +324,27 @@ class MapEdit extends MapView {
                 this.removePreviewUnit()
                 this.selectedUnit = null
                 this.selectedSection = null
-                this.isBasementSelected = false
-                this.isAtticSelected = false
                 break
             case 'editSection':
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.selectedUnit = null
-                this.isBasementSelected = false
-                this.isAtticSelected = false
                 break
             case 'addUnit':
                 this.removePreviewSection()
                 this.selectedSection = null
                 this.selectedUnit = null
-                this.isBasementSelected = false
-                this.isAtticSelected = false
                 break
             case 'editUnit':
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.selectedSection = null
-                this.isBasementSelected = false
-                this.isAtticSelected = false
-                break
-            case 'removeBasement':
-                this.removePreviewUnit()
-                this.removePreviewSection()
-                this.selectedSection = null
-                this.isAtticSelected = false
-                break
-            case 'removeAttic':
-                this.removePreviewUnit()
-                this.removePreviewSection()
-                this.selectedSection = null
-                this.isBasementSelected = false
                 break
             default:
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.selectedSection = null
                 this.selectedUnit = null
-                this.isBasementSelected = false
-                this.isAtticSelected = false
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.mode = null
@@ -402,60 +368,6 @@ class MapEdit extends MapView {
 
     public isSectionSelected (id: string): boolean {
         return this.selectedSection && this.selectedSection.id === id
-    }
-
-    public getIsAtticSelected (): boolean {
-        return this.isAtticSelected
-    }
-
-    public setIsAtticSelected (): void {
-        this.isAtticSelected = true
-        this.editMode = 'removeAttic'
-    }
-
-    public addAttic (): void {
-        this.map.sections.forEach((section) => {
-            section.attic = [this.generateAttic(section)]
-        })
-        this.notifyUpdater()
-        this.editMode = null
-    }
-
-    public removeAttic (): void {
-        this.map.sections.forEach((section) => {
-            if (get(section, 'attic')) {
-                delete section.attic
-            }
-        })
-        this.editMode = null
-        this.notifyUpdater()
-    }
-
-    public getIsBasementSelected (): boolean {
-        return this.isBasementSelected
-    }
-
-    public setIsBasementSelected (): void {
-        this.isBasementSelected = true
-        this.editMode = 'removeBasement'
-    }
-
-    public addBasement (): void {
-        this.map.sections.forEach((section) => {
-            section.basement = [this.generateBasement(section)]
-        })
-        this.notifyUpdater()
-        this.editMode = null
-    }
-
-    public removeBasement (): void {
-        this.map.sections.forEach((section) => {
-            if (get(section, 'basement')) {
-                delete section.basement
-            }
-        })
-        this.editMode = null
-        this.notifyUpdater()
     }
 
     public setSelectedUnit (unit: BuildingUnit): void {
@@ -659,26 +571,6 @@ class MapEdit extends MapView {
             type: BuildingMapEntityType.Section,
         }
 
-        newSection.roof = {
-            type: BuildingMapEntityType.Roof,
-            label: String(name),
-            index: this.sections.length + 1,
-        }
-
-        if (this.hasAttic) {
-            newSection.attic = [{
-                type: BuildingMapEntityType.Attic,
-                label: String(name),
-                index: this.sections.length + 1,
-            }]
-        }
-        if (this.hasBasement) {
-            newSection.basement = [{
-                type: BuildingMapEntityType.Basement,
-                label: String(name),
-                index: this.sections.length + 1,
-            }]
-        }
         for (let floor = minFloor; floor <= maxFloor; floor++) {
             if (floor === 0) {
                 continue
@@ -712,24 +604,6 @@ class MapEdit extends MapView {
         const unitIndex = units.findIndex(unit => unit.id === id)
         const nextIndex = unitIndex + 1
         return units[nextIndex] || null
-    }
-
-    private generateAttic (section: Partial<BuildingSectionArg>): BuildingAttic {
-        const { name, index } = section
-        return {
-            index,
-            type: BuildingMapEntityType.Attic,
-            label: name,
-        }
-    }
-
-    private generateBasement (section: Partial<BuildingSectionArg>): BuildingBasement {
-        const { name, index } = section
-        return {
-            index: index,
-            type: BuildingMapEntityType.Basement,
-            label: name,
-        }
     }
 
     private removeFloor (sectionIdx: number, floorIndex: number): void {

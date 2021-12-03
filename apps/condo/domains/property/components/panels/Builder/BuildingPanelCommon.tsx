@@ -117,7 +117,6 @@ export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view
 
 interface IBuildingAxisYProps {
     floors: number[]
-    hasBasement?: boolean
 }
 
 const BuildingAxisContainer = styled.div`
@@ -126,7 +125,7 @@ const BuildingAxisContainer = styled.div`
 `
 const AXIS_UNIT_STYLE: React.CSSProperties = { display: 'block' }
 
-export const BuildingAxisY: React.FC<IBuildingAxisYProps> = ({ floors, hasBasement = false }) => {
+export const BuildingAxisY: React.FC<IBuildingAxisYProps> = ({ floors }) => {
     return (
         <BuildingAxisContainer>
             {
@@ -135,9 +134,6 @@ export const BuildingAxisY: React.FC<IBuildingAxisYProps> = ({ floors, hasBaseme
                 ))
             }
             <UnitButton secondary disabled style={AXIS_UNIT_STYLE}>&nbsp;</UnitButton>
-            {hasBasement && (
-                <UnitButton secondary disabled style={AXIS_UNIT_STYLE}>&nbsp;</UnitButton>
-            )}
         </BuildingAxisContainer>
     )
 }
