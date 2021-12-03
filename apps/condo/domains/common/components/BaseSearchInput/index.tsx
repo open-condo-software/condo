@@ -80,7 +80,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
             if (isAllDataLoaded) return
 
             setFetching(true)
-            const data = await search(selected ? undefined : value, skip)
+            const data = await search(searchValue, skip)
             setFetching(false)
 
             if (data.length > 0) {
@@ -89,7 +89,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
                 setIsAllDataLoaded(true)
             }
         },
-        [isAllDataLoaded, search, selected],
+        [isAllDataLoaded, search, searchValue],
     )
 
     const throttledSearchMore = useMemo(
