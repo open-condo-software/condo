@@ -478,7 +478,7 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
                 if (shouldAddPadding) container.current.style.paddingRight = SCROLL_CONTAINER_EDIT_PADDING
             }
         } else {
-            container.current.style.paddingRight = '0px'
+            if (container.current !== null) container.current.style.paddingRight = '0px'
         }
 
         if (container.current && container.current.style.paddingRight !== '0px') {
