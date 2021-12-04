@@ -37,7 +37,7 @@ describe('BillingIntegration', () => {
 
             const payload = {
                 dataFormat: {
-                    hasToPayDetail: true,
+                    hasToPayDetails: true,
                     hasServices: true,
                     // no hasServiceDetail key!
                 },
