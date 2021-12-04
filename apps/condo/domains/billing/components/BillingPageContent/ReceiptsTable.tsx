@@ -71,7 +71,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
 
     const currencyCode = get(context, ['integration', 'currencyCode'], 'RUB')
 
-    let hasToPayDetails = get(context, ['integration', 'dataFormat', 'hasToPayDetail'], false)
+    let hasToPayDetails = get(context, ['integration', 'dataFormat', 'hasToPayDetails'], false)
     let hasServices = get(context, ['integration', 'dataFormat', 'hasServices'], false)
     let hasServicesDetails = get(context, ['integration', 'dataFormat', 'hasServicesDetails'], false)
 
