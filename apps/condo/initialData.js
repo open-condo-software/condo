@@ -32,7 +32,6 @@ module.exports = [
                     isAdmin: false,
                     isActive: true,
                     type: 'resident',
-                    dob: '1995-06-09',
                     password: '1a92b3a07c78',
                 },
             },
