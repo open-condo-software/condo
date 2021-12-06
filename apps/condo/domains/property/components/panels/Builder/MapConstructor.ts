@@ -40,6 +40,7 @@ type IndexLocation = {
 }
 
 
+// TODO(DOMA-1755): refactor the data structure in such a way that changes in one element occur independently of other elements
 class Map {
     public isMapValid: boolean
     public validationErrors: null | string[]
