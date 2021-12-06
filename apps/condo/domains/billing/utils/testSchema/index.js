@@ -420,25 +420,6 @@ async function updateTestBillingReceipt (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestBillingOrganization (client, context, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!context || !context.id) throw new Error('no context.id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        context: { connect: { id: context.id } },
-        tin: faker.random.alphaNumeric(4),
-        bic: faker.random.alphaNumeric(6),
-        iec: faker.random.alphaNumeric(6),
-        checkNumber: faker.random.alphaNumeric(16),
-        ...extraAttrs,
-    }
-    const obj = await BillingOrganization.create(client, attrs)
-    return [obj, attrs]
-}
-
 async function updateTestBillingOrganization (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
