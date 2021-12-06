@@ -31,7 +31,7 @@ module.exports = [
                     isEmailVerified: false,
                     isAdmin: false,
                     isActive: true,
-                    type: 'Resident',
+                    type: 'resident',
                     dob: '1995-06-09',
                     password: '1a92b3a07c78',
                 },
