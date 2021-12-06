@@ -1,4 +1,4 @@
-const { identity } = require('lodash')
+const { identity, get } = require('lodash')
 const { v4 } = require('uuid')
 const { Keystone } = require('@keystonejs/keystone')
 const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
@@ -61,6 +61,60 @@ const keystone = new Keystone({
         }
     },
 })
+
+const mp1 = keystone.createList
+keystone.createList = function (...args) {
+    const list = mp1.apply(keystone, args)
+    const key = list.key
+
+    const mp2 = list.listQuery
+    list.listQuery = async function (args, context, gqlName, info, from) {
+        // console.log(args, gqlName, get(from, 'fromList.key'), get(from, 'fromField'), get(from, 'fromId'))
+        const req = get(context, 'req')
+        const id = get(context, 'req.id')
+        const cacheKey = JSON.stringify({ id, args, key, q: 1 })
+        if (req) {
+            req.trace = get(req, 'trace', [])
+            req.cache = get(req, 'cache', {})
+            if (id && args && req.cache[cacheKey]) {
+                return req.cache[cacheKey]
+            }
+        }
+        const listResult = await mp2.call(list, args, context, gqlName, info, from)
+        if (req) {
+            req.trace.push([key, listResult])
+            if (id && args) {
+                req.cache[cacheKey] = listResult
+            }
+        }
+        return listResult
+    }
+
+    const mp3 = list.itemQuery
+    list.itemQuery = async function (args, context, gqlName, info, from) {
+        const req = get(context, 'req')
+        const id = get(context, 'req.id')
+        const cacheKey = JSON.stringify({ id, args, key, q: 2 })
+        // console.log(id, args, gqlName, get(from, 'fromList.key'), get(from, 'fromField'), get(from, 'fromId'))
+        if (req) {
+            req.trace = get(req, 'trace', [])
+            req.cache = get(req, 'cache', {})
+            if (id && args && req.cache[cacheKey]) {
+                return req.cache[cacheKey]
+            }
+        }
+        const listResult = await mp3.call(list, args, context, gqlName, info, from)
+        if (req) {
+            req.trace.push([key, listResult])
+            if (id && args) {
+                req.cache[cacheKey] = listResult
+            }
+        }
+        return listResult
+    }
+
+    return list
+}
 
 if (!IS_BUILD_PHASE) {
     registerSchemas(keystone, [
@@ -146,6 +200,13 @@ module.exports = {
     ].filter(identity),
     /** @type {(app: import('express').Application) => void} */
     configureExpress: (app) => {
+        const requestIdHeaderName = 'X-Request-Id'
+        app.use(function reqId (req, res, next) {
+            req['id'] = req.headers[requestIdHeaderName.toLowerCase()] = v4()
+            res.setHeader(requestIdHeaderName, req['id'])
+            next()
+        })
+
         app.use('/admin/', (req, res, next) => {
             if (req.url === '/api') return next()
             const cookies = nextCookie({ req })
