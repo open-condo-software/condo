@@ -394,7 +394,7 @@ class MapEdit extends MapView {
 
     public removePreviewUnit (): void {
         if (this.previewUnitId) {
-            this.removeUnit(this.previewUnitId)
+            this.removeUnit(this.previewUnitId, false)
             this.previewUnitId = null
         }
     }
@@ -485,7 +485,7 @@ class MapEdit extends MapView {
         this.notifyUpdater()
     }
 
-    public removeUnit (id: string): void {
+    public removeUnit (id: string, shouldUpdateUnitNumbers = true): void {
         const unitIndex = this.getUnitIndex(id)
         const nextUnit = this.getNextUnit(id)
         if (unitIndex.unit !== -1) {
@@ -494,7 +494,7 @@ class MapEdit extends MapView {
             if (floorUnits.length === 0) {
                 this.removeFloor(unitIndex.section, unitIndex.floor)
             }
-            if (nextUnit) {
+            if (nextUnit && shouldUpdateUnitNumbers) {
                 nextUnit.label = removedUnit.label
                 this.updateUnitNumbers(nextUnit)
             }

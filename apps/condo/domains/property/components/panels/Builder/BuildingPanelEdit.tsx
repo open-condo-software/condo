@@ -814,12 +814,6 @@ const UnitForm: React.FC<IUnitFormProps> = ({ builder, refresh }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [builder])
 
-    const resetForm = () => {
-        setLabel('')
-        setFloor('')
-        setSection('')
-    }
-
     useEffect(() => {
         if (label && floor && section && mode === 'addUnit') {
             builder.addPreviewUnit({ id: '', label, floor, section })
@@ -830,8 +824,13 @@ const UnitForm: React.FC<IUnitFormProps> = ({ builder, refresh }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [label, floor, section, mode])
 
+    const resetForm = useCallback(() => {
+        setLabel('')
+        setFloor('')
+        setSection('')
+    }, [])
 
-    const applyChanges = () => {
+    const applyChanges = useCallback(() => {
         const mapUnit = builder.getSelectedUnit()
         if (mapUnit) {
             builder.updateUnit({ ...mapUnit, label, floor, section })
@@ -841,14 +840,14 @@ const UnitForm: React.FC<IUnitFormProps> = ({ builder, refresh }) => {
             resetForm()
         }
         refresh()
-    }
+    }, [builder, refresh, resetForm, label, floor, section])
 
-    const deleteUnit = () => {
+    const deleteUnit = useCallback(() => {
         const mapUnit = builder.getSelectedUnit()
         builder.removeUnit(mapUnit.id)
         refresh()
         resetForm()
-    }
+    }, [resetForm, refresh, builder])
 
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
