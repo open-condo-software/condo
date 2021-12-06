@@ -3,16 +3,16 @@
  */
 
 const faker = require('faker')
-const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
-const { createTestResident } = require('../utils/testSchema')
+
+const { addResidentAccess, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { createTestBillingAccount, createTestBillingProperty, makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
+const { createTestBillingAccount, createTestBillingProperty, makeContextWithOrganizationAndIntegrationAsAdmin, makeClientWithPropertyAndBilling } = require('@condo/domains/billing/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
+const { createTestServiceConsumer, createTestResident, updateTestServiceConsumer, makeClientWithServiceConsumer, registerResidentByTestClient, registerServiceConsumerByTestClient, ServiceConsumer } = require('../utils/testSchema')
+
 const { makeClient } = require('@core/keystone/test.utils')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
-const { createTestServiceConsumer, updateTestServiceConsumer, makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
-const { ServiceConsumer } = require('../utils/testSchema')
 
 
 describe('ServiceConsumer', () => {
@@ -178,6 +178,40 @@ describe('ServiceConsumer', () => {
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await ServiceConsumer.delete(client, client.serviceConsumer.id)
             })
+        })
+    })
+
+    describe('real-life cases', () => {
+        it('Client lives in organization A and pays for water to organization B. When getting his ServiceConsumers client has access to inner fields', async () => {
+            const UNIT_NAME = '22'
+
+            const managementCompanyOrganizationClient = await makeClientWithPropertyAndBilling({ billingAccountAttrs: { unitName: UNIT_NAME } })
+            const waterCompanyOrganizationClient = await makeClientWithPropertyAndBilling({ billingAccountAttrs: { unitName: UNIT_NAME } })
+
+            const residentClient = await makeClientWithResidentUser()
+            const [ resident ] = await registerResidentByTestClient(residentClient, {
+                address: managementCompanyOrganizationClient.property.address,
+                addressMeta: managementCompanyOrganizationClient.property.addressMeta,
+                unitName: UNIT_NAME,
+            })
+
+            await registerServiceConsumerByTestClient(residentClient, {
+                residentId: resident.id,
+                accountNumber: managementCompanyOrganizationClient.billingAccount.number,
+                organizationId: managementCompanyOrganizationClient.organization.id,
+            })
+
+            await registerServiceConsumerByTestClient(residentClient, {
+                residentId: resident.id,
+                accountNumber: waterCompanyOrganizationClient.billingAccount.number,
+                organizationId: waterCompanyOrganizationClient.organization.id,
+            })
+
+            const objs = await ServiceConsumer.getAll(residentClient, {}, { sortBy: ['createdAt_ASC'] })
+
+            expect(objs).toHaveLength(2)
+            expect(objs[0].organization.id).toEqual(managementCompanyOrganizationClient.organization.id)
+            expect(objs[1].organization.id).toEqual(waterCompanyOrganizationClient.organization.id)
         })
     })
 })
