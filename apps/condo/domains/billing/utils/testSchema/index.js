@@ -3,10 +3,12 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
+const faker = require('faker')
+
 const { makeLoggedInAdminClient } = require("@core/keystone/test.utils");
 const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require("@condo/domains/organization/utils/testSchema");
 const { makeClientWithNewRegisteredAndLoggedInUser } = require("@condo/domains/user/utils/testSchema");
-const faker = require('faker')
+const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClient } = require('@core/keystone/test.utils')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { createTestOrganization } = require("@condo/domains/organization/utils/testSchema");
@@ -501,6 +503,23 @@ async function createReceiptsReader(organization) {
     return client
 }
 
+async function makeClientWithPropertyAndBilling({ billingIntegrationContextArgs, billingPropertyArgs, billingAccountAttrs }) {
+    const integrationClient = await makeClientWithIntegrationAccess()
+    const integration = integrationClient.integration
+
+    const client = await makeClientWithProperty()
+
+    const [ context ] = await createTestBillingIntegrationOrganizationContext(client, client.organization, integration, billingIntegrationContextArgs)
+    const [ property ] = await createTestBillingProperty(integrationClient, context, billingPropertyArgs)
+    const [ account ] = await createTestBillingAccount(integrationClient, context, property, billingAccountAttrs)
+
+    client.billingIntegration = integration
+    client.billingIntegrationContext = context
+    client.billingAccount = account
+
+    return client
+}
+
 module.exports = {
     BillingIntegration, createTestBillingIntegration, updateTestBillingIntegration,
     BillingIntegrationAccessRight, createTestBillingIntegrationAccessRight, updateTestBillingIntegrationAccessRight,
@@ -518,6 +537,7 @@ module.exports = {
     BillingOrganization, updateTestBillingOrganization,
     ResidentBillingReceipt,
     createReceiptsReader,
+    makeClientWithPropertyAndBilling
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
