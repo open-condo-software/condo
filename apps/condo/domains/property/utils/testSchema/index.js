@@ -4,6 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
+const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
 const { CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY } = require('../../gql')
 const { throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
