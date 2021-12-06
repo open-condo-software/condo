@@ -218,10 +218,6 @@ class MapView extends Map {
         return uniqueIndexes
     }
 
-    get possibleBasements (): boolean {
-        return this.map.sections.some(section => get(section, 'basement', false))
-    }
-
     get isEmpty (): boolean {
         return this.map.sections.length === 0
     }
@@ -325,7 +321,7 @@ class MapEdit extends MapView {
                 this.selectedUnit = null
                 this.selectedSection = null
                 break
-            case 'editSection':
+            case 'removeSection':
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.selectedUnit = null
@@ -358,7 +354,7 @@ class MapEdit extends MapView {
             this.editMode = 'addSection'
         } else {
             this.selectedSection = section
-            this.editMode = 'editSection'
+            this.editMode = 'removeSection'
         }
     }
 

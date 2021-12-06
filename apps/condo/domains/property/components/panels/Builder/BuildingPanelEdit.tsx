@@ -12,6 +12,7 @@ import isEmpty from 'lodash/isEmpty'
 import isNull from 'lodash/isNull'
 import get from 'lodash/get'
 import debounce from 'lodash/debounce'
+import isFunction from 'lodash/isFunction'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { transitions } from '@condo/domains/common/constants/style'
 import {
@@ -280,7 +281,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
 
     const menuClick = useCallback((event) => {
         if (INSTANT_ACTIONS.includes(event.key)) {
-            mapEdit[event.key]()
+            if (isFunction(mapEdit[event.key])) mapEdit[event.key]()
             return
         }
         changeMode(event.key)
@@ -470,7 +471,7 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
             // Always if modal for new section was opened we need to move container to the left
             if (builder.editMode === 'addSection') {
                 container.current.style.paddingRight = SCROLL_CONTAINER_EDIT_PADDING
-            } else if (builder.editMode === 'editSection') {
+            } else if (builder.editMode === 'removeSection') {
                 // When user select last section we actually need to move container to the left side of screen
                 const shouldAddPadding = get(builder.getSelectedSection(), 'index') === builder.lastSectionIndex
 
