@@ -146,6 +146,13 @@ module.exports = {
     ].filter(identity),
     /** @type {(app: import('express').Application) => void} */
     configureExpress: (app) => {
+        const requestIdHeaderName = 'X-Request-Id'
+        app.use(function reqId (req, res, next) {
+            req['id'] = req.headers[requestIdHeaderName.toLowerCase()] = v4()
+            res.setHeader(requestIdHeaderName, req['id'])
+            next()
+        })
+        
         app.use('/admin/', (req, res, next) => {
             if (req.url === '/api') return next()
             const cookies = nextCookie({ req })
