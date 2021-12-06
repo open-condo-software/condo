@@ -127,6 +127,8 @@ describe('OrganizationEmployee', () => {
 
         expect(objs).toHaveLength(1)
         expect(objs[0].id).toEqual(employee.id)
+        expect(objs[0].email).toEqual(employee.email)
+        expect(objs[0].phone).toEqual(employee.phone)
     })
 
     test('user with deleted employee: cannot read other employees', async () => {
