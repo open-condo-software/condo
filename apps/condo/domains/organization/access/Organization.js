@@ -4,7 +4,7 @@
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { queryOrganizationEmployeeFromRelatedOrganizationFor, queryOrganizationEmployeeFor } = require('../utils/accessSchema')
-const { Resident: ResidentServerUtils } = require('@condo/domains/resident/utils/serverSchema')
+const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverSchema')
 const { AcquiringIntegrationAccessRight } = require('@condo/domains/acquiring/utils/serverSchema')
 const { get, uniq, compact } = require('lodash')
 const access = require('@core/keystone/access')
@@ -15,7 +15,7 @@ async function canReadOrganizations ({ authentication: { item: user }, context }
     if (user.isAdmin || user.isSupport) return {}
     const userId = user.id
     if (user.type === RESIDENT) {
-        const residents = await ResidentServerUtils.getAll(context, { user: { id: userId } })
+        const residents = await ResidentAPI.getAll(context, { user: { id: userId }, deletedAt: null })
         if (residents.length === 0) {
             return false
         }
@@ -29,7 +29,7 @@ async function canReadOrganizations ({ authentication: { item: user }, context }
     }
 
     const acquiringIntegrationRights = await AcquiringIntegrationAccessRight.getAll(context, {
-        user: { id: userId, deletedAt: null },
+        user: { id: userId, deletedAt: null }, deletedAt: null,
     })
 
     // Acquiring integration can have access to organizations created by it
