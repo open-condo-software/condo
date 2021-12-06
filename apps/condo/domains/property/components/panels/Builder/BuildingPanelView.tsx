@@ -58,6 +58,7 @@ const CHESS_SCROLL_CONTAINER_STYLE: React.CSSProperties = {
     overflowY: 'hidden',
 }
 const UNIT_BUTTON_SECTION_STYLE: React.CSSProperties = { width: '100%', marginTop: '8px' }
+const FLOOR_CONTAINER_STYLE: React.CSSProperties = { display: 'block' }
 
 export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refresh }) => {
     const { query: { id } } = useRouter()
@@ -110,7 +111,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
                                                     const floorInfo = section.floors.find(floor => floor.index === floorIndex)
                                                     if (floorInfo && floorInfo.units.length) {
                                                         return (
-                                                            <div key={floorInfo.id} style={{ display: 'block' }}>
+                                                            <div key={floorInfo.id} style={FLOOR_CONTAINER_STYLE}>
                                                                 {
                                                                     floorInfo.units.map(unit => {
                                                                         return (
