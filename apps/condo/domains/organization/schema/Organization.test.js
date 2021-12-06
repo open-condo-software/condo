@@ -34,10 +34,6 @@ const {
     updateTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
 
-const { createTestBillingProperty, createTestBillingAccount, createTestBillingIntegration, createTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
-
-const { registerServiceConsumerByTestClient } = require('@condo/domains/resident/utils/testSchema')
-
 const { createTestOrganizationEmployeeRole } = require('../utils/testSchema')
 const { createTestOrganizationEmployee } = require('../utils/testSchema')
 
@@ -315,42 +311,6 @@ describe('Organization', () => {
         const organizations = await Organization.getAll(user)
 
         expect(organizations).toHaveLength(0)
-    })
-
-    test('resident: can read not his own organizations only if he has ServiceConsumer linked to this organization', async () => {
-        const adminClient = await makeLoggedInAdminClient()
-
-        const residentClient = await makeClientWithResident()
-
-        // Separate organization provides Internet services to the user
-        const [ internetProviderOrganization ] = await createTestOrganization(adminClient)
-        const [integration] = await createTestBillingIntegration(adminClient)
-        const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, internetProviderOrganization, integration)
-        const [billingProperty] = await createTestBillingProperty(adminClient, context)
-        const [billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty, {
-            number: String(faker.random.number()),
-            unitName: residentClient.resident.unitName,
-        })
-
-        // User do not have registered ServiceConsumer, so he should get only one organization - his Management company...
-
-        await catchErrorFrom(async () => await Organization.getAll(residentClient, {}),
-            (e) => {
-                expect(e.errors[0].message).toContain('You do not have access')
-            })
-
-        // User registers ServiceConsumer in app for InternetProviderOrganization
-        const payload = {
-            residentId: residentClient.resident.id,
-            accountNumber: billingAccountAttrs.number,
-            organizationId: internetProviderOrganization.id,
-        }
-        await registerServiceConsumerByTestClient(residentClient, payload)
-
-        // Now user has registered ServiceConsumer and is able to get InternetProviderOrganization and his Management company organization
-        const consumerOrganizations = await Organization.getAll(residentClient, {}, { raw: true })
-        expect(consumerOrganizations.data.objs).toHaveLength(1)
-        expect(consumerOrganizations.data.objs[0].name).toBeDefined()
     })
 })
 
