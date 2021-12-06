@@ -30,6 +30,7 @@ import { useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultiple
 import { useFilters } from '@condo/domains/meter/hooks/useFilters'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
+// import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 
 export const MetersPageContent = ({
     searchMeterReadingsQuery,
@@ -67,6 +68,8 @@ export const MetersPageContent = ({
     const { MeterInfoModal, setIsMeterInfoModalVisible } = useMeterInfoModal()
     const [ selectedMeterId, setSelectedMeterId ] = useState<string>()
     const { MultipleFiltersModal, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas)
+    // const [columns, contactNormalizer, contactValidator, contactCreator] = useImporterFunctions()
+
     const handleRowAction = useCallback((record) => {
         return {
             onClick: () => {
@@ -106,14 +109,32 @@ export const MetersPageContent = ({
                                                     />
                                                 </Col>
                                                 <Col>
-                                                    <Button
-                                                        secondary
-                                                        type={'sberPrimary'}
-                                                        onClick={() => setIsMultipleFiltersModalVisible(true)}
-                                                    >
-                                                        <FilterFilled/>
-                                                        {FiltersButtonLabel}
-                                                    </Button>
+                                                    <Row gutter={[10, 0]} align={'middle'} justify={'center'}>
+                                                        <Col>
+                                                        Test
+                                                            {/* <ImportWrapper  
+                                                                accessCheck={false}
+                                                            > */}
+                                                            <Button
+                                                                type={'sberPrimary'}
+                                                                // icon={<DiffOutlined />}
+                                                                block
+                                                                secondary
+                                                            />
+                                                            {/* </ImportWrapper> */}
+                                                        </Col>
+                                                        <Col>
+                                                            <Button
+                                                                secondary
+                                                                type={'sberPrimary'}
+                                                                onClick={() => setIsMultipleFiltersModalVisible(true)}
+                                                            >
+                                                                <FilterFilled/>
+                                                                {FiltersButtonLabel}
+                                                            </Button>
+                                                        </Col>
+                                                    </Row>
+
                                                 </Col>
                                             </Row>
                                         </FocusContainer>
