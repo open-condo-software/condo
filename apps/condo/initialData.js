@@ -24,6 +24,18 @@ module.exports = [
                     isAdmin: false,
                 },
             },
+            {
+                data: {
+                    name: 'ResidentUser',
+                    email: 'resident@example.com',
+                    isEmailVerified: false,
+                    isAdmin: false,
+                    isActive: true,
+                    type: 'Resident',
+                    dob: '1995-06-09',
+                    password: '1a92b3a07c78',
+                },
+            },
         ],
     },
 ]
