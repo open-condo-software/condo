@@ -25,10 +25,13 @@ describe('ServiceConsumer', () => {
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [billingProperty] = await createTestBillingProperty(adminClient, context)
             const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
-
             const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+
             const [consumer] = await createTestServiceConsumer(adminClient, resident, userClient.organization, { billingAccount: { connect: { id: billingAccount.id } } })
+
             expect(consumer.resident.id).toEqual(resident.id)
+            expect(consumer.organization.id).toEqual(userClient.organization.id)
+            expect(consumer.billingAccount.id).toEqual(billingAccount.id)
         })
 
         it('cannot be created by regular user', async () => {
@@ -61,48 +64,67 @@ describe('ServiceConsumer', () => {
         })
     })
 
-    describe('SoftDelete', () => {
-        it('can be soft-deleted by user with type === resident if this is his own serviceConsumer', async () => {
-            const client1 = await makeClientWithServiceConsumer()
+    describe('Read', () => {
+        it('can be read by admin', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            await makeClientWithServiceConsumer()
 
-            const [deleted] = await updateTestServiceConsumer(client1, client1.serviceConsumer.id, { deletedAt: 'true' })
-            expect(deleted.id).toEqual(client1.serviceConsumer.id)
-            expect(deleted.deletedAt).toBeDefined()
+            const objs = await ServiceConsumer.getAll(adminClient, {}, { sortBy: ['updatedAt_DESC'] })
+
+            expect(objs.length >= 1).toBeTruthy()
+            expect(objs[0].id).toBeDefined()
+            expect(objs[0].organization).toBeDefined()
+            expect(objs[0].resident).toBeDefined()
         })
 
-        it('cannot be soft-deleted by user with type === resident if this is not his own serviceConsumer', async () => {
-            const client1 = await makeClientWithServiceConsumer()
-            const client2 = await makeClientWithServiceConsumer()
+        it('can be read by user with type === resident who created it', async () => {
+            const client = await makeClientWithServiceConsumer()
+            await makeClientWithServiceConsumer() // Create second service consumer
 
-            await expectToThrowAccessDeniedErrorToObj(async () => {
-                await updateTestServiceConsumer(client1, client2.serviceConsumer.id, { deletedAt: 'true' })
+            const objs = await ServiceConsumer.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
+
+            expect(objs.length === 1).toBeTruthy()
+            expect(objs[0].id).toMatch(client.serviceConsumer.id)
+            expect(objs[0].id).toBeDefined()
+            expect(objs[0].organization).toBeDefined()
+            expect(objs[0].resident).toBeDefined()
+        })
+
+        it('cannot be read by anonymous', async () => {
+            const anonymous = await makeClient()
+            await makeClientWithServiceConsumer()
+
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await ServiceConsumer.getAll(anonymous, {}, { sortBy: ['updatedAt_DESC'] })
             })
         })
     })
 
     describe('Update', () => {
         it('can be updated by admin', async () => {
+            const PAYMENT_CATEGORY = faker.random.alphaNumeric(8)
+            const ACCOUNT_NUMBER = faker.random.alphaNumeric(8)
+
             const adminClient = await makeLoggedInAdminClient()
             const client = await makeClientWithServiceConsumer()
 
-            const newAccountNumber = faker.random.alphaNumeric(8)
-
             const [updatedConsumer] = await updateTestServiceConsumer(adminClient, client.serviceConsumer.id, {
-                accountNumber: newAccountNumber,
-                paymentCategory: 'Квартплата',
+                accountNumber: ACCOUNT_NUMBER,
+                paymentCategory: PAYMENT_CATEGORY,
             })
+
             expect(updatedConsumer.id).toEqual(client.serviceConsumer.id)
-            expect(updatedConsumer.accountNumber).toEqual(newAccountNumber)
+            expect(updatedConsumer.accountNumber).toEqual(ACCOUNT_NUMBER)
+            expect(updatedConsumer.paymentCategory).toEqual(PAYMENT_CATEGORY)
         })
 
         it('cannot be updated by user with type === resident even if this is his own serviceConsumer', async () => {
             const client = await makeClientWithServiceConsumer()
 
             await addResidentAccess(client.user)
-            const newAccountNumber = faker.random.alphaNumeric(8)
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await updateTestServiceConsumer(client, client.serviceConsumer.id, { accountNumber: newAccountNumber })
+                await updateTestServiceConsumer(client, client.serviceConsumer.id, { accountNumber: faker.random.alphaNumeric(8) })
             })
         })
 
@@ -113,20 +135,16 @@ describe('ServiceConsumer', () => {
             await addResidentAccess(client1.user)
             await addResidentAccess(client2.user)
 
-            const newAccountNumber = faker.random.alphaNumeric(8)
-
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await updateTestServiceConsumer(client2, client1.serviceConsumer.id, { accountNumber: newAccountNumber })
+                await updateTestServiceConsumer(client2, client1.serviceConsumer.id, { accountNumber: faker.random.alphaNumeric(8) })
             })
         })
 
         it('cannot be updated by other users', async () => {
             const client = await makeClientWithServiceConsumer()
 
-            const newAccountNumber = faker.random.alphaNumeric(8)
-
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await updateTestServiceConsumer(client, client.serviceConsumer.id, { accountNumber: newAccountNumber })
+                await updateTestServiceConsumer(client, client.serviceConsumer.id, { accountNumber: faker.random.alphaNumeric(8) })
             })
         })
 
@@ -134,39 +152,28 @@ describe('ServiceConsumer', () => {
             const anonymousClient = await makeClient()
             const client = await makeClientWithServiceConsumer()
 
-            const newAccountNumber = faker.random.alphaNumeric(8)
-
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await updateTestServiceConsumer(anonymousClient, client.serviceConsumer.id, { accountNumber: newAccountNumber })
+                await updateTestServiceConsumer(anonymousClient, client.serviceConsumer.id, { accountNumber: faker.random.alphaNumeric(8) })
             })
         })
     })
 
-    describe('Read', () => {
-        it('can be read by admin', async () => {
-            const adminClient = await makeLoggedInAdminClient()
-            await makeClientWithServiceConsumer()
+    describe('SoftDelete', () => {
+        it('can be soft-deleted by user with type === resident if this is his own serviceConsumer', async () => {
+            const client1 = await makeClientWithServiceConsumer()
 
-            const objs = await ServiceConsumer.getAll(adminClient, {})
-            expect(objs.length >= 1).toBeTruthy()
+            const [deleted] = await updateTestServiceConsumer(client1, client1.serviceConsumer.id, { deletedAt: 'true' })
+
+            expect(deleted.id).toEqual(client1.serviceConsumer.id)
+            expect(deleted.deletedAt).toBeDefined()
         })
 
-        it('can be read by user with type === resident who created it', async () => {
-            const client = await makeClientWithServiceConsumer()
-            await makeClientWithServiceConsumer() // Create second service consumer
+        it('cannot be soft-deleted by user with type === resident if this is not his own serviceConsumer', async () => {
+            const client1 = await makeClientWithServiceConsumer()
+            const client2 = await makeClientWithServiceConsumer()
 
-            const objs = await ServiceConsumer.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
-            expect(objs.length === 1).toBeTruthy()
-            expect(objs[0].id).toMatch(client.serviceConsumer.id)
-            expect(objs[0].residentOrganization).toBeDefined()
-        })
-
-        it('cannot be read by anonymous', async () => {
-            const anonymous = await makeClient()
-            await makeClientWithServiceConsumer()
-
-            await expectToThrowAccessDeniedErrorToObjects(async () => {
-                await ServiceConsumer.getAll(anonymous, {}, { sortBy: ['updatedAt_DESC'] })
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestServiceConsumer(client1, client2.serviceConsumer.id, { deletedAt: 'true' })
             })
         })
     })
