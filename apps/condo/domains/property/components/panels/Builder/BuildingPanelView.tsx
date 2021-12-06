@@ -29,12 +29,12 @@ export const BuildingPanelView: React.FC<IBuildingPanelViewProps> = ({ map }) =>
     // TODO(zuch): Ask for a better solution
     const refresh = () => setMap(cloneDeep(Map))
     return (
-        <PropertyMapView Builder={Map} refresh={refresh} />
+        <PropertyMapView builder={Map} refresh={refresh} />
     )
 }
 
 interface IPropertyMapViewProps {
-    Builder: MapView
+    builder: MapView
     refresh(): void
 }
 
@@ -57,8 +57,9 @@ const CHESS_SCROLL_CONTAINER_STYLE: React.CSSProperties = {
     width: '100%',
     overflowY: 'hidden',
 }
+const UNIT_BUTTON_SECTION_STYLE: React.CSSProperties = { width: '100%', marginTop: '8px' }
 
-export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refresh }) => {
+export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refresh }) => {
     const { query: { id } } = useRouter()
     const { obj: property } = useObject({ where: { id: id as string } })
 
@@ -79,7 +80,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
             </FullscreenHeader>
             <Row align='middle' style={CHESS_ROW_STYLE}>
                 {
-                    Builder.isEmpty ?
+                    builder.isEmpty ?
                         <Col span={24} style={CHESS_COL_STYLE}>
                             <EmptyBuildingBlock />
                         </Col>
@@ -94,18 +95,18 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
                                 nativeMobileScroll={true}
                             >
                                 {
-                                    !isEmpty(Builder.sections) && (
-                                        <BuildingAxisY floors={Builder.possibleChosenFloors} />
+                                    !isEmpty(builder.sections) && (
+                                        <BuildingAxisY floors={builder.possibleChosenFloors} />
                                     )
                                 }
                                 {
-                                    Builder.sections.map(section => (
+                                    builder.sections.map(section => (
                                         <MapSectionContainer
                                             key={section.id}
-                                            visible={Builder.isSectionVisible(section.id)}
+                                            visible={builder.isSectionVisible(section.id)}
                                         >
                                             {
-                                                Builder.possibleChosenFloors.map(floorIndex => {
+                                                builder.possibleChosenFloors.map(floorIndex => {
                                                     const floorInfo = section.floors.find(floor => floor.index === floorIndex)
                                                     if (floorInfo && floorInfo.units.length) {
                                                         return (
@@ -131,7 +132,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
                                             }
                                             <UnitButton
                                                 secondary
-                                                style={{ width: '100%', marginTop: '8px' }}
+                                                style={UNIT_BUTTON_SECTION_STYLE}
                                                 disabled
                                             >{section.name}</UnitButton>
                                         </MapSectionContainer>
@@ -140,7 +141,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
                             </ScrollContainer>
                             {
                                 <BuildingChooseSections
-                                    Builder={Builder}
+                                    builder={builder}
                                     refresh={refresh}
                                     toggleFullscreen={toggleFullscreen}
                                     isFullscreen={isFullscreen}
