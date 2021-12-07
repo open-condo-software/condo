@@ -10481,6 +10481,8 @@ export type MultiPayment = {
   serviceCategory?: Maybe<Scalars['String']>;
   /**  Transaction ID of money withdraw  */
   transactionId?: Maybe<Scalars['String']>;
+  /**  Id of `acquiring object` which represents current item in base of external service. Used for internal needs of `acquiring integration service`  */
+  importId?: Maybe<Scalars['String']>;
   /**  Additional acquiring-specific information  */
   meta?: Maybe<Scalars['JSON']>;
   /**  Status of multipayment. Can be: "CREATED", "DONE", "PROCESSING", "ERROR"  */
@@ -10538,6 +10540,7 @@ export type MultiPaymentCreateInput = {
   payerEmail?: Maybe<Scalars['String']>;
   serviceCategory?: Maybe<Scalars['String']>;
   transactionId?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
   user?: Maybe<UserRelateToOneInput>;
@@ -10577,6 +10580,7 @@ export type MultiPaymentHistoryRecord = {
   payerEmail?: Maybe<Scalars['String']>;
   serviceCategory?: Maybe<Scalars['String']>;
   transactionId?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
   user?: Maybe<Scalars['String']>;
@@ -10609,6 +10613,7 @@ export type MultiPaymentHistoryRecordCreateInput = {
   payerEmail?: Maybe<Scalars['String']>;
   serviceCategory?: Maybe<Scalars['String']>;
   transactionId?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
   user?: Maybe<Scalars['String']>;
@@ -10646,6 +10651,7 @@ export type MultiPaymentHistoryRecordUpdateInput = {
   payerEmail?: Maybe<Scalars['String']>;
   serviceCategory?: Maybe<Scalars['String']>;
   transactionId?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
   user?: Maybe<Scalars['String']>;
@@ -10829,6 +10835,24 @@ export type MultiPaymentHistoryRecordWhereInput = {
   transactionId_not_ends_with_i?: Maybe<Scalars['String']>;
   transactionId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   transactionId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId?: Maybe<Scalars['String']>;
+  importId_not?: Maybe<Scalars['String']>;
+  importId_contains?: Maybe<Scalars['String']>;
+  importId_not_contains?: Maybe<Scalars['String']>;
+  importId_starts_with?: Maybe<Scalars['String']>;
+  importId_not_starts_with?: Maybe<Scalars['String']>;
+  importId_ends_with?: Maybe<Scalars['String']>;
+  importId_not_ends_with?: Maybe<Scalars['String']>;
+  importId_i?: Maybe<Scalars['String']>;
+  importId_not_i?: Maybe<Scalars['String']>;
+  importId_contains_i?: Maybe<Scalars['String']>;
+  importId_not_contains_i?: Maybe<Scalars['String']>;
+  importId_starts_with_i?: Maybe<Scalars['String']>;
+  importId_not_starts_with_i?: Maybe<Scalars['String']>;
+  importId_ends_with_i?: Maybe<Scalars['String']>;
+  importId_not_ends_with_i?: Maybe<Scalars['String']>;
+  importId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -10959,6 +10983,7 @@ export type MultiPaymentUpdateInput = {
   payerEmail?: Maybe<Scalars['String']>;
   serviceCategory?: Maybe<Scalars['String']>;
   transactionId?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
   user?: Maybe<UserRelateToOneInput>;
@@ -11108,6 +11133,24 @@ export type MultiPaymentWhereInput = {
   transactionId_not_ends_with_i?: Maybe<Scalars['String']>;
   transactionId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   transactionId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId?: Maybe<Scalars['String']>;
+  importId_not?: Maybe<Scalars['String']>;
+  importId_contains?: Maybe<Scalars['String']>;
+  importId_not_contains?: Maybe<Scalars['String']>;
+  importId_starts_with?: Maybe<Scalars['String']>;
+  importId_not_starts_with?: Maybe<Scalars['String']>;
+  importId_ends_with?: Maybe<Scalars['String']>;
+  importId_not_ends_with?: Maybe<Scalars['String']>;
+  importId_i?: Maybe<Scalars['String']>;
+  importId_not_i?: Maybe<Scalars['String']>;
+  importId_contains_i?: Maybe<Scalars['String']>;
+  importId_not_contains_i?: Maybe<Scalars['String']>;
+  importId_starts_with_i?: Maybe<Scalars['String']>;
+  importId_not_starts_with_i?: Maybe<Scalars['String']>;
+  importId_ends_with_i?: Maybe<Scalars['String']>;
+  importId_not_ends_with_i?: Maybe<Scalars['String']>;
+  importId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -18362,6 +18405,8 @@ export type Payment = {
   organization?: Maybe<Organization>;
   /**  Status of payment. Can be: "CREATED", "PROCESSING", "DONE", "ERROR"  */
   status?: Maybe<Scalars['String']>;
+  /**  Id of `acquiring object` which represents current item in base of external service. Used for internal needs of `acquiring integration service`  */
+  importId?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -18397,6 +18442,7 @@ export type PaymentCreateInput = {
   context?: Maybe<AcquiringIntegrationContextRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   status?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -18433,6 +18479,7 @@ export type PaymentHistoryRecord = {
   context?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -18463,6 +18510,7 @@ export type PaymentHistoryRecordCreateInput = {
   context?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -18498,6 +18546,7 @@ export type PaymentHistoryRecordUpdateInput = {
   context?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -18657,6 +18706,24 @@ export type PaymentHistoryRecordWhereInput = {
   status_not_ends_with_i?: Maybe<Scalars['String']>;
   status_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   status_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId?: Maybe<Scalars['String']>;
+  importId_not?: Maybe<Scalars['String']>;
+  importId_contains?: Maybe<Scalars['String']>;
+  importId_not_contains?: Maybe<Scalars['String']>;
+  importId_starts_with?: Maybe<Scalars['String']>;
+  importId_not_starts_with?: Maybe<Scalars['String']>;
+  importId_ends_with?: Maybe<Scalars['String']>;
+  importId_not_ends_with?: Maybe<Scalars['String']>;
+  importId_i?: Maybe<Scalars['String']>;
+  importId_not_i?: Maybe<Scalars['String']>;
+  importId_contains_i?: Maybe<Scalars['String']>;
+  importId_not_contains_i?: Maybe<Scalars['String']>;
+  importId_starts_with_i?: Maybe<Scalars['String']>;
+  importId_not_starts_with_i?: Maybe<Scalars['String']>;
+  importId_ends_with_i?: Maybe<Scalars['String']>;
+  importId_not_ends_with_i?: Maybe<Scalars['String']>;
+  importId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -18760,6 +18827,7 @@ export type PaymentUpdateInput = {
   context?: Maybe<AcquiringIntegrationContextRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   status?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -18880,6 +18948,24 @@ export type PaymentWhereInput = {
   status_not?: Maybe<Scalars['String']>;
   status_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   status_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId?: Maybe<Scalars['String']>;
+  importId_not?: Maybe<Scalars['String']>;
+  importId_contains?: Maybe<Scalars['String']>;
+  importId_not_contains?: Maybe<Scalars['String']>;
+  importId_starts_with?: Maybe<Scalars['String']>;
+  importId_not_starts_with?: Maybe<Scalars['String']>;
+  importId_ends_with?: Maybe<Scalars['String']>;
+  importId_not_ends_with?: Maybe<Scalars['String']>;
+  importId_i?: Maybe<Scalars['String']>;
+  importId_not_i?: Maybe<Scalars['String']>;
+  importId_contains_i?: Maybe<Scalars['String']>;
+  importId_not_contains_i?: Maybe<Scalars['String']>;
+  importId_starts_with_i?: Maybe<Scalars['String']>;
+  importId_not_starts_with_i?: Maybe<Scalars['String']>;
+  importId_ends_with_i?: Maybe<Scalars['String']>;
+  importId_not_ends_with_i?: Maybe<Scalars['String']>;
+  importId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -26305,6 +26391,8 @@ export enum SortMultiPaymentHistoryRecordsBy {
   ServiceCategoryDesc = 'serviceCategory_DESC',
   TransactionIdAsc = 'transactionId_ASC',
   TransactionIdDesc = 'transactionId_DESC',
+  ImportIdAsc = 'importId_ASC',
+  ImportIdDesc = 'importId_DESC',
   StatusAsc = 'status_ASC',
   StatusDesc = 'status_DESC',
   IdAsc = 'id_ASC',
@@ -26348,6 +26436,8 @@ export enum SortMultiPaymentsBy {
   ServiceCategoryDesc = 'serviceCategory_DESC',
   TransactionIdAsc = 'transactionId_ASC',
   TransactionIdDesc = 'transactionId_DESC',
+  ImportIdAsc = 'importId_ASC',
+  ImportIdDesc = 'importId_DESC',
   StatusAsc = 'status_ASC',
   StatusDesc = 'status_DESC',
   UserAsc = 'user_ASC',
@@ -26801,6 +26891,8 @@ export enum SortPaymentHistoryRecordsBy {
   PurposeDesc = 'purpose_DESC',
   StatusAsc = 'status_ASC',
   StatusDesc = 'status_DESC',
+  ImportIdAsc = 'importId_ASC',
+  ImportIdDesc = 'importId_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -26846,6 +26938,8 @@ export enum SortPaymentsBy {
   OrganizationDesc = 'organization_DESC',
   StatusAsc = 'status_ASC',
   StatusDesc = 'status_DESC',
+  ImportIdAsc = 'importId_ASC',
+  ImportIdDesc = 'importId_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
