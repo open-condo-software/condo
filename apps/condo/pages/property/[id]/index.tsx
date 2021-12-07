@@ -207,7 +207,11 @@ const PropertyIdPage: IPropertyIdPage = () => {
     </>
 }
 
-PropertyIdPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllProperties' }} path={'/property/'}/>
+PropertyIdPage.headerAction = <ReturnBackHeaderAction
+    descriptor={{ id: 'menu.AllProperties' }}
+    path={'/property/'}
+    useBrowserHistory={false}
+/>
 PropertyIdPage.requiredAccess = OrganizationRequired
 
 export default PropertyIdPage
