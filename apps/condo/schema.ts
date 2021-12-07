@@ -1403,7 +1403,7 @@ export type BillingAccount = {
   sender?: Maybe<SenderField>;
   /**  Integration context  */
   context?: Maybe<BillingIntegrationOrganizationContext>;
-  /**  `billing data source` local object ID. Used only for the internal needs of the `integration component`  */
+  /**  Id of object in external service which represents current item. Mostly used for internal needs of integration services for matching our objects with theirs  */
   importId?: Maybe<Scalars['String']>;
   /**  Raw non-structured data obtained from the `billing data source`. Used only for the internal needs of the `integration component`.  */
   raw?: Maybe<Scalars['JSON']>;
@@ -1732,7 +1732,7 @@ export type BillingAccountMeter = {
   sender?: Maybe<SenderField>;
   /**  Integration context  */
   context?: Maybe<BillingIntegrationOrganizationContext>;
-  /**  `billing data source` local object ID. Used only for the internal needs of the `integration component`  */
+  /**  Id of object in external service which represents current item. Mostly used for internal needs of integration services for matching our objects with theirs  */
   importId?: Maybe<Scalars['String']>;
   /**  Raw non-structured data obtained from the `billing data source`. Used only for the internal needs of the `integration component`.  */
   raw?: Maybe<Scalars['JSON']>;
@@ -2033,7 +2033,7 @@ export type BillingAccountMeterReading = {
   sender?: Maybe<SenderField>;
   /**  Integration context  */
   context?: Maybe<BillingIntegrationOrganizationContext>;
-  /**  `billing data source` local object ID. Used only for the internal needs of the `integration component`  */
+  /**  Id of object in external service which represents current item. Mostly used for internal needs of integration services for matching our objects with theirs  */
   importId?: Maybe<Scalars['String']>;
   /**  Raw non-structured data obtained from the `billing data source`. Used only for the internal needs of the `integration component`.  */
   raw?: Maybe<Scalars['JSON']>;
@@ -4920,7 +4920,7 @@ export type BillingProperty = {
   sender?: Maybe<SenderField>;
   /**  Integration context  */
   context?: Maybe<BillingIntegrationOrganizationContext>;
-  /**  `billing data source` local object ID. Used only for the internal needs of the `integration component`  */
+  /**  Id of object in external service which represents current item. Mostly used for internal needs of integration services for matching our objects with theirs  */
   importId?: Maybe<Scalars['String']>;
   /**  Raw non-structured data obtained from the `billing data source`. Used only for the internal needs of the `integration component`.  */
   raw?: Maybe<Scalars['JSON']>;
@@ -10481,7 +10481,7 @@ export type MultiPayment = {
   serviceCategory?: Maybe<Scalars['String']>;
   /**  Transaction ID of money withdraw  */
   transactionId?: Maybe<Scalars['String']>;
-  /**  Id of `acquiring object` which represents current item in base of external service. Used for internal needs of `acquiring integration service`  */
+  /**  Id of object in external service which represents current item. Mostly used for internal needs of integration services for matching our objects with theirs  */
   importId?: Maybe<Scalars['String']>;
   /**  Additional acquiring-specific information  */
   meta?: Maybe<Scalars['JSON']>;
@@ -18405,7 +18405,7 @@ export type Payment = {
   organization?: Maybe<Organization>;
   /**  Status of payment. Can be: "CREATED", "PROCESSING", "DONE", "ERROR"  */
   status?: Maybe<Scalars['String']>;
-  /**  Id of `acquiring object` which represents current item in base of external service. Used for internal needs of `acquiring integration service`  */
+  /**  Id of object in external service which represents current item. Mostly used for internal needs of integration services for matching our objects with theirs  */
   importId?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;

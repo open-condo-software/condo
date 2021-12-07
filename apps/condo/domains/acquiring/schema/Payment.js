@@ -6,9 +6,15 @@ const { Text, Relationship, DateTimeUtc, Select } = require('@keystonejs/fields'
 const { Json } = require('@core/keystone/fields')
 const { GQLListSchema, getById } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD, CURRENCY_CODE_FIELD, POSITIVE_MONEY_AMOUNT_FIELD, NON_NEGATIVE_MONEY_FIELD } = require('@condo/domains/common/schema/fields')
+const {
+    SENDER_FIELD,
+    DV_FIELD,
+    CURRENCY_CODE_FIELD,
+    POSITIVE_MONEY_AMOUNT_FIELD,
+    NON_NEGATIVE_MONEY_FIELD,
+    IMPORT_ID_FIELD,
+} = require('@condo/domains/common/schema/fields')
 const { PERIOD_FIELD } = require('@condo/domains/billing/schema/fields/common')
-const { IMPORT_ID_FIELD } = require('@condo/domains/acquiring/schema/fields/common')
 const access = require('@condo/domains/acquiring/access/Payment')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')

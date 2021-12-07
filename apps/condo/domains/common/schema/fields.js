@@ -151,6 +151,12 @@ const CURRENCY_CODE_FIELD = {
     options: ISO_CODES,
 }
 
+// TODO(DOMA-1766) add constrains with this field! + context
+const IMPORT_ID_FIELD = {
+    schemaDoc: 'Id of object in external service which represents current item. Mostly used for internal needs of integration services for matching our objects with theirs',
+    type: Text,
+    isRequired: false,
+}
 
 module.exports = {
     DV_FIELD,
@@ -166,4 +172,5 @@ module.exports = {
     CURRENCY_CODE_FIELD,
     POSITIVE_MONEY_AMOUNT_FIELD,
     NON_NEGATIVE_MONEY_FIELD,
+    IMPORT_ID_FIELD,
 }
