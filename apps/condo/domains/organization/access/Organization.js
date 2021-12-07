@@ -15,7 +15,7 @@ async function canReadOrganizations ({ authentication: { item: user }, context }
     if (user.isAdmin || user.isSupport) return {}
     const userId = user.id
     if (user.type === RESIDENT) {
-        const residents = await ResidentServerUtils.getAll(context, { user: { id: userId }, deletedAt: null })
+        const residents = await ResidentServerUtils.getAll(context, { user: { id: userId } })
         if (residents.length === 0) {
             return false
         }
