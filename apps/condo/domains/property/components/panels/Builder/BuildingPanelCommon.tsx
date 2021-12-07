@@ -122,6 +122,10 @@ interface IBuildingAxisYProps {
 const BuildingAxisContainer = styled.div`
   display: inline-block;
   margin-right: 12px;
+  position: sticky;
+  left: 0;
+  background-color: ${colors.backgroundLightGrey};
+  z-index: 2;
 `
 const AXIS_UNIT_STYLE: React.CSSProperties = { display: 'block' }
 
