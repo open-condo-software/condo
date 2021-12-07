@@ -26,7 +26,7 @@ interface IColumnsInfoBoxProps {
     exampleTemplateLink?: string | null
 }
 
-interface IImportProps {
+interface IImportWrapperProps {
     objectsName: string
     accessCheck: boolean
     onFinish(): void
@@ -81,7 +81,7 @@ const ColumnsInfoBox: React.FC<IColumnsInfoBoxProps> = ({ columns, domainTransla
     )
 }
 
-export const ImportWrapper: React.FC<IImportProps> = (props) => {
+export const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
     const {
         objectsName,
         accessCheck,
