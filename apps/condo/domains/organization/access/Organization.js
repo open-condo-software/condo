@@ -15,13 +15,13 @@ async function canReadOrganizations ({ authentication: { item: user }, context }
     if (user.isAdmin || user.isSupport) return {}
     const userId = user.id
     if (user.type === RESIDENT) {
-        const residents = await ResidentServerUtils.getAll(context, { user: { id: userId } })
+        const residents = await ResidentServerUtils.getAll(context, { user: { id: userId }, deletedAt: null })
         if (residents.length === 0) {
             return false
         }
         const residentOrganizations = compact(residents.map(resident => get(resident, ['organization', 'id'])))
 
-        const residentsServiceConsumers = await ServiceConsumerServerUtils.getAll(context, { resident: { id_in: residents.map(resident => resident.id) } })
+        const residentsServiceConsumers = await ServiceConsumerServerUtils.getAll(context, { resident: { id_in: residents.map(resident => resident.id), deletedAt: null } })
         const serviceConsumerOrganizations = residentsServiceConsumers.map(serviceConsumer => serviceConsumer.organization.id)
 
         const organizations = [...residentOrganizations, ...serviceConsumerOrganizations]
