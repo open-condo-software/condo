@@ -67,11 +67,15 @@ describe('ServiceConsumer', () => {
     describe('Read', () => {
         it('can be read by admin', async () => {
             const adminClient = await makeLoggedInAdminClient()
-            await makeClientWithServiceConsumer()
+            const serviceConsumerClient = await makeClientWithServiceConsumer()
 
-            const objs = await ServiceConsumer.getAll(adminClient, {}, { sortBy: ['updatedAt_DESC'] })
+            const objs = await ServiceConsumer.getAll(
+                adminClient,
+                { id: serviceConsumerClient.serviceConsumer.id },
+                { sortBy: ['updatedAt_DESC'] }
+            )
 
-            expect(objs.length >= 1).toBeTruthy()
+            expect(objs.length === 1).toBeTruthy()
             expect(objs[0].id).toBeDefined()
             expect(objs[0].organization).toBeDefined()
             expect(objs[0].resident).toBeDefined()

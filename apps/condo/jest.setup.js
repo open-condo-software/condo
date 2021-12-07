@@ -10,7 +10,7 @@ if (conf.TESTS_FAKE_WORKER_MODE) createWorker(require.resolve('./index')).catch(
 })
 
 beforeAll(async () => {
-    jest.setTimeout(10000000)
+    jest.setTimeout(10 * 60 * 1000) // 10 min
     return await taskQueue.isReady()
 })
 
