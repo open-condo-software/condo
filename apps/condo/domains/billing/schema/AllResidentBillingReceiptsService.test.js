@@ -4,14 +4,56 @@
 
 const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { addResidentAccess, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+const { addResidentAccess, makeClientWithResidentUser, makeClientWithSupportUser, makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
 const { createTestBillingIntegration, createTestBillingReceipt, updateTestBillingReceipt, ResidentBillingReceipt } = require('../utils/testSchema')
 const { registerServiceConsumerByTestClient, updateTestServiceConsumer, registerResidentByTestClient, createTestResident, ServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { createTestBillingAccount, createTestBillingProperty, createTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
+const { createTestBillingAccount, createTestBillingProperty, createTestBillingIntegrationOrganizationContext, createTestBillingIntegrationAccessRight } = require('@condo/domains/billing/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 
 describe('AllResidentBillingReceipts', () => {
+
+    describe('resident should be able to get all needed fields', () => {
+        let mutationResult
+        beforeEach(async () => {
+            const userClient = await makeClientWithProperty()
+            const support = await makeClientWithSupportUser()
+
+            const [integration] = await createTestBillingIntegration(support)
+            const [billingContext] = await createTestBillingIntegrationOrganizationContext(userClient, userClient.organization, integration)
+
+            const integrationClient = await makeLoggedInClient()
+            await createTestBillingIntegrationAccessRight(support, integration, integrationClient.user)
+            const [billingProperty] = await createTestBillingProperty(integrationClient, billingContext, {
+                address: userClient.property.address,
+            })
+            const [billingAccount, billingAccountAttrs] = await createTestBillingAccount(integrationClient, billingContext, billingProperty)
+
+            const residentUser = await makeClientWithResidentUser()
+            const [resident] = await registerResidentByTestClient(residentUser, {
+                address: userClient.property.address,
+                addressMeta: userClient.property.addressMeta,
+                unitName: billingAccountAttrs.unitName,
+            })
+            await registerServiceConsumerByTestClient(residentUser, {
+                residentId: resident.id,
+                accountNumber: billingAccountAttrs.number,
+                organizationId: userClient.organization.id,
+            })
+            await createTestBillingReceipt(integrationClient, billingContext, billingProperty, billingAccount)
+            mutationResult = await ResidentBillingReceipt.getAll(residentUser)
+        })
+
+        // TODO(DOMA-1768): add more tests
+        test('receipts currencyCode', async () => {
+            expect(mutationResult).toBeDefined()
+            expect(mutationResult).not.toHaveLength(0)
+            mutationResult.forEach(receipt => {
+                expect(receipt).toHaveProperty('currencyCode')
+                expect(receipt.currencyCode).not.toBeNull()
+            })
+        })
+    })
 
     test('user with valid serviceAccount can read BillingReceipt without raw data', async () => {
         const userClient = await makeClientWithProperty()
