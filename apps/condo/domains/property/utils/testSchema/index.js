@@ -72,16 +72,6 @@ async function makeClientWithResidentAccessAndProperty () {
     return client
 }
 
-/**
- * You should either use makeClientWithResidentUser or makeClientWithResident
- * @deprecated
- */
-async function makeClientWithResidentUserAndProperty () {
-    const userClient = await makeClientWithProperty()
-    await addResidentAccess(userClient.user)
-    return userClient
-}
-
 async function checkPropertyWithAddressExistByTestClient(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
 
@@ -112,7 +102,6 @@ module.exports = {
     makeClientWithProperty,
     checkPropertyWithAddressExistByTestClient,
     makeClientWithResidentAccessAndProperty,
-    makeClientWithResidentUserAndProperty,
     exportPropertiesToExcelByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
