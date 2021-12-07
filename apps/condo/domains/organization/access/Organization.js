@@ -25,6 +25,7 @@ async function canReadOrganizations ({ authentication: { item: user }, context }
         const serviceConsumerOrganizations = residentsServiceConsumers.map(serviceConsumer => serviceConsumer.organization.id)
 
         const organizations = [...residentOrganizations, ...serviceConsumerOrganizations]
+
         if (organizations.length > 0) {
             return {
                 id_in: uniq(organizations),
