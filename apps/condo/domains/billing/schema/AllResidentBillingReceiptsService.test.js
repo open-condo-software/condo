@@ -15,7 +15,7 @@ describe('AllResidentBillingReceipts', () => {
 
     describe('resident should be able to get all needed fields', () => {
         let mutationResult
-        beforeEach(async () => {
+        beforeAll(async () => {
             const userClient = await makeClientWithProperty()
             const support = await makeClientWithSupportUser()
 
