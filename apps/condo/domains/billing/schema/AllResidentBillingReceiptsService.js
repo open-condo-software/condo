@@ -6,7 +6,7 @@ const { pick, get } = require('lodash')
 const Big = require('big.js')
 
 const { ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
-const { Payments } = require('@condo/domains/acquiring/utils/serverSchema')
+const { Payment } = require('@condo/domains/acquiring/utils/serverSchema')
 
 const { BillingReceipt } = require('../utils/serverSchema')
 const access = require('../access/AllResidentBillingReceipts')
@@ -31,7 +31,7 @@ const fieldsObj = {
 
 
 const getPaymentsSum = async (context, organizationId, accountNumber, period) => {
-    const payments = await Payments.getAll(
+    const payments = await Payment.getAll(
         context,
         {
             organization: organizationId,
@@ -124,10 +124,7 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
                         ))
                 }
 
-                billingReceipts.flat()
-                await Promise.all(billingReceipts)
-
-                return billingReceipts
+                return await Promise.all(billingReceipts.flat())
             },
         },
     ],
