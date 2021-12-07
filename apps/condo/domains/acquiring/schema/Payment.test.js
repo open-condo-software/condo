@@ -106,8 +106,8 @@ describe('Payment', () => {
                         expect(payments).toHaveLength(0)
                     })
                     test('linked', async () => {
-                        const { admin, payments: firstPayments, acquiringIntegration: firstAcquiringIntegration, client: firstClient } = await makePayerAndPayments()
-                        const { payments: secondPayments, acquiringIntegration: secondAcquiringIntegration, client: secondClient } = await makePayerAndPayments()
+                        const { admin, payments: firstPayments, acquiringIntegration: firstAcquiringIntegration, client: firstClient, organization: firstOrganization } = await makePayerAndPayments()
+                        const { payments: secondPayments, acquiringIntegration: secondAcquiringIntegration, client: secondClient, organization: secondOrganization } = await makePayerAndPayments()
                         const [firstMultiPayment] = await createTestMultiPayment(admin, firstPayments, firstClient.user, firstAcquiringIntegration)
                         const [secondMultiPayment] = await createTestMultiPayment(admin, secondPayments, secondClient.user, secondAcquiringIntegration)
 
@@ -115,10 +115,12 @@ describe('Payment', () => {
                         expect(firstUserPayments).toBeDefined()
                         expect(firstUserPayments).toHaveLength(1)
                         expect(firstUserPayments).toHaveProperty(['0', 'multiPayment', 'id'], firstMultiPayment.id)
+                        expect(firstUserPayments).toHaveProperty(['0', 'organization', 'id'], firstOrganization.id)
                         let { data: { objs: secondUserPayments } } = await Payment.getAll(secondClient, {}, { raw:true })
                         expect(secondUserPayments).toBeDefined()
                         expect(secondUserPayments).toHaveLength(1)
                         expect(secondUserPayments).toHaveProperty(['0', 'multiPayment', 'id'], secondMultiPayment.id)
+                        expect(secondUserPayments).toHaveProperty(['0', 'organization', 'id'], secondOrganization.id)
                     })
                 })
                 test('acquiring account can see it\'s own payments', async () => {
