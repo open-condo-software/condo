@@ -8,6 +8,7 @@ const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD, CURRENCY_CODE_FIELD, NON_NEGATIVE_MONEY_FIELD, POSITIVE_MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
+const { IMPORT_ID_FIELD } = require('@condo/domains/acquiring/schema/fields/common')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const {
     AVAILABLE_PAYMENT_METHODS,
@@ -146,6 +147,8 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
             isRequired: false,
             access: { read: access.canReadMultiPaymentsSensitiveData },
         },
+
+        importId: IMPORT_ID_FIELD,
 
         meta: {
             schemaDoc: 'Additional acquiring-specific information',
