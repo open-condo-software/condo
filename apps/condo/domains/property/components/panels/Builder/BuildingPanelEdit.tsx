@@ -590,6 +590,7 @@ interface IPropertyMapSectionProps {
     scrollToForm: () => void
 }
 const FULL_SIZE_UNIT_STYLE: React.CSSProperties = { width: '100%', marginTop: '8px', display: 'block' }
+const SECTION_UNIT_STYLE: React.CSSProperties = { ...FULL_SIZE_UNIT_STYLE, zIndex: 3 }
 
 const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ section, children, builder, refresh, scrollToForm }) => {
     const chooseSection = useCallback((section) => {
@@ -605,7 +606,7 @@ const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ section, child
             {children}
             <UnitButton
                 secondary
-                style={FULL_SIZE_UNIT_STYLE}
+                style={SECTION_UNIT_STYLE}
                 disabled={section.preview}
                 preview={section.preview}
                 onClick={() => chooseSection(section)}
