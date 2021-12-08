@@ -219,3 +219,9 @@ shell:
 docker:
   ENV:
     LANG: C.UTF-8
+---
+image: postgresreview
+from: postgres:13.2
+---
+image: redisreview
+from: redis:6.2
