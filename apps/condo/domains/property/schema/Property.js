@@ -260,14 +260,14 @@ const Property = new GQLListSchema('Property', {
                 )
             const affectedAddress = isSoftDeleteOperation || isAddressUpdated ?  existingItem.address : updatedItem.address
 
-            if (isSoftDeleteOperation || isCreatedProperty || isRestoredProperty) {
-                await manageResidentToPropertyAndOrganizationConnections.delay(affectedAddress)
-            }
+            // We handle resident reconnections only for these operation types
+            if (isCreatedProperty || isRestoredProperty || isSoftDeleteOperation || isAddressUpdated) {
+                if (isAddressUpdated) {
+                    // Reconnect residents (if any) to oldest non-deleted property with address = updatedItem.address
+                    await manageResidentToPropertyAndOrganizationConnections.delay(updatedItem.address)
+                }
 
-            if (isAddressUpdated) {
-                // Reconnect (if any) residents to oldest non-deleted property with address = updatedItem.address
-                await manageResidentToPropertyAndOrganizationConnections.delay(updatedItem.address)
-                // Reconnect residents from this property (if any) to other non-deleted oldest property with address = prev address
+                // Reconnect residents (if any) to oldest non-deleted property with address = affectedAddress
                 await manageResidentToPropertyAndOrganizationConnections.delay(affectedAddress)
             }
         },
