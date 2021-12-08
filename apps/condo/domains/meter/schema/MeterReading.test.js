@@ -332,16 +332,25 @@ describe('MeterReading', () => {
             await createTestServiceConsumer(adminClient, resident, organization, {
                 accountNumber: accountNumber1,
             })
+
             const [meter] = await createTestMeter(adminClient, organization, property, resource, {
                 accountNumber: accountNumber1,
                 unitName,
             })
+
             await PropertyAPI.softDelete(adminClient, property.id)
+
+            const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
+
+            // test access before resident reconnection worker task executes
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestMeterReading(client, meter, organization, source)
+            })
 
             // NOTE: give worker some time
             await sleep(1000)
 
-            const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
+            // test access after resident reconnection worker task done
             const testFunc = async () => {
                 await createTestMeterReading(client, meter, organization, source)
             }
@@ -1045,9 +1054,17 @@ describe('MeterReading', () => {
 
             await PropertyAPI.softDelete(adminClient, property.id)
 
+            // test access before residents reconnection worker task executes
+            const meterReadings = await MeterReading.getAll(client, {
+                id: meterReading.id,
+            })
+
+            expect(meterReadings).toHaveLength(0)
+
             // NOTE: give worker some time
             await sleep(1000)
 
+            // test access after residents reconnection worker task done
             const testFunc = async () => {
                 await MeterReading.getAll(client, { id: meterReading.id })
             }
