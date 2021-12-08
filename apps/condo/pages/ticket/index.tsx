@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useState } from 'react'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { Checkbox, Col, Input, Row, Typography } from 'antd'
@@ -48,7 +48,6 @@ const ROW_GUTTER: [Gutter, Gutter] = [0, 40]
 const TAP_BAR_ROW_GUTTER: [Gutter, Gutter] = [0, 20]
 const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.content }
 const TOP_BAR_FIRST_COLUMN_GUTTER: [Gutter, Gutter] = [40, 20]
-const CROSS_ICON_STYLE: CSSProperties = { fontSize: '12px' }
 
 export const TicketsPageContent = ({
     tableColumns,
@@ -67,6 +66,7 @@ export const TicketsPageContent = ({
     const PaidLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PaidLabel' })
 
     const { isSmall } = useLayoutContext()
+    const { organization } = useOrganization()
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
@@ -78,9 +78,9 @@ export const TicketsPageContent = ({
     const { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, FILTER_TABLE_KEYS.TICKET)
     useEffect(() => {
         FiltersStorage
-            .loadFilters(FILTER_TABLE_KEYS.TICKET, router)
+            .loadFilters(organization.id, FILTER_TABLE_KEYS.TICKET, router)
             .then(() => setIsInitialFiltersApplied(true))
-    }, [])
+    }, [organization.id])
 
     searchTicketsQuery = { ...searchTicketsQuery, ...{ deletedAt: null } }
 
