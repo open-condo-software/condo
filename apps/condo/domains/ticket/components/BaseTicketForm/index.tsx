@@ -324,6 +324,9 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                         })
                                                         setSelectedPropertyId(option.key)
                                                     }}
+                                                    onClear={() => {
+                                                        setSelectedPropertyId(null)
+                                                    }}
                                                     placeholder={AddressPlaceholder}
                                                     notFoundContent={AddressNotFoundContent}
                                                 />
