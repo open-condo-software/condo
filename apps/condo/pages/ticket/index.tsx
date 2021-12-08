@@ -23,7 +23,7 @@ import { useTicketTableFilters } from '@condo/domains/ticket/hooks/useTicketTabl
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { getPageIndexFromOffset, getTableScrollConfig, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
-import { useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultipleFiltersModal'
+import { FiltersTooltip, useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { usePaidSearch } from '@condo/domains/ticket/hooks/usePaidSearch'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
@@ -77,7 +77,7 @@ export const TicketsPageContent = ({
     const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
 
     const [isInitialFiltersApplied, setIsInitialFiltersApplied] = useState(false)
-    const { MultipleFiltersModal, ResetFiltersModalButton, FiltersTooltip, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, FILTER_TABLE_KEYS.TICKET)
+    const { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, FILTER_TABLE_KEYS.TICKET)
     useEffect(() => {
         FiltersStorage
             .loadFilters(organization.id, FILTER_TABLE_KEYS.TICKET, router)
@@ -101,27 +101,56 @@ export const TicketsPageContent = ({
 
     const loading = isTicketsFetching || !isInitialFiltersApplied
 
-    const handleRowAction = useCallback((record) => {
+    const [hoveredTicket, setHoveredTicket] = useState()
+    const [hoveredTicketIndex, setHoveredTicketIndex] = useState()
+
+    const fieldsOutOfTable = [
+        { name: 'source', label: 'Источник', getFilteredValue: (ticket) => ticket.source.id, getTooltipValue: (ticket) => ticket.source.name },
+        // { name: 'division', label: 'Участок', getFilteredValue: (ticket) => ticket.division.id, getTooltipValue: (ticket) => ticket.division.name },
+        { name: 'clientPhone', label: 'Телефон', getFilteredValue: (ticket) => ticket.clientPhone, getTooltipValue: (ticket) => ticket.clientPhone },
+        { name: 'assignee', label: 'Ответственный', getFilteredValue: (ticket) => ticket.assignee.id, getTooltipValue: (ticket) => ticket.assignee.name },
+        { name: 'executor', label: 'Исполнитель', getFilteredValue: (ticket) => ticket.executor.id, getTooltipValue: (ticket) => ticket.executor.name },
+        { name: 'createdBy', label: 'Автор', getFilteredValue: (ticket) => ticket.createdBy.id, getTooltipValue: (ticket) => ticket.createdBy.name },
+    ]
+
+    const handleRowAction = useCallback((record, rowIndex) => {
         return {
             onClick: async () => {
                 await router.push(`/ticket/${record.id}/`)
             },
-            onMouseEnter: async () => {
-                console.log('record', record)
+            onMouseEnter: () => {
+                console.log('isMouseEnter onRow')
+                setHoveredTicket(record)
+                setHoveredTicketIndex(rowIndex)
+            },
+            onMouseLeave: () => {
+                setHoveredTicket(null)
+                setHoveredTicketIndex(null)
             },
         }
-    }, [])
+    }, [router])
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
     const [emergency, handleEmergencyChange] = useEmergencySearch<IFilters>(loading)
     const [warranty, handleWarrantyChange] = useWarrantySearch<IFilters>(loading)
     const [paid, handlePaidChange] = usePaidSearch<IFilters>(loading)
     const isNoTicketsData = !tickets.length && isEmpty(filters) && !loading
-    const tableComponents = {
+
+    const tableComponents = useMemo(() => ({
         body: {
-            row: (props) => <FiltersTooltip filterTableKey={FILTER_TABLE_KEYS.TICKET} {...props} />,
+            row: (props) => (
+                <FiltersTooltip
+                    filters={filters}
+                    fieldsOutOfTable={fieldsOutOfTable}
+                    rowObject={hoveredTicket}
+                    pageObjects={tickets}
+                    total={total}
+                    hoveredTicketIndex={hoveredTicketIndex}
+                    {...props}
+                />
+            ),
         },
-    }
+    }), [fieldsOutOfTable, filters, hoveredTicket, hoveredTicketIndex, tickets, total])
 
     return (
         <>
