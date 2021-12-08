@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
+import React, { CSSProperties, useCallback } from 'react'
 import get from 'lodash/get'
 import { Select, SelectProps, Typography } from 'antd'
 
