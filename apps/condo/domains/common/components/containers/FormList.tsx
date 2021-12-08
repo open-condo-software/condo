@@ -258,6 +258,7 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
         layout = 'vertical',
         validateTrigger,
         style,
+        ...formProps
     } = props
 
     const [form] = Form.useForm()
@@ -361,6 +362,7 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
             colon={colon}
             scrollToFirstError
             style={style}
+            {...formProps}
         >
             <Form.Item className='ant-non-field-error' name={NON_FIELD_ERROR_NAME}><Input /></Form.Item>
             {children({ handleSave, isLoading, handleSubmit: _handleSubmit, form })}

@@ -10,11 +10,7 @@ import { CloseOutlined } from '@ant-design/icons'
 import { Gutter } from 'antd/es/grid/row'
 import isFunction from 'lodash/isFunction'
 
-import {
-    OptionType,
-    parseQuery,
-    QueryArgType,
-} from '@condo/domains/common/utils/tables.utils'
+import { OptionType, parseQuery, QueryArgType } from '@condo/domains/common/utils/tables.utils'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 
 import DatePicker from '../components/Pickers/DatePicker'
@@ -27,11 +23,14 @@ import { FILTERS_POPUP_CONTAINER_ID } from '../constants/filters'
 import {
     ComponentType,
     FilterComponentType,
-    FiltersMeta, getFiltersModalPopupContainer,
+    FiltersMeta,
+    getFiltersModalPopupContainer,
     getQueryToValueProcessorByType,
     updateQuery,
 } from '../utils/filters.utils'
-import { FiltersStorage, FILTER_TABLE_KEYS } from '../utils/FiltersStorage'
+import { FILTER_TABLE_KEYS, FiltersStorage } from '../utils/FiltersStorage'
+import { Tooltip } from '../components/Tooltip'
+import { colors } from '../constants/style'
 import { useOrganization } from '@core/next/organization'
 
 
@@ -48,6 +47,35 @@ interface IFilterComponentProps<T> {
     formItemProps?: FormItemProps
     filters: IFilters,
     children: React.ReactNode
+}
+
+type FiltersTooltipProps = {
+    filterTableKey: FILTER_TABLE_KEYS
+
+}
+
+const FiltersTooltip: React.FC<FiltersTooltipProps> = ({ filterTableKey, ...otherProps }) => {
+    const tooltipData = FiltersStorage.getFiltersTooltipData(filterTableKey)
+
+    const TooltipOptions = useCallback(() => {
+        return (
+            <>
+                {
+                    Object.values(tooltipData).map(({ label, title }, index) => (
+                        <Typography.Paragraph style={{ color: colors.white, margin: 0 }} key={index}>
+                            <Typography.Text style={{ color: colors.white }} strong> {label}: </Typography.Text> {title.join(', ')}
+                        </Typography.Paragraph>
+                    ))
+                }
+            </>
+        )
+    }, [tooltipData])
+
+    return tooltipData ? (
+        <Tooltip title={TooltipOptions} color={colors.black}>
+            <tr {...otherProps} />
+        </Tooltip>
+    ) : <tr {...otherProps} />
 }
 
 function FilterComponent<T> ({
@@ -81,7 +109,7 @@ const DATE_RANGE_PICKER_STYLE: CSSProperties = { width: '100%' }
 const TAGS_SELECT_STYLE: CSSProperties = { width: '100%' }
 const TAGS_SELECT_DROPDOWN_STYLE = { display: 'none' }
 
-export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string, component: FilterComponentType, form: FormInstance): React.ReactElement => {
+export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string, component: FilterComponentType, form: FormInstance, filterTableKey: FILTER_TABLE_KEYS, label: string): React.ReactElement => {
     const type = get(component, 'type')
     const props = {
         // It is necessary so that dropdowns do not go along with the screen when scrolling the modal window
@@ -89,19 +117,39 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
         ...get(component, 'props', {}),
     }
 
+    const getSelectOptionTitle = (option) => Array.isArray(option) ? option.map(opt => opt.title) : option.title
+    const saveTooltipTitle = (title) => FiltersStorage.saveFiltersTooltipData(filterTableKey, keyword, label, title)
+
     switch (type) {
         case ComponentType.Input: {
-            return <Input {...props} />
+            return (
+                <Input
+                    onChange={(value) => saveTooltipTitle(value)}
+                    {...props}
+                />
+            )
         }
 
         case ComponentType.Date: {
-            return <DatePicker format='DD.MM.YYYY' style={DATE_PICKER_STYLE} {...props} />
+            return (
+                <DatePicker
+                    format='DD.MM.YYYY'
+                    style={DATE_PICKER_STYLE}
+                    onChange={(value, option) => saveTooltipTitle(option)}
+                    {...props}
+                />
+            )
         }
 
         case ComponentType.CheckboxGroup: {
             const options: OptionType[] = get(component, 'options')
 
-            return <Checkbox.Group options={options} {...props} />
+            return (
+                <Checkbox.Group
+                    options={options}
+                    {...props}
+                />
+            )
         }
 
         case ComponentType.DateRange: {
@@ -164,7 +212,7 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
     }
 }
 
-function getModalComponents <T> (filters: IFilters, filterMetas: Array<FiltersMeta<T>>, form: FormInstance): React.ReactElement[] {
+function getModalComponents <T> (filters: IFilters, filterMetas: Array<FiltersMeta<T>>, form: FormInstance, filterTableKey): React.ReactElement[] {
     return filterMetas.map(filterMeta => {
         const { keyword, component } = filterMeta
 
@@ -182,7 +230,7 @@ function getModalComponents <T> (filters: IFilters, filterMetas: Array<FiltersMe
             Component = isFunction(componentGetter) ? componentGetter(form) : componentGetter
         }
         else
-            Component = getModalFilterComponentByMeta(filters, keyword, component, form)
+            Component = getModalFilterComponentByMeta(filters, keyword, component, form, filterTableKey, label)
 
         const queryToValueProcessor = getQueryToValueProcessorByType(type)
 
@@ -321,7 +369,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
 
                     return (
                         <Row justify={'space-between'} gutter={FILTER_WRAPPERS_GUTTER} id={FILTERS_POPUP_CONTAINER_ID}>
-                            {getModalComponents(filters, filterMetas, form)}
+                            {getModalComponents(filters, filterMetas, form, filterTableKey)}
                         </Row>
                     )
                 }
@@ -342,5 +390,5 @@ export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>,
         />
     ), [isMultipleFiltersModalVisible])
 
-    return { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible }
+    return { MultipleFiltersModal, ResetFiltersModalButton, FiltersTooltip, setIsMultipleFiltersModalVisible }
 }

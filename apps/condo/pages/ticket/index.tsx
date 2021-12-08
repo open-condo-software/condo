@@ -68,6 +68,7 @@ export const TicketsPageContent = ({
     const PaidLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PaidLabel' })
 
     const { isSmall } = useLayoutContext()
+    const { organization } = useOrganization()
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
@@ -75,11 +76,13 @@ export const TicketsPageContent = ({
     const reduceNonEmpty = (cnt, filter) => cnt + Number(Array.isArray(filters[filter]) && filters[filter].length > 0)
     const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
 
-    const {
-        MultipleFiltersModal,
-        ResetFiltersModalButton,
-        setIsMultipleFiltersModalVisible,
-    } = useMultipleFiltersModal(filterMetas, FILTER_TABLE_KEYS.TICKET)
+    const [isInitialFiltersApplied, setIsInitialFiltersApplied] = useState(false)
+    const { MultipleFiltersModal, ResetFiltersModalButton, FiltersTooltip, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, FILTER_TABLE_KEYS.TICKET)
+    useEffect(() => {
+        FiltersStorage
+            .loadFilters(organization.id, FILTER_TABLE_KEYS.TICKET, router)
+            .then(() => setIsInitialFiltersApplied(true))
+    }, [organization.id])
 
     searchTicketsQuery = { ...searchTicketsQuery, ...{ deletedAt: null } }
 
@@ -96,12 +99,15 @@ export const TicketsPageContent = ({
         fetchPolicy: 'network-only',
     })
 
-    const loading = isTicketsFetching
+    const loading = isTicketsFetching || !isInitialFiltersApplied
 
     const handleRowAction = useCallback((record) => {
         return {
             onClick: async () => {
                 await router.push(`/ticket/${record.id}/`)
+            },
+            onMouseEnter: async () => {
+                console.log('record', record)
             },
         }
     }, [])
@@ -111,6 +117,11 @@ export const TicketsPageContent = ({
     const [warranty, handleWarrantyChange] = useWarrantySearch<IFilters>(loading)
     const [paid, handlePaidChange] = usePaidSearch<IFilters>(loading)
     const isNoTicketsData = !tickets.length && isEmpty(filters) && !loading
+    const tableComponents = {
+        body: {
+            row: (props) => <FiltersTooltip filterTableKey={FILTER_TABLE_KEYS.TICKET} {...props} />,
+        },
+    }
 
     return (
         <>
@@ -218,6 +229,7 @@ export const TicketsPageContent = ({
                                             dataSource={tickets}
                                             columns={tableColumns}
                                             onRow={handleRowAction}
+                                            components={tableComponents}
                                         />
                                     </Col>
                                     <ExportToExcelActionBar
