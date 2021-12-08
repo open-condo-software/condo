@@ -384,7 +384,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                 },
             },
             {
-                keyword: 'author',
+                keyword: 'createdBy',
                 filters: [filterTicketAuthor],
                 component: {
                     type: ComponentType.GQLSelect,

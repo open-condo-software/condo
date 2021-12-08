@@ -1,5 +1,5 @@
 import { SizeType } from 'antd/lib/config-provider/SizeContext'
-import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 import Form from 'antd/lib/form'
 import { Checkbox, Col, FormInstance, Input, Row, Select, Typography } from 'antd'
 import { useRouter } from 'next/router'
@@ -31,7 +31,7 @@ import {
 import { FILTER_TABLE_KEYS, FiltersStorage } from '../utils/FiltersStorage'
 import { Tooltip } from '../components/Tooltip'
 import { colors } from '../constants/style'
-import { useOrganization } from '@core/next/organization'
+import isEmpty from 'lodash/isEmpty'
 
 
 enum FilterComponentSize {
@@ -50,32 +50,95 @@ interface IFilterComponentProps<T> {
 }
 
 type FiltersTooltipProps = {
-    filterTableKey: FILTER_TABLE_KEYS
-
+    filters
+    fieldsOutOfTable
+    rowObject
+    pageObjects
+    total
+    hoveredTicketIndex
 }
 
-const FiltersTooltip: React.FC<FiltersTooltipProps> = ({ filterTableKey, ...otherProps }) => {
-    const tooltipData = FiltersStorage.getFiltersTooltipData(filterTableKey)
+export const FiltersTooltip: React.FC<FiltersTooltipProps> = ({ hoveredTicketIndex, total, pageObjects, filters, fieldsOutOfTable, rowObject, ...otherProps }) => {
+    const filteredFieldsOutOfTable = rowObject && fieldsOutOfTable.filter(({ name, getFilteredValue }) => {
+        return !isEmpty(filters[name]) && filters[name].includes(getFilteredValue(rowObject))
+    })
 
     const TooltipOptions = useCallback(() => {
         return (
             <>
                 {
-                    Object.values(tooltipData).map(({ label, title }, index) => (
-                        <Typography.Paragraph style={{ color: colors.white, margin: 0 }} key={index}>
-                            <Typography.Text style={{ color: colors.white }} strong> {label}: </Typography.Text> {title.join(', ')}
-                        </Typography.Paragraph>
-                    ))
+                    filteredFieldsOutOfTable
+                        .map(({ label, getTooltipValue }, index) => (
+                            <Typography.Paragraph style={{ color: colors.white, margin: 0 }} key={index}>
+                                <Typography.Text style={{ color: colors.white }} strong> {label}: </Typography.Text> {getTooltipValue(rowObject)}
+                            </Typography.Paragraph>
+                        ))
                 }
             </>
         )
-    }, [tooltipData])
+    }, [filteredFieldsOutOfTable, rowObject])
 
-    return tooltipData ? (
-        <Tooltip title={TooltipOptions} color={colors.black}>
-            <tr {...otherProps} />
-        </Tooltip>
-    ) : <tr {...otherProps} />
+    // console.log('rowObject && filteredFieldsOutOfTable.length > 0', rowObject && filteredFieldsOutOfTable.length > 0)
+
+    // console.log(otherProps)
+
+    // const handleMouseEnter = (e) => {
+    //     if (isFunction(onMouseEnter)) {
+    //         onMouseEnter(e)
+    //     }
+    //
+    //     setIsTooltipVisible(true)
+    // }
+    //
+    // const handleMouseLeave = (e) => {
+    //     if (isFunction(onMouseLeave)) {
+    //         onMouseLeave(e)
+    //     }
+    //
+    //     setIsTooltipVisible(false)
+    // }
+
+    const [isTooltipVisible, setIsTooltipVisible] = useState<boolean>(false)
+
+    // console.log('onMouseEnter', otherProps?.onMouseEnter)
+
+    console.log('isTooltipVisible', isTooltipVisible)
+
+    useEffect(() => {
+        if (isTooltipVisible && isFunction(otherProps?.onMouseEnter))
+            otherProps?.onMouseEnter()
+        else if (!isTooltipVisible && isFunction(otherProps?.onMouseLeave))
+            otherProps?.onMouseLeave()
+    }, [isTooltipVisible, otherProps])
+
+    return (
+        <>
+            <Tooltip
+                visible={isTooltipVisible}
+                title={'123'}
+                color={colors.black}
+            >
+                <tr
+                    {...otherProps}
+                    onMouseEnter={(e) => {
+                        setIsTooltipVisible(true)
+
+                        // if (isFunction(otherProps?.onMouseEnter)) {
+                        //     otherProps?.onMouseEnter()
+                        // }
+                    }}
+
+                    onMouseLeave={(e) => {
+                        setIsTooltipVisible(false)
+
+                        // if (isFunction(otherProps?.onMouseLeave)) {
+                        //     otherProps?.onMouseLeave()
+                        // }
+                    }}
+                />
+            </Tooltip>
+        </>
+    )
 }
 
 function FilterComponent<T> ({
@@ -117,14 +180,10 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
         ...get(component, 'props', {}),
     }
 
-    const getSelectOptionTitle = (option) => Array.isArray(option) ? option.map(opt => opt.title) : option.title
-    const saveTooltipTitle = (title) => FiltersStorage.saveFiltersTooltipData(filterTableKey, keyword, label, title)
-
     switch (type) {
         case ComponentType.Input: {
             return (
                 <Input
-                    onChange={(value) => saveTooltipTitle(value)}
                     {...props}
                 />
             )
@@ -135,7 +194,6 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
                 <DatePicker
                     format='DD.MM.YYYY'
                     style={DATE_PICKER_STYLE}
-                    onChange={(value, option) => saveTooltipTitle(option)}
                     {...props}
                 />
             )
@@ -272,13 +330,12 @@ const ResetFiltersModalButton: React.FC<ResetFiltersModalButtonProps> = ({
     const intl = useIntl()
     const ClearAllFiltersMessage = intl.formatMessage({ id: 'ClearAllFilters' })
     const router = useRouter()
-    const { organization } = useOrganization()
 
     const handleReset = useCallback(async () => {
         await updateQuery(router, {})
 
         if (filterTableKey) {
-            FiltersStorage.clearFilters(organization.id, filterTableKey)
+            FiltersStorage.clearFilters(filterTableKey)
         }
 
         if (isFunction(handleResetFromProps)) {
@@ -338,6 +395,10 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         const newFilters = { ...filters, ...values }
         await updateQuery(router, newFilters)
         setIsMultipleFiltersModalVisible(false)
+
+        if (filterTableKey) {
+            FiltersStorage.saveFilters(filterTableKey, newFilters)
+        }
     }, [filterTableKey, filters, router, setIsMultipleFiltersModalVisible])
 
     const modalFooter = useMemo(() => (
@@ -390,5 +451,5 @@ export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>,
         />
     ), [isMultipleFiltersModalVisible])
 
-    return { MultipleFiltersModal, ResetFiltersModalButton, FiltersTooltip, setIsMultipleFiltersModalVisible }
+    return { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible }
 }
