@@ -155,7 +155,7 @@ describe('Property', () => {
         expect(obj.unitsCount).toEqual(28)
     })
 
-    test('user: cannot create Property when same address exist in user organization', async () => {
+    test('user: can not create Property when same address exist in user organization', async () => {
         const client = await makeClientWithRegisteredOrganization()
         const [_, attrs] = await createTestProperty(client, client.organization)
         const { address } = attrs
@@ -233,7 +233,7 @@ describe('Property', () => {
         expect(property2.address).toEqual(client.property.address)
     })
 
-    test('user: can update Property when another Property with same address soft deleted in other organization', async () => {
+    test('user: can not update Property address when another Property with same address present within the organization', async () => {
         const client = await makeClientWithRegisteredOrganization()
         const [_, attrs] = await createTestProperty(client, client.organization)
         const { address } = attrs

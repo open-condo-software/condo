@@ -31,7 +31,7 @@ const {
     updateTestOrganization,
 } = require('@condo/domains/organization/utils/testSchema')
 
-const { createTestProperty, Property: PropertyAPI } = require('@condo/domains/property/utils/testSchema')
+const { createTestProperty, Property } = require('@condo/domains/property/utils/testSchema')
 
 const { createTestResident, updateTestServiceConsumer, createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 
@@ -804,7 +804,7 @@ describe('Meter', () => {
                 unitName,
             })
 
-            await PropertyAPI.softDelete(adminClient, property.id)
+            await Property.softDelete(adminClient, property.id)
 
             // Test access before resident connections run in worker
             const meters = await Meter.getAll(client, { id: meter.id })

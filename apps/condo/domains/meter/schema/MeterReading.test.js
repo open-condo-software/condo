@@ -10,7 +10,6 @@ const { sleep } = require('@condo/domains/common/utils/sleep')
 
 const {
     catchErrorFrom,
-    expectToThrowMutationError,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAccessDeniedErrorToObj,
@@ -28,7 +27,7 @@ const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser }
 const {
     createTestProperty,
     makeClientWithProperty,
-    Property: PropertyAPI,
+    Property,
     makeClientWithResidentAccessAndProperty,
 } = require('@condo/domains/property/utils/testSchema')
 
@@ -338,17 +337,25 @@ describe('MeterReading', () => {
                 unitName,
             })
 
-            await PropertyAPI.softDelete(adminClient, property.id)
+            await Property.softDelete(adminClient, property.id)
 
             const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
 
             // test access before resident reconnection worker task executes
-            await expectToThrowAccessDeniedError(
-                async () => {
-                    await createTestMeterReading(client, meter, organization, source)
-                },
-                ['obj', 'meter', 'property']
-            )
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestMeterReading(client, meter, organization, source)
+            })
+
+            // NOTE: give worker some time
+            await sleep(1500)
+
+            // test access after residents reconnection worker task done
+            const testFunc = async () => {
+                await createTestMeterReading(client, meter, organization, source)
+            }
+
+            await expectToThrowAccessDeniedError(testFunc, null)
+
         })
 
         test('resident: cannot create MeterReadings in other organization', async () => {
@@ -1045,7 +1052,7 @@ describe('MeterReading', () => {
             const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
             const [meterReading] = await createTestMeterReading(client, meter, organization, source)
 
-            await PropertyAPI.softDelete(adminClient, property.id)
+            await Property.softDelete(adminClient, property.id)
 
             // test access before residents reconnection worker task executes
             const meterReadings = await MeterReading.getAll(client, {

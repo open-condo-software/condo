@@ -3,7 +3,6 @@
  */
 
 const get = require('lodash/get')
-const isEqual = require('lodash/isEqual')
 const isEmpty = require('lodash/isEmpty')
 const Ajv = require('ajv')
 const dayjs = require('dayjs')
@@ -30,6 +29,7 @@ const access = require('@condo/domains/property/access/Property')
 const MapSchemaJSON = require('@condo/domains/property/components/panels/Builder/MapJsonSchema.json')
 
 const { manageResidentToPropertyAndOrganizationConnections } = require('@condo/domains/resident/tasks')
+
 
 const { PROPERTY_MAP_GRAPHQL_TYPES, GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY, GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY } = require('../gql')
 const { Property: PropertyAPI } = require('../utils/serverSchema')
@@ -249,15 +249,12 @@ const Property = new GQLListSchema('Property', {
                 return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown 'dv'`)
             }
         },
-        afterChange: async ({ operation, existingItem, updatedItem }) => {
+        afterChange: async ({ operation, existingItem, updatedItem, context }) => {
             const isSoftDeleteOperation = operation === 'update' && !existingItem.deletedAt && Boolean(updatedItem.deletedAt)
             const isCreatedProperty = operation === 'create' && Boolean(updatedItem.address)
             const isRestoredProperty = operation === 'update' && Boolean(existingItem.deletedAt) && !updatedItem.deletedAt
-            const isAddressUpdated =
-                operation === 'update' && (
-                    !compareStrI(existingItem.address, updatedItem.address) ||
-                    !isEqual(existingItem.addressMeta, updatedItem.addressMeta)
-                )
+            // TODO(DOMA-1779): detect property.address locale
+            const isAddressUpdated = operation === 'update' && !compareStrI(existingItem.address, updatedItem.address)
             const affectedAddress = isSoftDeleteOperation || isAddressUpdated ?  existingItem.address : updatedItem.address
 
             // We handle resident reconnections only for these operation types
