@@ -343,19 +343,12 @@ describe('MeterReading', () => {
             const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
 
             // test access before resident reconnection worker task executes
-            await expectToThrowAccessDeniedErrorToObj(async () => {
-                await createTestMeterReading(client, meter, organization, source)
-            })
-
-            // NOTE: give worker some time
-            await sleep(1500)
-
-            // test access after resident reconnection worker task done
-            const testFunc = async () => {
-                await createTestMeterReading(client, meter, organization, source)
-            }
-
-            await expectToThrowMutationError(testFunc, 'Unable to connect', ['obj'])
+            await expectToThrowAccessDeniedError(
+                async () => {
+                    await createTestMeterReading(client, meter, organization, source)
+                },
+                ['obj', 'meter', 'property']
+            )
         })
 
         test('resident: cannot create MeterReadings in other organization', async () => {
@@ -1069,7 +1062,7 @@ describe('MeterReading', () => {
                 await MeterReading.getAll(client, { id: meterReading.id })
             }
 
-            await expectToThrowAccessDeniedError(testFunc, [ 'objs', 0, 'organization' ])
+            await expectToThrowAccessDeniedError(testFunc, null)
         })
 
         test('user: cannot read MeterReadings', async () => {
