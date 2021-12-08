@@ -31,6 +31,7 @@ import {
     updateQuery,
 } from '../utils/filters.utils'
 import { FiltersStorage, FILTER_TABLE_KEYS } from '../utils/FiltersStorage'
+import { useOrganization } from '@core/next/organization'
 
 
 enum FilterComponentSize {
@@ -216,12 +217,13 @@ const ResetFiltersModalButton: React.FC<ResetFiltersModalButtonProps> = ({ filte
     const intl = useIntl()
     const ClearAllFiltersMessage = intl.formatMessage({ id: 'ClearAllFilters' })
     const router = useRouter()
+    const { organization } = useOrganization()
 
     const handleReset = useCallback(async () => {
         await updateQuery(router, {})
 
         if (filterTableKey) {
-            FiltersStorage.clearFilters(filterTableKey)
+            FiltersStorage.clearFilters(organization.id, filterTableKey)
         }
 
         if (isFunction(handleResetFromProps)) {
@@ -265,6 +267,8 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const router = useRouter()
     const { filters } = parseQuery(router.query)
 
+    const { organization } = useOrganization()
+
     const handleReset = useCallback(async () => {
         const keys = Object.keys(form.getFieldsValue())
         const emptyFields = keys.reduce((acc, key) => {
@@ -282,7 +286,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         setIsMultipleFiltersModalVisible(false)
 
         if (filterTableKey) {
-            FiltersStorage.saveFilters(filterTableKey, newFilters)
+            FiltersStorage.saveFilters(organization.id, filterTableKey, newFilters)
         }
     }, [filterTableKey, filters, router, setIsMultipleFiltersModalVisible])
 
