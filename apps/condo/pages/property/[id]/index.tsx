@@ -178,6 +178,7 @@ interface IPropertyIdPage extends React.FC {
     headerAction?: JSX.Element
     requiredAccess?: React.FC
 }
+const PROPERTY_PAGE_DESCRIPTOR = { id: 'menu.AllProperties' }
 
 const PropertyIdPage: IPropertyIdPage = () => {
     const intl = useIntl()
@@ -208,7 +209,7 @@ const PropertyIdPage: IPropertyIdPage = () => {
 }
 
 PropertyIdPage.headerAction = <ReturnBackHeaderAction
-    descriptor={{ id: 'menu.AllProperties' }}
+    descriptor={PROPERTY_PAGE_DESCRIPTOR}
     path={'/property/'}
     useBrowserHistory={false}
 />

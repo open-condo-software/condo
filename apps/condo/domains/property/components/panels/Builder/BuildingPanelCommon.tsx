@@ -127,7 +127,7 @@ const BuildingAxisContainer = styled.div`
   background-color: ${colors.backgroundLightGrey};
   z-index: 2;
 `
-const AXIS_UNIT_STYLE: React.CSSProperties = { display: 'block' }
+const AXIS_UNIT_STYLE: React.CSSProperties = { display: 'block', color: colors.textSecondary }
 
 export const BuildingAxisY: React.FC<IBuildingAxisYProps> = ({ floors }) => {
     return (

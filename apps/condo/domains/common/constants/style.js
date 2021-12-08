@@ -84,6 +84,7 @@ const colors = {
     logoPurple,
     sberDangerRed,
     backgroundLightGrey,
+    textSecondary,
 }
 
 const fontSizes = {
