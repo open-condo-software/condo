@@ -13,14 +13,10 @@ const { sleep } = require('@condo/domains/common/utils/sleep')
 const { registerNewOrganization, makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
-const {
-    createTestProperty,
-    makeClientWithResidentAccessAndProperty,
-    Property: PropertyAPI,
-} = require('@condo/domains/property/utils/testSchema')
+const { createTestProperty, makeClientWithResidentAccessAndProperty, Property } = require('@condo/domains/property/utils/testSchema')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 
-const { registerResidentByTestClient, Resident: ResidentAPI } = require('@condo/domains/resident/utils/testSchema')
+const { registerResidentByTestClient, Resident } = require('@condo/domains/resident/utils/testSchema')
 
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
@@ -43,7 +39,7 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         // NOTE: give worker some time
         await sleep(1000)
 
-        const [resident] = await ResidentAPI.getAll(userClient, { id: userClient.id })
+        const [resident] = await Resident.getAll(userClient, { id: userClient.id })
 
         expect(get(resident, 'organization.id')).toEqual(organizationClient.organization.id)
         expect(get(resident, 'property.id')).toEqual(property.id)
@@ -62,7 +58,7 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         const propertyPayload = { address, addressMeta: orgAddressMeta, map: buildingMapJson }
         const [property1] = await createTestProperty(organizationClient1, organizationClient1.organization, propertyPayload)
 
-        await PropertyAPI.softDelete(organizationClient1, property1.id)
+        await Property.softDelete(organizationClient1, property1.id)
         await registerResidentByTestClient(userClient, { address: addressMeta.value, addressMeta })
 
         const [property] = await createTestProperty(organizationClient, organizationClient.organization, propertyPayload)
@@ -70,7 +66,7 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         // NOTE: give worker some time
         await sleep(1000)
 
-        const [resident] = await ResidentAPI.getAll(userClient, { id: userClient.id })
+        const [resident] = await Resident.getAll(userClient, { id: userClient.id })
 
         expect(resident.organization.id).toEqual(organizationClient.organization.id)
         expect(resident.property.id).toEqual(property.id)
@@ -81,7 +77,7 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         // NOTE: give worker some time
         await sleep(1000)
 
-        const [resident1] = await ResidentAPI.getAll(userClient, { id: userClient.id })
+        const [resident1] = await Resident.getAll(userClient, { id: userClient.id })
 
         expect(resident1.organization.id).toEqual(organizationClient.organization.id)
         expect(resident1.property.id).toEqual(property.id)
@@ -99,27 +95,27 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         const [property] = await createTestProperty(organizationClient, organizationClient.organization, propertyPayload)
         const [property1] = await createTestProperty(organizationClient1, organizationClient1.organization, propertyPayload)
 
-        const [deletedProperty] = await PropertyAPI.softDelete(organizationClient, property.id)
+        const [deletedProperty] = await Property.softDelete(organizationClient, property.id)
 
         expect(deletedProperty.deletedAt).not.toBeNull()
 
-        await PropertyAPI.softDelete(organizationClient1, property1.id)
+        await Property.softDelete(organizationClient1, property1.id)
         await registerResidentByTestClient(userClient, { address: addressMeta.value, addressMeta })
 
-        const [resident] = await ResidentAPI.getAll(userClient, { id: userClient.id })
+        const [resident] = await Resident.getAll(userClient, { id: userClient.id })
 
         expect(resident.organization).toBeNull()
         expect(resident.property).toBeNull()
 
         const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-        const restoredProperty = await PropertyAPI.update(organizationClient, property.id, { deletedAt: null, dv: 1, sender })
+        const restoredProperty = await Property.update(organizationClient, property.id, { deletedAt: null, dv: 1, sender })
 
         expect(restoredProperty.deletedAt).toBeNull()
 
         // NOTE: give worker some time
         await sleep(1000)
 
-        const [resident1] = await ResidentAPI.getAll(userClient, { id: userClient.id })
+        const [resident1] = await Resident.getAll(userClient, { id: userClient.id })
 
         expect(get(resident1, 'organization.id')).toEqual(organizationClient.organization.id)
         expect(get(resident1, 'property.id')).toEqual(property.id)
@@ -139,14 +135,14 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         const [property] = await createTestProperty(organizationClient, organizationClient.organization, propertyPayload)
         const [property1] = await createTestProperty(organizationClient1, organizationClient1.organization, propertyPayload)
 
-        const [deletedProperty] = await PropertyAPI.softDelete(organizationClient, property.id)
+        const [deletedProperty] = await Property.softDelete(organizationClient, property.id)
 
         expect(deletedProperty.deletedAt).not.toBeNull()
 
         // Resident #1 should connect to the only non-deleted property1
         await registerResidentByTestClient(userClient1, { address: addressMeta.value, addressMeta })
 
-        const [resident1] = await ResidentAPI.getAll(userClient1, { id: userClient1.id })
+        const [resident1] = await Resident.getAll(userClient1, { id: userClient1.id })
 
         expect(get(resident1, 'organization.id')).toEqual(organizationClient1.organization.id)
         expect(get(resident1, 'property.id')).toEqual(property1.id)
@@ -156,13 +152,13 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         // NOTE: give worker some time
         await sleep(1000)
 
-        const [resident1_1] = await ResidentAPI.getAll(userClient1, { id: userClient1.id })
+        const [resident1_1] = await Resident.getAll(userClient1, { id: userClient1.id })
 
         // after property2 registration resident1 still stays connected to property1
         expect(get(resident1_1, 'organization.id')).toEqual(organizationClient1.organization.id)
         expect(get(resident1_1, 'property.id')).toEqual(property1.id)
 
-        const [deletedProperty1] = await PropertyAPI.softDelete(organizationClient1, property1.id)
+        const [deletedProperty1] = await Property.softDelete(organizationClient1, property1.id)
 
         // make sure property1 is softDeleted
         expect(deletedProperty1.deletedAt).not.toBeNull()
@@ -170,21 +166,21 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         // NOTE: give worker some time
         await sleep(1000)
 
-        const [resident1_2] = await ResidentAPI.getAll(userClient1, { id: userClient1.id })
+        const [resident1_2] = await Resident.getAll(userClient1, { id: userClient1.id })
 
         // after property1 deleted resident1 should reconnect to property2
         expect(get(resident1_2, 'organization.id')).toEqual(organizationClient2.organization.id)
         expect(get(resident1_2, 'property.id')).toEqual(property2.id)
 
         const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-        const restoredProperty1 = await PropertyAPI.update(organizationClient1, property1.id, { deletedAt: null, dv: 1, sender })
+        const restoredProperty1 = await Property.update(organizationClient1, property1.id, { deletedAt: null, dv: 1, sender })
 
         expect(restoredProperty1.deletedAt).toBeNull()
 
         // NOTE: give worker some time
         await sleep(1000)
 
-        const [resident1_3] = await ResidentAPI.getAll(userClient1, { id: userClient1.id })
+        const [resident1_3] = await Resident.getAll(userClient1, { id: userClient1.id })
 
         // after property1 restored resident1 should reconnect to property1
         expect(get(resident1_3, 'organization.id')).toEqual(organizationClient1.organization.id)
@@ -193,7 +189,7 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         // Resident #2 should connect to the oldest non-deleted property1
         await registerResidentByTestClient(userClient2, { address: addressMeta.value, addressMeta })
 
-        const [resident2] = await ResidentAPI.getAll(userClient2, { id: userClient2.id })
+        const [resident2] = await Resident.getAll(userClient2, { id: userClient2.id })
 
         expect(get(resident2, 'organization.id')).toEqual(organizationClient1.organization.id)
         expect(get(resident2, 'property.id')).toEqual(property1.id)
@@ -218,12 +214,12 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         expect(get(resident, 'organization.id')).toEqual(get(organizationClient, 'organization.id'))
         expect(get(resident, 'property.id')).toEqual(get(property, 'id'))
 
-        await PropertyAPI.softDelete(organizationClient, get(property, 'id'))
+        await Property.softDelete(organizationClient, get(property, 'id'))
 
         // NOTE: give worker some time
         await sleep(1000)
 
-        const [resident1] = await ResidentAPI.getAll(userClient, { id: get(userClient, 'id') })
+        const [resident1] = await Resident.getAll(userClient, { id: get(userClient, 'id') })
 
         expect(resident1.organization).toBeNull()
         expect(resident1.property).toBeNull()
@@ -240,7 +236,7 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         const [property1] = await createTestProperty(organizationClient1, organizationClient1.organization, propertyPayload)
         const [property] = await createTestProperty(organizationClient, organizationClient.organization, propertyPayload)
 
-        await PropertyAPI.softDelete(organizationClient1, property1.id)
+        await Property.softDelete(organizationClient1, property1.id)
 
         // NOTE: give worker some time
         await sleep(1000)
@@ -251,12 +247,12 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         expect(resident.organization.id).toEqual(organizationClient.organization.id)
         expect(resident.property.id).toEqual(property.id)
 
-        await PropertyAPI.softDelete(organizationClient, property.id)
+        await Property.softDelete(organizationClient, property.id)
 
         // NOTE: give worker some time
         await sleep(1000)
 
-        const [resident1] = await ResidentAPI.getAll(userClient, { id: userClient.id })
+        const [resident1] = await Resident.getAll(userClient, { id: userClient.id })
 
         expect(resident1.organization).toBeNull()
         expect(resident1.property).toBeNull()
@@ -282,12 +278,12 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         expect(resident.organization.id).toEqual(organizationClient.organization.id)
         expect(resident.property.id).toEqual(property.id)
 
-        await PropertyAPI.softDelete(organizationClient, property.id)
+        await Property.softDelete(organizationClient, property.id)
 
         // NOTE: give worker some time
         await sleep(1000)
 
-        const [resident1] = await ResidentAPI.getAll(userClient, { id: userClient.id })
+        const [resident1] = await Resident.getAll(userClient, { id: userClient.id })
 
         expect(resident1.organization.id).toEqual(organizationClient1.organization.id)
         expect(resident1.property.id).toEqual(property1.id)
@@ -315,8 +311,8 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         // NOTE: give worker some time
         await sleep(1000)
 
-        const [resident1] = await ResidentAPI.getAll(userClient, { id: userClient.id })
-        const [resident2] = await ResidentAPI.getAll(userClient1, { id: userClient1.id })
+        const [resident1] = await Resident.getAll(userClient, { id: userClient.id })
+        const [resident2] = await Resident.getAll(userClient1, { id: userClient1.id })
 
         expect(get(resident1, 'property.id')).toEqual(property.id)
         expect(get(resident1, 'organization.id')).toEqual(organizationClient.organization.id)
@@ -327,14 +323,14 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         const propertyData1 = { address: address1, addressMeta: orgAddressMeta1, map: buildingMapJson }
         const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-        await PropertyAPI.update(organizationClient, property.id, { ...propertyData1, dv: 1, sender })
+        await Property.update(organizationClient, property.id, { ...propertyData1, dv: 1, sender })
 
         // property address update operation takes more time, than property softDelete or create
         // NOTE: give worker some time
         await sleep(1500)
 
-        const [resident1_1] = await ResidentAPI.getAll(userClient, { id: userClient.id })
-        const [resident2_1] = await ResidentAPI.getAll(userClient1, { id: userClient1.id })
+        const [resident1_1] = await Resident.getAll(userClient, { id: userClient.id })
+        const [resident2_1] = await Resident.getAll(userClient1, { id: userClient1.id })
 
         expect(get(resident1_1, 'property.id')).toEqual(property1.id)
         expect(get(resident1_1, 'organization.id')).toEqual(property1.organization.id)
@@ -411,7 +407,7 @@ describe('RegisterResidentService', () => {
 
         const [organization] = await registerNewOrganization(adminClient)
         const [property] = await createTestProperty(adminClient, organization, { map: buildingMapJson })
-        await PropertyAPI.softDelete(adminClient, property.id)
+        await Property.softDelete(adminClient, property.id)
 
         const payload = {
             address: property.address,
@@ -419,7 +415,7 @@ describe('RegisterResidentService', () => {
         }
 
         const [obj, attrs] = await registerResidentByTestClient(adminClient, payload)
-        await PropertyAPI.softDelete(adminClient, property.id, { deletedAt: null })
+        await Property.softDelete(adminClient, property.id, { deletedAt: null })
 
         expect(obj.address).toEqual(attrs.address)
         expect(obj.addressMeta).toStrictEqual(attrs.addressMeta)
@@ -437,7 +433,7 @@ describe('RegisterResidentService', () => {
         const [property1] = await createTestProperty(adminClient, organization1, { address, addressMeta, map: buildingMapJson })
         const [property2] = await createTestProperty(adminClient, organization2, { address, addressMeta, map: buildingMapJson })
 
-        await PropertyAPI.softDelete(adminClient, property1.id)
+        await Property.softDelete(adminClient, property1.id)
 
         const payload = { address, addressMeta }
 
@@ -480,7 +476,7 @@ describe('RegisterResidentService', () => {
     it('restore deleted Resident for the same address and unitName (property not exists)', async () => {
         const userClient = await makeClientWithResidentAccessAndProperty()
         const [resident, attrs] = await registerResidentByTestClient(userClient)
-        const [softDeletedResident] = await ResidentAPI.softDelete(userClient, resident.id)
+        const [softDeletedResident] = await Resident.softDelete(userClient, resident.id)
 
         const [restoredResident] = await registerResidentByTestClient(userClient, {
             address: attrs.address,
@@ -497,7 +493,7 @@ describe('RegisterResidentService', () => {
         const userClient = await makeClientWithResidentAccessAndProperty()
 
         const [resident, attrs] = await registerResidentByTestClient(userClient)
-        const [deletedResident] = await ResidentAPI.softDelete(userClient, resident.id)
+        const [deletedResident] = await Resident.softDelete(userClient, resident.id)
         expect(deletedResident.id).toEqual(resident.id)
         expect(deletedResident.deletedAt).not.toBeNull()
         expect(deletedResident.organization).toEqual(null)
