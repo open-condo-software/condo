@@ -42,7 +42,7 @@ export const FullscreenHeader = styled.div<{
         left: 0;
         right: 0;
         top: 0;
-        z-index: 2;
+        z-index: 3;
         margin: 0;
         display: block;
     }
