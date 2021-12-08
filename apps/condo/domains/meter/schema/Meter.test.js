@@ -806,6 +806,10 @@ describe('Meter', () => {
 
             await PropertyAPI.softDelete(adminClient, property.id)
 
+            // Test access before resident connections run in worker
+            const meters = await Meter.getAll(client, { id: meter.id })
+            expect(meters).toHaveLength(0)
+
             // NOTE: give worker some time
             await sleep(1000)
 
@@ -813,6 +817,7 @@ describe('Meter', () => {
                 await Meter.getAll(client, { id: meter.id })
             }
 
+            // Test access after residents disconnected in worker
             // NOTE: This place is unstable. Because of parallel sub-requests inside Meter.getAll
             // we get different path in error payload, and get either organization or property error
             // in random order from request to request. So we skip testing path/value here.

@@ -6,17 +6,21 @@ const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 const Ajv = require('ajv')
 const dayjs = require('dayjs')
-
 const { Text, Select, Virtual, Integer, CalendarDay, Decimal } = require('@keystonejs/fields')
+
 const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
-const { ADDRESS_META_FIELD } = require('@condo/domains/common/schema/fields')
-const { UNIQUE_ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
+const { SENDER_FIELD, DV_FIELD, ADDRESS_META_FIELD } = require('@condo/domains/common/schema/fields')
 const { hasDbFields, hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
-const { DV_UNKNOWN_VERSION_ERROR, JSON_UNKNOWN_VERSION_ERROR, JSON_SCHEMA_VALIDATION_ERROR, JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/errors')
+const {
+    DV_UNKNOWN_VERSION_ERROR,
+    JSON_UNKNOWN_VERSION_ERROR,
+    JSON_SCHEMA_VALIDATION_ERROR,
+    JSON_EXPECT_OBJECT_ERROR,
+    UNIQUE_ALREADY_EXISTS_ERROR,
+} = require('@condo/domains/common/constants/errors')
 
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 
@@ -247,10 +251,13 @@ const Property = new GQLListSchema('Property', {
             const isSoftDeleteOperation = operation === 'update' && !existingItem.deletedAt && Boolean(updatedItem.deletedAt)
             const isCreatedProperty = operation === 'create' && Boolean(updatedItem.address)
             const isRestoredProperty = operation === 'update' && Boolean(existingItem.deletedAt) && !updatedItem.deletedAt
+            const isAddressUpdated = operation === 'update' && existingItem.address.toLocaleLowerCase('ru') !== updatedItem.address.toLocaleLowerCase('ru')
             const id = isSoftDeleteOperation ? existingItem.id : updatedItem.id
+            const address = isSoftDeleteOperation || isAddressUpdated ?  existingItem.address : updatedItem.address
 
-            if (isSoftDeleteOperation || isCreatedProperty || isRestoredProperty) {
-                await manageResidentToPropertyAndOrganizationConnections.delay(id)
+            if (isSoftDeleteOperation || isCreatedProperty || isRestoredProperty || isAddressUpdated) {
+                const operationFlags = { isSoftDeleteOperation, isCreatedProperty, isRestoredProperty, isAddressUpdated }
+                await manageResidentToPropertyAndOrganizationConnections.delay(id, address, operationFlags)
             }
         },
     },

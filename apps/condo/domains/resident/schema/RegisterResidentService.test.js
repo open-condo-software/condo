@@ -13,7 +13,7 @@ const { sleep } = require('@condo/domains/common/utils/sleep')
 const { registerNewOrganization, makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
-const { Property } = require('@condo/domains/property/utils/testSchema')
+const { Property: PropertyAPI } = require('@condo/domains/property/utils/testSchema')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const { createTestProperty, makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 
@@ -22,7 +22,7 @@ const { registerResidentByTestClient, Resident } = require('@condo/domains/resid
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
 
-describe('RegisterResidentService connections', () => {
+describe('manageResidentToPropertyAndOrganizationConnections worker task tests', () => {
     it('connects new property with matched address to existing orphan residents (no other props)', async () => {
         const { address, addressMeta } = buildFakeAddressAndMeta(true)
 
@@ -59,7 +59,7 @@ describe('RegisterResidentService connections', () => {
         const propertyPayload = { address, addressMeta: orgAddressMeta, map: buildingMapJson }
         const [property1] = await createTestProperty(organizationClient1, organizationClient1.organization, propertyPayload)
 
-        await Property.softDelete(organizationClient1, property1.id)
+        await PropertyAPI.softDelete(organizationClient1, property1.id)
         await registerResidentByTestClient(userClient, { address: addressMeta.value, addressMeta })
 
         const [property] = await createTestProperty(organizationClient, organizationClient.organization, propertyPayload)
@@ -96,11 +96,11 @@ describe('RegisterResidentService connections', () => {
         const [property] = await createTestProperty(organizationClient, organizationClient.organization, propertyPayload)
         const [property1] = await createTestProperty(organizationClient1, organizationClient1.organization, propertyPayload)
 
-        const [deletedProperty] = await Property.softDelete(organizationClient, property.id)
+        const [deletedProperty] = await PropertyAPI.softDelete(organizationClient, property.id)
 
         expect(deletedProperty.deletedAt).not.toBeNull()
 
-        await Property.softDelete(organizationClient1, property1.id)
+        await PropertyAPI.softDelete(organizationClient1, property1.id)
         await registerResidentByTestClient(userClient, { address: addressMeta.value, addressMeta })
 
         const [resident] = await Resident.getAll(userClient, { id: userClient.id })
@@ -109,7 +109,7 @@ describe('RegisterResidentService connections', () => {
         expect(resident.property).toBeNull()
 
         const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-        const restoredProperty = await Property.update(organizationClient, property.id, { deletedAt: null, dv: 1, sender })
+        const restoredProperty = await PropertyAPI.update(organizationClient, property.id, { deletedAt: null, dv: 1, sender })
 
         expect(restoredProperty.deletedAt).toBeNull()
 
@@ -136,7 +136,7 @@ describe('RegisterResidentService connections', () => {
         const [property] = await createTestProperty(organizationClient, organizationClient.organization, propertyPayload)
         const [property1] = await createTestProperty(organizationClient1, organizationClient1.organization, propertyPayload)
 
-        const [deletedProperty] = await Property.softDelete(organizationClient, property.id)
+        const [deletedProperty] = await PropertyAPI.softDelete(organizationClient, property.id)
 
         expect(deletedProperty.deletedAt).not.toBeNull()
 
@@ -159,7 +159,7 @@ describe('RegisterResidentService connections', () => {
         expect(get(resident1_1, 'organization.id')).toEqual(organizationClient1.organization.id)
         expect(get(resident1_1, 'property.id')).toEqual(property1.id)
 
-        const [deletedProperty1] = await Property.softDelete(organizationClient1, property1.id)
+        const [deletedProperty1] = await PropertyAPI.softDelete(organizationClient1, property1.id)
 
         // make sure property1 is softDeleted
         expect(deletedProperty1.deletedAt).not.toBeNull()
@@ -174,7 +174,7 @@ describe('RegisterResidentService connections', () => {
         expect(get(resident1_2, 'property.id')).toEqual(property2.id)
 
         const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-        const restoredProperty1 = await Property.update(organizationClient1, property1.id, { deletedAt: null, dv: 1, sender })
+        const restoredProperty1 = await PropertyAPI.update(organizationClient1, property1.id, { deletedAt: null, dv: 1, sender })
 
         expect(restoredProperty1.deletedAt).toBeNull()
 
@@ -215,7 +215,7 @@ describe('RegisterResidentService connections', () => {
         expect(get(resident, 'organization.id')).toEqual(get(organizationClient, 'organization.id'))
         expect(get(resident, 'property.id')).toEqual(get(property, 'id'))
 
-        await Property.softDelete(organizationClient, get(property, 'id'))
+        await PropertyAPI.softDelete(organizationClient, get(property, 'id'))
 
         // NOTE: give worker some time
         await sleep(1000)
@@ -237,7 +237,7 @@ describe('RegisterResidentService connections', () => {
         const [property1] = await createTestProperty(organizationClient1, organizationClient1.organization, propertyPayload)
         const [property] = await createTestProperty(organizationClient, organizationClient.organization, propertyPayload)
 
-        await Property.softDelete(organizationClient1, property1.id)
+        await PropertyAPI.softDelete(organizationClient1, property1.id)
 
         // NOTE: give worker some time
         await sleep(1000)
@@ -249,7 +249,7 @@ describe('RegisterResidentService connections', () => {
         expect(resident.organization.id).toEqual(organizationClient.organization.id)
         expect(resident.property.id).toEqual(property.id)
 
-        await Property.softDelete(organizationClient, property.id)
+        await PropertyAPI.softDelete(organizationClient, property.id)
 
         // NOTE: give worker some time
         await sleep(1000)
@@ -281,7 +281,7 @@ describe('RegisterResidentService connections', () => {
         expect(resident.organization.id).toEqual(organizationClient.organization.id)
         expect(resident.property.id).toEqual(property.id)
 
-        await Property.softDelete(organizationClient, property.id)
+        await PropertyAPI.softDelete(organizationClient, property.id)
 
         // NOTE: give worker some time
         await sleep(1000)
@@ -291,6 +291,56 @@ describe('RegisterResidentService connections', () => {
         expect(resident1.organization.id).toEqual(organizationClient1.organization.id)
         expect(resident1.property.id).toEqual(property1.id)
     })
+
+    it('disconnects and connects residents from/to property on property address change', async () => {
+        const { address, addressMeta } = buildFakeAddressAndMeta(true)
+        const { address: address1, addressMeta: addressMeta1 } = buildFakeAddressAndMeta(true)
+
+        const userClient = await makeClientWithResidentUser()
+        const userClient1 = await makeClientWithResidentUser()
+
+        await registerResidentByTestClient(userClient, { address: addressMeta.value, addressMeta })
+        await registerResidentByTestClient(userClient1, { address: addressMeta1.value, addressMeta: addressMeta1 })
+
+        const organizationClient = await makeClientWithRegisteredOrganization()
+        const organizationClient1 = await makeClientWithRegisteredOrganization()
+
+        // remove flat number from address for organization
+        const orgAddressMeta = { ...addressMeta, value: address }
+        const propertyData = { address, addressMeta: orgAddressMeta, map: buildingMapJson }
+        const [property] = await createTestProperty(organizationClient, organizationClient.organization, propertyData)
+        const [property1] = await createTestProperty(organizationClient1, organizationClient1.organization, propertyData)
+
+        // NOTE: give worker some time
+        await sleep(1000)
+
+        const [resident1] = await Resident.getAll(userClient, { id: userClient.id })
+        const [resident2] = await Resident.getAll(userClient1, { id: userClient1.id })
+
+        expect(get(resident1, 'organization.id')).toEqual(organizationClient.organization.id)
+        expect(get(resident1, 'property.id')).toEqual(property.id)
+        expect(get(resident2, 'organization')).toBeNull()
+        expect(get(resident2, 'property')).toBeNull()
+
+        const orgAddressMeta1 = { ...addressMeta1, value: address1 }
+        const propertyData1 = { address: address1, addressMeta: orgAddressMeta1, map: buildingMapJson }
+        const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+        await PropertyAPI.update(organizationClient, property.id, { ...propertyData1, dv: 1, sender })
+
+        // property address update operation takes more time, than property softDelete or create
+        // NOTE: give worker some time
+        await sleep(1500)
+
+        const [resident1_1] = await Resident.getAll(userClient, { id: userClient.id })
+        const [resident2_1] = await Resident.getAll(userClient1, { id: userClient1.id })
+
+        expect(get(resident1_1, 'organization.id')).toEqual(organizationClient1.organization.id)
+        expect(get(resident1_1, 'property.id')).toEqual(property1.id)
+        expect(get(resident2_1, 'organization.id')).toEqual(organizationClient.organization.id)
+        expect(get(resident2_1, 'property.id')).toEqual(property.id)
+    })
+
 })
 
 describe('RegisterResidentService', () => {
@@ -360,7 +410,7 @@ describe('RegisterResidentService', () => {
 
         const [organization] = await registerNewOrganization(adminClient)
         const [property] = await createTestProperty(adminClient, organization, { map: buildingMapJson })
-        await Property.softDelete(adminClient, property.id)
+        await PropertyAPI.softDelete(adminClient, property.id)
 
         const payload = {
             address: property.address,
@@ -368,7 +418,7 @@ describe('RegisterResidentService', () => {
         }
 
         const [obj, attrs] = await registerResidentByTestClient(adminClient, payload)
-        await Property.softDelete(adminClient, property.id, { deletedAt: null })
+        await PropertyAPI.softDelete(adminClient, property.id, { deletedAt: null })
 
         expect(obj.address).toEqual(attrs.address)
         expect(obj.addressMeta).toStrictEqual(attrs.addressMeta)
@@ -386,7 +436,7 @@ describe('RegisterResidentService', () => {
         const [property1] = await createTestProperty(adminClient, organization1, { address, addressMeta, map: buildingMapJson })
         const [property2] = await createTestProperty(adminClient, organization2, { address, addressMeta, map: buildingMapJson })
 
-        await Property.softDelete(adminClient, property1.id)
+        await PropertyAPI.softDelete(adminClient, property1.id)
 
         const payload = { address, addressMeta }
 
@@ -461,6 +511,7 @@ describe('RegisterResidentService', () => {
 
         const [restoredResident] = await registerResidentByTestClient(userClient, {
             address: attrs.address,
+            addressMeta: attrs.addressMeta,
             unitName: attrs.unitName,
         })
         expect(restoredResident.id).toEqual(resident.id)
