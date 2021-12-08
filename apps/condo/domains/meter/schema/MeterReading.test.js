@@ -348,7 +348,7 @@ describe('MeterReading', () => {
             })
 
             // NOTE: give worker some time
-            await sleep(1000)
+            await sleep(1500)
 
             // test access after resident reconnection worker task done
             const testFunc = async () => {
@@ -1062,7 +1062,7 @@ describe('MeterReading', () => {
             expect(meterReadings).toHaveLength(0)
 
             // NOTE: give worker some time
-            await sleep(1000)
+            await sleep(1500)
 
             // test access after residents reconnection worker task done
             const testFunc = async () => {
