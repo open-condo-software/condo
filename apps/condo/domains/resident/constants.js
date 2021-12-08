@@ -3,7 +3,7 @@
  */
 
 /**
- * Payment categories meta used as a temporary, but somewhat generic solution 
+ * Payment categories meta used as a temporary, but somewhat generic solution
  * to the problem of differentiating billing and acquiring on mobile device
  *
  * Problem:
@@ -32,14 +32,14 @@
  * Current solution
  *
  * A hardcoded constant that is planned to move to separate model in the future.
- * 
+ *
  * Model PaymentCategory {
  *     id: ID
  *     name: str                             - Name of the category to pay for: Cold Water, Housing Payment, Bill
  *     canGetBillingFromOrganization: bool   - Whether or not to get billing from organization. If set to false, then default billing is used
  *     canGetAcquiringFromOrganization: bool - see canGetBillingFromOrganization field description
  * }
- *  
+ *
  * todo: @toplenboren - when we sort this out on business side, move this hardcode to the model!
  * todo: @toplenboren - don't forget to add i18n when this hardcode is moved to model!
  */
@@ -103,9 +103,9 @@ const PAYMENT_CATEGORIES_META = [
     {
         id: '9',
         name: 'Капремонт',
-        active: false,
-        canGetBillingFromOrganization: false,
-        canGetAcquiringFromOrganization: false,
+        active: true,
+        canGetBillingFromOrganization: true,
+        canGetAcquiringFromOrganization: true,
     },
     {
         id: '10',
@@ -120,6 +120,20 @@ const PAYMENT_CATEGORIES_META = [
         active: false,
         canGetBillingFromOrganization: false,
         canGetAcquiringFromOrganization: false,
+    },
+    {
+        id: '12',
+        name: 'Техническое обслуживание',
+        active: true,
+        canGetBillingFromOrganization: true,
+        canGetAcquiringFromOrganization: true,
+    },
+    {
+        id: '13',
+        name: 'Прочие услуги',
+        active: true,
+        canGetBillingFromOrganization: true,
+        canGetAcquiringFromOrganization: true,
     },
 ]
 
