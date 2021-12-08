@@ -278,7 +278,6 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
 
         const payload = { address: addressMeta.value, addressMeta }
         const [resident] = await registerResidentByTestClient(userClient, payload)
-        // const [resident] = await ResidentAPI.getAll(userClient, { id: userClient.id })
 
         expect(resident.organization.id).toEqual(organizationClient.organization.id)
         expect(resident.property.id).toEqual(property.id)
@@ -319,10 +318,10 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         const [resident1] = await ResidentAPI.getAll(userClient, { id: userClient.id })
         const [resident2] = await ResidentAPI.getAll(userClient1, { id: userClient1.id })
 
-        expect(get(resident1, 'organization.id')).toEqual(organizationClient.organization.id)
         expect(get(resident1, 'property.id')).toEqual(property.id)
-        expect(get(resident2, 'organization')).toBeNull()
+        expect(get(resident1, 'organization.id')).toEqual(organizationClient.organization.id)
         expect(get(resident2, 'property')).toBeNull()
+        expect(get(resident2, 'organization')).toBeNull()
 
         const orgAddressMeta1 = { ...addressMeta1, value: address1 }
         const propertyData1 = { address: address1, addressMeta: orgAddressMeta1, map: buildingMapJson }
@@ -337,10 +336,10 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         const [resident1_1] = await ResidentAPI.getAll(userClient, { id: userClient.id })
         const [resident2_1] = await ResidentAPI.getAll(userClient1, { id: userClient1.id })
 
-        expect(get(resident1_1, 'organization.id')).toEqual(organizationClient1.organization.id)
         expect(get(resident1_1, 'property.id')).toEqual(property1.id)
-        expect(get(resident2_1, 'organization.id')).toEqual(organizationClient.organization.id)
+        expect(get(resident1_1, 'organization.id')).toEqual(property1.organization.id)
         expect(get(resident2_1, 'property.id')).toEqual(property.id)
+        expect(get(resident2_1, 'organization.id')).toEqual(property.organization.id)
     })
 
 })

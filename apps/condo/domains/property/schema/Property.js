@@ -3,6 +3,7 @@
  */
 
 const get = require('lodash/get')
+const isEqual = require('lodash/isEqual')
 const isEmpty = require('lodash/isEmpty')
 const Ajv = require('ajv')
 const dayjs = require('dayjs')
@@ -12,6 +13,7 @@ const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
+const { compareStrI } = require('@condo/domains/common/utils/string.utils')
 const { SENDER_FIELD, DV_FIELD, ADDRESS_META_FIELD } = require('@condo/domains/common/schema/fields')
 const { hasDbFields, hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const {
@@ -251,13 +253,22 @@ const Property = new GQLListSchema('Property', {
             const isSoftDeleteOperation = operation === 'update' && !existingItem.deletedAt && Boolean(updatedItem.deletedAt)
             const isCreatedProperty = operation === 'create' && Boolean(updatedItem.address)
             const isRestoredProperty = operation === 'update' && Boolean(existingItem.deletedAt) && !updatedItem.deletedAt
-            const isAddressUpdated = operation === 'update' && existingItem.address.toLocaleLowerCase('ru') !== updatedItem.address.toLocaleLowerCase('ru')
-            const id = isSoftDeleteOperation ? existingItem.id : updatedItem.id
-            const address = isSoftDeleteOperation || isAddressUpdated ?  existingItem.address : updatedItem.address
+            const isAddressUpdated =
+                operation === 'update' && (
+                    !compareStrI(existingItem.address, updatedItem.address) ||
+                    !isEqual(existingItem.addressMeta, updatedItem.addressMeta)
+                )
+            const affectedAddress = isSoftDeleteOperation || isAddressUpdated ?  existingItem.address : updatedItem.address
 
-            if (isSoftDeleteOperation || isCreatedProperty || isRestoredProperty || isAddressUpdated) {
-                const operationFlags = { isSoftDeleteOperation, isCreatedProperty, isRestoredProperty, isAddressUpdated }
-                await manageResidentToPropertyAndOrganizationConnections.delay(id, address, operationFlags)
+            if (isSoftDeleteOperation || isCreatedProperty || isRestoredProperty) {
+                await manageResidentToPropertyAndOrganizationConnections.delay(affectedAddress)
+            }
+
+            if (isAddressUpdated) {
+                // Reconnect (if any) residents to oldest non-deleted property with address = updatedItem.address
+                await manageResidentToPropertyAndOrganizationConnections.delay(updatedItem.address)
+                // Reconnect residents from this property (if any) to other non-deleted oldest property with address = prev address
+                await manageResidentToPropertyAndOrganizationConnections.delay(affectedAddress)
             }
         },
     },
