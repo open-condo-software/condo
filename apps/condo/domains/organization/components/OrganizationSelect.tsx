@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import React, { useRef, useEffect } from 'react'
-import { Select } from 'antd'
+import { Select, SelectProps } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { useOrganization } from '@core/next/organization'
@@ -69,6 +69,8 @@ const optionStyle: React.CSSProperties = {
     backgroundColor: colors.white,
 }
 
+const ORGANIZATION_SELECT_SHOW_ACTIONS: SelectProps<string>['showAction'] = ['focus', 'click']
+
 export const OrganizationSelect: React.FC = () => {
     const intl = useIntl()
     const EmptyMessage = intl.formatMessage({ id: 'Select' })
@@ -121,7 +123,7 @@ export const OrganizationSelect: React.FC = () => {
                         ref={selectRef}
                         css={blackSelectCss}
                         size={'middle'}
-                        showAction={['focus', 'click']}
+                        showAction={ORGANIZATION_SELECT_SHOW_ACTIONS}
                         dropdownRender={menu => (
                             <div>
                                 {menu}

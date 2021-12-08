@@ -31,8 +31,9 @@ export class FiltersStorage {
     public static async loadFilters (organizationId: string, tableKey: FILTER_TABLE_KEYS, router: NextRouter): Promise<void> {
         const filters = this.getFilters(tableKey)
 
-        if (filters && filters[organizationId])
+        if (filters) {
             await updateQuery(router, filters[organizationId] as FiltersFromQueryType)
+        }
     }
 
     public static clearFilters (organizationId: string, tableKey: FILTER_TABLE_KEYS): void {
