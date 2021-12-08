@@ -13,6 +13,7 @@ import isNull from 'lodash/isNull'
 import get from 'lodash/get'
 import debounce from 'lodash/debounce'
 import isFunction from 'lodash/isFunction'
+import last from 'lodash/last'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { transitions } from '@condo/domains/common/constants/style'
 import {
@@ -673,7 +674,7 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
     const [copyId, setCopyId] = useState<string | null>(null)
     const [maxMinError, setMaxMinError] = useState(false)
 
-    const name = useRef<string>('0')
+    const name = useRef<number>(1)
 
     const resetForm = () => {
         setMinFloor(null)
@@ -686,10 +687,13 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
             setMaxMinError((maxFloor < minFloor))
         }
         if (minFloor && maxFloor && unitsOnFloor && !maxMinError) {
-            name.current = String(builder.sections.filter(section => !section.preview).length + 1)
+            if (!builder.isEmpty) {
+                name.current = Number(last(builder.sections).name) + 1
+            }
+
             builder.addPreviewSection({
                 id: '',
-                name: name.current,
+                name: String(name.current),
                 minFloor,
                 maxFloor,
                 unitsOnFloor,
@@ -713,7 +717,7 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
 
     const handleFinish = () => {
         builder.removePreviewSection()
-        builder.addSection({ id: '', name: name.current, minFloor, maxFloor, unitsOnFloor })
+        builder.addSection({ id: '', name: String(name.current), minFloor, maxFloor, unitsOnFloor })
         refresh()
         resetForm()
     }
@@ -771,6 +775,7 @@ interface IUnitFormProps {
     builder: MapEdit
     refresh(): void
 }
+const IS_NUMERIC_REGEXP = /^\d+$/
 
 const UnitForm: React.FC<IUnitFormProps> = ({ builder, refresh }) => {
     const intl = useIntl()
@@ -845,7 +850,7 @@ const UnitForm: React.FC<IUnitFormProps> = ({ builder, refresh }) => {
 
     const deleteUnit = useCallback(() => {
         const mapUnit = builder.getSelectedUnit()
-        builder.removeUnit(mapUnit.id)
+        builder.removeUnit(mapUnit.id, IS_NUMERIC_REGEXP.test(mapUnit.label))
         refresh()
         resetForm()
     }, [resetForm, refresh, builder])
