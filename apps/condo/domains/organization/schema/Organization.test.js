@@ -268,7 +268,7 @@ describe('Organization', () => {
         expect(obj.updatedAt).toMatch(DATETIME_RE)
     })
 
-    test('user: deleted user dont have access to update organization', async () => {
+    test('user: deleted employee dont have access to update organization', async () => {
         const admin = await makeLoggedInAdminClient()
         const [organization] = await createTestOrganization(admin)
         const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
@@ -279,11 +279,7 @@ describe('Organization', () => {
         const [obj] = await createTestOrganizationEmployee(admin, organization, userClient.user, role)
 
         await updateTestOrganization(userClient, organization.id, { name: 'name2' })
-        await updateTestOrganizationEmployee(userClient, obj.id, { deletedAt: 'true' })
-
-        const objs = await OrganizationEmployee.getAll(userClient)
-
-        expect(objs).toHaveLength(0)
+        await updateTestOrganizationEmployee(admin, obj.id, { deletedAt: 'true' })
 
         await expectToThrowAccessDeniedErrorToObj(async () => {
             await updateTestOrganization(userClient, organization.id, { name: 'name3' })

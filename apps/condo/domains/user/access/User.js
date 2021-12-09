@@ -63,9 +63,8 @@ const canAccessToIsEmailVerifiedField = readByAnyUpdateByAdminField
 const canAccessToIsPhoneVerifiedField = readByAnyUpdateByAdminField
 const canAccessToImportField = readByAnyUpdateByAdminField
 
-
 const canAccessToStaffUserField = {
-    read: access.userIsNotResidentUser,
+    read: access.canReadOnlyIfUserIsActiveOrganizationEmployee,
     create: access.userIsNotResidentUser,
     update: access.userIsNotResidentUser,
 }
