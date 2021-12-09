@@ -34,7 +34,7 @@ const getPaymentsSum = async (context, organizationId, accountNumber, period) =>
     const payments = await Payment.getAll(
         context,
         {
-            organization: organizationId,
+            organization: { id: organizationId },
             accountNumber: accountNumber,
             period: period,
             status: PAYMENT_DONE_STATUS,
