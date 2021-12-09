@@ -6,7 +6,7 @@ import { Col, Row, Typography, Input, Select, InputNumber, Space, Dropdown, Menu
 import { css, jsx } from '@emotion/core'
 import styled from '@emotion/styled'
 import { fontSizes, colors, shadows } from '@condo/domains/common/constants/style'
-import { DeleteFilled, DownOutlined, CloseOutlined } from '@ant-design/icons'
+import { DeleteFilled, DownOutlined, CloseOutlined, QuestionCircleFilled } from '@ant-design/icons'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
 import isNull from 'lodash/isNull'
@@ -21,7 +21,7 @@ import {
     EmptyFloor,
     BuildingAxisY,
     BuildingChooseSections,
-    MapSectionContainer,
+    MapSectionContainer, HintText,
 } from './BuildingPanelCommon'
 import { Button } from '@condo/domains/common/components/Button'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
@@ -46,6 +46,7 @@ import {
     CeilIcon,
 } from '@condo/domains/common/components/icons/PropertyMapIcons'
 import { MIN_SECTIONS_TO_SHOW_FILTER } from '@condo/domains/property/constants/property'
+import { Tooltip } from '../../../../common/components/Tooltip'
 
 
 const { Option } = Select
@@ -310,7 +311,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                 </Button>
             </Menu.Item>
             <Menu.Item key={'addParking'}>
-                <Button type={'sberDefaultGradient'} secondary disabled icon={<ParkingIcon />}>
+                <Button type={'sberDefaultGradient'} secondary icon={<ParkingIcon />}>
                     {AddParking}
                 </Button>
             </Menu.Item>
@@ -385,6 +386,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                             addUnit: <UnitForm builder={mapEdit} refresh={refresh}/>,
                             editSection: <EditSectionForm builder={mapEdit} refresh={refresh}/>,
                             editUnit: <UnitForm builder={mapEdit} refresh={refresh}/>,
+                            addParking: <AddParkingForm builder={mapEdit} refresh={refresh} />,
                         }[mode] || null), [mode, mapEdit, refresh])
                     }
                 </BuildingPanelTopModal>
@@ -1002,6 +1004,127 @@ const EditSectionForm: React.FC<IEditSectionFormProps> = ({ builder, refresh }) 
                     >{DeleteLabel}</Button>
                 </Col>
             </Row>
+        </Row>
+    )
+}
+
+interface IAddParkingFormProps {
+    builder: MapEdit
+    refresh(): void
+}
+type CreateParkingMode = 'single' | 'asfloor'
+
+const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) => {
+    const intl = useIntl()
+    const MinFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.minfloor' })
+    const FloorCountLabel = intl.formatMessage({ id: 'pages.condo.property.parking.form.floorCount' })
+    const ParkingOnFloorLabel = intl.formatMessage({ id: 'pages.condo.property.parking.form.parkingOnFloor' })
+    const SingleMode = intl.formatMessage({ id: 'pages.condo.property.parking.form.mode.single' })
+    const AsFloorMode = intl.formatMessage({ id: 'pages.condo.property.parking.form.mode.asfloor' })
+    const ParkingHintTitle = intl.formatMessage({ id: 'pages.condo.property.parking.form.hint.title' })
+    const ParkingHintText = intl.formatMessage({ id: 'pages.condo.property.parking.form.hint.text' })
+    const ShowMinFloor = intl.formatMessage({ id: 'pages.condo.property.parking.form.showMinFloor' })
+    const HideMinFloor = intl.formatMessage({ id: 'pages.condo.property.parking.form.hideMinFloor' })
+    const AddLabel = intl.formatMessage({ id: 'Add' })
+
+    const [minFloor, setMinFloor] = useState<number>(1)
+    const [maxFloor, setMaxFloor] = useState<number | null>(null)
+    const [unitsOnFloor, setUnitsOnFloor] = useState(null)
+    const [createMode, setCreateMode] = useState<CreateParkingMode>('single')
+    const [maxMinError, setMaxMinError] = useState(false)
+    const [minFloorHidden, setMinFloorHidden] = useState<boolean>(true)
+    const name = useRef<number>(1)
+
+    const toggleMinFloorVisible = useCallback(() => {
+        setMinFloor(1)
+        setMinFloorHidden(!minFloorHidden)
+    }, [minFloorHidden])
+    const setMinFloorValue = useCallback((value) => { setMinFloor(value) }, [])
+    const setMaxFloorValue = useCallback((value) => { setMaxFloor(value) }, [])
+
+    const resetForm = () => {
+        setMinFloor(null)
+        setMaxFloor(null)
+        setUnitsOnFloor(null)
+    }
+
+    useEffect(() => {
+        if (minFloor && maxFloor) {
+            setMaxMinError((maxFloor < minFloor))
+        }
+        if (minFloor && maxFloor && unitsOnFloor && !maxMinError) {
+            if (!builder.isEmpty) {
+                name.current = Number(last(builder.sections).name) + 1
+            }
+
+            builder.addPreviewParking({
+                id: '',
+                name: String(name.current),
+                minFloor,
+                maxFloor,
+                unitsOnFloor,
+            })
+            refresh()
+        } else {
+            builder.removePreviewParking()
+        }
+    }, [minFloor, maxFloor, unitsOnFloor])
+
+    const handleFinish = () => {
+        builder.removePreviewParking()
+        builder.addParking({ id: '', name: String(name.current), minFloor, maxFloor, unitsOnFloor })
+        refresh()
+        resetForm()
+    }
+    const isSubmitDisabled = !(minFloor && maxFloor && unitsOnFloor && !maxMinError)
+
+    return (
+        <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
+            <Col span={24}>
+                <Select value={createMode} onSelect={setCreateMode} disabled={builder.isEmpty}>
+                    <Select.Option key={'single'} value={'single'}>{SingleMode}</Select.Option>
+                    <Select.Option key={'asfloor'} value={'asfloor'}>{AsFloorMode}</Select.Option>
+                </Select>
+                <Tooltip title={ParkingHintText}>
+                    <HintText><QuestionCircleFilled /> {ParkingHintTitle}</HintText>
+                </Tooltip>
+            </Col>
+            <Col span={24}>
+                <Space
+                    direction={'vertical'}
+                    size={8}
+                    className={maxMinError ? 'ant-form-item-has-error' : ''}
+                    hidden={minFloorHidden}
+                >
+                    <Typography.Text type={'secondary'}>{MinFloorLabel}</Typography.Text>
+                    <InputNumber value={minFloor} onChange={setMinFloorValue} style={INPUT_STYLE} type={'number'}/>
+                </Space>
+                <Typography.Text onClick={toggleMinFloorVisible}>
+                    {minFloorHidden ? ShowMinFloor : HideMinFloor} <DownOutlined />
+                </Typography.Text>
+            </Col>
+            <Col span={24}>
+                <Space direction={'vertical'} size={8} className={maxMinError ? 'ant-form-item-has-error' : ''}>
+                    <Typography.Text type={'secondary'}>{FloorCountLabel}</Typography.Text>
+                    <InputNumber value={maxFloor} onChange={setMaxFloorValue} style={INPUT_STYLE} type={'number'} />
+                </Space>
+            </Col>
+            <Col span={24}>
+                <Space direction={'vertical'} size={8}>
+                    <Typography.Text type={'secondary'}>{ParkingOnFloorLabel}</Typography.Text>
+                    <InputNumber min={1} value={unitsOnFloor} onChange={setUnitsOnFloor} style={INPUT_STYLE} type={'number'}/>
+                </Space>
+            </Col>
+            <Col span={24}>
+                <Button
+                    key='submit'
+                    secondary
+                    onClick={handleFinish}
+                    type='sberDefaultGradient'
+                    style={MODAL_FORM_BUTTON_STYLE}
+                    disabled={isSubmitDisabled}
+                > {AddLabel} </Button>
+            </Col>
         </Row>
     )
 }

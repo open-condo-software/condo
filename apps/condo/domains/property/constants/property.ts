@@ -7,6 +7,7 @@ const buildingEmptyMapJson = {
     'dv': 1,
     'type': 'building',
     'sections': [],
+    'parking': [],
 }
 // JSON from old maps that will be auto repaired after loading
 // floors - didnt have index

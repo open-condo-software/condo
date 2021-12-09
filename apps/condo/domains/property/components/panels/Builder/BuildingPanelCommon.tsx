@@ -212,3 +212,13 @@ export function useHorizontalScroll (): React.RefObject<HTMLElement>{
     }, [])
     return elementRef
 }
+
+export const HintText = styled.div`
+  color: ${colors.textSecondary};
+  cursor: pointer;
+  margin-top: 8px;
+  
+  &:hover {
+    color: ${colors.black} 
+  }  
+`
