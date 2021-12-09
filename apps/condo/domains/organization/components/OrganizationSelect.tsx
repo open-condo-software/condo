@@ -89,7 +89,13 @@ export const OrganizationSelect: React.FC = () => {
 
     const options = React.useMemo(() => {
         return userOrganizations.filter(link => link.isAccepted).map((organization) => {
-            const { value, label } = OrganizationEmployee.convertGQLItemToFormSelectState(organization)
+            const organizationOption = OrganizationEmployee.convertGQLItemToFormSelectState(organization)
+
+            if (!organizationOption)
+                return
+
+            const { value, label } = organizationOption
+
             return (<Select.Option style={optionStyle} key={value} value={value} title={label}>{label}</Select.Option>)
         })
     }, [userOrganizations])
