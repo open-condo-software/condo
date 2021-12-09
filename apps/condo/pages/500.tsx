@@ -1,12 +1,14 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Col, Row, Typography } from 'antd'
 import styled from '@emotion/styled'
 import { useIntl } from '@core/next/intl'
+import cookie from 'js-cookie'
 
 import { Poster } from '@condo/domains/common/components/Poster'
 import { colors, fontSizes } from '@condo/domains/common/constants/style'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
+import { useRouter } from 'next/router'
 
 export const ErrorPosterWrapper = styled.div<{ isSmall: boolean }>`
   height: 55vh;
@@ -20,6 +22,16 @@ export default function Custom500 () {
     const DescriptionMessage = intl.formatMessage({ id: 'pages.condo.error.Description' })
 
     const { isSmall } = useLayoutContext()
+    const router = useRouter()
+
+    useEffect(() => {
+        if (cookie.get('onErrorPage')) {
+            cookie.remove('onErrorPage')
+            router.push('/')
+        } else {
+            cookie.set('onErrorPage', true)
+        }
+    }, [])
 
     const INNER_COLUMN_SPAN = isSmall && 24
     const POSTER_COLUMN_SPAN = isSmall ? 24 : 10
