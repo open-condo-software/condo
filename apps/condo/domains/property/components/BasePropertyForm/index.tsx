@@ -165,8 +165,13 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                                 else if (AddressValidationErrorMsg) setAddressValidatorError(null)
                                             }} />
                                     </Form.Item>
+                                    <Form.Item
+                                        name="map"
+                                        hidden
+                                    >
+                                        <Input />
+                                    </Form.Item>
                                 </Col>
-
                             </Row>
                             <Row gutter={PROPERTY_FULLSCREEN_ROW_GUTTER}>
                                 <Col xs={24} lg={11}>
