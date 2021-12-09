@@ -123,7 +123,10 @@ describe('OrganizationEmployee', () => {
         const [employee] = await createTestOrganizationEmployee(admin, organization, userClient.user, role)
         await updateTestOrganizationEmployee(admin, employee.id, { deletedAt: 'true' })
 
-        const objs = await OrganizationEmployee.getAll(userClient, { OR: [{ deletedAt: null }, { deletedAt_not: null }] })
+        const { data: { objs } } = await OrganizationEmployee.getAll(userClient,
+            { OR: [{ deletedAt: null }, { deletedAt_not: null }] },
+            { raw: true }
+        )
 
         expect(objs).toHaveLength(1)
         expect(objs[0].id).toEqual(employee.id)
@@ -283,9 +286,9 @@ describe('OrganizationEmployee', () => {
         const [obj] = await createTestOrganizationEmployee(admin, organization, userClient.user, role)
 
         await updateTestOrganizationEmployee(userClient, obj.id, { name: 'name2' })
-        await updateTestOrganizationEmployee(userClient, obj.id, { deletedAt: 'true' })
+        await updateTestOrganizationEmployee(admin, obj.id, { deletedAt: 'true' })
 
-        const objs = await OrganizationEmployee.getAll(userClient)
+        const { data: { objs } } = await OrganizationEmployee.getAll(userClient, {}, { raw: 'true' })
         expect(objs).toHaveLength(0)
 
         await expectToThrowAccessDeniedErrorToObj(async () => {

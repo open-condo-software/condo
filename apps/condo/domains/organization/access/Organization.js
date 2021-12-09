@@ -3,12 +3,11 @@
  */
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { queryOrganizationEmployeeFromRelatedOrganizationFor, queryOrganizationEmployeeFor } = require('../utils/accessSchema')
-const { Resident: ResidentServerUtils, ServiceConsumer: ServiceConsumerServerUtils } = require('@condo/domains/resident/utils/serverSchema')
+const { Resident: ResidentServerUtils } = require('@condo/domains/resident/utils/serverSchema')
 const { AcquiringIntegrationAccessRight } = require('@condo/domains/acquiring/utils/serverSchema')
 const { get, uniq, compact } = require('lodash')
 const access = require('@core/keystone/access')
-const { find } = require('@core/keystone/schema')
+const { Organization, OrganizationEmployee } = require('../utils/serverSchema')
 
 async function canReadOrganizations ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
@@ -47,8 +46,8 @@ async function canReadOrganizations ({ authentication: { item: user }, context }
 
     return {
         OR: [
-            queryOrganizationEmployeeFor(userId),
-            queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
+            { employees_some: { user: { id: userId } } },
+            { relatedOrganizations_some: { from: { employees_some: { user: { id: userId } } } } },
         ],
     }
 }
