@@ -22,8 +22,8 @@ jobs:
       - name: Set env for namespace
         run: echo "REVIEW_NAMESPACE=$(echo review-${GITHUB_REF##*/} | sed 's/\_/-/g')" >> $GITHUB_ENV
       - name: Set env for namespace ( $ REVIEW_NAMESPACE )
-        run: $REVIEW_NAMESPACE
+        run: echo $REVIEW_NAMESPACE
       - name: Set env for namespace ( env . REVIEW_NAMESPACE )
-        run: ${{ env.REVIEW_NAMESPACE }}
+        run: echo ${{ env.REVIEW_NAMESPACE }}
       - name: Set env for namespace ( global.ci_condo_url )
-        run: "global.ci_condo_url=review-${GITHUB_REF##*/}-condo.d.doma.ai"
+        run: echo "global.ci_condo_url=review-${GITHUB_REF##*/}-condo.d.doma.ai"
