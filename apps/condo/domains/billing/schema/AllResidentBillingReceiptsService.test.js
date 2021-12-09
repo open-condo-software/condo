@@ -45,10 +45,31 @@ describe('AllResidentBillingReceipts', () => {
         })
 
         // TODO(DOMA-1768): add more tests
-        test('receipts currencyCode', async () => {
+        test('has all required fields', async () => {
             expect(mutationResult).toBeDefined()
             expect(mutationResult).not.toHaveLength(0)
             mutationResult.forEach(receipt => {
+                expect(receipt).toHaveProperty('id')
+                expect(receipt.id).not.toBeNull()
+
+                expect(receipt).toHaveProperty('toPay')
+                expect(receipt.toPay).not.toBeNull()
+
+                expect(receipt).toHaveProperty('paid')
+                expect(receipt.paid).not.toBeNull()
+
+                expect(receipt).toHaveProperty('period')
+                expect(receipt.period).not.toBeNull()
+
+                expect(receipt).toHaveProperty('recipient')
+                expect(receipt.recipient).not.toBeNull()
+
+                expect(receipt).toHaveProperty('serviceConsumer')
+                expect(receipt.serviceConsumer).not.toBeNull()
+
+                expect(receipt).toHaveProperty('serviceConsumer.id')
+                expect(receipt.serviceConsumer.id).not.toBeNull()
+
                 expect(receipt).toHaveProperty('currencyCode')
                 expect(receipt.currencyCode).not.toBeNull()
             })
