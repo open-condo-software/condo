@@ -1,13 +1,13 @@
 import styled from '@emotion/styled'
-import { Dropdown, Space, Menu, Avatar, DropDownProps } from 'antd'
-import { RestFilled } from '@ant-design/icons'
-import { StyledMenuItem, menuIconStyles } from '@condo/domains/common/components/containers/BaseLayout/components/styles'
-import React from 'react'
+import { Menu, Avatar, Modal } from 'antd'
+import { colors } from '@condo/domains/common/constants/style'
+import React, { ComponentProps, useCallback, useState } from 'react'
 import Router, { useRouter } from 'next/router'
 import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
 import { UserOutlined } from '@ant-design/icons'
+import { ModalWrapper } from './styles'
 
 function goToSignin () {
     Router.push('/auth/signin')
@@ -22,44 +22,62 @@ export const StyledMenu = styled(Menu)`
   transform: translate(-5%, 10px);
 `
 
-const USER_ACTIONS_OPEN_DROPDOWN_TRIGGERS: DropDownProps['trigger'] = ['hover', 'click']
+const modalStyle: ComponentProps<typeof Modal>['style'] = {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    pointerEvents: 'initial',
+    top: 'initial',
+}
 
-export const MobileUserMenu: React.FC = () => {
+const ModalView: React.FC = () => {
     const intl = useIntl()
-    const SignInMessage = intl.formatMessage({ id: 'SignIn' })
     const SignOutMessage = intl.formatMessage({ id: 'SignOut' })
     const ProfileMessage = intl.formatMessage({ id: 'profile' })
 
     const auth = useAuth()
     const router = useRouter()
 
-    const DropdownOverlay = (
-        <StyledMenu>
-            <StyledMenuItem key='profile' onClick={() => router.push('/user')}>
-                <Space size={16}>
-                    <UserOutlined style={menuIconStyles}/>
-                    {ProfileMessage}
-                </Space>
-            </StyledMenuItem>
-            <StyledMenuItem key='signout' onClick={auth.signout}>
-                <Space size={16}>
-                    <RestFilled style={menuIconStyles}/>
-                    {SignOutMessage}
-                </Space>
-            </StyledMenuItem>
-        </StyledMenu>
+    const onUserIconClick = useCallback(() => router.push('/user'), [])
+
+    return (
+        <ModalWrapper>
+            <Button color={colors.white} onClick={onUserIconClick}>{ProfileMessage}</Button>
+            <Button color={colors.white} onClick={auth.signout}>{SignOutMessage}</Button>
+        </ModalWrapper>
     )
+}
+
+
+export const MobileUserMenu: React.FC = () => {
+    const intl = useIntl()
+    const SignInMessage = intl.formatMessage({ id: 'SignIn' })
+
+    const auth = useAuth()
+
+    const [showModal, setShowModal] = useState(false)
+
+    const hideModal = useCallback(() => setShowModal(false), [])
 
     return (
         auth.isAuthenticated
             ? (
-                <Dropdown
-                    overlay={DropdownOverlay}
-                    placement='bottomLeft'
-                    trigger={USER_ACTIONS_OPEN_DROPDOWN_TRIGGERS}
-                >
-                    <Button type={'inlineLink'} icon={<Avatar size={40} icon={<UserOutlined/>}/>}/>
-                </Dropdown>
+
+                <>
+                    <Button 
+                        type={'inlineLink'} 
+                        icon={<Avatar size={40} icon={<UserOutlined />} />} 
+                        onClick={() => setShowModal(true)} 
+                    />
+                    <Modal 
+                        centered 
+                        onCancel={hideModal} 
+                        visible={showModal} 
+                        modalRender={ModalView} 
+                        style={modalStyle} 
+                    />
+                </>
             )
             : <Button type='inlineLink' onClick={goToSignin}>{SignInMessage}</Button>
     )
