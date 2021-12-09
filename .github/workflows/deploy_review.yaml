@@ -21,9 +21,20 @@ jobs:
           ssh-key: ${{ secrets.RUNNER_SSH_PRIVATE_KEY }}
       - name: Set env for namespace
         run: echo "REVIEW_NAMESPACE=$(echo review-${GITHUB_REF##*/} | sed 's/\_/-/g')" >> $GITHUB_ENV
-      - name: Set env for namespace ( $ REVIEW_NAMESPACE )
-        run: echo $REVIEW_NAMESPACE
-      - name: Set env for namespace ( env . REVIEW_NAMESPACE )
-        run: echo ${{ env.REVIEW_NAMESPACE }}
-      - name: Set env for namespace ( global.ci_condo_url )
-        run: echo "global.ci_condo_url=review-${GITHUB_REF##*/}-condo.d.doma.ai"
+      - name: Set env url prefix
+        run: echo "REVIEW_URL_PREFIX=$(echo ${GITHUB_REF##*/} | sed 's/\_/-/g')" >> $GITHUB_ENV
+      - name: Converge
+        uses: werf/actions/converge@v1.2
+        with:
+          channel: beta
+          env: review
+          kube-config-base64-data: ${{ secrets.KUBE_CONFIG_BASE64_DATA }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          WERF_SET_CI_CONDO_URL: "global.ci_condo_url=review-${{ env.REVIEW_URL_PREFIX }}-condo.d.doma.ai"
+          WERF_SET_CI_CALLCENTER_URL: "global.ci_callcenter_url=review-${{ env.REVIEW_URL_PREFIX }}-callcenter.d.doma.ai"
+          WERF_SET_CI_EPS_URL: "global.ci_eps_url=review-${{ env.REVIEW_URL_PREFIX }}-eps.d.doma.ai"
+          WERF_SET_CI_RB_URL: "global.ci_rb_url=review-${{ env.REVIEW_URL_PREFIX }}-rb.d.doma.ai"
+          WERF_NAMESPACE: ${{ env.REVIEW_NAMESPACE}}
+          WERF_VIRTUAL_MERGE_FROM_COMMIT: "true"
+
