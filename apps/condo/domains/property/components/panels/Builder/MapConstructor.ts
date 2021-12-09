@@ -2,12 +2,7 @@ import { buildingEmptyMapJson } from '@condo/domains/property/constants/property
 import { cloneDeep, compact, get, has, uniq, last } from 'lodash'
 import MapSchemaJSON from './MapJsonSchema.json'
 import Ajv from 'ajv'
-import {
-    BuildingMap,
-    BuildingMapEntityType,
-    BuildingSection,
-    BuildingUnit,
-} from '@app/condo/schema'
+import { BuildingMap, BuildingMapEntityType, BuildingSection, BuildingUnit, BuildingUnitType } from '@app/condo/schema'
 
 const ajv = new Ajv()
 const validator = ajv.compile(MapSchemaJSON)
@@ -220,7 +215,7 @@ class MapView extends Map {
     }
 
     get isEmpty (): boolean {
-        return this.map.sections.length === 0
+        return this.map.parking.length === 0
     }
 
     // view or hide sections
@@ -236,6 +231,10 @@ class MapView extends Map {
 
     get sections (): BuildingSection[] {
         return this.map.sections
+    }
+
+    get parking (): BuildingSection[] {
+        return this.map.parking
     }
 
     get lastSectionIndex (): number {
@@ -337,6 +336,12 @@ class MapEdit extends MapView {
                 this.removePreviewSection()
                 this.selectedUnit = null
                 break
+            case 'addParking':
+                this.removePreviewUnit()
+                this.removePreviewSection()
+                this.selectedUnit = null
+                this.selectedSection = null
+                break
             case 'addUnit':
                 this.removePreviewSection()
                 this.selectedSection = null
@@ -348,8 +353,6 @@ class MapEdit extends MapView {
                 this.selectedSection = null
                 break
             default:
-                this.removePreviewUnit()
-                this.removePreviewSection()
                 this.selectedSection = null
                 this.selectedUnit = null
                 this.removePreviewUnit()
@@ -444,6 +447,36 @@ class MapEdit extends MapView {
 
         this.editMode = 'addSection'
         this.notifyUpdater()
+    }
+
+    public removeParking (id: string): void {
+        const parkingIndex = this.map.parking.findIndex(mapParking => mapParking.id === id)
+        this.map.parking.splice(parkingIndex, 1)
+        this.editMode = 'addParking'
+        this.notifyUpdater()
+    }
+
+    public removePreviewParking (): void {
+        if (this.previewSectionId) {
+            this.removeParking(this.previewSectionId)
+            this.previewSectionId = null
+        }
+    }
+
+    public addPreviewParking (parking: Partial<BuildingSectionArg>): void {
+        this.removePreviewParking()
+        const newParking = this.generateSingleParking(parking)
+        newParking.preview = true
+        newParking.floors.forEach(floor => floor.units.map(unit => ({ ...unit, preview: true })))
+        this.previewSectionId = newParking.id
+        this.map.parking.push(newParking)
+    }
+
+    public addParking (parking: Partial<BuildingSectionArg>): void {
+        const newParking = this.generateSingleParking(parking)
+        this.map.parking.push(newParking)
+        this.notifyUpdater()
+        this.editMode = 'addParking'
     }
 
     public addPreviewUnit (unit: Partial<BuildingUnitArg>): void {
@@ -606,6 +639,40 @@ class MapEdit extends MapView {
             })
         }
         return newSection
+    }
+
+    private generateSingleParking (parking: Partial<BuildingSectionArg>): BuildingSection {
+        const { name, minFloor, maxFloor, unitsOnFloor } = parking
+        const newParking: BuildingSection = {
+            id: String(++this.autoincrement),
+            floors: [],
+            name,
+            index: this.sections.length + 1,
+            type: BuildingMapEntityType.Section,
+        }
+
+        for (let floor = minFloor; floor <= maxFloor; floor++) {
+            if (floor === 0) continue
+            const units: BuildingUnit[] = []
+
+            for (let parkingOnFloor = 0; parkingOnFloor < unitsOnFloor; parkingOnFloor++) {
+                units.push({
+                    id: String(++this.autoincrement),
+                    label: String(parkingOnFloor + 1),
+                    type: BuildingMapEntityType.Unit,
+                    unitType: BuildingUnitType.Parking,
+                })
+            }
+            newParking.floors.unshift({
+                id: String(++this.autoincrement),
+                index: floor,
+                name: String(floor),
+                type: BuildingMapEntityType.Floor,
+                units,
+            })
+        }
+
+        return newParking
     }
 
     private getNextUnit (id: string): BuildingUnit {

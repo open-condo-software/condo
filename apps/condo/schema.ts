@@ -5993,6 +5993,7 @@ export type BuildingMap = {
   __typename?: 'BuildingMap';
   dv: Scalars['Int'];
   sections?: Maybe<Array<Maybe<BuildingSection>>>;
+  parking?: Maybe<Array<Maybe<BuildingSection>>>;
   type?: Maybe<BuildingMapEntityType>;
 };
 
@@ -6018,10 +6019,16 @@ export type BuildingUnit = {
   __typename?: 'BuildingUnit';
   id: Scalars['String'];
   type: BuildingMapEntityType;
+  unitType?: Maybe<BuildingUnitType>;
   name?: Maybe<Scalars['String']>;
   label: Scalars['String'];
   preview?: Maybe<Scalars['Boolean']>;
 };
+
+export enum BuildingUnitType {
+  Parking = 'parking',
+  Flat = 'flat'
+}
 
 export enum CacheControlScope {
   Public = 'PUBLIC',
