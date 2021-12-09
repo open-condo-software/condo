@@ -1,9 +1,9 @@
-const { SBBOL_IMPORT_NAME } = require('./common')
+const { SBBOL_FINGERPRINT_NAME } = require('./common')
 const { SUBSCRIPTION_PAYMENT_STATUS } = require('@condo/domains/subscription/constants')
 
 const dvSenderFields = {
     dv: 1,
-    sender: { dv: 1, fingerprint: `import-${SBBOL_IMPORT_NAME}` },
+    sender: { dv: 1, fingerprint: SBBOL_FINGERPRINT_NAME },
 }
 
 const BANK_OPERATION_CODE = {
