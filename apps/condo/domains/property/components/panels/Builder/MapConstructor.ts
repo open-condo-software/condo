@@ -1,5 +1,11 @@
 import { buildingEmptyMapJson } from '@condo/domains/property/constants/property'
-import { cloneDeep, compact, get, has, uniq, last } from 'lodash'
+import get from 'lodash/get'
+import has from 'lodash/has'
+import cloneDeep from 'lodash/cloneDeep'
+import uniq from 'lodash/uniq'
+import compact from 'lodash/compact'
+import isObjectEmpty from 'lodash/isEmpty'
+import last from 'lodash/last'
 import MapSchemaJSON from './MapJsonSchema.json'
 import Ajv from 'ajv'
 import { BuildingMap, BuildingMapEntityType, BuildingSection, BuildingUnit, BuildingUnitType } from '@app/condo/schema'
@@ -33,6 +39,8 @@ type IndexLocation = {
     floor: number
     unit: number
 }
+
+export type MapViewMode = 'section' | 'parking'
 
 
 // TODO(DOMA-1755): refactor the data structure in such a way that changes in one element occur independently of other elements
@@ -176,6 +184,8 @@ class MapView extends Map {
         if (!this.isMapValid) {
             console.log('Invalid JSON for property:map', this.validationErrors)
         }
+
+        if (isObjectEmpty(this.map.sections) && !isObjectEmpty(this.map.parking)) this.viewMode = 'parking'
     }
 
     get maxFloor (): number {
@@ -214,9 +224,20 @@ class MapView extends Map {
         return uniqueIndexes
     }
 
-    get isEmpty (): boolean {
-        return this.map.parking.length === 0
+    get possibleChosenParkingFloors (): number[] {
+        const allIndexes = this.map.parking
+            .filter(parking => this.visibleSections === null || this.visibleSections === parking.id)
+            .map(section => section.floors
+                .map(floor => floor.index))
+            .flat()
+        return [...new Set(allIndexes)].sort((a, b) => b - a)
     }
+
+    get isEmpty (): boolean {
+        return isObjectEmpty(this.map.sections) && isObjectEmpty(this.map.parking)
+    }
+
+    public viewMode: MapViewMode = 'section'
 
     // view or hide sections
     public visibleSections: string | null = null
@@ -357,6 +378,7 @@ class MapEdit extends MapView {
                 this.selectedUnit = null
                 this.removePreviewUnit()
                 this.removePreviewSection()
+                this.removePreviewParking()
                 this.mode = null
         }
         this.mode = mode
