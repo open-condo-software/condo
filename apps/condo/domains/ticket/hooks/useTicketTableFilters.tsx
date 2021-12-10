@@ -287,6 +287,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                     },
                     getComponentFilterDropdown: getSelectFilterDropdown({
                         options: categoryClassifiersOptions,
+                        placeholder: CategoryClassifierLabel,
                         mode: 'multiple',
                     }),
                 },
