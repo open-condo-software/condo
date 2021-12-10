@@ -92,7 +92,7 @@ export const OrganizationSelect: React.FC = () => {
             const organizationOption = OrganizationEmployee.convertGQLItemToFormSelectState(employee)
 
             if (!organizationOption)
-                return
+                return false
 
             const { value, label } = organizationOption
 
