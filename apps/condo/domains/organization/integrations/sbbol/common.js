@@ -5,7 +5,7 @@ const falsey = require('falsey')
 const logger = pino({ name: 'sbbol', enabled: falsey(process.env.DISABLE_LOGGING) })
 
 const SBBOL_IMPORT_NAME = 'sbbol'
-const SBBOL_FINGERPRINT_NAME = 'sbbol-import'
+const SBBOL_FINGERPRINT_NAME = 'import-sbbol'
 const SBBOL_SESSION_KEY = 'sbbol'
 
 const SbbolUserInfoSchema = {
