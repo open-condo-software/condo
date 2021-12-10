@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
-import { Col, Row, Typography, Input, Select, InputNumber, Space, Dropdown, Menu, RowProps, DropDownProps, notification } from 'antd'
+import { Col, Row, Typography, Input, Select, InputNumber, Space, Dropdown, Menu, RowProps, DropDownProps, notification, Radio } from 'antd'
 import { css, jsx } from '@emotion/core'
 import styled from '@emotion/styled'
 import { fontSizes, colors, shadows } from '@condo/domains/common/constants/style'
@@ -95,6 +95,40 @@ const DropdownCss = css`
     transition: ${transitions.allDefault};
     transform: rotate(180deg);
   }
+`
+
+const RadioGroupCss = css`
+  padding: 4px;
+  background-color: #E6E8F1;
+  height: 48px;
+  border-radius: 4px;
+
+  & label.ant-radio-button-wrapper {
+    background-color: #E6E8F1;
+    height: 40px;
+    border: none;
+    border-radius: 4px;
+    box-shadow: none;
+    line-height: 44px;
+  }
+  & label.ant-radio-button-wrapper.ant-radio-button-wrapper-checked {
+    background-color: ${colors.white};
+    color: ${colors.black};
+    border-color: transparent;
+  }
+  & .ant-radio-button-wrapper-checked::before,
+  & .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover::before {
+    background-color: #E6E8F1;
+  }
+  & .ant-radio-button-wrapper:hover {
+    color: ${colors.black};
+  }
+  & .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover {
+    color: ${colors.black};
+    background-color: ${colors.white};
+    border-color: transparent;
+  }
+  
 `
 
 const MenuCss = css`
@@ -210,6 +244,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const AddUnit = intl.formatMessage({ id: 'pages.condo.property.select.option.unit' })
     const AddFloor = intl.formatMessage({ id: 'pages.condo.property.select.option.floor' })
     const AddParking = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
+    const ResidentialBuildingTitle = intl.formatMessage({ id: 'pages.condo.property.select.option.residentialBuilding' })
     const AddInterFloorRoom = intl.formatMessage({ id: 'pages.condo.property.select.option.interfloorroom' })
     const AddBasement = intl.formatMessage({ id: 'pages.condo.property.select.option.basement' })
     const AddCeil = intl.formatMessage({ id: 'pages.condo.property.select.option.ceil' })
@@ -298,6 +333,11 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
         refresh()
     }, [mapEdit, refresh])
 
+    const onViewModeChange = useCallback((option) => {
+        mapEdit.viewMode = option.target.value
+        refresh()
+    }, [mapEdit, refresh])
+
     const menuOverlay = useMemo(() => (
         <Menu css={MenuCss} onClick={menuClick}>
             <Menu.Item key={'addSection'}>
@@ -338,6 +378,8 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
         </Menu>
     ), [menuClick])
 
+    const showViewModeCheckBox = !isEmpty(mapEdit.sections) && !isEmpty(mapEdit.parking)
+
     return (
         <FullscreenWrapper mode={'edit'} className='fullscreen'>
             <FullscreenHeader edit={true}>
@@ -362,14 +404,29 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                         </Col>
                     )}
                     <Col flex={0}>
-                        <Dropdown
-                            trigger={DROPDOWN_TRIGGER}
-                            overlay={menuOverlay}
-                            css={DropdownCss}
-                            mouseEnterDelay={0}
-                        >
-                            <Button type='sberBlack'>{AddElementTitle}<DownOutlined /></Button>
-                        </Dropdown>
+                        <Space size={20}>
+                            {
+                                showViewModeCheckBox && (<Radio.Group
+                                    value={mapEdit.viewMode}
+                                    onChange={onViewModeChange}
+                                    optionType={'button'}
+                                    buttonStyle={'solid'}
+                                    css={RadioGroupCss}
+                                >
+                                    <Radio.Button value={'section'}>{ResidentialBuildingTitle}</Radio.Button>
+                                    <Radio.Button value={'parking'}>{AddParking}</Radio.Button>
+                                </Radio.Group>
+                                )
+                            }
+                            <Dropdown
+                                trigger={DROPDOWN_TRIGGER}
+                                overlay={menuOverlay}
+                                css={DropdownCss}
+                                mouseEnterDelay={0}
+                            >
+                                <Button type='sberBlack'>{AddElementTitle}<DownOutlined /></Button>
+                            </Dropdown>
+                        </Space>
                     </Col>
                 </Row>
                 <BuildingPanelTopModal
@@ -533,51 +590,97 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
                             innerRef={container}
                         >
                             {
-                                !isEmpty(builder.sections) && (
-                                    <BuildingAxisY floors={builder.possibleChosenFloors} />
-                                )
+                                builder.viewMode === 'section'
+                                    ? !isEmpty(builder.sections) && (
+                                        <BuildingAxisY floors={builder.possibleChosenFloors} />
+                                    )
+                                    : !isEmpty(builder.parking) && (
+                                        <BuildingAxisY floors={builder.possibleChosenParkingFloors} />
+                                    )
                             }
                             {
-                                builder.sections.map(section => {
-                                    return (
-                                        <PropertyMapSection
-                                            key={section.id}
-                                            section={section}
-                                            builder={builder}
-                                            refresh={refresh}
-                                            scrollToForm={scrollToForm}
-                                        >
-                                            {
-                                                builder.possibleChosenFloors.map(floorIndex => {
-                                                    const floorInfo = section.floors.find(floor => floor.index === floorIndex)
-                                                    if (floorInfo && floorInfo.units.length) {
-                                                        return (
-                                                            <PropertyMapFloor key={floorInfo.id}>
-                                                                {
-                                                                    floorInfo.units.map(unit => {
-                                                                        return (
-                                                                            <PropertyMapUnit
-                                                                                key={unit.id}
-                                                                                unit={unit}
-                                                                                builder={builder}
-                                                                                refresh={refresh}
-                                                                                scrollToForm={scrollToForm}
-                                                                            />
-                                                                        )
-                                                                    })
-                                                                }
-                                                            </PropertyMapFloor>
-                                                        )
-                                                    } else {
-                                                        return (
-                                                            <EmptyFloor key={`empty_${section.id}_${floorIndex}`} />
-                                                        )
-                                                    }
-                                                })
-                                            }
-                                        </PropertyMapSection>
-                                    )
-                                })
+                                builder.viewMode === 'section'
+                                    ? builder.sections.map(section => {
+                                        return (
+                                            <PropertyMapSection
+                                                key={section.id}
+                                                section={section}
+                                                builder={builder}
+                                                refresh={refresh}
+                                                scrollToForm={scrollToForm}
+                                            >
+                                                {
+                                                    builder.possibleChosenFloors.map(floorIndex => {
+                                                        const floorInfo = section.floors.find(floor => floor.index === floorIndex)
+                                                        if (floorInfo && floorInfo.units.length) {
+                                                            return (
+                                                                <PropertyMapFloor key={floorInfo.id}>
+                                                                    {
+                                                                        floorInfo.units.map(unit => {
+                                                                            return (
+                                                                                <PropertyMapUnit
+                                                                                    key={unit.id}
+                                                                                    unit={unit}
+                                                                                    builder={builder}
+                                                                                    refresh={refresh}
+                                                                                    scrollToForm={scrollToForm}
+                                                                                />
+                                                                            )
+                                                                        })
+                                                                    }
+                                                                </PropertyMapFloor>
+                                                            )
+                                                        } else {
+                                                            return (
+                                                                <EmptyFloor key={`empty_${section.id}_${floorIndex}`} />
+                                                            )
+                                                        }
+                                                    })
+                                                }
+                                            </PropertyMapSection>
+                                        )
+                                    })
+                                    : builder.parking.map(section => {
+                                        return (
+                                            <PropertyMapSection
+                                                key={section.id}
+                                                section={section}
+                                                builder={builder}
+                                                refresh={refresh}
+                                                scrollToForm={scrollToForm}
+                                                isParkingSection
+                                            >
+                                                {
+                                                    builder.possibleChosenParkingFloors.map(floorIndex => {
+                                                        const floorInfo = section.floors.find(floor => floor.index === floorIndex)
+                                                        if (floorInfo && floorInfo.units.length) {
+                                                            return (
+                                                                <PropertyMapFloor key={floorInfo.id}>
+                                                                    {
+                                                                        floorInfo.units.map(unit => {
+                                                                            return (
+                                                                                <PropertyMapUnit
+                                                                                    key={unit.id}
+                                                                                    unit={unit}
+                                                                                    builder={builder}
+                                                                                    refresh={refresh}
+                                                                                    scrollToForm={scrollToForm}
+                                                                                />
+                                                                            )
+                                                                        })
+                                                                    }
+                                                                </PropertyMapFloor>
+                                                            )
+                                                        } else {
+                                                            return (
+                                                                <EmptyFloor key={`empty_${section.id}_${floorIndex}`} />
+                                                            )
+                                                        }
+                                                    })
+                                                }
+                                            </PropertyMapSection>
+                                        )
+                                    })
                             }
                         </ScrollContainer>
                         <BuildingChooseSections
@@ -600,13 +703,17 @@ interface IPropertyMapSectionProps {
     builder: MapEdit
     refresh: () => void
     scrollToForm: () => void
+    isParkingSection?: boolean
 }
 const FULL_SIZE_UNIT_STYLE: React.CSSProperties = { width: '100%', marginTop: '8px', display: 'block' }
 const SECTION_UNIT_STYLE: React.CSSProperties = { ...FULL_SIZE_UNIT_STYLE, zIndex: 3 }
 
-const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ section, children, builder, refresh, scrollToForm }) => {
+const PropertyMapSection: React.FC<IPropertyMapSectionProps> = (props) => {
+    const { section, children, builder, refresh, scrollToForm, isParkingSection = false } = props
     const intl = useIntl()
-    const SectionNamePrefixTitle = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
+    const SectionTitle = isParkingSection
+        ? `${intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })} ${section.name}`
+        : `${intl.formatMessage({ id: 'pages.condo.property.section.Name' })} ${section.name}`
 
     const chooseSection = useCallback((section) => {
         builder.setSelectedSection(section)
@@ -626,7 +733,7 @@ const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ section, child
                 preview={section.preview}
                 onClick={() => chooseSection(section)}
                 selected={builder.isSectionSelected(section.id)}
-            >{SectionNamePrefixTitle} {section.name}</UnitButton>
+            >{SectionTitle}</UnitButton>
         </MapSectionContainer>
     )
 }
@@ -1013,6 +1120,7 @@ interface IAddParkingFormProps {
     refresh(): void
 }
 type CreateParkingMode = 'single' | 'asfloor'
+const TEXT_BUTTON_STYLE: React.CSSProperties = { cursor: 'pointer' }
 
 const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) => {
     const intl = useIntl()
@@ -1054,7 +1162,7 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
         }
         if (minFloor && maxFloor && unitsOnFloor && !maxMinError) {
             if (!builder.isEmpty) {
-                name.current = Number(last(builder.sections).name) + 1
+                name.current = Number(last(builder.parking).name) + 1
             }
 
             builder.addPreviewParking({
@@ -1077,11 +1185,12 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
         resetForm()
     }
     const isSubmitDisabled = !(minFloor && maxFloor && unitsOnFloor && !maxMinError)
+    const isModeSelectDisabled = isEmpty(builder.sections)
 
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
             <Col span={24}>
-                <Select value={createMode} onSelect={setCreateMode} disabled={builder.isEmpty}>
+                <Select value={createMode} onSelect={setCreateMode} disabled={isModeSelectDisabled}>
                     <Select.Option key={'single'} value={'single'}>{SingleMode}</Select.Option>
                     <Select.Option key={'asfloor'} value={'asfloor'}>{AsFloorMode}</Select.Option>
                 </Select>
@@ -1099,7 +1208,7 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
                     <Typography.Text type={'secondary'}>{MinFloorLabel}</Typography.Text>
                     <InputNumber value={minFloor} onChange={setMinFloorValue} style={INPUT_STYLE} type={'number'}/>
                 </Space>
-                <Typography.Text onClick={toggleMinFloorVisible}>
+                <Typography.Text onClick={toggleMinFloorVisible} style={TEXT_BUTTON_STYLE}>
                     {minFloorHidden ? ShowMinFloor : HideMinFloor} <DownOutlined />
                 </Typography.Text>
             </Col>

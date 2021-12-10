@@ -331,6 +331,7 @@
   "pages.condo.property.select.option.unit": "Unit",
   "pages.condo.property.select.option.floor": "Floor",
   "pages.condo.property.select.option.parking": "Parking",
+  "pages.condo.property.select.option.residentialBuilding": "Жилое здание",
   "pages.condo.property.select.option.interfloorroom": "Interfloor room",
   "pages.condo.property.select.option.basement": "Basement",
   "pages.condo.property.select.option.ceil": "Ceil",
