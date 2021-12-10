@@ -457,6 +457,8 @@ describe('AllResidentBillingReceipts', () => {
          *
          * Complex cases:
          * 1. Receipt is deleted then paid and recreated.
+         * TODO (DOMA-1790) @toplenboren Add TODO complex-cases
+         * 2. TODO Receipt is duplicated in single period
          */
 
         test('Test simple cases', async () => {
@@ -474,11 +476,21 @@ describe('AllResidentBillingReceipts', () => {
                 organizationClient.billingAccount,
                 { toPay: '2000.00' }
             )
+
+            // We create a new billing account since there are currently only one billing receipt is possible for period
+            const [ billingAccount2 ] = await createTestBillingAccount(
+                integrationClient,
+                organizationClient.billingIntegrationContext,
+                organizationClient.billingProperty,
+                {
+                    unitName: UNIT_NAME,
+                }
+            )
             const [ receiptWithNoPayments ] = await createTestBillingReceipt(
                 integrationClient,
                 organizationClient.billingIntegrationContext,
                 organizationClient.billingProperty,
-                organizationClient.billingAccount,
+                billingAccount2,
                 { toPay: '25000.00' }
             )
 
@@ -501,35 +513,113 @@ describe('AllResidentBillingReceipts', () => {
                 accountNumber: organizationClient.billingAccount.number,
                 organizationId: organizationClient.organization.id,
             })
+            await registerServiceConsumerByTestClient(residentClient, {
+                residentId: resident.id,
+                accountNumber: billingAccount2.number,
+                organizationId: organizationClient.organization.id,
+            })
 
             // Mobile app gets the list of all resident receipts
             const [
                 singlePaymentReceiptBeforePayment,
                 noPaymentReceiptBeforePayment,
-            ] = await ResidentBillingReceipt.getAll(residentClient, { serviceConsumer: { resident: { id: resident.id } } }, { sortBy: ['createdAt_ASC'] } )
+            ] = await ResidentBillingReceipt.getAll(residentClient, { serviceConsumer: { resident: { id: resident.id } } }, { sortBy: ['toPay_ASC'] } )
 
             // Mobile app tries to pay for the first receipt in one payment
             await completeTestPayment(residentClient, admin, serviceConsumer.id, singlePaymentReceiptBeforePayment.id)
 
-            // Resident gets own receipts and sees that this one is fully paid!
+            // Resident gets own receipts and sees that first one is fully paid!
             const [
                 singlePaymentReceiptAfterPayment,
                 noPaymentReceiptAfterPayments,
-            ] = await ResidentBillingReceipt.getAll(residentClient, { serviceConsumer: { resident: { id: resident.id } } }, { sortBy: ['createdAt_ASC'] })
+            ] = await ResidentBillingReceipt.getAll(residentClient, { serviceConsumer: { resident: { id: resident.id } } }, { sortBy: ['toPay_ASC'] })
 
             // Assert with one payment for one receipt
             expect(singlePaymentReceiptAfterPayment.id).toEqual(receiptWithSinglePayment.id)
-            expect(singlePaymentReceiptBeforePayment.id).toEqual(singlePaymentReceiptAfterPayment.id)
+            expect(singlePaymentReceiptBeforePayment.id).toEqual(receiptWithSinglePayment.id)
             expect(singlePaymentReceiptBeforePayment.paid).toEqual('0.00000000')
             expect(singlePaymentReceiptAfterPayment.paid).toEqual('2000.00000000')
             expect(singlePaymentReceiptAfterPayment.paid).toEqual(singlePaymentReceiptAfterPayment.toPay)
 
             // Assert with no payments for one receipt
             expect(noPaymentReceiptAfterPayments.id).toEqual(receiptWithNoPayments.id)
-            expect(noPaymentReceiptBeforePayment.id).toEqual(noPaymentReceiptAfterPayments.id)
+            expect(noPaymentReceiptBeforePayment.id).toEqual(receiptWithNoPayments.id)
             expect(noPaymentReceiptBeforePayment.paid).toEqual('0.00000000')
             expect(noPaymentReceiptAfterPayments.paid).toEqual('0.00000000')
             expect(noPaymentReceiptAfterPayments.paid).not.toEqual(noPaymentReceiptAfterPayments.toPay)
+        })
+
+        test('Test case when receipt is deleted then paid and then recreated.', async () => {
+
+            const UNIT_NAME = '22'
+
+            const admin = await makeLoggedInAdminClient()
+
+            // Prepare billing integration and receipts
+            const { organizationClient, integrationClient } = await makeClientWithPropertyAndBilling({ billingAccountAttrs: { unitName: UNIT_NAME } })
+            const [ receiptWithSinglePayment ] = await createTestBillingReceipt(
+                integrationClient,
+                organizationClient.billingIntegrationContext,
+                organizationClient.billingProperty,
+                organizationClient.billingAccount,
+                { toPay: '2000.00' }
+            )
+
+            // Prepare acquiring integration
+            const [ acquiringIntegration ] = await createTestAcquiringIntegration(admin, [organizationClient.billingIntegration], {
+                canGroupReceipts: true,
+            })
+            await createTestAcquiringIntegrationContext(organizationClient, organizationClient.organization, acquiringIntegration)
+
+            // Prepare resident entities
+            const residentClient = await makeClientWithResidentUser()
+            const [ resident ] = await registerResidentByTestClient(residentClient, {
+                address: organizationClient.property.address,
+                addressMeta: organizationClient.property.addressMeta,
+                unitName: UNIT_NAME,
+            })
+
+            const [serviceConsumer] = await registerServiceConsumerByTestClient(residentClient, {
+                residentId: resident.id,
+                accountNumber: organizationClient.billingAccount.number,
+                organizationId: organizationClient.organization.id,
+            })
+
+            // Mobile app gets the list of all resident receipts
+            const [ singlePaymentReceiptBeforePayment ] = await ResidentBillingReceipt.getAll(residentClient, { serviceConsumer: { resident: { id: resident.id } } }, { sortBy: ['toPay_ASC'] } )
+
+            // Mobile app tries to pay for the first receipt in one payment
+            await completeTestPayment(residentClient, admin, serviceConsumer.id, singlePaymentReceiptBeforePayment.id)
+
+            // Billing Recreates the receipt
+            const [ deletedReceiptWithSinglePayment ] = await updateTestBillingReceipt(
+                integrationClient,
+                receiptWithSinglePayment.id,
+                {
+                    deletedAt: 'true',
+                }
+            )
+            const [ newReceiptWithSinglePayment ] = await createTestBillingReceipt(
+                integrationClient,
+                organizationClient.billingIntegrationContext,
+                organizationClient.billingProperty,
+                organizationClient.billingAccount,
+                { toPay: '2500.00' }
+            )
+
+            // Resident gets own receipts and sees that first one is fully paid!
+            const [ singlePaymentReceiptAfterPayment ] = await ResidentBillingReceipt.getAll(residentClient, { serviceConsumer: { resident: { id: resident.id } } }, { sortBy: ['toPay_ASC'] })
+
+            // Assert with one payment for one receipt
+            expect(singlePaymentReceiptBeforePayment.id).toEqual(receiptWithSinglePayment.id)
+            expect(singlePaymentReceiptBeforePayment.toPay).toEqual('2000.00000000')
+            expect(singlePaymentReceiptBeforePayment.paid).toEqual('0.00000000')
+
+            expect(deletedReceiptWithSinglePayment.deletedAt).not.toBeNull()
+
+            expect(singlePaymentReceiptAfterPayment.id).toEqual(newReceiptWithSinglePayment.id)
+            expect(singlePaymentReceiptAfterPayment.toPay).toEqual('2500.00000000')
+            expect(singlePaymentReceiptAfterPayment.paid).toEqual('2000.00000000') // Since we paid for the old receipt!
         })
     })
 })
