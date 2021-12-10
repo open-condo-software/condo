@@ -76,7 +76,7 @@ async function main () {
     await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
     await keystone.connect()
 
-    const accessToken = await getAccessTokenFor(SBBOL_FINTECH_CONFIG.service_organization_hashOrgId)
+    const accessToken = await getAccessTokenFor(SBBOL_CSR_REQUEST_DATA.service_organization_hashOrgId)
 
     const cryptoApi = new SbbolCryptoApi({
         accessToken,
