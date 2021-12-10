@@ -2,7 +2,6 @@
 import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import isEqual from 'lodash/isEqual'
 import { Checkbox, Col, Input, Row, Typography } from 'antd'
 import { FilterFilled } from '@ant-design/icons'
 import { Gutter } from 'antd/lib/grid/row'
