@@ -284,10 +284,6 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         const newFilters = { ...filters, ...values }
         await updateQuery(router, newFilters)
         setIsMultipleFiltersModalVisible(false)
-
-        if (filterTableKey) {
-            FiltersStorage.saveFilters(organization.id, filterTableKey, newFilters)
-        }
     }, [filterTableKey, filters, router, setIsMultipleFiltersModalVisible])
 
     const modalFooter = useMemo(() => (

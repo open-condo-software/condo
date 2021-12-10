@@ -82,6 +82,10 @@ export const TicketsPageContent = ({
             .then(() => setIsInitialFiltersApplied(true))
     }, [organization.id])
 
+    useEffect(() => {
+        FiltersStorage.saveFilters(organization.id, FILTER_TABLE_KEYS.TICKET, filters)
+    }, [filters])
+
     searchTicketsQuery = { ...searchTicketsQuery, ...{ deletedAt: null } }
 
     const {
