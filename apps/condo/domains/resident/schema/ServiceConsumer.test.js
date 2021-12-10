@@ -196,8 +196,8 @@ describe('ServiceConsumer', () => {
         it('Client lives in organization A and pays for water to organization B. When getting his ServiceConsumers client has access to inner fields', async () => {
             const UNIT_NAME = '22'
 
-            const managementCompanyOrganizationClient = await makeClientWithPropertyAndBilling({ billingAccountAttrs: { unitName: UNIT_NAME } })
-            const waterCompanyOrganizationClient = await makeClientWithPropertyAndBilling({ billingAccountAttrs: { unitName: UNIT_NAME } })
+            const { organizationClient: managementCompanyOrganizationClient } = await makeClientWithPropertyAndBilling({ billingAccountAttrs: { unitName: UNIT_NAME } })
+            const { organizationClient: waterCompanyOrganizationClient } = await makeClientWithPropertyAndBilling({ billingAccountAttrs: { unitName: UNIT_NAME } })
 
             const residentClient = await makeClientWithResidentUser()
             const [ resident ] = await registerResidentByTestClient(residentClient, {

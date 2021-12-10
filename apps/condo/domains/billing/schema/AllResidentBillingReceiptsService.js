@@ -40,7 +40,7 @@ const getPaymentsSum = async (context, organizationId, accountNumber, period) =>
             status: PAYMENT_DONE_STATUS,
         }
     )
-    return payments.reduce((total, current) => (Big(total).plus(current)), 0)
+    return payments.reduce((total, current) => (Big(total).plus(current.amount)), 0).toFixed(8).toString()
 }
 
 
