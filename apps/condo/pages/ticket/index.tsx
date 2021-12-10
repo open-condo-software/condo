@@ -40,6 +40,7 @@ import { TablePageContent } from '@condo/domains/common/components/containers/Ba
 import { FILTER_TABLE_KEYS, FiltersStorage } from '../../domains/common/utils/FiltersStorage'
 import { Division } from '../../domains/division/utils/clientSchema'
 import { useWarrantySearch } from '@condo/domains/ticket/hooks/useWarrantySearch'
+import { useFiltersTooltipData } from '../../domains/ticket/hooks/useFiltersTooltipData'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -104,64 +105,17 @@ export const TicketsPageContent = ({
     const loading = isTicketsFetching || !isInitialFiltersApplied
 
     const [hoveredTicket, setHoveredTicket] = useState()
-    const [hoveredTicketIndex, setHoveredTicketIndex] = useState()
 
-    const { organization } = useOrganization()
-    const { objs: divisions } = Division.useObjects({
-        organization: { id: organization.id },
-    })
-
-    const filteredPropertiesInDivisions = filters['division']//?.map(queryDivision => queryDivision.split(',')).flat(1)
-
-    const fieldsOutOfTable = [
-        { name: 'source', label: 'Источник', getFilteredValue: (ticket) => ticket.source.id, getTooltipValue: (ticket) => ticket.source.name },
-        { name: 'division', label: 'Участок', getFilteredValue: (ticket) => {
-            for (const d of filteredPropertiesInDivisions) {
-                const parsedProperties = d.split(',')
-                if (parsedProperties.includes(ticket.property.id))
-                    return d
-            }
-        },
-        getTooltipValue: (ticket) => {
-            const resDivisions = []
-
-            for (const filteredPropertiesInDivision of filteredPropertiesInDivisions) {
-                const parsedProperties = filteredPropertiesInDivision.split(',')
-
-                if (parsedProperties.includes(ticket.property.id)) {
-                    for (const division of divisions) {
-                        const dProperties = division.properties.map(p => p.id)
-
-                        // console.log('dProperties.sort(), parsedProperties.sort()', dProperties.sort(), parsedProperties.sort())
-
-                        if (isEqual(dProperties.sort(), parsedProperties.sort())) {
-                            resDivisions.push(division.name)
-                        }
-                    }
-                }
-            }
-
-            return resDivisions.join(', ')
-        } },
-        { name: 'clientPhone', label: 'Телефон', getFilteredValue: (ticket) => ticket.clientPhone, getTooltipValue: (ticket) => ticket.clientPhone },
-        { name: 'assignee', label: 'Ответственный', getFilteredValue: (ticket) => ticket.assignee.id, getTooltipValue: (ticket) => ticket.assignee.name },
-        { name: 'executor', label: 'Исполнитель', getFilteredValue: (ticket) => ticket.executor.id, getTooltipValue: (ticket) => ticket.executor.name },
-        { name: 'createdBy', label: 'Автор', getFilteredValue: (ticket) => ticket.createdBy.id, getTooltipValue: (ticket) => ticket.createdBy.name },
-    ]
-
-    const handleRowAction = useCallback((record, rowIndex) => {
+    const handleRowAction = useCallback((record) => {
         return {
             onClick: async () => {
                 await router.push(`/ticket/${record.id}/`)
             },
             onMouseEnter: () => {
-                console.log('isMouseEnter onRow')
                 setHoveredTicket(record)
-                setHoveredTicketIndex(rowIndex)
             },
             onMouseLeave: () => {
                 setHoveredTicket(null)
-                setHoveredTicketIndex(null)
             },
         }
     }, [router])
@@ -172,21 +126,22 @@ export const TicketsPageContent = ({
     const [paid, handlePaidChange] = usePaidSearch<IFilters>(loading)
     const isNoTicketsData = !tickets.length && isEmpty(filters) && !loading
 
+    const tooltipData = useFiltersTooltipData()
+
     const tableComponents = useMemo(() => ({
         body: {
             row: (props) => (
                 <FiltersTooltip
                     filters={filters}
-                    fieldsOutOfTable={fieldsOutOfTable}
+                    fieldsOutOfTable={tooltipData}
                     rowObject={hoveredTicket}
                     pageObjects={tickets}
                     total={total}
-                    hoveredTicketIndex={hoveredTicketIndex}
                     {...props}
                 />
             ),
         },
-    }), [fieldsOutOfTable, filters, hoveredTicket, hoveredTicketIndex, tickets, total])
+    }), [tooltipData, filters, hoveredTicket, tickets, total])
 
     return (
         <>
