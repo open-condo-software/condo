@@ -449,10 +449,10 @@ async function makePayerAndPayments (receiptsAmount = 1) {
  * @return {Promise<{doneMultiPayment: ({data: *, errors: *}|*)}>}
  */
 async function completeTestPayment(residentClient, integrationClient, serviceConsumerId, receiptId, extra = {}) {
-    const registerMultiPaymentPayload = {
+    const registerMultiPaymentPayload = [{
         consumerId: serviceConsumerId,
         receiptsIds: receiptId,
-    }
+    }]
     const [ { multiPaymentId } ] = await registerMultiPaymentByTestClient(residentClient, registerMultiPaymentPayload)
 
     // Acquiring integration makes payment and multiPayment done
