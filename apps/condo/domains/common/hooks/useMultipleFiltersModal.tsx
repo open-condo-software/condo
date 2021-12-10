@@ -32,6 +32,7 @@ import { FILTER_TABLE_KEYS, FiltersStorage } from '../utils/FiltersStorage'
 import { Tooltip } from '../components/Tooltip'
 import { colors } from '../constants/style'
 import isEmpty from 'lodash/isEmpty'
+import { useOrganization } from '@core/next/organization'
 
 enum FilterComponentSize {
     Medium = 12,
@@ -290,12 +291,13 @@ const ResetFiltersModalButton: React.FC<ResetFiltersModalButtonProps> = ({
     const intl = useIntl()
     const ClearAllFiltersMessage = intl.formatMessage({ id: 'ClearAllFilters' })
     const router = useRouter()
+    const { organization } = useOrganization()
 
     const handleReset = useCallback(async () => {
         await updateQuery(router, {})
 
         if (filterTableKey) {
-            FiltersStorage.clearFilters(filterTableKey)
+            FiltersStorage.clearFilters(organization.id, filterTableKey)
         }
 
         if (isFunction(handleResetFromProps)) {
@@ -339,6 +341,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
 
     const router = useRouter()
     const { filters } = parseQuery(router.query)
+    const { organization } = useOrganization()
 
     const handleReset = useCallback(async () => {
         const keys = Object.keys(form.getFieldsValue())
@@ -357,7 +360,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         setIsMultipleFiltersModalVisible(false)
 
         if (filterTableKey) {
-            FiltersStorage.saveFilters(filterTableKey, newFilters)
+            FiltersStorage.saveFilters(organization.id, filterTableKey, newFilters)
         }
     }, [filterTableKey, filters, router, setIsMultipleFiltersModalVisible])
 
