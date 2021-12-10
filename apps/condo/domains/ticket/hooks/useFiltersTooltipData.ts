@@ -6,8 +6,10 @@ import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
 import { useIntl } from '@core/next/intl'
 import get from 'lodash/get'
+import { Ticket } from '../../../schema'
+import { FiltersTooltipDataObject } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 
-export const useFiltersTooltipData = () => {
+export function useFiltersTooltipData (): FiltersTooltipDataObject<Ticket>[] {
     const intl = useIntl()
     const SourceMessage = intl.formatMessage({ id: 'field.Source' })
     const DivisionMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.Division' })
