@@ -582,7 +582,7 @@ describe('MultiPayment', () => {
                 integrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
                 const [obj] = await registerMultiPaymentByTestClient(client, [
-                    { consumerId: serviceConsumer.id, receiptsIds: [billingReceipts[0].id] },
+                    { consumerId: serviceConsumer.id, receipts: [{ id: billingReceipts[0].id }] },
                 ], { sender: client.userAttrs.sender })
                 registerMPResult = obj
             })
