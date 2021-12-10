@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
-import { Col, Row, Typography, Input, Select, InputNumber, Space, Dropdown, Menu, RowProps, DropDownProps, notification } from 'antd'
+import { Col, Row, Typography, Input, Select, InputNumber, Space, Dropdown, Menu, RowProps, DropDownProps, notification, Radio } from 'antd'
 import { css, jsx } from '@emotion/core'
 import styled from '@emotion/styled'
 import { fontSizes, colors, shadows } from '@condo/domains/common/constants/style'
@@ -88,6 +88,40 @@ const DropdownCss = css`
   & span:last-child {
     margin-left: 28px;
   }
+`
+
+const RadioGroupCss = css`
+  padding: 4px;
+  background-color: #E6E8F1;
+  height: 48px;
+  border-radius: 4px;
+
+  & label.ant-radio-button-wrapper {
+    background-color: #E6E8F1;
+    height: 40px;
+    border: none;
+    border-radius: 4px;
+    box-shadow: none;
+    line-height: 44px;
+  }
+  & label.ant-radio-button-wrapper.ant-radio-button-wrapper-checked {
+    background-color: ${colors.white};
+    color: ${colors.black};
+    border-color: transparent;
+  }
+  & .ant-radio-button-wrapper-checked::before,
+  & .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover::before {
+    background-color: #E6E8F1;
+  }
+  & .ant-radio-button-wrapper:hover {
+    color: ${colors.black};
+  }
+  & .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover {
+    color: ${colors.black};
+    background-color: ${colors.white};
+    border-color: transparent;
+  }
+  
 `
 
 const MenuCss = css`
@@ -210,6 +244,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const AddUnit = intl.formatMessage({ id: 'pages.condo.property.select.option.unit' })
     const AddFloor = intl.formatMessage({ id: 'pages.condo.property.select.option.floor' })
     const AddParkingLabel = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
+    const ResidentialBuildingTitle = intl.formatMessage({ id: 'pages.condo.property.select.option.residentialBuilding' })
     const AddInterFloorRoom = intl.formatMessage({ id: 'pages.condo.property.select.option.interfloorroom' })
     const AddParkingFloor = intl.formatMessage({ id: 'pages.condo.property.select.option.parkingFloor' })
     const AddParkingPlace = intl.formatMessage({ id: 'pages.condo.property.select.option.parkingPlace' })
@@ -349,6 +384,8 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
             </Menu.Item>
         </Menu>
     ), [menuClick])
+
+    const showViewModeCheckBox = !isEmpty(mapEdit.sections) && !isEmpty(mapEdit.parking)
 
     const showViewModeSelect = !mapEdit.isEmptySections && !mapEdit.isEmptyParking
     const showSectionFilter = mapEdit.viewMode === MapViewMode.section && sections.length >= MIN_SECTIONS_TO_SHOW_FILTER
