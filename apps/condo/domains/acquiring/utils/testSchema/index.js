@@ -31,6 +31,10 @@ const { Payment: PaymentGQL } = require('@condo/domains/acquiring/gql')
 
 const dayjs = require('dayjs')
 const Big = require('big.js')
+const { MULTIPAYMENT_DONE_STATUS } = require(
+    '@condo/domains/acquiring/constants/payment')
+const { PAYMENT_DONE_STATUS } = require(
+    '@condo/domains/acquiring/constants/payment')
 const { REGISTER_MULTI_PAYMENT_MUTATION } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -430,6 +434,47 @@ async function makePayerAndPayments (receiptsAmount = 1) {
     }
 }
 
+/**
+ * Handles simplified payment case: 1 MultiPayment 1 Receipt 1 Payment
+ * As a resident pay for single billing receipt with specified <amount>,
+ * As an integrationClient complete payment
+ *
+ * Currently working with fees is not implemented
+ *
+ * @param {Object} residentClient
+ * @param {Object} integrationClient
+ * @param {string} serviceConsumerId
+ * @param {string} receiptId
+ * @param {Object} extra
+ * @return {Promise<{doneMultiPayment: ({data: *, errors: *}|*)}>}
+ */
+async function completeTestPayment(residentClient, integrationClient, serviceConsumerId, receiptId, extra = {}) {
+    const registerMultiPaymentPayload = {
+        consumerId: serviceConsumerId,
+        receiptsIds: receiptId,
+    }
+    const [ { multiPaymentId } ] = await registerMultiPaymentByTestClient(residentClient, registerMultiPaymentPayload)
+
+    // Acquiring integration makes payment and multiPayment done
+    const [ multiPayment ] = await MultiPayment.getAll(integrationClient, { id: multiPaymentId })
+    await updateTestPayment(integrationClient, multiPayment.payments[0].id, {
+        explicitFee: '0.0',
+        advancedAt: dayjs().toISOString(),
+        status: PAYMENT_DONE_STATUS,
+    })
+    const multiPaymentDonePayload = {
+        explicitFee: '0.0',
+        withdrawnAt: dayjs().toISOString(),
+        cardNumber: getRandomHiddenCard(),
+        paymentWay: 'CARD',
+        transactionId: faker.datatype.uuid(),
+        status: MULTIPAYMENT_DONE_STATUS,
+    }
+    const [ doneMultiPayment ] = await updateTestMultiPayment(integrationClient, multiPayment.id, multiPaymentDonePayload)
+
+    return { doneMultiPayment }
+}
+
 module.exports = {
     AcquiringIntegration, createTestAcquiringIntegration, updateTestAcquiringIntegration,
     AcquiringIntegrationAccessRight, createTestAcquiringIntegrationAccessRight, updateTestAcquiringIntegrationAccessRight,
@@ -443,6 +488,7 @@ module.exports = {
     makePayerAndPayments,
     getRandomHiddenCard,
     registerMultiPaymentByTestClient,
-    makePayerWithMultipleConsumers
+    makePayerWithMultipleConsumers,
+    completeTestPayment
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
