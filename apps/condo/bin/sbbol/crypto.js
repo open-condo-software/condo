@@ -59,7 +59,7 @@ const getAccessTokenFor = async (hashOrgId) => {
         logger.error({
             message: 'Failed to obtain organization access token from SBBOL',
             error: e.message,
-            hashOrgId: SBBOL_FINTECH_CONFIG.service_organization_hashOrgId,
+            hashOrgId: hashOrgId,
         })
         return null
     }
