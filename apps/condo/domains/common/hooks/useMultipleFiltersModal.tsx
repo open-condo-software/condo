@@ -132,7 +132,7 @@ const DATE_RANGE_PICKER_STYLE: CSSProperties = { width: '100%' }
 const TAGS_SELECT_STYLE: CSSProperties = { width: '100%' }
 const TAGS_SELECT_DROPDOWN_STYLE = { display: 'none' }
 
-export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string, component: FilterComponentType, form: FormInstance, filterTableKey: FILTER_TABLE_KEYS, label: string): React.ReactElement => {
+export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string, component: FilterComponentType, form: FormInstance): React.ReactElement => {
     const type = get(component, 'type')
     const props = {
         // It is necessary so that dropdowns do not go along with the screen when scrolling the modal window
@@ -230,7 +230,7 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
     }
 }
 
-function getModalComponents <T> (filters: IFilters, filterMetas: Array<FiltersMeta<T>>, form: FormInstance, filterTableKey): React.ReactElement[] {
+function getModalComponents <T> (filters: IFilters, filterMetas: Array<FiltersMeta<T>>, form: FormInstance): React.ReactElement[] {
     return filterMetas.map(filterMeta => {
         const { keyword, component } = filterMeta
 
@@ -248,7 +248,7 @@ function getModalComponents <T> (filters: IFilters, filterMetas: Array<FiltersMe
             Component = isFunction(componentGetter) ? componentGetter(form) : componentGetter
         }
         else
-            Component = getModalFilterComponentByMeta(filters, keyword, component, form, filterTableKey, label)
+            Component = getModalFilterComponentByMeta(filters, keyword, component, form)
 
         const queryToValueProcessor = getQueryToValueProcessorByType(type)
 
@@ -390,7 +390,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
 
                     return (
                         <Row justify={'space-between'} gutter={FILTER_WRAPPERS_GUTTER} id={FILTERS_POPUP_CONTAINER_ID}>
-                            {getModalComponents(filters, filterMetas, form, filterTableKey)}
+                            {getModalComponents(filters, filterMetas, form)}
                         </Row>
                     )
                 }
