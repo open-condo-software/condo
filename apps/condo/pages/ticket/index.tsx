@@ -2,6 +2,7 @@
 import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import isEqual from 'lodash/isEqual'
 import { Checkbox, Col, Input, Row, Typography } from 'antd'
 import { FilterFilled } from '@ant-design/icons'
 import { Gutter } from 'antd/lib/grid/row'
@@ -37,6 +38,7 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { FILTER_TABLE_KEYS, FiltersStorage } from '../../domains/common/utils/FiltersStorage'
+import { Division } from '../../domains/division/utils/clientSchema'
 import { useWarrantySearch } from '@condo/domains/ticket/hooks/useWarrantySearch'
 
 interface ITicketIndexPage extends React.FC {
@@ -104,9 +106,43 @@ export const TicketsPageContent = ({
     const [hoveredTicket, setHoveredTicket] = useState()
     const [hoveredTicketIndex, setHoveredTicketIndex] = useState()
 
+    const { organization } = useOrganization()
+    const { objs: divisions } = Division.useObjects({
+        organization: { id: organization.id },
+    })
+
+    const filteredPropertiesInDivisions = filters['division']//?.map(queryDivision => queryDivision.split(',')).flat(1)
+
     const fieldsOutOfTable = [
         { name: 'source', label: 'Источник', getFilteredValue: (ticket) => ticket.source.id, getTooltipValue: (ticket) => ticket.source.name },
-        // { name: 'division', label: 'Участок', getFilteredValue: (ticket) => ticket.division.id, getTooltipValue: (ticket) => ticket.division.name },
+        { name: 'division', label: 'Участок', getFilteredValue: (ticket) => {
+            for (const d of filteredPropertiesInDivisions) {
+                const parsedProperties = d.split(',')
+                if (parsedProperties.includes(ticket.property.id))
+                    return d
+            }
+        },
+        getTooltipValue: (ticket) => {
+            const resDivisions = []
+
+            for (const filteredPropertiesInDivision of filteredPropertiesInDivisions) {
+                const parsedProperties = filteredPropertiesInDivision.split(',')
+
+                if (parsedProperties.includes(ticket.property.id)) {
+                    for (const division of divisions) {
+                        const dProperties = division.properties.map(p => p.id)
+
+                        // console.log('dProperties.sort(), parsedProperties.sort()', dProperties.sort(), parsedProperties.sort())
+
+                        if (isEqual(dProperties.sort(), parsedProperties.sort())) {
+                            resDivisions.push(division.name)
+                        }
+                    }
+                }
+            }
+
+            return resDivisions.join(', ')
+        } },
         { name: 'clientPhone', label: 'Телефон', getFilteredValue: (ticket) => ticket.clientPhone, getTooltipValue: (ticket) => ticket.clientPhone },
         { name: 'assignee', label: 'Ответственный', getFilteredValue: (ticket) => ticket.assignee.id, getTooltipValue: (ticket) => ticket.assignee.name },
         { name: 'executor', label: 'Исполнитель', getFilteredValue: (ticket) => ticket.executor.id, getTooltipValue: (ticket) => ticket.executor.name },
