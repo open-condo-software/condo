@@ -515,9 +515,10 @@ async function makeClientWithPropertyAndBilling({ billingIntegrationContextArgs,
 
     client.billingIntegration = integration
     client.billingIntegrationContext = context
+    client.billingProperty = property
     client.billingAccount = account
 
-    return client
+    return { organizationClient: client, integrationClient: integrationClient }
 }
 
 module.exports = {
