@@ -1,5 +1,5 @@
 import { SizeType } from 'antd/lib/config-provider/SizeContext'
-import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Form from 'antd/lib/form'
 import { Checkbox, Col, FormInstance, Input, Row, Select, Typography } from 'antd'
 import { useRouter } from 'next/router'
@@ -55,10 +55,9 @@ type FiltersTooltipProps = {
     rowObject
     pageObjects
     total
-    hoveredTicketIndex
 }
 
-export const FiltersTooltip: React.FC<FiltersTooltipProps> = ({ hoveredTicketIndex, total, pageObjects, filters, fieldsOutOfTable, rowObject, ...otherProps }) => {
+export const FiltersTooltip: React.FC<FiltersTooltipProps> = ({ total, pageObjects, filters, fieldsOutOfTable, rowObject, ...otherProps }) => {
     const filteredFieldsOutOfTable = rowObject && fieldsOutOfTable.filter(({ name, getFilteredValue }) => {
         return !isEmpty(filters[name]) && filters[name].includes(getFilteredValue(rowObject))
     })
@@ -78,62 +77,23 @@ export const FiltersTooltip: React.FC<FiltersTooltipProps> = ({ hoveredTicketInd
         )
     }, [filteredFieldsOutOfTable, rowObject])
 
-    // console.log('rowObject && filteredFieldsOutOfTable.length > 0', rowObject && filteredFieldsOutOfTable.length > 0)
-
-    // console.log(otherProps)
-
-    // const handleMouseEnter = (e) => {
-    //     if (isFunction(onMouseEnter)) {
-    //         onMouseEnter(e)
-    //     }
-    //
-    //     setIsTooltipVisible(true)
-    // }
-    //
-    // const handleMouseLeave = (e) => {
-    //     if (isFunction(onMouseLeave)) {
-    //         onMouseLeave(e)
-    //     }
-    //
-    //     setIsTooltipVisible(false)
-    // }
-
     const [isTooltipVisible, setIsTooltipVisible] = useState<boolean>(false)
-
-    // console.log('onMouseEnter', otherProps?.onMouseEnter)
-
-    console.log('isTooltipVisible', isTooltipVisible)
-
-    useEffect(() => {
-        if (isTooltipVisible && isFunction(otherProps?.onMouseEnter))
-            otherProps?.onMouseEnter()
-        else if (!isTooltipVisible && isFunction(otherProps?.onMouseLeave))
-            otherProps?.onMouseLeave()
-    }, [isTooltipVisible, otherProps])
 
     return (
         <>
             <Tooltip
                 visible={isTooltipVisible}
-                title={'123'}
+                title={TooltipOptions}
                 color={colors.black}
             >
                 <tr
                     {...otherProps}
-                    onMouseEnter={(e) => {
+                    onMouseMove={() => {
                         setIsTooltipVisible(true)
-
-                        // if (isFunction(otherProps?.onMouseEnter)) {
-                        //     otherProps?.onMouseEnter()
-                        // }
                     }}
 
-                    onMouseLeave={(e) => {
+                    onMouseLeave={() => {
                         setIsTooltipVisible(false)
-
-                        // if (isFunction(otherProps?.onMouseLeave)) {
-                        //     otherProps?.onMouseLeave()
-                        // }
                     }}
                 />
             </Tooltip>
