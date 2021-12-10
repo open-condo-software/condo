@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
@@ -40,7 +40,7 @@ import { TablePageContent } from '@condo/domains/common/components/containers/Ba
 import { FILTER_TABLE_KEYS, FiltersStorage } from '../../domains/common/utils/FiltersStorage'
 import { Division } from '../../domains/division/utils/clientSchema'
 import { useWarrantySearch } from '@condo/domains/ticket/hooks/useWarrantySearch'
-import { useFiltersTooltipData } from '../../domains/ticket/hooks/useFiltersTooltipData'
+import { useFiltersTooltipData } from '@condo/domains/ticket/hooks/useFiltersTooltipData'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
