@@ -22778,9 +22778,13 @@ export type RegisterMultiPaymentOutput = {
   feeCalculationUrl: Scalars['String'];
 };
 
+export type RegisterMultiPaymentReceiptInfoInput = {
+  id: Scalars['String'];
+};
+
 export type RegisterMultiPaymentServiceConsumerInput = {
   consumerId: Scalars['String'];
-  receiptsIds: Array<Scalars['String']>;
+  receipts: Array<RegisterMultiPaymentReceiptInfoInput>;
 };
 
 export type RegisterNewOrganizationInput = {
@@ -22910,6 +22914,7 @@ export type ResidentBillingReceiptOutput = {
   toPayDetails?: Maybe<BillingReceiptToPayDetailsField>;
   services?: Maybe<Array<BillingReceiptServiceField>>;
   serviceConsumer: ServiceConsumer;
+  currencyCode: Scalars['String'];
 };
 
 export type ResidentBillingReceiptWhereInput = {
