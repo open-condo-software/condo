@@ -98,7 +98,7 @@ const salesCRMRequestLogger = pino({ name: 'sales_crm', enabled: falsey(process.
 
 async function pushOrganizationToSalesCRM (organization) {
     if (!SALES_CRM_ORGANIZATIONS_WEBHOOK_URL) {
-        return salesCRMRequestLogger.warn('SALES_CRM_ORGANIZATIONS_WEBHOOK_URL not specified correctly in config')
+        return
     }
     const { tin, name: orgName, createdBy } = organization
     const fingerprint = get(organization, ['sender', 'fingerprint'])
@@ -113,14 +113,14 @@ async function pushOrganizationToSalesCRM (organization) {
             fromSbbol: fingerprint === SBBOL_FINGERPRINT_NAME,
         })
     }
-    catch (e) {
-        salesCRMRequestLogger.warn('Request to sales crm failed', e)
+    catch (error) {
+        salesCRMRequestLogger.warn({ message: 'Request to sales crm failed', error })
     }
 }
 
 async function pushSubscriptionActivationToSalesCRM (payerInn, startAt, finishAt, isTrial) {
     if (!SALES_CRM_SUBSCRIPTIONS_WEBHOOK_URL) {
-        return salesCRMRequestLogger.warn('SALES_CRM_SUBSCRIPTIONS_WEBHOOK_URL not specified correctly in config')
+        return
     }
     try {
         await axios.post(SALES_CRM_SUBSCRIPTIONS_WEBHOOK_URL, {
@@ -130,8 +130,8 @@ async function pushSubscriptionActivationToSalesCRM (payerInn, startAt, finishAt
             isTrial,
         })
     }
-    catch (e) {
-        salesCRMRequestLogger.warn('Request to sales crm failed', e)
+    catch (error) {
+        salesCRMRequestLogger.warn({ message: 'Request to sales crm failed', error })
     }
 }
 
