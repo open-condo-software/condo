@@ -133,9 +133,8 @@ export const TicketsPageContent = ({
             row: (props) => (
                 <FiltersTooltip
                     filters={filters}
-                    fieldsOutOfTable={tooltipData}
+                    tooltipData={tooltipData}
                     rowObject={hoveredTicket}
-                    pageObjects={tickets}
                     total={total}
                     {...props}
                 />
