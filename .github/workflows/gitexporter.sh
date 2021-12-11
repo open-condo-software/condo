@@ -1,20 +1,22 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
-export TARGET=git@github.com:open-condo-software/open-condo-platform.git
-export SOURCE=git@github.com:open-condo-software/condo.git
+if [[ -z "$1" || -z "$2" ]]; then
+  echo "use $0 <source-git-repo> <target-git-repo>"
+  exit 2
+fi
 
-SOURCE_FOLDER=ignore.gitexporter.source
-TARGET_FOLDER=ignore.gitexporter.target
+SOURCE_FOLDER=$1
+TARGET_FOLDER=$2
 
 echo "[SOURCE/CLONE/PULL]"
-if [ -d ${SOURCE_FOLDER} ]; then git -C ${SOURCE_FOLDER} pull origin master; else git clone ${SOURCE} ${SOURCE_FOLDER}; fi
+if [ -d ${SOURCE_FOLDER} ]; then git -C ${SOURCE_FOLDER} pull origin master; else echo "<source-git-repo> not found!: ${SOURCE_FOLDER}"; exit 3; fi
 echo "[SOURCE/STATS]"
 git -C ${SOURCE_FOLDER} rev-parse HEAD
 git -C ${SOURCE_FOLDER} status
 
 echo "[TARGET/CLONE/PULL]"
-if [ -d ${TARGET_FOLDER} ]; then git -C ${TARGET_FOLDER} pull origin master; else git clone ${TARGET} ${TARGET_FOLDER}; fi
+if [ -d ${TARGET_FOLDER} ]; then git -C ${TARGET_FOLDER} pull origin master; else echo "<target-git-repo> not found!: ${TARGET_FOLDER}"; exit 3; fi
 echo "[TARGET/STATS]"
 git -C ${TARGET_FOLDER} rev-parse HEAD
 git -C ${TARGET_FOLDER} status
