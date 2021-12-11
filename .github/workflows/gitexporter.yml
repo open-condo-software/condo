@@ -11,15 +11,10 @@ jobs:
     name: Gitexporter
     runs-on: self-hosted
     steps:
-      - name: Checkout target code
+      - name: Checkout
         uses: actions/checkout@v2
         with:
-          repository: 'open-condo-software/open-condo-platform'
-          fetch-depth: 0
-          submodules: recursive
           ssh-key: ${{ secrets.RUNNER_SSH_PRIVATE_KEY }}
-          path: ignore.gitexporter.target
-          ref: 'master'
       - name: Checkout source code
         uses: actions/checkout@v2
         with:
@@ -28,6 +23,15 @@ jobs:
           submodules: recursive
           ssh-key: ${{ secrets.RUNNER_SSH_PRIVATE_KEY }}
           path: ignore.gitexporter.source
+          ref: 'master'
+      - name: Checkout target code
+        uses: actions/checkout@v2
+        with:
+          repository: 'open-condo-software/open-condo-platform'
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.RUNNER_SSH_PRIVATE_KEY }}
+          path: ignore.gitexporter.target
           ref: 'master'
       - name: gitexporter.sh
         run: |
