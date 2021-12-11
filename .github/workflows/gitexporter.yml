@@ -4,7 +4,7 @@ on:
     - cron:  '10 */1 * * *'
   push:
     branches:
-      - 'gitexporter'
+      - 'master'
 
 jobs:
   gitexporter:
