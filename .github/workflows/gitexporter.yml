@@ -35,5 +35,7 @@ jobs:
           ref: 'master'
       - name: gitexporter.sh
         run: |
+          pwd
+          id
           ls -lah .github/workflows/
           bash .github/workflows/gitexporter.sh
