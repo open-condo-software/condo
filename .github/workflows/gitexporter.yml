@@ -1,0 +1,32 @@
+name: gitexporter
+on:
+  schedule:
+    - cron:  '10 */1 * * *'
+  push:
+    branches:
+      - 'gitexporter'
+
+jobs:
+  gitexporter:
+    name: Gitexporter
+    runs-on: self-hosted
+    steps:
+      - name: Checkout target code
+        uses: actions/checkout@v2
+        with:
+          repository: 'open-condo-software/open-condo-platform'
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.RUNNER_SSH_PRIVATE_KEY }}
+          path: ignore.gitexporter.target
+      - name: Checkout source code
+        uses: actions/checkout@v2
+        with:
+          repository: 'open-condo-software/condo'
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.RUNNER_SSH_PRIVATE_KEY }}
+          path: ignore.gitexporter.source
+      - name: Docker build and upload
+        run: |
+          ls -lah .
