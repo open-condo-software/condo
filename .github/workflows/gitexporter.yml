@@ -29,4 +29,5 @@ jobs:
           path: ignore.gitexporter.source
       - name: Docker build and upload
         run: |
-          ls -lah .
+          ls -lah
+          bash .github/workflows/gitexporter.sh
