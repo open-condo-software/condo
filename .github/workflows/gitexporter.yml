@@ -19,6 +19,7 @@ jobs:
           submodules: recursive
           ssh-key: ${{ secrets.RUNNER_SSH_PRIVATE_KEY }}
           path: ignore.gitexporter.target
+          ref: 'master'
       - name: Checkout source code
         uses: actions/checkout@v2
         with:
@@ -27,7 +28,8 @@ jobs:
           submodules: recursive
           ssh-key: ${{ secrets.RUNNER_SSH_PRIVATE_KEY }}
           path: ignore.gitexporter.source
-      - name: Docker build and upload
+          ref: 'master'
+      - name: gitexporter.sh
         run: |
-          ls -lah
+          ls -lah .github/workflows/
           bash .github/workflows/gitexporter.sh
