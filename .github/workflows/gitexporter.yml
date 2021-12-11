@@ -14,14 +14,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          ssh-key: ${{ secrets.RUNNER_SSH_PRIVATE_KEY }}
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
       - name: Checkout source code
         uses: actions/checkout@v2
         with:
           repository: 'open-condo-software/condo'
           fetch-depth: 0
           submodules: recursive
-          ssh-key: ${{ secrets.RUNNER_SSH_PRIVATE_KEY }}
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
           path: ignore.gitexporter.source
           ref: 'master'
       - name: Checkout target code
@@ -30,7 +30,7 @@ jobs:
           repository: 'open-condo-software/open-condo-platform'
           fetch-depth: 0
           submodules: recursive
-          ssh-key: ${{ secrets.RUNNER_SSH_PRIVATE_KEY }}
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
           path: ignore.gitexporter.target
           ref: 'master'
       - name: gitexporter.sh
