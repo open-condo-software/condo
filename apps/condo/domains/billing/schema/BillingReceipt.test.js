@@ -507,6 +507,16 @@ describe('BillingReceipt', () => {
                 toPayDetails: {
                     formula: 'calc+recalc',
                 },
+                recipient: {
+                    'name': 'WaterSolutions LLC',
+                    'tin': '11111111',
+                    'iec': '11111111',
+                    'bic': '11111111',
+                    'bankName': 'GreenBank',
+                    'bankAccount': '11111111111111111',
+                    'offsettingAccount': '1111111111111111',
+                    'territoryCode': '1111',
+                },
             }
             const [objUpdated] = await updateTestBillingReceipt(admin, obj.id, payload)
 
