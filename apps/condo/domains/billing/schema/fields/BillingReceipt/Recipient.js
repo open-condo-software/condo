@@ -5,6 +5,9 @@ const { Json } = require('@core/keystone/fields')
 
 const RecipientFields = {
     name: 'String',
+    bankName: 'String',
+    territoryCode: 'String',
+    offsettingAccount: 'String',
     tin: 'String!',
     iec: 'String!',
     bic: 'String!',
