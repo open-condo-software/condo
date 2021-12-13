@@ -406,7 +406,7 @@ describe('Payment', () => {
             })
             describe('Cannot update frozen fields', () => {
                 const relationFields = ['organization', 'context', 'multiPayment', 'receipt']
-                const valueFields = ['amount', 'currencyCode', 'period', 'accountNumber']
+                const valueFields = ['amount', 'currencyCode', 'period', 'accountNumber', 'recipientBic', 'recipientBankAccount']
                 // NOTE: Cannot transit from other statuses, so checking only this ones
                 const statuses = [PAYMENT_INIT_STATUS, PAYMENT_PROCESSING_STATUS]
                 describe('Value-fields', async () => {

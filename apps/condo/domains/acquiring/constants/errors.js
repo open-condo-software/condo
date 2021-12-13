@@ -32,6 +32,7 @@ const PAYMENT_FROZEN_FIELD_INCLUDED = '[payment:frozenFieldsIncluding] It is imp
 const PAYMENT_TOO_BIG_IMPLICIT_FEE = '[payment:implicitFee:tooBig] Implicit fee cannot be greater than amount'
 const PAYMENT_NO_PAIRED_CONTEXT = '[payment:receipts:noContext] Input is containing "receipt", but "context" was not provided'
 const PAYMENT_NO_SUPPORTED_CONTEXT = '[payment:context:integration:supportedBillings] Acquiring integration of specified context does not support billing of specified receipt'
+const PAYMENT_RECIPIENT_MISMATCH = '[payment:recipient:mismatch] Payment\'s recipient fields values does not match with receipt recipient fields'
 const MULTIPAYMENT_EMPTY_PAYMENTS = '[multiPayment:payments:empty] Cannot create multipayment without payments'
 const MULTIPAYMENT_TOO_BIG_IMPLICIT_FEE = '[multiPayment:implicitFee:tooBig] Implicit fee cannot be greater than amount (without explicit fee)'
 const MULTIPAYMENT_NO_RECEIPT_PAYMENTS = '[multiPayment:payments:noReceipt] Some of listed payments have no receipts.'
@@ -85,6 +86,7 @@ module.exports = {
     PAYMENT_NO_PAIRED_CONTEXT,
     PAYMENT_TOO_BIG_IMPLICIT_FEE,
     PAYMENT_NO_SUPPORTED_CONTEXT,
+    PAYMENT_RECIPIENT_MISMATCH,
     MULTIPAYMENT_EMPTY_PAYMENTS,
     MULTIPAYMENT_TOO_BIG_IMPLICIT_FEE,
     MULTIPAYMENT_NO_RECEIPT_PAYMENTS,
