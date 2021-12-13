@@ -29,6 +29,7 @@ const {
     PAYMENT_TOO_BIG_IMPLICIT_FEE,
     PAYMENT_NO_PAIRED_CONTEXT,
     PAYMENT_NO_SUPPORTED_CONTEXT,
+    PAYMENT_RECIPIENT_MISMATCH,
 } = require('@condo/domains/acquiring/constants/errors')
 const {
     PAYMENT_STATUSES,
@@ -171,6 +172,18 @@ const Payment = new GQLListSchema('Payment', {
             defaultValue: PAYMENT_INIT_STATUS,
         },
 
+        recipientBic: {
+            schemaDoc: 'Bic of recipient organization, used for matching payments with receipts in case of multiple receipts per account + address',
+            type: Text,
+            isRequired: true,
+        },
+
+        recipientBankAccount: {
+            schemaDoc: 'Bank account number of recipient organization, used for matching payments with receipts in case of multiple receipts per account + address',
+            type: Text,
+            isRequired: true,
+        },
+
         importId: IMPORT_ID_FIELD,
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
@@ -208,6 +221,10 @@ const Payment = new GQLListSchema('Payment', {
                     })
                     if (!acquiringContexts.length) {
                         return addValidationError(PAYMENT_NO_SUPPORTED_CONTEXT)
+                    }
+                    if (get(receipt, ['recipient', 'bic']) !== resolvedData['recipientBic']
+                        || get(receipt, ['recipient', 'bankAccount']) !== resolvedData['recipientBankAccount']) {
+                        return addValidationError(PAYMENT_RECIPIENT_MISMATCH)
                     }
                 }
             } else if (operation === 'update') {

@@ -265,6 +265,8 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                             frozenReceipt,
                             context: { connect: { id: acquiringContext.id } },
                             organization: { connect: { id: acquiringContext.organization } },
+                            recipientBic: receipt.recipient.bic,
+                            recipientBankAccount: receipt.recipient.bankAccount,
                         })
                         payments.push(payment)
                     }

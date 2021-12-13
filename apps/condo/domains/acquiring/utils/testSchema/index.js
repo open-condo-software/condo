@@ -260,6 +260,8 @@ async function createTestPayment (client, organization, receipt=null, context=nu
     if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const amount = receipt ? receipt.toPay : String(Math.round(Math.random() * 100000) / 100 + 100)
+    const recipientBic = get(receipt,  ['recipient', 'bic'], faker.datatype.number().toString())
+    const recipientBankAccount = get(receipt,  ['recipient', 'bankAccount'], faker.datatype.number().toString())
     const explicitFee = String(Math.floor(Math.random() * 100) / 2)
     const implicitFee = String(Math.floor(Math.random() * 100) / 2)
     const period = dayjs().format('YYYY-MM-01')
@@ -280,6 +282,8 @@ async function createTestPayment (client, organization, receipt=null, context=nu
         organization: { connect: { id: organization.id } },
         context: contextId ? { connect: {id: contextId} } : null,
         period,
+        recipientBic,
+        recipientBankAccount,
         ...extraAttrs,
     }
     const obj = await Payment.create(client, attrs)
