@@ -61,10 +61,10 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                 if (!organization) {
                     throw new Error(`${NOT_FOUND_ERROR}organization] Organization not found for this id`)
                 }
-                //TODO(zuch): Ask about wrong logic - resident unit name do not match billing account unitName
-                const unitName = get(resident, ['unitName'])
 
-                const paymentCategory = get(extra, ['paymentCategory'], null)
+                const unitName = get(resident, 'unitName', null)
+
+                const paymentCategory = get(extra, 'paymentCategory', null)
 
                 const attrs = {
                     dv,
