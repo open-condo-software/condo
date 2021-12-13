@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import React, { CSSProperties, useCallback, useEffect, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { Checkbox, Col, Input, Row, Typography } from 'antd'
@@ -82,9 +82,11 @@ export const TicketsPageContent = ({
             .then(() => setIsInitialFiltersApplied(true))
     }, [organization.id])
 
+    const memoizedFilters = useMemo(() => filters, [router.query])
+
     useEffect(() => {
         FiltersStorage.saveFilters(organization.id, FILTER_TABLE_KEYS.TICKET, filters)
-    }, [JSON.stringify(filters), organization.id])
+    }, [memoizedFilters, organization.id])
 
     searchTicketsQuery = { ...searchTicketsQuery, ...{ deletedAt: null } }
 
