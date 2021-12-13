@@ -1,13 +1,13 @@
 /** @jsx jsx */
 import React, { useRef, useEffect, useCallback } from 'react'
-import { Col, Row, Typography, RowProps } from 'antd'
+import { Col, Row, Typography, RowProps, Radio, RadioProps } from 'antd'
 import { FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
 import { jsx, css } from '@emotion/core'
 import styled from '@emotion/styled'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { fontSizes, colors } from '@condo/domains/common/constants/style'
+import { fontSizes, colors, gradients } from '@condo/domains/common/constants/style'
 import { Button } from '@condo/domains/common/components/Button'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
@@ -222,3 +222,62 @@ export const HintText = styled.div`
     color: ${colors.black} 
   }  
 `
+
+const BuildingViewModeSelectCss = css`
+  padding: 4px;
+  background-color: #E6E8F1;
+  height: 48px;
+  border-radius: 4px;
+
+  & label.ant-radio-button-wrapper {
+    background-color: #E6E8F1;
+    height: 40px;
+    border: none;
+    border-radius: 4px;
+    box-shadow: none;
+    line-height: 44px;
+  }
+  & label.ant-radio-button-wrapper.ant-radio-button-wrapper-checked {
+    background-color: ${colors.white};
+    color: ${colors.black};
+    border-color: transparent;
+  }
+  & .ant-radio-button-wrapper-checked::before,
+  & .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover::before {
+    background-color: #E6E8F1;
+  }
+  & .ant-radio-button-wrapper:hover {
+    color: ${gradients.sberActionGradient};
+  }
+  & .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover {
+    background-color: ${colors.white};
+    border-color: transparent;
+    color: ${colors.black}
+  }
+  & .ant-radio-button-wrapper:not(.ant-radio-button-wrapper-disabled):not(.ant-radio-button-wrapper-checked):hover span:not(.ant-radio-button) {
+    background: ${gradients.sberActionGradient};
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  & .ant-radio-button-wrapper.ant-radio-button-wrapper-disabled:not(.ant-radio-button-wrapper-checked) {
+    color: ${colors.textSecondary};
+  }
+`
+
+export const BuildingViewModeSelect: React.FC<RadioProps> = (props) => {
+    const intl = useIntl()
+    const AddParking = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
+    const ResidentialBuildingTitle = intl.formatMessage({ id: 'pages.condo.property.select.option.residentialBuilding' })
+
+    return (
+        <Radio.Group
+            {...props}
+            optionType={'button'}
+            buttonStyle={'solid'}
+            css={BuildingViewModeSelectCss}
+        >
+            <Radio.Button value={'section'}>{ResidentialBuildingTitle}</Radio.Button>
+            <Radio.Button value={'parking'}>{AddParking}</Radio.Button>
+        </Radio.Group>
+    )
+}
