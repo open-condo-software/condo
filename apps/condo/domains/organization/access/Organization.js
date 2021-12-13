@@ -21,10 +21,10 @@ async function canReadOrganizations ({ authentication: { item: user }, context }
         }
         const residentOrganizations = compact(residents.map(resident => get(resident, ['organization', 'id'])))
 
-        const residentsServiceConsumers = await ServiceConsumerServerUtils.getAll(context, { resident: { id_in: residents.map(resident => resident.id), deletedAt: null } })
-        const serviceConsumerOrganizations = residentsServiceConsumers.map(serviceConsumer => serviceConsumer.organization.id)
+        // const residentsServiceConsumers = await ServiceConsumerServerUtils.getAll(context, { resident: { id_in: residents.map(resident => resident.id), deletedAt: null } })
+        // const serviceConsumerOrganizations = residentsServiceConsumers.map(serviceConsumer => serviceConsumer.organization.id)
 
-        const organizations = [...residentOrganizations, ...serviceConsumerOrganizations]
+        const organizations = residentOrganizations
 
         if (organizations.length > 0) {
             return {
