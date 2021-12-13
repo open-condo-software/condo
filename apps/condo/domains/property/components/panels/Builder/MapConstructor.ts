@@ -185,7 +185,7 @@ class MapView extends Map {
             console.log('Invalid JSON for property:map', this.validationErrors)
         }
 
-        if (isObjectEmpty(this.map.sections) && !isObjectEmpty(this.map.parking)) this.viewMode = 'parking'
+        if (this.isEmptySections && !this.isEmptyParking) this.viewMode = 'parking'
     }
 
     get maxFloor (): number {
@@ -233,8 +233,16 @@ class MapView extends Map {
         return [...new Set(allIndexes)].sort((a, b) => b - a)
     }
 
+    get isEmptySections (): boolean {
+        return isObjectEmpty(this.map.sections)
+    }
+
+    get isEmptyParking (): boolean {
+        return isObjectEmpty(this.map.parking)
+    }
+
     get isEmpty (): boolean {
-        return isObjectEmpty(this.map.sections) && isObjectEmpty(this.map.parking)
+        return this.isEmptySections && this.isEmptyParking
     }
 
     public viewMode: MapViewMode = 'section'
@@ -310,6 +318,14 @@ class MapView extends Map {
         })
         return result
     }
+
+    protected restoreViewMode (): void {
+        if (this.isEmptySections && !this.isEmptyParking) {
+            this.viewMode = 'parking'
+            return
+        }
+        this.viewMode = 'section'
+    }
 }
 
 
@@ -349,6 +365,7 @@ class MapEdit extends MapView {
         switch (mode) {
             case 'addSection':
                 this.removePreviewUnit()
+                this.viewMode = 'section'
                 this.selectedUnit = null
                 this.selectedSection = null
                 break
@@ -358,6 +375,7 @@ class MapEdit extends MapView {
                 this.selectedUnit = null
                 break
             case 'addParking':
+                this.viewMode = 'parking'
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.selectedUnit = null
@@ -379,6 +397,7 @@ class MapEdit extends MapView {
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.removePreviewParking()
+                this.restoreViewMode()
                 this.mode = null
         }
         this.mode = mode

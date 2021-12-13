@@ -5,7 +5,7 @@ import { useRouter } from 'next/router'
 import { Col, Row, Typography, Input, Select, InputNumber, Space, Dropdown, Menu, RowProps, DropDownProps, notification, Radio } from 'antd'
 import { css, jsx } from '@emotion/core'
 import styled from '@emotion/styled'
-import { fontSizes, colors, shadows } from '@condo/domains/common/constants/style'
+import { fontSizes, colors, shadows, gradients } from '@condo/domains/common/constants/style'
 import { DeleteFilled, DownOutlined, CloseOutlined, QuestionCircleFilled } from '@ant-design/icons'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
@@ -15,7 +15,6 @@ import debounce from 'lodash/debounce'
 import isFunction from 'lodash/isFunction'
 import last from 'lodash/last'
 import { useHotkeys } from 'react-hotkeys-hook'
-import { transitions } from '@condo/domains/common/constants/style'
 import {
     EmptyBuildingBlock,
     EmptyFloor,
@@ -46,7 +45,7 @@ import {
     CeilIcon,
 } from '@condo/domains/common/components/icons/PropertyMapIcons'
 import { MIN_SECTIONS_TO_SHOW_FILTER } from '@condo/domains/property/constants/property'
-import { Tooltip } from '../../../../common/components/Tooltip'
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
 
 
 const { Option } = Select
@@ -87,13 +86,10 @@ const TopRowCss = css`
 `
 
 const DropdownCss = css`
-  height: 40px;
-  padding: 6px 14px;
+  padding: 12px 26px 12px 20px;
   
-  &.ant-dropdown-open .anticon-down,
-  &:hover .anticon-down {
-    transition: ${transitions.allDefault};
-    transform: rotate(180deg);
+  & span:last-child {
+    margin-left: 28px;
   }
 `
 
@@ -121,14 +117,21 @@ const RadioGroupCss = css`
     background-color: #E6E8F1;
   }
   & .ant-radio-button-wrapper:hover {
-    color: ${colors.black};
+    color: ${gradients.sberActionGradient};
   }
   & .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover {
-    color: ${colors.black};
     background-color: ${colors.white};
     border-color: transparent;
+    color: ${colors.black}
   }
-  
+  & .ant-radio-button-wrapper:not(.ant-radio-button-wrapper-disabled):not(.ant-radio-button-wrapper-checked):hover span:not(.ant-radio-button) {
+    background: ${gradients.sberActionGradient};
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  & .ant-radio-button-wrapper.ant-radio-button-wrapper-disabled:not(.ant-radio-button-wrapper-checked) {
+    color: ${colors.textSecondary};
+  }
 `
 
 const MenuCss = css`
@@ -180,6 +183,7 @@ const TopModal = styled.div<ITopModalProps>`
   padding: 20px;
   width: 315px;
   box-shadow: ${shadows.main};
+  z-index: 4;
   
   & .ant-row {
     width: 100%;
@@ -378,7 +382,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
         </Menu>
     ), [menuClick])
 
-    const showViewModeCheckBox = !isEmpty(mapEdit.sections) && !isEmpty(mapEdit.parking)
+    const showViewModeCheckBox = !mapEdit.isEmptySections && !mapEdit.isEmptyParking
 
     return (
         <FullscreenWrapper mode={'edit'} className='fullscreen'>
@@ -412,6 +416,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                                     optionType={'button'}
                                     buttonStyle={'solid'}
                                     css={RadioGroupCss}
+                                    disabled={mapEdit.editMode !== null}
                                 >
                                     <Radio.Button value={'section'}>{ResidentialBuildingTitle}</Radio.Button>
                                     <Radio.Button value={'parking'}>{AddParking}</Radio.Button>
@@ -424,7 +429,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                                 css={DropdownCss}
                                 mouseEnterDelay={0}
                             >
-                                <Button type='sberBlack'>{AddElementTitle}<DownOutlined /></Button>
+                                <Button type='sberBlack'>{AddElementTitle}<span>...</span></Button>
                             </Dropdown>
                         </Space>
                     </Col>
@@ -591,10 +596,10 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
                         >
                             {
                                 builder.viewMode === 'section'
-                                    ? !isEmpty(builder.sections) && (
+                                    ? !builder.isEmptySections && (
                                         <BuildingAxisY floors={builder.possibleChosenFloors} />
                                     )
-                                    : !isEmpty(builder.parking) && (
+                                    : !builder.isEmptyParking && (
                                         <BuildingAxisY floors={builder.possibleChosenParkingFloors} />
                                     )
                             }
@@ -640,11 +645,11 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
                                             </PropertyMapSection>
                                         )
                                     })
-                                    : builder.parking.map(section => {
+                                    : builder.parking.map(parkingSection => {
                                         return (
                                             <PropertyMapSection
-                                                key={section.id}
-                                                section={section}
+                                                key={parkingSection.id}
+                                                section={parkingSection}
                                                 builder={builder}
                                                 refresh={refresh}
                                                 scrollToForm={scrollToForm}
@@ -652,7 +657,7 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
                                             >
                                                 {
                                                     builder.possibleChosenParkingFloors.map(floorIndex => {
-                                                        const floorInfo = section.floors.find(floor => floor.index === floorIndex)
+                                                        const floorInfo = parkingSection.floors.find(floor => floor.index === floorIndex)
                                                         if (floorInfo && floorInfo.units.length) {
                                                             return (
                                                                 <PropertyMapFloor key={floorInfo.id}>
@@ -673,7 +678,7 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
                                                             )
                                                         } else {
                                                             return (
-                                                                <EmptyFloor key={`empty_${section.id}_${floorIndex}`} />
+                                                                <EmptyFloor key={`empty_${parkingSection.id}_${floorIndex}`} />
                                                             )
                                                         }
                                                     })
@@ -849,7 +854,7 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
             <Col span={24}>
-                <Select value={copyId} onSelect={setCopyId} disabled={builder.isEmpty}>
+                <Select value={copyId} onSelect={setCopyId} disabled={builder.isEmptySections}>
                     <Select.Option key={'create'} value={null}>{CreateNewLabel}</Select.Option>
                     {builder.map.sections.filter(section => !section.preview).map(section => (
                         <Select.Option
@@ -1162,7 +1167,7 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
             setMaxMinError((maxFloor < minFloor))
         }
         if (minFloor && maxFloor && unitsOnFloor && !maxMinError) {
-            if (!builder.isEmpty) {
+            if (!builder.isEmptyParking) {
                 name.current = Number(last(builder.parking).name) + 1
             }
 
@@ -1186,7 +1191,7 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
         resetForm()
     }
     const isSubmitDisabled = !(minFloor && maxFloor && unitsOnFloor && !maxMinError)
-    const isModeSelectDisabled = isEmpty(builder.sections)
+    const isModeSelectDisabled = builder.isEmptySections
 
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
