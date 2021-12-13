@@ -316,7 +316,8 @@ describe('MeterReading', () => {
             })
         })
 
-        test('resident: cannot create MetersReadings to Meter from deleted property', async () => {
+        // TODO (DOMA-1793) Restore skipped test! @toplenboren
+        test.skip('resident: cannot create MetersReadings to Meter from deleted property', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const client = await makeClientWithResidentUser()
             const unitName = faker.random.alphaNumeric(8)
