@@ -20,7 +20,7 @@ import {
     EmptyFloor,
     BuildingAxisY,
     BuildingChooseSections,
-    MapSectionContainer, HintText,
+    MapSectionContainer, HintText, BuildingViewModeSelect,
 } from './BuildingPanelCommon'
 import { Button } from '@condo/domains/common/components/Button'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
@@ -90,47 +90,6 @@ const DropdownCss = css`
   
   & span:last-child {
     margin-left: 28px;
-  }
-`
-
-const RadioGroupCss = css`
-  padding: 4px;
-  background-color: #E6E8F1;
-  height: 48px;
-  border-radius: 4px;
-
-  & label.ant-radio-button-wrapper {
-    background-color: #E6E8F1;
-    height: 40px;
-    border: none;
-    border-radius: 4px;
-    box-shadow: none;
-    line-height: 44px;
-  }
-  & label.ant-radio-button-wrapper.ant-radio-button-wrapper-checked {
-    background-color: ${colors.white};
-    color: ${colors.black};
-    border-color: transparent;
-  }
-  & .ant-radio-button-wrapper-checked::before,
-  & .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover::before {
-    background-color: #E6E8F1;
-  }
-  & .ant-radio-button-wrapper:hover {
-    color: ${gradients.sberActionGradient};
-  }
-  & .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover {
-    background-color: ${colors.white};
-    border-color: transparent;
-    color: ${colors.black}
-  }
-  & .ant-radio-button-wrapper:not(.ant-radio-button-wrapper-disabled):not(.ant-radio-button-wrapper-checked):hover span:not(.ant-radio-button) {
-    background: ${gradients.sberActionGradient};
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  & .ant-radio-button-wrapper.ant-radio-button-wrapper-disabled:not(.ant-radio-button-wrapper-checked) {
-    color: ${colors.textSecondary};
   }
 `
 
@@ -248,7 +207,6 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const AddUnit = intl.formatMessage({ id: 'pages.condo.property.select.option.unit' })
     const AddFloor = intl.formatMessage({ id: 'pages.condo.property.select.option.floor' })
     const AddParking = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
-    const ResidentialBuildingTitle = intl.formatMessage({ id: 'pages.condo.property.select.option.residentialBuilding' })
     const AddInterFloorRoom = intl.formatMessage({ id: 'pages.condo.property.select.option.interfloorroom' })
     const AddBasement = intl.formatMessage({ id: 'pages.condo.property.select.option.basement' })
     const AddCeil = intl.formatMessage({ id: 'pages.condo.property.select.option.ceil' })
@@ -382,7 +340,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
         </Menu>
     ), [menuClick])
 
-    const showViewModeCheckBox = !mapEdit.isEmptySections && !mapEdit.isEmptyParking
+    const showViewModeSelect = !mapEdit.isEmptySections && !mapEdit.isEmptyParking
 
     return (
         <FullscreenWrapper mode={'edit'} className='fullscreen'>
@@ -410,17 +368,12 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                     <Col flex={0}>
                         <Space size={20}>
                             {
-                                showViewModeCheckBox && (<Radio.Group
-                                    value={mapEdit.viewMode}
-                                    onChange={onViewModeChange}
-                                    optionType={'button'}
-                                    buttonStyle={'solid'}
-                                    css={RadioGroupCss}
-                                    disabled={mapEdit.editMode !== null}
-                                >
-                                    <Radio.Button value={'section'}>{ResidentialBuildingTitle}</Radio.Button>
-                                    <Radio.Button value={'parking'}>{AddParking}</Radio.Button>
-                                </Radio.Group>
+                                showViewModeSelect && (
+                                    <BuildingViewModeSelect
+                                        value={mapEdit.viewMode}
+                                        onChange={onViewModeChange}
+                                        disabled={mapEdit.editMode !== null}
+                                    />
                                 )
                             }
                             <Dropdown

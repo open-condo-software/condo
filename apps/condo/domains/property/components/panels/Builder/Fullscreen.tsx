@@ -29,12 +29,7 @@ export const FullscreenHeader = styled.div<{
     edit?: boolean
 }>`
     margin: -24px -24px 0;
-    padding: 0 24px 0 24px;
-    ${({ edit }) => (!edit ? `
-        display: none;
-        width: 100%;
-        padding-bottom: 12px;
-    ` : '')}
+    ${({ edit }) => `padding: ${edit ? '0 24px 0 24px' : '24px'};`}
 
     div.fullscreen & {
         background: ${colors.backgroundLightGrey};
