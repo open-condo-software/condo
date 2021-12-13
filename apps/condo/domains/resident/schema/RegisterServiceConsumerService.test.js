@@ -144,18 +144,20 @@ describe('RegisterServiceConsumerService', () => {
             residentId: resident.id,
             accountNumber: USER_ACCOUNT_NUMBER,
             organizationId: userClient.organization.id,
+            extra: { paymentCategory: 'Housing' },
         }
         const [ out ] = await registerServiceConsumerByTestClient(userClient, payload)
         const [ meter ] = await Meter.getAll(userClient)
 
         expect(out).toBeDefined()
+        expect(out.paymentCategory).toEqual('Housing')
         // TODO(zuch): Fix test
         //expect(out.residentBillingAccount.id).toEqual(billingAccountAttrs.id)
         //expect(out.residentOrganization.id).toEqual(userClient.organization.id)
         //expect(out.residentAcquiringIntegrationContext.id).toEqual(acquiringIntegrationContext.id)
         //expect(out.residentAcquiringIntegrationContext.integration).toEqual(acquiringIntegration.id)
-        //expect(meter).toBeDefined()
-        //expect(meter.number).toBeDefined()
+        expect(meter).toBeDefined()
+        expect(meter.number).toBeDefined()
     })
 
     it('creates serviceConsumer with billingAccount without Meters', async () => {

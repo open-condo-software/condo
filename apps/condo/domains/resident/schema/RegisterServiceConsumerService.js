@@ -33,7 +33,11 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
     types: [
         {
             access: true,
-            type: 'input RegisterServiceConsumerInput { dv: Int!, sender: SenderFieldInput!, residentId: ID!, accountNumber: String!, organizationId: ID! }',
+            type: 'input RegisterServiceConsumerInputExtra { paymentCategory: String }',  
+        },
+        {
+            access: true,
+            type: 'input RegisterServiceConsumerInput { dv: Int!, sender: SenderFieldInput!, residentId: ID!, accountNumber: String!, organizationId: ID!, extra: RegisterServiceConsumerInputExtra }',
         },
     ],
 
@@ -44,7 +48,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
             access: access.canRegisterServiceConsumer,
             schema: 'registerServiceConsumer(data: RegisterServiceConsumerInput!): ServiceConsumer',
             resolver: async (parent, args, context = {}) => {
-                const { data: { dv, sender, residentId, accountNumber, organizationId } } = args
+                const { data: { dv, sender, residentId, accountNumber, organizationId, extra } } = args
 
                 if (!accountNumber || accountNumber.length === 0) { throw new Error(`${REQUIRED_NO_VALUE_ERROR}accountNumber] Account number null or empty: ${accountNumber}`) }
 
@@ -60,12 +64,15 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                 //TODO(zuch): Ask about wrong logic - resident unit name do not match billing account unitName
                 const unitName = get(resident, ['unitName'])
 
+                const paymentCategory = get(extra, ['paymentCategory'], null)
+
                 const attrs = {
                     dv,
                     sender,
                     resident: { connect: { id: residentId } },
                     accountNumber: accountNumber,
                     organization: { connect: { id: organization.id } },
+                    paymentCategory: paymentCategory,
                 }
 
                 const [ billingIntegrationContext ] = await BillingIntegrationOrganizationContext.getAll(context, { organization: { id: organization.id, deletedAt: null }, deletedAt: null })
