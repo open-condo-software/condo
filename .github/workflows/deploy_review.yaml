@@ -22,7 +22,7 @@ jobs:
       - name: Set env for namespace
         run: echo "REVIEW_NAMESPACE=$(echo review-${GITHUB_REF##*/} | sed 's/\_/-/g')" >> $GITHUB_ENV
       - name: Set env url prefix
-        run: echo "REVIEW_URL_PREFIX=$(echo ${GITHUB_REF##*/} | sed 's/\_/-/g')" >> $GITHUB_ENV
+        run: echo "REVIEW_URL_PREFIX=$(echo ${GITHUB_REF##*/} | sed 's/\_/-/g' | cut -c -30)" >> $GITHUB_ENV
       - name: Converge
         uses: werf/actions/converge@v1.2
         with:
