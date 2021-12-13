@@ -30,7 +30,7 @@ describe('ServiceConsumer', () => {
             const [consumer] = await createTestServiceConsumer(adminClient, resident, userClient.organization, { billingAccount: { connect: { id: billingAccount.id } } })
 
             expect(consumer.resident.id).toEqual(resident.id)
-            expect(consumer.organization.id).toEqual(userClient.organization.id)
+            expect(consumer.residentOrganization.id).toEqual(userClient.organization.id)
             expect(consumer.billingAccount.id).toEqual(billingAccount.id)
         })
 
@@ -77,7 +77,7 @@ describe('ServiceConsumer', () => {
 
             expect(objs.length === 1).toBeTruthy()
             expect(objs[0].id).toBeDefined()
-            expect(objs[0].organization).toBeDefined()
+            expect(objs[0].residentOrganization).toBeDefined()
             expect(objs[0].resident).toBeDefined()
         })
 
@@ -90,7 +90,7 @@ describe('ServiceConsumer', () => {
             expect(objs.length === 1).toBeTruthy()
             expect(objs[0].id).toMatch(client.serviceConsumer.id)
             expect(objs[0].id).toBeDefined()
-            expect(objs[0].organization).toBeDefined()
+            expect(objs[0].residentOrganization).toBeDefined()
             expect(objs[0].resident).toBeDefined()
         })
 
