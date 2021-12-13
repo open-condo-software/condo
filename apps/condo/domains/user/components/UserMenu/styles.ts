@@ -5,11 +5,12 @@ export const ModalWrapper = styled.div`
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
+    padding: 20px 20px 0;
+    width: 100%;
     > button {
         margin-bottom: 12px;
         height: 60px;
         border-radius: 12px;
-        max-width: 335px;
         width: 100%;
     }
 `

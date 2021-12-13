@@ -29,9 +29,15 @@ const modalStyle: ComponentProps<typeof Modal>['style'] = {
     bottom: 0,
     pointerEvents: 'initial',
     top: 'initial',
+    transformOrigin: 'initial',
+    maxWidth: '100%',
 }
 
-const ModalView: React.FC = () => {
+type ModalViewProps = {
+    setShowModal: (state: boolean) => void 
+}
+
+const ModalView: React.FC<ModalViewProps> = ({ setShowModal }: ModalViewProps) => {
     const intl = useIntl()
     const SignOutMessage = intl.formatMessage({ id: 'SignOut' })
     const ProfileMessage = intl.formatMessage({ id: 'profile' })
@@ -39,12 +45,20 @@ const ModalView: React.FC = () => {
     const auth = useAuth()
     const router = useRouter()
 
-    const onUserIconClick = useCallback(() => router.push('/user'), [])
+    const onProfileItemClick = useCallback(() => {
+        setShowModal(false)
+        router.push('/user')
+    }, [router, setShowModal])
+
+    const onSignOutItemClick = useCallback(() => {
+        setShowModal(false)
+        auth.signout()
+    }, [auth, setShowModal])
 
     return (
         <ModalWrapper>
-            <Button color={colors.white} onClick={onUserIconClick}>{ProfileMessage}</Button>
-            <Button color={colors.white} onClick={auth.signout}>{SignOutMessage}</Button>
+            <Button color={colors.white} onClick={onProfileItemClick}>{ProfileMessage}</Button>
+            <Button color={colors.white} onClick={onSignOutItemClick}>{SignOutMessage}</Button>
         </ModalWrapper>
     )
 }
@@ -58,7 +72,7 @@ export const MobileUserMenu: React.FC = () => {
 
     const [showModal, setShowModal] = useState(false)
 
-    const hideModal = useCallback(() => setShowModal(false), [])
+    const modalView = useCallback(() => <ModalView setShowModal={setShowModal} />, [setShowModal])
 
     return (
         auth.isAuthenticated
@@ -71,11 +85,12 @@ export const MobileUserMenu: React.FC = () => {
                         onClick={() => setShowModal(true)} 
                     />
                     <Modal 
+                        transitionName=""
                         centered 
-                        onCancel={hideModal} 
                         visible={showModal} 
-                        modalRender={ModalView} 
+                        modalRender={modalView} 
                         style={modalStyle} 
+                        onCancel={()=> setShowModal(false)} 
                     />
                 </>
             )
