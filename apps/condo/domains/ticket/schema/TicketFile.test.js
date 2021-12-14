@@ -93,6 +93,21 @@ describe('TicketFile', () => {
                 await TicketFile.delete(userClient, ticketFileCreated.id)
             })
         })
+
+        it('deleted TicketFile is not received in allTicketFiles', async () => {
+            const client = await makeClientWithTicket()
+            const [ticketFile, attrs] = await createTestTicketFile(client, client.organization, client.ticket)
+            const objs = await TicketFile.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
+
+            expect(objs).toHaveLength(1)
+            expect(objs[0].id).toMatch(ticketFile.id)
+
+            await TicketFile.softDelete(client, ticketFile.id)
+
+            const objs1 = await TicketFile.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
+            expect(objs1).toHaveLength(0)
+        })
+
     })
 
     describe('Anonymous', () => {
