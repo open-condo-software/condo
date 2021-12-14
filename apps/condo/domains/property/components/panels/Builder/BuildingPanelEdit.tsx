@@ -455,7 +455,7 @@ const CHESS_SCROLL_CONTAINER_STYLE: React.CSSProperties = {
     width: '100%',
     overflowY: 'hidden',
 }
-const SCROLL_CONTAINER_EDIT_PADDING = '330px'
+const SCROLL_CONTAINER_EDIT_PADDING = '315px'
 const MENU_COVER_MAP_WIDTH = 800
 
 const ChessBoard: React.FC<IChessBoardProps> = (props) => {
@@ -477,7 +477,16 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
                 const shouldAddPadding = get(builder.getSelectedSection(), 'index') === builder.lastSectionIndex
 
                 if (shouldAddPadding) container.current.style.paddingRight = SCROLL_CONTAINER_EDIT_PADDING
-            } else if (builder.editMode === 'addUnit' || builder.editMode === 'editUnit') {
+            } else if (builder.editMode === 'addUnit') {
+                const lastSectionUnitIds = last(builder.sections).floors
+                    .flatMap(floor => floor.units.map(unit => unit.id))
+
+                if (lastSectionUnitIds.includes(String(builder.previewUnitId))) {
+                    container.current.style.paddingRight = SCROLL_CONTAINER_EDIT_PADDING
+                } else {
+                    container.current.style.paddingRight = '0px'
+                }
+            } else if (builder.editMode === 'editUnit') {
                 // Last case when user want to add or edit unit only at the last section
                 const shouldAddPadding = get(builder.getSelectedUnit(), 'sectionIndex') === builder.lastSectionIndex
 

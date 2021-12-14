@@ -18,7 +18,7 @@ const buttonCss = css`
     text-align: center;
     height: 44px;
     width: 44px;
-    padding: 0 8px;
+    padding: 0;
     box-shadow: none;
     
     &:last-child {
