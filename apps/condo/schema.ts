@@ -5926,6 +5926,9 @@ export type BillingReceiptsCreateInput = {
 export type BillingReceiptsRecipientField = {
   __typename?: 'BillingReceiptsRecipientField';
   name?: Maybe<Scalars['String']>;
+  bankName?: Maybe<Scalars['String']>;
+  territoryCode?: Maybe<Scalars['String']>;
+  offsettingAccount?: Maybe<Scalars['String']>;
   tin: Scalars['String'];
   iec: Scalars['String'];
   bic: Scalars['String'];
@@ -5934,6 +5937,9 @@ export type BillingReceiptsRecipientField = {
 
 export type BillingReceiptsRecipientFieldInput = {
   name?: Maybe<Scalars['String']>;
+  bankName?: Maybe<Scalars['String']>;
+  territoryCode?: Maybe<Scalars['String']>;
+  offsettingAccount?: Maybe<Scalars['String']>;
   tin: Scalars['String'];
   iec: Scalars['String'];
   bic: Scalars['String'];
@@ -22908,6 +22914,11 @@ export type RegisterServiceConsumerInput = {
   residentId: Scalars['ID'];
   accountNumber: Scalars['String'];
   organizationId: Scalars['ID'];
+  extra?: Maybe<RegisterServiceConsumerInputExtra>;
+};
+
+export type RegisterServiceConsumerInputExtra = {
+  paymentCategory?: Maybe<Scalars['String']>;
 };
 
 export type ResendConfirmPhoneActionSmsInput = {
