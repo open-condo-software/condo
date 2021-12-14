@@ -1077,7 +1077,10 @@ interface IAddParkingFormProps {
     builder: MapEdit
     refresh(): void
 }
-type CreateParkingMode = 'single' | 'asfloor'
+enum CreateParkingMode {
+    single,
+    asFloor,
+}
 const TEXT_BUTTON_STYLE: React.CSSProperties = { cursor: 'pointer' }
 
 const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) => {
@@ -1091,12 +1094,14 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
     const ParkingHintText = intl.formatMessage({ id: 'pages.condo.property.parking.form.hint.text' })
     const ShowMinFloor = intl.formatMessage({ id: 'pages.condo.property.parking.form.showMinFloor' })
     const HideMinFloor = intl.formatMessage({ id: 'pages.condo.property.parking.form.hideMinFloor' })
+    const FloorNumberTitle = intl.formatMessage({ id: 'field.Floor' })
     const AddLabel = intl.formatMessage({ id: 'Add' })
 
     const [minFloor, setMinFloor] = useState<number>(1)
     const [maxFloor, setMaxFloor] = useState<number | null>(null)
+    const [floorNumber, setFloorNumber] = useState<number | null>(null)
     const [unitsOnFloor, setUnitsOnFloor] = useState(null)
-    const [createMode, setCreateMode] = useState<CreateParkingMode>('single')
+    const [createMode, setCreateMode] = useState<CreateParkingMode>(CreateParkingMode.single)
     const [maxMinError, setMaxMinError] = useState(false)
     const [minFloorHidden, setMinFloorHidden] = useState<boolean>(true)
     const name = useRef<number>(1)
@@ -1107,6 +1112,7 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
     }, [minFloorHidden])
     const setMinFloorValue = useCallback((value) => { setMinFloor(value) }, [])
     const setMaxFloorValue = useCallback((value) => { setMaxFloor(value) }, [])
+    const setFloorNumberValue = useCallback((value) => {setFloorNumber(value)}, [])
 
     const resetForm = () => {
         setMinFloor(null)
@@ -1115,25 +1121,35 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
     }
 
     useEffect(() => {
-        if (minFloor && maxFloor) {
-            setMaxMinError((maxFloor < minFloor))
-        }
-        if (minFloor && maxFloor && unitsOnFloor && !maxMinError) {
-            if (!builder.isEmptyParking) {
-                name.current = Number(last(builder.parking).name) + 1
+        if (createMode === CreateParkingMode.single) {
+            if (minFloor && maxFloor) {
+                setMaxMinError((maxFloor < minFloor))
             }
+            if (minFloor && maxFloor && unitsOnFloor && !maxMinError) {
+                if (!builder.isEmptyParking) {
+                    name.current = Number(last(builder.parking).name) + 1
+                }
 
-            builder.addPreviewParking({
-                id: '',
-                name: String(name.current),
-                minFloor,
-                maxFloor,
-                unitsOnFloor,
-            })
-            refresh()
-        } else {
-            builder.removePreviewParking()
+                builder.addPreviewParking({
+                    id: '',
+                    name: String(name.current),
+                    minFloor,
+                    maxFloor,
+                    unitsOnFloor,
+                })
+                refresh()
+            } else {
+                builder.removePreviewParking()
+            }
         }
+        if (createMode === CreateParkingMode.asFloor) {
+            if (floorNumber && unitsOnFloor) {
+                // TODO (@sitozzz): add parking floor logic
+            } else {
+                builder.removePreviewParking()
+            }
+        }
+
     }, [minFloor, maxFloor, unitsOnFloor])
 
     const handleFinish = () => {
@@ -1149,33 +1165,67 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
             <Col span={24}>
                 <Select value={createMode} onSelect={setCreateMode} disabled={isModeSelectDisabled}>
-                    <Select.Option key={'single'} value={'single'}>{SingleMode}</Select.Option>
-                    <Select.Option key={'asfloor'} value={'asfloor'}>{AsFloorMode}</Select.Option>
+                    <Select.Option key={'single'} value={CreateParkingMode.single}>{SingleMode}</Select.Option>
+                    <Select.Option key={'asFloor'} value={CreateParkingMode.asFloor}>{AsFloorMode}</Select.Option>
                 </Select>
                 <Tooltip title={ParkingHintText}>
                     <HintText><QuestionCircleFilled /> {ParkingHintTitle}</HintText>
                 </Tooltip>
             </Col>
-            <Col span={24}>
-                <Space
-                    direction={'vertical'}
-                    size={8}
-                    className={maxMinError ? 'ant-form-item-has-error' : ''}
-                    hidden={minFloorHidden}
-                >
-                    <Typography.Text type={'secondary'}>{MinFloorLabel}</Typography.Text>
-                    <InputNumber value={minFloor} onChange={setMinFloorValue} style={INPUT_STYLE} type={'number'}/>
-                </Space>
-                <Typography.Text onClick={toggleMinFloorVisible} style={TEXT_BUTTON_STYLE}>
-                    {minFloorHidden ? ShowMinFloor : HideMinFloor} <DownOutlined />
-                </Typography.Text>
-            </Col>
-            <Col span={24}>
-                <Space direction={'vertical'} size={8} className={maxMinError ? 'ant-form-item-has-error' : ''}>
-                    <Typography.Text type={'secondary'}>{FloorCountLabel}</Typography.Text>
-                    <InputNumber value={maxFloor} onChange={setMaxFloorValue} style={INPUT_STYLE} type={'number'} />
-                </Space>
-            </Col>
+            {
+                createMode === CreateParkingMode.single && (
+                    <>
+                        <Col span={24}>
+                            <Space
+                                direction={'vertical'}
+                                size={8}
+                                className={maxMinError ? 'ant-form-item-has-error' : ''}
+                                hidden={minFloorHidden}
+                            >
+                                <Typography.Text type={'secondary'}>{MinFloorLabel}</Typography.Text>
+                                <InputNumber
+                                    value={minFloor}
+                                    onChange={setMinFloorValue}
+                                    style={INPUT_STYLE}
+                                    type={'number'}
+                                />
+                            </Space>
+                            <Typography.Text onClick={toggleMinFloorVisible} style={TEXT_BUTTON_STYLE}>
+                                {minFloorHidden ? ShowMinFloor : HideMinFloor} <DownOutlined />
+                            </Typography.Text>
+                        </Col>
+                        <Col span={24}>
+                            <Space direction={'vertical'} size={8} className={maxMinError ? 'ant-form-item-has-error' : ''}>
+                                <Typography.Text type={'secondary'}>{FloorCountLabel}</Typography.Text>
+                                <InputNumber
+                                    value={maxFloor}
+                                    onChange={setMaxFloorValue}
+                                    style={INPUT_STYLE}
+                                    type={'number'}
+                                />
+                            </Space>
+                        </Col>
+                    </>
+                )
+            }
+            {
+                createMode === CreateParkingMode.asFloor && (
+                    <Col span={24}>
+                        <Space
+                            direction={'vertical'}
+                            size={8}
+                        >
+                            <Typography.Text type={'secondary'}>{FloorNumberTitle}</Typography.Text>
+                            <InputNumber
+                                value={floorNumber}
+                                onChange={setFloorNumberValue}
+                                style={INPUT_STYLE}
+                                type={'number'}
+                            />
+                        </Space>
+                    </Col>
+                )
+            }
             <Col span={24}>
                 <Space direction={'vertical'} size={8}>
                     <Typography.Text type={'secondary'}>{ParkingOnFloorLabel}</Typography.Text>
