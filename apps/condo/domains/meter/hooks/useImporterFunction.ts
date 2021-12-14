@@ -202,9 +202,15 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             organization: String(userOrganizationId),
             meter: meterId,
             source: IMPORT_CONDO_METER_READING_SOURCE_ID,
+            // GraphQL input requirements for decimal and date field type should be passed as strings.
+            // It conflicts with typing system, so they are marked to be ignored by TypeScript
+            // @ts-ignore
             value1,
+            // @ts-ignore
             value2,
+            // @ts-ignore
             value3,
+            // @ts-ignore
             value4,
             // @ts-ignore
             date: controlReadingsDate,
