@@ -1,7 +1,8 @@
 import isEqual from 'lodash/isEqual'
 import cloneDeep from 'lodash/cloneDeep'
+import dayjs from 'dayjs'
 
-export type TableRow = Array<Record<'value', string | number>>
+export type TableRow = Array<Record<'value', string | number | Date>>
 export type ProcessedRow = {
     row: TableRow
     addons?: { [id: string]: any }
@@ -32,9 +33,13 @@ interface IImporter {
     break: () => void
 }
 
+type ColumnType = 'string' | 'number' | 'date'
+
+const DATE_PARSING_FORMAT = 'DD.MM.YYYY'
+
 export interface ColumnInfo {
     name: string
-    type: 'string' | 'number'
+    type: ColumnType
     required: boolean
     label: string
 }
@@ -71,7 +76,7 @@ export class Importer implements IImporter {
     private successProcessingHandler: SuccessProcessingHandler
     private failProcessingHandler: FailProcessingHandler
     private readonly columnsNames: Array<string>
-    private readonly columnsTypes: Array<'string' | 'number'>
+    private readonly columnsTypes: Array<ColumnType>
     private readonly columnsRequired: Array<boolean>
 
     public import (data: Array<TableRow>): Promise<void> {
@@ -137,6 +142,8 @@ export class Importer implements IImporter {
             }
             if (typeof row[i].value === 'number' && this.columnsTypes[i] === 'string') {
                 row[i].value = String(row[i].value)
+            } else if (typeof row[i].value === 'string' && this.columnsTypes[i] === 'date') {
+                row[i].value = dayjs(row[i].value, DATE_PARSING_FORMAT).toDate()
             } else if (typeof row[i].value !== 'undefined' && typeof row[i].value !== this.columnsTypes[i]) {
                 return false
             }
@@ -158,6 +165,7 @@ export class Importer implements IImporter {
         }
     }
 
+    // TODO: remove `index`, it is not used
     private async createRecord (table, index = 0) {
         if (this.breakImport) {
             return Promise.resolve()
