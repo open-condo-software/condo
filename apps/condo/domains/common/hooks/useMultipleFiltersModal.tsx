@@ -267,8 +267,6 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const router = useRouter()
     const { filters } = parseQuery(router.query)
 
-    const { organization } = useOrganization()
-
     const handleReset = useCallback(async () => {
         const keys = Object.keys(form.getFieldsValue())
         const emptyFields = keys.reduce((acc, key) => {

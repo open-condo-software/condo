@@ -27,7 +27,7 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
     const FullNameMessage = intl.formatMessage({ id: 'field.FullName.short' })
     const ContactMessage = intl.formatMessage({ id: 'Contact' })
     const ChooseServiceMessage = intl.formatMessage({ id: 'pages.condo.meter.ChooseService' })
-    const ServiceMessage = intl.formatMessage({ id: 'pages.condo.meter.Service' })
+    const ServiceMessage = intl.formatMessage({ id: 'pages.condo.meter.Resource' })
     const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
     const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
     const MeterReadingDateMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReadingDate' })
