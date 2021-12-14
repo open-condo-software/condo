@@ -134,9 +134,9 @@ export const getTableCellRenderer: TTableCellRendererFN = (
  * @param search
  * @param text
  */
-export const renderCellWithHighlightedContents = (search?: FilterValue | string, text?: string) => (
-    <EmptyTableCell>{getHighlightedContents(search)(text)}</EmptyTableCell>
-)
+export const renderCellWithHighlightedContents = (search?: FilterValue | string, text?: string) => {
+    return <EmptyTableCell>{getHighlightedContents(search)(text)}</EmptyTableCell>
+}
 
 const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
 

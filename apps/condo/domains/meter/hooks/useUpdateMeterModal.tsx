@@ -45,8 +45,9 @@ export const useUpdateMeterModal = (refetch) => {
                 cancelModal={() => setSelectedMeter(null)}
                 ModalSaveButtonLabelMsg={'Сохранить'}
                 centered
+                meter={selectedMeter}
                 modalProps={{
-                    width: 570,
+                    width: 600,
                 }}
             />
         )
