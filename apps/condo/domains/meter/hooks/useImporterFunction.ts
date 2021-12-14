@@ -1,49 +1,58 @@
-import { Columns, ObjectCreator, RowNormalizer, RowValidator } from '@condo/domains/common/utils/importer'
+import { Columns, ObjectCreator, ProcessedRow, RowNormalizer, RowValidator } from '@condo/domains/common/utils/importer'
 import { useOrganization } from '@core/next/organization'
 import { useApolloClient } from '@core/next/apollo'
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import get from 'lodash/get'
-import { MeterReading } from '../utils/clientSchema'
-import { searchProperty, searchContacts } from '@condo/domains/ticket/utils/clientSchema/search'
+import map from 'lodash/map'
+import { Meter, MeterReading } from '../utils/clientSchema'
+import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 import { useIntl } from '@core/next/intl'
-
-const { normalizePhone } = require('@condo/domains/common/utils/phone')
-const { normalizeEmail } = require('@condo/domains/common/utils/mail')
-
-const SPLIT_PATTERN = /[,;.]+/g
-
-const parsePhones = (phones: string) => {
-    const clearedPhones = phones.replace(/[^0-9+,;.]/g, '')
-    const splitPhones = clearedPhones.split(SPLIT_PATTERN)
-    return splitPhones.map(phone => {
-        if (phone.startsWith('8')) {
-            phone = '+7' + phone.substring(1)
-        }
-        return normalizePhone(phone)
-    })
-}
+import { searchMeter } from '../utils/clientSchema/search'
+import { SortMetersBy } from '../../../schema'
+import {
+    COLD_WATER_METER_RESOURCE_ID,
+    ELECTRICITY_METER_RESOURCE_ID,
+    GAS_SUPPLY_METER_RESOURCE_ID,
+    HEAT_SUPPLY_METER_RESOURCE_ID,
+    HOT_WATER_METER_RESOURCE_ID,
+    IMPORT_CONDO_METER_READING_SOURCE_ID,
+} from '../constants/constants'
+import dayjs from 'dayjs'
 
 export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, ObjectCreator] => {
     const intl = useIntl()
 
+    // TODO: change to 'common.import' namespace
     const IncorrectRowFormatMessage = intl.formatMessage({ id: 'errors.import.IncorrectRowFormat' })
     const AddressNotFoundMessage = intl.formatMessage({ id: 'errors.import.AddressNotFound' })
     const PropertyNotFoundMessage = intl.formatMessage({ id: 'errors.import.PropertyNotFound' })
-    const IncorrectContactNameMessage = intl.formatMessage({ id: 'errors.import.IncorrectContactName' })
-    const IncorrectUnitNameMessage = intl.formatMessage({ id: 'errors.import.EmptyUnitName' })
-    const IncorrectEmailMessage = intl.formatMessage({ id: 'errors.import.IncorrectEmailFormat' })
-    const IncorrectPhonesMessage = intl.formatMessage({ id: 'errors.import.IncorrectPhonesFormat' })
 
-    const AddressTitle = intl.formatMessage({ id: 'field.Address' })
-    const UnitTitle = intl.formatMessage({ id: 'field.Unit' })
-    const AccountNumberMessage = intl.formatMessage({ id: 'field.AccountNumberShort' })
-    const MeterReadingDateMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReading' })
-    const MeterPlaceMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterPlace' })
-    const MeterNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterNumber' })
-    const TariffsNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.TariffsNumber' })
-    const MeterReadingMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReading' })
+    // A separate translation namespace is used to make import feature independent on other
+    // to avoid sudden regressed changes of column names when many clients will already use provided spreadsheet
+    const AddressColumnMessage = intl.formatMessage({ id: 'meter.import.column.address' })
+    const UnitNameColumnMessage = intl.formatMessage({ id: 'meter.import.column.unitName' })
+    const AccountNumberColumnMessage = intl.formatMessage({ id: 'meter.import.column.accountNumber' })
+    const MeterTypeColumnMessage = intl.formatMessage({ id: 'meter.import.column.meterType' })
+    const MeterNumberColumnMessage = intl.formatMessage({ id: 'meter.import.column.meterNumber' })
+    const MeterTariffsNumberColumnMessage = intl.formatMessage({ id: 'meter.import.column.meterTariffsNumber' })
+    const Value1ColumnMessage = intl.formatMessage({ id: 'meter.import.column.value1' })
+    const Value2ColumnMessage = intl.formatMessage({ id: 'meter.import.column.value2' })
+    const Value3ColumnMessage = intl.formatMessage({ id: 'meter.import.column.value3' })
+    const Value4ColumnMessage = intl.formatMessage({ id: 'meter.import.column.value4' })
+    const VerificationDateMessage = intl.formatMessage({ id: 'meter.import.column.VerificationDate' })
+    const NextVerificationDateMessage = intl.formatMessage({ id: 'meter.import.column.NextVerificationDate' })
+    const InstallationDateMessage = intl.formatMessage({ id: 'meter.import.column.InstallationDate' })
+    const CommissioningDateMessage = intl.formatMessage({ id: 'meter.import.column.CommissioningDate' })
+    const SealingDateMessage = intl.formatMessage({ id: 'meter.import.column.SealingDate' })
+    const ControlReadingsDate = intl.formatMessage({ id: 'meter.import.column.ControlReadingsDate' })
 
+    const MeterResourceNotFoundMessage = intl.formatMessage({ id: 'meter.import.error.MeterResourceNotFound' })
 
+    const HotWaterResourceTypeValue = intl.formatMessage({ id: 'meter.import.value.meterResourceType.hotWater' })
+    const ColdWaterResourceTypeValue = intl.formatMessage({ id: 'meter.import.value.meterResourceType.coldWater' })
+    const ElectricityResourceTypeValue = intl.formatMessage({ id: 'meter.import.value.meterResourceType.electricity' })
+    const HeatSupplyResourceTypeValue = intl.formatMessage({ id: 'meter.import.value.meterResourceType.heatSupply' })
+    const GasSupplyResourceTypeValue = intl.formatMessage({ id: 'meter.import.value.meterResourceType.gasSupply' })
 
     const userOrganization = useOrganization()
     const client = useApolloClient()
@@ -51,64 +60,94 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
-    const meterCreateAction = MeterReading.useCreate({},
+    const meterCreateAction = Meter.useCreate({},
+        () => Promise.resolve())
+
+    const meterReadingCreateAction = MeterReading.useCreate({},
         () => Promise.resolve())
 
     const columns: Columns = [
-        { name: 'Address', type: 'string', required: true, label: AddressTitle },
-        { name: 'Unit Name', type: 'string', required: true, label: UnitTitle },
-        { name: 'Account Number', type: 'string', required: true, label: AccountNumberMessage },
-        { name: 'Place', type: 'string', required: true, label: PlaceTitleMessage },
-        { name: 'Meter Number', type: 'string', required: true, label: PlaceTitleMessage },
-        { name: 'MeterReading Date', type: 'string', required: false, label: MeterReadingDateMessage },
+        { name: AddressColumnMessage, type: 'string', required: true, label: AddressColumnMessage },
+        { name: UnitNameColumnMessage, type: 'string', required: true, label: UnitNameColumnMessage },
+        { name: AccountNumberColumnMessage, type: 'string', required: true, label: AccountNumberColumnMessage },
+        { name: MeterTypeColumnMessage, type: 'string', required: true, label: MeterTypeColumnMessage },
+        { name: MeterNumberColumnMessage, type: 'string', required: true, label: MeterNumberColumnMessage },
+        { name: MeterTariffsNumberColumnMessage, type: 'string', required: true, label: MeterTariffsNumberColumnMessage },
+        { name: Value1ColumnMessage, type: 'string', required: false, label: Value1ColumnMessage },
+        { name: Value2ColumnMessage, type: 'string', required: false, label: Value2ColumnMessage },
+        { name: Value3ColumnMessage, type: 'string', required: false, label: Value3ColumnMessage },
+        { name: Value4ColumnMessage, type: 'string', required: false, label: Value4ColumnMessage },
+        { name: VerificationDateMessage, type: 'date', required: false, label: VerificationDateMessage },
+        { name: NextVerificationDateMessage, type: 'date', required: false, label: NextVerificationDateMessage },
+        { name: InstallationDateMessage, type: 'date', required: false, label: InstallationDateMessage },
+        { name: CommissioningDateMessage, type: 'date', required: false, label: CommissioningDateMessage },
+        { name: SealingDateMessage, type: 'date', required: false, label: SealingDateMessage },
+        { name: ControlReadingsDate, type: 'date', required: false, label: ControlReadingsDate },
     ]
 
-    const contactNormalizer: RowNormalizer = (row) => {
-        const addons = { address: null, property: null, phones: null, fullName: null, email: null }
+    const meterReadingNormalizer: RowNormalizer = async (row) => {
+        const addons = { address: null, propertyId: null, meterId: null, meterResourceId: null }
         if (row.length !== columns.length) return Promise.resolve({ row })
-        const [address, , phones, fullName, email] = row
-        email.value = email.value && String(email.value).trim().length ? String(email.value).trim() : undefined
-        return addressApi.getSuggestions(String(address.value)).then(result => {
-            const suggestion = get(result, ['suggestions', 0])
-            if (suggestion) {
-                addons.address = suggestion.value
-                const where = {
-                    address: suggestion.value,
-                    organization: { id: userOrganizationId },
-                }
-                return searchProperty(client, where, undefined).then((res) => {
-                    addons.property = res.length > 0 ? res[0].value : null
-                    addons.phones = parsePhones(String(phones.value))
-                    addons.fullName = String(get(fullName, 'value', '')).trim()
-                    addons.email = normalizeEmail(email.value)
-                    return { row, addons }
-                })
-            }
-            addons.phones = parsePhones(String(phones.value))
-            addons.fullName = String(get(fullName, 'value', '')).trim()
-            addons.email = normalizeEmail(email.value)
+        const [
+            address,
+            unitName,
+            accountNumber,
+            meterResourceTypeAbbr,
+            meterNumber,
+        ] = map(row, 'value')
+
+        // Current suggestion API provider returns no suggestions for address with flat number
+        const suggestionOptions = await addressApi.getSuggestions(String(address))
+        const suggestion = get(suggestionOptions, ['suggestions', 0])
+        if (!suggestion) {
             return { row, addons }
-        })
+        }
+        // Used tell whether suggestion API has found specified address at all
+        addons.address = suggestion.value
+
+        const propertyOptions = await searchProperty(client, {
+            organization: { id: userOrganizationId },
+            address: suggestion.value,
+        }, undefined)
+
+        const propertyId = propertyOptions.length > 0 ? get(propertyOptions[0], 'value') : null
+        if (!propertyId) {
+            return { row, addons }
+        }
+
+        addons.propertyId = propertyId
+
+        const searchMeterWhereConditions = {
+            organization: userOrganizationId,
+            property: propertyId,
+            unitName,
+            accountNumber,
+            number: meterNumber,
+        }
+
+        const meterOptions = await searchMeter(client, searchMeterWhereConditions, SortMetersBy.CreatedAtDesc)
+        addons.meterId = meterOptions.length > 0 ? meterOptions[0].value : null
+
+        const METER_RESOURCE_ABBREVIATION_TO_ID = {
+            [HotWaterResourceTypeValue]: HOT_WATER_METER_RESOURCE_ID,
+            [ColdWaterResourceTypeValue]: COLD_WATER_METER_RESOURCE_ID,
+            [ElectricityResourceTypeValue]: ELECTRICITY_METER_RESOURCE_ID,
+            [HeatSupplyResourceTypeValue]: HEAT_SUPPLY_METER_RESOURCE_ID,
+            [GasSupplyResourceTypeValue]: GAS_SUPPLY_METER_RESOURCE_ID,
+        }
+        addons.meterResourceId = METER_RESOURCE_ABBREVIATION_TO_ID[String(meterResourceTypeAbbr)]
+
+        return { row, addons }
     }
 
-    const contactValidator: RowValidator = (row) => {
+    const meterReadingValidator: RowValidator = (row) => {
         if (!row) return Promise.resolve(false)
         const errors = []
         if (!row.addons) errors.push(IncorrectRowFormatMessage)
         if (!get(row, ['addons', 'address'])) errors.push(AddressNotFoundMessage)
-        if (!get(row, ['addons', 'property'])) errors.push(PropertyNotFoundMessage)
-        if (!get(row, ['addons', 'fullName', 'length'])) errors.push(IncorrectContactNameMessage)
+        if (!get(row, ['addons', 'propertyId'])) errors.push(PropertyNotFoundMessage)
+        if (!get(row, ['addons', 'meterResourceId'])) errors.push(MeterResourceNotFoundMessage)
 
-        const rowEmail = get(row, ['row', '4', 'value'])
-        if (rowEmail && !get(row, ['addons', 'email'])) {
-            errors.push(IncorrectEmailMessage)
-        }
-
-        const unitName = get(row, ['row', '1', 'value'], '')
-        if (!unitName || String(unitName).trim().length === 0) errors.push(IncorrectUnitNameMessage)
-
-        const phones = get(row, ['addons', 'phones'], []).filter(Boolean)
-        if (!phones || phones.length === 0) errors.push(IncorrectPhonesMessage)
         if (errors.length) {
             row.errors = errors
             return Promise.resolve(false)
@@ -116,47 +155,61 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         return Promise.resolve(true)
     }
 
-    const contactCreator: ObjectCreator = (row) => {
+    const meterReadingCreator: ObjectCreator = async ({ row, addons }: ProcessedRow) => {
         if (!row) return Promise.resolve()
-        const unitName = String(get(row.row, ['1', 'value'])).trim().toLowerCase()
-        const contactPool = []
-        const splitPhones = String(row.row[2].value).split(SPLIT_PATTERN)
-        const inValidPhones = []
-        for (let i = 0; i < row.addons.phones.length; i++) {
-            const phone: string = row.addons.phones[i]
-            if (!phone && i < splitPhones.length) {
-                inValidPhones.push(splitPhones[i])
-                continue
-            }
-            contactPool.push(searchContacts(client, {
-                organizationId: userOrganizationId,
-                propertyId: row.addons.property,
-                unitName,
-                // @ts-ignore
-            }).then((result) => {
-                const { data, loading, error } = result
-                if (loading || error) return Promise.resolve()
-                const alreadyRegistered = data.objs.some(contact => {
-                    return contact.phone === phone && contact.name === row.addons.fullName
-                })
-                if (alreadyRegistered) return Promise.resolve()
-                return meterCreateAction({
-                    organization: String(userOrganizationId),
-                    property: String(row.addons.property),
-                    unitName,
-                    phone: phone,
-                    name: row.addons.fullName,
-                    email: row.addons.email,
-                })
-            }))
+        const [
+            address,
+            unitName,
+            accountNumber,
+            meterType,
+            meterNumber,
+            numberOfTariffs,
+            value1,
+            value2,
+            value3,
+            value4,
+            verificationDate,
+            nextVerificationDate,
+            installationDate,
+            commissioningDate,
+            sealingDate,
+            controlReadingsDate,
+        ] = map(row, 'value')
+
+        let meterId
+        if (addons.meterId) {
+            meterId = addons.meterId
+        } else {
+            const newMeter = await meterCreateAction({
+                organization: String(userOrganizationId),
+                property: String(addons.propertyId),
+                resource: addons.meterResourceId,
+                unitName: String(unitName),
+                accountNumber: String(accountNumber),
+                number: String(meterNumber),
+                numberOfTariffs: parseInt(String(numberOfTariffs)),
+                verificationDate: dayjs(verificationDate).toISOString(),
+                nextVerificationDate: dayjs(nextVerificationDate).toISOString(),
+                installationDate: dayjs(installationDate).toISOString(),
+                commissioningDate: dayjs(commissioningDate).toISOString(),
+                sealingDate: dayjs(sealingDate).toISOString(),
+                controlReadingsDate: dayjs(controlReadingsDate).toISOString(),
+            })
+            meterId = get(newMeter, 'id')
         }
-        return Promise.all(contactPool).then(() => {
-            if (inValidPhones.length > 0) {
-                row.row[2].value = inValidPhones.join('; ')
-                row.shouldBeReported = true
-            }
+
+        return meterReadingCreateAction({
+            organization: String(userOrganizationId),
+            meter: meterId,
+            source: IMPORT_CONDO_METER_READING_SOURCE_ID,
+            value1,
+            value2,
+            value3,
+            value4,
+            // @ts-ignore
+            date: controlReadingsDate,
         })
     }
 
-    return [columns, contactNormalizer, contactValidator, contactCreator]
+    return [columns, meterReadingNormalizer, meterReadingValidator, meterReadingCreator]
 }

@@ -7,7 +7,7 @@ import {
 } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { MeterReading } from '@condo/domains/meter/utils/clientSchema'
-import { FilterFilled } from '@ant-design/icons'
+import { DiffOutlined, FilterFilled } from '@ant-design/icons'
 import { useIntl } from '@core/next/intl'
 import { Col, Input, Row, Typography } from 'antd'
 import Head from 'next/head'
@@ -30,13 +30,15 @@ import { useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultiple
 import { useFilters } from '@condo/domains/meter/hooks/useFilters'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-// import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
+import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
+import { useImporterFunctions } from '../../domains/meter/hooks/useImporterFunction'
 
 export const MetersPageContent = ({
     searchMeterReadingsQuery,
     tableColumns,
     sortBy,
     filterMetas,
+    role,
 }) => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.meter.index.PageTitle' })
@@ -45,15 +47,20 @@ export const MetersPageContent = ({
     const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
+    const MeterReadingImportObjectsName = intl.formatMessage({ id: 'meter.import.MeterReading.objectsName.many' })
+    const MeterReadingImportObjectsNameManyGenitive = intl.formatMessage({ id: 'meter.import.MeterReading.objectsName.many.genitive' })
 
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
+    const canManageMeterReadings = get(role, 'canManageMeterReadings', false)
+
     const {
         loading,
         count: total,
         objs: meterReadings,
+        refetch,
     } = MeterReading.useObjects({
         sortBy,
         where: searchMeterReadingsQuery,
@@ -68,7 +75,7 @@ export const MetersPageContent = ({
     const { MeterInfoModal, setIsMeterInfoModalVisible } = useMeterInfoModal()
     const [ selectedMeterId, setSelectedMeterId ] = useState<string>()
     const { MultipleFiltersModal, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas)
-    // const [columns, contactNormalizer, contactValidator, contactCreator] = useImporterFunctions()
+    const [columns, meterReadingNormalizer, meterReadingValidator, meterReadingCreator] = useImporterFunctions()
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -111,17 +118,24 @@ export const MetersPageContent = ({
                                                 <Col>
                                                     <Row gutter={[10, 0]} align={'middle'} justify={'center'}>
                                                         <Col>
-                                                        Test
-                                                            {/* <ImportWrapper  
-                                                                accessCheck={false}
-                                                            > */}
-                                                            <Button
-                                                                type={'sberPrimary'}
-                                                                // icon={<DiffOutlined />}
-                                                                block
-                                                                secondary
-                                                            />
-                                                            {/* </ImportWrapper> */}
+                                                            <ImportWrapper
+                                                                objectsName={MeterReadingImportObjectsName}
+                                                                accessCheck={canManageMeterReadings}
+                                                                onFinish={refetch}
+                                                                columns={columns}
+                                                                rowNormalizer={meterReadingNormalizer}
+                                                                rowValidator={meterReadingValidator}
+                                                                objectCreator={meterReadingCreator}
+                                                                domainTranslate={MeterReadingImportObjectsNameManyGenitive}
+                                                                exampleTemplateLink={'/meter-import-example.xlsx'}
+                                                            >
+                                                                <Button
+                                                                    type={'sberPrimary'}
+                                                                    icon={<DiffOutlined />}
+                                                                    block
+                                                                    secondary
+                                                                />
+                                                            </ImportWrapper>
                                                         </Col>
                                                         <Col>
                                                             <Button
@@ -173,8 +187,9 @@ interface IMeterIndexPage extends React.FC {
 }
 
 const MetersPage: IMeterIndexPage = () => {
-    const userOrganization = useOrganization()
-    const userOrganizationId = get(userOrganization, ['organization', 'id'])
+    const { organization, link } = useOrganization()
+    const userOrganizationId = get(organization, 'id')
+    const role = get(link, 'role')
 
     const filterMetas = useFilters()
 
@@ -194,6 +209,7 @@ const MetersPage: IMeterIndexPage = () => {
             searchMeterReadingsQuery={searchMeterReadingsQuery}
             sortBy={sortersToSortBy(sorters) as SortMeterReadingsBy[]}
             filterMetas={filterMetas}
+            role={role}
         />
     )
 }
