@@ -37,8 +37,6 @@ export const LAYOUT = {
 }
 
 export const CreateMeterReadingsActionBar = ({
-    accountNumber,
-    existedMeters,
     handleSave,
     handleAddMeterButtonClick,
     isLoading,
@@ -50,12 +48,12 @@ export const CreateMeterReadingsActionBar = ({
     return (
         <Form.Item
             noStyle
-            dependencies={['property', 'newMeters']}
+            dependencies={['property']}
             shouldUpdate={(prev, next) => prev.unitName !== next.unitName}
         >
             {
                 ({ getFieldsValue }) => {
-                    const { newMeters, property } = getFieldsValue(['newMeters', 'property'])
+                    const { property } = getFieldsValue(['property'])
 
                     return (
                         <ActionBar>
@@ -65,14 +63,14 @@ export const CreateMeterReadingsActionBar = ({
                                     onClick={handleSave}
                                     type='sberPrimary'
                                     loading={isLoading}
-                                    disabled={(!newMeters && existedMeters.length === 0) || !property || !accountNumber}
+                                    disabled={!property}
                                 >
                                     {SendMetersReadingMessage}
                                 </Button>
                                 <Button
                                     onClick={handleAddMeterButtonClick}
                                     type='sberPrimary'
-                                    disabled={!property || !accountNumber}
+                                    disabled={!property}
                                     icon={<PlusCircleFilled/>}
                                     secondary
                                 >
@@ -87,54 +85,6 @@ export const CreateMeterReadingsActionBar = ({
         </Form.Item>
     )
 }
-
-const MetersDataTitle = ({ isNoExistingMetersInThisUnit, isNoNewMetersInThisUnit }) => {
-    const intl = useIntl()
-    const MeterDataTitle = intl.formatMessage({ id: 'pages.condo.meter.MeterDataTitle' })
-    const NoMetersMessage = intl.formatMessage({ id: 'pages.condo.meter.NoMeters' })
-    const AddMetersMessage = intl.formatMessage({ id: 'pages.condo.meter.AddMeters' })
-
-    return isNoExistingMetersInThisUnit && isNoNewMetersInThisUnit ? (
-        <>
-            <Typography.Title level={3}>
-                {NoMetersMessage}
-            </Typography.Title>
-            <Typography.Paragraph type='secondary'>
-                {AddMetersMessage}
-            </Typography.Paragraph>
-        </>
-    ) : (
-        <Typography.Title level={5}>
-            {MeterDataTitle}
-        </Typography.Title>
-    )
-}
-
-const ExistedMetersList = ({ existedMeters, resources, billingMeterReadings }) => (
-    <Form.List name={'existedMeters'}>
-        {(fields, operations) => {
-            return existedMeters.map((existedMeter) => {
-                const meter = convertToUIFormState(existedMeter)
-                const resource = resources.find(resource => resource.id === meter.resource)
-
-                const lastMeterBillingMeterReading = billingMeterReadings.find(
-                    meterReading => meterReading.meter.number === meter.number
-                )
-
-                return (
-                    <Col span={24} key={existedMeter.id}>
-                        <MeterCard
-                            meter={meter}
-                            resource={resource}
-                            name={meter.id}
-                            lastMeterBillingMeterReading={lastMeterBillingMeterReading}
-                        />
-                    </Col>
-                )
-            })
-        }}
-    </Form.List>
-)
 
 type IMeterValues = { value1: string, value2?: string, value3?: string, value4?: string }
 type ICreateMeterReadingsFormVariables = IMeterReadingFormState & {
@@ -153,21 +103,31 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const AccountNumberIsExistInOtherUnitMessage = intl.formatMessage({ id: 'pages.condo.meter.AccountNumberIsExistInOtherUnit' })
     const ClientInfoMessage = intl.formatMessage({ id: 'ClientInfo' })
 
-    const router = useRouter()
     const { requiredValidator } = useValidations()
-
     const validations = {
         property: [requiredValidator],
     }
 
-    const { CreateMeterModal, setIsCreateMeterModalVisible } = useCreateMeterModal()
-
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(null)
     const [selectedUnitName, setSelectedUnitName] = useState<string>(null)
-    const [meterFormListOperations, setMeterFormListOperations] = useState<FormListOperation | null>(null)
-    const [formFromState, setFormFromState] = useState<FormInstance | null>(null)
-    const [accountNumber, setAccountNumber] = useState<string>(null)
-    const [isAccountNumberIntroduced, setIsAccountNumberIntroduced] = useState<boolean>(false)
+    const selectPropertyIdRef = useRef(selectedPropertyId)
+    useEffect(() => {
+        selectPropertyIdRef.current = selectedPropertyId
+        setSelectedUnitName(null)
+    }, [selectedPropertyId])
+
+    const selectedUnitNameRef = useRef(selectedUnitName)
+    useEffect(() => {
+        selectedUnitNameRef.current = selectedUnitName
+        // formFromState && formFromState.setFieldsValue( { newMeters: null, existedMeters: null })
+    }, [selectedPropertyId, selectedUnitName])
+
+    const { objs: meters, refetch } = Meter.useObjects({
+        where: {
+            property: { id: selectPropertyIdRef.current },
+            unitName: selectedUnitNameRef.current,
+        },
+    })
 
     const { createContact, canCreateContact, ContactsEditorComponent } = useContactsEditorHook({
         organization: organization.id,
@@ -178,134 +138,87 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         where: { id: selectedPropertyId ? selectedPropertyId : null },
     })
 
-    const { objs: existedMeters, loading: existedMetersLoading, refetch: refetchExistedMeters } = Meter.useObjects({
-        where: {
-            property: { id: selectedPropertyId ? selectedPropertyId : null },
-            unitName: selectedUnitName ? selectedUnitName : null,
-        },
-    })
-
-    const { objs: billingMeterReadings } = BillingAccountMeterReading.useObjects({
-        where: {
-            account: { number: accountNumber },
-            context: {
-                organization: {
-                    id: organization.id,
-                },
-            },
-        },
-        sortBy: [SortBillingAccountMeterReadingsBy.CreatedAtDesc],
-    })
-
-    const { objs: resources, loading: resourcesLoading } = MeterResource.useObjects({})
-
-    const isNoExistedMetersInThisUnit = existedMeters.length === 0
-    const verticalGutter = accountNumber || isAccountNumberIntroduced ? 40 : 80
-
     useEffect(() => {
-        if (existedMeters.length > 0)
-            setAccountNumber(existedMeters[0].accountNumber)
-    }, [existedMetersLoading])
-
-    const selectPropertyIdRef = useRef(selectedPropertyId)
-    useEffect(() => {
-        selectPropertyIdRef.current = selectedPropertyId
-        setSelectedUnitName(null)
-    }, [selectedPropertyId])
-
-    const selectedUnitNameRef = useRef(selectedUnitName)
-    useEffect(() => {
-        selectedUnitNameRef.current = selectedUnitName
-        setAccountNumber(null)
-        formFromState && formFromState.setFieldsValue( { newMeters: null, existedMeters: null })
-        refetchExistedMeters()
-    }, [selectedPropertyId, selectedUnitName])
-
-    const accountNumberRef = useRef(accountNumber)
-    useEffect(() => {
-        accountNumberRef.current = accountNumber
-    }, [accountNumber])
+        refetch()
+    }, [selectedPropertyId, selectedUnitName, refetch])
 
     const canCreateContactRef = useRef(canCreateContact)
     useEffect(() => {
         canCreateContactRef.current = canCreateContact
     }, [canCreateContact])
 
-    useEffect(() => {
-        setIsAccountNumberIntroduced(false)
-    }, [selectedUnitName])
+    console.log('organization, property, selectedUnitName,', organization, property, selectedUnitName)
 
-    const createMeterAction = Meter.useCreate({}, () => {
-        return
-    })
+    const { CreateMeterModal, setIsCreateMeterModalVisible } = useCreateMeterModal(organization, property, selectedUnitName, refetch)
+
     const createMeterReadingAction = MeterReading.useCreate({
         source: CALL_METER_READING_SOURCE_ID,
     }, () => {
         return
     })
 
-    const action = useCallback(async (variables: ICreateMeterReadingsFormVariables) => {
-        let createdContact
-        if (role && role.canManageContacts && canCreateContactRef.current) {
-            createdContact = await createContact(organization.id, selectPropertyIdRef.current, selectedUnitNameRef.current)
-        }
-        const normalizeReading = (reading) => reading?.replace(',', '.')
-
-        const { property, accountNumber, newMeters, existedMeters, floorName, sectionName, unitName, ...clientInfo } = variables
-        const getNewMeterReadingVariables = (meterReading) => {
-            return {
-                organization: organization.id,
-                contact: get(createdContact, 'id') || variables.contact,
-                value1: normalizeReading(meterReading.value1),
-                value2: normalizeReading(meterReading.value2),
-                value3: normalizeReading(meterReading.value3),
-                value4: normalizeReading(meterReading.value4),
-                meter: meterReading.id,
-                date: new Date(),
-                ...clientInfo,
-            }
-        }
-
-        let existingMetersCreateActions = []
-        if (existedMeters) {
-            existingMetersCreateActions = Object.entries(existedMeters).map(([meterId, values]) => {
-                const { value1, value2, value3, value4 } = values
-                if (!value1 && ! value2 && !value3 && !value4) return
-
-                return createMeterReadingAction({
-                    ...getNewMeterReadingVariables({ id: meterId, ...values }),
-                })
-            })
-        }
-
-        let newMetersAndMeterReadingsCreateActions = []
-        if (newMeters && newMeters.length > 0) {
-            newMetersAndMeterReadingsCreateActions = newMeters.map(newMeterFromForm => {
-                const { value1, value2, value3, value4, ...newMeterData } = newMeterFromForm
-
-                return createMeterAction({
-                    ...newMeterData,
-                    organization: organization.id,
-                    property: property,
-                    numberOfTariffs: newMeterFromForm.numberOfTariffs ? newMeterFromForm.numberOfTariffs : 1,
-                    unitName,
-                    accountNumber,
-                })
-                    .then(
-                        newMeter => {
-                            if (!value1 && !value2 && !value3 && !value4) return
-
-                            return createMeterReadingAction({
-                                ...getNewMeterReadingVariables({ ...newMeterFromForm, id: newMeter.id }),
-                            })
-                        }
-                    )
-            })
-        }
-
-        await Promise.all([...existingMetersCreateActions, ...newMetersAndMeterReadingsCreateActions])
-        await router.push('/meter')
-    }, [])
+    // const action = useCallback(async (variables: ICreateMeterReadingsFormVariables) => {
+    //     let createdContact
+    //     if (role && role.canManageContacts && canCreateContactRef.current) {
+    //         createdContact = await createContact(organization.id, selectPropertyIdRef.current, selectedUnitNameRef.current)
+    //     }
+    //     const normalizeReading = (reading) => reading?.replace(',', '.')
+    //
+    //     const { property, accountNumber, newMeters, existedMeters, floorName, sectionName, unitName, ...clientInfo } = variables
+    //     const getNewMeterReadingVariables = (meterReading) => {
+    //         return {
+    //             organization: organization.id,
+    //             contact: get(createdContact, 'id') || variables.contact,
+    //             value1: normalizeReading(meterReading.value1),
+    //             value2: normalizeReading(meterReading.value2),
+    //             value3: normalizeReading(meterReading.value3),
+    //             value4: normalizeReading(meterReading.value4),
+    //             meter: meterReading.id,
+    //             date: new Date(),
+    //             ...clientInfo,
+    //         }
+    //     }
+    //
+    //     let existingMetersCreateActions = []
+    //     if (existedMeters) {
+    //         existingMetersCreateActions = Object.entries(existedMeters).map(([meterId, values]) => {
+    //             const { value1, value2, value3, value4 } = values
+    //             if (!value1 && ! value2 && !value3 && !value4) return
+    //
+    //             return createMeterReadingAction({
+    //                 ...getNewMeterReadingVariables({ id: meterId, ...values }),
+    //             })
+    //         })
+    //     }
+    //
+    //     let newMetersAndMeterReadingsCreateActions = []
+    //     if (newMeters && newMeters.length > 0) {
+    //         newMetersAndMeterReadingsCreateActions = newMeters.map(newMeterFromForm => {
+    //             const { value1, value2, value3, value4, ...newMeterData } = newMeterFromForm
+    //
+    //             return createMeterAction({
+    //                 ...newMeterData,
+    //                 organization: organization.id,
+    //                 property: property,
+    //                 numberOfTariffs: newMeterFromForm.numberOfTariffs ? newMeterFromForm.numberOfTariffs : 1,
+    //                 unitName,
+    //                 accountNumber,
+    //             })
+    //                 .then(
+    //                     newMeter => {
+    //                         if (!value1 && !value2 && !value3 && !value4) return
+    //
+    //                         return createMeterReadingAction({
+    //                             ...getNewMeterReadingVariables({ ...newMeterFromForm, id: newMeter.id }),
+    //                         })
+    //                     }
+    //                 )
+    //         })
+    //     }
+    //
+    //     await Promise.all([...existingMetersCreateActions, ...newMetersAndMeterReadingsCreateActions])
+    //     await router.push('/meter')
+    // }, [])
 
     const ErrorToFormFieldMsgMapping = {
         [EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION]: {
@@ -321,12 +234,11 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     return (
         <FormWithAction
             {...LAYOUT}
-            action={action}
+            // action={action}
             validateTrigger={['onBlur', 'onSubmit']}
             formValuesToMutationDataPreprocessor={(values) => {
                 values.property = selectPropertyIdRef.current
                 values.unitName = selectedUnitNameRef.current
-                values.accountNumber = accountNumberRef.current
                 return values
             }}
             ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
@@ -343,7 +255,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                         </Typography.Paragraph>
                     </Prompt>
                     <Col span={24}>
-                        <Row gutter={[0, verticalGutter]}>
+                        <Row gutter={[0, 40]}>
                             <Col lg={13} md={24}>
                                 <Row gutter={[0, 40]}>
                                     <Col span={24}>
@@ -396,97 +308,21 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                     </Col>
                                 </Row>
                             </Col>
-                            {
-                                !selectedUnitName ? null : (
-                                    <>
-                                        <AccountNumberInput
-                                            accountNumber={accountNumber}
-                                            setAccountNumber={setAccountNumber}
-                                            isAccountNumberIntroduced={isAccountNumberIntroduced}
-                                            setIsAccountNumberIntroduced={setIsAccountNumberIntroduced}
-                                            existingMeters={existedMeters}
-                                        />
-                                        {
-                                            !accountNumber ? null : (
-                                                <Col lg={13} md={24}>
-                                                    <Row gutter={[0, 20]}>
-                                                        <Col span={24}>
-                                                            <MetersDataTitle
-                                                                isNoExistingMetersInThisUnit={isNoExistedMetersInThisUnit}
-                                                                isNoNewMetersInThisUnit={!form.getFieldValue('newMeters')}
-                                                            />
-                                                        </Col>
-                                                        {
-                                                            resourcesLoading ? <Loader /> : (
-                                                                <>
-                                                                    <ExistedMetersList
-                                                                        existedMeters={existedMeters}
-                                                                        resources={resources}
-                                                                        billingMeterReadings={billingMeterReadings}
-                                                                    />
-                                                                    <Form.List name={'newMeters'}>
-                                                                        {(fields, operations) => {
-                                                                            if (!meterFormListOperations) setMeterFormListOperations(operations)
-                                                                            if (!formFromState) setFormFromState(form)
-
-                                                                            return fields.map((field, index) => {
-                                                                                const newMeter = form.getFieldValue(['newMeters', index])
-                                                                                const resource = resources.find(resource => resource.id === newMeter.resource)
-
-                                                                                return (
-                                                                                    <Col span={24} key={field.key}>
-                                                                                        <Form.Item
-                                                                                            {...field}
-                                                                                            name={field.name}
-                                                                                            noStyle
-                                                                                        >
-                                                                                            <MeterCard
-                                                                                                meter={newMeter}
-                                                                                                resource={resource}
-                                                                                                name={field.name}
-                                                                                                removeAction={operations.remove}
-                                                                                            />
-                                                                                        </Form.Item>
-                                                                                    </Col>
-                                                                                )
-                                                                            })
-                                                                        }}
-                                                                    </Form.List>
-                                                                </>
-                                                            )
-                                                        }
-                                                    </Row>
-                                                </Col>
-                                            )
-                                        }
-                                    </>
-                                )
-                            }
-                            {
-                                accountNumber || isAccountNumberIntroduced ? (
-                                    <Col span={24}>
-                                        <CreateMeterReadingsActionBar
-                                            accountNumber={accountNumber}
-                                            existedMeters={existedMeters}
-                                            handleSave={handleSave}
-                                            handleAddMeterButtonClick={() => setIsCreateMeterModalVisible(true)}
-                                            isLoading={isLoading}
-                                        />
-                                    </Col>
-                                ) : null
-                            }
+                            <Col span={24}>
+                                <Typography.Title>Приборы учета и показания</Typography.Title>
+                                {JSON.stringify(meters)}
+                            </Col>
+                            <Col span={24}>
+                                <CreateMeterReadingsActionBar
+                                    handleSave={handleSave}
+                                    handleAddMeterButtonClick={() => setIsCreateMeterModalVisible(true)}
+                                    isLoading={isLoading}
+                                />
+                            </Col>
                         </Row>
                     </Col>
 
-                    <CreateMeterModal
-                        addMeterToFormAction={
-                            meterFormListOperations ?
-                                meterFormListOperations.add :
-                                null
-                        }
-                        resources={resources}
-                        newMeters={form.getFieldValue('newMeters')}
-                    />
+                    <CreateMeterModal />
                 </>
             )}
         </FormWithAction>

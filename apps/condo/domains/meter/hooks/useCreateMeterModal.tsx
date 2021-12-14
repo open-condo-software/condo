@@ -1,14 +1,15 @@
 import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { StoreValue } from 'rc-field-form/lib/interface'
 import { useIntl } from '@core/next/intl'
 import { ResourcesList } from '../components/createMeterModal/ResourcesList'
 import { BaseMeterModalForm } from '../components/createMeterModal/BaseMeterModalForm'
-import { resourceIdToCreateMeterTitleIdMap } from '../utils/clientSchema'
+import { Meter, resourceIdToCreateMeterTitleIdMap } from '../utils/clientSchema'
 import { FormattedMessage } from 'react-intl'
 import { IMeterResourceUIState } from '../utils/clientSchema/MeterResource'
-import { Modal } from 'antd'
-import { IMeterFormState } from '../utils/clientSchema/Meter'
+import { Form, Input, Modal, Typography } from 'antd'
+import { IMeterFormState, IMeterUIState } from '../utils/clientSchema/Meter'
+import { get } from 'lodash'
 
 type MeterInfoModalTitleProps = {
     resourceId: string
@@ -34,60 +35,39 @@ type CreateMeterModalProps = {
     newMeters: IMeterFormState[]
 }
 
-export const useCreateMeterModal = ()=> {
+export const useCreateMeterModal = (organization, property, unitName, refetch) => {
     const intl = useIntl()
-    const ChooseServiceMessage = intl.formatMessage({ id: 'pages.condo.meter.ChooseService' })
-    const AddMessage = intl.formatMessage({ id: 'Add' })
-
+    const MeterNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.NumberOfMeter' })
     const [isCreateMeterModalVisible, setIsCreateMeterModalVisible] = useState<boolean>(false)
-    const [selectedMeterResourceId, setSelectedMeterResourceId] = useState<string | null>(null)
+    const createMeterAction = Meter.useCreate(
+        {},
+        () => {
+            refetch()
+        })
 
-    useEffect(() => {
-        setSelectedMeterResourceId(null)
-    }, [isCreateMeterModalVisible])
+    const handleMeterCreate = useCallback(values => {
+        const numberOfTariffs = values.numberOfTariffs ? values.numberOfTariffs : 1
+        createMeterAction({ ...values, numberOfTariffs, organization, property, unitName })
+        setIsCreateMeterModalVisible(false)
+    },
+    [createMeterAction, organization, property, unitName])
 
-    const CreateMeterModal = ({ addMeterToFormAction, resources, newMeters }: CreateMeterModalProps) => {
-        return !selectedMeterResourceId ? (
-            <Modal
-                title={ChooseServiceMessage}
+    const CreateMeterModal = useCallback(() => {
+        return (
+            <BaseMeterModalForm
+                ModalTitleMsg={<Typography.Title level={3}>{MeterNumberMessage} Добавить прибор учета </Typography.Title>}
                 visible={isCreateMeterModalVisible}
-                centered={true}
-                footer={[]}
-                onCancel={() => setIsCreateMeterModalVisible(false)}
-            >
-                <ResourcesList
-                    resources={resources}
-                    setSelectedMeterResource={setSelectedMeterResourceId}
-                />
-            </Modal>
-        ) : (
-            <BaseModalForm
-                visible={isCreateMeterModalVisible}
-                cancelModal={() => setIsCreateMeterModalVisible(false)}
-                ModalTitleMsg={<MeterInfoModalTitle resourceId={selectedMeterResourceId}/>}
-                ModalSaveButtonLabelMsg={AddMessage}
+                handleSubmit={handleMeterCreate}
                 showCancelButton={false}
-                validateTrigger={['onBlur', 'onSubmit']}
-                handleSubmit={
-                    (values) => {
-                        addMeterToFormAction({ ...values, resource: selectedMeterResourceId })
-                        setIsCreateMeterModalVisible(false)
-                    }
-                }
-            >
-                {(form) => (
-                    <BaseMeterModalForm
-                        form={form}
-                        newMeters={newMeters}
-                        resource={resources.find(resource => resource.id === selectedMeterResourceId)}
-                    />
-                )}
-            </BaseModalForm>
+                cancelModal={() => setIsCreateMeterModalVisible(false)}
+                ModalSaveButtonLabelMsg={'Сохранить'}
+                centered
+                modalProps={{
+                    width: 570,
+                }}
+            />
         )
-    }
+    }, [MeterNumberMessage, handleMeterCreate, isCreateMeterModalVisible])
 
-    return {
-        CreateMeterModal,
-        setIsCreateMeterModalVisible,
-    }
+    return { CreateMeterModal, setIsCreateMeterModalVisible }
 }

@@ -25,10 +25,8 @@ const DeleteMeterButton = ({ meter, updateMeterAction }) => {
 export const useUpdateMeterModal = (refetch) => {
     const intl = useIntl()
     const MeterNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.NumberOfMeter' })
-    const AccountNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.AccountNumber' })
 
     const [selectedMeter, setSelectedMeter] = useState<IMeterUIState>()
-    const accountNumber = get(selectedMeter, 'accountNumber')
     const meterNumber = get(selectedMeter, 'number')
 
     const updateMeterAction = Meter.useUpdate({}, () => {
@@ -50,18 +48,9 @@ export const useUpdateMeterModal = (refetch) => {
                 modalProps={{
                     width: 570,
                 }}
-            >
-                <Form.Item
-                    name={'accountNumber'}
-                    label={AccountNumberMessage}
-                    initialValue={accountNumber}
-                    required
-                >
-                    <Input allowClear />
-                </Form.Item>
-            </BaseMeterModalForm>
+            />
         )
-    }, [AccountNumberMessage, MeterNumberMessage, accountNumber, meterNumber, selectedMeter, updateMeterAction])
+    }, [MeterNumberMessage, meterNumber, selectedMeter, updateMeterAction])
 
     return { UpdateMeterModal, setSelectedMeter }
 }

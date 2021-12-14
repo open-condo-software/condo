@@ -166,123 +166,128 @@ export const BaseMeterModalForm = ({ handleSubmit, ModalTitleMsg, ModalSaveButto
             handleSubmit={handleSubmit}
             {...otherProps}
         >
-            <Row gutter={[0, 20]}>
-                <Col span={24}>
-                    <Row justify={'space-between'} gutter={[0, 20]}>
+            {
+                (form) => (
+                    <Row gutter={[0, 20]}>
                         <Col span={24}>
-                            <Form.Item label={AccountNumberMessage} required name={'accountNumber'}>
-                                <Input />
-                            </Form.Item>
-                        </Col>
-                        <Col span={24}>
-                            <Form.Item
-                                label={ResourceMessage}
-                                name={'resource'}
-                            >
-                                <GraphQlSearchInput
-                                    onChange={resource => setIsTariffsCountHidden(resource !== ELECTRICITY_METER_RESOURCE_ID)}
-                                    search={searchMeterResources}
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span={METER_INFO_INPUT_COL_SPAN}>
-                            <Form.Item
-                                label={MeterNumberMessage}
-                                name='number'
-                                rules={validations.number}
-                                validateTrigger={['onBlur', 'onSubmit']}
-                            >
-                                <Input />
-                            </Form.Item>
-                        </Col>
-                        <Col span={METER_INFO_INPUT_COL_SPAN}>
-                            <Form.Item
-                                label={MeterPlaceMessage}
-                                name='place'
-                            >
-                                <Input />
-                            </Form.Item>
-                        </Col>
-                        {
-                            !isTariffsContHidden ? (
+                            <Row justify={'space-between'} gutter={[0, 20]}>
                                 <Col span={24}>
-                                    <Form.Item>
-                                        <Form.Item
-                                            rules={validations.numberOfTariffs}
-                                            label={TariffsCountMessage}
-                                            name='numberOfTariffs'
-                                        >
-                                            <Select>
-                                                {getTariffNumberSelectOptions()}
-                                            </Select>
-                                        </Form.Item>
+                                    <Form.Item label={AccountNumberMessage} required name={'accountNumber'}>
+                                        <Input />
                                     </Form.Item>
                                 </Col>
-                            ) : null
-                        }
-                        {
-                            !isAdditionalFieldsCollapsed ? (
-                                <>
-                                    <CreateMeterModalDatePicker
-                                        label={InstallationDateMessage}
-                                        name='installationDate'
-                                        onChange={value => setInstallationDate(value)}
-                                    />
-                                    <CreateMeterModalDatePicker
-                                        label={CommissioningDateMessage}
-                                        name='commissioningDate'
-                                        rules={validations.commissioningDate}
-                                        dependencies={['installationDate']}
-                                    />
-                                    <CreateMeterModalDatePicker
-                                        label={SealingDateMessage}
-                                        name='sealingDate'
-                                        rules={validations.sealingDate}
-                                        dependencies={['installationDate']}
-                                    />
-                                    <CreateMeterModalDatePicker
-                                        label={VerificationDateMessage}
-                                        name='verificationDate'
-                                        rules={validations.verificationDate}
-                                        dependencies={['installationDate']}
-                                        onChange={value => setVerificationDate(value)}
-                                    />
-                                    <CreateMeterModalDatePicker
-                                        label={NextVerificationDateMessage}
-                                        name='nextVerificationDate'
-                                        rules={validations.nextVerificationDate}
-                                        dependencies={['installationDate', 'verificationDate']}
-                                    />
-                                    <CreateMeterModalDatePicker
-                                        label={ControlReadingsDateMessage}
-                                        name='controlReadingsDate'
-                                        rules={validations.controlReadingsDate}
-                                        dependencies={['installationDate']}
-                                    />
-                                </>
-                            ) : null
-                        }
+                                <Col span={24}>
+                                    <Form.Item
+                                        label={ResourceMessage}
+                                        name={'resource'}
+                                    >
+                                        <GraphQlSearchInput
+                                            onChange={resource => {
+                                                setIsTariffsCountHidden(resource !== ELECTRICITY_METER_RESOURCE_ID)
+                                                form.setFieldsValue({ numberOfTariffs: null })
+                                            }}
+                                            search={searchMeterResources}
+                                        />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={METER_INFO_INPUT_COL_SPAN}>
+                                    <Form.Item
+                                        label={MeterNumberMessage}
+                                        name='number'
+                                        rules={validations.number}
+                                        validateTrigger={['onBlur', 'onSubmit']}
+                                    >
+                                        <Input />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={METER_INFO_INPUT_COL_SPAN}>
+                                    <Form.Item
+                                        label={MeterPlaceMessage}
+                                        name='place'
+                                    >
+                                        <Input />
+                                    </Form.Item>
+                                </Col>
+                                {
+                                    !isTariffsContHidden ? (
+                                        <Col span={24}>
+                                            <Form.Item
+                                                rules={validations.numberOfTariffs}
+                                                label={TariffsCountMessage}
+                                                name='numberOfTariffs'
+                                            >
+                                                <Select>
+                                                    {getTariffNumberSelectOptions()}
+                                                </Select>
+                                            </Form.Item>
+                                        </Col>
+                                    ) : null
+                                }
+                                {
+                                    !isAdditionalFieldsCollapsed ? (
+                                        <>
+                                            <CreateMeterModalDatePicker
+                                                label={InstallationDateMessage}
+                                                name='installationDate'
+                                                onChange={value => setInstallationDate(value)}
+                                            />
+                                            <CreateMeterModalDatePicker
+                                                label={CommissioningDateMessage}
+                                                name='commissioningDate'
+                                                rules={validations.commissioningDate}
+                                                dependencies={['installationDate']}
+                                            />
+                                            <CreateMeterModalDatePicker
+                                                label={SealingDateMessage}
+                                                name='sealingDate'
+                                                rules={validations.sealingDate}
+                                                dependencies={['installationDate']}
+                                            />
+                                            <CreateMeterModalDatePicker
+                                                label={VerificationDateMessage}
+                                                name='verificationDate'
+                                                rules={validations.verificationDate}
+                                                dependencies={['installationDate']}
+                                                onChange={value => setVerificationDate(value)}
+                                            />
+                                            <CreateMeterModalDatePicker
+                                                label={NextVerificationDateMessage}
+                                                name='nextVerificationDate'
+                                                rules={validations.nextVerificationDate}
+                                                dependencies={['installationDate', 'verificationDate']}
+                                            />
+                                            <CreateMeterModalDatePicker
+                                                label={ControlReadingsDateMessage}
+                                                name='controlReadingsDate'
+                                                rules={validations.controlReadingsDate}
+                                                dependencies={['installationDate']}
+                                            />
+                                        </>
+                                    ) : null
+                                }
+                            </Row>
+                        </Col>
+                        <Col>
+                            <Button
+                                type="text"
+                                onClick={() => { setIsAdditionalFieldsCollapsed(prevState => !prevState) }}
+                                style={{
+                                    padding: 0,
+                                }}
+                            >
+                                <Typography.Text type={'success'} strong>
+                                    <Space direction={'horizontal'} align={'center'}>
+                                        {isAdditionalFieldsCollapsed ? MoreParametersMessage : LessParametersMessage}
+                                        <ChevronIconWrapper direction={isAdditionalFieldsCollapsed ? 'down' : 'up'}>
+                                            <ChevronIcon />
+                                        </ChevronIconWrapper>
+                                    </Space>
+                                </Typography.Text>
+                            </Button>
+                        </Col>
                     </Row>
-                </Col>
-                <Col>
-                    <Button
-                        type="text"
-                        onClick={() => { setIsAdditionalFieldsCollapsed(prevState => !prevState) }}
-                        style={{
-                            padding: 0,
-                        }}
-                    >
-                        <Typography.Text type={'success'} strong>
-                            <Space direction={'horizontal'} align={'center'}>
-                                {isAdditionalFieldsCollapsed ? MoreParametersMessage : LessParametersMessage}
-                                <ChevronIconWrapper direction={isAdditionalFieldsCollapsed ? 'down' : 'up'}>
-                                    <ChevronIcon />
-                                </ChevronIconWrapper>
-                            </Space>
-                        </Typography.Text>
-                    </Button>
-                </Col>
-            </Row>
+                )
+            }
         </BaseModalForm>
     )
 }
