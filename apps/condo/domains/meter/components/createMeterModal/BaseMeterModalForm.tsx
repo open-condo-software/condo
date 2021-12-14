@@ -34,9 +34,10 @@ interface ICreateMeterModalDatePickerProps {
     rules?: Rule[],
     dependencies?: string[]
     onChange?: (value: Dayjs, dateString: string) => void
+    initialValue?
 }
 
-const CreateMeterModalDatePicker = ({ label, name, rules, dependencies, onChange }: ICreateMeterModalDatePickerProps) => {
+const CreateMeterModalDatePicker: React.FC<ICreateMeterModalDatePickerProps> = ({ label, name, rules, dependencies, onChange, initialValue }) => {
     const intl = useIntl()
     const EnterDatePlaceHolder = intl.formatMessage({ id: 'EnterDate' })
 
@@ -48,6 +49,7 @@ const CreateMeterModalDatePicker = ({ label, name, rules, dependencies, onChange
                 rules={rules}
                 validateTrigger={['onBlur', 'onSubmit']}
                 dependencies={dependencies}
+                initialValue={initialValue}
             >
                 <DatePicker
                     placeholder={EnterDatePlaceHolder}
@@ -69,7 +71,7 @@ const ChevronIconWrapper = styled.div<ChevronIconWrapperProps>`
     display: flex;
 `
 
-export const BaseMeterModalForm = ({ handleSubmit, ModalTitleMsg, ModalSaveButtonLabelMsg, ...otherProps }) => {
+export const BaseMeterModalForm = ({ handleSubmit, meter, ModalTitleMsg, ModalSaveButtonLabelMsg, ...otherProps }) => {
     const intl = useIntl()
     const AccountNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.AccountNumber' })
     const MeterNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterNumber' })
@@ -150,8 +152,8 @@ export const BaseMeterModalForm = ({ handleSubmit, ModalTitleMsg, ModalSaveButto
         numberOfTariffs: [requiredValidator],
         commissioningDate: [earlierThanInstallationValidator],
         sealingDate: [earlierThanInstallationValidator],
-        verificationDate: [earlierThanInstallationValidator],
-        nextVerificationDate: [earlierThanInstallationValidator, earlierThanFirstVerificationDateValidator],
+        // verificationDate: [earlierThanInstallationValidator],
+        nextVerificationDate: [earlierThanFirstVerificationDateValidator],
         controlReadingsDate: [earlierThanInstallationValidator],
     }
 
@@ -172,7 +174,12 @@ export const BaseMeterModalForm = ({ handleSubmit, ModalTitleMsg, ModalSaveButto
                         <Col span={24}>
                             <Row justify={'space-between'} gutter={[0, 20]}>
                                 <Col span={24}>
-                                    <Form.Item label={AccountNumberMessage} required name={'accountNumber'}>
+                                    <Form.Item
+                                        label={AccountNumberMessage}
+                                        required
+                                        name={'accountNumber'}
+                                        initialValue={meter?.accountNumber}
+                                    >
                                         <Input />
                                     </Form.Item>
                                 </Col>
@@ -180,6 +187,7 @@ export const BaseMeterModalForm = ({ handleSubmit, ModalTitleMsg, ModalSaveButto
                                     <Form.Item
                                         label={ResourceMessage}
                                         name={'resource'}
+                                        initialValue={meter?.resource.id}
                                     >
                                         <GraphQlSearchInput
                                             onChange={resource => {
@@ -196,6 +204,7 @@ export const BaseMeterModalForm = ({ handleSubmit, ModalTitleMsg, ModalSaveButto
                                         name='number'
                                         rules={validations.number}
                                         validateTrigger={['onBlur', 'onSubmit']}
+                                        initialValue={meter?.number}
                                     >
                                         <Input />
                                     </Form.Item>
@@ -204,6 +213,7 @@ export const BaseMeterModalForm = ({ handleSubmit, ModalTitleMsg, ModalSaveButto
                                     <Form.Item
                                         label={MeterPlaceMessage}
                                         name='place'
+                                        initialValue={meter?.place}
                                     >
                                         <Input />
                                     </Form.Item>
@@ -215,6 +225,7 @@ export const BaseMeterModalForm = ({ handleSubmit, ModalTitleMsg, ModalSaveButto
                                                 rules={validations.numberOfTariffs}
                                                 label={TariffsCountMessage}
                                                 name='numberOfTariffs'
+                                                initialValue={meter?.numberOfTariffs}
                                             >
                                                 <Select>
                                                     {getTariffNumberSelectOptions()}
@@ -230,18 +241,21 @@ export const BaseMeterModalForm = ({ handleSubmit, ModalTitleMsg, ModalSaveButto
                                                 label={InstallationDateMessage}
                                                 name='installationDate'
                                                 onChange={value => setInstallationDate(value)}
+                                                initialValue={meter?.installationDate}
                                             />
                                             <CreateMeterModalDatePicker
                                                 label={CommissioningDateMessage}
                                                 name='commissioningDate'
                                                 rules={validations.commissioningDate}
                                                 dependencies={['installationDate']}
+                                                initialValue={meter?.commissioningDate}
                                             />
                                             <CreateMeterModalDatePicker
                                                 label={SealingDateMessage}
                                                 name='sealingDate'
                                                 rules={validations.sealingDate}
                                                 dependencies={['installationDate']}
+                                                initialValue={meter?.sealingDate}
                                             />
                                             <CreateMeterModalDatePicker
                                                 label={VerificationDateMessage}
@@ -249,18 +263,21 @@ export const BaseMeterModalForm = ({ handleSubmit, ModalTitleMsg, ModalSaveButto
                                                 rules={validations.verificationDate}
                                                 dependencies={['installationDate']}
                                                 onChange={value => setVerificationDate(value)}
+                                                initialValue={meter?.verificationDate}
                                             />
                                             <CreateMeterModalDatePicker
                                                 label={NextVerificationDateMessage}
                                                 name='nextVerificationDate'
                                                 rules={validations.nextVerificationDate}
                                                 dependencies={['installationDate', 'verificationDate']}
+                                                initialValue={meter?.nextVerificationDate}
                                             />
                                             <CreateMeterModalDatePicker
                                                 label={ControlReadingsDateMessage}
                                                 name='controlReadingsDate'
                                                 rules={validations.controlReadingsDate}
                                                 dependencies={['installationDate']}
+                                                initialValue={meter?.controlReadingsDate}
                                             />
                                         </>
                                     ) : null

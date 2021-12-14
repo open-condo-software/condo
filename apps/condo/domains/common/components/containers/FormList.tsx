@@ -325,7 +325,7 @@ const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
             OnCompletedMsg,
         })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [action])
 
     function handleSave () {
         // TODO(zuch) Possible bug: If user press save button and form not touched he will stay on edit screen with no response from system

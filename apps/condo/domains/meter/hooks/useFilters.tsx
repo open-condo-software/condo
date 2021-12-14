@@ -42,6 +42,8 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
     const CommissioningDateMessage = intl.formatMessage({ id: 'pages.condo.meter.CommissioningDate' })
     const SealingDateMessage = intl.formatMessage({ id: 'pages.condo.meter.SealingDate' })
     const ControlReadingsDate = intl.formatMessage({ id: 'pages.condo.meter.ControlReadingsDate' })
+    const EnterUnitNameLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.EnterUnitName' })
+    const UnitMessage = intl.formatMessage({ id: 'field.FlatNumber' })
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
@@ -51,6 +53,7 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
     const accountNumberFilter = getStringContainsFilter(['meter', 'accountNumber'])
     const placeFilter = getStringContainsFilter(['meter', 'place'])
     const numberFilter = getStringContainsFilter(['meter', 'number'])
+    const unitNameFilter = getStringContainsFilter(['meter', 'unitName'])
     const resourceStringContainsFilter = getStringContainsFilter(['meter', 'resource', 'name'])
     const clientNameFilter = getStringContainsFilter('clientName')
     const readingDateRangeFilter = getDayRangeFilter('date')
@@ -88,6 +91,21 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
                     },
                     columnFilterComponentWrapper: {
                         width: '400px',
+                    },
+                },
+            },
+            {
+                keyword: 'unitName',
+                filters: [unitNameFilter],
+                component: {
+                    type: ComponentType.TagsSelect,
+                    props: {
+                        tokenSeparators: [' '],
+                        placeholder: EnterUnitNameLabel,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: UnitMessage,
+                        size: FilterComponentSize.Medium,
                     },
                 },
             },
@@ -274,6 +292,8 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
                     placeFilter,
                     numberFilter,
                     clientNameFilter,
+                    unitNameFilter,
+                    accountNumberFilter,
                 ],
                 combineType: 'OR',
             },

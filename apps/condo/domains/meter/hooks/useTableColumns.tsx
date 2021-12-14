@@ -37,6 +37,8 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const MeterReadingMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReading' })
     const SourceMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.Source' })
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
+    const UnitMessage = intl.formatMessage({ id: 'field.UnitName' })
+    const AccountNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.Account' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
@@ -65,9 +67,19 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 title: AddressMessage,
                 filteredValue: getFilteredValue(filters, 'address'),
                 key: 'address',
-                width: '20%',
+                width: '18%',
                 render: renderAddress,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'address'),
+                filterIcon: getFilterIcon,
+            },
+            {
+                title: UnitMessage,
+                filteredValue: getFilteredValue(filters, 'unitName'),
+                key: 'unitName',
+                dataIndex: ['meter', 'unitName'],
+                width: '10%',
+                render: getTextRender(search),
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'unitName'),
                 filterIcon: getFilterIcon,
             },
             {
@@ -78,6 +90,16 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 key: 'resource',
                 width: '14%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'resource'),
+                render: getTextRender(search),
+                filterIcon: getFilterIcon,
+            },
+            {
+                title: AccountNumberMessage,
+                filteredValue: getFilteredValue(filters, 'accountNumber'),
+                dataIndex: ['meter', 'accountNumber'],
+                key: 'accountNumber',
+                width: '10%',
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'accountNumber'),
                 render: getTextRender(search),
                 filterIcon: getFilterIcon,
             },
