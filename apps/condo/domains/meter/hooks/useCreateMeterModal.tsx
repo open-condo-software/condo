@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { StoreValue } from 'rc-field-form/lib/interface'
 import { useIntl } from '@core/next/intl'
 import { ResourcesList } from '../components/createMeterModal/ResourcesList'
-import { MeterInfo } from '../components/createMeterModal/MeterInfo'
+import { BaseMeterModalForm } from '../components/createMeterModal/BaseMeterModalForm'
 import { resourceIdToCreateMeterTitleIdMap } from '../utils/clientSchema'
 import { FormattedMessage } from 'react-intl'
 import { IMeterResourceUIState } from '../utils/clientSchema/MeterResource'
@@ -76,7 +76,7 @@ export const useCreateMeterModal = ()=> {
                 }
             >
                 {(form) => (
-                    <MeterInfo
+                    <BaseMeterModalForm
                         form={form}
                         newMeters={newMeters}
                         resource={resources.find(resource => resource.id === selectedMeterResourceId)}

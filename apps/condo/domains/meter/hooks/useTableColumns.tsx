@@ -31,7 +31,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const ClientNameMessage = intl.formatMessage({ id: 'Contact' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
     const MeterReadingDateMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReadingDate' })
-    const ServiceMessage = intl.formatMessage({ id: 'pages.condo.meter.Service' })
+    const ServiceMessage = intl.formatMessage({ id: 'pages.condo.meter.Resource' })
     const MeterNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterNumber' })
     const PlaceMessage = intl.formatMessage({ id: 'pages.condo.meter.Place' })
     const MeterReadingMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReading' })
@@ -135,61 +135,3 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
         ]
     }, [filters])
 }
-
-export const useMeterInfoModalTableColumns = () => {
-    const intl = useIntl()
-    const InstallationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.InstallationDate' })
-    const CommissioningDateMessage = intl.formatMessage({ id: 'pages.condo.meter.CommissioningDate' })
-    const SealingDateMessage = intl.formatMessage({ id: 'pages.condo.meter.SealingDate' })
-    const VerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.VerificationDate' })
-    const NextVerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.NextVerificationDate' })
-    const ControlReadingsDateMessage = intl.formatMessage({ id: 'pages.condo.meter.ControlReadingsDate' })
-
-    return useMemo(() => {
-        return [
-            {
-                title: InstallationDateMessage,
-                dataIndex: 'installationDate',
-                key: 'installationDate',
-                width: '17%',
-                render: getDateRender(intl),
-            },
-            {
-                title: CommissioningDateMessage,
-                dataIndex: 'commissioningDate',
-                key: 'commissioningDate',
-                width: '21%',
-                render: getDateRender(intl),
-            },
-            {
-                title: SealingDateMessage,
-                dataIndex: 'sealingDate',
-                key: 'sealingDate',
-                width: '20%',
-                render: getDateRender(intl),
-            },
-            {
-                title: VerificationDateMessage,
-                dataIndex: 'verificationDate',
-                key: 'verificationDate',
-                width: '17%',
-                render: getDateRender(intl),
-            },
-            {
-                title: NextVerificationDateMessage,
-                dataIndex: 'nextVerificationDate',
-                key: 'nextVerificationDate',
-                width: '18%',
-                render: getDateRender(intl),
-            },
-            {
-                title: ControlReadingsDateMessage,
-                dataIndex: 'controlReadingsDate',
-                key: 'controlReadingsDate',
-                width: '20%',
-                render: getDateRender(intl),
-            },
-        ]
-    }, [])
-}
-

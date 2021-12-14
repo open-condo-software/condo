@@ -25,7 +25,7 @@ import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { EXPORT_METER_READINGS } from '@condo/domains/meter/gql'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { useMeterInfoModal } from '@condo/domains/meter/hooks/useMeterInfoModal'
+import { useUpdateMeterModal } from '@condo/domains/meter/hooks/useUpdateMeterModal'
 import { useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { useFilters } from '@condo/domains/meter/hooks/useFilters'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
@@ -72,16 +72,15 @@ export const MetersPageContent = ({
 
     const { isSmall } = useLayoutContext()
     const [ search, handleSearchChange ] = useSearch(loading)
-    const { MeterInfoModal, setIsMeterInfoModalVisible } = useMeterInfoModal()
-    const [ selectedMeterId, setSelectedMeterId ] = useState<string>()
+    const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch)
     const { MultipleFiltersModal, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas)
     const [columns, meterReadingNormalizer, meterReadingValidator, meterReadingCreator] = useImporterFunctions()
 
     const handleRowAction = useCallback((record) => {
         return {
             onClick: () => {
-                setSelectedMeterId(record.meter.id)
-                setIsMeterInfoModalVisible(true)
+                const meter = get(record, 'meter')
+                setSelectedMeter(meter)
             },
         }
     }, [])
@@ -173,7 +172,7 @@ export const MetersPageContent = ({
                                 </Row>
                             )
                     }
-                    <MeterInfoModal meterId={selectedMeterId} />
+                    <UpdateMeterModal />
                     <MultipleFiltersModal />
                 </TablePageContent>
             </PageWrapper>
