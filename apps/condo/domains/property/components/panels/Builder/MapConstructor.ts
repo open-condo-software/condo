@@ -669,6 +669,7 @@ class MapEdit extends MapView {
                     id: String(++this.autoincrement),
                     label,
                     type: 'unit',
+                    unitType: BuildingUnitType.Flat,
                 })
             }
             newSection.floors.unshift({
