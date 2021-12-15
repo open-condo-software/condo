@@ -550,6 +550,7 @@
   "meterReadingSource.Call.name": "Звонок",
   "meterReadingSource.MobileApp.name": "Мобильное приложение жителя",
   "meterReadingSource.Billing.name": "Биллинг",
+  "meterReadingSource.ImportCondo.name": "Импортированные данные",
   "meterResource.ColdWater.name": "Холодная вода",
   "meterResource.HotWater.name": "Горячая вода",
   "meterResource.Electricity.name": "Электроэнергия",
