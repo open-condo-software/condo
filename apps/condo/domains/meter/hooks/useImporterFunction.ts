@@ -118,8 +118,8 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         addons.propertyId = propertyId
 
         const searchMeterWhereConditions = {
-            organization: userOrganizationId,
-            property: propertyId,
+            organization: { id: userOrganizationId },
+            property: { id: propertyId },
             unitName,
             accountNumber,
             number: meterNumber,

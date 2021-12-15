@@ -2,20 +2,10 @@ import { gql } from 'graphql-tag'
 
 const GET_METER_QUERY = gql`
     query getMeter (
-        $organization: ID,
-        $property: ID,
-        $unitName: String,
-        $accountNumber: String,
-        $number: String
+        $where: MeterWhereInput
     ) {
         objs: allMeters(
-            where: {
-                organization: { id: $organization },
-                property: { id: $property },
-                unitName: $unitName,
-                accountNumber: $accountNumber,
-                number: $number
-            }
+            where: $where
         ) {
             id
             number
@@ -64,6 +54,7 @@ export async function searchMeter (client, where, orderBy, first = 10, skip = 0)
     return []
 }
 
+// TODO(MrFoxPro) Refactor search!
 export async function searchMeterResource (client, where, orderBy, first = 10, skip = 0) {
     const { data = [], error } = await _search(client, GET_METER_RESOURCE_QUERY, { where, orderBy, first, skip })
     if (error) console.warn(error)
