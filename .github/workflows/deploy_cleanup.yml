@@ -21,7 +21,13 @@ jobs:
           submodules: recursive
           ssh-key: ${{ secrets.RUNNER_SSH_PRIVATE_KEY }}
       - name: Fetch all history for all tags and branches
-        run: git fetch --prune --unshallow
+        run: |
+          if $(git rev-parse --is-shallow-repository)
+          then
+            git fetch --prune --unshallow
+          else
+            git fetch --prune
+          fi
       - name: Cleanup
         uses: werf/actions/cleanup@v1.2
         with:
