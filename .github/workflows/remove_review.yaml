@@ -23,7 +23,6 @@ jobs:
         run: echo "REVIEW_NAMESPACE=$(echo review-${GITHUB_REF##*/} | sed 's/\_/-/g')" >> $GITHUB_ENV
       - name: Dismiss
         uses: werf/actions/dismiss@v1.2
-        env:
-          WERF_LOG_VERBOSE: "on"
-          WERF_NAMESPACE: ${{ env.REVIEW_NAMESPACE }}
-          WERF_WITH_NAMESPACE: true
+        with:
+          namespace: ${{ env.REVIEW_NAMESPACE }}
+          with-namespace: true
