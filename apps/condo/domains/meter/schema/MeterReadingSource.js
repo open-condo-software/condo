@@ -17,7 +17,7 @@ const MeterReadingSource = new GQLListSchema('MeterReadingSource', {
 
         type: {
             type: Select,
-            options: 'call, mobile_app',
+            options: 'call, mobile_app, import_condo',
 
             isRequired: true,
         },

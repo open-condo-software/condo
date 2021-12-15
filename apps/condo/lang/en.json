@@ -550,6 +550,7 @@
   "meterReadingSource.Call.name": "Call",
   "meterReadingSource.MobileApp.name": "Resident's mobile app",
   "meterReadingSource.Billing.name": "Billing",
+  "meterReadingSource.ImportCondo.name": "Imported data",
   "meterResource.ColdWater.name": "Cold water",
   "meterResource.HotWater.name": "Hot water",
   "meterResource.Electricity.name": "Electricity",
