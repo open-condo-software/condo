@@ -24,7 +24,7 @@ jobs:
       - name: Dismiss
         uses: werf/actions/dismiss@v1.2
         env:
-          WERF_NAMESPACE: $REVIEW_NAMESPACE
+          WERF_NAMESPACE: ${{ env.REVIEW_NAMESPACE }}
           WERF_WITH_NAMESPACE: true
         with:
           env: review
