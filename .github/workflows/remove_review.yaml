@@ -24,5 +24,7 @@ jobs:
       - name: Dismiss
         uses: werf/actions/dismiss@v1.2
         with:
-          namespace: $REVIEW_NAMESPACE
-          with-namespace: true
+        env:
+          WERF_LOG_VERBOSE: "on"
+          WERF_NAMESPACE: ${{ env.REVIEW_NAMESPACE }}
+          WERF_WITH_NAMESPACE: true
