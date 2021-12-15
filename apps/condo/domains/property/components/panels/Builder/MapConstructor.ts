@@ -1,5 +1,5 @@
 import { buildingEmptyMapJson } from '@condo/domains/property/constants/property'
-import { cloneDeep, compact, get, has, uniq } from 'lodash'
+import { cloneDeep, compact, get, has, uniq, last } from 'lodash'
 import MapSchemaJSON from './MapJsonSchema.json'
 import Ajv from 'ajv'
 import {
@@ -430,6 +430,8 @@ class MapEdit extends MapView {
     public removeSection (id: string): void {
         const sectionIndex = this.map.sections.findIndex(mapSection => mapSection.id === id)
         this.map.sections.splice(sectionIndex, 1)
+        this.updateSectionNumbers(sectionIndex)
+
         this.editMode = 'addSection'
         this.notifyUpdater()
     }
@@ -621,6 +623,34 @@ class MapEdit extends MapView {
     private notifyUpdater () {
         if (this.updateMap) {
             this.updateMap(this.map)
+        }
+    }
+
+    private updateSectionNumbers (removedIndex: number): void {
+        if (removedIndex === this.map.sections.length) {
+            return
+        }
+
+        this.map.sections.forEach((section, index) => {
+            section.name = String(index + 1)
+            section.index = index
+        })
+
+        if (typeof this.map.sections[removedIndex] !== 'undefined') {
+            if (removedIndex === 0) {
+                // Rename from first unit
+                const firstSectionUnit = get(last(this.map.sections[removedIndex].floors), 'units.0')
+                if (firstSectionUnit) {
+                    firstSectionUnit.label = '1'
+                    this.updateUnit(firstSectionUnit)
+                }
+            } else if (typeof this.map.sections[removedIndex - 1] !== 'undefined') {
+                // Rename from last unit at section - 1 of sectionIndex
+                const lastFloorUnits = get(this.map.sections[removedIndex - 1], 'floors.0.units')
+                if (lastFloorUnits) {
+                    this.updateUnitNumbers(last(lastFloorUnits))
+                }
+            }
         }
     }
 

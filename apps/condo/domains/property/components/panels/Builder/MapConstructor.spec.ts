@@ -227,6 +227,18 @@ describe('Map constructor', () => {
                 expect(Building.isMapValid).toBe(true)
                 expect(Building.sections).toHaveLength(9)
             })
+            it('should rename section names in order', () => {
+                const Building = createBuildingMap(10)
+                const jsonMap = Building.getMap()
+                const removeSection = jsonMap.sections[1]
+                Building.removeSection(removeSection.id)
+                Building.validate()
+
+                const sectionNames = Array
+                    .from({ length: Building.map.sections.length }, (_, index) => String(++index))
+                expect(Building.isMapValid).toBeTruthy()
+                expect(Building.map.sections.map(section => section.name)).toEqual(sectionNames)
+            })
         })
     })
 
