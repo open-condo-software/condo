@@ -31,19 +31,20 @@ class PropertyMapUpdater {
 
     async fix () {
         for (const property of this.properties) {
-            if (!has(property, 'map.parking')) {
-                const repairedMap = this.fixChessboard(property.map)
-                await Property.update(this.context.createContext({ skipAccessControl: true }), property.id, {
-                    dv: 1,
-                    sender: { dv: 1, fingerprint: 'map-fixer' },
-                    map: repairedMap,
-                })
-            }
+            const repairedMap = this.fixChessboard(property.map)
+            await Property.update(this.context.createContext({ skipAccessControl: true }), property.id, {
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'map-fixer' },
+                map: repairedMap,
+            })
+
         }
     }
 
     fixChessboard (map) {
-        map.parking = []
+        if (!has(map, 'parking')) {
+            map.parking = []
+        }
         map.sections.forEach(section => {
             section.floors.forEach(floor => {
                 floor.units.forEach(unit => {
