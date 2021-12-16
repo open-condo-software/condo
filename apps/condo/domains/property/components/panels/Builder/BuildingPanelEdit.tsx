@@ -683,8 +683,6 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
     const [copyId, setCopyId] = useState<string | null>(null)
     const [maxMinError, setMaxMinError] = useState(false)
 
-    const name = useRef<number>(1)
-
     const resetForm = () => {
         setMinFloor(null)
         setMaxFloor(null)
@@ -696,13 +694,9 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
             setMaxMinError((maxFloor < minFloor))
         }
         if (minFloor && maxFloor && unitsOnFloor && !maxMinError) {
-            if (!builder.isEmpty) {
-                name.current = Number(last(builder.sections).name) + 1
-            }
-
             builder.addPreviewSection({
                 id: '',
-                name: String(name.current),
+                name: builder.nextSectionName,
                 minFloor,
                 maxFloor,
                 unitsOnFloor,
@@ -726,7 +720,7 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
 
     const handleFinish = () => {
         builder.removePreviewSection()
-        builder.addSection({ id: '', name: String(name.current), minFloor, maxFloor, unitsOnFloor })
+        builder.addSection({ id: '', name: builder.nextSectionName, minFloor, maxFloor, unitsOnFloor })
         refresh()
         resetForm()
     }

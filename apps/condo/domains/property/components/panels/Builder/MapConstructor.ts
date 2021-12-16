@@ -311,6 +311,14 @@ class MapEdit extends MapView {
         return result
     }
 
+    get nextSectionName (): string {
+        if (this.isEmpty) return '1'
+        if (!this.isEmpty && this.sections.filter(section => !section.preview).length === 0) return '1'
+
+        const lastSectionNumber = Number(last(this.sections.filter(section => !section.preview)).name)
+        return String(lastSectionNumber + 1)
+    }
+
     get editMode (): string | null {
         return this.mode
     }
