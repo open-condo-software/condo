@@ -185,7 +185,9 @@ class MapView extends Map {
             console.log('Invalid JSON for property:map', this.validationErrors)
         }
 
-        if (this.isEmptySections && !this.isEmptyParking) this.viewMode = 'parking'
+        if (this.isEmptySections && !this.isEmptyParking) {
+            this.viewMode = 'parking'
+        }
     }
 
     get maxFloor (): number {
@@ -331,7 +333,9 @@ class MapView extends Map {
 
 class MapEdit extends MapView {
     public previewSectionId: string
+    public previewParkingId: string
     public previewUnitId: string
+    public previewParkingUnitId: string
     private mode = null
 
     constructor (map: Maybe<BuildingMap>, private updateMap?: Maybe<(map: BuildingMap) => void>) {
@@ -339,12 +343,20 @@ class MapEdit extends MapView {
     }
 
     get nextUnitNumber (): number {
-        const result = Math.max(0, ...this.map.sections
+        return Math.max(0, ...this.map.sections
             .map(section => section.floors
                 .map(floor => floor.units
                     .map(unit => !isNaN(Number(unit.label)) ? Number(unit.label) : 0)))
             .flat(2)) + 1
-        return result
+    }
+
+    get nextParkingUnitNumber (): number {
+        return Math.max(0, ...this.map.parking
+            .flatMap(parkingSection => parkingSection.floors
+                .flatMap(floor => floor.units
+                    .map(unit => !isNaN(Number(unit.label)) ? Number(unit.label) : 0))
+            )
+        ) + 1
     }
 
     get nextSectionName (): string {
@@ -381,8 +393,14 @@ class MapEdit extends MapView {
                 this.selectedUnit = null
                 this.selectedSection = null
                 break
+            case 'removeParking':
+                // this.removePreviewParkingUnit()
+                this.removePreviewParking()
+                this.selectedParkingUnit = null
+                break
             case 'addUnit':
                 this.removePreviewSection()
+                this.viewMode = 'section'
                 this.selectedSection = null
                 this.selectedUnit = null
                 break
@@ -413,8 +431,26 @@ class MapEdit extends MapView {
         }
     }
 
+    public setSelectedParking (parkingSection: BuildingSection): void {
+        if (this.isParkingSelected(parkingSection.id)) {
+            this.selectedParking = null
+            this.editMode = 'addParking'
+        } else {
+            this.selectedParking = parkingSection
+            this.editMode = 'removeParking'
+        }
+    }
+
     public getSelectedSection (): BuildingSection {
         return this.selectedSection
+    }
+
+    public getSelectedParking (): BuildingSection {
+        return this.selectedParking
+    }
+
+    public isParkingSelected (id: string): boolean {
+        return this.selectedParking && this.selectedParking.id === id
     }
 
     public isSectionSelected (id: string): boolean {
@@ -498,9 +534,9 @@ class MapEdit extends MapView {
     }
 
     public removePreviewParking (): void {
-        if (this.previewSectionId) {
-            this.removeParking(this.previewSectionId)
-            this.previewSectionId = null
+        if (this.previewParkingId) {
+            this.removeParking(this.previewParkingId)
+            this.previewParkingId = null
         }
     }
 
@@ -508,8 +544,11 @@ class MapEdit extends MapView {
         this.removePreviewParking()
         const newParking = this.generateSingleParking(parking)
         newParking.preview = true
-        newParking.floors.forEach(floor => floor.units.map(unit => ({ ...unit, preview: true })))
-        this.previewSectionId = newParking.id
+        newParking.floors.forEach(floor => floor.units.map(unit => {
+            unit.preview = true
+            return unit
+        }))
+        this.previewParkingId = newParking.id
         this.map.parking.push(newParking)
     }
 
@@ -643,6 +682,10 @@ class MapEdit extends MapView {
 
     private selectedUnit: BuildingUnit
 
+    private selectedParking: BuildingSection
+
+    private selectedParkingUnit: BuildingUnit
+
     private generateSection (section: Partial<BuildingSectionArg>): BuildingSection {
         let unitNumber = this.nextUnitNumber
         const { name, minFloor, maxFloor, unitsOnFloor } = section
@@ -684,6 +727,7 @@ class MapEdit extends MapView {
     }
 
     private generateSingleParking (parking: Partial<BuildingSectionArg>): BuildingSection {
+        let unitNumber = this.nextParkingUnitNumber
         const { name, minFloor, maxFloor, unitsOnFloor } = parking
         const newParking: BuildingSection = {
             id: String(++this.autoincrement),
@@ -700,10 +744,11 @@ class MapEdit extends MapView {
             for (let parkingOnFloor = 0; parkingOnFloor < unitsOnFloor; parkingOnFloor++) {
                 units.push({
                     id: String(++this.autoincrement),
-                    label: String(parkingOnFloor + 1),
+                    label: String(unitNumber),
                     type: BuildingMapEntityType.Unit,
                     unitType: BuildingUnitType.Parking,
                 })
+                unitNumber++
             }
             newParking.floors.unshift({
                 id: String(++this.autoincrement),
