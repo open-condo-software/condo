@@ -28,7 +28,7 @@ import { MapEdit } from './MapConstructor'
 import {
     BuildingMap,
     BuildingUnit,
-    BuildingSection,
+    BuildingSection, BuildingUnitType,
 } from '@app/condo/schema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { IPropertyUIState } from '@condo/domains/property/utils/clientSchema/Property'
@@ -341,6 +341,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     ), [menuClick])
 
     const showViewModeSelect = !mapEdit.isEmptySections && !mapEdit.isEmptyParking
+    const showSectionFilter = mapEdit.viewMode === 'section' && sections.length >= MIN_SECTIONS_TO_SHOW_FILTER
 
     return (
         <FullscreenWrapper mode={'edit'} className='fullscreen'>
@@ -350,7 +351,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                         <Col flex={0}>
                             <Space size={20}>
                                 <AddressTopTextContainer>{address}</AddressTopTextContainer>
-                                {sections.length >= MIN_SECTIONS_TO_SHOW_FILTER && (
+                                {showSectionFilter && (
                                     <Select value={mapEdit.visibleSections} onSelect={onSelectSection}>
                                         <Select.Option value={null} >{AllSectionsTitle}</Select.Option>
                                         {
@@ -402,6 +403,8 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                             editSection: <EditSectionForm builder={mapEdit} refresh={refresh}/>,
                             editUnit: <UnitForm builder={mapEdit} refresh={refresh}/>,
                             addParking: <AddParkingForm builder={mapEdit} refresh={refresh} />,
+                            addParkingUnit: <ParkingUnitForm builder={mapEdit} refresh={refresh} />,
+                            editParkingUnit: <ParkingUnitForm builder={mapEdit} refresh={refresh} />,
                             removeParking: <RemoveParkingForm builder={mapEdit} refresh={refresh} />,
                         }[mode] || null), [mode, mapEdit, refresh])
                     }
@@ -678,7 +681,6 @@ const PropertyMapSection: React.FC<IPropertyMapSectionProps> = (props) => {
         if (isParkingSection) {
             builder.setSelectedParking(section)
             if (builder.getSelectedParking()) {
-                console.log(builder.getSelectedParking())
                 scrollToForm()
             }
         } else {
@@ -725,19 +727,32 @@ interface IPropertyMapUnitProps {
 }
 
 const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ builder, refresh, unit, scrollToForm }) => {
-    const selectUnit = (unit) => {
-        builder.setSelectedUnit(unit)
-        if (builder.getSelectedUnit()) {
-            scrollToForm()
+    const selectUnit = useCallback(() => {
+        console.log('select unit with type ', unit.unitType)
+        if (unit.unitType === BuildingUnitType.Flat) {
+            builder.setSelectedUnit(unit)
+            if (builder.getSelectedUnit()) {
+                scrollToForm()
+            }
+        } else {
+            builder.setSelectedParkingUnit(unit)
+            if (builder.getSelectedParkingUnit()) {
+                scrollToForm()
+            }
         }
         refresh()
-    }
+    }, [refresh, unit, builder, scrollToForm])
+
+    const isUnitSelected = unit.unitType === BuildingUnitType.Flat
+        ? builder.isUnitSelected(unit.id)
+        : builder.isParkingUnitSelected(unit.id)
+
     return (
         <UnitButton
-            onClick={() => selectUnit(unit)}
+            onClick={selectUnit}
             disabled={unit.preview}
             preview={unit.preview}
-            selected={builder.isUnitSelected(unit.id)}
+            selected={isUnitSelected}
         >{unit.label}</UnitButton>
     )
 }
@@ -1109,7 +1124,6 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
     const [maxMinError, setMaxMinError] = useState(false)
     const [minFloorHidden, setMinFloorHidden] = useState<boolean>(true)
     const [copyId, setCopyId] = useState<string | null>(null)
-    const name = useRef<number>(1)
 
     const toggleMinFloorVisible = useCallback(() => {
         setMinFloor(1)
@@ -1119,7 +1133,7 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
     const setMaxFloorValue = useCallback((value) => { setMaxFloor(value) }, [])
 
     const resetForm = () => {
-        setMinFloor(null)
+        setMinFloor(1)
         setMaxFloor(null)
         setUnitsOnFloor(null)
     }
@@ -1129,13 +1143,9 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
             setMaxMinError((maxFloor < minFloor))
         }
         if (minFloor && maxFloor && unitsOnFloor && !maxMinError) {
-            if (!builder.isEmptyParking) {
-                name.current = Number(last(builder.parking).name) + 1
-            }
-
             builder.addPreviewParking({
                 id: '',
-                name: String(name.current),
+                name: builder.nextParkingName,
                 minFloor,
                 maxFloor,
                 unitsOnFloor,
@@ -1159,7 +1169,7 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
 
     const handleFinish = () => {
         builder.removePreviewParking()
-        builder.addParking({ id: '', name: String(name.current), minFloor, maxFloor, unitsOnFloor })
+        builder.addParking({ id: '', name: builder.nextParkingName, minFloor, maxFloor, unitsOnFloor })
         refresh()
         resetForm()
     }
@@ -1255,6 +1265,141 @@ const RemoveParkingForm: React.FC<IRemoveSectionFormProps> = ({ builder, refresh
                     >{DeleteLabel}</Button>
                 </Col>
             </Row>
+        </Row>
+    )
+}
+
+const ParkingUnitForm: React.FC<IUnitFormProps> = ({ builder, refresh }) => {
+    const intl = useIntl()
+    const mode = builder.editMode
+    const SaveLabel = intl.formatMessage({ id: mode === 'editParkingUnit' ? 'Save' : 'Add' })
+    const DeleteLabel = intl.formatMessage({ id: 'Delete' })
+    const NameLabel = intl.formatMessage({ id: 'pages.condo.property.unit.Name' })
+    const SectionLabel = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
+    const FloorLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
+
+    const [label, setLabel] = useState('')
+    const [floor, setFloor] = useState('')
+    const [section, setSection] = useState('')
+
+    const [sections, setSections] = useState([])
+    const [floors, setFloors] = useState([])
+
+    const updateSection = (value) => {
+        setSection(value)
+        setFloors(builder.getParkingSectionFloorOptions(value))
+        if (mode === 'editParkingUnit') {
+            const mapUnit = builder.getSelectedParkingUnit()
+            if (value === mapUnit.section) {
+                setFloor(mapUnit.floor)
+            } else {
+                setFloor(null)
+            }
+        } else {
+            setFloor(null)
+        }
+    }
+
+    useEffect(() => {
+        setSections(builder.getParkingSectionOptions())
+        const mapUnit = builder.getSelectedParkingUnit()
+        if (mapUnit) {
+
+            setFloors(builder.getParkingSectionFloorOptions(mapUnit.section))
+            setLabel(mapUnit.label)
+            setSection(mapUnit.section)
+            setFloor(mapUnit.floor)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [builder])
+
+    useEffect(() => {
+        if (label && floor && section && mode === 'addParkingUnit') {
+            builder.addPreviewParkingUnit({ id: '', label, floor, section })
+            refresh()
+        } else {
+            builder.removePreviewParkingUnit()
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [label, floor, section, mode])
+
+    const resetForm = useCallback(() => {
+        setLabel('')
+        setFloor('')
+        setSection('')
+    }, [])
+
+    const applyChanges = useCallback(() => {
+        const mapUnit = builder.getSelectedParkingUnit()
+        if (mapUnit) {
+            builder.updateParkingUnit({ ...mapUnit, label, floor, section })
+        } else {
+            builder.removePreviewParkingUnit()
+            builder.addParkingUnit({ id: '', label, floor, section })
+            resetForm()
+        }
+        refresh()
+    }, [builder, refresh, resetForm, label, floor, section])
+
+    const deleteUnit = useCallback(() => {
+        const mapUnit = builder.getSelectedParkingUnit()
+        builder.removeParkingUnit(mapUnit.id, IS_NUMERIC_REGEXP.test(mapUnit.label))
+        refresh()
+        resetForm()
+    }, [resetForm, refresh, builder])
+
+    return (
+        <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
+            <Col span={24}>
+                <Space direction={'vertical'} size={8}>
+                    <Typography.Text type={'secondary'}>{NameLabel}</Typography.Text>
+                    <Input allowClear={true} value={label} onChange={e => setLabel(e.target.value)} style={INPUT_STYLE} />
+                </Space>
+            </Col>
+            <Col span={24}>
+                <Space direction={'vertical'} size={8} style={INPUT_STYLE}>
+                    <Typography.Text type={'secondary'} >{SectionLabel}</Typography.Text>
+                    <Select value={section} onSelect={updateSection} style={INPUT_STYLE}>
+                        {sections.map((sec) => {
+                            return <Option key={sec.id} value={sec.id}>{sec.label}</Option>
+                        })}
+                    </Select>
+                </Space>
+            </Col>
+            <Col span={24}>
+                <Space direction={'vertical'} size={32}>
+                    <Space direction={'vertical'} size={8} style={INPUT_STYLE}>
+                        <Typography.Text type={'secondary'} >{FloorLabel}</Typography.Text>
+                        <Select value={floor} onSelect={setFloor} style={INPUT_STYLE}>
+                            {floors.map(floorOption => {
+                                return <Option key={floorOption.id} value={floorOption.id}>{floorOption.label}</Option>
+                            })}
+                        </Select>
+                    </Space>
+                    <Row gutter={MODAL_FORM_ROW_BUTTONS_GUTTER}>
+                        <Col span={24}>
+                            <Button
+                                secondary
+                                onClick={applyChanges}
+                                type='sberDefaultGradient'
+                                disabled={!(floor && section)}
+                            > {SaveLabel} </Button>
+                        </Col>
+                        {
+                            mode === 'editUnit' && (
+                                <Col span={24}>
+                                    <Button
+                                        secondary
+                                        onClick={deleteUnit}
+                                        type='sberDangerGhost'
+                                        icon={<DeleteFilled />}
+                                    >{DeleteLabel}</Button>
+                                </Col>
+                            )
+                        }
+                    </Row>
+                </Space>
+            </Col>
         </Row>
     )
 }

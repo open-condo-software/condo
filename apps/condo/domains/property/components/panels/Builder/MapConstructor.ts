@@ -6,12 +6,7 @@ import uniq from 'lodash/uniq'
 import compact from 'lodash/compact'
 import isObjectEmpty from 'lodash/isEmpty'
 import last from 'lodash/last'
-import MapSchemaJSON from './MapJsonSchema.json'
-import Ajv from 'ajv'
 import { BuildingMap, BuildingMapEntityType, BuildingSection, BuildingUnit, BuildingUnitType } from '@app/condo/schema'
-
-const ajv = new Ajv()
-const validator = ajv.compile(MapSchemaJSON)
 
 type Maybe<T> = T | null
 
@@ -26,6 +21,7 @@ export type BuildingUnitArg = BuildingUnit & {
     name?: string
     floor?: string
     section?: string
+    parking?: string
     sectionIndex?: number
 }
 
@@ -38,6 +34,10 @@ type IndexLocation = {
     section: number
     floor: number
     unit: number
+}
+
+type IndexParkingLocation = Omit<IndexLocation, 'section'> & {
+    parking: number
 }
 
 export type MapViewMode = 'section' | 'parking'
@@ -85,18 +85,7 @@ class Map {
     }
 
     public validate (): boolean {
-        return this.validateSchema() && this.validateUniqueIds() && this.validateUniqueUnitLabel()
-    }
-
-    public validateSchema (): boolean {
-        // TODO(zuch): check if json schema can validate unique id field
-        this.validationErrors = null
-        const check = validator(this.map)
-        if (!check){
-            this.validationErrors = validator.errors.map(err => JSON.stringify(err, null, 2))
-            return false
-        }
-        return true
+        return this.validateUniqueIds() && this.validateUniqueUnitLabel()
     }
 
     public validateUniqueIds (): boolean {
@@ -292,9 +281,40 @@ class MapView extends Map {
         }
     }
 
-    public  getSectionOptions (): BuildingSelectOption[] {
+    public getParkingUnitInfo (id: string): BuildingUnitArg {
+        const newUnit: BuildingUnitArg = {
+            id: '',
+            label: '',
+            floor: '',
+            section: '',
+            type: BuildingMapEntityType.Unit,
+            unitType: BuildingUnitType.Parking,
+        }
+        if (!id) {
+            return newUnit
+        }
+        const unitIndex = this.getParkingUnitIndex(id)
+        if (unitIndex.unit === -1) {
+            return newUnit
+        }
+        const { label, type } = this.map.parking[unitIndex.parking].floors[unitIndex.floor].units[unitIndex.unit]
+        return {
+            id,
+            label,
+            type,
+            section: this.map.parking[unitIndex.parking].id,
+            sectionIndex: this.map.parking[unitIndex.parking].index,
+            floor: this.map.parking[unitIndex.parking].floors[unitIndex.floor].id,
+        }
+    }
+
+    public getSectionOptions (): BuildingSelectOption[] {
         const options = this.sections.map(section => ({ id: section.id, label: section.name }))
         return options
+    }
+
+    public getParkingSectionOptions (): BuildingSelectOption[] {
+        return this.parking.map(section => ({ id: section.id, label: section.name }))
     }
 
     public getSectionFloorOptions (id: string): BuildingSelectOption[] {
@@ -306,6 +326,14 @@ class MapView extends Map {
         return options
     }
 
+    public getParkingSectionFloorOptions (id: string): BuildingSelectOption[] {
+        const foundSection = this.map.parking.find(section => section.id === id)
+        if (!foundSection) {
+            return []
+        }
+        return foundSection.floors.map(floor => ({ id: floor.id, label: floor.name }))
+    }
+
     protected getUnitIndex (unitId: string): IndexLocation {
         const result = { section: -1, floor: -1, unit: -1 }
         this.map.sections.forEach((section, sectionIdx) => {
@@ -313,6 +341,21 @@ class MapView extends Map {
                 const unitIdx = floor.units.findIndex(unit => unit.id === unitId)
                 if (unitIdx !== -1) {
                     result.section = sectionIdx
+                    result.floor = floorIdx
+                    result.unit = unitIdx
+                }
+            })
+        })
+        return result
+    }
+
+    protected getParkingUnitIndex (unitId: string): IndexParkingLocation {
+        const result = { parking: -1, floor: -1, unit: -1 }
+        this.map.parking.forEach((section, sectionIdx) => {
+            section.floors.forEach((floor, floorIdx) => {
+                const unitIdx = floor.units.findIndex(unit => unit.id === unitId)
+                if (unitIdx !== -1) {
+                    result.parking = sectionIdx
                     result.floor = floorIdx
                     result.unit = unitIdx
                 }
@@ -360,13 +403,21 @@ class MapEdit extends MapView {
     }
 
     get nextSectionName (): string {
-        if (this.isEmpty) return '1'
-        if (!this.isEmpty && this.sections.filter(section => !section.preview).length === 0) return '1'
+        if (this.isEmptySections) return '1'
+        if (!this.isEmptySections && this.sections.filter(section => !section.preview).length === 0) return '1'
 
         const maxSectionNumber = Math.max(...this.sections
             .filter(section => !section.preview)
             .map(section => Number(section.name)))
         return String(maxSectionNumber + 1)
+    }
+
+    get nextParkingName (): string {
+        if (this.isEmptyParking) return '1'
+        if (!this.isEmptyParking && this.parking.filter(section => !section.preview).length === 0) return '1'
+
+        const lastSectionNumber = Number(last(this.parking.filter(section => !section.preview)).name)
+        return String(lastSectionNumber + 1)
     }
 
     get editMode (): string | null {
@@ -394,7 +445,7 @@ class MapEdit extends MapView {
                 this.selectedSection = null
                 break
             case 'removeParking':
-                // this.removePreviewParkingUnit()
+                this.removePreviewParkingUnit()
                 this.removePreviewParking()
                 this.selectedParkingUnit = null
                 break
@@ -409,9 +460,22 @@ class MapEdit extends MapView {
                 this.removePreviewSection()
                 this.selectedSection = null
                 break
+            case 'addParkingUnit':
+                this.removePreviewParking()
+                this.viewMode = 'parking'
+                this.selectedParking = null
+                this.selectedParkingUnit = null
+                break
+            case 'editParkingUnit':
+                this.removePreviewParkingUnit()
+                this.removePreviewParking()
+                this.selectedParking = null
+                break
             default:
                 this.selectedSection = null
                 this.selectedUnit = null
+                this.selectedParking = null
+                this.selectedParkingUnit = null
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.removePreviewParking()
@@ -455,6 +519,31 @@ class MapEdit extends MapView {
 
     public isSectionSelected (id: string): boolean {
         return this.selectedSection && this.selectedSection.id === id
+    }
+
+    public setSelectedParkingUnit (unit: BuildingUnit): void {
+        if (this.isParkingUnitSelected(unit.id)) {
+            this.editMode = 'addParking'
+            this.selectedParkingUnit = null
+        } else {
+            this.selectedParkingUnit = unit
+            this.editMode = 'editParkingUnit'
+        }
+    }
+
+    public getSelectedParkingUnit (): BuildingUnitArg {
+        return this.selectedParkingUnit ? this.getParkingUnitInfo(this.selectedParkingUnit.id) : null
+    }
+
+    public isParkingUnitSelected (id: string): boolean {
+        return this.selectedParkingUnit && this.selectedParkingUnit.id === id
+    }
+
+    public removePreviewParkingUnit (): void {
+        if (this.previewParkingUnitId) {
+            this.removeParkingUnit(this.previewParkingUnitId, false)
+            this.previewParkingUnitId = null
+        }
     }
 
     public setSelectedUnit (unit: BuildingUnit): void {
@@ -529,6 +618,8 @@ class MapEdit extends MapView {
     public removeParking (id: string): void {
         const parkingIndex = this.map.parking.findIndex(mapParking => mapParking.id === id)
         this.map.parking.splice(parkingIndex, 1)
+        this.updateParkingNumbers(parkingIndex)
+
         this.editMode = 'addParking'
         this.notifyUpdater()
     }
@@ -584,6 +675,59 @@ class MapEdit extends MapView {
         this.previewUnitId = newUnit.id
     }
 
+    public addPreviewParkingUnit (unit: Partial<BuildingUnitArg>): void {
+        this.removePreviewParkingUnit()
+        const { id, section, floor, label } = unit
+        const sectionIndex = this.map.parking.findIndex(mapSection => mapSection.id === section)
+        if (sectionIndex === -1) {
+            return
+        }
+        const floorIndex = this.map.parking[sectionIndex].floors.findIndex(sectionFloor => sectionFloor.id === floor)
+        if (floorIndex === -1) {
+            return
+        }
+        const newUnit = {
+            id,
+            label,
+            type: null,
+            unitType: BuildingUnitType.Parking,
+            preview: true,
+        }
+        newUnit.type = BuildingMapEntityType.Unit
+        if (!id) {
+            newUnit.id = String(++this.autoincrement)
+        }
+        this.map.parking[sectionIndex].floors[floorIndex].units.push(newUnit)
+        this.previewUnitId = newUnit.id
+    }
+
+    public addParkingUnit (unit: Partial<BuildingUnitArg>): void {
+        const { id, section, floor, label } = unit
+        const sectionIndex = this.map.parking.findIndex(mapSection => mapSection.id === section)
+        if (sectionIndex === -1) {
+            return
+        }
+        const floorIndex = this.map.parking[sectionIndex].floors.findIndex(sectionFloor => sectionFloor.id === floor)
+        if (floorIndex === -1) {
+            return
+        }
+        const newUnit = {
+            id,
+            name: label,
+            label,
+            type: null,
+            unitType: BuildingUnitType.Parking,
+        }
+        newUnit.type = BuildingMapEntityType.Unit
+        if (!id) {
+            newUnit.id = String(++this.autoincrement)
+        }
+        this.map.parking[sectionIndex].floors[floorIndex].units.push(newUnit)
+        this.updateParkingUnitNumbers(newUnit)
+        this.editMode = 'addParkingUnit'
+        this.notifyUpdater()
+    }
+
     public addUnit (unit: Partial<BuildingUnitArg>): void {
         const { id, section, floor, label } = unit
         const sectionIndex = this.map.sections.findIndex(mapSection => mapSection.id === section)
@@ -629,6 +773,46 @@ class MapEdit extends MapView {
         this.notifyUpdater()
     }
 
+    public removeParkingUnit (id: string, shouldUpdateUnitNumbers = true): void {
+        const unitIndex = this.getParkingUnitIndex(id)
+        const nextUnit = this.getNextParkingUnit(id)
+        if (unitIndex.unit !== -1) {
+            const floorUnits = this.map.parking[unitIndex.parking].floors[unitIndex.floor].units
+            const [removedUnit] = floorUnits.splice(unitIndex.unit, 1)
+            if (floorUnits.length === 0) {
+                this.removeFloor(unitIndex.parking, unitIndex.floor)
+            }
+            if (nextUnit && shouldUpdateUnitNumbers) {
+                nextUnit.label = removedUnit.label
+                this.updateParkingUnitNumbers(nextUnit)
+            }
+        }
+        this.selectedParkingUnit = null
+        this.editMode = 'addParkingUnit'
+        this.notifyUpdater()
+    }
+
+    public updateParkingUnit (unit: BuildingUnitArg): void {
+        const unitIndex = this.getParkingUnitIndex(unit.id)
+        if (unitIndex.unit === -1) {
+            return
+        }
+
+        const oldParkingSection = this.map.parking[unitIndex.parking].id
+        const oldFloor = this.map.parking[unitIndex.parking].floors[unitIndex.floor].id
+
+        if (oldFloor !== unit.floor || oldParkingSection !== unit.parking) {
+            this.removeParkingUnit(unit.id)
+            this.addParkingUnit(unit)
+        } else {
+            this.map.parking[unitIndex.parking].floors[unitIndex.floor].units[unitIndex.unit].name = unit.label
+            this.map.parking[unitIndex.parking].floors[unitIndex.floor].units[unitIndex.unit].label = unit.label
+            this.updateParkingUnitNumbers(unit)
+        }
+        this.editMode = null
+        this.notifyUpdater()
+    }
+
     public updateUnit (unit: BuildingUnitArg): void {
         const unitIndex = this.getUnitIndex(unit.id)
         if (unitIndex.unit === -1) {
@@ -657,6 +841,35 @@ class MapEdit extends MapView {
         let started = false
         let next = Number(label) + 1
         this.map.sections.forEach(section => {
+            section.floors.slice().reverse().forEach(floor => {
+                floor.units.forEach(unit => {
+                    if (started) {
+                        if (unit.name) {
+                            if (!isNaN(Number(unit.name))) {
+                                next = Number(unit.name) + 1
+                            }
+                        } else {
+                            if (!isNaN(Number(unit.label))) {
+                                unit.label = String(next++)
+                            }
+                        }
+                    }
+                    if (unit.id === id) {
+                        started = true
+                    }
+                })
+            })
+        })
+    }
+
+    private updateParkingUnitNumbers (unitFrom: BuildingUnit): void {
+        const { id, label } = unitFrom
+        if (isNaN(Number(label))) {
+            return
+        }
+        let started = false
+        let next = Number(label) + 1
+        this.map.parking.forEach(section => {
             section.floors.slice().reverse().forEach(floor => {
                 floor.units.forEach(unit => {
                     if (started) {
@@ -762,6 +975,14 @@ class MapEdit extends MapView {
         return newParking
     }
 
+    private getNextParkingUnit (id: string): BuildingUnit {
+        const units = this.map.parking
+            .map(section => section.floors.slice(0).reverse().map(floor => floor.units)).flat(2)
+        const unitIndex = units.findIndex(unit => unit.id === id)
+        const nextUnit = unitIndex + 1
+        return units[nextUnit] || null
+    }
+
     private getNextUnit (id: string): BuildingUnit {
         const units = this.map.sections.map(section => section.floors.slice(0).reverse().map(floor => floor.units)).flat(2)
         const unitIndex = units.findIndex(unit => unit.id === id)
@@ -819,6 +1040,34 @@ class MapEdit extends MapView {
                 const lastFloorUnits = get(this.map.sections[removedIndex - 1], 'floors.0.units')
                 if (lastFloorUnits) {
                     this.updateUnitNumbers(last(lastFloorUnits))
+                }
+            }
+        }
+    }
+
+    private updateParkingNumbers (removedIndex: number): void {
+        if (removedIndex === this.map.parking.length) {
+            return
+        }
+
+        this.map.parking.forEach((parkingSection, index) => {
+            parkingSection.name = String(index + 1)
+            parkingSection.index = index
+        })
+
+        if (typeof this.map.parking[removedIndex] !== 'undefined') {
+            if (removedIndex === 0) {
+                // Rename from first unit
+                const firstSectionUnit = get(last(this.map.parking[removedIndex].floors), 'units.0')
+                if (firstSectionUnit) {
+                    firstSectionUnit.label = '1'
+                    this.updateParkingUnit(firstSectionUnit)
+                }
+            } else if (typeof this.map.sections[removedIndex - 1] !== 'undefined') {
+                // Rename from last unit at section - 1 of sectionIndex
+                const lastFloorUnits = get(this.map.parking[removedIndex - 1], 'floors.0.units')
+                if (lastFloorUnits) {
+                    this.updateParkingUnitNumbers(last(lastFloorUnits))
                 }
             }
         }

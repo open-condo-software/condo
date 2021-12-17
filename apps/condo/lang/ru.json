@@ -338,6 +338,8 @@
   "pages.condo.property.modal.title.editUnit": "Редактировать помещение",
   "pages.condo.property.modal.title.addParking": "Добавить паркинг",
   "pages.condo.property.modal.title.removeParking": "Удалить паркинг",
+  "pages.condo.property.modal.title.addParkingUnit": "Добавить машиноместо",
+  "pages.condo.property.modal.title.editParkingUnit": "Редактировать машиноместо",
   "pages.condo.property.menu.MenuPlaceholder": "Добавить элемент",
   "pages.condo.property.type.building": "Многоквартирный дом",
   "pages.condo.property.type.village": "Коттеджный поселок",

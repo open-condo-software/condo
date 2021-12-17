@@ -338,6 +338,8 @@
   "pages.condo.property.modal.title.editUnit": "Edit unit",
   "pages.condo.property.modal.title.addParking": "Add parking",
   "pages.condo.property.modal.title.removeParking": "Remove parking",
+  "pages.condo.property.modal.title.addParkingUnit": "Add parking place",
+  "pages.condo.property.modal.title.editParkingUnit": "Remove parking place",
   "pages.condo.property.menu.MenuPlaceholder": "Add element",
   "pages.condo.property.type.building": "Building",
   "pages.condo.property.type.village": "Village",
