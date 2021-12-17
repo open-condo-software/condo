@@ -1,4 +1,4 @@
-import { Columns, ObjectCreator, ProcessedRow, RowNormalizer, RowValidator } from '@condo/domains/common/utils/importer'
+import { Columns, DATE_PARSING_FORMAT, ObjectCreator, ProcessedRow, RowNormalizer, RowValidator } from '@condo/domains/common/utils/importer'
 import { useOrganization } from '@core/next/organization'
 import { useApolloClient } from '@core/next/apollo'
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
@@ -156,7 +156,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                 case CommissioningDateMessage: 
                 case SealingDateMessage: 
                     if (cell.value && !dayjs(cell.value).isValid()) 
-                        errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateFormatMessage' }, { columnName: columns[i].label, format: 'YYYY-MM-DD' }))
+                        errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateFormatMessage' }, { columnName: columns[i].label, format: DATE_PARSING_FORMAT }))
                     break
                 default: 
                     break
