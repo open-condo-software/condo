@@ -6,14 +6,10 @@ import {
     ObjectCreator,
     Columns,
     ProcessedRow,
-    ImporterErrorMessages,
-    MAX_TABLE_LENGTH,
 } from '@condo/domains/common/utils/importer'
-import { useIntl } from '@core/next/intl'
 
-
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const useImporter = (columns: Columns,
+type useImporterParams = {
+    columns: Columns,
     rowNormalizer: RowNormalizer,
     rowValidator: RowValidator,
     objectCreator: ObjectCreator,
@@ -21,24 +17,15 @@ export const useImporter = (columns: Columns,
     setSuccessRows: () => void,
     handleRowError: (row: ProcessedRow) => void,
     onFinish: () => void,
-    onError: () => void) => {
-    const intl = useIntl()
-    const TooManyRowsErrorMessage = intl.formatMessage({ id: 'TooManyRowsInTable' }, {
-        value: MAX_TABLE_LENGTH,
-    })
-    const InvalidHeadersErrorMessage = intl.formatMessage({ id: 'TableHasInvalidHeaders' }, {
-        value: columns.map(column => `"${column.name}"`).join(', '),
-    })
-    const NotValidRowTypesMessage = intl.formatMessage({ id:'errors.import.InvalidColumnTypes' })
+    onError: () => void,
+}
+
+export const useImporter = ({ columns, handleRowError, objectCreator, onError, onFinish, rowNormalizer, rowValidator, setSuccessRows, setTotalRows }: useImporterParams) => {
     const [progress, setProgress] = useState(0)
     const [error, setError] = useState(null)
     const [isImported, setIsImported] = useState(false)
     const importer = useRef(null)
-    const errors: ImporterErrorMessages = {
-        tooManyRows: TooManyRowsErrorMessage,
-        invalidColumns: InvalidHeadersErrorMessage,
-        invalidTypes: NotValidRowTypesMessage,
-    }
+
 
     const importData = useCallback((data) => {
         importer.current = null
@@ -48,7 +35,7 @@ export const useImporter = (columns: Columns,
         setProgress(0)
         setTotalRows(Math.max(0, data.length - 1))
 
-        importer.current = new Importer(columns, rowNormalizer, rowValidator, objectCreator, errors)
+        importer.current = new Importer(columns, rowNormalizer, rowValidator, objectCreator)
         importer.current.onProgressUpdate(setProgress)
         importer.current.onError((e) => {
             importer.current = null
@@ -77,5 +64,5 @@ export const useImporter = (columns: Columns,
         }
     }
 
-    return [importData, progress, error, isImported, breakImport]
+    return [importData, progress, error, isImported, breakImport] as const
 }

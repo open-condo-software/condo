@@ -68,6 +68,7 @@ export const MetersPageContent = ({
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
     }, {
         fetchPolicy: 'network-only',
+        
     })
 
     const { isSmall } = useLayoutContext()
@@ -75,7 +76,7 @@ export const MetersPageContent = ({
     const { MeterInfoModal, setIsMeterInfoModalVisible } = useMeterInfoModal()
     const [ selectedMeterId, setSelectedMeterId ] = useState<string>()
     const { MultipleFiltersModal, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas)
-    const [columns, meterReadingNormalizer, meterReadingValidator, meterReadingCreator] = useImporterFunctions()
+    const [columns, meterReadingNormalizer, meterReadingValidator, meterReadingCreator, metersRowErrorsProcessor] = useImporterFunctions()
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -128,6 +129,7 @@ export const MetersPageContent = ({
                                                                 objectCreator={meterReadingCreator}
                                                                 domainTranslate={MeterReadingImportObjectsNameManyGenitive}
                                                                 exampleTemplateLink={'/meter-import-example.xlsx'}
+                                                                rowErrorProcessor={metersRowErrorsProcessor}
                                                             >
                                                                 <Button
                                                                     type={'sberPrimary'}

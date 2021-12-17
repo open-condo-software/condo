@@ -1,4 +1,4 @@
-import { Columns, ObjectCreator, ProcessedRow, RowNormalizer, RowValidator } from '@condo/domains/common/utils/importer'
+import { Columns, MAX_TABLE_LENGTH, ObjectCreator, ProcessedRow, RowNormalizer, RowValidationErrorType, RowValidator, TableRow } from '@condo/domains/common/utils/importer'
 import { useOrganization } from '@core/next/organization'
 import { useApolloClient } from '@core/next/apollo'
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
@@ -18,8 +18,15 @@ import {
     IMPORT_CONDO_METER_READING_SOURCE_ID,
 } from '../constants/constants'
 import dayjs from 'dayjs'
+import { useCallback, useMemo } from 'react'
 
-export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, ObjectCreator] => {
+type MeterReadingAddons = {
+    address?: string;
+    propertyId?: string;
+    meterId?: string;
+    meterResourceId?: string;
+}
+export const useImporterFunctions = () => {
     const intl = useIntl()
 
     // TODO: change to 'common.import' namespace
@@ -53,6 +60,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const ElectricityResourceTypeValue = intl.formatMessage({ id: 'meter.import.value.meterResourceType.electricity' })
     const HeatSupplyResourceTypeValue = intl.formatMessage({ id: 'meter.import.value.meterResourceType.heatSupply' })
     const GasSupplyResourceTypeValue = intl.formatMessage({ id: 'meter.import.value.meterResourceType.gasSupply' })
+    
 
     const userOrganization = useOrganization()
     const client = useApolloClient()
@@ -66,6 +74,8 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const meterReadingCreateAction = MeterReading.useCreate({},
         () => Promise.resolve())
 
+    // const DateVer
+    const VerificationDateTest = 
     const columns: Columns = [
         { name: AddressColumnMessage, type: 'string', required: true, label: AddressColumnMessage },
         { name: UnitNameColumnMessage, type: 'string', required: true, label: UnitNameColumnMessage },
@@ -85,8 +95,8 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         { name: ControlReadingsDate, type: 'date', required: false, label: ControlReadingsDate },
     ]
 
-    const meterReadingNormalizer: RowNormalizer = async (row) => {
-        const addons = { address: null, propertyId: null, meterId: null, meterResourceId: null }
+    const meterReadingNormalizer: RowNormalizer<MeterReadingAddons> = async (row) => {
+        const addons: MeterReadingAddons = { address: null, propertyId: null, meterId: null, meterResourceId: null }
         if (row.length !== columns.length) return Promise.resolve({ row })
         const [
             address,
@@ -140,22 +150,30 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         return { row, addons }
     }
 
-    const meterReadingValidator: RowValidator = (row) => {
-        if (!row) return Promise.resolve(false)
-        const errors = []
-        if (!row.addons) errors.push(IncorrectRowFormatMessage)
-        if (!get(row, ['addons', 'address'])) errors.push(AddressNotFoundMessage)
-        if (!get(row, ['addons', 'propertyId'])) errors.push(PropertyNotFoundMessage)
-        if (!get(row, ['addons', 'meterResourceId'])) errors.push(MeterResourceNotFoundMessage)
+    const addonsToErrorMapper: Partial<Record<keyof MeterReadingAddons, string>> = {
+        ['address']: AddressNotFoundMessage,
+        ['propertyId']: PropertyNotFoundMessage,
+        ['meterResourceId']: MeterResourceNotFoundMessage,
+    }
 
+    const meterReadingValidator: RowValidator<MeterReadingAddons> = (processedRow) => {
+        if (!processedRow) return Promise.resolve(false)
+        const errors = []
+        if (!processedRow.addons) errors.push(IncorrectRowFormatMessage)
+        else {
+            Object.keys(addonsToErrorMapper).forEach((key: keyof MeterReadingAddons) => {
+                if (!processedRow.addons[key]) errors.push(addonsToErrorMapper[key])
+            })
+        }
+        // processedRow.row.
         if (errors.length) {
-            row.errors = errors
+            processedRow.errors = errors
             return Promise.resolve(false)
         }
         return Promise.resolve(true)
     }
 
-    const meterReadingCreator: ObjectCreator = async ({ row, addons }: ProcessedRow) => {
+    const meterReadingCreator: ObjectCreator<MeterReadingAddons> = async ({ row, addons }) => {
         if (!row) return Promise.resolve()
         const [
             address,
@@ -192,7 +210,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                 nextVerificationDate: dayjs(nextVerificationDate).toISOString(),
                 installationDate: dayjs(installationDate).toISOString(),
                 commissioningDate: dayjs(commissioningDate).toISOString(),
-                sealingDate: dayjs(sealingDate).toISOString(),
+                sealingDate: (sealingDate ? dayjs(sealingDate) : dayjs()).toISOString(),
                 controlReadingsDate: dayjs(controlReadingsDate).toISOString(),
             })
             meterId = get(newMeter, 'id')
@@ -217,5 +235,42 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         })
     }
 
-    return [columns, meterReadingNormalizer, meterReadingValidator, meterReadingCreator]
+    const ImportErrorMessage = intl.formatMessage({ id: 'ImportError' })
+    const TooManyRowsErrorMessage = intl.formatMessage({ id: 'TooManyRowsInTable' }, {
+        value: MAX_TABLE_LENGTH,
+    })
+    const InvalidHeadersErrorMessage = intl.formatMessage({ id: 'TableHasInvalidHeaders' }, {
+        value: columns.map(column => `"${column.name}"`).join(', '),
+    })
+
+    const metersRowErrorsProcessor = (row: ProcessedRow) => {
+        row.errors.forEach((error, i) => {
+            let message
+            switch (error.type) {
+                case RowValidationErrorType.InvalidTypes: {
+                    const column = columns[error.metadata.columnIndex]
+                    message = row.errors[i] = intl.formatMessage({ id: 'errors.import.meters.InvalidColumnTypes' }, 
+                        {
+                            columnName: column.label,
+                            requiredType: intl.formatMessage({ id: `import.columnType.${column.type}.name` }),
+                            example: intl.formatMessage({ id: `import.columnType.${column.type}.example` }),
+                        })
+                    break
+                }
+                case RowValidationErrorType.InvalidColumns: 
+                    message = InvalidHeadersErrorMessage
+                    break
+                case RowValidationErrorType.TooManyRows:
+                    message = TooManyRowsErrorMessage
+                    break
+                default:
+                    message = ImportErrorMessage
+                    break
+            }
+            row.errors[i].message = message
+        })
+        return row.errors
+    }
+
+    return [columns, meterReadingNormalizer, meterReadingValidator, meterReadingCreator, metersRowErrorsProcessor] as const
 }

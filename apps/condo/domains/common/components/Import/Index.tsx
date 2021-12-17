@@ -1,10 +1,12 @@
-import React, { useCallback, useRef } from 'react'
+import React, { ComponentProps, useCallback, useMemo, useRef } from 'react'
 import {
     Columns,
     RowNormalizer,
     RowValidator,
     ObjectCreator,
     ProcessedRow,
+    RowValidationErrorType,
+    MAX_TABLE_LENGTH,
 } from '@condo/domains/common/utils/importer'
 import { Modal, Popover, Typography, Space } from 'antd'
 import { useImporter } from '@condo/domains/common/hooks/useImporter'
@@ -22,18 +24,6 @@ import { DownloadOutlined } from '@ant-design/icons'
 
 interface IColumnsInfoBoxProps {
     columns: Columns
-    domainTranslate: string
-    exampleTemplateLink?: string | null
-}
-
-interface IImportWrapperProps {
-    objectsName: string
-    accessCheck: boolean
-    onFinish(): void
-    columns: Columns
-    rowNormalizer: RowNormalizer
-    rowValidator: RowValidator
-    objectCreator: ObjectCreator
     domainTranslate: string
     exampleTemplateLink?: string | null
 }
@@ -81,6 +71,23 @@ const ColumnsInfoBox: React.FC<IColumnsInfoBoxProps> = ({ columns, domainTransla
     )
 }
 
+export type RowValidationErrorMessagesMap = {
+    [x in RowValidationErrorType]: string
+}
+
+interface IImportWrapperProps {
+    objectsName: string
+    accessCheck: boolean
+    onFinish(): void
+    columns: Columns
+    rowNormalizer: RowNormalizer
+    rowValidator: RowValidator
+    objectCreator: ObjectCreator
+    domainTranslate: string
+    exampleTemplateLink?: string | null
+    rowErrorProcessor?: (errors: ProcessedRow) => ProcessedRow['errors'];
+}
+
 export const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
     const {
         objectsName,
@@ -92,17 +99,39 @@ export const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         onFinish,
         domainTranslate,
         exampleTemplateLink = null,
+        rowErrorProcessor,
     } = props
     const intl = useIntl()
-    const ImportTitle = intl.formatMessage({ id:'Import' })
-    const ImportSuccessMessage = intl.formatMessage({ id: 'ImportSuccess' },  { objects: objectsName })
+    const ImportTitle = intl.formatMessage({ id: 'Import' })
+    const ImportSuccessMessage = intl.formatMessage({ id: 'ImportSuccess' }, { objects: objectsName })
     const ImportOKMessage = intl.formatMessage({ id: 'Continue' })
     const ImportDefaultErrorMessage = intl.formatMessage({ id: 'ImportError' })
-    const ImportProcessingMessage = intl.formatMessage({ id:'ImportProcessing' })
-    const ImportBreakButtonMessage = intl.formatMessage({ id:'Break' })
+    const ImportProcessingMessage = intl.formatMessage({ id: 'ImportProcessing' })
+    const ImportBreakButtonMessage = intl.formatMessage({ id: 'Break' })
     const ImportPopoverTitle = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
     const GetFailedDataMessage = intl.formatMessage({ id: 'GetFailedData' })
     const CloseMessage = intl.formatMessage({ id: 'Close' })
+
+    const TooManyRowsErrorMessage = intl.formatMessage({ id: 'TooManyRowsInTable' }, {
+        value: MAX_TABLE_LENGTH,
+    })
+    const InvalidHeadersErrorMessage = intl.formatMessage({ id: 'TableHasInvalidHeaders' }, {
+        value: columns.map(column => `"${column.name}"`).join(', '),
+    })
+    const NotValidRowTypesMessage = intl.formatMessage({ id: 'errors.import.default.InvalidColumnTypes' })
+
+    const defaultRowErrorsMap = useMemo(() => ({
+        [RowValidationErrorType.TooManyRows]: TooManyRowsErrorMessage,
+        [RowValidationErrorType.InvalidColumns]: InvalidHeadersErrorMessage,
+        [RowValidationErrorType.InvalidTypes]: NotValidRowTypesMessage,
+    }), [InvalidHeadersErrorMessage, NotValidRowTypesMessage, TooManyRowsErrorMessage])
+
+    const defaultErrorPreprocessor = useCallback((row: ProcessedRow) => {
+        row.errors.forEach((error, i) => {
+            row.errors[i] = defaultRowErrorsMap[error.type]
+        })
+        return row.errors
+    }, [defaultRowErrorsMap])
 
     const [modal, contextHolder] = Modal.useModal()
     const activeModal = useRef(null)
@@ -121,7 +150,11 @@ export const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
     const clearErrors = () => {
         errors.current.splice(0, errors.current.length)
     }
-    const addError = (row: ProcessedRow) => {
+    const handleRowError = (row: ProcessedRow) => {
+        if (rowErrorProcessor) {
+            row.errors = rowErrorProcessor(row)
+        }
+        else row.errors = defaultErrorPreprocessor(row)
         errors.current.push(row)
     }
 
@@ -131,10 +164,15 @@ export const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
             activeModal.current = null
         }
     }
-    const [importData, progress, error, isImported, breakImport] = useImporter(
-        columns, rowNormalizer, rowValidator, objectCreator,
-        setTotalRowsRef, setSuccessRowsRef, addError,
-        () => {
+    const [importData, progress, error, isImported, breakImport] = useImporter({
+        columns,
+        rowNormalizer,
+        rowValidator,
+        objectCreator,
+        setTotalRows: setTotalRowsRef,
+        setSuccessRows: setSuccessRowsRef,
+        handleRowError,
+        onFinish: () => {
             const message = `${ImportSuccessMessage} [${successRowsRef.current}/${totalRowsRef.current}]`
             destroyActiveModal()
             if (errors.current.length > 0) {
@@ -146,12 +184,12 @@ export const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
                 activeModal.current = modal.success(config)
             }
         },
-        () => {
+        onError: () => {
             destroyActiveModal()
             const config = getUploadErrorModalConfig(ImportTitle, ImportDefaultErrorMessage, ImportOKMessage)
             activeModal.current = modal.error(config)
-        }
-    )
+        },
+    })
 
     const handleUpload = useCallback((file) => {
         destroyActiveModal()
