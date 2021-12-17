@@ -1,4 +1,4 @@
-import { Columns, ObjectCreator, ProcessedRow, RowNormalizer, RowValidator } from '@condo/domains/common/utils/importer'
+import { Columns, DATE_PARSING_FORMAT, ObjectCreator, ProcessedRow, RowNormalizer, RowValidator } from '@condo/domains/common/utils/importer'
 import { useOrganization } from '@core/next/organization'
 import { useApolloClient } from '@core/next/apollo'
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
@@ -140,21 +140,35 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         return { row, addons }
     }
 
-    const meterReadingValidator: RowValidator = (row) => {
-        if (!row) return Promise.resolve(false)
+    const meterReadingValidator: RowValidator = (processedRow) => {
+        if (!processedRow) return Promise.resolve(false)
         const errors = []
-        if (!row.addons) errors.push(IncorrectRowFormatMessage)
-        if (!get(row, ['addons', 'address'])) errors.push(AddressNotFoundMessage)
-        if (!get(row, ['addons', 'propertyId'])) errors.push(PropertyNotFoundMessage)
-        if (!get(row, ['addons', 'meterResourceId'])) errors.push(MeterResourceNotFoundMessage)
-
+        if (!processedRow.addons) errors.push(IncorrectRowFormatMessage)
+        if (!get(processedRow, ['addons', 'address'])) errors.push(AddressNotFoundMessage)
+        if (!get(processedRow, ['addons', 'propertyId'])) errors.push(PropertyNotFoundMessage)
+        if (!get(processedRow, ['addons', 'meterResourceId'])) errors.push(MeterResourceNotFoundMessage)
+        // TODO(mrfoxpro): Implement custom validation https://github.com/open-condo-software/condo/pull/978
+        processedRow.row.forEach((row, i) => {
+            switch (columns[i].label) {
+                case VerificationDateMessage: 
+                case NextVerificationDateMessage: 
+                case InstallationDateMessage: 
+                case CommissioningDateMessage: 
+                case SealingDateMessage: 
+                    if (!dayjs(row.value, DATE_PARSING_FORMAT).isValid()) 
+                        errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateFormatMessage' }, { columnName: columns[i].label }))
+                    break
+                default: 
+                    break
+            }
+        })
         if (errors.length) {
-            row.errors = errors
+            processedRow.errors = errors
             return Promise.resolve(false)
         }
         return Promise.resolve(true)
     }
-    const validateDate = (str) =>  {
+    const tryFormatDate = (str) =>  {
         if (!str) return null
         const djs = dayjs(String(str))
         return djs.isValid() ? djs.toISOString() : null
@@ -192,12 +206,12 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                 accountNumber: String(accountNumber),
                 number: String(meterNumber),
                 numberOfTariffs: parseInt(String(numberOfTariffs)),
-                verificationDate: validateDate(verificationDate),
-                nextVerificationDate: validateDate(nextVerificationDate),
-                installationDate: validateDate(installationDate),
-                commissioningDate: validateDate(commissioningDate),
-                sealingDate: validateDate(sealingDate),
-                controlReadingsDate: validateDate(controlReadingsDate) || dayjs().toISOString(),
+                verificationDate: tryFormatDate(verificationDate),
+                nextVerificationDate: tryFormatDate(nextVerificationDate),
+                installationDate: tryFormatDate(installationDate),
+                commissioningDate: tryFormatDate(commissioningDate),
+                sealingDate: tryFormatDate(sealingDate),
+                controlReadingsDate: tryFormatDate(controlReadingsDate) || dayjs().toISOString(),
             })
             meterId = get(newMeter, 'id')
         }
@@ -217,7 +231,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             // @ts-ignore
             value4,
             // @ts-ignore
-            date: validateDate(controlReadingsDate) || dayjs().toISOString(),
+            date: tryFormatDate(controlReadingsDate) || dayjs().toISOString(),
         })
     }
 
