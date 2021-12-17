@@ -155,7 +155,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                 case InstallationDateMessage: 
                 case CommissioningDateMessage: 
                 case SealingDateMessage: 
-                    if (!dayjs(row.value, DATE_PARSING_FORMAT).isValid()) 
+                    if (row.value && !dayjs(row.value, DATE_PARSING_FORMAT).isValid()) 
                         errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateFormatMessage' }, { columnName: columns[i].label }))
                     break
                 default: 
@@ -168,10 +168,8 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         }
         return Promise.resolve(true)
     }
-    const tryFormatDate = (str) =>  {
-        if (!str) return null
-        const djs = dayjs(String(str))
-        return djs.isValid() ? djs.toISOString() : null
+    const toISO = (str) =>  {
+        return dayjs(str).toISOString()
     }
     const meterReadingCreator: ObjectCreator = async ({ row, addons }: ProcessedRow) => {
         if (!row) return Promise.resolve()
@@ -206,12 +204,12 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                 accountNumber: String(accountNumber),
                 number: String(meterNumber),
                 numberOfTariffs: parseInt(String(numberOfTariffs)),
-                verificationDate: tryFormatDate(verificationDate),
-                nextVerificationDate: tryFormatDate(nextVerificationDate),
-                installationDate: tryFormatDate(installationDate),
-                commissioningDate: tryFormatDate(commissioningDate),
-                sealingDate: tryFormatDate(sealingDate),
-                controlReadingsDate: tryFormatDate(controlReadingsDate) || dayjs().toISOString(),
+                verificationDate: toISO(verificationDate),
+                nextVerificationDate: toISO(nextVerificationDate),
+                installationDate: toISO(installationDate),
+                commissioningDate: toISO(commissioningDate),
+                sealingDate: toISO(sealingDate),
+                controlReadingsDate: controlReadingsDate ? toISO(controlReadingsDate) : dayjs().toISOString(),
             })
             meterId = get(newMeter, 'id')
         }
@@ -231,7 +229,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             // @ts-ignore
             value4,
             // @ts-ignore
-            date: tryFormatDate(controlReadingsDate) || dayjs().toISOString(),
+            date: controlReadingsDate ? toISO(controlReadingsDate) : dayjs().toISOString(),
         })
     }
 
