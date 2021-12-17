@@ -157,7 +157,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const validateDate = (str) =>  {
         if (!str) return null
         const djs = dayjs(String(str))
-        return djs.isValid() && djs.toISOString() || null
+        return djs.isValid() ? djs.toISOString() : null
     }
     const meterReadingCreator: ObjectCreator = async ({ row, addons }: ProcessedRow) => {
         if (!row) return Promise.resolve()
