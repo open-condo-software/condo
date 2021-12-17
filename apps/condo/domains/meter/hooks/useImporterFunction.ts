@@ -156,7 +156,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                 case CommissioningDateMessage: 
                 case SealingDateMessage: 
                     if (cell.value && !dayjs(cell.value).isValid()) 
-                        errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateFormatMessage' }, { columnName: columns[i].label }))
+                        errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateFormatMessage' }, { columnName: columns[i].label, format: 'YYYY-MM-DD' }))
                     break
                 default: 
                     break
