@@ -154,7 +154,11 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         }
         return Promise.resolve(true)
     }
-
+    const validateDate = (str) =>  {
+        if (!str) return null
+        const djs = dayjs(String(str))
+        return djs.isValid() && djs.toISOString() || null
+    }
     const meterReadingCreator: ObjectCreator = async ({ row, addons }: ProcessedRow) => {
         if (!row) return Promise.resolve()
         const [
@@ -188,12 +192,12 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                 accountNumber: String(accountNumber),
                 number: String(meterNumber),
                 numberOfTariffs: parseInt(String(numberOfTariffs)),
-                verificationDate: dayjs(verificationDate).toISOString(),
-                nextVerificationDate: dayjs(nextVerificationDate).toISOString(),
-                installationDate: dayjs(installationDate).toISOString(),
-                commissioningDate: dayjs(commissioningDate).toISOString(),
-                sealingDate: dayjs(sealingDate).toISOString(),
-                controlReadingsDate: dayjs(controlReadingsDate).toISOString(),
+                verificationDate: validateDate(verificationDate),
+                nextVerificationDate: validateDate(nextVerificationDate),
+                installationDate: validateDate(installationDate),
+                commissioningDate: validateDate(commissioningDate),
+                sealingDate: validateDate(sealingDate),
+                controlReadingsDate: validateDate(controlReadingsDate) || dayjs().toISOString(),
             })
             meterId = get(newMeter, 'id')
         }
@@ -213,7 +217,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             // @ts-ignore
             value4,
             // @ts-ignore
-            date: controlReadingsDate,
+            date: validateDate(controlReadingsDate) || dayjs().toISOString(),
         })
     }
 
