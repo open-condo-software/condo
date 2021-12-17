@@ -148,14 +148,14 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         if (!get(processedRow, ['addons', 'propertyId'])) errors.push(PropertyNotFoundMessage)
         if (!get(processedRow, ['addons', 'meterResourceId'])) errors.push(MeterResourceNotFoundMessage)
         // TODO(mrfoxpro): Implement custom validation https://github.com/open-condo-software/condo/pull/978
-        processedRow.row.forEach((row, i) => {
+        processedRow.row.forEach((cell, i) => {
             switch (columns[i].label) {
                 case VerificationDateMessage: 
                 case NextVerificationDateMessage: 
                 case InstallationDateMessage: 
                 case CommissioningDateMessage: 
                 case SealingDateMessage: 
-                    if (row.value && !dayjs(row.value, DATE_PARSING_FORMAT).isValid()) 
+                    if (cell.value && !dayjs(cell.value, DATE_PARSING_FORMAT).isValid()) 
                         errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateFormatMessage' }, { columnName: columns[i].label }))
                     break
                 default: 
