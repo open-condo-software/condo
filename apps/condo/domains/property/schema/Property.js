@@ -105,7 +105,10 @@ const Property = new GQLListSchema('Property', {
                 resolveInput: ({ resolvedData }) => {
                     const { map } = resolvedData
                     if (map) {
-                        return normalizePropertyMap(map)
+                        const result = normalizePropertyMap(map)
+                        console.log('normalize property map')
+                        console.log(JSON.stringify(result, null, 4))
+                        return result
                     }
                 },
                 validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {

@@ -1,6 +1,6 @@
 import { MapEdit } from './MapConstructor'
 import { BuildingMap, BuildingMapEntityType } from '@app/condo/schema'
-import { notValidBuildingMapJson, buildingMapJson, autoFixBuildingMapJson } from '@condo/domains/property/constants/property'
+import { autoFixBuildingMapJson } from '@condo/domains/property/constants/property'
 import { cloneDeep } from 'lodash'
 
 const testSection = {
@@ -286,22 +286,6 @@ describe('Map constructor', () => {
             Building.removeSection(updatedSection.id)
             Building.validate()
             expect(Building.isMapValid).toBe(true)
-        })
-
-        describe('Check that JSON schema validator is working', () => {
-            it('should react to bad structure', () => {
-                const Building = new MapEdit(null, () => null )
-                Building.map = cloneDeep(notValidBuildingMapJson) as BuildingMap
-                const isValid = Building.validateSchema()
-                expect(isValid).toBe(false)
-                expect(Building.validationErrors).toHaveLength(1)
-            })
-            it('should pass validation on good structure', () => {
-                const Building = new MapEdit(null, () => null )
-                Building.map = cloneDeep(buildingMapJson) as BuildingMap
-                const isValid = Building.validateSchema()
-                expect(isValid).toBe(true)
-            })
         })
 
     })
