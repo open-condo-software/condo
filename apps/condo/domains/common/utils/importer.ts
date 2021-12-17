@@ -35,7 +35,7 @@ interface IImporter {
 
 type ColumnType = 'string' | 'number' | 'date'
 
-const DATE_PARSING_FORMAT = 'DD.MM.YYYY'
+export const DATE_PARSING_FORMAT = 'YYYY-MM-DD'
 
 export interface ColumnInfo {
     name: string
