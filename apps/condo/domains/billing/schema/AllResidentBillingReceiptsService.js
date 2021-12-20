@@ -7,8 +7,8 @@ const Big = require('big.js')
 
 const { ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 
-const { BillingReceipt } = require('../utils/serverSchema')
-const access = require('../access/AllResidentBillingReceipts')
+const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
+const access = require('@condo/domains/billing/access/AllResidentBillingReceipts')
 const { PAYMENT_DONE_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const {
     BILLING_RECEIPT_RECIPIENT_FIELD_NAME,
