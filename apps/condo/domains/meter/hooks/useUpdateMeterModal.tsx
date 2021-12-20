@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Form, Input, Typography } from 'antd'
 import { get } from 'lodash'
 import { useIntl } from '@core/next/intl'
@@ -34,9 +34,22 @@ export const useUpdateMeterModal = (refetch) => {
         refetch()
     })
 
+    const initialValues = useMemo(() => {
+        if (selectedMeter) {
+            const { accountNumber, number, resource, place, numberOfTariffs, installationDate, commissioningDate, sealingDate,
+                verificationDate, nextVerificationDate, controlReadingsDate } = selectedMeter
+
+            return {
+                accountNumber, number, resource, place, numberOfTariffs, installationDate, commissioningDate, sealingDate,
+                verificationDate, nextVerificationDate, controlReadingsDate,
+            }
+        }
+    }, [selectedMeter])
+
     const UpdateMeterModal = useCallback(() => {
         return (
             <BaseMeterModalForm
+                initialValues={initialValues}
                 ModalTitleMsg={<Typography.Title level={3}>{MeterNumberMessage} {meterNumber}</Typography.Title>}
                 visible={selectedMeter}
                 modalExtraFooter={[<DeleteMeterButton key={'delete'} meter={selectedMeter} updateMeterAction={updateMeterAction}/>]}

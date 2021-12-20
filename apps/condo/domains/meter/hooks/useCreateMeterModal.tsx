@@ -1,5 +1,5 @@
 import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { StoreValue } from 'rc-field-form/lib/interface'
 import { useIntl } from '@core/next/intl'
 import { ResourcesList } from '../components/createMeterModal/ResourcesList'
@@ -9,7 +9,6 @@ import { FormattedMessage } from 'react-intl'
 import { IMeterResourceUIState } from '../utils/clientSchema/MeterResource'
 import { Form, Input, Modal, Typography } from 'antd'
 import { IMeterFormState, IMeterUIState } from '../utils/clientSchema/Meter'
-import { get } from 'lodash'
 
 type MeterInfoModalTitleProps = {
     resourceId: string
@@ -52,10 +51,16 @@ export const useCreateMeterModal = (organization, property, unitName, refetch) =
     },
     [createMeterAction, organization, property, unitName])
 
+    const initialValues = useMemo(() => ({
+        propertyId: property,
+        unitName,
+    }), [property, unitName])
+
     const CreateMeterModal = useCallback(() => {
         return (
             <BaseMeterModalForm
-                ModalTitleMsg={<Typography.Title level={3}>{MeterNumberMessage} Добавить прибор учета </Typography.Title>}
+                initialValues={initialValues}
+                ModalTitleMsg={<Typography.Title level={3}> {MeterNumberMessage} Добавить прибор учета </Typography.Title>}
                 visible={isCreateMeterModalVisible}
                 handleSubmit={handleMeterCreate}
                 showCancelButton={false}
@@ -67,7 +72,7 @@ export const useCreateMeterModal = (organization, property, unitName, refetch) =
                 }}
             />
         )
-    }, [MeterNumberMessage, handleMeterCreate, isCreateMeterModalVisible])
+    }, [MeterNumberMessage, handleMeterCreate, initialValues, isCreateMeterModalVisible])
 
     return { CreateMeterModal, setIsCreateMeterModalVisible }
 }
