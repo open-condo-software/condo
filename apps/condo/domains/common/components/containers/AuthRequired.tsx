@@ -27,7 +27,7 @@ function RedirectToLogin () {
     return <Typography.Text style={{ textAlign: 'center' }}>{RedirectingMessage}</Typography.Text>
 }
 
-export function AuthRequired ({ children }) {
+export const AuthRequired: React.FC = ({ children }) => {
     const intl = useIntl()
     const SignInRequiredMessage = intl.formatMessage({ id: 'SignInRequired' })
 
