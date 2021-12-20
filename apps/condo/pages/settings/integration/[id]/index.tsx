@@ -30,7 +30,7 @@ const ButtonWrap = styled.div`
 
 const ROW_GUTTER: [Gutter, Gutter] = [0, 40]
 const DESCRIPTION_TEXT_STYLE = { fontSize: 16 }
-const PAGE_HEADER_STYLE = { margin: 30 }
+const PAGE_HEADER_STYLE = { margin: '0 30' }
 const PAGE_HEADER_TITLE_STYLE = { margin: 0 }
 const NO_CHANGE_ALERT_STYLE = { width: 'fit-content' }
 const RADIO_GROUP_CONTAINER_STYLE = { paddingBottom: 20 }
