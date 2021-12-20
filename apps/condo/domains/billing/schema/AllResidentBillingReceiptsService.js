@@ -6,7 +6,6 @@ const { pick, get } = require('lodash')
 const Big = require('big.js')
 
 const { ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
-const { Payment } = require('@condo/domains/acquiring/utils/serverSchema')
 
 const { BillingReceipt } = require('../utils/serverSchema')
 const access = require('../access/AllResidentBillingReceipts')
@@ -19,7 +18,7 @@ const {
 const { generateQuerySortBy } = require('@condo/domains/common/utils/codegeneration/generate.gql')
 const { generateQueryWhereInput } = require('@condo/domains/common/utils/codegeneration/generate.gql')
 
-const { GQLCustomSchema } = require('@core/keystone/schema')
+const { GQLCustomSchema, find } = require('@core/keystone/schema')
 
 
 /**
@@ -31,15 +30,12 @@ const { GQLCustomSchema } = require('@core/keystone/schema')
  * @return {Promise<*>}
  */
 const getPaymentsSum = async (context, organizationId, accountNumber, period) => {
-    const payments = await Payment.getAll(
-        context,
-        {
-            organization: { id: organizationId },
-            accountNumber: accountNumber,
-            period: period,
-            status: PAYMENT_DONE_STATUS,
-        }
-    )
+    const payments = await  find('Payment', {
+        organization: { id: organizationId },
+        accountNumber: accountNumber,
+        period: period,
+        status: PAYMENT_DONE_STATUS,
+    })
     return payments.reduce((total, current) => (Big(total).plus(current.amount)), 0).toFixed(8).toString()
 }
 
