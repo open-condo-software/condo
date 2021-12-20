@@ -26,15 +26,19 @@ const { GQLCustomSchema, find } = require('@core/keystone/schema')
  * @param context {Object}
  * @param organizationId {string}
  * @param accountNumber {string}
+ * @param bic {string}
+ * @param bankAccount {string}
  * @param period {string}
  * @return {Promise<*>}
  */
-const getPaymentsSum = async (context, organizationId, accountNumber, period) => {
+const getPaymentsSum = async (context, organizationId, accountNumber, period, bic, bankAccount) => {
     const payments = await  find('Payment', {
         organization: { id: organizationId },
         accountNumber: accountNumber,
         period: period,
         status: PAYMENT_DONE_STATUS,
+        recipientBic: bic,
+        recipientBankAccount: bankAccount,
     })
     return payments.reduce((total, current) => (Big(total).plus(current.amount)), 0).toFixed(8).toString()
 }
@@ -131,7 +135,14 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
 
                     receiptsWithPayments.push(({
                         ...processedReceipt,
-                        paid: await getPaymentsSum(context, organizationId, accountNumber, processedReceipt.period),
+                        paid: await getPaymentsSum(
+                            context,
+                            organizationId,
+                            accountNumber,
+                            get(processedReceipt, 'period', null),
+                            get(processedReceipt, ['recipient', 'bic'], null),
+                            get(processedReceipt, ['recipient', 'bankAccount'], null)
+                        ),
                     }))
                 }
 

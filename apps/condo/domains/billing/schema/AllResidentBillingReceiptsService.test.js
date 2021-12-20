@@ -456,9 +456,8 @@ describe('AllResidentBillingReceipts', () => {
          * 2. Case when you have single receipt and no payments!
          *
          * Complex cases:
-         * 1. Receipt is deleted then paid and recreated.
-         * TODO (DOMA-1790) @toplenboren Add TODO complex-cases
-         * 2. TODO Receipt is duplicated in single period
+         * 1. Receipt is paid, then recreated.
+         * 2. Receipt is duplicated in single period
          */
 
         test('Test simple cases', async () => {
@@ -604,7 +603,10 @@ describe('AllResidentBillingReceipts', () => {
                 organizationClient.billingIntegrationContext,
                 organizationClient.billingProperty,
                 organizationClient.billingAccount,
-                { toPay: '2500.00' }
+                {
+                    toPay: '2500.00',
+                    recipient: receiptWithSinglePayment.recipient,
+                }
             )
 
             // Resident gets own receipts and sees that first one is fully paid!
@@ -620,6 +622,75 @@ describe('AllResidentBillingReceipts', () => {
             expect(singlePaymentReceiptAfterPayment.id).toEqual(newReceiptWithSinglePayment.id)
             expect(singlePaymentReceiptAfterPayment.toPay).toEqual('2500.00000000')
             expect(singlePaymentReceiptAfterPayment.paid).toEqual('2000.00000000') // Since we paid for the old receipt!
+        })
+
+        test('Test case when receipt is duplicated in single period in single organization. e.g Housing and Water goes to different recipients', async () => {
+
+            const UNIT_NAME = '22'
+
+            const admin = await makeLoggedInAdminClient()
+
+            // Prepare billing integration and receipts
+            const { organizationClient, integrationClient } = await makeClientWithPropertyAndBilling({ billingAccountAttrs: { unitName: UNIT_NAME } })
+
+            const [ receiptForHousing ] = await createTestBillingReceipt(
+                integrationClient,
+                organizationClient.billingIntegrationContext,
+                organizationClient.billingProperty,
+                organizationClient.billingAccount,
+                { toPay: '2000.00' }
+            )
+            const [ receiptForWater ] = await createTestBillingReceipt(
+                integrationClient,
+                organizationClient.billingIntegrationContext,
+                organizationClient.billingProperty,
+                organizationClient.billingAccount,
+                { toPay: '2500.00' }
+            )
+
+            // Prepare acquiring integration
+            const [ acquiringIntegration ] = await createTestAcquiringIntegration(admin, [organizationClient.billingIntegration], {
+                canGroupReceipts: true,
+            })
+            await createTestAcquiringIntegrationContext(organizationClient, organizationClient.organization, acquiringIntegration)
+
+            // Prepare resident entities
+            const residentClient = await makeClientWithResidentUser()
+            const [ resident ] = await registerResidentByTestClient(residentClient, {
+                address: organizationClient.property.address,
+                addressMeta: organizationClient.property.addressMeta,
+                unitName: UNIT_NAME,
+            })
+
+            const [serviceConsumer] = await registerServiceConsumerByTestClient(residentClient, {
+                residentId: resident.id,
+                accountNumber: organizationClient.billingAccount.number,
+                organizationId: organizationClient.organization.id,
+            })
+
+            // Mobile app gets the list of all resident receipts
+            const [ receiptForHousingBeforePayment, receiptForWaterBeforePayment ] = await ResidentBillingReceipt.getAll(residentClient, { serviceConsumer: { resident: { id: resident.id } } }, { sortBy: ['toPay_ASC'] } )
+
+            // Mobile app tries to pay for the first receipt in one payment
+            await completeTestPayment(residentClient, admin, serviceConsumer.id, receiptForHousingBeforePayment.id)
+            await completeTestPayment(residentClient, admin, serviceConsumer.id, receiptForWaterBeforePayment.id)
+
+            // Resident gets own receipts and sees that first one is fully paid!
+            const [ receiptForHousingAfterPayment, receiptForWaterAfterPayment ] = await ResidentBillingReceipt.getAll(residentClient, { serviceConsumer: { resident: { id: resident.id } } }, { sortBy: ['toPay_ASC'] })
+
+            // Assert with one payment for one receipt
+            expect(receiptForHousingAfterPayment.id).toEqual(receiptForHousing.id)
+            expect(receiptForHousingAfterPayment.toPay).toEqual('2000.00000000')
+            expect(receiptForHousingBeforePayment.paid).toEqual('0.00000000')
+            expect(receiptForHousingAfterPayment.paid).toEqual('2000.00000000')
+
+            expect(receiptForWaterAfterPayment.id).toEqual(receiptForWater.id)
+            expect(receiptForWaterAfterPayment.toPay).toEqual('2500.00000000')
+            expect(receiptForWaterBeforePayment.paid).toEqual('0.00000000')
+            expect(receiptForWaterAfterPayment.paid).toEqual('2500.00000000') // Since we paid for the old receipt!
+
+            expect(receiptForHousing.period).toEqual(receiptForWater.period)
+            expect(receiptForHousing.account.id).toEqual(receiptForWater.account.id)
         })
     })
 })
