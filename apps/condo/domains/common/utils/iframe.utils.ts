@@ -6,7 +6,7 @@ export const REQUIREMENT_TYPE = 'requirement'
 
 type NotificationType = {
     type: 'notification',
-    notificationType: 'info' | 'warning' | 'error',
+    notificationType: 'info' | 'warning' | 'error' | 'success',
     message: string,
 }
 
@@ -26,7 +26,7 @@ const MessageSchema = {
     type: 'object',
     properties: {
         type: { enum: [NOTIFICATION_TYPE, REQUIREMENT_TYPE] },
-        notificationType: { enum: ['info', 'warning', 'error'] },
+        notificationType: { enum: ['info', 'warning', 'error', 'success'] },
         message: { type: 'string' },
         requirement: { enum: ['auth', 'organization'] },
     },

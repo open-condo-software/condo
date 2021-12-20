@@ -4,6 +4,7 @@ describe('parseMessage', () => {
     const validCases: Array<any> = [
         ['Info notification', { type: NOTIFICATION_TYPE, notificationType: 'info', message: 'Hello, world!' }],
         ['Warning notification', { type: NOTIFICATION_TYPE, notificationType: 'warning', message: 'Hello, world!' }],
+        ['Success notification', { type: NOTIFICATION_TYPE, notificationType: 'success', message: 'Hello, world!' }],
         ['Error notification', { type: NOTIFICATION_TYPE, notificationType: 'error', message: 'Hello, world!' }],
         ['Auth requirement', { type: REQUIREMENT_TYPE, requirement: 'auth' }],
         ['Organization requirement', { type: REQUIREMENT_TYPE, requirement: 'organization' }],
