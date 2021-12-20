@@ -30,9 +30,13 @@ import { EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION,
     EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT } from '../constants/errors'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { ContactsInfo } from '@condo/domains/ticket/components/BaseTicketForm'
-import { Table } from '../../common/components/Table'
+import { Table } from '@condo/domains/common/components/Table/Index'
 import { useMeterTableColumns } from '../hooks/useMeterTableColumns'
-import { get } from 'lodash'
+import { get, isEmpty } from 'lodash'
+import { getTableScrollConfig } from '../../common/utils/tables.utils'
+import { useLayoutContext } from '../../common/components/LayoutContext'
+import { useUpdateMeterModal } from '../hooks/useUpdateMeterModal'
+import { jsx } from '@emotion/core'
 
 export const LAYOUT = {
     labelCol: { span: 8 },
@@ -43,6 +47,7 @@ export const CreateMeterReadingsActionBar = ({
     handleSave,
     handleAddMeterButtonClick,
     isLoading,
+    newMeterReadings,
 }) => {
     const intl = useIntl()
     const SendMetersReadingMessage = intl.formatMessage({ id: 'pages.condo.meter.SendMetersReading' })
@@ -56,7 +61,8 @@ export const CreateMeterReadingsActionBar = ({
         >
             {
                 ({ getFieldsValue }) => {
-                    const { property } = getFieldsValue(['property'])
+                    const { property, unitName } = getFieldsValue(['property', 'unitName'])
+                    const disabled = !property || !unitName || isEmpty(newMeterReadings)
 
                     return (
                         <ActionBar>
@@ -66,7 +72,7 @@ export const CreateMeterReadingsActionBar = ({
                                     onClick={handleSave}
                                     type='sberPrimary'
                                     loading={isLoading}
-                                    disabled={!property}
+                                    disabled={disabled}
                                 >
                                     {SendMetersReadingMessage}
                                 </Button>
@@ -95,17 +101,17 @@ type ICreateMeterReadingsFormVariables = IMeterReadingFormState & {
     existedMeters: { [meterId: string]: IMeterValues }
 }
 
-// В таблице будут кастомные объекты следующего вида
 type MetersTableRecord = {
-    meterId: string
-    meterAccountNumber: string
-    meterResource: string
-    meterNumber: string
-    meterPlace: string
-    meterVerificationDate: string
+    // meterId: string
+    // meterAccountNumber: string
+    // meterResource: string
+    // meterResourceMeasure: string
+    // meterNumber: string
+    // meterPlace: string
+    // meterVerificationDate: string
+    meter: IMeterUIState
     lastMeterReading: string
     meterReadingSource: string
-
     tariffNumber: string
 }
 
@@ -115,27 +121,19 @@ function getTableData (meters: IMeterUIState[], meterReadings: IMeterReadingUISt
         (meterReading1, meterReading2) =>
             meterReading1.meter.id === meterReading2.meter.id
     )
-    const tariffNumberMessages = ['(Т1 - День)', '(T2 - Ночь)', '(T3)', '(T4)']
 
     for (const meter of meters) {
-        const meterId = meter.id
-        const meterResource = meter.resource.name
-        const meterNumber = meter.number
-        const meterAccountNumber = meter.accountNumber
-        const meterPlace = meter.place
-        const meterVerificationDate = meter.verificationDate
         const meterTariffsCount = meter.numberOfTariffs
-        const lastMeterReading = lastMeterReadings.find(meterReading => meterReading.meter.id === meter.id)
+        const lastMeterReading = lastMeterReadings.find(meterReading => {
+            const meterReadingMeterId = get(meterReading, ['meter', 'id'])
+
+            return meterReadingMeterId === meter.id
+        })
 
         if (meterTariffsCount > 1) {
             for (let tariffNumber = 1; tariffNumber <= meterTariffsCount; ++tariffNumber) {
                 dataSource.push({
-                    meterId,
-                    meterResource: meterResource + `\n${tariffNumberMessages[tariffNumber - 1]}`,
-                    meterNumber,
-                    meterAccountNumber,
-                    meterPlace,
-                    meterVerificationDate,
+                    meter,
                     lastMeterReading: lastMeterReading && lastMeterReading[`value${tariffNumber}`],
                     meterReadingSource: lastMeterReading && lastMeterReading.source.name,
                     tariffNumber: String(tariffNumber),
@@ -143,12 +141,7 @@ function getTableData (meters: IMeterUIState[], meterReadings: IMeterReadingUISt
             }
         } else {
             dataSource.push({
-                meterId,
-                meterResource,
-                meterNumber,
-                meterAccountNumber,
-                meterPlace,
-                meterVerificationDate,
+                meter,
                 lastMeterReading: lastMeterReading && lastMeterReading.value1,
                 meterReadingSource: lastMeterReading && lastMeterReading.source.name,
                 tariffNumber: '1',
@@ -170,6 +163,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const AccountNumberIsExistInOtherUnitMessage = intl.formatMessage({ id: 'pages.condo.meter.AccountNumberIsExistInOtherUnit' })
     const ClientInfoMessage = intl.formatMessage({ id: 'ClientInfo' })
 
+    const { isSmall } = useLayoutContext()
     const { requiredValidator } = useValidations()
     const validations = {
         property: [requiredValidator],
@@ -226,6 +220,15 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const dataSource = useMemo(() => getTableData(meters, meterReadings), [meterReadings, meters])
 
     const { tableColumns, newMeterReadings, setNewMeterReadings } = useMeterTableColumns()
+    const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch)
+    const handleRowAction = useCallback((record) => {
+        return {
+            onClick: () => {
+                const meter = get(record, 'meter')
+                setSelectedMeter(meter)
+            },
+        }
+    }, [])
 
     useEffect(() => {
         refetch()
@@ -355,27 +358,33 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                 </Row>
                             </Col>
                             <Col span={24}>
-                                <Typography.Title level={2}>Приборы учета и показания</Typography.Title>
-                                {
-                                    selectedUnitName ? (
-                                        <Table
-                                            loading={loading}
-                                            totalRows={total}
-                                            dataSource={dataSource}
-                                            columns={tableColumns}
-                                            pagination={false}
-                                        />
-                                    ) : null
-                                }
+                                <Row gutter={[0, 20]}>
+                                    <Typography.Title level={2}>Приборы учета и показания</Typography.Title>
+                                    {
+                                        selectedUnitName ? (
+                                            <Table
+                                                scroll={getTableScrollConfig(isSmall)}
+                                                loading={loading}
+                                                totalRows={total}
+                                                dataSource={dataSource}
+                                                columns={tableColumns}
+                                                pagination={false}
+                                                onRow={handleRowAction}
+                                            />
+                                        ) : null
+                                    }
+                                </Row>
                             </Col>
                             <Col span={24}>
                                 <CreateMeterReadingsActionBar
                                     handleSave={handleSave}
+                                    newMeterReadings={newMeterReadings}
                                     handleAddMeterButtonClick={() => setIsCreateMeterModalVisible(true)}
                                     isLoading={loading}
                                 />
                             </Col>
                             <CreateMeterModal />
+                            <UpdateMeterModal />
                         </Row>
                     </Col>
                 </>

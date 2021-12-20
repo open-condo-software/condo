@@ -13,7 +13,7 @@ import { Col, Input, Row, Typography } from 'antd'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import get from 'lodash/get'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback } from 'react'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Button } from '@condo/domains/common/components/Button'
 import { useOrganization } from '@core/next/organization'
@@ -191,14 +191,10 @@ const MetersPage: IMeterIndexPage = () => {
     const role = get(link, 'role')
 
     const filterMetas = useFilters()
-
     const sortableProperties = ['date', 'clientName', 'source']
-
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, sortableProperties)
-
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
-
     const tableColumns = useTableColumns(filterMetas)
     const searchMeterReadingsQuery = { ...filtersToWhere(filters), organization: { id: userOrganizationId } }
 

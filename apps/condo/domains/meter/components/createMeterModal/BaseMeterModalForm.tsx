@@ -260,6 +260,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ handleSu
 
     const validations = {
         number: [requiredValidator, meterWithSameNumberValidator],
+        resource: [requiredValidator],
         numberOfTariffs: [requiredValidator],
         commissioningDate: [earlierThanInstallationValidator],
         sealingDate: [earlierThanInstallationValidator],
@@ -296,6 +297,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ handleSu
                                         label={ResourceMessage}
                                         name={'resource'}
                                         initialValue={initialResourceValue}
+                                        rules={validations.resource}
                                     >
                                         <GraphQlSearchInput
                                             onChange={resource => {
@@ -368,7 +370,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ handleSu
                                             <CreateMeterModalDatePicker
                                                 label={VerificationDateMessage}
                                                 name='verificationDate'
-                                                rules={validations.verificationDate}
+                                                // rules={validations.verificationDate}
                                                 dependencies={['installationDate']}
                                                 onChange={value => setVerificationDate(value)}
                                                 initialValue={initialValues.verificationDate}
