@@ -22,7 +22,7 @@ import { MeterCard } from './MeterCard'
 import { convertToUIFormState, IMeterFormState, IMeterUIState } from '../utils/clientSchema/Meter'
 import { useRouter } from 'next/router'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { SortBillingAccountMeterReadingsBy, SortMeterReadingsBy } from '@app/condo/schema'
+import { SortBillingAccountMeterReadingsBy, SortMeterReadingsBy, SortMetersBy } from '@app/condo/schema'
 import { BillingAccountMeterReading } from '@condo/domains/billing/utils/clientSchema'
 import { IMeterReadingFormState, IMeterReadingUIState } from '../utils/clientSchema/MeterReading'
 import { UnitInfo } from '@condo/domains/property/components/UnitInfo'
@@ -85,7 +85,11 @@ export const CreateMeterReadingsActionBar = ({
                                 >
                                     {AddMeterMessage}
                                 </Button>
-                                <ErrorsContainer property={property}/>
+                                <ErrorsContainer
+                                    property={property}
+                                    unitName={unitName}
+                                    newMeterReadings={newMeterReadings}
+                                />
                             </Space>
                         </ActionBar>
                     )
@@ -202,6 +206,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
             property: { id: selectedPropertyId },
             unitName: selectedUnitName,
         },
+        orderBy: SortMetersBy.CreatedAtDesc,
     })
     const meterIds = meters.map(meter => meter.id)
     const { objs: meterReadings, refetch: refetchMeterReadings, loading: meterReadingsLoading } = MeterReading.useObjects({

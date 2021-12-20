@@ -162,7 +162,6 @@ export const MetersPageContent = ({
                                             onRow={handleRowAction}
                                         />
                                     </Col>
-
                                     <ExportToExcelActionBar
                                         hidden={isSmall}
                                         searchObjectsQuery={searchMeterReadingsQuery}

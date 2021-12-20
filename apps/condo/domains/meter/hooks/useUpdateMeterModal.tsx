@@ -3,7 +3,7 @@ import { Form, Input, Typography } from 'antd'
 import { get } from 'lodash'
 import { useIntl } from '@core/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
-import { BaseMeterModalForm } from '../components/createMeterModal/BaseMeterModalForm'
+import { BaseMeterModalForm } from '../components/BaseMeterModal/BaseMeterModalForm'
 import { Meter } from '../utils/clientSchema'
 import { IMeterUIState } from '../utils/clientSchema/Meter'
 

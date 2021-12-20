@@ -1,0 +1,47 @@
+import { Rule } from 'rc-field-form/lib/interface'
+import dayjs, { Dayjs } from 'dayjs'
+import React, { CSSProperties } from 'react'
+import { useIntl } from '@core/next/intl'
+import { Col, Form } from 'antd'
+import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
+import { METER_MODAL_FORM_ITEM_SPAN } from '../../constants/constants'
+
+interface ICreateMeterModalDatePickerProps {
+    label: string,
+    name: string,
+    rules?: Rule[],
+    dependencies?: string[]
+    onChange?: (value: Dayjs, dateString: string) => void
+    initialValue?
+}
+
+const METER_MODAL_DATE_PICKER_STYLE: CSSProperties = { width: '100%' }
+const METER_MODAL_DATE_PICKER_DATE_FORMAT = 'DD.MM.YYYY'
+const METER_MODAL_DATE_PICKER_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
+
+export const MeterModalDatePicker: React.FC<ICreateMeterModalDatePickerProps> = ({ label, name, rules, dependencies, onChange, initialValue }) => {
+    const intl = useIntl()
+    const EnterDatePlaceHolder = intl.formatMessage({ id: 'EnterDate' })
+
+    const initialDateValue = dayjs(initialValue).isValid() ? dayjs(initialValue) : null
+
+    return (
+        <Col span={METER_MODAL_FORM_ITEM_SPAN}>
+            <Form.Item
+                label={label}
+                name={name}
+                rules={rules}
+                validateTrigger={METER_MODAL_DATE_PICKER_VALIDATE_TRIGGER}
+                dependencies={dependencies}
+                initialValue={initialDateValue}
+            >
+                <DatePicker
+                    placeholder={EnterDatePlaceHolder}
+                    format={METER_MODAL_DATE_PICKER_DATE_FORMAT}
+                    style={METER_MODAL_DATE_PICKER_STYLE}
+                    onChange={onChange}
+                />
+            </Form.Item>
+        </Col>
+    )
+}

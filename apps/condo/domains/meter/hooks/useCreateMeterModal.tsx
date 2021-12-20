@@ -2,8 +2,7 @@ import { BaseModalForm } from '@condo/domains/common/components/containers/FormL
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { StoreValue } from 'rc-field-form/lib/interface'
 import { useIntl } from '@core/next/intl'
-import { ResourcesList } from '../components/createMeterModal/ResourcesList'
-import { BaseMeterModalForm } from '../components/createMeterModal/BaseMeterModalForm'
+import { BaseMeterModalForm } from '../components/BaseMeterModal/BaseMeterModalForm'
 import { Meter, resourceIdToCreateMeterTitleIdMap } from '../utils/clientSchema'
 import { FormattedMessage } from 'react-intl'
 import { IMeterResourceUIState } from '../utils/clientSchema/MeterResource'
@@ -60,7 +59,7 @@ export const useCreateMeterModal = (organization, property, unitName, refetch) =
         return (
             <BaseMeterModalForm
                 initialValues={initialValues}
-                ModalTitleMsg={<Typography.Title level={3}> {MeterNumberMessage} Добавить прибор учета </Typography.Title>}
+                ModalTitleMsg={<Typography.Title level={3}> Добавить прибор учета </Typography.Title>}
                 visible={isCreateMeterModalVisible}
                 handleSubmit={handleMeterCreate}
                 showCancelButton={false}
