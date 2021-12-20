@@ -15,7 +15,7 @@ const ContactsPage = () => {
                 <title>Страница с iframe</title>
             </Head>
             <PageWrapper>
-                {get(organization, 'id')x}
+                {get(organization, 'id')}
                 {iframe}
             </PageWrapper>
         </>
