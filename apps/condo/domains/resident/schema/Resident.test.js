@@ -10,7 +10,7 @@ const { cloneDeep } = require('lodash')
 const { createTestBillingIntegrationOrganizationContext, createTestBillingIntegration, createTestBillingAccount, createTestBillingProperty, makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
 const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
 const { createTestProperty, makeClientWithResidentAccessAndProperty, makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { buildingMapJson } = require('@condo/domains/property/constants/property')
+const { buildingMapJson } = require('@condo/domains/property/constants/property.mocks')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 

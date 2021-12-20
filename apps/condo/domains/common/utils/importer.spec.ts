@@ -38,8 +38,8 @@ const defaultErrors: ImporterErrorMessages = {
 }
 
 const testColumns: Columns = [
-    { name: 'id', type: 'number', required: true },
-    { name: 'stringColumn', type: 'string', required: true },
+    { label: 'id', name: 'id', type: 'number', required: true },
+    { label: 'stringColumn', name: 'stringColumn', type: 'string', required: true },
 ]
 const generateTableRow: (id: number, value: string) => TableRow = (id, value) => {
     return [

@@ -227,7 +227,9 @@ const TicketsPage: ITicketIndexPage = () => {
     const filterMetas = useTicketTableFilters()
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, SORTABLE_PROPERTIES)
     const router = useRouter()
-    const { filters, sorters } = parseQuery(router.query)
+    const { filters, sorters } = React.useMemo(() => {
+        return parseQuery(router.query)
+    }, [router.query])
     const tableColumns = useTableColumns(filterMetas)
     const searchTicketsQuery = { ...filtersToWhere(filters), organization: { id: userOrganizationId } }
     

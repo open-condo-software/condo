@@ -9,7 +9,7 @@ const { Property, createTestProperty, updateTestProperty, makeClientWithProperty
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { createTestTicket, updateTestTicket, ticketStatusByType } = require('@condo/domains/ticket/utils/testSchema')
-const { buildingMapJson } = require('@condo/domains/property/constants/property')
+const { buildingMapJson } = require('@condo/domains/property/constants/property.mocks')
 const faker = require('faker')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 

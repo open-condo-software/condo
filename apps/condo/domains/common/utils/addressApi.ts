@@ -1,5 +1,7 @@
+// @ts-nocheck
 import getConfig from 'next/config'
 import get from 'lodash/get'
+import isFunction from 'lodash/isFunction'
 import { AddressMetaField } from '@app/condo/schema'
 
 type SuggestionsResponse = Promise<{ suggestions: Array<AddressMetaField> }>
@@ -10,13 +12,21 @@ export interface IAddressApi {
     cacheAddressMeta(address: string, addressMeta: AddressMetaField): void
 }
 
+export type FetchFN = (input: RequestInfo, init?: RequestInit) => Promise<Response>
+
+export type AddressSuggestionConfig = {
+    apiUrl: string;
+    apiToken: string;
+}
+
 export class AddressApi implements IAddressApi {
-    constructor () {
-        this.setAddressSuggestionsConfig()
+    constructor (config?: AddressSuggestionConfig, customFetch?: FetchFN) {
+        this.setAddressSuggestionsConfig(config)
+        this.fetch = isFunction(customFetch) ? customFetch : fetch
     }
 
     public getSuggestions (query: string): SuggestionsResponse {
-        return fetch(this.suggestionsUrl, this.getAddressSuggestionRequestParams(query))
+        return this.fetch(this.suggestionsUrl, this.getAddressSuggestionRequestParams(query))
             .then(response => response.text())
             .then((res) => JSON.parse(res))
     }
@@ -35,10 +45,10 @@ export class AddressApi implements IAddressApi {
         this.addressMetaCache.set(address, addressMeta)
     }
 
-    private setAddressSuggestionsConfig () {
+    private setAddressSuggestionsConfig (config?: AddressSuggestionConfig) {
         const {
             publicRuntimeConfig: { addressSuggestionsConfig },
-        } = getConfig()
+        } = config || getConfig()
         const apiUrl = get(addressSuggestionsConfig, 'apiUrl', '')
         const apiToken = get(addressSuggestionsConfig, 'apiToken', '')
         if (!apiToken || !apiUrl) console.error('Wrong AddressSuggestionsConfig! no apiUrl/apiToken')
@@ -65,6 +75,7 @@ export class AddressApi implements IAddressApi {
     }
 
     private suggestionsUrl: string
+    private fetch?: FetchFN
     private apiToken: string
     private defaultSearchApiParams = {
         from_bound: { value: 'country' },

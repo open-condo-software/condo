@@ -1,13 +1,20 @@
-import { buildingEmptyMapJson } from '@condo/domains/property/constants/property'
-import { cloneDeep, compact, get, has, uniq } from 'lodash'
-import MapSchemaJSON from './MapJsonSchema.json'
 import Ajv from 'ajv'
+import cloneDeep from 'lodash/cloneDeep'
+import compact from 'lodash/compact'
+import get from 'lodash/get'
+import has from 'lodash/has'
+import uniq from 'lodash/uniq'
+
 import {
     BuildingMap,
     BuildingMapEntityType,
     BuildingSection,
     BuildingUnit,
 } from '@app/condo/schema'
+
+import { BUILDING_EMPTY_MAP } from '@condo/domains/property/constants/property'
+
+import MapSchemaJSON from './MapJsonSchema.json'
 
 const ajv = new Ajv()
 const validator = ajv.compile(MapSchemaJSON)
@@ -48,7 +55,7 @@ class Map {
     protected autoincrement: number
 
     constructor (public map: Maybe<BuildingMap>) {
-        this.map = map ? cloneDeep(map) : cloneDeep(buildingEmptyMapJson) as BuildingMap
+        this.map = map ? cloneDeep(map) : cloneDeep(BUILDING_EMPTY_MAP) as BuildingMap
         this.autoincrement = 0
         this.isMapValid = this.validate()
         if (!this.isMapValid) {

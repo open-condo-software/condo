@@ -1,0 +1,22 @@
+{
+  "name": "condo-api",
+  "version": "1.0.0",
+  "description": "Helps to authorize at doma.ai via phone + paswword and make requests to Condo API",
+  "keywords": [
+    "v1",
+    "doma",
+    "ai",
+    "client"
+  ],
+  "author": "dkovyazin@doma.ai",
+  "license": "ISC",
+  "dependencies": {
+    "apollo-boost": "^0.4.9",
+    "cross-fetch": "^3.1.4",
+    "gql": "^1.1.2",
+    "graphql-tag": "^2.12.6",
+    "graphql": "^16.0.1",
+    "graphql-cli": "^4.1.0",
+    "pluralize": "^8.0.0"
+  }
+}

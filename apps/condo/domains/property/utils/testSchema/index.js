@@ -4,16 +4,16 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
-const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
-const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
-const { CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY } = require('../../gql')
-const { throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
-const { buildingMapJson } = require('@condo/domains/property/constants/property')
-const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
-const { buildFakeAddressAndMeta } = require('./factories')
-const { Property: PropertyGQL } = require('@condo/domains/property/gql')
+
+const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
+
+const { EXPORT_PROPERTIES_TO_EXCEL, Property: PropertyGQL } = require('@condo/domains/property/gql')
+const { buildingMapJson } = require('@condo/domains/property/constants/property.mocks')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { EXPORT_PROPERTIES_TO_EXCEL } = require('@condo/domains/property/gql')
+const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+const { CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY } = require('../../gql')
+const { buildFakeAddressAndMeta } = require('./factories')
+
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Property = generateGQLTestUtils(PropertyGQL)

@@ -12,7 +12,7 @@ const { sleep } = require('@condo/domains/common/utils/sleep')
 
 const { registerNewOrganization, makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 
-const { buildingMapJson } = require('@condo/domains/property/constants/property')
+const { buildingMapJson } = require('@condo/domains/property/constants/property.mocks')
 const { createTestProperty, makeClientWithResidentAccessAndProperty, Property } = require('@condo/domains/property/utils/testSchema')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 

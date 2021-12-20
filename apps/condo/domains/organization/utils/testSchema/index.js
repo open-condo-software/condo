@@ -19,7 +19,7 @@ const {
     OrganizationEmployeeRole: OrganizationEmployeeRoleGQL
 } = require('@condo/domains/organization/gql')
 const { OrganizationLink: OrganizationLinkGQL } = require('@condo/domains/organization/gql')
-const { buildingMapJson } = require('@condo/domains/property/constants/property')
+const { buildingMapJson } = require('@condo/domains/property/constants/property.mocks')
 const { TokenSet: TokenSetGQL } = require('@condo/domains/organization/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 

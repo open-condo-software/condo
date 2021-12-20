@@ -87,6 +87,7 @@ export const useMultipleFileUploadHook = ({
     const [modifiedFiles, dispatch] = useReducer(reducer, { added: [], deleted: [] })
     // Todo(zuch): without ref modifiedFiles dissappears on submit
     const modifiedFilesRef = useRef(modifiedFiles)
+
     useEffect(() => {
         modifiedFilesRef.current = modifiedFiles
     }, [modifiedFiles])
@@ -94,7 +95,7 @@ export const useMultipleFileUploadHook = ({
     const updateAction = Model.useUpdate({}, () => Promise.resolve())
     const deleteAction = Model.useSoftDelete({}, () => Promise.resolve())
 
-    const syncModifiedFiles = async (id: string) => {
+    const syncModifiedFiles = React.useCallback(async (id: string) => {
         const { added, deleted } = modifiedFilesRef.current
         for (const file of added) {
             await updateAction({ [relationField]: id }, file)
@@ -102,7 +103,7 @@ export const useMultipleFileUploadHook = ({
         for (const file of deleted) {
             await deleteAction({}, { id: file.id })
         }
-    }
+    }, [modifiedFilesRef, updateAction, deleteAction, relationField])
 
     const UploadComponent: React.FC<IUploadComponentProps> = useMemo(() => {
         const UploadWrapper = () => (
@@ -129,11 +130,14 @@ interface IMultipleFileUploadProps {
     onFilesChange: React.Dispatch<{ type: string, payload: DBFile }>,
 }
 
+const MB = 1024 * 1024
+const MAX_UPLOAD_FILE_SIZE_MB = MAX_UPLOAD_FILE_SIZE / MB
+
 const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
     const intl = useIntl()
     const AddFileLabel = intl.formatMessage({ id: 'component.uploadlist.AddFileLabel' })
     const FileTooBigErrorMessage = intl.formatMessage({ id: 'component.uploadlist.error.FileTooBig' },
-        { maxSizeInMb: MAX_UPLOAD_FILE_SIZE / (1024 * 1024) })
+        { maxSizeInMb: MAX_UPLOAD_FILE_SIZE_MB })
     const UploadFailedErrorMessage = intl.formatMessage({ id: 'component.uploadlist.error.UploadFailedErrorMessage' })
     const {
         fileList,
@@ -155,8 +159,7 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
         fileList: listFiles,
         multiple: true,
         onChange: (info) => {
-            let fileList = [...info.fileList]
-            fileList = fileList.map(file => {
+            const fileList = [...info.fileList].map(file => {
                 if (file.response) {
                     file.url = file.response.url
                 }

@@ -15,7 +15,7 @@ const { makeEmployeeUserClientWithAbilities } = require('@condo/domains/organiza
 const { catchErrorFrom } = require('../../common/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { buildingMapJson } = require('@condo/domains/property/constants/property')
+const { buildingMapJson } = require('@condo/domains/property/constants/property.mocks')
 const { pick } = require('lodash')
 
 describe('Division', () => {

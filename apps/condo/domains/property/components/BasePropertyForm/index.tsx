@@ -1,22 +1,26 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import React, { useCallback } from 'react'
-import { useIntl } from '@core/next/intl'
+import React, { useCallback, useState } from 'react'
 import { Col, Form, Input, notification, Row, Typography } from 'antd'
-import isEmpty from 'lodash/isEmpty'
 import dayjs from 'dayjs'
-import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'
+import isEmpty from 'lodash/isEmpty'
+
+import { useIntl } from '@core/next/intl'
+import { omitRecursively } from '@core/keystone/fields/Json/utils/cleaner'
+
+import { AddressMetaField } from '@app/condo/schema'
+
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
-import { AddressSuggestionsSearchInput } from '@condo/domains/property/components/AddressSuggestionsSearchInput'
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import Prompt from '@condo/domains/common/components/Prompt'
-import { AddressMetaField } from '@app/condo/schema'
-import { useState } from 'react'
-import { validHouseTypes } from '@condo/domains/property/constants/property'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+
+import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'
+import { AddressSuggestionsSearchInput } from '@condo/domains/property/components/AddressSuggestionsSearchInput'
+import { validHouseTypes } from '@condo/domains/property/constants/validators'
+
 import { PROPERTY_WITH_SAME_ADDRESS_EXIST } from '../../constants/errors'
-import { omitRecursively } from '@core/keystone/fields/Json/utils/cleaner'
 
 interface IOrganization {
     id: string

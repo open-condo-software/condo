@@ -3,27 +3,28 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
+const get = require('lodash/get')
 const faker = require('faker')
-const { makeClientWithResidentUser } = require(
-    '@condo/domains/user/utils/testSchema')
-const { makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
-const { makeClient } = require('@core/keystone/test.utils')
-const { get } = require('lodash')
-const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
+
+const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 
 const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
+
+const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
+const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 
 const { Resident: ResidentGQL } = require('@condo/domains/resident/gql')
 const { REGISTER_RESIDENT_MUTATION } = require('@condo/domains/resident/gql')
 const { ServiceConsumer: ServiceConsumerGQL } = require('@condo/domains/resident/gql')
 const { REGISTER_SERVICE_CONSUMER_MUTATION } = require('@condo/domains/resident/gql')
-/* AUTOGENERATE MARKER <IMPORT> */
 
-const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
-const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+
+/* AUTOGENERATE MARKER <IMPORT> */
 
 const Resident = generateGQLTestUtils(ResidentGQL)
 const ServiceConsumer = generateGQLTestUtils(ServiceConsumerGQL)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestResident (client, user, organization, property, extraAttrs = {}) {

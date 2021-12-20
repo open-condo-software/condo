@@ -1,6 +1,6 @@
 import { MapEdit } from './MapConstructor'
 import { BuildingMap, BuildingMapEntityType } from '@app/condo/schema'
-import { notValidBuildingMapJson, buildingMapJson, autoFixBuildingMapJson } from '@condo/domains/property/constants/property'
+import { notValidBuildingMapJson, buildingMapJson, autoFixBuildingMapJson } from '@condo/domains/property/constants/property.mocks'
 import { cloneDeep } from 'lodash'
 
 const testSection = {

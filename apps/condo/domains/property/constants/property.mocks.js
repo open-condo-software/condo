@@ -1,13 +1,3 @@
-import { AddressMetaField } from '@app/condo/schema'
-
-// "д" - "дом" or "к" - "корпус"
-const validHouseTypes: AddressMetaField['data']['house_type_full'][] = ['дом', 'корпус', 'строение', 'домовладение', 'сооружение', 'владение']
-
-const buildingEmptyMapJson = {
-    'dv': 1,
-    'type': 'building',
-    'sections': [],
-}
 // JSON from old maps that will be auto repaired after loading
 // floors - didnt have index
 // after moving from json schema to garphql type nulls will be in some unit's names
@@ -358,14 +348,9 @@ const buildingAddressMetaJson = {
     'dv': 1,
 }
 
-const MIN_SECTIONS_TO_SHOW_FILTER = 2
-
-export {
-    buildingEmptyMapJson,
+module.exports = {
     buildingMapJson,
     buildingAddressMetaJson,
     notValidBuildingMapJson,
-    validHouseTypes,
     autoFixBuildingMapJson,
-    MIN_SECTIONS_TO_SHOW_FILTER,
 }
