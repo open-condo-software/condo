@@ -10,7 +10,7 @@ import { css } from 'emotion'
 import get from 'lodash/get'
 import { Loader } from '@condo/domains/common/components/Loader'
 
-type useIFrameType = (pageUrl: string, options: optionsType) => JSX.Element
+type useIFrameType = (pageUrl: string, options?: optionsType) => JSX.Element
 type optionsType = {
     withLoader?: boolean,
 }
@@ -22,7 +22,7 @@ const IFRAME_STYLES = ({ isLoading }) => css`
 `
 
 
-export const useIFrame: useIFrameType = (pageUrl: string, options: optionsType = {}) => {
+export const useIFrame: useIFrameType = (pageUrl: string, options?: optionsType) => {
     const { isAuthenticated } = useAuth()
     const { organization } = useOrganization()
 
@@ -94,12 +94,9 @@ export const useIFrame: useIFrameType = (pageUrl: string, options: optionsType =
 
     const shouldHaveLoader = get(options, 'withLoader', true)
 
-    if (shouldHaveLoader && isLoading) {
-        return <Loader fill size={'large'}/>
-    }
-
     return <>
         <Wrapper>
+            { shouldHaveLoader && isLoading && <Loader fill size={'large'}/> }
             <iframe src={pageUrl} onLoad={handleLoad} css={IFRAME_STYLES({ isLoading })}/>
         </Wrapper>
     </>
