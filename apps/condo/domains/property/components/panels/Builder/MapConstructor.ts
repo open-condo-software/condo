@@ -130,11 +130,10 @@ class Map {
     }
 
     private setAutoincrement () {
-        this.autoincrement = Math.max(0, ...this.map.sections
-            .map(section => section.floors
-                .map(floor => floor.units
-                    .map(unit => !isNaN(Number(unit.id)) ? Number(unit.id) : 0)))
-            .flat(2)) + 1
+        const idCollectLambda = entity => entity.map(section => section.floors
+            .map(floor => floor.units.map(unit => !isNaN(Number(unit.id)) ? Number(unit.id) : 0)))
+            .flat(2)
+        this.autoincrement = Math.max(0, ...idCollectLambda(this.map.sections), ...idCollectLambda(this.map.parking)) + 1
     }
 
     private repairMapStructure (): void {
@@ -534,6 +533,7 @@ class MapEdit extends MapView {
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.removePreviewParking()
+                this.removePreviewParkingUnit()
                 this.restoreViewMode()
                 this.mode = null
         }
@@ -720,6 +720,7 @@ class MapEdit extends MapView {
             id,
             label,
             type: null,
+            unitType: BuildingUnitType.Flat,
             preview: true,
         }
         newUnit.type = BuildingMapEntityType.Unit
@@ -753,7 +754,7 @@ class MapEdit extends MapView {
             newUnit.id = String(++this.autoincrement)
         }
         this.map.parking[sectionIndex].floors[floorIndex].units.push(newUnit)
-        this.previewUnitId = newUnit.id
+        this.previewParkingUnitId = newUnit.id
     }
 
     public addParkingUnit (unit: Partial<BuildingUnitArg>): void {
@@ -835,7 +836,7 @@ class MapEdit extends MapView {
             const floorUnits = this.map.parking[unitIndex.parking].floors[unitIndex.floor].units
             const [removedUnit] = floorUnits.splice(unitIndex.unit, 1)
             if (floorUnits.length === 0) {
-                this.removeFloor(unitIndex.parking, unitIndex.floor)
+                this.removeParkingFloor(unitIndex.parking, unitIndex.floor)
             }
             if (nextUnit && shouldUpdateUnitNumbers) {
                 nextUnit.label = removedUnit.label
@@ -1039,7 +1040,8 @@ class MapEdit extends MapView {
     }
 
     private getNextUnit (id: string): BuildingUnit {
-        const units = this.map.sections.map(section => section.floors.slice(0).reverse().map(floor => floor.units)).flat(2)
+        const units = this.map.sections
+            .map(section => section.floors.slice(0).reverse().map(floor => floor.units)).flat(2)
         const unitIndex = units.findIndex(unit => unit.id === id)
         const nextIndex = unitIndex + 1
         return units[nextIndex] || null
@@ -1056,6 +1058,22 @@ class MapEdit extends MapView {
         this.map.sections[sectionIdx].floors.map(floor => {
             if (floorToRemove.index > 0 && floorToRemove.index < floor.index) {
                 floor.index--
+                floor.name = floor.index.toString()
+            }
+            return floor
+        })
+    }
+
+    private removeParkingFloor (parkingSectionId: number, floorIndex: number): void {
+        if (!get(this.map, `parking[${parkingSectionId}].floors[${floorIndex}]`, false)) {
+            return
+        }
+
+        const floorToRemove = this.map.parking[parkingSectionId].floors[floorIndex]
+        this.map.parking[parkingSectionId].floors.splice(floorIndex, 1)
+        this.map.parking[parkingSectionId].floors.map(floor => {
+            if (floorToRemove.index < floor.index) {
+                floor.index --
                 floor.name = floor.index.toString()
             }
             return floor
