@@ -1,4 +1,4 @@
-import { getQueryParams, extractHostname, extractRootDomain } from './url.utils'
+import { getQueryParams, extractHostname, extractRootDomain, extractOrigin } from './url.utils'
 
 describe('getQueryParams()', () => {
     test('with ? case', () => {
@@ -48,4 +48,12 @@ describe('exctractRootDomain', () => {
     expect(extractRootDomain('https://facebook.github.io/jest/')).toEqual('github.io')
     expect(extractRootDomain('//youtube.com/watch?v=ClkQA2Lb_iE')).toEqual('youtube.com')
     expect(extractRootDomain('http://localhost:4200/watch?v=ClkQA2Lb_iE')).toEqual('localhost')
+})
+
+describe('extractOrigin', () => {
+    expect(extractOrigin('http://www.blog.classroom.me.uk/index.php')).toEqual('http://www.blog.classroom.me.uk')
+    expect(extractOrigin('http://www.youtube.com/watch?v=dQw4w9WgXcQ')).toEqual('http://www.youtube.com')
+    expect(extractOrigin('https://www.youtube.com/watch?v=dQw4w9WgXcQ')).toEqual('https://www.youtube.com')
+    expect(extractOrigin('ftps://ftp.websitename.com/dir/file.txt')).toEqual('ftps://ftp.websitename.com')
+    expect(extractOrigin('http://localhost:3002/import')).toEqual('http://localhost:3002')
 })
