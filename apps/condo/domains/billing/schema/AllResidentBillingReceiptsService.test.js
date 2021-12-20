@@ -549,7 +549,7 @@ describe('AllResidentBillingReceipts', () => {
             expect(noPaymentReceiptAfterPayments.paid).not.toEqual(noPaymentReceiptAfterPayments.toPay)
         })
 
-        test('Test case when receipt is deleted then paid and then recreated.', async () => {
+        test('Test case when receipt is paid and overwritten by billing integration.', async () => {
 
             const UNIT_NAME = '22'
 
