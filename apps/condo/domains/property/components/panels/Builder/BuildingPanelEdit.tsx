@@ -725,7 +725,6 @@ interface IPropertyMapUnitProps {
 
 const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ builder, refresh, unit, scrollToForm }) => {
     const selectUnit = useCallback(() => {
-        console.log('select unit with type ', unit.unitType)
         if (unit.unitType === BuildingUnitType.Flat) {
             builder.setSelectedUnit(unit)
             if (builder.getSelectedUnit()) {
@@ -759,7 +758,7 @@ interface IAddSectionFormProps {
     builder: MapEdit
     refresh(): void
 }
-const MODAL_FORM_ROW_GUTTER: RowProps['gutter'] = [0, 20]
+const MODAL_FORM_ROW_GUTTER: RowProps['gutter'] = [0, 24]
 const MODAL_FORM_ROW_BUTTONS_GUTTER: RowProps['gutter'] = [0, 16]
 const MODAL_FORM_BUTTON_STYLE: React.CSSProperties = { marginTop: '12px' }
 
@@ -893,6 +892,7 @@ interface IUnitFormProps {
     refresh(): void
 }
 const IS_NUMERIC_REGEXP = /^\d+$/
+const BUTTON_SPACE_SIZE = 40
 
 const UnitForm: React.FC<IUnitFormProps> = ({ builder, refresh }) => {
     const intl = useIntl()
@@ -991,7 +991,7 @@ const UnitForm: React.FC<IUnitFormProps> = ({ builder, refresh }) => {
                 </Space>
             </Col>
             <Col span={24}>
-                <Space direction={'vertical'} size={32}>
+                <Space direction={'vertical'} size={BUTTON_SPACE_SIZE}>
                     <Space direction={'vertical'} size={8} style={INPUT_STYLE}>
                         <Typography.Text type={'secondary'} >{FloorLabel}</Typography.Text>
                         <Select value={floor} onSelect={setFloor} style={INPUT_STYLE}>
@@ -1032,7 +1032,7 @@ interface IEditSectionFormProps {
     builder: MapEdit
     refresh(): void
 }
-const MODAL_FORM_EDIT_GUTTER: RowProps['gutter'] = [0, 32]
+const MODAL_FORM_EDIT_GUTTER: RowProps['gutter'] = [0, 40]
 const MODAL_FORM_BUTTON_GUTTER: RowProps['gutter'] = [0, 16]
 
 const EditSectionForm: React.FC<IEditSectionFormProps> = ({ builder, refresh }) => {
@@ -1272,9 +1272,10 @@ const ParkingUnitForm: React.FC<IUnitFormProps> = ({ builder, refresh }) => {
     const mode = builder.editMode
     const SaveLabel = intl.formatMessage({ id: mode === 'editParkingUnit' ? 'Save' : 'Add' })
     const DeleteLabel = intl.formatMessage({ id: 'Delete' })
-    const NameLabel = intl.formatMessage({ id: 'pages.condo.property.unit.Name' })
-    const SectionLabel = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
+    const NameLabel = intl.formatMessage({ id: 'pages.condo.property.parkingUnit.Name' })
+    const SectionLabel = intl.formatMessage({ id: 'pages.condo.property.parkingSection.name' })
     const FloorLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
+    const SectionTitlePrefix = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
 
     const [label, setLabel] = useState('')
     const [floor, setFloor] = useState('')
@@ -1302,7 +1303,6 @@ const ParkingUnitForm: React.FC<IUnitFormProps> = ({ builder, refresh }) => {
         setSections(builder.getParkingSectionOptions())
         const mapUnit = builder.getSelectedParkingUnit()
         if (mapUnit) {
-
             setFloors(builder.getParkingSectionFloorOptions(mapUnit.section))
             setLabel(mapUnit.label)
             setSection(mapUnit.section)
@@ -1349,30 +1349,30 @@ const ParkingUnitForm: React.FC<IUnitFormProps> = ({ builder, refresh }) => {
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
             <Col span={24}>
-                <Space direction={'vertical'} size={8}>
-                    <Typography.Text type={'secondary'}>{NameLabel}</Typography.Text>
-                    <Input allowClear={true} value={label} onChange={e => setLabel(e.target.value)} style={INPUT_STYLE} />
-                </Space>
-            </Col>
-            <Col span={24}>
                 <Space direction={'vertical'} size={8} style={INPUT_STYLE}>
                     <Typography.Text type={'secondary'} >{SectionLabel}</Typography.Text>
                     <Select value={section} onSelect={updateSection} style={INPUT_STYLE}>
                         {sections.map((sec) => {
-                            return <Option key={sec.id} value={sec.id}>{sec.label}</Option>
+                            return <Option key={sec.id} value={sec.id}>{SectionTitlePrefix} {sec.label}</Option>
                         })}
                     </Select>
                 </Space>
             </Col>
             <Col span={24}>
-                <Space direction={'vertical'} size={32}>
-                    <Space direction={'vertical'} size={8} style={INPUT_STYLE}>
-                        <Typography.Text type={'secondary'} >{FloorLabel}</Typography.Text>
-                        <Select value={floor} onSelect={setFloor} style={INPUT_STYLE}>
-                            {floors.map(floorOption => {
-                                return <Option key={floorOption.id} value={floorOption.id}>{floorOption.label}</Option>
-                            })}
-                        </Select>
+                <Space direction={'vertical'} size={8} style={INPUT_STYLE}>
+                    <Typography.Text type={'secondary'} >{FloorLabel}</Typography.Text>
+                    <Select value={floor} onSelect={setFloor} style={INPUT_STYLE}>
+                        {floors.map(floorOption => {
+                            return <Option key={floorOption.id} value={floorOption.id}>{floorOption.label}</Option>
+                        })}
+                    </Select>
+                </Space>
+            </Col>
+            <Col span={24}>
+                <Space direction={'vertical'} size={BUTTON_SPACE_SIZE}>
+                    <Space direction={'vertical'} size={8}>
+                        <Typography.Text type={'secondary'}>{NameLabel}</Typography.Text>
+                        <Input allowClear={true} value={label} onChange={e => setLabel(e.target.value)} style={INPUT_STYLE} />
                     </Space>
                     <Row gutter={MODAL_FORM_ROW_BUTTONS_GUTTER}>
                         <Col span={24}>
@@ -1384,7 +1384,7 @@ const ParkingUnitForm: React.FC<IUnitFormProps> = ({ builder, refresh }) => {
                             > {SaveLabel} </Button>
                         </Col>
                         {
-                            mode === 'editUnit' && (
+                            mode === 'editParkingUnit' && (
                                 <Col span={24}>
                                     <Button
                                         secondary
