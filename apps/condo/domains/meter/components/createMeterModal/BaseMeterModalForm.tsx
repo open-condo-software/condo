@@ -1,5 +1,5 @@
-import { Button, Col, DatePickerProps, Form, Input, Row, Select, Space, Typography } from 'antd'
-import React, { useState } from 'react'
+import { Button, Col, DatePickerProps, Form, Input, Radio, Row, Select, Space, Typography } from 'antd'
+import React, { ComponentProps, useCallback, useState } from 'react'
 import { useIntl } from '@core/next/intl'
 import { ChevronIcon } from '@condo/domains/common/components/icons/ChevronIcon'
 import { ELECTRICITY_METER_RESOURCE_ID } from '../../constants/constants'
@@ -13,6 +13,9 @@ import { BaseModalForm } from '../../../common/components/containers/FormList'
 import { GraphQlSearchInput } from '../../../common/components/GraphQlSearchInput'
 import { searchMeterResources } from '../../utils/clientSchema/search'
 import { Dayjs } from 'dayjs'
+import { MeterResource } from '../../../../schema'
+import get from 'lodash/get'
+import { uniq } from 'lodash'
 
 const { Option } = Select
 
@@ -71,9 +74,117 @@ const ChevronIconWrapper = styled.div<ChevronIconWrapperProps>`
     display: flex;
 `
 
-export const BaseMeterModalForm = ({ handleSubmit, meter, ModalTitleMsg, ModalSaveButtonLabelMsg, ...otherProps }) => {
+const AccountNumberFormItem = ({ children, initialValues }) => {
     const intl = useIntl()
     const AccountNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.AccountNumber' })
+
+    return (
+        <Form.Item
+            label={AccountNumberMessage}
+            required
+            name={'accountNumber'}
+            initialValue={initialValues.accountNumber}
+        >
+            {children}
+        </Form.Item>
+    )
+}
+
+const AccountNumberSelect = ({ accountNumbers }) => {
+    const [value, setValue] = useState()
+
+    const handleChange = useCallback((e) => {
+        setValue(e.target.value)
+    }, [])
+
+    const accountNumberOptions = accountNumbers.map(accountNumber => ({ label: accountNumber, value: accountNumber }))
+
+    return (
+        <Row>
+            <Col span={24}>
+                <Radio.Group onChange={handleChange} value={value}>
+                    <Radio value={'select'}>Выбрать ЛС</Radio>
+                    <Radio value={'new'}>Создать новый лицевой счет</Radio>
+                </Radio.Group>
+            </Col>
+            <Col span={24}>
+                <AccountNumberFormItem initialValues={{}}>
+                    {
+                        value === 'select' ? <Select options={accountNumberOptions} /> : <Input />
+                    }
+                </AccountNumberFormItem>
+            </Col>
+        </Row>
+    )
+}
+
+const CreateMeterAccountNumberField = ({ initialValues, propertyId, unitName }) => {
+    const { objs: meters } = Meter.useObjects({
+        where: {
+            property: { id: propertyId },
+            unitName,
+        },
+    })
+
+    const unitAccountNumbers = uniq(meters.map(meter => meter.accountNumber))
+
+    if (unitAccountNumbers.length === 0) {
+        return (
+            <AccountNumberFormItem initialValues={initialValues}>
+                <Input />
+            </AccountNumberFormItem>
+        )
+    }
+
+    return <AccountNumberSelect accountNumbers={unitAccountNumbers} />
+}
+
+const AccountNumberField = ({ initialValues }) => {
+    const propertyId = initialValues.propertyId
+    const unitName = initialValues.unitName
+
+    if (propertyId && unitName) {
+        return (
+            <CreateMeterAccountNumberField
+                initialValues={initialValues}
+                propertyId={propertyId}
+                unitName={unitName}
+            />
+        )
+    }
+
+    return (
+        <AccountNumberFormItem initialValues={initialValues}>
+            <Input />
+        </AccountNumberFormItem>
+    )
+}
+
+type InitialMeterFormValuesType = {
+    propertyId?: string
+    unitName?: string
+    accountNumber?: string
+    number?: string
+    resource?: MeterResource
+    place?: string
+    numberOfTariffs?: number
+    installationDate?: string
+    commissioningDate?: string
+    sealingDate?: string
+    verificationDate?: string
+    nextVerificationDate?: string
+    controlReadingsDate?: string
+}
+
+type BaseMeterModalFormProps = ComponentProps<typeof BaseModalForm> & {
+    handleSubmit: (values: unknown) => void,
+    initialValues: InitialMeterFormValuesType,
+    ModalTitleMsg: JSX.Element | string,
+    ModalSaveButtonLabelMsg: JSX.Element | string
+}
+
+export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ handleSubmit, initialValues, ModalSaveButtonLabelMsg, ModalTitleMsg, ...otherProps }) => {
+    const intl = useIntl()
     const MeterNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterNumber' })
     const MeterPlaceMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterPlace' })
     const MoreParametersMessage = intl.formatMessage({ id: 'MoreParameters' })
@@ -157,6 +268,8 @@ export const BaseMeterModalForm = ({ handleSubmit, meter, ModalTitleMsg, ModalSa
         controlReadingsDate: [earlierThanInstallationValidator],
     }
 
+    const initialResourceValue = get(initialValues, ['resource', 'id'])
+
     return (
         <BaseModalForm
             visible={isModalVisible}
@@ -174,20 +287,15 @@ export const BaseMeterModalForm = ({ handleSubmit, meter, ModalTitleMsg, ModalSa
                         <Col span={24}>
                             <Row justify={'space-between'} gutter={[0, 20]}>
                                 <Col span={24}>
-                                    <Form.Item
-                                        label={AccountNumberMessage}
-                                        required
-                                        name={'accountNumber'}
-                                        initialValue={meter?.accountNumber}
-                                    >
-                                        <Input />
-                                    </Form.Item>
+                                    <AccountNumberField
+                                        initialValues={initialValues}
+                                    />
                                 </Col>
                                 <Col span={24}>
                                     <Form.Item
                                         label={ResourceMessage}
                                         name={'resource'}
-                                        initialValue={meter?.resource.id}
+                                        initialValue={initialResourceValue}
                                     >
                                         <GraphQlSearchInput
                                             onChange={resource => {
@@ -204,7 +312,7 @@ export const BaseMeterModalForm = ({ handleSubmit, meter, ModalTitleMsg, ModalSa
                                         name='number'
                                         rules={validations.number}
                                         validateTrigger={['onBlur', 'onSubmit']}
-                                        initialValue={meter?.number}
+                                        initialValue={initialValues.number}
                                     >
                                         <Input />
                                     </Form.Item>
@@ -213,7 +321,7 @@ export const BaseMeterModalForm = ({ handleSubmit, meter, ModalTitleMsg, ModalSa
                                     <Form.Item
                                         label={MeterPlaceMessage}
                                         name='place'
-                                        initialValue={meter?.place}
+                                        initialValue={initialValues.place}
                                     >
                                         <Input />
                                     </Form.Item>
@@ -225,7 +333,7 @@ export const BaseMeterModalForm = ({ handleSubmit, meter, ModalTitleMsg, ModalSa
                                                 rules={validations.numberOfTariffs}
                                                 label={TariffsCountMessage}
                                                 name='numberOfTariffs'
-                                                initialValue={meter?.numberOfTariffs}
+                                                initialValue={initialValues.numberOfTariffs}
                                             >
                                                 <Select>
                                                     {getTariffNumberSelectOptions()}
@@ -241,21 +349,21 @@ export const BaseMeterModalForm = ({ handleSubmit, meter, ModalTitleMsg, ModalSa
                                                 label={InstallationDateMessage}
                                                 name='installationDate'
                                                 onChange={value => setInstallationDate(value)}
-                                                initialValue={meter?.installationDate}
+                                                initialValue={initialValues.installationDate}
                                             />
                                             <CreateMeterModalDatePicker
                                                 label={CommissioningDateMessage}
                                                 name='commissioningDate'
                                                 rules={validations.commissioningDate}
                                                 dependencies={['installationDate']}
-                                                initialValue={meter?.commissioningDate}
+                                                initialValue={initialValues.commissioningDate}
                                             />
                                             <CreateMeterModalDatePicker
                                                 label={SealingDateMessage}
                                                 name='sealingDate'
                                                 rules={validations.sealingDate}
                                                 dependencies={['installationDate']}
-                                                initialValue={meter?.sealingDate}
+                                                initialValue={initialValues.sealingDate}
                                             />
                                             <CreateMeterModalDatePicker
                                                 label={VerificationDateMessage}
@@ -263,21 +371,21 @@ export const BaseMeterModalForm = ({ handleSubmit, meter, ModalTitleMsg, ModalSa
                                                 rules={validations.verificationDate}
                                                 dependencies={['installationDate']}
                                                 onChange={value => setVerificationDate(value)}
-                                                initialValue={meter?.verificationDate}
+                                                initialValue={initialValues.verificationDate}
                                             />
                                             <CreateMeterModalDatePicker
                                                 label={NextVerificationDateMessage}
                                                 name='nextVerificationDate'
                                                 rules={validations.nextVerificationDate}
                                                 dependencies={['installationDate', 'verificationDate']}
-                                                initialValue={meter?.nextVerificationDate}
+                                                initialValue={initialValues.nextVerificationDate}
                                             />
                                             <CreateMeterModalDatePicker
                                                 label={ControlReadingsDateMessage}
                                                 name='controlReadingsDate'
                                                 rules={validations.controlReadingsDate}
                                                 dependencies={['installationDate']}
-                                                initialValue={meter?.controlReadingsDate}
+                                                initialValue={initialValues.controlReadingsDate}
                                             />
                                         </>
                                     ) : null
