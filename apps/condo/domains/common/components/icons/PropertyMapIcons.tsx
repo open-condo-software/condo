@@ -46,16 +46,18 @@ export const FlatIcon: React.FC<IPropertyMapIcon> = ({ height = 25, width = 25 }
     </svg>
 )
 
-export const BasementIcon: React.FC<IPropertyMapIcon> = ({ height = 25, width = 25 }) => (
+export const ParkingFloorIcon: React.FC<IPropertyMapIcon> = ({ height = 25, width = 25 }) => (
     <svg width={width} height={height} fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="1" y="1" width="20" height="20" rx="4" stroke="currentColor" strokeWidth="1.6"/>
-        <path d="M1 5.5h7a1 1 0 0 1 1 1v4M1.5 10.5H12a1 1 0 0 1 1 1v4M1 15.5h15a1 1 0 0 1 1 1v4" stroke="currentColor" strokeWidth="1.6"/>
+        <path d="M1.874 9.574c-1.165-.784-1.165-2.578 0-3.362l6.585-4.43a4.519 4.519 0 0 1 5.082 0l6.585 4.43c1.165.784 1.165 2.578 0 3.362l-6.585 4.43a4.52 4.52 0 0 1-5.082 0l-6.585-4.43Z" stroke="currentColor" strokeWidth="1.8"/>
+        <path d="m17.781 10.848 2.345 1.577c1.165.784 1.165 2.579 0 3.362l-6.585 4.43a4.519 4.519 0 0 1-5.082 0l-6.585-4.43c-1.165-.784-1.165-2.578 0-3.362l2.345-1.577" stroke="currentColor" strokeWidth="1.8"/>
     </svg>
 )
 
-export const CeilIcon: React.FC<IPropertyMapIcon> = ({ height = 25, width = 25 }) => (
+export const ParkingPlaceIcon: React.FC<IPropertyMapIcon> = ({ height = 25, width = 25 }) => (
     <svg width={width} height={height} fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M1 9.083a4 4 0 0 1 1.706-3.277l6-4.2a4 4 0 0 1 4.588 0l6 4.2A4 4 0 0 1 21 9.083V16a4 4 0 0 1-4 4H5a4 4 0 0 1-4-4V9.083Z" stroke="currentColor" strokeWidth="1.7"/>
-        <circle cx="11" cy="11" r="3" stroke="currentColor" strokeWidth="1.7"/>
+        <path d="M1 11a3 3 0 0 1 3-3h14a3 3 0 0 1 3 3v4a3 3 0 0 1-3 3H4a3 3 0 0 1-3-3v-4Z" stroke="currentColor" strokeWidth="1.6"/>
+        <rect x="4" y="11" width="4" height="4" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+        <rect x="14" y="11" width="4" height="4" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+        <path d="M2 8h18l-1.586-5.55A2 2 0 0 0 16.491 1H5.51a2 2 0 0 0-1.923 1.45L2 8ZM3 19a2 2 0 1 0 4 0v-1H3v1ZM15 19a2 2 0 1 0 4 0v-1h-4v1Z" stroke="currentColor" strokeWidth="1.6"/>
     </svg>
 )
