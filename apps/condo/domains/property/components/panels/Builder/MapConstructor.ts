@@ -6,7 +6,12 @@ import uniq from 'lodash/uniq'
 import compact from 'lodash/compact'
 import isObjectEmpty from 'lodash/isEmpty'
 import last from 'lodash/last'
+import MapSchemaJSON from './MapJsonSchema.json'
+import Ajv from 'ajv'
 import { BuildingMap, BuildingMapEntityType, BuildingSection, BuildingUnit, BuildingUnitType } from '@app/condo/schema'
+
+const ajv = new Ajv()
+const validator = ajv.compile(MapSchemaJSON)
 
 type Maybe<T> = T | null
 
@@ -84,8 +89,19 @@ class Map {
         return this.map
     }
 
+    public validateSchema (): boolean {
+        // TODO(zuch): check if json schema can validate unique id field
+        this.validationErrors = null
+        const check = validator(this.map)
+        if (!check){
+            this.validationErrors = validator.errors.map(err => JSON.stringify(err, null, 2))
+            return false
+        }
+        return true
+    }
+
     public validate (): boolean {
-        return this.validateUniqueIds() && this.validateUniqueUnitLabel()
+        return this.validateSchema() && this.validateUniqueIds() && this.validateUniqueUnitLabel()
     }
 
     public validateUniqueIds (): boolean {
@@ -150,6 +166,45 @@ class Map {
                 }
                 floor.units.forEach(unit => {
                     unit.type = BuildingMapEntityType.Unit
+                    unit.unitType = BuildingUnitType.Flat
+                    unit.id = String(++this.autoincrement)
+                    if (has(unit, 'preview')) {
+                        delete unit.preview
+                    }
+                    if (has(unit, 'name') && unit.name === null) {
+                        delete unit.name
+                    }
+                    if (!has(unit, 'label')) {
+                        unit.label = has(unit, 'name') ? unit.name : ''
+                    }
+                })
+            })
+        })
+
+        this.map.parking.forEach((parkingSection, parkingSectionIndex) => {
+            parkingSection.type = BuildingMapEntityType.Section
+            parkingSection.id = String(++this.autoincrement)
+            parkingSection.index = parkingSectionIndex
+
+            if (has(parkingSection, 'preview')) delete parkingSection.preview
+            if (!has(parkingSection, 'name')) {
+                parkingSection.name = String(parkingSectionIndex)
+            }
+
+            parkingSection.floors.forEach((floor, floorIndex) => {
+                floor.type = BuildingMapEntityType.Floor
+                floor.id = String(++this.autoincrement)
+
+                if (!has(floor, 'index')) {
+                    floor.index = floorIndex
+                }
+                if (!has(floor, 'name')) {
+                    floor.name = String(floorIndex)
+                }
+
+                floor.units.forEach(unit => {
+                    unit.type = BuildingMapEntityType.Unit
+                    unit.unitType = BuildingUnitType.Parking
                     unit.id = String(++this.autoincrement)
                     if (has(unit, 'preview')) {
                         delete unit.preview
