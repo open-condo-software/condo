@@ -2,13 +2,12 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
-import { Col, Row, Typography, Input, Select, InputNumber, Space, Dropdown, Menu, RowProps, DropDownProps, notification, Radio } from 'antd'
+import { Col, Row, Typography, Input, Select, InputNumber, Space, Dropdown, Menu, RowProps, DropDownProps, notification } from 'antd'
 import { css, jsx } from '@emotion/core'
 import styled from '@emotion/styled'
-import { fontSizes, colors, shadows, gradients } from '@condo/domains/common/constants/style'
-import { DeleteFilled, DownOutlined, CloseOutlined, QuestionCircleFilled } from '@ant-design/icons'
+import { fontSizes, colors, shadows } from '@condo/domains/common/constants/style'
+import { DeleteFilled, DownOutlined, CloseOutlined } from '@ant-design/icons'
 import cloneDeep from 'lodash/cloneDeep'
-import isEmpty from 'lodash/isEmpty'
 import isNull from 'lodash/isNull'
 import get from 'lodash/get'
 import debounce from 'lodash/debounce'
@@ -20,7 +19,7 @@ import {
     EmptyFloor,
     BuildingAxisY,
     BuildingChooseSections,
-    MapSectionContainer, HintText, BuildingViewModeSelect,
+    MapSectionContainer, BuildingViewModeSelect,
 } from './BuildingPanelCommon'
 import { Button } from '@condo/domains/common/components/Button'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
@@ -38,15 +37,13 @@ import ScrollContainer from 'react-indiana-drag-scroll'
 import {
     InterFloorIcon,
     FlatIcon,
-    BasementIcon,
     FloorIcon,
     ParkingIcon,
     SectionIcon,
-    CeilIcon,
+    ParkingFloorIcon,
+    ParkingPlaceIcon,
 } from '@condo/domains/common/components/icons/PropertyMapIcons'
 import { MIN_SECTIONS_TO_SHOW_FILTER } from '@condo/domains/property/constants/property'
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
-
 
 const { Option } = Select
 
@@ -208,8 +205,8 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const AddFloor = intl.formatMessage({ id: 'pages.condo.property.select.option.floor' })
     const AddParking = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
     const AddInterFloorRoom = intl.formatMessage({ id: 'pages.condo.property.select.option.interfloorroom' })
-    const AddBasement = intl.formatMessage({ id: 'pages.condo.property.select.option.basement' })
-    const AddCeil = intl.formatMessage({ id: 'pages.condo.property.select.option.ceil' })
+    const AddParkingFloor = intl.formatMessage({ id: 'pages.condo.property.select.option.parkingFloor' })
+    const AddParkingPlace = intl.formatMessage({ id: 'pages.condo.property.select.option.parkingPlace' })
     const AddElementTitle = intl.formatMessage({ id: 'pages.condo.property.menu.MenuPlaceholder' })
     const AllSectionsTitle = intl.formatMessage({ id: 'pages.condo.property.SectionSelect.AllTitle' })
     const SectionPrefixTitle = intl.formatMessage({ id: 'pages.condo.property.SectionSelect.OptionPrefix' })
@@ -312,13 +309,8 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                     {AddFloor}
                 </Button>
             </Menu.Item>
-            <Menu.Item key={'addParking'}>
-                <Button type={'sberDefaultGradient'} secondary icon={<ParkingIcon />}>
-                    {AddParking}
-                </Button>
-            </Menu.Item>
             <Menu.Item key={'addUnit'}>
-                <Button type={'sberDefaultGradient'} secondary disabled={isEmpty(sections)} icon={<FlatIcon />}>
+                <Button type={'sberDefaultGradient'} secondary disabled={mapEdit.isEmptySections} icon={<FlatIcon />}>
                     {AddUnit}
                 </Button>
             </Menu.Item>
@@ -327,14 +319,19 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                     {AddInterFloorRoom}
                 </Button>
             </Menu.Item>
-            <Menu.Item key={'addBasement'}>
-                <Button type={'sberDefaultGradient'} secondary disabled icon={<BasementIcon />}>
-                    {AddBasement}
+            <Menu.Item key={'addParking'}>
+                <Button type={'sberDefaultGradient'} secondary icon={<ParkingIcon />}>
+                    {AddParking}
                 </Button>
             </Menu.Item>
-            <Menu.Item key={'addAttic'}>
-                <Button type={'sberDefaultGradient'} secondary disabled icon={<CeilIcon />}>
-                    {AddCeil}
+            <Menu.Item key={'addParkingFloor'}>
+                <Button type={'sberDefaultGradient'} secondary disabled icon={<ParkingFloorIcon />}>
+                    {AddParkingFloor}
+                </Button>
+            </Menu.Item>
+            <Menu.Item key={'addParkingUnit'}>
+                <Button type={'sberDefaultGradient'} secondary disabled={mapEdit.isEmptyParking} icon={<ParkingPlaceIcon />}>
+                    {AddParkingPlace}
                 </Button>
             </Menu.Item>
         </Menu>
