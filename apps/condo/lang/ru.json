@@ -564,6 +564,8 @@
   "contact.AddContact": "Добавление жителя",
   "meter.AddMeterReadings": "Сдача показаний приборов учета",
   "meter.MeterReadingsLog": "ИПУ",
+  "meter.modal.ChooseAccountNumber": "Выбрать ЛС",
+  "meter.modal.CreateAccountNumber": "Создать новый лицевой счет",
   "meter.import.MeterReading.objectsName.many": "Показания ИПУ",
   "meter.import.MeterReading.objectsName.many.genitive": " показаний ИПУ",
   "meter.import.column.address": "Адрес",

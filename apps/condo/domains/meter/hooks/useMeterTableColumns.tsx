@@ -46,9 +46,6 @@ const MeterReadingInput = ({ record, newMeterReadings, setNewMeterReadings }) =>
                 value={get(newMeterReadings, [meterId, tariffNumber], '')}
                 formatter={value => value.toString().replace(',', '.')}
                 parser={input => {
-                    console.log('input', input)
-                    console.log(input.replace(/,+/g, '.'))
-
                     return input.replace(/,+/g, '.')
                 }}
             />
