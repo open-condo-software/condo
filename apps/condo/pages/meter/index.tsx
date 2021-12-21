@@ -13,7 +13,7 @@ import { Col, Input, Row, Typography } from 'antd'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import get from 'lodash/get'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Button } from '@condo/domains/common/components/Button'
 import { useOrganization } from '@core/next/organization'
@@ -30,8 +30,11 @@ import { useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultiple
 import { useFilters } from '@condo/domains/meter/hooks/useFilters'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
+import { Gutter } from 'antd/es/grid/row'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { useImporterFunctions } from '../../domains/meter/hooks/useImporterFunction'
+
+const METERS_PAGE_CONTENT_ROW_GUTTERS: [Gutter, Gutter] = [0, 40]
 
 export const MetersPageContent = ({
     searchMeterReadingsQuery,
@@ -84,6 +87,9 @@ export const MetersPageContent = ({
             },
         }
     }, [])
+    const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
+    const handleMultipleFiltersButtonClick = useCallback(() => setIsMultipleFiltersModalVisible(true),
+        [setIsMultipleFiltersModalVisible])
 
     return (
         <>
@@ -103,14 +109,14 @@ export const MetersPageContent = ({
                                     createLabel={CreateTicket} />
                             ) :
                             (
-                                <Row gutter={[0, 40]} align={'middle'} justify={'center'}>
+                                <Row gutter={METERS_PAGE_CONTENT_ROW_GUTTERS} align={'middle'} justify={'center'}>
                                     <Col span={23}>
                                         <FocusContainer padding={'16px'}>
-                                            <Row justify={'space-between'} gutter={[0, 40]}>
+                                            <Row justify={'space-between'} gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}>
                                                 <Col xs={24} lg={7}>
                                                     <Input
                                                         placeholder={SearchPlaceholder}
-                                                        onChange={(e) => {handleSearchChange(e.target.value)}}
+                                                        onChange={handleSearch}
                                                         value={search}
                                                     />
                                                 </Col>
@@ -140,14 +146,13 @@ export const MetersPageContent = ({
                                                             <Button
                                                                 secondary
                                                                 type={'sberPrimary'}
-                                                                onClick={() => setIsMultipleFiltersModalVisible(true)}
+                                                                onClick={handleMultipleFiltersButtonClick}
                                                             >
                                                                 <FilterFilled/>
                                                                 {FiltersButtonLabel}
                                                             </Button>
                                                         </Col>
                                                     </Row>
-
                                                 </Col>
                                             </Row>
                                         </FocusContainer>
@@ -184,18 +189,20 @@ interface IMeterIndexPage extends React.FC {
     requiredAccess?: React.FC
 }
 
+const sortableProperties = ['date', 'clientName', 'source']
+
 const MetersPage: IMeterIndexPage = () => {
     const { organization, link } = useOrganization()
     const userOrganizationId = get(organization, 'id')
     const role = get(link, 'role')
 
     const filterMetas = useFilters()
-    const sortableProperties = ['date', 'clientName', 'source']
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, sortableProperties)
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
     const tableColumns = useTableColumns(filterMetas)
-    const searchMeterReadingsQuery = { ...filtersToWhere(filters), organization: { id: userOrganizationId } }
+    const searchMeterReadingsQuery = useMemo(() => ({ ...filtersToWhere(filters), organization: { id: userOrganizationId } }),
+        [filters, filtersToWhere, userOrganizationId])
 
     return (
         <MetersPageContent

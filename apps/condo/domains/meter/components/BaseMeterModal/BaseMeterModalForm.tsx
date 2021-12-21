@@ -39,6 +39,7 @@ type BaseMeterModalFormProps = ComponentProps<typeof BaseModalForm> & {
     ModalSaveButtonLabelMsg: JSX.Element | string
 }
 
+const BASE_MODAL_PROPS = { width: 600 }
 const METER_MODAL_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
 const METER_MODAL_ROW_GUTTERS: [Gutter, Gutter] = [0, 20]
 const DATE_FIELD_INSTALLATION_DATE_DEPENDENCY = ['installationDate']
@@ -123,6 +124,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ handleSu
             showCancelButton={false}
             validateTrigger={METER_MODAL_VALIDATE_TRIGGER}
             handleSubmit={handleSubmit}
+            modalProps={BASE_MODAL_PROPS}
             {...otherProps}
         >
             {

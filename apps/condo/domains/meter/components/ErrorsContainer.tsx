@@ -1,7 +1,7 @@
 import { useIntl } from '@core/next/intl'
 import React from 'react'
 import { ErrorsWrapper } from '@condo/domains/common/components/ErrorsWrapper'
-import { isEmpty } from 'lodash'
+import isEmpty from 'lodash/isEmpty'
 
 interface IErrorsContainerProps {
     property: string

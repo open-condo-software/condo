@@ -1,118 +1,41 @@
-import { Col, Form, FormInstance, Row, Space, Typography } from 'antd'
+import { Col, Form, Row, Typography } from 'antd'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useIntl } from '@core/next/intl'
-import { Button } from '@condo/domains/common/components/Button'
-import ActionBar from '@condo/domains/common/components/ActionBar'
-import { ErrorsContainer } from './ErrorsContainer'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
-import { Meter, MeterReading, MeterResource } from '../utils/clientSchema'
+import { Meter, MeterReading } from '../utils/clientSchema'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
 import uniqWith from 'lodash/uniqWith'
 import {
     CALL_METER_READING_SOURCE_ID,
 } from '../constants/constants'
-import { PlusCircleFilled } from '@ant-design/icons'
-import { AccountNumberInput } from './AccountNumberInput'
 import { useCreateMeterModal } from '../hooks/useCreateMeterModal'
-import { FormListOperation } from 'antd/lib/form/FormList'
-import { MeterCard } from './MeterCard'
-import { convertToUIFormState, IMeterFormState, IMeterUIState } from '../utils/clientSchema/Meter'
+import { IMeterUIState } from '../utils/clientSchema/Meter'
 import { useRouter } from 'next/router'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { SortBillingAccountMeterReadingsBy, SortMeterReadingsBy, SortMetersBy } from '@app/condo/schema'
-import { BillingAccountMeterReading } from '@condo/domains/billing/utils/clientSchema'
-import { IMeterReadingFormState, IMeterReadingUIState } from '../utils/clientSchema/MeterReading'
+import { SortMeterReadingsBy, SortMetersBy } from '@app/condo/schema'
+import { IMeterReadingUIState } from '../utils/clientSchema/MeterReading'
 import { UnitInfo } from '@condo/domains/property/components/UnitInfo'
 import { EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION,
     EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT } from '../constants/errors'
-import { Loader } from '@condo/domains/common/components/Loader'
 import { ContactsInfo } from '@condo/domains/ticket/components/BaseTicketForm'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { useMeterTableColumns } from '../hooks/useMeterTableColumns'
-import { get, isEmpty } from 'lodash'
-import { getTableScrollConfig } from '../../common/utils/tables.utils'
-import { useLayoutContext } from '../../common/components/LayoutContext'
+import { get } from 'lodash'
+import { getTableScrollConfig } from '@condo/domains/common/utils/tables.utils'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { useUpdateMeterModal } from '../hooks/useUpdateMeterModal'
-import { jsx } from '@emotion/core'
+import { Gutter } from 'antd/es/grid/row'
+import { CreateMeterReadingsActionBar } from './CreateMeterReadingsActionBar'
 
 export const LAYOUT = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
 }
 
-export const CreateMeterReadingsActionBar = ({
-    handleSave,
-    handleAddMeterButtonClick,
-    isLoading,
-    newMeterReadings,
-}) => {
-    const intl = useIntl()
-    const SendMetersReadingMessage = intl.formatMessage({ id: 'pages.condo.meter.SendMetersReading' })
-    const AddMeterMessage = intl.formatMessage({ id: 'pages.condo.meter.AddMeter' })
-
-    return (
-        <Form.Item
-            noStyle
-            dependencies={['property']}
-            shouldUpdate={(prev, next) => prev.unitName !== next.unitName}
-        >
-            {
-                ({ getFieldsValue }) => {
-                    const { property, unitName } = getFieldsValue(['property', 'unitName'])
-                    const disabled = !property || !unitName || isEmpty(newMeterReadings)
-
-                    return (
-                        <ActionBar>
-                            <Space size={12}>
-                                <Button
-                                    key='submit'
-                                    onClick={handleSave}
-                                    type='sberPrimary'
-                                    loading={isLoading}
-                                    disabled={disabled}
-                                >
-                                    {SendMetersReadingMessage}
-                                </Button>
-                                <Button
-                                    onClick={handleAddMeterButtonClick}
-                                    type='sberPrimary'
-                                    disabled={!property}
-                                    icon={<PlusCircleFilled/>}
-                                    secondary
-                                >
-                                    {AddMeterMessage}
-                                </Button>
-                                <ErrorsContainer
-                                    property={property}
-                                    unitName={unitName}
-                                    newMeterReadings={newMeterReadings}
-                                />
-                            </Space>
-                        </ActionBar>
-                    )
-                }
-            }
-        </Form.Item>
-    )
-}
-
-type IMeterValues = { value1: string, value2?: string, value3?: string, value4?: string }
-type ICreateMeterReadingsFormVariables = IMeterReadingFormState & {
-    newMeters: (IMeterFormState & IMeterValues)[]
-    existedMeters: { [meterId: string]: IMeterValues }
-}
-
 type MetersTableRecord = {
-    // meterId: string
-    // meterAccountNumber: string
-    // meterResource: string
-    // meterResourceMeasure: string
-    // meterNumber: string
-    // meterPlace: string
-    // meterVerificationDate: string
     meter: IMeterUIState
     lastMeterReading: string
     meterReadingSource: string
@@ -156,6 +79,10 @@ function getTableData (meters: IMeterUIState[], meterReadings: IMeterReadingUISt
     return dataSource
 }
 
+const VALIDATE_FORM_TRIGGER = ['onBlur', 'onSubmit']
+const FORM_ROW_LARGE_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
+const FORM_ROW_MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 20]
+
 export const CreateMeterReadingsForm = ({ organization, role }) => {
     const intl = useIntl()
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
@@ -166,6 +93,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const MeterWithSameNumberIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterWithSameNumberIsExist' })
     const AccountNumberIsExistInOtherUnitMessage = intl.formatMessage({ id: 'pages.condo.meter.AccountNumberIsExistInOtherUnit' })
     const ClientInfoMessage = intl.formatMessage({ id: 'ClientInfo' })
+    const MetersAndReadingsMessage = intl.formatMessage({ id: 'pages.condo.meter.create.MetersAndReadings' })
 
     const { isSmall } = useLayoutContext()
     const { requiredValidator } = useValidations()
@@ -223,7 +151,6 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const loading = metersLoading || meterReadingsLoading
     const { CreateMeterModal, setIsCreateMeterModalVisible } = useCreateMeterModal(organization.id, selectedPropertyId, selectedUnitName, refetch)
     const dataSource = useMemo(() => getTableData(meters, meterReadings), [meterReadings, meters])
-
     const { tableColumns, newMeterReadings, setNewMeterReadings } = useMeterTableColumns()
     const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch)
     const handleRowAction = useCallback((record) => {
@@ -234,6 +161,8 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
             },
         }
     }, [])
+    const handleAddMeterButtonClick = useCallback(() => setIsCreateMeterModalVisible(true),
+        [setIsCreateMeterModalVisible])
 
     useEffect(() => {
         refetch()
@@ -288,7 +217,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     return (
         <FormWithAction
             {...LAYOUT}
-            validateTrigger={['onBlur', 'onSubmit']}
+            validateTrigger={VALIDATE_FORM_TRIGGER}
             action={handleSubmit}
             formValuesToMutationDataPreprocessor={(values) => {
                 values.property = selectPropertyIdRef.current
@@ -297,7 +226,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
             }}
             ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
         >
-            {({ handleSave, isLoading, form }) => (
+            {({ handleSave, form }) => (
                 <>
                     <Prompt
                         title={PromptTitle}
@@ -309,19 +238,22 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                         </Typography.Paragraph>
                     </Prompt>
                     <Col span={24}>
-                        <Row gutter={[0, 40]}>
+                        <Row gutter={FORM_ROW_LARGE_VERTICAL_GUTTER}>
                             <Col lg={13} md={24}>
-                                <Row gutter={[0, 40]}>
+                                <Row gutter={FORM_ROW_LARGE_VERTICAL_GUTTER}>
                                     <Col span={24}>
-                                        <Row justify={'space-between'} gutter={[0, 15]}>
+                                        <Row justify={'space-between'} gutter={FORM_ROW_MEDIUM_VERTICAL_GUTTER}>
                                             <Col span={24}>
                                                 <Typography.Title level={5}>
                                                     {ClientInfoMessage}
                                                 </Typography.Title>
                                             </Col>
                                             <Col span={24}>
-                                                <Form.Item name={'property'} label={AddressLabel}
-                                                    rules={validations.property}>
+                                                <Form.Item
+                                                    name={'property'}
+                                                    label={AddressLabel}
+                                                    rules={validations.property}
+                                                >
                                                     <PropertyAddressSearchInput
                                                         organization={organization}
                                                         autoFocus={true}
@@ -363,8 +295,8 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                 </Row>
                             </Col>
                             <Col span={24}>
-                                <Row gutter={[0, 20]}>
-                                    <Typography.Title level={2}>Приборы учета и показания</Typography.Title>
+                                <Row gutter={FORM_ROW_MEDIUM_VERTICAL_GUTTER}>
+                                    <Typography.Title level={2}>{MetersAndReadingsMessage}</Typography.Title>
                                     {
                                         selectedUnitName ? (
                                             <Table
@@ -384,7 +316,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                 <CreateMeterReadingsActionBar
                                     handleSave={handleSave}
                                     newMeterReadings={newMeterReadings}
-                                    handleAddMeterButtonClick={() => setIsCreateMeterModalVisible(true)}
+                                    handleAddMeterButtonClick={handleAddMeterButtonClick}
                                     isLoading={loading}
                                 />
                             </Col>
