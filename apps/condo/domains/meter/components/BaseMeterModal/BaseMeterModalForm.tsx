@@ -1,20 +1,22 @@
 import { Col, Form, Input, Row, Select } from 'antd'
 import React, { ComponentProps, useCallback, useMemo, useState } from 'react'
 import { useIntl } from '@core/next/intl'
-import { ELECTRICITY_METER_RESOURCE_ID } from '../../constants/constants'
+import dayjs, { Dayjs } from 'dayjs'
+import { MeterResource } from '@app/condo/schema'
+import get from 'lodash/get'
+import { Gutter } from 'antd/es/grid/row'
+
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
-import { searchMeterResources } from '../../utils/clientSchema/search'
-import dayjs, { Dayjs } from 'dayjs'
-import { MeterResource } from '../../../../schema'
-import get from 'lodash/get'
+import { useShowMoreFieldsButton } from '@condo/domains/common/hooks/useShowMoreFieldsButton'
+
 import { useMeterValidations } from '../../hooks/useMeterValidations'
 import { METER_MODAL_FORM_ITEM_SPAN } from '../../constants/constants'
 import { MeterModalDatePicker } from './BaseMeterModalDatePicker'
 import { BaseMeterModalAccountNumberField } from './BaseMeterModalAccountNumberField'
-import { Gutter } from 'antd/es/grid/row'
-import { useShowMoreFieldsButton } from '@condo/domains/common/hooks/useShowMoreFieldsButton'
+import { ELECTRICITY_METER_RESOURCE_ID } from '../../constants/constants'
+import { searchMeterResources } from '../../utils/clientSchema/search'
 
 type InitialMeterFormValuesType = {
     propertyId?: string
@@ -115,6 +117,12 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ handleSu
     const initialResourceValue = get(initialValues, ['resource', 'id'])
     const handleCancelModal = useCallback(() => () => setModalVisible(false), [])
     const handleInstallationDateChange = useCallback(value => setInstallationDate(value), [])
+    const handleResourceChange = useCallback((form, resource) => {
+        setIsTariffsCountHidden(resource !== ELECTRICITY_METER_RESOURCE_ID)
+        form.setFieldsValue({ numberOfTariffs: null })
+    }, [])
+
+    const tariffOptions = useMemo(() => getTariffNumberSelectOptions(), [])
 
     return (
         <BaseModalForm
@@ -147,10 +155,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ handleSu
                                         initialValue={initialResourceValue}
                                     >
                                         <GraphQlSearchInput
-                                            onChange={resource => {
-                                                setIsTariffsCountHidden(resource !== ELECTRICITY_METER_RESOURCE_ID)
-                                                form.setFieldsValue({ numberOfTariffs: null })
-                                            }}
+                                            onChange={resource => handleResourceChange(form, resource)}
                                             search={searchMeterResources}
                                         />
                                     </Form.Item>
@@ -185,7 +190,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ handleSu
                                                 initialValue={initialValues.numberOfTariffs}
                                             >
                                                 <Select>
-                                                    {getTariffNumberSelectOptions()}
+                                                    {tariffOptions}
                                                 </Select>
                                             </Form.Item>
                                         </Col>

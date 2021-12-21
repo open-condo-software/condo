@@ -1,9 +1,12 @@
-import { useIntl } from '@core/next/intl'
-import { Col, Form, Input, Radio, Row, Select } from 'antd'
 import React, { useCallback, useMemo, useState } from 'react'
-import { Meter } from '../../utils/clientSchema'
-import { uniq } from 'lodash'
+import { Col, Form, Input, Radio, Row, Select } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
+import uniq from 'lodash/uniq'
+import isEmpty from 'lodash/isEmpty'
+
+import { useIntl } from '@core/next/intl'
+
+import { Meter } from '../../utils/clientSchema'
 
 const AccountNumberFormItem = ({ children, initialValues }) => {
     const intl = useIntl()
@@ -77,7 +80,7 @@ const CreateMeterAccountNumberField = ({ initialValues, propertyId, unitName }) 
     })
     const unitAccountNumbers = useMemo(() => uniq(meters.map(meter => meter.accountNumber)), [meters])
 
-    if (unitAccountNumbers.length === 0) {
+    if (isEmpty(unitAccountNumbers)) {
         return (
             <AccountNumberFormItem initialValues={initialValues}>
                 <Input />

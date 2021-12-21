@@ -1,20 +1,22 @@
 import { useMemo } from 'react'
+import { MeterReadingWhereInput } from '@app/condo/schema'
+import get from 'lodash/get'
+import { useOrganization } from '@core/next/organization'
+import { useIntl } from '@core/next/intl'
+
 import {
     ComponentType,
     convertToOptions,
     FilterComponentSize,
     FiltersMeta,
 } from '@condo/domains/common/utils/filters.utils'
-import { MeterReadingWhereInput } from '@app/condo/schema'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
-import { get } from 'lodash'
 import {
     getDayRangeFilter, getFilter,
     getStringContainsFilter,
 } from '@condo/domains/common/utils/tables.utils'
+
 import { MeterReadingSource, MeterResource } from '../utils/clientSchema'
-import { useOrganization } from '@core/next/organization'
-import { useIntl } from '@core/next/intl'
 import { IMeterReadingSourceUIState } from '../utils/clientSchema/MeterReadingSource'
 import { IMeterResourceUIState } from '../utils/clientSchema/MeterResource'
 

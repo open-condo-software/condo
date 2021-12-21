@@ -1,10 +1,13 @@
-import { Rule } from 'rc-field-form/lib/interface'
-import { useOrganization } from '@core/next/organization'
-import { Meter } from '../utils/clientSchema'
-import { useIntl } from '@core/next/intl'
 import { useMemo } from 'react'
 import { Dayjs } from 'dayjs'
 import get from 'lodash/get'
+import { Rule } from 'rc-field-form/lib/interface'
+import { useIntl } from '@core/next/intl'
+import isEmpty from 'lodash/isEmpty'
+
+import { useOrganization } from '@core/next/organization'
+
+import { Meter } from '../utils/clientSchema'
 
 export const useMeterValidations = (installationDate: Dayjs, verificationDate: Dayjs) => {
     const intl = useIntl()
@@ -55,12 +58,12 @@ export const useMeterValidations = (installationDate: Dayjs, verificationDate: D
                 },
             })
 
-            if (metersWithSameNumber.length > 0)
+            if (!isEmpty(metersWithSameNumber))
                 return Promise.reject(MeterWithSameNumberIsExistMessage)
 
             return Promise.resolve()
         },
-    }), [MeterWithSameNumberIsExistMessage, metersWithSameNumber.length, organizationId, refetch])
+    }), [MeterWithSameNumberIsExistMessage, metersWithSameNumber, organizationId, refetch])
 
     return { meterWithSameNumberValidator, earlierThanFirstVerificationDateValidator, earlierThanInstallationValidator }
 }
