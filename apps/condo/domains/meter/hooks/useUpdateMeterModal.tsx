@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react'
-import { Form, Input, Typography } from 'antd'
+import { Typography } from 'antd'
 import { get } from 'lodash'
 import { useIntl } from '@core/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
@@ -11,11 +11,14 @@ const DeleteMeterButton = ({ meter, updateMeterAction }) => {
     const intl = useIntl()
     const DeleteMessage = intl.formatMessage({ id: 'Delete' })
 
+    const handleDeleteButtonClick = useCallback(() => updateMeterAction({ deletedAt: new Date().toDateString() }, meter),
+        [meter, updateMeterAction])
+
     return (
         <Button
             type={'text'}
             danger
-            onClick={() => updateMeterAction({ deletedAt: new Date().toDateString() }, meter)}
+            onClick={handleDeleteButtonClick}
         >
             {DeleteMessage}
         </Button>
@@ -46,25 +49,26 @@ export const useUpdateMeterModal = (refetch) => {
         }
     }, [selectedMeter])
 
+    const handleSubmit = useCallback(values => updateMeterAction(values, selectedMeter), [selectedMeter, updateMeterAction])
+    const handleCancelModal = useCallback(() => setSelectedMeter(null), [])
+    const modalFooter = useMemo(() => [<DeleteMeterButton key={'delete'} meter={selectedMeter} updateMeterAction={updateMeterAction}/>],
+        [selectedMeter, updateMeterAction])
+
     const UpdateMeterModal = useCallback(() => {
         return (
             <BaseMeterModalForm
                 initialValues={initialValues}
                 ModalTitleMsg={<Typography.Title level={3}>{MeterNumberMessage} {meterNumber}</Typography.Title>}
                 visible={selectedMeter}
-                modalExtraFooter={[<DeleteMeterButton key={'delete'} meter={selectedMeter} updateMeterAction={updateMeterAction}/>]}
-                handleSubmit={values => updateMeterAction(values, selectedMeter)}
+                modalExtraFooter={modalFooter}
+                handleSubmit={handleSubmit}
                 showCancelButton={false}
-                cancelModal={() => setSelectedMeter(null)}
-                ModalSaveButtonLabelMsg={'Сохранить'}
+                cancelModal={handleCancelModal}
                 centered
                 meter={selectedMeter}
-                modalProps={{
-                    width: 600,
-                }}
             />
         )
-    }, [MeterNumberMessage, meterNumber, selectedMeter, updateMeterAction])
+    }, [MeterNumberMessage, handleCancelModal, handleSubmit, initialValues, meterNumber, modalFooter, selectedMeter])
 
     return { UpdateMeterModal, setSelectedMeter }
 }

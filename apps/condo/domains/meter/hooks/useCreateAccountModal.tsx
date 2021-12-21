@@ -3,7 +3,6 @@ import { Form, Input } from 'antd'
 import React, { useState } from 'react'
 import { useIntl } from '@core/next/intl'
 
-
 export const useCreateAccountModal = ()=> {
     const intl = useIntl()
     const AccountMessage = intl.formatMessage({ id: 'pages.condo.meter.Account' })

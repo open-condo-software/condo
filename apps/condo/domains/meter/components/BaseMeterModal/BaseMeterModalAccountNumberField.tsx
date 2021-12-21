@@ -1,6 +1,6 @@
 import { useIntl } from '@core/next/intl'
 import { Col, Form, Input, Radio, Row, Select } from 'antd'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Meter } from '../../utils/clientSchema'
 import { uniq } from 'lodash'
 
@@ -32,7 +32,8 @@ const AccountNumberSelect = ({ accountNumbers }) => {
     const handleChange = useCallback((e) => {
         setValue(e.target.value)
     }, [])
-    const accountNumberOptions = accountNumbers.map(accountNumber => ({ label: accountNumber, value: accountNumber }))
+    const accountNumberOptions = useMemo(() => accountNumbers.map(accountNumber => ({ label: accountNumber, value: accountNumber })),
+        [accountNumbers])
 
     return (
         <Row>
@@ -60,7 +61,7 @@ const CreateMeterAccountNumberField = ({ initialValues, propertyId, unitName }) 
             unitName,
         },
     })
-    const unitAccountNumbers = uniq(meters.map(meter => meter.accountNumber))
+    const unitAccountNumbers = useMemo(() => uniq(meters.map(meter => meter.accountNumber)), [meters])
 
     if (unitAccountNumbers.length === 0) {
         return (
