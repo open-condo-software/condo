@@ -1,4 +1,11 @@
-import { Columns, DATE_PARSING_FORMAT, ObjectCreator, ProcessedRow, RowNormalizer, RowValidator } from '@condo/domains/common/utils/importer'
+import {
+    Columns,
+    DATE_PARSING_FORMAT,
+    ObjectCreator,
+    ProcessedRow,
+    RowNormalizer,
+    RowValidator,
+} from '@condo/domains/common/utils/importer'
 import { useOrganization } from '@core/next/organization'
 import { useApolloClient } from '@core/next/apollo'
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
@@ -18,6 +25,8 @@ import {
     IMPORT_CONDO_METER_READING_SOURCE_ID,
 } from '../constants/constants'
 import dayjs from 'dayjs'
+
+const MONTH_PARSING_FORMAT = 'YYYY-MM'
 
 export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, ObjectCreator] => {
     const intl = useIntl()
@@ -78,7 +87,9 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         { name: Value2ColumnMessage, type: 'string', required: false, label: Value2ColumnMessage },
         { name: Value3ColumnMessage, type: 'string', required: false, label: Value3ColumnMessage },
         { name: Value4ColumnMessage, type: 'string', required: false, label: Value4ColumnMessage },
-        { name: ReadingSubmissionDateMessage, type: 'date', required: true, label: ReadingSubmissionDateMessage },
+        // Will be parsed as date 'YYYY-MM-DD' or month 'YYYY-MM'.
+        // It is not extracted into `Importer`, because this is the only place of such format yet.
+        { name: ReadingSubmissionDateMessage, type: 'string', required: true, label: ReadingSubmissionDateMessage },
         { name: VerificationDateMessage, type: 'date', required: false, label: VerificationDateMessage },
         { name: NextVerificationDateMessage, type: 'date', required: false, label: NextVerificationDateMessage },
         { name: InstallationDateMessage, type: 'date', required: false, label: InstallationDateMessage },
@@ -88,7 +99,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     ]
 
     const meterReadingNormalizer: RowNormalizer = async (row) => {
-        const addons = { address: null, propertyId: null, meterId: null, meterResourceId: null }
+        const addons = { address: null, propertyId: null, meterId: null, meterResourceId: null, readingSubmissionDate: null }
         if (row.length !== columns.length) return Promise.resolve({ row })
         const [
             address,
@@ -96,6 +107,12 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             accountNumber,
             meterResourceTypeAbbr,
             meterNumber,
+            numberOfTariffs,
+            value1,
+            value2,
+            value3,
+            value4,
+            readingSubmissionDate,
         ] = map(row, 'value')
 
         // Current suggestion API provider returns no suggestions for address with flat number
@@ -139,6 +156,14 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         }
         addons.meterResourceId = METER_RESOURCE_ABBREVIATION_TO_ID[String(meterResourceTypeAbbr)]
 
+        let parsedReadingSubmissionDate = dayjs(readingSubmissionDate, DATE_PARSING_FORMAT)
+        if (!parsedReadingSubmissionDate.isValid()) {
+            parsedReadingSubmissionDate = dayjs(readingSubmissionDate, MONTH_PARSING_FORMAT)
+        }
+        if (parsedReadingSubmissionDate.isValid()) {
+            addons.readingSubmissionDate = parsedReadingSubmissionDate.toDate()
+        }
+
         return { row, addons }
     }
 
@@ -153,7 +178,11 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         processedRow.row.forEach((cell, i) => {
             switch (columns[i].label) {
                 case ReadingSubmissionDateMessage:
-                case VerificationDateMessage: 
+                    if (!get(processedRow, ['addons', 'readingSubmissionDate'])) {
+                        errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateOrMonthFormatMessage' }, { columnName: columns[i].label, format1: DATE_PARSING_FORMAT, format2: MONTH_PARSING_FORMAT }))
+                    }
+                    break
+                case VerificationDateMessage:
                 case NextVerificationDateMessage: 
                 case InstallationDateMessage: 
                 case CommissioningDateMessage: 
@@ -187,7 +216,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             value2,
             value3,
             value4,
-            meterReadingSubmissionDate,
+            readingSubmissionDate,
             verificationDate,
             nextVerificationDate,
             installationDate,
@@ -233,7 +262,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             // @ts-ignore
             value4,
             // @ts-ignore
-            date: toISO(meterReadingSubmissionDate),
+            date: toISO(addons.readingSubmissionDate),
         })
     }
 
