@@ -47,6 +47,7 @@ describe('Property', () => {
                         ],
                     },
                 ],
+                'parking': [],
             }
             const client = await makeClientWithRegisteredOrganization()
             const payload = {
