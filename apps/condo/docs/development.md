@@ -27,5 +27,5 @@ Pre-commit hooks are managed with Husky.
 To install actual hook into Git, please run:
 
 ```shell
-npm run prepare
+yarn run prepare
 ```
