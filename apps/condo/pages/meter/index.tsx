@@ -87,7 +87,7 @@ export const MetersPageContent = ({
                 setSelectedMeter(meter)
             },
         }
-    }, [])
+    }, [setSelectedMeter])
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
     const handleMultipleFiltersButtonClick = useCallback(() => setIsMultipleFiltersModalVisible(true),
         [setIsMultipleFiltersModalVisible])

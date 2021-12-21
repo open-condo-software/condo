@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback } from 'react'
 import { Space, Typography } from 'antd'
 import styled from '@emotion/styled'
 
@@ -20,15 +20,15 @@ const ChevronIconWrapper = styled.div<ChevronIconWrapperProps>`
 
 const SHOW_MORE_BUTTON_STYLE = { padding: 0 }
 
-export const useShowMoreFieldsButton = () => {
+export const ShowMoreFieldsButton = ({ isAdditionalFieldsCollapsed, setIsAdditionalFieldsCollapsed }) => {
     const intl = useIntl()
     const MoreParametersMessage = intl.formatMessage({ id: 'MoreParameters' })
     const LessParametersMessage = intl.formatMessage({ id: 'LessParameters' })
 
-    const [isAdditionalFieldsCollapsed, setIsAdditionalFieldsCollapsed] = useState<boolean>(true)
-    const handleShowMoreButtonClick = useCallback(() => { setIsAdditionalFieldsCollapsed(isCollapsed => !isCollapsed) }, [])
+    const handleShowMoreButtonClick = useCallback(() => setIsAdditionalFieldsCollapsed(isCollapsed => !isCollapsed)
+        , [setIsAdditionalFieldsCollapsed])
 
-    const ShowMoreFieldsButton = useCallback(() => (
+    return (
         <Button
             type="text"
             color={colors.black}
@@ -44,8 +44,6 @@ export const useShowMoreFieldsButton = () => {
                 </Space>
             </Typography.Text>
         </Button>
-    ), [LessParametersMessage, MoreParametersMessage, handleShowMoreButtonClick, isAdditionalFieldsCollapsed])
-
-    return { ShowMoreFieldsButton, isAdditionalFieldsCollapsed }
+    )
 }
 
