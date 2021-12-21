@@ -72,6 +72,7 @@ describe('helpers', () => {
                         ],
                     },
                 ],
+                'parking': [],
             }
             const mapWithoutNameInUnit = {
                 'dv': 1,
@@ -100,6 +101,7 @@ describe('helpers', () => {
                         ],
                     },
                 ],
+                'parking': [],
             }
             const sanitizedMap = normalizePropertyMap(map)
             expect(sanitizedMap).toStrictEqual(mapWithoutNameInUnit)
