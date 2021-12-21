@@ -576,6 +576,7 @@
   "meter.import.column.value2": "Value 2",
   "meter.import.column.value3": "Value 3",
   "meter.import.column.value4": "Value 4",
+  "meter.import.column.meterReadingSubmissionDate": "Reading submission date",
   "meter.import.column.VerificationDate": "Verification date",
   "meter.import.column.NextVerificationDate": "Next verification date",
   "meter.import.column.InstallationDate": "Installation date",

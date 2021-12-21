@@ -39,6 +39,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const Value2ColumnMessage = intl.formatMessage({ id: 'meter.import.column.value2' })
     const Value3ColumnMessage = intl.formatMessage({ id: 'meter.import.column.value3' })
     const Value4ColumnMessage = intl.formatMessage({ id: 'meter.import.column.value4' })
+    const ReadingSubmissionDateMessage = intl.formatMessage({ id: 'meter.import.column.meterReadingSubmissionDate' })
     const VerificationDateMessage = intl.formatMessage({ id: 'meter.import.column.VerificationDate' })
     const NextVerificationDateMessage = intl.formatMessage({ id: 'meter.import.column.NextVerificationDate' })
     const InstallationDateMessage = intl.formatMessage({ id: 'meter.import.column.InstallationDate' })
@@ -77,6 +78,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         { name: Value2ColumnMessage, type: 'string', required: false, label: Value2ColumnMessage },
         { name: Value3ColumnMessage, type: 'string', required: false, label: Value3ColumnMessage },
         { name: Value4ColumnMessage, type: 'string', required: false, label: Value4ColumnMessage },
+        { name: ReadingSubmissionDateMessage, type: 'date', required: false, label: ReadingSubmissionDateMessage },
         { name: VerificationDateMessage, type: 'date', required: false, label: VerificationDateMessage },
         { name: NextVerificationDateMessage, type: 'date', required: false, label: NextVerificationDateMessage },
         { name: InstallationDateMessage, type: 'date', required: false, label: InstallationDateMessage },
@@ -150,6 +152,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         // TODO(mrfoxpro): Implement custom validation https://github.com/open-condo-software/condo/pull/978
         processedRow.row.forEach((cell, i) => {
             switch (columns[i].label) {
+                case ReadingSubmissionDateMessage:
                 case VerificationDateMessage: 
                 case NextVerificationDateMessage: 
                 case InstallationDateMessage: 
@@ -184,6 +187,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             value2,
             value3,
             value4,
+            meterReadingSubmissionDate,
             verificationDate,
             nextVerificationDate,
             installationDate,
@@ -229,7 +233,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             // @ts-ignore
             value4,
             // @ts-ignore
-            date: controlReadingsDate ? toISO(controlReadingsDate) : dayjs().toISOString(),
+            date: meterReadingSubmissionDate ? toISO(meterReadingSubmissionDate) : dayjs().toISOString(),
         })
     }
 
