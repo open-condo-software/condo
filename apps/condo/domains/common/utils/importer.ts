@@ -135,7 +135,7 @@ export class Importer implements IImporter {
         return isEqual(this.columnsNames, normalizedColumns)
     }
 
-    private isRowValid (row: TableRow): boolean {
+    private parseAndValidateRow (row: TableRow): boolean {
         for (let i = 0; i < row.length; i++) {
             if (row[i].value === undefined && this.columnsRequired[i]) {
                 return false
@@ -179,7 +179,7 @@ export class Importer implements IImporter {
 
         const row = table.shift()
 
-        if (!this.isRowValid(row)) {
+        if (!this.parseAndValidateRow(row)) {
             if (this.failProcessingHandler) {
                 this.failProcessingHandler({ row, errors: [this.errors.invalidTypes] })
             }
