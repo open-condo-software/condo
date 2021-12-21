@@ -179,10 +179,10 @@ interface IBuildingPanelTopModalProps {
 
 const BuildingPanelTopModal: React.FC<IBuildingPanelTopModalProps> = ({ visible, onClose, title, children }) => (
     <TopModal visible={visible}>
-        <Row justify={'space-between'} align={'middle'}>
+        <Row justify={'space-between'} align={'top'}>
             <Col span={22}>
                 {title !== null && (
-                    <Typography.Title level={4} ellipsis>{title}</Typography.Title>
+                    <Typography.Title level={4}>{title}</Typography.Title>
                 )}
             </Col>
             <Col span={2}>
@@ -766,18 +766,37 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
     const intl = useIntl()
     const SectionNameLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.numberOfSection' })
     const MinFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.minfloor' })
-    const MaxFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.maxFloor' })
+    const FloorCountLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.floorCount' })
     const UnitsOnFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.unitsOnFloor' })
     const CreateNewLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.mode.create' })
     const CopyLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.mode.copy' })
     const AddLabel = intl.formatMessage({ id: 'Add' })
+    const ShowMinFloor = intl.formatMessage({ id: 'pages.condo.property.parking.form.showMinFloor' })
+    const HideMinFloor = intl.formatMessage({ id: 'pages.condo.property.parking.form.hideMinFloor' })
 
-    const [minFloor, setMinFloor] = useState(null)
+    const [minFloor, setMinFloor] = useState(1)
     const [maxFloor, setMaxFloor] = useState(null)
     const [unitsOnFloor, setUnitsOnFloor] = useState(null)
     const [copyId, setCopyId] = useState<string | null>(null)
     const [maxMinError, setMaxMinError] = useState(false)
+    const [minFloorHidden, setMinFloorHidden] = useState<boolean>(true)
     const [sectionName, setSectionName] = useState<string>(builder.nextSectionName)
+
+    const resetForm = useCallback(() => {
+        setMinFloor(1)
+        setMaxFloor(null)
+        setUnitsOnFloor(null)
+    }, [])
+
+    const toggleMinFloorVisible = useCallback(() => {
+        if (!minFloorHidden) {
+            setMinFloor(1)
+        }
+        setMinFloorHidden(!minFloorHidden)
+    }, [minFloorHidden])
+
+    const setMinFloorValue = useCallback((value) => { setMinFloor(value) }, [])
+    const setMaxFloorValue = useCallback((value) => { setMaxFloor(value) }, [])
 
     useEffect(() => {
         if (minFloor && maxFloor) {
@@ -827,6 +846,7 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
 
     const isSubmitDisabled = !(minFloor && maxFloor && unitsOnFloor && !maxMinError)
     const isCreateColumnsHidden = copyId !== null
+    const iconRotation = minFloorHidden ? 0 : 180
 
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
@@ -857,15 +877,28 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden}>
                 <Space direction={'vertical'} size={8} className={maxMinError ? 'ant-form-item-has-error' : ''}>
-                    <Typography.Text type={'secondary'}>{MinFloorLabel}</Typography.Text>
-                    <InputNumber value={minFloor} onChange={setMinFloor} style={INPUT_STYLE} type={'number'}/>
+                    <Typography.Text type={'secondary'}>{FloorCountLabel}</Typography.Text>
+                    <InputNumber value={maxFloor} onChange={setMaxFloorValue} style={INPUT_STYLE} type={'number'} />
                 </Space>
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden}>
-                <Space direction={'vertical'} size={8} className={maxMinError ? 'ant-form-item-has-error' : ''}>
-                    <Typography.Text type={'secondary'}>{MaxFloorLabel}</Typography.Text>
-                    <InputNumber value={maxFloor} onChange={setMaxFloor} style={INPUT_STYLE} type={'number'} />
+                <Space
+                    direction={'vertical'}
+                    size={8}
+                    className={maxMinError ? 'ant-form-item-has-error' : ''}
+                    hidden={minFloorHidden}
+                >
+                    <Typography.Text type={'secondary'}>{MinFloorLabel}</Typography.Text>
+                    <InputNumber
+                        value={minFloor}
+                        onChange={setMinFloorValue}
+                        style={INPUT_STYLE}
+                        type={'number'}
+                    />
                 </Space>
+                <Typography.Text onClick={toggleMinFloorVisible} style={TEXT_BUTTON_STYLE}>
+                    {minFloorHidden ? ShowMinFloor : HideMinFloor} <DownOutlined rotate={iconRotation}/>
+                </Typography.Text>
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden}>
                 <Space direction={'vertical'} size={8}>
@@ -1173,6 +1206,7 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
     }
     const isSubmitDisabled = !(minFloor && maxFloor && unitsOnFloor && !maxMinError)
     const isCreateColumnsHidden = copyId !== null
+    const iconRotation = minFloorHidden ? 0 : 180
 
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
@@ -1216,7 +1250,7 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
                     />
                 </Space>
                 <Typography.Text onClick={toggleMinFloorVisible} style={TEXT_BUTTON_STYLE}>
-                    {minFloorHidden ? ShowMinFloor : HideMinFloor} <DownOutlined />
+                    {minFloorHidden ? ShowMinFloor : HideMinFloor} <DownOutlined rotate={iconRotation} />
                 </Typography.Text>
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden}>
