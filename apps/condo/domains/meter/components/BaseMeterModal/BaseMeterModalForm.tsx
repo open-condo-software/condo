@@ -40,6 +40,7 @@ type BaseMeterModalFormProps = ComponentProps<typeof BaseModalForm> & {
 }
 
 const BASE_MODAL_PROPS = { width: 600 }
+const SUBMIT_BUTTON_PROPS = { type: 'sberDefaultGradient' }
 const METER_MODAL_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
 const METER_MODAL_ROW_GUTTERS: [Gutter, Gutter] = [0, 20]
 const DATE_FIELD_INSTALLATION_DATE_DEPENDENCY = ['installationDate']
@@ -125,6 +126,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ handleSu
             validateTrigger={METER_MODAL_VALIDATE_TRIGGER}
             handleSubmit={handleSubmit}
             modalProps={BASE_MODAL_PROPS}
+            submitButtonProps={SUBMIT_BUTTON_PROPS}
             {...otherProps}
         >
             {
