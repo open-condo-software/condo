@@ -3,6 +3,7 @@ import { Col, Form, Input, Radio, Row, Select } from 'antd'
 import React, { useCallback, useMemo, useState } from 'react'
 import { Meter } from '../../utils/clientSchema'
 import { uniq } from 'lodash'
+import { Gutter } from 'antd/es/grid/row'
 
 const AccountNumberFormItem = ({ children, initialValues }) => {
     const intl = useIntl()
@@ -22,6 +23,9 @@ const AccountNumberFormItem = ({ children, initialValues }) => {
 
 const CHOOSE_ACCOUNT_RADIO_VALUE = 'select'
 const CREATE_ACCOUNT_RADIO_VALUE = 'new'
+const HORIZONTAL_GUTTER: [Gutter, Gutter] = [20, 0]
+const VERTICAL_GUTTER: [Gutter, Gutter] = [0, 20]
+const RADIO_GROUP_STYLE = { width: '100%' }
 
 const AccountNumberSelect = ({ accountNumbers }) => {
     const intl = useIntl()
@@ -36,11 +40,21 @@ const AccountNumberSelect = ({ accountNumbers }) => {
         [accountNumbers])
 
     return (
-        <>
+        <Row gutter={VERTICAL_GUTTER}>
             <Col span={24}>
-                <Radio.Group onChange={handleChange} value={value}>
-                    <Radio value={CHOOSE_ACCOUNT_RADIO_VALUE}>{ChooseAccountNumberMessage}</Radio>
-                    <Radio value={CREATE_ACCOUNT_RADIO_VALUE}>{CreateAccountNumber}</Radio>
+                <Radio.Group onChange={handleChange} value={value} style={RADIO_GROUP_STYLE}>
+                    <Row gutter={HORIZONTAL_GUTTER}>
+                        <Col>
+                            <Radio value={CHOOSE_ACCOUNT_RADIO_VALUE}>
+                                {ChooseAccountNumberMessage}
+                            </Radio>
+                        </Col>
+                        <Col>
+                            <Radio value={CREATE_ACCOUNT_RADIO_VALUE}>
+                                {CreateAccountNumber}
+                            </Radio>
+                        </Col>
+                    </Row>
                 </Radio.Group>
             </Col>
             <Col span={24}>
@@ -50,7 +64,7 @@ const AccountNumberSelect = ({ accountNumbers }) => {
                     }
                 </AccountNumberFormItem>
             </Col>
-        </>
+        </Row>
     )
 }
 
