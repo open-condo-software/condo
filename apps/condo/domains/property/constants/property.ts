@@ -308,6 +308,7 @@ const buildingMapJson = {
             ],
         },
     ],
+    'parking': [],
 }
 
 const buildingAddressMetaJson = {
