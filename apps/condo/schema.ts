@@ -32884,7 +32884,7 @@ export type TicketReportData = {
 };
 
 export enum TicketReportPeriodType {
-  Week = 'week',
+  CalendarWeek = 'calendarWeek',
   Month = 'month',
   Quarter = 'quarter',
   Year = 'year'
