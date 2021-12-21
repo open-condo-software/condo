@@ -137,7 +137,7 @@ describe('RegisterServiceConsumerService', () => {
 
         const [ out ] = await registerServiceConsumerByTestClient(userClient, payload)
         expect(out).toBeDefined()
-        expect(out.residentOrganization.id).toEqual(organization.id)
+        expect(out.organizationk.id).toEqual(organization.id)
         expect(out.residentAcquiringIntegrationContext.id).toEqual(acquiringIntegrationContext.id)
         expect(out.residentAcquiringIntegrationContext.integration).toEqual(acquiringIntegration.id)
         expect(out.residentBillingAccount.id).toEqual(billingAccountAttrs.id)
@@ -183,7 +183,7 @@ describe('RegisterServiceConsumerService', () => {
 
         expect(out).toBeDefined()
         console.log(JSON.stringify(out))
-        expect(out.residentOrganization.id).toEqual(userClient.organization.id)
+        expect(out.organization.id).toEqual(userClient.organization.id)
         expect(out.residentAcquiringIntegrationContext.id).toEqual(acquiringIntegrationContext.id)
         expect(out.residentAcquiringIntegrationContext.integration).toEqual(acquiringIntegration.id)
         expect(out.residentBillingAccount.id).toEqual(billingAccountAttrs.id)
