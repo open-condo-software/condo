@@ -336,7 +336,7 @@ const createReceipts = async ([billingContextId, detailsLevel]) => {
         detailsLevel = AVAILABLE_LEVELS.base
     }
     if (!billingContextId) {
-        throw new Error('No billingContextId was provided – please use like this: yarn generate-receipts <contextId>')
+        throw new Error('No billingContextId was provided – please use like this: yarn workspace @app/condo node ./bin/generate-receipts.js <contextId>')
     }
     if (!Object.values(AVAILABLE_LEVELS).includes(detailsLevel)) {
         throw new Error(`Incorrect detailsLevel was provided. Available: ${Object.values(AVAILABLE_LEVELS).join(', ')}`)
