@@ -78,7 +78,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         { name: Value2ColumnMessage, type: 'string', required: false, label: Value2ColumnMessage },
         { name: Value3ColumnMessage, type: 'string', required: false, label: Value3ColumnMessage },
         { name: Value4ColumnMessage, type: 'string', required: false, label: Value4ColumnMessage },
-        { name: ReadingSubmissionDateMessage, type: 'date', required: false, label: ReadingSubmissionDateMessage },
+        { name: ReadingSubmissionDateMessage, type: 'date', required: true, label: ReadingSubmissionDateMessage },
         { name: VerificationDateMessage, type: 'date', required: false, label: VerificationDateMessage },
         { name: NextVerificationDateMessage, type: 'date', required: false, label: NextVerificationDateMessage },
         { name: InstallationDateMessage, type: 'date', required: false, label: InstallationDateMessage },
@@ -233,7 +233,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             // @ts-ignore
             value4,
             // @ts-ignore
-            date: meterReadingSubmissionDate ? toISO(meterReadingSubmissionDate) : dayjs().toISOString(),
+            date: toISO(meterReadingSubmissionDate),
         })
     }
 
