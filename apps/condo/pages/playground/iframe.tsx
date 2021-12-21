@@ -1,12 +1,11 @@
 import React from 'react'
 import Head from 'next/head'
 import { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { useIFrame } from '@condo/domains/common/hooks/useIFrame'
+import { IFrame } from '@condo/domains/common/components/IFrame'
 import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
 
 const ContactsPage = () => {
-    const iframe = useIFrame('http://localhost:3002/import')
     const { organization } = useOrganization()
 
     return (
@@ -14,10 +13,12 @@ const ContactsPage = () => {
             <Head>
                 <title>Страница с iframe</title>
             </Head>
+            {/*<FeatureFlagRequired name={'playground'} fallback={<Error statusCode={404}/>}>*/}
             <PageWrapper>
                 {get(organization, 'id')}
-                {iframe}
+                <IFrame pageUrl={'http://localhost:3002/import'}/>
             </PageWrapper>
+            {/*</FeatureFlagRequired>*/}
         </>
     )
 }
