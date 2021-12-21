@@ -1,7 +1,5 @@
 const qs = require('qs')
 
-const SINGLE_SLASH_REGEX = /(?<!\/)\/(?!\/)/
-
 function getQueryParams () {
     if (typeof global === 'undefined' || !global.location) return {}
     let startIndex = global.location.href.indexOf('?')
@@ -43,7 +41,10 @@ function extractRootDomain (url) {
 }
 
 function extractOrigin (url) {
-    return url.split(SINGLE_SLASH_REGEX)[0]
+    const doubleSlashIndex = url.indexOf('//')
+    const startIndex = doubleSlashIndex > 1 ? doubleSlashIndex + 2 : 0
+    const firstSeparator = url.indexOf('/', startIndex)
+    return url.substring(0, firstSeparator > -1 ? firstSeparator : undefined)
 }
 
 module.exports = {
