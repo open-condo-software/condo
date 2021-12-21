@@ -71,6 +71,7 @@ const MeterReadingInput = ({ record, newMeterReadings, setNewMeterReadings }) =>
                 value={get(newMeterReadings, [meterId, tariffNumber], '')}
                 formatter={inputMeterReadingFormatter}
                 parser={inputMeterReadingParser}
+                min={0}
             />
             <div style={METER_READING_INPUT_ADDON_STYLE}>
                 {meterResourceMeasure}
