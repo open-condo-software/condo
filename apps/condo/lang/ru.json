@@ -576,6 +576,7 @@
   "meter.import.column.value2": "Показание 2",
   "meter.import.column.value3": "Показание 3",
   "meter.import.column.value4": "Показание 4",
+  "meter.import.column.meterReadingSubmissionDate": "Дата передачи показаний",
   "meter.import.column.VerificationDate": "Дата поверки",
   "meter.import.column.NextVerificationDate": "Дата следующей поверки",
   "meter.import.column.InstallationDate": "Дата установки",
