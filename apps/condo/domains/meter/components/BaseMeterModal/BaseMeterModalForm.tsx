@@ -60,7 +60,7 @@ const getInitialDateValue = (initialValues, path) => {
     const stringInitialValue = get(initialValues, path)
     const dayjsInitialValue = dayjs(stringInitialValue)
 
-    return dayjsInitialValue.isValid() ? dayjsInitialValue : null
+    return stringInitialValue && dayjsInitialValue.isValid() ? dayjsInitialValue : null
 }
 
 export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ handleSubmit, initialValues, ModalSaveButtonLabelMsg, ModalTitleMsg, ...otherProps }) => {
