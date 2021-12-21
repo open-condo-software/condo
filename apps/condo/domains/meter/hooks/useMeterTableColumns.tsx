@@ -1,14 +1,15 @@
 /** @jsx jsx */
-import { css, jsx } from '@emotion/core'
-import get from 'lodash/get'
-import { getDateRender, getTextRender } from '../../common/components/Table/Renders'
-import { useIntl } from 'react-intl'
 import React, { CSSProperties, useCallback, useState } from 'react'
 import { InputNumber } from 'antd'
+import { css, jsx } from '@emotion/core'
+import get from 'lodash/get'
+import pickBy from 'lodash/pickBy'
+import isEmpty from 'lodash/isEmpty'
+import { useIntl } from 'react-intl'
+
+import { getDateRender, getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { colors } from '@condo/domains/common/constants/style'
 import { fontSizes } from '@condo/domains/common/constants/style'
-import pickBy from 'lodash/pickBy'
-import { isEmpty } from 'lodash'
 
 const inputNumberCSS = css`
   & .ant-input-number-handler-wrap {
@@ -23,7 +24,8 @@ const inputNumberCSS = css`
 
 const INPUT_CONTAINER_STYLE: CSSProperties = { position: 'relative' }
 const inputMeterReadingFormatter = value => value.toString().replace(',', '.')
-const inputMeterReadingParser = input => input.replace(/,+/g, '.')
+const PARSER_METER_READING_REGEX = /[,.]+/g
+const inputMeterReadingParser = input => input.replace(PARSER_METER_READING_REGEX, '.')
 const METER_READING_INPUT_ADDON_STYLE: CSSProperties = {
     position: 'absolute',
     top: '50%',
@@ -46,20 +48,25 @@ const MeterReadingInput = ({ record, newMeterReadings, setNewMeterReadings }) =>
     const intl = useIntl()
     const AddMeterReadingPlaceholderMessage = intl.formatMessage({ id: 'pages.condo.meter.create.AddMeterReadingPlaceholder' })
 
-    const meterReadingValueChangeHandler = useCallback((meterId, tariffNumber, e) => setNewMeterReadings(meterReadings => {
-        const newReadingsFromOtherTariffs = get(meterReadings, [meterId], {})
-        const newMeterMeterReadings = pickBy({ ...newReadingsFromOtherTariffs, [tariffNumber]: e ? String(e) : '' })
-
-        return pickBy({ ...meterReadings, [meterId]: newMeterMeterReadings }, meterReading => !isEmpty(meterReading))
-    }), [setNewMeterReadings])
-
     const meterId = get(record, ['meter', 'id'])
     const tariffNumber = get(record, 'tariffNumber')
     const meterResourceMeasure = get(record, ['meter', 'resource', 'measure'])
+    const inputValue = get(newMeterReadings, [meterId, tariffNumber], '')
+
+    const updateMeterReadingsValue = useCallback((oldMeterReadings, newTariffValue) => {
+        const newReadingsFromOtherTariffs = get(oldMeterReadings, [meterId], {})
+        const newMeterMeterReadings = pickBy({ ...newReadingsFromOtherTariffs, [tariffNumber]: newTariffValue })
+        const pickMeterReadingCondition = meterReading => !isEmpty(meterReading)
+
+        return pickBy({ ...oldMeterReadings, [meterId]: newMeterMeterReadings }, pickMeterReadingCondition)
+    }, [meterId, tariffNumber])
+
+    const meterReadingValueChangeHandler = useCallback((e) => {
+        const newTariffValue = e ? String(e) : ''
+        setNewMeterReadings(oldMeterReadings => updateMeterReadingsValue(oldMeterReadings, newTariffValue))
+    }, [setNewMeterReadings, updateMeterReadingsValue])
 
     const handleInputContainerClick = useCallback(e => e.stopPropagation(), [])
-    const handleInputChange = useCallback(e => meterReadingValueChangeHandler(meterId, tariffNumber, e),
-        [meterId, meterReadingValueChangeHandler, tariffNumber])
 
     return (
         <div style={INPUT_CONTAINER_STYLE} onClick={handleInputContainerClick}>
@@ -67,8 +74,8 @@ const MeterReadingInput = ({ record, newMeterReadings, setNewMeterReadings }) =>
                 placeholder={AddMeterReadingPlaceholderMessage}
                 css={inputNumberCSS}
                 stringMode
-                onChange={handleInputChange}
-                value={get(newMeterReadings, [meterId, tariffNumber], '')}
+                onChange={meterReadingValueChangeHandler}
+                value={inputValue}
                 formatter={inputMeterReadingFormatter}
                 parser={inputMeterReadingParser}
                 min={0}

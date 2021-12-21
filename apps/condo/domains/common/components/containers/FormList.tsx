@@ -16,7 +16,7 @@ import {
 import { Button } from '@condo/domains/common/components/Button'
 import { DownOutlined, PlusOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
-import React, { FunctionComponent, useCallback, useState, useRef, CSSProperties, ComponentProps } from 'react'
+import React, { useCallback, useState, useRef, CSSProperties, ComponentProps } from 'react'
 import { useIntl } from '@core/next/intl'
 import { useMutation } from '@core/next/apollo'
 import { throttle } from 'lodash'
@@ -234,7 +234,7 @@ interface IFormWithAction<TRecordFormState, TRecordUIState> {
     children: IFormWithActionChildren
 }
 
-const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
+const FormWithAction: React.FC<IFormWithAction> = (props) => {
     const intl = useIntl()
     const ClientSideErrorMsg = intl.formatMessage({ id: 'ClientSideError' })
 
@@ -380,7 +380,7 @@ interface IBaseModalFormProps<TRecordFormState, TRecordUIState> extends IFormWit
     submitButtonProps?: ComponentProps<typeof Button>
 }
 
-const BaseModalForm: FunctionComponent<IBaseModalFormProps> = ({
+const BaseModalForm: React.FC<IBaseModalFormProps> = ({
     visible,
     cancelModal,
     ModalTitleMsg = '',

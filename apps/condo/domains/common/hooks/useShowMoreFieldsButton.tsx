@@ -1,9 +1,12 @@
-import { Space, Typography } from 'antd'
-import { ChevronIcon } from '@condo/domains/common/components/icons/ChevronIcon'
 import React, { useCallback, useState } from 'react'
+import { Space, Typography } from 'antd'
 import styled from '@emotion/styled'
+
 import { useIntl } from '@core/next/intl'
+
+import { ChevronIcon } from '@condo/domains/common/components/icons/ChevronIcon'
 import { Button } from '@condo/domains/common/components/Button'
+
 import { colors } from '../constants/style'
 
 type ChevronIconWrapperProps = {
