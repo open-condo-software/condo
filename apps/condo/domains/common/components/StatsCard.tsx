@@ -1,12 +1,13 @@
 /** @jsx jsx */
 import React, { useCallback, useEffect, useState } from 'react'
-import { Card as AntCard, CardProps, Col, Dropdown, Menu, Row, Skeleton, Space } from 'antd'
-import { DownOutlined, RightOutlined } from '@ant-design/icons'
-import { Button } from './Button'
-import Router from 'next/router'
-import { css, jsx } from '@emotion/core'
-import { colors } from '@condo/domains/common/constants/style'
 import { useIntl } from '@core/next/intl'
+import { css, jsx } from '@emotion/core'
+import Router from 'next/router'
+import { Card as AntCard, CardProps, Col, Dropdown, Menu, Row, RowProps, Skeleton, Space } from 'antd'
+import { DownOutlined, RightOutlined } from '@ant-design/icons'
+import { colors, fontSizes } from '@condo/domains/common/constants/style'
+import { TicketReportPeriodType } from '@app/condo/schema'
+import { Button } from './Button'
 
 interface IStatsCardProps {
     title: string;
@@ -27,21 +28,29 @@ const cardCss = css`
 const cardTitleCss = css`
   cursor: pointer;
 `
+const STATS_CARD_ROW_GUTTER: RowProps['gutter'] = [0, 40]
+const CARD_HEAD_STYLE: React.CSSProperties = { fontSize: 20, fontWeight: 700, borderBottom: 'none' }
+const CARD_EXTRA_STYLE: React.CSSProperties = { fontSize: fontSizes.content, fontWeight: 700 }
+const DROPDOWN_TEXT_STYLE: React.CSSProperties = { color: colors.green[6] }
 
 const Card: React.FC<CardProps> = (props) => {
     const { children, ...allProps } = props
     return <AntCard css={cardCss} {...allProps}>{children}</AntCard>
 }
 
-export const StatsCard: React.FC<IStatsCardProps> = ({ title, children, link, loading = false, onFilterChange, dependencyArray }) => {
+type SelectedPeriod = Record<TicketReportPeriodType, string>
+
+export const StatsCard: React.FC<IStatsCardProps> = (props) => {
     const intl = useIntl()
     const extraTitle = intl.formatMessage({ id: 'component.statscard.ExtraTitle' })
-    const SELECTED_PERIOD = {
-        week: intl.formatMessage({ id: 'component.statscard.periodtypes.Week' }),
+    const SELECTED_PERIOD: SelectedPeriod = {
+        calendarWeek: intl.formatMessage({ id: 'component.statscard.periodtypes.Week' }),
         month: intl.formatMessage({ id: 'component.statscard.periodtypes.Month' }),
         quarter: intl.formatMessage({ id: 'component.statscard.periodtypes.Quarter' }),
         year: intl.formatMessage({ id: 'component.statscard.periodtypes.Year' }),
     }
+
+    const { title, children, link, loading = false, onFilterChange, dependencyArray } = props
 
     const [selectedPeriod, setSelectedPeriod] = useState<string>(Object.keys(SELECTED_PERIOD)[0])
     const updateDependencies = [selectedPeriod, ...dependencyArray]
@@ -50,39 +59,41 @@ export const StatsCard: React.FC<IStatsCardProps> = ({ title, children, link, lo
         onFilterChange(selectedPeriod)
     }, updateDependencies)
 
-    const menu = (
-        <Menu onClick={({ key }) => setSelectedPeriod(key)} disabled={loading}>
-            {Object.keys(SELECTED_PERIOD).map((period, key) => <Menu.Item key={period}>{SELECTED_PERIOD[period]}</Menu.Item>)}
+    const menuClick = useCallback(({ key }) => { setSelectedPeriod(key)}, [])
+    const linkClick = useCallback(() => { Router.push(link) }, [link])
+
+    const menuOverlay = (
+        <Menu onClick={menuClick} disabled={loading}>
+            {
+                Object.keys(SELECTED_PERIOD).map((period) => (
+                    <Menu.Item key={period}>{SELECTED_PERIOD[period]}</Menu.Item>
+                ))
+            }
         </Menu>
     )
 
     const cardTitle = (
         <Space css={cardTitleCss}>
             {title}
-            <Dropdown overlay={menu} >
-                <span style={{ color: colors.green[6] }}>{SELECTED_PERIOD[selectedPeriod]} <DownOutlined /></span>
+            <Dropdown overlay={menuOverlay} >
+                <span style={DROPDOWN_TEXT_STYLE}>{SELECTED_PERIOD[selectedPeriod]} <DownOutlined /></span>
             </Dropdown>
         </Space>
     )
 
-    const linkClick = useCallback(
-        () => Router.push(link),
-        [link],
-    )
-
     const cardExtra = (
-        <Button style={{ fontSize: 16, fontWeight: 700 }} type={'inlineLink'} onClick={linkClick}>
+        <Button style={CARD_EXTRA_STYLE} type={'inlineLink'} onClick={linkClick}>
             {extraTitle}{<RightOutlined />}
         </Button>
     )
 
     return (
-        <Row gutter={[0, 40]} align={'middle'}>
+        <Row gutter={STATS_CARD_ROW_GUTTER} align={'middle'}>
             <Col span={24}>
                 <Card
                     title={cardTitle}
                     bordered={false}
-                    headStyle={{ fontSize: 20, fontWeight: 700, borderBottom: 'none' }}
+                    headStyle={CARD_HEAD_STYLE}
                     extra={cardExtra}
                 >
                     {loading ? <Skeleton active round paragraph={{ rows: 1 }} /> : children}

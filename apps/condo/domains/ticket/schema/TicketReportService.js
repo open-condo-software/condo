@@ -4,7 +4,7 @@ const dayjs = require('dayjs')
 const access = require('@condo/domains/ticket/access/TicketReportService')
 const { TICKET_STATUS_TYPES: ticketStatusTypes } = require('@condo/domains/ticket/constants')
 
-const PERIOD_TYPES = ['week', 'month', 'quarter', 'year']
+const PERIOD_TYPES = ['calendarWeek', 'month', 'quarter', 'year']
 
 const countTicketsByStatuses = async (context, dateStart, dateEnd, organizationId) => {
     const answer = {}
