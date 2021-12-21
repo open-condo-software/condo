@@ -6,6 +6,7 @@ import uniq from 'lodash/uniq'
 import compact from 'lodash/compact'
 import isObjectEmpty from 'lodash/isEmpty'
 import last from 'lodash/last'
+import isNil from 'lodash/isNil'
 import MapSchemaJSON from './MapJsonSchema.json'
 import Ajv from 'ajv'
 import { BuildingMap, BuildingMapEntityType, BuildingSection, BuildingUnit, BuildingUnitType } from '@app/condo/schema'
@@ -165,7 +166,9 @@ class Map {
                 }
                 floor.units.forEach(unit => {
                     unit.type = BuildingMapEntityType.Unit
-                    unit.unitType = BuildingUnitType.Flat
+                    if (!has(unit, 'unitType') || isNil(unit.unitType)) {
+                        unit.unitType = BuildingUnitType.Flat
+                    }
                     unit.id = String(++this.autoincrement)
                     if (has(unit, 'preview')) {
                         delete unit.preview
@@ -180,6 +183,9 @@ class Map {
             })
         })
 
+        if (isNil(this.map.parking)) {
+            this.map.parking = []
+        }
         this.map.parking.forEach((parkingSection, parkingSectionIndex) => {
             parkingSection.type = BuildingMapEntityType.Section
             parkingSection.id = String(++this.autoincrement)
@@ -419,11 +425,12 @@ class MapView extends Map {
     }
 
     protected restoreViewMode (): void {
+        if (!this.isEmptySections && !this.isEmptyParking) return
         if (this.isEmptySections && !this.isEmptyParking) {
             this.viewMode = 'parking'
-            return
+        } else {
+            this.viewMode = 'section'
         }
-        this.viewMode = 'section'
     }
 }
 
