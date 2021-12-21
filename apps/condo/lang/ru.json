@@ -310,7 +310,7 @@
   "pages.condo.property.index.ViewModeTable": "Список",
   "pages.condo.property.index.Buildings.Tab.Title": "Дома",
   "pages.condo.property.index.Divisions.Tab.Title": "Участки",
-  "pages.condo.property.section.form.maxFloor": "Макс. этаж",
+  "pages.condo.property.section.form.floorCount": "Количество этажей",
   "pages.condo.property.section.form.minfloor": "Минимальный этаж",
   "pages.condo.property.section.form.name": "Название",
   "pages.condo.property.section.form.name.placeholder": "№ подъезд",

@@ -310,7 +310,7 @@
   "pages.condo.property.index.ViewModeTable": "List",
   "pages.condo.property.index.Buildings.Tab.Title": "Buildings",
   "pages.condo.property.index.Divisions.Tab.Title": "Divisions",
-  "pages.condo.property.section.form.maxFloor": "Max floor",
+  "pages.condo.property.section.form.floorCount": "Floor count",
   "pages.condo.property.section.form.minfloor": "Min floor",
   "pages.condo.property.section.form.name": "Name",
   "pages.condo.property.section.form.name.placeholder": "№ section",
