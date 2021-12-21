@@ -1,15 +1,13 @@
 import { useIntl } from '@core/next/intl'
 import React from 'react'
 import { ErrorsWrapper } from '@condo/domains/common/components/ErrorsWrapper'
-import isEmpty from 'lodash/isEmpty'
 
 interface IErrorsContainerProps {
     property: string
     unitName: string
-    newMeterReadings
 }
 
-export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ property, unitName, newMeterReadings  }) => {
+export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ property, unitName  }) => {
     const intl = useIntl()
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })

@@ -53,7 +53,6 @@ export const CreateMeterReadingsActionBar = ({
                                 <ErrorsContainer
                                     property={property}
                                     unitName={unitName}
-                                    newMeterReadings={newMeterReadings}
                                 />
                             </Space>
                         </ActionBar>

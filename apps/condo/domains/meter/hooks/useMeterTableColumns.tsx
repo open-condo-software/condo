@@ -1,14 +1,11 @@
-import get from 'lodash/get'
-import { getFilteredValue } from '../../common/utils/helpers'
-import { getDateRender, getTextRender } from '../../common/components/Table/Renders'
-import { getFilterDropdownByKey } from '../../common/utils/filters.utils'
-import { useIntl } from 'react-intl'
-import { MeterReading } from '../utils/clientSchema'
-import React, { CSSProperties, useCallback, useState } from 'react'
-import { Input, InputNumber, Row } from 'antd'
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
-import { colors } from '../../common/constants/style'
+import get from 'lodash/get'
+import { getDateRender, getTextRender } from '../../common/components/Table/Renders'
+import { useIntl } from 'react-intl'
+import React, { CSSProperties, useCallback, useState } from 'react'
+import { InputNumber } from 'antd'
+import { colors } from '@condo/domains/common/constants/style'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import pickBy from 'lodash/pickBy'
 import { isEmpty } from 'lodash'
@@ -82,20 +79,6 @@ const MeterReadingInput = ({ record, newMeterReadings, setNewMeterReadings }) =>
     )
 }
 
-const meterResourceRender = record => {
-    const meterResource = get(record, ['meter', 'resource', 'name'])
-    const numberOfTariffs = get(record, ['meter', 'numberOfTariffs'])
-
-    if (numberOfTariffs > 1) {
-        const tariffNumberMessages = ['(Т1 - День)', '(T2 - Ночь)', '(T3)', '(T4)']
-        const tariffNumber = get(record, 'tariffNumber')
-
-        return meterResource + `\n${tariffNumberMessages[tariffNumber - 1]}`
-    }
-
-    return meterResource
-}
-
 export const useMeterTableColumns = () => {
     const intl = useIntl()
     const AccountMessage = intl.formatMessage({ id: 'pages.condo.meter.Account' })
@@ -106,8 +89,26 @@ export const useMeterTableColumns = () => {
     const VerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.VerificationDate' })
     const MeterReadingsMessage = intl.formatMessage({ id: 'pages.condo.meter.create.MeterReadings' })
     const LastReadingMessage = intl.formatMessage({ id: 'pages.condo.meter.create.LastReading' })
+    const FirstTariffMessage = intl.formatMessage({ id: 'pages.condo.meter.Tariff1Message' })
+    const SecondTariffMessage = intl.formatMessage({ id: 'pages.condo.meter.Tariff2Message' })
+    const ThirdTariffMessage = intl.formatMessage({ id: 'pages.condo.meter.Tariff3Message' })
+    const FourthTariffMessage = intl.formatMessage({ id: 'pages.condo.meter.Tariff4Message' })
 
     const [newMeterReadings, setNewMeterReadings] = useState({})
+
+    const meterResourceRender = useCallback(record => {
+        const meterResource = get(record, ['meter', 'resource', 'name'])
+        const numberOfTariffs = get(record, ['meter', 'numberOfTariffs'])
+
+        if (numberOfTariffs > 1) {
+            const tariffNumberMessages = [`(${FirstTariffMessage})`, `(${SecondTariffMessage})`, `(${ThirdTariffMessage})`, `(${FourthTariffMessage})`]
+            const tariffNumber = get(record, 'tariffNumber')
+
+            return meterResource + `\n${tariffNumberMessages[tariffNumber - 1]}`
+        }
+
+        return meterResource
+    }, [FirstTariffMessage, FourthTariffMessage, SecondTariffMessage, ThirdTariffMessage])
 
     const renderMeterReading = useCallback((record) => (
         <MeterReadingInput
