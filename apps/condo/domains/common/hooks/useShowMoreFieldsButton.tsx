@@ -1,8 +1,10 @@
-import { Button, Space, Typography } from 'antd'
+import { Space, Typography } from 'antd'
 import { ChevronIcon } from '@condo/domains/common/components/icons/ChevronIcon'
 import React, { useCallback, useState } from 'react'
 import styled from '@emotion/styled'
 import { useIntl } from '@core/next/intl'
+import { Button } from '@condo/domains/common/components/Button'
+import { colors } from '../constants/style'
 
 type ChevronIconWrapperProps = {
     direction: 'down' | 'up',
@@ -26,10 +28,11 @@ export const useShowMoreFieldsButton = () => {
     const ShowMoreFieldsButton = useCallback(() => (
         <Button
             type="text"
+            color={colors.black}
             onClick={handleShowMoreButtonClick}
             style={SHOW_MORE_BUTTON_STYLE}
         >
-            <Typography.Text type={'success'} strong>
+            <Typography.Text strong>
                 <Space direction={'horizontal'} align={'center'}>
                     {isAdditionalFieldsCollapsed ? MoreParametersMessage : LessParametersMessage}
                     <ChevronIconWrapper direction={isAdditionalFieldsCollapsed ? 'down' : 'up'}>

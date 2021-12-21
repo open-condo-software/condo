@@ -16,7 +16,7 @@ import {
 import { Button } from '@condo/domains/common/components/Button'
 import { DownOutlined, PlusOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
-import React, { FunctionComponent, useCallback, useState, useRef, CSSProperties } from 'react'
+import React, { FunctionComponent, useCallback, useState, useRef, CSSProperties, ComponentProps } from 'react'
 import { useIntl } from '@core/next/intl'
 import { useMutation } from '@core/next/apollo'
 import { throttle } from 'lodash'
@@ -377,6 +377,7 @@ interface IBaseModalFormProps<TRecordFormState, TRecordUIState> extends IFormWit
     ModalSaveButtonLabelMsg?: string
     modalExtraFooter?: JSX.Element[]
     modalProps?: ModalProps
+    submitButtonProps?: ComponentProps<typeof Button>
 }
 
 const BaseModalForm: FunctionComponent<IBaseModalFormProps> = ({
@@ -389,6 +390,7 @@ const BaseModalForm: FunctionComponent<IBaseModalFormProps> = ({
     modalExtraFooter = [],
     children,
     modalProps,
+    submitButtonProps,
     ...props
 }) => {
     const intl = useIntl()
@@ -412,6 +414,7 @@ const BaseModalForm: FunctionComponent<IBaseModalFormProps> = ({
                     handleSaveRef.current()
                 }}
                 type="sberPrimary"
+                {...submitButtonProps}
             >
                 {SaveMessage}
             </Button>,

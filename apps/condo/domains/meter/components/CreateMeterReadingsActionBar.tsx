@@ -35,7 +35,7 @@ export const CreateMeterReadingsActionBar = ({
                                 <Button
                                     key='submit'
                                     onClick={handleSave}
-                                    type='sberPrimary'
+                                    type='sberDefaultGradient'
                                     loading={isLoading}
                                     disabled={isSubmitButtonDisabled}
                                 >
@@ -43,7 +43,7 @@ export const CreateMeterReadingsActionBar = ({
                                 </Button>
                                 <Button
                                     onClick={handleAddMeterButtonClick}
-                                    type='sberPrimary'
+                                    type='sberDefaultGradient'
                                     disabled={isCreateMeterButtonDisabled}
                                     icon={<PlusCircleFilled/>}
                                     secondary
