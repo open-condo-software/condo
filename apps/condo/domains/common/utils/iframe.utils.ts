@@ -1,22 +1,32 @@
 const Ajv = require('ajv')
 const ajv = new Ajv()
 
-export const NOTIFICATION_TYPE = 'notification'
-export const REQUIREMENT_TYPE = 'requirement'
+export const NOTIFICATION_MESSAGE_TYPE = 'notification'
+export const REQUIREMENT_MESSAGE_TYPE = 'requirement'
+export const LOADED_STATUS_MESSAGE_TYPE = 'loading'
 
-type NotificationType = {
+export type NotificationType = 'info' | 'warning' | 'error' | 'success'
+export type RequirementType = 'auth' | 'organization'
+export type LoadingStatuses = 'done'
+
+type NotificationMessageType = {
     type: 'notification',
-    notificationType: 'info' | 'warning' | 'error' | 'success',
+    notificationType: NotificationType,
     message: string,
 }
 
-type RequirementType = {
+type RequirementMessageType = {
     type: 'requirement'
-    requirement: 'auth' | 'organization',
+    requirement: RequirementType,
+}
+
+type LoadedStatusMessageType = {
+    type: 'loading',
+    status: LoadingStatuses,
 }
 
 type ParsedMessageType = {
-    message?: RequirementType | NotificationType,
+    message?: RequirementMessageType | NotificationMessageType | LoadedStatusMessageType,
     errors?: Array<string>,
 }
 
@@ -25,10 +35,11 @@ type parseMessageType = (data: any) => ParsedMessageType
 const MessageSchema = {
     type: 'object',
     properties: {
-        type: { enum: [NOTIFICATION_TYPE, REQUIREMENT_TYPE] },
+        type: { enum: [NOTIFICATION_MESSAGE_TYPE, REQUIREMENT_MESSAGE_TYPE, LOADED_STATUS_MESSAGE_TYPE] },
         notificationType: { enum: ['info', 'warning', 'error', 'success'] },
         message: { type: 'string' },
         requirement: { enum: ['auth', 'organization'] },
+        status: { const: 'done' },
     },
     additionalProperties: false,
     required: ['type'],
@@ -37,7 +48,7 @@ const MessageSchema = {
             anyOf: [
                 {
                     not: {
-                        properties: { type: { const: NOTIFICATION_TYPE } },
+                        properties: { type: { const: NOTIFICATION_MESSAGE_TYPE } },
                     },
                 },
                 { required: ['notificationType', 'message'] },
@@ -47,10 +58,20 @@ const MessageSchema = {
             anyOf: [
                 {
                     not: {
-                        properties: { type: { const: REQUIREMENT_TYPE } },
+                        properties: { type: { const: REQUIREMENT_MESSAGE_TYPE } },
                     },
                 },
                 { required: ['requirement'] },
+            ],
+        },
+        {
+            anyOf: [
+                {
+                    not: {
+                        properties: { type: { const: LOADED_STATUS_MESSAGE_TYPE } },
+                    },
+                },
+                { required: ['status'] },
             ],
         },
     ],
@@ -62,20 +83,28 @@ export const parseMessage: parseMessageType = (data) => {
     if (!validator(data)) {
         return { errors: validator.errors.map(error => error.message) }
     }
-    if (data.type === NOTIFICATION_TYPE) {
+    if (data.type === NOTIFICATION_MESSAGE_TYPE) {
         return {
             message: {
-                type: NOTIFICATION_TYPE,
+                type: NOTIFICATION_MESSAGE_TYPE,
                 notificationType: data.notificationType,
                 message: data.message,
             },
         }
     }
-    if (data.type === REQUIREMENT_TYPE) {
+    if (data.type === REQUIREMENT_MESSAGE_TYPE) {
         return {
             message: {
-                type: REQUIREMENT_TYPE,
+                type: REQUIREMENT_MESSAGE_TYPE,
                 requirement: data.requirement,
+            },
+        }
+    }
+    if (data.type === LOADED_STATUS_MESSAGE_TYPE) {
+        return {
+            message: {
+                type: LOADED_STATUS_MESSAGE_TYPE,
+                status: data.status,
             },
         }
     }
