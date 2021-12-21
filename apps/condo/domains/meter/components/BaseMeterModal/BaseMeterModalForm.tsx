@@ -9,7 +9,7 @@ import { Gutter } from 'antd/es/grid/row'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
-import { useShowMoreFieldsButton } from '@condo/domains/common/hooks/useShowMoreFieldsButton'
+import { ShowMoreFieldsButton } from '@condo/domains/common/components/ShowMoreFieldsButton'
 
 import { useMeterValidations } from '../../hooks/useMeterValidations'
 import { METER_MODAL_FORM_ITEM_SPAN } from '../../constants/constants'
@@ -85,12 +85,12 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ handleSu
     const initialVerificationDate = useCallback(() => getInitialDateValue(initialValues, ['verificationDate']),
         [initialValues])
 
+    const [isAdditionalFieldsCollapsed, setIsAdditionalFieldsCollapsed] = useState<boolean>(true)
     const [isModalVisible, setModalVisible] = useState<boolean>(false)
     const [isTariffsCountHidden, setIsTariffsCountHidden] = useState<boolean>(meterResourceId !== ELECTRICITY_METER_RESOURCE_ID)
     const [installationDate, setInstallationDate] = useState<Dayjs>(initialInstallationDate)
     const [verificationDate, setVerificationDate] = useState<Dayjs>(initialVerificationDate)
 
-    const { ShowMoreFieldsButton, isAdditionalFieldsCollapsed } = useShowMoreFieldsButton()
     const { requiredValidator } = useValidations()
     const {
         meterWithSameNumberValidator,
@@ -245,7 +245,10 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ handleSu
                             </Row>
                         </Col>
                         <Col>
-                            <ShowMoreFieldsButton />
+                            <ShowMoreFieldsButton
+                                isAdditionalFieldsCollapsed={isAdditionalFieldsCollapsed}
+                                setIsAdditionalFieldsCollapsed={setIsAdditionalFieldsCollapsed}
+                            />
                         </Col>
                     </Row>
                 )
