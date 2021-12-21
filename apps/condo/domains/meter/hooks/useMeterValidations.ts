@@ -38,13 +38,13 @@ export const useMeterValidations = (installationDate: Dayjs, verificationDate: D
             if (!value || !verificationDate)
                 return Promise.resolve()
 
-            if (value.toDate() < installationDate.toDate()) {
+            if (value.toDate() < verificationDate.toDate()) {
                 return Promise.reject(CanNotBeEarlierThanFirstVerificationMessage)
             }
 
             return Promise.resolve()
         },
-    }), [CanNotBeEarlierThanFirstVerificationMessage, installationDate, verificationDate])
+    }), [CanNotBeEarlierThanFirstVerificationMessage, verificationDate])
 
     const meterWithSameNumberValidator: Rule = useMemo(() => ({
         validator: async (_, value) => {

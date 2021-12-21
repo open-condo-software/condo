@@ -36,7 +36,7 @@ const AccountNumberSelect = ({ accountNumbers }) => {
         [accountNumbers])
 
     return (
-        <Row>
+        <>
             <Col span={24}>
                 <Radio.Group onChange={handleChange} value={value}>
                     <Radio value={CHOOSE_ACCOUNT_RADIO_VALUE}>{ChooseAccountNumberMessage}</Radio>
@@ -50,7 +50,7 @@ const AccountNumberSelect = ({ accountNumbers }) => {
                     }
                 </AccountNumberFormItem>
             </Col>
-        </Row>
+        </>
     )
 }
 
