@@ -42,7 +42,10 @@ const useUploadConfig = (onUpload: OnUpload) => {
 
             reader.onload = (e) => {
                 const bstr = e.target.result
-                const wb = XLSX.read(bstr, { type: rABS ? 'binary' : 'array' })
+                const wb = XLSX.read(bstr, {
+                    type: rABS ? 'binary' : 'array',
+                    cellDates: true,
+                })
                 const wsname = wb.SheetNames[0]
                 const ws = wb.Sheets[wsname]
                 const cols = makeAntdCols(ws['!ref'])

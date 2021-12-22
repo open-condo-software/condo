@@ -137,14 +137,17 @@ export class Importer implements IImporter {
 
     private parseAndValidateRow (row: TableRow): boolean {
         for (let i = 0; i < row.length; i++) {
+            // Because `typeof` returns 'object' for instances of `Date`, data type is set explicitly
+            const valueType = row[i].value instanceof Date ? 'date' : typeof row[i].value
             if (row[i].value === undefined && this.columnsRequired[i]) {
                 return false
             }
             if (typeof row[i].value === 'number' && this.columnsTypes[i] === 'string') {
+            if (this.columnsTypes[i] === 'string' && valueType === 'number') {
                 row[i].value = String(row[i].value)
-            } else if (typeof row[i].value === 'string' && this.columnsTypes[i] === 'date') {
+            } else if (this.columnsTypes[i] === 'date' && valueType === 'string') {
                 row[i].value = dayjs(row[i].value, DATE_PARSING_FORMAT).toDate()
-            } else if (typeof row[i].value !== 'undefined' && typeof row[i].value !== this.columnsTypes[i]) {
+            } else if (valueType !== 'undefined' && valueType !== this.columnsTypes[i]) {
                 return false
             }
         }
