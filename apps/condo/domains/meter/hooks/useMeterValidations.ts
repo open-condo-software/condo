@@ -65,5 +65,7 @@ export const useMeterValidations = (installationDate: Dayjs, verificationDate: D
         },
     }), [MeterWithSameNumberIsExistMessage, metersWithSameNumber, organizationId, refetch])
 
-    return { meterWithSameNumberValidator, earlierThanFirstVerificationDateValidator, earlierThanInstallationValidator }
+    return useMemo(() => (
+        { meterWithSameNumberValidator, earlierThanFirstVerificationDateValidator, earlierThanInstallationValidator }
+    ), [earlierThanFirstVerificationDateValidator, earlierThanInstallationValidator, meterWithSameNumberValidator])
 }

@@ -160,7 +160,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                 setSelectedMeter(meter)
             },
         }
-    }, [])
+    }, [setSelectedMeter])
     const handleAddMeterButtonClick = useCallback(() => setIsCreateMeterModalVisible(true),
         [setIsCreateMeterModalVisible])
 

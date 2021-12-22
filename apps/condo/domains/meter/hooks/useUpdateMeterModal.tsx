@@ -72,5 +72,5 @@ export const useUpdateMeterModal = (refetch) => {
         )
     }, [MeterNumberMessage, handleCancelModal, handleSubmit, initialValues, meterNumber, modalFooter, selectedMeter])
 
-    return { UpdateMeterModal, setSelectedMeter }
+    return useMemo(() => ({ UpdateMeterModal, setSelectedMeter }), [UpdateMeterModal])
 }
