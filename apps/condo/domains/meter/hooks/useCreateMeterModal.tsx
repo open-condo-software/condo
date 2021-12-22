@@ -41,5 +41,5 @@ export function useCreateMeterModal (organizationId: string, propertyId: string,
         )
     }, [AddMeterMessage, handleCancelModal, handleMeterCreate, initialValues, isCreateMeterModalVisible])
 
-    return { CreateMeterModal, setIsCreateMeterModalVisible }
+    return useMemo(() => ({ CreateMeterModal, setIsCreateMeterModalVisible }), [CreateMeterModal])
 }

@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import React, { CSSProperties, useCallback, useState } from 'react'
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import { InputNumber } from 'antd'
 import { css, jsx } from '@emotion/core'
 import get from 'lodash/get'
@@ -103,77 +103,85 @@ export const useMeterTableColumns = () => {
     const FourthTariffMessage = intl.formatMessage({ id: 'pages.condo.meter.Tariff4Message' })
 
     const [newMeterReadings, setNewMeterReadings] = useState({})
+    const tariffNumberMessages = useMemo(() =>
+        [`(${FirstTariffMessage})`, `(${SecondTariffMessage})`, `(${ThirdTariffMessage})`, `(${FourthTariffMessage})`],
+    [FirstTariffMessage, FourthTariffMessage, SecondTariffMessage, ThirdTariffMessage])
 
-    const meterResourceRender = useCallback(record => {
+    const meterResourceRenderer = useCallback(record => {
         const meterResource = get(record, ['meter', 'resource', 'name'])
         const numberOfTariffs = get(record, ['meter', 'numberOfTariffs'])
 
         if (numberOfTariffs > 1) {
-            const tariffNumberMessages = [`(${FirstTariffMessage})`, `(${SecondTariffMessage})`, `(${ThirdTariffMessage})`, `(${FourthTariffMessage})`]
             const tariffNumber = get(record, 'tariffNumber')
 
             return meterResource + `\n${tariffNumberMessages[tariffNumber - 1]}`
         }
 
         return meterResource
-    }, [FirstTariffMessage, FourthTariffMessage, SecondTariffMessage, ThirdTariffMessage])
-
-    const renderMeterReading = useCallback((record) => (
+    }, [tariffNumberMessages])
+    const meterReadingRenderer = useCallback((record) => (
         <MeterReadingInput
             record={record}
             newMeterReadings={newMeterReadings}
             setNewMeterReadings={setNewMeterReadings}
         />
     ), [newMeterReadings])
+    const textRenderer = useMemo(() => getTextRender(), [getTextRender])
+    const dateRenderer = useMemo(() => getDateRender(intl), [intl, getDateRender])
 
-    const tableColumns = [
+    const tableColumns = useMemo(() => [
         {
             title: AccountMessage,
             dataIndex: ['meter', 'accountNumber'],
             width: '10%',
-            render: getTextRender(),
+            render: textRenderer,
         },
         {
             title: ResourceMessage,
             width: '10%',
-            render: meterResourceRender,
+            render: meterResourceRenderer,
         },
         {
             title: MeterNumberMessage,
             dataIndex: ['meter', 'number'],
             width: '10%',
-            render: getTextRender(),
+            render: textRenderer,
         },
         {
             title: PlaceMessage,
             dataIndex: ['meter', 'place'],
             width: '10%',
-            render: getTextRender(),
+            render: textRenderer,
         },
         {
             title: LastReadingMessage,
             dataIndex: 'lastMeterReading',
             width: '10%',
-            render: getTextRender(),
+            render: textRenderer,
         },
         {
             title: SourceMessage,
             dataIndex: 'meterReadingSource',
             width: '10%',
-            render: getTextRender(),
+            render: textRenderer,
         },
         {
             title: VerificationDateMessage,
             dataIndex: ['meter', 'verificationDate'],
             width: '10%',
-            render: getDateRender(intl),
+            render: dateRenderer,
         },
         {
             title: MeterReadingsMessage,
             width: '20%',
-            render: renderMeterReading,
+            render: meterReadingRenderer,
         },
-    ]
+    ],
+    [
+        AccountMessage, LastReadingMessage, MeterNumberMessage, MeterReadingsMessage, PlaceMessage,
+        ResourceMessage, SourceMessage, VerificationDateMessage, dateRenderer, meterReadingRenderer, meterResourceRenderer, textRenderer,
+    ])
 
-    return { tableColumns, newMeterReadings, setNewMeterReadings }
+    return useMemo(() => ({ tableColumns, newMeterReadings, setNewMeterReadings }),
+        [newMeterReadings, tableColumns])
 }
