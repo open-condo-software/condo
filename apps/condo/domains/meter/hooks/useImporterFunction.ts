@@ -16,7 +16,7 @@ import {
     RowValidator,
 } from '@condo/domains/common/utils/importer'
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
-import { searchPropertyWithMap } from '@condo/domains/ticket/utils/clientSchema/search'
+import { searchPropertyWithMap } from '@condo/domains/property/utils/clientSchema/search'
 
 import { Meter, MeterReading } from '../utils/clientSchema'
 import { searchMeter } from '../utils/clientSchema/search'
@@ -207,7 +207,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                     break
                 case UnitNameColumnMessage:
                     if (!propertyUnitLabels.includes(cell.value))
-                        errors.push(intl.formatMessage({ id: 'meter.import.error.UnitNameNotFound' }, { columnName: columns[i].label, format: DATE_PARSING_FORMAT }))
+                        errors.push(intl.formatMessage({ id: 'meter.import.error.UnitNameNotFound' }, { columnName: columns[i].label }))
                     break
                 default: 
                     break
