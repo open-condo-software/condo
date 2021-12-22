@@ -91,7 +91,7 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
             resolver: async (item) => {
                 if (!item.acquiringIntegrationContext) { return null }
                 const acquiringIntegrationContext = await getById('AcquiringIntegrationContext', item.acquiringIntegrationContext)
-                const acquiringIntegration = await getById('AcquiringIntegration', get(item.acquiringIntegrationContext, 'integration'))
+                const acquiringIntegration = await getById('AcquiringIntegration', get(acquiringIntegrationContext, 'integration'))
 
                 const result = pick(acquiringIntegrationContext, ['id', 'integration'])
                 result.integration = acquiringIntegration
