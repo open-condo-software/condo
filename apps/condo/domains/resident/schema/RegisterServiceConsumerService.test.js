@@ -104,11 +104,13 @@ describe('RegisterServiceConsumerService', () => {
 
         const [ out ] = await registerServiceConsumerByTestClient(userClient, payload)
         expect(out).toBeDefined()
+        expect(out.residentAcquiringIntegrationContext).toEqual(acquiringIntegrationContext.id)
+        expect(out.residentAcquiringIntegrationContext.integration).toBeDefined()
+        expect(out.residentAcquiringIntegrationContext.integration.id).toEqual(acquiringIntegration.id)
+        expect(out.residentAcquiringIntegrationContext.integration.hostUrl).toEqual(acquiringIntegration.hostUrl)
         // TODO(zuch): Fix test check
         // expect(out.residentBillingAccount.id).toEqual(billingAccountAttrs.id)
         // expect(out.residentOrganization.id).toEqual(organization.id)
-        // expect(out.residentAcquiringIntegrationContext.id).toEqual(acquiringIntegrationContext.id)
-        // expect(out.residentAcquiringIntegrationContext.integration).toEqual(acquiringIntegration.id)
     })
 
     it('creates serviceConsumer with billingAccount and Meters', async () => {
