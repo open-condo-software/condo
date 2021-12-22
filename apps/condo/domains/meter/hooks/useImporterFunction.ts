@@ -1,3 +1,11 @@
+import dayjs from 'dayjs'
+import { useOrganization } from '@core/next/organization'
+import { useApolloClient } from '@core/next/apollo'
+import get from 'lodash/get'
+import map from 'lodash/map'
+import { SortMetersBy } from '../../../schema'
+import { useIntl } from '@core/next/intl'
+
 import {
     Columns,
     DATE_PARSING_FORMAT,
@@ -6,16 +14,11 @@ import {
     RowNormalizer,
     RowValidator,
 } from '@condo/domains/common/utils/importer'
-import { useOrganization } from '@core/next/organization'
-import { useApolloClient } from '@core/next/apollo'
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
-import get from 'lodash/get'
-import map from 'lodash/map'
-import { Meter, MeterReading } from '../utils/clientSchema'
 import { searchPropertyWithMap } from '@condo/domains/ticket/utils/clientSchema/search'
-import { useIntl } from '@core/next/intl'
+
+import { Meter, MeterReading } from '../utils/clientSchema'
 import { searchMeter } from '../utils/clientSchema/search'
-import { SortMetersBy } from '../../../schema'
 import {
     COLD_WATER_METER_RESOURCE_ID,
     ELECTRICITY_METER_RESOURCE_ID,
@@ -24,7 +27,6 @@ import {
     HOT_WATER_METER_RESOURCE_ID,
     IMPORT_CONDO_METER_READING_SOURCE_ID,
 } from '../constants/constants'
-import dayjs from 'dayjs'
 
 const MONTH_PARSING_FORMAT = 'YYYY-MM'
 
