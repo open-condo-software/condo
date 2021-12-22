@@ -32,6 +32,12 @@ type ParsedMessageType = {
 
 type parseMessageType = (data: any) => ParsedMessageType
 
+const MessagesRequiredProperties = {
+    [NOTIFICATION_MESSAGE_TYPE]: ['notificationType', 'message'],
+    [REQUIREMENT_MESSAGE_TYPE]: ['requirement'],
+    [LOADED_STATUS_MESSAGE_TYPE]: ['status'],
+}
+
 const MessageSchema = {
     type: 'object',
     properties: {
@@ -43,38 +49,12 @@ const MessageSchema = {
     },
     additionalProperties: false,
     required: ['type'],
-    allOf: [
-        {
-            anyOf: [
-                {
-                    not: {
-                        properties: { type: { const: NOTIFICATION_MESSAGE_TYPE } },
-                    },
-                },
-                { required: ['notificationType', 'message'] },
-            ],
-        },
-        {
-            anyOf: [
-                {
-                    not: {
-                        properties: { type: { const: REQUIREMENT_MESSAGE_TYPE } },
-                    },
-                },
-                { required: ['requirement'] },
-            ],
-        },
-        {
-            anyOf: [
-                {
-                    not: {
-                        properties: { type: { const: LOADED_STATUS_MESSAGE_TYPE } },
-                    },
-                },
-                { required: ['status'] },
-            ],
-        },
-    ],
+    allOf: Object.keys(MessagesRequiredProperties).map(messageType => ({
+        anyOf: [
+            { not: { properties: { type: { const: messageType } } } },
+            { required: MessagesRequiredProperties[messageType] },
+        ],
+    })),
 }
 
 const validator = ajv.compile(MessageSchema)
