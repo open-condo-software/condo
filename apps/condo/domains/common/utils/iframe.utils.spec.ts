@@ -1,4 +1,10 @@
-import { parseMessage, NOTIFICATION_MESSAGE_TYPE, REQUIREMENT_MESSAGE_TYPE, LOADED_STATUS_MESSAGE_TYPE } from './iframe.utils'
+import {
+    parseMessage,
+    NOTIFICATION_MESSAGE_TYPE,
+    REQUIREMENT_MESSAGE_TYPE,
+    LOADED_STATUS_MESSAGE_TYPE,
+    ERROR_MESSAGE_TYPE,
+} from './iframe.utils'
 
 describe('parseMessage', () => {
     const validCases: Array<any> = [
@@ -9,6 +15,7 @@ describe('parseMessage', () => {
         ['Auth requirement', { type: REQUIREMENT_MESSAGE_TYPE, requirement: 'auth' }],
         ['Organization requirement', { type: REQUIREMENT_MESSAGE_TYPE, requirement: 'organization' }],
         ['Loading message', { type: LOADED_STATUS_MESSAGE_TYPE, status: 'done' }],
+        ['Error message', { type: ERROR_MESSAGE_TYPE, message: 'Validation failure error' }],
     ]
     const invalidCases: Array<any> = [
         ['Invalid notification type', { type: NOTIFICATION_MESSAGE_TYPE, notificationType: 'importantInformation', message: 'Hello, world!' }],
