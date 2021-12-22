@@ -584,6 +584,7 @@
   "meter.import.column.SealingDate": "Sealing date",
   "meter.import.column.ControlReadingsDate": "Control readings date",
   "meter.import.error.MeterResourceNotFound": "Meter type was not found according to specified abbreviation in \"Type\" column",
+  "meter.import.error.UnitNameNotFound": "Unit was not found in property",
   "meter.import.error.WrongDateFormatMessage": "Wrong date format in column \"{columnName}\". Use following format: {format}",
   "meter.import.error.WrongDateOrMonthFormatMessage": "Wrong date format in column \"{columnName}\". Use either format {format1}, or {format2}",
   "meter.import.value.meterResourceType.hotWater": "HW",
