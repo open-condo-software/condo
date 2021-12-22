@@ -103,7 +103,7 @@ const PAYMENT_CATEGORIES_META = [
     {
         id: '9',
         name: 'Капремонт',
-        active: true,
+        active: false,
         canGetBillingFromOrganization: true,
         canGetAcquiringFromOrganization: true,
     },
@@ -124,14 +124,14 @@ const PAYMENT_CATEGORIES_META = [
     {
         id: '12',
         name: 'Техническое обслуживание',
-        active: true,
+        active: false,
         canGetBillingFromOrganization: true,
         canGetAcquiringFromOrganization: true,
     },
     {
         id: '13',
         name: 'Прочие услуги',
-        active: true,
+        active: false,
         canGetBillingFromOrganization: true,
         canGetAcquiringFromOrganization: true,
     },
