@@ -1,3 +1,5 @@
+import get from 'lodash/get'
+
 const Ajv = require('ajv')
 const ajv = new Ajv()
 
@@ -29,6 +31,7 @@ type LoadedStatusMessageType = {
 type ErrorMessageType = {
     type: 'error',
     message: string,
+    requestMessage?: Record<string, unknown>,
 }
 
 type ParsedMessageType = {
@@ -60,6 +63,7 @@ const MessageSchema = {
         message: { type: 'string' },
         requirement: { enum: ['auth', 'organization'] },
         status: { const: 'done' },
+        requestMessage: {  type: 'object' },
     },
     additionalProperties: false,
     required: ['type'],
@@ -74,9 +78,8 @@ const MessageSchema = {
 const validator = ajv.compile(MessageSchema)
 
 export const parseMessage: parseMessageType = (data) => {
-    console.log(data)
     if (!validator(data)) {
-        return { errors: validator.errors.map(error => error.message) }
+        return { errors: validator.errors.map(error => `JSON validation error. SchemaPath ${error.schemaPath}, message: ${error.message}`) }
     }
     if (data.type === NOTIFICATION_MESSAGE_TYPE) {
         return {
@@ -108,6 +111,7 @@ export const parseMessage: parseMessageType = (data) => {
             message: {
                 type: ERROR_MESSAGE_TYPE,
                 message: data.message,
+                requestMessage: get(data, 'requestMessage'),
             },
         }
     }

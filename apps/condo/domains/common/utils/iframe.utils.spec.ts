@@ -16,6 +16,7 @@ describe('parseMessage', () => {
         ['Organization requirement', { type: REQUIREMENT_MESSAGE_TYPE, requirement: 'organization' }],
         ['Loading message', { type: LOADED_STATUS_MESSAGE_TYPE, status: 'done' }],
         ['Error message', { type: ERROR_MESSAGE_TYPE, message: 'Validation failure error' }],
+        ['Error message', { type: ERROR_MESSAGE_TYPE, message: 'Validation failure error', requestMessage: { type: 'IMPORTANT', requirement: 'auth' } }],
     ]
     const invalidCases: Array<any> = [
         ['Invalid notification type', { type: NOTIFICATION_MESSAGE_TYPE, notificationType: 'importantInformation', message: 'Hello, world!' }],

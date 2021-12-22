@@ -5,6 +5,7 @@ import {
     REQUIREMENT_MESSAGE_TYPE,
     NOTIFICATION_MESSAGE_TYPE,
     LOADED_STATUS_MESSAGE_TYPE,
+    ERROR_MESSAGE_TYPE,
 } from '@condo/domains/common/utils/iframe.utils'
 import { useAuth } from '@core/next/auth'
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
@@ -45,8 +46,15 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
         if (event.origin !== pageOrigin) return
         if (event.data && typeof event.data !== 'object') return
         const { message, errors } = parseMessage(event.data)
-        // TODO(DOMA-1831) Send errors back to sender
-        if (errors && errors.length) return
+        if (errors && errors.length) {
+            errors.forEach(error => {
+                event.source.postMessage({
+                    type: ERROR_MESSAGE_TYPE,
+                    message: error,
+                    requestMessage: event.data,
+                })
+            })
+        }
         if (!message) return
         if (message.type === REQUIREMENT_MESSAGE_TYPE) handleRequirement(message)
         else if (message.type === NOTIFICATION_MESSAGE_TYPE) handleNotification(message)
