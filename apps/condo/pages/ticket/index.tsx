@@ -66,7 +66,6 @@ export const TicketsPageContent = ({
     const PaidLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PaidLabel' })
 
     const { isSmall } = useLayoutContext()
-    const { organization } = useOrganization()
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
@@ -74,19 +73,7 @@ export const TicketsPageContent = ({
     const reduceNonEmpty = (cnt, filter) => cnt + Number(Array.isArray(filters[filter]) && filters[filter].length > 0)
     const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
 
-    const [isInitialFiltersApplied, setIsInitialFiltersApplied] = useState(false)
     const { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, FILTER_TABLE_KEYS.TICKET)
-    useEffect(() => {
-        FiltersStorage
-            .loadFilters(organization.id, FILTER_TABLE_KEYS.TICKET, router)
-            .then(() => setIsInitialFiltersApplied(true))
-    }, [organization.id])
-
-    const memoizedFilters = useMemo(() => filters, [router.query])
-
-    useEffect(() => {
-        FiltersStorage.saveFilters(organization.id, FILTER_TABLE_KEYS.TICKET, filters)
-    }, [memoizedFilters, organization.id])
 
     searchTicketsQuery = { ...searchTicketsQuery, ...{ deletedAt: null } }
 
@@ -103,7 +90,7 @@ export const TicketsPageContent = ({
         fetchPolicy: 'network-only',
     })
 
-    const loading = isTicketsFetching || !isInitialFiltersApplied
+    const loading = isTicketsFetching
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -236,7 +223,18 @@ const TicketsPage: ITicketIndexPage = () => {
     const { filters, sorters } = parseQuery(router.query)
     const tableColumns = useTableColumns(filterMetas)
     const searchTicketsQuery = { ...filtersToWhere(filters), organization: { id: userOrganizationId } }
-    
+
+    useEffect(() => {
+        FiltersStorage
+            .loadFilters(userOrganizationId, FILTER_TABLE_KEYS.TICKET, router)
+    }, [userOrganizationId])
+
+    const memoizedFilters = useMemo(() => filters, [router.query])
+
+    useEffect(() => {
+        FiltersStorage.saveFilters(userOrganizationId, FILTER_TABLE_KEYS.TICKET, filters)
+    }, [memoizedFilters, userOrganizationId])
+
     return (
         <TicketsPageContent
             tableColumns={tableColumns}

@@ -49,6 +49,7 @@ const ExportMeterReadingsService = new GQLCustomSchema('ExportMeterReadingsServi
                         date: formatDate(rows.date()),
                         address: rows.address(),
                         unitName: rows.unitName(),
+                        accountNumber: rows.accountNumber(),
                         resource: rows.resource(),
                         number: rows.number(),
                         place: rows.place(),
