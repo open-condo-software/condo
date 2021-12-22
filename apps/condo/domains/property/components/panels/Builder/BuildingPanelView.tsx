@@ -12,7 +12,7 @@ import {
     MapSectionContainer, BuildingViewModeSelect,
 } from './BuildingPanelCommon'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
-import { MapView } from './MapConstructor'
+import { MapView, MapViewMode } from './MapConstructor'
 import { BuildingMap } from '@app/condo/schema'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
 import ScrollContainer from 'react-indiana-drag-scroll'
@@ -122,7 +122,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
                                 nativeMobileScroll={true}
                             >
                                 {
-                                    builder.viewMode === 'section'
+                                    builder.viewMode === MapViewMode.section
                                         ? !builder.isEmptySections && (
                                             <BuildingAxisY floors={builder.possibleChosenFloors} />
                                         )
@@ -131,7 +131,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
                                         )
                                 }
                                 {
-                                    builder.viewMode === 'section'
+                                    builder.viewMode === MapViewMode.section
                                         ? builder.sections.map(section => (
                                             <MapSectionContainer
                                                 key={section.id}

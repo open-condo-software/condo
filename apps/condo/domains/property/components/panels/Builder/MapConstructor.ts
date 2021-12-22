@@ -46,7 +46,10 @@ type IndexParkingLocation = Omit<IndexLocation, 'section'> & {
     parking: number
 }
 
-export type MapViewMode = 'section' | 'parking'
+export enum MapViewMode {
+    'section',
+    'parking',
+}
 
 
 // TODO(DOMA-1755): refactor the data structure in such a way that changes in one element occur independently of other elements
@@ -131,10 +134,10 @@ class Map {
     }
 
     private setAutoincrement () {
-        const idCollectLambda = entity => entity.map(section => section.floors
+        const getSectionUnitIds = mapSection => mapSection.map(section => section.floors
             .map(floor => floor.units.map(unit => !isNaN(Number(unit.id)) ? Number(unit.id) : 0)))
             .flat(2)
-        this.autoincrement = Math.max(0, ...idCollectLambda(this.map.sections), ...idCollectLambda(this.map.parking)) + 1
+        this.autoincrement = Math.max(0, ...getSectionUnitIds(this.map.sections), ...getSectionUnitIds(this.map.parking)) + 1
     }
 
     private repairMapStructure (): void {
@@ -235,7 +238,7 @@ class MapView extends Map {
         }
 
         if (this.isEmptySections && !this.isEmptyParking) {
-            this.viewMode = 'parking'
+            this.viewMode = MapViewMode.parking
         }
     }
 
@@ -296,7 +299,7 @@ class MapView extends Map {
         return this.isEmptySections && this.isEmptyParking
     }
 
-    public viewMode: MapViewMode = 'section'
+    public viewMode: MapViewMode = MapViewMode.section
 
     // view or hide sections
     public visibleSections: string | null = null
@@ -427,9 +430,9 @@ class MapView extends Map {
     protected restoreViewMode (): void {
         if (!this.isEmptySections && !this.isEmptyParking) return
         if (this.isEmptySections && !this.isEmptyParking) {
-            this.viewMode = 'parking'
+            this.viewMode = MapViewMode.parking
         } else {
-            this.viewMode = 'section'
+            this.viewMode = MapViewMode.section
         }
     }
 }
@@ -489,7 +492,7 @@ class MapEdit extends MapView {
         switch (mode) {
             case 'addSection':
                 this.removePreviewUnit()
-                this.viewMode = 'section'
+                this.viewMode = MapViewMode.section
                 this.selectedUnit = null
                 this.selectedSection = null
                 break
@@ -499,7 +502,7 @@ class MapEdit extends MapView {
                 this.selectedUnit = null
                 break
             case 'addParking':
-                this.viewMode = 'parking'
+                this.viewMode = MapViewMode.parking
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.selectedUnit = null
@@ -512,7 +515,7 @@ class MapEdit extends MapView {
                 break
             case 'addUnit':
                 this.removePreviewSection()
-                this.viewMode = 'section'
+                this.viewMode = MapViewMode.section
                 this.selectedSection = null
                 this.selectedUnit = null
                 break
@@ -523,7 +526,7 @@ class MapEdit extends MapView {
                 break
             case 'addParkingUnit':
                 this.removePreviewParking()
-                this.viewMode = 'parking'
+                this.viewMode = MapViewMode.parking
                 this.selectedParking = null
                 this.selectedParkingUnit = null
                 break
