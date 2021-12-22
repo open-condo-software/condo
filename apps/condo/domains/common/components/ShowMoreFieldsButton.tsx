@@ -18,7 +18,7 @@ const ChevronIconWrapper = styled.div<ChevronIconWrapperProps>`
     display: flex;
 `
 
-const SHOW_MORE_BUTTON_STYLE = { padding: 0 }
+const SHOW_MORE_BUTTON_STYLE = { padding: 0, backgroundColor: 'transparent' }
 
 export const ShowMoreFieldsButton = ({ isAdditionalFieldsCollapsed, setIsAdditionalFieldsCollapsed }) => {
     const intl = useIntl()
