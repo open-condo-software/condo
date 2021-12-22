@@ -594,6 +594,7 @@
   "meter.import.column.SealingDate": "Дата опломбирования",
   "meter.import.column.ControlReadingsDate": "Дата контрольных показаний",
   "meter.import.error.MeterResourceNotFound": "Не найден тип счётчика по указанной аббревиатуре",
+  "meter.import.error.UnitNameNotFound": "Указанная квартира не найдена в доме",
   "meter.import.error.WrongDateFormatMessage": "Неправильный тип даты в столбце \"{columnName}\". Используйте {format}",
   "meter.import.error.WrongDateOrMonthFormatMessage": "Неправильный тип даты в столбце \"{columnName}\". Используйте {format1}, либо {format2}",
   "meter.import.value.meterResourceType.hotWater": "ГВС",

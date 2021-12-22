@@ -12,7 +12,7 @@ import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import get from 'lodash/get'
 import map from 'lodash/map'
 import { Meter, MeterReading } from '../utils/clientSchema'
-import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
+import { searchPropertyWithMap } from '@condo/domains/ticket/utils/clientSchema/search'
 import { useIntl } from '@core/next/intl'
 import { searchMeter } from '../utils/clientSchema/search'
 import { SortMetersBy } from '../../../schema'
@@ -99,7 +99,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     ]
 
     const meterReadingNormalizer: RowNormalizer = async (row) => {
-        const addons = { address: null, propertyId: null, meterId: null, meterResourceId: null, readingSubmissionDate: null }
+        const addons = { address: null, propertyId: null, propertyMap: null, meterId: null, meterResourceId: null, readingSubmissionDate: null }
         if (row.length !== columns.length) return Promise.resolve({ row })
         const [
             address,
@@ -124,17 +124,19 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         // Used tell whether suggestion API has found specified address at all
         addons.address = suggestion.value
 
-        const propertyOptions = await searchProperty(client, {
+        const properties = await searchPropertyWithMap(client, {
             organization: { id: userOrganizationId },
             address: suggestion.value,
         }, undefined)
 
-        const propertyId = propertyOptions.length > 0 ? get(propertyOptions[0], 'value') : null
+        const propertyId = properties.length > 0 ? get(properties[0], 'id') : null
+        const propertyMap = properties.length > 0 ? get(properties[0], 'map') : null
         if (!propertyId) {
             return { row, addons }
         }
 
         addons.propertyId = propertyId
+        addons.propertyMap = propertyMap
 
         const searchMeterWhereConditions = {
             organization: { id: userOrganizationId },
@@ -175,6 +177,16 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         if (!get(processedRow, ['addons', 'propertyId'])) errors.push(PropertyNotFoundMessage)
         if (!get(processedRow, ['addons', 'meterResourceId'])) errors.push(MeterResourceNotFoundMessage)
         // TODO(mrfoxpro): Implement custom validation https://github.com/open-condo-software/condo/pull/978
+
+        const propertyMap = get(processedRow, ['addons', 'propertyMap'])
+        const sections = get(propertyMap, 'sections', [])
+        const propertyUnitLabels = sections.map(
+            section => section.floors.map(
+                floor => floor.units.map(
+                    unit => unit.label)
+            )
+        ).flat(2)
+
         processedRow.row.forEach((cell, i) => {
             switch (columns[i].label) {
                 case ReadingSubmissionDateMessage:
@@ -186,9 +198,13 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                 case NextVerificationDateMessage: 
                 case InstallationDateMessage: 
                 case CommissioningDateMessage: 
-                case SealingDateMessage: 
+                case SealingDateMessage:
                     if (cell.value && !dayjs(cell.value).isValid()) 
                         errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateFormatMessage' }, { columnName: columns[i].label, format: DATE_PARSING_FORMAT }))
+                    break
+                case UnitNameColumnMessage:
+                    if (!propertyUnitLabels.includes(cell.value))
+                        errors.push(intl.formatMessage({ id: 'meter.import.error.UnitNameNotFound' }, { columnName: columns[i].label, format: DATE_PARSING_FORMAT }))
                     break
                 default: 
                     break
