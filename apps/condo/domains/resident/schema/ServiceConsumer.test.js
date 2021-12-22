@@ -32,6 +32,8 @@ describe('ServiceConsumer', () => {
             expect(consumer.resident.id).toEqual(resident.id)
             expect(consumer.organization.id).toEqual(userClient.organization.id)
             expect(consumer.billingAccount.id).toEqual(billingAccount.id)
+            expect(consumer.residentAcquiringIntegrationContext).toBeDefined()
+            expect(consumer.residentAcquiringIntegrationContext.integration.hostUrl).toBeDefined()
         })
 
         it('cannot be created by regular user', async () => {
