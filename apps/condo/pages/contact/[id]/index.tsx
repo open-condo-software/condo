@@ -18,6 +18,7 @@ import { useOrganization } from '@core/next/organization'
 import  { TicketCardList } from '@condo/domains/common/components/TicketCard/TicketCardList'
 import { canManageContacts } from '@condo/domains/organization/permissions'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 
 const FieldPairRow = (props) => {
     const {
@@ -38,7 +39,7 @@ const FieldPairRow = (props) => {
     )
 }
 
-export const ContactPageContent = ({ organization, contact, isContactEditable }) => {
+export const ContactPageContent = ({ organization, contact, isContactEditable, softDeleteAction }) => {
     const intl = useIntl()
     const ContactLabel = intl.formatMessage({ id:'Contact' }).toLowerCase()
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
@@ -47,6 +48,9 @@ export const ContactPageContent = ({ organization, contact, isContactEditable })
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const UnitShortMessage = intl.formatMessage({ id: 'field.ShortFlatNumber' })
+    const ConfirmDeleteButtonLabel = intl.formatMessage({ id: 'Delete' })
+    const ConfirmDeleteTitle = intl.formatMessage({ id: 'contact.ConfirmDeleteTitle' })
+    const ConfirmDeleteMessage = intl.formatMessage({ id: 'contact.ConfirmDeleteMessage' })
 
     const contactName = get(contact, 'name')
     const contactEmail = get(contact, 'email', '')
@@ -114,6 +118,12 @@ export const ContactPageContent = ({ organization, contact, isContactEditable })
                                                         {UpdateMessage}
                                                     </Button>
                                                 </Link>
+                                                <DeleteButtonWithConfirmModal
+                                                    title={ConfirmDeleteTitle}
+                                                    message={ConfirmDeleteMessage}
+                                                    okButtonLabel={ConfirmDeleteButtonLabel}
+                                                    action={() => softDeleteAction({}, contact)}
+                                                />
                                             </Space>
                                         </Col>
                                     )}
@@ -142,7 +152,7 @@ const ContactInfoPage = () => {
     const ContactNotFoundTitle = intl.formatMessage({ id: 'Contact.NotFound.Title' })
     const ContactNotFoundMessage = intl.formatMessage({ id: 'Contact.NotFound.Message' })
 
-    const { query } = useRouter()
+    const { query, push } = useRouter()
     const contactId = get(query, 'id', '')
 
     const { organization, link } = useOrganization()
@@ -160,6 +170,8 @@ const ContactInfoPage = () => {
         },
     })
 
+    const softDeleteAction = Contact.useSoftDelete({ organization, phone: get(contact, 'phone'), name: get(contact, 'name') }, () => push('/contact/'))
+
     if (error || loading) {
         return <LoadingOrErrorPage title={LoadingMessage} loading={loading} error={error ? ErrorMessage : null}/>
     }
@@ -174,6 +186,7 @@ const ContactInfoPage = () => {
             organization={organization}
             contact={contact}
             isContactEditable={isContactEditable}
+            softDeleteAction={softDeleteAction}
         />
     )
 }
