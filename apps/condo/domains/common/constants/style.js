@@ -37,6 +37,7 @@ const selago = '#F1F3FE'
 const scampi = '#525FA8'
 const zircon = '#F1F3FF'
 const logoPurple = '#525FAB'
+const backgroundWhiteSecondary = '#E6E8F1'
 
 
 const CHART_COLOR_SET = [blue[5], green[5], red[4], gold[5], volcano[5], purple[5],
@@ -85,6 +86,7 @@ const colors = {
     sberDangerRed,
     backgroundLightGrey,
     textSecondary,
+    backgroundWhiteSecondary,
 }
 
 const fontSizes = {

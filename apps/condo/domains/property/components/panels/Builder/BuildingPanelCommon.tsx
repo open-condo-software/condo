@@ -11,7 +11,7 @@ import { fontSizes, colors, gradients } from '@condo/domains/common/constants/st
 import { Button } from '@condo/domains/common/components/Button'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
-import { MapEdit, MapView } from './MapConstructor'
+import { MapEdit, MapView, MapViewMode } from './MapConstructor'
 import { FullscreenFooter } from './Fullscreen'
 
 export const CustomScrollbarCss = css`
@@ -225,12 +225,12 @@ export const HintText = styled.div`
 
 const BuildingViewModeSelectCss = css`
   padding: 4px;
-  background-color: #E6E8F1;
+  background-color: ${colors.backgroundWhiteSecondary};
   height: 48px;
   border-radius: 4px;
 
   & label.ant-radio-button-wrapper {
-    background-color: #E6E8F1;
+    background-color: ${colors.backgroundWhiteSecondary};
     height: 40px;
     border: none;
     border-radius: 4px;
@@ -244,7 +244,7 @@ const BuildingViewModeSelectCss = css`
   }
   & .ant-radio-button-wrapper-checked::before,
   & .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover::before {
-    background-color: #E6E8F1;
+    background-color: ${colors.backgroundWhiteSecondary};
   }
   & .ant-radio-button-wrapper:hover {
     color: ${gradients.sberActionGradient};
@@ -276,8 +276,8 @@ export const BuildingViewModeSelect: React.FC<RadioProps> = (props) => {
             buttonStyle={'solid'}
             css={BuildingViewModeSelectCss}
         >
-            <Radio.Button value={'section'}>{ResidentialBuildingTitle}</Radio.Button>
-            <Radio.Button value={'parking'}>{AddParking}</Radio.Button>
+            <Radio.Button value={MapViewMode.section}>{ResidentialBuildingTitle}</Radio.Button>
+            <Radio.Button value={MapViewMode.parking}>{AddParking}</Radio.Button>
         </Radio.Group>
     )
 }
