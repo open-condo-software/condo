@@ -5,7 +5,7 @@ import {
     REQUIREMENT_MESSAGE_TYPE,
     NOTIFICATION_MESSAGE_TYPE,
     LOADED_STATUS_MESSAGE_TYPE,
-    ERROR_MESSAGE_TYPE,
+    sendError,
 } from '@condo/domains/common/utils/iframe.utils'
 import { useAuth } from '@core/next/auth'
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
@@ -48,11 +48,7 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
         const { message, errors } = parseMessage(event.data)
         if (errors && errors.length) {
             errors.forEach(error => {
-                event.source.postMessage({
-                    type: ERROR_MESSAGE_TYPE,
-                    message: error,
-                    requestMessage: event.data,
-                })
+                sendError(error, event.data, event.source, event.origin)
             })
         }
         if (!message) return

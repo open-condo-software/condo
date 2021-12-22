@@ -117,3 +117,41 @@ export const parseMessage: parseMessageType = (data) => {
     }
     return { errors: ['UNKNOWN MESSAGE TYPE'] }
 }
+
+export const sendMessage = (message: string, messageType: NotificationType, receiver: Window, receiverOrigin: string): void => {
+    if (receiver) {
+        receiver.postMessage({
+            type: NOTIFICATION_MESSAGE_TYPE,
+            notificationType: messageType,
+            message,
+        }, receiverOrigin)
+    }
+}
+
+export const sendRequirementRequest = (requirement: RequirementType, receiver: Window, receiverOrigin: string): void => {
+    if (receiver) {
+        receiver.postMessage({
+            type:REQUIREMENT_MESSAGE_TYPE,
+            requirement,
+        }, receiverOrigin)
+    }
+}
+
+export const sendLoadedStatus = (receiver: Window, receiverOrigin: string): void => {
+    if (receiver) {
+        receiver.postMessage({
+            type: LOADED_STATUS_MESSAGE_TYPE,
+            status: 'done',
+        }, receiverOrigin)
+    }
+}
+
+export const sendError = (message: string, requestMessage: Record<string, unknown>, receiver: Window, receiverOrigin: string): void => {
+    if (receiver) {
+        receiver.postMessage({
+            type: ERROR_MESSAGE_TYPE,
+            message,
+            requestMessage,
+        }, receiverOrigin)
+    }
+}
