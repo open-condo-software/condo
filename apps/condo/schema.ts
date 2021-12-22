@@ -22993,7 +22993,7 @@ export type Resident = {
 export type ResidentAcquiringIntegrationContext = {
   __typename?: 'ResidentAcquiringIntegrationContext';
   id: Scalars['ID'];
-  integration?: Maybe<Scalars['ID']>;
+  integration?: Maybe<AcquiringIntegration>;
 };
 
 export type ResidentBillingAccount = {
