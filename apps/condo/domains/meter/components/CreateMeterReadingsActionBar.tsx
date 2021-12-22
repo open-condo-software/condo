@@ -22,51 +22,48 @@ export const CreateMeterReadingsActionBar = ({
     const SendMetersReadingMessage = intl.formatMessage({ id: 'pages.condo.meter.SendMetersReading' })
     const AddMeterMessage = intl.formatMessage({ id: 'pages.condo.meter.AddMeter' })
 
-    const MeterReadingsActionBar = useCallback(({ getFieldsValue }) => {
-        const { property, unitName } = getFieldsValue(['property', 'unitName'])
-        const isSubmitButtonDisabled = !property || !unitName || isEmpty(newMeterReadings)
-        const isCreateMeterButtonDisabled = !property || !unitName
-
-        return (
-            <ActionBar>
-                <Space size={12}>
-                    <Button
-                        key='submit'
-                        onClick={handleSave}
-                        type='sberDefaultGradient'
-                        loading={isLoading}
-                        disabled={isSubmitButtonDisabled}
-                    >
-                        {SendMetersReadingMessage}
-                    </Button>
-                    <Button
-                        onClick={handleAddMeterButtonClick}
-                        type='sberDefaultGradient'
-                        disabled={isCreateMeterButtonDisabled}
-                        icon={<PlusCircleFilled/>}
-                        secondary
-                    >
-                        {AddMeterMessage}
-                    </Button>
-                    <ErrorsContainer
-                        property={property}
-                        unitName={unitName}
-                    />
-                </Space>
-            </ActionBar>
-        )
-    }, [
-        AddMeterMessage, SendMetersReadingMessage, handleAddMeterButtonClick,
-        handleSave, isLoading, newMeterReadings,
-    ])
-
     return (
         <Form.Item
             noStyle
             dependencies={PROPERTY_DEPENDENCY}
             shouldUpdate={handleShouldUpdate}
         >
-            <MeterReadingsActionBar />
+            {
+                ({ getFieldsValue }) => {
+                    const { property, unitName } = getFieldsValue(['property', 'unitName'])
+                    const isSubmitButtonDisabled = !property || !unitName || isEmpty(newMeterReadings)
+                    const isCreateMeterButtonDisabled = !property || !unitName
+
+                    return (
+                        <ActionBar>
+                            <Space size={12}>
+                                <Button
+                                    key='submit'
+                                    onClick={handleSave}
+                                    type='sberDefaultGradient'
+                                    loading={isLoading}
+                                    disabled={isSubmitButtonDisabled}
+                                >
+                                    {SendMetersReadingMessage}
+                                </Button>
+                                <Button
+                                    onClick={handleAddMeterButtonClick}
+                                    type='sberDefaultGradient'
+                                    disabled={isCreateMeterButtonDisabled}
+                                    icon={<PlusCircleFilled/>}
+                                    secondary
+                                >
+                                    {AddMeterMessage}
+                                </Button>
+                                <ErrorsContainer
+                                    property={property}
+                                    unitName={unitName}
+                                />
+                            </Space>
+                        </ActionBar>
+                    )
+                }
+            }
         </Form.Item>
     )
 }
