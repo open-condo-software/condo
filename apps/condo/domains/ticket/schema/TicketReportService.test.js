@@ -14,7 +14,7 @@ describe('TicketReportService', () => {
             const client = await makeClientWithProperty()
             await createTestTicket(client, client.organization, client.property)
             const { data: { result: { data } } } = await client.query(GET_TICKET_WIDGET_REPORT_DATA, {
-                data: { userOrganizationId: client.organization.id, periodType: 'week' },
+                data: { userOrganizationId: client.organization.id, periodType: 'calendarWeek' },
             })
             expect(data).toBeInstanceOf(Array)
             expect(data.length).toBeGreaterThanOrEqual(1)
@@ -34,7 +34,7 @@ describe('TicketReportService', () => {
                 isBlocked: false, isAccepted: true, isRejected: false,
             })
             const { data: { result: { data } } } = await managerClient.query(GET_TICKET_WIDGET_REPORT_DATA, {
-                data: { userOrganizationId: employee.organization.id, periodType: 'week' } }
+                data: { userOrganizationId: employee.organization.id, periodType: 'calendarWeek' } }
             )
             expect(data).toBeInstanceOf(Array)
             expect(data.length).toBeGreaterThanOrEqual(1)
@@ -61,7 +61,7 @@ describe('TicketReportService', () => {
                 admin, organization, managerClient.user, role, { ...userAcceptOrganizationInvite }
             )
             const { data: { result: { data } } } = await managerClient.query(GET_TICKET_WIDGET_REPORT_DATA, {
-                data: { userOrganizationId: employee.organization.id, periodType: 'week' } }
+                data: { userOrganizationId: employee.organization.id, periodType: 'calendarWeek' } }
             )
             expect(data).toBeInstanceOf(Array)
             expect(data.length).toBeGreaterThanOrEqual(1)
@@ -102,7 +102,7 @@ describe('TicketReportService', () => {
             const client = await makeClient()
             const client1 = await makeClientWithProperty()
             const { errors } = await client.query(GET_TICKET_WIDGET_REPORT_DATA, {
-                data: { userOrganizationId: client1.organization.id, periodType: 'week' },
+                data: { userOrganizationId: client1.organization.id, periodType: 'calendarWeek' },
             })
             expect(errors).toHaveLength(1)
             expect(errors[0].name).toEqual('AuthenticationError')
