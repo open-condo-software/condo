@@ -1,17 +1,17 @@
 import styled from '@emotion/styled'
 import { colors } from '../constants/style'
-import get from 'lodash/get'
 
 interface IFrontLayerContainerProps {
-    showLayer?: boolean
+    showLayer?: boolean,
+    isSelectable?: boolean,
 }
 
 export const FrontLayerContainer = styled.div<IFrontLayerContainerProps>`
   margin: 0 -24px;
   padding: 0 24px 24px;
   position: relative;
-  user-select: none;
-  ${(props) => get(props, 'showLayer', false) && `
+  ${({ isSelectable = true }) => !isSelectable && 'user-select: none;'}
+  ${({ showLayer = false }) => showLayer && `
     &:before {
         content: '';
         position: absolute;
