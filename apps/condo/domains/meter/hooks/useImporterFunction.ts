@@ -3,7 +3,8 @@ import { useOrganization } from '@core/next/organization'
 import { useApolloClient } from '@core/next/apollo'
 import get from 'lodash/get'
 import map from 'lodash/map'
-import { SortMetersBy } from '../../../schema'
+import isEmpty from 'lodash/isEmpty'
+import { SortMetersBy } from '@app/condo/schema'
 import { useIntl } from '@core/next/intl'
 
 import {
@@ -131,8 +132,8 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             address: suggestion.value,
         }, undefined)
 
-        const propertyId = properties.length > 0 ? get(properties[0], 'id') : null
-        const propertyMap = properties.length > 0 ? get(properties[0], 'map') : null
+        const propertyId = !isEmpty(properties) ? get(properties[0], 'id') : null
+        const propertyMap = !isEmpty(properties) ? get(properties[0], 'map') : null
         if (!propertyId) {
             return { row, addons }
         }
