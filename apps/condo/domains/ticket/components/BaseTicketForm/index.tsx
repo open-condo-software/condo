@@ -360,7 +360,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
                                             return (
                                                 <Col span={24}>
-                                                    <FrontLayerContainer showLayer={disableUserInteraction}>
+                                                    <FrontLayerContainer showLayer={disableUserInteraction} isSelectable={false}>
                                                         <Row gutter={[0, 40]}>
                                                             <TicketInfo
                                                                 form={form}
