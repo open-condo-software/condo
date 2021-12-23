@@ -1065,11 +1065,11 @@ describe('MeterReading', () => {
             await sleep(1500)
 
             // test access after residents reconnection worker task done
-            const testFunc = async () => {
-                await MeterReading.getAll(client, { id: meterReading.id })
-            }
+            const meterReadingsAfterResidentReconnect = await MeterReading.getAll(client, {
+                id: meterReading.id,
+            })
 
-            await expectToThrowAccessDeniedError(testFunc, null)
+            expect(meterReadingsAfterResidentReconnect).toHaveLength(0)
         })
 
         test('user: cannot read MeterReadings', async () => {

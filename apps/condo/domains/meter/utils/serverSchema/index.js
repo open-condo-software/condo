@@ -6,8 +6,6 @@
 const get = require('lodash/get')
 const compact = require('lodash/compact')
 
-const { ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
-const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
 const { MeterReadingSource: MeterReadingSourceGQL } = require('@condo/domains/meter/gql')
@@ -33,17 +31,20 @@ const getAvailableResidentMeters = async (context, userId) => {
         deletedAt: null,
     })
 
+    const residentsId = residents.map(resident => resident.id)
+
+    const serviceConsumers = await find('ServiceConsumer', {
+        resident: { id_in: residentsId, deletedAt: null },
+        organization: { deletedAt: null },
+        deletedAt: null,
+    })
+
     for (const resident of residents) {
-        const residentPropertyId = get(resident, ['property', 'id'])
+        const residentPropertyId = get(resident, ['property'])
         const residentUnitName = get(resident, 'unitName')
+        const residentServiceConsumers = serviceConsumers.filter(serviceConsumer => serviceConsumer.resident === resident.id)
 
-        const serviceConsumers = await find('ServiceConsumer', {
-            resident: { id: resident.id, deletedAt: null },
-            organization: { deletedAt: null },
-            deletedAt: null,
-        })
-
-        propertyUnitAccountNumberObjects.push(...serviceConsumers.map(serviceConsumer => ({
+        propertyUnitAccountNumberObjects.push(...residentServiceConsumers.map(serviceConsumer => ({
             property: { id: residentPropertyId },
             unitName: residentUnitName,
             accountNumber: serviceConsumer.accountNumber,
