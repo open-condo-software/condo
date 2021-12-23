@@ -33,7 +33,7 @@ const ColumnsInfoBox: React.FC<IColumnsInfoBoxProps> = ({ columns, domainTransla
     const ColumnsFormatMessage = intl.formatMessage({ id: 'ImportRequiredColumnsFormat' }, {
         domain: domainTranslate,
     })
-    const RequiredFieldsMessage = intl.formatMessage({ id: 'ImportRequiredFields' })
+    const RequiredFieldsMessage = intl.formatMessage({ id: 'common.import.error.ImportRequiredFields' })
     const DownloadExampleTitle = intl.formatMessage({ id: 'ImportDownloadExampleTitle' })
 
     const downloadExample = useCallback(
@@ -112,13 +112,13 @@ export const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
     const GetFailedDataMessage = intl.formatMessage({ id: 'GetFailedData' })
     const CloseMessage = intl.formatMessage({ id: 'Close' })
 
-    const TooManyRowsErrorMessage = intl.formatMessage({ id: 'TooManyRowsInTable' }, {
+    const TooManyRowsErrorMessage = intl.formatMessage({ id: 'common.import.error.TooManyRowsInTable' }, {
         value: MAX_TABLE_LENGTH,
     })
-    const InvalidHeadersErrorMessage = intl.formatMessage({ id: 'TableHasInvalidHeaders' }, {
+    const InvalidHeadersErrorMessage = intl.formatMessage({ id: 'common.import.error.TableHasInvalidHeaders' }, {
         value: columns.map(column => `"${column.name}"`).join(', '),
     })
-    const InvalidTypeMessage = intl.formatMessage({ id: 'errors.import.default.InvalidColumnTypes' })
+    const InvalidTypeMessage = intl.formatMessage({ id: 'common.import.error.InvalidColumnType' })
 
     const defaultRowErrorsMap = useMemo(() => ({
         [RowValidationErrorType.TooManyRows]: TooManyRowsErrorMessage,
