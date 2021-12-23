@@ -427,7 +427,7 @@
   "pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.description": "Упс, кажется пользователь, который внёс эти изменения, был удалён из системы",
   "pages.condo.ticket.TicketChanges.fetchMore": "Показать ещё {count}",
   "pages.condo.meter.warning.modal.HelpMessage": "Новые счетчики и показания не сохранятся, если вы уйдете со страницы.",
-  "pages.condo.meter.form.ConfirmDeleteTitle": "Удалить ИПУ?",
+  "pages.condo.meter.form.ConfirmDeleteTitle": "Удалить счётчик?",
   "pages.condo.meter.form.ConfirmDeleteMessage": "Восстановить счетчик будет невозможно",
   "pages.condo.meter.warning.modal.Title": "Не сохранять показания?",
   "pages.condo.meter.MeterDataTitle": "Данные приборов учета",

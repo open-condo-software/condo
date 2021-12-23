@@ -9,6 +9,12 @@ import { Button } from '@condo/domains/common/components/Button'
 import { BaseMeterModalForm } from '../components/BaseMeterModal/BaseMeterModalForm'
 import { Meter } from '../utils/clientSchema'
 import { IMeterUIState } from '../utils/clientSchema/Meter'
+import {
+    DeleteButtonWithConfirmModal,
+    IDeleteActionButtonWithConfirmModal,
+} from '../../common/components/DeleteButtonWithConfirmModal'
+import { DeleteFilled } from '@ant-design/icons'
+import { jsx } from '@emotion/core'
 
 const DeleteMeterButton = ({ meter, updateMeterAction }) => {
     const intl = useIntl()
@@ -33,9 +39,16 @@ const INITIAL_VALUES_KEYS = [
     'commissioningDate', 'sealingDate', 'verificationDate', 'nextVerificationDate', 'controlReadingsDate',
 ]
 
+const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCustomProps'] = {
+    type: 'sberDangerGhost',
+}
+
 export const useUpdateMeterModal = (refetch) => {
     const intl = useIntl()
     const MeterNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.NumberOfMeter' })
+    const ConfirmDeleteTitle = intl.formatMessage({ id: 'pages.condo.meter.form.ConfirmDeleteTitle' })
+    const ConfirmDeleteMessage = intl.formatMessage({ id: 'pages.condo.meter.form.ConfirmDeleteMessage' })
+    const DeleteMessage = intl.formatMessage({ id: 'Delete' })
 
     const [selectedMeter, setSelectedMeter] = useState<IMeterUIState>()
     const meterNumber = get(selectedMeter, 'number')
@@ -53,8 +66,25 @@ export const useUpdateMeterModal = (refetch) => {
 
     const handleSubmit = useCallback(values => updateMeterAction(values, selectedMeter), [selectedMeter, updateMeterAction])
     const handleCancelModal = useCallback(() => setSelectedMeter(null), [setSelectedMeter])
-    const modalFooter = useMemo(() => [<DeleteMeterButton key={'delete'} meter={selectedMeter} updateMeterAction={updateMeterAction}/>],
+    // const modalFooter = useMemo(() => [<DeleteMeterButton key={'delete'} meter={selectedMeter} updateMeterAction={updateMeterAction}/>],
+    //     [selectedMeter, updateMeterAction])
+
+    const handleDeleteButtonClick = useCallback(() => updateMeterAction({ deletedAt: new Date().toDateString() }, selectedMeter),
         [selectedMeter, updateMeterAction])
+
+    const modalFooter = useMemo(() => [
+        <DeleteButtonWithConfirmModal
+            key={'delete'}
+            title={ConfirmDeleteTitle}
+            message={ConfirmDeleteMessage}
+            okButtonLabel={DeleteMessage}
+            action={handleDeleteButtonClick}
+            buttonContent={DeleteMessage}
+            buttonCustomProps={DELETE_BUTTON_CUSTOM_PROPS}
+            showCancelButton
+        />,
+    ],
+    [ConfirmDeleteMessage, ConfirmDeleteTitle, handleDeleteButtonClick])
 
     const UpdateMeterModal = useCallback(() => {
         return (
