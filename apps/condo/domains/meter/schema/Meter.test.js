@@ -10,7 +10,6 @@ const { sleep } = require('@condo/domains/common/utils/sleep')
 
 const {
     expectToThrowAccessDeniedErrorToObj,
-    expectToThrowAccessDeniedError,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     catchErrorFrom,
@@ -813,16 +812,13 @@ describe('Meter', () => {
             // NOTE: give worker some time
             await sleep(1000)
 
-            const testFunc = async () => {
-                await Meter.getAll(client, { id: meter.id })
-            }
-
             // Test access after residents disconnected in worker
             // NOTE: This place is unstable. Because of parallel sub-requests inside Meter.getAll
             // we get different path in error payload, and get either organization or property error
             // in random order from request to request. So we skip testing path/value here.
             // Exception message and error type is enough.
-            await expectToThrowAccessDeniedError(testFunc, null)
+            const metersAfterResidentReconnects = await Meter.getAll(client, { id: meter.id })
+            expect(metersAfterResidentReconnects).toHaveLength(0)
 
         })
 
