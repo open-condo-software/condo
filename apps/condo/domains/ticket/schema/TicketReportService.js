@@ -1,10 +1,18 @@
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const { Ticket, TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
 const dayjs = require('dayjs')
+const isoWeek = require('dayjs/plugin/isoWeek')
+const quarterOfYear = require('dayjs/plugin/quarterOfYear')
 const access = require('@condo/domains/ticket/access/TicketReportService')
 const { TICKET_STATUS_TYPES: ticketStatusTypes } = require('@condo/domains/ticket/constants')
 
 const PERIOD_TYPES = ['calendarWeek', 'month', 'quarter', 'year']
+const PERIOD_OFFSET_MAP = {
+    calendarWeek: 'week',
+    month: 'month',
+    quarter: 'quarter',
+    year: 'year',
+}
 
 const countTicketsByStatuses = async (context, dateStart, dateEnd, organizationId) => {
     const answer = {}
@@ -63,11 +71,15 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
                 if (!PERIOD_TYPES.includes(periodType)) {
                     throw new Error(`[error] possible period types are: ${PERIOD_TYPES.join(', ')}`)
                 }
-                const startDate = dayjs().startOf(periodType).add(offset, periodType).toISOString()
-                const previousStartDate = dayjs().startOf(periodType).add(offset - 1, periodType).toISOString()
-                const endDate = dayjs().endOf(periodType).add(offset, periodType).toISOString()
-                const previousEndDate =  dayjs().endOf(periodType).add(offset - 1, periodType).toISOString()
 
+                dayjs.extend(isoWeek)
+                dayjs.extend(quarterOfYear)
+
+                const offsetPeriod = PERIOD_OFFSET_MAP[periodType]
+                const startDate = dayjs().isoWeekday(1).startOf(periodType).add(offset, offsetPeriod).toISOString()
+                const previousStartDate = dayjs().isoWeekday(1).startOf(periodType).add(offset - 1, offsetPeriod).toISOString()
+                const endDate = dayjs().isoWeekday(7).endOf(periodType).add(offset, offsetPeriod).toISOString()
+                const previousEndDate =  dayjs().isoWeekday(7).endOf(periodType).add(offset - 1, offsetPeriod).toISOString()
 
                 const currentData = await countTicketsByStatuses(context,  startDate, endDate, userOrganizationId)
                 const previousData = await countTicketsByStatuses(context, previousStartDate, previousEndDate, userOrganizationId)
