@@ -45,8 +45,6 @@ export const useUpdateMeterModal = (refetch) => {
 
     const handleSubmit = useCallback(values => updateMeterAction(values, selectedMeter), [selectedMeter, updateMeterAction])
     const handleCancelModal = useCallback(() => setSelectedMeter(null), [setSelectedMeter])
-    // const modalFooter = useMemo(() => [<DeleteMeterButton key={'delete'} meter={selectedMeter} updateMeterAction={updateMeterAction}/>],
-    //     [selectedMeter, updateMeterAction])
 
     const handleDeleteButtonClick = useCallback(() => updateMeterAction({ deletedAt: new Date().toDateString() }, selectedMeter),
         [selectedMeter, updateMeterAction])
@@ -63,7 +61,7 @@ export const useUpdateMeterModal = (refetch) => {
             showCancelButton
         />,
     ],
-    [ConfirmDeleteMessage, ConfirmDeleteTitle, handleDeleteButtonClick])
+    [ConfirmDeleteMessage, ConfirmDeleteTitle, DeleteMessage, handleDeleteButtonClick])
 
     const UpdateMeterModal = useCallback(() => {
         return (
