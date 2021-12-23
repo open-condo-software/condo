@@ -75,22 +75,22 @@ export const useImporterFunctions = () => {
 
     // const DateVer
     const columns: Columns = [
-        { name: AddressColumnMessage, type: 'string', required: true, label: AddressColumnMessage },
-        { name: UnitNameColumnMessage, type: 'string', required: true, label: UnitNameColumnMessage },
-        { name: AccountNumberColumnMessage, type: 'string', required: true, label: AccountNumberColumnMessage },
+        { name: AddressColumnMessage, type: 'string', required: true, label: 'address' },
+        { name: UnitNameColumnMessage, type: 'string', required: true, label: 'unitName' },
+        { name: AccountNumberColumnMessage, type: 'string', required: true, label: 'accountNumber' },
         { name: MeterResourceTypeColumnMessage, type: 'string', required: true, label: 'meterResourceType' },
-        { name: MeterNumberColumnMessage, type: 'string', required: true, label: MeterNumberColumnMessage },
-        { name: MeterTariffsNumberColumnMessage, type: 'string', required: true, label: MeterTariffsNumberColumnMessage },
-        { name: Value1ColumnMessage, type: 'string', required: false, label: Value1ColumnMessage },
-        { name: Value2ColumnMessage, type: 'string', required: false, label: Value2ColumnMessage },
-        { name: Value3ColumnMessage, type: 'string', required: false, label: Value3ColumnMessage },
-        { name: Value4ColumnMessage, type: 'string', required: false, label: Value4ColumnMessage },
-        { name: VerificationDateMessage, type: 'date', required: false, label: VerificationDateMessage },
-        { name: NextVerificationDateMessage, type: 'date', required: false, label: NextVerificationDateMessage },
-        { name: InstallationDateMessage, type: 'date', required: false, label: InstallationDateMessage },
-        { name: CommissioningDateMessage, type: 'date', required: false, label: CommissioningDateMessage },
-        { name: SealingDateMessage, type: 'date', required: false, label: SealingDateMessage },
-        { name: ControlReadingsDate, type: 'date', required: false, label: ControlReadingsDate },
+        { name: MeterNumberColumnMessage, type: 'string', required: true, label: 'meterNumber' },
+        { name: MeterTariffsNumberColumnMessage, type: 'string', required: true, label: 'meterTariffsNumber' },
+        { name: Value1ColumnMessage, type: 'string', required: false, label: 'value1' },
+        { name: Value2ColumnMessage, type: 'string', required: false, label: 'value2' },
+        { name: Value3ColumnMessage, type: 'string', required: false, label: 'value3' },
+        { name: Value4ColumnMessage, type: 'string', required: false, label: 'value4' },
+        { name: VerificationDateMessage, type: 'date', required: false, label: 'verificationDate' },
+        { name: NextVerificationDateMessage, type: 'date', required: false, label: 'nextVerificationDate' },
+        { name: InstallationDateMessage, type: 'date', required: false, label: 'installationDate' },
+        { name: CommissioningDateMessage, type: 'date', required: false, label: 'commissioningDate' },
+        { name: SealingDateMessage, type: 'date', required: false, label: 'sealingDate' },
+        { name: ControlReadingsDate, type: 'date', required: false, label: 'controlReadingsDate' },
     ]
 
     const meterReadingNormalizer: RowNormalizer<MeterReadingAddons> = async (row) => {
