@@ -1,6 +1,7 @@
-import React, { CSSProperties, useEffect, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 import { notification } from 'antd'
 import get from 'lodash/get'
+import isFunction from 'lodash/isFunction'
 
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
@@ -44,22 +45,7 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
     // By default used to reload after user / organization changes
     const iframeKey = `${get(user, 'id', null)}:${get(organization, 'id', null)}`
 
-    const handleMessage = (event) => {
-        if (event.origin !== pageOrigin) return
-        if (event.data && typeof event.data !== 'object') return
-        const { message, errors } = parseMessage(event.data)
-        if (errors && errors.length) {
-            errors.forEach(error => {
-                sendError(error, event.data, event.source, event.origin)
-            })
-        }
-        if (!message) return
-        if (message.type === REQUIREMENT_MESSAGE_TYPE) handleRequirement(message)
-        else if (message.type === NOTIFICATION_MESSAGE_TYPE) handleNotification(message)
-        else if (message.type === LOADED_STATUS_MESSAGE_TYPE) handleLoad()
-    }
-
-    const handleRequirement = (message) => {
+    const handleRequirement = useCallback((message) => {
         switch (message.requirement) {
             case 'auth':
                 if (!isAuthenticated) {
@@ -72,28 +58,32 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
                 }
                 break
         }
-    }
+    }, [isAuthenticated, organization])
 
-    const handleNotification = (message) => {
-        switch (message.notificationType) {
-            case 'info':
-                notification.info({ message: message.message })
-                break
-            case 'warning':
-                notification.warning({ message: message.message })
-                break
-            case 'error':
-                notification.error({ message: message.message })
-                break
-            case 'success':
-                notification.success({ message: message.message })
-                break
+    const handleNotification = useCallback((message) => {
+        if (notification.hasOwnProperty(message.notificationType) && isFunction(notification[message.notificationType])) {
+            notification[message.notificationType]({ message: message.message })
         }
-    }
+    }, [])
 
-    const handleLoad = () => {
+    const handleLoad = useCallback(() => {
         setIsLoading(false)
-    }
+    }, [])
+
+    const handleMessage = useCallback((event) => {
+        if (event.origin !== pageOrigin) return
+        if (event.data && typeof event.data !== 'object') return
+        const { message, errors } = parseMessage(event.data)
+        if (errors && errors.length) {
+            errors.forEach(error => {
+                sendError(error, event.data, event.source, event.origin)
+            })
+        }
+        if (!message) return
+        if (message.type === REQUIREMENT_MESSAGE_TYPE) handleRequirement(message)
+        else if (message.type === NOTIFICATION_MESSAGE_TYPE) handleNotification(message)
+        else if (message.type === LOADED_STATUS_MESSAGE_TYPE) handleLoad()
+    }, [handleLoad, handleNotification, handleRequirement, pageOrigin])
 
     let Wrapper: React.FC = React.Fragment
     if (!isAuthenticated && isAuthRequired) Wrapper = AuthRequired
@@ -105,7 +95,7 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
         return () => {
             window.removeEventListener('message', handleMessage)
         }
-    }, [])
+    }, [handleMessage])
 
     useEffect(() => {
         setIsLoading(true)
