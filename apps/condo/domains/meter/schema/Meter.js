@@ -3,7 +3,7 @@
  */
 
 const { Text, Relationship, Integer, DateTimeUtc } = require('@keystonejs/fields')
-const { GQLListSchema } = require('@core/keystone/schema')
+const { GQLListSchema, find } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
@@ -41,7 +41,7 @@ const Meter = new GQLListSchema('Meter', {
                     const value = resolvedData[fieldPath]
                     let metersWithSameResourceAndNumberInOrganization
                     if (operation === 'create') {
-                        metersWithSameResourceAndNumberInOrganization = await MeterApi.getAll(context, {
+                        metersWithSameResourceAndNumberInOrganization = await find('Meter', {
                             number: value,
                             organization: { id: resolvedData.organization },
                             resource: { id: resolvedData.resource },
