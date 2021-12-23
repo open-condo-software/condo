@@ -248,7 +248,7 @@ export const useImporterFunctions = () => {
             switch (error.type) {
                 case RowValidationErrorType.InvalidTypes: {
                     const column = columns[error.metadata.columnIndex]
-                    message = row.errors[i] = intl.formatMessage({ id: 'errors.import.meters.InvalidColumnTypes' }, 
+                    message = intl.formatMessage({ id: 'errors.import.meters.InvalidColumnTypes' },
                         {
                             columnName: column.label,
                             requiredType: intl.formatMessage({ id: `import.columnType.${column.type}.name` }),
