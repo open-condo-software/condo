@@ -33,7 +33,9 @@ interface IImporter {
     break: () => void
 }
 
-type ColumnType = 'string' | 'number' | 'date'
+// A cell with "custom" column type will be skipped in basic types validation function
+// to allow to implement custom validation in specific importer implementations.
+type ColumnType = 'string' | 'number' | 'date' | 'custom'
 
 export const DATE_PARSING_FORMAT = 'YYYY-MM-DD'
 
@@ -141,9 +143,9 @@ export class Importer implements IImporter {
             const valueType = row[i].value instanceof Date ? 'date' : typeof row[i].value
             if (row[i].value === undefined && this.columnsRequired[i]) {
                 return false
-            }
-            if (typeof row[i].value === 'number' && this.columnsTypes[i] === 'string') {
-            if (this.columnsTypes[i] === 'string' && valueType === 'number') {
+            } else if (this.columnsTypes[i] === 'custom') {
+                return true
+            } else if (this.columnsTypes[i] === 'string' && valueType === 'number') {
                 row[i].value = String(row[i].value)
             } else if (this.columnsTypes[i] === 'date' && valueType === 'string') {
                 row[i].value = dayjs(row[i].value, DATE_PARSING_FORMAT).toDate()
