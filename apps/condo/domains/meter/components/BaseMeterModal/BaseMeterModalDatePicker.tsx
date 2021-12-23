@@ -2,11 +2,12 @@ import { Rule } from 'rc-field-form/lib/interface'
 import dayjs, { Dayjs } from 'dayjs'
 import React, { CSSProperties } from 'react'
 import { useIntl } from '@core/next/intl'
-import { Col, Form } from 'antd'
+import { Col } from 'antd'
 
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 
 import { METER_MODAL_FORM_ITEM_SPAN } from '../../constants/constants'
+import { BaseMeterModalFormItem } from './BaseMeterModalFormItem'
 
 interface ICreateMeterModalDatePickerProps {
     label: string,
@@ -30,7 +31,7 @@ export const MeterModalDatePicker: React.FC<ICreateMeterModalDatePickerProps> = 
 
     return (
         <Col span={METER_MODAL_FORM_ITEM_SPAN}>
-            <Form.Item
+            <BaseMeterModalFormItem
                 label={label}
                 name={name}
                 rules={rules}
@@ -44,7 +45,7 @@ export const MeterModalDatePicker: React.FC<ICreateMeterModalDatePickerProps> = 
                     style={METER_MODAL_DATE_PICKER_STYLE}
                     onChange={onChange}
                 />
-            </Form.Item>
+            </BaseMeterModalFormItem>
         </Col>
     )
 }

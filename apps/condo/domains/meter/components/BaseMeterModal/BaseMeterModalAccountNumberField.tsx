@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react'
-import { Col, Form, Input, Radio, Row, Select } from 'antd'
+import { Col, Input, Radio, Row, Select } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import uniq from 'lodash/uniq'
 import isEmpty from 'lodash/isEmpty'
@@ -7,20 +7,21 @@ import isEmpty from 'lodash/isEmpty'
 import { useIntl } from '@core/next/intl'
 
 import { Meter } from '../../utils/clientSchema'
+import { BaseMeterModalFormItem } from './BaseMeterModalFormItem'
 
 const AccountNumberFormItem = ({ children, initialValues }) => {
     const intl = useIntl()
     const AccountNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.AccountNumber' })
 
     return (
-        <Form.Item
+        <BaseMeterModalFormItem
             label={AccountNumberMessage}
             required
             name={'accountNumber'}
             initialValue={initialValues.accountNumber}
         >
             {children}
-        </Form.Item>
+        </BaseMeterModalFormItem>
     )
 }
 

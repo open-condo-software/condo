@@ -4,35 +4,14 @@ import get from 'lodash/get'
 import pick from 'lodash/pick'
 import { useIntl } from '@core/next/intl'
 
-import { Button } from '@condo/domains/common/components/Button'
+import {
+    DeleteButtonWithConfirmModal,
+    IDeleteActionButtonWithConfirmModal,
+} from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 
 import { BaseMeterModalForm } from '../components/BaseMeterModal/BaseMeterModalForm'
 import { Meter } from '../utils/clientSchema'
 import { IMeterUIState } from '../utils/clientSchema/Meter'
-import {
-    DeleteButtonWithConfirmModal,
-    IDeleteActionButtonWithConfirmModal,
-} from '../../common/components/DeleteButtonWithConfirmModal'
-import { DeleteFilled } from '@ant-design/icons'
-import { jsx } from '@emotion/core'
-
-const DeleteMeterButton = ({ meter, updateMeterAction }) => {
-    const intl = useIntl()
-    const DeleteMessage = intl.formatMessage({ id: 'Delete' })
-
-    const handleDeleteButtonClick = useCallback(() => updateMeterAction({ deletedAt: new Date().toDateString() }, meter),
-        [meter, updateMeterAction])
-
-    return (
-        <Button
-            type={'text'}
-            danger
-            onClick={handleDeleteButtonClick}
-        >
-            {DeleteMessage}
-        </Button>
-    )
-}
 
 const INITIAL_VALUES_KEYS = [
     'accountNumber', 'number', 'resource', 'place', 'numberOfTariffs', 'installationDate',
