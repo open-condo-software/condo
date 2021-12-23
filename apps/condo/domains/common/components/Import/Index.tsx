@@ -118,13 +118,13 @@ export const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
     const InvalidHeadersErrorMessage = intl.formatMessage({ id: 'TableHasInvalidHeaders' }, {
         value: columns.map(column => `"${column.name}"`).join(', '),
     })
-    const NotValidRowTypesMessage = intl.formatMessage({ id: 'errors.import.default.InvalidColumnTypes' })
+    const InvalidTypeMessage = intl.formatMessage({ id: 'errors.import.default.InvalidColumnTypes' })
 
     const defaultRowErrorsMap = useMemo(() => ({
         [RowValidationErrorType.TooManyRows]: TooManyRowsErrorMessage,
         [RowValidationErrorType.InvalidColumns]: InvalidHeadersErrorMessage,
-        [RowValidationErrorType.InvalidTypes]: NotValidRowTypesMessage,
-    }), [InvalidHeadersErrorMessage, NotValidRowTypesMessage, TooManyRowsErrorMessage])
+        [RowValidationErrorType.InvalidType]: InvalidTypeMessage,
+    }), [InvalidHeadersErrorMessage, InvalidTypeMessage, TooManyRowsErrorMessage])
 
     const defaultErrorPreprocessor = useCallback((row: ProcessedRow) => {
         row.errors.forEach((error, i) => {

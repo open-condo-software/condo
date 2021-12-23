@@ -245,7 +245,7 @@ export const useImporterFunctions = () => {
         row.errors.forEach((error, i) => {
             let message
             switch (error.type) {
-                case RowValidationErrorType.InvalidTypes: {
+                case RowValidationErrorType.InvalidType: {
                     const column = columns[error.metadata.columnIndex]
                     message = intl.formatMessage({ id: 'meter.import.error.InvalidColumnTypes' },
                         {

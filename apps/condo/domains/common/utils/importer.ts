@@ -44,7 +44,7 @@ export interface ColumnInfo {
 export enum RowValidationErrorType {
     TooManyRows = 'TooManyRows',
     InvalidColumns = 'InvalidColumns',
-    InvalidTypes = 'InvalidTypes',
+    InvalidType = 'InvalidType',
 }
 
 export type RowValidationErrorMetadata = {
@@ -157,7 +157,7 @@ export class Importer implements IImporter {
     private validateRow (row: TableRow): boolean {
         for (let i = 0; i < row.length; i++) {
             if (row[i].value === undefined && this.columnsRequired[i]) {
-                throw new RowValidationError(RowValidationErrorType.InvalidTypes, { columnIndex: i })
+                throw new RowValidationError(RowValidationErrorType.InvalidType, { columnIndex: i })
             }
             if (typeof row[i].value === 'number' && this.columnsTypes[i] === 'string') {
                 row[i].value = String(row[i].value)
@@ -166,15 +166,15 @@ export class Importer implements IImporter {
                 if (parsedDate.isValid()) {
                     row[i].value = parsedDate.toDate()
                 } else {
-                    throw new RowValidationError(RowValidationErrorType.InvalidTypes, { columnIndex: i })
+                    throw new RowValidationError(RowValidationErrorType.InvalidType, { columnIndex: i })
                 }
             } else if (typeof row[i].value !== 'undefined' && typeof row[i].value !== this.columnsTypes[i]) {
-                throw new RowValidationError(RowValidationErrorType.InvalidTypes, { columnIndex: i })
+                throw new RowValidationError(RowValidationErrorType.InvalidType, { columnIndex: i })
             }
             if (typeof this.columnsTestFuncs[i] === 'function') {
                 const testResult = this.columnsTestFuncs[i](row[i].value, this.columnsTypes[i])
                 if (!testResult) {
-                    throw new RowValidationError(RowValidationErrorType.InvalidTypes, { columnIndex: i })
+                    throw new RowValidationError(RowValidationErrorType.InvalidType, { columnIndex: i })
                 }
             }
         }
