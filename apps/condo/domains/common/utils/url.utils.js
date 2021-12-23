@@ -40,6 +40,7 @@ function extractRootDomain (url) {
     return domain
 }
 
+// Removes the path from the link, leaving the part with subdomains and protocol
 function extractOrigin (url) {
     const doubleSlashIndex = url.indexOf('//')
     const startIndex = doubleSlashIndex > 1 ? doubleSlashIndex + 2 : 0
