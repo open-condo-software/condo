@@ -1,4 +1,4 @@
-import { Col, Form, Input, Row, Select } from 'antd'
+import { Col, Input, Row, Select } from 'antd'
 import React, { ComponentProps, useCallback, useMemo, useState } from 'react'
 import { useIntl } from '@core/next/intl'
 import dayjs, { Dayjs } from 'dayjs'
@@ -17,6 +17,7 @@ import { MeterModalDatePicker } from './BaseMeterModalDatePicker'
 import { BaseMeterModalAccountNumberField } from './BaseMeterModalAccountNumberField'
 import { ELECTRICITY_METER_RESOURCE_ID } from '../../constants/constants'
 import { searchMeterResources } from '../../utils/clientSchema/search'
+import { BaseMeterModalFormItem } from './BaseMeterModalFormItem'
 
 type InitialMeterFormValuesType = {
     propertyId?: string
@@ -148,7 +149,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ handleSu
                                     />
                                 </Col>
                                 <Col span={24}>
-                                    <Form.Item
+                                    <BaseMeterModalFormItem
                                         label={ResourceMessage}
                                         name={'resource'}
                                         rules={validations.resource}
@@ -158,10 +159,10 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ handleSu
                                             onChange={resource => handleResourceChange(form, resource)}
                                             search={searchMeterResources}
                                         />
-                                    </Form.Item>
+                                    </BaseMeterModalFormItem>
                                 </Col>
                                 <Col span={METER_MODAL_FORM_ITEM_SPAN}>
-                                    <Form.Item
+                                    <BaseMeterModalFormItem
                                         label={MeterNumberMessage}
                                         name='number'
                                         rules={validations.number}
@@ -169,21 +170,21 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ handleSu
                                         initialValue={initialValues.number}
                                     >
                                         <Input />
-                                    </Form.Item>
+                                    </BaseMeterModalFormItem>
                                 </Col>
                                 <Col span={METER_MODAL_FORM_ITEM_SPAN}>
-                                    <Form.Item
+                                    <BaseMeterModalFormItem
                                         label={MeterPlaceMessage}
                                         name='place'
                                         initialValue={initialValues.place}
                                     >
                                         <Input />
-                                    </Form.Item>
+                                    </BaseMeterModalFormItem>
                                 </Col>
                                 {
                                     !isTariffsCountHidden ? (
                                         <Col span={24}>
-                                            <Form.Item
+                                            <BaseMeterModalFormItem
                                                 rules={validations.numberOfTariffs}
                                                 label={TariffsCountMessage}
                                                 name='numberOfTariffs'
@@ -192,7 +193,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ handleSu
                                                 <Select>
                                                     {tariffOptions}
                                                 </Select>
-                                            </Form.Item>
+                                            </BaseMeterModalFormItem>
                                         </Col>
                                     ) : null
                                 }
