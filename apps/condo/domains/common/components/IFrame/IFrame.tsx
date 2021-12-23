@@ -1,4 +1,10 @@
 import React, { CSSProperties, useEffect, useMemo, useState } from 'react'
+import { notification } from 'antd'
+import get from 'lodash/get'
+
+import { useAuth } from '@core/next/auth'
+import { useOrganization } from '@core/next/organization'
+
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import {
     parseMessage,
@@ -7,12 +13,8 @@ import {
     LOADED_STATUS_MESSAGE_TYPE,
     sendError,
 } from '@condo/domains/common/utils/iframe.utils'
-import { useAuth } from '@core/next/auth'
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
-import { useOrganization } from '@core/next/organization'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { notification } from 'antd'
-import get from 'lodash/get'
 import { Loader } from '@condo/domains/common/components/Loader'
 
 interface IFrameProps {
