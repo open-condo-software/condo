@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import get from 'lodash/get'
 import { useIntl } from '@core/next/intl'
 import { EditFilled } from '@ant-design/icons'
@@ -59,6 +59,12 @@ export const ContactPageContent = ({ organization, contact, isContactEditable, s
     const contactAddress = `${get(contact, ['property', 'address'], DeletedMessage)} ${unitSuffix}`
 
     const { isSmall } = useLayoutContext()
+
+    const deleteCallback = useCallback(() => {
+        return new Promise((resolve) => {
+            resolve(softDeleteAction({}, contact))
+        })
+    }, [softDeleteAction, contact])
 
     return (
         <>
@@ -122,7 +128,7 @@ export const ContactPageContent = ({ organization, contact, isContactEditable, s
                                                     title={ConfirmDeleteTitle}
                                                     message={ConfirmDeleteMessage}
                                                     okButtonLabel={ConfirmDeleteButtonLabel}
-                                                    action={() => softDeleteAction({}, contact)}
+                                                    action={deleteCallback}
                                                 />
                                             </Space>
                                         </Col>
@@ -170,7 +176,9 @@ const ContactInfoPage = () => {
         },
     })
 
-    const softDeleteAction = Contact.useSoftDelete({ organization, phone: get(contact, 'phone'), name: get(contact, 'name') }, () => push('/contact/'))
+    const handleDeleteAction = Contact.useSoftDelete({
+        organization, phone: get(contact, 'phone'), name: get(contact, 'name'),
+    }, () => push('/contact/'))
 
     if (error || loading) {
         return <LoadingOrErrorPage title={LoadingMessage} loading={loading} error={error ? ErrorMessage : null}/>
@@ -186,7 +194,7 @@ const ContactInfoPage = () => {
             organization={organization}
             contact={contact}
             isContactEditable={isContactEditable}
-            softDeleteAction={softDeleteAction}
+            softDeleteAction={handleDeleteAction}
         />
     )
 }

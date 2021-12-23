@@ -717,7 +717,7 @@
   "contact.EmptyList.header": "The list of contacts is still empty",
   "contact.EmptyList.title": "Create the first one, it's simple",
   "contact.ConfirmDeleteTitle": "Delete contact?",
-  "contact.ConfirmDeleteMessage": "All data about him will be erased forever",
+  "contact.ConfirmDeleteMessage": "This contact will be deleted forever",
   "focus.tooltipText": "Now you can go to next step",
   "onboarding.title": "Where to begin",
   "onboarding.subtitle": "These tips will help you get to know the product faster.",

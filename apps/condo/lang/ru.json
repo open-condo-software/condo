@@ -717,7 +717,7 @@
   "contact.EmptyList.header": "Список жителей пока пуст",
   "contact.EmptyList.title": "Добавьте первого, это просто",
   "contact.ConfirmDeleteTitle": "Удалить жителя?",
-  "contact.ConfirmDeleteMessage": "Все данные о нём сотрутся навсегда",
+  "contact.ConfirmDeleteMessage": "Все данные о жителе сотрутся навсегда",
   "focus.tooltipText": "Теперь вы можете перейти к следующему шагу",
   "onboarding.title": "С чего начать",
   "onboarding.subtitle": "Данные подсказки помогут вам быстрее познакомиться с продуктом",

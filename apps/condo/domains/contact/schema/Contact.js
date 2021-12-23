@@ -12,7 +12,6 @@ const { PHONE_WRONG_FORMAT_ERROR, EMAIL_WRONG_FORMAT_ERROR } = require('@condo/d
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { Contact: ContactAPI } = require('../utils/serverSchema')
-const isNil = require('lodash/isNil')
 
 /**
  * Composite unique constraint with name `Contact_uniq` is declared in a database-level on following set of columns:
@@ -103,12 +102,13 @@ const Contact = new GQLListSchema('Contact', {
                 unitName,
                 name,
                 phone,
+                deletedAt,
             })
             if (operation === 'create') {
                 if (contact) {
                     return addValidationError('Cannot create contact, because another contact with the same provided set of "property", "unitName", "name", "phone"')
                 }
-            } else if (operation === 'update' && isNil(deletedAt)) {
+            } else if (operation === 'update') {
                 if (contact && contact.id !== existingItem.id) {
                     return addValidationError('Cannot update contact, because another contact already exists with the same provided set of "property", "unitName", "name", "phone"')
                 }
