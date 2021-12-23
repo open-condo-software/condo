@@ -13,6 +13,7 @@ const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
 const { MeterReadingSource: MeterReadingSourceGQL } = require('@condo/domains/meter/gql')
 const { Meter: MeterGQL } = require('@condo/domains/meter/gql')
 const { MeterReading: MeterReadingGQL } = require('@condo/domains/meter/gql')
+const { find } = require('@core/keystone/schema')
 const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -24,7 +25,8 @@ const MeterReading = generateServerUtils(MeterReadingGQL)
 
 const getAvailableResidentMeters = async (context, userId) => {
     const propertyUnitAccountNumberObjects = []
-    const residents = await Resident.getAll(context, {
+
+    const residents = await find('Resident', {
         user: { id: userId, deletedAt: null },
         property: { deletedAt: null },
         organization: { deletedAt: null },
@@ -35,11 +37,12 @@ const getAvailableResidentMeters = async (context, userId) => {
         const residentPropertyId = get(resident, ['property', 'id'])
         const residentUnitName = get(resident, 'unitName')
 
-        const serviceConsumers = await ServiceConsumer.getAll(context, {
+        const serviceConsumers = await find('ServiceConsumer', {
             resident: { id: resident.id, deletedAt: null },
             organization: { deletedAt: null },
             deletedAt: null,
         })
+
         propertyUnitAccountNumberObjects.push(...serviceConsumers.map(serviceConsumer => ({
             property: { id: residentPropertyId },
             unitName: residentUnitName,
