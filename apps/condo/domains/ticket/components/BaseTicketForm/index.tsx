@@ -110,12 +110,12 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                     <ClassifiersEditorComponent form={form} disabled={disableUserInteraction}/>
                     <Col span={24}>
                         <Row>
-                            <Col span={6}>
+                            <Col span={12} lg={6}>
                                 <Form.Item name={'isEmergency'} valuePropName='checked'>
                                     <Checkbox disabled={disableUserInteraction}>{EmergencyLabel}</Checkbox>
                                 </Form.Item>
                             </Col>
-                            <Col span={6}>
+                            <Col span={12} lg={6}>
                                 <Form.Item name={'isPaid'} valuePropName='checked'>
                                     <Checkbox disabled={disableUserInteraction}>{PaidLabel}</Checkbox>
                                 </Form.Item>
