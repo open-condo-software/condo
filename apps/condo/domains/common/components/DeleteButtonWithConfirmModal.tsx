@@ -38,11 +38,6 @@ export const DeleteButtonWithConfirmModal: React.FC<IDeleteActionButtonWithConfi
     const showConfirm = () => setIsConfirmVisible(true)
     const handleCancel = () => setIsConfirmVisible(false)
 
-    const Buttons = []
-    if (showCancelButton) {
-        Buttons.push((<Button key="cancel" type="sberPrimary" secondary onClick={handleCancel}>{CancelMessage}</Button>))
-    }
-
     const handleDeleteButtonClick = () => {
         setIsConfirmVisible(false)
         setIsDeleting(true)
@@ -78,7 +73,11 @@ export const DeleteButtonWithConfirmModal: React.FC<IDeleteActionButtonWithConfi
                 visible={isConfirmVisible}
                 onCancel={handleCancel}
                 footer={[
-                    ...Buttons,
+                    showCancelButton && (
+                        <Button key="cancel" type="sberPrimary" secondary onClick={handleCancel}>
+                            {CancelMessage}
+                        </Button>
+                    ),
                     <Button
                         key={'submit'}
                         type={'sberDanger'}
