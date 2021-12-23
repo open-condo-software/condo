@@ -6,8 +6,8 @@ import { useIntl } from '@core/next/intl'
 
 import {
     DeleteButtonWithConfirmModal,
-    IDeleteActionButtonWithConfirmModal,
 } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
+import { CustomButtonProps } from '@condo/domains/common/components/Button'
 
 import { BaseMeterModalForm } from '../components/BaseMeterModal/BaseMeterModalForm'
 import { Meter } from '../utils/clientSchema'
@@ -18,7 +18,7 @@ const INITIAL_VALUES_KEYS = [
     'commissioningDate', 'sealingDate', 'verificationDate', 'nextVerificationDate', 'controlReadingsDate',
 ]
 
-const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCustomProps'] = {
+const DELETE_BUTTON_CUSTOM_PROPS: CustomButtonProps = {
     type: 'sberDangerGhost',
 }
 
