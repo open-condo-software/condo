@@ -162,7 +162,12 @@ export class Importer implements IImporter {
             if (typeof row[i].value === 'number' && this.columnsTypes[i] === 'string') {
                 row[i].value = String(row[i].value)
             } else if (typeof row[i].value === 'string' && this.columnsTypes[i] === 'date') {
-                row[i].value = dayjs(row[i].value, DATE_PARSING_FORMAT).toDate()
+                const parsedDate = dayjs(row[i].value, DATE_PARSING_FORMAT)
+                if (parsedDate.isValid()) {
+                    row[i].value = parsedDate.toDate()
+                } else {
+                    throw new RowValidationError(RowValidationErrorType.InvalidTypes, { columnIndex: i })
+                }
             } else if (typeof row[i].value !== 'undefined' && typeof row[i].value !== this.columnsTypes[i]) {
                 throw new RowValidationError(RowValidationErrorType.InvalidTypes, { columnIndex: i })
             }
