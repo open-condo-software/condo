@@ -75,7 +75,6 @@ export const useImporterFunctions = () => {
         () => Promise.resolve())
 
     // const DateVer
-    const VerificationDateTest = 
     const columns: Columns = [
         { name: AddressColumnMessage, type: 'string', required: true, label: AddressColumnMessage },
         { name: UnitNameColumnMessage, type: 'string', required: true, label: UnitNameColumnMessage },
