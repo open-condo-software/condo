@@ -31,6 +31,24 @@ import {
 
 const MONTH_PARSING_FORMAT = 'YYYY-MM'
 
+// Will be parsed as date 'YYYY-MM-DD' or month 'YYYY-MM'.
+// It is not extracted into `Importer`, because this is the only place of such format yet.
+const parseDateOrMonth = (value) => {
+    const valueType = value instanceof Date ? 'date' : typeof value
+    if (valueType === 'date') {
+        return value
+    } else if (valueType === 'string') {
+        let result = dayjs(value, DATE_PARSING_FORMAT)
+        if (!result.isValid()) {
+            result = dayjs(value, MONTH_PARSING_FORMAT)
+        }
+        if (result.isValid()) {
+            return result
+        }
+    }
+    throw new RangeError()
+}
+
 export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, ObjectCreator] => {
     const intl = useIntl()
 
@@ -90,9 +108,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         { name: Value2ColumnMessage, type: 'string', required: false, label: Value2ColumnMessage },
         { name: Value3ColumnMessage, type: 'string', required: false, label: Value3ColumnMessage },
         { name: Value4ColumnMessage, type: 'string', required: false, label: Value4ColumnMessage },
-        // Will be parsed as date 'YYYY-MM-DD' or month 'YYYY-MM'.
-        // It is not extracted into `Importer`, because this is the only place of such format yet.
-        { name: ReadingSubmissionDateMessage, type: 'string', required: true, label: ReadingSubmissionDateMessage },
+        { name: ReadingSubmissionDateMessage, type: 'custom', required: true, label: ReadingSubmissionDateMessage },
         { name: VerificationDateMessage, type: 'date', required: false, label: VerificationDateMessage },
         { name: NextVerificationDateMessage, type: 'date', required: false, label: NextVerificationDateMessage },
         { name: InstallationDateMessage, type: 'date', required: false, label: InstallationDateMessage },
@@ -102,7 +118,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     ]
 
     const meterReadingNormalizer: RowNormalizer = async (row) => {
-        const addons = { address: null, propertyId: null, propertyMap: null, meterId: null, meterResourceId: null, readingSubmissionDate: null }
+        const addons = { address: null, propertyId: null, propertyMap: null, meterId: null, meterResourceId: null, readingSubmissionDate: null, invalidReadingSubmissionDate: null }
         if (row.length !== columns.length) return Promise.resolve({ row })
         const [
             address,
@@ -161,12 +177,10 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         }
         addons.meterResourceId = METER_RESOURCE_ABBREVIATION_TO_ID[String(meterResourceTypeAbbr)]
 
-        let parsedReadingSubmissionDate = dayjs(readingSubmissionDate, DATE_PARSING_FORMAT)
-        if (!parsedReadingSubmissionDate.isValid()) {
-            parsedReadingSubmissionDate = dayjs(readingSubmissionDate, MONTH_PARSING_FORMAT)
-        }
-        if (parsedReadingSubmissionDate.isValid()) {
-            addons.readingSubmissionDate = parsedReadingSubmissionDate.toDate()
+        try {
+            addons.readingSubmissionDate = parseDateOrMonth(readingSubmissionDate)
+        } catch (e) {
+            addons.invalidReadingSubmissionDate = true
         }
 
         return { row, addons }
@@ -193,7 +207,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         processedRow.row.forEach((cell, i) => {
             switch (columns[i].label) {
                 case ReadingSubmissionDateMessage:
-                    if (!get(processedRow, ['addons', 'readingSubmissionDate'])) {
+                    if (get(processedRow, ['addons', 'invalidReadingSubmissionDate'])) {
                         errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateOrMonthFormatMessage' }, { columnName: columns[i].label, format1: DATE_PARSING_FORMAT, format2: MONTH_PARSING_FORMAT }))
                     }
                     break
