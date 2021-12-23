@@ -18,7 +18,6 @@ import {
     IMPORT_CONDO_METER_READING_SOURCE_ID,
 } from '../constants/constants'
 import dayjs from 'dayjs'
-import { useCallback, useMemo } from 'react'
 
 type MeterReadingAddons = {
     address?: string;
@@ -39,7 +38,7 @@ export const useImporterFunctions = () => {
     const AddressColumnMessage = intl.formatMessage({ id: 'meter.import.column.address' })
     const UnitNameColumnMessage = intl.formatMessage({ id: 'meter.import.column.unitName' })
     const AccountNumberColumnMessage = intl.formatMessage({ id: 'meter.import.column.accountNumber' })
-    const MeterTypeColumnMessage = intl.formatMessage({ id: 'meter.import.column.meterType' })
+    const MeterResourceTypeColumnMessage = intl.formatMessage({ id: 'meter.import.column.meterResourceType' })
     const MeterNumberColumnMessage = intl.formatMessage({ id: 'meter.import.column.meterNumber' })
     const MeterTariffsNumberColumnMessage = intl.formatMessage({ id: 'meter.import.column.meterTariffsNumber' })
     const Value1ColumnMessage = intl.formatMessage({ id: 'meter.import.column.value1' })
@@ -79,7 +78,7 @@ export const useImporterFunctions = () => {
         { name: AddressColumnMessage, type: 'string', required: true, label: AddressColumnMessage },
         { name: UnitNameColumnMessage, type: 'string', required: true, label: UnitNameColumnMessage },
         { name: AccountNumberColumnMessage, type: 'string', required: true, label: AccountNumberColumnMessage },
-        { name: MeterTypeColumnMessage, type: 'string', required: true, label: MeterTypeColumnMessage },
+        { name: MeterResourceTypeColumnMessage, type: 'string', required: true, label: 'meterResourceType' },
         { name: MeterNumberColumnMessage, type: 'string', required: true, label: MeterNumberColumnMessage },
         { name: MeterTariffsNumberColumnMessage, type: 'string', required: true, label: MeterTariffsNumberColumnMessage },
         { name: Value1ColumnMessage, type: 'string', required: false, label: Value1ColumnMessage },
@@ -178,7 +177,7 @@ export const useImporterFunctions = () => {
             address,
             unitName,
             accountNumber,
-            meterType,
+            meterResourceType,
             meterNumber,
             numberOfTariffs,
             value1,
@@ -248,11 +247,11 @@ export const useImporterFunctions = () => {
             switch (error.type) {
                 case RowValidationErrorType.InvalidTypes: {
                     const column = columns[error.metadata.columnIndex]
-                    message = intl.formatMessage({ id: 'errors.import.meters.InvalidColumnTypes' },
+                    message = intl.formatMessage({ id: 'meter.import.error.InvalidColumnTypes' },
                         {
-                            columnName: column.label,
-                            requiredType: intl.formatMessage({ id: `import.columnType.${column.type}.name` }),
-                            example: intl.formatMessage({ id: `import.columnType.${column.type}.example` }),
+                            columnName: column.name,
+                            requiredType: intl.formatMessage({ id: `meter.import.error.column.${column.label}.requiredType` }),
+                            example: intl.formatMessage({ id: `meter.import.error.column.${column.label}.example` }),
                         })
                     break
                 }
