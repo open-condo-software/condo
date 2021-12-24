@@ -135,6 +135,13 @@ const PAYMENT_CATEGORIES_META = [
         canGetBillingFromOrganization: false,
         canGetAcquiringFromOrganization: false,
     },
+    {
+        id: '14',
+        name: 'Квартплата пеня',
+        active: false,
+        canGetBillingFromOrganization: false,
+        canGetAcquiringFromOrganization: false,
+    },
 ]
 
 module.exports = {
