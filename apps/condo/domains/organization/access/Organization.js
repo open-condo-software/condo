@@ -7,7 +7,7 @@ const { Resident: ResidentServerUtils } = require('@condo/domains/resident/utils
 const { AcquiringIntegrationAccessRight } = require('@condo/domains/acquiring/utils/serverSchema')
 const { get, uniq, compact } = require('lodash')
 const access = require('@core/keystone/access')
-const { Organization, OrganizationEmployee } = require('../utils/serverSchema')
+const { find } = require('@core/keystone/schema')
 
 async function canReadOrganizations ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
