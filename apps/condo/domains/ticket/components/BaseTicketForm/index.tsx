@@ -1,9 +1,9 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useIntl } from '@core/next/intl'
 import { Checkbox, Col, Form, Input, Row, Typography, Tooltip, Tabs, Alert } from 'antd'
-import { get } from 'lodash'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import get from 'lodash/get'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
@@ -24,6 +24,7 @@ import { TicketAssignments } from './TicketAssignments'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { Button } from '@condo/domains/common/components/Button'
 import { useRouter } from 'next/router'
+import { PropertyWhereInput } from '@app/condo/schema'
 
 const { TabPane } = Tabs
 
@@ -174,17 +175,25 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
     const { action: _action, initialValues, organization, role, afterActionCompleted, files, autoAssign } = props
     const validations = useTicketValidations()
-    const [selectedPropertyId, setSelectedPropertyId] = useState(get(initialValues, 'property'))
+    const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(get(initialValues, 'property', null))
     const selectPropertyIdRef = useRef(selectedPropertyId)
 
-    const { loading: organizationPropertiesLoading, objs: organizationProperties } = Property.useObjects({
-        where: {
-            organization: {
-                id: organization ? organization.id : null,
-            },
-            deletedAt: null,
+    const propertyWhereQuery: PropertyWhereInput = {
+        organization: {
+            id: organization ? organization.id : null,
         },
-    })
+        deletedAt: null,
+
+    }
+    if (selectedPropertyId) {
+        propertyWhereQuery['id_in'] = [selectedPropertyId]
+    }
+
+    const { loading: organizationPropertiesLoading, objs: organizationProperties, refetch } = Property.useObjects({
+        where: propertyWhereQuery,
+        first: 1,
+        skip: 0,
+    } )
 
     const property = organizationProperties.find(property => property.id === selectedPropertyId)
 
@@ -193,6 +202,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
     useEffect(() => {
         selectPropertyIdRef.current = selectedPropertyId
+        refetch()
     }, [selectedPropertyId])
 
     useEffect(() => {
