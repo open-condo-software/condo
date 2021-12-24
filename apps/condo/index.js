@@ -8,7 +8,6 @@ const { NextApp } = require('@keystonejs/app-next')
 const { registerTriggers } = require('@core/triggers')
 const { createItems } = require('@keystonejs/server-side-graphql-client')
 const conf = require('@core/config')
-const { registerTasks } = require('@core/keystone/tasks')
 const { prepareDefaultKeystoneConfig, getAdapter } = require('@core/keystone/setup.utils')
 const { registerSchemas } = require('@core/keystone/schema')
 const express = require('express')
@@ -23,18 +22,13 @@ const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production'
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 
-let IS_BUILD_PHASE = conf.PHASE === 'build'
-if (IS_BUILD_PHASE) {
-    process.env.FILE_FIELD_ADAPTER = 'local' // Test
-}
-// TODO(DOMA-1614): if set to true adminUi will failed to load after build + start is launched
-IS_BUILD_PHASE = false
+const IS_BUILD_PHASE = conf.PHASE === 'build'
 
 // NOTE: should be disabled in production: https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/
 // WARN: https://github.com/graphql/graphql-playground/tree/main/packages/graphql-playground-html/examples/xss-attack
 const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND === 'true'
 
-if (IS_ENABLE_DD_TRACE) {
+if (IS_ENABLE_DD_TRACE && !IS_BUILD_PHASE) {
     require('dd-trace').init({
         logInjection: true,
     })
@@ -62,7 +56,13 @@ const keystone = new Keystone({
     },
 })
 
-if (!IS_BUILD_PHASE) {
+if (IS_BUILD_PHASE) {
+    // NOTE: we need to register User list for `createAuthStrategy`
+    //  and we need the AuthStrategy because it's required for /admin/ static files build
+    registerSchemas(keystone, [
+        require('@core/keystone/schemas/User'),
+    ])
+} else {
     registerSchemas(keystone, [
         require('@condo/domains/user/schema'),
         require('@condo/domains/organization/schema'),
@@ -79,10 +79,12 @@ if (!IS_BUILD_PHASE) {
         require('@condo/domains/acquiring/schema'),
     ])
 
+    const { registerTasks } = require('@core/keystone/tasks')
+    // NOTE(pahaz): we need to put it here because it init the readis connection and we don't want it at build time
     registerTasks([
         require('@condo/domains/notification/tasks'),
         require('@condo/domains/organization/tasks'),
-        require('@condo/domains/resident/tasks.js'),
+        require('@condo/domains/resident/tasks'),
     ])
 
     registerTriggers([
@@ -90,16 +92,14 @@ if (!IS_BUILD_PHASE) {
     ])
 }
 
-let authStrategy
-if (!IS_BUILD_PHASE) {
-    authStrategy = keystone.createAuthStrategy({
-        type: PasswordAuthStrategy,
-        list: 'User',
-        config: {
-            protectIdentities: false,
-        },
-    })
-}
+const authStrategy = keystone.createAuthStrategy({
+    type: PasswordAuthStrategy,
+    list: 'User',
+    config: {
+        protectIdentities: false,
+    },
+})
+
 
 class SberBuisnessOnlineMiddleware {
     prepareMiddleware () {
@@ -107,7 +107,7 @@ class SberBuisnessOnlineMiddleware {
         const app = express()
         // TODO(zuch): find a way to remove bind
         app.get('/api/sbbol/auth', Auth.startAuth.bind(Auth))
-        app.get('/api/sbbol/auth/callback',  Auth.completeAuth.bind(Auth))
+        app.get('/api/sbbol/auth/callback', Auth.completeAuth.bind(Auth))
         return app
     }
 }
@@ -153,7 +153,7 @@ module.exports = {
             res.setHeader(requestIdHeaderName, req['id'])
             next()
         })
-        
+
         app.use('/admin/', (req, res, next) => {
             if (req.url === '/api') return next()
             const cookies = nextCookie({ req })

@@ -6,7 +6,7 @@
     "test": "mkdirp dist/admin && jest",
     "dev": "keystone dev",
     "debug": "node inspect node_modules/.bin/keystone dev",
-    "build": "cross-env PHASE=build keystone build",
+    "build": "cross-env PHASE=build NEXT_TELEMETRY_DISABLED=1 keystone build",
     "start": "keystone start",
     "worker": "node worker.js",
     "kmigrator": "./../../bin/kmigrator.py",
