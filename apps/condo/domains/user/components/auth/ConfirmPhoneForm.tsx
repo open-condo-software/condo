@@ -1,6 +1,7 @@
 import { Col, Form, Row, Space, Typography } from 'antd'
 import MaskedInput from 'antd-mask-input'
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import cookie from 'js-cookie'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormattedMessage } from 'react-intl'
 import { useMutation } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
@@ -17,19 +18,20 @@ import {
     CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED, TOO_MANY_REQUESTS,
 } from '@condo/domains/user/constants/errors'
 import { COMPLETE_CONFIRM_PHONE_MUTATION, RESEND_CONFIRM_PHONE_SMS_MUTATION } from '@condo/domains/user/gql'
-import { RegisterContext } from './RegisterContextProvider'
+import { useRegisterContext } from './RegisterContextProvider'
+import { Loader } from '../../../common/components/Loader'
 
 const FORM_LAYOUT = {
     labelCol: { span: 10 },
     wrapperCol: { span: 14 },
 }
 
-interface IValidatePhoneFormProps {
+interface IConfirmPhoneFormProps {
     onFinish: () => void
     onReset: () => void
 }
 
-export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidatePhoneFormProps> => {
+export const ConfirmPhoneForm = ({ onFinish, onReset }): React.ReactElement<IConfirmPhoneFormProps> => {
     const intl = useIntl()
     const ChangePhoneNumberLabel = intl.formatMessage({ id: 'pages.auth.register.ChangePhoneNumber' })
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
@@ -67,7 +69,7 @@ export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IVa
     }, [intl])
 
     const [form] = Form.useForm()
-    const { token, phone, handleReCaptchaVerify } = useContext(RegisterContext)
+    const { token, tokenLoading, phone, isConfirmed, handleReCaptchaVerify } = useRegisterContext()
     const [showPhone, setShowPhone] = useState(phone)
     const [isPhoneVisible, setIsPhoneVisible] = useState(false)
     const [phoneValidateError, setPhoneValidateError] = useState(null)
@@ -135,6 +137,12 @@ export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IVa
         }
     }, [isPhoneVisible, phone, setShowPhone])
 
+    useEffect(() => {
+        if (isConfirmed && token?.length > 0) {
+            onFinish()
+        }
+    }, [])
+
     const initialValues = { smsCode: '' }
 
     return (
@@ -163,7 +171,7 @@ export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IVa
                         </Button>
                     </Space>
                 </Col>
-                <Col span={24}>
+                {!tokenLoading ? <Col span={24}>
                     <Form.Item
                         name='smsCode'
                         label={SmsCodeTitle}
@@ -189,7 +197,7 @@ export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IVa
                             onChange={handleVerifyCode}
                         />
                     </Form.Item>
-                </Col>
+                </Col> : <Loader />}
                 <Col span={24}>
                     <CountDownTimer action={resendSms} id={'RESEND_SMS'} timeout={SMS_CODE_TTL} autostart={true}>
                         {({ countdown, runAction }) => {
@@ -206,7 +214,7 @@ export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IVa
                                     </Button>
                                     {isCountDownActive && (
                                         <Typography.Text type='secondary'>
-                                            { `${new Date(countdown * 1000).toISOString().substr(14, 5)}` }
+                                            {`${new Date(countdown * 1000).toISOString().substr(14, 5)}`}
                                         </Typography.Text>
                                     )}
                                 </Space>

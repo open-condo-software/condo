@@ -16,7 +16,7 @@ import {
 import { REGISTER_NEW_USER_MUTATION } from '@condo/domains/user/gql'
 import { AuthLayoutContext } from '../containers/AuthLayoutContext'
 import { useRegisterFormValidators } from './hooks'
-import { RegisterContext } from './RegisterContextProvider'
+import { RegisterContext, useRegisterContext } from './RegisterContextProvider'
 
 const FORM_LAYOUT = {
     labelCol: { span: 10 },
@@ -67,7 +67,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
 
     const [form] = Form.useForm()
     const [isLoading, setIsLoading] = useState(false)
-    const { phone, token } = useContext(RegisterContext)
+    const { phone, token } = useRegisterContext()
     const { signInByPhone } = useContext(AuthLayoutContext)
     const [registerMutation] = useMutation(REGISTER_NEW_USER_MUTATION)
 

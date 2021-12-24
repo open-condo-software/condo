@@ -8,12 +8,12 @@ import { START_CONFIRM_PHONE_MUTATION } from '@condo/domains/user/gql'
 import { useMutation } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
 import { Col, Form, Row, Typography } from 'antd'
-import Router from 'next/router'
-import React, { useCallback, useContext, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { FormattedMessage } from 'react-intl'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { RegisterContext } from './RegisterContextProvider'
+import {  useRegisterContext } from './RegisterContextProvider'
 import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
+import { useRouter } from 'next/router'
 
 
 const FORM_LAYOUT = {
@@ -22,11 +22,10 @@ const FORM_LAYOUT = {
 }
 
 interface IInputPhoneFormProps {
-    onFinish: () => void
+    onFinish?: () => void
 }
 
-export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
-    const [form] = Form.useForm()
+export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => {
     const intl = useIntl()
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
     const RegisterHelpMessage = intl.formatMessage({ id: 'pages.auth.reset.RegisterHelp' })
@@ -37,8 +36,11 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
     const SberIdRegisterMsg = intl.formatMessage({ id: 'SberIdRegister' })
 
+    const router = useRouter()
+    const [form] = Form.useForm()
+
     const { isSmall } = useLayoutContext()
-    const { setToken, setPhone, handleReCaptchaVerify } = useContext(RegisterContext)
+    const { token, isConfirmed, setToken, setPhone, handleReCaptchaVerify } = useRegisterContext()
     const [smsSendError, setSmsSendError] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
     const [startPhoneVerify] = useMutation(START_CONFIRM_PHONE_MUTATION)
@@ -52,6 +54,11 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
     }, [intl])
 
     const startConfirmPhone = useCallback(async () => {
+        console.log(token, isConfirmed)
+        if (token && isConfirmed) {
+            router.push(`/auth/confirm?token=${token}`)
+            return
+        }
         const registerExtraData = {
             dv: 1,
             sender: getClientSideSenderInfo(),
@@ -70,8 +77,10 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
             onCompleted: (data) => {
                 const { data: { result: { token } } } = data
                 setToken(token)
-                Router.push(`/auth/register?token=${token}`)
-                onFinish()
+                router.push(`/auth/confirm?token=${token}`)
+                if (onFinish) {
+                    onFinish()
+                }
             },
             onFinally: () => {
                 setIsLoading(false)
@@ -82,7 +91,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
         }).catch(() => {
             setIsLoading(false)
         })
-    }, [intl, form, handleReCaptchaVerify])
+    }, [token, isConfirmed, form, setPhone, handleReCaptchaVerify, startPhoneVerify, intl, ErrorToFormFieldMsgMapping, router, setToken, onFinish])
 
     return (
         <Form
@@ -119,7 +128,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
                                     }),
                                 ]}
                             >
-                                <PhoneInput placeholder={ExamplePhoneMsg} onChange={() => setSmsSendError(null)} block/>
+                                <PhoneInput placeholder={ExamplePhoneMsg} onChange={() => setSmsSendError(null)} block />
                             </Form.Item>
                         </Col>
                         <Col span={24}>
@@ -153,7 +162,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
                             <Button
                                 key='submit'
                                 type='sberAction'
-                                icon={<SberIconWithoutLabel/>}
+                                icon={<SberIconWithoutLabel />}
                                 href={'/api/sbbol/auth'}
                                 block={isSmall}
                             >

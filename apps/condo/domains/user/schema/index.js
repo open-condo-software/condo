@@ -8,7 +8,8 @@ const { RegisterNewUserService } = require('./RegisterNewUserService')
 const { AuthenticateUserWithPhoneAndPasswordService } = require('./AuthenticateUserWithPhoneAndPasswordService')
 const { ForgotPasswordAction  } = require('./ForgotPasswordAction')
 const { ForgotPasswordService } = require('./ForgotPasswordService')
-const { ConfirmPhoneAction, ConfirmPhoneActionService } = require('./ConfirmPhoneAction')
+const { ConfirmPhoneAction } = require('./ConfirmPhoneAction')
+const { ConfirmIdentityService } = require('./ConfirmIdentityService')
 const { SigninResidentUserService } = require('./SigninResidentUserService')
 const { ChangePhoneNumberResidentUserService } = require('./ChangePhoneNumberResidentUserService')
 const { SigninAsUserService } = require('./SigninAsUserService')
@@ -21,7 +22,7 @@ module.exports = {
     ForgotPasswordAction,
     ForgotPasswordService,
     ConfirmPhoneAction,
-    ConfirmPhoneActionService,
+    ConfirmIdentityService,
     SigninResidentUserService,
     ChangePhoneNumberResidentUserService,
     SigninAsUserService,
