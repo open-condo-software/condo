@@ -69,7 +69,7 @@ const Resident = new GQLListSchema('Resident', {
                     if (!propertyId) return
                     const [property] = await Property.getAll(context, { id: propertyId })
                     const residentAddress = getAddressUpToBuildingFrom(resolvedData.addressMeta)
-                    if (property.address !== residentAddress) {
+                    if (property.address.toLowerCase() !== residentAddress.toLowerCase()) {
                         return addFieldValidationError('Cannot connect property, because its address differs from address of resident')
                     }
                 },
