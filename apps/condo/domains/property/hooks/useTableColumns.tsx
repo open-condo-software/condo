@@ -29,6 +29,7 @@ export const useTableColumns = (filterMetas: FiltersMeta<PropertyWhereInput>[]) 
     const intl = useIntl()
     const AddressMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Address' })
     const UnitsCountMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.UnitsCount' })
+    const UninhabitedUnitsCountMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.UninhabitedUnitsCount' })
     const TasksInWorkMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.TasksInWorkCount' })
 
     const router = useRouter()
@@ -50,13 +51,20 @@ export const useTableColumns = (filterMetas: FiltersMeta<PropertyWhereInput>[]) 
                 sorter: true,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'address'),
                 render: renderAddress,
-                width: '70%',
+                width: '55%',
             },
             {
                 title: UnitsCountMessage,
                 ellipsis: true,
                 dataIndex: 'unitsCount',
                 key: 'unitsCount',
+                width: '15%',
+            },
+            {
+                title: UninhabitedUnitsCountMessage,
+                ellipsis: true,
+                dataIndex: 'uninhabitedUnitsCount',
+                key: 'uninhabitedUnitsCount',
                 width: '15%',
             },
             {
