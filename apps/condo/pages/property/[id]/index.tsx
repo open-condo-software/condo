@@ -75,6 +75,7 @@ const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCus
 export const PropertyPageContent = ({ property, role }) => {
     const intl = useIntl()
     const UnitsCountTitle = intl.formatMessage({ id: 'pages.condo.property.id.UnitsCount' })
+    const UninhabitedUnitsCountTitle = intl.formatMessage({ id: 'pages.condo.property.id.UninhabitedUnitsCountTitle' })
     const TicketsClosedTitle = intl.formatMessage({ id: 'pages.condo.property.id.TicketsClosed' })
     const TicketsInWorkTitle = intl.formatMessage({ id: 'pages.condo.property.id.TicketsInWork' })
     const DeletePropertyLabel = intl.formatMessage({ id: 'pages.condo.property.form.DeleteLabel' })
@@ -109,9 +110,6 @@ export const PropertyPageContent = ({ property, role }) => {
                 style={PROPERTY_PAGE_CONTENT_ROW_STYLE}
                 justify='start'
             >
-                <Col flex={0} >
-                    <PropertyInfoPanel title={UnitsCountTitle} message={property.unitsCount} large />
-                </Col>
                 <Col flex={0}>
                     <PropertyInfoPanel title={TicketsClosedTitle} message={property.ticketsClosed} type='success' large />
                 </Col>
@@ -123,6 +121,12 @@ export const PropertyPageContent = ({ property, role }) => {
                 </Col>
                 <Col flex={0}>
                     <PropertyInfoPanel title={YearOfConstructionTitle} message={yearOfConstructionCardLabel} />
+                </Col>
+                <Col flex={0} >
+                    <PropertyInfoPanel title={UnitsCountTitle} message={property.unitsCount} large />
+                </Col>
+                <Col flex={0} >
+                    <PropertyInfoPanel title={UninhabitedUnitsCountTitle} message={property.uninhabitedUnitsCount} large />
                 </Col>
             </Row>
             <Row gutter={PROPERTY_PAGE_CONTENT_ROW_GUTTER} style={PROPERTY_PAGE_CONTENT_ROW_STYLE}>
