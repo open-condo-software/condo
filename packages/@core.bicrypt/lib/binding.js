@@ -1,4 +1,4 @@
-const addon = require('../build/Release/condo-bicrypt-sign-native');
+const addon = require('../build/Release/condo-bicrypt-sign-native')
 const { resolve } = require('path')
 const { existsSync: checkPath } = require('fs')
 const { DOMParser } = require('xmldom')
