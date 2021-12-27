@@ -308,7 +308,72 @@ const buildingMapJson = {
             ],
         },
     ],
-    'parking': [],
+    'parking': [
+        {
+            'id': '1',
+            'type': 'section',
+            'index': 1,
+            'name': 'Подъезд №1',
+            'floors': [
+                {
+                    'id': '2',
+                    'type': 'floor',
+                    'index': 2,
+                    'name': '2',
+                    'units': [
+                        {
+                            'id': '5',
+                            'label': '5',
+                            'type': 'unit',
+                        },
+                        {
+                            'id': '6',
+                            'label': '6',
+                            'type': 'unit',
+                        },
+                        {
+                            'id': '7',
+                            'label': '7',
+                            'type': 'unit',
+                        },
+                        {
+                            'id': '8',
+                            'label': '8',
+                            'type': 'unit',
+                        },
+                    ],
+                },
+                {
+                    'id': '1',
+                    'type': 'floor',
+                    'index': 1,
+                    'name': '1',
+                    'units': [
+                        {
+                            'id': '1',
+                            'label': '1',
+                            'type': 'unit',
+                        },
+                        {
+                            'id': '2',
+                            'label': '2',
+                            'type': 'unit',
+                        },
+                        {
+                            'id': '3',
+                            'label': '3',
+                            'type': 'unit',
+                        },
+                        {
+                            'id': '4',
+                            'label': '4',
+                            'type': 'unit',
+                        },
+                    ],
+                },
+            ],
+        },
+    ],
 }
 
 const buildingAddressMetaJson = {
