@@ -76,11 +76,10 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
                 dayjs.extend(quarterOfYear)
 
                 const offsetPeriod = PERIOD_OFFSET_MAP[periodType]
-                const startDate = dayjs().isoWeekday(1).startOf(periodType).add(offset, offsetPeriod).toISOString()
-                const previousStartDate = dayjs().isoWeekday(1).startOf(periodType).add(offset - 1, offsetPeriod).toISOString()
-                const endDate = dayjs().isoWeekday(7).endOf(periodType).add(offset, offsetPeriod).toISOString()
-                const previousEndDate =  dayjs().isoWeekday(7).endOf(periodType).add(offset - 1, offsetPeriod).toISOString()
-
+                const startDate = dayjs().isoWeekday(1).startOf(periodType).startOf('day').add(offset, offsetPeriod).toISOString()
+                const previousStartDate = dayjs().isoWeekday(1).startOf(periodType).startOf('day').add(offset - 1, offsetPeriod).toISOString()
+                const endDate = dayjs().isoWeekday(7).endOf(periodType).endOf('day').add(offset, offsetPeriod).toISOString()
+                const previousEndDate =  dayjs().isoWeekday(7).endOf(periodType).endOf('day').add(offset - 1, offsetPeriod).toISOString()
                 const currentData = await countTicketsByStatuses(context,  startDate, endDate, userOrganizationId)
                 const previousData = await countTicketsByStatuses(context, previousStartDate, previousEndDate, userOrganizationId)
 
