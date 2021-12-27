@@ -136,7 +136,7 @@ const TopModal = styled.div<ITopModalProps>`
   align-items: flex-start;
   border-radius: 12px;
   background-color: ${colors.white};
-  padding: 20px;
+  padding: 24px;
   width: 315px;
   box-shadow: ${shadows.main};
   z-index: 4;
