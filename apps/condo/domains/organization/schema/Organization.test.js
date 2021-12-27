@@ -307,6 +307,7 @@ describe('Organization', () => {
 
 describe('organization TIN: various cases',  () => {
     test('admin: create Organization with valid 10 digits RU INN and RU country code ', async () => {
+        // TODO(DOMA-1897): Create organization by ordinary user, not admin to respect real flow.
         const admin = await makeLoggedInAdminClient()
         const [createdOrganization] = await createTestOrganization(admin, { meta: { inn: VALID_RU_TIN_10 }, country: RUSSIA_COUNTRY })
 
