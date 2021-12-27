@@ -169,7 +169,49 @@ const Property = new GQLListSchema('Property', {
                 },
             },
         },
+        uninhabitedUnitsCount: {
+            schemaDoc: 'A number of non-residential units. Number of parking places for unit.unitType = parking',
+            type: Integer,
+            isRequired: true,
+            defaultValue: 0,
+            hooks: {
+                resolveInput: async ({ operation, existingItem, resolvedData }) => {
+                    let uninhabitedUnitsCount = 0
+                    const getTotalUnitsCount = (map) => {
+                        return get(map, 'parking', [])
+                            .map((section) => get(section, 'floors', [])
+                                .map(floor => get(floor, 'units', []).length)
+                            )
+                            .flat()
+                            .reduce((total, unitsOnFloor) => total + unitsOnFloor, 0)
 
+                    }
+
+                    if (operation === 'create') {
+                        const map = get(resolvedData, 'map')
+
+                        if (map) {
+                            uninhabitedUnitsCount = getTotalUnitsCount(map)
+                        }
+                    }
+
+                    if (operation === 'update') {
+                        const existingMap = get(existingItem, 'map')
+                        const updatedMap = get(resolvedData, 'map')
+
+                        const isMapDeleted = existingMap && !updatedMap
+
+                        if (isMapDeleted) {
+                            uninhabitedUnitsCount = 0
+                        } else if (updatedMap) {
+                            uninhabitedUnitsCount = getTotalUnitsCount(updatedMap)
+                        }
+                    }
+
+                    return uninhabitedUnitsCount
+                },
+            },
+        },
         ticketsClosed: {
             schemaDoc: 'Counter for closed tickets',
             type: Virtual,

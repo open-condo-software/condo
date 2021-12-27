@@ -154,6 +154,7 @@ describe('Property', () => {
         expect(obj.updatedAt).toMatch(DATETIME_RE)
         expect(obj.updatedAt).not.toEqual(obj.createdAt)
         expect(obj.unitsCount).toEqual(28)
+        expect(obj.uninhabitedUnitsCount).toEqual(8)
     })
 
     test('user: can not create Property when same address exist in user organization', async () => {
