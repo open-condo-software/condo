@@ -2,8 +2,8 @@ const path = require('path')
 const { Client } = require('pg')
 const {
     Property,
-} = require('@condo/domains/property/utils/serverSchema')
-const { normalizePropertyMap } = require('@condo/domains/property/utils/serverSchema/helpers.js')
+} = require('../domains/property/utils/serverSchema')
+const { normalizePropertyMap } = require('../domains/property/utils/serverSchema/helpers')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { has } = require('lodash')
 
@@ -21,16 +21,13 @@ class PropertyMapUpdater {
 
         const { rows } = await this.pg.query(' SELECT id, map, "unitsCount" FROM "Property" WHERE "map" IS NOT NULL AND "deletedAt" IS NULL ')
         this.properties = rows
-
-        this.properties.forEach(property => {
-            if (property.map) {
-                property.map = normalizePropertyMap(property.map)
-            }
-        })
     }
 
     async fix () {
         for (const property of this.properties) {
+            if (property.map) {
+                property.map = normalizePropertyMap(property.map)
+            }
             const repairedMap = this.fixChessboard(property.map)
             await Property.update(this.context.createContext({ skipAccessControl: true }), property.id, {
                 dv: 1,
