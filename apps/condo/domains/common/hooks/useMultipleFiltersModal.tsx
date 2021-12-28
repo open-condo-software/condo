@@ -1,7 +1,18 @@
 import { SizeType } from 'antd/lib/config-provider/SizeContext'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Form from 'antd/lib/form'
-import { Checkbox, Col, FormInstance, Input, Row, Select, Typography } from 'antd'
+import {
+    Checkbox,
+    Col,
+    FormInstance,
+    Input,
+    Row,
+    Select,
+    Tabs,
+    Typography,
+    Modal as DefaultModal,
+    ModalProps,
+} from 'antd'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
 import get from 'lodash/get'
@@ -9,31 +20,38 @@ import { FormItemProps } from 'antd/es'
 import { CloseOutlined } from '@ant-design/icons'
 import { Gutter } from 'antd/es/grid/row'
 import isFunction from 'lodash/isFunction'
+import pickBy from 'lodash/pickBy'
 import { useOrganization } from '@core/next/organization'
 
-import { OptionType, parseQuery, QueryArgType } from '@condo/domains/common/utils/tables.utils'
+import {
+    FiltersFromQueryType,
+    OptionType,
+    parseQuery,
+    QueryArgType,
+} from '@condo/domains/common/utils/tables.utils'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
+import { EmployeeFiltersTemplate } from '@condo/domains/organization/utils/clientSchema'
 
 import DatePicker from '../components/Pickers/DatePicker'
 import DateRangePicker from '../components/Pickers/DateRangePicker'
 import { GraphQlSearchInput } from '../components/GraphQlSearchInput'
 import { Button } from '../components/Button'
-import { BaseModalForm } from '../components/containers/FormList'
+import { BaseModalForm, FormWithAction } from '../components/containers/FormList'
 import { FILTERS_POPUP_CONTAINER_ID } from '../constants/filters'
 
 import {
-    ComponentType,
+    ComponentType, convertToOptions,
     FilterComponentType,
     FiltersMeta,
     getFiltersModalPopupContainer,
     getQueryToValueProcessorByType,
     updateQuery,
 } from '../utils/filters.utils'
-import { FILTER_TABLE_KEYS, FiltersStorage } from '../utils/FiltersStorage'
-import { Tooltip } from '../components/Tooltip'
-import { colors } from '../constants/style'
-import isEmpty from 'lodash/isEmpty'
-import { useOrganization } from '@core/next/organization'
+import { FiltersStorage, FILTER_TABLE_KEYS } from '../utils/FiltersStorage'
+import { Loader } from '../components/Loader'
+import { SortEmployeeFiltersTemplatesBy } from '../../../schema'
+import { isEmpty } from 'lodash'
+import { IEmployeeFiltersTemplateUIState } from '../../organization/utils/clientSchema/EmployeeFiltersTemplate'
 
 enum FilterComponentSize {
     Medium = 12,
@@ -233,6 +251,8 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
 }
 
 function getModalComponents <T> (filters: IFilters, filterMetas: Array<FiltersMeta<T>>, form: FormInstance): React.ReactElement[] {
+    if (!form) return
+
     return filterMetas.map(filterMeta => {
         const { keyword, component } = filterMeta
 
@@ -271,7 +291,7 @@ function getModalComponents <T> (filters: IFilters, filterMetas: Array<FiltersMe
 }
 
 const RESET_FILTERS_BUTTON_STYLE: CSSProperties = { position: 'absolute', left: '10px' }
-const MODAL_PROPS: CSSProperties = { width: 840 }
+const MODAL_PROPS: ModalProps = { width: 840 }
 const CLEAR_ALL_MESSAGE_STYLE: CSSProperties = { fontSize: '12px' }
 const FILTER_WRAPPERS_GUTTER: [Gutter, Gutter] = [24, 12]
 const MODAL_FORM_VALIDATE_TRIGGER: string[] = ['onBlur', 'onSubmit']
@@ -292,14 +312,9 @@ const ResetFiltersModalButton: React.FC<ResetFiltersModalButtonProps> = ({
     const intl = useIntl()
     const ClearAllFiltersMessage = intl.formatMessage({ id: 'ClearAllFilters' })
     const router = useRouter()
-    const { organization } = useOrganization()
 
     const handleReset = useCallback(async () => {
         await updateQuery(router, {})
-
-        if (filterTableKey) {
-            FiltersStorage.clearFilters(organization.id, filterTableKey)
-        }
 
         if (isFunction(handleResetFromProps)) {
             await handleResetFromProps()
@@ -321,14 +336,33 @@ const ResetFiltersModalButton: React.FC<ResetFiltersModalButtonProps> = ({
     )
 }
 
-const FiltersTemplateSelect = (schemaName) => {
-    const { organization, link } = useOrganization()
-    const { objs: filterTemplates } =
+const { TabPane } = Tabs
 
-    return (
-
-    )
-}
+// const FiltersTemplateSelect = ({ schemaName, form }) => {
+//     const { link } = useOrganization()
+//     const router = useRouter()
+//     const { filters } = parseQuery(router.query)
+//
+//     if (loading) {
+//         return <Loader />
+//     }
+//
+//     if (filtersTemplates.length === 0 && !loading) {
+//         return (
+//             <Col span={24}>
+//                 <Form.Item
+//                     name='newTemplateName'
+//                 >
+//                     <Input />
+//                 </Form.Item>
+//             </Col>
+//         )
+//     }
+//
+//     return (
+//
+//     )
+// }
 
 type MultipleFiltersModalProps = {
     isMultipleFiltersModalVisible: boolean
@@ -351,24 +385,47 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
 
     const router = useRouter()
     const { filters } = parseQuery(router.query)
-    const { organization } = useOrganization()
+    const { link } = useOrganization()
+
+    const handleSaveRef = useRef(null)
+
+    const createFiltersTemplateAction = EmployeeFiltersTemplate.useCreate({
+        employee: link.id,
+        schemaName: 'Ticket',
+    }, () => Promise.resolve())
+
+    const updateFiltersTemplateAction = EmployeeFiltersTemplate.useUpdate({
+        employee: link.id,
+        schemaName: 'Ticket',
+    }, () => Promise.resolve())
 
     const handleReset = useCallback(async () => {
         const keys = Object.keys(form.getFieldsValue())
         const emptyFields = keys.reduce((acc, key) => {
             acc[key] = undefined
-
             return acc
         }, {})
 
         form.setFieldsValue(emptyFields)
-    }, [form, router])
+        // await form.resetFields()
+        // await updateQuery(router, {})
+    }, [form])
 
     const handleSubmit = useCallback(async (values) => {
-        const newFilters = { ...filters, ...values }
-        await updateQuery(router, newFilters)
+        const { newTemplateName, existedTemplateName, ...otherValues } = values
+        const filtersValue = pickBy(otherValues)
+
+        // const { filters } = parseQuery(router.query)
+        // const newFilters = { ...filters, ...filtersValue }
+        //
+        // await createFiltersTemplateAction({
+        //     name: newTemplateName,
+        //     filters: JSON.stringify(filtersValue),
+        // })
+        await updateQuery(router, filtersValue)
+
         setIsMultipleFiltersModalVisible(false)
-    }, [filterTableKey, filters, router, setIsMultipleFiltersModalVisible])
+    }, [form, router, setIsMultipleFiltersModalVisible])
 
     const modalFooter = useMemo(() => (
         [
@@ -379,32 +436,148 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
                 style={RESET_FILTERS_BUTTON_STYLE}
             />,
         ]
-    ), [handleReset])
-    
-    return (
-        <BaseModalForm
-            visible={isMultipleFiltersModalVisible}
-            modalProps={MODAL_PROPS}
-            cancelModal={() => setIsMultipleFiltersModalVisible(false)}
-            ModalTitleMsg={FiltersModalTitle}
-            ModalSaveButtonLabelMsg={ShowMessage}
-            showCancelButton={false}
-            validateTrigger={MODAL_FORM_VALIDATE_TRIGGER}
-            handleSubmit={handleSubmit}
-            modalExtraFooter={modalFooter}
-        >
-            {
-                (form: FormInstance) => {
-                    setForm(form)
+    ), [filterTableKey, handleReset])
 
-                    return (
-                        <Row justify={'space-between'} gutter={FILTER_WRAPPERS_GUTTER} id={FILTERS_POPUP_CONTAINER_ID}>
-                            {getModalComponents(filters, filterMetas, form)}
-                        </Row>
-                    )
+    const { objs: filtersTemplates, loading } = EmployeeFiltersTemplate.useObjects({
+        where: {
+            employee: { id: link.id },
+            schemaName: 'Ticket',
+            deletedAt: null,
+        },
+        sortBy: [SortEmployeeFiltersTemplatesBy.CreatedAtAsc],
+    })
+
+    const [selectedFiltersTemplate, setSelectedFiltersTemplate] = useState<IEmployeeFiltersTemplateUIState>()
+    const [formFilters, setFormFilters] = useState<FiltersFromQueryType>()
+
+    useEffect(() => {
+        if (!isEmpty(filtersTemplates)) {
+            setSelectedFiltersTemplate(filtersTemplates[0])
+        }
+    }, [loading])
+
+    const handleSaveFiltersTemplate = useCallback(async () => {
+        const { newTemplateName, existedTemplateName, ...otherValues } = form.getFieldsValue()
+        const filtersValue = pickBy(otherValues)
+
+        if (newTemplateName) {
+            await createFiltersTemplateAction({
+                name: newTemplateName,
+                filters: JSON.stringify(filtersValue),
+            })
+        }
+
+        if (existedTemplateName) {
+            await updateFiltersTemplateAction({
+                name: existedTemplateName,
+                filters: JSON.stringify(filtersValue),
+            }, selectedFiltersTemplate)
+        }
+
+        await handleSaveRef.current()
+    }, [createFiltersTemplateAction, form, selectedFiltersTemplate, updateFiltersTemplateAction])
+
+    useEffect(() => {
+        if (!selectedFiltersTemplate)
+            return
+
+        if (selectedFiltersTemplate.id) {
+            const newFiltersValue = JSON.parse(selectedFiltersTemplate.filters)
+            setFormFilters(newFiltersValue)
+        } else {
+            setFormFilters(filters)
+        }
+    }, [router.query, selectedFiltersTemplate])
+
+    const changeTabHandler = useCallback(async (filtersTemplateId) => {
+        const filtersTemplate = filtersTemplates.find(filterTemplate => filterTemplate.id === filtersTemplateId)
+
+        setSelectedFiltersTemplate(filtersTemplate)
+        await handleReset()
+    }, [filtersTemplates, handleReset])
+
+    const TemplateNameInput = useCallback(() => (
+        <Form.Item
+            name='existedTemplateName'
+            initialValue={get(selectedFiltersTemplate, 'name')}
+        >
+            <Input />
+        </Form.Item>
+    ), [selectedFiltersTemplate])
+
+    const modalComponents = useMemo(() => {
+        console.log('formFilters', formFilters)
+        return getModalComponents(formFilters, filterMetas, form)
+    },
+    [filterMetas, form, formFilters])
+
+    const FormItems = useCallback(() => (
+        <Row justify={'space-between'} gutter={FILTER_WRAPPERS_GUTTER} id={FILTERS_POPUP_CONTAINER_ID}>
+            {modalComponents}
+        </Row>
+    ), [modalComponents])
+
+    return (
+        <DefaultModal
+            title={FiltersModalTitle}
+            visible={isMultipleFiltersModalVisible}
+            onCancel={() => setIsMultipleFiltersModalVisible(false)}
+            footer={[
+                ...modalFooter,
+                <Button
+                    key="submit"
+                    onClick={handleSaveFiltersTemplate}
+                    type="ghost"
+                >
+                    {'Сохранить шаблон и применить'}
+                </Button>,
+                <Button
+                    key="submit"
+                    onClick={() => {
+                        handleSaveRef.current()
+                    }}
+                    type="sberPrimary"
+                >
+                    {ShowMessage}
+                </Button>,
+            ]}
+            centered
+            {...MODAL_PROPS}
+        >
+            <FormWithAction
+                validateTrigger={MODAL_FORM_VALIDATE_TRIGGER}
+                handleSubmit={handleSubmit}
+            >
+                {
+                    ({ handleSave, form }) => {
+                        setForm(form)
+                        handleSaveRef.current = handleSave
+
+                        return !loading || !selectedFiltersTemplate ? (
+                            <>
+                                <Tabs onChange={changeTabHandler} activeKey={get(selectedFiltersTemplate, 'id')}>
+                                    {
+                                        filtersTemplates.map((filterTemplate, index) => (
+                                            <TabPane tab={`Шаблон ${index + 1}`} key={filterTemplate.id}>
+                                                <TemplateNameInput />
+                                            </TabPane>
+                                        ))
+                                    }
+                                    <TabPane tab={'Новый фильтр'} key={'newTemplate'}>
+                                        <Form.Item
+                                            name='newTemplateName'
+                                        >
+                                            <Input />
+                                        </Form.Item>
+                                    </TabPane>
+                                </Tabs>
+                                <FormItems />
+                            </>
+                        ) : <Loader />
+                    }
                 }
-            }
-        </BaseModalForm>
+            </FormWithAction>
+        </DefaultModal>
     )
 }
 
