@@ -12,7 +12,7 @@ const BILLING_INTEGRATION_OPTIONS_FIELDS = `{ title options { name displayName b
 const BILLING_INTEGRATION_FIELDS = `{ name shortDescription detailsTitle detailsText detailsConfirmButtonText detailsInstructionButtonText detailsInstructionButtonLink contextDefaultStatus dataFormat ${BILLING_INTEGRATION_DATA_FORMAT_FIELDS} currencyCode billingPageTitle isHidden availableOptions ${BILLING_INTEGRATION_OPTIONS_FIELDS} ${COMMON_FIELDS} }`
 const BillingIntegration = generateGqlQueries('BillingIntegration', BILLING_INTEGRATION_FIELDS)
 
-const BILLING_INTEGRATION_ACCESS_RIGHT_FIELDS = '{ integration { id name } user { id name } id dv createdBy { id name } updatedBy { id name } createdAt updatedAt }'
+const BILLING_INTEGRATION_ACCESS_RIGHT_FIELDS = `{ integration { id name } user { id name } ${COMMON_FIELDS} }`
 const BillingIntegrationAccessRight = generateGqlQueries('BillingIntegrationAccessRight', BILLING_INTEGRATION_ACCESS_RIGHT_FIELDS)
 
 const BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS = `{ integration { id name billingPageTitle currencyCode dataFormat ${BILLING_INTEGRATION_DATA_FORMAT_FIELDS} availableOptions { options { name billingPageTitle dataFormat ${BILLING_INTEGRATION_DATA_FORMAT_FIELDS} } } } organization { id name } settings state status lastReport integrationOption ${COMMON_FIELDS} }`

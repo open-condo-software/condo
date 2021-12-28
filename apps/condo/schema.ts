@@ -2980,6 +2980,9 @@ export type BillingIntegrationAccessRight = {
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<User>;
   updatedBy?: Maybe<User>;
+  v?: Maybe<Scalars['Int']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
 };
 
 export type BillingIntegrationAccessRightCreateInput = {
@@ -2991,6 +2994,9 @@ export type BillingIntegrationAccessRightCreateInput = {
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<UserRelateToOneInput>;
   updatedBy?: Maybe<UserRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
 };
 
 /**  A keystone list  */
@@ -3150,6 +3156,9 @@ export type BillingIntegrationAccessRightUpdateInput = {
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<UserRelateToOneInput>;
   updatedBy?: Maybe<UserRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
 };
 
 export type BillingIntegrationAccessRightWhereInput = {
@@ -3195,6 +3204,26 @@ export type BillingIntegrationAccessRightWhereInput = {
   createdBy_is_null?: Maybe<Scalars['Boolean']>;
   updatedBy?: Maybe<UserWhereInput>;
   updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
 export type BillingIntegrationAccessRightWhereUniqueInput = {
@@ -26214,7 +26243,11 @@ export enum SortBillingIntegrationAccessRightsBy {
   CreatedByAsc = 'createdBy_ASC',
   CreatedByDesc = 'createdBy_DESC',
   UpdatedByAsc = 'updatedBy_ASC',
-  UpdatedByDesc = 'updatedBy_DESC'
+  UpdatedByDesc = 'updatedBy_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC'
 }
 
 export enum SortBillingIntegrationHistoryRecordsBy {
