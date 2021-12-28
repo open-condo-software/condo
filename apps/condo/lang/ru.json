@@ -300,7 +300,7 @@
   "pages.condo.property.index.PageTitle": "Все дома",
   "pages.condo.property.index.TableField.Address": "Адрес",
   "pages.condo.property.index.TableField.TasksInWorkCount": "Заявок в работе",
-  "pages.condo.property.index.TableField.UnitsCount": "Квартир",
+  "pages.condo.property.index.TableField.UnitsCount": "Помещений",
   "pages.condo.property.index.TableField.Division": "Название участка",
   "pages.condo.property.index.TableField.Buildings": "Дома",
   "pages.condo.property.index.TableField.Foreman": "Мастер",
