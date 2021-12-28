@@ -11,6 +11,7 @@ const { InviteNewOrganizationEmployeeService } = require('./InviteNewOrganizatio
 const { AcceptOrRejectOrganizationInviteService } = require('./AcceptOrRejectOrganizationInviteService')
 const { OrganizationLink } = require('./OrganizationLink')
 const { TokenSet } = require('./TokenSet')
+const { EmployeeFiltersTemplate } = require('./EmployeeFiltersTemplate')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -22,5 +23,6 @@ module.exports = {
     AcceptOrRejectOrganizationInviteService,
     OrganizationLink,
     TokenSet,
+    EmployeeFiltersTemplate,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

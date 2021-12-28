@@ -320,6 +320,14 @@ const ResetFiltersModalButton: React.FC<ResetFiltersModalButtonProps> = ({
     )
 }
 
+// const FiltersTemplateSelect = () => {
+//
+//
+//     return (
+//
+//     )
+// }
+
 type MultipleFiltersModalProps = {
     isMultipleFiltersModalVisible: boolean
     setIsMultipleFiltersModalVisible: React.Dispatch<React.SetStateAction<boolean>>

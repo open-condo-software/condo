@@ -85,4 +85,5 @@ export {
     TokenSet,
 }
 
+export * as EmployeeFiltersTemplate from './EmployeeFiltersTemplate'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
