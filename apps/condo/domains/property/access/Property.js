@@ -50,7 +50,7 @@ async function canManageProperties ({ authentication: { item: user }, originalIn
             return false
         }
 
-        return await checkOrganizationPermission(context, user.id, organizationId, 'canManageProperties')
+        return await checkOrganizationPermission(user.id, organizationId, 'canManageProperties')
     } else if (operation === 'update') {
         if (!itemId) {
             return false
@@ -63,7 +63,7 @@ async function canManageProperties ({ authentication: { item: user }, originalIn
 
         const { organization: organizationId } = property
 
-        return await checkOrganizationPermission(context, user.id, organizationId, 'canManageProperties')
+        return await checkOrganizationPermission(user.id, organizationId, 'canManageProperties')
     } 
     return false
 }

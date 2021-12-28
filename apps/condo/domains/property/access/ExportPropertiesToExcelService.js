@@ -17,11 +17,10 @@ async function canExportPropertiesToExcel ({ args: { data: { where } }, authenti
         if (!relatedFromOrganization) {
             return false
         }
-        const canManageRelatedOrganizationProperties = await checkRelatedOrganizationPermission(context, user.id, relatedFromOrganization.id, 'canManageProperties')
+        const canManageRelatedOrganizationProperties = await checkRelatedOrganizationPermission(user.id, relatedFromOrganization.id, 'canManageProperties')
         return canManageRelatedOrganizationProperties
     }
-    const hasAccess = await checkOrganizationPermission(context, user.id, organizationId, 'canManageProperties')
-    return hasAccess
+    return await checkOrganizationPermission(user.id, organizationId, 'canManageProperties')
 }
 
 /*

@@ -7,12 +7,11 @@ async function canShareTicket ({ args: { data }, authentication: { item: user },
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     const [ticket] = await Ticket.getAll(context, { id: data.ticketId })
-    const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(context, user.id, ticket.organization.id, 'canShareTickets')
+    const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(user.id, ticket.organization.id, 'canShareTickets')
     if (canManageRelatedOrganizationTickets) {
         return true
     }
-    const hasAccess = await checkOrganizationPermission(context, user.id, ticket.organization.id, 'canShareTickets')
-    return hasAccess
+    return await checkOrganizationPermission(user.id, ticket.organization.id, 'canShareTickets')
 }
 
 module.exports = {
