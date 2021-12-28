@@ -101,15 +101,8 @@ describe('BillingIntegrationAccessRight', () => {
         const admin = await makeLoggedInAdminClient()
         const [integration] = await createTestBillingIntegration(admin)
         const [objCreated] = await createTestBillingIntegrationAccessRight(admin, integration, admin.user)
-
-        try {
+        await expectToThrowAccessDeniedErrorToObj(async () => {
             await BillingIntegrationAccessRight.delete(admin, objCreated.id)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': expect.stringContaining('Cannot query field "deleteBillingIntegrationAccessRight" on type "Mutation"'),
-                'name': 'ValidationError',
-            })
-            expect(e.data).toBeUndefined()
-        }
+        })
     })
 })

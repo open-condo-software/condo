@@ -5,22 +5,26 @@
 const { throwAuthenticationError } = require(
     '@condo/domains/common/utils/apolloErrorFormatter')
 const { canManageBillingEntityWithContext } = require('@condo/domains/billing/utils/accessSchema')
+const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 
-async function canReadBillingReceipts ({ authentication: { item: user } }) {
-    if (!user) return throwAuthenticationError()
-    if (user.deletedAt) return false
-    if (user.isAdmin) return {}
-    return {
-        OR: [
-            { context: { organization: { employees_some: { user: { id: user.id }, role: { canReadBillingReceipts: true }, deletedAt: null, isBlocked: false } } } },
-            { context: { integration: { accessRights_some: { user: { id: user.id } } } } },
-        ],
+async function canReadBillingReceipts ({ authentication: { item, listKey } }) {
+    if (!listKey || !item) return throwAuthenticationError()
+    if (item.deletedAt) return false
+    if (listKey === USER_SCHEMA_NAME) {
+        if (item.isAdmin) return {}
+        return {
+            OR: [
+                { context: { organization: { employees_some: { user: { id: item.id }, role: { canReadBillingReceipts: true }, deletedAt: null, isBlocked: false } } } },
+                { context: { integration: { accessRights_some: { user: { id: item.id }, deletedAt: null } } } },
+            ],
+        }
     }
+    return false
 }
 
-async function canManageBillingReceipts ({ authentication: { item: user }, operation, originalInput, listKey, itemId, context }) {
+async function canManageBillingReceipts ({ authentication, operation, originalInput, listKey, itemId, context }) {
     return await canManageBillingEntityWithContext({
-        user,
+        authentication,
         operation,
         itemId,
         originalInput,
