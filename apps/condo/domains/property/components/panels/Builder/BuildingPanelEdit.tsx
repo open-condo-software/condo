@@ -94,13 +94,13 @@ const MenuCss = css`
   padding: 0;
 
   & .ant-dropdown-menu-item {
-    padding: 4px 24px;
+    padding: 4px 16px;
   }
   & .ant-dropdown-menu-item:first-child {
-    padding: 16px 24px 4px 24px;
+    padding: 16px 16px 4px 16px;
   }
   & .ant-dropdown-menu-item:last-child {
-    padding: 4px 24px 16px 24px;
+    padding: 4px 16px 16px 16px;
   }
   & .ant-dropdown-menu-item,
   & .ant-dropdown-menu-item .ant-dropdown-menu-title-content {
