@@ -31,7 +31,7 @@ async function canManageDivisions ({ authentication: { item: user }, originalInp
         if (!organizationId) {
             return false
         }
-        return await checkOrganizationPermission(context, user.id, organizationId, 'canManageDivisions')
+        return await checkOrganizationPermission(user.id, organizationId, 'canManageDivisions')
     } else if (operation === 'update') {
         const [division] = await Division.getAll(context, { id: itemId })
         if (!division) {
@@ -41,7 +41,7 @@ async function canManageDivisions ({ authentication: { item: user }, originalInp
         if (!organizationId) {
             return false
         }
-        return await checkOrganizationPermission(context, user.id, organizationId, 'canManageDivisions')
+        return await checkOrganizationPermission(user.id, organizationId, 'canManageDivisions')
     }
     return false
 }

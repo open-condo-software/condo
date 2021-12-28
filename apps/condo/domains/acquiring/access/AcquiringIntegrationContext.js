@@ -6,44 +6,53 @@ const { checkOrganizationPermission } = require('@condo/domains/organization/uti
 const { checkAcquiringIntegrationAccessRight } = require('../utils/accessSchema')
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 const { getById } = require('@core/keystone/schema')
 const get = require('lodash/get')
 
-async function canReadAcquiringIntegrationContexts ({ authentication: { item: user } }) {
-    if (!user) return throwAuthenticationError()
-    if (user.deletedAt) return false
-    if (user.isAdmin || user.isSupport) return {}
-    return {
-        OR: [
-            { organization: { employees_some: { user: { id: user.id }, role: { canReadPayments: true }, isBlocked: false, deletedAt: null } } },
-            { integration: { accessRights_some: { user: { id: user.id } } } },
-        ],
+async function canReadAcquiringIntegrationContexts ({ authentication: { item, listKey } }) {
+    if (!listKey || !item) return throwAuthenticationError()
+    if (item.deletedAt) return false
+    if (listKey === USER_SCHEMA_NAME) {
+        if (item.isSupport || item.isAdmin) return {}
+        const userId = get(item, 'id')
+        return {
+            OR: [
+                { organization: { employees_some: { user: { id: userId }, role: { canReadPayments: true }, isBlocked: false, deletedAt: null } } },
+                { integration: { accessRights_some: { user: { id: userId }, deletedAt: null } } },
+            ],
+        }
     }
+    return false
 }
 
-async function canManageAcquiringIntegrationContexts ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
-    if (!user) return throwAuthenticationError()
-    if (user.deletedAt) return false
-    if (user.isAdmin) return true
-    let organizationId
-    let integrationId
-    if (operation === 'create') {
-        // get ids from input on create
-        organizationId = get(originalInput, ['organization', 'connect', 'id'])
-        integrationId = get(originalInput, ['integration', 'connect', 'id'])
-        if (!organizationId || !integrationId) return false
-    } else if (operation === 'update') {
-        // getting ids from existing object
-        if (!itemId) return false
-        const context = await getById('AcquiringIntegrationContext', itemId)
-        if (!context) return false
-        const { organization, integration } = context
-        organizationId = organization
-        integrationId = integration
+async function canManageAcquiringIntegrationContexts ({ authentication: { item, listKey }, originalInput, operation, itemId }) {
+    if (!listKey || !item) return throwAuthenticationError()
+    if (item.deletedAt) return false
+    if (listKey === USER_SCHEMA_NAME) {
+        if (item.isAdmin) return true
+        let organizationId
+        let integrationId
+        if (operation === 'create') {
+            // get ids from input on create
+            organizationId = get(originalInput, ['organization', 'connect', 'id'])
+            integrationId = get(originalInput, ['integration', 'connect', 'id'])
+            if (!organizationId || !integrationId) return false
+        } else if (operation === 'update') {
+            // getting ids from existing object
+            if (!itemId) return false
+            const context = await getById('AcquiringIntegrationContext', itemId)
+            if (!context) return false
+            const { organization, integration } = context
+            organizationId = organization
+            integrationId = integration
+        }
+        const userId = get(item, 'id')
+        const canManageIntegrations = await checkOrganizationPermission(userId, organizationId, 'canManageIntegrations')
+        if (canManageIntegrations && operation === 'create') return true
+        return await checkAcquiringIntegrationAccessRight(userId, integrationId)
     }
-    const canManageIntegrations = await checkOrganizationPermission(context, user.id, organizationId, 'canManageIntegrations')
-    if (canManageIntegrations && operation === 'create') return true
-    return await checkAcquiringIntegrationAccessRight(user.id, integrationId)
+    return false
 }
 
 /*

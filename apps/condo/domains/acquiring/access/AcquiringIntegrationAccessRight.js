@@ -3,18 +3,24 @@
  */
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 
-async function canReadAcquiringIntegrationAccessRights ({ authentication: { item: user } }) {
-    if (!user) return throwAuthenticationError()
-    if (user.deletedAt) return false
-    if (user.isAdmin || user.isSupport) return {}
+async function canReadAcquiringIntegrationAccessRights ({ authentication: { item, listKey } }) {
+    if (!listKey || !item) return throwAuthenticationError()
+    if (item.deletedAt) return false
+    if (listKey === USER_SCHEMA_NAME) {
+        if (item.isSupport || item.isAdmin) return {}
+        return false
+    }
     return false
 }
 
-async function canManageAcquiringIntegrationAccessRights ({ authentication: { item: user } }) {
-    if (!user) return throwAuthenticationError()
-    if (user.deletedAt) return false
-    if (user.isAdmin || user.isSupport) return true
+async function canManageAcquiringIntegrationAccessRights ({ authentication: { item, listKey } }) {
+    if (!listKey || !item) return throwAuthenticationError()
+    if (item.deletedAt) return false
+    if (listKey === USER_SCHEMA_NAME) {
+        return item.isSupport || item.isAdmin
+    }
     return false
 }
 

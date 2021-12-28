@@ -13,14 +13,13 @@ async function canExportTicketsToExcel ({ args: { data: { where } }, authenticat
         if (!relatedFromOrganization) {
             return false
         }
-        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(context, user.id, relatedFromOrganization.id, 'canManageTickets')
+        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(user.id, relatedFromOrganization.id, 'canManageTickets')
         if (canManageRelatedOrganizationTickets) {
             return true
         }
         return false
     }
-    const hasAccess = await checkOrganizationPermission(context, user.id, organizationId, 'canManageTickets')
-    return hasAccess
+    return await checkOrganizationPermission(user.id, organizationId, 'canManageTickets')
 }
 
 module.exports = {

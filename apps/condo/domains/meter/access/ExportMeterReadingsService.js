@@ -17,13 +17,13 @@ async function canExportMeterReadings ({ args: { data: { where } }, authenticati
         if (!relatedFromOrganization) {
             return false
         }
-        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(context, user.id, relatedFromOrganization.id, 'canManageMeters')
+        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(user.id, relatedFromOrganization.id, 'canManageMeters')
         if (canManageRelatedOrganizationTickets) {
             return true
         }
         return false
     }
-    const hasAccess = await checkOrganizationPermission(context, user.id, organizationId, 'canManageMeters')
+    const hasAccess = await checkOrganizationPermission(user.id, organizationId, 'canManageMeters')
     return hasAccess
 }
 

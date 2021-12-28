@@ -26,7 +26,7 @@ async function canReadTicketComments ({ authentication: { item: user } }) {
     }
 }
 
-async function canManageTicketComments ({ authentication: { item: user }, originalInput, existingItem, operation, context, itemId }) {
+async function canManageTicketComments ({ authentication: { item: user }, originalInput, operation, context, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     if (operation === 'create') {
@@ -36,11 +36,11 @@ async function canManageTicketComments ({ authentication: { item: user }, origin
             return false
         }
         const organizationId = get(ticket, ['organization', 'id'])
-        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(context, user.id, organizationId, 'canManageTicketComments')
+        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(user.id, organizationId, 'canManageTicketComments')
         if (canManageRelatedOrganizationTickets) {
             return true
         }
-        return await checkOrganizationPermission(context, user.id, organizationId, 'canManageTicketComments')
+        return await checkOrganizationPermission(user.id, organizationId, 'canManageTicketComments')
     } else if (operation === 'update') {
         const [ticketComment] = await TicketComment.getAll(context, { id: itemId })
         if (!ticketComment) {
@@ -54,11 +54,11 @@ async function canManageTicketComments ({ authentication: { item: user }, origin
             return false
         }
         const organizationId = get(ticket, ['organization', 'id'])
-        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(context, user.id, organizationId, 'canManageTicketComments')
+        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(user.id, organizationId, 'canManageTicketComments')
         if (canManageRelatedOrganizationTickets) {
             return true
         }
-        return await checkOrganizationPermission(context, user.id, organizationId, 'canManageTicketComments')
+        return await checkOrganizationPermission(user.id, organizationId, 'canManageTicketComments')
     }
     return false
 }
