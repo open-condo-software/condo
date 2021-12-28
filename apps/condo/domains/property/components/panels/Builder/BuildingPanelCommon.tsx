@@ -266,8 +266,8 @@ const BuildingViewModeSelectCss = css`
 
 export const BuildingViewModeSelect: React.FC<RadioProps> = (props) => {
     const intl = useIntl()
-    const AddParking = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
-    const ResidentialBuildingTitle = intl.formatMessage({ id: 'pages.condo.property.select.option.residentialBuilding' })
+    const ParkingBuildingLabel = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
+    const ResidentialBuildingLabel = intl.formatMessage({ id: 'pages.condo.property.select.option.residentialBuilding' })
 
     return (
         <Radio.Group
@@ -276,8 +276,8 @@ export const BuildingViewModeSelect: React.FC<RadioProps> = (props) => {
             buttonStyle={'solid'}
             css={BuildingViewModeSelectCss}
         >
-            <Radio.Button value={MapViewMode.section}>{ResidentialBuildingTitle}</Radio.Button>
-            <Radio.Button value={MapViewMode.parking}>{AddParking}</Radio.Button>
+            <Radio.Button value={MapViewMode.section}>{ResidentialBuildingLabel}</Radio.Button>
+            <Radio.Button value={MapViewMode.parking}>{ParkingBuildingLabel}</Radio.Button>
         </Radio.Group>
     )
 }

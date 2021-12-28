@@ -94,13 +94,13 @@ const MenuCss = css`
   padding: 0;
 
   & .ant-dropdown-menu-item {
-    padding: 4px 16px;
+    padding: 4px 24px;
   }
   & .ant-dropdown-menu-item:first-child {
-    padding: 16px 16px 4px 16px;
+    padding: 16px 24px 4px 24px;
   }
   & .ant-dropdown-menu-item:last-child {
-    padding: 4px 16px 16px 16px;
+    padding: 4px 24px 16px 24px;
   }
   & .ant-dropdown-menu-item,
   & .ant-dropdown-menu-item .ant-dropdown-menu-title-content {
@@ -116,6 +116,7 @@ const MenuCss = css`
     padding: 16px 18px;
     height: 60px;
     display: flex;
+    border: 1px solid ${colors.backgroundWhiteSecondary};
   }
   & .ant-dropdown-menu-item button svg {
     margin-right: 8px;
@@ -203,13 +204,15 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const AddSection = intl.formatMessage({ id: 'pages.condo.property.select.option.section' })
     const AddUnit = intl.formatMessage({ id: 'pages.condo.property.select.option.unit' })
     const AddFloor = intl.formatMessage({ id: 'pages.condo.property.select.option.floor' })
-    const AddParking = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
+    const AddParkingLabel = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
     const AddInterFloorRoom = intl.formatMessage({ id: 'pages.condo.property.select.option.interfloorroom' })
     const AddParkingFloor = intl.formatMessage({ id: 'pages.condo.property.select.option.parkingFloor' })
     const AddParkingPlace = intl.formatMessage({ id: 'pages.condo.property.select.option.parkingPlace' })
     const AddElementTitle = intl.formatMessage({ id: 'pages.condo.property.menu.MenuPlaceholder' })
     const AllSectionsTitle = intl.formatMessage({ id: 'pages.condo.property.SectionSelect.AllTitle' })
+    const AllParkingSectionsTitle = intl.formatMessage({ id: 'pages.condo.property.ParkingSectionSelect.AllTitle' })
     const SectionPrefixTitle = intl.formatMessage({ id: 'pages.condo.property.SectionSelect.OptionPrefix' })
+    const ParkingSectionPrefixTitle = intl.formatMessage({ id: 'pages.condo.property.ParkingSectionSelect.OptionPrefix' })
     const MapValidationError = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameUnitNamesErrorMsg' })
 
     const { mapValidationError, map, updateMap: updateFormField, handleSave, property } = props
@@ -292,6 +295,11 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
         refresh()
     }, [mapEdit, refresh])
 
+    const onSelectParkingSection = useCallback((id) => {
+        mapEdit.setVisibleParkingSections(id)
+        refresh()
+    }, [mapEdit, refresh])
+
     const onViewModeChange = useCallback((option) => {
         mapEdit.viewMode = option.target.value
         refresh()
@@ -321,7 +329,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
             </Menu.Item>
             <Menu.Item key={'addParking'}>
                 <Button type={'sberDefaultGradient'} secondary icon={<ParkingIcon />}>
-                    {AddParking}
+                    {AddParkingLabel}
                 </Button>
             </Menu.Item>
             <Menu.Item key={'addParkingFloor'}>
@@ -339,6 +347,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
 
     const showViewModeSelect = !mapEdit.isEmptySections && !mapEdit.isEmptyParking
     const showSectionFilter = mapEdit.viewMode === MapViewMode.section && sections.length >= MIN_SECTIONS_TO_SHOW_FILTER
+    const showParkingFilter = mapEdit.viewMode === MapViewMode.parking && mapEdit.parking.length >= MIN_SECTIONS_TO_SHOW_FILTER
 
     return (
         <FullscreenWrapper mode={'edit'} className='fullscreen'>
@@ -355,6 +364,18 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                                             sections.map(section => (
                                                 <Select.Option key={section.id} value={section.id}>
                                                     {SectionPrefixTitle}{section.name}
+                                                </Select.Option>
+                                            ))
+                                        }
+                                    </Select>
+                                )}
+                                {showParkingFilter && (
+                                    <Select value={mapEdit.visibleParkingSections} onSelect={onSelectParkingSection}>
+                                        <Select.Option value={null} >{AllParkingSectionsTitle}</Select.Option>
+                                        {
+                                            mapEdit.parking.map(parkingSection => (
+                                                <Select.Option key={parkingSection.id} value={parkingSection.id}>
+                                                    {ParkingSectionPrefixTitle}{parkingSection.name}
                                                 </Select.Option>
                                             ))
                                         }
@@ -647,8 +668,12 @@ const PropertyMapSection: React.FC<IPropertyMapSectionProps> = (props) => {
         ? builder.isParkingSelected(section.id)
         : builder.isSectionSelected(section.id)
 
+    const isSectionVisible = isParkingSection
+        ? builder.isParkingSectionVisible(section.id)
+        : builder.isSectionVisible(section.id)
+
     return (
-        <MapSectionContainer visible={builder.isSectionVisible(section.id)}>
+        <MapSectionContainer visible={isSectionVisible}>
             {children}
             <UnitButton
                 secondary

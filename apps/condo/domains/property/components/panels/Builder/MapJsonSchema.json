@@ -175,7 +175,6 @@
                                             },
                                             "unitType": {
                                                 "enum": [
-                                                    "flat",
                                                     "parking"
                                                 ],
                                                 "title": "unitType",
