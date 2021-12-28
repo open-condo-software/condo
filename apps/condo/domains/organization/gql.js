@@ -76,6 +76,9 @@ const ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_CODE_MUTATION = gql`
 const TOKEN_SET_FIELDS = `{ user { id } organization { id } importRemoteSystem accessToken accessTokenExpiresAt refreshToken refreshTokenExpiresAt ${COMMON_FIELDS} }`
 const TokenSet = generateGqlQueries('TokenSet', TOKEN_SET_FIELDS)
 
+const EMPLOYEE_FILTERS_TEMPLATE_FIELDS = `{ name employee { id } schemaName filters ${COMMON_FIELDS} }`
+const EmployeeFiltersTemplate = generateGqlQueries('EmployeeFiltersTemplate', EMPLOYEE_FILTERS_TEMPLATE_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -93,4 +96,5 @@ module.exports = {
     ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION,
     ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_CODE_MUTATION,
 }
+    EmployeeFiltersTemplate,
 /* AUTOGENERATE MARKER <EXPORTS> */
