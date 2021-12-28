@@ -177,7 +177,7 @@ const Property = new GQLListSchema('Property', {
             hooks: {
                 resolveInput: async ({ operation, existingItem, resolvedData }) => {
                     let uninhabitedUnitsCount = 0
-                    const getTotalUnitsCount = (map) => {
+                    const getUninhabitedUnitsCount = (map) => {
                         return get(map, 'parking', [])
                             .map((section) => get(section, 'floors', [])
                                 .map(floor => get(floor, 'units', []).length)
@@ -191,7 +191,7 @@ const Property = new GQLListSchema('Property', {
                         const map = get(resolvedData, 'map')
 
                         if (map) {
-                            uninhabitedUnitsCount = getTotalUnitsCount(map)
+                            uninhabitedUnitsCount = getUninhabitedUnitsCount(map)
                         }
                     }
 
@@ -204,7 +204,7 @@ const Property = new GQLListSchema('Property', {
                         if (isMapDeleted) {
                             uninhabitedUnitsCount = 0
                         } else if (updatedMap) {
-                            uninhabitedUnitsCount = getTotalUnitsCount(updatedMap)
+                            uninhabitedUnitsCount = getUninhabitedUnitsCount(updatedMap)
                         }
                     }
 

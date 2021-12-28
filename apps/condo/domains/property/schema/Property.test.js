@@ -131,6 +131,8 @@ describe('Property', () => {
         expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
         expect(obj.createdAt).toMatch(DATETIME_RE)
         expect(obj.updatedAt).toMatch(DATETIME_RE)
+        expect(obj.unitsCount).toEqual(0)
+        expect(obj.uninhabitedUnitsCount).toEqual(0)
     })
 
     test('user: update Property.map field for created property', async () => {
