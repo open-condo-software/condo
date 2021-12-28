@@ -24,8 +24,11 @@ function convertToUIState (item: EmployeeFiltersTemplate): IEmployeeFiltersTempl
 }
 
 export interface IEmployeeFiltersTemplateFormState {
-    id?: undefined
-    // TODO(codegen): write IEmployeeFiltersTemplateUIFormState or extends it from
+    id?: string
+    employee?: string
+    name?: string
+    schemaName?: string
+    filters?: string
 }
 
 function convertToUIFormState (state: IEmployeeFiltersTemplateUIState): IEmployeeFiltersTemplateFormState | undefined {
