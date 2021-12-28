@@ -9,6 +9,7 @@ import { FormItemProps } from 'antd/es'
 import { CloseOutlined } from '@ant-design/icons'
 import { Gutter } from 'antd/es/grid/row'
 import isFunction from 'lodash/isFunction'
+import { useOrganization } from '@core/next/organization'
 
 import { OptionType, parseQuery, QueryArgType } from '@condo/domains/common/utils/tables.utils'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
@@ -320,13 +321,14 @@ const ResetFiltersModalButton: React.FC<ResetFiltersModalButtonProps> = ({
     )
 }
 
-// const FiltersTemplateSelect = () => {
-//
-//
-//     return (
-//
-//     )
-// }
+const FiltersTemplateSelect = (schemaName) => {
+    const { organization, link } = useOrganization()
+    const { objs: filterTemplates } =
+
+    return (
+
+    )
+}
 
 type MultipleFiltersModalProps = {
     isMultipleFiltersModalVisible: boolean
@@ -366,10 +368,6 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         const newFilters = { ...filters, ...values }
         await updateQuery(router, newFilters)
         setIsMultipleFiltersModalVisible(false)
-
-        if (filterTableKey) {
-            FiltersStorage.saveFilters(organization.id, filterTableKey, newFilters)
-        }
     }, [filterTableKey, filters, router, setIsMultipleFiltersModalVisible])
 
     const modalFooter = useMemo(() => (
