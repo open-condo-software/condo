@@ -172,10 +172,10 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
                                         : builder.parking.map(parkingSection => (
                                             <MapSectionContainer
                                                 key={parkingSection.id}
-                                                visible={builder.isSectionVisible(parkingSection.id)}
+                                                visible={builder.isParkingSectionVisible(parkingSection.id)}
                                             >
                                                 {
-                                                    builder.possibleChosenFloors.map(floorIndex => {
+                                                    builder.possibleChosenParkingFloors.map(floorIndex => {
                                                         const floorInfo = parkingSection.floors.find(floor => floor.index === floorIndex)
                                                         if (floorInfo && floorInfo.units.length) {
                                                             return (

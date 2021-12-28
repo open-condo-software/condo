@@ -280,7 +280,7 @@ class MapView extends Map {
 
     get possibleChosenParkingFloors (): number[] {
         const allIndexes = this.map.parking
-            .filter(parking => this.visibleSections === null || this.visibleSections === parking.id)
+            .filter(parking => this.visibleParkingSections === null || this.visibleParkingSections === parking.id)
             .map(section => section.floors
                 .map(floor => floor.index))
             .flat()
@@ -303,6 +303,7 @@ class MapView extends Map {
 
     // view or hide sections
     public visibleSections: string | null = null
+    public visibleParkingSections: string | null = null
 
     public setVisibleSections (id: string | null): void {
         this.visibleSections = id
@@ -310,6 +311,14 @@ class MapView extends Map {
 
     public isSectionVisible (id: string | null): boolean {
         return this.visibleSections === null || this.visibleSections === id
+    }
+
+    public setVisibleParkingSections (id: string | null): void {
+        this.visibleParkingSections = id
+    }
+
+    public isParkingSectionVisible (id: string | null): boolean {
+        return this.visibleParkingSections === null || this.visibleParkingSections === id
     }
 
     get sections (): BuildingSection[] {

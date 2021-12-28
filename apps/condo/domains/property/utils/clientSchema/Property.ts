@@ -21,8 +21,8 @@ export interface IPropertyUIState extends Property {
     name?: string
     ticketsInWork: string
     ticketsClosed: string
-    unitsCount: string
-    uninhabitedUnitsCount: string
+    unitsCount: number
+    uninhabitedUnitsCount: number
     map?: BuildingMap
     area?: number
     yearOfConstruction?: string
