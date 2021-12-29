@@ -25,14 +25,14 @@ export class FiltersStorage {
     public static saveFilters (organizationId: string, tableKey: FILTER_TABLE_KEYS, filters: FiltersFromQueryType | string): void {
         const oldFilters = this.getFilters(tableKey)
 
-        const data2Save = pickBy({ ...oldFilters, [organizationId]: filters })
+        const dataToSave = pickBy({ ...oldFilters, [organizationId]: filters })
 
-        if (isEmpty(data2Save[organizationId])) {
-            delete data2Save[organizationId]
+        if (isEmpty(dataToSave[organizationId])) {
+            delete dataToSave[organizationId]
         }
 
-        if (!isEmpty(data2Save)) {
-            localStorage.setItem(tableKey, JSON.stringify(data2Save))
+        if (!isEmpty(dataToSave)) {
+            localStorage.setItem(tableKey, JSON.stringify(dataToSave))
         } else {
             localStorage.removeItem(tableKey)
         }
