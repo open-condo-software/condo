@@ -4,7 +4,6 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const get = require('lodash/get')
-const compact = require('lodash/compact')
 
 const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
@@ -21,48 +20,46 @@ const Meter = generateServerUtils(MeterGQL)
 const MeterReading = generateServerUtils(MeterReadingGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-const getAvailableResidentMeters = async (context, userId) => {
-    const propertyUnitAccountNumberObjects = []
-
-    const residents = await find('Resident', {
+/**
+ * Get all meters, which resident has access to,
+ * Mostly used in access, that's why used native keystone utils
+ * @param userId - id of user
+ * @returns {Array<string>} list of meters ids which are available for resident
+ */
+const getAvailableResidentMetersIds = async (userId) => {
+    const userResidents = await find('Resident', {
         user: { id: userId, deletedAt: null },
         property: { deletedAt: null },
         organization: { deletedAt: null },
         deletedAt: null,
     })
+    const residentIds = userResidents.map(resident => resident.id)
+    const residentsByIds = Object.assign({}, ...userResidents.map(obj => ({ [obj.id]: obj })))
 
-    const residentsId = residents.map(resident => resident.id)
-
-    const serviceConsumers = await find('ServiceConsumer', {
-        resident: { id_in: residentsId, deletedAt: null },
+    const userConsumers = await find('ServiceConsumer', {
+        resident: { id_in: residentIds, deletedAt: null },
         organization: { deletedAt: null },
         deletedAt: null,
     })
 
-    for (const resident of residents) {
-        const residentPropertyId = get(resident, ['property'])
-        const residentUnitName = get(resident, 'unitName')
-        const residentServiceConsumers = serviceConsumers.filter(serviceConsumer => serviceConsumer.resident === resident.id)
+    const selections = userConsumers.map(serviceConsumer => ({
+        property: { id: get(residentsByIds, [serviceConsumer.resident, 'property']) },
+        unitName: get(residentsByIds, [serviceConsumer.resident, 'unitName']),
+        accountNumber: serviceConsumer.accountNumber,
+    }))
 
-        propertyUnitAccountNumberObjects.push(...residentServiceConsumers.map(serviceConsumer => ({
-            property: { id: residentPropertyId },
-            unitName: residentUnitName,
-            accountNumber: serviceConsumer.accountNumber,
-        })))
-    }
-
-    const orStatement = propertyUnitAccountNumberObjects.map(propertyUnitAccountNumber => ({
+    const orStatement = selections.map(selection => ({
         AND: [
-            propertyUnitAccountNumber,
+            selection,
         ],
     }))
 
-    const availableMeters = await Meter.getAll(context, {
+    const availableMeters = await find('Meter', {
         OR: orStatement,
         deletedAt: null,
     })
 
-    return availableMeters.map(meter => ({ id: meter.id }))
+    return availableMeters.map(meter => meter.id)
 }
 
 const loadMetersForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
@@ -101,7 +98,7 @@ module.exports = {
     MeterReadingSource,
     Meter,
     MeterReading,
-    getAvailableResidentMeters,
+    getAvailableResidentMetersIds,
     loadMetersForExcelExport,
     loadMeterReadingsForExcelExport,
 /* AUTOGENERATE MARKER <EXPORTS> */

@@ -1055,21 +1055,21 @@ describe('MeterReading', () => {
             await Property.softDelete(adminClient, property.id)
 
             // test access before residents reconnection worker task executes
-            const meterReadings = await MeterReading.getAll(client, {
+            const meterReadingsBeforeReconnect = await MeterReading.getAll(client, {
                 id: meterReading.id,
             })
 
-            expect(meterReadings).toHaveLength(0)
+            expect(meterReadingsBeforeReconnect).toHaveLength(0)
 
             // NOTE: give worker some time
             await sleep(1500)
 
             // test access after residents reconnection worker task done
-            const meterReadingsAfterResidentReconnect = await MeterReading.getAll(client, {
+            const meterReadingsAfterReconnect = await MeterReading.getAll(client, {
                 id: meterReading.id,
             })
 
-            expect(meterReadingsAfterResidentReconnect).toHaveLength(0)
+            expect(meterReadingsAfterReconnect).toHaveLength(0)
         })
 
         test('user: cannot read MeterReadings', async () => {

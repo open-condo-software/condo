@@ -772,8 +772,8 @@ describe('Meter', () => {
             await Property.softDelete(adminClient, property.id)
 
             // Test access before resident connections run in worker
-            const meters = await Meter.getAll(client, { id: meter.id })
-            expect(meters).toHaveLength(0)
+            const metersBeforeResidentReconnects = await Meter.getAll(client, { id: meter.id })
+            expect(metersBeforeResidentReconnects).toHaveLength(0)
 
             // NOTE: give worker some time
             await sleep(1000)
