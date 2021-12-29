@@ -163,8 +163,6 @@ const PdfView = () => {
                                 <Breadcrumb separator={<>≫<br/></>}>
                                     {
                                         compact([
-                                            // TODO(zuch): remove classifier after migrations
-                                            get(ticket, ['classifier', 'name']),
                                             get(ticket, ['placeClassifier', 'name']),
                                             get(ticket, ['categoryClassifier', 'name']),
                                             get(ticket, ['problemClassifier', 'name']),
