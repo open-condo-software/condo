@@ -438,9 +438,6 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     }, [createFiltersTemplateAction, selectedFiltersTemplate, updateFiltersTemplateAction])
 
     const handleDeleteFiltersTemplate = useCallback(async () => {
-        if (isString(selectedFiltersTemplate))
-            return
-
         await updateFiltersTemplateAction({
             deletedAt: new Date().toDateString(),
         }, selectedFiltersTemplate)

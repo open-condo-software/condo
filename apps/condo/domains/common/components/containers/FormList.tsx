@@ -232,7 +232,6 @@ interface IFormWithAction<TRecordFormState, TRecordUIState> {
     onMutationCompleted?: (result) => void,
     style?: CSSProperties,
     children: IFormWithActionChildren
-    onFieldsChange
 }
 
 const FormWithAction: React.FC<IFormWithAction> = (props) => {
@@ -361,7 +360,6 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
             initialValues={initialValues}
             validateTrigger={validateTrigger}
             onValuesChange={handleChange}
-            onFieldsChange={onFieldsChange}
             colon={colon}
             scrollToFirstError
             style={style}
