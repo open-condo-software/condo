@@ -4,27 +4,25 @@
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { checkOrganizationPermission, checkRelatedOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const get = require('lodash/get')
-const { Organization } = require('@condo/domains/organization/utils/serverSchema')
+const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
+const { find } = require('@core/keystone/schema')
 
-async function canExportMeterReadings ({ args: { data: { where } }, authentication: { item: user }, context }) {
-    if (!user)
-        return throwAuthenticationError()
-    if (user.isAdmin) return true
-    const organizationId = get(where, 'organization.id')
-    if (!organizationId) {
-        const organizationFromWhere = get(where, 'organization')
-        const [relatedFromOrganization] = await Organization.getAll(context, organizationFromWhere)
-        if (!relatedFromOrganization) {
-            return false
+async function canExportMeterReadings ({ args: { data: { where } }, authentication: { item, listKey } }) {
+    if (!listKey || !item) return throwAuthenticationError()
+    if (item.deletedAt) return false
+    if (listKey === USER_SCHEMA_NAME) {
+        if (item.isAdmin) return true
+        const organizationId = get(where, ['organization', 'id'])
+        if (organizationId) {
+            return await checkOrganizationPermission(item.id, organizationId, 'canManageMeters')
+        } else {
+            const organizationWhere = get(where, 'organization')
+            const [relatedFromOrganization] = await find('Organization', organizationWhere)
+            if (!relatedFromOrganization) return false
+            return await checkRelatedOrganizationPermission(item.id, relatedFromOrganization.id, 'canManageMeters')
         }
-        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(user.id, relatedFromOrganization.id, 'canManageMeters')
-        if (canManageRelatedOrganizationTickets) {
-            return true
-        }
-        return false
     }
-    const hasAccess = await checkOrganizationPermission(user.id, organizationId, 'canManageMeters')
-    return hasAccess
+    return false
 }
 
 /*

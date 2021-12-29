@@ -30,7 +30,7 @@ async function checkRelatedOrganizationPermission (userId, organizationId, permi
     })
     if (!organizationLink) return false
 
-    return checkOrganizationPermission(userId, organizationLink.from.id, permission)
+    return checkOrganizationPermission(userId, organizationLink.from, permission)
 }
 
 // TODO(nomerdvadcatpyat): use this function where checkRelatedOrganizationPermission and checkOrganizationPermission used together
