@@ -3,7 +3,7 @@ import isString from 'lodash/isString'
 import { updateQuery } from './filters.utils'
 import { NextRouter } from 'next/router'
 import { FiltersFromQueryType } from './tables.utils'
-import { isEmpty } from 'lodash'
+import isEmpty from 'lodash/isEmpty'
 
 export enum FILTER_TABLE_KEYS {
     TICKET = 'ticketsFilter',
@@ -25,7 +25,17 @@ export class FiltersStorage {
     public static saveFilters (organizationId: string, tableKey: FILTER_TABLE_KEYS, filters: FiltersFromQueryType | string): void {
         const oldFilters = this.getFilters(tableKey)
 
-        localStorage.setItem(tableKey, JSON.stringify(pickBy({ ...oldFilters, [organizationId]: filters })))
+        const data2Save = pickBy({ ...oldFilters, [organizationId]: filters })
+
+        if (isEmpty(data2Save[organizationId])) {
+            delete data2Save[organizationId]
+        }
+
+        if (!isEmpty(data2Save)) {
+            localStorage.setItem(tableKey, JSON.stringify(data2Save))
+        } else {
+            localStorage.removeItem(tableKey)
+        }
     }
 
     public static async loadFilters (organizationId: string, tableKey: FILTER_TABLE_KEYS, router: NextRouter): Promise<void> {
