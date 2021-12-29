@@ -102,6 +102,7 @@
   "field.Section": "Section number",
   "field.Floor": "Floor number",
   "FieldIsRequired": "This field is required",
+  "filters.Apply": "Apply",
   "filters.NewFilter": "New filter",
   "filters.Template": "Template",
   "filters.NewTemplateLabel": "Template name (only if you want to save to the template, and not just apply a filter)",

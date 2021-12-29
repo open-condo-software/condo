@@ -361,7 +361,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
 }) => {
     const intl = useIntl()
     const FiltersModalTitle = intl.formatMessage({ id: 'FiltersLabel' })
-    const ShowMessage = intl.formatMessage({ id: 'Show' })
+    const ApplyMessage = intl.formatMessage({ id: 'filters.Apply' })
     const NewFilterMessage = intl.formatMessage({ id: 'filters.NewFilter' })
     const TemplateMessage = intl.formatMessage({ id: 'filters.Template' })
     const NewTemplateLabel = intl.formatMessage({ id: 'filters.NewTemplateLabel' })
@@ -499,7 +499,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         </Row>
     ), [modalComponents])
 
-    const handleSubmitButtonClick = useMemo(() => handleSaveRef.current(), [])
+    const handleSubmitButtonClick = useCallback(() => handleSaveRef.current(), [])
 
     const modalFooter = useMemo(() => [
         <ResetFiltersModalButton
@@ -514,13 +514,15 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
                 message={DeleteMessage}
                 okButtonLabel={DeleteLabel}
                 action={handleDeleteFiltersTemplate}
+                buttonCustomProps={{ type: 'sberDangerGhost' }}
             />
         ),
         <Button
             key={'saveFilters'}
             onClick={handleSaveFiltersTemplate}
             disabled={selectedFiltersTemplate && isSaveFiltersTemplateButtonDisabled}
-            type={'ghost'}
+            type={'sberGrey'}
+            secondary
         >
             {SaveTemplateMessage}
         </Button>,
@@ -529,10 +531,10 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
             onClick={handleSubmitButtonClick}
             type={'sberPrimary'}
         >
-            {ShowMessage}
+            {ApplyMessage}
         </Button>,
     ], [
-        DeleteLabel, DeleteMessage, DeleteTitle, SaveTemplateMessage, ShowMessage, handleDeleteFiltersTemplate,
+        DeleteLabel, DeleteMessage, DeleteTitle, SaveTemplateMessage, ApplyMessage, handleDeleteFiltersTemplate,
         handleResetFilters, handleSaveFiltersTemplate, handleSubmitButtonClick, isSaveFiltersTemplateButtonDisabled,
         selectedFiltersTemplate,
     ])
