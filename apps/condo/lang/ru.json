@@ -102,6 +102,7 @@
   "field.Section": "Номер секции",
   "field.Floor": "Номер этажа",
   "FieldIsRequired": "Необходимо заполнить",
+  "filters.Apply": "Применить",
   "filters.NewFilter": "Новый фильтр",
   "filters.Template": "Шаблон",
   "filters.NewTemplateLabel": "Название шаблона (только если хотите сохранить в шаблон, а не просто применить фильтр)",
