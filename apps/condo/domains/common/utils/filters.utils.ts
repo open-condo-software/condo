@@ -189,7 +189,7 @@ export async function updateQuery (router: NextRouter, newFilters?: FiltersFromQ
         router.query['offset'] = '0'
     }
 
-    const possibleFilters = pickBy(newFilters, (value, key) => !isEmpty(value))
+    const possibleFilters = pickBy(newFilters, (value) => !isEmpty(value))
     const possibleQueryData = { ...router.query, sort, offset }
     if (isEmpty(possibleFilters)) {
         delete possibleQueryData['filters']
