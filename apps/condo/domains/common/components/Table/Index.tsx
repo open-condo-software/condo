@@ -2,7 +2,7 @@ import React from 'react'
 import { ColumnsType } from 'antd/es/table/interface'
 import { Table as DefaultTable, TableProps } from 'antd'
 import get from 'lodash/get'
-import { debounce } from 'lodash'
+import debounce from 'lodash/debounce'
 import { useRouter } from 'next/router'
 import {
     getPageIndexFromOffset,
@@ -10,7 +10,7 @@ import {
     FULL_TO_SHORT_ORDERS_MAP,
     FiltersFromQueryType,
 } from '@condo/domains/common/utils/tables.utils'
-import { isEqual } from 'lodash'
+import isEqual from 'lodash/isEqual'
 import { updateQuery } from '@condo/domains/common/utils/filters.utils'
 
 export type TableRecord = any
