@@ -1,6 +1,24 @@
 import { notification } from 'antd'
+import { useMutation } from '@core/next/apollo'
+import { useIntl } from '@core/next/intl'
+import { useForm } from 'antd/lib/form/Form'
 
-function runMutation ({ action, mutation, variables, onCompleted, onError, onFinally, intl, form, ErrorToFormFieldMsgMapping, OnErrorMsg, OnCompletedMsg }) {
+type RunMutationArgs = {
+    mutation?: ReturnType<typeof useMutation>[0]
+    action?: () => Promise
+    variables: any
+    onCompleted?: (data: any) => void
+    onError?: () => void
+    onFinally?: () => void
+    intl?: ReturnType<typeof useIntl>
+    form?: (ReturnType<typeof useForm>)[0]
+    ErrorToFormFieldMsgMapping?: Record<string, any>
+    OnErrorMsg?: string
+    OnCompletedMsg?: string
+}
+
+function runMutation ({ action, ...args }: RunMutationArgs) {
+    const { mutation, variables, onCompleted, onError, onFinally, intl, form, ErrorToFormFieldMsgMapping, OnErrorMsg, OnCompletedMsg } = args
     if (!intl) throw new Error('intl prop required')
     if (!mutation && !action) throw new Error('mutation or action prop required')
     if (action && mutation) throw new Error('impossible to pass mutation and action prop')

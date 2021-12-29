@@ -1,7 +1,7 @@
-import { Rule } from 'rc-field-form/lib/interface'
 import { useMemo } from 'react'
-import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
+import { Rule } from 'rc-field-form/lib/interface'
 import { useIntl } from '@core/next/intl'
+import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
 
 type ValidatorsMap = {
     [key: string]: Rule[]
@@ -71,4 +71,40 @@ export const useRegisterFormValidators = () => {
             ],
         }
     }, [intl])
+}
+
+export type ConfirmIdentityPageStoreType = (tokenkey: string, stepKey: string) => {
+    readonly loadToken: <T>() => T
+    readonly saveToken: (token: string) => void
+    readonly forgetToken: () => void
+
+    readonly loadStep: <S>() => S
+    readonly saveStep: (step: string) => void
+    readonly forgetStep: () => void
+}
+
+export const useConfirmIdentityPageStore: ConfirmIdentityPageStoreType = (tokenkey: string, stepKey: string) => {
+    const forgetToken = () => {
+        localStorage.removeItem(tokenkey)
+    }
+    const loadToken = <T>() => {
+        const token = localStorage.getItem(tokenkey) as unknown as T
+        return token
+    }
+    const saveToken = (token: string) => {
+        localStorage.setItem(tokenkey, token)
+    }
+
+    const loadStep = <S>() => {
+        const step = localStorage.getItem(stepKey) as unknown as S
+        return step
+    }
+    const saveStep = (step: string) => {
+        localStorage.setItem(stepKey, step)
+    }
+    const forgetStep = () => {
+        localStorage.removeItem(stepKey)
+    }
+
+    return { loadToken, saveToken, forgetToken, loadStep, saveStep, forgetStep } as const
 }

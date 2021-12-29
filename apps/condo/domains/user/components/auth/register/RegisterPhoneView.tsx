@@ -1,32 +1,25 @@
-import { Button } from '@condo/domains/common/components/Button'
-import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
-import { runMutation } from '@condo/domains/common/utils/mutations.utils'
-import { normalizePhone } from '@condo/domains/common/utils/phone'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { TOO_MANY_REQUESTS } from '@condo/domains/user/constants/errors'
-import { START_CONFIRM_PHONE_MUTATION } from '@condo/domains/user/gql'
+import React, { useCallback, useMemo, useState } from 'react'
+import { Col, Form, Row, Typography } from 'antd'
+import { FormattedMessage } from 'react-intl'
 import { useMutation } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
-import { Col, Form, Row, Typography } from 'antd'
-import React, { useCallback, useMemo, useState } from 'react'
-import { FormattedMessage } from 'react-intl'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import {  useRegisterContext } from './RegisterContextProvider'
+import { Button } from '@condo/domains/common/components/Button'
+import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
+import { normalizePhone } from '@condo/domains/common/utils/phone'
+import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
+import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
-import { useRouter } from 'next/router'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { useConfirmIdentityContext } from '@condo/domains/user/components/auth/ConfirmIdentityContext'
+import { START_CONFIRM_PHONE_MUTATION } from '@condo/domains/user/gql'
+import { TOO_MANY_REQUESTS } from '@condo/domains/user/constants/errors'
+import { FORM_LAYOUT } from '@condo/domains/user/constants/layout'
+import { CAPTCHA_ACTIONS } from '@condo/domains/user/utils/captchaActions'
+import { RegisterPageStep } from './RegisterPageStep'
 
-
-const FORM_LAYOUT = {
-    labelCol: { span: 10 },
-    wrapperCol: { span: 14 },
-}
-
-interface IInputPhoneFormProps {
-    onFinish?: () => void
-}
-
-export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => {
+export function RegisterPhoneView () {
     const intl = useIntl()
+
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
     const RegisterHelpMessage = intl.formatMessage({ id: 'pages.auth.reset.RegisterHelp' })
     const UserAgreementFileName = intl.formatMessage({ id: 'pages.auth.register.info.UserAgreementFileName' })
@@ -36,14 +29,15 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
     const SberIdRegisterMsg = intl.formatMessage({ id: 'SberIdRegister' })
 
-    const router = useRouter()
     const [form] = Form.useForm()
-
     const { isSmall } = useLayoutContext()
-    const { token, isConfirmed, setToken, setPhone, handleReCaptchaVerify } = useRegisterContext()
+    const { phone, token, isConfirmed, setToken, setPhone, setStep, handleReCaptchaVerify } = useConfirmIdentityContext()
+
     const [smsSendError, setSmsSendError] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
+
     const [startPhoneVerify] = useMutation(START_CONFIRM_PHONE_MUTATION)
+
     const ErrorToFormFieldMsgMapping = useMemo(() => {
         return {
             [TOO_MANY_REQUESTS]: {
@@ -54,33 +48,30 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
     }, [intl])
 
     const startConfirmPhone = useCallback(async () => {
-        console.log(token, isConfirmed)
-        if (token && isConfirmed) {
-            router.push(`/auth/confirm?token=${token}`)
+        const { phone: inputPhone } = form.getFieldsValue(['phone'])
+        const normalizedPhone = normalizePhone(inputPhone)
+
+        if (phone === normalizedPhone && token && isConfirmed) {
+            setStep(RegisterPageStep.FillCredentials)
             return
         }
+
+        setPhone(normalizedPhone)
+        const captcha = await handleReCaptchaVerify(CAPTCHA_ACTIONS.START_CONFIRM_PHONE)
         const registerExtraData = {
             dv: 1,
             sender: getClientSideSenderInfo(),
         }
-        const { phone: inputPhone } = form.getFieldsValue(['phone'])
-        const phone = normalizePhone(inputPhone)
-        setPhone(phone)
-        const captcha = await handleReCaptchaVerify('start_confirm_phone')
-        const variables = { data: { ...registerExtraData, phone, captcha } }
+        const variables = { data: { ...registerExtraData, phone: normalizedPhone, captcha } }
         setIsLoading(true)
 
-        // @ts-ignore TODO(Dimitreee): remove after runMutation typo
         return runMutation({
             mutation: startPhoneVerify,
             variables,
             onCompleted: (data) => {
                 const { data: { result: { token } } } = data
                 setToken(token)
-                router.push(`/auth/confirm?token=${token}`)
-                if (onFinish) {
-                    onFinish()
-                }
+                setStep(RegisterPageStep.ConfirmPhone)
             },
             onFinally: () => {
                 setIsLoading(false)
@@ -91,7 +82,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
         }).catch(() => {
             setIsLoading(false)
         })
-    }, [token, isConfirmed, form, setPhone, handleReCaptchaVerify, startPhoneVerify, intl, ErrorToFormFieldMsgMapping, router, setToken, onFinish])
+    }, [form, phone, token, isConfirmed, setPhone, handleReCaptchaVerify, startPhoneVerify, intl, ErrorToFormFieldMsgMapping, setStep, setToken])
 
     return (
         <Form

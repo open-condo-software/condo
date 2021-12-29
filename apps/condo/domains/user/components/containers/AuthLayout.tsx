@@ -1,4 +1,4 @@
-import React  from 'react'
+import React from 'react'
 import { formInputFixCss } from '@condo/domains/common/components/containers/BaseLayout/components/styles'
 import { Global } from '@emotion/core'
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3'
@@ -16,10 +16,9 @@ export interface AuthPage extends React.FC {
 
 interface IAuthLayoutProps {
     headerAction: React.ReactElement
-    children: JSX.Element
 }
 
-const AuthLayout: React.FC<IAuthLayoutProps> = (props) => {
+export const AuthLayout: React.FC<React.PropsWithChildren<IAuthLayoutProps>> = (props) => {
     const intl = useIntl()
 
     const { children, ...otherProps } = props
@@ -34,7 +33,7 @@ const AuthLayout: React.FC<IAuthLayoutProps> = (props) => {
                 defer: true,
                 appendTo: 'body',
             }}>
-            <Global styles={formInputFixCss}/>
+            <Global styles={formInputFixCss} />
             <PosterLayout {...otherProps}>
                 <AuthLayoutContextProvider>
                     {children}
@@ -44,4 +43,3 @@ const AuthLayout: React.FC<IAuthLayoutProps> = (props) => {
     )
 }
 
-export default AuthLayout

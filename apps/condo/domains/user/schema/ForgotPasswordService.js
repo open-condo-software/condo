@@ -1,7 +1,7 @@
 const { v4: uuid } = require('uuid')
 const conf = require('@core/config')
 const { WRONG_PHONE_ERROR, MULTIPLE_ACCOUNTS_MATCHES, RESET_TOKEN_NOT_FOUND, PASSWORD_TOO_SHORT, TOKEN_EXPIRED_ERROR } = require('@condo/domains/user/constants/errors')
-const { RESET_PASSWORD_MESSAGE_TYPE, SMS_TRANSPORT, EMAIL_TRANSPORT } = require('@condo/domains/notification/constants')
+const { RESET_PASSWORD_MESSAGE_TYPE } = require('@condo/domains/notification/constants')
 const RESET_PASSWORD_TOKEN_EXPIRY = conf.USER__RESET_PASSWORD_TOKEN_EXPIRY || 1000 * 60 * 60 * 24
 const { MIN_PASSWORD_LENGTH, STAFF } = require('@condo/domains/user/constants/common')
 const { GQLCustomSchema, getById } = require('@core/keystone/schema')
@@ -10,6 +10,8 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { ForgotPasswordAction: ForgotPasswordActionUtil, User } = require('@condo/domains/user/utils/serverSchema')
 const isEmpty = require('lodash/isEmpty')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { ConfirmPhoneAction: ConfirmPhoneActionUtils } = require('@condo/domains/user/utils/serverSchema')
+const { completeConfirmPhoneActionResolver } = require('./ConfirmPhoneService')
 
 const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
     types: [
@@ -133,19 +135,29 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 if (password.length < MIN_PASSWORD_LENGTH) {
                     throw new Error(`${PASSWORD_TOO_SHORT}] Password is too short`)
                 }
-                const [action] = await ForgotPasswordActionUtil.getAll(context, {
+
+                const [cpAction] = await ConfirmPhoneActionUtils.getAll(context, {
+                    token,
+                    expiresAt_gte: new Date(now).toISOString(),
+                    completedAt: null,
+                })
+                if (cpAction) {
+                    const result = await completeConfirmPhoneActionResolver(parent, args, context, info, extra, false, cpAction)
+                }
+
+                const [fpAction] = await ForgotPasswordActionUtil.getAll(context, {
                     token,
                     expiresAt_gte: now,
                     usedAt: null,
                 })
-
-                if (!action) {
+                
+                if (!fpAction) {
                     throw new Error(`${RESET_TOKEN_NOT_FOUND}] Unable to find valid token`)
                 }
 
-                const userId = action.user.id
+                const userId = fpAction.user.id
                 const { phone } = await getById('User', userId)
-                const tokenId = action.id
+                const tokenId = fpAction.id
 
                 // mark token as used
                 await ForgotPasswordActionUtil.update(context, tokenId, {

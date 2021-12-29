@@ -23,6 +23,7 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 const { ConfirmPhoneAction: ConfirmPhoneActionUtils, generateSmsCode } = require('@condo/domains/user/utils/serverSchema')
 const { captchaCheck } = require('@condo/domains/user/utils/googleRecaptcha3')
+const { CAPTCHA_ACTIONS } = require('@condo/domains/user/utils/captchaActions')
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 
@@ -69,7 +70,7 @@ const ConfirmIdentityService = new GQLCustomSchema('ConfirmIndentityService', {
             schema: 'getPhoneByConfirmPhoneActionToken(data: GetPhoneByConfirmPhoneActionTokenInput!): GetPhoneByConfirmPhoneActionTokenOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { token, captcha } = args.data
-                const { error } = await captchaCheck(captcha, 'get_confirm_phone_token_info')
+                const { error } = await captchaCheck(captcha, CAPTCHA_ACTIONS.GET_CONFIRM_PHONE_TOKEN_INFO)
                 if (error) {
                     throw new Error(`${CAPTCHA_CHECK_FAILED}] ${error}`)
                 }
@@ -93,7 +94,7 @@ const ConfirmIdentityService = new GQLCustomSchema('ConfirmIndentityService', {
             schema: 'startConfirmPhoneAction(data: StartConfirmPhoneActionInput!): StartConfirmPhoneActionOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { phone: inputPhone, sender, dv, captcha } = args.data
-                const { error } = await captchaCheck(captcha, 'start_confirm_phone')
+                const { error } = await captchaCheck(captcha, CAPTCHA_ACTIONS.START_CONFIRM_PHONE)
                 if (error) {
                     throw new Error(`${CAPTCHA_CHECK_FAILED}] ${error}`)
                 }
@@ -101,11 +102,20 @@ const ConfirmIdentityService = new GQLCustomSchema('ConfirmIndentityService', {
                 if (!phone) {
                     throw new Error(`${PHONE_WRONG_FORMAT_ERROR}]: not valid phone number provided`)
                 }
+                const now = extra.extraNow || Date.now()
+                const [action] = await ConfirmPhoneActionUtils.getAll(context, {
+                    phone,
+                    smsCodeExpiresAt_gte: new Date(now).toISOString(),
+                    completedAt: null,
+                })
+                if (action) {
+                    return { token: action.token }
+                }
+
                 await redisGuard.checkSMSDayLimitCounters(phone, context.req.ip)
                 await redisGuard.checkLock(phone, 'sendsms')
                 await redisGuard.lock(phone, 'sendsms', SMS_CODE_TTL)
                 const token = uuid()
-                const now = extra.extraNow || Date.now()
                 const requestedAt = new Date(now).toISOString()
                 const expiresAt = new Date(now + CONFIRM_PHONE_ACTION_EXPIRY * 1000).toISOString()
                 const smsCode = generateSmsCode(phone)
@@ -142,7 +152,7 @@ const ConfirmIdentityService = new GQLCustomSchema('ConfirmIndentityService', {
             schema: 'resendConfirmPhoneActionSms(data: ResendConfirmPhoneActionSmsInput!): ResendConfirmPhoneActionSmsOutput',
             resolver: async (parent, args, context, info, extra) => {
                 const { token, sender, captcha } = args.data
-                const { error } = await captchaCheck(captcha, 'resend_sms')
+                const { error } = await captchaCheck(captcha, CAPTCHA_ACTIONS.RESEND_SMS)
                 if (error) {
                     throw new Error(`${CAPTCHA_CHECK_FAILED}] ${error}`)
                 }
@@ -182,49 +192,52 @@ const ConfirmIdentityService = new GQLCustomSchema('ConfirmIndentityService', {
         {
             access: true,
             schema: 'completeConfirmPhoneAction(data: CompleteConfirmPhoneActionInput!): CompleteConfirmPhoneActionOutput',
-            resolver: async (parent, args, context, info, extra) => {
-                const { token, smsCode, captcha } = args.data
-                const { error } = await captchaCheck(captcha, 'complete_verify_phone')
-                if (error) {
-                    throw new Error(`${CAPTCHA_CHECK_FAILED}] ${error}`)
-                }
-                const now = extra.extraNow || Date.now()
-                const actions = await ConfirmPhoneActionUtils.getAll(context, {
-                    token,
-                    expiresAt_gte: new Date(now).toISOString(),
-                    completedAt: null,
-                })
-                if (isEmpty(actions)) {
-                    throw new Error(`${CONFIRM_PHONE_ACTION_EXPIRED}] unable to find confirm phone action`)
-                }
-                await redisGuard.checkLock(token, 'confirm')
-                await redisGuard.lock(token, 'confirm', LOCK_TIMEOUT)
-                const { id, smsCode: actionSmsCode, retries, smsCodeExpiresAt } = actions[0]
-                const isExpired = (new Date(smsCodeExpiresAt) < new Date(now))
-                if (isExpired) {
-                    throw new Error(`${CONFIRM_PHONE_SMS_CODE_EXPIRED}] SMS code expired `)
-                }
-                if (retries >= CONFIRM_PHONE_SMS_MAX_RETRIES) {
-                    await ConfirmPhoneActionUtils.update(context, id, {
-                        completedAt: new Date(now).toISOString(),
-                    })
-                    throw new Error(`${CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED}] Retries limit is excided try to confirm from start`)
-                }
-                if (actionSmsCode !== smsCode) {
-                    await ConfirmPhoneActionUtils.update(context, id, {
-                        retries: retries + 1,
-                    })
-                    throw new Error(`${CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED}]: SMSCode mismatch`)
-                }
-                await ConfirmPhoneActionUtils.update(context, id, {
-                    isPhoneVerified: true,
-                })
-                return { status: 'ok' }
-            },
+            resolver: completeConfirmPhoneActionResolver,
         },
     ],
 })
-
+async function completeConfirmPhoneActionResolver (parent, args, context, info, extra, checkCaptcha, extraAction) {
+    const { token, smsCode, captcha } = args.data
+    if (checkCaptcha) {
+        const { error } = await captchaCheck(captcha, CAPTCHA_ACTIONS.COMPLETE_VERIFY_PHONE)
+        if (error) {
+            throw new Error(`${CAPTCHA_CHECK_FAILED}] ${error}`)
+        }
+    }
+    const now = extra.extraNow || Date.now()
+    const [action] = extraAction || await ConfirmPhoneActionUtils.getAll(context, {
+        token,
+        expiresAt_gte: new Date(now).toISOString(),
+        completedAt: null,
+    })
+    if (!action) {
+        throw new Error(`${CONFIRM_PHONE_ACTION_EXPIRED}] unable to find confirm phone action`)
+    }
+    await redisGuard.checkLock(token, 'confirm')
+    await redisGuard.lock(token, 'confirm', LOCK_TIMEOUT)
+    const { id, smsCode: actionSmsCode, retries, smsCodeExpiresAt } = action
+    const isExpired = (new Date(smsCodeExpiresAt) < new Date(now))
+    if (isExpired) {
+        throw new Error(`${CONFIRM_PHONE_SMS_CODE_EXPIRED}] SMS code expired`)
+    }
+    if (retries >= CONFIRM_PHONE_SMS_MAX_RETRIES) {
+        await ConfirmPhoneActionUtils.update(context, id, {
+            completedAt: new Date(now).toISOString(),
+        })
+        throw new Error(`${CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED}] Retries limit is excided try to confirm from start`)
+    }
+    if (actionSmsCode !== smsCode) {
+        await ConfirmPhoneActionUtils.update(context, id, {
+            retries: retries + 1,
+        })
+        throw new Error(`${CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED}]: SMSCode mismatch`)
+    }
+    await ConfirmPhoneActionUtils.update(context, id, {
+        isPhoneVerified: true,
+    })
+    return { status: 'ok' }
+}
 module.exports = {
     ConfirmIdentityService,
+    completeConfirmPhoneActionResolver,
 }

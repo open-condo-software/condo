@@ -13,11 +13,7 @@ import { useMutation } from '@core/next/apollo'
 import { useAuth } from '@core/next/auth'
 import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-
-const FORM_LAYOUT = {
-    labelCol: { span: 10 },
-    wrapperCol: { span: 14 },
-}
+import { FORM_LAYOUT } from '@condo/domains/user/constants/layout'
 
 export const SignInForm = (): React.ReactElement => {
     const intl = useIntl()
@@ -93,7 +89,7 @@ export const SignInForm = (): React.ReactElement => {
                                 label={PhoneMsg}
                                 rules={[{ required: true, message: FieldIsRequiredMsg }]}
                             >
-                                <PhoneInput placeholder={ExamplePhoneMsg} tabIndex={1} block/>
+                                <PhoneInput placeholder={ExamplePhoneMsg} tabIndex={1} block />
                             </Form.Item>
                         </Col>
                         <Col span={24}>
@@ -127,7 +123,7 @@ export const SignInForm = (): React.ReactElement => {
                                     <Button
                                         key='submit'
                                         type='sberAction'
-                                        icon={<SberIconWithoutLabel/>}
+                                        icon={<SberIconWithoutLabel />}
                                         href={'/api/sbbol/auth'}
                                         block={isSmall}
                                     >
@@ -153,7 +149,6 @@ export const SignInForm = (): React.ReactElement => {
                     </Row>
                 </Col>
             </Row>
-
         </Form>
     )
 }

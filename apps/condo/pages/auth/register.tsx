@@ -1,52 +1,45 @@
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { RegisterForm } from '@condo/domains/user/components/auth/RegisterForm'
-import { useRouter } from 'next/router'
-import { useCallback, useEffect } from 'react'
-import { useMutation } from '@core/next/apollo'
-import { runMutation } from '@condo/domains/common/utils/mutations.utils'
+import { useMemo, useState } from 'react'
+import { Row, Col, Typography } from 'antd'
 import { useIntl } from '@core/next/intl'
-import { CREATE_ONBOARDING_MUTATION } from '@condo/domains/onboarding/gql'
-import { RegisterLayout } from '@condo/domains/user/components/auth/RegisterLayout'
-import { useRegisterContext } from '@condo/domains/user/components/auth/RegisterContextProvider'
+
+import { ConfirmPhoneView } from '@condo/domains/user/components/auth/ConfirmPhoneView'
+import { RegisterPhoneView } from '@condo/domains/user/components/auth/register/RegisterPhoneView'
+import { FillCredentialsView } from '@condo/domains/user/components/auth/register/FillCredentialsView'
+import { RegisterPageStep } from '@condo/domains/user/components/auth/register/RegisterPageStep'
+import { useConfirmIdentityPageStore } from '@condo/domains/user/components/auth/hooks'
+import { ButtonHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { AuthLayout } from '@condo/domains/user/components/containers/AuthLayout'
+import { ConfirmIdentityContextProvider } from '@condo/domains/user/components/auth/ConfirmIdentityContext'
 
 export default function RegisterPage () {
+    const [step, setStep] = useState<RegisterPageStep>(RegisterPageStep.EnterPhone)
+
+    const pageStore = useConfirmIdentityPageStore('registration_token', 'registration_step')
+
+    const pageStepToViewMap = {
+        [RegisterPageStep.EnterPhone]: <RegisterPhoneView />,
+        [RegisterPageStep.ConfirmPhone]: <ConfirmPhoneView />,
+        [RegisterPageStep.FillCredentials]: <FillCredentialsView />,
+    }
+    const viewToRender = useMemo(() => pageStepToViewMap[step], [step])
     const intl = useIntl()
-    const { token, tokenLoading, isConfirmed, setToken } = useRegisterContext()
-    const router = useRouter()
-    const [createOnBoarding] = useMutation(CREATE_ONBOARDING_MUTATION, {
-        onCompleted: () => {
-            router.push('/onboarding')
-        },
-    })
-
-    const initOnBoarding = useCallback((userId: string) => {
-        const onBoardingExtraData = {
-            dv: 1,
-            sender: getClientSideSenderInfo(),
-        }
-
-        const data = { ...onBoardingExtraData, type: 'ADMINISTRATOR', userId }
-
-        runMutation({
-            mutation: createOnBoarding,
-            variables: { data },
-            intl,
-        })
-    }, [createOnBoarding, intl])
-
-    const onRegisterFinish = useCallback((userId: string) => {
-        setToken(null)
-        initOnBoarding(userId)
-    }, [initOnBoarding, setToken])
-
-    useEffect(() => {
-        if (!tokenLoading && (!token || !isConfirmed)) {
-            router.push('/auth/input')
-        }
-    }, [tokenLoading, token, isConfirmed, router])
+    const RegistrationTitleMsg = intl.formatMessage({ id: 'pages.auth.RegistrationTitle' })
 
     return (
-        <RegisterForm onFinish={onRegisterFinish} />
+        <ConfirmIdentityContextProvider pageStore={pageStore} resetView={() => setStep(RegisterPageStep.EnterPhone)} setStep={setStep}>
+            <Row gutter={[0, 24]}>
+                <Col span={24}>
+                    <Typography.Title>{RegistrationTitleMsg}</Typography.Title>
+                </Col>
+                <Col span={24}>
+                    {viewToRender}
+                </Col>
+            </Row>
+        </ConfirmIdentityContextProvider>
     )
 }
-RegisterPage.container = RegisterLayout
+RegisterPage.container = AuthLayout
+RegisterPage.headerAction = <ButtonHeaderAction
+    descriptor={{ id: 'pages.auth.AlreadyRegistered' }}
+    path={'/auth/signin'}
+/>

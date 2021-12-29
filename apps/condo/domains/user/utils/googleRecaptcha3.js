@@ -12,12 +12,12 @@ if (isEmpty(SERVER_KEY)) {
 const onCaptchaCheck = ({ success, challenge_ts, hostname, score, action }) => {
     console.log(
         (score < SAFE_CAPTCHA_SCORE) ? '\x1b[31m' : '\x1b[32m',
-        `Recaptcha: ${action} - [${score}]: ${success}`,         
-        challenge_ts, 
+        `Recaptcha: ${action} - [${score}]: ${success}`,
+        challenge_ts,
         hostname,
         '\x1b[0m'
     )
-} 
+}
 
 const captchaCheck = async (response, action = '') => {
     if (conf.NODE_ENV === 'test') {
@@ -43,7 +43,6 @@ const captchaCheck = async (response, action = '') => {
         return { error: '[error] captcha check failed' }
     }
 }
-
 module.exports = {
     captchaCheck,
 }

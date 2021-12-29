@@ -1,6 +1,5 @@
 import { Col, Form, Row, Space, Typography } from 'antd'
 import MaskedInput from 'antd-mask-input'
-import cookie from 'js-cookie'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormattedMessage } from 'react-intl'
 import { useMutation } from '@core/next/apollo'
@@ -18,20 +17,13 @@ import {
     CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED, TOO_MANY_REQUESTS,
 } from '@condo/domains/user/constants/errors'
 import { COMPLETE_CONFIRM_PHONE_MUTATION, RESEND_CONFIRM_PHONE_SMS_MUTATION } from '@condo/domains/user/gql'
-import { useRegisterContext } from './RegisterContextProvider'
-import { Loader } from '../../../common/components/Loader'
+import { useConfirmIdentityContext } from '@condo/domains/user/components/auth/ConfirmIdentityContext'
+import { FORM_LAYOUT } from '@condo/domains/user/constants/layout'
+import { CAPTCHA_ACTIONS } from '@condo/domains/user/utils/captchaActions'
+import { RegisterPageStep } from './register/RegisterPageStep'
+import { Loader } from '@condo/domains/common/components/Loader'
 
-const FORM_LAYOUT = {
-    labelCol: { span: 10 },
-    wrapperCol: { span: 14 },
-}
-
-interface IConfirmPhoneFormProps {
-    onFinish: () => void
-    onReset: () => void
-}
-
-export const ConfirmPhoneForm = ({ onFinish, onReset }): React.ReactElement<IConfirmPhoneFormProps> => {
+export function ConfirmPhoneView () {
     const intl = useIntl()
     const ChangePhoneNumberLabel = intl.formatMessage({ id: 'pages.auth.register.ChangePhoneNumber' })
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
@@ -69,7 +61,7 @@ export const ConfirmPhoneForm = ({ onFinish, onReset }): React.ReactElement<ICon
     }, [intl])
 
     const [form] = Form.useForm()
-    const { token, tokenLoading, phone, isConfirmed, handleReCaptchaVerify } = useRegisterContext()
+    const { token, tokenLoading, tokenError, isConfirmed, setIsConfirmed, forgetToken, phone, handleReCaptchaVerify, pageStore, setStep } = useConfirmIdentityContext()
     const [showPhone, setShowPhone] = useState(phone)
     const [isPhoneVisible, setIsPhoneVisible] = useState(false)
     const [phoneValidateError, setPhoneValidateError] = useState(null)
@@ -78,10 +70,9 @@ export const ConfirmPhoneForm = ({ onFinish, onReset }): React.ReactElement<ICon
 
     const PhoneToggleLabel = isPhoneVisible ? intl.formatMessage({ id: 'Hide' }) : intl.formatMessage({ id: 'Show' })
 
-
     const resendSms = useCallback(async () => {
         const sender = getClientSideSenderInfo()
-        const captcha = await handleReCaptchaVerify('resend_sms')
+        const captcha = await handleReCaptchaVerify(CAPTCHA_ACTIONS.RESEND_SMS)
         const variables = { data: { token, sender, captcha } }
         return runMutation({
             mutation: resendSmsMutation,
@@ -92,14 +83,26 @@ export const ConfirmPhoneForm = ({ onFinish, onReset }): React.ReactElement<ICon
         }).catch(error => {
             console.error(error)
         })
-    }, [intl, form, handleReCaptchaVerify, resendSmsMutation])
+    }, [handleReCaptchaVerify, token, resendSmsMutation, intl, form, ErrorToFormFieldMsgMapping])
+
+    useEffect(() => {
+        console.log('confirm phone view', tokenLoading, token, phone)
+        if (tokenLoading) return
+        if (!token || !phone) {
+            setStep(RegisterPageStep.EnterPhone)
+        }
+        if (token && isConfirmed) {
+            setStep(RegisterPageStep.FillCredentials)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [tokenLoading])
 
     const confirmPhone = useCallback(async () => {
         const smsCode = Number(form.getFieldValue('smsCode'))
         if (isNaN(smsCode)) {
             throw new Error(SMSBadFormat)
         }
-        const captcha = await handleReCaptchaVerify('complete_verify_phone')
+        const captcha = await handleReCaptchaVerify(CAPTCHA_ACTIONS.COMPLETE_VERIFY_PHONE)
         const variables = { data: { token, smsCode, captcha } }
         return runMutation({
             mutation: completeConfirmPhoneMutation,
@@ -108,7 +111,12 @@ export const ConfirmPhoneForm = ({ onFinish, onReset }): React.ReactElement<ICon
             form,
             ErrorToFormFieldMsgMapping,
         })
-    }, [intl, form, completeConfirmPhoneMutation])
+    }, [form, handleReCaptchaVerify, token, completeConfirmPhoneMutation, intl, ErrorToFormFieldMsgMapping, SMSBadFormat])
+
+    const changePhone = useCallback(() => {
+        forgetToken()
+        setStep(RegisterPageStep.EnterPhone)
+    }, [forgetToken, setStep])
 
     const handleVerifyCode = useCallback(async () => {
         setPhoneValidateError(null)
@@ -122,11 +130,22 @@ export const ConfirmPhoneForm = ({ onFinish, onReset }): React.ReactElement<ICon
         }
         try {
             await confirmPhone()
-            onFinish()
+            setIsConfirmed(true)
+            setStep(RegisterPageStep.FillCredentials)
         } catch (error) {
             console.error(error)
         }
-    }, [confirmPhone])
+    }, [SMSCodeMismatchError, confirmPhone, form])
+
+    useEffect(() => {
+        if (tokenLoading) return
+        if (!token || tokenError || phone.length === 0) {
+            setStep(RegisterPageStep.EnterPhone)
+        }
+        else if (isConfirmed) {
+            setStep(RegisterPageStep.FillCredentials)
+        }
+    }, [tokenLoading])
 
     useEffect(() => {
         if (isPhoneVisible) {
@@ -136,12 +155,6 @@ export const ConfirmPhoneForm = ({ onFinish, onReset }): React.ReactElement<ICon
             setShowPhone(`${unHidden.substring(0, 9)}***${unHidden.substring(12)}`)
         }
     }, [isPhoneVisible, phone, setShowPhone])
-
-    useEffect(() => {
-        if (isConfirmed && token?.length > 0) {
-            onFinish()
-        }
-    }, [])
 
     const initialValues = { smsCode: '' }
 
@@ -166,38 +179,39 @@ export const ConfirmPhoneForm = ({ onFinish, onReset }): React.ReactElement<ICon
                                 }}
                             />
                         </Typography.Text>
-                        <Button type={'inlineLink'} size={'small'} onClick={onReset}>
+                        <Button type={'inlineLink'} size={'small'} onClick={changePhone}>
                             {ChangePhoneNumberLabel}
                         </Button>
                     </Space>
                 </Col>
-                {!tokenLoading ? <Col span={24}>
-                    <Form.Item
-                        name='smsCode'
-                        label={SmsCodeTitle}
-                        rules={[
-                            {
-                                required: true,
-                                message: FieldIsRequiredMsg,
-                            },
-                            () => ({
-                                validator () {
-                                    if (!phoneValidateError) {
-                                        return Promise.resolve()
-                                    }
-                                    return Promise.reject(phoneValidateError)
+                <Col span={24}>
+                    {!tokenLoading ?
+                        <Form.Item
+                            name='smsCode'
+                            label={SmsCodeTitle}
+                            rules={[
+                                {
+                                    required: true,
+                                    message: FieldIsRequiredMsg,
                                 },
-                            }),
-                        ]}
-                    >
-                        <MaskedInput
-                            mask='1111'
-                            placeholder=''
-                            placeholderChar=' '
-                            onChange={handleVerifyCode}
-                        />
-                    </Form.Item>
-                </Col> : <Loader />}
+                                () => ({
+                                    validator () {
+                                        if (!phoneValidateError) {
+                                            return Promise.resolve()
+                                        }
+                                        return Promise.reject(phoneValidateError)
+                                    },
+                                }),
+                            ]}
+                        >
+                            <MaskedInput
+                                mask='1111'
+                                placeholder=''
+                                placeholderChar=' '
+                                onChange={handleVerifyCode}
+                            />
+                        </Form.Item> : <Loader />}
+                </Col>
                 <Col span={24}>
                     <CountDownTimer action={resendSms} id={'RESEND_SMS'} timeout={SMS_CODE_TTL} autostart={true}>
                         {({ countdown, runAction }) => {

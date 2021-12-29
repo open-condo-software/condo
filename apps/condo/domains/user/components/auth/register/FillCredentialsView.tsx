@@ -1,33 +1,29 @@
-import { Col, Form, Input, Row, Typography } from 'antd'
-import React, { useCallback, useContext, useMemo, useState } from 'react'
-import get from 'lodash/get'
-import { useMutation } from '@core/next/apollo'
-import { useIntl } from '@core/next/intl'
-import { Button } from '@condo/domains/common/components/Button'
-import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
-import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
+import { useRouter } from 'next/router'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useMutation } from '@core/next/apollo'
+import { runMutation } from '@condo/domains/common/utils/mutations.utils'
+import { useIntl } from '@core/next/intl'
+import { CREATE_ONBOARDING_MUTATION } from '@condo/domains/onboarding/gql'
 import {
     EMAIL_ALREADY_REGISTERED_ERROR,
     MIN_PASSWORD_LENGTH_ERROR,
     CONFIRM_PHONE_ACTION_EXPIRED,
     PHONE_ALREADY_REGISTERED_ERROR,
 } from '@condo/domains/user/constants/errors'
+import { useRegisterFormValidators } from '@condo/domains/user/components/auth/hooks'
+import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayoutContext'
 import { REGISTER_NEW_USER_MUTATION } from '@condo/domains/user/gql'
-import { AuthLayoutContext } from '../containers/AuthLayoutContext'
-import { useRegisterFormValidators } from './hooks'
-import { RegisterContext, useRegisterContext } from './RegisterContextProvider'
+import { Form, Row, Col, Input } from 'antd'
+import { Button } from '@condo/domains/common/components/Button'
+import { get } from 'lodash'
+import PhoneInput from 'react-phone-input-2'
+import { FORM_LAYOUT } from '@condo/domains/user/constants/layout'
+import { RegisterPageStep } from './RegisterPageStep'
+import { useConfirmIdentityContext } from '../ConfirmIdentityContext'
 
-const FORM_LAYOUT = {
-    labelCol: { span: 10 },
-    wrapperCol: { span: 14 },
-}
 
-interface IRegisterFormProps {
-    onFinish: (userId: string) => void
-}
-
-export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
+export function FillCredentialsView () {
     const intl = useIntl()
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
@@ -42,6 +38,34 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
     const PasswordIsTooShortMsg = intl.formatMessage({ id: 'pages.auth.PasswordIsTooShort' })
     const EmailIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsAlreadyRegistered' })
     const ConfirmActionExpiredError = intl.formatMessage({ id: 'pages.auth.register.ConfirmActionExpiredError' })
+
+    const { token, phone, tokenLoading, isConfirmed, setToken, setStep } = useConfirmIdentityContext()
+    const router = useRouter()
+    const [createOnBoarding] = useMutation(CREATE_ONBOARDING_MUTATION, {
+        onCompleted: () => {
+            router.push('/onboarding')
+        },
+    })
+
+    const initOnBoarding = useCallback((userId: string) => {
+        const onBoardingExtraData = {
+            dv: 1,
+            sender: getClientSideSenderInfo(),
+        }
+
+        const data = { ...onBoardingExtraData, type: 'ADMINISTRATOR', userId }
+
+        runMutation({
+            mutation: createOnBoarding,
+            variables: { data },
+            intl,
+        })
+    }, [createOnBoarding, intl])
+
+    const onRegisterFinish = useCallback((userId: string) => {
+        setToken(null)
+        initOnBoarding(userId)
+    }, [initOnBoarding, setToken])
 
     const validators = useRegisterFormValidators()
     const ErrorToFormFieldMsgMapping = useMemo(() => {
@@ -67,7 +91,6 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
 
     const [form] = Form.useForm()
     const [isLoading, setIsLoading] = useState(false)
-    const { phone, token } = useRegisterContext()
     const { signInByPhone } = useContext(AuthLayoutContext)
     const [registerMutation] = useMutation(REGISTER_NEW_USER_MUTATION)
 
@@ -88,8 +111,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
             onCompleted: ({ data }) => {
                 signInByPhone(form.getFieldsValue(['phone', 'password']), () => {
                     const userId = get(data, ['user', 'id'])
-
-                    onFinish(userId)
+                    onRegisterFinish(userId)
                 })
             },
             intl,
@@ -98,9 +120,22 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
         }).catch(() => {
             setIsLoading(false)
         })
-    }, [intl, form, signInByPhone, token])
+    }, [form, token, registerMutation, intl, ErrorToFormFieldMsgMapping, signInByPhone, onRegisterFinish])
 
     const initialValues = { phone }
+
+    useEffect(() => {
+        console.log('fill credentials mounted')
+    }, [])
+
+    useEffect(() => {
+        if (tokenLoading) return
+        console.log(token, isConfirmed, phone)
+        if (!token || !isConfirmed || !phone) {
+            setStep(RegisterPageStep.EnterPhone)
+        }
+    }, [tokenLoading])
+
 
     return (
         <Form
@@ -125,7 +160,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                                         label={PhoneMsg}
                                         rules={validators.phone}
                                     >
-                                        <PhoneInput disabled={true} placeholder={ExamplePhoneMsg} block/>
+                                        <PhoneInput disabled={true} placeholder={ExamplePhoneMsg} />
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
@@ -134,7 +169,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                                         label={NameMsg}
                                         rules={validators.name}
                                     >
-                                        <Input placeholder={ExampleNameMsg}/>
+                                        <Input placeholder={ExampleNameMsg} disabled={tokenLoading} />
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
@@ -143,7 +178,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                                         label={EmailMsg}
                                         rules={validators.email}
                                     >
-                                        <Input autoComplete='chrome-off' placeholder={EmailPlaceholder}/>
+                                        <Input autoComplete='chrome-off' placeholder={EmailPlaceholder} disabled={tokenLoading} />
                                     </Form.Item>
                                 </Col>
                             </Row>
@@ -156,7 +191,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                                         label={PasswordMsg}
                                         rules={validators.password}
                                     >
-                                        <Input.Password autoComplete='new-password'/>
+                                        <Input.Password autoComplete='new-password' disabled={tokenLoading} />
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
@@ -166,7 +201,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                                         dependencies={['password']}
                                         rules={validators.confirm}
                                     >
-                                        <Input.Password/>
+                                        <Input.Password disabled={tokenLoading} />
                                     </Form.Item>
                                 </Col>
                             </Row>
@@ -180,6 +215,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                             type='sberPrimary'
                             htmlType='submit'
                             loading={isLoading}
+                            disabled={tokenLoading}
                         >
                             {RegisterMsg}
                         </Button>
