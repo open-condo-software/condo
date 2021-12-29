@@ -5,27 +5,29 @@ const { getByCondition } = require('@core/keystone/schema')
 const { getById } = require('@core/keystone/schema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('../utils/accessSchema')
+const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 
-async function canReadOrganizationEmployees ({ authentication: { item: user } }) {
-    if (!user) return throwAuthenticationError()
-    if (user.isAdmin || user.isSupport) return {}
-    const userId = user.id
-
-    return {
-        OR: [
-            {
-                organization: {
-                    OR: [
-                        queryOrganizationEmployeeFor(userId),
-                        queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
-                    ],
+async function canReadOrganizationEmployees ({ authentication: { item, listKey } }) {
+    if (!listKey || !item) return throwAuthenticationError()
+    if (item.deletedAt) return false
+    if (listKey === USER_SCHEMA_NAME) {
+        if (item.isSupport || item.isAdmin) return {}
+        const userId = item.id
+        return {
+            OR: [
+                { user: { id: userId } },
+                {
+                    organization: {
+                        OR: [
+                            queryOrganizationEmployeeFor(userId),
+                            queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
+                        ],
+                    },
                 },
-            },
-            {
-                user: { id: userId },
-            },
-        ],
+            ],
+        }
     }
+    return false
 }
 
 async function canManageOrganizationEmployees ({ authentication: { item: user }, originalInput, operation, itemId }) {

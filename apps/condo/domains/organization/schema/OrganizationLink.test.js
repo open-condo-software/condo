@@ -11,7 +11,7 @@ const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/u
 const { createTestOrganization } = require('../utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@core/keystone/test.utils')
 const { createTestOrganizationLink, updateTestOrganizationLink } = require('@condo/domains/organization/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj } = require('../../common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 
 describe('OrganizationLink', () => {
     test('admin: can create OrganizationLink', async () => {
@@ -132,7 +132,7 @@ describe('OrganizationLink', () => {
         const [organizationFrom] = await createTestOrganization(admin)
         const [organizationTo] = await createTestOrganization(admin)
 
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await createTestOrganizationLink(client, organizationFrom, organizationTo)
         })
     })
@@ -144,7 +144,7 @@ describe('OrganizationLink', () => {
         const [organizationTo] = await createTestOrganization(admin)
         const [link] = await createTestOrganizationLink(admin, organizationFrom, organizationTo)
 
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await updateTestOrganizationLink(client, link.id)
         })
     })
