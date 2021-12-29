@@ -225,8 +225,7 @@ const TicketsPage: ITicketIndexPage = () => {
     const searchTicketsQuery = { ...filtersToWhere(filters), organization: { id: userOrganizationId } }
 
     useEffect(() => {
-        FiltersStorage
-            .loadFilters(userOrganizationId, FILTER_TABLE_KEYS.TICKET, router)
+        FiltersStorage.loadFilters(userOrganizationId, FILTER_TABLE_KEYS.TICKET, router)
     }, [userOrganizationId])
 
     const memoizedFilters = useMemo(() => filters, [router.query])
