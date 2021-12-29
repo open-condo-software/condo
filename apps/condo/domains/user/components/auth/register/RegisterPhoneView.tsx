@@ -15,11 +15,14 @@ import { START_CONFIRM_PHONE_MUTATION } from '@condo/domains/user/gql'
 import { TOO_MANY_REQUESTS } from '@condo/domains/user/constants/errors'
 import { FORM_LAYOUT } from '@condo/domains/user/constants/layout'
 import { CAPTCHA_ACTIONS } from '@condo/domains/user/utils/captchaActions'
-import { RegisterPageStep } from './RegisterPageStep'
 
-export function RegisterPhoneView () {
+type RegisterPhoneViewDoneReason = 'success' | 'already_confirmed'
+type RegisterPhoneViewProps = {
+    onDone: (reason: RegisterPhoneViewDoneReason) => void
+}
+
+export function RegisterPhoneView ({ onDone }: RegisterPhoneViewProps) {
     const intl = useIntl()
-
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
     const RegisterHelpMessage = intl.formatMessage({ id: 'pages.auth.reset.RegisterHelp' })
     const UserAgreementFileName = intl.formatMessage({ id: 'pages.auth.register.info.UserAgreementFileName' })
@@ -31,7 +34,7 @@ export function RegisterPhoneView () {
 
     const [form] = Form.useForm()
     const { isSmall } = useLayoutContext()
-    const { phone, token, isConfirmed, setToken, setPhone, setStep, handleReCaptchaVerify } = useConfirmIdentityContext()
+    const { phone, token, isConfirmed, setToken, setPhone, handleReCaptchaVerify } = useConfirmIdentityContext()
 
     const [smsSendError, setSmsSendError] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
@@ -52,8 +55,7 @@ export function RegisterPhoneView () {
         const normalizedPhone = normalizePhone(inputPhone)
 
         if (phone === normalizedPhone && token && isConfirmed) {
-            setStep(RegisterPageStep.FillCredentials)
-            return
+            return onDone('already_confirmed')
         }
 
         setPhone(normalizedPhone)
@@ -71,7 +73,7 @@ export function RegisterPhoneView () {
             onCompleted: (data) => {
                 const { data: { result: { token } } } = data
                 setToken(token)
-                setStep(RegisterPageStep.ConfirmPhone)
+                onDone('success')
             },
             onFinally: () => {
                 setIsLoading(false)
@@ -82,7 +84,7 @@ export function RegisterPhoneView () {
         }).catch(() => {
             setIsLoading(false)
         })
-    }, [form, phone, token, isConfirmed, setPhone, handleReCaptchaVerify, startPhoneVerify, intl, ErrorToFormFieldMsgMapping, setStep, setToken])
+    }, [form, phone, token, isConfirmed, setPhone, handleReCaptchaVerify, startPhoneVerify, intl, ErrorToFormFieldMsgMapping, onDone, setToken])
 
     return (
         <Form

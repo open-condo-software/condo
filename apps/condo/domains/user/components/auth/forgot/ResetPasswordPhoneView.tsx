@@ -1,12 +1,8 @@
 import { Form, Typography, Row, Col } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
-
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import Router from 'next/router'
 import React, { useState } from 'react'
-import { colors } from '@condo/domains/common/constants/style'
 import { useIntl } from '@core/next/intl'
-import { FormattedMessage } from 'react-intl'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { useMutation } from '@core/next/apollo'
 import { START_PASSWORD_RECOVERY_MUTATION } from '@condo/domains/user/gql'
@@ -17,12 +13,13 @@ import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { FORM_LAYOUT } from '@condo/domains/user/constants/layout'
-// import { useConfirmIdentityContext } from '@condo/domains/user/components/auth/ConfirmIdentityContext'
 
-const LINK_STYLE = { color: colors.sberPrimary[7] }
+type ConfirmPhoneViewDoneReason = 'success'
+type ResetPasswordPhoneViewProps = {
+    onDone: (reason: ConfirmPhoneViewDoneReason) => void
+}
 
-
-export const ResetPasswordPhoneView = () => {
+export const ResetPasswordPhoneView = ({ onDone }: ResetPasswordPhoneViewProps) => {
     const [form] = Form.useForm()
     const initialValues = { email: '' }
     const intl = useIntl()
@@ -30,14 +27,10 @@ export const ResetPasswordPhoneView = () => {
     const ResetTitle = intl.formatMessage({ id: 'pages.auth.ResetTitle' })
     const InstructionsMsg = intl.formatMessage({ id: 'pages.auth.reset.ResetHelp' })
     const PhoneIsNotRegisteredMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsNotRegistered' })
-    const CheckPhoneMsg = intl.formatMessage({ id: 'pages.auth.reset.CheckPhone' })
-    const ReturnToLoginPage = intl.formatMessage({ id: 'pages.auth.reset.ReturnToLoginPage' })
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
 
-    // const { setStep } = useRegisterContext()
     const [isLoading, setIsLoading] = useState(false)
-    const [isSuccessMessage, setIsSuccessMessage] = useState(false)
     const [startPasswordRecovery] = useMutation(START_PASSWORD_RECOVERY_MUTATION)
 
     const ErrorToFormFieldMsgMapping = {
@@ -55,25 +48,6 @@ export const ResetPasswordPhoneView = () => {
     if (isLoading) {
         return <LoadingOrErrorPage title={ResetTitle} loading={isLoading} error={null} />
     }
-    if (isSuccessMessage) {
-        return (
-            <Row gutter={[0, 40]}>
-                <Col span={24}>
-                    <Typography.Title>{CheckPhoneMsg}</Typography.Title>
-                </Col>
-                <Col span={24}>
-                    <Typography.Paragraph>
-                        <FormattedMessage id='pages.auth.reset.ResetSuccessMessage' values={{ phone: form.getFieldValue('phone') }} />
-                    </Typography.Paragraph>
-                </Col>
-                <Col span={24}>
-                    <Typography.Paragraph>
-                        <a style={LINK_STYLE} onClick={() => Router.push('/auth/signin')}>{ReturnToLoginPage}</a>
-                    </Typography.Paragraph>
-                </Col>
-            </Row>
-        )
-    }
 
     const forgotAction = async () => {
         setIsLoading(true)
@@ -85,7 +59,7 @@ export const ResetPasswordPhoneView = () => {
             variables: { data: values },
             onCompleted: () => {
                 setIsLoading(false)
-                setIsSuccessMessage(true)
+                onDone('success')
             },
             finally: () => setIsLoading(false),
             intl,

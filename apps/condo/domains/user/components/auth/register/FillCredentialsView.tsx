@@ -4,7 +4,6 @@ import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useMutation } from '@core/next/apollo'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { useIntl } from '@core/next/intl'
-import { CREATE_ONBOARDING_MUTATION } from '@condo/domains/onboarding/gql'
 import {
     EMAIL_ALREADY_REGISTERED_ERROR,
     MIN_PASSWORD_LENGTH_ERROR,
@@ -19,11 +18,14 @@ import { Button } from '@condo/domains/common/components/Button'
 import { get } from 'lodash'
 import PhoneInput from 'react-phone-input-2'
 import { FORM_LAYOUT } from '@condo/domains/user/constants/layout'
-import { RegisterPageStep } from './RegisterPageStep'
 import { useConfirmIdentityContext } from '../ConfirmIdentityContext'
 
+type FillCredentialsViewDoneReason = 'success' | 'no_data'
+type FillCredentialsViewProps = {
+    onDone: (reason: FillCredentialsViewDoneReason, userId?: string) => void
+}
 
-export function FillCredentialsView () {
+export function FillCredentialsView ({ onDone }: FillCredentialsViewProps) {
     const intl = useIntl()
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
@@ -39,33 +41,7 @@ export function FillCredentialsView () {
     const EmailIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsAlreadyRegistered' })
     const ConfirmActionExpiredError = intl.formatMessage({ id: 'pages.auth.register.ConfirmActionExpiredError' })
 
-    const { token, phone, tokenLoading, isConfirmed, setToken, setStep } = useConfirmIdentityContext()
-    const router = useRouter()
-    const [createOnBoarding] = useMutation(CREATE_ONBOARDING_MUTATION, {
-        onCompleted: () => {
-            router.push('/onboarding')
-        },
-    })
-
-    const initOnBoarding = useCallback((userId: string) => {
-        const onBoardingExtraData = {
-            dv: 1,
-            sender: getClientSideSenderInfo(),
-        }
-
-        const data = { ...onBoardingExtraData, type: 'ADMINISTRATOR', userId }
-
-        runMutation({
-            mutation: createOnBoarding,
-            variables: { data },
-            intl,
-        })
-    }, [createOnBoarding, intl])
-
-    const onRegisterFinish = useCallback((userId: string) => {
-        setToken(null)
-        initOnBoarding(userId)
-    }, [initOnBoarding, setToken])
+    const { token, phone, tokenLoading, isConfirmed } = useConfirmIdentityContext()
 
     const validators = useRegisterFormValidators()
     const ErrorToFormFieldMsgMapping = useMemo(() => {
@@ -111,7 +87,7 @@ export function FillCredentialsView () {
             onCompleted: ({ data }) => {
                 signInByPhone(form.getFieldsValue(['phone', 'password']), () => {
                     const userId = get(data, ['user', 'id'])
-                    onRegisterFinish(userId)
+                    onDone('success', userId)
                 })
             },
             intl,
@@ -120,19 +96,15 @@ export function FillCredentialsView () {
         }).catch(() => {
             setIsLoading(false)
         })
-    }, [form, token, registerMutation, intl, ErrorToFormFieldMsgMapping, signInByPhone, onRegisterFinish])
+    }, [form, token, registerMutation, intl, ErrorToFormFieldMsgMapping, signInByPhone])
 
     const initialValues = { phone }
-
-    useEffect(() => {
-        console.log('fill credentials mounted')
-    }, [])
 
     useEffect(() => {
         if (tokenLoading) return
         console.log(token, isConfirmed, phone)
         if (!token || !isConfirmed || !phone) {
-            setStep(RegisterPageStep.EnterPhone)
+            return onDone('no_data')
         }
     }, [tokenLoading])
 

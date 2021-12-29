@@ -10,7 +10,6 @@ interface IConfirmIdentityContext {
     handleReCaptchaVerify: (action: string) => Promise<string>
     token: string
     setToken: Dispatch<SetStateAction<string>>
-    forgetToken: () => void
     tokenLoading: boolean
     phone: string
     setPhone: Dispatch<SetStateAction<string>>
@@ -18,15 +17,12 @@ interface IConfirmIdentityContext {
     setTokenError: Dispatch<SetStateAction<Error>>
     isConfirmed: boolean
     setIsConfirmed: (isConfirmed: boolean) => void
-    pageStore: ReturnType<ConfirmIdentityPageStoreType>
-    setStep: <T>(step: T) => void
 }
 
 export const ConfirmIdentityContext = createContext<IConfirmIdentityContext>({
     handleReCaptchaVerify: (action: string) => null,
     token: '',
     setToken: (token) => null,
-    forgetToken: () => void 0,
     tokenLoading: true,
     phone: '',
     setPhone: (phone) => null,
@@ -34,25 +30,15 @@ export const ConfirmIdentityContext = createContext<IConfirmIdentityContext>({
     setTokenError: (error) => null,
     isConfirmed: false,
     setIsConfirmed: (t) => void 0,
-    pageStore: {
-        loadToken: () => null,
-        saveToken: () => void 0,
-        forgetToken: () => void 0,
-
-        loadStep: () => null,
-        saveStep: () => void 0,
-        forgetStep: () => void 0,
-    },
-    setStep: (step) => void 0,
 })
 type ConfirmIdentityContextProviderConfiguration = React.PropsWithChildren<{
     resetView: () => void
     pageStore: ReturnType<ConfirmIdentityPageStoreType>
-    setStep: (step: any) => void
 }>
 
-export const ConfirmIdentityContextProvider = ({ children, pageStore, setStep, resetView }: ConfirmIdentityContextProviderConfiguration): React.ReactElement => {
+export const ConfirmIdentityContextProvider = ({ children, pageStore, resetView }: ConfirmIdentityContextProviderConfiguration): React.ReactElement => {
     const [token, setToken] = useState<string>()
+    const loadedTokenHandle = useRef<string>()
     const [phone, setPhone] = useState('')
     const [tokenLoading, setTokenLoading] = useState(true)
     const [tokenError, setTokenError] = useState<Error | null>(null)
@@ -66,10 +52,13 @@ export const ConfirmIdentityContextProvider = ({ children, pageStore, setStep, r
             return userToken
         }
         else {
+            // TODO(mrfoxpro): why is this happens and how to avoid this
+            console.warn('captcha was not loaded')
             setTokenLoading(false)
             resetView()
+            return null
         }
-    }, [executeRecaptcha])
+    }, [executeRecaptcha, resetView])
 
     const [loadTokenInfo] = useLazyQuery(GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY, {
         onError: error => {
@@ -83,21 +72,20 @@ export const ConfirmIdentityContextProvider = ({ children, pageStore, setStep, r
             setToken(loadedTokenHandle.current)
             setIsConfirmed(isPhoneVerified)
             setTokenError(null)
-            setTokenLoading(false)
             console.log('token', token, 'loaded, verified?', isPhoneVerified)
+            setTokenLoading(false)
         },
         fetchPolicy: 'network-only',
-        nextFetchPolicy: 'network-only',
     })
 
+    useEffect(() => { console.log('tokenLoading', tokenLoading) }, [tokenLoading])
     useEffect(() => {
         console.log('token changed', token)
-        if (token) {
+        if (token?.length > 0) {
             saveToken(token)
         }
     }, [token])
 
-    const loadedTokenHandle = useRef<string>()
     useEffect(() => {
         const tokenToVerify = loadToken<string>()
         if (!isEmpty(tokenToVerify)) {
@@ -107,6 +95,7 @@ export const ConfirmIdentityContextProvider = ({ children, pageStore, setStep, r
                 if (captcha) {
                     loadTokenInfo({ variables: { data: { token: tokenToVerify, captcha } } })
                 }
+                else console.log('captcha is undefined', captcha)
             })
         } else {
             setPhone('')
@@ -121,15 +110,12 @@ export const ConfirmIdentityContextProvider = ({ children, pageStore, setStep, r
                 setPhone,
                 token,
                 setToken,
-                forgetToken,
                 tokenLoading,
                 tokenError,
                 setTokenError,
                 isConfirmed,
                 setIsConfirmed,
                 handleReCaptchaVerify,
-                pageStore,
-                setStep,
             }}
         >
             {children}

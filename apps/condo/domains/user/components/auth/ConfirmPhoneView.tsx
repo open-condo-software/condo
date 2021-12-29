@@ -20,10 +20,14 @@ import { COMPLETE_CONFIRM_PHONE_MUTATION, RESEND_CONFIRM_PHONE_SMS_MUTATION } fr
 import { useConfirmIdentityContext } from '@condo/domains/user/components/auth/ConfirmIdentityContext'
 import { FORM_LAYOUT } from '@condo/domains/user/constants/layout'
 import { CAPTCHA_ACTIONS } from '@condo/domains/user/utils/captchaActions'
-import { RegisterPageStep } from './register/RegisterPageStep'
 import { Loader } from '@condo/domains/common/components/Loader'
 
-export function ConfirmPhoneView () {
+type ConfirmPhoneViewDoneReason = 'success' | 'already_confirmed' | 'no_data' | 'change_phone'
+type ConfirmPhoneViewProps = {
+    onDone: (reason: ConfirmPhoneViewDoneReason) => void
+}
+
+export function ConfirmPhoneView ({ onDone }: ConfirmPhoneViewProps) {
     const intl = useIntl()
     const ChangePhoneNumberLabel = intl.formatMessage({ id: 'pages.auth.register.ChangePhoneNumber' })
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
@@ -61,7 +65,7 @@ export function ConfirmPhoneView () {
     }, [intl])
 
     const [form] = Form.useForm()
-    const { token, tokenLoading, tokenError, isConfirmed, setIsConfirmed, forgetToken, phone, handleReCaptchaVerify, pageStore, setStep } = useConfirmIdentityContext()
+    const { token, tokenLoading, tokenError, isConfirmed, setIsConfirmed, phone, handleReCaptchaVerify } = useConfirmIdentityContext()
     const [showPhone, setShowPhone] = useState(phone)
     const [isPhoneVisible, setIsPhoneVisible] = useState(false)
     const [phoneValidateError, setPhoneValidateError] = useState(null)
@@ -85,18 +89,6 @@ export function ConfirmPhoneView () {
         })
     }, [handleReCaptchaVerify, token, resendSmsMutation, intl, form, ErrorToFormFieldMsgMapping])
 
-    useEffect(() => {
-        console.log('confirm phone view', tokenLoading, token, phone)
-        if (tokenLoading) return
-        if (!token || !phone) {
-            setStep(RegisterPageStep.EnterPhone)
-        }
-        if (token && isConfirmed) {
-            setStep(RegisterPageStep.FillCredentials)
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [tokenLoading])
-
     const confirmPhone = useCallback(async () => {
         const smsCode = Number(form.getFieldValue('smsCode'))
         if (isNaN(smsCode)) {
@@ -114,9 +106,8 @@ export function ConfirmPhoneView () {
     }, [form, handleReCaptchaVerify, token, completeConfirmPhoneMutation, intl, ErrorToFormFieldMsgMapping, SMSBadFormat])
 
     const changePhone = useCallback(() => {
-        forgetToken()
-        setStep(RegisterPageStep.EnterPhone)
-    }, [forgetToken, setStep])
+        onDone('change_phone')
+    }, [onDone])
 
     const handleVerifyCode = useCallback(async () => {
         setPhoneValidateError(null)
@@ -131,20 +122,22 @@ export function ConfirmPhoneView () {
         try {
             await confirmPhone()
             setIsConfirmed(true)
-            setStep(RegisterPageStep.FillCredentials)
+            return onDone('success')
         } catch (error) {
             console.error(error)
         }
-    }, [SMSCodeMismatchError, confirmPhone, form])
+    }, [SMSCodeMismatchError, confirmPhone, form, onDone, setIsConfirmed])
 
     useEffect(() => {
+        console.log('confirm phone view', tokenLoading, token, phone)
         if (tokenLoading) return
         if (!token || tokenError || phone.length === 0) {
-            setStep(RegisterPageStep.EnterPhone)
+            return onDone('no_data')
         }
         else if (isConfirmed) {
-            setStep(RegisterPageStep.FillCredentials)
+            return onDone('already_confirmed')
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tokenLoading])
 
     useEffect(() => {

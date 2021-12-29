@@ -3,7 +3,6 @@ import Router from 'next/router'
 import { useIntl } from '@core/next/intl'
 import { Col, Form, Input, Row, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
-import { AuthLayout, AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
 import React, { useState, useEffect, useContext } from 'react'
 import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
@@ -12,14 +11,18 @@ import { useLazyQuery, useMutation } from '@core/next/apollo'
 import { CHANGE_PASSWORD_WITH_TOKEN_MUTATION, CHECK_PASSWORD_RECOVERY_TOKEN } from '@condo/domains/user/gql'
 import { useAuth } from '@core/next/auth'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { ButtonHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayoutContext'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { FORM_LAYOUT } from '@condo/domains/user/constants/layout'
 
-const ChangePasswordPage: AuthPage = () => {
+type ChangePasswordViewDoneReason = 'success'
+type ChangePasswordViewProps = {
+    onDone: (reason: ChangePasswordViewDoneReason) => void
+}
+
+export const ChangePasswordView = ({ onDone }: ChangePasswordViewProps) => {
     const [form] = Form.useForm()
     const { token } = getQueryParams()
     const initialValues = { token, password: '', confirm: '' }
@@ -76,7 +79,7 @@ const ChangePasswordPage: AuthPage = () => {
                 }, () => {
                     auth.refetch().then(() => {
                         setIsSaving(false)
-                        Router.push('/')
+                        onDone('success')
                     })
                 })
             },
@@ -190,9 +193,3 @@ const ChangePasswordPage: AuthPage = () => {
         </Row>
     )
 }
-
-ChangePasswordPage.headerAction = <ButtonHeaderAction descriptor={{ id: 'pages.auth.Register' }} path={'/auth'} />
-
-ChangePasswordPage.container = AuthLayout
-
-export default ChangePasswordPage
