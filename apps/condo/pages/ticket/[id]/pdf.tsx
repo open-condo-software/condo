@@ -1,4 +1,4 @@
-import { Col, Row, Typography, Space, notification } from 'antd'
+import { Col, Row, Typography, Space, notification, Breadcrumb } from 'antd'
 import get from 'lodash/get'
 import dynamic from 'next/dynamic'
 import React, { useEffect, useRef } from 'react'
@@ -18,6 +18,7 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { PageContent } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { compact } from 'lodash'
 
 interface ITicketDescriptionFieldProps {
     title?: string
@@ -158,7 +159,23 @@ const PdfView = () => {
                     <Col span={6}>
                         <TicketDescriptionField
                             title={ClassifierMessage}
-                            value={get(ticket, ['classifier', 'name'])}
+                            value={
+                                <Breadcrumb separator={<>≫<br/></>}>
+                                    {
+                                        compact([
+                                            // TODO(zuch): remove classifier after migrations
+                                            get(ticket, ['classifier', 'name']),
+                                            get(ticket, ['placeClassifier', 'name']),
+                                            get(ticket, ['categoryClassifier', 'name']),
+                                            get(ticket, ['problemClassifier', 'name']),
+                                        ]).map(name => {
+                                            return (
+                                                <Breadcrumb.Item key={name}>{name}</Breadcrumb.Item>
+                                            )
+                                        })
+                                    }
+                                </Breadcrumb>
+                            }
                         />
                     </Col>
                     <Col span={6}>
