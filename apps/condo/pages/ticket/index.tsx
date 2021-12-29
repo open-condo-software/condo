@@ -36,7 +36,6 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import { FILTER_TABLE_KEYS, FiltersStorage } from '@condo/domains/common/utils/FiltersStorage'
 import { useWarrantySearch } from '@condo/domains/ticket/hooks/useWarrantySearch'
 import { useFiltersTooltipData } from '@condo/domains/ticket/hooks/useFiltersTooltipData'
 
@@ -77,13 +76,7 @@ export const TicketsPageContent = ({
     const reduceNonEmpty = (cnt, filter) => cnt + Number(Array.isArray(filters[filter]) && filters[filter].length > 0)
     const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
 
-    const [isInitialFiltersApplied, setIsInitialFiltersApplied] = useState(false)
-    const { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, FILTER_TABLE_KEYS.TICKET)
-    useEffect(() => {
-        FiltersStorage
-            .loadFilters(organization.id, FILTER_TABLE_KEYS.TICKET, router)
-            .then(() => setIsInitialFiltersApplied(true))
-    }, [organization.id])
+    const { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, 'Ticket')
 
     searchTicketsQuery = { ...searchTicketsQuery, ...{ deletedAt: null } }
 
@@ -215,10 +208,7 @@ export const TicketsPageContent = ({
                                                         {
                                                             appliedFiltersCount > 0 ? (
                                                                 <Col>
-                                                                    <ResetFiltersModalButton
-                                                                        filterTableKey={FILTER_TABLE_KEYS.TICKET}
-                                                                        size={'small'}
-                                                                    />
+                                                                    <ResetFiltersModalButton/>
                                                                 </Col>
                                                             ) : null
                                                         }

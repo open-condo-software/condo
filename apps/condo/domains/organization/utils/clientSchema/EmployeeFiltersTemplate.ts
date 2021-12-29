@@ -29,6 +29,7 @@ export interface IEmployeeFiltersTemplateFormState {
     name?: string
     schemaName?: string
     filters?: string
+    deletedAt?: string
 }
 
 function convertToUIFormState (state: IEmployeeFiltersTemplateUIState): IEmployeeFiltersTemplateFormState | undefined {
