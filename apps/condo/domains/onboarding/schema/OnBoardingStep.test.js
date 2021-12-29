@@ -7,7 +7,7 @@ const { createTestOnBoarding } = require('@condo/domains/onboarding/utils/testSc
 const { makeClient, makeLoggedInClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
 const { OnBoardingStep, createTestOnBoardingStep, updateTestOnBoardingStep } = require('@condo/domains/onboarding/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAuthenticationErrorToObjects, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 
 describe('OnBoardingStep', () => {
     test('user: create OnBoardingStep', async () => {
@@ -84,7 +84,7 @@ describe('OnBoardingStep', () => {
     test('anonymous: read OnBoardingStep', async () => {
         const client = await makeClient()
 
-        await expectToThrowAccessDeniedErrorToObjects(async () => {
+        await expectToThrowAuthenticationErrorToObjects(async () => {
             await OnBoardingStep.getAll(client)
         })
     })
@@ -150,7 +150,7 @@ describe('OnBoardingStep', () => {
 
         const anonymus = await makeClient()
         const payload = { completed: true }
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await updateTestOnBoardingStep(anonymus, objCreated.id, payload)
         })
     })
