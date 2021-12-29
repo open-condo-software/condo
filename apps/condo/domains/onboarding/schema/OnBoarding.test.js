@@ -5,7 +5,7 @@
 const { makeLoggedInAdminClient, makeLoggedInClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
 const { OnBoarding, createTestOnBoarding, updateTestOnBoarding } = require('@condo/domains/onboarding/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects } = require('@condo/domains/common/utils/testSchema')
 
 describe('OnBoarding', () => {
     test('user: create OnBoarding', async () => {
@@ -33,7 +33,7 @@ describe('OnBoarding', () => {
 
     test('anonymous: create OnBoarding', async () => {
         const client = await makeClient()
-        await expectToThrowAccessDeniedErrorToObj(async () => {
+        await expectToThrowAuthenticationErrorToObj(async () => {
             await createTestOnBoarding(client)
         })
     })
@@ -65,7 +65,7 @@ describe('OnBoarding', () => {
     test('anonymous: read OnBoarding', async () => {
         const client = await makeClient()
 
-        await expectToThrowAccessDeniedErrorToObjects(async () => {
+        await expectToThrowAuthenticationErrorToObjects(async () => {
             await OnBoarding.getAll(client)
         })
     })
