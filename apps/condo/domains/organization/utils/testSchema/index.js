@@ -284,12 +284,17 @@ async function createTestEmployeeFiltersTemplate (client, employee, extraAttrs =
     if (!employee || !employee.id) throw new Error('no employee.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestEmployeeFiltersTemplate logic for generate fields
+    const name = faker.random.alphaNumeric(5)
+    const schemaName = faker.random.alphaNumeric(5)
+    const filters = {}
 
     const attrs = {
         dv: 1,
         sender,
         employee: { connect: { id: employee.id } },
+        name,
+        schemaName,
+        filters,
         ...extraAttrs,
     }
     const obj = await EmployeeFiltersTemplate.create(client, attrs)
@@ -328,8 +333,6 @@ module.exports = {
     OrganizationLink, createTestOrganizationLink, updateTestOrganizationLink,
     makeEmployeeUserClientWithAbilities,
     TokenSet, createTestTokenSet, updateTestTokenSet,
-}
-
-
     EmployeeFiltersTemplate, createTestEmployeeFiltersTemplate, updateTestEmployeeFiltersTemplate,
+}
 /* AUTOGENERATE MARKER <EXPORTS> */
