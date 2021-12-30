@@ -527,7 +527,7 @@
   "pages.users.status.Rejected": "User has rejected the invitation.",
   "pages.users.status.WaitAcceptOrReject": "User registered, waiting for an accept/reject action",
   "pages.users.UserIsAlreadyInList": "The user is already in user list",
-  "common.import.error.TooManyRowsInTable": "Your table contains too many rows. Maximum amount is {value}.",
+  "common.import.error.TooManyRowsInTable": "Too many rows in table, you are trying to import. Yet the system can import {count} at one trial.",
   "common.import.error.TableHasInvalidHeaders": "Your table contains invalid columns. We expect it to be: {value}",
   "common.import.error.ImportRequiredFields": "Required fields",
   "common.import.error.InvalidColumnType": "Required columns were empty or column's data types did not match required",

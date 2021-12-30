@@ -105,26 +105,17 @@ export const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
     const ImportTitle = intl.formatMessage({ id: 'Import' })
     const ImportSuccessMessage = intl.formatMessage({ id: 'ImportSuccess' }, { objects: objectsName })
     const ImportOKMessage = intl.formatMessage({ id: 'Continue' })
-    const ImportDefaultErrorMessage = intl.formatMessage({ id: 'ImportError' })
     const ImportProcessingMessage = intl.formatMessage({ id: 'ImportProcessing' })
     const ImportBreakButtonMessage = intl.formatMessage({ id: 'Break' })
     const ImportPopoverTitle = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
     const GetFailedDataMessage = intl.formatMessage({ id: 'GetFailedData' })
     const CloseMessage = intl.formatMessage({ id: 'Close' })
 
-    const TooManyRowsErrorMessage = intl.formatMessage({ id: 'common.import.error.TooManyRowsInTable' }, {
-        value: MAX_TABLE_LENGTH,
-    })
-    const InvalidHeadersErrorMessage = intl.formatMessage({ id: 'common.import.error.TableHasInvalidHeaders' }, {
-        value: columns.map(column => `"${column.name}"`).join(', '),
-    })
     const InvalidTypeMessage = intl.formatMessage({ id: 'common.import.error.InvalidColumnType' })
 
     const defaultRowErrorsMap = useMemo(() => ({
-        [RowValidationErrorType.TooManyRows]: TooManyRowsErrorMessage,
-        [RowValidationErrorType.InvalidColumns]: InvalidHeadersErrorMessage,
         [RowValidationErrorType.InvalidType]: InvalidTypeMessage,
-    }), [InvalidHeadersErrorMessage, InvalidTypeMessage, TooManyRowsErrorMessage])
+    }), [InvalidTypeMessage])
 
     const defaultErrorPreprocessor = useCallback((row: ProcessedRow) => {
         row.errors.forEach((error, i) => {
@@ -186,7 +177,7 @@ export const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         },
         onError: () => {
             destroyActiveModal()
-            const config = getUploadErrorModalConfig(ImportTitle, ImportDefaultErrorMessage, ImportOKMessage)
+            const config = getUploadErrorModalConfig(ImportTitle, ImportOKMessage)
             activeModal.current = modal.error(config)
         },
     })

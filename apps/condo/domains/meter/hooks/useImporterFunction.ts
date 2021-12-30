@@ -234,12 +234,6 @@ export const useImporterFunctions = () => {
     }
 
     const ImportErrorMessage = intl.formatMessage({ id: 'ImportError' })
-    const TooManyRowsErrorMessage = intl.formatMessage({ id: 'TooManyRowsInTable' }, {
-        value: MAX_TABLE_LENGTH,
-    })
-    const InvalidHeadersErrorMessage = intl.formatMessage({ id: 'TableHasInvalidHeaders' }, {
-        value: columns.map(column => `"${column.name}"`).join(', '),
-    })
 
     const metersRowErrorsProcessor = (row: ProcessedRow) => {
         row.errors.forEach((error, i) => {
@@ -255,12 +249,6 @@ export const useImporterFunctions = () => {
                         })
                     break
                 }
-                case RowValidationErrorType.InvalidColumns: 
-                    message = InvalidHeadersErrorMessage
-                    break
-                case RowValidationErrorType.TooManyRows:
-                    message = TooManyRowsErrorMessage
-                    break
                 default:
                     message = ImportErrorMessage
                     break

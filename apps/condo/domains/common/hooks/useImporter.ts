@@ -1,12 +1,13 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import {
     Importer,
     RowNormalizer,
     RowValidator,
     ObjectCreator,
     Columns,
-    ProcessedRow,
+    ProcessedRow, MAX_TABLE_LENGTH, RowValidationErrorType,
 } from '@condo/domains/common/utils/importer'
+import { useIntl } from '../../../../../packages/@core.next/intl'
 
 type useImporterParams = {
     columns: Columns,
@@ -21,11 +22,24 @@ type useImporterParams = {
 }
 
 export const useImporter = ({ columns, handleRowError, objectCreator, onError, onFinish, rowNormalizer, rowValidator, setSuccessRows, setTotalRows }: useImporterParams) => {
+    const intl = useIntl()
+    const ImportDefaultErrorMessage = intl.formatMessage({ id: 'ImportError' })
+    const TooManyRowsErrorMessage = intl.formatMessage({ id: 'meter.import.error.TooManyRowsInTable' }, {
+        count: MAX_TABLE_LENGTH,
+    })
+    const InvalidHeadersErrorMessage = intl.formatMessage({ id: 'common.import.error.TableHasInvalidHeaders' }, {
+        value: columns.map(column => `"${column.name}"`).join(', '),
+    })
+
     const [progress, setProgress] = useState(0)
     const [error, setError] = useState(null)
     const [isImported, setIsImported] = useState(false)
     const importer = useRef(null)
 
+    const defaultErrorsMap = useMemo(() => ({
+        [RowValidationErrorType.TooManyRows]: TooManyRowsErrorMessage,
+        [RowValidationErrorType.InvalidColumns]: InvalidHeadersErrorMessage,
+    }), [TooManyRowsErrorMessage, InvalidHeadersErrorMessage])
 
     const importData = useCallback((data) => {
         importer.current = null
@@ -39,8 +53,8 @@ export const useImporter = ({ columns, handleRowError, objectCreator, onError, o
         importer.current.onProgressUpdate(setProgress)
         importer.current.onError((e) => {
             importer.current = null
+            e.message = defaultErrorsMap[e.type] || ImportDefaultErrorMessage
             setError(e)
-
             onError()
         })
         importer.current.onFinish(() => {

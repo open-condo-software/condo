@@ -527,7 +527,7 @@
   "pages.users.status.Rejected": "Пользователь отклонил приглашение.",
   "pages.users.status.WaitAcceptOrReject": "Зарегистрировался, пока не принял приглашение",
   "pages.users.UserIsAlreadyInList": "Пользователь уже добавлен в список",
-  "common.import.error.TooManyRowsInTable": "В вашей таблице слишком много строк. Максимально допустимое значение - {value}.",
+  "common.import.error.TooManyRowsInTable": "Слишком много строк в таблице, пока система может импортировать {count} строк за один подход.",
   "common.import.error.TableHasInvalidHeaders": "У вашей таблицы неправильные заголовки. Для корректного импорта они должны быть: {value}",
   "common.import.error.ImportRequiredFields": "Обязательные колонки",
   "common.import.error.InvalidColumnType": "Обязательные колонки не были заполнены, или типы данных не соответствует указанным",

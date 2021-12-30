@@ -21,7 +21,7 @@ export const getUploadSuccessModalConfig = (title: string, content: string, okTe
     }
 }
 
-export const getUploadErrorModalConfig = (title: string, defaultErrorText: string, okText: string) => {
+export const getUploadErrorModalConfig = (title: string, okText: string) => {
     return {
         title,
         closable: true,
@@ -29,7 +29,7 @@ export const getUploadErrorModalConfig = (title: string, defaultErrorText: strin
             <ModalContext.Consumer>
                 {
                     ({ error }) => {
-                        const errorMessage = get(error, 'message') || defaultErrorText
+                        const errorMessage = get(error, 'message')
 
                         return (
                             <Alert
