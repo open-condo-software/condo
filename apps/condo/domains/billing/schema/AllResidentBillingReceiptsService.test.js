@@ -519,19 +519,23 @@ describe('AllResidentBillingReceipts', () => {
             })
 
             // Mobile app gets the list of all resident receipts
+            const beforePaymentResult = await ResidentBillingReceipt.getAll(residentClient, { serviceConsumer: { resident: { id: resident.id } } }, { sortBy: ['toPay_ASC'] } )
+            expect(beforePaymentResult).toHaveLength(2)
             const [
                 singlePaymentReceiptBeforePayment,
                 noPaymentReceiptBeforePayment,
-            ] = await ResidentBillingReceipt.getAll(residentClient, { serviceConsumer: { resident: { id: resident.id } } }, { sortBy: ['toPay_ASC'] } )
+            ] = beforePaymentResult
 
             // Mobile app tries to pay for the first receipt in one payment
             await completeTestPayment(residentClient, admin, serviceConsumer.id, singlePaymentReceiptBeforePayment.id)
 
             // Resident gets own receipts and sees that first one is fully paid!
+            const afterPaymentResult = await ResidentBillingReceipt.getAll(residentClient, { serviceConsumer: { resident: { id: resident.id } } }, { sortBy: ['toPay_ASC'] })
+            expect(afterPaymentResult).toHaveLength(2)
             const [
                 singlePaymentReceiptAfterPayment,
                 noPaymentReceiptAfterPayments,
-            ] = await ResidentBillingReceipt.getAll(residentClient, { serviceConsumer: { resident: { id: resident.id } } }, { sortBy: ['toPay_ASC'] })
+            ] = afterPaymentResult
 
             // Assert with one payment for one receipt
             expect(singlePaymentReceiptAfterPayment.id).toEqual(receiptWithSinglePayment.id)
