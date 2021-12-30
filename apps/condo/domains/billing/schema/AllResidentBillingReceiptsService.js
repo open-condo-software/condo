@@ -5,8 +5,6 @@
 const { pick, get } = require('lodash')
 const Big = require('big.js')
 
-const { ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
-
 const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const access = require('@condo/domains/billing/access/AllResidentBillingReceipts')
 const { PAYMENT_DONE_STATUS } = require('@condo/domains/acquiring/constants/payment')
@@ -94,8 +92,8 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
                     serviceConsumerWhere.deletedAt = null
                 }
 
-                const serviceConsumers = (await ServiceConsumer.getAll(context, serviceConsumerWhere))
-                    .filter(consumer => get(consumer, ['billingAccount', 'id']))
+                const serviceConsumers = (await find('ServiceConsumer', serviceConsumerWhere))
+                    .filter(consumer => get(consumer, 'billingAccount'))
                 if (!Array.isArray(serviceConsumers) || !serviceConsumers.length) {
                     return []
                 }
@@ -103,7 +101,7 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
                 const processedReceipts = []
                 for (const serviceConsumer of serviceConsumers) {
 
-                    const receiptsQuery = { ...receiptsWhere, ...{ account: { id: serviceConsumer.billingAccount.id } }, deletedAt: null }
+                    const receiptsQuery = { ...receiptsWhere, ...{ account: { id: serviceConsumer.billingAccount } }, deletedAt: null }
                     const receiptsForConsumer = await BillingReceipt.getAll(
                         context,
                         receiptsQuery,
@@ -130,7 +128,7 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
                 const receiptsWithPayments = []
                 for (const processedReceipt of processedReceipts) {
 
-                    const organizationId = get(processedReceipt.serviceConsumer, ['organization', 'id'])
+                    const organizationId = get(processedReceipt.serviceConsumer, ['organization'])
                     const accountNumber = get(processedReceipt.serviceConsumer, ['accountNumber'])
 
                     receiptsWithPayments.push(({
