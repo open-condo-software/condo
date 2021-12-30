@@ -790,10 +790,9 @@ class MapEdit extends MapView {
             id,
             name: label,
             label,
-            type: null,
+            type: BuildingMapEntityType.Unit,
             unitType: BuildingUnitType.Parking,
         }
-        newUnit.type = BuildingMapEntityType.Unit
         if (!id) {
             newUnit.id = String(++this.autoincrement)
         }
@@ -875,8 +874,7 @@ class MapEdit extends MapView {
 
         const oldParkingSection = this.map.parking[unitIndex.parking].id
         const oldFloor = this.map.parking[unitIndex.parking].floors[unitIndex.floor].id
-
-        if (oldFloor !== unit.floor || oldParkingSection !== unit.parking) {
+        if (oldFloor !== unit.floor || oldParkingSection !== unit.section) {
             this.removeParkingUnit(unit.id)
             this.addParkingUnit(unit)
         } else {
