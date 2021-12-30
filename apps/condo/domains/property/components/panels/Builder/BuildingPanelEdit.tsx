@@ -480,19 +480,21 @@ const CHESS_ROW_STYLE: React.CSSProperties = {
     width: '100%',
     textAlign: 'center',
 }
-const CHESS_COL_STYLE: React.CSSProperties = {
-    paddingTop: '60px',
-    paddingBottom: '60px',
-}
 const CHESS_SCROLL_HOLDER_STYLE: React.CSSProperties = {
     whiteSpace: 'nowrap',
     position: 'static',
-    ...CHESS_COL_STYLE,
+    paddingBottom: '10px',
 }
 const CHESS_SCROLL_CONTAINER_STYLE: React.CSSProperties = {
-    paddingBottom: '60px',
     width: '100%',
-    overflowY: 'hidden',
+    height: 'calc(100vh - 150px)',
+    paddingBottom: '8px',
+    display: 'flex',
+    alignItems: 'center',
+}
+const CHESS_SCROLL_CONTAINER_INNER_STYLE: React.CSSProperties = {
+    margin: 'auto',
+    paddingBottom: '16px',
 }
 const SCROLL_CONTAINER_EDIT_PADDING = '315px'
 const MENU_COVER_MAP_WIDTH = 800
@@ -503,42 +505,14 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
 
     useEffect(() => {
         const childTotalWidth = container.current !== null
-            ? Array.from(container.current.children).reduce((total, element) => total + element.clientWidth, 0)
+            ? container.current.querySelector('div').clientWidth
             : 0
         const shouldMoveContainer = builder.editMode !== null && !builder.isEmpty && childTotalWidth > MENU_COVER_MAP_WIDTH
 
         if (shouldMoveContainer) {
-            // Always if modal for new section was opened we need to move container to the left
-            if (builder.editMode === 'addSection') {
-                container.current.style.paddingRight = SCROLL_CONTAINER_EDIT_PADDING
-            } else if (builder.editMode === 'editSection') {
-                // When user select last section we actually need to move container to the left side of screen
-                const shouldAddPadding = get(builder.getSelectedSection(), 'index') === builder.lastSectionIndex
-
-                if (shouldAddPadding) container.current.style.paddingRight = SCROLL_CONTAINER_EDIT_PADDING
-            } else if (builder.editMode === 'addUnit') {
-                const lastSectionUnitIds = last(builder.sections).floors
-                    .flatMap(floor => floor.units.map(unit => unit.id))
-
-                if (lastSectionUnitIds.includes(String(builder.previewUnitId))) {
-                    container.current.style.paddingRight = SCROLL_CONTAINER_EDIT_PADDING
-                } else {
-                    container.current.style.paddingRight = '0px'
-                }
-            } else if (builder.editMode === 'editUnit') {
-                // Last case when user want to add or edit unit only at the last section
-                const shouldAddPadding = get(builder.getSelectedUnit(), 'sectionIndex') === builder.lastSectionIndex
-
-                if (shouldAddPadding) container.current.style.paddingRight = SCROLL_CONTAINER_EDIT_PADDING
-            }
+            container.current.style.paddingRight = SCROLL_CONTAINER_EDIT_PADDING
         } else {
             if (container.current !== null) container.current.style.paddingRight = '0px'
-        }
-
-        if (container.current && container.current.style.paddingRight !== '0px') {
-            const { scrollWidth, clientWidth, scrollHeight, clientHeight } = container.current
-
-            container.current.scrollTo(scrollWidth - clientWidth, scrollHeight - clientHeight)
         }
     }, [builder])
 
@@ -546,7 +520,7 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
         <Row align='bottom' style={CHESS_ROW_STYLE} >
             {
                 builder.isEmpty ?
-                    <Col span={24} style={CHESS_COL_STYLE}>
+                    <Col span={24}>
                         <EmptyBuildingBlock mode="edit" />
                         <BuildingChooseSections
                             isFullscreen={isFullscreen}
@@ -569,53 +543,55 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
                             nativeMobileScroll={true}
                             innerRef={container}
                         >
-                            {
-                                builder.viewMode === MapViewMode.section
-                                    ? !builder.isEmptySections && (
-                                        <BuildingAxisY floors={builder.possibleChosenFloors} />
-                                    )
-                                    : !builder.isEmptyParking && (
-                                        <BuildingAxisY floors={builder.possibleChosenParkingFloors} />
-                                    )
-                            }
-                            {
-                                builder.viewMode === MapViewMode.section
-                                    ? builder.sections.map(section => (
-                                        <PropertyMapSection
-                                            key={section.id}
-                                            section={section}
-                                            builder={builder}
-                                            refresh={refresh}
-                                            scrollToForm={scrollToForm}
-                                        >
-                                            <PropertyMapFloorContainer
-                                                builder={builder}
+                            <div style={CHESS_SCROLL_CONTAINER_INNER_STYLE}>
+                                {
+                                    builder.viewMode === MapViewMode.section
+                                        ? !builder.isEmptySections && (
+                                            <BuildingAxisY floors={builder.possibleChosenFloors} />
+                                        )
+                                        : !builder.isEmptyParking && (
+                                            <BuildingAxisY floors={builder.possibleChosenParkingFloors} />
+                                        )
+                                }
+                                {
+                                    builder.viewMode === MapViewMode.section
+                                        ? builder.sections.map(section => (
+                                            <PropertyMapSection
+                                                key={section.id}
                                                 section={section}
+                                                builder={builder}
                                                 refresh={refresh}
                                                 scrollToForm={scrollToForm}
-                                            />
-                                        </PropertyMapSection>
+                                            >
+                                                <PropertyMapFloorContainer
+                                                    builder={builder}
+                                                    section={section}
+                                                    refresh={refresh}
+                                                    scrollToForm={scrollToForm}
+                                                />
+                                            </PropertyMapSection>
 
-                                    ))
-                                    : builder.parking.map(parkingSection => (
-                                        <PropertyMapSection
-                                            key={parkingSection.id}
-                                            section={parkingSection}
-                                            builder={builder}
-                                            refresh={refresh}
-                                            scrollToForm={scrollToForm}
-                                            isParkingSection
-                                        >
-                                            <PropertyMapFloorContainer
-                                                builder={builder}
+                                        ))
+                                        : builder.parking.map(parkingSection => (
+                                            <PropertyMapSection
+                                                key={parkingSection.id}
                                                 section={parkingSection}
+                                                builder={builder}
                                                 refresh={refresh}
                                                 scrollToForm={scrollToForm}
                                                 isParkingSection
-                                            />
-                                        </PropertyMapSection>
-                                    ))
-                            }
+                                            >
+                                                <PropertyMapFloorContainer
+                                                    builder={builder}
+                                                    section={parkingSection}
+                                                    refresh={refresh}
+                                                    scrollToForm={scrollToForm}
+                                                    isParkingSection
+                                                />
+                                            </PropertyMapSection>
+                                        ))
+                                }
+                            </div>
                         </ScrollContainer>
                         <BuildingChooseSections
                             isFullscreen={isFullscreen}
