@@ -22,6 +22,14 @@ const createBuildingMap = (sections: number, sectionTemplate = testSection): Map
     return PropertyMap
 }
 
+const createBuildingParking = (parkingSections: number): MapEdit => {
+    const propertyMap = new MapEdit(null, () => null)
+    for (let i = 0; i < parkingSections; i++) {
+        propertyMap.addParking({ ...testSection, name: sectionName(), type: BuildingMapEntityType.Section })
+    }
+    return propertyMap
+}
+
 const createBuilding = (data): MapEdit => {
     const Map = new MapEdit(JSON.parse(JSON.stringify(data)), () => null)
     return Map
@@ -59,6 +67,7 @@ describe('Map constructor', () => {
             expect(map.parking).toHaveLength(0)
         })
     })
+
     describe('Service functions', () => {
         describe('Select options for sections', () => {
             it('should correctly generate floor list for choosed section', () => {
@@ -220,6 +229,110 @@ describe('Map constructor', () => {
         })
     })
 
+    describe('Parking unit operations', () => {
+        describe('Add parking unit', () => {
+            it('should be correctly placed to map', () => {
+                const Building = createBuildingParking(10)
+                const jsonMap = Building.getMap()
+                const newUnit = { id: '', floor: jsonMap.parking[3].floors[3].id, section: jsonMap.parking[3].id, label: '1000' }
+                Building.addParkingUnit(newUnit)
+                const newJsonMap = Building.getMap()
+                const found = newJsonMap.parking[3].floors[3].units.find(u => u.label === newUnit.label)
+                expect(found).not.toBeUndefined()
+            })
+
+            it('after adding parking unit with numeric label should update names of units placed next', () => {
+                const Building = createBuildingParking(10)
+                const jsonMap = Building.getMap()
+                const unitPlacedAfterLabel = jsonMap.parking[5].floors[5].units[5].label
+                const newUnit = { id: '', floor: jsonMap.parking[3].floors[3].id, section: jsonMap.parking[3].id, label: '1000' }
+                Building.addParkingUnit(newUnit)
+                const newJsonMap = Building.getMap()
+                expect(newJsonMap.parking[5].floors[5].units[5].label).not.toEqual(unitPlacedAfterLabel)
+            })
+
+            it('after adding parking unit with not-numeric label shouldn\'t update names of units placed before', () => {
+                const Building = createBuildingParking(10)
+                const jsonMap = Building.getMap()
+                const unitPlacedBefore = jsonMap.parking[1].floors[1].units[1]
+                const newUnit = { id: '', floor: jsonMap.parking[3].floors[3].id, section: jsonMap.parking[3].id, label: '1000' }
+                Building.addParkingUnit(newUnit)
+                const newJsonMap = Building.getMap()
+                expect(newJsonMap.parking[1].floors[1].units[1].label).toEqual(unitPlacedBefore.label)
+            })
+        })
+
+        describe('Edit parking unit', () => {
+            it('should update name of edited parking unit', () => {
+                const Building = createBuildingParking(10)
+                const jsonMap = Building.getMap()
+                const updatedUnit = jsonMap.parking[5].floors[5].units[5]
+                Building.updateParkingUnit({ ...updatedUnit, ...{
+                    floor: jsonMap.parking[5].floors[5].id,
+                    section: jsonMap.parking[5].id,
+                    label: 'Test label',
+                } })
+                const newJsonMap = Building.getMap()
+                const unitToCompare = newJsonMap.parking[5].floors[5].units[5]
+
+                expect(unitToCompare.unitType).toEqual('parking')
+                expect(unitToCompare.name).toBeDefined()
+                expect(unitToCompare.name).toEqual('Test label')
+                expect(unitToCompare.label).toEqual(updatedUnit.label)
+            })
+
+            it('should correctly update map if floor/section of parking was changed', () => {
+                const Building = createBuildingParking(10)
+                const jsonMap = Building.getMap()
+                const updatedUnit = jsonMap.parking[5].floors[5].units[5]
+                Building.updateParkingUnit({ ...updatedUnit,
+                    floor:  jsonMap.parking[2].floors[2].id,
+                    section: jsonMap.parking[2].id,
+                    label: 'Test label',
+                })
+                const newJsonMap = Building.getMap()
+                const info = Building.getParkingUnitInfo(updatedUnit.id)
+                expect(info.floor).toEqual(newJsonMap.parking[2].floors[2].id)
+                expect(info.section).toEqual(newJsonMap.parking[2].id)
+            })
+        })
+
+        describe('Delete parking unit', () => {
+            it('should remove parking unit from map', () => {
+                const Building = createBuildingParking(5)
+                const jsonMap = Building.getMap()
+                const unitToRemove = jsonMap.parking[1].floors[1].units[1]
+                Building.removeParkingUnit(unitToRemove.id)
+                const found = Building.getParkingUnitInfo(unitToRemove.id)
+                expect(found.floor).toBe('')
+            })
+
+            it('should update next parking units labels', () => {
+                const Building = createBuildingParking(5)
+                const jsonMap = Building.getMap()
+                const unitToRemove = jsonMap.parking[1].floors[1].units[1]
+                const unitToRemoveLabel = unitToRemove.label
+                Building.removeParkingUnit(unitToRemove.id)
+                const newJsonMap = Building.getMap()
+                const nextUnit = newJsonMap.parking[1].floors[1].units[1]
+                expect(nextUnit.id).not.toEqual(unitToRemove.id)
+                expect(nextUnit.label).toEqual(unitToRemoveLabel)
+            })
+
+            it('should remove floor if no parking units remain', () => {
+                const Building = createBuildingParking(5)
+                const jsonMap = Building.getMap()
+                const floorsBefore = jsonMap.parking[1].floors.length
+                const unitsToRemove = [...jsonMap.parking[1].floors[0].units]
+                unitsToRemove.forEach(unit => {
+                    Building.removeParkingUnit(unit.id)
+                })
+                const newJsonMap = Building.getMap()
+                expect(newJsonMap.parking[1].floors).toHaveLength(floorsBefore - 1)
+            })
+        })
+    })
+
     describe('Section operations', () => {
         describe('Add section', () => {
             it('have valid structure on section add', () => {
@@ -228,6 +341,9 @@ describe('Map constructor', () => {
                 expect(Building.sections).toHaveLength(6)
                 Building.validate()
                 expect(Building.isMapValid).toBe(true)
+                expect(Building.isEmpty).toBeFalsy()
+                expect(Building.isEmptySections).toBeFalsy()
+                expect(Building.isEmptyParking).toBeTruthy()
             })
         })
         describe('Edit section', () => {
@@ -264,6 +380,46 @@ describe('Map constructor', () => {
                     .from({ length: Building.map.sections.length }, (_, index) => String(++index))
                 expect(Building.isMapValid).toBeTruthy()
                 expect(Building.map.sections.map(section => section.name)).toEqual(sectionNames)
+            })
+        })
+    })
+
+    describe('Parking operations', () => {
+        describe('Add parking', () => {
+            it('should have valid structure on parking add', () => {
+                const Building = createBuildingParking(5)
+                Building.addParking({ id: '', minFloor: -7, maxFloor: 3, unitsOnFloor: 3, name: sectionName() })
+                expect(Building.parking).toHaveLength(6)
+                Building.validate()
+                expect(Building.isMapValid).toBeTruthy()
+                expect(Building.isEmpty).toBeFalsy()
+                expect(Building.isEmptySections).toBeTruthy()
+                expect(Building.isEmptyParking).toBeFalsy()
+            })
+        })
+
+        describe('Delete parking', () => {
+            it('should be removed', () => {
+                const Building = createBuildingParking(5)
+                const jsonMap = Building.getMap()
+                const removeSection = jsonMap.parking[1]
+                Building.removeParking(removeSection.id)
+                Building.validate()
+                expect(Building.isMapValid).toBe(true)
+                expect(Building.parking).toHaveLength(4)
+            })
+
+            it('should rename parking unit names in order', () => {
+                const Building = createBuildingParking(5)
+                const jsonMap = Building.getMap()
+                const removeSection = jsonMap.parking[1]
+                Building.removeParking(removeSection.id)
+                Building.validate()
+
+                const sectionNames = Array
+                    .from({ length: Building.map.parking.length }, (_, index) => String(++index))
+                expect(Building.isMapValid).toBeTruthy()
+                expect(Building.map.parking.map(parkingSection => parkingSection.name)).toEqual(sectionNames)
             })
         })
     })
