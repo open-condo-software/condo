@@ -33,6 +33,10 @@ export const CustomScrollbarCss = css`
   & div::-webkit-scrollbar-track {
     border-radius: 10px;
   }
+  & div::-webkit-scrollbar-track,
+  & div::-webkit-scrollbar-corner {
+    background-color: ${colors.backgroundLightGrey};
+  }
 `
 
 export const MapSectionContainer = styled.div<{ visible: boolean }>`
