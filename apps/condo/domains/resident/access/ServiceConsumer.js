@@ -1,40 +1,47 @@
 
-const { ServiceConsumer, Resident } = require('@condo/domains/resident/utils/serverSchema')
+const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { getByCondition } = require('@core/keystone/schema')
+const { isSoftDelete } = require('@core/keystone/access')
 
-async function canReadServiceConsumers ({ authentication: { item: user } }) {
-    if (!user) return false
-    if (user.isAdmin || user.isSupport) return {}
-    if (user.type === RESIDENT) {
-        return {
-            resident: { user: { id: user.id } },
+async function canReadServiceConsumers ({ authentication: { item, listKey } }) {
+    if (!listKey || !item) return throwAuthenticationError()
+    if (item.deletedAt) return false
+    if (listKey === USER_SCHEMA_NAME) {
+        if (item.isSupport || item.isAdmin) return {}
+        if (item.type === RESIDENT) {
+            return { resident: { user: { id: item.id }, deletedAt: null } }
         }
+        return false
     }
     return false
 }
 
-async function canManageServiceConsumers ({ authentication: { item: user }, context, originalInput, operation, itemId }) {
-    if (!user) return false
-    if (user.isAdmin || user.isSupport) return true
-    if (user.type === RESIDENT) {
-        if (operation === 'update') {
-            const [serviceConsumer] = await ServiceConsumer.getAll(context, { id: itemId })
-            if (!serviceConsumer) return false
-            const [resident] = await Resident.getAll(context, { id: serviceConsumer.resident.id })
-            const isOwnBillingAccount = resident.user.id === user.id
-
-            let isSoftDeleteOperation = true
-
-            const SAFE_FIELDS = ['dv', 'sender', 'deletedAt']
-            for (let prop in originalInput) {
-                if (!originalInput.hasOwnProperty(prop)) { continue }
-                if ( !SAFE_FIELDS.includes(prop) && !prop.startsWith('_') ) {
-                    isSoftDeleteOperation = false
-                }
+async function canManageServiceConsumers ({ authentication: { item, listKey }, originalInput, operation, itemId }) {
+    if (!listKey || !item) return throwAuthenticationError()
+    if (item.deletedAt) return false
+    if (listKey === USER_SCHEMA_NAME) {
+        if (item.isSupport || item.isAdmin) return true
+        if (item.type === RESIDENT) {
+            if (operation === 'update' && itemId) {
+                const serviceConsumer = await getByCondition('ServiceConsumer', {
+                    id: itemId,
+                    deletedAt: null,
+                })
+                if (!serviceConsumer) return false
+                const resident = await getByCondition('Resident', {
+                    id: serviceConsumer.resident,
+                    deletedAt: null,
+                })
+                if (!resident) return false
+                if (resident.user !== item.id) return false
+                console.log(originalInput)
+                return isSoftDelete(originalInput)
             }
-
-            return isOwnBillingAccount && isSoftDeleteOperation
+            return false
         }
+        return false
     }
     return false
 }

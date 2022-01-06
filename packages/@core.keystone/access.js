@@ -2,7 +2,7 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { get } = require('lodash')
 const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
-const { Organization, OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
+const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 
 const userIsAuthenticated = ({ authentication: { item: user } }) => Boolean(user && user.id)
 
@@ -87,13 +87,13 @@ const readOnlyField = {
 
 const isSoftDelete = (originalInput) => {
     // TODO(antonal): extract validations of `originalInput` to separate module and user ajv to validate JSON-schema
-    const isJustSoftDelete = (
+    const isJustSoftDelete = Boolean(
         Object.keys(originalInput).length === 3 &&
         get(originalInput, 'deletedAt') &&
         get(originalInput, 'dv') &&
         get(originalInput, 'sender')
     )
-    const isSoftDeleteWithMerge = (
+    const isSoftDeleteWithMerge = Boolean(
         Object.keys(originalInput).length === 4 &&
         get(originalInput, 'deletedAt') &&
         get(originalInput, 'newId') &&
