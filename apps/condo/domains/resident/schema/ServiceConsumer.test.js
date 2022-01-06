@@ -8,7 +8,11 @@ const { addResidentAccess, makeClientWithResidentUser } = require('@condo/domain
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestBillingAccount, createTestBillingProperty, makeContextWithOrganizationAndIntegrationAsAdmin, makeClientWithPropertyAndBilling } = require('@condo/domains/billing/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
+const {
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj,
+    expectToThrowAuthenticationErrorToObjects,
+} = require('@condo/domains/common/utils/testSchema')
 const { createTestServiceConsumer, createTestResident, updateTestServiceConsumer, makeClientWithServiceConsumer, registerResidentByTestClient, registerServiceConsumerByTestClient, ServiceConsumer } = require('../utils/testSchema')
 
 const { makeClient } = require('@core/keystone/test.utils')
@@ -58,7 +62,7 @@ describe('ServiceConsumer', () => {
             const [billingProperty] = await createTestBillingProperty(adminClient, context)
             const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
 
-            await expectToThrowAccessDeniedErrorToObj(async () => {
+            await expectToThrowAuthenticationErrorToObj(async () => {
                 await createTestServiceConsumer(anonymous, resident, userClient.organization, { billingAccount: { connect: { id: billingAccount.id } } })
             })
         })
@@ -98,7 +102,7 @@ describe('ServiceConsumer', () => {
             const anonymous = await makeClient()
             await makeClientWithServiceConsumer()
 
-            await expectToThrowAccessDeniedErrorToObjects(async () => {
+            await expectToThrowAuthenticationErrorToObjects(async () => {
                 await ServiceConsumer.getAll(anonymous, {}, { sortBy: ['updatedAt_DESC'] })
             })
         })
@@ -156,7 +160,7 @@ describe('ServiceConsumer', () => {
             const anonymousClient = await makeClient()
             const client = await makeClientWithServiceConsumer()
 
-            await expectToThrowAccessDeniedErrorToObj(async () => {
+            await expectToThrowAuthenticationErrorToObj(async () => {
                 await updateTestServiceConsumer(anonymousClient, client.serviceConsumer.id, { accountNumber: faker.random.alphaNumeric(8) })
             })
         })

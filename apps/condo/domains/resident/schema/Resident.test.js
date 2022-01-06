@@ -21,7 +21,13 @@ const { createTestAcquiringIntegration } = require('@condo/domains/acquiring/uti
 const { DEFAULT_ACQUIRING_INTEGRATION_NAME } = require('@condo/domains/acquiring/constants/integration')
 const { DEFAULT_BILLING_INTEGRATION_NAME } = require('@condo/domains/billing/constants/constants')
 const { Resident, createTestResident, updateTestResident } = require('@condo/domains/resident/utils/testSchema')
-const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
+const {
+    catchErrorFrom,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowAuthenticationErrorToObj,
+    expectToThrowAuthenticationErrorToObjects,
+} = require('@condo/domains/common/utils/testSchema')
 const { buildFakeAddressMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const { createTestTicketFile, updateTestTicketFile, createTestTicket, updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 
@@ -556,7 +562,7 @@ describe('Resident', () => {
         it('cannot be created by anonymous', async () => {
             const userClient = await makeClientWithProperty()
             const anonymous = await makeClient()
-            await expectToThrowAccessDeniedErrorToObj(async () => {
+            await expectToThrowAuthenticationErrorToObj(async () => {
                 await createTestResident(anonymous, userClient.user, userClient.organization, userClient.property)
             })
         })
@@ -598,7 +604,7 @@ describe('Resident', () => {
             const userClient = await makeClientWithProperty()
             const anonymousClient = await makeClient()
             await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
-            await expectToThrowAccessDeniedErrorToObjects(async () => {
+            await expectToThrowAuthenticationErrorToObjects(async () => {
                 await Resident.getAll(anonymousClient)
             })
         })
@@ -686,7 +692,7 @@ describe('Resident', () => {
 
             const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
 
-            await expectToThrowAccessDeniedErrorToObj(async () => {
+            await expectToThrowAuthenticationErrorToObj(async () => {
                 await updateTestResident(anonymousClient, obj.id)
             })
         })
@@ -747,11 +753,13 @@ describe('Resident', () => {
             const adminClient = await makeLoggedInAdminClient()
             const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
 
-            const [objUpdated, attrs] = await Resident.softDelete(userClient, obj.id)
-
-            expect(objUpdated.id).toEqual(obj.id)
-            expect(objUpdated.dv).toEqual(1)
-            expect(objUpdated.sender).toEqual(attrs.sender)
+            // NOTE: USING RAW SINCE WE CANNOT QUERY PROPERTY OF DELETED RESIDENT ANYMORE
+            const { data } = await Resident.softDelete(userClient, obj.id, {}, { raw: true })
+            expect(data).toBeDefined()
+            expect(data).toHaveProperty('obj')
+            const { obj: objUpdated } = data
+            expect(objUpdated).toHaveProperty('id', obj.id)
+            expect(objUpdated).toHaveProperty('dv', 1)
             expect(objUpdated.deletedAt).toMatch(DATETIME_RE)
             expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
             expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
