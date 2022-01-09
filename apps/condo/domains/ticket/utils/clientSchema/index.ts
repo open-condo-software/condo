@@ -14,4 +14,5 @@ export * as TicketCategoryClassifier from './TicketCategoryClassifier'
 export * as TicketProblemClassifier from './TicketProblemClassifier'
 export * as TicketClassifierRule from './TicketClassifierRule'
 export * as TicketComment from './TicketComment'
+export * as TicketFilterTemplate from './TicketFilterTemplate'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

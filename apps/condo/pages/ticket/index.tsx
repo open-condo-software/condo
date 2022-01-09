@@ -14,7 +14,7 @@ import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
 
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
+import { Ticket, TicketFilterTemplate } from '@condo/domains/ticket/utils/clientSchema'
 import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Button } from '@condo/domains/common/components/Button'
@@ -76,7 +76,7 @@ export const TicketsPageContent = ({
     const reduceNonEmpty = (cnt, filter) => cnt + Number(Array.isArray(filters[filter]) && filters[filter].length > 0)
     const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
 
-    const { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, 'Ticket')
+    const { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, TicketFilterTemplate)
 
     searchTicketsQuery = { ...searchTicketsQuery, ...{ deletedAt: null } }
 

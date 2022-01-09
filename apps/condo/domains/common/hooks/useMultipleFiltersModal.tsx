@@ -350,14 +350,14 @@ type MultipleFiltersModalProps = {
     isMultipleFiltersModalVisible: boolean
     setIsMultipleFiltersModalVisible: React.Dispatch<React.SetStateAction<boolean>>
     filterMetas: Array<FiltersMeta<unknown>>
-    schemaName?: string
+    filtersSchemaGql?
 }
 
 const Modal: React.FC<MultipleFiltersModalProps> = ({
     isMultipleFiltersModalVisible,
     setIsMultipleFiltersModalVisible,
     filterMetas,
-    schemaName,
+    filtersSchemaGql,
 }) => {
     const intl = useIntl()
     const FiltersModalTitle = intl.formatMessage({ id: 'FiltersLabel' })
@@ -381,10 +381,9 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const handleSaveRef = useRef(null)
     const formRef = useRef(null)
 
-    const { objs: filtersTemplates, loading, refetch } = EmployeeFiltersTemplate.useObjects({
+    const { objs: filtersTemplates, loading, refetch } = filtersSchemaGql.useObjects({
         where: {
             employee: { id: link.id },
-            schemaName,
             deletedAt: null,
         },
         sortBy: [SortEmployeeFiltersTemplatesBy.CreatedAtAsc],
@@ -396,14 +395,12 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         } else setSelectedFiltersTemplate(null)
     }, [loading])
 
-    const createFiltersTemplateAction = EmployeeFiltersTemplate.useCreate({
+    const createFiltersTemplateAction = filtersSchemaGql.useCreate({
         employee: link.id,
-        schemaName,
     }, () => Promise.resolve())
 
-    const updateFiltersTemplateAction = EmployeeFiltersTemplate.useUpdate({
+    const updateFiltersTemplateAction = filtersSchemaGql.useUpdate({
         employee: link.id,
-        schemaName,
     }, () => refetch())
 
     const handleResetFilters = useCallback(async () => {
@@ -423,14 +420,14 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         if (newTemplateName) {
             await createFiltersTemplateAction({
                 name: newTemplateName,
-                filters: JSON.stringify(filtersValue),
+                filters: filtersValue,
             })
         }
 
         if (existedTemplateName) {
             await updateFiltersTemplateAction({
                 name: existedTemplateName,
-                filters: JSON.stringify(filtersValue),
+                filters: filtersValue,
             }, selectedFiltersTemplate)
         }
 
@@ -484,9 +481,9 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const modalComponents = useMemo(() => {
         const initialFormValues = !selectedFiltersTemplate ?
             filters :
-            JSON.parse(selectedFiltersTemplate.filters)
+            selectedFiltersTemplate.filters
 
-        return getModalComponents(initialFormValues, filterMetas, formRef.current)
+        return getModalComponents(pickBy(initialFormValues), filterMetas, formRef.current)
     },
     [filterMetas, filters, selectedFiltersTemplate])
 
@@ -596,7 +593,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     )
 }
 
-export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>, schemaName: string) {
+export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>, filtersSchemaGql) {
     const [isMultipleFiltersModalVisible, setIsMultipleFiltersModalVisible] = useState<boolean>()
 
     const MultipleFiltersModal = useCallback(() => (
@@ -604,7 +601,7 @@ export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>,
             isMultipleFiltersModalVisible={isMultipleFiltersModalVisible}
             setIsMultipleFiltersModalVisible={setIsMultipleFiltersModalVisible}
             filterMetas={filterMetas}
-            schemaName={schemaName}
+            filtersSchemaGql={filtersSchemaGql}
         />
     ), [isMultipleFiltersModalVisible])
 
