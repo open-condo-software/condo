@@ -18,6 +18,7 @@ const { TicketProblemClassifier: TicketProblemClassifierGQL } = require('@condo/
 const { TicketClassifierRule: TicketClassifierRuleGQL } = require('@condo/domains/ticket/gql')
 const { ResidentTicket: ResidentTicketGQL } = require('@condo/domains/ticket/gql')
 const { TicketSource: TicketSourceGQL } = require('@condo/domains/ticket/gql')
+const { TicketFilterTemplate: TicketFilterTemplateGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Ticket = generateServerUtils(TicketGQL)
@@ -35,6 +36,7 @@ const TicketClassifierRule = generateServerUtils(TicketClassifierRuleGQL)
 
 const ResidentTicket = generateServerUtils(ResidentTicketGQL)
 
+const TicketFilterTemplate = generateServerUtils(TicketFilterTemplateGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 
@@ -109,5 +111,6 @@ module.exports = {
     ResidentTicket,
     TicketSource,
     loadTicketsForExcelExport,
+    TicketFilterTemplate,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

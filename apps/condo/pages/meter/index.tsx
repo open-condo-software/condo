@@ -78,7 +78,7 @@ export const MetersPageContent = ({
     const { isSmall } = useLayoutContext()
     const [ search, handleSearchChange ] = useSearch(loading)
     const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch)
-    const { MultipleFiltersModal, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas)
+    const { MultipleFiltersModal, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, 'Meter')
     const [columns, meterReadingNormalizer, meterReadingValidator, meterReadingCreator] = useImporterFunctions()
 
     const handleRowAction = useCallback((record) => {

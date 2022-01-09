@@ -26,6 +26,7 @@ const {
 const { ResidentTicket: ResidentTicketGQL } = require('@condo/domains/ticket/gql')
 const { GET_ALL_RESIDENT_TICKETS_QUERY } = require('@condo/domains/ticket/gql')
 const { UPDATE_RESIDENT_TICKET_MUTATION } = require('@condo/domains/ticket/gql')
+const { TicketFilterTemplate: TicketFilterTemplateGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -44,6 +45,7 @@ const TicketCategoryClassifier = generateGQLTestUtils(TicketCategoryClassifierGQ
 const TicketProblemClassifier = generateGQLTestUtils(TicketProblemClassifierGQL)
 const TicketClassifierRule = generateGQLTestUtils(TicketClassifierRuleGQL)
 const ResidentTicket = generateGQLTestUtils(ResidentTicketGQL)
+const TicketFilterTemplate = generateGQLTestUtils(TicketFilterTemplateGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestTicket (client, organization, property, extraAttrs = {}) {
@@ -375,6 +377,39 @@ async function updateResidentTicketByTestClient(client, id, extraAttrs = {}) {
     const obj = await ResidentTicket.update(client, id, attrs)
     return [obj, attrs]
 }
+async function createTestTicketFilterTemplate (client, employee, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!employee || !employee.id) throw new Error('no employee.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestTicketFilterTemplate logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        employee: { connect: { id: employee.id } },
+        ...extraAttrs,
+    }
+    const obj = await TicketFilterTemplate.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestTicketFilterTemplate (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestTicketFilterTemplate logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await TicketFilterTemplate.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithTicket () {
@@ -409,6 +444,7 @@ module.exports = {
     TicketComment, createTestTicketComment, updateTestTicketComment,
     createTestTicketPlaceClassifier, updateTestTicketPlaceClassifier, createTestTicketCategoryClassifier, updateTestTicketCategoryClassifier, createTestTicketProblemClassifier, updateTestTicketProblemClassifier, createTestTicketClassifierRule, updateTestTicketClassifierRule,
     createResidentTicketByTestClient,
-    updateResidentTicketByTestClient
+    updateResidentTicketByTestClient,
+    TicketFilterTemplate, createTestTicketFilterTemplate, updateTestTicketFilterTemplate,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
