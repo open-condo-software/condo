@@ -56,9 +56,11 @@ const keystone = new Keystone({
     },
 })
 
+// Because Babel is used only for frontend to transpile and optimise code,
+// backend files will bring unnecessary workload to building stage.
+// They can be safely ignored without impact on final executable code
 if (IS_BUILD_PHASE) {
-    // NOTE: we need to register User list for `createAuthStrategy`
-    //  and we need the AuthStrategy because it's required for /admin/ static files build
+    // `User` list is used by `createAuthStrategy`, that creates `AuthStrategy`, required to build /admin/ static files
     registerSchemas(keystone, [
         require('@core/keystone/schemas/User'),
     ])
