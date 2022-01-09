@@ -381,13 +381,16 @@ async function createTestTicketFilterTemplate (client, employee, extraAttrs = {}
     if (!client) throw new Error('no client')
     if (!employee || !employee.id) throw new Error('no employee.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestTicketFilterTemplate logic for generate fields
+    const name = faker.random.alphaNumeric(5)
+    const ticketUnitFilter = [faker.random.alphaNumeric(5)]
+    const filters = { unitName: ticketUnitFilter }
 
     const attrs = {
         dv: 1,
         sender,
         employee: { connect: { id: employee.id } },
+        name,
+        filters,
         ...extraAttrs,
     }
     const obj = await TicketFilterTemplate.create(client, attrs)
@@ -398,8 +401,6 @@ async function updateTestTicketFilterTemplate (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestTicketFilterTemplate logic for generate fields
 
     const attrs = {
         dv: 1,
