@@ -145,7 +145,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
         const properties = await searchPropertyWithMap(client, {
             organization: { id: userOrganizationId },
-            address: suggestion.value,
+            address_i: suggestion.value,
         }, undefined)
 
         const propertyId = !isEmpty(properties) ? get(properties[0], 'id') : null
