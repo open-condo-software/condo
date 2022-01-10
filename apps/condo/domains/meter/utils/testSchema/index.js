@@ -12,12 +12,14 @@ const { MeterReadingSource: MeterReadingSourceGQL } = require('@condo/domains/me
 const { Meter: MeterGQL } = require('@condo/domains/meter/gql')
 const { MeterReading: MeterReadingGQL } = require('@condo/domains/meter/gql')
 const { EXPORT_METER_READINGS_MUTATION } = require('@condo/domains/meter/gql')
+const { MeterReadingFilterTemplate: MeterReadingFilterTemplateGQL } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateGQLTestUtils(MeterResourceGQL)
 const MeterReadingSource = generateGQLTestUtils(MeterReadingSourceGQL)
 const Meter = generateGQLTestUtils(MeterGQL)
 const MeterReading = generateGQLTestUtils(MeterReadingGQL)
+const MeterReadingFilterTemplate = generateGQLTestUtils(MeterReadingFilterTemplateGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestMeterResource (client, extraAttrs = {}) {
@@ -160,6 +162,42 @@ async function exportMeterReadingsByTestClient(client, extraAttrs = {}) {
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+async function createTestMeterReadingFilterTemplate (client, employee, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!employee || !employee.id) throw new Error('no employee.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const name = faker.random.alphaNumeric(5)
+    const ticketUnitFilter = [faker.random.alphaNumeric(5)]
+    const filters = { unitName: ticketUnitFilter }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        employee: { connect: { id: employee.id } },
+        name,
+        filters,
+        ...extraAttrs,
+    }
+
+    const obj = await MeterReadingFilterTemplate.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestMeterReadingFilterTemplate (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await MeterReadingFilterTemplate.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -167,6 +205,7 @@ module.exports = {
     MeterReadingSource, createTestMeterReadingSource, updateTestMeterReadingSource,
     Meter, createTestMeter, updateTestMeter,
     MeterReading, createTestMeterReading, updateTestMeterReading,
-exportMeterReadingsByTestClient
+    exportMeterReadingsByTestClient,
+        MeterReadingFilterTemplate, createTestMeterReadingFilterTemplate, updateTestMeterReadingFilterTemplate,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -19,7 +19,7 @@ import {
     useLayoutContext,
 } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { MeterReading } from '@condo/domains/meter/utils/clientSchema'
+import { MeterReading, MeterReadingFilterTemplate } from '@condo/domains/meter/utils/clientSchema'
 import { getPageIndexFromOffset, getTableScrollConfig, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
@@ -78,7 +78,7 @@ export const MetersPageContent = ({
     const { isSmall } = useLayoutContext()
     const [ search, handleSearchChange ] = useSearch(loading)
     const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch)
-    const { MultipleFiltersModal, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, 'Meter')
+    const { MultipleFiltersModal, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, MeterReadingFilterTemplate)
     const [columns, meterReadingNormalizer, meterReadingValidator, meterReadingCreator] = useImporterFunctions()
 
     const handleRowAction = useCallback((record) => {
