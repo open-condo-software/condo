@@ -34,6 +34,7 @@ const { manageResidentToPropertyAndOrganizationConnections } = require('@condo/d
 const { PROPERTY_MAP_GRAPHQL_TYPES, GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY, GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY } = require('../gql')
 const { Property: PropertyAPI } = require('../utils/serverSchema')
 const { normalizePropertyMap } = require('../utils/serverSchema/helpers')
+const { PROPERTY_MAP_JSON_FIELDS } = require('@condo/domains/property/gql')
 
 const ajv = new Ajv()
 const jsonMapValidator = ajv.compile(MapSchemaJSON)
@@ -66,8 +67,9 @@ const Property = new GQLListSchema('Property', {
 
                     if (isCreate || isUpdateAddress) {
                         const organizationId = isCreate ? resolvedData.organization : existingItem.organization
+                        const addressSearch = isCreate ? { address_i: value } : { address: value }
                         const where = {
-                            address_i: value,
+                            ...addressSearch,
                             organization: {
                                 id: organizationId,
                             },
@@ -97,6 +99,7 @@ const Property = new GQLListSchema('Property', {
             type: Json,
             extendGraphQLTypes: [PROPERTY_MAP_GRAPHQL_TYPES],
             graphQLReturnType: 'BuildingMap',
+            graphQLAdminFragment: `{ ${PROPERTY_MAP_JSON_FIELDS} }`,
             isRequired: false,
             hooks: {
                 resolveInput: ({ resolvedData }) => {
@@ -255,7 +258,7 @@ const Property = new GQLListSchema('Property', {
             const isRestoredProperty = operation === 'update' && Boolean(existingItem.deletedAt) && !updatedItem.deletedAt
             // TODO(DOMA-1779): detect property.address locale
             const isAddressUpdated = operation === 'update' && !compareStrI(existingItem.address, updatedItem.address)
-            const affectedAddress = isSoftDeleteOperation || isAddressUpdated ?  existingItem.address : updatedItem.address
+            const affectedAddress = isSoftDeleteOperation || isAddressUpdated ? existingItem.address : updatedItem.address
 
             // We handle resident reconnections only for these operation types
             if (isCreatedProperty || isRestoredProperty || isSoftDeleteOperation || isAddressUpdated) {
