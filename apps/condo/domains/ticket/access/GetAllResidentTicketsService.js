@@ -3,8 +3,8 @@
  */
 const { checkAccessToResidentTicketActions } = require('@condo/domains/ticket/utils/accessSchema')
 
-async function canGetAllResidentTickets ({ authentication: { item: user } }) {
-    return checkAccessToResidentTicketActions(user)
+async function canGetAllResidentTickets ({ authentication }) {
+    return checkAccessToResidentTicketActions(authentication)
 }
 
 /*

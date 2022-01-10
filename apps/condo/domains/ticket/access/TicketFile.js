@@ -3,73 +3,61 @@
  */
 const get = require('lodash/get')
 const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
-const { checkRelatedOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const { getById } = require('@core/keystone/schema')
-const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
+const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 
 
-async function canReadTicketFiles ({ authentication: { item: user } }) {
-    if (!user) return throwAuthenticationError()
-    if (user.isAdmin || user.isSupport) {
-        return {}
-    }
-    if (user.type === RESIDENT) {
+async function canReadTicketFiles ({ authentication: { item, listKey } }) {
+    if (!listKey || !item) return throwAuthenticationError()
+    if (item.deletedAt) return false
+    if (listKey === USER_SCHEMA_NAME) {
+        if (item.isSupport || item.isAdmin) return {}
+        const userId = item.id
+        if (item.type === RESIDENT) return { createdBy: { id: userId } }
         return {
-            createdBy: { id: user.id },
+            organization: {
+                OR: [
+                    queryOrganizationEmployeeFor(userId),
+                    queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
+                ],
+            },
         }
     }
-    const userId = user.id
-    return {
-        organization: {
-            OR: [
-                queryOrganizationEmployeeFor(userId),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
-            ],
-        },
-    }
+    return false
 }
 
 
-async function canManageTicketFiles ({ authentication: { item: user }, originalInput, operation, itemId }) {
-    if (!user) return throwAuthenticationError()
-    if (user.isAdmin) return true
-    if (operation === 'create') {
-        const organizationIdFromTicketFile = get(originalInput, ['organization', 'connect', 'id'])
-        // TODO(zuch): need to check connection from resident to organization
-        if (user.type === RESIDENT) {
-            return true
+async function canManageTicketFiles ({ authentication: { item, listKey }, originalInput, operation, itemId }) {
+    if (!listKey || !item) return throwAuthenticationError()
+    if (item.deletedAt) return false
+    if (listKey === USER_SCHEMA_NAME) {
+        if (item.isAdmin) return true
+        const userId = item.id
+
+        if (item.type === RESIDENT) {
+            if (operation === 'create') return true
+            const ticketFile = await getById('TicketFile', itemId)
+            if (!ticketFile) return false
+            return ticketFile.createdBy === userId
         }
-        if (!organizationIdFromTicketFile) {
-            return false
+
+        if (item.type === STAFF) {
+            if (operation === 'create') {
+                const organizationId = get(originalInput, ['organization', 'connect', 'id'])
+                return await checkPermissionInUserOrganizationOrRelatedOrganization(userId, organizationId, 'canManageTickets')
+            }
+            const ticketFile = await getById('TicketFile', itemId)
+            if (!ticketFile) return false
+
+            const { ticket, createdBy, organization } = ticketFile
+            if (!ticket) return createdBy === userId
+            if (!organization) return false
+            return await checkPermissionInUserOrganizationOrRelatedOrganization(userId, organization, 'canManageTickets')
+
         }
-        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(user.id, organizationIdFromTicketFile, 'canManageTickets')
-        if (canManageRelatedOrganizationTickets) {
-            return true
-        }
-        return await checkOrganizationPermission(user.id, organizationIdFromTicketFile, 'canManageTickets')
-    } else if (operation === 'update') {
-        const ticketFile = await getById('TicketFile', itemId)
-        if (!ticketFile) {
-            return false
-        }
-        const { ticket, createdBy, organization } = ticketFile
-        if (!ticket) {
-            // Temp file that wasn't connected to ticket
-            return (createdBy === user.id)
-        }
-        if (user.type === RESIDENT) {
-            return (createdBy === user.id)
-        }
-        if (!organization) {
-            return false
-        }
-        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(user.id, organization, 'canManageTickets')
-        if (canManageRelatedOrganizationTickets) {
-            return true
-        }
-        return await checkOrganizationPermission(user.id, organization, 'canManageTickets')
     }
     return false
 }
