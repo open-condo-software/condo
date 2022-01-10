@@ -12,12 +12,14 @@ const { Meter: MeterGQL } = require('@condo/domains/meter/gql')
 const { MeterReading: MeterReadingGQL } = require('@condo/domains/meter/gql')
 const { find } = require('@core/keystone/schema')
 const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
+const { MeterReadingFilterTemplate: MeterReadingFilterTemplateGQL } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateServerUtils(MeterResourceGQL)
 const MeterReadingSource = generateServerUtils(MeterReadingSourceGQL)
 const Meter = generateServerUtils(MeterGQL)
 const MeterReading = generateServerUtils(MeterReadingGQL)
+const MeterReadingFilterTemplate = generateServerUtils(MeterReadingFilterTemplateGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 /**
@@ -101,5 +103,6 @@ module.exports = {
     getAvailableResidentMetersIds,
     loadMetersForExcelExport,
     loadMeterReadingsForExcelExport,
+    MeterReadingFilterTemplate,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
