@@ -3,26 +3,31 @@
  */
 const get = require('lodash/get')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 const { checkUserBelongsToOrganization } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadTicketAnalyticsReport ({ authentication: { item: user }, args }) {
-    if (!user) return throwAuthenticationError()
-    if (user.isAdmin) return true
-    const organizationId = get(args, 'data.where.organization.id', false)
-    if (!organizationId) {
-        return false
+async function canReadTicketAnalyticsReport ({ authentication: { item, listKey }, args: { data: { where } } }) {
+    if (!listKey || !item) return throwAuthenticationError()
+    if (item.deletedAt) return false
+    if (listKey === USER_SCHEMA_NAME) {
+        if (item.isAdmin) return true
+        const organizationId = get(where, ['organization', 'id'], false)
+        if (!organizationId) return false
+        return await checkUserBelongsToOrganization(item.id, organizationId)
     }
-    return await checkUserBelongsToOrganization(user.id, organizationId)
+    return false
 }
 
-async function canReadExportTicketAnalyticsToExcel ({ authentication: { item: user }, args }) {
-    if (!user) return throwAuthenticationError()
-    if (user.isAdmin) return true
-    const organizationId = get(args, 'data.where.organization.id', false)
-    if (!organizationId) {
-        return false
+async function canReadExportTicketAnalyticsToExcel ({ authentication: { item, listKey }, args: { data: { where } } }) {
+    if (!listKey || !item) return throwAuthenticationError()
+    if (item.deletedAt) return false
+    if (listKey === USER_SCHEMA_NAME) {
+        if (item.isAdmin) return true
+        const organizationId = get(where, ['organization', 'id'], false)
+        if (!organizationId) return false
+        return await checkUserBelongsToOrganization(item.id, organizationId)
     }
-    return await checkUserBelongsToOrganization(user.id, organizationId)
+    return false
 }
 
 /*

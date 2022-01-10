@@ -3,20 +3,22 @@
  */
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 
-async function canReadTicketPlaceClassifiers ({ authentication: { item: user } }) {
-    if (!user) return throwAuthenticationError()
-    if (user.isAdmin || user.isSupport) return {}
-    return {}
+async function canReadTicketPlaceClassifiers ({ authentication: { item, listKey } }) {
+    if (!listKey || !item) return throwAuthenticationError()
+    if (item.deletedAt) return false
+    if (listKey === USER_SCHEMA_NAME) {
+        return {}
+    }
+    return false
 }
 
-async function canManageTicketPlaceClassifiers ({ authentication: { item: user }, originalInput, operation, itemId }) {
-    if (!user) return throwAuthenticationError()
-    if (user.isAdmin) return true
-    if (operation === 'create') {
-        return user.isSupport
-    } else if (operation === 'update') {
-        return user.isSupport
+async function canManageTicketPlaceClassifiers ({ authentication: { item, listKey } }) {
+    if (!listKey || !item) return throwAuthenticationError()
+    if (item.deletedAt) return false
+    if (listKey === USER_SCHEMA_NAME) {
+        return !!(item.isSupport || item.isAdmin)
     }
     return false
 }
