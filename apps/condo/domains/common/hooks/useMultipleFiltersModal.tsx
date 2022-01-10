@@ -20,11 +20,9 @@ import { FormItemProps } from 'antd/es'
 import { CloseOutlined } from '@ant-design/icons'
 import { Gutter } from 'antd/es/grid/row'
 import isFunction from 'lodash/isFunction'
-import isString from 'lodash/isString'
 import isEmpty from 'lodash/isEmpty'
 import pickBy from 'lodash/pickBy'
 import { useOrganization } from '@core/next/organization'
-import { SortEmployeeFiltersTemplatesBy } from '../../../schema'
 
 import {
     OptionType,
@@ -384,7 +382,6 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
             employee: { id: link.id },
             deletedAt: null,
         },
-        sortBy: [SortEmployeeFiltersTemplatesBy.CreatedAtAsc],
     })
 
     useEffect(() => {
