@@ -21,7 +21,6 @@ const {
 const { OrganizationLink: OrganizationLinkGQL } = require('@condo/domains/organization/gql')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { TokenSet: TokenSetGQL } = require('@condo/domains/organization/gql')
-const { EmployeeFiltersTemplate: EmployeeFiltersTemplateGQL } = require('@condo/domains/organization/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OrganizationEmployeeRole = generateGQLTestUtils(OrganizationEmployeeRoleGQL)
@@ -29,7 +28,6 @@ const Organization = generateGQLTestUtils(OrganizationGQL)
 const OrganizationEmployee = generateGQLTestUtils(OrganizationEmployeeGQL)
 const OrganizationLink = generateGQLTestUtils(OrganizationLinkGQL)
 const TokenSet = generateGQLTestUtils(TokenSetGQL)
-const EmployeeFiltersTemplate = generateGQLTestUtils(EmployeeFiltersTemplateGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 /**
@@ -279,44 +277,6 @@ async function updateTestTokenSet (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestEmployeeFiltersTemplate (client, employee, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!employee || !employee.id) throw new Error('no employee.id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const name = faker.random.alphaNumeric(5)
-    const schemaName = faker.random.alphaNumeric(5)
-    const filters = {}
-
-    const attrs = {
-        dv: 1,
-        sender,
-        employee: { connect: { id: employee.id } },
-        name,
-        schemaName,
-        filters,
-        ...extraAttrs,
-    }
-    const obj = await EmployeeFiltersTemplate.create(client, attrs)
-    return [obj, attrs]
-}
-
-async function updateTestEmployeeFiltersTemplate (client, id, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!id) throw new Error('no id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestEmployeeFiltersTemplate logic for generate fields
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const obj = await EmployeeFiltersTemplate.update(client, id, attrs)
-    return [obj, attrs]
-}
-
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -333,6 +293,5 @@ module.exports = {
     OrganizationLink, createTestOrganizationLink, updateTestOrganizationLink,
     makeEmployeeUserClientWithAbilities,
     TokenSet, createTestTokenSet, updateTestTokenSet,
-    EmployeeFiltersTemplate, createTestEmployeeFiltersTemplate, updateTestEmployeeFiltersTemplate,
 }
 /* AUTOGENERATE MARKER <EXPORTS> */

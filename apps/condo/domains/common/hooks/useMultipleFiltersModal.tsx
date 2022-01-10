@@ -32,8 +32,6 @@ import {
     QueryArgType,
 } from '@condo/domains/common/utils/tables.utils'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
-import { EmployeeFiltersTemplate } from '@condo/domains/organization/utils/clientSchema'
-import { IEmployeeFiltersTemplateUIState } from '@condo/domains/organization/utils/clientSchema/EmployeeFiltersTemplate'
 
 import DatePicker from '../components/Pickers/DatePicker'
 import DateRangePicker from '../components/Pickers/DateRangePicker'
@@ -371,7 +369,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const DeleteMessage = intl.formatMessage({ id: 'filters.DeleteMessage' })
     const SaveTemplateMessage = intl.formatMessage({ id: 'filters.SaveTemplate' })
 
-    const [selectedFiltersTemplate, setSelectedFiltersTemplate] = useState<IEmployeeFiltersTemplateUIState>()
+    const [selectedFiltersTemplate, setSelectedFiltersTemplate] = useState()
     const [isSaveFiltersTemplateButtonDisabled, setIsSaveFiltersTemplateButtonDisabled] = useState<boolean>(true)
 
     const router = useRouter()
@@ -479,9 +477,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     ), [NewTemplateLabel, NewTemplatePlaceholder])
 
     const modalComponents = useMemo(() => {
-        const initialFormValues = !selectedFiltersTemplate ?
-            filters :
-            selectedFiltersTemplate.filters
+        const initialFormValues = get(selectedFiltersTemplate, 'filters', filters)
 
         return getModalComponents(pickBy(initialFormValues), filterMetas, formRef.current)
     },

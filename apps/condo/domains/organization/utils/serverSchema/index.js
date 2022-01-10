@@ -11,7 +11,6 @@ const { OrganizationEmployee: OrganizationEmployeeGQL } = require('@condo/domain
 const { OrganizationEmployeeRole: OrganizationEmployeeRoleGQL } = require('@condo/domains/organization/gql')
 const { OrganizationLink: OrganizationLinkGQL } = require('@condo/domains/organization/gql')
 const { TokenSet: TokenSetGQL } = require('@condo/domains/organization/gql')
-const { EmployeeFiltersTemplate: EmployeeFiltersTemplateGQL } = require('@condo/domains/organization/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Organization = generateServerUtils(OrganizationGQL)
@@ -19,7 +18,6 @@ const OrganizationEmployee = generateServerUtils(OrganizationEmployeeGQL)
 const OrganizationEmployeeRole = generateServerUtils(OrganizationEmployeeRoleGQL)
 const OrganizationLink = generateServerUtils(OrganizationLinkGQL)
 const TokenSet = generateServerUtils(TokenSetGQL)
-const EmployeeFiltersTemplate = generateServerUtils(EmployeeFiltersTemplateGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -28,6 +26,5 @@ module.exports = {
     OrganizationEmployeeRole,
     OrganizationLink,
     TokenSet,
-    EmployeeFiltersTemplate,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
