@@ -44,6 +44,7 @@ const ExportPropertiesToExcelService = new GQLCustomSchema('ExportPropertiesToEx
                         organization: property.organization.name,
                         address: property.address,
                         unitsCount: property.unitsCount,
+                        uninhabitedUnitsCount: property.uninhabitedUnitsCount,
                         ticketsClosed: property.ticketsClosed,
                         ticketsInWork: property.ticketsInWork,
                     }
