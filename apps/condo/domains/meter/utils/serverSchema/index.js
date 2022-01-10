@@ -3,6 +3,8 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
+const get = require('lodash/get')
+const compact = require('lodash/compact')
 
 const { ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
@@ -11,7 +13,7 @@ const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
 const { MeterReadingSource: MeterReadingSourceGQL } = require('@condo/domains/meter/gql')
 const { Meter: MeterGQL } = require('@condo/domains/meter/gql')
 const { MeterReading: MeterReadingGQL } = require('@condo/domains/meter/gql')
-const get = require('lodash/get')
+const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateServerUtils(MeterResourceGQL)
@@ -59,11 +61,44 @@ const getAvailableResidentMeters = async (context, userId) => {
     return availableMeters.map(meter => ({ id: meter.id }))
 }
 
+const loadMetersForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
+    const metersLoader = new GqlWithKnexLoadList({
+        listKey: 'Meter',
+        fields: 'id unitName accountNumber number place',
+        singleRelations: [
+            ['Property', 'property', 'address'],
+            ['MeterResource', 'resource', 'id'],
+        ],
+        sortBy,
+        where,
+    })
+
+    return await metersLoader.load()
+}
+
+
+const loadMeterReadingsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
+    const meterReadingsLoader = new GqlWithKnexLoadList({
+        listKey: 'MeterReading',
+        fields: 'id date value1 value2 value3 value4 clientName',
+        singleRelations: [
+            ['Meter', 'meter', 'id'],
+            ['MeterReadingSource', 'source', 'id'],
+        ],
+        sortBy,
+        where,
+    })
+
+    return await meterReadingsLoader.load()
+}
+
 module.exports = {
     MeterResource,
     MeterReadingSource,
     Meter,
     MeterReading,
     getAvailableResidentMeters,
+    loadMetersForExcelExport,
+    loadMeterReadingsForExcelExport,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
