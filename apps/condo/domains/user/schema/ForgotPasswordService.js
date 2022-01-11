@@ -7,7 +7,7 @@ const { MIN_PASSWORD_LENGTH, STAFF } = require('@condo/domains/user/constants/co
 const { GQLCustomSchema, getById } = require('@core/keystone/schema')
 const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { ForgotPasswordAction: ForgotPasswordActionUtil, User } = require('@condo/domains/user/utils/serverSchema')
+const { ConfirmPhoneAction: ConfirmPhoneActionUtil, ForgotPasswordAction: ForgotPasswordActionUtil, User } = require('@condo/domains/user/utils/serverSchema')
 const isEmpty = require('lodash/isEmpty')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 
@@ -75,7 +75,9 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 const users = await User.getAll(context, { phone, type: STAFF })
 
                 if (isEmpty(users)) {
-                    throw new Error(`${WRONG_PHONE_ERROR}] Unable to find user when trying to start password recovery`)
+                    // We don't need to say to client whether we have users with this phone number
+                    // because it is not safety.
+                    return { status: 'ok' }
                 }
 
                 if (users.length !== 1) {
@@ -133,25 +135,49 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 if (password.length < MIN_PASSWORD_LENGTH) {
                     throw new Error(`${PASSWORD_TOO_SHORT}] Password is too short`)
                 }
-                const [action] = await ForgotPasswordActionUtil.getAll(context, {
+
+                let [action] = await ForgotPasswordActionUtil.getAll(context, {
                     token,
                     expiresAt_gte: now,
                     usedAt: null,
+                }) || await ConfirmPhoneActionUtil.getAll(context, {
+                    token, 
+                    expiresAt_gte: now,
+                    completedAt: null,
                 })
 
                 if (!action) {
                     throw new Error(`${RESET_TOKEN_NOT_FOUND}] Unable to find valid token`)
                 }
 
-                const userId = action.user.id
-                const { phone } = await getById('User', userId)
-                const tokenId = action.id
+                let phone, userId
 
-                // mark token as used
-                await ForgotPasswordActionUtil.update(context, tokenId, {
-                    usedAt: now,
-                })
+                if (typeof action.smsCode === 'number') {
+                    if (action.isPhoneVerified === false) {
+                        throw new Error(`${RESET_TOKEN_NOT_FOUND}] Unable to find valid token`)
+                    }
 
+                    const userId = await User.getAll(context, {
+                        phone,
+                    }).then(p => p.id)
+
+                    if (!userId) {
+                        throw new Error(`${RESET_TOKEN_NOT_FOUND}] Unable to find valid token`)
+                    }
+
+                    phone = action.phone
+                }
+                else if (action.user) {
+                    const userId = action.user.id
+                    phone = await getById('User', userId).then(p => p.phone)
+                    const tokenId = action.id
+
+                    // mark token as used
+                    await ForgotPasswordActionUtil.update(context, tokenId, {
+                        usedAt: now,
+                    })
+                }
+                
                 await User.update(context, userId, {
                     password,
                 })
