@@ -101,11 +101,17 @@ describe('OrganizationLink', () => {
         const [role2] = await createTestOrganizationEmployeeRole(admin, organizationFrom1)
         await createTestOrganizationEmployee(admin, organizationFrom2, userClient.user, role2)
 
-        const tickets = await Ticket.getAll(userClient, {})
+        const allTickets = await Ticket.getAll(userClient, {})
 
-        expect(tickets).toHaveLength(2)
-        expect(tickets[0].id).toEqual(ticket1.id)
-        expect(tickets[1].id).toEqual(ticket2.id)
+        expect(allTickets).toHaveLength(2)
+
+        const [ticketFromOrganization1] = await Ticket.getAll(userClient, { id: ticket1.id })
+        expect(ticketFromOrganization1).toBeDefined()
+        expect(ticketFromOrganization1.id).toEqual(ticket1.id)
+
+        const [ticketFromOrganization2] = await Ticket.getAll(userClient, { id: ticket2.id })
+        expect(ticketFromOrganization2).toBeDefined()
+        expect(ticketFromOrganization2.id).toEqual(ticket2.id)
     })
 
     test('user: cannot update OrganizationLink', async () => {
