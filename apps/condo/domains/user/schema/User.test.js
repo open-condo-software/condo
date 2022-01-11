@@ -6,7 +6,7 @@ const { WRONG_EMAIL_ERROR } = require('@condo/domains/user/constants/errors')
 const { getRandomString, makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 
 const { User, UserAdmin, createTestUser, updateTestUser, makeClientWithNewRegisteredAndLoggedInUser, makeLoggedInClient, createTestLandlineNumber, createTestPhone, createTestEmail, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObjects,  expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects } = require('@condo/domains/common/utils/testSchema')
 const { GET_MY_USERINFO, SIGNIN_MUTATION } = require('@condo/domains/user/gql')
 const { DEFAULT_TEST_USER_IDENTITY, DEFAULT_TEST_USER_SECRET } = require('@core/keystone/test.utils')
 const { WRONG_PASSWORD_ERROR, EMPTY_PASSWORD_ERROR } = require('@condo/domains/user/constants/errors')
@@ -98,7 +98,7 @@ describe('User', () => {
 
     test('anonymous: read User', async () => {
         const client = await makeClient()
-        await expectToThrowAccessDeniedErrorToObjects(async () => {
+        await expectToThrowAuthenticationErrorToObjects(async () => {
             await User.getAll(client)
         })
     })
@@ -214,9 +214,8 @@ describe('User', () => {
         const { data, errors } = await User.count(client, {}, { raw: true })
         expect(data).toEqual({ meta: { count: null } })
         expect(errors[0]).toMatchObject({
-            'data': { 'target': '_allUsersMeta', 'type': 'query' },
-            'message': 'You do not have access to this resource',
-            'name': 'AccessDeniedError',
+            'message': 'No or incorrect authentication credentials',
+            'name': 'AuthenticationError',
             'path': ['meta', 'count'],
         })
     })

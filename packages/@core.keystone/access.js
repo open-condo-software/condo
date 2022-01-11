@@ -2,21 +2,32 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { get } = require('lodash')
 const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
-const { Organization } = require('@condo/domains/organization/utils/serverSchema')
+const { find } = require('@core/keystone/schema')
+const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 
-const userIsAuthenticated = ({ authentication: { item: user } }) => Boolean(user && user.id)
+const userIsAuthenticated = (args) => {
+    const { authentication: { item, listKey } } = args
+    if (!item || !listKey) return throwAuthenticationError()
+    if (item.deletedAt) return false
+    return Boolean(listKey === USER_SCHEMA_NAME && item.id)
+}
 
-const userIsAdmin = ({ authentication: { item: user } }) => Boolean(user && user.isAdmin)
+const userIsAdmin = (args) => {
+    const { authentication: { item: user } } = args
+    return Boolean(userIsAuthenticated(args) && user.isAdmin)
+}
 
-const userIsThisItem = ({ existingItem, authentication: { item: user } }) => {
-    if (!user || !existingItem) {
+const userIsThisItem = (args) => {
+    const { existingItem, authentication: { item: user } } = args
+    if (!userIsAuthenticated(args) || !existingItem || !existingItem.id) {
         return false
     }
     return existingItem.id === user.id
 }
 
-const userIsOwner = ({ existingItem, authentication: { item: user } }) => {
-    if (!user || !existingItem || !existingItem.user) {
+const userIsOwner = (args) => {
+    const { existingItem, authentication: { item: user } } = args
+    if (!userIsAuthenticated(args) || !existingItem || !existingItem.user) {
         return false
     }
     return existingItem.user.id === user.id
@@ -34,8 +45,9 @@ const userIsAdminOrIsThisItem = auth => {
     return Boolean(isAdmin || isThisItem)
 }
 
-const canReadOnlyActive = ({ authentication: { item: user } }) => {
-    if (!user) return throwAuthenticationError()
+const canReadOnlyActive = (args) => {
+    const { authentication: { item: user } } = args
+    if (!userIsAuthenticated(args)) return false
     if (user.isAdmin) return {}
 
     // Approximately; users.filter(user => user.isActive === true);
@@ -44,35 +56,40 @@ const canReadOnlyActive = ({ authentication: { item: user } }) => {
     }
 }
 
-const userIsNotResidentUser = ({ authentication: { item: user } }) => {
-    if (!user) return false
-    if (user.type === RESIDENT) return false
-    return true
+const userIsNotResidentUser = (args) => {
+    const { authentication: { item: user } } = args
+    if (!userIsAuthenticated(args)) return false
+    return user.type !== RESIDENT
 }
 
-const canReadOnlyIfUserIsActiveOrganizationEmployee = async ({ context, existingItem, authentication: { item: user } }) => {
+const canReadOnlyIfUserIsActiveOrganizationEmployee = async (args) => {
+    const { existingItem, authentication: { item: user } } = args
+    if (!userIsAuthenticated(args)) return false
+
     if (user.isAdmin || user.isSupport)
         return true
     
-    if (!userIsNotResidentUser({ authentication: { item: user } }))
+    if (!userIsNotResidentUser(args))
         return false
 
     const userId = get(user, 'id')
     const existingItemId = get(existingItem, 'id', null)
 
-    const availableOrganizations = await Organization.getAll(context, {
+    const availableOrganizations = await find('Organization', {
         id: existingItemId,
         OR: [
             queryOrganizationEmployeeFor(userId),
             queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
         ],
+        deletedAt: null,
     })
 
     return availableOrganizations.length > 0
 }
 
-const canReadOnlyIfInUsers = ({ authentication: { item: user } }) => {
-    if (!user) return throwAuthenticationError()
+const canReadOnlyIfInUsers = (args) => {
+    const { authentication: { item: user } } = args
+    if (!userIsAuthenticated(args)) return throwAuthenticationError()
     if (user.isAdmin) return {}
     return {
         users_some: { id: user.id },
