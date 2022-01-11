@@ -670,6 +670,7 @@ const MODAL_FORM_BUTTON_STYLE: React.CSSProperties = { marginTop: '12px' }
 
 const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) => {
     const intl = useIntl()
+    const SectionNameLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.numberOfSection' })
     const MinFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.minfloor' })
     const MaxFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.maxFloor' })
     const UnitsOnFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.unitsOnFloor' })
@@ -682,21 +683,16 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
     const [unitsOnFloor, setUnitsOnFloor] = useState(null)
     const [copyId, setCopyId] = useState<string | null>(null)
     const [maxMinError, setMaxMinError] = useState(false)
-
-    const resetForm = () => {
-        setMinFloor(null)
-        setMaxFloor(null)
-        setUnitsOnFloor(null)
-    }
+    const [sectionName, setSectionName] = useState(null)
 
     useEffect(() => {
         if (minFloor && maxFloor) {
             setMaxMinError((maxFloor < minFloor))
         }
-        if (minFloor && maxFloor && unitsOnFloor && !maxMinError) {
+        if (minFloor && maxFloor && unitsOnFloor && !maxMinError && sectionName) {
             builder.addPreviewSection({
                 id: '',
-                name: builder.nextSectionName,
+                name: sectionName.toString(),
                 minFloor,
                 maxFloor,
                 unitsOnFloor,
@@ -706,7 +702,7 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
             builder.removePreviewSection()
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [minFloor, maxFloor, unitsOnFloor])
+    }, [minFloor, maxFloor, unitsOnFloor, sectionName])
 
     useEffect(() => {
         if (copyId !== null) {
@@ -715,15 +711,23 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
             setMinFloor(Math.min(...floorIndexes))
             setMaxFloor(Math.max(...floorIndexes))
             setUnitsOnFloor(get(sectionToCopy, 'floors.0.units.length', 0))
+            setSectionName(builder.nextSectionName)
         }
     }, [builder, copyId])
 
-    const handleFinish = () => {
+    const resetForm = useCallback(() => {
+        setMinFloor(null)
+        setMaxFloor(null)
+        setUnitsOnFloor(null)
+    }, [])
+
+    const handleFinish = useCallback(() => {
         builder.removePreviewSection()
-        builder.addSection({ id: '', name: builder.nextSectionName, minFloor, maxFloor, unitsOnFloor })
+        builder.addSection({ id: '', name: sectionName.toString(), minFloor, maxFloor, unitsOnFloor })
         refresh()
         resetForm()
-    }
+    }, [refresh, resetForm, builder, sectionName, minFloor, maxFloor, unitsOnFloor])
+
     const isSubmitDisabled = !(minFloor && maxFloor && unitsOnFloor && !maxMinError)
     const isCreateColumnsHidden = copyId !== null
 
@@ -741,6 +745,12 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
                         </Select.Option>
                     ))}
                 </Select>
+            </Col>
+            <Col span={24} hidden={isCreateColumnsHidden}>
+                <Space direction={'vertical'} size={8}>
+                    <Typography.Text type={'secondary'}>{SectionNameLabel}</Typography.Text>
+                    <InputNumber value={sectionName} onChange={setSectionName} style={INPUT_STYLE} type={'number'} />
+                </Space>
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden}>
                 <Space direction={'vertical'} size={8} className={maxMinError ? 'ant-form-item-has-error' : ''}>

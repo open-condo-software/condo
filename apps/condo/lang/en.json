@@ -314,7 +314,7 @@
   "pages.condo.property.section.form.minfloor": "Min floor",
   "pages.condo.property.section.form.name": "Name",
   "pages.condo.property.section.form.name.placeholder": "№ section",
-  "pages.condo.property.section.form.numberOfCreatedSection": "Number of created section",
+  "pages.condo.property.section.form.numberOfSection": "Number of section",
   "pages.condo.property.section.form.unitsOnFloor": "Units on floor",
   "pages.condo.property.section.form.mode.create": "Create new",
   "pages.condo.property.section.form.mode.copy": "Copy section №",
