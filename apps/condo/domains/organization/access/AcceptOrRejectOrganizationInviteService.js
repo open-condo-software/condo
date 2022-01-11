@@ -6,12 +6,14 @@ const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 async function canAcceptOrRejectOrganizationInvite ({ authentication: { item, listKey }, args }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isAdmin) return true
         if (!args) return false
         const { id, data, inviteCode } = args
         if (inviteCode) {
             const employee = await getByCondition('OrganizationEmployee', { inviteCode, user_is_null: true })
+
             // TODO(pahaz): check is employee user email/phone is verified?
             return !!get(employee, 'id')
         }
@@ -20,10 +22,12 @@ async function canAcceptOrRejectOrganizationInvite ({ authentication: { item, li
             if (!employee) return false
             const user = await getById('User', employee.user)
             if (!user) return throwAuthenticationError()
+
             // TODO(pahaz): check is user email/phone is verified
             return String(employee.user) === String(user.id)
         }
     }
+
     return false
 }
 

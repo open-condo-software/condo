@@ -14,16 +14,20 @@ const { getByCondition } = require('@core/keystone/schema')
 async function canReadMeters ({ authentication: { item, listKey } }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isSupport || item.isAdmin) return {}
         const userId = item.id
+
         if (item.type === RESIDENT) {
             const availableMetersIds = await getAvailableResidentMetersIds(userId)
+
             return {
                 id_in: availableMetersIds,
                 deletedAt: null,
             }
         }
+
         return {
             organization: {
                 OR: [
@@ -40,8 +44,10 @@ async function canReadMeters ({ authentication: { item, listKey } }) {
 async function canManageMeters ({ authentication: { item, listKey }, originalInput, operation, itemId }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isAdmin) return true
+
         if (operation === 'create') {
             const organizationId = get(originalInput, ['organization', 'connect', 'id'])
             if (!organizationId) return false
@@ -52,8 +58,10 @@ async function canManageMeters ({ authentication: { item, listKey }, originalInp
             })
             if (!property) return false
             if (organizationId !== get(property, 'organization')) return false
+
             return await checkPermissionInUserOrganizationOrRelatedOrganization(item.id, organizationId, 'canManageMeters')
         }
+
         if (operation === 'update' && itemId) {
             const meter = await getByCondition('Meter', {
                 id: itemId,
@@ -71,10 +79,13 @@ async function canManageMeters ({ authentication: { item, listKey }, originalInp
                 if (!property) return false
                 if (meterOrganization !== get(property, 'organization')) return false
             }
+
             return await checkPermissionInUserOrganizationOrRelatedOrganization(item.id, meterOrganization, 'canManageMeters')
         }
+
         return false
     }
+
     return false
 }
 

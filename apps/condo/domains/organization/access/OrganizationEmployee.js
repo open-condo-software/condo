@@ -10,9 +10,11 @@ const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 async function canReadOrganizationEmployees ({ authentication: { item, listKey } }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isSupport || item.isAdmin) return {}
         const userId = item.id
+
         return {
             OR: [
                 { user: { id: userId } },
@@ -27,57 +29,63 @@ async function canReadOrganizationEmployees ({ authentication: { item, listKey }
             ],
         }
     }
+
     return false
 }
 
-async function canManageOrganizationEmployees ({ authentication: { item: user }, originalInput, operation, itemId }) {
-    if (!user) return throwAuthenticationError()
-    if (user.isAdmin || user.isSupport) return true
-    if (operation === 'create') {
-        const employeeForUser = await getByCondition('OrganizationEmployee', {
-            organization: { id: originalInput.organization.connect.id },
-            user: { id: user.id },
-            deletedAt: null,
-        })
+async function canManageOrganizationEmployees ({ authentication: { item, listKey }, originalInput, operation, itemId }) {
+    if (!listKey || !item) return throwAuthenticationError()
+    if (item.deletedAt) return false
 
-        if (!employeeForUser || employeeForUser.isBlocked) {
-            return false
+    if (listKey === USER_SCHEMA_NAME) {
+        if (item.isAdmin) return true
+
+        if (operation === 'create') {
+            const employeeForUser = await getByCondition('OrganizationEmployee', {
+                organization: { id: originalInput.organization.connect.id },
+                user: { id: item.id },
+                deletedAt: null,
+                isBlocked: false,
+            })
+
+            if (!employeeForUser) {
+                return false
+            }
+
+            const employeeRole = await getByCondition('OrganizationEmployeeRole', {
+                id: employeeForUser.role,
+                organization: { id: employeeForUser.organization },
+            })
+
+            return !!(employeeRole && employeeRole.canManageEmployees)
         }
 
-        const employeeRole = await getByCondition('OrganizationEmployeeRole', {
-            id: employeeForUser.role,
-            organization: { id: employeeForUser.organization },
-        })
+        if (operation === 'update' && itemId) {
+            const employeeToEdit = await getById('OrganizationEmployee', itemId)
 
-        return employeeRole && employeeRole.canManageEmployees
+            if (!employeeToEdit || !employeeToEdit.organization) return false
+
+            const employeeForUser = await getByCondition('OrganizationEmployee', {
+                organization: { id: employeeToEdit.organization },
+                user: { id: item.id },
+                deletedAt: null,
+                isBlocked: false,
+            })
+
+            if (!employeeForUser || !employeeForUser.role) {
+                return false
+            }
+
+            const employeeRole = await getByCondition('OrganizationEmployeeRole', {
+                id: employeeForUser.role,
+                organization: { id: employeeToEdit.organization },
+            })
+            if (!employeeRole) return false
+
+            return employeeRole.canManageEmployees
+        }
     }
-    if (operation === 'update' || operation === 'delete') {
-        if (!itemId) return false
-        const employeeToEdit = await getById('OrganizationEmployee', itemId)
 
-        if (!employeeToEdit || !employeeToEdit.organization) return false
-
-        const employeeForUser = await getByCondition('OrganizationEmployee', {
-            organization: { id: employeeToEdit.organization },
-            user: { id: user.id },
-            deletedAt: null,
-        })
-
-        if (!employeeForUser || !employeeForUser.role) {
-            return false
-        }
-
-        if (employeeForUser.isBlocked) {
-            return false
-        }
-
-        const employeeRole = await getByCondition('OrganizationEmployeeRole', {
-            id: employeeForUser.role,
-            organization: { id: employeeToEdit.organization },
-        })
-        if (!employeeRole) return false
-        return employeeRole.canManageEmployees
-    }
     return false
 }
 

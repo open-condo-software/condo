@@ -11,9 +11,11 @@ const { getById } = require('@core/keystone/schema')
 async function canReadDivisions ({ authentication: { item, listKey } }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isSupport || item.isAdmin) return {}
         const userId = item.id
+
         return {
             organization: {
                 OR: [
@@ -23,24 +25,31 @@ async function canReadDivisions ({ authentication: { item, listKey } }) {
             },
         }
     }
+
     return false
 }
 
 async function canManageDivisions ({ authentication: { item, listKey }, originalInput, operation, itemId }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isAdmin) return true
+
         if (operation === 'create') {
             const organizationId = get(originalInput, ['organization', 'connect', 'id'])
+
             return await checkOrganizationPermission(item.id, organizationId, 'canManageDivisions')
         }
+
         if (operation === 'update') {
             const division = await getById('Division', itemId)
             if (!division) return false
+
             return await checkOrganizationPermission(item.id, division.organization, 'canManageDivisions')
         }
     }
+
     return false
 }
 

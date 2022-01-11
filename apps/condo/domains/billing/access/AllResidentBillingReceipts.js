@@ -7,6 +7,7 @@ const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 
 async function canGetAllResidentBillingReceipts ({ authentication: { item, listKey } }) {
     if (!listKey || !item) return throwAuthenticationError()
+
     return listKey === USER_SCHEMA_NAME
 }
 

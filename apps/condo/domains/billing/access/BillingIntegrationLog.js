@@ -11,8 +11,10 @@ const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 async function canReadBillingIntegrationLogs ({ authentication: { item, listKey } }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isAdmin) return {}
+
         return {
             context: {
                 OR: [
@@ -22,12 +24,14 @@ async function canReadBillingIntegrationLogs ({ authentication: { item, listKey 
             },
         }
     }
+
     return false
 }
 
 async function canManageBillingIntegrationLogs ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
+
     let contextId
     if (operation === 'create') {
         // NOTE: can create only by the integration account
@@ -38,13 +42,13 @@ async function canManageBillingIntegrationLogs ({ authentication: { item: user }
         const log = await getById('BillingIntegrationLog', itemId)
         if (!log) return false
         contextId = log.context
-    } else {
-        return false
     }
+
     if (!contextId) return false
     const context = await getById('BillingIntegrationOrganizationContext', contextId)
     if (!context) return false
     const { integration: integrationId } = context
+
     return await checkBillingIntegrationAccessRight(user.id, integrationId)
 }
 

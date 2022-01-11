@@ -10,18 +10,22 @@ const { find } = require('@core/keystone/schema')
 async function canExportMeterReadings ({ args: { data: { where } }, authentication: { item, listKey } }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isAdmin) return true
         const organizationId = get(where, ['organization', 'id'])
+
         if (organizationId) {
             return await checkOrganizationPermission(item.id, organizationId, 'canManageMeters')
         } else {
             const organizationWhere = get(where, 'organization')
             const [relatedFromOrganization] = await find('Organization', organizationWhere)
             if (!relatedFromOrganization) return false
+
             return await checkRelatedOrganizationPermission(item.id, relatedFromOrganization.id, 'canManageMeters')
         }
     }
+
     return false
 }
 

@@ -12,8 +12,10 @@ const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 async function canReadBillingIntegrationOrganizationContexts ({ authentication: { item, listKey } }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isSupport || item.isAdmin) return true
+
         return {
             OR: [
                 { organization: { employees_some: { user: { id: item.id }, role: { OR: [{ canReadBillingReceipts: true }, { canManageIntegrations: true }] }, isBlocked: false } } },
@@ -21,6 +23,7 @@ async function canReadBillingIntegrationOrganizationContexts ({ authentication: 
             ],
         }
     }
+
     return false
 }
 
