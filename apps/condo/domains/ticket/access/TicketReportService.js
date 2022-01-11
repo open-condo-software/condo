@@ -5,10 +5,12 @@ const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/ut
 async function canReadTicketReportWidgetData ({ authentication: { item, listKey } }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isAdmin) return true
         return { organization: queryOrganizationEmployeeFor(item.id) }
     }
+
     return false
 }
 

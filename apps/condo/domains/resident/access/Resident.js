@@ -10,19 +10,23 @@ const { getById } = require('@core/keystone/schema')
 async function canReadResidents ({ authentication: { item, listKey } }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isAdmin) return {}
         if (item.type === RESIDENT) {
             return { user: { id: item.id } }
         }
+
         return false
     }
+
     return false
 }
 
 async function canManageResidents ({ authentication: { item, listKey }, originalInput, operation, itemId }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isAdmin) return true
         if (item.type === RESIDENT) {
@@ -32,10 +36,13 @@ async function canManageResidents ({ authentication: { item, listKey }, original
                 if (!resident || resident.user !== item.id) return false
                 if (isSoftDelete(originalInput)) return true
             }
+
             return false
         }
+
         return false
     }
+
     return false
 }
 

@@ -18,12 +18,14 @@ const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 async function canReadTickets ({ authentication: { item, listKey } }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isSupport || item.isAdmin) return {}
         const userId = item.id
         if (item.type === RESIDENT) {
             const residents = await find('Resident', { user: { id: userId }, deletedAt: null })
             const organizationsIds = compact(residents.map(resident => get(resident, 'organization')))
+
             return {
                 organization: {
                     id_in: uniq(organizationsIds),
@@ -33,6 +35,7 @@ async function canReadTickets ({ authentication: { item, listKey } }) {
                 deletedAt: null,
             }
         }
+
         return {
             organization: {
                 OR: [
@@ -43,12 +46,14 @@ async function canReadTickets ({ authentication: { item, listKey } }) {
             },
         }
     }
+
     return false
 }
 
 async function canManageTickets ({ authentication: { item, listKey }, operation, itemId, originalInput }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isAdmin) return true
         const userId = item.id
@@ -80,6 +85,7 @@ async function canManageTickets ({ authentication: { item, listKey }, operation,
                 unitName,
                 deletedAt: null,
             })
+
             return residents.length > 0
         }
         if (item.type === STAFF) {
@@ -103,10 +109,13 @@ async function canManageTickets ({ authentication: { item, listKey }, operation,
 
                 return organizationId === get(property, 'organization')
             }
+
             return true
         }
+
         return false
     }
+
     return false
 }
 

@@ -13,10 +13,12 @@ const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 async function canReadTicketFiles ({ authentication: { item, listKey } }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isSupport || item.isAdmin) return {}
         const userId = item.id
         if (item.type === RESIDENT) return { createdBy: { id: userId } }
+
         return {
             organization: {
                 OR: [
@@ -26,6 +28,7 @@ async function canReadTicketFiles ({ authentication: { item, listKey } }) {
             },
         }
     }
+
     return false
 }
 

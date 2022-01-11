@@ -13,9 +13,11 @@ const { getByCondition } = require('@core/keystone/schema')
 async function canReadTicketComments ({ authentication: { item, listKey } }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isSupport || item.isAdmin) return {}
         const userId = item.id
+
         return {
             ticket: {
                 organization: {
@@ -27,12 +29,14 @@ async function canReadTicketComments ({ authentication: { item, listKey } }) {
             },
         }
     }
+
     return false
 }
 
 async function canManageTicketComments ({ authentication: { item, listKey }, originalInput, operation, itemId }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isAdmin) return true
         const userId = item.id
@@ -41,6 +45,7 @@ async function canManageTicketComments ({ authentication: { item, listKey }, ori
             const ticket = await getByCondition('Ticket', { id: ticketId, deletedAt: null })
             if (!ticket) return false
             const organizationId = get(ticket, 'organization')
+
             return await checkPermissionInUserOrganizationOrRelatedOrganization(userId, organizationId, 'canManageTicketComments')
         } else if (operation === 'update' && itemId) {
             const comment = await getByCondition('TicketComment', { id: itemId, deletedAt: null })
@@ -48,9 +53,13 @@ async function canManageTicketComments ({ authentication: { item, listKey }, ori
             const ticket = await getByCondition('Ticket', { id: comment.ticket, deletedAt: null })
             if (!ticket) return false
             const organizationId = get(ticket, 'organization')
+
             return await checkPermissionInUserOrganizationOrRelatedOrganization(userId, organizationId, 'canManageTicketComments')
         }
+
+        return false
     }
+
     return false
 }
 

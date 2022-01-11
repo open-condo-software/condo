@@ -8,9 +8,11 @@ async function canCheckPropertyWithAddressExist ({ authentication: { item, listK
     // TODO(dkoviazin): more complex access check for mobile devices
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         return true
     }
+
     return false
 }
 

@@ -9,39 +9,47 @@ const userIsAuthenticated = (args) => {
     const { authentication: { item, listKey } } = args
     if (!item || !listKey) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     return Boolean(listKey === USER_SCHEMA_NAME && item.id)
 }
 
 const userIsAdmin = (args) => {
     const { authentication: { item: user } } = args
+
     return Boolean(userIsAuthenticated(args) && user.isAdmin)
 }
 
 const userIsThisItem = (args) => {
     const { existingItem, authentication: { item: user } } = args
+
     if (!userIsAuthenticated(args) || !existingItem || !existingItem.id) {
         return false
     }
+
     return existingItem.id === user.id
 }
 
 const userIsOwner = (args) => {
     const { existingItem, authentication: { item: user } } = args
+
     if (!userIsAuthenticated(args) || !existingItem || !existingItem.user) {
         return false
     }
+
     return existingItem.user.id === user.id
 }
 
 const userIsAdminOrOwner = auth => {
     const isAdmin = userIsAdmin(auth)
     const isOwner = userIsOwner(auth)
+
     return Boolean(isAdmin || isOwner)
 }
 
 const userIsAdminOrIsThisItem = auth => {
     const isAdmin = userIsAdmin(auth)
     const isThisItem = userIsThisItem(auth)
+
     return Boolean(isAdmin || isThisItem)
 }
 
@@ -59,6 +67,7 @@ const canReadOnlyActive = (args) => {
 const userIsNotResidentUser = (args) => {
     const { authentication: { item: user } } = args
     if (!userIsAuthenticated(args)) return false
+
     return user.type !== RESIDENT
 }
 
@@ -91,6 +100,7 @@ const canReadOnlyIfInUsers = (args) => {
     const { authentication: { item: user } } = args
     if (!userIsAuthenticated(args)) return throwAuthenticationError()
     if (user.isAdmin) return {}
+
     return {
         users_some: { id: user.id },
     }
@@ -117,6 +127,7 @@ const isSoftDelete = (originalInput) => {
         get(originalInput, 'dv') &&
         get(originalInput, 'sender')
     )
+
     return isJustSoftDelete || isSoftDeleteWithMerge
 }
 
