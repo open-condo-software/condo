@@ -11,14 +11,17 @@ const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 async function canReadBillingMeterResources ({ authentication: { item, listKey } }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     return {}
 }
 
 async function canManageBillingMeterResources ({ authentication: { item, listKey }, originalInput, operation, itemId  }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isSupport || item.isAdmin) return true
+
         let contextId
         if (operation === 'create') {
             // NOTE: can create only by the integration account
@@ -29,15 +32,16 @@ async function canManageBillingMeterResources ({ authentication: { item, listKey
             const log = await getById('BillingIntegrationLog', itemId)
             if (!log) return false
             contextId = log.context
-        } else {
-            return false
         }
+
         if (!contextId) return false
         const context = await getById('BillingIntegrationOrganizationContext', contextId)
         if (!context) return false
         const { integration: integrationId } = context
+
         return await checkBillingIntegrationAccessRight(item.id, integrationId)
     }
+
     return false
 }
 

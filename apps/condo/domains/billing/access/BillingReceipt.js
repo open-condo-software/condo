@@ -10,8 +10,10 @@ const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 async function canReadBillingReceipts ({ authentication: { item, listKey } }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isAdmin) return {}
+
         return {
             OR: [
                 { context: { organization: { employees_some: { user: { id: item.id }, role: { canReadBillingReceipts: true }, deletedAt: null, isBlocked: false } } } },
@@ -19,6 +21,7 @@ async function canReadBillingReceipts ({ authentication: { item, listKey } }) {
             ],
         }
     }
+
     return false
 }
 

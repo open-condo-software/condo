@@ -13,9 +13,11 @@ const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 async function canReadContacts ({ authentication: { item, listKey } }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isAdmin) return {}
         const userId = item.id
+
         return {
             organization: {
                 OR: [
@@ -25,26 +27,33 @@ async function canReadContacts ({ authentication: { item, listKey } }) {
             },
         }
     }
+
     return false
 }
 
 async function canManageContacts ({ authentication: { item, listKey }, originalInput, operation, itemId }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isAdmin) return true
         const userId = item.id
+
         if (operation === 'create') {
             const organizationId = get(originalInput, ['organization', 'connect', 'id'])
+
             return await checkPermissionInUserOrganizationOrRelatedOrganization(userId, organizationId, 'canManageContacts')
         }
+
         if (operation === 'update') {
             const contact = await getById('Contact', itemId)
             if (!contact) return false
             const contactOrganization = contact.organization
+
             return await checkPermissionInUserOrganizationOrRelatedOrganization(userId, contactOrganization, 'canManageContacts')
         }
     }
+
     return false
 }
 

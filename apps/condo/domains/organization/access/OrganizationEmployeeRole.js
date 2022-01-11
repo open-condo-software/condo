@@ -11,9 +11,11 @@ const get = require('lodash/get')
 async function canReadOrganizationEmployeeRoles ({ authentication: { item, listKey } }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isSupport || item.isAdmin) return {}
         const userId = item.id
+
         return {
             organization: {
                 OR: [
@@ -23,14 +25,17 @@ async function canReadOrganizationEmployeeRoles ({ authentication: { item, listK
             },
         }
     }
+
     return false
 }
 
 async function canManageOrganizationEmployeeRoles ({ authentication: { item, listKey }, operation, originalInput }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isAdmin) return true
+
         if (operation === 'create') {
             const organizationId = get(originalInput, ['organization', 'connect', 'id'])
 
@@ -53,10 +58,12 @@ async function canManageOrganizationEmployeeRoles ({ authentication: { item, lis
 
             return employeeRole.canManageRoles
         }
+
         return {
             organization: { employees_some: { user: { id: item.id }, role: { canManageRoles: true }, isBlocked: false } },
         }
     }
+
     return false
 }
 

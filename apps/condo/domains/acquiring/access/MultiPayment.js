@@ -13,6 +13,7 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 async function canReadMultiPayments ({ authentication: { item, listKey } }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isSupport || item.isAdmin) return {}
         const userId = item.id
@@ -21,23 +22,28 @@ async function canReadMultiPayments ({ authentication: { item, listKey } }) {
                 user: { id: userId },
             }
         }
+
         // Acquiring integration account can get only MultiPayments linked to this integration
         return { integration: { accessRights_some: { user: { id: userId } }, deletedAt: null } }
     }
+
     return false
 }
 
 async function canManageMultiPayments ({ authentication: { item, listKey }, operation, itemId }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isAdmin) return true
         // Can be created only through custom mutation or by admin, can be modified by acquiring integration account
         if (operation === 'create') return false
         // Acquiring integration account can update only it's own multipayment
         if (operation === 'update' && itemId) return { integration: { accessRights_some: { user: { id: item.id } } } }
+
         return false
     }
+
     return false
 }
 

@@ -12,16 +12,20 @@ const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 async function canReadMeterReadings ({ authentication: { item, listKey } }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isSupport || item.isAdmin) return {}
         const userId = item.id
+
         if (item.type === RESIDENT) {
             const availableMeterIds = await getAvailableResidentMetersIds(userId)
+
             return {
                 meter: { id_in: availableMeterIds, deletedAt: null },
                 deletedAt: null,
             }
         }
+
         return {
             organization: {
                 OR: [
@@ -31,18 +35,18 @@ async function canReadMeterReadings ({ authentication: { item, listKey } }) {
             },
         }
     }
+
     return false
 }
 
 async function canManageMeterReadings ({ authentication: { item, listKey }, originalInput, operation }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isAdmin) return true
         const userId = item.id
         if (operation === 'create') {
-            // const inputOrganization = get(originalInput, ['organization', 'connect', 'id'])
-            // if (!inputOrganization) return false
             if (item.type === RESIDENT) {
                 const meterId = get(originalInput, ['meter', 'connect', 'id'], null)
                 const availableMeterIds = await getAvailableResidentMetersIds(userId)
@@ -50,10 +54,13 @@ async function canManageMeterReadings ({ authentication: { item, listKey }, orig
             }
             const inputOrganization = get(originalInput, ['organization', 'connect', 'id'])
             if (!inputOrganization) return false
+
             return await checkPermissionInUserOrganizationOrRelatedOrganization(userId, inputOrganization, 'canManageMeterReadings')
         }
+
         return false
     }
+
     return false
 }
 

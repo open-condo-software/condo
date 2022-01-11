@@ -13,11 +13,13 @@ const get = require('lodash/get')
 async function canReadPayments ({ authentication: { item, listKey } }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isSupport || item.isAdmin) return {}
         if (item.type === RESIDENT) {
             return { multiPayment: { user: { id: item.id } } }
         }
+
         return {
             OR: [
                 // Acquiring integration account can see it's payments
@@ -27,6 +29,7 @@ async function canReadPayments ({ authentication: { item, listKey } }) {
             ],
         }
     }
+
     return false
 }
 
