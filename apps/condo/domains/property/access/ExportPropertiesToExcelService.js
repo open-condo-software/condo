@@ -11,6 +11,7 @@ const get = require('lodash/get')
 async function canExportPropertiesToExcel ({ args: { data: { where } }, authentication: { item, listKey } }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isAdmin) return true
         const organizationId = get(where, ['organization', 'id'])
@@ -18,8 +19,10 @@ async function canExportPropertiesToExcel ({ args: { data: { where } }, authenti
         const organizationFromWhere = get(where, 'organization')
         const [organization] = await find('Organization', organizationFromWhere)
         if (!organization) return false
+
         return await checkRelatedOrganizationPermission(item.id, organization.id, 'canManageProperties')
     }
+
     return false
 }
 

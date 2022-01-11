@@ -7,6 +7,7 @@ const { find } = require('@core/keystone/schema')
 async function canExportTicketsToExcel ({ args: { data: { where } }, authentication: { item, listKey } }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isAdmin) return true
         const organizationId = get(where, ['organization', 'id'])
@@ -14,9 +15,11 @@ async function canExportTicketsToExcel ({ args: { data: { where } }, authenticat
         const organizationWhere = get(where, 'organization')
         const [organization] = await find('Organization', organizationWhere)
         if (!organization) return false
+
         return await checkRelatedOrganizationPermission(item.id, organization.id, 'canManageTickets')
 
     }
+
     return false
 }
 

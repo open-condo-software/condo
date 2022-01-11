@@ -8,22 +8,28 @@ const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 async function canReadUsers ({ authentication: { item, listKey } }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isAdmin) return true
+
         return true
     }
+
     return false
 }
 
 async function canManageUsers ({ authentication: { item, listKey }, operation, itemId }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isSupport || item.isAdmin) return true
         if (operation === 'create') return false
         if (operation === 'update') return Boolean(itemId === item.id)
+
         return false
     }
+
     return false
 }
 

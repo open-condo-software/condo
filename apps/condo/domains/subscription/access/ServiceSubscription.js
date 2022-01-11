@@ -9,22 +9,28 @@ const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/ut
 async function canReadServiceSubscriptions ({ authentication: { item, listKey } }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isSupport || item.isAdmin) return {}
+
         return {
             organization: queryOrganizationEmployeeFor(item.id),
         }
     }
+
     return false
 }
 
 async function canManageServiceSubscriptions ({ authentication: { item, listKey } }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isSupport || item.isAdmin) return true
+
         return false
     }
+
     return false
 }
 

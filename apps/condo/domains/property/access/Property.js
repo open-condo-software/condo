@@ -15,6 +15,7 @@ const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 async function canReadProperties ({ authentication: { item, listKey } }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isSupport || item.isAdmin) return {}
         const userId = item.id
@@ -22,10 +23,12 @@ async function canReadProperties ({ authentication: { item, listKey } }) {
             const residents = await find('Resident', { user: { id: userId }, deletedAt: null })
             if (!residents.length) return false
             const residentProperties = compact(residents.map(resident => get(resident, 'property')))
+
             return {
                 id_in: uniq(residentProperties),
             }
         }
+
         return {
             organization: {
                 OR: [
@@ -35,26 +38,33 @@ async function canReadProperties ({ authentication: { item, listKey } }) {
             },
         }
     }
+
     return false
 }
 
 async function canManageProperties ({ authentication: { item, listKey }, originalInput, operation, itemId }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isAdmin) return true
+
         if (operation === 'create') {
             const organizationId = get(originalInput, ['organization', 'connect', 'id'])
             if (!organizationId) return false
+
             return await checkOrganizationPermission(item.id, organizationId, 'canManageProperties')
         } else if (operation === 'update' && itemId) {
             const property = await getById('Property', itemId)
             if (!property) return false
             const { organization: organizationId } = property
+
             return await checkOrganizationPermission(item.id, organizationId, 'canManageProperties')
         }
+
         return false
     }
+
     return false
 }
 

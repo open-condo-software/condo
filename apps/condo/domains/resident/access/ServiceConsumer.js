@@ -8,13 +8,16 @@ const { isSoftDelete } = require('@core/keystone/access')
 async function canReadServiceConsumers ({ authentication: { item, listKey } }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isSupport || item.isAdmin) return {}
         if (item.type === RESIDENT) {
             return { resident: { user: { id: item.id }, deletedAt: null } }
         }
+
         return false
     }
+
     return false
 }
 

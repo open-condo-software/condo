@@ -9,9 +9,11 @@ const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/ut
 async function canReadTicketChanges ({ authentication: { item, listKey } }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isSupport || item.isAdmin) return {}
         const userId = item.id
+
         return {
             ticket: {
                 organization: {
@@ -23,6 +25,7 @@ async function canReadTicketChanges ({ authentication: { item, listKey } }) {
             },
         }
     }
+
     return false
 }
 

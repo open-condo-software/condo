@@ -9,24 +9,30 @@ const { checkUserBelongsToOrganization } = require('@condo/domains/organization/
 async function canReadTicketAnalyticsReport ({ authentication: { item, listKey }, args: { data: { where } } }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isAdmin) return true
         const organizationId = get(where, ['organization', 'id'], false)
         if (!organizationId) return false
+
         return await checkUserBelongsToOrganization(item.id, organizationId)
     }
+
     return false
 }
 
 async function canReadExportTicketAnalyticsToExcel ({ authentication: { item, listKey }, args: { data: { where } } }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isAdmin) return true
         const organizationId = get(where, ['organization', 'id'], false)
         if (!organizationId) return false
+
         return await checkUserBelongsToOrganization(item.id, organizationId)
     }
+
     return false
 }
 

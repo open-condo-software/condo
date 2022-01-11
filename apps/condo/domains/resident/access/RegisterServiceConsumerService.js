@@ -8,10 +8,13 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 async function canRegisterServiceConsumer ({ authentication: { item, listKey } }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isAdmin) return true
+
         return item.type === RESIDENT
     }
+
     return false
 }
 
