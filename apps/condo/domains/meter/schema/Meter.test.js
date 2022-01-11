@@ -167,9 +167,11 @@ describe('Meter', () => {
             const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
                 canManageMeters: true,
             })
+
             await updateTestOrganizationEmployee(admin, employeeFrom.id, {
                 role: { connect: { id: role.id } },
             })
+
             const [resource] = await MeterResource.getAll(clientFrom, { id: COLD_WATER_METER_RESOURCE_ID })
             const [meter] = await createTestMeter(clientFrom, organizationTo, propertyTo, resource, {})
 
@@ -199,9 +201,11 @@ describe('Meter', () => {
             const [role] = await createTestOrganizationEmployeeRole(admin, organizationTo, {
                 canManageMeters: true,
             })
+
             await updateTestOrganizationEmployee(admin, employeeTo.id, {
                 role: { connect: { id: role.id } },
             })
+
             const [resource] = await MeterResource.getAll(clientFrom, { id: COLD_WATER_METER_RESOURCE_ID })
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -215,10 +219,9 @@ describe('Meter', () => {
             })
             const [resource1] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
             const [resource2] = await MeterResource.getAll(client, { id: HOT_WATER_METER_RESOURCE_ID })
-
             const number = faker.random.alphaNumeric(5)
-            await createTestMeter(client, client.organization, client.property, resource1, { number })
 
+            await createTestMeter(client, client.organization, client.property, resource1, { number })
             const [meter] = await createTestMeter(client, client.organization, client.property, resource2, { number })
 
             expect(meter.id).toMatch(UUID_RE)
@@ -229,8 +232,8 @@ describe('Meter', () => {
                 canManageMeters: true,
             })
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-
             const number = faker.random.alphaNumeric(5)
+
             await createTestMeter(client, client.organization, client.property, resource, { number })
 
             await catchErrorFrom(async () => {
@@ -246,7 +249,6 @@ describe('Meter', () => {
             const adminClient = await makeLoggedInAdminClient()
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
             const unitName = faker.random.alphaNumeric(8)
-
             const { context, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property] = await createTestProperty(adminClient, organization)
             const [billingProperty] = await createTestBillingProperty(adminClient, context)
@@ -274,7 +276,6 @@ describe('Meter', () => {
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
             const [organization] = await createTestOrganization(adminClient)
             const [property] = await createTestProperty(adminClient, organization)
-
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -287,7 +288,6 @@ describe('Meter', () => {
             const client = await makeClient()
             const [organization] = await createTestOrganization(adminClient)
             const [property] = await createTestProperty(adminClient, organization)
-
             const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
 
             await expectToThrowAuthenticationErrorToObj(async () => {
@@ -300,7 +300,6 @@ describe('Meter', () => {
             const [organization] = await createTestOrganization(adminClient)
             const [property] = await createTestProperty(adminClient, organization)
             const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
-
             const [meter] = await createTestMeter(adminClient, organization, property, resource, {})
 
             expect(meter.id).toMatch(UUID_RE)
@@ -313,7 +312,6 @@ describe('Meter', () => {
             })
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
             const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
-
             const newNumber = faker.random.alphaNumeric(8)
             const [updatedMeter] = await updateTestMeter(client, meter.id, {
                 number: newNumber,
@@ -376,11 +374,9 @@ describe('Meter', () => {
                 canManageMeters: false,
             })
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-
             const [meter] = await createTestMeter(admin, client.organization, client.property, resource, {})
-
-
             const newNumber = faker.random.alphaNumeric(8)
+
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestMeter(client, meter.id, {
                     number: newNumber,
@@ -399,7 +395,6 @@ describe('Meter', () => {
             })
             const [resource] = await MeterResource.getAll(clientFrom, { id: COLD_WATER_METER_RESOURCE_ID })
             const [meter] = await createTestMeter(clientFrom, organizationTo, propertyTo, resource, {})
-
             const newNumber = faker.random.alphaNumeric(8)
             const [updatedMeter] = await updateTestMeter(clientFrom, meter.id, {
                 number: newNumber,
@@ -413,15 +408,14 @@ describe('Meter', () => {
             const { clientFrom, organizationTo, propertyTo, organizationFrom, employeeFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
             const [resource] = await MeterResource.getAll(clientFrom, { id: COLD_WATER_METER_RESOURCE_ID })
             const [meter] = await createTestMeter(admin, organizationTo, propertyTo, resource, {})
-
             const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
                 canManageMeters: false,
             })
             await updateTestOrganizationEmployee(admin, employeeFrom.id, {
                 role: { connect: { id: role.id } },
             })
-
             const newNumber = faker.random.alphaNumeric(8)
+
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestMeter(clientFrom, meter.id, {
                     number: newNumber,
@@ -440,8 +434,8 @@ describe('Meter', () => {
             })
             const [resource] = await MeterResource.getAll(clientFrom, { id: COLD_WATER_METER_RESOURCE_ID })
             const [meter] = await createTestMeter(admin, organizationFrom, propertyFrom, resource, {})
-
             const newNumber = faker.random.alphaNumeric(8)
+
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestMeter(clientTo, meter.id, {
                     number: newNumber,
@@ -453,7 +447,6 @@ describe('Meter', () => {
             const adminClient = await makeLoggedInAdminClient()
             const client = await makeClientWithResidentUser()
             const unitName = faker.random.alphaNumeric(8)
-
             const { context, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property] = await createTestProperty(adminClient, organization)
             const [billingProperty] = await createTestBillingProperty(adminClient, context)
@@ -464,15 +457,13 @@ describe('Meter', () => {
             await createTestServiceConsumer(adminClient, resident, organization, {
                 accountNumber: billingAccount.number,
             })
-
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-
             const [meter] = await createTestMeter(adminClient, organization, property, resource, {
                 accountNumber: billingAccount.number,
                 unitName,
             })
-
             const newNumber = faker.random.alphaNumeric(8)
+
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestMeter(client, meter.id, {
                     number: newNumber,
@@ -487,8 +478,8 @@ describe('Meter', () => {
             const [property] = await createTestProperty(adminClient, organization)
             const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
             const [meter] = await createTestMeter(adminClient, organization, property, resource, {})
-
             const newNumber = faker.random.alphaNumeric(8)
+
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestMeter(client, meter.id, {
                     number: newNumber,
@@ -503,8 +494,8 @@ describe('Meter', () => {
             const [property] = await createTestProperty(adminClient, organization)
             const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
             const [meter] = await createTestMeter(adminClient, organization, property, resource, {})
-
             const newNumber = faker.random.alphaNumeric(8)
+
             await expectToThrowAuthenticationErrorToObj(async () => {
                 await updateTestMeter(client, meter.id, {
                     number: newNumber,
@@ -518,7 +509,6 @@ describe('Meter', () => {
             const [property] = await createTestProperty(adminClient, organization)
             const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
             const [meter] = await createTestMeter(adminClient, organization, property, resource, {})
-
             const newNumber = faker.random.alphaNumeric(8)
             const [updatedMeter] = await updateTestMeter(adminClient, meter.id, {
                 number: newNumber,
@@ -532,10 +522,9 @@ describe('Meter', () => {
             const admin = await makeLoggedInAdminClient()
             const client = await makeEmployeeUserClientWithAbilities()
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-
             const [meter] = await createTestMeter(admin, client.organization, client.property, resource, {})
-
             const meters = await Meter.getAll(client, { id: meter.id })
+
             expect(meters).toHaveLength(1)
         })
 
@@ -543,10 +532,9 @@ describe('Meter', () => {
             const admin = await makeLoggedInAdminClient()
             const { clientFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
             const [resource] = await MeterResource.getAll(clientFrom, { id: COLD_WATER_METER_RESOURCE_ID })
-
             const [meter] = await createTestMeter(admin, organizationTo, propertyTo, resource, {})
-
             const meters = await Meter.getAll(clientFrom, { id: meter.id })
+
             expect(meters).toHaveLength(1)
         })
 
@@ -554,10 +542,9 @@ describe('Meter', () => {
             const admin = await makeLoggedInAdminClient()
             const { clientFrom, clientTo, organizationFrom, propertyFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
             const [resource] = await MeterResource.getAll(clientFrom, { id: COLD_WATER_METER_RESOURCE_ID })
-
             const [meter] = await createTestMeter(admin, organizationFrom, propertyFrom, resource, {})
-
             const meters = await Meter.getAll(clientTo, { id: meter.id })
+
             expect(meters).toHaveLength(0)
         })
 
@@ -565,7 +552,6 @@ describe('Meter', () => {
             const adminClient = await makeLoggedInAdminClient()
             const client = await makeClientWithResidentUser()
             const unitName = faker.random.alphaNumeric(8)
-
             const { context, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property] = await createTestProperty(adminClient, organization)
             const [billingProperty] = await createTestBillingProperty(adminClient, context)
@@ -576,15 +562,13 @@ describe('Meter', () => {
             await createTestServiceConsumer(adminClient, resident, organization, {
                 accountNumber: billingAccount.number,
             })
-
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-
             const [meter] = await createTestMeter(adminClient, organization, property, resource, {
                 accountNumber: billingAccount.number,
                 unitName,
             })
-
             const meters = await Meter.getAll(client, { id: meter.id })
+
             expect(meters).toHaveLength(1)
         })
 
@@ -593,7 +577,6 @@ describe('Meter', () => {
             const client1 = await makeClientWithResidentUser()
             const client2 = await makeClientWithResidentUser()
             const unitName = faker.random.alphaNumeric(8)
-
             const { context: context1, organization: organization1 } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property1] = await createTestProperty(adminClient, organization1)
             const [billingProperty1] = await createTestBillingProperty(adminClient, context1)
@@ -604,7 +587,6 @@ describe('Meter', () => {
             await createTestServiceConsumer(adminClient, resident1, organization1, {
                 accountNumber: billingAccount1.number,
             })
-
             const { context: context2, organization: organization2 } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property2] = await createTestProperty(adminClient, organization2)
             const [billingProperty2] = await createTestBillingProperty(adminClient, context2)
@@ -615,14 +597,11 @@ describe('Meter', () => {
             await createTestServiceConsumer(adminClient, resident2, organization2, {
                 accountNumber: billingAccount2.number,
             })
-
             const [resource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
-
             const [meter] = await createTestMeter(adminClient, organization2, property2, resource, {
                 accountNumber: billingAccount2.number,
                 unitName,
             })
-
             const meters = await Meter.getAll(client1, { id: meter.id })
 
             expect(meters).toHaveLength(0)
@@ -633,7 +612,6 @@ describe('Meter', () => {
             const client1 = await makeClientWithResidentUser()
             const client2 = await makeClientWithResidentUser()
             const unitName = faker.random.alphaNumeric(8)
-
             const { context, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property1] = await createTestProperty(adminClient, organization)
             const [billingProperty1] = await createTestBillingProperty(adminClient, context)
@@ -644,7 +622,6 @@ describe('Meter', () => {
             await createTestServiceConsumer(adminClient, resident1, organization, {
                 accountNumber: billingAccount1.number,
             })
-
             const [property2] = await createTestProperty(adminClient, organization)
             const [billingProperty2] = await createTestBillingProperty(adminClient, context)
             const [billingAccount2] = await createTestBillingAccount(adminClient, context, billingProperty2)
@@ -654,14 +631,11 @@ describe('Meter', () => {
             await createTestServiceConsumer(adminClient, resident2, organization, {
                 accountNumber: billingAccount2.number,
             })
-
             const [resource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
-
             const [meter] = await createTestMeter(adminClient, organization, property2, resource, {
                 accountNumber: billingAccount2.number,
                 unitName,
             })
-
             const meters = await Meter.getAll(client1, { id: meter.id })
 
             expect(meters).toHaveLength(0)
@@ -673,7 +647,6 @@ describe('Meter', () => {
             const client2 = await makeClientWithResidentUser()
             const unitName1 = faker.random.alphaNumeric(8)
             const unitName2 = faker.random.alphaNumeric(8)
-
             const { context, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property] = await createTestProperty(adminClient, organization)
             const [billingProperty] = await createTestBillingProperty(adminClient, context)
@@ -684,7 +657,6 @@ describe('Meter', () => {
             await createTestServiceConsumer(adminClient, resident1, organization, {
                 accountNumber: billingAccount1.number,
             })
-
             const [billingAccount2] = await createTestBillingAccount(adminClient, context, billingProperty)
             const [resident2] = await createTestResident(adminClient, client2.user, organization, property, {
                 unitName: unitName2,
@@ -692,9 +664,7 @@ describe('Meter', () => {
             await createTestServiceConsumer(adminClient, resident2, organization, {
                 accountNumber: billingAccount2.number,
             })
-
             const [resource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
-
             const [meter] = await createTestMeter(adminClient, organization, property, resource, {
                 accountNumber: billingAccount2.number,
                 unitName: unitName2,
@@ -716,7 +686,6 @@ describe('Meter', () => {
             })
             const accountNumber1 = faker.random.alphaNumeric(8)
             const accountNumber2 = faker.random.alphaNumeric(8)
-
             await createTestServiceConsumer(adminClient, resident, organization, {
                 accountNumber: accountNumber1,
             })
@@ -728,8 +697,8 @@ describe('Meter', () => {
                 accountNumber: accountNumber2,
                 unitName,
             })
-
             const meters = await Meter.getAll(client, { id: meter2.id })
+
             expect(meters).toHaveLength(0)
         })
 
@@ -744,18 +713,16 @@ describe('Meter', () => {
                 unitName,
             })
             const accountNumber1 = faker.random.alphaNumeric(8)
-
             const [serviceConsumer] = await createTestServiceConsumer(adminClient, resident, organization, {
                 accountNumber: accountNumber1,
             })
             await updateTestServiceConsumer(client, serviceConsumer.id, { deletedAt: 'true' })
-
             const [meter] = await createTestMeter(adminClient, organization, property, resource, {
                 accountNumber: accountNumber1,
                 unitName,
             })
-
             const meters = await Meter.getAll(client, { id: meter.id })
+
             expect(meters).toHaveLength(0)
         })
 
@@ -777,10 +744,9 @@ describe('Meter', () => {
                 accountNumber: accountNumber1,
                 unitName,
             })
-
             await updateTestOrganization(adminClient, organization.id, { deletedAt: 'true' })
-
             const meters = await Meter.getAll(client, { id: meter.id })
+
             expect(meters).toHaveLength(0)
         })
 
@@ -818,8 +784,8 @@ describe('Meter', () => {
             // in random order from request to request. So we skip testing path/value here.
             // Exception message and error type is enough.
             const metersAfterResidentReconnects = await Meter.getAll(client, { id: meter.id })
-            expect(metersAfterResidentReconnects).toHaveLength(0)
 
+            expect(metersAfterResidentReconnects).toHaveLength(0)
         })
 
         test('user: cannot read Meters', async () => {
@@ -828,10 +794,9 @@ describe('Meter', () => {
             const [organization] = await createTestOrganization(adminClient)
             const [property] = await createTestProperty(adminClient, organization)
             const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
-
             const [meter] = await createTestMeter(adminClient, organization, property, resource, {})
-
             const meters = await Meter.getAll(client, { id: meter.id })
+
             expect(meters).toHaveLength(0)
         })
 
@@ -841,7 +806,6 @@ describe('Meter', () => {
             const [organization] = await createTestOrganization(adminClient)
             const [property] = await createTestProperty(adminClient, organization)
             const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
-
             const [meter] = await createTestMeter(adminClient, organization, property, resource, {})
 
             await expectToThrowAuthenticationErrorToObjects(async () => {
