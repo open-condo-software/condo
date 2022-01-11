@@ -36,8 +36,7 @@ async function canManageAcquiringIntegrationContexts ({ authentication: { item, 
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isAdmin) return true
 
-        let organizationId
-        let integrationId
+        let organizationId, integrationId
 
         if (operation === 'create') {
             // get ids from input on create

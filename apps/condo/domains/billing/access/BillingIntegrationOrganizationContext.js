@@ -30,11 +30,13 @@ async function canReadBillingIntegrationOrganizationContexts ({ authentication: 
 async function canManageBillingIntegrationOrganizationContexts ({ authentication: { item, listKey }, originalInput, operation, itemId }) {
     if (!listKey || !item) return throwAuthenticationError()
     if (item.deletedAt) return false
+
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isAdmin) return true
         if (item.isSupport && !get(originalInput, ['organization', 'connect', 'id'])) return true
-        let organizationId
-        let integrationId
+
+        let organizationId, integrationId
+
         if (operation === 'create') {
             // NOTE: can only be created by the organization integration manager
             organizationId = get(originalInput, ['organization', 'connect', 'id'])
@@ -49,11 +51,14 @@ async function canManageBillingIntegrationOrganizationContexts ({ authentication
             organizationId = organization
             integrationId = integration
         }
+
         if (!organizationId || !integrationId) return false
         const canManageIntegrations = await checkOrganizationPermission(item.id, organizationId, 'canManageIntegrations')
         if (canManageIntegrations) return true
+
         return await checkBillingIntegrationAccessRight(item.id, integrationId)
     }
+
     return false
 }
 

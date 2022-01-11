@@ -23,6 +23,7 @@ async function canManageBillingMeterResources ({ authentication: { item, listKey
         if (item.isSupport || item.isAdmin) return true
 
         let contextId
+
         if (operation === 'create') {
             // NOTE: can create only by the integration account
             contextId = get(originalInput, ['context', 'connect', 'id'])

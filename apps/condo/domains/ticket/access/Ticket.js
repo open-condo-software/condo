@@ -58,8 +58,7 @@ async function canManageTickets ({ authentication: { item, listKey }, operation,
         if (item.isAdmin) return true
         const userId = item.id
         if (item.type === RESIDENT) {
-            let unitName
-            let propertyId
+            let unitName, propertyId
 
             if (operation === 'create') {
                 unitName = get(originalInput, 'unitName', null)

@@ -33,6 +33,7 @@ async function canManageBillingIntegrationLogs ({ authentication: { item: user }
     if (user.isAdmin) return true
 
     let contextId
+
     if (operation === 'create') {
         // NOTE: can create only by the integration account
         contextId = get(originalInput, ['context', 'connect', 'id'])
