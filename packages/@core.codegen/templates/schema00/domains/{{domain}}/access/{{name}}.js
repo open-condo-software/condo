@@ -4,27 +4,37 @@
  */
 
 const { throwAuthenticationError } = require("@condo/domains/common/utils/apolloErrorFormatter")
+const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 
-async function canRead{{ pluralize.plural(name) }} ({ authentication: { item: user } }) {
-    if (!user) return throwAuthenticationError()
-    if (user.deletedAt) return false
-    if (user.isAdmin) return {}
-    return {
-        // TODO(codegen): write canRead{{ pluralize.plural(name) }} logic!
+async function canRead{{ pluralize.plural(name) }} ({ authentication: { item, listKey } }) {
+    if (!listKey || !item) return throwAuthenticationError()
+    if (item.deletedAt) return false
+
+    if (listKey === USER_SCHEMA_NAME) {
+        if (item.isAdmin) return {}
+        // TODO(codegen): write canRead{{ pluralize.plural(name) }} logic for user!
     }
+
+    // TODO(codegen): write canRead{{ pluralize.plural(name) }} logic for non-user!
+    return false
 }
 
-async function canManage{{ pluralize.plural(name) }} ({ authentication: { item: user }, originalInput, operation, itemId }) {
-    if (!user) return throwAuthenticationError()
-    if (user.deletedAt) return false
-    if (user.isAdmin) return true
-    if (operation === 'create') {
-        // TODO(codegen): write canManage{{ pluralize.plural(name) }} create logic!
-        return true
-    } else if (operation === 'update') {
-        // TODO(codegen): write canManage{{ pluralize.plural(name) }} update logic!
-        return true
+async function canManage{{ pluralize.plural(name) }} ({ authentication: { item, listKey }, originalInput, operation, itemId }) {
+    if (!listKey || !item) return throwAuthenticationError()
+    if (item.deletedAt) return false
+
+    if (listKey === USER_SCHEMA_NAME) {
+        if (item.isAdmin) return true
+        if (operation === 'create') {
+            // TODO(codegen): write canManage{{ pluralize.plural(name) }} create logic!
+            return true
+        } else if (operation === 'update') {
+            // TODO(codegen): write canManage{{ pluralize.plural(name) }} update logic!
+            return true
+        }
     }
+
+    // TODO(codegen): write canRead{{ pluralize.plural(name) }} logic for non-user!
     return false
 }
 
