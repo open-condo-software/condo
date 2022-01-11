@@ -614,13 +614,15 @@ class MapEdit extends MapView {
     }
 
     private removeFloor (sectionIdx: number, floorIndex: number): void {
-        if (!get(this.map, `sections[${sectionIdx}].floors[${floorIndex}]`, false)){
+        if (!get(this.map, `sections[${sectionIdx}].floors[${floorIndex}]`, false)) {
             return
         }
+
         const floorToRemove = this.map.sections[sectionIdx].floors[floorIndex]
         this.map.sections[sectionIdx].floors.splice(floorIndex, 1)
+
         this.map.sections[sectionIdx].floors.map(floor => {
-            if (floorToRemove.index < floor.index){
+            if (floorToRemove.index > 0 && floorToRemove.index < floor.index) {
                 floor.index--
                 floor.name = floor.index.toString()
             }
