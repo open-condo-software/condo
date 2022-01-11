@@ -649,10 +649,13 @@ class MapEdit extends MapView {
         if (typeof this.map.sections[removedIndex] !== 'undefined') {
             if (removedIndex === 0) {
                 // Rename from first unit
-                const firstSectionUnit = get(last(this.map.sections[removedIndex].floors), 'units.0')
+                const firstSectionUnit = get(
+                    last(this.map.sections[removedIndex].floors.filter(floor => floor.index > 0)), 'units.0'
+                )
                 if (firstSectionUnit) {
                     firstSectionUnit.label = '1'
-                    this.updateUnit(firstSectionUnit)
+                    firstSectionUnit.index = 1
+                    this.updateUnitNumbers(firstSectionUnit)
                 }
             } else if (typeof this.map.sections[removedIndex - 1] !== 'undefined') {
                 // Rename from last unit at section - 1 of sectionIndex
