@@ -437,8 +437,8 @@ class MapEdit extends MapView {
 
     public removeSection (id: string): void {
         const sectionIndex = this.map.sections.findIndex(mapSection => mapSection.id === id)
-        this.map.sections.splice(sectionIndex, 1)
-        this.updateSectionNumbers(sectionIndex)
+        const removedSection = this.map.sections.splice(sectionIndex, 1)[0]
+        this.updateSectionNumbers(sectionIndex, removedSection.name)
 
         this.editMode = 'addSection'
         this.notifyUpdater()
@@ -636,14 +636,15 @@ class MapEdit extends MapView {
         }
     }
 
-    private updateSectionNumbers (removedIndex: number): void {
+    private updateSectionNumbers (removedIndex: number, sectionName: string): void {
         if (removedIndex === this.map.sections.length) {
             return
         }
-
+        let sectionNameNumber = parseInt(get(this.map.sections, '0.name', '1'))
         this.map.sections.forEach((section, index) => {
-            section.name = String(index + 1)
+            section.name = String(sectionNameNumber)
             section.index = index
+            sectionNameNumber++
         })
 
         if (typeof this.map.sections[removedIndex] !== 'undefined') {
