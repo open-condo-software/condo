@@ -23,6 +23,12 @@ const StyledSelect = styled(Select)<IStyledSelect>`
   border-radius: 4px;
   color: ${({ color }) => color};
   background-color: ${({ backgroundColor }) => backgroundColor};
+
+  &.ant-select-disabled {
+    .ant-select-selection-item {
+      color: ${({ color }) => color};
+    }
+  }
 `
 
 interface IStyledText {
