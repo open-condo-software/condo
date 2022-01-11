@@ -22,7 +22,7 @@ async function canReadOrganizationEmployees ({ authentication: { item: user } })
 
 async function canManageOrganizationEmployees ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin) return true
+    if (user.isAdmin || user.isSupport) return true
     if (operation === 'create') {
         const employeeForUser = await getByCondition('OrganizationEmployee', {
             organization: { id: originalInput.organization.connect.id },
