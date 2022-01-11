@@ -258,7 +258,7 @@ export function fromExData (exData, mapping, { uniqueBy = [], randomKey = 'id' }
         const row = {}
         let skip = false
         Object.entries(mapping).forEach(([colIndex, formatter]) => {
-            const name = formatter
+            const name = String(formatter)
             const objValue = exData[i][colIndex]
             if (typeof objValue !== 'object') { throw new Error('exData should have Object as exData[i][j] type') }
             const value = objValue.cleanedValue || objValue.value
