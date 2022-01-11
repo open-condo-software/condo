@@ -10,6 +10,7 @@ async function can{{ name.replace('Service', '') }} ({ authentication: { item, l
 
     if (listKey === USER_SCHEMA_NAME) {
         if (item.isAdmin) return true
+
         // TODO(codegen): write mutation access logic!
         return false
     }
