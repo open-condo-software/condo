@@ -3,19 +3,23 @@
  */
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 
-async function canReadConfirmPhoneActions ({ authentication: { item: user } }) {
-    if (!user) return throwAuthenticationError()
-    if (user.isAdmin) return {}
+async function canReadConfirmPhoneActions ({ authentication: { item, listKey } }) {
+    if (!listKey || !item) return throwAuthenticationError()
+    if (item.deletedAt) return false
+    if (listKey === USER_SCHEMA_NAME) {
+        if (item.isAdmin) return {}
+        return false
+    }
     return false
 }
 
-async function canManageConfirmPhoneActions ({ authentication: { item: user }, originalInput, operation, itemId }) {
-    if (!user) return throwAuthenticationError()
-    if (user.isAdmin) return true
-    if (operation === 'create') {
-        return false
-    } else if (operation === 'update') {
+async function canManageConfirmPhoneActions ({ authentication: { item, listKey } }) {
+    if (!listKey || !item) return throwAuthenticationError()
+    if (item.deletedAt) return false
+    if (listKey === USER_SCHEMA_NAME) {
+        if (item.isAdmin) return true
         return false
     }
     return false
