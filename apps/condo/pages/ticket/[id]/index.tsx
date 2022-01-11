@@ -31,6 +31,7 @@ import { useOrganization } from '@core/next/organization'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { formatPhone } from '@condo/domains/common/utils/helpers'
 import { ShareTicketModal } from '@condo/domains/ticket/components/ShareTicketModal'
+import { CLOSED_STATUS_TYPE } from '@condo/domains/ticket/constants'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
@@ -280,18 +281,21 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
         }
     })
 
-    if (!ticket) {
-        return (
-            <LoadingOrErrorPage title={TicketTitleMessage} loading={loading} error={error ? ServerErrorMessage : null}/>
-        )
-    }
-
     const isEmergency = get(ticket, 'isEmergency')
     const isPaid = get(ticket, 'isPaid')
 
     const handleTicketStatusChanged = () => {
         refetchTicket()
         ticketChangesResult.refetch()
+    }
+
+    const ticketStatusType = get(ticket, ['status', 'type'])
+    const disabledEditButton = useMemo(() => ticketStatusType === CLOSED_STATUS_TYPE, [ticketStatusType])
+
+    if (!ticket) {
+        return (
+            <LoadingOrErrorPage title={TicketTitleMessage} loading={loading} error={error ? ServerErrorMessage : null}/>
+        )
     }
 
     return (
@@ -346,6 +350,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                 <ActionBar>
                                     <Link href={`/ticket/${ticket.id}/update`}>
                                         <Button
+                                            disabled={disabledEditButton}
                                             color={'green'}
                                             type={'sberPrimary'}
                                             secondary
