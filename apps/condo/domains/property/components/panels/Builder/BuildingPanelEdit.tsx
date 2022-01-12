@@ -732,7 +732,7 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
         resetForm()
     }, [refresh, resetForm, builder, sectionName, minFloor, maxFloor, unitsOnFloor])
 
-    const setSectionNameValue = useCallback((value) => setSectionName(value.toString()), [])
+    const setSectionNameValue = useCallback((value) => setSectionName(Math.abs(value).toString()), [])
 
     const isSubmitDisabled = !(minFloor && maxFloor && unitsOnFloor && !maxMinError)
     const isCreateColumnsHidden = copyId !== null
@@ -952,6 +952,8 @@ const EditSectionForm: React.FC<IEditSectionFormProps> = ({ builder, refresh }) 
         setName(section ? section.name : '')
     }, [section])
 
+    const setNameValue = useCallback((value) => setNameValue(Math.abs(value).toString()), [])
+
     const updateSection = useCallback(() => {
         builder.updateSection({ ...section, name })
         refresh()
@@ -967,7 +969,7 @@ const EditSectionForm: React.FC<IEditSectionFormProps> = ({ builder, refresh }) 
             <Col span={24}>
                 <Space direction={'vertical'} size={8}>
                     <Typography.Text type={'secondary'}>{NameLabel}</Typography.Text>
-                    <Input value={name} placeholder={NamePlaceholderLabel} onChange={e => setName(e.target.value)} style={INPUT_STYLE} />
+                    <InputNumber value={name} placeholder={NamePlaceholderLabel} onChange={setNameValue} style={INPUT_STYLE} />
                 </Space>
             </Col>
             <Row gutter={MODAL_FORM_BUTTON_GUTTER}>
