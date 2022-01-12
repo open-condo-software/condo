@@ -1,4 +1,6 @@
 const access = require('./access')
+const dayjs = require('dayjs')
+const faker = require('faker')
 
 const ACCESS_FUNC = [
     access.userIsAdmin,
@@ -6,27 +8,47 @@ const ACCESS_FUNC = [
     access.userIsThisItem, access.userIsAdminOrIsThisItem,
 ]
 
-test('on empty obj => false', () => {
-    ACCESS_FUNC.forEach((fn) => {
-        expect(fn({ authentication: {} })).toEqual(false)
+const BASE_USER = {
+    id: faker.datatype.uuid(),
+}
+
+describe('User access tests', () => {
+    test('on empty obj => throw auth error', () => {
+        ACCESS_FUNC.forEach((fn) => {
+            let thrownError
+            try {
+                fn({ authentication: {} })
+            } catch (e) {
+                thrownError = e
+            }
+            expect(thrownError).toBeDefined()
+            expect(thrownError.message).toEqual('No or incorrect authentication credentials')
+        })
     })
-})
 
-test('userIsAdmin', () => {
-    expect(access.userIsAdmin({ authentication: { item: { isAdmin: false } } })).toEqual(false)
-    expect(access.userIsAdmin({ authentication: { item: { isAdmin: true } } })).toEqual(true)
-})
+    test('on deleted user => return false', () => {
+        ACCESS_FUNC.forEach((fn) => {
+            const result = fn({ authentication: { listKey: 'User', item: { ...BASE_USER, deletedAt: dayjs().toISOString() } } })
+            expect(result).toEqual(false)
+        })
+    })
 
-test('userIsOwner', () => {
-    expect(access.userIsOwner({ authentication: { item: { isAdmin: false } } })).toEqual(false)
-    expect(access.userIsOwner({ authentication: { item: { isAdmin: true } } })).toEqual(false)
-    expect(access.userIsOwner({ existingItem: {}, authentication: { item: { isAdmin: true } } })).toEqual(false)
-    expect(access.userIsOwner({
-        existingItem: { user: { id: 1 } },
-        authentication: { item: { isAdmin: true, id: 2 } },
-    })).toEqual(false)
-    expect(access.userIsOwner({
-        existingItem: { user: { id: 1 } },
-        authentication: { item: { isAdmin: true, id: 1 } },
-    })).toEqual(true)
+    test('userIsAdmin', () => {
+        expect(access.userIsAdmin({ authentication: { listKey: 'User', item: { ...BASE_USER, isAdmin: false } } })).toEqual(false)
+        expect(access.userIsAdmin({ authentication: { listKey: 'User', item: { ...BASE_USER, isAdmin: true } } })).toEqual(true)
+    })
+
+    test('userIsOwner', () => {
+        expect(access.userIsOwner({ authentication: { listKey: 'User', item: { ...BASE_USER, isAdmin: false } } })).toEqual(false)
+        expect(access.userIsOwner({ authentication: { listKey: 'User', item: { ...BASE_USER, isAdmin: true } } })).toEqual(false)
+        expect(access.userIsOwner({ existingItem: {}, authentication: { listKey: 'User', item: { ...BASE_USER, isAdmin: true } } })).toEqual(false)
+        expect(access.userIsOwner({
+            existingItem: { user: BASE_USER },
+            authentication: { listKey: 'User', item: { ...BASE_USER, id: faker.datatype.uuid(), isAdmin: true } },
+        })).toEqual(false)
+        expect(access.userIsOwner({
+            existingItem: { user: BASE_USER },
+            authentication: { listKey: 'User', item: { ...BASE_USER } },
+        })).toEqual(true)
+    })
 })
