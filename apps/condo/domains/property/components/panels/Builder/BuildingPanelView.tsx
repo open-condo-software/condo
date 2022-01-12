@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react'
+import { useIntl } from '@core/next/intl'
 import { Col, Row } from 'antd'
 import { useRouter } from 'next/router'
 import cloneDeep from 'lodash/cloneDeep'
@@ -61,6 +62,9 @@ const UNIT_BUTTON_SECTION_STYLE: React.CSSProperties = { width: '100%', marginTo
 const FLOOR_CONTAINER_STYLE: React.CSSProperties = { display: 'block' }
 
 export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refresh }) => {
+    const intl = useIntl()
+    const SectionNamePrefixTitle = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
+
     const { query: { id } } = useRouter()
     const { obj: property } = useObject({ where: { id: id as string } })
 
@@ -135,7 +139,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
                                                 secondary
                                                 style={UNIT_BUTTON_SECTION_STYLE}
                                                 disabled
-                                            >{section.name}</UnitButton>
+                                            >{SectionNamePrefixTitle} {section.name}</UnitButton>
                                         </MapSectionContainer>
                                     ))
                                 }

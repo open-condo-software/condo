@@ -383,7 +383,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                         useMemo(() => ({
                             addSection: <AddSectionForm builder={mapEdit} refresh={refresh}/>,
                             addUnit: <UnitForm builder={mapEdit} refresh={refresh}/>,
-                            removeSection: <RemoveSectionForm builder={mapEdit} refresh={refresh}/>,
+                            editSection: <EditSectionForm builder={mapEdit} refresh={refresh}/>,
                             editUnit: <UnitForm builder={mapEdit} refresh={refresh}/>,
                         }[mode] || null), [mode, mapEdit, refresh])
                     }
@@ -472,7 +472,7 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
             // Always if modal for new section was opened we need to move container to the left
             if (builder.editMode === 'addSection') {
                 container.current.style.paddingRight = SCROLL_CONTAINER_EDIT_PADDING
-            } else if (builder.editMode === 'removeSection') {
+            } else if (builder.editMode === 'editSection') {
                 // When user select last section we actually need to move container to the left side of screen
                 const shouldAddPadding = get(builder.getSelectedSection(), 'index') === builder.lastSectionIndex
 
@@ -603,6 +603,9 @@ const FULL_SIZE_UNIT_STYLE: React.CSSProperties = { width: '100%', marginTop: '8
 const SECTION_UNIT_STYLE: React.CSSProperties = { ...FULL_SIZE_UNIT_STYLE, zIndex: 3 }
 
 const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ section, children, builder, refresh, scrollToForm }) => {
+    const intl = useIntl()
+    const SectionNamePrefixTitle = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
+
     const chooseSection = useCallback((section) => {
         builder.setSelectedSection(section)
         if (builder.getSelectedSection()) {
@@ -621,7 +624,7 @@ const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ section, child
                 preview={section.preview}
                 onClick={() => chooseSection(section)}
                 selected={builder.isSectionSelected(section.id)}
-            >{section.name}</UnitButton>
+            >{SectionNamePrefixTitle} {section.name}</UnitButton>
         </MapSectionContainer>
     )
 }
@@ -683,7 +686,7 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
     const [unitsOnFloor, setUnitsOnFloor] = useState(null)
     const [copyId, setCopyId] = useState<string | null>(null)
     const [maxMinError, setMaxMinError] = useState(false)
-    const [sectionName, setSectionName] = useState(null)
+    const [sectionName, setSectionName] = useState<string>(builder.nextSectionName)
 
     useEffect(() => {
         if (minFloor && maxFloor) {
@@ -692,7 +695,7 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
         if (minFloor && maxFloor && unitsOnFloor && !maxMinError && sectionName) {
             builder.addPreviewSection({
                 id: '',
-                name: sectionName.toString(),
+                name: sectionName,
                 minFloor,
                 maxFloor,
                 unitsOnFloor,
@@ -723,10 +726,13 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
 
     const handleFinish = useCallback(() => {
         builder.removePreviewSection()
-        builder.addSection({ id: '', name: sectionName.toString(), minFloor, maxFloor, unitsOnFloor })
+        builder.addSection({ id: '', name: sectionName, minFloor, maxFloor, unitsOnFloor })
+        setSectionName(builder.nextSectionName)
         refresh()
         resetForm()
     }, [refresh, resetForm, builder, sectionName, minFloor, maxFloor, unitsOnFloor])
+
+    const setSectionNameValue = useCallback((value) => setSectionName(value.toString()), [])
 
     const isSubmitDisabled = !(minFloor && maxFloor && unitsOnFloor && !maxMinError)
     const isCreateColumnsHidden = copyId !== null
@@ -749,7 +755,7 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
             <Col span={24} hidden={isCreateColumnsHidden}>
                 <Space direction={'vertical'} size={8}>
                     <Typography.Text type={'secondary'}>{SectionNameLabel}</Typography.Text>
-                    <InputNumber value={sectionName} onChange={setSectionName} style={INPUT_STYLE} type={'number'} />
+                    <InputNumber value={sectionName} onChange={setSectionNameValue} style={INPUT_STYLE} type={'number'} />
                 </Space>
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden}>
@@ -924,27 +930,54 @@ const UnitForm: React.FC<IUnitFormProps> = ({ builder, refresh }) => {
     )
 }
 
-interface IRemoveSectionFormProps {
+interface IEditSectionFormProps {
     builder: MapEdit
     refresh(): void
 }
 const MODAL_FORM_EDIT_GUTTER: RowProps['gutter'] = [0, 32]
 const MODAL_FORM_BUTTON_GUTTER: RowProps['gutter'] = [0, 16]
 
-const RemoveSectionForm: React.FC<IRemoveSectionFormProps> = ({ builder, refresh }) => {
+const EditSectionForm: React.FC<IEditSectionFormProps> = ({ builder, refresh }) => {
     const intl = useIntl()
+    const NameLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
+    const NamePlaceholderLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name.placeholder' })
+    const SaveLabel = intl.formatMessage({ id: 'Add' })
     const DeleteLabel = intl.formatMessage({ id: 'Delete' })
+
+    const [name, setName] = useState<string>('')
 
     const section = builder.getSelectedSection()
 
-    const deleteSection = () => {
+    useEffect(() => {
+        setName(section ? section.name : '')
+    }, [section])
+
+    const updateSection = useCallback(() => {
+        builder.updateSection({ ...section, name })
+        refresh()
+    }, [builder, refresh, name, section])
+
+    const deleteSection = useCallback(() => {
         builder.removeSection(section.id)
         refresh()
-    }
+    }, [builder, refresh])
 
     return (
         <Row gutter={MODAL_FORM_EDIT_GUTTER} css={FormModalCss}>
+            <Col span={24}>
+                <Space direction={'vertical'} size={8}>
+                    <Typography.Text type={'secondary'}>{NameLabel}</Typography.Text>
+                    <Input value={name} placeholder={NamePlaceholderLabel} onChange={e => setName(e.target.value)} style={INPUT_STYLE} />
+                </Space>
+            </Col>
             <Row gutter={MODAL_FORM_BUTTON_GUTTER}>
+                <Col span={24}>
+                    <Button
+                        secondary
+                        onClick={updateSection}
+                        type='sberDefaultGradient'
+                    >{SaveLabel}</Button>
+                </Col>
                 <Col span={24}>
                     <Button
                         secondary

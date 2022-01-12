@@ -315,8 +315,10 @@ class MapEdit extends MapView {
         if (this.isEmpty) return '1'
         if (!this.isEmpty && this.sections.filter(section => !section.preview).length === 0) return '1'
 
-        const lastSectionNumber = Number(last(this.sections.filter(section => !section.preview)).name)
-        return String(lastSectionNumber + 1)
+        const maxSectionNumber = Math.max(...this.sections
+            .filter(section => !section.preview)
+            .map(section => Number(section.name)))
+        return String(maxSectionNumber + 1)
     }
 
     get editMode (): string | null {
@@ -330,7 +332,7 @@ class MapEdit extends MapView {
                 this.selectedUnit = null
                 this.selectedSection = null
                 break
-            case 'removeSection':
+            case 'editSection':
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.selectedUnit = null
@@ -363,7 +365,7 @@ class MapEdit extends MapView {
             this.editMode = 'addSection'
         } else {
             this.selectedSection = section
-            this.editMode = 'removeSection'
+            this.editMode = 'editSection'
         }
     }
 
@@ -437,8 +439,8 @@ class MapEdit extends MapView {
 
     public removeSection (id: string): void {
         const sectionIndex = this.map.sections.findIndex(mapSection => mapSection.id === id)
-        const removedSection = this.map.sections.splice(sectionIndex, 1)[0]
-        this.updateSectionNumbers(sectionIndex, removedSection.name)
+        this.map.sections.splice(sectionIndex, 1)
+        this.updateSectionNumbers(sectionIndex)
 
         this.editMode = 'addSection'
         this.notifyUpdater()
@@ -636,7 +638,7 @@ class MapEdit extends MapView {
         }
     }
 
-    private updateSectionNumbers (removedIndex: number, sectionName: string): void {
+    private updateSectionNumbers (removedIndex: number): void {
         if (removedIndex === this.map.sections.length) {
             return
         }
