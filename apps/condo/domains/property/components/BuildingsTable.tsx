@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/router'
 import { useLazyQuery } from '@apollo/client'
+import { ColumnsType } from 'antd/lib/table'
+import { Gutter } from 'antd/es/grid/row'
 
 import { IFilters, PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
 import { Property } from '@condo/domains/property/utils/clientSchema'
@@ -18,7 +20,6 @@ import { Button } from '@condo/domains/common/components/Button'
 import { getPageIndexFromOffset, getTableScrollConfig, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { OrganizationEmployeeRole, PropertyWhereInput } from '@app/condo/schema'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { ColumnsType } from 'antd/lib/table'
 
 type BuildingTableProps = {
     role: OrganizationEmployeeRole
@@ -27,6 +28,10 @@ type BuildingTableProps = {
     sortBy: string[]
     onSearch?: (properties: Property.IPropertyUIState[]) => void
 }
+
+const ROW_VERTICAL_GUTTERS: [Gutter, Gutter] = [0, 40]
+const ROW_SMALL_HORIZONTAL_GUTTERS: [Gutter, Gutter] = [10, 0]
+const ROW_BIG_HORIZONTAL_GUTTERS: [Gutter, Gutter] = [40, 0]
 
 export default function BuildingsTable (props: BuildingTableProps) {
     const intl = useIntl()
@@ -100,69 +105,79 @@ export default function BuildingsTable (props: BuildingTableProps) {
     }
 
     return (
-        <Row align={'middle'} justify={'start'} gutter={[0, 40]}>
+        <Row justify={'space-between'} gutter={ROW_VERTICAL_GUTTERS}>
+            <Col xs={24} lg={12}>
+                <Row align={'middle'} gutter={ROW_BIG_HORIZONTAL_GUTTERS}>
+                    <Col xs={24} lg={13}>
+                        <Input
+                            placeholder={SearchPlaceholder}
+                            onChange={(e) => {handleSearchChange(e.target.value)}}
+                            value={search}
+                        />
+                    </Col>
+                    <Col hidden={isSmall}>
+                        {
+                            downloadLink
+                                ? (
+                                    <Button
+                                        type={'inlineLink'}
+                                        icon={<DatabaseFilled />}
+                                        loading={isXlsLoading}
+                                        target='_blank'
+                                        href={downloadLink}
+                                        rel='noreferrer'>
+                                        {DownloadExcelLabel}
+                                    </Button>
+                                )
+                                : (
+                                    <Button
+                                        type={'inlineLink'}
+                                        icon={<DatabaseFilled />}
+                                        loading={isXlsLoading}
+                                        onClick={onExportToExcelButtonClicked}>
+                                        {ExportAsExcel}
+                                    </Button>
+                                )
+                        }
+                    </Col>
+                </Row>
+            </Col>
             <Col xs={24} lg={6}>
-                <Input
-                    placeholder={SearchPlaceholder}
-                    onChange={(e) => {handleSearchChange(e.target.value)}}
-                    value={search}
-                />
-            </Col>
-            <Col lg={6} offset={1} hidden={isSmall}>
-                {
-                    downloadLink
-                        ? (
-                            <Button
-                                type={'inlineLink'}
-                                icon={<DatabaseFilled />}
-                                loading={isXlsLoading}
-                                target='_blank'
-                                href={downloadLink}
-                                rel='noreferrer'>{DownloadExcelLabel}
-                            </Button>
-                        )
-                        : (
-                            <Button
-                                type={'inlineLink'}
-                                icon={<DatabaseFilled />}
-                                loading={isXlsLoading}
-                                onClick={onExportToExcelButtonClicked}>{ExportAsExcel}
-                            </Button>
-                        )
-                }
-            </Col>
-            <Col lg={1} offset={7} hidden={isSmall}>
-                {
-                    role?.canManageProperties && (
-                        <ImportWrapper
-                            objectsName={PropertiesMessage}
-                            accessCheck={role?.canManageProperties}
-                            onFinish={refetch}
-                            columns={columns}
-                            rowNormalizer={propertyNormalizer}
-                            rowValidator={propertyValidator}
-                            domainTranslate={PropertyTitle}
-                            objectCreator={propertyCreator}
-                        >
-                            <Button
-                                type={'sberPrimary'}
-                                icon={<DiffOutlined />}
-                                secondary
-                            />
-                        </ImportWrapper>
-                    )
-                }
-            </Col>
-            <Col xs={24} lg={3}>
-                {
-                    role?.canManageProperties
-                        ? (
-                            <Button type='sberPrimary' onClick={() => router.push('/property/create')}>
-                                {CreateLabel}
-                            </Button>
-                        )
-                        : null
-                }
+                <Row justify={'end'} gutter={ROW_SMALL_HORIZONTAL_GUTTERS}>
+                    <Col hidden={isSmall}>
+                        {
+                            role?.canManageProperties && (
+                                <ImportWrapper
+                                    objectsName={PropertiesMessage}
+                                    accessCheck={role?.canManageProperties}
+                                    onFinish={refetch}
+                                    columns={columns}
+                                    rowNormalizer={propertyNormalizer}
+                                    rowValidator={propertyValidator}
+                                    domainTranslate={PropertyTitle}
+                                    objectCreator={propertyCreator}
+                                >
+                                    <Button
+                                        type={'sberPrimary'}
+                                        icon={<DiffOutlined />}
+                                        secondary
+                                    />
+                                </ImportWrapper>
+                            )
+                        }
+                    </Col>
+                    <Col>
+                        {
+                            role?.canManageProperties
+                                ? (
+                                    <Button type='sberPrimary' onClick={() => router.push('/property/create')}>
+                                        {CreateLabel}
+                                    </Button>
+                                )
+                                : null
+                        }
+                    </Col>
+                </Row>
             </Col>
             <Col span={24}>
                 <Table
