@@ -171,7 +171,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     })
                 }
                 else if (action.user) {
-                    const userId = action.user.id
+                    userId = action.user.id
                     phone = await getById('User', userId).then(p => p.phone)
                     const tokenId = action.id
 
