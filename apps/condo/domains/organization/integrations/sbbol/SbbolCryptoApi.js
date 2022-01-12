@@ -3,6 +3,7 @@ const { buildBicryptId } = require('./utils/buildBicryptId')
 const { logger: baseLogger } = require('./common')
 const Ajv = require('ajv')
 const ajv = new Ajv()
+const fs = require('fs')
 
 const logger = baseLogger.child({ module: 'SbbolCryptoApi' })
 
@@ -125,28 +126,28 @@ class SbbolCryptoApi extends SbbolRequestApi {
      * @param externalId means at our site, with is external relative to SBBOL
      * @return {Promise<void>}
      */
-    async getCertificateSigningRequestState(externalId) {
+    async getCertificateSigningRequestState (externalId) {
         const { data } = await this.request({
             method: 'GET',
-            path: this.certificateSigningRequestStatePath.replace(':externalId', externalId)
+            path: this.certificateSigningRequestStatePath.replace(':externalId', externalId),
         })
         const parsedData = JSON.parse(data)
         return parsedData
     }
 
-    async getCertificateSigningRequestPrint(externalId) {
+    async getCertificateSigningRequestPrint (externalId, filename) {
         const { data } = await this.request({
             method: 'GET',
-            path: this.certificateSigningRequestPrintPath.replace(':externalId', externalId)
+            path: this.certificateSigningRequestPrintPath.replace(':externalId', externalId),
         })
-        const parsedData = JSON.parse(data)
-        return parsedData
+        fs.writeFileSync(filename, data)
+        console.log('Print version of certificate request was written to file', filename)
     }
 
-    async activateCertificate(externalId) {
+    async activateCertificate (externalId) {
         const { data } = await this.request({
             method: 'POST',
-            path: this.activateCertificatePath.replace(':externalId', externalId)
+            path: this.activateCertificatePath.replace(':externalId', externalId),
         })
         const parsedData = JSON.parse(data)
         return parsedData
