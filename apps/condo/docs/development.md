@@ -70,3 +70,8 @@ This code, formatted by Prettier, is handled as incorrect by ESLint.
 I didn't found how to control ESLint especially for angle-brackets.
 Just turned it off, it's not critical, IMHO.
 https://stackoverflow.com/a/58977894/235158
+
+### Error "husky - pre-commit hook exited with code 1 (error)"
+
+It seems, like you are using external tool to work with Git ant it uses different version of Node.
+Check your `~/.huskyrc`, `.nvmrc` or whatever you are using.
