@@ -71,8 +71,8 @@ export const CreateContactForm: React.FC = () => {
         selectedPropertyIdRef.current = selectedPropertyId
     }, [selectedPropertyId])
 
-    // @ts-ignore
     const action = Contact.useCreate(
+        // @ts-ignore
         {
             organization: organization.id,
         },
