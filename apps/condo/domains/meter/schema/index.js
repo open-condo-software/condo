@@ -16,5 +16,5 @@ module.exports = {
     MeterReading,
     Meter,
     ExportMeterReadingsService,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

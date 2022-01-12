@@ -35,85 +35,78 @@ export const BillingChooser: React.FC = () => {
         obj: currentContext,
         error: contextError,
         loading: contextLoading,
-    } = BillingIntegrationOrganizationContext.useObject({
-        where: {
-            organization: {
-                id: organizationId,
+    } = BillingIntegrationOrganizationContext.useObject(
+        {
+            where: {
+                organization: {
+                    id: organizationId,
+                },
             },
         },
-    }, {
-        fetchPolicy: 'network-only',
-    })
+        {
+            fetchPolicy: 'network-only',
+        },
+    )
 
     if (!canManageIntegrations) {
         return (
             <BasicEmptyListView>
-                <Typography.Title level={3}>
-                    {NoPermissionMessage}
-                </Typography.Title>
+                <Typography.Title level={3}>{NoPermissionMessage}</Typography.Title>
             </BasicEmptyListView>
         )
     }
 
     if (integrationsLoading || contextLoading) {
-        return (
-            <Loader fill size={'large'}/>
-        )
+        return <Loader fill size={'large'} />
     }
 
     if (integrationsError || contextError) {
         return (
             <BasicEmptyListView>
-                <Typography.Title level={3}>
-                    {integrationsError ? integrationsError : contextError}
-                </Typography.Title>
+                <Typography.Title level={3}>{integrationsError ? integrationsError : contextError}</Typography.Title>
             </BasicEmptyListView>
         )
     }
     return (
         <>
             <Space direction={'vertical'} size={40} style={{ width: '100%' }}>
-                {
-                    !currentContext && (
-                        <Alert message={OneBillingWarningMessage} showIcon type="warning" style={{ width: 'fit-content' }} />
-                    )
-                }
+                {!currentContext && (
+                    <Alert message={OneBillingWarningMessage} showIcon type="warning" style={{ width: 'fit-content' }} />
+                )}
                 <Col span={24}>
                     <Row gutter={[44, 44]}>
-                        {
-                            integrations.map((integration) => {
-                                const isActiveIntegration = !!currentContext && integration.id === currentContext.integration.id
-                                let status: CardStatuses = 'disabled'
-                                if (isActiveIntegration) {
-                                    if (currentContext.status === BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IN_PROGRESS_STATUS) {
-                                        status = 'inProgress'
-                                    } else if (currentContext.status === BILLING_INTEGRATION_ORGANIZATION_CONTEXT_ERROR_STATUS) {
-                                        status = 'error'
-                                    } else {
-                                        status = 'done'
-                                    }
-                                } else if (!currentContext) {
-                                    status = 'available'
+                        {integrations.map((integration) => {
+                            const isActiveIntegration = !!currentContext && integration.id === currentContext.integration.id
+                            let status: CardStatuses = 'disabled'
+                            if (isActiveIntegration) {
+                                if (currentContext.status === BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IN_PROGRESS_STATUS) {
+                                    status = 'inProgress'
+                                } else if (currentContext.status === BILLING_INTEGRATION_ORGANIZATION_CONTEXT_ERROR_STATUS) {
+                                    status = 'error'
+                                } else {
+                                    status = 'done'
                                 }
+                            } else if (!currentContext) {
+                                status = 'available'
+                            }
 
-                                return (
-                                    <Col
-                                        span={12}
-                                        key={integration.id}
-                                        style={{
-                                            order: isActiveIntegration ? -1 : 'unset',
-                                        }}
-                                    >
-                                        <IntegrationPanel
-                                            integrationId={integration.id}
-                                            title={integration.name}
-                                            shortDescription={get(integration, 'shortDescription')}
-                                            status={status}
-                                        />
-                                    </Col>
-                                )
-                            })
-                        }
+                            return (
+                                <Col
+                                    span={12}
+                                    key={integration.id}
+                                    style={{
+                                        order: isActiveIntegration ? -1 : 'unset',
+                                    }}
+                                >
+                                    <IntegrationPanel
+                                        integrationId={integration.id}
+                                        title={integration.name}
+                                        shortDescription={get(integration, 'shortDescription')}
+                                        status={status}
+                                    />
+                                </Col>
+                            )
+                        })}
                     </Row>
                 </Col>
             </Space>

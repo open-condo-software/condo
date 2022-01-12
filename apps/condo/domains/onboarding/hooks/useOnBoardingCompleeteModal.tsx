@@ -7,8 +7,8 @@ import { Button } from '@condo/domains/common/components/Button'
 import { Poster } from '@condo/domains/common/components/Poster'
 
 const PosterWrapper = styled.div`
-  height: 320px;
-  border-radius: 4px;
+    height: 320px;
+    border-radius: 4px;
 `
 
 interface IApplySubscriptionModal {
@@ -34,27 +34,30 @@ export const useOnBoardingCompleteModal = (): IApplySubscriptionModal => {
             title={<Typography.Title level={3}>{OnBoardingCompleteTitle}</Typography.Title>}
             visible={isVisible}
             footer={[
-                <Button size={'large'} key="submit" type="sberPrimary" onClick={() => {
-                    setIsVisible(false)
-                    if (router.pathname === '/onboarding') {
-                        router.push('/')
-                    }
-                }}>{OnBoardingCompleteButton}</Button>,
+                <Button
+                    size={'large'}
+                    key="submit"
+                    type="sberPrimary"
+                    onClick={() => {
+                        setIsVisible(false)
+                        if (router.pathname === '/onboarding') {
+                            router.push('/')
+                        }
+                    }}
+                >
+                    {OnBoardingCompleteButton}
+                </Button>,
             ]}
         >
             <Row gutter={[0, 40]}>
                 <Col span={24}>
                     <PosterWrapper>
-                        <Poster src={'/onBoardingSuccess.png'}/>
+                        <Poster src={'/onBoardingSuccess.png'} />
                     </PosterWrapper>
                 </Col>
                 <Col span={24}>
-                    <Typography.Title level={4}>
-                        {OnBoardingCompleteSubTitle}
-                    </Typography.Title>
-                    <Typography.Text>
-                        {OnBoardingCompleteDescription}
-                    </Typography.Text>
+                    <Typography.Title level={4}>{OnBoardingCompleteSubTitle}</Typography.Title>
+                    <Typography.Text>{OnBoardingCompleteDescription}</Typography.Text>
                 </Col>
             </Row>
         </Modal>

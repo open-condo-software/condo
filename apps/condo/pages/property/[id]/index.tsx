@@ -30,7 +30,7 @@ import { useOrganization } from '@core/next/organization'
 interface IPropertyInfoPanelProps {
     title: string
     message: string
-    type?:  'success' | 'warning'
+    type?: 'success' | 'warning'
     large?: boolean
 }
 
@@ -94,32 +94,30 @@ export const PropertyPageContent = ({ property, role }) => {
 
     return (
         <>
-            <Row gutter={PROPERTY_PAGE_CONTENT_ROW_GUTTER} align='top'>
+            <Row gutter={PROPERTY_PAGE_CONTENT_ROW_GUTTER} align="top">
                 <Col span={24}>
-                    <Typography.Title level={1} style={{ margin: 0 }}>{property.address}</Typography.Title>
-                    {
-                        property.name ?
-                            <Tag style={{ marginTop: '25px', borderColor: 'transparent', backgroundColor: colors.ultraLightGrey }}>{property.name}</Tag> :
-                            null
-                    }
+                    <Typography.Title level={1} style={{ margin: 0 }}>
+                        {property.address}
+                    </Typography.Title>
+                    {property.name ? (
+                        <Tag style={{ marginTop: '25px', borderColor: 'transparent', backgroundColor: colors.ultraLightGrey }}>
+                            {property.name}
+                        </Tag>
+                    ) : null}
                 </Col>
             </Row>
-            <Row
-                gutter={PROPERTY_PAGE_CONTENT_ROW_CARDS_GUTTER}
-                style={PROPERTY_PAGE_CONTENT_ROW_STYLE}
-                justify='start'
-            >
-                <Col flex={0} >
+            <Row gutter={PROPERTY_PAGE_CONTENT_ROW_CARDS_GUTTER} style={PROPERTY_PAGE_CONTENT_ROW_STYLE} justify="start">
+                <Col flex={0}>
                     <PropertyInfoPanel title={UnitsCountTitle} message={property.unitsCount} large />
                 </Col>
                 <Col flex={0}>
-                    <PropertyInfoPanel title={TicketsClosedTitle} message={property.ticketsClosed} type='success' large />
+                    <PropertyInfoPanel title={TicketsClosedTitle} message={property.ticketsClosed} type="success" large />
                 </Col>
                 <Col flex={0}>
-                    <PropertyInfoPanel title={TicketsInWorkTitle} message={property.ticketsInWork}  type='warning' large />
+                    <PropertyInfoPanel title={TicketsInWorkTitle} message={property.ticketsInWork} type="warning" large />
                 </Col>
                 <Col flex={0}>
-                    <PropertyInfoPanel title={AreaTitle} message={property.area ? property.area : UnknownValueTitle } />
+                    <PropertyInfoPanel title={AreaTitle} message={property.area ? property.area : UnknownValueTitle} />
                 </Col>
                 <Col flex={0}>
                     <PropertyInfoPanel title={YearOfConstructionTitle} message={yearOfConstructionCardLabel} />
@@ -127,49 +125,37 @@ export const PropertyPageContent = ({ property, role }) => {
             </Row>
             <Row gutter={PROPERTY_PAGE_CONTENT_ROW_GUTTER} style={PROPERTY_PAGE_CONTENT_ROW_STYLE}>
                 <Col span={24} css={CustomScrollbarCss}>
-                    <PropertyPanels mode='view' map={property.map} address={property.address} />
+                    <PropertyPanels mode="view" map={property.map} address={property.address} />
                 </Col>
             </Row>
-            {
-                role && role.canManageProperties ? (
-                    <ActionBar>
-                        <Space size={20} wrap>
-                            <Link href={`/property/${property.id}/update`}>
-                                <span>
-                                    <Button
-                                        type={'sberDefaultGradient'}
-                                        size={'large'}
-                                    >
-                                        {EditPropertyTitle}
-                                    </Button>
-                                </span>
+            {role && role.canManageProperties ? (
+                <ActionBar>
+                    <Space size={20} wrap>
+                        <Link href={`/property/${property.id}/update`}>
+                            <span>
+                                <Button type={'sberDefaultGradient'} size={'large'}>
+                                    {EditPropertyTitle}
+                                </Button>
+                            </span>
+                        </Link>
+                        {!isNull(get(property, 'map')) && (
+                            <Link href={`/property/${property.id}/map/update`}>
+                                <Button color={'green'} type={'sberDefaultGradient'} secondary size={'large'}>
+                                    {EditPropertyMapTitle}
+                                </Button>
                             </Link>
-                            {
-                                !isNull(get(property, 'map')) && (
-                                    <Link href={`/property/${property.id}/map/update`}>
-                                        <Button
-                                            color={'green'}
-                                            type={'sberDefaultGradient'}
-                                            secondary
-                                            size={'large'}
-                                        >
-                                            {EditPropertyMapTitle}
-                                        </Button>
-                                    </Link>
-                                )
-                            }
-                            <DeleteButtonWithConfirmModal
-                                title={ConfirmDeleteTitle}
-                                message={ConfirmDeleteMessage}
-                                okButtonLabel={DeletePropertyLabel}
-                                action={() => softDeleteAction({}, property)}
-                                buttonCustomProps={DELETE_BUTTON_CUSTOM_PROPS}
-                                buttonContent={<span>{DeletePropertyLabel}</span>}
-                            />
-                        </Space>
-                    </ActionBar>
-                ) : null
-            }
+                        )}
+                        <DeleteButtonWithConfirmModal
+                            title={ConfirmDeleteTitle}
+                            message={ConfirmDeleteMessage}
+                            okButtonLabel={DeletePropertyLabel}
+                            action={() => softDeleteAction({}, property)}
+                            buttonCustomProps={DELETE_BUTTON_CUSTOM_PROPS}
+                            buttonContent={<span>{DeletePropertyLabel}</span>}
+                        />
+                    </Space>
+                </ActionBar>
+            ) : null}
         </>
     )
 }
@@ -185,34 +171,33 @@ const PropertyIdPage: IPropertyIdPage = () => {
     const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.id.PageTitle' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
 
-    const { query: { id } } = useRouter()
+    const {
+        query: { id },
+    } = useRouter()
     const { loading, obj: property, error } = useObject({ where: { id: id as string } })
     const { link } = useOrganization()
 
     if (error || loading) {
-        return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null}/>
+        return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null} />
     }
 
-    return <>
-        <Head>
-            <title>{PageTitleMsg}</title>
-        </Head>
-        <PageWrapper>
-            <PageContent>
-                <PropertyPageContent
-                    property={property}
-                    role={link.role}
-                />
-            </PageContent>
-        </PageWrapper>
-    </>
+    return (
+        <>
+            <Head>
+                <title>{PageTitleMsg}</title>
+            </Head>
+            <PageWrapper>
+                <PageContent>
+                    <PropertyPageContent property={property} role={link.role} />
+                </PageContent>
+            </PageWrapper>
+        </>
+    )
 }
 
-PropertyIdPage.headerAction = <ReturnBackHeaderAction
-    descriptor={PROPERTY_PAGE_DESCRIPTOR}
-    path={'/property/'}
-    useBrowserHistory={false}
-/>
+PropertyIdPage.headerAction = (
+    <ReturnBackHeaderAction descriptor={PROPERTY_PAGE_DESCRIPTOR} path={'/property/'} useBrowserHistory={false} />
+)
 PropertyIdPage.requiredAccess = OrganizationRequired
 
 export default PropertyIdPage

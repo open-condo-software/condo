@@ -31,7 +31,7 @@ const reducer = (state, action) => {
         case 'delete':
             return {
                 ...state,
-                added: [...state.added].filter(addFile => addFile.id !== file.id),
+                added: [...state.added].filter((addFile) => addFile.id !== file.id),
                 deleted: [...state.deleted, file],
             }
         case 'add':
@@ -68,11 +68,11 @@ interface IMultipleFileUploadHookArgs {
     Model: Module
     relationField: string
     initialFileList: DBFile[]
-    initialCreateValues?: Record<string, unknown>,
+    initialCreateValues?: Record<string, unknown>
     dependenciesForRerenderUploadComponent?: Array<unknown>
 }
 interface IMultipleFileUploadHookResult {
-    UploadComponent: React.FC<IUploadComponentProps>,
+    UploadComponent: React.FC<IUploadComponentProps>
     syncModifiedFiles: (id: string) => Promise<void>
 }
 
@@ -114,7 +114,7 @@ export const useMultipleFileUploadHook = ({
             />
         )
         return UploadWrapper
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [...dependenciesForRerenderUploadComponent])
     return {
         UploadComponent,
@@ -126,21 +126,18 @@ interface IMultipleFileUploadProps {
     fileList: DBFile[]
     initialCreateValues: Record<string, unknown>
     Model: Module
-    onFilesChange: React.Dispatch<{ type: string, payload: DBFile }>,
+    onFilesChange: React.Dispatch<{ type: string; payload: DBFile }>
 }
 
 const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
     const intl = useIntl()
     const AddFileLabel = intl.formatMessage({ id: 'component.uploadlist.AddFileLabel' })
-    const FileTooBigErrorMessage = intl.formatMessage({ id: 'component.uploadlist.error.FileTooBig' },
-        { maxSizeInMb: MAX_UPLOAD_FILE_SIZE / (1024 * 1024) })
+    const FileTooBigErrorMessage = intl.formatMessage(
+        { id: 'component.uploadlist.error.FileTooBig' },
+        { maxSizeInMb: MAX_UPLOAD_FILE_SIZE / (1024 * 1024) },
+    )
     const UploadFailedErrorMessage = intl.formatMessage({ id: 'component.uploadlist.error.UploadFailedErrorMessage' })
-    const {
-        fileList,
-        initialCreateValues,
-        Model,
-        onFilesChange,
-    } = props
+    const { fileList, initialCreateValues, Model, onFilesChange } = props
 
     const [listFiles, setListFiles] = useState<UploadListFile[]>([])
 
@@ -156,7 +153,7 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
         multiple: true,
         onChange: (info) => {
             let fileList = [...info.fileList]
-            fileList = fileList.map(file => {
+            fileList = fileList.map((file) => {
                 if (file.response) {
                     file.url = file.response.url
                 }
@@ -168,16 +165,18 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
             showRemoveIcon: true,
             removeIcon: (file) => {
                 const removeIcon = (
-                    <DeleteFilled onClick={() => {
-                        const { id, uid } = file
-                        if (!id) {
-                            // remove file that failed to upload from list
-                            setListFiles([...listFiles].filter(file => file.uid !== uid))
-                            return
-                        }
-                        setListFiles([...listFiles].filter(file => file.id !== id))
-                        onFilesChange({ type: 'delete', payload: file })
-                    }} />
+                    <DeleteFilled
+                        onClick={() => {
+                            const { id, uid } = file
+                            if (!id) {
+                                // remove file that failed to upload from list
+                                setListFiles([...listFiles].filter((file) => file.uid !== uid))
+                                return
+                            }
+                            setListFiles([...listFiles].filter((file) => file.id !== id))
+                            onFilesChange({ type: 'delete', payload: file })
+                        }}
+                    />
                 )
                 return removeIcon
             },
@@ -190,26 +189,25 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
                 onError(error)
                 return
             }
-            return createAction({ ...initialCreateValues, file }).then( dbFile  => {
-                const [uploadFile] = convertFilesToUploadFormat([dbFile])
-                onSuccess(uploadFile, null)
-                onFilesChange({ type: 'add', payload: dbFile })
-            }).catch(err => {
-                const error = new Error(UploadFailedErrorMessage)
-                console.error('Upload failed', err)
-                onError(error)
-            })
+            return createAction({ ...initialCreateValues, file })
+                .then((dbFile) => {
+                    const [uploadFile] = convertFilesToUploadFormat([dbFile])
+                    onSuccess(uploadFile, null)
+                    onFilesChange({ type: 'add', payload: dbFile })
+                })
+                .catch((err) => {
+                    const error = new Error(UploadFailedErrorMessage)
+                    console.error('Upload failed', err)
+                    onError(error)
+                })
         },
     }
     return (
         <div className={'upload-control-wrapper'}>
-            <Upload { ...options }  >
-                <Button
-                    type={'sberGrey'}
-                    secondary
-                    icon={<UploadOutlined />}
-                    size={'middle'}
-                >{AddFileLabel}</Button>
+            <Upload {...options}>
+                <Button type={'sberGrey'} secondary icon={<UploadOutlined />} size={'middle'}>
+                    {AddFileLabel}
+                </Button>
             </Upload>
         </div>
     )

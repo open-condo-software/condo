@@ -20,7 +20,7 @@ const Meter = generateGQLTestUtils(MeterGQL)
 const MeterReading = generateGQLTestUtils(MeterReadingGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-async function createTestMeterResource (client, extraAttrs = {}) {
+async function createTestMeterResource(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -33,7 +33,7 @@ async function createTestMeterResource (client, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function updateTestMeterResource (client, id, extraAttrs = {}) {
+async function updateTestMeterResource(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -47,7 +47,7 @@ async function updateTestMeterResource (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestMeterReadingSource (client, extraAttrs = {}) {
+async function createTestMeterReadingSource(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -60,7 +60,7 @@ async function createTestMeterReadingSource (client, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function updateTestMeterReadingSource (client, id, extraAttrs = {}) {
+async function updateTestMeterReadingSource(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -74,7 +74,7 @@ async function updateTestMeterReadingSource (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestMeter (client, organization, property, resource, extraAttrs = {}) {
+async function createTestMeter(client, organization, property, resource, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
     if (!property || !property.id) throw new Error('no property.id')
@@ -98,7 +98,7 @@ async function createTestMeter (client, organization, property, resource, extraA
     return [obj, attrs]
 }
 
-async function updateTestMeter (client, id, extraAttrs = {}) {
+async function updateTestMeter(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -112,7 +112,7 @@ async function updateTestMeter (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestMeterReading (client, meter, organization, source, extraAttrs = {}) {
+async function createTestMeterReading(client, meter, organization, source, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!meter || !meter.id) throw new Error('no meter.id')
     if (!organization || !organization.id) throw new Error('no organization.id')
@@ -133,7 +133,7 @@ async function createTestMeterReading (client, meter, organization, source, extr
     return [obj, attrs]
 }
 
-async function updateTestMeterReading (client, id, extraAttrs = {}) {
+async function updateTestMeterReading(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -163,10 +163,18 @@ async function exportMeterReadingsByTestClient(client, extraAttrs = {}) {
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    MeterResource, createTestMeterResource, updateTestMeterResource,
-    MeterReadingSource, createTestMeterReadingSource, updateTestMeterReadingSource,
-    Meter, createTestMeter, updateTestMeter,
-    MeterReading, createTestMeterReading, updateTestMeterReading,
-exportMeterReadingsByTestClient
-/* AUTOGENERATE MARKER <EXPORTS> */
+    MeterResource,
+    createTestMeterResource,
+    updateTestMeterResource,
+    MeterReadingSource,
+    createTestMeterReadingSource,
+    updateTestMeterReadingSource,
+    Meter,
+    createTestMeter,
+    updateTestMeter,
+    MeterReading,
+    createTestMeterReading,
+    updateTestMeterReading,
+    exportMeterReadingsByTestClient,
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

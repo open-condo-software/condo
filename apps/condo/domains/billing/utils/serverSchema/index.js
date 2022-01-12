@@ -33,7 +33,6 @@ const BillingReceipt = generateServerUtils(BillingReceiptGQL)
 const BillingOrganization = generateServerUtils(BillingOrganizationGQL)
 const ResidentBillingReceipt = generateServerUtils(ResidentBillingReceiptGQL)
 
-
 const BillingCurrency = generateServerUtils(BillingCurrencyGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -51,5 +50,5 @@ module.exports = {
     BillingOrganization,
     ResidentBillingReceipt,
     BillingCurrency,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

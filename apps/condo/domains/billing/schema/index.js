@@ -28,5 +28,5 @@ module.exports = {
     BillingAccountMeterReading,
     BillingReceipt,
     GetAllResidentBillingReceiptsService,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

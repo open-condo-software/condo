@@ -13,23 +13,18 @@ export const EmployeeUpdatePage = () => {
     return (
         <>
             <Head>
-                <title>{ UpdateEmployeeMessage }</title>
+                <title>{UpdateEmployeeMessage}</title>
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <UpdateEmployeeForm/>
+                    <UpdateEmployeeForm />
                 </PageContent>
             </PageWrapper>
         </>
     )
 }
 
-EmployeeUpdatePage.headerAction = (
-    <ReturnBackHeaderAction
-        descriptor={{ id: 'Back' }}
-        path={(id) => `/employee/${id}/`}
-    />
-)
+EmployeeUpdatePage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'Back' }} path={(id) => `/employee/${id}/`} />
 
 EmployeeUpdatePage.requiredAccess = OrganizationRequired
 

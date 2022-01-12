@@ -25,8 +25,8 @@ const DATA_FORMAT_GQL_TYPES = `
 const DATA_FORMAT_SCHEMA = {
     type: 'object',
     properties: {
-        hasToPayDetails: { type: 'boolean' },    // True if billingReceipt has toPay detailing: e.g debt, recalculation fields
-        hasServices: { type: 'boolean' },       // True if billingReceipt has services object: e.g cold water service
+        hasToPayDetails: { type: 'boolean' }, // True if billingReceipt has toPay detailing: e.g debt, recalculation fields
+        hasServices: { type: 'boolean' }, // True if billingReceipt has services object: e.g cold water service
         hasServicesDetails: { type: 'boolean' }, // True if billingReceipt's services has detail: e.g debt and recalculation for cold water service
     },
     required: ['hasToPayDetails', 'hasServices', 'hasServicesDetails'],
@@ -39,7 +39,8 @@ const validateDataFormat = getValidator(DataFormatSchemaValidator)
 
 const DATA_FORMAT_QUERY_LIST = Object.keys(DataFormatFields).join(' ')
 const DATA_FORMAT_FIELD = {
-    schemaDoc: 'Format of the data, that is output of this integration. This field specifies the detail and size of columns. If not specified we can only show first level of detail (address, account, toPay)',
+    schemaDoc:
+        'Format of the data, that is output of this integration. This field specifies the detail and size of columns. If not specified we can only show first level of detail (address, account, toPay)',
     type: Json,
     isRequired: false,
     extendGraphQLTypes: [DATA_FORMAT_GQL_TYPES],
@@ -57,4 +58,3 @@ module.exports = {
     DATA_FORMAT_GQL_TYPES,
     DATA_FORMAT_QUERY_LIST,
 }
-

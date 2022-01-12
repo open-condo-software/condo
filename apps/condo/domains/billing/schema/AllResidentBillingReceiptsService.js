@@ -18,7 +18,6 @@ const { generateQueryWhereInput } = require('@condo/domains/common/utils/codegen
 
 const { GQLCustomSchema, find } = require('@core/keystone/schema')
 
-
 /**
  * Sums all DONE payments for billingReceipt for <organization> with <accountNumber> and <period>
  * @param context {Object}
@@ -30,7 +29,7 @@ const { GQLCustomSchema, find } = require('@core/keystone/schema')
  * @return {Promise<*>}
  */
 const getPaymentsSum = async (context, organizationId, accountNumber, period, bic, bankAccount) => {
-    const payments = await  find('Payment', {
+    const payments = await find('Payment', {
         organization: { id: organizationId },
         accountNumber: accountNumber,
         period: period,
@@ -38,9 +37,11 @@ const getPaymentsSum = async (context, organizationId, accountNumber, period, bi
         recipientBic: bic,
         recipientBankAccount: bankAccount,
     })
-    return payments.reduce((total, current) => (Big(total).plus(current.amount)), 0).toFixed(8).toString()
+    return payments
+        .reduce((total, current) => Big(total).plus(current.amount), 0)
+        .toFixed(8)
+        .toString()
 }
-
 
 const ALL_RESIDENT_BILLING_RECEIPTS_FIELDS = {
     id: 'ID',
@@ -49,7 +50,6 @@ const ALL_RESIDENT_BILLING_RECEIPTS_FIELDS = {
     printableNumber: 'String',
     serviceConsumer: 'ServiceConsumer',
 }
-
 
 const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResidentBillingReceiptsService', {
     types: [
@@ -66,7 +66,7 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
             type: `type ResidentBillingReceiptOutput { dv: String!, recipient: ${BILLING_RECEIPT_RECIPIENT_FIELD_NAME}!, id: ID!, period: String!, toPay: String!, paid: String!, printableNumber: String, toPayDetails: ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME}, services: ${BILLING_RECEIPT_SERVICES_FIELD}, serviceConsumer: ServiceConsumer! currencyCode: String! }`,
         },
     ],
-    
+
     queries: [
         {
             access: access.canGetAllResidentBillingReceipts,
@@ -78,7 +78,8 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
                 const receiptsWhere = pick(where, ['id', 'period', 'toPay', 'printableNumber'])
 
                 const userId = get(context, ['authedItem', 'id'])
-                if (!userId) { // impossible, but who knows
+                if (!userId) {
+                    // impossible, but who knows
                     throw new Error('Invalid user id!')
                 }
 
@@ -92,46 +93,48 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
                     serviceConsumerWhere.deletedAt = null
                 }
 
-                const serviceConsumers = (await find('ServiceConsumer', serviceConsumerWhere))
-                    .filter(consumer => get(consumer, 'billingAccount'))
+                const serviceConsumers = (await find('ServiceConsumer', serviceConsumerWhere)).filter((consumer) =>
+                    get(consumer, 'billingAccount'),
+                )
                 if (!Array.isArray(serviceConsumers) || !serviceConsumers.length) {
                     return []
                 }
 
                 const processedReceipts = []
                 for (const serviceConsumer of serviceConsumers) {
+                    const receiptsQuery = {
+                        ...receiptsWhere,
+                        ...{ account: { id: serviceConsumer.billingAccount } },
+                        deletedAt: null,
+                    }
+                    const receiptsForConsumer = await BillingReceipt.getAll(context, receiptsQuery, {
+                        sortBy,
+                        first,
+                        skip,
+                    })
 
-                    const receiptsQuery = { ...receiptsWhere, ...{ account: { id: serviceConsumer.billingAccount } }, deletedAt: null }
-                    const receiptsForConsumer = await BillingReceipt.getAll(
-                        context,
-                        receiptsQuery,
-                        {
-                            sortBy, first, skip,
-                        }
+                    receiptsForConsumer.forEach((receipt) =>
+                        processedReceipts.push({
+                            id: receipt.id,
+                            dv: receipt.dv,
+                            recipient: receipt.recipient,
+                            period: receipt.period,
+                            toPay: receipt.toPay,
+                            toPayDetails: receipt.toPayDetails,
+                            services: receipt.services,
+                            printableNumber: receipt.printableNumber,
+                            serviceConsumer: serviceConsumer,
+                            currencyCode: get(receipt, ['context', 'integration', 'currencyCode'], null),
+                        }),
                     )
-
-                    receiptsForConsumer.forEach(receipt => processedReceipts.push({
-                        id: receipt.id,
-                        dv: receipt.dv,
-                        recipient: receipt.recipient,
-                        period: receipt.period,
-                        toPay: receipt.toPay,
-                        toPayDetails: receipt.toPayDetails,
-                        services: receipt.services,
-                        printableNumber: receipt.printableNumber,
-                        serviceConsumer: serviceConsumer,
-                        currencyCode: get(receipt, ['context', 'integration', 'currencyCode'], null),
-                    }))
                 }
-
 
                 const receiptsWithPayments = []
                 for (const processedReceipt of processedReceipts) {
-
                     const organizationId = get(processedReceipt.serviceConsumer, ['organization'])
                     const accountNumber = get(processedReceipt.serviceConsumer, ['accountNumber'])
 
-                    receiptsWithPayments.push(({
+                    receiptsWithPayments.push({
                         ...processedReceipt,
                         paid: await getPaymentsSum(
                             context,
@@ -139,9 +142,9 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
                             accountNumber,
                             get(processedReceipt, 'period', null),
                             get(processedReceipt, ['recipient', 'bic'], null),
-                            get(processedReceipt, ['recipient', 'bankAccount'], null)
+                            get(processedReceipt, ['recipient', 'bankAccount'], null),
                         ),
-                    }))
+                    })
                 }
 
                 return receiptsWithPayments

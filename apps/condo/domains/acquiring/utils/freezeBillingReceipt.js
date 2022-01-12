@@ -9,7 +9,7 @@ const { getById } = require('@core/keystone/schema')
  * @param {Object} flatReceipt BillingReceipt received by "find" from "@core/keystone/schema"
  */
 
-async function freezeBillingReceipt (flatReceipt) {
+async function freezeBillingReceipt(flatReceipt) {
     const account = await getById('BillingAccount', flatReceipt.account)
     const property = await getById('BillingProperty', flatReceipt.property)
     // NOTE: NOT including context because it's not helpful for support, but contains sensitive data, such as state / settings

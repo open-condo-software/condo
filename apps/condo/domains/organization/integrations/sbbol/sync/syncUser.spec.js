@@ -29,7 +29,7 @@ describe('syncUser from SBBOL', () => {
             expect(newUser.name).toBeDefined()
             expect(newUser.id).toBeDefined()
             expect(newUser.phone).toBeDefined()
-            const [ checkUser ] = await UserApi.getAll(adminContext, { id: newUser.id })
+            const [checkUser] = await UserApi.getAll(adminContext, { id: newUser.id })
             expect(checkUser).toBeDefined()
         })
         it('should create onboarding', async () => {
@@ -40,7 +40,7 @@ describe('syncUser from SBBOL', () => {
                 context: adminContext,
             }
             const newUser = await syncUser({ context, userInfo: userData })
-            const [ checkOnboarding ] = await OnBoardingApi.getAll(adminContext, { user: { id: newUser.id } })
+            const [checkOnboarding] = await OnBoardingApi.getAll(adminContext, { user: { id: newUser.id } })
             expect(checkOnboarding).toBeDefined()
         })
     })
@@ -85,7 +85,7 @@ describe('syncUser from SBBOL', () => {
                 listKey: 'User',
                 returnFields: 'id name phone',
             })
-            
+
             const { userData } = MockSbbolResponses.getUserAndOrganizationInfo()
             userData.phone = residentUser.phone
             await syncUser({ context, userInfo: userData })
@@ -95,11 +95,11 @@ describe('syncUser from SBBOL', () => {
                 where: { phone: residentUser.phone },
                 returnFields: 'id type name phone importId importRemoteSystem',
             })
-            
+
             expect(existingUsers).toHaveLength(2)
 
-            const resident = (existingUsers[0].type === 'staff') ? existingUsers[1] : existingUsers[0]
-            const staff = (existingUsers[0].type === 'staff') ? existingUsers[0] : existingUsers[1]
+            const resident = existingUsers[0].type === 'staff' ? existingUsers[1] : existingUsers[0]
+            const staff = existingUsers[0].type === 'staff' ? existingUsers[0] : existingUsers[1]
 
             expect(resident.id).toEqual(residentUser.id)
             expect(staff.id).not.toEqual(residentUser.id)

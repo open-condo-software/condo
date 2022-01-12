@@ -57,18 +57,14 @@ const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = ({ title, user 
         <Space direction={'vertical'} size={8}>
             <Typography.Text type={'secondary'}>{title}</Typography.Text>
             <Space size={4} direction={'vertical'} style={{ fontSize: fontSizes.content }}>
-                {name
-                    ? <Typography.Text >{name}</Typography.Text>
-                    : NotDefinedMessage
-                }
-                {phone
-                    ? (
-                        <Typography.Text>
-                            { PhoneShortMessage} <Typography.Text >{phone}</Typography.Text>
-                        </Typography.Text>
-                    )
-                    : `${PhoneShortMessage} ${PhoneNotDefinedMessage}`
-                }
+                {name ? <Typography.Text>{name}</Typography.Text> : NotDefinedMessage}
+                {phone ? (
+                    <Typography.Text>
+                        {PhoneShortMessage} <Typography.Text>{phone}</Typography.Text>
+                    </Typography.Text>
+                ) : (
+                    `${PhoneShortMessage} ${PhoneNotDefinedMessage}`
+                )}
             </Space>
         </Space>
     )
@@ -97,16 +93,22 @@ const PdfView = () => {
 
     const router = useRouter()
     // NOTE: cast `string | string[]` to `string`
-    const { query: { id } } = router as { query: { [key: string]: string } }
+    const {
+        query: { id },
+    } = router as { query: { [key: string]: string } }
 
-    const { loading, obj: ticket, error } = Ticket.useObject({ where: { id:id, property: { OR: [{ deletedAt_not: null }, { deletedAt: null }] } } })
+    const {
+        loading,
+        obj: ticket,
+        error,
+    } = Ticket.useObject({ where: { id: id, property: { OR: [{ deletedAt_not: null }, { deletedAt: null }] } } })
 
     useEffect(() => {
         if (ticket) {
             // TODO: (savelevmatthew) let user choose format?
             createPdf({ element: containerRef.current, fileName: getTicketPdfName(intl, ticket), format: 'a5' }).catch((e) => {
                 notification.error({
-                    message: intl.formatMessage(({ id: 'errors.PdfGenerationError' })),
+                    message: intl.formatMessage({ id: 'errors.PdfGenerationError' }),
                     description: e.message,
                 })
             })
@@ -116,15 +118,16 @@ const PdfView = () => {
     const TicketTitleMessage = getTicketTitleMessage(intl, ticket)
 
     if (error || loading || !ticket) {
-        return (
-            <LoadingOrErrorPage title={TicketTitleMessage} loading={loading} error={error ? ServerErrorMessage : null}/>
-        )
+        return <LoadingOrErrorPage title={TicketTitleMessage} loading={loading} error={error ? ServerErrorMessage : null} />
     }
 
     const TicketCreationDate = getTicketCreateMessage(intl, ticket)
-    const ticketAddress = get(ticket, ['property', 'address'])
-        + (ticket.sectionName && ticket.floorName ? `, ${SectionName} ${ticket.sectionName}, ${FloorName} ${ticket.floorName}` : '')
-        + (ticket.unitName ? `, ${ShortFlatNumber} ${ticket.unitName}` : '')
+    const ticketAddress =
+        get(ticket, ['property', 'address']) +
+        (ticket.sectionName && ticket.floorName
+            ? `, ${SectionName} ${ticket.sectionName}, ${FloorName} ${ticket.floorName}`
+            : '') +
+        (ticket.unitName ? `, ${ShortFlatNumber} ${ticket.unitName}` : '')
     const isEmergency = get(ticket, 'isEmergency')
     // TODO(zuch): display 3-level classifier here
     return (
@@ -132,46 +135,40 @@ const PdfView = () => {
             <Col span={24}>
                 <Row align={'top'}>
                     <Col span={18}>
-                        <Typography.Title level={1} style={{ margin: '0 0 16px', whiteSpace: 'pre-line' }} >
+                        <Typography.Title level={1} style={{ margin: '0 0 16px', whiteSpace: 'pre-line' }}>
                             {`${TicketTitleMessage}
                                 ${String(getTicketLabel(intl, ticket)).toLowerCase()}`}
                         </Typography.Title>
                         <Typography.Text>
-                            <Typography.Text>{TicketCreationDate}, {TicketAuthorMessage} </Typography.Text>
+                            <Typography.Text>
+                                {TicketCreationDate}, {TicketAuthorMessage}{' '}
+                            </Typography.Text>
                             <Typography.Text ellipsis>{get(ticket, ['createdBy', 'name'])}</Typography.Text>
                         </Typography.Text>
                     </Col>
                     <Col span={6}>
-                        {isEmergency && (<Typography.Title level={2}>{EmergencyMessage.toLowerCase()}</Typography.Title>)}
-                        {ticket.isPaid && (<Typography.Title style={{ marginTop: '0' }} level={2}>{PaidMessage.toLowerCase()}</Typography.Title>)}
+                        {isEmergency && <Typography.Title level={2}>{EmergencyMessage.toLowerCase()}</Typography.Title>}
+                        {ticket.isPaid && (
+                            <Typography.Title style={{ marginTop: '0' }} level={2}>
+                                {PaidMessage.toLowerCase()}
+                            </Typography.Title>
+                        )}
                     </Col>
                 </Row>
             </Col>
             <Col span={24}>
                 <Row>
                     <Col span={6}>
-                        <TicketDescriptionField
-                            title={SourceMessage}
-                            value={get(ticket, ['source', 'name'])}
-                        />
+                        <TicketDescriptionField title={SourceMessage} value={get(ticket, ['source', 'name'])} />
                     </Col>
                     <Col span={6}>
-                        <TicketDescriptionField
-                            title={ClassifierMessage}
-                            value={get(ticket, ['classifier', 'name'])}
-                        />
+                        <TicketDescriptionField title={ClassifierMessage} value={get(ticket, ['classifier', 'name'])} />
                     </Col>
                     <Col span={6}>
-                        <TicketUserInfoField
-                            title={ExecutorMessage}
-                            user={get(ticket, ['executor'])}
-                        />
+                        <TicketUserInfoField title={ExecutorMessage} user={get(ticket, ['executor'])} />
                     </Col>
                     <Col span={6}>
-                        <TicketUserInfoField
-                            title={AssigneeMessage}
-                            user={get(ticket, ['assignee'])}
-                        />
+                        <TicketUserInfoField title={AssigneeMessage} user={get(ticket, ['assignee'])} />
                     </Col>
                 </Row>
             </Col>
@@ -184,10 +181,7 @@ const PdfView = () => {
                         <Col span={24}>
                             <Row gutter={[12, 12]}>
                                 <Col span={12}>
-                                    <TicketDescriptionField
-                                        title={AddressMessage}
-                                        value={ticketAddress}
-                                    />
+                                    <TicketDescriptionField title={AddressMessage} value={ticketAddress} />
                                 </Col>
                                 <Col span={12}>
                                     <TicketUserInfoField
@@ -210,11 +204,9 @@ const PdfView = () => {
                 </Col>
             </FocusContainer>
             <Col span={24}>
-                <Typography.Title level={5}>
-                    {NotesMessage}
-                </Typography.Title>
+                <Typography.Title level={5}>{NotesMessage}</Typography.Title>
             </Col>
-            <Col span={24} id={'pdfLineInput'}/>
+            <Col span={24} id={'pdfLineInput'} />
         </Row>
     )
 }
@@ -223,10 +215,10 @@ const DynamicPdfView = dynamic(() => Promise.resolve(PdfView), {
     ssr: false,
 })
 
-function TicketPdfPage () {
+function TicketPdfPage() {
     return (
         <PageContent>
-            <DynamicPdfView/>
+            <DynamicPdfView />
         </PageContent>
     )
 }

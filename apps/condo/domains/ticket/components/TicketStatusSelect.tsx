@@ -1,10 +1,6 @@
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { Ticket, TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
-import {
-    getTicketFormattedLastStatusUpdate,
-    getTicketLabel,
-    sortStatusesByType,
-} from '@condo/domains/ticket/utils/helpers'
+import { getTicketFormattedLastStatusUpdate, getTicketLabel, sortStatusesByType } from '@condo/domains/ticket/utils/helpers'
 import { useIntl } from '@core/next/intl'
 import styled from '@emotion/styled'
 import { Select, Typography } from 'antd'
@@ -18,17 +14,17 @@ interface IStyledSelect {
 }
 
 const StyledSelect = styled(Select)<IStyledSelect>`
-  width: 100%;
-  font-weight: 700;
-  border-radius: 4px;
-  color: ${({ color }) => color};
-  background-color: ${({ backgroundColor }) => backgroundColor};
+    width: 100%;
+    font-weight: 700;
+    border-radius: 4px;
+    color: ${({ color }) => color};
+    background-color: ${({ backgroundColor }) => backgroundColor};
 
-  &.ant-select-disabled {
-    .ant-select-selection-item {
-      color: ${({ color }) => color};
+    &.ant-select-disabled {
+        .ant-select-selection-item {
+            color: ${({ color }) => color};
+        }
     }
-  }
 `
 
 interface IStyledText {
@@ -36,8 +32,8 @@ interface IStyledText {
 }
 
 const StyledText = styled(Typography.Text)<IStyledText>`
-  color: ${({ color }) => color};
-  padding-top: 8px;
+    color: ${({ color }) => color};
+    padding-top: 8px;
 `
 
 export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, ...props }) => {
@@ -47,21 +43,36 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
     const { statuses, loading } = useStatusTransitions(get(ticket, ['status', 'id']), organization, employee)
     const update = Ticket.useUpdate({}, () => onUpdate())
 
-    const updateTicketStatus = useCallback((variables) => runMutation({
-        action:() => update(variables, ticket),
-        intl,
-    }), [ticket])
+    const updateTicketStatus = useCallback(
+        (variables) =>
+            runMutation({
+                action: () => update(variables, ticket),
+                intl,
+            }),
+        [ticket],
+    )
 
-    const options = useMemo(() => sortStatusesByType(statuses).map((status) => {
-        const { value, label } = TicketStatus.convertGQLItemToFormSelectState(status)
-        const { primary: color } = status.colors
+    const options = useMemo(
+        () =>
+            sortStatusesByType(statuses).map((status) => {
+                const { value, label } = TicketStatus.convertGQLItemToFormSelectState(status)
+                const { primary: color } = status.colors
 
-        return (<Select.Option key={value} value={value} title={label} style={{ color }}>{label}</Select.Option>)
-    }), [statuses, ticket])
+                return (
+                    <Select.Option key={value} value={value} title={label} style={{ color }}>
+                        {label}
+                    </Select.Option>
+                )
+            }),
+        [statuses, ticket],
+    )
 
-    const handleChange = useCallback(({ value }) => {
-        updateTicketStatus({ status: value, statusUpdatedAt: new Date() })
-    }, [ticket])
+    const handleChange = useCallback(
+        ({ value }) => {
+            updateTicketStatus({ status: value, statusUpdatedAt: new Date() })
+        },
+        [ticket],
+    )
 
     const { primary: color, secondary: backgroundColor } = ticket.status.colors
     const selectValue = { value: ticket.status.id, label: getTicketLabel(intl, ticket) }
@@ -82,7 +93,9 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
             >
                 {options}
             </StyledSelect>
-            <StyledText type="warning" color={color}>{FormattedStatusUpdateMessage}</StyledText>
+            <StyledText type="warning" color={color}>
+                {FormattedStatusUpdateMessage}
+            </StyledText>
         </>
     )
 }

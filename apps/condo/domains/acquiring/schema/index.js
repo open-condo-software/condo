@@ -18,5 +18,5 @@ module.exports = {
     MultiPayment,
     Payment,
     RegisterMultiPaymentService,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -23,10 +23,7 @@ export const LayoutContextProvider: React.FC = (props) => {
     const breakpoints = useBreakpoint()
     const [isCollapsed, setIsCollapsed] = useState(false)
 
-    const {
-        TopNotificationComponent,
-        addNotification,
-    } = useTopNotificationsHook()
+    const { TopNotificationComponent, addNotification } = useTopNotificationsHook()
 
     const toggleCollapsed = () => {
         localStorage && localStorage.setItem('isCollapsed', String(!isCollapsed))
@@ -42,16 +39,18 @@ export const LayoutContextProvider: React.FC = (props) => {
     }, [])
 
     return (
-        <LayoutContext.Provider value={{
-            isMobile: detectMobileNavigator(),
-            isSmall,
-            breakpoints,
-            isCollapsed,
-            toggleCollapsed,
-            addNotification,
-        }}>
-            <TopNotificationComponent/>
+        <LayoutContext.Provider
+            value={{
+                isMobile: detectMobileNavigator(),
+                isSmall,
+                breakpoints,
+                isCollapsed,
+                toggleCollapsed,
+                addNotification,
+            }}
+        >
+            <TopNotificationComponent />
             {props.children}
-        </ LayoutContext.Provider>
+        </LayoutContext.Provider>
     )
 }

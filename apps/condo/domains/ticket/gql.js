@@ -8,9 +8,11 @@ const { gql } = require('graphql-tag')
 const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
 const { generateGqlQueries } = require('@condo/domains/common/utils/codegeneration/generate.gql')
 
-const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
+const COMMON_FIELDS =
+    'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const THREE_LVL_CLASSIFIER_FIELDS = 'placeClassifier { id name } categoryClassifier { id name } problemClassifier { id name } classifierRule { id }'
+const THREE_LVL_CLASSIFIER_FIELDS =
+    'placeClassifier { id name } categoryClassifier { id name } problemClassifier { id name } classifierRule { id }'
 const TICKET_FIELDS = `{ organization { id name } property { id name address deletedAt addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } unitName sectionName floorName status { id name type organization { id } colors { primary secondary additional } } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone contact { id name } operator { id name } assignee { id name } executor { id name } watchers { id name } classifier { id name } ${THREE_LVL_CLASSIFIER_FIELDS} details related { id details } isEmergency isPaid meta source { id name type } sourceMeta ${COMMON_FIELDS} }`
 const Ticket = generateGqlQueries('Ticket', TICKET_FIELDS)
 
@@ -22,7 +24,9 @@ const TICKET_CLASSIFIER_FIELDS = `{ organization { id } parent { id name parent 
 const TicketClassifier = generateGqlQueries('TicketClassifier', TICKET_CLASSIFIER_FIELDS)
 const SHARE_TICKET_MUTATION = gql`
     mutation shareTicket($data: ShareTicketInput!) {
-        obj: shareTicket(data: $data) { status }
+        obj: shareTicket(data: $data) {
+            status
+        }
     }
 `
 /*
@@ -121,20 +125,38 @@ const TICKET_CHANGE_DATA_FIELDS = [
     'watchersDisplayNamesFrom',
     'watchersDisplayNamesTo',
 ]
-const TICKET_CHANGE_FIELDS = `{ ticket { id property { address } } id dv sender { dv fingerprint } v createdBy { id name } updatedBy { id name } createdAt updatedAt ${TICKET_CHANGE_DATA_FIELDS.join(' ')} }`
+const TICKET_CHANGE_FIELDS = `{ ticket { id property { address } } id dv sender { dv fingerprint } v createdBy { id name } updatedBy { id name } createdAt updatedAt ${TICKET_CHANGE_DATA_FIELDS.join(
+    ' ',
+)} }`
 const TicketChange = generateGqlQueries('TicketChange', TICKET_CHANGE_FIELDS)
 const TICKET_FILE_FIELDS = `{ id file { id originalFilename publicUrl mimetype } organization { id } ticket { id } ${COMMON_FIELDS} }`
 const TicketFile = generateGqlQueries('TicketFile', TICKET_FILE_FIELDS)
 const TICKET_COMMENT_FIELDS = `{ ticket { id } user { id name } content ${COMMON_FIELDS} }`
 const TicketComment = generateGqlQueries('TicketComment', TICKET_COMMENT_FIELDS)
 const TICKET_ANALYTICS_REPORT_QUERY = gql`
-    query ticketAnalyticsReport ($data: TicketAnalyticsReportInput!) {
-        result: ticketAnalyticsReport(data: $data) { groups { count status property dayGroup categoryClassifier executor assignee } ticketLabels { color label } }
+    query ticketAnalyticsReport($data: TicketAnalyticsReportInput!) {
+        result: ticketAnalyticsReport(data: $data) {
+            groups {
+                count
+                status
+                property
+                dayGroup
+                categoryClassifier
+                executor
+                assignee
+            }
+            ticketLabels {
+                color
+                label
+            }
+        }
     }
 `
 const EXPORT_TICKET_ANALYTICS_TO_EXCEL = gql`
-    query exportTicketAnalyticsToExcel ($data: ExportTicketAnalyticsToExcelInput!) {
-        result: exportTicketAnalyticsToExcel(data: $data) { link }
+    query exportTicketAnalyticsToExcel($data: ExportTicketAnalyticsToExcelInput!) {
+        result: exportTicketAnalyticsToExcel(data: $data) {
+            link
+        }
     }
 `
 
@@ -154,14 +176,24 @@ const TICKET_CLASSIFIER_RULE_FIELDS = `{ place { id name } category { id name } 
 const TicketClassifierRule = generateGqlQueries('TicketClassifierRule', TICKET_CLASSIFIER_RULE_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
-const EXPORT_TICKETS_TO_EXCEL =  gql`
-    query exportTicketsToExcel ($data: ExportTicketsToExcelInput!) {
-        result: exportTicketsToExcel(data: $data) { status, linkToFile }
+const EXPORT_TICKETS_TO_EXCEL = gql`
+    query exportTicketsToExcel($data: ExportTicketsToExcelInput!) {
+        result: exportTicketsToExcel(data: $data) {
+            status
+            linkToFile
+        }
     }
 `
 const GET_TICKET_WIDGET_REPORT_DATA = gql`
-    query getWidgetData ($data: TicketReportWidgetInput!) {
-        result: ticketReportWidgetData(data: $data) { data { statusName, currentValue, growth, statusType } }
+    query getWidgetData($data: TicketReportWidgetInput!) {
+        result: ticketReportWidgetData(data: $data) {
+            data {
+                statusName
+                currentValue
+                growth
+                statusType
+            }
+        }
     }
 `
 module.exports = {
@@ -184,5 +216,5 @@ module.exports = {
     TicketClassifierRule,
     RESIDENT_TICKET_FIELDS,
     EXPORT_TICKET_ANALYTICS_TO_EXCEL,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

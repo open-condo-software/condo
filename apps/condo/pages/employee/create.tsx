@@ -17,7 +17,7 @@ interface IPageWithHeaderAction extends React.FC {
 const CreateEmployeePage: IPageWithHeaderAction = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'employee.AddEmployee' })
-        
+
     return (
         <>
             <Head>
@@ -28,7 +28,9 @@ const CreateEmployeePage: IPageWithHeaderAction = () => {
                     <PageContent>
                         <Row gutter={[12, 40]}>
                             <Col span={24}>
-                                <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
+                                <Typography.Title level={1} style={{ margin: 0 }}>
+                                    {PageTitleMsg}
+                                </Typography.Title>
                             </Col>
                             <Col lg={17} xs={24}>
                                 <CreateEmployeeForm />
@@ -42,10 +44,7 @@ const CreateEmployeePage: IPageWithHeaderAction = () => {
 }
 
 CreateEmployeePage.headerAction = (
-    <ReturnBackHeaderAction
-        descriptor={{ id: 'pages.condo.employee.PageTitle' }}
-        path={'/employee/'}
-    />
+    <ReturnBackHeaderAction descriptor={{ id: 'pages.condo.employee.PageTitle' }} path={'/employee/'} />
 )
 CreateEmployeePage.requiredAccess = OrganizationRequired
 

@@ -19,7 +19,7 @@ const AcquiringIntegrationAccessRight = generateServerUtils(AcquiringIntegration
 const AcquiringIntegrationContext = generateServerUtils(AcquiringIntegrationContextGQL)
 const MultiPayment = generateServerUtils(MultiPaymentGQL)
 const Payment = generateServerUtils(PaymentGQL)
-async function registerMultiPayment (context, data) {
+async function registerMultiPayment(context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
@@ -41,5 +41,5 @@ module.exports = {
     MultiPayment,
     Payment,
     registerMultiPayment,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

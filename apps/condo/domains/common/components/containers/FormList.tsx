@@ -1,18 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import {
-    Dropdown,
-    Form,
-    FormInstance,
-    Input,
-    List,
-    Menu,
-    Modal,
-    ModalProps,
-    Popconfirm,
-    Skeleton,
-    Typography,
-} from 'antd'
+import { Dropdown, Form, FormInstance, Input, List, Menu, Modal, ModalProps, Popconfirm, Skeleton, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import { DownOutlined, PlusOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
@@ -26,7 +14,7 @@ const identity = (x) => !!x
 const NON_FIELD_ERROR_NAME = '_NON_FIELD_ERROR_'
 
 class ValidationError extends Error {
-    constructor (message, field = NON_FIELD_ERROR_NAME) {
+    constructor(message, field = NON_FIELD_ERROR_NAME) {
         super(message)
         this.name = 'ValidationError'
         this.field = field
@@ -34,115 +22,114 @@ class ValidationError extends Error {
 }
 
 const SListItemForm = styled(Form)`
-  width: 100%;
-  display: flex;
-  flex-flow: row wrap;
-  justify-content: center;
-  align-items: stretch;
-  align-content: stretch;
+    width: 100%;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    align-items: stretch;
+    align-content: stretch;
 `
 
 const SListItem = styled(List.Item)`
-  padding: 0 !important;
+    padding: 0 !important;
 `
 
 const SListItemMeta = styled(List.Item.Meta)`
-  flex: 1 0 55%;
-  margin: 16px 24px;
+    flex: 1 0 55%;
+    margin: 16px 24px;
 `
 
 const SListItemExtra = styled.div`
-  flex: none;
-  margin: 16px 24px;
+    flex: none;
+    margin: 16px 24px;
 
-  & ul:first-child {
-    margin-top: 0;
-  }
+    & ul:first-child {
+        margin-top: 0;
+    }
 `
 
 const SSkeleton = styled(Skeleton)`
-  margin: 16px 24px;
+    margin: 16px 24px;
 `
 
 const SListActionsUl = styled.ul`
-  margin: 10px 10px 0;
-  text-align: center;
+    margin: 10px 10px 0;
+    text-align: center;
 
-  > li {
-    margin: 0;
-  }
+    > li {
+        margin: 0;
+    }
 `
 
-function FormList ({ dataSource, renderItem, ...extra }) {
+function FormList({ dataSource, renderItem, ...extra }) {
     if (!renderItem) throw new Error('renderItem prop is required')
 
-    return <List
-        size="large"
-        itemLayout={'horizontal'}
-        dataSource={dataSource}
-        renderItem={renderItemWrapper}
-        {...extra}
-    />
+    return <List size="large" itemLayout={'horizontal'} dataSource={dataSource} renderItem={renderItemWrapper} {...extra} />
 
-    function renderItemWrapper (item) {
+    function renderItemWrapper(item) {
         const itemData = renderItem(item)
         const itemMeta = { key: item.id, ...(itemData.itemMeta || {}) }
         const formMeta = { layout: 'inline', ...(itemData.formMeta || {}) }
         const mainBlockMeta = { key: `m${item.id}`, ...(itemData.mainBlockMeta || {}) }
         const extraBlockMeta = { key: `e${item.id}`, ...(itemData.extraBlockMeta || {}) }
-        return <SListItem {...itemMeta}>
-            <SListItemForm {...formMeta}>
-                <SSkeleton loading={item.loading} active>
-                    <SListItemMeta
-                        avatar={itemData.avatar}
-                        title={itemData.title}
-                        description={itemData.description}
-                        {...mainBlockMeta} />
-                    <SListItemExtra {...extraBlockMeta}>
-                        {(itemData.actions && Array.isArray(itemData.actions)) ?
-                            itemData.actions
-                                .map((actionsLine, i) => {
-                                    if (!actionsLine) return null
-                                    if (!Array.isArray(actionsLine)) throw new Error('renderItem() => itemData.actions should be array of arrays')
-                                    const cleanedActionsLine = actionsLine.filter(identity)
-                                    const length = cleanedActionsLine.length
-                                    if (length === 0) return null
-                                    return <SListActionsUl key={i} className='ant-list-item-action'>
-                                        {cleanedActionsLine
-                                            .map((action, j) => {
-                                                if (!action) return null
-                                                return <li key={j} className='ant-list-item-action'>
-                                                    {action}
-                                                    {j !== length - 1 && <em className='ant-list-item-action-split' />}
-                                                </li>
-                                            })
-                                        }
-                                    </SListActionsUl>
-                                })
-                                .filter(identity)
-                            : itemData.actions}
-                    </SListItemExtra>
-                </SSkeleton>
-            </SListItemForm>
-        </SListItem>
+        return (
+            <SListItem {...itemMeta}>
+                <SListItemForm {...formMeta}>
+                    <SSkeleton loading={item.loading} active>
+                        <SListItemMeta
+                            avatar={itemData.avatar}
+                            title={itemData.title}
+                            description={itemData.description}
+                            {...mainBlockMeta}
+                        />
+                        <SListItemExtra {...extraBlockMeta}>
+                            {itemData.actions && Array.isArray(itemData.actions)
+                                ? itemData.actions
+                                      .map((actionsLine, i) => {
+                                          if (!actionsLine) return null
+                                          if (!Array.isArray(actionsLine))
+                                              throw new Error('renderItem() => itemData.actions should be array of arrays')
+                                          const cleanedActionsLine = actionsLine.filter(identity)
+                                          const length = cleanedActionsLine.length
+                                          if (length === 0) return null
+                                          return (
+                                              <SListActionsUl key={i} className="ant-list-item-action">
+                                                  {cleanedActionsLine.map((action, j) => {
+                                                      if (!action) return null
+                                                      return (
+                                                          <li key={j} className="ant-list-item-action">
+                                                              {action}
+                                                              {j !== length - 1 && <em className="ant-list-item-action-split" />}
+                                                          </li>
+                                                      )
+                                                  })}
+                                              </SListActionsUl>
+                                          )
+                                      })
+                                      .filter(identity)
+                                : itemData.actions}
+                        </SListItemExtra>
+                    </SSkeleton>
+                </SListItemForm>
+            </SListItem>
+        )
     }
 }
 
-function CreateFormListItemButton ({ label, ...extra }) {
-    return <Button
-        type="dashed"
-        style={{ width: '100%' }}
-        {...extra}
-    >
-        <PlusOutlined />{label}
-    </Button>
+function CreateFormListItemButton({ label, ...extra }) {
+    return (
+        <Button type="dashed" style={{ width: '100%' }} {...extra}>
+            <PlusOutlined />
+            {label}
+        </Button>
+    )
 }
 
-function ExtraDropdownActionsMenu ({ actions }) {
+function ExtraDropdownActionsMenu({ actions }) {
     const actionsLine = actions.filter(identity)
     const [popConfirmProps, setPopConfirmProps] = useState({ visible: false, title: null, icon: null })
 
-    function handleAction ({ key }) {
+    function handleAction({ key }) {
         const action = actionsLine[key]
         if (action.confirm) {
             setPopConfirmProps({
@@ -157,39 +144,48 @@ function ExtraDropdownActionsMenu ({ actions }) {
         }
     }
 
-    return <Popconfirm {...popConfirmProps}>
-        <Dropdown overlay={<Menu onClick={handleAction}>
-            {actionsLine.map((action, i) => <Menu.Item key={i}>{action.label}</Menu.Item>)}
-        </Menu>}>
-            <a> ... <DownOutlined /></a>
-        </Dropdown>
-    </Popconfirm>
+    return (
+        <Popconfirm {...popConfirmProps}>
+            <Dropdown
+                overlay={
+                    <Menu onClick={handleAction}>
+                        {actionsLine.map((action, i) => (
+                            <Menu.Item key={i}>{action.label}</Menu.Item>
+                        ))}
+                    </Menu>
+                }
+            >
+                <a>
+                    {' '}
+                    ... <DownOutlined />
+                </a>
+            </Dropdown>
+        </Popconfirm>
+    )
 }
 
-function ExpandableDescription ({ children }) {
+function ExpandableDescription({ children }) {
     const intl = useIntl()
     const ReadMoreMsg = intl.formatMessage({ id: 'ReadMore' })
 
-    return <Typography.Paragraph ellipsis={{ rows: 3, expandable: true, symbol: ReadMoreMsg }}>
-        {children}
-    </Typography.Paragraph>
+    return <Typography.Paragraph ellipsis={{ rows: 3, expandable: true, symbol: ReadMoreMsg }}>{children}</Typography.Paragraph>
 }
 
-function useCreateAndEditModalForm () {
+function useCreateAndEditModalForm() {
     const [visible, setIsModalVisible] = useState(false)
     const [editableItem, setModalObject] = useState(null)
 
-    function openCreateModal () {
+    function openCreateModal() {
         setIsModalVisible(true)
         setModalObject(null)
     }
 
-    function openEditModal (item) {
+    function openEditModal(item) {
         setIsModalVisible(true)
         setModalObject(item)
     }
 
-    function cancelModal () {
+    function cancelModal() {
         setIsModalVisible(false)
         setModalObject(null)
     }
@@ -200,10 +196,10 @@ function useCreateAndEditModalForm () {
 type IFormValuesType = Record<string, string | number | { id: string } | { disconnectId: string }>
 
 type IFormWithActionChildrenArgs = {
-    handleSave: () => void,
-    isLoading: boolean,
-    form: FormInstance,
-    handleSubmit?: (values: any) => void,
+    handleSave: () => void
+    isLoading: boolean
+    form: FormInstance
+    handleSubmit?: (values: any) => void
 }
 
 export type IFormWithActionChildren = (args: IFormWithActionChildrenArgs) => JSX.Element
@@ -212,7 +208,7 @@ export type IFormWithActionChildren = (args: IFormWithActionChildrenArgs) => JSX
 interface IFormWithAction<TRecordFormState, TRecordUIState> {
     action?: (formValues) => Promise<TRecordUIState>
     mutation?: Document.Node
-    initialValues?: TRecordFormState,
+    initialValues?: TRecordFormState
     onChange?: (changedValues: Record<string, unknown>, allValues: Record<string, unknown>) => void
     handleSubmit?: (values) => void
     validateTrigger?: string | string[]
@@ -220,17 +216,20 @@ interface IFormWithAction<TRecordFormState, TRecordUIState> {
     layout?: 'vertical' | 'horizontal'
     colon?: boolean
     formValuesToMutationDataPreprocessor?: (values: IFormValuesType) => IFormValuesType
-    ErrorToFormFieldMsgMapping?: Record<string, {
-        name: string
-        errors: string[]
-    }>
+    ErrorToFormFieldMsgMapping?: Record<
+        string,
+        {
+            name: string
+            errors: string[]
+        }
+    >
     mutationExtraVariables?: Record<string, unknown>
     mutationExtraData?: Record<string, unknown>
     formValuesToMutationDataPreprocessorContext?: Record<string, unknown>
     OnErrorMsg?: string
     OnCompletedMsg?: string
-    onMutationCompleted?: (result) => void,
-    style?: CSSProperties,
+    onMutationCompleted?: (result) => void
+    style?: CSSProperties
     children: IFormWithActionChildren
 }
 
@@ -266,68 +265,73 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
     let create = null
 
     if (!action && mutation) {
-        [create] = useMutation(mutation) // eslint-disable-line react-hooks/rules-of-hooks
+        ;[create] = useMutation(mutation) // eslint-disable-line react-hooks/rules-of-hooks
     }
 
-    const _handleSubmit = useCallback((values) => {
-        if (handleSubmit) {
-            return handleSubmit(values)
-        }
-        if (values.hasOwnProperty(NON_FIELD_ERROR_NAME)) delete values[NON_FIELD_ERROR_NAME]
-        let data
-        try {
-            data = (formValuesToMutationDataPreprocessor) ? formValuesToMutationDataPreprocessor(values, formValuesToMutationDataPreprocessorContext, form) : values
-        } catch (err) {
-            if (err instanceof ValidationError) {
-                let errors = []
-                if (ErrorToFormFieldMsgMapping) {
-                    const errorString = `${err}`
-                    Object.keys(ErrorToFormFieldMsgMapping).forEach((msg) => {
-                        if (errorString.includes(msg)) {
-                            errors.push(ErrorToFormFieldMsgMapping[msg])
-                        }
-                    })
-                }
-                if (errors.length === 0) {
-                    errors = [{ name: err.field || NON_FIELD_ERROR_NAME, errors: [String(err.message)] }]
-                }
-                form.setFields(errors)
-                return
-            } else {
-                form.setFields([{ name: NON_FIELD_ERROR_NAME, errors: [ClientSideErrorMsg] }])
-                throw err  // unknown error, rethrow it (**)
+    const _handleSubmit = useCallback(
+        (values) => {
+            if (handleSubmit) {
+                return handleSubmit(values)
             }
-        }
-        form.setFields([{ name: NON_FIELD_ERROR_NAME, errors: [] }])
-        setIsLoading(true)
-
-        const actionOrMutationProps = !action
-            ? { mutation: create, variables: { data: { ...data, ...mutationExtraData }, ...mutationExtraVariables } }
-            : { action: () => action({ ...data }) }
-
-        return runMutation({
-            ...actionOrMutationProps,
-            onCompleted: (...args) => {
-                if (onMutationCompleted) {
-                    onMutationCompleted(...args)
+            if (values.hasOwnProperty(NON_FIELD_ERROR_NAME)) delete values[NON_FIELD_ERROR_NAME]
+            let data
+            try {
+                data = formValuesToMutationDataPreprocessor
+                    ? formValuesToMutationDataPreprocessor(values, formValuesToMutationDataPreprocessorContext, form)
+                    : values
+            } catch (err) {
+                if (err instanceof ValidationError) {
+                    let errors = []
+                    if (ErrorToFormFieldMsgMapping) {
+                        const errorString = `${err}`
+                        Object.keys(ErrorToFormFieldMsgMapping).forEach((msg) => {
+                            if (errorString.includes(msg)) {
+                                errors.push(ErrorToFormFieldMsgMapping[msg])
+                            }
+                        })
+                    }
+                    if (errors.length === 0) {
+                        errors = [{ name: err.field || NON_FIELD_ERROR_NAME, errors: [String(err.message)] }]
+                    }
+                    form.setFields(errors)
+                    return
+                } else {
+                    form.setFields([{ name: NON_FIELD_ERROR_NAME, errors: [ClientSideErrorMsg] }])
+                    throw err // unknown error, rethrow it (**)
                 }
-                if (resetOnComplete) {
-                    form.resetFields()
-                }
-            },
-            onFinally: () => {
-                setIsLoading(false)
-            },
-            intl,
-            form,
-            ErrorToFormFieldMsgMapping,
-            OnErrorMsg,
-            OnCompletedMsg,
-        })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [action])
+            }
+            form.setFields([{ name: NON_FIELD_ERROR_NAME, errors: [] }])
+            setIsLoading(true)
 
-    function handleSave () {
+            const actionOrMutationProps = !action
+                ? { mutation: create, variables: { data: { ...data, ...mutationExtraData }, ...mutationExtraVariables } }
+                : { action: () => action({ ...data }) }
+
+            return runMutation({
+                ...actionOrMutationProps,
+                onCompleted: (...args) => {
+                    if (onMutationCompleted) {
+                        onMutationCompleted(...args)
+                    }
+                    if (resetOnComplete) {
+                        form.resetFields()
+                    }
+                },
+                onFinally: () => {
+                    setIsLoading(false)
+                },
+                intl,
+                form,
+                ErrorToFormFieldMsgMapping,
+                OnErrorMsg,
+                OnCompletedMsg,
+            })
+            // eslint-disable-next-line react-hooks/exhaustive-deps
+        },
+        [action],
+    )
+
+    function handleSave() {
         // TODO(zuch) Possible bug: If user press save button and form not touched he will stay on edit screen with no response from system
         // if (form.isFieldsTouched()) {
         form.submit()
@@ -337,13 +341,13 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
     const errors = {}
 
     const throttledValidateFields = throttle((field) => {
-        const item = form.getFieldsError().find(item => item.name[0] === field)
+        const item = form.getFieldsError().find((item) => item.name[0] === field)
 
         errors[field] = errors[field] || Boolean(item && item.errors.length)
         errors[field] && form.validateFields([field])
     }, 400)
 
-    async function handleChange (changedValues, allValues) {
+    async function handleChange(changedValues, allValues) {
         const field = Object.keys(changedValues)[0]
         throttledValidateFields(field)
 
@@ -362,7 +366,9 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
             scrollToFirstError
             style={style}
         >
-            <Form.Item className='ant-non-field-error' name={NON_FIELD_ERROR_NAME}><Input /></Form.Item>
+            <Form.Item className="ant-non-field-error" name={NON_FIELD_ERROR_NAME}>
+                <Input />
+            </Form.Item>
             {children({ handleSave, isLoading, handleSubmit: _handleSubmit, form })}
         </Form>
     )
@@ -399,44 +405,43 @@ const BaseModalForm: React.FC<IBaseModalFormProps> = ({
     const handleSaveRef = useRef(null)
     const Buttons = []
     if (showCancelButton) {
-        Buttons.push((<Button key="cancel" type="sberPrimary" secondary onClick={cancelModal}>{CancelMessage}</Button>))
-    }
-    return (<Modal
-        title={ModalTitleMsg}
-        visible={visible}
-        onCancel={cancelModal}
-        footer={[
-            ...modalExtraFooter,
-            ...Buttons,
-            <Button
-                key="submit"
-                onClick={() => {
-                    handleSaveRef.current()
-                }}
-                type="sberPrimary"
-                {...submitButtonProps}
-            >
-                {SaveMessage}
+        Buttons.push(
+            <Button key="cancel" type="sberPrimary" secondary onClick={cancelModal}>
+                {CancelMessage}
             </Button>,
-        ]}
-        centered
-        {...modalProps}
-    >
-        <FormWithAction {...props}>
-            {
-                ({ handleSave, form }) => {
+        )
+    }
+    return (
+        <Modal
+            title={ModalTitleMsg}
+            visible={visible}
+            onCancel={cancelModal}
+            footer={[
+                ...modalExtraFooter,
+                ...Buttons,
+                <Button
+                    key="submit"
+                    onClick={() => {
+                        handleSaveRef.current()
+                    }}
+                    type="sberPrimary"
+                    {...submitButtonProps}
+                >
+                    {SaveMessage}
+                </Button>,
+            ]}
+            centered
+            {...modalProps}
+        >
+            <FormWithAction {...props}>
+                {({ handleSave, form }) => {
                     handleSaveRef.current = handleSave
-                    return (
-                        <>
-                            {typeof children === 'function' ? children(form) : children}
-                        </>
-                    )
-                }
-            }
-        </FormWithAction>
-    </Modal>)
+                    return <>{typeof children === 'function' ? children(form) : children}</>
+                }}
+            </FormWithAction>
+        </Modal>
+    )
 }
-
 
 export {
     ValidationError,

@@ -12,7 +12,7 @@ const {
 } = require('@condo/domains/common/constants/errors')
 const { DV_FIELD_NAME, SENDER_FIELD_NAME } = require('@condo/domains/common/constants/utils')
 
-function hasDbFields (databaseRequired, resolvedData, existingItem = {}, context, addFieldValidationError) {
+function hasDbFields(databaseRequired, resolvedData, existingItem = {}, context, addFieldValidationError) {
     if (isUndefined(resolvedData)) throw new Error('unexpected undefined resolvedData arg')
 
     let hasAllFields = true
@@ -40,7 +40,7 @@ const JSON_STRUCTURE_FIELDS_CONSTRAINTS = {
     },
 }
 
-function hasDvAndSenderFields (resolvedData, context, addFieldValidationError) {
+function hasDvAndSenderFields(resolvedData, context, addFieldValidationError) {
     let hasDvField = true
     let hasSenderField = true
 
@@ -74,7 +74,7 @@ function hasDvAndSenderFields (resolvedData, context, addFieldValidationError) {
                     },
                     true,
                     1,
-                    JSON_STRUCTURE_FIELDS_CONSTRAINTS
+                    JSON_STRUCTURE_FIELDS_CONSTRAINTS,
                 )
 
                 if (isJsonStructureValid) {
@@ -96,7 +96,7 @@ function hasDvAndSenderFields (resolvedData, context, addFieldValidationError) {
     return hasDvField && hasSenderField
 }
 
-function hasOneOfFields (requestRequired, resolvedData, existingItem = {}, addFieldValidationError) {
+function hasOneOfFields(requestRequired, resolvedData, existingItem = {}, addFieldValidationError) {
     let hasOneField = false
 
     if (isUndefined(resolvedData)) throw new Error('unexpected undefined resolvedData arg')
@@ -116,7 +116,7 @@ function hasOneOfFields (requestRequired, resolvedData, existingItem = {}, addFi
     return hasOneField
 }
 
-function hasValidJsonStructure (args, isRequired, dataVersion, fieldsConstraints) {
+function hasValidJsonStructure(args, isRequired, dataVersion, fieldsConstraints) {
     const { resolvedData, fieldPath, addFieldValidationError } = args
 
     if (isRequired && !resolvedData.hasOwnProperty(fieldPath)) {

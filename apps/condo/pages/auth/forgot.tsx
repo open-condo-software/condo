@@ -56,7 +56,7 @@ const ResetPage: AuthPage = () => {
     }
 
     if (isLoading) {
-        return <LoadingOrErrorPage title={ResetTitle} loading={isLoading} error={null}/>
+        return <LoadingOrErrorPage title={ResetTitle} loading={isLoading} error={null} />
     }
     if (isSuccessMessage) {
         return (
@@ -66,12 +66,17 @@ const ResetPage: AuthPage = () => {
                 </Col>
                 <Col span={24}>
                     <Typography.Paragraph>
-                        <FormattedMessage id='pages.auth.reset.ResetSuccessMessage' values={{ phone: form.getFieldValue('phone') }} />
+                        <FormattedMessage
+                            id="pages.auth.reset.ResetSuccessMessage"
+                            values={{ phone: form.getFieldValue('phone') }}
+                        />
                     </Typography.Paragraph>
                 </Col>
                 <Col span={24}>
                     <Typography.Paragraph>
-                        <a style={LINK_STYLE} onClick={() => Router.push('/auth/signin')}>{ReturnToLoginPage}</a>
+                        <a style={LINK_STYLE} onClick={() => Router.push('/auth/signin')}>
+                            {ReturnToLoginPage}
+                        </a>
                     </Typography.Paragraph>
                 </Col>
             </Row>
@@ -94,7 +99,7 @@ const ResetPage: AuthPage = () => {
             intl,
             form,
             ErrorToFormFieldMsgMapping,
-        }).catch(err => {
+        }).catch((err) => {
             console.error(err)
             setIsLoading(false)
         })
@@ -112,20 +117,16 @@ const ResetPage: AuthPage = () => {
                 <Form
                     {...FORM_LAYOUT}
                     form={form}
-                    name='forgot-password'
+                    name="forgot-password"
                     validateTrigger={['onBlur', 'onSubmit']}
                     initialValues={initialValues}
                     colon={false}
-                    labelAlign='left'
+                    labelAlign="left"
                     requiredMark={false}
                 >
                     <Row gutter={[0, 60]}>
                         <Col span={24}>
-                            <Form.Item
-                                name='phone'
-                                label={PhoneMsg}
-                                rules={validations.phone}
-                            >
+                            <Form.Item name="phone" label={PhoneMsg} rules={validations.phone}>
                                 <PhoneInput placeholder={ExamplePhoneMsg} />
                             </Form.Item>
                         </Col>
@@ -137,16 +138,18 @@ const ResetPage: AuthPage = () => {
                                         return (
                                             <Button
                                                 onClick={() => {
-                                                    form.validateFields().then(() => {
-                                                        runAction()
-                                                    }).catch(_ => {
-                                                        // validation check failed - don't invoke runAction
-                                                    })
+                                                    form.validateFields()
+                                                        .then(() => {
+                                                            runAction()
+                                                        })
+                                                        .catch((_) => {
+                                                            // validation check failed - don't invoke runAction
+                                                        })
                                                 }}
                                                 type={isCountDownActive ? 'sberGrey' : 'sberPrimary'}
                                                 disabled={isCountDownActive}
                                                 loading={isLoading}
-                                                htmlType='submit'
+                                                htmlType="submit"
                                             >
                                                 {isCountDownActive ? `${RestorePasswordMsg} ${countdown}` : RestorePasswordMsg}
                                             </Button>
@@ -162,7 +165,7 @@ const ResetPage: AuthPage = () => {
     )
 }
 
-ResetPage.headerAction = <ButtonHeaderAction descriptor={{ id: 'pages.auth.Register' }} path={'/auth/register'}/>
+ResetPage.headerAction = <ButtonHeaderAction descriptor={{ id: 'pages.auth.Register' }} path={'/auth/register'} />
 
 ResetPage.container = AuthLayout
 

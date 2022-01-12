@@ -3,10 +3,14 @@
 const has = require('lodash/has')
 const { v4: uuid } = require('uuid')
 
-const CLASSIFIER_PLACE_TEMPLATE = 'INSERT INTO public."TicketPlaceClassifier" (dv, sender, "name", id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", organization,  "updatedBy") VALUES (1, \'{"dv": 1, "fingerprint": "initial_import"}\', \'{name}\', \'{uuid}\', 1, \'2021-07-22 00:00:00.000000\', \'2021-07-22 00:00:00.000000\', null, null, null, null, null);'
-const CLASSIFIER_CATEGORY_TEMPLATE = 'INSERT INTO public."TicketCategoryClassifier" (dv, sender, "name", id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", organization,  "updatedBy") VALUES (1, \'{"dv": 1, "fingerprint": "initial_import"}\', \'{name}\', \'{uuid}\', 1, \'2021-07-22 00:00:00.000000\', \'2021-07-22 00:00:00.000000\', null, null, null, null, null);'
-const CLASSIFIER_PROBLEM_TEMPLATE = 'INSERT INTO public."TicketProblemClassifier" (dv, sender, "name", id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", organization,  "updatedBy") VALUES (1, \'{"dv": 1, "fingerprint": "initial_import"}\', \'{name}\', \'{uuid}\', 1, \'2021-07-22 00:00:00.000000\', \'2021-07-22 00:00:00.000000\', null, null, null, null, null);'
-const CLASSIFIER_RULE_TEMPLATE = 'INSERT INTO public."TicketClassifierRule" ("dv", "sender", "id", "v", "createdAt", "updatedAt", "deletedAt", "newId", "category", "createdBy", "place", "problem", "updatedBy") VALUES (1, \'{"dv": 1, "fingerprint": "initial_import"}\', \'{uuid}\', 1, \'2021-07-22 00:00:00.000000\', \'2021-07-22 00:00:00.000000\', null, null, \'{category}\', null, \'{place}\', {problem}, null);'
+const CLASSIFIER_PLACE_TEMPLATE =
+    'INSERT INTO public."TicketPlaceClassifier" (dv, sender, "name", id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", organization,  "updatedBy") VALUES (1, \'{"dv": 1, "fingerprint": "initial_import"}\', \'{name}\', \'{uuid}\', 1, \'2021-07-22 00:00:00.000000\', \'2021-07-22 00:00:00.000000\', null, null, null, null, null);'
+const CLASSIFIER_CATEGORY_TEMPLATE =
+    'INSERT INTO public."TicketCategoryClassifier" (dv, sender, "name", id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", organization,  "updatedBy") VALUES (1, \'{"dv": 1, "fingerprint": "initial_import"}\', \'{name}\', \'{uuid}\', 1, \'2021-07-22 00:00:00.000000\', \'2021-07-22 00:00:00.000000\', null, null, null, null, null);'
+const CLASSIFIER_PROBLEM_TEMPLATE =
+    'INSERT INTO public."TicketProblemClassifier" (dv, sender, "name", id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", organization,  "updatedBy") VALUES (1, \'{"dv": 1, "fingerprint": "initial_import"}\', \'{name}\', \'{uuid}\', 1, \'2021-07-22 00:00:00.000000\', \'2021-07-22 00:00:00.000000\', null, null, null, null, null);'
+const CLASSIFIER_RULE_TEMPLATE =
+    'INSERT INTO public."TicketClassifierRule" ("dv", "sender", "id", "v", "createdAt", "updatedAt", "deletedAt", "newId", "category", "createdBy", "place", "problem", "updatedBy") VALUES (1, \'{"dv": 1, "fingerprint": "initial_import"}\', \'{uuid}\', 1, \'2021-07-22 00:00:00.000000\', \'2021-07-22 00:00:00.000000\', null, null, \'{category}\', null, \'{place}\', {problem}, null);'
 
 // Example:
 // Чердаки, подвалы;Доступ;Ограничение доступа
@@ -21,7 +25,6 @@ const CLASSIFIER_RULE_TEMPLATE = 'INSERT INTO public."TicketClassifierRule" ("dv
 // relations (2): place + category + problem (+ null)
 // Чердаки, подвалы => Доступ => Ограничение доступа
 // Чердаки, подвалы => Доступ => null
-
 
 const importCsvData = `
 IT сервисы;Технические проблемы;Личный кабинет
@@ -331,7 +334,6 @@ IT сервисы;Технические проблемы;Сайт
 `
 
 class ClassifiersToSql {
-
     places = {}
     categories = {}
     problems = {}
@@ -346,23 +348,23 @@ class ClassifiersToSql {
         problems: {},
     }
 
-    toKey (name) {
+    toKey(name) {
         return name.replace(/[^A-Za-zА-Яа-яЁё]/g, '').toLowerCase()
     }
 
-    setUUID (place, key) {
+    setUUID(place, key) {
         if (!has(place, key)) {
             place[key] = uuid()
         }
     }
 
-    setUUIDS (place, category, problem){
+    setUUIDS(place, category, problem) {
         this.setUUID(this.uuids.places, place)
         this.setUUID(this.uuids.categories, category)
         this.setUUID(this.uuids.problems, problem)
     }
 
-    setRelation (place, category, problem) {
+    setRelation(place, category, problem) {
         this.setUUIDS(place, category, problem)
         this.relations.push({
             place: this.uuids.places[place],
@@ -376,14 +378,14 @@ class ClassifiersToSql {
         }
     }
 
-    prepareData () {
+    prepareData() {
         const data = importCsvData.split('\n')
-        data.forEach(line => {
+        data.forEach((line) => {
             line = line.trim()
-            const semiColonsCount =  (line.match(/;/g) || []).length
+            const semiColonsCount = (line.match(/;/g) || []).length
             if (line.length && semiColonsCount === 2) {
                 const [place, category, problem] = line.trim().split(';')
-                const [placeKey, categoryKey, problemKey] = [place, category, problem].map( key => this.toKey(key) )
+                const [placeKey, categoryKey, problemKey] = [place, category, problem].map((key) => this.toKey(key))
                 this.places[placeKey] = place
                 this.categories[categoryKey] = category
                 this.problems[problemKey] = problem
@@ -392,49 +394,52 @@ class ClassifiersToSql {
         })
     }
 
-    printClassifier ({ name, uuid }, template) {
-        process.stdout.write(
-            template
-                .split('{name}').join(name)
-                .split('{uuid}').join(uuid)
-        )
+    printClassifier({ name, uuid }, template) {
+        process.stdout.write(template.split('{name}').join(name).split('{uuid}').join(uuid))
         process.stdout.write('\n')
     }
 
-    printClassifiers () {
+    printClassifiers() {
         for (const placeKey in this.places) {
             this.printClassifier({ name: this.places[placeKey], uuid: this.uuids.places[placeKey] }, CLASSIFIER_PLACE_TEMPLATE)
         }
         for (const categoryKey in this.categories) {
-            this.printClassifier({ name: this.categories[categoryKey], uuid: this.uuids.categories[categoryKey] }, CLASSIFIER_CATEGORY_TEMPLATE)
+            this.printClassifier(
+                { name: this.categories[categoryKey], uuid: this.uuids.categories[categoryKey] },
+                CLASSIFIER_CATEGORY_TEMPLATE,
+            )
         }
         for (const problemKey in this.problems) {
-            this.printClassifier({ name: this.problems[problemKey], uuid: this.uuids.problems[problemKey] }, CLASSIFIER_PROBLEM_TEMPLATE)
+            this.printClassifier(
+                { name: this.problems[problemKey], uuid: this.uuids.problems[problemKey] },
+                CLASSIFIER_PROBLEM_TEMPLATE,
+            )
         }
     }
 
-    printRelations () {
-        [...this.relations, ...Object.values(this.nullRelations)].forEach(({ place, category, problem }) => {
+    printRelations() {
+        ;[...this.relations, ...Object.values(this.nullRelations)].forEach(({ place, category, problem }) => {
             process.stdout.write(
-                CLASSIFIER_RULE_TEMPLATE
-                    .split('{uuid}').join(uuid())
-                    .split('{place}').join(place)
-                    .split('{category}').join(category)
-                    .split('{problem}').join(problem ? `'${problem}'` : null)
+                CLASSIFIER_RULE_TEMPLATE.split('{uuid}')
+                    .join(uuid())
+                    .split('{place}')
+                    .join(place)
+                    .split('{category}')
+                    .join(category)
+                    .split('{problem}')
+                    .join(problem ? `'${problem}'` : null),
             )
             process.stdout.write('\n')
         })
     }
 
-    printSqlsToOutput () {
+    printSqlsToOutput() {
         this.prepareData()
         this.printClassifiers()
         this.printRelations()
         process.exit(0)
     }
-
 }
-
 
 const Export = new ClassifiersToSql()
 Export.printSqlsToOutput()

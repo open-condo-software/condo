@@ -49,28 +49,32 @@ const createPropertyRange = async (organizationWhereInput, whereIn) => {
     }
     const propertyFilter = get(whereIn, 'property', false)
     if (propertyFilter) {
-        gqlLoaderOptions['where']['id_in'] = propertyFilter.flatMap(id => id)
+        gqlLoaderOptions['where']['id_in'] = propertyFilter.flatMap((id) => id)
     }
     const propertyLoader = new GqlWithKnexLoadList(gqlLoaderOptions)
     const properties = await propertyLoader.load()
-    return properties.map( property => ({ label: property.address, value: property.id }))
+    return properties.map((property) => ({ label: property.address, value: property.id }))
 }
 
 const createStatusRange = async (context, organizationWhereInput, labelKey = 'name') => {
-    const statuses = await TicketStatusServerUtils.getAll(context, { OR: [
-        { organization: organizationWhereInput },
-        { organization_is_null: true },
-    ] })
+    const statuses = await TicketStatusServerUtils.getAll(context, {
+        OR: [{ organization: organizationWhereInput }, { organization_is_null: true }],
+    })
     // We use organization specific statuses if they exists
     // or default if there is no organization specific status with a same type
-    const allStatuses = statuses.filter(status => {
+    const allStatuses = statuses.filter((status) => {
         if (!status.organization) {
             return true
         }
-        return !statuses
-            .find(organizationStatus => organizationStatus.organization !== null && organizationStatus.type === status.type)
+        return !statuses.find(
+            (organizationStatus) => organizationStatus.organization !== null && organizationStatus.type === status.type,
+        )
     })
-    return sortStatusesByType(allStatuses).map(status => ({ label: status[labelKey], value: status.id, color: status.colors.primary }))
+    return sortStatusesByType(allStatuses).map((status) => ({
+        label: status[labelKey],
+        value: status.id,
+        color: status.colors.primary,
+    }))
 }
 
 const createCategoryClassifierRange = async (organizationWhereInput, whereIn) => {
@@ -81,12 +85,12 @@ const createCategoryClassifierRange = async (organizationWhereInput, whereIn) =>
     const categoryClassifierFilter = get(whereIn, 'categoryClassifier', false)
     if (categoryClassifierFilter) {
         gqlLoaderOptions['where'] = {
-            id_in: categoryClassifierFilter.flatMap(id => id),
+            id_in: categoryClassifierFilter.flatMap((id) => id),
         }
     }
     const categoryClassifierLoader = new GqlWithKnexLoadList(gqlLoaderOptions)
     const classifiers = await categoryClassifierLoader.load()
-    return classifiers.map(classifier => ({ label: classifier.name, value: classifier.id }))
+    return classifiers.map((classifier) => ({ label: classifier.name, value: classifier.id }))
 }
 
 const createExecutorRange = async (organizationWhereInput, whereIn) => {
@@ -102,8 +106,8 @@ const createExecutorRange = async (organizationWhereInput, whereIn) => {
     const executorLambda = (executor) => ({ label: executor.name, value: executor.user })
 
     if (executorFilter) {
-        const executorIds = executorFilter.flatMap(id => id)
-        return executors.filter(executor => executorIds.includes(executor.user)).map(executorLambda)
+        const executorIds = executorFilter.flatMap((id) => id)
+        return executors.filter((executor) => executorIds.includes(executor.user)).map(executorLambda)
     }
     return executors.map(executorLambda)
 }
@@ -121,8 +125,8 @@ const createAssigneeRange = async (organizationWhereInput, whereIn) => {
     const assigneeLambda = (assignee) => ({ label: assignee.name, value: assignee.user })
 
     if (assigneeFilter) {
-        const assigneeIds = assigneeFilter.flatMap(id => id)
-        return assignees.filter(assignee => assigneeIds.includes(assignee.user)).map(assigneeLambda)
+        const assigneeIds = assigneeFilter.flatMap((id) => id)
+        return assignees.filter((assignee) => assigneeIds.includes(assignee.user)).map(assigneeLambda)
     }
     return assignees.map(assigneeLambda)
 }
@@ -149,20 +153,22 @@ const getTicketCounts = async ({ context, where, groupBy, extraLabels = {}, null
                 break
             case 'status':
                 translates[group] = await createStatusRange(
-                    context, where.organization, isEmpty(extraLabels) ? 'name' :  extraLabels[group]
+                    context,
+                    where.organization,
+                    isEmpty(extraLabels) ? 'name' : extraLabels[group],
                 )
                 options[group] = translates[group].map(({ label }) => label)
                 break
             case 'day':
             case 'week':
                 options['dayGroup'] = enumerateDaysBetweenDates(
-                    ticketGqlToKnexAdapter.dateRange.from, ticketGqlToKnexAdapter.dateRange.to, group
+                    ticketGqlToKnexAdapter.dateRange.from,
+                    ticketGqlToKnexAdapter.dateRange.to,
+                    group,
                 )
                 break
             case 'categoryClassifier':
-                translates[group] = await createCategoryClassifierRange(
-                    where.organization,  ticketGqlToKnexAdapter.whereIn
-                )
+                translates[group] = await createCategoryClassifierRange(where.organization, ticketGqlToKnexAdapter.whereIn)
                 options[group] = translates[group].map(({ label }) => label)
                 break
             case 'executor':
@@ -178,13 +184,12 @@ const getTicketCounts = async ({ context, where, groupBy, extraLabels = {}, null
         }
     }
     const ticketGqlResult = ticketGqlToKnexAdapter
-        .getResult(({ count, dayGroup, ...searchResult }) =>
-        {
+        .getResult(({ count, dayGroup, ...searchResult }) => {
             if (!isEmpty(translates)) {
                 Object.entries(searchResult).forEach(([groupName, value]) => {
                     const translateMapping = get(translates, groupName, false)
                     if (translateMapping) {
-                        const translation = translateMapping.find(translate => translate.value === value)
+                        const translation = translateMapping.find((translate) => translate.value === value)
                         searchResult[groupName] = get(translation, 'label', null)
                     }
                 })
@@ -201,23 +206,24 @@ const getTicketCounts = async ({ context, where, groupBy, extraLabels = {}, null
             }
         })
         // This is hack to process old database records with tickets with user organization and property from another org
-        .filter(ticketCount => ticketCount.property !== null)
+        .filter((ticketCount) => ticketCount.property !== null)
     const fullCombinationsResult = getCombinations({ options })
 
     const ticketMap = new Map()
-    const transformedGroupBy = groupBy.map(group => ['day', 'week'].includes(group) ? 'dayGroup' : group)
-    fullCombinationsResult.concat(ticketGqlResult).forEach(ticketCount => {
+    const transformedGroupBy = groupBy.map((group) => (['day', 'week'].includes(group) ? 'dayGroup' : group))
+    fullCombinationsResult.concat(ticketGqlResult).forEach((ticketCount) => {
         const [mainGroup, childGroup] = transformedGroupBy
         const mapKey = (ticketCount[mainGroup] + ticketCount[childGroup]).toString()
         ticketMap.set(mapKey, ticketCount)
     })
 
     const ticketCounts = Array.from(ticketMap.values())
-        .map(ticketCount => {
-            if (groupBy.some(group => NULLABLE_GROUP_KEYS.includes(group))) {
-                const categoryClassifier = ticketCount.categoryClassifier !== null
-                    ? ticketCount.categoryClassifier
-                    : get(nullReplaces, 'categoryClassifier')
+        .map((ticketCount) => {
+            if (groupBy.some((group) => NULLABLE_GROUP_KEYS.includes(group))) {
+                const categoryClassifier =
+                    ticketCount.categoryClassifier !== null
+                        ? ticketCount.categoryClassifier
+                        : get(nullReplaces, 'categoryClassifier')
                 const executor = ticketCount.executor !== null ? ticketCount.executor : get(nullReplaces, 'executor')
                 const assignee = ticketCount.assignee !== null ? ticketCount.assignee : get(nullReplaces, 'assignee')
                 return {
@@ -229,9 +235,7 @@ const getTicketCounts = async ({ context, where, groupBy, extraLabels = {}, null
             }
             return ticketCount
         })
-        .sort((a, b) =>
-            dayjs(a.dayGroup, DATE_DISPLAY_FORMAT).unix() - dayjs(b.dayGroup, DATE_DISPLAY_FORMAT).unix()
-        )
+        .sort((a, b) => dayjs(a.dayGroup, DATE_DISPLAY_FORMAT).unix() - dayjs(b.dayGroup, DATE_DISPLAY_FORMAT).unix())
     return { ticketCounts, translates }
 }
 
@@ -316,9 +320,14 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
             access: access.canReadTicketAnalyticsReport,
             schema: 'ticketAnalyticsReport(data: TicketAnalyticsReportInput): TicketAnalyticsReportOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { data: { where = {}, groupBy = [], nullReplaces = {} } } = args
+                const {
+                    data: { where = {}, groupBy = [], nullReplaces = {} },
+                } = args
                 const { ticketCounts: groups, translates } = await getTicketCounts({
-                    context, where, groupBy, nullReplaces,
+                    context,
+                    where,
+                    groupBy,
+                    nullReplaces,
                 })
                 const ticketLabels = get(translates, 'status', [])
                 return { groups, ticketLabels }
@@ -328,9 +337,15 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
             access: access.canReadExportTicketAnalyticsToExcel,
             schema: 'exportTicketAnalyticsToExcel(data: ExportTicketAnalyticsToExcelInput): ExportTicketAnalyticsToExcelOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { data: { where = {}, groupBy = [], translates = {}, nullReplaces } } = args
+                const {
+                    data: { where = {}, groupBy = [], translates = {}, nullReplaces },
+                } = args
                 const { ticketCounts } = await getTicketCounts({
-                    context, where, groupBy, nullReplaces, extraLabels: { status: 'type' },
+                    context,
+                    where,
+                    groupBy,
+                    nullReplaces,
+                    extraLabels: { status: 'type' },
                 })
                 const { result, groupKeys } = aggregateData(ticketCounts, groupBy)
                 const ticketAccessCheck = await Ticket.getAll(context, where, { first: 1 })
@@ -351,7 +366,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                 switch (groupByToken) {
                     case 'status-day':
                     case 'status-week':
-                        rowColumns = [...new Set(Object.values(result).flatMap(e => Object.keys(e)))]
+                        rowColumns = [...new Set(Object.values(result).flatMap((e) => Object.keys(e)))]
                         break
                     case 'status-property':
                     case 'property-status':
@@ -374,9 +389,10 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                 }
 
                 const tickets = []
-                const totalCount = Object.values(result)
-                    .reduce((prevCount, currentAggregateObject) =>
-                        prevCount + sum(Object.values(currentAggregateObject)), 0)
+                const totalCount = Object.values(result).reduce(
+                    (prevCount, currentAggregateObject) => prevCount + sum(Object.values(currentAggregateObject)),
+                    0,
+                )
 
                 const isSummary = rowColumns.length === 0
                 const mapperInstance = getXLSXDataMapper(groupByToken, isSummary)
@@ -387,9 +403,11 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                             row: dataObject,
                             constants: { totalCount, address, categoryClassifier, executor, assignee },
                         })
-                        Object.entries(rows).filter(([rowType]) => rowType === ticketType).forEach(([tableRow, getValue]) => {
-                            tableColumns[tableRow] = getValue()
-                        })
+                        Object.entries(rows)
+                            .filter(([rowType]) => rowType === ticketType)
+                            .forEach(([tableRow, getValue]) => {
+                                tableColumns[tableRow] = getValue()
+                            })
                         tableColumns.address = rows.address()
                         tableColumns.executor = rows.executor !== undefined ? rows.executor() : ''
                         tableColumns.assignee = rows.assignee !== undefined ? rows.assignee() : ''
@@ -405,7 +423,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                                 : (totalCounts[groupByField] = count)
                         })
                     })
-                    rowColumns.forEach(filterColumn => {
+                    rowColumns.forEach((filterColumn) => {
                         const tableColumns = {}
                         Object.entries(result).forEach(([ticketType, dataObj]) => {
                             const mapperData = { row: dataObj, constants: { totalCounts, address } }
@@ -436,7 +454,8 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                             tableColumns.date = rows.date !== undefined ? rows.date() : ''
                             tableColumns.executor = rows.executor !== undefined ? rows.executor() : ''
                             tableColumns.assignee = rows.assignee !== undefined ? rows.assignee() : ''
-                            tableColumns.categoryClassifier = rows.categoryClassifier !== undefined ? rows.categoryClassifier() : ''
+                            tableColumns.categoryClassifier =
+                                rows.categoryClassifier !== undefined ? rows.categoryClassifier() : ''
                             tableColumns[ticketType] = rows[ticketType]()
                         })
                         tickets.push(tableColumns)

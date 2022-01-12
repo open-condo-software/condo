@@ -6,7 +6,7 @@ import StarFull from './star-full'
 const STAR_WIDTH = 22
 const GUTTER = 4
 
-const calcWidth = n => n * STAR_WIDTH + (n - 1) * GUTTER
+const calcWidth = (n) => n * STAR_WIDTH + (n - 1) * GUTTER
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const Stars = ({ count = 5, value, onChange = () => {} }) => {
@@ -28,9 +28,9 @@ const Stars = ({ count = 5, value, onChange = () => {} }) => {
                 }
 
                 return current <= value ? (
-                    <StarFull key={current} onClick={onClick}/>
+                    <StarFull key={current} onClick={onClick} />
                 ) : (
-                    <StarEmpty key={current} onClick={onClick}/>
+                    <StarEmpty key={current} onClick={onClick} />
                 )
             })}
         </div>

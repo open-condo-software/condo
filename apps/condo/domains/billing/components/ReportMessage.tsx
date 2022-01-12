@@ -19,36 +19,23 @@ export const ReportMessage: React.FC<IReportMessageProps> = ({ lastReport }) => 
         const DataWasUploadedPrefixMessage = intl.formatMessage({ id: 'DataWasUploadedOnPrefix' })
         const NoReportMessage = intl.formatMessage({ id: 'NoReceiptsLoaded' })
         if (!lastReport) {
-            return (
-                <Typography.Text type={'warning'}>
-                    {NoReportMessage}
-                </Typography.Text>
-            )
+            return <Typography.Text type={'warning'}>{NoReportMessage}</Typography.Text>
         }
         const thousands = lastReport.totalReceipts >= 1000
         const TotalReportsMessage = intl.formatMessage({ id: 'RecordsLoaded' }, { count: lastReport.totalReceipts })
         const ReportsMessage = thousands
             ? intl.formatMessage({ id: 'ThousandsRecordsLoaded' }, { count: Math.floor(lastReport.totalReceipts / 1000) })
             : TotalReportsMessage
-        const ReportDateMessage = intl.formatDate(lastReport.finishTime, { day:'numeric', month:'long', year: 'numeric'  })
+        const ReportDateMessage = intl.formatDate(lastReport.finishTime, { day: 'numeric', month: 'long', year: 'numeric' })
         const ReportTimeMessage = intl.formatDate(lastReport.finishTime, { hour: 'numeric', minute: 'numeric' })
         const uploadMessage = `${DataWasUploadedPrefixMessage} ${ReportDateMessage}${DataWasUploadedSuffixMessage} ${ReportTimeMessage}`
         return (
             <>
-                <Typography.Text type={'warning'}>
-                    {uploadMessage}
-                </Typography.Text>
+                <Typography.Text type={'warning'}>{uploadMessage}</Typography.Text>
                 &nbsp;
                 <Typography.Text>
                     &#40;
-                    {
-                        thousands
-                            ? (
-                                <Tooltip title={TotalReportsMessage}>
-                                    {ReportsMessage}
-                                </Tooltip>
-                            ) : (TotalReportsMessage)
-                    }
+                    {thousands ? <Tooltip title={TotalReportsMessage}>{ReportsMessage}</Tooltip> : TotalReportsMessage}
                     &#41;
                 </Typography.Text>
             </>

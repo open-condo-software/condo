@@ -13,12 +13,16 @@ describe('TicketReportService', () => {
         it('can get ticket report without role in organization', async () => {
             const client = await makeClientWithProperty()
             await createTestTicket(client, client.organization, client.property)
-            const { data: { result: { data } } } = await client.query(GET_TICKET_WIDGET_REPORT_DATA, {
+            const {
+                data: {
+                    result: { data },
+                },
+            } = await client.query(GET_TICKET_WIDGET_REPORT_DATA, {
                 data: { userOrganizationId: client.organization.id, periodType: 'calendarWeek' },
             })
             expect(data).toBeInstanceOf(Array)
             expect(data.length).toBeGreaterThanOrEqual(1)
-            const clientTicket = data.find(e => e.statusType === NEW_OR_REOPENED_STATUS_TYPE)
+            const clientTicket = data.find((e) => e.statusType === NEW_OR_REOPENED_STATUS_TYPE)
             expect(clientTicket).toBeDefined()
             expect(clientTicket.currentValue).toEqual(1)
             expect(clientTicket.growth).toEqual(0)
@@ -31,20 +35,26 @@ describe('TicketReportService', () => {
             })
             const managerClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const [employee] = await createTestOrganizationEmployee(admin, organization, managerClient.user, role, {
-                isBlocked: false, isAccepted: true, isRejected: false,
+                isBlocked: false,
+                isAccepted: true,
+                isRejected: false,
             })
-            const { data: { result: { data } } } = await managerClient.query(GET_TICKET_WIDGET_REPORT_DATA, {
-                data: { userOrganizationId: employee.organization.id, periodType: 'calendarWeek' } }
-            )
+            const {
+                data: {
+                    result: { data },
+                },
+            } = await managerClient.query(GET_TICKET_WIDGET_REPORT_DATA, {
+                data: { userOrganizationId: employee.organization.id, periodType: 'calendarWeek' },
+            })
             expect(data).toBeInstanceOf(Array)
             expect(data.length).toBeGreaterThanOrEqual(1)
-            const clientTicket = data.find(e => e.statusType === NEW_OR_REOPENED_STATUS_TYPE)
+            const clientTicket = data.find((e) => e.statusType === NEW_OR_REOPENED_STATUS_TYPE)
             expect(clientTicket).toBeDefined()
             expect(clientTicket.currentValue).toEqual(0)
             expect(clientTicket.growth).toEqual(0)
         })
 
-        it('can get ticket report with multiple organization invites',  async () => {
+        it('can get ticket report with multiple organization invites', async () => {
             // Test checks for an error when the user first declined the invitation and then accepted it
             // It causes getByCondition return multiple values error
             const { admin, organization } = await makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee()
@@ -54,18 +64,22 @@ describe('TicketReportService', () => {
             const managerClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const userRejectOrganizationInvite = { isBlocked: false, isAccepted: false, isRejected: true }
             const userAcceptOrganizationInvite = { isBlocked: false, isAccepted: true, isRejected: false }
-            await createTestOrganizationEmployee(
-                admin, organization, managerClient.user, role, { ...userRejectOrganizationInvite }
-            )
-            const [employee] = await createTestOrganizationEmployee(
-                admin, organization, managerClient.user, role, { ...userAcceptOrganizationInvite }
-            )
-            const { data: { result: { data } } } = await managerClient.query(GET_TICKET_WIDGET_REPORT_DATA, {
-                data: { userOrganizationId: employee.organization.id, periodType: 'calendarWeek' } }
-            )
+            await createTestOrganizationEmployee(admin, organization, managerClient.user, role, {
+                ...userRejectOrganizationInvite,
+            })
+            const [employee] = await createTestOrganizationEmployee(admin, organization, managerClient.user, role, {
+                ...userAcceptOrganizationInvite,
+            })
+            const {
+                data: {
+                    result: { data },
+                },
+            } = await managerClient.query(GET_TICKET_WIDGET_REPORT_DATA, {
+                data: { userOrganizationId: employee.organization.id, periodType: 'calendarWeek' },
+            })
             expect(data).toBeInstanceOf(Array)
             expect(data.length).toBeGreaterThanOrEqual(1)
-            const clientTicket = data.find(e => e.statusType === NEW_OR_REOPENED_STATUS_TYPE)
+            const clientTicket = data.find((e) => e.statusType === NEW_OR_REOPENED_STATUS_TYPE)
             expect(clientTicket).toBeDefined()
             expect(clientTicket.currentValue).toEqual(0)
             expect(clientTicket.growth).toEqual(0)
@@ -74,12 +88,16 @@ describe('TicketReportService', () => {
         it('can get ticket report with allowed period types [year]', async () => {
             const client = await makeClientWithProperty()
             await createTestTicket(client, client.organization, client.property)
-            const { data: { result: { data } } } = await client.query(GET_TICKET_WIDGET_REPORT_DATA, {
+            const {
+                data: {
+                    result: { data },
+                },
+            } = await client.query(GET_TICKET_WIDGET_REPORT_DATA, {
                 data: { userOrganizationId: client.organization.id, periodType: 'year' },
             })
             expect(data).toBeInstanceOf(Array)
             expect(data.length).toBeGreaterThanOrEqual(1)
-            const clientTicket = data.find(e => e.statusType === NEW_OR_REOPENED_STATUS_TYPE)
+            const clientTicket = data.find((e) => e.statusType === NEW_OR_REOPENED_STATUS_TYPE)
             expect(clientTicket).toBeDefined()
             expect(clientTicket.currentValue).toEqual(1)
             expect(clientTicket.growth).toEqual(0)

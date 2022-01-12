@@ -5,7 +5,15 @@
 const { Relationship, DateTimeUtc, Decimal } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD, CONTACT_FIELD, CLIENT_EMAIL_FIELD, CLIENT_NAME_FIELD, CLIENT_PHONE_FIELD, CLIENT_FIELD } = require('@condo/domains/common/schema/fields')
+const {
+    SENDER_FIELD,
+    DV_FIELD,
+    CONTACT_FIELD,
+    CLIENT_EMAIL_FIELD,
+    CLIENT_NAME_FIELD,
+    CLIENT_PHONE_FIELD,
+    CLIENT_FIELD,
+} = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/meter/access/MeterReading')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
@@ -39,7 +47,8 @@ const MeterReading = new GQLListSchema('MeterReading', {
         },
 
         value1: {
-            schemaDoc: 'If the meter is single-tariff, then only this value will be filled in;' +
+            schemaDoc:
+                'If the meter is single-tariff, then only this value will be filled in;' +
                 'If multi-tariff, then the value of the first tariff will be in this field',
             type: Decimal,
         },
@@ -62,7 +71,7 @@ const MeterReading = new GQLListSchema('MeterReading', {
         client: CLIENT_FIELD,
         contact: CONTACT_FIELD,
         clientName: CLIENT_NAME_FIELD,
-        clientEmail:  CLIENT_EMAIL_FIELD,
+        clientEmail: CLIENT_EMAIL_FIELD,
         clientPhone: CLIENT_PHONE_FIELD,
 
         source: {
@@ -73,7 +82,6 @@ const MeterReading = new GQLListSchema('MeterReading', {
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
         },
-
     },
     hooks: {
         resolveInput: async ({ operation, listKey, context, resolvedData, existingItem }) => {

@@ -28,28 +28,22 @@ export const FilterContainer: React.FC<IFilterContainerProps> = (props) => {
         <div style={FILTER_CONTAINER_STYLES}>
             <Space size={8} direction={'vertical'} align={'center'}>
                 {children}
-                {
-                    showClearButton && (
-                        <Button
-                            size={'small'}
-                            onClick={clearFilters}
-                            type={'inlineLink'}
-                        >
-                            {ResetLabel}
-                        </Button>
-                    )
-                }
+                {showClearButton && (
+                    <Button size={'small'} onClick={clearFilters} type={'inlineLink'}>
+                        {ResetLabel}
+                    </Button>
+                )}
             </Space>
         </div>
     )
 }
 
 const StyledSelectFilterContainer = styled.div`
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 300px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 300px;
 `
 
 export const SelectFilterContainer: React.FC<IFilterContainerProps> = (props) => {
@@ -60,17 +54,11 @@ export const SelectFilterContainer: React.FC<IFilterContainerProps> = (props) =>
     return (
         <StyledSelectFilterContainer style={style}>
             {children}
-            {
-                showClearButton && (
-                    <Button
-                        size={'small'}
-                        onClick={clearFilters}
-                        type={'inlineLink'}
-                    >
-                        {ResetLabel}
-                    </Button>
-                )
-            }
+            {showClearButton && (
+                <Button size={'small'} onClick={clearFilters} type={'inlineLink'}>
+                    {ResetLabel}
+                </Button>
+            )}
         </StyledSelectFilterContainer>
     )
 }
@@ -78,13 +66,11 @@ export const SelectFilterContainer: React.FC<IFilterContainerProps> = (props) =>
 const STYLE_FILTERED: CSSProperties = { color: colors.sberPrimary[5] }
 const STYLE_NO_COLOR: CSSProperties = { color: undefined }
 
-export const getFilterIcon = filtered => <FilterFilled style={filtered ? STYLE_FILTERED : STYLE_NO_COLOR} />
+export const getFilterIcon = (filtered) => <FilterFilled style={filtered ? STYLE_FILTERED : STYLE_NO_COLOR} />
 
 export const getTextFilterDropdown = (columnName: string, setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>) => {
     const TextFilterDropdown = ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: FilterDropdownProps) => (
-        <FilterContainer
-            clearFilters={clearFilters}
-            showClearButton={selectedKeys && selectedKeys.length > 0}>
+        <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
             <Input
                 placeholder={columnName}
                 // @ts-ignore
@@ -105,13 +91,14 @@ type CheckboxOptions = (string | CheckboxOptionType)[]
 
 const CHECKBOX_GROUP_STYLES: CSSProperties = { display: 'flex', flexDirection: 'column' }
 
-export const getCheckboxFilterDropdown = (columnName: string, setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>, options: CheckboxOptions) => {
+export const getCheckboxFilterDropdown = (
+    columnName: string,
+    setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>,
+    options: CheckboxOptions,
+) => {
     const CheckboxFilterDropdown = ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         return (
-            <FilterContainer
-                clearFilters={clearFilters}
-                showClearButton={selectedKeys && selectedKeys.length > 0}
-            >
+            <FilterContainer clearFilters={clearFilters} showClearButton={selectedKeys && selectedKeys.length > 0}>
                 <Checkbox.Group
                     options={options}
                     style={CHECKBOX_GROUP_STYLES}

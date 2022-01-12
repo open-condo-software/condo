@@ -11,21 +11,16 @@ const EmptyResidentBlock: React.FC = () => {
     const EmptyResidentsMessage = intl.formatMessage({ id: 'pages.condo.property.form.EmptyResidents.text' })
     const UploadFile = intl.formatMessage({ id: 'UploadFile' })
     const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
-    
+
     return (
         <BasicEmptyListView>
-            <Typography.Title level={3}>
-                {EmptyResidentsTitle}
-            </Typography.Title>
+            <Typography.Title level={3}>{EmptyResidentsTitle}</Typography.Title>
             <Typography.Text style={{ fontSize: fontSizes.content, maxWidth: '350px', display: 'flex' }}>
                 {EmptyResidentsMessage}
             </Typography.Text>
             <Space style={{ marginTop: '24px' }}>
                 <Tooltip title={NotImplementedYetMessage}>
-                    <Button
-                        type={'sberPrimary'}
-                        secondary
-                    >
+                    <Button type={'sberPrimary'} secondary>
                         {UploadFile}
                     </Button>
                 </Tooltip>
@@ -35,7 +30,6 @@ const EmptyResidentBlock: React.FC = () => {
 }
 
 export const ResidentPanelView: React.FC = () => {
-
     return (
         <Row style={{ marginTop: '40px', marginBottom: '40px' }}>
             <Col span={24}>
@@ -46,7 +40,6 @@ export const ResidentPanelView: React.FC = () => {
 }
 
 export const ResidentPanelEdit: React.FC = () => {
-
     return (
         <Row style={{ marginTop: '40px', marginBottom: '40px' }}>
             <Col span={24}>

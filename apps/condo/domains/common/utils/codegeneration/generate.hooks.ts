@@ -4,7 +4,8 @@ import { ApolloError, QueryHookOptions, OperationVariables } from '@apollo/clien
 import { useMutation, useQuery } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
 
-const getObjects = (objectsContainer, converter) => (objectsContainer && objectsContainer.objs) ? objectsContainer.objs.map(converter) : []
+const getObjects = (objectsContainer, converter) =>
+    objectsContainer && objectsContainer.objs ? objectsContainer.objs.map(converter) : []
 
 interface Refetch<Q> {
     // TODO(pahaz): write right Refetch signature!
@@ -26,28 +27,43 @@ interface FetchMore<Q> {
 
 interface IHookResult<UI, UIForm, Q, TData = any, TVariables = OperationVariables> {
     gql: any
-    useObject: (variables: Q, options?: QueryHookOptions<TData, TVariables>) => { obj: UI, loading: boolean, error?: ApolloError | string, refetch?: Refetch<Q>, fetchMore: FetchMore<Q> }
-    useObjects: (variables: Q, options?: QueryHookOptions<TData, TVariables>) => { objs: UI[], count: number | null, loading: boolean, error?: ApolloError | string, refetch?: Refetch<Q>, fetchMore: FetchMore<Q> }
+    useObject: (
+        variables: Q,
+        options?: QueryHookOptions<TData, TVariables>,
+    ) => { obj: UI; loading: boolean; error?: ApolloError | string; refetch?: Refetch<Q>; fetchMore: FetchMore<Q> }
+    useObjects: (
+        variables: Q,
+        options?: QueryHookOptions<TData, TVariables>,
+    ) => {
+        objs: UI[]
+        count: number | null
+        loading: boolean
+        error?: ApolloError | string
+        refetch?: Refetch<Q>
+        fetchMore: FetchMore<Q>
+    }
     useCreate: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm) => Promise<UI>
     useUpdate: (attrs: UIForm, onComplete?: (obj: UI) => void) => (attrs: UIForm, obj: UI) => Promise<UI>
     useDelete: (attrs: UIForm, onComplete?: (obj: UI) => void) => (attrs: UIForm) => Promise<UI>
     useSoftDelete: (attrs: UIForm, onComplete?: (obj: UI) => void) => (attrs: UIForm, obj: UI) => Promise<UI>
 }
 
-export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convertToGQLInput, convertToUIState }: IHookConverters<GQL, GQLInput, UI, UIForm>): IHookResult<UI, UIForm, Q> {
-
-    function useObject (variables: Q, options?: QueryHookOptions<{ objs?: GQL[], meta?: { count?: number } }, Q>) {
+export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q>(
+    gql,
+    { convertToGQLInput, convertToUIState }: IHookConverters<GQL, GQLInput, UI, UIForm>,
+): IHookResult<UI, UIForm, Q> {
+    function useObject(variables: Q, options?: QueryHookOptions<{ objs?: GQL[]; meta?: { count?: number } }, Q>) {
         const { loading, refetch, fetchMore, objs, count, error } = useObjects(variables, options)
         if (count && count > 1) throw new Error('Wrong query condition! return more then one result')
-        const obj = (objs.length) ? objs[0] : null
+        const obj = objs.length ? objs[0] : null
         return { loading, refetch, fetchMore, obj, error }
     }
-    function useObjects (variables: Q, options?: QueryHookOptions<{ objs?: GQL[], meta?: { count?: number } }, Q>) {
+    function useObjects(variables: Q, options?: QueryHookOptions<{ objs?: GQL[]; meta?: { count?: number } }, Q>) {
         const intl = useIntl()
         const ServerErrorPleaseTryAgainLaterMsg = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
         const AccessErrorMsg = intl.formatMessage({ id: 'AccessError' })
 
-        const result = useQuery<{ objs?: GQL[], meta?: { count?: number } }, Q>(gql.GET_ALL_OBJS_WITH_COUNT_QUERY, {
+        const result = useQuery<{ objs?: GQL[]; meta?: { count?: number } }, Q>(gql.GET_ALL_OBJS_WITH_COUNT_QUERY, {
             variables,
             notifyOnNetworkStatusChange: true,
             ...options,
@@ -62,7 +78,7 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
 
         const objs: UI[] = getObjects(result.data, convertToUIState)
 
-        const count = (result.data && result.data.meta) ? result.data.meta.count : null
+        const count = result.data && result.data.meta ? result.data.meta.count : null
 
         return {
             loading: result.loading,
@@ -78,10 +94,10 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
      * Client hook that uses create-mutation of current schema
      * @param attrs - values, that will be passed to update input unchanged by form
      */
-    function useCreate (attrs: UIForm | Record<string, unknown> = {}, onComplete) {
+    function useCreate(attrs: UIForm | Record<string, unknown> = {}, onComplete) {
         if (typeof attrs !== 'object' || !attrs) throw new Error('useCreate(): invalid attrs argument')
         const [rowAction] = useMutation(gql.CREATE_OBJ_MUTATION)
-        async function _action (state: UIForm) {
+        async function _action(state: UIForm) {
             const { data, errors } = await rowAction({
                 variables: { data: convertToGQLInput({ ...state, ...attrs }) },
             })
@@ -100,11 +116,11 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
         return useMemo(() => _action, [rowAction])
     }
 
-    function useUpdate (attrs = {}, onComplete) {
+    function useUpdate(attrs = {}, onComplete) {
         if (typeof attrs !== 'object' || !attrs) throw new Error('useUpdate(): invalid attrs argument')
         const [rowAction] = useMutation(gql.UPDATE_OBJ_MUTATION)
 
-        async function _action (state, obj) {
+        async function _action(state, obj) {
             if (!obj || !obj.id) throw new Error('No obj.id argument')
             const { data, errors } = await rowAction({
                 variables: {
@@ -127,11 +143,11 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
         return useMemo(() => _action, [rowAction])
     }
 
-    function useDelete (attrs = {}, onComplete) {
+    function useDelete(attrs = {}, onComplete) {
         if (typeof attrs !== 'object' || !attrs) throw new Error('useDelete(): invalid attrs argument')
         const [rowAction] = useMutation(gql.DELETE_OBJ_MUTATION)
 
-        async function _action (obj) {
+        async function _action(obj) {
             if (!obj || !obj.id) throw new Error('No obj.id argument')
             const { data, errors } = await rowAction({
                 variables: {
@@ -153,11 +169,11 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
         return useMemo(() => _action, [rowAction])
     }
 
-    function useSoftDelete (attrs = {}, onComplete) {
+    function useSoftDelete(attrs = {}, onComplete) {
         if (typeof attrs !== 'object' || !attrs) throw new Error('useSoftDelete(): invalid attrs argument')
         const [rowAction] = useMutation(gql.UPDATE_OBJ_MUTATION)
 
-        async function _action (state, obj) {
+        async function _action(state, obj) {
             if (!obj.id) throw new Error('No obj.id argument')
             const { data, errors } = await rowAction({
                 variables: {

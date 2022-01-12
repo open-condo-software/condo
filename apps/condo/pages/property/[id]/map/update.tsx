@@ -10,13 +10,14 @@ import { PageWrapper, PageContent } from '@condo/domains/common/components/conta
 import CreatePropertyMapForm from '@condo/domains/property/components/PropertyMapForm/CreatePropertyMapForm'
 import { CustomScrollbarCss } from '@condo/domains/property/components/panels/Builder/BuildingPanelCommon'
 
-
 const PAGE_ROW_GUTTER: RowProps['gutter'] = [0, 40]
 
 const CreatePropertyMapPage = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyTitle' })
-    const { query: { id } } = useRouter()
+    const {
+        query: { id },
+    } = useRouter()
 
     return (
         <>

@@ -32,18 +32,20 @@ const ReInviteActionAlert = ({ employee }) => {
     const isEmployeeRejected = get(employee, 'isRejected')
 
     if (isEmployeeRejected) {
-        return (
-            <Alert showIcon type='warning' message={EmployeeRejectedMessage}/>
-        )
+        return <Alert showIcon type="warning" message={EmployeeRejectedMessage} />
     }
 
     return (
-        <Alert showIcon type='warning' message={
-            <>
-                {EmployeeDidntEnteredMessage}&nbsp;
-                <EmployeeInviteRetryButton employee={employee}/>
-            </>
-        } />
+        <Alert
+            showIcon
+            type="warning"
+            message={
+                <>
+                    {EmployeeDidntEnteredMessage}&nbsp;
+                    <EmployeeInviteRetryButton employee={employee} />
+                </>
+            }
+        />
     )
 }
 
@@ -95,35 +97,27 @@ export const EmployeePageContent = ({
                 <PageContent>
                     <Row gutter={[0, 40]} justify={'center'}>
                         <Col xs={10} lg={3}>
-                            <UserAvatar borderRadius={24} isBlocked={isEmployeeBlocked}/>
+                            <UserAvatar borderRadius={24} isBlocked={isEmployeeBlocked} />
                         </Col>
                         <Col xs={24} lg={20} offset={isSmall ? 0 : 1}>
                             <Row gutter={[0, 60]}>
                                 <Col span={24}>
                                     <Row gutter={[0, 40]}>
                                         <Col span={24}>
-                                            <Typography.Title
-                                                level={1}
-                                                style={{ margin: 0, fontWeight: 'bold' }}
-                                            >
+                                            <Typography.Title level={1} style={{ margin: 0, fontWeight: 'bold' }}>
                                                 {name}
                                             </Typography.Title>
                                             <NotDefinedField
                                                 showMessage={false}
                                                 value={get(employee, ['position'])}
                                                 render={(value) => (
-                                                    <Typography.Title
-                                                        level={2}
-                                                        style={{ margin: '8px 0 0', fontWeight: 400 }}
-                                                    >
+                                                    <Typography.Title level={2} style={{ margin: '8px 0 0', fontWeight: 400 }}>
                                                         {value}
                                                     </Typography.Title>
                                                 )}
                                             />
                                         </Col>
-                                        {isEmployeeReinvitable && (
-                                            <ReInviteActionAlert employee={employee} />
-                                        )}
+                                        {isEmployeeReinvitable && <ReInviteActionAlert employee={employee} />}
                                         {isEmployeeEditable && (
                                             <Col span={24}>
                                                 <label>
@@ -133,17 +127,14 @@ export const EmployeePageContent = ({
                                                             defaultChecked={isEmployeeBlocked}
                                                             disabled={isMyEmployee}
                                                         />
-                                                        <Typography.Text type='danger' style={{ fontSize: fontSizes.content }}>
+                                                        <Typography.Text type="danger" style={{ fontSize: fontSizes.content }}>
                                                             {BlockUserMessage}
                                                         </Typography.Text>
-                                                        {
-                                                            (isMyEmployee) ?
-                                                                <Typography.Text style={{ fontSize: fontSizes.content }}>
-                                                                    {CanNotBlockYourselfMessage}
-                                                                </Typography.Text>
-                                                                :
-                                                                null
-                                                        }
+                                                        {isMyEmployee ? (
+                                                            <Typography.Text style={{ fontSize: fontSizes.content }}>
+                                                                {CanNotBlockYourselfMessage}
+                                                            </Typography.Text>
+                                                        ) : null}
                                                     </Space>
                                                 </label>
                                             </Col>
@@ -152,75 +143,57 @@ export const EmployeePageContent = ({
                                             <FrontLayerContainer showLayer={isEmployeeBlocked}>
                                                 <Row gutter={[0, 24]}>
                                                     <Col lg={4} xs={10}>
-                                                        <Typography.Text type='secondary'>
-                                                            {PhoneMessage}
-                                                        </Typography.Text>
+                                                        <Typography.Text type="secondary">{PhoneMessage}</Typography.Text>
                                                     </Col>
                                                     <Col lg={18} xs={13} offset={1}>
-                                                        <NotDefinedField value={get(employee, 'phone')}/>
+                                                        <NotDefinedField value={get(employee, 'phone')} />
                                                     </Col>
 
                                                     <Col lg={4} xs={10}>
-                                                        <Typography.Text type='secondary'>
-                                                            {RoleMessage}
-                                                        </Typography.Text>
+                                                        <Typography.Text type="secondary">{RoleMessage}</Typography.Text>
                                                     </Col>
                                                     <Col lg={18} xs={13} offset={1}>
                                                         <NotDefinedField
                                                             value={get(employee, ['role', 'name'])}
-                                                            render={
-                                                                (roleName) => (
-                                                                    <Tag color='default'>{roleName}</Tag>
-                                                                )
-                                                            }
+                                                            render={(roleName) => <Tag color="default">{roleName}</Tag>}
                                                         />
                                                     </Col>
 
                                                     <Col lg={4} xs={10}>
-                                                        <Typography.Text type='secondary'>
-                                                            {PositionMessage}
-                                                        </Typography.Text>
+                                                        <Typography.Text type="secondary">{PositionMessage}</Typography.Text>
                                                     </Col>
                                                     <Col lg={18} xs={13} offset={1}>
                                                         <NotDefinedField
                                                             value={get(employee, 'position')}
-                                                            render={
-                                                                (value) => (
-                                                                    <Tag color='default'>{value}</Tag>
-                                                                )
-                                                            }
+                                                            render={(value) => <Tag color="default">{value}</Tag>}
                                                         />
                                                     </Col>
 
                                                     <Col lg={4} xs={10}>
-                                                        <Typography.Text type='secondary'>
+                                                        <Typography.Text type="secondary">
                                                             {SpecializationsMessage}
                                                         </Typography.Text>
                                                     </Col>
                                                     <Col lg={18} xs={13} offset={1}>
                                                         <NotDefinedField
                                                             value={get(employee, 'specializations')}
-                                                            render={
-                                                                (specializations) => (
-                                                                    <Typography.Text>
-                                                                        {map(specializations, 'name').join(', ')}
-                                                                    </Typography.Text>
-                                                                )
-                                                            }
+                                                            render={(specializations) => (
+                                                                <Typography.Text>
+                                                                    {map(specializations, 'name').join(', ')}
+                                                                </Typography.Text>
+                                                            )}
                                                         />
                                                     </Col>
-                                                    {
-                                                        email && <>
+                                                    {email && (
+                                                        <>
                                                             <Col lg={4} xs={10}>
-                                                                <Typography.Text type='secondary'>
-                                                                    {EmailMessage}
-                                                                </Typography.Text>
+                                                                <Typography.Text type="secondary">{EmailMessage}</Typography.Text>
                                                             </Col>
                                                             <Col lg={18} xs={13} offset={1}>
-                                                                <NotDefinedField value={email}/>
+                                                                <NotDefinedField value={email} />
                                                             </Col>
                                                         </>
-                                                    }
+                                                    )}
                                                 </Row>
                                             </FrontLayerContainer>
                                         </Col>
@@ -237,14 +210,14 @@ export const EmployeePageContent = ({
                                                             {UpdateMessage}
                                                         </Button>
                                                     </Link>
-                                                    {(!isMyEmployee) ?
+                                                    {!isMyEmployee ? (
                                                         <DeleteButtonWithConfirmModal
                                                             title={ConfirmDeleteTitle}
                                                             message={ConfirmDeleteMessage}
                                                             okButtonLabel={ConfirmDeleteButtonLabel}
                                                             action={() => softDeleteAction({}, employee)}
                                                         />
-                                                        : null}
+                                                    ) : null}
                                                 </Space>
                                             </Col>
                                         )}
@@ -267,13 +240,16 @@ export const EmployeeInfoPage = () => {
     const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
 
     const employeeId = get(query, 'id', '')
-    const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject(
-        {
-            where: {
-                id: String(employeeId),
-            },
-        }
-    )
+    const {
+        obj: employee,
+        loading,
+        error,
+        refetch,
+    } = OrganizationEmployee.useObject({
+        where: {
+            id: String(employeeId),
+        },
+    })
 
     const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => refetch())
     const softDeleteAction = OrganizationEmployee.useSoftDelete({}, () => Router.push('/employee/'))
@@ -282,7 +258,7 @@ export const EmployeeInfoPage = () => {
     const isEmployeeReinvitable = canReinviteEmployee(link, employee)
 
     if (error || loading) {
-        return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null}/>
+        return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null} />
     }
 
     return (
@@ -296,11 +272,9 @@ export const EmployeeInfoPage = () => {
     )
 }
 
-EmployeeInfoPage.headerAction = <ReturnBackHeaderAction
-    descriptor={{ id: 'pages.condo.employee.PageTitle' }}
-    path={'/employee/'}
-    useBrowserHistory={false}
-/>
+EmployeeInfoPage.headerAction = (
+    <ReturnBackHeaderAction descriptor={{ id: 'pages.condo.employee.PageTitle' }} path={'/employee/'} useBrowserHistory={false} />
+)
 EmployeeInfoPage.requiredAccess = OrganizationRequired
 
 export default EmployeeInfoPage

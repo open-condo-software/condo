@@ -14,7 +14,7 @@ interface ICreateDivisionPage extends React.FC {
 
 const CreateDivisionPage: ICreateDivisionPage = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id:'pages.condo.division.create.CreateDivisionTitle' })
+    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.division.create.CreateDivisionTitle' })
     return (
         <>
             <Head>
@@ -24,10 +24,12 @@ const CreateDivisionPage: ICreateDivisionPage = () => {
                 <PageContent>
                     <Row gutter={[0, 40]}>
                         <Col span={24}>
-                            <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
+                            <Typography.Title level={1} style={{ margin: 0 }}>
+                                {PageTitleMsg}
+                            </Typography.Title>
                         </Col>
                         <Col span={24}>
-                            <DivisionForm/>
+                            <DivisionForm />
                         </Col>
                     </Row>
                 </PageContent>
@@ -36,7 +38,9 @@ const CreateDivisionPage: ICreateDivisionPage = () => {
     )
 }
 
-CreateDivisionPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllDivisions' }} path={'/property?tab=divisions'}/>
+CreateDivisionPage.headerAction = (
+    <ReturnBackHeaderAction descriptor={{ id: 'menu.AllDivisions' }} path={'/property?tab=divisions'} />
+)
 CreateDivisionPage.requiredAccess = OrganizationRequired
 
 export default CreateDivisionPage

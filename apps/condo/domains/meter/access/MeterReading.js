@@ -6,17 +6,20 @@ const { STAFF } = require('@condo/domains/user/constants/common')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('../../organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { queryOrganizationEmployeeFromRelatedOrganizationFor, queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    queryOrganizationEmployeeFor,
+} = require('@condo/domains/organization/utils/accessSchema')
 const { get } = require('lodash')
 
-async function canReadMeterReadings ({ authentication: { item: user }, context }) {
+async function canReadMeterReadings({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin || user.isSupport) return {}
 
     const userId = user.id
     if (user.type === RESIDENT) {
         const availableMeterIds = await getAvailableResidentMeters(context, userId)
-        const idsArray = availableMeterIds.map(obj => obj.id)
+        const idsArray = availableMeterIds.map((obj) => obj.id)
 
         return {
             meter: { id_in: idsArray, deletedAt: null },
@@ -26,15 +29,12 @@ async function canReadMeterReadings ({ authentication: { item: user }, context }
 
     return {
         organization: {
-            OR: [
-                queryOrganizationEmployeeFor(userId),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
-            ],
+            OR: [queryOrganizationEmployeeFor(userId), queryOrganizationEmployeeFromRelatedOrganizationFor(userId)],
         },
     }
 }
 
-async function canManageMeterReadings ({ authentication: { item: user }, originalInput, operation, context }) {
+async function canManageMeterReadings({ authentication: { item: user }, originalInput, operation, context }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
 
@@ -42,20 +42,22 @@ async function canManageMeterReadings ({ authentication: { item: user }, origina
 
     if (operation === 'create') {
         const organizationIdFromMeterReading = get(originalInput, ['organization', 'connect', 'id'])
-        if (!organizationIdFromMeterReading)
-            return false
+        if (!organizationIdFromMeterReading) return false
 
         if (user.type === STAFF) {
-            const organizationPermission =
-                await checkPermissionInUserOrganizationOrRelatedOrganization(context, user.id, organizationIdFromMeterReading, 'canManageMeterReadings')
-            if (organizationPermission)
-                return true
+            const organizationPermission = await checkPermissionInUserOrganizationOrRelatedOrganization(
+                context,
+                user.id,
+                organizationIdFromMeterReading,
+                'canManageMeterReadings',
+            )
+            if (organizationPermission) return true
         }
 
         if (user.type === RESIDENT) {
             const meterId = get(originalInput, ['meter', 'connect', 'id'], null)
             const availableMeterIds = await getAvailableResidentMeters(context, userId)
-            const idsArray = availableMeterIds.map(obj => obj.id)
+            const idsArray = availableMeterIds.map((obj) => obj.id)
 
             if (idsArray.includes(meterId)) return true
         }

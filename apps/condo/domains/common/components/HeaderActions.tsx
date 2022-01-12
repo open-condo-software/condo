@@ -26,31 +26,35 @@ interface IRightButtonHeaderActionProps {
 }
 
 const IconContainer = styled.div`
-  width: 24px;
-  height: 24px;
-  box-sizing: border-box;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  background-color: ${colors.lightGrey[5]};
-  border-radius: 8px;
+    width: 24px;
+    height: 24px;
+    box-sizing: border-box;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    background-color: ${colors.lightGrey[5]};
+    border-radius: 8px;
 `
 
 const StyledButton = styled(Button)`
-  border: none;
-  padding: 0;
-  height: 24px;
-  box-sizing: border-box;
-  font-size: 12px;
+    border: none;
+    padding: 0;
+    height: 24px;
+    box-sizing: border-box;
+    font-size: 12px;
 
-  &:hover {
-    .icon {
-      background-color: ${colors.lightGrey[6]};
+    &:hover {
+        .icon {
+            background-color: ${colors.lightGrey[6]};
+        }
     }
-  }
 `
 
-export const ReturnBackHeaderAction: React.FC<IReturnBackHeaderActionProps> = ({ descriptor, path, useBrowserHistory = true }) => {
+export const ReturnBackHeaderAction: React.FC<IReturnBackHeaderActionProps> = ({
+    descriptor,
+    path,
+    useBrowserHistory = true,
+}) => {
     const intl = useIntl()
     const BackMessage = intl.formatMessage(descriptor)
     const [hasBrowserHistory, setHasBrowserHistory] = useState<boolean>(false)
@@ -72,14 +76,12 @@ export const ReturnBackHeaderAction: React.FC<IReturnBackHeaderActionProps> = ({
     }, [hasBrowserHistory, url])
 
     return (
-        <StyledButton type='link' onClick={handleClick}>
+        <StyledButton type="link" onClick={handleClick}>
             <Space size={16}>
-                <IconContainer className='icon'>
-                    <ArrowLeftOutlined style={{ color: colors.white }}/>
+                <IconContainer className="icon">
+                    <ArrowLeftOutlined style={{ color: colors.white }} />
                 </IconContainer>
-                <Typography.Text className='text'>
-                    {BackMessage}
-                </Typography.Text>
+                <Typography.Text className="text">{BackMessage}</Typography.Text>
             </Space>
         </StyledButton>
     )
@@ -91,9 +93,7 @@ export const TitleHeaderAction: React.FC<ITitleHeaderActionProps> = (props) => {
     const TitleMessage = intl.formatMessage(descriptor)
     return (
         <Space>
-            <Typography.Text style={{ fontSize: '12px' }}>
-                {TitleMessage}
-            </Typography.Text>
+            <Typography.Text style={{ fontSize: '12px' }}>{TitleMessage}</Typography.Text>
         </Space>
     )
 }
@@ -106,9 +106,9 @@ export const ButtonHeaderAction: React.FC<IRightButtonHeaderActionProps> = (prop
 
     return (
         <Button
-            key='submit'
+            key="submit"
             onClick={() => Router.push(path)}
-            type='sberPrimary'
+            type="sberPrimary"
             secondary={true}
             size={isMobile ? 'middle' : 'large'}
             block

@@ -32,7 +32,6 @@ const {
 const { createTestOrganizationEmployeeRole } = require('../utils/testSchema')
 const { createTestOrganizationEmployee } = require('../utils/testSchema')
 
-
 describe('Organization', () => {
     // Despite just registered user can create Organization from UI, calling `Organization.create`
     // should be forbidden for it. User can create organization using UI, because it executes
@@ -76,10 +75,10 @@ describe('Organization', () => {
         })
     })
 
-    describe('user: update Organization',  () => {
+    describe('user: update Organization', () => {
         describe('not employed into organization', () => {
             it('cannot regardless of granted "canManageOrganization"', async () => {
-                [true, false].map(async (canManageOrganization) => {
+                ;[true, false].map(async (canManageOrganization) => {
                     const admin = await makeLoggedInAdminClient()
                     const [organization] = await createTestOrganization(admin)
                     const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
@@ -96,7 +95,6 @@ describe('Organization', () => {
                     })
                 })
             })
-
         })
 
         describe('employed into organization', () => {
@@ -154,26 +152,29 @@ describe('Organization', () => {
 
                 await createTestOrganizationEmployee(admin, organization, managerUserClient.user, role)
 
-                await catchErrorFrom(async () => {
-                    await updateTestOrganization(managerUserClient, organization.id, {
-                        statusTransitions: {
-                            ...DEFAULT_STATUS_TRANSITIONS,
-                            [STATUS_IDS.DECLINED]: [STATUS_IDS.OPEN],
-                        },
-                    })
-                }, ({ errors, data }) => {
-                    expect(errors[0]).toMatchObject({
-                        'message': 'You do not have access to this resource',
-                        'name': 'AccessDeniedError',
-                        'path': ['obj'],
-                        'data': {
-                            'type': 'mutation',
-                            'target': 'updateOrganization',
-                            'restrictedFields': [ 'statusTransitions' ],
-                        },
-                    })
-                    expect(data).toEqual({ 'obj': null })
-                })
+                await catchErrorFrom(
+                    async () => {
+                        await updateTestOrganization(managerUserClient, organization.id, {
+                            statusTransitions: {
+                                ...DEFAULT_STATUS_TRANSITIONS,
+                                [STATUS_IDS.DECLINED]: [STATUS_IDS.OPEN],
+                            },
+                        })
+                    },
+                    ({ errors, data }) => {
+                        expect(errors[0]).toMatchObject({
+                            message: 'You do not have access to this resource',
+                            name: 'AccessDeniedError',
+                            path: ['obj'],
+                            data: {
+                                type: 'mutation',
+                                target: 'updateOrganization',
+                                restrictedFields: ['statusTransitions'],
+                            },
+                        })
+                        expect(data).toEqual({ obj: null })
+                    },
+                )
             })
 
             it.skip('cannot update "defaultEmployeeRoleStatusTransitions"', async () => {
@@ -186,26 +187,29 @@ describe('Organization', () => {
 
                 await createTestOrganizationEmployee(admin, organization, managerUserClient.user, role)
 
-                await catchErrorFrom(async () => {
-                    await updateTestOrganization(managerUserClient, organization.id, {
-                        defaultEmployeeRoleStatusTransitions: {
-                            ...DEFAULT_STATUS_TRANSITIONS,
-                            [STATUS_IDS.DECLINED]: [STATUS_IDS.OPEN],
-                        },
-                    })
-                }, ({ errors, data }) => {
-                    expect(errors[0]).toMatchObject({
-                        'message': 'You do not have access to this resource',
-                        'name': 'AccessDeniedError',
-                        'path': ['obj'],
-                        'data': {
-                            'type': 'mutation',
-                            'target': 'updateOrganization',
-                            'restrictedFields': [ 'defaultEmployeeRoleStatusTransitions' ],
-                        },
-                    })
-                    expect(data).toEqual({ 'obj': null })
-                })
+                await catchErrorFrom(
+                    async () => {
+                        await updateTestOrganization(managerUserClient, organization.id, {
+                            defaultEmployeeRoleStatusTransitions: {
+                                ...DEFAULT_STATUS_TRANSITIONS,
+                                [STATUS_IDS.DECLINED]: [STATUS_IDS.OPEN],
+                            },
+                        })
+                    },
+                    ({ errors, data }) => {
+                        expect(errors[0]).toMatchObject({
+                            message: 'You do not have access to this resource',
+                            name: 'AccessDeniedError',
+                            path: ['obj'],
+                            data: {
+                                type: 'mutation',
+                                target: 'updateOrganization',
+                                restrictedFields: ['defaultEmployeeRoleStatusTransitions'],
+                            },
+                        })
+                        expect(data).toEqual({ obj: null })
+                    },
+                )
             })
         })
     })
@@ -305,11 +309,14 @@ describe('Organization', () => {
     })
 })
 
-describe('organization TIN: various cases',  () => {
+describe('organization TIN: various cases', () => {
     test('admin: create Organization with valid 10 digits RU INN and RU country code ', async () => {
         // TODO(DOMA-1897): Create organization by ordinary user, not admin to respect real flow.
         const admin = await makeLoggedInAdminClient()
-        const [createdOrganization] = await createTestOrganization(admin, { meta: { inn: VALID_RU_TIN_10 }, country: RUSSIA_COUNTRY })
+        const [createdOrganization] = await createTestOrganization(admin, {
+            meta: { inn: VALID_RU_TIN_10 },
+            country: RUSSIA_COUNTRY,
+        })
 
         const organizationData = await Organization.getAll(admin, { id: createdOrganization.id })
 
@@ -319,7 +326,10 @@ describe('organization TIN: various cases',  () => {
 
     test('admin: create Organization with valid 12 digits RU INN and RU country code ', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [createdOrganization] = await createTestOrganization(admin, { meta: { inn: VALID_RU_TIN_12 }, country: RUSSIA_COUNTRY })
+        const [createdOrganization] = await createTestOrganization(admin, {
+            meta: { inn: VALID_RU_TIN_12 },
+            country: RUSSIA_COUNTRY,
+        })
 
         const organizationData = await Organization.getAll(admin, { id: createdOrganization.id })
 
@@ -329,7 +339,10 @@ describe('organization TIN: various cases',  () => {
 
     test('admin: create Organization with invalid 10 digits RU INN and RU country code ', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [createdOrganization] = await createTestOrganization(admin, { meta: { inn: INVALID_RU_TIN_10 }, country: RUSSIA_COUNTRY })
+        const [createdOrganization] = await createTestOrganization(admin, {
+            meta: { inn: INVALID_RU_TIN_10 },
+            country: RUSSIA_COUNTRY,
+        })
 
         const organizationData = await Organization.getAll(admin, { id: createdOrganization.id })
 
@@ -339,7 +352,10 @@ describe('organization TIN: various cases',  () => {
 
     test('admin: create Organization with invalid 12 digits RU INN and RU country code ', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [createdOrganization] = await createTestOrganization(admin, { meta: { inn: INVALID_RU_TIN_12 }, country: RUSSIA_COUNTRY })
+        const [createdOrganization] = await createTestOrganization(admin, {
+            meta: { inn: INVALID_RU_TIN_12 },
+            country: RUSSIA_COUNTRY,
+        })
 
         const organizationData = await Organization.getAll(admin, { id: createdOrganization.id })
 
@@ -349,7 +365,10 @@ describe('organization TIN: various cases',  () => {
 
     test('admin: create Organization with random letters 10 chars RU INN and RU country code ', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [createdOrganization] = await createTestOrganization(admin, { meta: { inn: SOME_RANDOM_LETTERS }, country: RUSSIA_COUNTRY })
+        const [createdOrganization] = await createTestOrganization(admin, {
+            meta: { inn: SOME_RANDOM_LETTERS },
+            country: RUSSIA_COUNTRY,
+        })
 
         const organizationData = await Organization.getAll(admin, { id: createdOrganization.id })
 

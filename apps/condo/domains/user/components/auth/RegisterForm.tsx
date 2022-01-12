@@ -106,7 +106,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
         <Form
             {...FORM_LAYOUT}
             form={form}
-            name='register'
+            name="register"
             onFinish={registerComplete}
             initialValues={initialValues}
             colon={false}
@@ -120,30 +120,18 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                         <Col span={24}>
                             <Row gutter={[0, 24]}>
                                 <Col span={24}>
-                                    <Form.Item
-                                        name='phone'
-                                        label={PhoneMsg}
-                                        rules={validators.phone}
-                                    >
-                                        <PhoneInput disabled={true} placeholder={ExamplePhoneMsg} block/>
+                                    <Form.Item name="phone" label={PhoneMsg} rules={validators.phone}>
+                                        <PhoneInput disabled={true} placeholder={ExamplePhoneMsg} block />
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
-                                    <Form.Item
-                                        name='name'
-                                        label={NameMsg}
-                                        rules={validators.name}
-                                    >
-                                        <Input placeholder={ExampleNameMsg}/>
+                                    <Form.Item name="name" label={NameMsg} rules={validators.name}>
+                                        <Input placeholder={ExampleNameMsg} />
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
-                                    <Form.Item
-                                        name='email'
-                                        label={EmailMsg}
-                                        rules={validators.email}
-                                    >
-                                        <Input autoComplete='chrome-off' placeholder={EmailPlaceholder}/>
+                                    <Form.Item name="email" label={EmailMsg} rules={validators.email}>
+                                        <Input autoComplete="chrome-off" placeholder={EmailPlaceholder} />
                                     </Form.Item>
                                 </Col>
                             </Row>
@@ -151,22 +139,18 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                         <Col span={24}>
                             <Row gutter={[0, 24]}>
                                 <Col span={24}>
-                                    <Form.Item
-                                        name='password'
-                                        label={PasswordMsg}
-                                        rules={validators.password}
-                                    >
-                                        <Input.Password autoComplete='new-password'/>
+                                    <Form.Item name="password" label={PasswordMsg} rules={validators.password}>
+                                        <Input.Password autoComplete="new-password" />
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
                                     <Form.Item
-                                        name='confirm'
+                                        name="confirm"
                                         label={ConfirmPasswordMsg}
                                         dependencies={['password']}
                                         rules={validators.confirm}
                                     >
-                                        <Input.Password/>
+                                        <Input.Password />
                                     </Form.Item>
                                 </Col>
                             </Row>
@@ -175,12 +159,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                 </Col>
                 <Col span={24}>
                     <Form.Item>
-                        <Button
-                            key='submit'
-                            type='sberPrimary'
-                            htmlType='submit'
-                            loading={isLoading}
-                        >
+                        <Button key="submit" type="sberPrimary" htmlType="submit" loading={isLoading}>
                             {RegisterMsg}
                         </Button>
                     </Form.Item>

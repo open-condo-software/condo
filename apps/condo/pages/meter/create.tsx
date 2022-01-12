@@ -21,7 +21,10 @@ const CreateMeterPage: ICreateContactPage = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'meter.AddMeterReadings' })
 
-    const { organization, link: { role } } = useOrganization()
+    const {
+        organization,
+        link: { role },
+    } = useOrganization()
 
     return (
         <>
@@ -35,10 +38,7 @@ const CreateMeterPage: ICreateContactPage = () => {
                             <Typography.Title level={1}>{PageTitle}</Typography.Title>
                         </Col>
                         <Col span={24}>
-                            <CreateMeterReadingsForm
-                                organization={organization}
-                                role={role}
-                            />
+                            <CreateMeterReadingsForm organization={organization} role={role} />
                         </Col>
                     </Row>
                 </PageContent>
@@ -47,9 +47,7 @@ const CreateMeterPage: ICreateContactPage = () => {
     )
 }
 
-CreateMeterPage.headerAction = <ReturnBackHeaderAction
-    descriptor={{ id: 'meter.MeterReadingsLog' }}
-    path={'/meter'}/>
+CreateMeterPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'meter.MeterReadingsLog' }} path={'/meter'} />
 CreateMeterPage.requiredAccess = OrganizationRequired
 
 export default CreateMeterPage

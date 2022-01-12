@@ -111,5 +111,4 @@ const sync = async ({ keystone, userInfo, tokenSet }) => {
     }
 }
 
-
 module.exports = sync

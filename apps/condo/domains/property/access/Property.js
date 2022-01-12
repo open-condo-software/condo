@@ -11,8 +11,7 @@ const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { uniq, compact } = require('lodash')
 
-
-async function canReadProperties ({ authentication: { item: user }, context }) {
+async function canReadProperties({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin || user.isSupport) return {}
     const userId = user.id
@@ -21,7 +20,7 @@ async function canReadProperties ({ authentication: { item: user }, context }) {
         if (residents.length === 0) {
             return false
         }
-        const propertyIds = compact(residents.map(resident => get(resident, ['property', 'id'])))
+        const propertyIds = compact(residents.map((resident) => get(resident, ['property', 'id'])))
         if (propertyIds.length > 0) {
             return {
                 // We can have multiple residents in different units of the same property for current user,
@@ -33,15 +32,12 @@ async function canReadProperties ({ authentication: { item: user }, context }) {
     }
     return {
         organization: {
-            OR: [
-                queryOrganizationEmployeeFor(userId),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
-            ],
+            OR: [queryOrganizationEmployeeFor(userId), queryOrganizationEmployeeFromRelatedOrganizationFor(userId)],
         },
     }
 }
 
-async function canManageProperties ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
+async function canManageProperties({ authentication: { item: user }, originalInput, operation, itemId, context }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     if (operation === 'create') {
@@ -64,7 +60,7 @@ async function canManageProperties ({ authentication: { item: user }, originalIn
         const { organization: organizationId } = property
 
         return await checkOrganizationPermission(context, user.id, organizationId, 'canManageProperties')
-    } 
+    }
     return false
 }
 

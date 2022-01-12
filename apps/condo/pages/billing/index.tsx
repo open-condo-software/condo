@@ -13,7 +13,7 @@ import { TablePageContent } from '@condo/domains/common/components/containers/Ba
 
 const BillingPage = () => {
     const intl = useIntl()
-    const BillingTitle = intl.formatMessage({ id:'menu.Billing' })
+    const BillingTitle = intl.formatMessage({ id: 'menu.Billing' })
 
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], '')
@@ -22,30 +22,31 @@ const BillingPage = () => {
         obj: currentContext,
         error: contextError,
         loading: contextLoading,
-    } = BillingIntegrationOrganizationContext.useObject({
-        where: {
-            organization: {
-                id: organizationId,
+    } = BillingIntegrationOrganizationContext.useObject(
+        {
+            where: {
+                organization: {
+                    id: organizationId,
+                },
             },
         },
-    }, {
-        fetchPolicy: 'network-only',
-    })
+        {
+            fetchPolicy: 'network-only',
+        },
+    )
 
     const options = get(currentContext, ['integration', 'availableOptions', 'options'], [])
-    const namedOptions = options.filter(option => option.name === get(currentContext, 'integrationOption'))
+    const namedOptions = options.filter((option) => option.name === get(currentContext, 'integrationOption'))
     const integrationPageTitle = get(currentContext, ['integration', 'billingPageTitle'], BillingTitle)
     const PageTitle = get(namedOptions, ['0', 'billingPageTitle'], integrationPageTitle)
 
     return (
         <>
             <Head>
-                <title>
-                    {BillingTitle}
-                </title>
+                <title>{BillingTitle}</title>
             </Head>
             <PageWrapper>
-                <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitle}</Typography.Title>}/>
+                <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitle}</Typography.Title>} />
                 <TablePageContent>
                     <BillingPageContent
                         access={canReadBillingReceipts}
@@ -59,7 +60,7 @@ const BillingPage = () => {
     )
 }
 
-BillingPage.headerAction = <TitleHeaderAction descriptor={{ id:'menu.Billing' }}/>
+BillingPage.headerAction = <TitleHeaderAction descriptor={{ id: 'menu.Billing' }} />
 BillingPage.requiredAccess = OrganizationRequired
 
 export default BillingPage

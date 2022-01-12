@@ -3,7 +3,7 @@ const sum = require('lodash/sum')
 const getFieldPercentSummaryValue = (row, constants) => {
     const { totalCount } = constants
     const statusCounts = Object.values(row)
-    return (sum(statusCounts) / totalCount * 100).toFixed(2) + ' %'
+    return ((sum(statusCounts) / totalCount) * 100).toFixed(2) + ' %'
 }
 
 const propertySummaryPercentDataMapper = ({ row = {}, constants = {} }) => ({

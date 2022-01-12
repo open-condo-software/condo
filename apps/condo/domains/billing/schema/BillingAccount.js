@@ -8,11 +8,14 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD, IMPORT_ID_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingAccount')
-const { DV_UNKNOWN_VERSION_ERROR, JSON_EXPECT_OBJECT_ERROR, JSON_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
+const {
+    DV_UNKNOWN_VERSION_ERROR,
+    JSON_EXPECT_OBJECT_ERROR,
+    JSON_UNKNOWN_VERSION_ERROR,
+} = require('@condo/domains/common/constants/errors')
 const { hasValidJsonStructure, hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { RAW_DATA_FIELD } = require('./fields/common')
 const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD } = require('./fields/relations')
-
 
 const BillingAccount = new GQLListSchema('BillingAccount', {
     schemaDoc: 'All `account` objects from `billing data source`. In close account cases, these objects should be soft deleted',
@@ -29,7 +32,8 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
         property: BILLING_PROPERTY_FIELD,
 
         globalId: {
-            schemaDoc: 'A well-known universal identifier that allows you to identify the same objects in different systems. It may differ in different countries. ' +
+            schemaDoc:
+                'A well-known universal identifier that allows you to identify the same objects in different systems. It may differ in different countries. ' +
                 'Example: for Russia, the dom.gosuslugi.ru account number is used',
             type: Text,
             isRequired: false,
@@ -52,7 +56,8 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
         },
 
         meta: {
-            schemaDoc: 'Structured metadata obtained from the `billing data source`. Some of this data is required for use in the `receipt template`. ' +
+            schemaDoc:
+                'Structured metadata obtained from the `billing data source`. Some of this data is required for use in the `receipt template`. ' +
                 'Examples of data keys: `property unit number`, `floor`, `entrance`, `is parking`',
             type: Json,
             isRequired: true,
@@ -63,10 +68,14 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
                     const value = resolvedData[fieldPath]
                     if (value === null) return // null is OK
                     if (!hasValidJsonStructure(args, true, 1, {}))
-                        return addFieldValidationError(`${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] ${fieldPath} field type error. We expect JSON Object`)
+                        return addFieldValidationError(
+                            `${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] ${fieldPath} field type error. We expect JSON Object`,
+                        )
                     const { dv } = value
                     if (dv !== 1) {
-                        return addFieldValidationError(`${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`)
+                        return addFieldValidationError(
+                            `${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`,
+                        )
                     }
                 },
             },

@@ -45,35 +45,35 @@ export const DesktopSideNav: React.FC<ISideNavProps> = (props) => {
         <>
             <Layout.Sider
                 collapsed={isCollapsed}
-                theme='light'
+                theme="light"
                 css={sideNavStyles}
                 width={SIDE_MENU_WIDTH}
                 collapsedWidth={COLLAPSED_SIDE_MENU_WIDTH}
             >
                 <LogoContainer>
-                    <Logo onClick={onLogoClick} minified={isCollapsed}/>
+                    <Logo onClick={onLogoClick} minified={isCollapsed} />
                 </LogoContainer>
                 <LayoutTriggerWrapper>
                     <Button
                         onClick={toggleCollapsed}
                         size={'small'}
                         shape={'circle'}
-                        icon={isCollapsed ? <RightOutlined style={{ fontSize: '13px' }} /> : <LeftOutlined style={{ fontSize: '13px' }}/>}
+                        icon={
+                            isCollapsed ? (
+                                <RightOutlined style={{ fontSize: '13px' }} />
+                            ) : (
+                                <LeftOutlined style={{ fontSize: '13px' }} />
+                            )
+                        }
                     />
                 </LayoutTriggerWrapper>
                 <ActionsContainer minified={isCollapsed}>
-                    <ResidentActions minified={isCollapsed}/>
+                    <ResidentActions minified={isCollapsed} />
                 </ActionsContainer>
-                <MenuItemsContainer>
-                    {menuData}
-                </MenuItemsContainer>
-                <ServiceSubscriptionIndicator/>
+                <MenuItemsContainer>{menuData}</MenuItemsContainer>
+                <ServiceSubscriptionIndicator />
             </Layout.Sider>
-            <Layout.Sider
-                collapsed={isCollapsed}
-                width={SIDE_MENU_WIDTH}
-                collapsedWidth={COLLAPSED_SIDE_MENU_WIDTH}
-            />
+            <Layout.Sider collapsed={isCollapsed} width={SIDE_MENU_WIDTH} collapsedWidth={COLLAPSED_SIDE_MENU_WIDTH} />
         </>
     )
 }

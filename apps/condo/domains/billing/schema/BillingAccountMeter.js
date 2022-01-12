@@ -11,9 +11,9 @@ const access = require('@condo/domains/billing/access/BillingAccountMeter')
 const { RAW_DATA_FIELD } = require('./fields/common')
 const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD } = require('./fields/relations')
 
-
 const BillingAccountMeter = new GQLListSchema('BillingAccountMeter', {
-    schemaDoc: 'All `personal meter` (non `whole-building meter`) objects from `billing data source`. In case of the meter can measure several resources we create a separate object for each resource',
+    schemaDoc:
+        'All `personal meter` (non `whole-building meter`) objects from `billing data source`. In case of the meter can measure several resources we create a separate object for each resource',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
@@ -42,13 +42,13 @@ const BillingAccountMeter = new GQLListSchema('BillingAccountMeter', {
         },
 
         meta: {
-            schemaDoc: 'Structured metadata obtained from the `billing data source`. Some of this data is required for use in the `receipt template`. ' +
+            schemaDoc:
+                'Structured metadata obtained from the `billing data source`. Some of this data is required for use in the `receipt template`. ' +
                 'Examples of data keys: `sealing date`, `install date`, `verification date`, `serial number`, `units of measurement`',
             // TODO(pahaz): research keys!
             type: Json,
             isRequired: true,
         },
-
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {

@@ -5,23 +5,20 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadTicketChanges ({ authentication: { item: user } }) {
+async function canReadTicketChanges({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin || user.isSupport) return {}
     const userId = user.id
     return {
         ticket: {
             organization: {
-                OR: [
-                    queryOrganizationEmployeeFor(userId),
-                    queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
-                ],
+                OR: [queryOrganizationEmployeeFor(userId), queryOrganizationEmployeeFromRelatedOrganizationFor(userId)],
             },
         },
     }
 }
 
-async function canManageTicketChanges ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageTicketChanges({ authentication: { item: user }, originalInput, operation, itemId }) {
     return false
 }
 

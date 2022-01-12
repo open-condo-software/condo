@@ -10,23 +10,27 @@ const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/
 const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 const { checkRelatedOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadTicketComments ({ authentication: { item: user } }) {
+async function canReadTicketComments({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin || user.isSupport) return {}
     const userId = user.id
     return {
         ticket: {
             organization: {
-                OR: [
-                    queryOrganizationEmployeeFor(userId),
-                    queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
-                ],
+                OR: [queryOrganizationEmployeeFor(userId), queryOrganizationEmployeeFromRelatedOrganizationFor(userId)],
             },
         },
     }
 }
 
-async function canManageTicketComments ({ authentication: { item: user }, originalInput, existingItem, operation, context, itemId }) {
+async function canManageTicketComments({
+    authentication: { item: user },
+    originalInput,
+    existingItem,
+    operation,
+    context,
+    itemId,
+}) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     if (operation === 'create') {
@@ -36,7 +40,12 @@ async function canManageTicketComments ({ authentication: { item: user }, origin
             return false
         }
         const organizationId = get(ticket, ['organization', 'id'])
-        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(context, user.id, organizationId, 'canManageTicketComments')
+        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(
+            context,
+            user.id,
+            organizationId,
+            'canManageTicketComments',
+        )
         if (canManageRelatedOrganizationTickets) {
             return true
         }
@@ -54,7 +63,12 @@ async function canManageTicketComments ({ authentication: { item: user }, origin
             return false
         }
         const organizationId = get(ticket, ['organization', 'id'])
-        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(context, user.id, organizationId, 'canManageTicketComments')
+        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(
+            context,
+            user.id,
+            organizationId,
+            'canManageTicketComments',
+        )
         if (canManageRelatedOrganizationTickets) {
             return true
         }
@@ -63,8 +77,8 @@ async function canManageTicketComments ({ authentication: { item: user }, origin
     return false
 }
 
-async function canSetUserField ({ authentication: { item: user }, originalInput, addFieldValidationError }) {
-    if (!user) return throwAuthenticationError()    
+async function canSetUserField({ authentication: { item: user }, originalInput, addFieldValidationError }) {
+    if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     if (get(originalInput, ['user', 'connect', 'id']) === user.id) {
         return true

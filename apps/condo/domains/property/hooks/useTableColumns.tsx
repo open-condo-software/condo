@@ -13,15 +13,15 @@ import { getAddressRender } from '@condo/domains/common/components/Table/Renders
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 
 export interface ITableColumn {
-    title: string,
-    ellipsis?: boolean,
-    sortOrder?: string,
-    filteredValue?: FilterValue,
-    dataIndex?: string,
-    key?: string,
-    sorter?: boolean,
-    width?: string,
-    filterDropdown?: unknown,
+    title: string
+    ellipsis?: boolean
+    sortOrder?: string
+    filteredValue?: FilterValue
+    dataIndex?: string
+    key?: string
+    sorter?: boolean
+    width?: string
+    filterDropdown?: unknown
     filterIcon?: unknown
 }
 
@@ -36,9 +36,7 @@ export const useTableColumns = (filterMetas: FiltersMeta<PropertyWhereInput>[]) 
 
     const search = getFilteredValue(filters, 'search')
 
-    const renderAddress = useCallback(
-        (_, property) => getAddressRender(property, null, search),
-        [search])
+    const renderAddress = useCallback((_, property) => getAddressRender(property, null, search), [search])
 
     return useMemo(() => {
         const columns = [

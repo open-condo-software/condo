@@ -6,18 +6,36 @@ const faker = require('faker')
 
 const { addResidentAccess, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { createTestBillingAccount, createTestBillingProperty, makeContextWithOrganizationAndIntegrationAsAdmin, makeClientWithPropertyAndBilling } = require('@condo/domains/billing/utils/testSchema')
-const { createTestOrganization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
-const { createTestServiceConsumer, createTestResident, updateTestServiceConsumer, makeClientWithServiceConsumer, registerResidentByTestClient, registerServiceConsumerByTestClient, ServiceConsumer } = require('../utils/testSchema')
+const {
+    createTestBillingAccount,
+    createTestBillingProperty,
+    makeContextWithOrganizationAndIntegrationAsAdmin,
+    makeClientWithPropertyAndBilling,
+} = require('@condo/domains/billing/utils/testSchema')
+const {
+    createTestOrganization,
+    createTestOrganizationEmployee,
+    createTestOrganizationEmployeeRole,
+} = require('@condo/domains/organization/utils/testSchema')
+const {
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedErrorToObjects,
+} = require('@condo/domains/common/utils/testSchema')
+const {
+    createTestServiceConsumer,
+    createTestResident,
+    updateTestServiceConsumer,
+    makeClientWithServiceConsumer,
+    registerResidentByTestClient,
+    registerServiceConsumerByTestClient,
+    ServiceConsumer,
+} = require('../utils/testSchema')
 
 const { makeClient } = require('@core/keystone/test.utils')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 
-
 describe('ServiceConsumer', () => {
-
-    describe('Create',  () => {
+    describe('Create', () => {
         it('can be created by admin', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
@@ -25,9 +43,16 @@ describe('ServiceConsumer', () => {
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [billingProperty] = await createTestBillingProperty(adminClient, context)
             const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
-            const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+            const [resident] = await createTestResident(
+                adminClient,
+                userClient.user,
+                userClient.organization,
+                userClient.property,
+            )
 
-            const [consumer] = await createTestServiceConsumer(adminClient, resident, userClient.organization, { billingAccount: { connect: { id: billingAccount.id } } })
+            const [consumer] = await createTestServiceConsumer(adminClient, resident, userClient.organization, {
+                billingAccount: { connect: { id: billingAccount.id } },
+            })
 
             expect(consumer.resident.id).toEqual(resident.id)
             expect(consumer.organization.id).toEqual(userClient.organization.id)
@@ -52,14 +77,21 @@ describe('ServiceConsumer', () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
             const anonymous = await makeClient()
-            const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+            const [resident] = await createTestResident(
+                adminClient,
+                userClient.user,
+                userClient.organization,
+                userClient.property,
+            )
 
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [billingProperty] = await createTestBillingProperty(adminClient, context)
             const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await createTestServiceConsumer(anonymous, resident, userClient.organization, { billingAccount: { connect: { id: billingAccount.id } } })
+                await createTestServiceConsumer(anonymous, resident, userClient.organization, {
+                    billingAccount: { connect: { id: billingAccount.id } },
+                })
             })
         })
     })
@@ -72,7 +104,7 @@ describe('ServiceConsumer', () => {
             const objs = await ServiceConsumer.getAll(
                 adminClient,
                 { id: serviceConsumerClient.serviceConsumer.id },
-                { sortBy: ['updatedAt_DESC'] }
+                { sortBy: ['updatedAt_DESC'] },
             )
 
             expect(objs.length === 1).toBeTruthy()
@@ -128,7 +160,9 @@ describe('ServiceConsumer', () => {
             await addResidentAccess(client.user)
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await updateTestServiceConsumer(client, client.serviceConsumer.id, { accountNumber: faker.random.alphaNumeric(8) })
+                await updateTestServiceConsumer(client, client.serviceConsumer.id, {
+                    accountNumber: faker.random.alphaNumeric(8),
+                })
             })
         })
 
@@ -140,7 +174,9 @@ describe('ServiceConsumer', () => {
             await addResidentAccess(client2.user)
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await updateTestServiceConsumer(client2, client1.serviceConsumer.id, { accountNumber: faker.random.alphaNumeric(8) })
+                await updateTestServiceConsumer(client2, client1.serviceConsumer.id, {
+                    accountNumber: faker.random.alphaNumeric(8),
+                })
             })
         })
 
@@ -148,7 +184,9 @@ describe('ServiceConsumer', () => {
             const client = await makeClientWithServiceConsumer()
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await updateTestServiceConsumer(client, client.serviceConsumer.id, { accountNumber: faker.random.alphaNumeric(8) })
+                await updateTestServiceConsumer(client, client.serviceConsumer.id, {
+                    accountNumber: faker.random.alphaNumeric(8),
+                })
             })
         })
 
@@ -157,7 +195,9 @@ describe('ServiceConsumer', () => {
             const client = await makeClientWithServiceConsumer()
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await updateTestServiceConsumer(anonymousClient, client.serviceConsumer.id, { accountNumber: faker.random.alphaNumeric(8) })
+                await updateTestServiceConsumer(anonymousClient, client.serviceConsumer.id, {
+                    accountNumber: faker.random.alphaNumeric(8),
+                })
             })
         })
     })
@@ -196,11 +236,15 @@ describe('ServiceConsumer', () => {
         it('Client lives in organization A and pays for water to organization B. When getting his ServiceConsumers client has access to inner fields', async () => {
             const UNIT_NAME = '22'
 
-            const { organizationClient: managementCompanyOrganizationClient } = await makeClientWithPropertyAndBilling({ billingAccountAttrs: { unitName: UNIT_NAME } })
-            const { organizationClient: waterCompanyOrganizationClient } = await makeClientWithPropertyAndBilling({ billingAccountAttrs: { unitName: UNIT_NAME } })
+            const { organizationClient: managementCompanyOrganizationClient } = await makeClientWithPropertyAndBilling({
+                billingAccountAttrs: { unitName: UNIT_NAME },
+            })
+            const { organizationClient: waterCompanyOrganizationClient } = await makeClientWithPropertyAndBilling({
+                billingAccountAttrs: { unitName: UNIT_NAME },
+            })
 
             const residentClient = await makeClientWithResidentUser()
-            const [ resident ] = await registerResidentByTestClient(residentClient, {
+            const [resident] = await registerResidentByTestClient(residentClient, {
                 address: managementCompanyOrganizationClient.property.address,
                 addressMeta: managementCompanyOrganizationClient.property.addressMeta,
                 unitName: UNIT_NAME,

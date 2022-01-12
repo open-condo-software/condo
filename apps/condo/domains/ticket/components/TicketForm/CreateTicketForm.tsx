@@ -20,35 +20,33 @@ export const CreateTicketActionBar = ({ handleSave, isLoading }) => {
 
     return (
         <Form.Item noStyle shouldUpdate>
-            {
-                ({ getFieldsValue }) => {
-                    const { property, details, placeClassifier, categoryClassifier } = getFieldsValue(REQUIRED_TICKET_FIELDS)
-                    const disabledCondition = !property || !details || !placeClassifier || !categoryClassifier
+            {({ getFieldsValue }) => {
+                const { property, details, placeClassifier, categoryClassifier } = getFieldsValue(REQUIRED_TICKET_FIELDS)
+                const disabledCondition = !property || !details || !placeClassifier || !categoryClassifier
 
-                    return (
-                        <ActionBar>
-                            <Space size={12}>
-                                <Button
-                                    key='submit'
-                                    onClick={handleSave}
-                                    type='sberPrimary'
-                                    loading={isLoading}
-                                    disabled={disabledCondition}
-                                >
-                                    {CreateTicketMessage}
-                                </Button>
-                                <ErrorsContainer
-                                    isVisible={disabledCondition}
-                                    property={property}
-                                    details={details}
-                                    placeClassifier={placeClassifier}
-                                    categoryClassifier={categoryClassifier}
-                                />
-                            </Space>
-                        </ActionBar>
-                    )
-                }
-            }
+                return (
+                    <ActionBar>
+                        <Space size={12}>
+                            <Button
+                                key="submit"
+                                onClick={handleSave}
+                                type="sberPrimary"
+                                loading={isLoading}
+                                disabled={disabledCondition}
+                            >
+                                {CreateTicketMessage}
+                            </Button>
+                            <ErrorsContainer
+                                isVisible={disabledCondition}
+                                property={property}
+                                details={details}
+                                placeClassifier={placeClassifier}
+                                categoryClassifier={categoryClassifier}
+                            />
+                        </Space>
+                    </ActionBar>
+                )
+            }}
         </Form.Item>
     )
 }
@@ -65,7 +63,8 @@ export const CreateTicketForm: React.FC = () => {
         },
         () => {
             router.push('/ticket')
-        })
+        },
+    )
 
     const createAction = useCallback((attrs) => action({ ...attrs, organization }), [organization])
 
@@ -74,17 +73,20 @@ export const CreateTicketForm: React.FC = () => {
         executor: auth.user.id,
     }
 
-    const MemoizedBaseTicketForm = useCallback(() => (
-        <BaseTicketForm
-            action={createAction}
-            initialValues={initialValues}
-            organization={organization}
-            role={link.role}
-            autoAssign
-        >
-            {({ handleSave, isLoading }) => <CreateTicketActionBar handleSave={handleSave} isLoading={isLoading}/>}
-        </BaseTicketForm>
-    ), [createAction, initialValues, link.role, organization])
+    const MemoizedBaseTicketForm = useCallback(
+        () => (
+            <BaseTicketForm
+                action={createAction}
+                initialValues={initialValues}
+                organization={organization}
+                role={link.role}
+                autoAssign
+            >
+                {({ handleSave, isLoading }) => <CreateTicketActionBar handleSave={handleSave} isLoading={isLoading} />}
+            </BaseTicketForm>
+        ),
+        [createAction, initialValues, link.role, organization],
+    )
 
     return <MemoizedBaseTicketForm />
 }

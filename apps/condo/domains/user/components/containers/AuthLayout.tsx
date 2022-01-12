@@ -1,4 +1,4 @@
-import React  from 'react'
+import React from 'react'
 import { formInputFixCss } from '@condo/domains/common/components/containers/BaseLayout/components/styles'
 import { Global } from '@emotion/core'
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3'
@@ -7,7 +7,9 @@ import getConfig from 'next/config'
 import { PosterLayout } from './PosterLayout'
 import { AuthLayoutContextProvider } from './AuthLayoutContext'
 
-const { publicRuntimeConfig: { googleCaptcha } } = getConfig()
+const {
+    publicRuntimeConfig: { googleCaptcha },
+} = getConfig()
 
 export interface AuthPage extends React.FC {
     headerAction: React.ReactElement
@@ -33,12 +35,11 @@ const AuthLayout: React.FC<IAuthLayoutProps> = (props) => {
                 async: true,
                 defer: true,
                 appendTo: 'body',
-            }}>
-            <Global styles={formInputFixCss}/>
+            }}
+        >
+            <Global styles={formInputFixCss} />
             <PosterLayout {...otherProps}>
-                <AuthLayoutContextProvider>
-                    {children}
-                </AuthLayoutContextProvider>
+                <AuthLayoutContextProvider>{children}</AuthLayoutContextProvider>
             </PosterLayout>
         </GoogleReCaptchaProvider>
     )

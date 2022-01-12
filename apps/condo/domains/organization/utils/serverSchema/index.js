@@ -26,5 +26,5 @@ module.exports = {
     OrganizationEmployeeRole,
     OrganizationLink,
     TokenSet,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

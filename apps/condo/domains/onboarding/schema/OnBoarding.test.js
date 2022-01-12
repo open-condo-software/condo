@@ -5,20 +5,20 @@
 const { makeLoggedInAdminClient, makeLoggedInClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
 const { OnBoarding, createTestOnBoarding, updateTestOnBoarding } = require('@condo/domains/onboarding/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
+const {
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedErrorToObjects,
+} = require('@condo/domains/common/utils/testSchema')
 
 describe('OnBoarding', () => {
     test('user: create OnBoarding', async () => {
         const client = await makeLoggedInClient()
 
-        const [obj, attrs] = await createTestOnBoarding(
-            client,
-            {
-                type: 'ADMINISTRATOR',
-                user: { connect: { id: client.user.id } },
-                stepsTransitions: {},
-            }
-        )
+        const [obj, attrs] = await createTestOnBoarding(client, {
+            type: 'ADMINISTRATOR',
+            user: { connect: { id: client.user.id } },
+            stepsTransitions: {},
+        })
         expect(obj.id).toMatch(UUID_RE)
         expect(obj.dv).toEqual(1)
         expect(obj.sender).toEqual(attrs.sender)

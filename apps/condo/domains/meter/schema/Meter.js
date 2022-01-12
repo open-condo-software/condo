@@ -13,7 +13,6 @@ const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation
 const { UNIQUE_ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
 const { Meter: MeterApi } = require('./../utils/serverSchema')
 
-
 const Meter = new GQLListSchema('Meter', {
     schemaDoc: 'Resource meter at a certain place in the unitName',
     fields: {
@@ -47,8 +46,7 @@ const Meter = new GQLListSchema('Meter', {
                             resource: { id: resolvedData.resource },
                             deletedAt: null,
                         })
-                    }
-                    else if (operation === 'update' && resolvedData.number !== existingItem.number) {
+                    } else if (operation === 'update' && resolvedData.number !== existingItem.number) {
                         const organization = resolvedData.organization ? resolvedData.organization : existingItem.organization
                         const resource = resolvedData.resource ? resolvedData.resource : existingItem.resource
 
@@ -60,8 +58,13 @@ const Meter = new GQLListSchema('Meter', {
                         })
                     }
 
-                    if (metersWithSameResourceAndNumberInOrganization && metersWithSameResourceAndNumberInOrganization.length > 0) {
-                        addFieldValidationError(`${UNIQUE_ALREADY_EXISTS_ERROR}${fieldPath}] Meter with same number and resource exist in current organization`)
+                    if (
+                        metersWithSameResourceAndNumberInOrganization &&
+                        metersWithSameResourceAndNumberInOrganization.length > 0
+                    ) {
+                        addFieldValidationError(
+                            `${UNIQUE_ALREADY_EXISTS_ERROR}${fieldPath}] Meter with same number and resource exist in current organization`,
+                        )
                     }
                 },
             },
@@ -78,8 +81,7 @@ const Meter = new GQLListSchema('Meter', {
         },
 
         commissioningDate: {
-            schemaDoc: 'Date when the meter was commissioned.' +
-                'Commissioning - documentation of the meter as a billing meter',
+            schemaDoc: 'Date when the meter was commissioned.' + 'Commissioning - documentation of the meter as a billing meter',
             type: DateTimeUtc,
         },
 
@@ -89,7 +91,8 @@ const Meter = new GQLListSchema('Meter', {
         },
 
         nextVerificationDate: {
-            schemaDoc: 'The date of the next meter verification.' +
+            schemaDoc:
+                'The date of the next meter verification.' +
                 'For example, for a cold water meter - usually 6 years after the verification date',
             type: DateTimeUtc,
         },
@@ -100,14 +103,15 @@ const Meter = new GQLListSchema('Meter', {
         },
 
         sealingDate: {
-            schemaDoc: 'The date when meter was sealed.' +
+            schemaDoc:
+                'The date when meter was sealed.' +
                 'Sealing is the installation of a unique single-use device (directly a seal and a sealing rope)' +
                 'on the metering device, which is designed to control unauthorized access to the equipment.',
             type: DateTimeUtc,
         },
 
         accountNumber: {
-            schemaDoc: 'Client\'s billing account',
+            schemaDoc: "Client's billing account",
             type: Text,
             isRequired: true,
             hooks: {
@@ -119,13 +123,9 @@ const Meter = new GQLListSchema('Meter', {
                             accountNumber: value,
                             organization: { id: resolvedData.organization },
                             deletedAt: null,
-                            OR: [
-                                { unitName_not: resolvedData.unitName },
-                                { property: { id_not: resolvedData.property } },
-                            ],
+                            OR: [{ unitName_not: resolvedData.unitName }, { property: { id_not: resolvedData.property } }],
                         })
-                    }
-                    else if (operation === 'update' && resolvedData.accountNumber !== existingItem.accountNumber) {
+                    } else if (operation === 'update' && resolvedData.accountNumber !== existingItem.accountNumber) {
                         const organization = resolvedData.organization ? resolvedData.organization : existingItem.organization
                         const property = resolvedData.property ? resolvedData.property : existingItem.property
                         const unitName = resolvedData.unitName ? resolvedData.unitName : existingItem.unitName
@@ -134,15 +134,14 @@ const Meter = new GQLListSchema('Meter', {
                             accountNumber: value,
                             organization: { id: organization },
                             deletedAt: null,
-                            OR: [
-                                { unitName_not: unitName },
-                                { property: { id_not: property } },
-                            ],
+                            OR: [{ unitName_not: unitName }, { property: { id_not: property } }],
                         })
                     }
 
                     if (metersWithSameAccountNumberInOtherUnit && metersWithSameAccountNumberInOtherUnit.length > 0) {
-                        addFieldValidationError(`${UNIQUE_ALREADY_EXISTS_ERROR}${fieldPath}] Meter with same account number exist in current organization in other unit`)
+                        addFieldValidationError(
+                            `${UNIQUE_ALREADY_EXISTS_ERROR}${fieldPath}] Meter with same account number exist in current organization in other unit`,
+                        )
                     }
                 },
             },
@@ -167,7 +166,6 @@ const Meter = new GQLListSchema('Meter', {
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
-
     },
     kmigratorOptions: {
         constraints: [

@@ -7,11 +7,21 @@ const { makeClientWithIntegrationAccess } = require('@condo/domains/billing/util
 const { OrganizationEmployee, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
-const { BillingAccount, createTestBillingAccount,
-    updateTestBillingAccount, createTestBillingProperty,
-    makeContextWithOrganizationAndIntegrationAsAdmin, createTestBillingIntegrationOrganizationContext,
-    makeOrganizationIntegrationManager, createReceiptsReader } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const {
+    BillingAccount,
+    createTestBillingAccount,
+    updateTestBillingAccount,
+    createTestBillingProperty,
+    makeContextWithOrganizationAndIntegrationAsAdmin,
+    createTestBillingIntegrationOrganizationContext,
+    makeOrganizationIntegrationManager,
+    createReceiptsReader,
+} = require('@condo/domains/billing/utils/testSchema')
+const {
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj,
+} = require('@condo/domains/common/utils/testSchema')
 const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 
 describe('BillingAccount', () => {
@@ -41,9 +51,9 @@ describe('BillingAccount', () => {
             await createTestBillingAccount(admin, context, property, {
                 globalId: 'cat',
             })
-            
+
             const [property2] = await createTestBillingProperty(admin, context)
-            
+
             await catchErrorFrom(
                 async () =>
                     await createTestBillingAccount(admin, context, property2, {
@@ -51,13 +61,12 @@ describe('BillingAccount', () => {
                     }),
                 (e) => {
                     expect(e.errors).toBeDefined()
-                }
+                },
             )
         })
     })
 
     describe('Create', () => {
-
         test('can be created by Admin', async () => {
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
@@ -68,7 +77,7 @@ describe('BillingAccount', () => {
             expect(billingAccount.property.id).toEqual(property.id)
         })
 
-        test('can\'t be created by user', async () => {
+        test("can't be created by user", async () => {
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property] = await createTestBillingProperty(admin, context)
@@ -79,7 +88,7 @@ describe('BillingAccount', () => {
             })
         })
 
-        test('can\'t be created by anonymous', async () => {
+        test("can't be created by anonymous", async () => {
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property] = await createTestBillingProperty(admin, context)
@@ -94,7 +103,11 @@ describe('BillingAccount', () => {
             const adminClient = await makeLoggedInAdminClient()
             const integrationClient = await makeClientWithIntegrationAccess()
             const [organization] = await createTestOrganization(adminClient)
-            const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, organization, integrationClient.integration)
+            const [context] = await createTestBillingIntegrationOrganizationContext(
+                adminClient,
+                organization,
+                integrationClient.integration,
+            )
             const [property] = await createTestBillingProperty(adminClient, context)
             const [billingAccount] = await createTestBillingAccount(integrationClient, context, property)
 
@@ -159,7 +172,11 @@ describe('BillingAccount', () => {
             const adminClient = await makeLoggedInAdminClient()
             const integrationClient = await makeClientWithIntegrationAccess()
             const [organization] = await createTestOrganization(adminClient)
-            const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, organization, integrationClient.integration)
+            const [context] = await createTestBillingIntegrationOrganizationContext(
+                adminClient,
+                organization,
+                integrationClient.integration,
+            )
             const [property] = await createTestBillingProperty(adminClient, context)
             const [billingAccount] = await createTestBillingAccount(adminClient, context, property)
 
@@ -310,7 +327,11 @@ describe('BillingAccount', () => {
             const adminClient = await makeLoggedInAdminClient()
             const integrationClient = await makeClientWithIntegrationAccess()
             const [organization] = await createTestOrganization(adminClient)
-            const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, organization, integrationClient.integration)
+            const [context] = await createTestBillingIntegrationOrganizationContext(
+                adminClient,
+                organization,
+                integrationClient.integration,
+            )
             const [property] = await createTestBillingProperty(adminClient, context)
             const [billingAccount] = await createTestBillingAccount(adminClient, context, property)
 

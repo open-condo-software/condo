@@ -40,14 +40,16 @@ describe('TicketChart', () => {
             expect(ticketChart).toBeInstanceOf(TicketChart)
         })
 
-        it('should return config for chart from getChartConfig method call',  () => {
+        it('should return config for chart from getChartConfig method call', () => {
             const ticketChart = new TicketChart(TICKET_CHART_CONFIG)
             expect(ticketChart.getChartConfig('line', TICKET_GROUPED_COUNTER)).toStrictEqual(CHART_RESULT_DATA)
         })
 
         it('should return config for table from getChartConfig method call', () => {
             const ticketChart = new TicketChart(TICKET_CHART_CONFIG)
-            expect(ticketChart.getTableConfig('line', TICKET_GROUPED_COUNTER, TABLE_ADDITIONAL_DATA)).toStrictEqual(TABLE_RESULT_DATA)
+            expect(ticketChart.getTableConfig('line', TICKET_GROUPED_COUNTER, TABLE_ADDITIONAL_DATA)).toStrictEqual(
+                TABLE_RESULT_DATA,
+            )
         })
     })
 })

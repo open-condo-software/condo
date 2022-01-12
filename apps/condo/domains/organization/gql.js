@@ -8,12 +8,14 @@ const { gql } = require('graphql-tag')
 
 const { generateGqlQueries } = require('@condo/domains/common/utils/codegeneration/generate.gql')
 
-const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
+const COMMON_FIELDS =
+    'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
 const ORGANIZATION_FIELDS = `{ country name description avatar { publicUrl } relatedOrganizations { id } meta tin statusTransitions defaultEmployeeRoleStatusTransitions importId importRemoteSystem ${COMMON_FIELDS} }`
 const Organization = generateGqlQueries('Organization', ORGANIZATION_FIELDS)
 
-const ORGANIZATION_EMPLOYEE_ROLE_FIELDS = '{ organization { id } name description statusTransitions canManageOrganization canManageEmployees canManageRoles canManageIntegrations canReadBillingReceipts canReadPayments canManageProperties canManageTickets canManageContacts canManageTicketComments canManageDivisions canShareTickets canBeAssignedAsResponsible canBeAssignedAsExecutor canManageMeters canManageMeterReadings id dv sender { dv fingerprint } v createdBy { id name } updatedBy { id name } createdAt updatedAt }'
+const ORGANIZATION_EMPLOYEE_ROLE_FIELDS =
+    '{ organization { id } name description statusTransitions canManageOrganization canManageEmployees canManageRoles canManageIntegrations canReadBillingReceipts canReadPayments canManageProperties canManageTickets canManageContacts canManageTicketComments canManageDivisions canShareTickets canBeAssignedAsResponsible canBeAssignedAsExecutor canManageMeters canManageMeterReadings id dv sender { dv fingerprint } v createdBy { id name } updatedBy { id name } createdAt updatedAt }'
 const OrganizationEmployeeRole = generateGqlQueries('OrganizationEmployeeRole', ORGANIZATION_EMPLOYEE_ROLE_FIELDS)
 
 const ORGANIZATION_EMPLOYEE_FIELDS = `{ organization ${ORGANIZATION_FIELDS} user { id name } name email phone specializations { id name } role ${ORGANIZATION_EMPLOYEE_ROLE_FIELDS} isRejected isAccepted isBlocked id dv sender { dv fingerprint } v createdBy { id name } updatedBy { id name } position createdAt deletedAt updatedAt }`

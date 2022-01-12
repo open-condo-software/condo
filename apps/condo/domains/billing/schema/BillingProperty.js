@@ -11,7 +11,6 @@ const access = require('@condo/domains/billing/access/BillingProperty')
 const { INTEGRATION_CONTEXT_FIELD } = require('./fields/relations')
 const { RAW_DATA_FIELD } = require('./fields/common')
 
-
 const BillingProperty = new GQLListSchema('BillingProperty', {
     schemaDoc: 'All `property` objects from `billing data source`',
     fields: {
@@ -25,7 +24,8 @@ const BillingProperty = new GQLListSchema('BillingProperty', {
         raw: RAW_DATA_FIELD,
 
         globalId: {
-            schemaDoc: 'A well-known universal identifier that allows you to identify the same objects in different systems. It may differ in different countries. Example: for Russia, the FIAS ID is used',
+            schemaDoc:
+                'A well-known universal identifier that allows you to identify the same objects in different systems. It may differ in different countries. Example: for Russia, the FIAS ID is used',
             type: Text,
             isRequired: true,
             kmigratorOptions: {
@@ -40,7 +40,8 @@ const BillingProperty = new GQLListSchema('BillingProperty', {
         },
 
         meta: {
-            schemaDoc: 'Structured metadata obtained from the `billing data source`. Some of this data is required for use in the `receipt template`. ' +
+            schemaDoc:
+                'Structured metadata obtained from the `billing data source`. Some of this data is required for use in the `receipt template`. ' +
                 'Examples of data keys: `total space of building`, `property beginning of exploitation year`, `has cultural heritage status`, `number of underground floors`, `number of above-ground floors`',
             // TODO(pahaz): research keys!
             type: Json,

@@ -30,7 +30,7 @@ describe('GetAllResidentTicketsService', () => {
         expect(ticket.source).toEqual(residentTicket.source)
     })
 
-    test('resident: cannot read ticket fields which not in ResidentTicketOutput', async () =>{
+    test('resident: cannot read ticket fields which not in ResidentTicketOutput', async () => {
         const userClient = await makeClientWithResidentAccessAndProperty()
         await createResidentTicketByTestClient(userClient, userClient.property)
 

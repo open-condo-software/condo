@@ -10,14 +10,14 @@ const actionBar = css`
     transition: box-shadow 0.6s ease-out;
 
     .ant-affix & {
-        background: rgba(255,255,255,0.9);
+        background: rgba(255, 255, 255, 0.9);
         box-shadow: 0px 9px 28px 8px rgba(0, 0, 0, 0.05), 0px 6px 16px rgba(0, 0, 0, 0.08), 0px 3px 6px -4px rgba(0, 0, 0, 0.12);
         border-radius: 8px;
     }
 `
 interface IActionBarProps {
-    fullscreen?: boolean;
-    hidden?: boolean;
+    fullscreen?: boolean
+    hidden?: boolean
 }
 
 const ActionBar: React.FC<IActionBarProps> = (props) => {
@@ -31,7 +31,7 @@ const ActionBar: React.FC<IActionBarProps> = (props) => {
     return (
         <Affix offsetBottom={48} style={barWidthStyle}>
             <Space wrap={true} size={[40, 24]} css={actionBar} style={barWidthStyle}>
-                { children }
+                {children}
             </Space>
         </Affix>
     )

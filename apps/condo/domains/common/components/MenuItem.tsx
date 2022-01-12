@@ -19,47 +19,47 @@ interface IMenuItemWrapperProps {
 }
 
 const MenuItemWrapper = styled.span<IMenuItemWrapperProps>`
-  cursor: pointer;
-  padding: ${props => props.padding ? props.padding : '12px 0'};
-  display: flex;
-  border-radius: 8px;
-  flex-direction: row;
-  align-items: center;
-  justify-content: ${({ isCollapsed }) => isCollapsed ? 'center' : 'flex-start'};
-  vertical-align: center;
+    cursor: pointer;
+    padding: ${(props) => (props.padding ? props.padding : '12px 0')};
+    display: flex;
+    border-radius: 8px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: ${({ isCollapsed }) => (isCollapsed ? 'center' : 'flex-start')};
+    vertical-align: center;
 
-  .label {
-    font-size: ${props => props.labelFontSize ? props.labelFontSize : '16px'};
-    transition: ${transitions.allDefault};
-    white-space: nowrap;
-  }
-
-  .icon {
-    color: ${colors.lightGrey[5]};
-    font-size: 20px;
-    transition: ${transitions.allDefault};
-  }
-
-  &:hover {
-    .icon {
-      color: ${colors.black};
-    }
-  }
-
-  &.active {
     .label {
-      font-weight: 700;
+        font-size: ${(props) => (props.labelFontSize ? props.labelFontSize : '16px')};
+        transition: ${transitions.allDefault};
+        white-space: nowrap;
     }
 
     .icon {
-      color: ${colors.black};
+        color: ${colors.lightGrey[5]};
+        font-size: 20px;
+        transition: ${transitions.allDefault};
     }
-  }
 
-  &.disabled {
-    opacity: 0.4;
-    pointer-events: none;
-  }
+    &:hover {
+        .icon {
+            color: ${colors.black};
+        }
+    }
+
+    &.active {
+        .label {
+            font-weight: 700;
+        }
+
+        .icon {
+            color: ${colors.black};
+        }
+    }
+
+    &.disabled {
+        opacity: 0.4;
+        pointer-events: none;
+    }
 `
 
 interface IMenuItemProps {
@@ -90,8 +90,8 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
     const Message = intl.formatMessage({ id: label })
 
     const menuItemClassNames = classnames({
-        'active': isActive,
-        'disabled': disabled,
+        active: isActive,
+        disabled: disabled,
     })
 
     if (isCollapsed) {
@@ -100,8 +100,8 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
                 <a>
                     <MenuItemWrapper className={menuItemClassNames} isCollapsed {...menuItemWrapperProps}>
                         <Tooltip title={Message} placement={'right'} color={colors.black} textColor={colors.white}>
-                            <IconWrapper className='icon'>
-                                <ClientRenderedIcon icon={icon}/>
+                            <IconWrapper className="icon">
+                                <ClientRenderedIcon icon={icon} />
                             </IconWrapper>
                         </Tooltip>
                     </MenuItemWrapper>
@@ -115,12 +115,10 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
             <a>
                 <MenuItemWrapper className={menuItemClassNames} {...menuItemWrapperProps}>
                     <Space size={14}>
-                        <IconWrapper className='icon'>
-                            <ClientRenderedIcon icon={icon}/>
+                        <IconWrapper className="icon">
+                            <ClientRenderedIcon icon={icon} />
                         </IconWrapper>
-                        <Typography.Text className='label'>
-                            {Message}
-                        </Typography.Text>
+                        <Typography.Text className="label">{Message}</Typography.Text>
                     </Space>
                 </MenuItemWrapper>
             </a>

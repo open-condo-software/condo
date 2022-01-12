@@ -19,29 +19,35 @@ export const useTableColumns = (
     organizationId: string,
     sort: Array<string>,
     filters: IFilters,
-    setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>
+    setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>,
 ) => {
     const intl = useIntl()
     const NameMessage = intl.formatMessage({ id: 'pages.auth.register.field.Name' })
     const RoleMessage = intl.formatMessage({ id: 'employee.Role' })
     const PositionMessage = intl.formatMessage({ id: 'employee.Position' })
-    const PhoneMessage =  intl.formatMessage({ id: 'Phone' })
+    const PhoneMessage = intl.formatMessage({ id: 'Phone' })
     const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
 
     const sorterMap = createSorterMap(sort)
-    const { loading, objs: organizationEmployeeRoles } = OrganizationEmployeeRole.useObjects({ where: { organization: { id: organizationId } } })
+    const { loading, objs: organizationEmployeeRoles } = OrganizationEmployeeRole.useObjects({
+        where: { organization: { id: organizationId } },
+    })
     const search = getFilteredValue<IFilters>(filters, 'search')
 
     const render = getTableCellRenderer(search)
 
     const renderCheckboxFilterDropdown = ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
-        const adaptedStatuses = organizationEmployeeRoles.map(OrganizationEmployeeRole.convertGQLItemToFormSelectState).filter(identity)
+        const adaptedStatuses = organizationEmployeeRoles
+            .map(OrganizationEmployeeRole.convertGQLItemToFormSelectState)
+            .filter(identity)
         const filterProps = {
             setSelectedKeys,
             selectedKeys,
             confirm,
             clearFilters,
-            beforeChange: () => { setFiltersApplied(true) },
+            beforeChange: () => {
+                setFiltersApplied(true)
+            },
         }
 
         return getOptionFilterDropdown(adaptedStatuses, loading)(filterProps)

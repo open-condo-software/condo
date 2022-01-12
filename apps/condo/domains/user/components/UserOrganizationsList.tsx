@@ -20,20 +20,21 @@ const OrganizationName: React.FC<IOrganizationName> = (props) => {
     const intl = useIntl()
     const EnterMessage = intl.formatMessage({ id: 'SignIn' })
 
-    const {
-        name,
-        organizationId,
-        employeeOrganizationId,
-        selectOrganization,
-    } = props
+    const { name, organizationId, employeeOrganizationId, selectOrganization } = props
 
     if (organizationId === employeeOrganizationId) {
-        return (<Typography.Text style={{ fontSize: fontSizes.content, fontWeight: 'bold' }}>{ name }</Typography.Text>)
+        return <Typography.Text style={{ fontSize: fontSizes.content, fontWeight: 'bold' }}>{name}</Typography.Text>
     }
 
     return (
         <Typography.Text style={{ fontSize: fontSizes.content }}>
-            { name } ({ <Button type={'inlineLink'} onClick={selectOrganization}>{ EnterMessage }</Button> })
+            {name} (
+            {
+                <Button type={'inlineLink'} onClick={selectOrganization}>
+                    {EnterMessage}
+                </Button>
+            }
+            )
         </Typography.Text>
     )
 }
@@ -63,9 +64,7 @@ const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) =>
         <Col span={24}>
             <Row gutter={[0, 24]}>
                 <Col lg={3} xs={10}>
-                    <Typography.Text type='secondary'>
-                        {OrganizationMessage}
-                    </Typography.Text>
+                    <Typography.Text type="secondary">{OrganizationMessage}</Typography.Text>
                 </Col>
                 <Col lg={19} xs={12} offset={2}>
                     <NotDefinedField
@@ -81,22 +80,18 @@ const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) =>
                     />
                 </Col>
                 <Col lg={3} xs={10}>
-                    <Typography.Text type='secondary'>
-                        {PositionMessage}
-                    </Typography.Text>
+                    <Typography.Text type="secondary">{PositionMessage}</Typography.Text>
                 </Col>
                 <Col lg={19} xs={12} offset={2}>
-                    <NotDefinedField value={get(employee, ['position'])}/>
+                    <NotDefinedField value={get(employee, ['position'])} />
                 </Col>
                 <Col lg={3} xs={10}>
-                    <Typography.Text type='secondary'>
-                        {RoleMessage}
-                    </Typography.Text>
+                    <Typography.Text type="secondary">{RoleMessage}</Typography.Text>
                 </Col>
                 <Col lg={19} xs={12} offset={2}>
                     <NotDefinedField
                         value={get(employee, ['role', 'name'])}
-                        render={(roleName) => (<Tag color='default'>{roleName}</Tag>)}
+                        render={(roleName) => <Tag color="default">{roleName}</Tag>}
                     />
                 </Col>
             </Row>
@@ -109,24 +104,12 @@ export const UserOrganizationsList = ({ userOrganization }) => {
 
     const { objs: userOrganizations, loading } = OrganizationEmployee.useObjects(
         { where: user ? { user: { id: user.id }, isAccepted: true } : {} },
-        { fetchPolicy: 'network-only' }
+        { fetchPolicy: 'network-only' },
     )
 
     const list = userOrganizations.map((employee, index) => (
-        <OrganizationEmployeeItem
-            employee={employee}
-            key={index}
-            userOrganization={userOrganization}
-        />
+        <OrganizationEmployeeItem employee={employee} key={index} userOrganization={userOrganization} />
     ))
 
-    return (
-        <Row gutter={[0, 60]}>
-            {
-                loading
-                    ? <Skeleton active/>
-                    : list
-            }
-        </Row>
-    )
+    return <Row gutter={[0, 60]}>{loading ? <Skeleton active /> : list}</Row>
 }

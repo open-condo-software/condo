@@ -52,9 +52,12 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
-    const createPropertyAction = Property.useCreate({
-        organization: userOrganizationId,
-    }, () => Promise.resolve())
+    const createPropertyAction = Property.useCreate(
+        {
+            organization: userOrganizationId,
+        },
+        () => Promise.resolve(),
+    )
 
     const columns: Columns = [
         { name: 'address', type: 'string', required: true, label: AddressLabel },
@@ -72,7 +75,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     }
 
     const propertyValidator: RowValidator = (row) => {
-        if (!row ) return Promise.resolve(false)
+        if (!row) return Promise.resolve(false)
         const address = get(row, ['addons', 'suggestion', 'value'])
         if (!address) {
             row.errors = [AddressNotFoundMessage]
@@ -83,14 +86,13 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             address: address,
             organization: { id: userOrganizationId },
         }
-        return searchProperty(client, where, undefined)
-            .then((res) => {
-                if (res.length > 0) {
-                    row.errors = [PropertyDuplicateMessage]
-                    return false
-                }
-                return true
-            })
+        return searchProperty(client, where, undefined).then((res) => {
+            if (res.length > 0) {
+                row.errors = [PropertyDuplicateMessage]
+                return false
+            }
+            return true
+        })
     }
 
     const propertyCreator: ObjectCreator = (row) => {

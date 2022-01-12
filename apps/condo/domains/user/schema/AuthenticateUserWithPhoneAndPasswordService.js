@@ -5,7 +5,6 @@ const { WRONG_EMAIL_ERROR, WRONG_PASSWORD_ERROR, WRONG_PHONE_ERROR } = require('
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { STAFF } = require('@condo/domains/user/constants/common')
 
-
 const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('AuthenticateUserWithPhoneAndPasswordService', {
     types: [
         {
@@ -34,9 +33,13 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
                 }
                 const user = await getById('User', users[0].id)
                 const { keystone } = await getSchemaCtx('User')
-                const { auth: { User: { password: PasswordStrategy } } } = keystone
+                const {
+                    auth: {
+                        User: { password: PasswordStrategy },
+                    },
+                } = keystone
                 const list = PasswordStrategy.getList()
-                const { success, message } = await PasswordStrategy._matchItem(user, { password }, list.fieldsByPath['password'] )
+                const { success, message } = await PasswordStrategy._matchItem(user, { password }, list.fieldsByPath['password'])
                 if (!success) {
                     throw new Error(`${WRONG_PASSWORD_ERROR}] ${message}`)
                 }

@@ -17,10 +17,7 @@ import { EmployeeRoleSelect } from '../EmployeeRoleSelect'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { Rule } from 'rc-field-form/lib/interface'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import {
-    ClassifiersQueryRemote,
-    TicketClassifierTypes,
-} from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
+import { ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 import { find, get } from 'lodash'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { colors, shadows } from '@condo/domains/common/constants/style'
@@ -37,9 +34,9 @@ const INPUT_LAYOUT_PROPS = {
     },
 }
 const CardCss = css`
-  width: 300px;
-  height: fit-content;
-  box-shadow: ${shadows.elevated};
+    width: 300px;
+    height: fit-content;
+    box-shadow: ${shadows.elevated};
 `
 
 export const UpdateEmployeeForm = () => {
@@ -58,8 +55,17 @@ export const UpdateEmployeeForm = () => {
     const classifiersLoader = new ClassifiersQueryRemote(useApolloClient())
     const { isSmall } = useLayoutContext()
 
-    const { obj: employee, loading: employeeLoading, error: employeeError, refetch } = OrganizationEmployee.useObject({ where: { id: String(get(query, 'id', '')) } })
-    const { objs: employeeRoles, loading: employeeRolesLoading, error: employeeRolesError } = OrganizationEmployeeRole.useObjects({ where: { organization: { id:  get(employee, ['organization', 'id']) } } })
+    const {
+        obj: employee,
+        loading: employeeLoading,
+        error: employeeError,
+        refetch,
+    } = OrganizationEmployee.useObject({ where: { id: String(get(query, 'id', '')) } })
+    const {
+        objs: employeeRoles,
+        loading: employeeRolesLoading,
+        error: employeeRolesError,
+    } = OrganizationEmployeeRole.useObjects({ where: { organization: { id: get(employee, ['organization', 'id']) } } })
     const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => {
         refetch().then(() => {
             push(`/employee/${get(query, 'id')}/`)
@@ -78,10 +84,11 @@ export const UpdateEmployeeForm = () => {
     const searchClassifers = (_, input) =>
         // We need to load all classifier items to have them pre-selected if a user have some classifier items,
         // that are out of range, queried by ClassifiersQueryRemote with default variables
-        classifiersLoader.search(input, TicketClassifierTypes.category, { first: undefined })
-            .then(result => result.map((classifier)=> ({ text: classifier.name, value: classifier.id })))
+        classifiersLoader
+            .search(input, TicketClassifierTypes.category, { first: undefined })
+            .then((result) => result.map((classifier) => ({ text: classifier.name, value: classifier.id })))
 
-    useEffect(()=> {
+    useEffect(() => {
         classifiersLoader.init()
         return () => classifiersLoader.clear()
     }, [])
@@ -90,7 +97,7 @@ export const UpdateEmployeeForm = () => {
     const loading = employeeLoading || employeeRolesLoading
 
     if (error) {
-        return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null}/>
+        return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null} />
     }
     if (loading) {
         return <Loader />
@@ -103,7 +110,7 @@ export const UpdateEmployeeForm = () => {
         role: get(employee, ['role', 'id']),
         position: get(employee, 'position'),
         email: get(employee, 'email'),
-        specializations: employee.specializations.map(spec => spec.id),
+        specializations: employee.specializations.map((spec) => spec.id),
     }
 
     return (
@@ -112,7 +119,7 @@ export const UpdateEmployeeForm = () => {
             initialValues={initialValues}
             layout={'horizontal'}
             validateTrigger={['onBlur', 'onSubmit']}
-            formValuesToMutationDataPreprocessor={(values)=> {
+            formValuesToMutationDataPreprocessor={(values) => {
                 const isRoleDeleted = !values.role && initialValues.role
                 const role = values.role
                 const selectedRole = find(employeeRoles, { id: role })
@@ -123,7 +130,7 @@ export const UpdateEmployeeForm = () => {
                 }
 
                 if (specializations && specializations.length) {
-                    values.specializations = specializations.map(id => id)
+                    values.specializations = specializations.map((id) => id)
                 } else {
                     values.specializations = null
                 }
@@ -143,25 +150,17 @@ export const UpdateEmployeeForm = () => {
                 return (
                     <Row gutter={[0, 40]} justify={'center'}>
                         <Col xs={10} lg={2}>
-                            <UserAvatar borderRadius={24} isBlocked={get(employee, 'isBlocked')}/>
+                            <UserAvatar borderRadius={24} isBlocked={get(employee, 'isBlocked')} />
                         </Col>
                         <Col xs={24} lg={12} offset={1}>
                             <Row gutter={[0, 40]}>
                                 <Col span={24}>
-                                    <Typography.Title
-                                        level={1}
-                                        style={{ margin: 0, fontWeight: 'bold' }}
-                                    >
+                                    <Typography.Title level={1} style={{ margin: 0, fontWeight: 'bold' }}>
                                         {EmployeeUpdateTitle}
                                     </Typography.Title>
                                 </Col>
                                 <Col span={24}>
-                                    <Form.Item
-                                        {...INPUT_LAYOUT_PROPS}
-                                        labelAlign={'left'}
-                                        name={'role'}
-                                        label={RoleLabel}
-                                    >
+                                    <Form.Item {...INPUT_LAYOUT_PROPS} labelAlign={'left'} name={'role'} label={RoleLabel}>
                                         <EmployeeRoleSelect employeeRoles={employeeRoles} disabled={isMyEmployee} />
                                     </Form.Item>
                                 </Col>
@@ -172,7 +171,7 @@ export const UpdateEmployeeForm = () => {
                                         name={'position'}
                                         label={PositionLabel}
                                     >
-                                        <Input/>
+                                        <Input />
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
@@ -184,18 +183,18 @@ export const UpdateEmployeeForm = () => {
                                         validateFirst
                                         rules={validations.email}
                                     >
-                                        <Input placeholder={ExampleEmailMsg}/>
+                                        <Input placeholder={ExampleEmailMsg} />
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
                                     <Form.Item noStyle dependencies={['role']}>
-                                        {
-                                            ({ getFieldValue })=> {
-                                                const role = getFieldValue('role')
-                                                const selectedRole = find(employeeRoles, { id: role })
+                                        {({ getFieldValue }) => {
+                                            const role = getFieldValue('role')
+                                            const selectedRole = find(employeeRoles, { id: role })
 
-                                                if (get(selectedRole, 'canBeAssignedAsExecutor'))
-                                                    return (<Col span={24}>
+                                            if (get(selectedRole, 'canBeAssignedAsExecutor'))
+                                                return (
+                                                    <Col span={24}>
                                                         <Form.Item
                                                             name={'specializations'}
                                                             label={SpecializationsLabel}
@@ -205,21 +204,13 @@ export const UpdateEmployeeForm = () => {
                                                         >
                                                             <GraphQlSearchInput mode="multiple" search={searchClassifers} />
                                                         </Form.Item>
-                                                    </Col>)
-                                            }
-                                        }
+                                                    </Col>
+                                                )
+                                        }}
                                     </Form.Item>
                                     <Space size={40} style={{ paddingTop: '36px' }}>
-                                        <FormResetButton
-                                            type={'sberPrimary'}
-                                            secondary
-                                        />
-                                        <Button
-                                            key={'submit'}
-                                            onClick={handleSave}
-                                            type={'sberPrimary'}
-                                            loading={isLoading}
-                                        >
+                                        <FormResetButton type={'sberPrimary'} secondary />
+                                        <Button key={'submit'} onClick={handleSave} type={'sberPrimary'} loading={isLoading}>
                                             {ApplyChangesMessage}
                                         </Button>
                                     </Space>
@@ -231,7 +222,7 @@ export const UpdateEmployeeForm = () => {
                                 <Form.Item dependencies={['role']}>
                                     {({ getFieldValue }) => {
                                         const roleId = getFieldValue('role')
-                                        const role = employeeRoles.find(x => x.id === roleId)
+                                        const role = employeeRoles.find((x) => x.id === roleId)
                                         if (!role) return null
                                         return (
                                             <Card
@@ -257,4 +248,3 @@ export const UpdateEmployeeForm = () => {
         </FormWithAction>
     )
 }
-

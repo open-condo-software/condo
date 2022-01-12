@@ -6,10 +6,21 @@ const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const { makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
 const { makeOrganizationIntegrationManager } = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { createTestBillingIntegrationOrganizationContext, createReceiptsReader } = require('@condo/domains/billing/utils/testSchema')
+const {
+    createTestBillingIntegrationOrganizationContext,
+    createReceiptsReader,
+} = require('@condo/domains/billing/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
-const { BillingProperty, createTestBillingProperty, updateTestBillingProperty } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const {
+    BillingProperty,
+    createTestBillingProperty,
+    updateTestBillingProperty,
+} = require('@condo/domains/billing/utils/testSchema')
+const {
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj,
+} = require('@condo/domains/common/utils/testSchema')
 
 describe('BillingProperty', () => {
     describe('Constraints', () => {
@@ -49,7 +60,7 @@ describe('BillingProperty', () => {
                     }),
                 (e) => {
                     expect(e.errors).toBeDefined()
-                }
+                },
             )
         })
     })

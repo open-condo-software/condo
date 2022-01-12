@@ -1,6 +1,8 @@
 const dayjs = require('dayjs')
 const { createCronTask } = require('@core/keystone/tasks')
-const { syncSbbolSubscriptionPaymentRequestsState } = require('@condo/domains/organization/integrations/sbbol/sync/syncSbbolSubscriptionPaymentRequestsState')
+const {
+    syncSbbolSubscriptionPaymentRequestsState,
+} = require('@condo/domains/organization/integrations/sbbol/sync/syncSbbolSubscriptionPaymentRequestsState')
 const { getSchemaCtx } = require('@core/keystone/schema')
 
 /**

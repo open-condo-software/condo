@@ -7,7 +7,7 @@ interface IErrorsContainerProps {
     unitName: string
 }
 
-export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ property, unitName  }) => {
+export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ property, unitName }) => {
     const intl = useIntl()
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
@@ -18,11 +18,12 @@ export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ property, uni
     const unitErrorMessage = !unitName && UnitMessage
     const fieldsErrorMessages = [propertyErrorMessage, unitErrorMessage]
         .filter(Boolean)
-        .map(errorField => errorField.toLowerCase())
+        .map((errorField) => errorField.toLowerCase())
         .join(', ')
 
     return (
-        disableUserInteraction && fieldsErrorMessages && (
+        disableUserInteraction &&
+        fieldsErrorMessages && (
             <ErrorsWrapper>
                 {ErrorsContainerTitle}&nbsp;
                 {fieldsErrorMessages}

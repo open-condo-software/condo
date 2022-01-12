@@ -9,7 +9,7 @@ const { get, uniq, compact } = require('lodash')
 const access = require('@core/keystone/access')
 const { find } = require('@core/keystone/schema')
 
-async function canReadOrganizations ({ authentication: { item: user }, context }) {
+async function canReadOrganizations({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
@@ -19,10 +19,12 @@ async function canReadOrganizations ({ authentication: { item: user }, context }
         if (residents.length === 0) {
             return false
         }
-        const residentOrganizations = compact(residents.map(resident => get(resident, 'organization')))
+        const residentOrganizations = compact(residents.map((resident) => get(resident, 'organization')))
 
-        const residentsServiceConsumers = await find('ServiceConsumer', { resident: { id_in: residents.map(resident => resident.id), deletedAt: null } })
-        const serviceConsumerOrganizations = residentsServiceConsumers.map(serviceConsumer => serviceConsumer.organization)
+        const residentsServiceConsumers = await find('ServiceConsumer', {
+            resident: { id_in: residents.map((resident) => resident.id), deletedAt: null },
+        })
+        const serviceConsumerOrganizations = residentsServiceConsumers.map((serviceConsumer) => serviceConsumer.organization)
 
         const organizations = [...residentOrganizations, ...serviceConsumerOrganizations]
 
@@ -52,7 +54,7 @@ async function canReadOrganizations ({ authentication: { item: user }, context }
     }
 }
 
-async function canManageOrganizations ({ authentication: { item: user }, operation }) {
+async function canManageOrganizations({ authentication: { item: user }, operation }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     if (operation === 'create') {

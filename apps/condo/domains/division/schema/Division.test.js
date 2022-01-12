@@ -10,7 +10,11 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAuthenticationErrorToObj,
 } = require('@condo/domains/common/utils/testSchema')
-const { createTestOrganization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
+const {
+    createTestOrganization,
+    createTestOrganizationEmployee,
+    createTestOrganizationEmployeeRole,
+} = require('@condo/domains/organization/utils/testSchema')
 const { makeEmployeeUserClientWithAbilities } = require('@condo/domains/organization/utils/testSchema')
 const { catchErrorFrom } = require('../../common/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
@@ -79,12 +83,15 @@ describe('Division', () => {
 
             const [anotherOrganization] = await registerNewOrganization(adminClient)
 
-            await catchErrorFrom(async () => {
-                await createTestDivision(adminClient, anotherOrganization, userClient.employee)
-            }, ({ errors, data }) => {
-                expect(errors[0].data.messages[0]).toMatch('Cannot be connected to responsible from another organization')
-                expect(data).toEqual({ 'obj': null })
-            })
+            await catchErrorFrom(
+                async () => {
+                    await createTestDivision(adminClient, anotherOrganization, userClient.employee)
+                },
+                ({ errors, data }) => {
+                    expect(errors[0].data.messages[0]).toMatch('Cannot be connected to responsible from another organization')
+                    expect(data).toEqual({ obj: null })
+                },
+            )
         })
 
         it('can be connected to properties from the same organization', async () => {
@@ -98,22 +105,15 @@ describe('Division', () => {
 
             const [objCreated] = await createTestDivision(adminClient, userClient.organization, userClient.employee, {
                 properties: {
-                    connect: [
-                        { id: property1.id },
-                        { id: property2.id },
-                    ],
+                    connect: [{ id: property1.id }, { id: property2.id }],
                 },
             })
             expect(objCreated.properties).toHaveLength(2)
             expect(objCreated.properties).toEqual(
-                expect.arrayContaining([
-                    expect.objectContaining(pick(property1, ['id', 'name'])),
-                ])
+                expect.arrayContaining([expect.objectContaining(pick(property1, ['id', 'name']))]),
             )
             expect(objCreated.properties).toEqual(
-                expect.arrayContaining([
-                    expect.objectContaining(pick(property2, ['id', 'name'])),
-                ])
+                expect.arrayContaining([expect.objectContaining(pick(property2, ['id', 'name']))]),
             )
         })
 
@@ -127,20 +127,22 @@ describe('Division', () => {
             const [property1] = await createTestProperty(adminClient, anotherOrganization, { map: buildingMapJson })
             const [property2] = await createTestProperty(adminClient, anotherOrganization, { map: buildingMapJson })
 
-            await catchErrorFrom(async () => {
-                await createTestDivision(adminClient, userClient.organization, userClient.employee, {
-                    properties: {
-                        connect: [
-                            { id: property1.id },
-                            { id: property2.id },
-                        ],
-                    },
-                })
-            }, ({ errors, data }) => {
-                const ids = [property1.id, property2.id]
-                expect(errors[0].data.messages[0]).toMatch(`Cannot be connected to following property(s), because they are belonging to another organization(s): ${ids.join()}`)
-                expect(data).toEqual({ 'obj': null })
-            })
+            await catchErrorFrom(
+                async () => {
+                    await createTestDivision(adminClient, userClient.organization, userClient.employee, {
+                        properties: {
+                            connect: [{ id: property1.id }, { id: property2.id }],
+                        },
+                    })
+                },
+                ({ errors, data }) => {
+                    const ids = [property1.id, property2.id]
+                    expect(errors[0].data.messages[0]).toMatch(
+                        `Cannot be connected to following property(s), because they are belonging to another organization(s): ${ids.join()}`,
+                    )
+                    expect(data).toEqual({ obj: null })
+                },
+            )
         })
 
         it('can be connected to executors from the same organization', async () => {
@@ -156,22 +158,15 @@ describe('Division', () => {
 
             const [objCreated] = await createTestDivision(adminClient, userClient.organization, userClient.employee, {
                 executors: {
-                    connect: [
-                        { id: executor1.id },
-                        { id: executor2.id },
-                    ],
+                    connect: [{ id: executor1.id }, { id: executor2.id }],
                 },
             })
             expect(objCreated.executors).toHaveLength(2)
             expect(objCreated.executors).toEqual(
-                expect.arrayContaining([
-                    expect.objectContaining(pick(executor1, ['id', 'name'])),
-                ])
+                expect.arrayContaining([expect.objectContaining(pick(executor1, ['id', 'name']))]),
             )
             expect(objCreated.executors).toEqual(
-                expect.arrayContaining([
-                    expect.objectContaining(pick(executor2, ['id', 'name'])),
-                ])
+                expect.arrayContaining([expect.objectContaining(pick(executor2, ['id', 'name']))]),
             )
         })
 
@@ -187,20 +182,22 @@ describe('Division', () => {
                 canBeAssignedAsExecutor: true,
             })
 
-            await catchErrorFrom(async () => {
-                await createTestDivision(adminClient, userClient.organization, userClient.employee, {
-                    executors: {
-                        connect: [
-                            { id: executor1.employee.id },
-                            { id: executor2.employee.id },
-                        ],
-                    },
-                })
-            }, ({ errors, data }) => {
-                const ids = [executor1.employee.id, executor2.employee.id]
-                expect(errors[0].data.messages[0]).toMatch(`Cannot be connected to following employee(s) as executors, because they are belonging to another organization(s): ${ids.join()}`)
-                expect(data).toEqual({ 'obj': null })
-            })
+            await catchErrorFrom(
+                async () => {
+                    await createTestDivision(adminClient, userClient.organization, userClient.employee, {
+                        executors: {
+                            connect: [{ id: executor1.employee.id }, { id: executor2.employee.id }],
+                        },
+                    })
+                },
+                ({ errors, data }) => {
+                    const ids = [executor1.employee.id, executor2.employee.id]
+                    expect(errors[0].data.messages[0]).toMatch(
+                        `Cannot be connected to following employee(s) as executors, because they are belonging to another organization(s): ${ids.join()}`,
+                    )
+                    expect(data).toEqual({ obj: null })
+                },
+            )
         })
 
         it('cannot be connected to executors without canBeAssignedAsExecutor ability', async () => {
@@ -214,20 +211,22 @@ describe('Division', () => {
             const [executor1] = await createTestOrganizationEmployee(adminClient, userClient.organization, userClient.user, role)
             const [executor2] = await createTestOrganizationEmployee(adminClient, userClient.organization, userClient.user, role)
 
-            await catchErrorFrom(async () => {
-                await createTestDivision(adminClient, userClient.organization, userClient.employee, {
-                    executors: {
-                        connect: [
-                            { id: executor1.id },
-                            { id: executor2.id },
-                        ],
-                    },
-                })
-            }, ({ errors, data }) => {
-                const ids = [executor1.id, executor2.id]
-                expect(errors[0].data.messages[0]).toMatch(`Cannot be connected to following employee(s) as executors, because they does not have 'canBeAssignedAsExecutor' role ability: ${ids.join()}`)
-                expect(data).toEqual({ 'obj': null })
-            })
+            await catchErrorFrom(
+                async () => {
+                    await createTestDivision(adminClient, userClient.organization, userClient.employee, {
+                        executors: {
+                            connect: [{ id: executor1.id }, { id: executor2.id }],
+                        },
+                    })
+                },
+                ({ errors, data }) => {
+                    const ids = [executor1.id, executor2.id]
+                    expect(errors[0].data.messages[0]).toMatch(
+                        `Cannot be connected to following employee(s) as executors, because they does not have 'canBeAssignedAsExecutor' role ability: ${ids.join()}`,
+                    )
+                    expect(data).toEqual({ obj: null })
+                },
+            )
         })
 
         it('cannot be connected to responsible without `canBeAssignedAsResponsible` ability', async () => {
@@ -236,12 +235,17 @@ describe('Division', () => {
                 canBeAssignedAsResponsible: false,
             })
 
-            await catchErrorFrom(async () => {
-                await createTestDivision(adminClient, userClient.organization, userClient.employee)
-            }, ({ errors, data }) => {
-                expect(errors[0].data.messages[0]).toMatch('Cannot be connected to responsible which does not have `canBeAssignedAsResponsible` ability')
-                expect(data).toEqual({ 'obj': null })
-            })
+            await catchErrorFrom(
+                async () => {
+                    await createTestDivision(adminClient, userClient.organization, userClient.employee)
+                },
+                ({ errors, data }) => {
+                    expect(errors[0].data.messages[0]).toMatch(
+                        'Cannot be connected to responsible which does not have `canBeAssignedAsResponsible` ability',
+                    )
+                    expect(data).toEqual({ obj: null })
+                },
+            )
         })
 
         it('cannot be created by anonymous', async () => {
@@ -331,12 +335,15 @@ describe('Division', () => {
                 responsible: { connect: { id: anotherUserClient.employee.id } },
             }
 
-            await catchErrorFrom(async () => {
-                await updateTestDivision(adminClient, objCreated.id, payload)
-            }, ({ errors, data }) => {
-                expect(errors[0].data.messages[0]).toMatch('Cannot be connected to responsible from another organization')
-                expect(data).toEqual({ 'obj': null })
-            })
+            await catchErrorFrom(
+                async () => {
+                    await updateTestDivision(adminClient, objCreated.id, payload)
+                },
+                ({ errors, data }) => {
+                    expect(errors[0].data.messages[0]).toMatch('Cannot be connected to responsible from another organization')
+                    expect(data).toEqual({ obj: null })
+                },
+            )
         })
 
         it('can be connected to properties from the same organization', async () => {
@@ -350,23 +357,16 @@ describe('Division', () => {
             const [property2] = await createTestProperty(adminClient, userClient.organization, { map: buildingMapJson })
             const [objUpdated] = await updateTestDivision(adminClient, objCreated.id, {
                 properties: {
-                    connect: [
-                        { id: property1.id },
-                        { id: property2.id },
-                    ],
+                    connect: [{ id: property1.id }, { id: property2.id }],
                 },
             })
 
             expect(objUpdated.properties).toHaveLength(2)
             expect(objUpdated.properties).toEqual(
-                expect.arrayContaining([
-                    expect.objectContaining(pick(property1, ['id', 'name'])),
-                ])
+                expect.arrayContaining([expect.objectContaining(pick(property1, ['id', 'name']))]),
             )
             expect(objUpdated.properties).toEqual(
-                expect.arrayContaining([
-                    expect.objectContaining(pick(property2, ['id', 'name'])),
-                ])
+                expect.arrayContaining([expect.objectContaining(pick(property2, ['id', 'name']))]),
             )
         })
 
@@ -382,20 +382,22 @@ describe('Division', () => {
             const [property1] = await createTestProperty(adminClient, anotherOrganization, { map: buildingMapJson })
             const [property2] = await createTestProperty(adminClient, anotherOrganization, { map: buildingMapJson })
 
-            await catchErrorFrom(async () => {
-                await updateTestDivision(adminClient, objCreated.id, {
-                    properties: {
-                        connect: [
-                            { id: property1.id },
-                            { id: property2.id },
-                        ],
-                    },
-                })
-            }, ({ errors, data }) => {
-                const ids = [property1.id, property2.id]
-                expect(errors[0].data.messages[0]).toMatch(`Cannot be connected to following property(s), because they are belonging to another organization(s): ${ids.join()}`)
-                expect(data).toEqual({ 'obj': null })
-            })
+            await catchErrorFrom(
+                async () => {
+                    await updateTestDivision(adminClient, objCreated.id, {
+                        properties: {
+                            connect: [{ id: property1.id }, { id: property2.id }],
+                        },
+                    })
+                },
+                ({ errors, data }) => {
+                    const ids = [property1.id, property2.id]
+                    expect(errors[0].data.messages[0]).toMatch(
+                        `Cannot be connected to following property(s), because they are belonging to another organization(s): ${ids.join()}`,
+                    )
+                    expect(data).toEqual({ obj: null })
+                },
+            )
         })
 
         it('can be connected to executors from the same organization', async () => {
@@ -413,22 +415,15 @@ describe('Division', () => {
 
             const [objUpdated] = await updateTestDivision(adminClient, objCreated.id, {
                 executors: {
-                    connect: [
-                        { id: executor1.id },
-                        { id: executor2.id },
-                    ],
+                    connect: [{ id: executor1.id }, { id: executor2.id }],
                 },
             })
             expect(objUpdated.executors).toHaveLength(2)
             expect(objUpdated.executors).toEqual(
-                expect.arrayContaining([
-                    expect.objectContaining(pick(executor1, ['id', 'name'])),
-                ])
+                expect.arrayContaining([expect.objectContaining(pick(executor1, ['id', 'name']))]),
             )
             expect(objUpdated.executors).toEqual(
-                expect.arrayContaining([
-                    expect.objectContaining(pick(executor2, ['id', 'name'])),
-                ])
+                expect.arrayContaining([expect.objectContaining(pick(executor2, ['id', 'name']))]),
             )
         })
 
@@ -447,20 +442,22 @@ describe('Division', () => {
 
             const [objCreated] = await createTestDivision(adminClient, userClient.organization, userClient.employee)
 
-            await catchErrorFrom(async () => {
-                await updateTestDivision(adminClient, objCreated.id, {
-                    executors: {
-                        connect: [
-                            { id: executor1.employee.id },
-                            { id: executor2.employee.id },
-                        ],
-                    },
-                })
-            }, ({ errors, data }) => {
-                const ids = [executor1.employee.id, executor2.employee.id]
-                expect(errors[0].data.messages[0]).toMatch(`Cannot be connected to following employee(s) as executors, because they are belonging to another organization(s): ${ids.join()}`)
-                expect(data).toEqual({ 'obj': null })
-            })
+            await catchErrorFrom(
+                async () => {
+                    await updateTestDivision(adminClient, objCreated.id, {
+                        executors: {
+                            connect: [{ id: executor1.employee.id }, { id: executor2.employee.id }],
+                        },
+                    })
+                },
+                ({ errors, data }) => {
+                    const ids = [executor1.employee.id, executor2.employee.id]
+                    expect(errors[0].data.messages[0]).toMatch(
+                        `Cannot be connected to following employee(s) as executors, because they are belonging to another organization(s): ${ids.join()}`,
+                    )
+                    expect(data).toEqual({ obj: null })
+                },
+            )
         })
 
         it('cannot be connected to executors without canBeAssignedAsExecutor ability', async () => {
@@ -476,20 +473,22 @@ describe('Division', () => {
             const [executor1] = await createTestOrganizationEmployee(adminClient, userClient.organization, userClient.user, role)
             const [executor2] = await createTestOrganizationEmployee(adminClient, userClient.organization, userClient.user, role)
 
-            await catchErrorFrom(async () => {
-                await updateTestDivision(adminClient, objCreated.id, {
-                    executors: {
-                        connect: [
-                            { id: executor1.id },
-                            { id: executor2.id },
-                        ],
-                    },
-                })
-            }, ({ errors, data }) => {
-                const ids = [executor1.id, executor2.id]
-                expect(errors[0].data.messages[0]).toMatch(`Cannot be connected to following employee(s) as executors, because they does not have 'canBeAssignedAsExecutor' role ability: ${ids.join()}`)
-                expect(data).toEqual({ 'obj': null })
-            })
+            await catchErrorFrom(
+                async () => {
+                    await updateTestDivision(adminClient, objCreated.id, {
+                        executors: {
+                            connect: [{ id: executor1.id }, { id: executor2.id }],
+                        },
+                    })
+                },
+                ({ errors, data }) => {
+                    const ids = [executor1.id, executor2.id]
+                    expect(errors[0].data.messages[0]).toMatch(
+                        `Cannot be connected to following employee(s) as executors, because they does not have 'canBeAssignedAsExecutor' role ability: ${ids.join()}`,
+                    )
+                    expect(data).toEqual({ obj: null })
+                },
+            )
         })
 
         it('cannot be connected to responsible which does not have `canBeAssignedAsResponsible` ability', async () => {
@@ -508,12 +507,17 @@ describe('Division', () => {
                 responsible: { connect: { id: userClientThatCannotBeResponsible.employee.id } },
             }
 
-            await catchErrorFrom(async () => {
-                await updateTestDivision(adminClient, objCreated.id, payload)
-            }, ({ errors, data }) => {
-                expect(errors[0].data.messages[0]).toMatch('Cannot be connected to responsible which does not have `canBeAssignedAsResponsible` ability')
-                expect(data).toEqual({ 'obj': null })
-            })
+            await catchErrorFrom(
+                async () => {
+                    await updateTestDivision(adminClient, objCreated.id, payload)
+                },
+                ({ errors, data }) => {
+                    expect(errors[0].data.messages[0]).toMatch(
+                        'Cannot be connected to responsible which does not have `canBeAssignedAsResponsible` ability',
+                    )
+                    expect(data).toEqual({ obj: null })
+                },
+            )
         })
 
         it('does not have organization in update payload', async () => {
@@ -529,18 +533,21 @@ describe('Division', () => {
                 organization: { connect: { id: anotherOrganization.id } },
             }
 
-            await catchErrorFrom(async () => {
-                await updateTestDivision(adminClient, objCreated.id, payload)
-            }, ({ errors, data }) => {
-                expect(errors[0]).toMatchObject({
-                    'name': 'UserInputError',
-                    'extensions': {
-                        'code': 'BAD_USER_INPUT',
-                    },
-                })
-                expect(errors[0].message).toMatch('Field "organization" is not defined by type "DivisionUpdateInput".')
-                expect(data).toBeUndefined()
-            })
+            await catchErrorFrom(
+                async () => {
+                    await updateTestDivision(adminClient, objCreated.id, payload)
+                },
+                ({ errors, data }) => {
+                    expect(errors[0]).toMatchObject({
+                        name: 'UserInputError',
+                        extensions: {
+                            code: 'BAD_USER_INPUT',
+                        },
+                    })
+                    expect(errors[0].message).toMatch('Field "organization" is not defined by type "DivisionUpdateInput".')
+                    expect(data).toBeUndefined()
+                },
+            )
         })
 
         it('cannot be updated by anonymous', async () => {

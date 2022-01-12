@@ -50,12 +50,12 @@ export const UnitInfo = ({ property, loading, setSelectedUnitName, form }) => {
                 </Col>
                 <Col span={6}>
                     <Form.Item name={'sectionName'} label={SectionNameLabel}>
-                        <Input disabled/>
+                        <Input disabled />
                     </Form.Item>
                 </Col>
                 <Col span={6}>
                     <Form.Item name={'floorName'} label={FloorNameLabel}>
-                        <Input disabled/>
+                        <Input disabled />
                     </Form.Item>
                 </Col>
             </Row>

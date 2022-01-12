@@ -15,9 +15,9 @@ const {
 const { AVAILABLE_OPTIONS_FIELD } = require('./fields/BillingIntegration/AvailableOptions')
 const { DATA_FORMAT_FIELD } = require('./fields/BillingIntegration/DataFormat')
 
-
 const BillingIntegration = new GQLListSchema('BillingIntegration', {
-    schemaDoc: 'Identification of the `integration component` which responsible for getting data from the `billing data source` and delivering the data to `this API`. Examples: tap-1c, ... ',
+    schemaDoc:
+        'Identification of the `integration component` which responsible for getting data from the `billing data source` and delivering the data to `this API`. Examples: tap-1c, ... ',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
@@ -71,7 +71,8 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
         },
 
         contextDefaultStatus: {
-            schemaDoc: 'Status, which BillingIntegrationOrganizationContext, linked to this integration, will have after creation',
+            schemaDoc:
+                'Status, which BillingIntegrationOrganizationContext, linked to this integration, will have after creation',
             type: Select,
             isRequired: true,
             dataType: 'string',

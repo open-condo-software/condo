@@ -18,7 +18,7 @@ export interface IOrganizationLinkUIState extends OrganizationLink {
     // TODO(codegen): write IOrganizationLinkUIState or extends it from
 }
 
-function convertToUIState (item: OrganizationLink): IOrganizationLinkUIState {
+function convertToUIState(item: OrganizationLink): IOrganizationLinkUIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
     return pick(item, FIELDS) as IOrganizationLinkUIState
 }
@@ -28,39 +28,32 @@ export interface IOrganizationLinkFormState {
     // TODO(codegen): write IOrganizationLinkUIFormState or extends it from
 }
 
-function convertToUIFormState (state: IOrganizationLinkUIState): IOrganizationLinkFormState | undefined {
+function convertToUIFormState(state: IOrganizationLinkUIState): IOrganizationLinkFormState | undefined {
     if (!state) return
     const result = {}
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? attrId || state[attr] : state[attr]
     }
     return result as IOrganizationLinkFormState
 }
 
-function convertToGQLInput (state: IOrganizationLinkFormState): OrganizationLinkUpdateInput {
+function convertToGQLInput(state: IOrganizationLinkFormState): OrganizationLinkUpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? { connect: { id: attrId || state[attr] } } : state[attr]
     }
     return result
 }
 
-const {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-} = generateReactHooks<OrganizationLink, OrganizationLinkUpdateInput, IOrganizationLinkFormState, IOrganizationLinkUIState, QueryAllOrganizationLinksArgs>(OrganizationLinkGQL, { convertToGQLInput, convertToUIState })
+const { useObject, useObjects, useCreate, useUpdate, useDelete } = generateReactHooks<
+    OrganizationLink,
+    OrganizationLinkUpdateInput,
+    IOrganizationLinkFormState,
+    IOrganizationLinkUIState,
+    QueryAllOrganizationLinksArgs
+>(OrganizationLinkGQL, { convertToGQLInput, convertToUIState })
 
-export {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-    convertToUIFormState,
-}
+export { useObject, useObjects, useCreate, useUpdate, useDelete, convertToUIFormState }

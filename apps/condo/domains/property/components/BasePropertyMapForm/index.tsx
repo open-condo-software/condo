@@ -45,27 +45,17 @@ const BasePropertyMapForm: React.FC<IPropertyMapFormProps> = ({ action, initialV
         >
             {({ handleSave, isLoading, form }) => (
                 <>
-                    <Prompt
-                        title={PromptTitle}
-                        form={form}
-                        handleSave={handleSave}
-                    >
-                        <Typography.Paragraph>
-                            {PromptHelpMessage}
-                        </Typography.Paragraph>
+                    <Prompt title={PromptTitle} form={form} handleSave={handleSave}>
+                        <Typography.Paragraph>{PromptHelpMessage}</Typography.Paragraph>
                     </Prompt>
                     <Form.Item
                         hidden
-                        name='map'
+                        name="map"
                         rules={[
                             {
-                                validator (rule, value) {
+                                validator(rule, value) {
                                     const unitLabels = value?.sections
-                                        ?.map((section) => section.floors
-                                            ?.map(floor => floor.units
-                                                ?.map(unit => unit.label)
-                                            )
-                                        )
+                                        ?.map((section) => section.floors?.map((floor) => floor.units?.map((unit) => unit.label)))
                                         .flat(2)
 
                                     if (unitLabels && unitLabels.length !== new Set(unitLabels).size) {
@@ -86,20 +76,18 @@ const BasePropertyMapForm: React.FC<IPropertyMapFormProps> = ({ action, initialV
                         // @ts-ignore
                         onBlur={onFormBlur}
                     >
-                        {
-                            ({ getFieldsValue, setFieldsValue }) => {
-                                const { map } = getFieldsValue(['map'])
-                                return (
-                                    <BuildingPanelEdit
-                                        mapValidationError={mapValidationError}
-                                        handleSave={handleSave}
-                                        map={map as BuildingMap}
-                                        updateMap={map => setFieldsValue({ map })}
-                                        property={property}
-                                    />
-                                )
-                            }
-                        }
+                        {({ getFieldsValue, setFieldsValue }) => {
+                            const { map } = getFieldsValue(['map'])
+                            return (
+                                <BuildingPanelEdit
+                                    mapValidationError={mapValidationError}
+                                    handleSave={handleSave}
+                                    map={map as BuildingMap}
+                                    updateMap={(map) => setFieldsValue({ map })}
+                                    property={property}
+                                />
+                            )
+                        }}
                     </Form.Item>
                     {children({ handleSave, isLoading, form })}
                 </>

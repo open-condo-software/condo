@@ -31,7 +31,8 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
         // Refs migration: 20210823172647-0047_auto_20210823_1226.js
         importId: {
-            schemaDoc: '`billing receipt` local object ID. Unique up to billing context. It is unique up to the context. ' +
+            schemaDoc:
+                '`billing receipt` local object ID. Unique up to billing context. It is unique up to the context. ' +
                 'The constrain is a combination of contextId and importId.',
             type: Text,
             isRequired: true,
@@ -42,12 +43,13 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
                     if (!resolvedImportId || typeof resolvedImportId !== 'string' || resolvedImportId.length === 0) {
                         addValidationError(
-                            `${WRONG_TEXT_FORMAT}importId] Cant mutate billing receipt with empty or null importId, found ${resolvedImportId}`)
+                            `${WRONG_TEXT_FORMAT}importId] Cant mutate billing receipt with empty or null importId, found ${resolvedImportId}`,
+                        )
                     }
                 },
             },
         },
- 
+
         printableNumber: {
             schemaDoc: 'A number to print on the payment document.',
             type: Text,
@@ -78,7 +80,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
     },
     hooks: {
         validateInput: ({ resolvedData, context, addValidationError }) => {
-            if (!hasDvAndSenderFields( resolvedData, context, addValidationError)) return
+            if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
             const { dv } = resolvedData
             if (dv === 1) {
                 // NOTE: version 1 specific translations. Don't optimize this logic

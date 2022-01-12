@@ -1,6 +1,5 @@
 const { Relationship } = require('@keystonejs/fields')
 
-
 const ORGANIZATION_OWNED_FIELD = {
     schemaDoc: 'Ref to the organization. The object will be deleted if the organization ceases to exist',
     type: Relationship,

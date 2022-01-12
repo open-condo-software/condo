@@ -13,34 +13,36 @@ const buttonCss = (color) => {
     const secondary = color[6]
 
     return css`
-      background-color: ${primary};
-      border: 2px solid ${secondary};
-      color: ${colors.defaultWhite[5]};
-      box-shadow: none;
-      font-weight: 700;
-
-      &:hover, &:focus {
-        background-color: ${secondary};
-        border-color: ${secondary};
-        color: ${colors.defaultWhite[5]};
-      }
-
-      &:active {
-        background-color: ${secondary};
-        color: ${colors.defaultWhite[5]};
-        opacity: 70%;
-      }
-
-      &:disabled, &:hover:disabled {
         background-color: ${primary};
-        border-color: ${secondary};
-        color: ${colors.lightGrey[1]};
-        opacity: 70%;
+        border: 2px solid ${secondary};
+        color: ${colors.defaultWhite[5]};
+        box-shadow: none;
+        font-weight: 700;
 
-        & span {
-          opacity: 70%;
+        &:hover,
+        &:focus {
+            background-color: ${secondary};
+            border-color: ${secondary};
+            color: ${colors.defaultWhite[5]};
         }
-      }
+
+        &:active {
+            background-color: ${secondary};
+            color: ${colors.defaultWhite[5]};
+            opacity: 70%;
+        }
+
+        &:disabled,
+        &:hover:disabled {
+            background-color: ${primary};
+            border-color: ${secondary};
+            color: ${colors.lightGrey[1]};
+            opacity: 70%;
+
+            & span {
+                opacity: 70%;
+            }
+        }
     `
 }
 
@@ -51,220 +53,252 @@ const buttonSecondaryCss = (color) => {
     const primary = color[6]
 
     return css`
-      background-color: ${colors.white};
-      border: 2px solid ${colors.sberGrey[0]};
-      color: ${primary};
-      box-shadow: none;
-      font-weight: 700;
-
-      &:hover, &:focus {
-        background-color: ${colors.sberGrey[0]};
-        border-color: ${colors.sberGrey[0]};
-        color: ${primary};
-      }
-
-      &:active {
-        border-color: ${colors.sberGrey[0]};
-        background-color: ${colors.sberGrey[0]};
-        color: ${primary};
-        opacity: 70%;
-
-        & span {
-          opacity: 100%;
-        }
-      }
-
-      &:disabled, &:hover:disabled {
-        border-color: ${colors.sberGrey[0]};
-        opacity: 70%;
-        color: ${primary};
         background-color: ${colors.white};
+        border: 2px solid ${colors.sberGrey[0]};
+        color: ${primary};
+        box-shadow: none;
+        font-weight: 700;
 
-        & span {
-          opacity: 70%;
+        &:hover,
+        &:focus {
+            background-color: ${colors.sberGrey[0]};
+            border-color: ${colors.sberGrey[0]};
+            color: ${primary};
         }
-      }
+
+        &:active {
+            border-color: ${colors.sberGrey[0]};
+            background-color: ${colors.sberGrey[0]};
+            color: ${primary};
+            opacity: 70%;
+
+            & span {
+                opacity: 100%;
+            }
+        }
+
+        &:disabled,
+        &:hover:disabled {
+            border-color: ${colors.sberGrey[0]};
+            opacity: 70%;
+            color: ${primary};
+            background-color: ${colors.white};
+
+            & span {
+                opacity: 70%;
+            }
+        }
     `
 }
 
 const buttonLinkCss = css`
-  display: inline-block;
-  padding: 0;
-  margin: 0;
-  background-color: transparent;
-  color: ${green[6]};
-  border: none;
-  height: auto;
-  box-shadow: none;
-
-  &:hover, &:focus {
-    color: ${green[5]};
-  }
-
-  &:active {
-    color: ${green[5]};
-    opacity: 80%;
-  }
-
-  &:disabled, &:hover:disabled {
-    color: ${green[5]};
-    opacity: 60%;
+    display: inline-block;
+    padding: 0;
+    margin: 0;
     background-color: transparent;
-  }
+    color: ${green[6]};
+    border: none;
+    height: auto;
+    box-shadow: none;
+
+    &:hover,
+    &:focus {
+        color: ${green[5]};
+    }
+
+    &:active {
+        color: ${green[5]};
+        opacity: 80%;
+    }
+
+    &:disabled,
+    &:hover:disabled {
+        color: ${green[5]};
+        opacity: 60%;
+        background-color: transparent;
+    }
 `
 
 const buttonGradientCss = css`
-      background: ${gradients.sberActionGradient};
-      border-radius: 8px;
-      color: ${colors.defaultWhite[5]};
-      box-shadow: none;
-      font-weight: 700;
-      transition: none;
-      outline: none;
-      border: none;
+    background: ${gradients.sberActionGradient};
+    border-radius: 8px;
+    color: ${colors.defaultWhite[5]};
+    box-shadow: none;
+    font-weight: 700;
+    transition: none;
+    outline: none;
+    border: none;
 
-      &:hover, &:focus {
+    &:hover,
+    &:focus {
         color: ${colors.defaultWhite[5]};
         background: ${gradients.sberActionInversed};
-      }
+    }
 
-      &:active {
+    &:active {
         color: ${colors.defaultWhite[5]};
         opacity: 70%;
-      }
+    }
 
-      &:disabled, &:hover:disabled {
+    &:disabled,
+    &:hover:disabled {
         color: ${colors.lightGrey[1]};
         opacity: 70%;
 
         & span {
-          opacity: 70%;
+            opacity: 70%;
         }
-      }
-    `
+    }
+`
 const buttonDefaultGradientCss = (secondary = false) => {
     const border = secondary ? `1px solid ${colors.inputBorderHover}` : '1px solid transparent'
-    return  css`
-      background: ${secondary ? 'transparent' : colors.black};
-      border-radius: 8px;
-      color: ${secondary ? colors.black : colors.defaultWhite[5]};
-      box-shadow: none;
-      font-weight: 700;
-      outline: none;
-      border: ${border};
-      transition: ${transitions.allDefault};
-      
-      & span {
-        position: relative;
-        z-index: 1;
-      }
-      
-      &:before {
-        border-radius: inherit;
-        background: ${gradients.sberActionGradient};
-        content: '';
-        display: block;
-        position: absolute;
-        top: -1px;
-        left: -1px;
-        height: inherit;
-        width: inherit;
-        color: black;
-        opacity: 0;
-        border: none;
-        padding: inherit;
-      }
+    return css`
+        background: ${secondary ? 'transparent' : colors.black};
+        border-radius: 8px;
+        color: ${secondary ? colors.black : colors.defaultWhite[5]};
+        box-shadow: none;
+        font-weight: 700;
+        outline: none;
+        border: ${border};
+        transition: ${transitions.allDefault};
 
-      &:hover, &:focus {
-        color: ${colors.defaultWhite[5]};
-        border: 1px solid transparent;
-      }
-      &:hover:not(:disabled):before,
-      &:focus:not(:disabled):before {
-        opacity: 1;
-      }
-
-      &:active {
-        color: ${colors.defaultWhite[5]};
-        border: 1px solid transparent;
-      }
-      &:active:before {
-        background: ${gradients.sberActionInversed};
-        opacity: 1;
-      }
-
-      &:disabled, &:hover:disabled {
-        color: ${colors.inputBorderHover};
-        background: ${secondary ? 'transparent' : '#E6E8F1'};
-        & {
-          opacity: 70%;
+        & span {
+            position: relative;
+            z-index: 1;
         }
-      }
+
+        &:before {
+            border-radius: inherit;
+            background: ${gradients.sberActionGradient};
+            content: '';
+            display: block;
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            height: inherit;
+            width: inherit;
+            color: black;
+            opacity: 0;
+            border: none;
+            padding: inherit;
+        }
+
+        &:hover,
+        &:focus {
+            color: ${colors.defaultWhite[5]};
+            border: 1px solid transparent;
+        }
+        &:hover:not(:disabled):before,
+        &:focus:not(:disabled):before {
+            opacity: 1;
+        }
+
+        &:active {
+            color: ${colors.defaultWhite[5]};
+            border: 1px solid transparent;
+        }
+        &:active:before {
+            background: ${gradients.sberActionInversed};
+            opacity: 1;
+        }
+
+        &:disabled,
+        &:hover:disabled {
+            color: ${colors.inputBorderHover};
+            background: ${secondary ? 'transparent' : '#E6E8F1'};
+            & {
+                opacity: 70%;
+            }
+        }
     `
 }
 const buttonGhostCss = css`
-  & {
-    color: ${green[5]};
-    font-weight: bold;
-    border-width: 2px;
-    box-shadow: none;
-  }
+    & {
+        color: ${green[5]};
+        font-weight: bold;
+        border-width: 2px;
+        box-shadow: none;
+    }
 
-  &:hover, &:focus {
-    border-color: ${green[5]};
-    color: ${green[6]};
-  }
+    &:hover,
+    &:focus {
+        border-color: ${green[5]};
+        color: ${green[6]};
+    }
 
-  &:disabled, &:hover:disabled {
-    color: ${green[5]};
-    opacity: 60%;
-    background-color: transparent;
-  }
+    &:disabled,
+    &:hover:disabled {
+        color: ${green[5]};
+        opacity: 60%;
+        background-color: transparent;
+    }
 `
 
 const sberDangerGhost = css`
-  color: ${colors.sberDangerRed};
-  font-weight: bold;
-  border-color: ${colors.sberDangerRed};
-  background-color: transparent;
-  
-  &:hover, &:focus {
-    border-color: unset;
-    color: ${colors.white};
-    background-color: ${colors.sberDangerRed};
-  }
+    color: ${colors.sberDangerRed};
+    font-weight: bold;
+    border-color: ${colors.sberDangerRed};
+    background-color: transparent;
 
-  &:disabled, &:hover:disabled {
-    color: ${colors.inputBorderHover};
-    background: transparent;
-    & {
-      opacity: 70%;
+    &:hover,
+    &:focus {
+        border-color: unset;
+        color: ${colors.white};
+        background-color: ${colors.sberDangerRed};
     }
-  }
+
+    &:disabled,
+    &:hover:disabled {
+        color: ${colors.inputBorderHover};
+        background: transparent;
+        & {
+            opacity: 70%;
+        }
+    }
 `
 
 const sberBlackCss = css`
-  color: ${colors.black};
-  font-weight: 600;
-  border-color: ${colors.inputBorderHover};
-  background-color: transparent;
-  
-  &:hover, &:focus {
-    border-color: transparent;
-    color: white;
-    background-color: ${colors.black};
-  }
+    color: ${colors.black};
+    font-weight: 600;
+    border-color: ${colors.inputBorderHover};
+    background-color: transparent;
+
+    &:hover,
+    &:focus {
+        border-color: transparent;
+        color: white;
+        background-color: ${colors.black};
+    }
 `
 
-export interface CustomButtonProps extends Omit<ButtonProps, 'type'>{
-    type?: 'sberDefault' | 'sberGradient' | 'sberPrimary' | 'inlineLink' | 'sberDanger' | 'sberGrey' | 'sberAction'
-    | 'sberDangerGhost' | 'sberDefaultGradient' | 'sberBlack' | ButtonProps['type'],
+export interface CustomButtonProps extends Omit<ButtonProps, 'type'> {
+    type?:
+        | 'sberDefault'
+        | 'sberGradient'
+        | 'sberPrimary'
+        | 'inlineLink'
+        | 'sberDanger'
+        | 'sberGrey'
+        | 'sberAction'
+        | 'sberDangerGhost'
+        | 'sberDefaultGradient'
+        | 'sberBlack'
+        | ButtonProps['type']
     secondary?: boolean
 }
 
 const SKIP_BUTTON_TYPES_FOR_DEFAULT = [
-    'sberDefault', 'sberGradient', 'sberDefaultGradient', 'sberPrimary', 'sberAction', 'sberDanger',
-    'sberDangerGhost', 'sberGrey', 'inlineLink', 'sberBlack', 'ghost',
+    'sberDefault',
+    'sberGradient',
+    'sberDefaultGradient',
+    'sberPrimary',
+    'sberAction',
+    'sberDanger',
+    'sberDangerGhost',
+    'sberGrey',
+    'inlineLink',
+    'sberBlack',
+    'ghost',
 ]
 
 const BUTTON_TYPE_STYLES = {
@@ -277,7 +311,7 @@ const BUTTON_TYPE_STYLES = {
 
 export const Button: React.FC<CustomButtonProps> = ({ type, secondary, ...restProps }) => {
     if (!SKIP_BUTTON_TYPES_FOR_DEFAULT.includes(type)) {
-        return <DefaultButton {...restProps} type={type as ButtonProps['type']}/>
+        return <DefaultButton {...restProps} type={type as ButtonProps['type']} />
     }
 
     let buttonStyles
@@ -289,5 +323,5 @@ export const Button: React.FC<CustomButtonProps> = ({ type, secondary, ...restPr
         buttonStyles = secondary ? buttonSecondaryCss(colors[type]) : buttonCss(colors[type])
     }
 
-    return <DefaultButton css={buttonStyles} {...restProps}/>
+    return <DefaultButton css={buttonStyles} {...restProps} />
 }

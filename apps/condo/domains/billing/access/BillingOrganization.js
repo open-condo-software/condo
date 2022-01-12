@@ -4,11 +4,11 @@
 
 const { canManageBillingEntityWithContext, canReadBillingEntity } = require('../utils/accessSchema')
 
-async function canReadBillingOrganizations ({ authentication: { item: user } }) {
+async function canReadBillingOrganizations({ authentication: { item: user } }) {
     return await canReadBillingEntity(user)
 }
 
-async function canManageBillingOrganizations ({ authentication: { item: user }, originalInput, operation, itemId, listKey }) {
+async function canManageBillingOrganizations({ authentication: { item: user }, originalInput, operation, itemId, listKey }) {
     return await canManageBillingEntityWithContext({
         user,
         operation,

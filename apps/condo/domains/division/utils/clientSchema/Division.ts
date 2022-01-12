@@ -8,15 +8,21 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { Division as DivisionGQL } from '@condo/domains/division/gql'
-import {
-    Division,
-    DivisionUpdateInput,
-    OrganizationEmployee,
-    Property,
-    QueryAllDivisionsArgs,
-} from '@app/condo/schema'
+import { Division, DivisionUpdateInput, OrganizationEmployee, Property, QueryAllDivisionsArgs } from '@app/condo/schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'name', 'organization', 'responsible', 'executors', 'properties']
+const FIELDS = [
+    'id',
+    'deletedAt',
+    'createdAt',
+    'updatedAt',
+    'createdBy',
+    'updatedBy',
+    'name',
+    'organization',
+    'responsible',
+    'executors',
+    'properties',
+]
 const RELATIONS = ['organization', 'properties', 'responsible', 'executors']
 
 export interface IDivisionUIState extends Division {
@@ -26,7 +32,7 @@ export interface IDivisionUIState extends Division {
     executors: OrganizationEmployee[]
 }
 
-function convertToUIState (item: Division): IDivisionUIState {
+function convertToUIState(item: Division): IDivisionUIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
     return pick(item, FIELDS) as IDivisionUIState
 }
@@ -38,7 +44,7 @@ export interface IDivisionFormState {
     executors?: string[]
 }
 
-function convertToUIFormState (state: IDivisionUIState): IDivisionFormState | undefined {
+function convertToUIFormState(state: IDivisionUIState): IDivisionFormState | undefined {
     if (!state) return
     const result = {}
     for (const attr of Object.keys(state)) {
@@ -58,8 +64,8 @@ function convertToUIFormState (state: IDivisionUIState): IDivisionFormState | un
 
 // TODO(antonal): move this type into `generate.hooks`
 type RelateToManyInput = {
-    connect?: { id: any }[],
-    disconnect?: { id: any }[],
+    connect?: { id: any }[]
+    disconnect?: { id: any }[]
 }
 
 // TODO(antonal): move this function into `generate.hooks` and use it everywhere, since no extra logic is introduced in each duplicate of this function
@@ -68,49 +74,52 @@ type RelateToManyInput = {
  * @param state - form values
  * @param obj - existing object from `useObjects`, that will be passed in case of update operation by `useUpdate` and `useSoftDelete` hooks
  */
-export function convertToGQLInput (state: IDivisionFormState, obj?: IDivisionUIState): DivisionUpdateInput {
+export function convertToGQLInput(state: IDivisionFormState, obj?: IDivisionUIState): DivisionUpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
     for (const attr of Object.keys(state)) {
         if (RELATIONS.includes(attr)) {
             if (Array.isArray(state[attr])) {
-                const newIds = map(state[attr], item => get(item, 'id') || item)
-                if (obj) { // update operation
-                    const oldIds = map(obj[attr], item => get(item, 'id') || item)
+                const newIds = map(state[attr], (item) => get(item, 'id') || item)
+                if (obj) {
+                    // update operation
+                    const oldIds = map(obj[attr], (item) => get(item, 'id') || item)
                     const changes: RelateToManyInput = {}
                     const idsToConnect = difference(newIds, oldIds)
                     if (idsToConnect.length > 0) {
-                        changes.connect = map(idsToConnect, id => ({ id }))
+                        changes.connect = map(idsToConnect, (id) => ({ id }))
                     }
                     const idsToDisconnect = difference(oldIds, newIds)
                     if (idsToDisconnect.length > 0) {
-                        changes.disconnect = map(idsToDisconnect, id => ({ id }))
+                        changes.disconnect = map(idsToDisconnect, (id) => ({ id }))
                     }
                     if (Object.keys(changes).length > 0) {
                         result[attr] = changes
                     }
-                } else { // create operation
+                } else {
+                    // create operation
                     if (newIds.length > 0) {
                         result[attr] = {
-                            connect: map(newIds, id => ({ id })),
+                            connect: map(newIds, (id) => ({ id })),
                         }
                     }
                 }
             } else {
                 const newAttrId = get(state[attr], 'id') || state[attr]
-                if (obj) { // update operation
+                if (obj) {
+                    // update operation
                     const oldAttrId = get(obj[attr], 'id') || obj[attr]
                     if (newAttrId && oldAttrId && newAttrId !== oldAttrId) {
                         result[attr] = { connect: { id: newAttrId } }
                     } else if (!newAttrId) {
                         result[attr] = { disconnectAll: true }
                     }
-                } else { // create operation
+                } else {
+                    // create operation
                     if (newAttrId) {
                         result[attr] = { connect: { id: newAttrId } }
                     }
                 }
-
             }
         } else {
             result[attr] = state[attr]
@@ -119,7 +128,7 @@ export function convertToGQLInput (state: IDivisionFormState, obj?: IDivisionUIS
     return result
 }
 
-function extractAttributes (state: IDivisionUIState, attributes: Array<string>): IDivisionUIState | undefined {
+function extractAttributes(state: IDivisionUIState, attributes: Array<string>): IDivisionUIState | undefined {
     const result = {}
     attributes.forEach((attribute) => {
         if (RELATIONS.includes(attribute)) {
@@ -131,22 +140,12 @@ function extractAttributes (state: IDivisionUIState, attributes: Array<string>):
     return result as IDivisionUIState
 }
 
-const {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-    useSoftDelete,
-} = generateReactHooks<Division, DivisionUpdateInput, IDivisionFormState, IDivisionUIState, QueryAllDivisionsArgs>(DivisionGQL, { convertToGQLInput, convertToUIState })
+const { useObject, useObjects, useCreate, useUpdate, useDelete, useSoftDelete } = generateReactHooks<
+    Division,
+    DivisionUpdateInput,
+    IDivisionFormState,
+    IDivisionUIState,
+    QueryAllDivisionsArgs
+>(DivisionGQL, { convertToGQLInput, convertToUIState })
 
-export {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-    useSoftDelete,
-    convertToUIFormState,
-    extractAttributes,
-}
+export { useObject, useObjects, useCreate, useUpdate, useDelete, useSoftDelete, convertToUIFormState, extractAttributes }

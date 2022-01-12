@@ -241,14 +241,19 @@ describe('TriggersManager', () => {
                         triggersManager.addTrigger(mockTrigger)
                         triggersManager.addTrigger(anotherMockTrigger)
 
-                        triggersManager.executeTrigger({
-                            fact: 'should be triggered',
-                            anotherFact: 'should be triggered',
-                        }, {}).then(() => {
-                            expect(triggerActionExecuted).toBeTruthy()
-                            expect(anotherTriggerActionExecuted).toBeTruthy()
-                            done()
-                        })
+                        triggersManager
+                            .executeTrigger(
+                                {
+                                    fact: 'should be triggered',
+                                    anotherFact: 'should be triggered',
+                                },
+                                {},
+                            )
+                            .then(() => {
+                                expect(triggerActionExecuted).toBeTruthy()
+                                expect(anotherTriggerActionExecuted).toBeTruthy()
+                                done()
+                            })
                     })
 
                     it('with priority', (done) => {
@@ -311,13 +316,21 @@ describe('TriggersManager', () => {
                         triggersManager.addTrigger(mockTrigger)
                         triggersManager.addTrigger(anotherMockTrigger)
 
-                        triggersManager.executeTrigger({
-                            fact: 'should be triggered',
-                            anotherFact: 'should be triggered',
-                        }, {}).then(() => {
-                            expect(calledTriggersOrder).toStrictEqual(['secondTriggerActionExecuted', 'firstTriggerActionExecuted'])
-                            done()
-                        })
+                        triggersManager
+                            .executeTrigger(
+                                {
+                                    fact: 'should be triggered',
+                                    anotherFact: 'should be triggered',
+                                },
+                                {},
+                            )
+                            .then(() => {
+                                expect(calledTriggersOrder).toStrictEqual([
+                                    'secondTriggerActionExecuted',
+                                    'firstTriggerActionExecuted',
+                                ])
+                                done()
+                            })
                     })
                 })
             })

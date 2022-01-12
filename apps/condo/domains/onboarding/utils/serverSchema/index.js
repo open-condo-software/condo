@@ -15,7 +15,7 @@ const { CREATE_ON_BOARDING_MUTATION } = require('@condo/domains/onboarding/gql')
 const OnBoarding = generateServerUtils(OnBoardingGQL)
 const OnBoardingStep = generateServerUtils(OnBoardingStepGQL)
 
-async function createOnBoarding (context, data) {
+async function createOnBoarding(context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
@@ -29,7 +29,7 @@ async function createOnBoarding (context, data) {
     })
 }
 
-async function updateOnBoardingStepByAuthUser (context, action, entity) {
+async function updateOnBoardingStepByAuthUser(context, action, entity) {
     if (!context) throw new Error('no context')
     if (!action) throw new Error('no action')
     if (!entity) throw new Error('no entity')
@@ -52,7 +52,7 @@ async function updateOnBoardingStepByAuthUser (context, action, entity) {
 
     const steps = await execGqlWithoutAccess(context, {
         query: OnBoardingStepGQL.GET_ALL_OBJS_QUERY,
-        variables: { where: { action, entity, onBoarding: { id : onBoarding.id }, completed: false } },
+        variables: { where: { action, entity, onBoarding: { id: onBoarding.id }, completed: false } },
         errorMessage: '[error] organization onBoardingTrigger error',
         dataPath: 'objs',
     })
@@ -78,5 +78,5 @@ module.exports = {
     OnBoardingStep,
     createOnBoarding,
     updateOnBoardingStepByAuthUser,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

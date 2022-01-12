@@ -26,20 +26,14 @@ export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (p
 
     const [downloadLink, setDownloadLink] = useState(null)
 
-    const [
-        exportToExcel,
-        { loading: isXlsLoading },
-    ] = useLazyQuery(
-        exportToExcelQuery,
-        {
-            onError: error => {
-                notification.error(error)
-            },
-            onCompleted: data => {
-                setDownloadLink(data.result.linkToFile)
-            },
+    const [exportToExcel, { loading: isXlsLoading }] = useLazyQuery(exportToExcelQuery, {
+        onError: (error) => {
+            notification.error(error)
         },
-    )
+        onCompleted: (data) => {
+            setDownloadLink(data.result.linkToFile)
+        },
+    })
 
     const handleExportToExcel = useCallback(() => {
         exportToExcel({ variables: { data: { where: searchObjectsQuery, sortBy: sortBy, timeZone } } })
@@ -48,30 +42,28 @@ export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (p
     return (
         <Form.Item noStyle>
             <ActionBar hidden={hidden}>
-                {
-                    downloadLink
-                        ?
-                        <Button
-                            type={'inlineLink'}
-                            icon={<DatabaseFilled />}
-                            loading={isXlsLoading}
-                            target='_blank'
-                            href={downloadLink}
-                            rel='noreferrer'
-                        >
-                            {DownloadExcelLabel}
-                        </Button>
-                        :
-                        <Button
-                            type={'sberPrimary'}
-                            secondary
-                            icon={<DatabaseFilled />}
-                            loading={isXlsLoading}
-                            onClick={handleExportToExcel}
-                        >
-                            {ExportAsExcelLabel}
-                        </Button>
-                }
+                {downloadLink ? (
+                    <Button
+                        type={'inlineLink'}
+                        icon={<DatabaseFilled />}
+                        loading={isXlsLoading}
+                        target="_blank"
+                        href={downloadLink}
+                        rel="noreferrer"
+                    >
+                        {DownloadExcelLabel}
+                    </Button>
+                ) : (
+                    <Button
+                        type={'sberPrimary'}
+                        secondary
+                        icon={<DatabaseFilled />}
+                        loading={isXlsLoading}
+                        onClick={handleExportToExcel}
+                    >
+                        {ExportAsExcelLabel}
+                    </Button>
+                )}
             </ActionBar>
         </Form.Item>
     )

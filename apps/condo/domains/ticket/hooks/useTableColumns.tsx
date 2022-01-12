@@ -56,7 +56,7 @@ const COLUMNS_WIDTH_SMALLER_XXL_SCREEN = {
     assignee: '13%',
 }
 
-export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
+export function useTableColumns<T>(filterMetas: Array<FiltersMeta<T>>) {
     const intl = useIntl()
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' }).toLowerCase()
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
@@ -82,84 +82,76 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
 
     const { loading, objs: ticketStatuses } = TicketStatus.useObjects({})
 
-    const renderStatus = useCallback((status, record) => {
-        const { primary: color, secondary: backgroundColor } = status.colors
-        const extraProps = { style: { color } }
-        // TODO(DOMA-1518) find solution for cases where no status received
-        const highlightedContent = getHighlightedContents(search, null, extraProps)(status.name)
+    const renderStatus = useCallback(
+        (status, record) => {
+            const { primary: color, secondary: backgroundColor } = status.colors
+            const extraProps = { style: { color } }
+            // TODO(DOMA-1518) find solution for cases where no status received
+            const highlightedContent = getHighlightedContents(search, null, extraProps)(status.name)
 
-        return (
-            <Space direction='vertical' size={7}>
-                {
-                    status.name && (
-                        <Tag color={backgroundColor}>
-                            {highlightedContent}
-                        </Tag>
-                    )
-                }
-                {
-                    record.isEmergency && (
+            return (
+                <Space direction="vertical" size={7}>
+                    {status.name && <Tag color={backgroundColor}>{highlightedContent}</Tag>}
+                    {record.isEmergency && (
                         <Tag color={EMERGENCY_TAG_COLOR.background}>
-                            <Typography.Text type="danger">
-                                {EmergencyMessage.toLowerCase()}
-                            </Typography.Text>
+                            <Typography.Text type="danger">{EmergencyMessage.toLowerCase()}</Typography.Text>
                         </Tag>
-                    )
-                }
-                {
-                    record.isPaid && (
-                        <Tag color='orange'>
-                            {PaidMessage.toLowerCase()}
-                        </Tag>
-                    )
-                }
-            </Space>
-        )
-    }, [EmergencyMessage, PaidMessage, search])
+                    )}
+                    {record.isPaid && <Tag color="orange">{PaidMessage.toLowerCase()}</Tag>}
+                </Space>
+            )
+        },
+        [EmergencyMessage, PaidMessage, search],
+    )
 
-    const renderStatusFilterDropdown = useCallback(({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
-        const adaptedStatuses = ticketStatuses.map(convertGQLItemToFormSelectState).filter(identity)
-        const filterProps = {
-            setSelectedKeys,
-            selectedKeys,
-            confirm,
-            clearFilters,
-        }
+    const renderStatusFilterDropdown = useCallback(
+        ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+            const adaptedStatuses = ticketStatuses.map(convertGQLItemToFormSelectState).filter(identity)
+            const filterProps = {
+                setSelectedKeys,
+                selectedKeys,
+                confirm,
+                clearFilters,
+            }
 
-        return getOptionFilterDropdown(adaptedStatuses, loading)(filterProps)
-    }, [loading, ticketStatuses])
+            return getOptionFilterDropdown(adaptedStatuses, loading)(filterProps)
+        },
+        [loading, ticketStatuses],
+    )
 
-    const renderClassifier = useCallback((text, record) => {
-        const placeClassifier = get(record, ['placeClassifier', 'name'])
-        const postfix = `\n(${placeClassifier})`
+    const renderClassifier = useCallback(
+        (text, record) => {
+            const placeClassifier = get(record, ['placeClassifier', 'name'])
+            const postfix = `\n(${placeClassifier})`
 
-        return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS)(text)
-    }, [search])
+            return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS)(text)
+        },
+        [search],
+    )
 
-    const renderUnit = useCallback((text, record) => {
-        const sectionName = get(record, 'sectionName')
-        const floorName = get(record, 'floorName')
-        const postfix = sectionName && floorName &&
-            `\n${ShortSectionNameMessage} ${record.sectionName},\n${ShortFloorNameMessage} ${record.floorName}`
+    const renderUnit = useCallback(
+        (text, record) => {
+            const sectionName = get(record, 'sectionName')
+            const floorName = get(record, 'floorName')
+            const postfix =
+                sectionName &&
+                floorName &&
+                `\n${ShortSectionNameMessage} ${record.sectionName},\n${ShortFloorNameMessage} ${record.floorName}`
 
-        return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS)(text)
-    }, [ShortFloorNameMessage, ShortSectionNameMessage, search])
+            return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS)(text)
+        },
+        [ShortFloorNameMessage, ShortSectionNameMessage, search],
+    )
 
-    const renderAddress = useCallback(
-        (property) => getAddressRender(property, DeletedMessage, search),
-        [DeletedMessage, search])
+    const renderAddress = useCallback((property) => getAddressRender(property, DeletedMessage, search), [DeletedMessage, search])
 
-    const renderExecutor = useCallback(
-        (executor) => getTableCellRenderer(search)(get(executor, ['name'])),
-        [search])
+    const renderExecutor = useCallback((executor) => getTableCellRenderer(search)(get(executor, ['name'])), [search])
 
-    const renderAssignee = useCallback(
-        (assignee) => getTableCellRenderer(search)(get(assignee, ['name'])),
-        [search])
+    const renderAssignee = useCallback((assignee) => getTableCellRenderer(search)(get(assignee, ['name'])), [search])
 
-    const columnWidths = useMemo(() => breakpoints.xxl ?
-        COLUMNS_WIDTH_ON_LARGER_XXL_SCREEN : COLUMNS_WIDTH_SMALLER_XXL_SCREEN,
-    [breakpoints]
+    const columnWidths = useMemo(
+        () => (breakpoints.xxl ? COLUMNS_WIDTH_ON_LARGER_XXL_SCREEN : COLUMNS_WIDTH_SMALLER_XXL_SCREEN),
+        [breakpoints],
     )
 
     return useMemo(() => {
@@ -282,5 +274,38 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 filterIcon: getFilterIcon,
             },
         ]
-    }, [NumberMessage, sorterMap, filters, columnWidths.number, columnWidths.createdAt, columnWidths.status, columnWidths.address, columnWidths.unitName, columnWidths.details, columnWidths.categoryClassifier, columnWidths.clientName, columnWidths.executor, columnWidths.assignee, filterMetas, search, DateMessage, intl, StatusMessage, renderStatus, renderStatusFilterDropdown, AddressMessage, renderAddress, UnitMessage, renderUnit, DescriptionMessage, ClassifierTitle, renderClassifier, ClientNameMessage, ExecutorMessage, renderExecutor, ResponsibleMessage, renderAssignee])
+    }, [
+        NumberMessage,
+        sorterMap,
+        filters,
+        columnWidths.number,
+        columnWidths.createdAt,
+        columnWidths.status,
+        columnWidths.address,
+        columnWidths.unitName,
+        columnWidths.details,
+        columnWidths.categoryClassifier,
+        columnWidths.clientName,
+        columnWidths.executor,
+        columnWidths.assignee,
+        filterMetas,
+        search,
+        DateMessage,
+        intl,
+        StatusMessage,
+        renderStatus,
+        renderStatusFilterDropdown,
+        AddressMessage,
+        renderAddress,
+        UnitMessage,
+        renderUnit,
+        DescriptionMessage,
+        ClassifierTitle,
+        renderClassifier,
+        ClientNameMessage,
+        ExecutorMessage,
+        renderExecutor,
+        ResponsibleMessage,
+        renderAssignee,
+    ])
 }

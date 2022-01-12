@@ -8,9 +8,32 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { BillingAccountMeterReading as BillingAccountMeterReadingGQL } from '@condo/domains/billing/gql'
-import { BillingAccountMeterReading, BillingAccountMeterReadingUpdateInput, QueryAllBillingAccountMeterReadingsArgs } from '@app/condo/schema'
+import {
+    BillingAccountMeterReading,
+    BillingAccountMeterReadingUpdateInput,
+    QueryAllBillingAccountMeterReadingsArgs,
+} from '@app/condo/schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'context', 'importId', 'property', 'account', 'meter', 'period', 'value1', 'value2', 'value3', 'date', 'raw', 'meta']
+const FIELDS = [
+    'id',
+    'deletedAt',
+    'createdAt',
+    'updatedAt',
+    'createdBy',
+    'updatedBy',
+    'context',
+    'importId',
+    'property',
+    'account',
+    'meter',
+    'period',
+    'value1',
+    'value2',
+    'value3',
+    'date',
+    'raw',
+    'meta',
+]
 const RELATIONS = ['context', 'property', 'account', 'meter']
 
 export interface IBillingAccountMeterReadingUIState extends BillingAccountMeterReading {
@@ -18,7 +41,7 @@ export interface IBillingAccountMeterReadingUIState extends BillingAccountMeterR
     // TODO(codegen): write IBillingAccountMeterReadingUIState or extends it from
 }
 
-function convertToUIState (item: BillingAccountMeterReading): IBillingAccountMeterReadingUIState {
+function convertToUIState(item: BillingAccountMeterReading): IBillingAccountMeterReadingUIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
     return pick(item, FIELDS) as IBillingAccountMeterReadingUIState
 }
@@ -28,39 +51,32 @@ export interface IBillingAccountMeterReadingFormState {
     // TODO(codegen): write IBillingAccountMeterReadingUIFormState or extends it from
 }
 
-function convertToUIFormState (state: IBillingAccountMeterReadingUIState): IBillingAccountMeterReadingFormState | undefined {
+function convertToUIFormState(state: IBillingAccountMeterReadingUIState): IBillingAccountMeterReadingFormState | undefined {
     if (!state) return
     const result = {}
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? attrId || state[attr] : state[attr]
     }
     return result as IBillingAccountMeterReadingFormState
 }
 
-function convertToGQLInput (state: IBillingAccountMeterReadingFormState): BillingAccountMeterReadingUpdateInput {
+function convertToGQLInput(state: IBillingAccountMeterReadingFormState): BillingAccountMeterReadingUpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? { connect: { id: attrId || state[attr] } } : state[attr]
     }
     return result
 }
 
-const {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-} = generateReactHooks<BillingAccountMeterReading, BillingAccountMeterReadingUpdateInput, IBillingAccountMeterReadingFormState, IBillingAccountMeterReadingUIState, QueryAllBillingAccountMeterReadingsArgs>(BillingAccountMeterReadingGQL, { convertToGQLInput, convertToUIState })
+const { useObject, useObjects, useCreate, useUpdate, useDelete } = generateReactHooks<
+    BillingAccountMeterReading,
+    BillingAccountMeterReadingUpdateInput,
+    IBillingAccountMeterReadingFormState,
+    IBillingAccountMeterReadingUIState,
+    QueryAllBillingAccountMeterReadingsArgs
+>(BillingAccountMeterReadingGQL, { convertToGQLInput, convertToUIState })
 
-export {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-    convertToUIFormState,
-}
+export { useObject, useObjects, useCreate, useUpdate, useDelete, convertToUIFormState }

@@ -14,7 +14,7 @@ interface IPropertyPanels {
     mode: 'view' | 'edit'
     updateMap?(map: BuildingMap): void
     handleSave?(): void
-    address?: string,
+    address?: string
     mapValidationError?: string
 }
 
@@ -30,22 +30,17 @@ export const PropertyPanels: React.FC<IPropertyPanels> = ({ mapValidationError, 
     const BuildingTabTitle = intl.formatMessage({ id: 'pages.condo.property.form.BuildingTabTitle' })
     const ResidentsTabTitle = intl.formatMessage({ id: 'pages.condo.property.form.ResidentsTabTitle' })
     return (
-        <Tabs defaultActiveKey='1'>
-            <TabPane tab={BuildingTabTitle} key='1'>
+        <Tabs defaultActiveKey="1">
+            <TabPane tab={BuildingTabTitle} key="1">
                 <FocusContainer style={FOCUS_CONTAINER_STYLE}>
-                    <BuildingPanelView
-                        map={map}
-                    />
+                    <BuildingPanelView map={map} />
                 </FocusContainer>
             </TabPane>
-            <TabPane tab={ResidentsTabTitle} key='2' disabled>
+            <TabPane tab={ResidentsTabTitle} key="2" disabled>
                 <FocusContainer style={FOCUS_CONTAINER_STYLE}>
-                    {
-                        mode === 'view' ? <ResidentPanelView /> : <ResidentPanelEdit />
-                    }
+                    {mode === 'view' ? <ResidentPanelView /> : <ResidentPanelEdit />}
                 </FocusContainer>
             </TabPane>
         </Tabs>
-
     )
 }

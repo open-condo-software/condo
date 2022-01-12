@@ -60,7 +60,9 @@ const parseArguments = () => {
     }
     const organizationIds = fileContentWithOrganizationIds.split('\n')
     if (!Array.isArray(organizationIds)) {
-        throw new Error(`File ${filePathWithOrganizationIds}, specified in "filePathWithOrganizationIds" argument has wrong format. Each id should be on separate line`)
+        throw new Error(
+            `File ${filePathWithOrganizationIds}, specified in "filePathWithOrganizationIds" argument has wrong format. Each id should be on separate line`,
+        )
     }
     return {
         where: {
@@ -74,10 +76,10 @@ const parseArguments = () => {
     }
 }
 
-async function main () {
+async function main() {
     const resolved = path.resolve('./index.js')
     const { distDir, keystone, apps } = require(resolved)
-    const graphqlIndex = apps.findIndex(app => app instanceof GraphQLApp)
+    const graphqlIndex = apps.findIndex((app) => app instanceof GraphQLApp)
     // we need only apollo
     await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
     await keystone.connect()
@@ -101,25 +103,37 @@ async function main () {
         output: process.stdout,
     })
 
-    console.log(`Above are ${serviceSubscriptions.length} ServiceSubscription records, that will get "finishAt" changed to ${finishAt.format()}.\n`)
+    console.log(
+        `Above are ${
+            serviceSubscriptions.length
+        } ServiceSubscription records, that will get "finishAt" changed to ${finishAt.format()}.\n`,
+    )
 
-    rl.question('Continue (y/n)?', async answer => {
+    rl.question('Continue (y/n)?', async (answer) => {
         if (answer === 'n') {
             console.log('Do nothing. Bye!')
         } else {
             let processedCount = 0
-            await Promise.all(serviceSubscriptions.map(async serviceSubscription => {
-                console.log(`Updating service subscription with organization=${serviceSubscription.id}`)
-                console.debug('before', serviceSubscription)
-                const result = await ServiceSubscription.update(adminContext, serviceSubscription.id, {
-                    dv: 1,
-                    sender: { dv: 1, fingerprint: 'prolong-subscriptions' },
-                    finishAt: finishAt.format(),
-                })
-                console.debug('after', result)
-                processedCount++
-            }))
-            console.log(`${processedCount === serviceSubscriptions.length ? `All ${processedCount}` : `Only ${processedCount} from ${serviceSubscriptions.length}`} records was processed`)
+            await Promise.all(
+                serviceSubscriptions.map(async (serviceSubscription) => {
+                    console.log(`Updating service subscription with organization=${serviceSubscription.id}`)
+                    console.debug('before', serviceSubscription)
+                    const result = await ServiceSubscription.update(adminContext, serviceSubscription.id, {
+                        dv: 1,
+                        sender: { dv: 1, fingerprint: 'prolong-subscriptions' },
+                        finishAt: finishAt.format(),
+                    })
+                    console.debug('after', result)
+                    processedCount++
+                }),
+            )
+            console.log(
+                `${
+                    processedCount === serviceSubscriptions.length
+                        ? `All ${processedCount}`
+                        : `Only ${processedCount} from ${serviceSubscriptions.length}`
+                } records was processed`,
+            )
         }
         process.exit(0)
     })

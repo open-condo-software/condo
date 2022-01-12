@@ -16,7 +16,7 @@ const PageFieldRow: React.FC<IPageFieldRowProps> = (props) => {
 
     return (
         <>
-            <Col lg={labelSpan} xs={24} >
+            <Col lg={labelSpan} xs={24}>
                 <Typography.Title level={5}>{title}</Typography.Title>
             </Col>
             <Col lg={24 - labelSpan - 1} xs={24} offset={isSmall ? 0 : 1}>

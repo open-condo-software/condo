@@ -12,7 +12,6 @@ const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/u
 const { SBBOL_FINGERPRINT_NAME } = require('./sbbol/common')
 const { makeClientWithRegisteredOrganization } = require('../utils/testSchema/Organization')
 
-
 jest.mock('../utils/serverSchema/Organization')
 jest.mock('../utils/serverSchema/Organization', () => {
     const originalOrg = jest.requireActual('../utils/serverSchema/Organization')
@@ -35,12 +34,13 @@ describe('Ineraction with sales CRM', () => {
         const client = await makeClientWithRegisteredOrganization()
         expect(mockPushOrganizationToSalesCRM).toBeCalled()
         expect(mockPushOrganizationToSalesCRM).lastCalledWith(
-            expect.objectContaining({ 
-                id: client.organization.id, 
+            expect.objectContaining({
+                id: client.organization.id,
                 sender: expect.not.objectContaining({
                     fingerprint: SBBOL_FINGERPRINT_NAME,
                 }),
-            }))
+            }),
+        )
     })
     it('should send to sales crm imported from sbbol organization', async () => {
         const { userData, organizationData, dvSenderFields } = MockSbbolResponses.getUserAndOrganizationInfo()
@@ -61,12 +61,13 @@ describe('Ineraction with sales CRM', () => {
         })
         expect(mockPushOrganizationToSalesCRM).toBeCalled()
         expect(mockPushOrganizationToSalesCRM).lastCalledWith(
-            expect.objectContaining({ 
-                id: org.id, 
+            expect.objectContaining({
+                id: org.id,
                 sender: expect.objectContaining({
                     fingerprint: SBBOL_FINGERPRINT_NAME,
                 }),
-            }))
+            }),
+        )
     })
     it('Sync subscription pushes data to sales crm', async () => {
         const adminClient = await makeLoggedInAdminClient()
@@ -75,6 +76,10 @@ describe('Ineraction with sales CRM', () => {
             sbbolOfferAccept: rightSbbolOfferAccept,
         })
         expect(mockPushSubscriptionActivationToSalesCRM).toBeCalled()
-        expect(mockPushSubscriptionActivationToSalesCRM).lastCalledWith(rightSbbolOfferAccept.payerInn, dayjs(objCreated.startAt).toDate(), dayjs(objCreated.finishAt).toDate())
+        expect(mockPushSubscriptionActivationToSalesCRM).lastCalledWith(
+            rightSbbolOfferAccept.payerInn,
+            dayjs(objCreated.startAt).toDate(),
+            dayjs(objCreated.finishAt).toDate(),
+        )
     })
-}) 
+})

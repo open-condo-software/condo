@@ -14,7 +14,7 @@ const { dvSenderFields } = require('./constants')
 
 const DEVELOPER_EMAIL = conf.DEVELOPER_EMAIL
 
-async function sendToDeveloper (type, data) {
+async function sendToDeveloper(type, data) {
     if (DEVELOPER_EMAIL) {
         const { keystone } = await getSchemaCtx('Message')
         await sendMessage(keystone, {
@@ -28,11 +28,11 @@ async function sendToDeveloper (type, data) {
 }
 
 class SbbolRoutes {
-    constructor () {
+    constructor() {
         this.helper = new SbbolOauth2Api()
     }
 
-    async startAuth (req, res, next) {
+    async startAuth(req, res, next) {
         // nonce: to prevent several callbacks from same request
         // state: to validate user browser on callback
         const checks = { nonce: generators.nonce(), state: generators.state() }
@@ -46,7 +46,7 @@ class SbbolRoutes {
         }
     }
 
-    async completeAuth (req, res, next) {
+    async completeAuth(req, res, next) {
         try {
             if (!isObject(req.session[SBBOL_SESSION_KEY])) {
                 return res.status(400).send('ERROR: Invalid nonce and state')
@@ -61,10 +61,7 @@ class SbbolRoutes {
                 await sendToDeveloper('SBBOL_INVALID_USERINFO', { userInfo, errors })
                 return res.status(400).send(`ERROR: Invalid SBBOL userInfo: ${errors.join(';')}`)
             }
-            const {
-                user,
-                organizationEmployeeId,
-            } = await sync({ keystone, userInfo, tokenSet })
+            const { user, organizationEmployeeId } = await sync({ keystone, userInfo, tokenSet })
             await keystone._sessionManager.startAuthedSession(req, { item: { id: user.id }, list: keystone.lists['User'] })
             if (organizationEmployeeId) {
                 res.cookie('organizationLinkId', organizationEmployeeId)

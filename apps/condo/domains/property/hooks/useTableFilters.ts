@@ -3,7 +3,6 @@ import { ComponentType, FiltersMeta } from '@condo/domains/common/utils/filters.
 import { PropertyWhereInput } from '@app/condo/schema'
 import { useIntl } from '@core/next/intl'
 
-
 export const useTableFilters = () => {
     const intl = useIntl()
     const AddressMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Address' })

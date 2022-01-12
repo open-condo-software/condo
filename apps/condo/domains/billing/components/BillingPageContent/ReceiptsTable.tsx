@@ -5,7 +5,8 @@ import {
     QueryMeta,
     getStringContainsFilter,
     getPageIndexFromOffset,
-    parseQuery, getTableScrollConfig,
+    parseQuery,
+    getTableScrollConfig,
 } from '@condo/domains/common/utils/tables.utils'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useRouter } from 'next/router'
@@ -77,8 +78,9 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
 
     const integrationOptionName = get(context, 'integrationOption')
     if (integrationOptionName) {
-        const integrationOptions = get(context, ['integration', 'availableOptions', 'options'], [])
-            .filter(option => option.name === integrationOptionName)
+        const integrationOptions = get(context, ['integration', 'availableOptions', 'options'], []).filter(
+            (option) => option.name === integrationOptionName,
+        )
         if (integrationOptions.length) {
             const [integrationOption] = integrationOptions
             const dataFormat = get(integrationOption, 'dataFormat')
@@ -103,22 +105,23 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
         setModalIsVisible(false)
     }
 
-    const onRow = useCallback((record: IBillingReceiptUIState) => {
-        return {
-            onClick: () => {
-                if (hasServices) {
-                    showServiceModal(record)
-                }
-            },
-        }
-    }, [hasServices])
+    const onRow = useCallback(
+        (record: IBillingReceiptUIState) => {
+            return {
+                onClick: () => {
+                    if (hasServices) {
+                        showServiceModal(record)
+                    }
+                },
+            }
+        },
+        [hasServices],
+    )
 
     if (error) {
         return (
             <BasicEmptyListView>
-                <Typography.Title level={4}>
-                    {LoadingErrorMessage}
-                </Typography.Title>
+                <Typography.Title level={4}>{LoadingErrorMessage}</Typography.Title>
             </BasicEmptyListView>
         )
     }
@@ -129,29 +132,24 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
                 <Col span={7}>
                     <Input
                         placeholder={SearchPlaceholder}
-                        onChange={(e) => {handleSearchChange(e.target.value)}}
+                        onChange={(e) => {
+                            handleSearchChange(e.target.value)
+                        }}
                         value={search}
                     />
                 </Col>
                 {options.length > 0 && (
                     <Col span={7} offset={1}>
-                        <Select
-                            defaultValue={contextPeriod}
-                            value={period}
-                            onChange={(newValue) => handlePeriodChange(newValue)}
-                        >
-                            {
-                                options.map((option, index) => {
-                                    return (
-                                        <Select.Option value={option.value} key={index}>
-                                            {`${DataForTitle} ${option.title}`}
-                                        </Select.Option>
-                                    )
-                                })
-                            }
+                        <Select defaultValue={contextPeriod} value={period} onChange={(newValue) => handlePeriodChange(newValue)}>
+                            {options.map((option, index) => {
+                                return (
+                                    <Select.Option value={option.value} key={index}>
+                                        {`${DataForTitle} ${option.title}`}
+                                    </Select.Option>
+                                )
+                            })}
                         </Select>
                     </Col>
-
                 )}
                 <Col span={24}>
                     <Table

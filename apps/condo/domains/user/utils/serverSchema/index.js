@@ -7,9 +7,7 @@
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const has = require('lodash/has')
 const faker = require('faker')
-const {
-    SMS_CODE_LENGTH,
-} = require('@condo/domains/user/constants/common')
+const { SMS_CODE_LENGTH } = require('@condo/domains/user/constants/common')
 const { execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 
@@ -23,11 +21,11 @@ const User = generateServerUtils(UserGQL)
 const ConfirmPhoneAction = generateServerUtils(ConfirmPhoneActionGQL)
 const ForgotPasswordAction = generateServerUtils(ForgotPasswordActionGQL)
 
-async function signinAsUser (context, data) {
+async function signinAsUser(context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
-    if (!data.id)  throw new Error('no data.id')
+    if (!data.id) throw new Error('no data.id')
     return await execGqlWithoutAccess(context, {
         query: SIGNIN_AS_USER_MUTATION,
         variables: { data: { dv: 1, ...data } },
@@ -41,9 +39,9 @@ async function signinAsUser (context, data) {
 const conf = require('@core/config')
 const whiteList = conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {}
 
-
 const generateSmsCode = (phone) => {
-    if (has(whiteList, phone)) { // Emulate Firebase white list for development - no real send sms
+    if (has(whiteList, phone)) {
+        // Emulate Firebase white list for development - no real send sms
         return Number(whiteList[phone])
     }
     return faker.datatype.number({
@@ -55,7 +53,7 @@ const generateSmsCode = (phone) => {
 const updateEmployeesRelatedToUser = async (context, user) => {
     const acceptedInviteEmployees = await OrganizationEmployee.getAll(context, { user: { id: user.id }, isAccepted: true })
     if (acceptedInviteEmployees.length > 0) {
-        acceptedInviteEmployees.forEach(employee => {
+        acceptedInviteEmployees.forEach((employee) => {
             OrganizationEmployee.update(context, employee.id, {
                 dv: user.dv,
                 sender: user.sender,
@@ -67,7 +65,6 @@ const updateEmployeesRelatedToUser = async (context, user) => {
     }
 }
 
-
 module.exports = {
     User,
     ConfirmPhoneAction,
@@ -75,5 +72,5 @@ module.exports = {
     ForgotPasswordAction,
     updateEmployeesRelatedToUser,
     signinAsUser,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

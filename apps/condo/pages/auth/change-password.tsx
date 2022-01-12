@@ -59,7 +59,7 @@ const ChangePasswordPage: AuthPage = () => {
         confirmPassword: [
             changeMessage(requiredValidator, PleaseConfirmYourPasswordMsg),
             ({ getFieldValue }) => ({
-                validator (_, value) {
+                validator(_, value) {
                     if (!value || getFieldValue('password') === value) {
                         return Promise.resolve()
                     }
@@ -77,15 +77,18 @@ const ChangePasswordPage: AuthPage = () => {
             mutation: changePassword,
             variables: { data: { token, password } },
             onCompleted: async ({ data: { result } }) => {
-                await signInByPhone({
-                    phone: result.phone,
-                    password: form.getFieldValue('password'),
-                }, () => {
-                    auth.refetch().then(() => {
-                        setIsSaving(false)
-                        Router.push( '/')
-                    })
-                })
+                await signInByPhone(
+                    {
+                        phone: result.phone,
+                        password: form.getFieldValue('password'),
+                    },
+                    () => {
+                        auth.refetch().then(() => {
+                            setIsSaving(false)
+                            Router.push('/')
+                        })
+                    },
+                )
             },
             intl,
             form,
@@ -96,7 +99,7 @@ const ChangePasswordPage: AuthPage = () => {
     }
 
     const [checkPasswordRecoveryToken] = useLazyQuery(CHECK_PASSWORD_RECOVERY_TOKEN, {
-        onError: error => {
+        onError: (error) => {
             setRecoveryTokenError(error)
             setIsLoading(false)
         },
@@ -112,7 +115,7 @@ const ChangePasswordPage: AuthPage = () => {
         checkPasswordRecoveryToken({ variables: { data: { token } } })
     }, [])
 
-    if (isLoading){
+    if (isLoading) {
         return <Loader size="large" delay={0} fill />
     }
 
@@ -121,11 +124,9 @@ const ChangePasswordPage: AuthPage = () => {
             <BasicEmptyListView>
                 <Typography.Title level={3}>{ChangePasswordTokenErrorLabel}</Typography.Title>
                 <Typography.Text style={{ fontSize: fontSizes.content }}>{ChangePasswordTokenErrorMessage}</Typography.Text>
-                <Button
-                    type='sberPrimary'
-                    style={{ marginTop: '16px' }}
-                    onClick={() => Router.push('/auth/forgot')}
-                >{ChangePasswordTokenErrorConfirmLabel}</Button>
+                <Button type="sberPrimary" style={{ marginTop: '16px' }} onClick={() => Router.push('/auth/forgot')}>
+                    {ChangePasswordTokenErrorConfirmLabel}
+                </Button>
             </BasicEmptyListView>
         )
     }
@@ -136,7 +137,7 @@ const ChangePasswordPage: AuthPage = () => {
                 <Typography.Title style={{ textAlign: 'left' }}>{ResetTitle}</Typography.Title>
             </Col>
             <Col span={24}>
-                <Typography.Paragraph style={{ textAlign: 'left' }} >{CreateNewPasswordMsg}</Typography.Paragraph>
+                <Typography.Paragraph style={{ textAlign: 'left' }}>{CreateNewPasswordMsg}</Typography.Paragraph>
             </Col>
             <Col span={24}>
                 <Form
@@ -146,7 +147,7 @@ const ChangePasswordPage: AuthPage = () => {
                     onFinish={onFinish}
                     initialValues={initialValues}
                     colon={false}
-                    labelAlign='left'
+                    labelAlign="left"
                     requiredMark={false}
                 >
                     <Row gutter={[0, 60]}>
@@ -156,11 +157,7 @@ const ChangePasswordPage: AuthPage = () => {
                         <Col span={24}>
                             <Row gutter={[0, 24]}>
                                 <Col span={24}>
-                                    <Form.Item
-                                        name="password"
-                                        label={PasswordMsg}
-                                        rules={validations.password}
-                                    >
+                                    <Form.Item name="password" label={PasswordMsg} rules={validations.password}>
                                         <Input.Password />
                                     </Form.Item>
                                 </Col>
@@ -177,16 +174,11 @@ const ChangePasswordPage: AuthPage = () => {
                             </Row>
                         </Col>
                         <Col span={24}>
-                            <Form.Item >
-                                <Button
-                                    key='submit'
-                                    type='sberPrimary'
-                                    loading={isSaving}
-                                    htmlType="submit"
-                                >
+                            <Form.Item>
+                                <Button key="submit" type="sberPrimary" loading={isSaving} htmlType="submit">
                                     {SaveMsg}
                                 </Button>
-                                <Typography.Text type='secondary' style={{ marginLeft: '20px' }}>
+                                <Typography.Text type="secondary" style={{ marginLeft: '20px' }}>
                                     {AndSignInMsg}
                                 </Typography.Text>
                             </Form.Item>
@@ -198,7 +190,7 @@ const ChangePasswordPage: AuthPage = () => {
     )
 }
 
-ChangePasswordPage.headerAction = <ButtonHeaderAction descriptor={{ id: 'pages.auth.Register' }} path={'/auth/register'}/>
+ChangePasswordPage.headerAction = <ButtonHeaderAction descriptor={{ id: 'pages.auth.Register' }} path={'/auth/register'} />
 
 ChangePasswordPage.container = AuthLayout
 

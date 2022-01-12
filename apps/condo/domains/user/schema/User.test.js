@@ -5,8 +5,23 @@
 const { WRONG_EMAIL_ERROR } = require('@condo/domains/user/constants/errors')
 const { getRandomString, makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 
-const { User, UserAdmin, createTestUser, updateTestUser, makeClientWithNewRegisteredAndLoggedInUser, makeLoggedInClient, createTestLandlineNumber, createTestPhone, createTestEmail, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObjects,  expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const {
+    User,
+    UserAdmin,
+    createTestUser,
+    updateTestUser,
+    makeClientWithNewRegisteredAndLoggedInUser,
+    makeLoggedInClient,
+    createTestLandlineNumber,
+    createTestPhone,
+    createTestEmail,
+    makeClientWithResidentUser,
+} = require('@condo/domains/user/utils/testSchema')
+const {
+    expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj,
+} = require('@condo/domains/common/utils/testSchema')
 const { GET_MY_USERINFO, SIGNIN_MUTATION } = require('@condo/domains/user/gql')
 const { DEFAULT_TEST_USER_IDENTITY, DEFAULT_TEST_USER_SECRET } = require('@core/keystone/test.utils')
 const { WRONG_PASSWORD_ERROR, EMPTY_PASSWORD_ERROR } = require('@condo/domains/user/constants/errors')
@@ -15,8 +30,8 @@ describe('SIGNIN', () => {
     test('anonymous: SIGNIN_MUTATION', async () => {
         const client = await makeClient()
         const { data, errors } = await client.mutate(SIGNIN_MUTATION, {
-            'identity': DEFAULT_TEST_USER_IDENTITY,
-            'secret': DEFAULT_TEST_USER_SECRET,
+            identity: DEFAULT_TEST_USER_IDENTITY,
+            secret: DEFAULT_TEST_USER_SECRET,
         })
         expect(data.auth.user.id).toMatch(/[a-zA-Z0-9-_]+/)
         expect(errors).toEqual(undefined)
@@ -26,7 +41,7 @@ describe('SIGNIN', () => {
         const client = await makeClient()
         const { data, errors } = await client.query(GET_MY_USERINFO)
         expect(errors).toEqual(undefined)
-        expect(data).toEqual({ 'user': null })
+        expect(data).toEqual({ user: null })
     })
 
     test('user: GET_MY_USERINFO', async () => {
@@ -39,20 +54,20 @@ describe('SIGNIN', () => {
     test('anonymous: SIGNIN_MUTATION by wrong password', async () => {
         const client = await makeClient()
         const { data, errors } = await client.mutate(SIGNIN_MUTATION, {
-            'identity': DEFAULT_TEST_USER_IDENTITY,
-            'secret': 'wrong password',
+            identity: DEFAULT_TEST_USER_IDENTITY,
+            secret: 'wrong password',
         })
-        expect(data).toEqual({ 'auth': null })
-        expect(JSON.stringify(errors)).toMatch((WRONG_PASSWORD_ERROR))
+        expect(data).toEqual({ auth: null })
+        expect(JSON.stringify(errors)).toMatch(WRONG_PASSWORD_ERROR)
     })
 
     test('anonymous: SIGNIN_MUTATION by wrong email', async () => {
         const client = await makeClient()
         const { data, errors } = await client.mutate(SIGNIN_MUTATION, {
-            'identity': 'some3571592131usermail@example.com',
-            'secret': 'wrong password',
+            identity: 'some3571592131usermail@example.com',
+            secret: 'wrong password',
         })
-        expect(data).toEqual({ 'auth': null })
+        expect(data).toEqual({ auth: null })
         expect(JSON.stringify(errors)).toMatch(WRONG_EMAIL_ERROR)
     })
 
@@ -214,10 +229,10 @@ describe('User', () => {
         const { data, errors } = await User.count(client, {}, { raw: true })
         expect(data).toEqual({ meta: { count: null } })
         expect(errors[0]).toMatchObject({
-            'data': { 'target': '_allUsersMeta', 'type': 'query' },
-            'message': 'You do not have access to this resource',
-            'name': 'AccessDeniedError',
-            'path': ['meta', 'count'],
+            data: { target: '_allUsersMeta', type: 'query' },
+            message: 'You do not have access to this resource',
+            name: 'AccessDeniedError',
+            path: ['meta', 'count'],
         })
     })
 
@@ -245,15 +260,17 @@ describe('User utils', () => {
 
         const { data, errors } = await createTestUser(admin, { phone }, { raw: true })
 
-        expect(data).toEqual({ 'obj': null })
-        expect(errors).toMatchObject([{
-            message: 'You attempted to perform an invalid mutation',
-            name: 'ValidationFailureError',
-            path: ['obj'],
-            data: {
-                messages: [ '[format:phone] invalid format' ],
+        expect(data).toEqual({ obj: null })
+        expect(errors).toMatchObject([
+            {
+                message: 'You attempted to perform an invalid mutation',
+                name: 'ValidationFailureError',
+                path: ['obj'],
+                data: {
+                    messages: ['[format:phone] invalid format'],
+                },
             },
-        }])
+        ])
     })
 })
 

@@ -18,7 +18,7 @@ const {
     CUSTOMER_IMPORTANT_NOTE_TYPE,
 } = require('./constants')
 
-async function renderTemplate (transport, message) {
+async function renderTemplate(transport, message) {
     if (!MESSAGE_TRANSPORTS.includes(transport)) throw new Error('unexpected transport argument')
 
     // TODO(pahaz): we need to decide where to store templates! HArDCODE!
@@ -34,13 +34,15 @@ async function renderTemplate (transport, message) {
         if (message.lang === EN_LOCALE) {
             return {
                 subject: 'You are invited to join organization as employee',
-                text: `Organization "${organizationName}" invited you as employee.\n` +
+                text:
+                    `Organization "${organizationName}" invited you as employee.\n` +
                     `Click to the link to join: ${serverUrl}/auth/invite/${inviteCode}`,
             }
         } else if (message.lang === RU_LOCALE) {
             return {
                 subject: 'Вас пригласили присоединиться к организации в качестве сотрудника',
-                text: `Администратор организации "${organizationName}" приглашает вас в качестве сотрудника.\n` +
+                text:
+                    `Администратор организации "${organizationName}" приглашает вас в качестве сотрудника.\n` +
                     `Перейдите по ссылке, чтобы присоединиться: ${serverUrl}/auth/invite/${inviteCode}`,
             }
         }
@@ -52,25 +54,29 @@ async function renderTemplate (transport, message) {
             if (message.lang === EN_LOCALE) {
                 return {
                     subject: 'You are invited to join organization as employee',
-                    text: `Organization "${organizationName}" invited you as employee.\n` +
+                    text:
+                        `Organization "${organizationName}" invited you as employee.\n` +
                         `Click to the link to join: ${serverUrl}/auth/signin`,
                 }
             } else if (message.lang === RU_LOCALE) {
                 return {
                     subject: 'Вас пригласили присоединиться к организации в качестве сотрудника',
-                    text: `Администратор организации "${organizationName}" приглашает вас в качестве сотрудника.\n` +
+                    text:
+                        `Администратор организации "${organizationName}" приглашает вас в качестве сотрудника.\n` +
                         `Перейдите по ссылке, чтобы присоединиться: ${serverUrl}/auth/signin`,
                 }
             }
         } else if (transport === SMS_TRANSPORT) {
             if (message.lang === EN_LOCALE) {
                 return {
-                    text: `Organization "${organizationName}" invited you as employee.\n` +
+                    text:
+                        `Organization "${organizationName}" invited you as employee.\n` +
                         `Click to the link to join: ${serverUrl}/auth/signin`,
                 }
             } else if (message.lang === RU_LOCALE) {
                 return {
-                    text: `Организация "${organizationName}" приглашает вас в качестве сотрудника.\n` +
+                    text:
+                        `Организация "${organizationName}" приглашает вас в качестве сотрудника.\n` +
                         `Перейдите по ссылке, чтобы присоединиться: ${serverUrl}/auth/signin`,
                 }
             }
@@ -141,7 +147,9 @@ async function renderTemplate (transport, message) {
                                 </tr>
                             </table>
                             <p style="font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif; font-size: 22px; font-weight: 400; line-height: 32px; text-align: left;">Hello!<br />
-                            Ticket #${ticketNumber} dated ${dayjs(date).locale(LOCALES[EN_LOCALE]).format('D MMMM YYYY')} has been shared with you.<br />
+                            Ticket #${ticketNumber} dated ${dayjs(date)
+                    .locale(LOCALES[EN_LOCALE])
+                    .format('D MMMM YYYY')} has been shared with you.<br />
                             The text of the ticket: "${details}"</p>
                             <p>&nbsp;</p>
                             <div><!--[if mso]>
@@ -169,7 +177,9 @@ async function renderTemplate (transport, message) {
                                 </tr>
                             </table>
                             <p style="font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif; font-size: 22px; font-weight: 400; line-height: 32px; text-align: left;">Добрый день!<br />
-                            С вами поделились заявкой №${ticketNumber} от ${dayjs(date).locale(LOCALES[RU_LOCALE]).format('D MMMM YYYY')})}.<br />
+                            С вами поделились заявкой №${ticketNumber} от ${dayjs(date)
+                    .locale(LOCALES[RU_LOCALE])
+                    .format('D MMMM YYYY')})}.<br />
                             Текст заявки: «${details}»</p>
                             <p>&nbsp;</p>
                             <div><!--[if mso]>

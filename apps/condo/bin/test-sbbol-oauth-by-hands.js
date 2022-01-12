@@ -4,19 +4,21 @@ const readline = require('readline')
 const { SbbolOauth2Api } = require('@condo/domains/organization/integrations/sbbol/oauth2')
 const { getSbbolUserInfoErrors } = require('@condo/domains/organization/integrations/sbbol/common')
 
-function askQuestion (query) {
+function askQuestion(query) {
     const rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout,
     })
 
-    return new Promise(resolve => rl.question(query, ans => {
-        rl.close()
-        resolve(ans)
-    }))
+    return new Promise((resolve) =>
+        rl.question(query, (ans) => {
+            rl.close()
+            resolve(ans)
+        }),
+    )
 }
 
-async function main () {
+async function main() {
     const api = new SbbolOauth2Api()
     const checks = { nonce: generators.nonce(), state: generators.state() }
     const redirectUrl = api.authorizationUrlWithParams(checks)

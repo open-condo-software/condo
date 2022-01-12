@@ -17,21 +17,21 @@ import * as OrganizationEmployeeRole from './OrganizationEmployeeRole'
 import * as OrganizationLink from './OrganizationLink'
 import * as TokenSet from './TokenSet'
 
-function convertGQLItemToUIState (item) {
+function convertGQLItemToUIState(item) {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
     return { ...item, dv: undefined }
 }
 
-function convertUIStateToGQLItem (state, obj = null) {
+function convertUIStateToGQLItem(state, obj = null) {
     const sender = getClientSideSenderInfo()
     return { dv: 1, sender, ...state }
 }
 
-function useRegisterNewOrganization (attrs = {}, onComplete) {
+function useRegisterNewOrganization(attrs = {}, onComplete) {
     if (typeof attrs !== 'object' || !attrs) throw new Error('useCreate(): invalid attrs argument')
     const [rowAction] = useMutation(REGISTER_NEW_ORGANIZATION_MUTATION)
 
-    async function _action (state) {
+    async function _action(state) {
         const { data, error } = await rowAction({
             variables: { data: convertUIStateToGQLItem({ ...state, ...attrs }) },
         })
@@ -51,11 +51,11 @@ function useRegisterNewOrganization (attrs = {}, onComplete) {
 }
 
 // TODO(Dimitree): move to OrganizationEmployee
-function useInviteNewOrganizationEmployee (attrs = {}, onComplete) {
+function useInviteNewOrganizationEmployee(attrs = {}, onComplete) {
     if (typeof attrs !== 'object' || !attrs) throw new Error('useCreate(): invalid attrs argument')
     const [rowAction] = useMutation(INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION)
 
-    async function _action (state) {
+    async function _action(state) {
         const { data, error } = await rowAction({
             variables: { data: convertUIStateToGQLItem({ ...state, ...attrs }) },
         })
@@ -75,7 +75,8 @@ function useInviteNewOrganizationEmployee (attrs = {}, onComplete) {
 }
 
 export {
-    convertGQLItemToUIState, convertUIStateToGQLItem,
+    convertGQLItemToUIState,
+    convertUIStateToGQLItem,
     useRegisterNewOrganization,
     useInviteNewOrganizationEmployee,
     Organization,

@@ -10,8 +10,7 @@ type PropertiesMapProps = {
     properties: (Property.IPropertyUIState | Division.IDivisionUIState)[]
 } & Omit<ComponentProps<typeof MapGL>, 'points'>
 
-export default function PropertiesMap ({ properties, ...mapGLProps }: PropertiesMapProps) {
-
+export default function PropertiesMap({ properties, ...mapGLProps }: PropertiesMapProps) {
     const propertyMapper = (property: PropertyType) => {
         const { geo_lat, geo_lon } = property.addressMeta.data
         const geo_latNumber = parseFloat(geo_lat) || 0
@@ -25,30 +24,27 @@ export default function PropertiesMap ({ properties, ...mapGLProps }: Properties
     }
 
     const points = useMemo(() => {
-        const buildings = (properties
-            .filter((property) => has(property, ['addressMeta', 'data'])) as unknown as PropertyType[])
-            .map(propertyMapper)
+        const buildings = (
+            properties.filter((property) => has(property, ['addressMeta', 'data'])) as unknown as PropertyType[]
+        ).map(propertyMapper)
 
         const divisions = properties
-            .filter(division => has(division, ['properties']))
+            .filter((division) => has(division, ['properties']))
             .flatMap((division: Division.IDivisionUIState) => division.properties)
-            .filter(property => has(property, ['addressMeta', 'data']))
+            .filter((property) => has(property, ['addressMeta', 'data']))
             .map(propertyMapper)
 
         return buildings.concat(divisions)
-
     }, [properties])
 
-    return (
-        <MapGL points={points} {...mapGLProps} />
-    )
+    return <MapGL points={points} {...mapGLProps} />
 }
 PropertiesMap.defaultProps = {
     containerCss: css`
-    position: absolute;
-    top: 280px;
-    bottom: 0;
-    right: 0;
-    left: 0;
-`,
+        position: absolute;
+        top: 280px;
+        bottom: 0;
+        right: 0;
+        left: 0;
+    `,
 }

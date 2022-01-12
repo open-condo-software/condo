@@ -3,12 +3,7 @@ import { get } from 'lodash'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
 
-import {
-    ComponentType,
-    convertToOptions,
-    FilterComponentSize,
-    FiltersMeta,
-} from '@condo/domains/common/utils/filters.utils'
+import { ComponentType, convertToOptions, FilterComponentSize, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { MeterReadingWhereInput } from '@app/condo/schema'
 import {
     getDayRangeFilter,
@@ -47,13 +42,13 @@ const filterCategoryClassifier = getFilter(['categoryClassifier', 'id'], 'array'
 const filterClientPhone = getFilter('clientPhone', 'array', 'string', 'in')
 const filterTicketAuthor = getFilter(['createdBy', 'id'], 'array', 'string', 'in')
 
-export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
+export function useTicketTableFilters(): Array<FiltersMeta<MeterReadingWhereInput>> {
     const intl = useIntl()
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' }).toLowerCase()
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
     const PaidMessage = intl.formatMessage({ id: 'Paid' }).toLowerCase()
     const DateMessage = intl.formatMessage({ id: 'Date' })
-    const StatusMessage =  intl.formatMessage({ id: 'Status' })
+    const StatusMessage = intl.formatMessage({ id: 'Status' })
     const DescriptionMessage = intl.formatMessage({ id: 'Description' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
     const EnterAddressMessage = intl.formatMessage({ id: 'pages.condo.meter.EnterAddress' })
@@ -83,7 +78,10 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
     const { objs: sources } = TicketSource.useObjects({})
     const sourceOptions = convertToOptions<ITicketSourceUIState>(sources, 'name', 'id')
 
-    const attributeOptions = [{ label: PaidMessage, value: 'isPaid' }, { label: EmergencyMessage, value: 'isEmergency' }]
+    const attributeOptions = [
+        { label: PaidMessage, value: 'isPaid' },
+        { label: EmergencyMessage, value: 'isEmergency' },
+    ]
     const { objs: categoryClassifiers } = TicketCategoryClassifier.useObjects({})
     const categoryClassifiersOptions = convertToOptions<ITicketCategoryClassifierUIState>(categoryClassifiers, 'name', 'id')
 
@@ -96,14 +94,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
         return [
             {
                 keyword: 'search',
-                filters: [
-                    filterNumber,
-                    filterClientName,
-                    filterAddress,
-                    filterDetails,
-                    filterExecutorName,
-                    filterAssigneeName,
-                ],
+                filters: [filterNumber, filterClientName, filterAddress, filterDetails, filterExecutorName, filterAssigneeName],
                 combineType: 'OR',
             },
             {
@@ -204,7 +195,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                 queryToWhereProcessor: (queryDivisions) => {
                     // We define single division in the browser query as "propertyId1, propertyId2" ->
                     // in GQLWhere we need ["propertyId1", "propertyId2"]
-                    return queryDivisions?.map(queryDivision => queryDivision.split(',')).flat(1)
+                    return queryDivisions?.map((queryDivision) => queryDivision.split(',')).flat(1)
                 },
                 component: {
                     type: ComponentType.GQLSelect,
@@ -346,9 +337,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                 component: {
                     type: ComponentType.GQLSelect,
                     props: {
-                        search: searchEmployeeUser(userOrganizationId, ({ role }) => (
-                            get(role, 'canBeAssignedAsExecutor', false)
-                        )),
+                        search: searchEmployeeUser(userOrganizationId, ({ role }) => get(role, 'canBeAssignedAsExecutor', false)),
                         mode: 'multiple',
                         showArrow: true,
                         placeholder: EnterFullNameMessage,
@@ -365,9 +354,9 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                 component: {
                     type: ComponentType.GQLSelect,
                     props: {
-                        search: searchEmployeeUser(userOrganizationId, ({ role }) => (
-                            get(role, 'canBeAssignedAsResponsible', false)
-                        )),
+                        search: searchEmployeeUser(userOrganizationId, ({ role }) =>
+                            get(role, 'canBeAssignedAsResponsible', false),
+                        ),
                         mode: 'multiple',
                         showArrow: true,
                         placeholder: EnterFullNameMessage,

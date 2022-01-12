@@ -24,27 +24,18 @@ export const AuthHeader: React.FC<IAuthHeaderProps> = ({ headerAction }) => {
         }
     }, [isAuthenticated, router])
 
-    return (
-        isSmall
-            ? (
-                <>
-                    <MobileHeader>
-                        <Logo fillColor={colors.scampi} onClick={handleLogoClick}/>
-                    </MobileHeader>
-                    <Row>
-                        <Col span={24}>
-                            <ActionContainer>
-                                {headerAction}
-                            </ActionContainer>
-                        </Col>
-                    </Row>
-                </>
-            )
-            : (
-                <Header
-                    title={<Logo fillColor={colors.scampi} onClick={handleLogoClick}/>}
-                    extra={headerAction}
-                />
-            )
+    return isSmall ? (
+        <>
+            <MobileHeader>
+                <Logo fillColor={colors.scampi} onClick={handleLogoClick} />
+            </MobileHeader>
+            <Row>
+                <Col span={24}>
+                    <ActionContainer>{headerAction}</ActionContainer>
+                </Col>
+            </Row>
+        </>
+    ) : (
+        <Header title={<Logo fillColor={colors.scampi} onClick={handleLogoClick} />} extra={headerAction} />
     )
 }

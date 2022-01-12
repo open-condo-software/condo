@@ -9,12 +9,7 @@ import { useOrganization } from '@core/next/organization'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { ServiceSubscriptionIndicator } from '@condo/domains/subscription/components/ServiceSubscriptionIndicator'
 import { OrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
-import {
-    MobileMenuItemsContainer,
-    mobileSideNavStyles,
-    MobileSideNavHeader,
-    OrganizationSelectWrapper,
-} from '../styles'
+import { MobileMenuItemsContainer, mobileSideNavStyles, MobileSideNavHeader, OrganizationSelectWrapper } from '../styles'
 
 interface ISideNavProps {
     menuData?: React.ElementType
@@ -40,28 +35,19 @@ export const MobileSideNav: React.FC<ISideNavProps> = (props) => {
         }
     }, [router])
 
-
     if (get(link, 'isBlocked', false)) {
         return null
     }
 
     return (
-        <Layout.Sider
-            collapsed={isCollapsed}
-            theme='light'
-            css={mobileSideNavStyles}
-            width={'100%'}
-            collapsedWidth={0}
-        >
+        <Layout.Sider collapsed={isCollapsed} theme="light" css={mobileSideNavStyles} width={'100%'} collapsedWidth={0}>
             <MobileSideNavHeader>
-                <CloseOutlined onClick={toggleCollapsed}/>
+                <CloseOutlined onClick={toggleCollapsed} />
                 <OrganizationSelectWrapper>
-                    <OrganizationSelect/>
+                    <OrganizationSelect />
                 </OrganizationSelectWrapper>
             </MobileSideNavHeader>
-            <MobileMenuItemsContainer>
-                {menuData}
-            </MobileMenuItemsContainer>
+            <MobileMenuItemsContainer>{menuData}</MobileMenuItemsContainer>
         </Layout.Sider>
     )
 }

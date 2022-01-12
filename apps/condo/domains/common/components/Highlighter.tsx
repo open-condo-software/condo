@@ -22,11 +22,11 @@ export const Highlighter: React.FC<IHighlighterProps> = (props) => {
 
     if (!text) return null
 
-    if (isEmpty(search)) return <>{ text }</>
+    if (isEmpty(search)) return <>{text}</>
 
     const searchRegexp = new RegExp(`(${getEscaped(search)})`, 'ig')
 
-    if (!searchRegexp.test(text)) return <>{ text }</>
+    if (!searchRegexp.test(text)) return <>{text}</>
 
     const parts = text.split(searchRegexp)
 
@@ -35,5 +35,5 @@ export const Highlighter: React.FC<IHighlighterProps> = (props) => {
         return searchRegexp.test(part) ? renderPart(part, index) : part
     })
 
-    return <>{ highlited }</>
+    return <>{highlited}</>
 }

@@ -16,7 +16,13 @@ const { updateEmployeesRelatedToUser, User: UserAPI } = require('@condo/domains/
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const AVATAR_FILE_ADAPTER = new FileAdapter('avatars')
 const { STAFF, USER_TYPES } = require('@condo/domains/user/constants/common')
-const { EMAIL_ALREADY_REGISTERED_ERROR, PHONE_ALREADY_REGISTERED_ERROR, EMAIL_WRONG_FORMAT_ERROR, PHONE_WRONG_FORMAT_ERROR, PHONE_IS_REQUIRED_ERROR } = require('@condo/domains/user/constants/errors')
+const {
+    EMAIL_ALREADY_REGISTERED_ERROR,
+    PHONE_ALREADY_REGISTERED_ERROR,
+    EMAIL_WRONG_FORMAT_ERROR,
+    PHONE_WRONG_FORMAT_ERROR,
+    PHONE_IS_REQUIRED_ERROR,
+} = require('@condo/domains/user/constants/errors')
 
 const User = new GQLListSchema('User', {
     schemaDoc: 'Individual / person / service account / impersonal company account',
@@ -92,9 +98,17 @@ const User = new GQLListSchema('User', {
                         let existedUsers = []
                         const userType = resolvedData.type || STAFF
                         if (operation === 'create') {
-                            existedUsers = await UserAPI.getAll(context, { email: resolvedData['email'], type: userType, deletedAt: null })
+                            existedUsers = await UserAPI.getAll(context, {
+                                email: resolvedData['email'],
+                                type: userType,
+                                deletedAt: null,
+                            })
                         } else if (operation === 'update' && resolvedData.email !== existingItem.email) {
-                            existedUsers = await UserAPI.getAll(context, { email: resolvedData['email'], type: userType, deletedAt: null })
+                            existedUsers = await UserAPI.getAll(context, {
+                                email: resolvedData['email'],
+                                type: userType,
+                                deletedAt: null,
+                            })
                         }
                         if (existedUsers && existedUsers.length > 0) {
                             addFieldValidationError(`${EMAIL_ALREADY_REGISTERED_ERROR}] user already exists`)
@@ -134,9 +148,17 @@ const User = new GQLListSchema('User', {
                         let existedUsers = []
                         const userType = resolvedData.type || STAFF
                         if (operation === 'create') {
-                            existedUsers = await UserAPI.getAll(context, { phone: resolvedData['phone'], type: userType, deletedAt: null })
+                            existedUsers = await UserAPI.getAll(context, {
+                                phone: resolvedData['phone'],
+                                type: userType,
+                                deletedAt: null,
+                            })
                         } else if (operation === 'update' && resolvedData.phone !== existingItem.phone) {
-                            existedUsers = await UserAPI.getAll(context, { phone: resolvedData['phone'], type: userType, deletedAt: null })
+                            existedUsers = await UserAPI.getAll(context, {
+                                phone: resolvedData['phone'],
+                                type: userType,
+                                deletedAt: null,
+                            })
                         }
                         if (existedUsers && existedUsers.length > 0) {
                             addFieldValidationError(`${PHONE_ALREADY_REGISTERED_ERROR}] user already exists`)
@@ -177,7 +199,6 @@ const User = new GQLListSchema('User', {
             access: access.canAccessToImportField,
             kmigratorOptions: { null: true, unique: false },
         },
-
     },
     kmigratorOptions: {
         constraints: [
@@ -201,10 +222,11 @@ const User = new GQLListSchema('User', {
     hooks: {
         afterChange: async ({ updatedItem, context, existingItem, operation }) => {
             if (
-                operation === 'update' && existingItem &&
+                operation === 'update' &&
+                existingItem &&
                 (updatedItem.phone !== existingItem.phone ||
-                updatedItem.email !== existingItem.email ||
-                updatedItem.name !== existingItem.name)
+                    updatedItem.email !== existingItem.email ||
+                    updatedItem.name !== existingItem.name)
             ) {
                 await updateEmployeesRelatedToUser(context, updatedItem)
             }

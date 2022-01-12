@@ -5,12 +5,18 @@ import { ErrorsWrapper } from '@condo/domains/common/components/ErrorsWrapper'
 interface IErrorsContainerProps {
     isVisible: boolean
     property: string
-    details: string,
-    placeClassifier: string,
+    details: string
+    placeClassifier: string
     categoryClassifier: string
 }
 
-export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ isVisible, property, details, placeClassifier, categoryClassifier  }) => {
+export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({
+    isVisible,
+    property,
+    details,
+    placeClassifier,
+    categoryClassifier,
+}) => {
     const intl = useIntl()
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
@@ -25,11 +31,11 @@ export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ isVisible, pr
         !categoryClassifier && CategoryLabel,
     ].filter(Boolean)
 
-    const errorMessage = emptyFieldMessages && emptyFieldMessages.length > 0 &&
-        emptyFieldMessages
-            .reduce((firstError, secondError) => `${firstError}, ${secondError}`)
-            .toLocaleLowerCase()
-    
+    const errorMessage =
+        emptyFieldMessages &&
+        emptyFieldMessages.length > 0 &&
+        emptyFieldMessages.reduce((firstError, secondError) => `${firstError}, ${secondError}`).toLocaleLowerCase()
+
     return (
         isVisible && (
             <ErrorsWrapper>

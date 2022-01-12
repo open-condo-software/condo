@@ -22,7 +22,7 @@ const changeMessage = (rule: Rule, message: string) => {
 }
 
 type ValidationSettings = {
-    allowLandLine?: boolean;
+    allowLandLine?: boolean
 }
 
 type UseValidations = (settings?: ValidationSettings) => ValidatorTypes
@@ -84,55 +84,51 @@ export const useValidations: UseValidations = (settings = {}) => {
     const numberValidator: Rule = {
         validator: (_, value: string) => {
             const normalizedValue = value?.replace(',', '.')
-            if (normalizedValue && !normalizedValue.match(/^\d+(\.?\d+)?$/g))
-                return Promise.reject(NumberIsNotValidMessage)
+            if (normalizedValue && !normalizedValue.match(/^\d+(\.?\d+)?$/g)) return Promise.reject(NumberIsNotValidMessage)
 
             return Promise.resolve()
         },
     }
 
-    const lessThanValidator: (comparedValue: number, errorMessage: string) => Rule =
-        (comparedValue, errorMessage) => {
-            return {
-                validator: (_, value: string | number) => {
-                    let normalizedValue = value
-                    if (typeof value === 'string')
-                        normalizedValue = value.replace(',', '.')
+    const lessThanValidator: (comparedValue: number, errorMessage: string) => Rule = (comparedValue, errorMessage) => {
+        return {
+            validator: (_, value: string | number) => {
+                let normalizedValue = value
+                if (typeof value === 'string') normalizedValue = value.replace(',', '.')
 
-                    if (value !== '' && Number(normalizedValue) < Number(comparedValue))
-                        return Promise.reject(errorMessage)
+                if (value !== '' && Number(normalizedValue) < Number(comparedValue)) return Promise.reject(errorMessage)
 
-                    return Promise.resolve()
-                },
-            }
+                return Promise.resolve()
+            },
         }
+    }
 
-    const greaterThanValidator: (comparedValue: number, errorMessage: string, delta?: number) => Rule =
-        (comparedValue, errorMessage, delta = 0) => {
-            return {
-                validator: (_, value: number | string) => {
-                    let normalizedValue = value
-                    if (typeof value === 'string')
-                        normalizedValue = value.replace(',', '.')
+    const greaterThanValidator: (comparedValue: number, errorMessage: string, delta?: number) => Rule = (
+        comparedValue,
+        errorMessage,
+        delta = 0,
+    ) => {
+        return {
+            validator: (_, value: number | string) => {
+                let normalizedValue = value
+                if (typeof value === 'string') normalizedValue = value.replace(',', '.')
 
-                    if (value !== '' && Number(normalizedValue) > comparedValue + delta)
-                        return Promise.reject(errorMessage)
+                if (value !== '' && Number(normalizedValue) > comparedValue + delta) return Promise.reject(errorMessage)
 
-                    return Promise.resolve()
-                },
-            }
+                return Promise.resolve()
+            },
         }
+    }
 
-    const tinValidator: (country: string) => Rule =
-        (country) => {
-            return {
-                validator: (_, value: string) => {
-                    if (isValidTin(value, country)) return Promise.resolve()
+    const tinValidator: (country: string) => Rule = (country) => {
+        return {
+            validator: (_, value: string) => {
+                if (isValidTin(value, country)) return Promise.resolve()
 
-                    return Promise.reject(TinValueIsInvalidMessage)
-                },
-            }
+                return Promise.reject(TinValueIsInvalidMessage)
+            },
         }
+    }
 
     return {
         changeMessage,

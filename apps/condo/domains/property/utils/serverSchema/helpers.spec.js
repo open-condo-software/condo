@@ -33,39 +33,42 @@ describe('helpers', () => {
             addressMeta.data.flat_type = null
             const { value } = addressMeta
 
-            catchErrorFrom(async () => {
-                getAddressUpToBuildingFrom(value, addressMeta)
-            }, (error) => {
-                expect(error.message).toEqual(FLAT_WITHOUT_FLAT_TYPE_MESSAGE)
-            })
+            catchErrorFrom(
+                async () => {
+                    getAddressUpToBuildingFrom(value, addressMeta)
+                },
+                (error) => {
+                    expect(error.message).toEqual(FLAT_WITHOUT_FLAT_TYPE_MESSAGE)
+                },
+            )
         })
     })
 
     describe('normalizePropertyMap', () => {
         it('removes all properties with `null` values from `sections[].floors[].units[]` from provided `Property.map`', async () => {
             const map = {
-                'dv': 1,
-                'type': 'building',
-                'sections': [
+                dv: 1,
+                type: 'building',
+                sections: [
                     {
-                        'id': '5',
-                        'type': 'section',
-                        'index': 1,
-                        'name': '1',
-                        'preview': null,
-                        'floors': [
+                        id: '5',
+                        type: 'section',
+                        index: 1,
+                        name: '1',
+                        preview: null,
+                        floors: [
                             {
-                                'id': '7',
-                                'type': 'floor',
-                                'index': 1,
-                                'name': '1',
-                                'units': [
+                                id: '7',
+                                type: 'floor',
+                                index: 1,
+                                name: '1',
+                                units: [
                                     {
-                                        'id': '6',
-                                        'type': 'unit',
-                                        'name': null,
-                                        'label': '1',
-                                        'preview': null,
+                                        id: '6',
+                                        type: 'unit',
+                                        name: null,
+                                        label: '1',
+                                        preview: null,
                                     },
                                 ],
                             },
@@ -74,26 +77,26 @@ describe('helpers', () => {
                 ],
             }
             const mapWithoutNameInUnit = {
-                'dv': 1,
-                'type': 'building',
-                'sections': [
+                dv: 1,
+                type: 'building',
+                sections: [
                     {
-                        'id': '5',
-                        'type': 'section',
-                        'index': 1,
-                        'name': '1',
-                        'preview': null,
-                        'floors': [
+                        id: '5',
+                        type: 'section',
+                        index: 1,
+                        name: '1',
+                        preview: null,
+                        floors: [
                             {
-                                'id': '7',
-                                'type': 'floor',
-                                'index': 1,
-                                'name': '1',
-                                'units': [
+                                id: '7',
+                                type: 'floor',
+                                index: 1,
+                                name: '1',
+                                units: [
                                     {
-                                        'id': '6',
-                                        'type': 'unit',
-                                        'label': '1',
+                                        id: '6',
+                                        type: 'unit',
+                                        label: '1',
                                     },
                                 ],
                             },

@@ -14,7 +14,7 @@ export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ phone }) => {
     const disableUserInteraction = !phone
 
     const getEmptyRequiredFields = () => {
-        if (!phone ) {
+        if (!phone) {
             return PhoneLabel
         }
     }

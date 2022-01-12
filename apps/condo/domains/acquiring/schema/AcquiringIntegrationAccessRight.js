@@ -11,9 +11,9 @@ const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/er
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { ACQUIRING_INTEGRATION_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
 
-
 const AcquiringIntegrationAccessRight = new GQLListSchema('AcquiringIntegrationAccessRight', {
-    schemaDoc: 'Link between Acquiring integration and user, the existence of this connection means that this user has the rights to perform actions on behalf of the integration',
+    schemaDoc:
+        'Link between Acquiring integration and user, the existence of this connection means that this user has the rights to perform actions on behalf of the integration',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
@@ -31,7 +31,6 @@ const AcquiringIntegrationAccessRight = new GQLListSchema('AcquiringIntegrationA
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
-
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {

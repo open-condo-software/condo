@@ -8,7 +8,7 @@ const {
     REINVITE_ORGANIZATION_EMPLOYEE_MUTATION,
 } = require('@condo/domains/organization/gql')
 
-async function createOrganizationEmployee (client, extraAttrs = {}) {
+async function createOrganizationEmployee(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!extraAttrs.organization) throw new Error('no extraAttrs.organization')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -16,29 +16,38 @@ async function createOrganizationEmployee (client, extraAttrs = {}) {
 
     const attrs = {
         dv: 1,
-        sender, email,
+        sender,
+        email,
         ...extraAttrs,
     }
     const obj = await OrganizationEmployee.create(client, attrs)
     return [obj, attrs]
 }
 
-async function registerNewOrganization (client, extraAttrs = {}, { raw = false } = {}) {
+async function registerNewOrganization(client, extraAttrs = {}, { raw = false } = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const country = 'ru'
     const name = faker.company.companyName()
     const description = faker.company.catchPhrase()
     const meta = {
-        dv: 1, inn: '6670428515', kpp: '667001001', city: faker.address.city(), zipCode: faker.address.zipCode(),
-        street: faker.address.streetName(), number: faker.address.secondaryAddress(),
+        dv: 1,
+        inn: '6670428515',
+        kpp: '667001001',
+        city: faker.address.city(),
+        zipCode: faker.address.zipCode(),
+        street: faker.address.streetName(),
+        number: faker.address.secondaryAddress(),
         county: faker.address.county(),
     }
 
     const attrs = {
         dv: 1,
         sender,
-        country, name, description, meta,
+        country,
+        name,
+        description,
+        meta,
         ...extraAttrs,
     }
 
@@ -50,7 +59,7 @@ async function registerNewOrganization (client, extraAttrs = {}, { raw = false }
     return [data.obj, attrs]
 }
 
-async function inviteNewOrganizationEmployee (client, organization, user, extraAttrs = {}, { raw = false } = {}) {
+async function inviteNewOrganizationEmployee(client, organization, user, extraAttrs = {}, { raw = false } = {}) {
     if (!client) throw new Error('no client')
     if (!organization) throw new Error('no organization')
     if (!user) throw new Error('no user')
@@ -75,7 +84,7 @@ async function inviteNewOrganizationEmployee (client, organization, user, extraA
     return [data.obj, attrs]
 }
 
-async function reInviteNewOrganizationEmployee (client, organization, user, extraAttrs = {}, { raw = false } = {}) {
+async function reInviteNewOrganizationEmployee(client, organization, user, extraAttrs = {}, { raw = false } = {}) {
     if (!client) throw new Error('no client')
     if (!organization) throw new Error('no organization')
     if (!user) throw new Error('no user')
@@ -99,13 +108,14 @@ async function reInviteNewOrganizationEmployee (client, organization, user, extr
     return [data.obj, attrs]
 }
 
-async function acceptOrRejectOrganizationInviteById (client, invite, extraAttrs = {}, { raw = false } = {}) {
+async function acceptOrRejectOrganizationInviteById(client, invite, extraAttrs = {}, { raw = false } = {}) {
     if (!client) throw new Error('no client')
     if (!invite || !invite.id) throw new Error('no invite.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
-        dv: 1, sender,
+        dv: 1,
+        sender,
         isAccepted: true,
         isRejected: false,
         ...extraAttrs,
@@ -120,7 +130,7 @@ async function acceptOrRejectOrganizationInviteById (client, invite, extraAttrs 
     return [data.obj, attrs]
 }
 
-async function makeClientWithRegisteredOrganization () {
+async function makeClientWithRegisteredOrganization() {
     const client = await makeClientWithNewRegisteredAndLoggedInUser()
     const [organization] = await registerNewOrganization(client)
 

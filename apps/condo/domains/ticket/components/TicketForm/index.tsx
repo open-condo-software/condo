@@ -9,5 +9,5 @@ interface ITicketFormProps {
 }
 
 export const TicketForm: React.FC<ITicketFormProps> = ({ id }) => {
-    return ( id ? <UpdateTicketForm id={id}/> : <CreateTicketForm/> )
+    return id ? <UpdateTicketForm id={id} /> : <CreateTicketForm />
 }

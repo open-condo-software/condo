@@ -49,7 +49,6 @@ const SENDER_FIELD_CONSTRAINTS = {
     },
 }
 
-
 const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentService', {
     types: [
         {
@@ -69,7 +68,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
             type: 'type RegisterMultiPaymentOutput { dv: Int!, multiPaymentId: String!, webViewUrl: String!, feeCalculationUrl: String! }',
         },
     ],
-    
+
     mutations: [
         {
             access: access.canRegisterMultiPayment,
@@ -85,28 +84,28 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
 
                 const senderErrors = validate(sender, SENDER_FIELD_CONSTRAINTS)
                 if (senderErrors && Object.keys(senderErrors).length) {
-                    const details = Object.keys(senderErrors).map(field => {
-                        return `${field}: [${senderErrors[field].map(error => `'${error}'`).join(', ')}]`
-                    }).join(', ')
+                    const details = Object.keys(senderErrors)
+                        .map((field) => {
+                            return `${field}: [${senderErrors[field].map((error) => `'${error}'`).join(', ')}]`
+                        })
+                        .join(', ')
                     throw new Error(`${REGISTER_MP_INVALID_SENDER}. ${details}`)
                 }
 
                 if (!get(groupedReceipts, 'length')) {
                     throw new Error(REGISTER_MP_EMPTY_INPUT)
                 }
-                if (groupedReceipts.some(group => !get(group, ['receipts', 'length']))) {
+                if (groupedReceipts.some((group) => !get(group, ['receipts', 'length']))) {
                     throw new Error(REGISTER_MP_EMPTY_RECEIPTS)
                 }
 
                 // Stage 0.1: Duplicates check
-                const consumersIds = groupedReceipts.map(group => group.consumerId)
+                const consumersIds = groupedReceipts.map((group) => group.consumerId)
                 const uniqueConsumerIds = new Set(consumersIds)
                 if (consumersIds.length !== uniqueConsumerIds.size) {
                     throw new Error(REGISTER_MP_CONSUMERS_DUPLICATE)
                 }
-                const receiptsIds = groupedReceipts
-                    .flatMap(group => group.receipts)
-                    .map(receiptInfo => receiptInfo.id)
+                const receiptsIds = groupedReceipts.flatMap((group) => group.receipts).map((receiptInfo) => receiptInfo.id)
                 const uniqueReceiptsIds = new Set(receiptsIds)
                 if (receiptsIds.length !== uniqueReceiptsIds.size) {
                     throw new Error(REGISTER_MP_RECEIPTS_DUPLICATE)
@@ -117,46 +116,53 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     id_in: consumersIds,
                 })
                 if (consumers.length !== consumersIds.length) {
-                    const existingConsumerIds = consumers.map(consumer => consumer.id)
-                    const missingConsumerIds = consumersIds.filter(consumerId => !existingConsumerIds.includes(consumerId))
+                    const existingConsumerIds = consumers.map((consumer) => consumer.id)
+                    const missingConsumerIds = consumersIds.filter((consumerId) => !existingConsumerIds.includes(consumerId))
                     throw new Error(`${REGISTER_MP_REAL_CONSUMER_MISMATCH} Missing: ${missingConsumerIds.join(', ')}`)
                 }
-                const deletedConsumersIds = consumers.filter(consumer => consumer.deletedAt).map(consumer => consumer.id)
+                const deletedConsumersIds = consumers.filter((consumer) => consumer.deletedAt).map((consumer) => consumer.id)
                 if (deletedConsumersIds.length) {
                     throw new Error(`${REGISTER_MP_DELETED_CONSUMERS} (${deletedConsumersIds.join(', ')})`)
                 }
                 const contextMissingConsumers = consumers
-                    .filter(consumer => !get(consumer, 'acquiringIntegrationContext'))
-                    .map(consumer => consumer.id)
+                    .filter((consumer) => !get(consumer, 'acquiringIntegrationContext'))
+                    .map((consumer) => consumer.id)
                 if (contextMissingConsumers.length) {
                     throw new Error(`${REGISTER_MP_NO_ACQUIRING_CONSUMERS} (${contextMissingConsumers.join(', ')})`)
                 }
 
                 const accountMissingConsumers = consumers
-                    .filter(consumer =>  !get(consumer, 'billingAccount'))
-                    .map(consumer => consumer.id)
+                    .filter((consumer) => !get(consumer, 'billingAccount'))
+                    .map((consumer) => consumer.id)
                 if (accountMissingConsumers.length) {
                     throw new Error(`${REGISTER_MP_NO_BILLING_ACCOUNT_CONSUMERS} (${accountMissingConsumers.join(', ')})`)
                 }
 
-                const consumersByIds = Object.assign({}, ...consumers.map(obj => ({ [obj.id]: obj })))
+                const consumersByIds = Object.assign({}, ...consumers.map((obj) => ({ [obj.id]: obj })))
 
-                const uniqueAcquiringContextsIds = new Set(consumers.map(consumer => consumer.acquiringIntegrationContext))
+                const uniqueAcquiringContextsIds = new Set(consumers.map((consumer) => consumer.acquiringIntegrationContext))
                 const acquiringContexts = await find('AcquiringIntegrationContext', {
                     id_in: Array.from(uniqueAcquiringContextsIds),
                 })
 
-                const deletedAcquiringContextsIds = new Set(acquiringContexts.filter(context => context.deletedAt).map(context => context.id))
+                const deletedAcquiringContextsIds = new Set(
+                    acquiringContexts.filter((context) => context.deletedAt).map((context) => context.id),
+                )
                 if (deletedAcquiringContextsIds.size) {
                     const failedConsumers = consumers
-                        .filter(consumer => deletedAcquiringContextsIds.has(consumer.acquiringIntegrationContext))
-                        .map(consumer => `{ consumerId: ${consumer.id}, acquiringContextId: ${consumer.acquiringIntegrationContext} }`)
-                    throw new Error(`${REGISTER_MP_DELETED_ACQUIRING_CONTEXTS}. Failed consumers: [${failedConsumers.join(', ')}]`)
+                        .filter((consumer) => deletedAcquiringContextsIds.has(consumer.acquiringIntegrationContext))
+                        .map(
+                            (consumer) =>
+                                `{ consumerId: ${consumer.id}, acquiringContextId: ${consumer.acquiringIntegrationContext} }`,
+                        )
+                    throw new Error(
+                        `${REGISTER_MP_DELETED_ACQUIRING_CONTEXTS}. Failed consumers: [${failedConsumers.join(', ')}]`,
+                    )
                 }
 
-                const acquiringContextsByIds = Object.assign({}, ...acquiringContexts.map(obj => ({ [obj.id]: obj })))
+                const acquiringContextsByIds = Object.assign({}, ...acquiringContexts.map((obj) => ({ [obj.id]: obj })))
 
-                const acquiringIntegrations = new Set(acquiringContexts.map(context => context.integration))
+                const acquiringIntegrations = new Set(acquiringContexts.map((context) => context.integration))
                 if (acquiringIntegrations.size !== 1) {
                     throw new Error(REGISTER_MP_MULTIPLE_INTEGRATIONS)
                 }
@@ -178,52 +184,55 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     id_in: receiptsIds,
                 })
                 if (receipts.length !== receiptsIds.length) {
-                    const existingReceiptsIds = new Set(receipts.map(receipt => receipt.id))
-                    const missingReceipts = receiptsIds.filter(receiptId => !existingReceiptsIds.has(receiptId))
+                    const existingReceiptsIds = new Set(receipts.map((receipt) => receipt.id))
+                    const missingReceipts = receiptsIds.filter((receiptId) => !existingReceiptsIds.has(receiptId))
                     throw new Error(`${REGISTER_MP_REAL_RECEIPTS_MISMATCH} Missing: ${missingReceipts.join(', ')}`)
                 }
 
-                const deletedReceiptsIds = receipts.filter(receipt => Boolean(receipt.deletedAt)).map(receipt => receipt.id)
+                const deletedReceiptsIds = receipts.filter((receipt) => Boolean(receipt.deletedAt)).map((receipt) => receipt.id)
                 if (deletedReceiptsIds.length) {
                     throw new Error(`${REGISTER_MP_DELETED_RECEIPTS} (${deletedReceiptsIds.join(', ')})`)
                 }
 
-                const negativeReceiptsIds = receipts
-                    .filter(receipt => Big(receipt.toPay).lte(0))
-                    .map(receipt => receipt.id)
+                const negativeReceiptsIds = receipts.filter((receipt) => Big(receipt.toPay).lte(0)).map((receipt) => receipt.id)
                 if (negativeReceiptsIds.length) {
                     throw new Error(`${REGISTER_MP_NEGATIVE_TO_PAY} [${negativeReceiptsIds.join(', ')}]`)
                 }
 
-
-                const receiptsByIds = Object.assign({}, ...receipts.map(obj => ({ [obj.id]: obj })))
-                groupedReceipts.forEach(group => {
-                    group.receipts.forEach(receiptInfo => {
+                const receiptsByIds = Object.assign({}, ...receipts.map((obj) => ({ [obj.id]: obj })))
+                groupedReceipts.forEach((group) => {
+                    group.receipts.forEach((receiptInfo) => {
                         const receipt = receiptsByIds[receiptInfo.id]
                         const billingAccount = receipt.account
                         const consumer = consumersByIds[group.consumerId]
                         if (billingAccount !== consumer.billingAccount) {
-                            throw new Error(`${REGISTER_MP_BILLING_ACCOUNTS_NO_MATCH} (ReceiptId: ${receiptInfo.id}, ConsumerId: ${group.consumerId})`)
+                            throw new Error(
+                                `${REGISTER_MP_BILLING_ACCOUNTS_NO_MATCH} (ReceiptId: ${receiptInfo.id}, ConsumerId: ${group.consumerId})`,
+                            )
                         }
                     })
                 })
-                const uniqueBillingContextsIds = new Set(receipts.map(receipt => receipt.context))
+                const uniqueBillingContextsIds = new Set(receipts.map((receipt) => receipt.context))
                 const billingContexts = await find('BillingIntegrationOrganizationContext', {
                     id_in: Array.from(uniqueBillingContextsIds),
                 })
-                const billingContextsById = Object.assign({}, ...billingContexts.map(obj => ({ [obj.id]: obj })))
-                const deletedBillingContextsIds = new Set(billingContexts.filter(context => context.deletedAt).map(context => context.id))
+                const billingContextsById = Object.assign({}, ...billingContexts.map((obj) => ({ [obj.id]: obj })))
+                const deletedBillingContextsIds = new Set(
+                    billingContexts.filter((context) => context.deletedAt).map((context) => context.id),
+                )
                 if (deletedBillingContextsIds.size) {
                     const failedReceipts = receipts
-                        .filter(receipt => deletedBillingContextsIds.has(receipt.context))
-                        .map(receipt => `{ receiptId: ${receipt.id}, contextId: ${receipt.context} }`)
+                        .filter((receipt) => deletedBillingContextsIds.has(receipt.context))
+                        .map((receipt) => `{ receiptId: ${receipt.id}, contextId: ${receipt.context} }`)
                     throw new Error(`${REGISTER_MP_DELETED_BILLING_CONTEXT} Failed receipts: [${failedReceipts.join(', ')}]`)
                 }
-                const supportedBillingIntegrations = get(acquiringIntegration, 'supportedBillingIntegrations', [])
-                    .map(integration => integration.id)
-                const uniqueBillingIntegrationsIds = new Set(billingContexts.map(context => context.integration))
-                const unsupportedBillings = Array.from(uniqueBillingIntegrationsIds)
-                    .filter(integration => !supportedBillingIntegrations.includes(integration))
+                const supportedBillingIntegrations = get(acquiringIntegration, 'supportedBillingIntegrations', []).map(
+                    (integration) => integration.id,
+                )
+                const uniqueBillingIntegrationsIds = new Set(billingContexts.map((context) => context.integration))
+                const unsupportedBillings = Array.from(uniqueBillingIntegrationsIds).filter(
+                    (integration) => !supportedBillingIntegrations.includes(integration),
+                )
                 if (unsupportedBillings.length) {
                     throw new Error(`${REGISTER_MP_UNSUPPORTED_BILLING} (${unsupportedBillings.join(', ')})`)
                 }
@@ -231,15 +240,22 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 const billingIntegrations = await find('BillingIntegration', {
                     id_in: Array.from(uniqueBillingIntegrationsIds),
                 })
-                const deletedBillingIntegrationsIds = new Set(billingIntegrations.filter(integration => integration.deletedAt).map(integration => integration.id))
+                const deletedBillingIntegrationsIds = new Set(
+                    billingIntegrations.filter((integration) => integration.deletedAt).map((integration) => integration.id),
+                )
                 if (deletedBillingIntegrationsIds.size) {
                     const failedReceipts = receipts
-                        .filter(receipt => deletedBillingIntegrationsIds.has(billingContextsById[receipt.context].integration))
-                        .map(receipt => `{ receiptId: ${receipt.id}, integrationId: ${billingContextsById[receipt.context].integration} }`)
+                        .filter((receipt) => deletedBillingIntegrationsIds.has(billingContextsById[receipt.context].integration))
+                        .map(
+                            (receipt) =>
+                                `{ receiptId: ${receipt.id}, integrationId: ${
+                                    billingContextsById[receipt.context].integration
+                                } }`,
+                        )
                     throw new Error(`${REGISTER_MP_DELETED_BILLING_INTEGRATION}. Failed receipts: [${failedReceipts.join(', ')}]`)
                 }
 
-                const currencies = new Set(billingIntegrations.map(integration => integration.currencyCode))
+                const currencies = new Set(billingIntegrations.map((integration) => integration.currencyCode))
                 if (currencies.size > 1) {
                     throw new Error(REGISTER_MP_MULTIPLE_CURRENCIES)
                 }
@@ -272,7 +288,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     }
                 }
 
-                const paymentIds = payments.map(payment => ({ id: payment.id }))
+                const paymentIds = payments.map((payment) => ({ id: payment.id }))
                 const totalAmount = payments.reduce((acc, cur) => {
                     return acc.plus(cur.amount)
                 }, Big('0.0'))
@@ -297,7 +313,6 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
             },
         },
     ],
-    
 })
 
 module.exports = {

@@ -1,6 +1,15 @@
 const { v4: uuid } = require('uuid')
 const {
-    Select, DateTimeUtc, Uuid, DateTime, CalendarDay, Checkbox, Decimal, Float, Text, Integer,
+    Select,
+    DateTimeUtc,
+    Uuid,
+    DateTime,
+    CalendarDay,
+    Checkbox,
+    Decimal,
+    Float,
+    Text,
+    Integer,
 } = require('@keystonejs/fields')
 const { getType } = require('@keystonejs/utils')
 
@@ -11,7 +20,7 @@ const { composeHook, isValidDate, evaluateKeystoneAccessResult } = require('./ut
 
 const GQL_TYPE_SUFFIX = 'HistoryRecord'
 
-function createHistoricalList (keystone, access, historicalListKey, historicalFields) {
+function createHistoricalList(keystone, access, historicalListKey, historicalFields) {
     let historicalAccess = access
     if (access) {
         historicalAccess = async (args) => {
@@ -36,7 +45,7 @@ function createHistoricalList (keystone, access, historicalListKey, historicalFi
     return historicalList
 }
 
-function prepareHistoryRecordFields (listKey, listFields, historyField, ignoreFieldTypes) {
+function prepareHistoryRecordFields(listKey, listFields, historyField, ignoreFieldTypes) {
     const defaultMapping = (field) => ({ type: Json })
     const typeMapping = {
         Stars: (field) => ({ type: Stars, starCount: field.starCount }),
@@ -89,14 +98,13 @@ function prepareHistoryRecordFields (listKey, listFields, historyField, ignoreFi
                             create: true,
                         }
                     } else {
-                        throw new Error(
-                            `Shorthand access must be specified as either a boolean or a function, received ${type}.`,
-                        )
+                        throw new Error(`Shorthand access must be specified as either a boolean or a function, received ${type}.`)
                     }
                 }
                 return [k, newValue]
             })
-            .filter(x => x))
+            .filter((x) => x),
+    )
     historyFields['id'] = {
         type: Uuid,
         defaultValue: () => uuid(),
@@ -120,12 +128,7 @@ function prepareHistoryRecordFields (listKey, listFields, historyField, ignoreFi
     }
 }
 
-function prepareHistoryRecordInput (
-    { operation, existingItem, updatedItem },
-    historyField,
-    historicalFields,
-    historicalList,
-) {
+function prepareHistoryRecordInput({ operation, existingItem, updatedItem }, historyField, historicalFields, historicalList) {
     // create / update / delete
     const op = operation[0]
     // no updatedItem on delete
@@ -133,7 +136,7 @@ function prepareHistoryRecordInput (
     const hist = { ...item }
     hist[`${historyField}_id`] = item['id']
     hist[`${historyField}_action`] = op
-    hist[`${historyField}_date`] = (new Date()).toISOString()
+    hist[`${historyField}_date`] = new Date().toISOString()
     for (let name in hist) {
         if (!historicalFields.hasOwnProperty(name)) {
             delete hist[name]
@@ -142,7 +145,7 @@ function prepareHistoryRecordInput (
 
         if (historicalFields[name].type.type === 'HiddenRelationship') {
             // stringify relations
-            hist[name] = (hist[name]) ? String(hist[name]) : hist[name]
+            hist[name] = hist[name] ? String(hist[name]) : hist[name]
         } else if (isValidDate(hist[name])) {
             // stringify datetime
             hist[name] = hist[name].toISOString()
@@ -152,39 +155,41 @@ function prepareHistoryRecordInput (
     return hist
 }
 
-const historical = ({ historyField = 'history', ignoreFieldTypes = ['Content'], isStrictMode = true } = {}) => ({ fields = {}, hooks = {}, access, ...rest }, { listKey, keystone }) => {
-    const historicalFields = prepareHistoryRecordFields(listKey, fields, historyField, ignoreFieldTypes)
-    const historicalListKey = `${listKey}${GQL_TYPE_SUFFIX}`
-    const query = `
+const historical =
+    ({ historyField = 'history', ignoreFieldTypes = ['Content'], isStrictMode = true } = {}) =>
+    ({ fields = {}, hooks = {}, access, ...rest }, { listKey, keystone }) => {
+        const historicalFields = prepareHistoryRecordFields(listKey, fields, historyField, ignoreFieldTypes)
+        const historicalListKey = `${listKey}${GQL_TYPE_SUFFIX}`
+        const query = `
       mutation create${historicalListKey} ($data: ${historicalListKey}CreateInput!) {
         obj: create${historicalListKey}(data: $data) { id }
       }
     `
 
-    const historicalList = createHistoricalList(keystone, access, historicalListKey, historicalFields)
+        const historicalList = createHistoricalList(keystone, access, historicalListKey, historicalFields)
 
-    const hook = async (hookArgs) => {
-        const hist = prepareHistoryRecordInput(hookArgs, historyField, historicalFields, historicalList)
-        const { context } = hookArgs
-        const { errors } = await context.executeGraphQL({
-            context: context.createContext({ skipAccessControl: true }),
-            query: query,
-            variables: {
-                data: hist,
-            },
-        })
-        if (errors) {
-            console.warn(errors)
-            if (isStrictMode) throw new Error('Cant\' create history record')
+        const hook = async (hookArgs) => {
+            const hist = prepareHistoryRecordInput(hookArgs, historyField, historicalFields, historicalList)
+            const { context } = hookArgs
+            const { errors } = await context.executeGraphQL({
+                context: context.createContext({ skipAccessControl: true }),
+                query: query,
+                variables: {
+                    data: hist,
+                },
+            })
+            if (errors) {
+                console.warn(errors)
+                if (isStrictMode) throw new Error("Cant' create history record")
+            }
         }
-    }
 
-    const originalAfterChange = hooks.afterChange
-    hooks.afterChange = composeHook(originalAfterChange, hook)
-    const originalBeforeDelete = hooks.beforeDelete
-    hooks.beforeDelete = composeHook(originalBeforeDelete, hook)
-    return { fields, hooks, access, ...rest }
-}
+        const originalAfterChange = hooks.afterChange
+        hooks.afterChange = composeHook(originalAfterChange, hook)
+        const originalBeforeDelete = hooks.beforeDelete
+        hooks.beforeDelete = composeHook(originalBeforeDelete, hook)
+        return { fields, hooks, access, ...rest }
+    }
 
 module.exports = {
     historical,

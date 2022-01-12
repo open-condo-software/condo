@@ -9,9 +9,7 @@ import { DivisionWhereInput } from '@app/condo/schema'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { EmptyTableCell } from '@condo/domains/common/components/Table/EmptyTableCell'
-import {
-    renderHighlightedPart,
-} from '@condo/domains/common/components/Table/Renders'
+import { renderHighlightedPart } from '@condo/domains/common/components/Table/Renders'
 import { TextHighlighter } from '@condo/domains/common/components/TextHighlighter'
 import { getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
@@ -20,15 +18,15 @@ import { Division } from '../utils/clientSchema'
 import { getAddressRender } from '../utils/clientSchema/Renders'
 
 export interface ITableColumn {
-    title: string,
-    ellipsis?: boolean,
-    sortOrder?: string,
-    filteredValue?: FilterValue,
-    dataIndex?: string,
-    key?: string,
-    sorter?: boolean,
-    width?: string,
-    filterDropdown?: unknown,
+    title: string
+    ellipsis?: boolean
+    sortOrder?: string
+    filteredValue?: FilterValue
+    dataIndex?: string
+    key?: string
+    sorter?: boolean
+    width?: string
+    filterDropdown?: unknown
     filterIcon?: unknown
 }
 
@@ -37,7 +35,7 @@ export const useTableColumns = (filterMetas: FiltersMeta<DivisionWhereInput>[]) 
     const DivisionTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Division' })
     const BuildingsTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Buildings' })
     const ForemanTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Foreman' })
-    const TechniciansTitleMessage  = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Technicians' })
+    const TechniciansTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Technicians' })
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
 
     const router = useRouter()
@@ -47,7 +45,8 @@ export const useTableColumns = (filterMetas: FiltersMeta<DivisionWhereInput>[]) 
 
     const renderAddress = useCallback(
         (properties) => properties.map((property) => getAddressRender(property, DeletedMessage, search)),
-        [search])
+        [search],
+    )
 
     return useMemo(() => {
         type ColumnTypes = [
@@ -61,16 +60,15 @@ export const useTableColumns = (filterMetas: FiltersMeta<DivisionWhereInput>[]) 
             let result = text
 
             if (!isEmpty(search) && text) {
-                result = (
-                    <TextHighlighter
-                        text={String(text)}
-                        search={String(search)}
-                        renderPart={renderHighlightedPart}
-                    />
-                )
+                result = <TextHighlighter text={String(text)} search={String(search)} renderPart={renderHighlightedPart} />
             }
 
-            return (<EmptyTableCell>{result}{isArray && <br />}</EmptyTableCell>)
+            return (
+                <EmptyTableCell>
+                    {result}
+                    {isArray && <br />}
+                </EmptyTableCell>
+            )
         }
 
         const columns: ColumnTypes = [

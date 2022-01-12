@@ -10,10 +10,10 @@ export enum OnBoardingStepType {
 }
 
 interface IOnBoardingStep {
-    type: OnBoardingStepType,
-    icon: React.FC,
-    title: string,
-    description: string,
+    type: OnBoardingStepType
+    icon: React.FC
+    title: string
+    description: string
     action?: () => void
 }
 
@@ -31,7 +31,7 @@ export const OnBoardingStepItem: React.FC<IOnBoardingStep> = (props) => {
         <StepContainer color={colors.transparent} type={props.type} onClick={handleClick}>
             <Space direction={'horizontal'} size={16}>
                 <IconContainer type={type}>
-                    <StepIcon/>
+                    <StepIcon />
                 </IconContainer>
                 <Space direction={'vertical'} size={4}>
                     <Typography.Title level={5}>{title}</Typography.Title>

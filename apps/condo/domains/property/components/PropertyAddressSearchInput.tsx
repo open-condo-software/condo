@@ -28,16 +28,13 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
     const client = useApolloClient()
     const organizationId = get(organization, 'id')
 
-    const initialValueGetter = useCallback(
-        (value) => {
-            return searchSingleProperty(client, value, organizationId).then((property: Property) => {
-                if (property) {
-                    return property.address
-                }
-            })
-        },
-        [],
-    )
+    const initialValueGetter = useCallback((value) => {
+        return searchSingleProperty(client, value, organizationId).then((property: Property) => {
+            if (property) {
+                return property.address
+            }
+        })
+    }, [])
 
     const searchAddress = useCallback(
         (query, skip) => {
@@ -54,53 +51,47 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
     /**
      * TODO(DOMA-1513) replace HighLighter with apps/condo/domains/common/components/TextHighlighter.tsx and renderHighlightedPart
      */
-    const renderOption = useCallback(
-        (dataItem, searchValue, index) => {
-            return (
-                <Select.Option
-                    style={SELECT_OPTION_STYLE}
-                    key={dataItem.value}
-                    value={dataItem.text}
-                    title={dataItem.text}
-                    id={index}
-                >
-                    {
-                        searchValue === dataItem.text
-                            ? dataItem.text
-                            : (
-                                <Highlighter
-                                    text={dataItem.text}
-                                    search={searchValue}
-                                    renderPart={(part, index) => {
-                                        return (
-                                            <Typography.Text
-                                                strong
-                                                key={part + index}
-                                                style={{ color: colors.black }}
-                                            >
-                                                {part}
-                                            </Typography.Text>
-                                        )
-                                    }}
-                                />
+    const renderOption = useCallback((dataItem, searchValue, index) => {
+        return (
+            <Select.Option
+                style={SELECT_OPTION_STYLE}
+                key={dataItem.value}
+                value={dataItem.text}
+                title={dataItem.text}
+                id={index}
+            >
+                {searchValue === dataItem.text ? (
+                    dataItem.text
+                ) : (
+                    <Highlighter
+                        text={dataItem.text}
+                        search={searchValue}
+                        renderPart={(part, index) => {
+                            return (
+                                <Typography.Text strong key={part + index} style={{ color: colors.black }}>
+                                    {part}
+                                </Typography.Text>
                             )
-                    }
-                </Select.Option>
-            )
-        },
-        [],
-    )
+                        }}
+                    />
+                )}
+            </Select.Option>
+        )
+    }, [])
 
-    const MemoizedBaseSearchInput = useCallback(() => (
-        <BaseSearchInput
-            {...props}
-            id={'propertyAddressSearchInput'}
-            search={searchAddress}
-            renderOption={renderOption}
-            initialValueGetter={initialValueGetter}
-            infinityScroll
-        />
-    ), [organizationId])
+    const MemoizedBaseSearchInput = useCallback(
+        () => (
+            <BaseSearchInput
+                {...props}
+                id={'propertyAddressSearchInput'}
+                search={searchAddress}
+                renderOption={renderOption}
+                initialValueGetter={initialValueGetter}
+                infinityScroll
+            />
+        ),
+        [organizationId],
+    )
 
     return <MemoizedBaseSearchInput />
 }

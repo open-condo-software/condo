@@ -9,7 +9,7 @@ import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderA
 
 const CreateTicketPage = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id:'pages.condo.ticket.index.CreateTicketModalTitle' })
+    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.ticket.index.CreateTicketModalTitle' })
 
     return (
         <>
@@ -20,9 +20,11 @@ const CreateTicketPage = () => {
                 <PageContent>
                     <Row gutter={[0, 40]}>
                         <Col span={24}>
-                            <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
+                            <Typography.Title level={1} style={{ margin: 0 }}>
+                                {PageTitleMsg}
+                            </Typography.Title>
                         </Col>
-                        <TicketForm/>
+                        <TicketForm />
                     </Row>
                 </PageContent>
             </PageWrapper>

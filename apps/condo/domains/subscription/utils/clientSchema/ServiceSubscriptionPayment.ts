@@ -8,9 +8,29 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { ServiceSubscriptionPayment as ServiceSubscriptionPaymentGQL } from '@condo/domains/subscription/gql'
-import { ServiceSubscriptionPayment, ServiceSubscriptionPaymentUpdateInput, QueryAllServiceSubscriptionPaymentsArgs } from '../../../../schema'
+import {
+    ServiceSubscriptionPayment,
+    ServiceSubscriptionPaymentUpdateInput,
+    QueryAllServiceSubscriptionPaymentsArgs,
+} from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'type', 'status', 'externalId', 'amount', 'currency', 'organization', 'subscription', 'meta', 'statusMeta']
+const FIELDS = [
+    'id',
+    'deletedAt',
+    'createdAt',
+    'updatedAt',
+    'createdBy',
+    'updatedBy',
+    'type',
+    'status',
+    'externalId',
+    'amount',
+    'currency',
+    'organization',
+    'subscription',
+    'meta',
+    'statusMeta',
+]
 const RELATIONS = ['organization', 'subscription']
 
 export interface IServiceSubscriptionPaymentUIState extends ServiceSubscriptionPayment {
@@ -18,7 +38,7 @@ export interface IServiceSubscriptionPaymentUIState extends ServiceSubscriptionP
     // TODO(codegen): write IServiceSubscriptionPaymentUIState or extends it from
 }
 
-function convertToUIState (item: ServiceSubscriptionPayment): IServiceSubscriptionPaymentUIState {
+function convertToUIState(item: ServiceSubscriptionPayment): IServiceSubscriptionPaymentUIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
     return pick(item, FIELDS) as IServiceSubscriptionPaymentUIState
 }
@@ -28,39 +48,32 @@ export interface IServiceSubscriptionPaymentFormState {
     // TODO(codegen): write IServiceSubscriptionPaymentUIFormState or extends it from
 }
 
-function convertToUIFormState (state: IServiceSubscriptionPaymentUIState): IServiceSubscriptionPaymentFormState | undefined {
+function convertToUIFormState(state: IServiceSubscriptionPaymentUIState): IServiceSubscriptionPaymentFormState | undefined {
     if (!state) return
     const result = {}
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? attrId || state[attr] : state[attr]
     }
     return result as IServiceSubscriptionPaymentFormState
 }
 
-function convertToGQLInput (state: IServiceSubscriptionPaymentFormState): ServiceSubscriptionPaymentUpdateInput {
+function convertToGQLInput(state: IServiceSubscriptionPaymentFormState): ServiceSubscriptionPaymentUpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? { connect: { id: attrId || state[attr] } } : state[attr]
     }
     return result
 }
 
-const {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-} = generateReactHooks<ServiceSubscriptionPayment, ServiceSubscriptionPaymentUpdateInput, IServiceSubscriptionPaymentFormState, IServiceSubscriptionPaymentUIState, QueryAllServiceSubscriptionPaymentsArgs>(ServiceSubscriptionPaymentGQL, { convertToGQLInput, convertToUIState })
+const { useObject, useObjects, useCreate, useUpdate, useDelete } = generateReactHooks<
+    ServiceSubscriptionPayment,
+    ServiceSubscriptionPaymentUpdateInput,
+    IServiceSubscriptionPaymentFormState,
+    IServiceSubscriptionPaymentUIState,
+    QueryAllServiceSubscriptionPaymentsArgs
+>(ServiceSubscriptionPaymentGQL, { convertToGQLInput, convertToUIState })
 
-export {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-    convertToUIFormState,
-}
+export { useObject, useObjects, useCreate, useUpdate, useDelete, convertToUIFormState }

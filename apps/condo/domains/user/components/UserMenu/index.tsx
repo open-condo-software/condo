@@ -6,7 +6,5 @@ import { MobileUserMenu } from './MobileUserMenu'
 export const UserMenu = () => {
     const { isSmall } = useLayoutContext()
 
-    return (
-        isSmall ? <MobileUserMenu/> : <DesktopUserMenu/>
-    )
+    return isSmall ? <MobileUserMenu /> : <DesktopUserMenu />
 }

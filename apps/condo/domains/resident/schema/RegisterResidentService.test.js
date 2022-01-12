@@ -7,13 +7,23 @@ const get = require('lodash/get')
 
 const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@core/keystone/test.utils')
 
-const { expectToThrowAuthenticationError, expectToThrowAccessDeniedErrorToResult } = require('@condo/domains/common/utils/testSchema')
+const {
+    expectToThrowAuthenticationError,
+    expectToThrowAccessDeniedErrorToResult,
+} = require('@condo/domains/common/utils/testSchema')
 const { sleep } = require('@condo/domains/common/utils/sleep')
 
-const { registerNewOrganization, makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+const {
+    registerNewOrganization,
+    makeClientWithRegisteredOrganization,
+} = require('@condo/domains/organization/utils/testSchema/Organization')
 
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
-const { createTestProperty, makeClientWithResidentAccessAndProperty, Property } = require('@condo/domains/property/utils/testSchema')
+const {
+    createTestProperty,
+    makeClientWithResidentAccessAndProperty,
+    Property,
+} = require('@condo/domains/property/utils/testSchema')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 
 const { registerResidentByTestClient, Resident } = require('@condo/domains/resident/utils/testSchema')
@@ -193,7 +203,6 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
 
         expect(get(resident2, 'organization.id')).toEqual(organizationClient1.organization.id)
         expect(get(resident2, 'property.id')).toEqual(property1.id)
-
     })
 
     it('disconnects residents from deleted property with no other matched properties', async () => {
@@ -337,7 +346,6 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         expect(get(resident2_1, 'property.id')).toEqual(property.id)
         expect(get(resident2_1, 'organization.id')).toEqual(property.organization.id)
     })
-
 })
 
 describe('RegisterResidentService', () => {

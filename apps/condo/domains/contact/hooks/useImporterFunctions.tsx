@@ -15,7 +15,7 @@ const SPLIT_PATTERN = /[,;.]+/g
 const parsePhones = (phones: string) => {
     const clearedPhones = phones.replace(/[^0-9+,;.]/g, '')
     const splitPhones = clearedPhones.split(SPLIT_PATTERN)
-    return splitPhones.map(phone => {
+    return splitPhones.map((phone) => {
         if (phone.startsWith('8')) {
             phone = '+7' + phone.substring(1)
         }
@@ -45,8 +45,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
     // @ts-ignore
-    const contactCreateAction = Contact.useCreate({},
-        () => Promise.resolve())
+    const contactCreateAction = Contact.useCreate({}, () => Promise.resolve())
 
     const columns: Columns = [
         { name: 'Address', type: 'string', required: true, label: AddressTitle },
@@ -61,7 +60,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         if (row.length !== columns.length) return Promise.resolve({ row })
         const [address, , phones, fullName, email] = row
         email.value = email.value && String(email.value).trim().length ? String(email.value).trim() : undefined
-        return addressApi.getSuggestions(String(address.value)).then(result => {
+        return addressApi.getSuggestions(String(address.value)).then((result) => {
             const suggestion = get(result, ['suggestions', 0])
             if (suggestion) {
                 addons.address = suggestion.value
@@ -111,7 +110,9 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
     const contactCreator: ObjectCreator = (row) => {
         if (!row) return Promise.resolve()
-        const unitName = String(get(row.row, ['1', 'value'])).trim().toLowerCase()
+        const unitName = String(get(row.row, ['1', 'value']))
+            .trim()
+            .toLowerCase()
         const contactPool = []
         const splitPhones = String(row.row[2].value).split(SPLIT_PATTERN)
         const inValidPhones = []
@@ -121,27 +122,29 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                 inValidPhones.push(splitPhones[i])
                 continue
             }
-            contactPool.push(searchContacts(client, {
-                organizationId: userOrganizationId,
-                propertyId: row.addons.property,
-                unitName,
-                // @ts-ignore
-            }).then((result) => {
-                const { data, loading, error } = result
-                if (loading || error) return Promise.resolve()
-                const alreadyRegistered = data.objs.some(contact => {
-                    return contact.phone === phone && contact.name === row.addons.fullName
-                })
-                if (alreadyRegistered) return Promise.resolve()
-                return contactCreateAction({
-                    organization: String(userOrganizationId),
-                    property: String(row.addons.property),
+            contactPool.push(
+                searchContacts(client, {
+                    organizationId: userOrganizationId,
+                    propertyId: row.addons.property,
                     unitName,
-                    phone: phone,
-                    name: row.addons.fullName,
-                    email: row.addons.email,
-                })
-            }))
+                    // @ts-ignore
+                }).then((result) => {
+                    const { data, loading, error } = result
+                    if (loading || error) return Promise.resolve()
+                    const alreadyRegistered = data.objs.some((contact) => {
+                        return contact.phone === phone && contact.name === row.addons.fullName
+                    })
+                    if (alreadyRegistered) return Promise.resolve()
+                    return contactCreateAction({
+                        organization: String(userOrganizationId),
+                        property: String(row.addons.property),
+                        unitName,
+                        phone: phone,
+                        name: row.addons.fullName,
+                        email: row.addons.email,
+                    })
+                }),
+            )
         }
         return Promise.all(contactPool).then(() => {
             if (inValidPhones.length > 0) {

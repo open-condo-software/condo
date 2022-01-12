@@ -4,8 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
-const { makeClientWithResidentUser } = require(
-    '@condo/domains/user/utils/testSchema')
+const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
 const { makeClient } = require('@core/keystone/test.utils')
 const { get } = require('lodash')
@@ -26,7 +25,7 @@ const Resident = generateGQLTestUtils(ResidentGQL)
 const ServiceConsumer = generateGQLTestUtils(ServiceConsumerGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-async function createTestResident (client, user, organization, property, extraAttrs = {}) {
+async function createTestResident(client, user, organization, property, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!user || !user.id) throw new Error('no user.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -53,7 +52,7 @@ async function createTestResident (client, user, organization, property, extraAt
     return [obj, attrs]
 }
 
-async function updateTestResident (client, id, extraAttrs = {}) {
+async function updateTestResident(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -87,7 +86,7 @@ async function registerResidentByTestClient(client, extraAttrs = {}, withFlat = 
     return [data.result, attrs]
 }
 
-async function createTestServiceConsumer (client, resident, organization, extraAttrs = {}) {
+async function createTestServiceConsumer(client, resident, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!resident || !resident.id) throw new Error('no resident.id')
     if (!organization || !organization.id) throw new Error('no organization.id')
@@ -97,7 +96,7 @@ async function createTestServiceConsumer (client, resident, organization, extraA
         dv: 1,
         sender,
         resident: { connect: { id: resident.id } },
-        organization: { connect: {id: organization.id } },
+        organization: { connect: { id: organization.id } },
         accountNumber: faker.random.alphaNumeric(8),
         ...extraAttrs,
     }
@@ -105,7 +104,7 @@ async function createTestServiceConsumer (client, resident, organization, extraA
     return [obj, attrs]
 }
 
-async function updateTestServiceConsumer (client, id, extraAttrs = {}) {
+async function updateTestServiceConsumer(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -121,7 +120,7 @@ async function updateTestServiceConsumer (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function registerServiceConsumerByTestClient (client, extraAttrs = {}) {
+async function registerServiceConsumerByTestClient(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -155,7 +154,7 @@ async function makeClientWithServiceConsumer() {
  */
 async function makeClientWithResident() {
     const client = await makeClientWithResidentUser()
-    const [ resident, residentAttrs ] = await registerResidentByTestClient(client)
+    const [resident, residentAttrs] = await registerResidentByTestClient(client)
 
     client.resident = resident
     client.residentAttrs = residentAttrs
@@ -164,10 +163,15 @@ async function makeClientWithResident() {
 }
 
 module.exports = {
-    Resident, createTestResident, updateTestResident,
-    registerResidentByTestClient, makeClientWithResident,
-    ServiceConsumer, createTestServiceConsumer, updateTestServiceConsumer,
+    Resident,
+    createTestResident,
+    updateTestResident,
+    registerResidentByTestClient,
+    makeClientWithResident,
+    ServiceConsumer,
+    createTestServiceConsumer,
+    updateTestServiceConsumer,
     makeClientWithServiceConsumer,
-    registerServiceConsumerByTestClient
-/* AUTOGENERATE MARKER <EXPORTS> */
+    registerServiceConsumerByTestClient,
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

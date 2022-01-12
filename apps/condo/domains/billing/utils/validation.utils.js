@@ -3,7 +3,7 @@ const addFormats = require('ajv-formats')
 const ajv = new Ajv()
 addFormats(ajv)
 
-function validatePeriod ({ resolvedData, fieldPath, addFieldValidationError }) {
+function validatePeriod({ resolvedData, fieldPath, addFieldValidationError }) {
     const value = resolvedData[fieldPath]
     const date = new Date(value)
     if (!date) {
@@ -28,10 +28,12 @@ const REPORT_SCHEMA = {
 
 const jsonReportValidator = ajv.compile(REPORT_SCHEMA)
 
-function validateReport ({ resolvedData, fieldPath, addFieldValidationError }) {
+function validateReport({ resolvedData, fieldPath, addFieldValidationError }) {
     if (!jsonReportValidator(resolvedData[fieldPath])) {
         jsonReportValidator.errors.forEach((error) => {
-            addFieldValidationError(`${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`)
+            addFieldValidationError(
+                `${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`,
+            )
         })
     }
 }
@@ -40,9 +42,9 @@ function validateReport ({ resolvedData, fieldPath, addFieldValidationError }) {
 const CURRENCY_DISPLAY_INFO_SCHEMA = {
     type: 'object',
     properties: {
-        symbolNative: { type: 'string' },    // ₽
-        decimalDigits: { type: 'number' },   // 2
-        rounding: { type: 'number' },        // 0
+        symbolNative: { type: 'string' }, // ₽
+        decimalDigits: { type: 'number' }, // 2
+        rounding: { type: 'number' }, // 0
         delimiterNative: { type: 'string' }, // ,    Native delimiter. Usually (.) but for some cultures (like RUB) the (,) is used
     },
     required: ['symbolNative', 'decimalDigits', 'rounding', 'delimiterNative'],
@@ -50,10 +52,12 @@ const CURRENCY_DISPLAY_INFO_SCHEMA = {
 
 const jsonCurrencyDisplayInfoValidator = ajv.compile(CURRENCY_DISPLAY_INFO_SCHEMA)
 
-function validateCurrencyDisplayInfo ({ resolvedData, fieldPath, addFieldValidationError }) {
+function validateCurrencyDisplayInfo({ resolvedData, fieldPath, addFieldValidationError }) {
     if (!jsonCurrencyDisplayInfoValidator(resolvedData[fieldPath])) {
         return jsonCurrencyDisplayInfoValidator.errors.forEach((error) => {
-            addFieldValidationError(`${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`)
+            addFieldValidationError(
+                `${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`,
+            )
         })
     }
 }

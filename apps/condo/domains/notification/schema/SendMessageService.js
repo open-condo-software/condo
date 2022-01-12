@@ -8,10 +8,15 @@ const { LOCALES } = require('@condo/domains/common/constants/locale')
 const { Message } = require('@condo/domains/notification/utils/serverSchema')
 
 const { MESSAGE_TYPES } = require('../constants')
-const { JSON_UNKNOWN_ATTR_NAME_ERROR, JSON_SUSPICIOUS_ATTR_NAME_ERROR, JSON_NO_REQUIRED_ATTR_ERROR, MESSAGE_META } = require('../constants')
+const {
+    JSON_UNKNOWN_ATTR_NAME_ERROR,
+    JSON_SUSPICIOUS_ATTR_NAME_ERROR,
+    JSON_NO_REQUIRED_ATTR_ERROR,
+    MESSAGE_META,
+} = require('../constants')
 const { deliveryMessage } = require('../tasks')
 
-async function checkSendMessageMeta (type, meta) {
+async function checkSendMessageMeta(type, meta) {
     if (meta.dv !== 1) throw new Error(`${JSON_UNKNOWN_VERSION_ERROR}meta] Unknown \`dv\` attr inside JSON Object`)
     const schema = MESSAGE_META[type]
     if (!schema) throw new Error('unsupported type or internal error')
@@ -21,7 +26,8 @@ async function checkSendMessageMeta (type, meta) {
         if (required && !value) throw new Error(`${JSON_NO_REQUIRED_ATTR_ERROR}meta] no ${attr} value`)
     }
     for (const attr of Object.keys(meta)) {
-        if (!ALPHANUMERIC_REGEXP.test(attr)) throw new Error(`${JSON_SUSPICIOUS_ATTR_NAME_ERROR}meta] unsupported attr name charset`)
+        if (!ALPHANUMERIC_REGEXP.test(attr))
+            throw new Error(`${JSON_SUSPICIOUS_ATTR_NAME_ERROR}meta] unsupported attr name charset`)
         if (!schema[attr]) throw new Error(`${JSON_UNKNOWN_ATTR_NAME_ERROR}meta] ${attr} is redundant or unknown`)
     }
 }
@@ -94,7 +100,8 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
                 const { dv, sender, message: messageInput } = data
 
                 const message = await Message.update(context, messageInput.id, {
-                    dv, sender,
+                    dv,
+                    sender,
                     status: MESSAGE_RESENDING_STATUS,
                     deliveredAt: null,
                 })

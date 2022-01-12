@@ -7,13 +7,28 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { OrganizationEmployee as OrganizationEmployeeGQL } from '@condo/domains/organization/gql'
-import {
-    OrganizationEmployee,
-    OrganizationEmployeeUpdateInput,
-    QueryAllOrganizationEmployeesArgs,
-} from '@app/condo/schema'
+import { OrganizationEmployee, OrganizationEmployeeUpdateInput, QueryAllOrganizationEmployeesArgs } from '@app/condo/schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'isBlocked', 'updatedBy', 'organization', 'user', 'inviteCode', 'name', 'email', 'phone', 'role', 'position', 'isAccepted', 'isRejected', 'specializations']
+const FIELDS = [
+    'id',
+    'deletedAt',
+    'createdAt',
+    'updatedAt',
+    'createdBy',
+    'isBlocked',
+    'updatedBy',
+    'organization',
+    'user',
+    'inviteCode',
+    'name',
+    'email',
+    'phone',
+    'role',
+    'position',
+    'isAccepted',
+    'isRejected',
+    'specializations',
+]
 const RELATIONS = ['organization', 'user', 'role', 'specializations']
 
 export interface IOrganizationEmployeeUIState extends OrganizationEmployee {
@@ -21,7 +36,7 @@ export interface IOrganizationEmployeeUIState extends OrganizationEmployee {
     // TODO(codegen): write IOrganizationEmployeeUIState or extends it from
 }
 
-function convertToUIState (item: OrganizationEmployee): IOrganizationEmployeeUIState {
+function convertToUIState(item: OrganizationEmployee): IOrganizationEmployeeUIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
     return pick(item, FIELDS) as IOrganizationEmployeeUIState
 }
@@ -32,7 +47,7 @@ export interface IOrganizationEmployeeFormState {
     // TODO(codegen): write IOrganizationEmployeeUIFormState or extends it from
 }
 
-function convertToUIFormState (state: IOrganizationEmployeeUIState): IOrganizationEmployeeFormState | undefined {
+function convertToUIFormState(state: IOrganizationEmployeeUIState): IOrganizationEmployeeFormState | undefined {
     if (!state) return
     const result = {}
     for (const attr of Object.keys(state)) {
@@ -50,7 +65,7 @@ function convertToUIFormState (state: IOrganizationEmployeeUIState): IOrganizati
     return result as IOrganizationEmployeeFormState
 }
 
-function convertGQLItemToFormSelectState (item: OrganizationEmployee): { value: string, label: string } | undefined {
+function convertGQLItemToFormSelectState(item: OrganizationEmployee): { value: string; label: string } | undefined {
     const userOrganization = get(item, 'organization')
     if (!userOrganization) {
         return
@@ -61,52 +76,58 @@ function convertGQLItemToFormSelectState (item: OrganizationEmployee): { value: 
     return { value: item.id, label: name }
 }
 type RelateToManyInput = {
-    connect?: { id: any }[],
-    disconnect?: { id: any }[],
+    connect?: { id: any }[]
+    disconnect?: { id: any }[]
 }
-function convertToGQLInput (state: IOrganizationEmployeeFormState, obj: IOrganizationEmployeeUIState): OrganizationEmployeeUpdateInput {
+function convertToGQLInput(
+    state: IOrganizationEmployeeFormState,
+    obj: IOrganizationEmployeeUIState,
+): OrganizationEmployeeUpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
     for (const attr of Object.keys(state)) {
         if (RELATIONS.includes(attr)) {
             if (Array.isArray(state[attr])) {
-                const newIds = map(state[attr], item => get(item, 'id') || item)
-                if (obj) { // update operation
-                    const oldIds = map(obj[attr], item => get(item, 'id') || item)
+                const newIds = map(state[attr], (item) => get(item, 'id') || item)
+                if (obj) {
+                    // update operation
+                    const oldIds = map(obj[attr], (item) => get(item, 'id') || item)
                     const changes: RelateToManyInput = {}
                     const idsToConnect = difference(newIds, oldIds)
                     if (idsToConnect.length > 0) {
-                        changes.connect = map(idsToConnect, id => ({ id }))
+                        changes.connect = map(idsToConnect, (id) => ({ id }))
                     }
                     const idsToDisconnect = difference(oldIds, newIds)
                     if (idsToDisconnect.length > 0) {
-                        changes.disconnect = map(idsToDisconnect, id => ({ id }))
+                        changes.disconnect = map(idsToDisconnect, (id) => ({ id }))
                     }
                     if (Object.keys(changes).length > 0) {
                         result[attr] = changes
                     }
-                } else { // create operation
+                } else {
+                    // create operation
                     if (newIds.length > 0) {
                         result[attr] = {
-                            connect: map(newIds, id => ({ id })),
+                            connect: map(newIds, (id) => ({ id })),
                         }
                     }
                 }
             } else {
                 const newAttrId = get(state[attr], 'id') || state[attr]
-                if (obj) { // update operation
+                if (obj) {
+                    // update operation
                     const oldAttrId = get(obj[attr], 'id') || obj[attr]
                     if (newAttrId && oldAttrId && newAttrId !== oldAttrId) {
                         result[attr] = { connect: { id: newAttrId } }
                     } else if (!newAttrId) {
                         result[attr] = { disconnectAll: true }
                     }
-                } else { // create operation
+                } else {
+                    // create operation
                     if (newAttrId) {
                         result[attr] = { connect: { id: newAttrId } }
                     }
                 }
-
             }
         } else {
             result[attr] = state[attr]
@@ -115,14 +136,13 @@ function convertToGQLInput (state: IOrganizationEmployeeFormState, obj: IOrganiz
     return result
 }
 
-const {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-    useSoftDelete,
-} = generateReactHooks<OrganizationEmployee, OrganizationEmployeeUpdateInput, IOrganizationEmployeeFormState, IOrganizationEmployeeUIState, QueryAllOrganizationEmployeesArgs>(OrganizationEmployeeGQL, { convertToGQLInput, convertToUIState })
+const { useObject, useObjects, useCreate, useUpdate, useDelete, useSoftDelete } = generateReactHooks<
+    OrganizationEmployee,
+    OrganizationEmployeeUpdateInput,
+    IOrganizationEmployeeFormState,
+    IOrganizationEmployeeUIState,
+    QueryAllOrganizationEmployeesArgs
+>(OrganizationEmployeeGQL, { convertToGQLInput, convertToUIState })
 
 export {
     useObject,

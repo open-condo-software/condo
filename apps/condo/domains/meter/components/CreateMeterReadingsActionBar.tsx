@@ -12,58 +12,44 @@ import { ErrorsContainer } from './ErrorsContainer'
 const PROPERTY_DEPENDENCY = ['property']
 const handleShouldUpdate = (prev, next) => prev.unitName !== next.unitName
 
-export const CreateMeterReadingsActionBar = ({
-    handleSave,
-    handleAddMeterButtonClick,
-    isLoading,
-    newMeterReadings,
-}) => {
+export const CreateMeterReadingsActionBar = ({ handleSave, handleAddMeterButtonClick, isLoading, newMeterReadings }) => {
     const intl = useIntl()
     const SendMetersReadingMessage = intl.formatMessage({ id: 'pages.condo.meter.SendMetersReading' })
     const AddMeterMessage = intl.formatMessage({ id: 'pages.condo.meter.AddMeter' })
 
     return (
-        <Form.Item
-            noStyle
-            dependencies={PROPERTY_DEPENDENCY}
-            shouldUpdate={handleShouldUpdate}
-        >
-            {
-                ({ getFieldsValue }) => {
-                    const { property, unitName } = getFieldsValue(['property', 'unitName'])
-                    const isSubmitButtonDisabled = !property || !unitName || isEmpty(newMeterReadings)
-                    const isCreateMeterButtonDisabled = !property || !unitName
+        <Form.Item noStyle dependencies={PROPERTY_DEPENDENCY} shouldUpdate={handleShouldUpdate}>
+            {({ getFieldsValue }) => {
+                const { property, unitName } = getFieldsValue(['property', 'unitName'])
+                const isSubmitButtonDisabled = !property || !unitName || isEmpty(newMeterReadings)
+                const isCreateMeterButtonDisabled = !property || !unitName
 
-                    return (
-                        <ActionBar>
-                            <Space size={12}>
-                                <Button
-                                    key='submit'
-                                    onClick={handleSave}
-                                    type='sberDefaultGradient'
-                                    loading={isLoading}
-                                    disabled={isSubmitButtonDisabled}
-                                >
-                                    {SendMetersReadingMessage}
-                                </Button>
-                                <Button
-                                    onClick={handleAddMeterButtonClick}
-                                    type='sberDefaultGradient'
-                                    disabled={isCreateMeterButtonDisabled}
-                                    icon={<PlusCircleFilled/>}
-                                    secondary
-                                >
-                                    {AddMeterMessage}
-                                </Button>
-                                <ErrorsContainer
-                                    property={property}
-                                    unitName={unitName}
-                                />
-                            </Space>
-                        </ActionBar>
-                    )
-                }
-            }
+                return (
+                    <ActionBar>
+                        <Space size={12}>
+                            <Button
+                                key="submit"
+                                onClick={handleSave}
+                                type="sberDefaultGradient"
+                                loading={isLoading}
+                                disabled={isSubmitButtonDisabled}
+                            >
+                                {SendMetersReadingMessage}
+                            </Button>
+                            <Button
+                                onClick={handleAddMeterButtonClick}
+                                type="sberDefaultGradient"
+                                disabled={isCreateMeterButtonDisabled}
+                                icon={<PlusCircleFilled />}
+                                secondary
+                            >
+                                {AddMeterMessage}
+                            </Button>
+                            <ErrorsContainer property={property} unitName={unitName} />
+                        </Space>
+                    </ActionBar>
+                )
+            }}
         </Form.Item>
     )
 }

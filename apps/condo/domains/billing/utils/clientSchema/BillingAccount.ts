@@ -10,7 +10,21 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { BillingAccount as BillingAccountGQL } from '@condo/domains/billing/gql'
 import { BillingAccount, BillingAccountUpdateInput, QueryAllBillingAccountsArgs } from '@app/condo/schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'context', 'importId', 'property', 'number', 'unitName', 'raw', 'meta']
+const FIELDS = [
+    'id',
+    'deletedAt',
+    'createdAt',
+    'updatedAt',
+    'createdBy',
+    'updatedBy',
+    'context',
+    'importId',
+    'property',
+    'number',
+    'unitName',
+    'raw',
+    'meta',
+]
 const RELATIONS = ['context', 'property']
 
 export interface IBillingAccountUIState extends BillingAccount {
@@ -18,7 +32,7 @@ export interface IBillingAccountUIState extends BillingAccount {
     // TODO(codegen): write IBillingAccountUIState or extends it from
 }
 
-function convertToUIState (item: BillingAccount): IBillingAccountUIState {
+function convertToUIState(item: BillingAccount): IBillingAccountUIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
     return pick(item, FIELDS) as IBillingAccountUIState
 }
@@ -28,39 +42,32 @@ export interface IBillingAccountFormState {
     // TODO(codegen): write IBillingAccountUIFormState or extends it from
 }
 
-function convertToUIFormState (state: IBillingAccountUIState): IBillingAccountFormState | undefined {
+function convertToUIFormState(state: IBillingAccountUIState): IBillingAccountFormState | undefined {
     if (!state) return
     const result = {}
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? attrId || state[attr] : state[attr]
     }
     return result as IBillingAccountFormState
 }
 
-function convertToGQLInput (state: IBillingAccountFormState): BillingAccountUpdateInput {
+function convertToGQLInput(state: IBillingAccountFormState): BillingAccountUpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? { connect: { id: attrId || state[attr] } } : state[attr]
     }
     return result
 }
 
-const {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-} = generateReactHooks<BillingAccount, BillingAccountUpdateInput, IBillingAccountFormState, IBillingAccountUIState, QueryAllBillingAccountsArgs>(BillingAccountGQL, { convertToGQLInput, convertToUIState })
+const { useObject, useObjects, useCreate, useUpdate, useDelete } = generateReactHooks<
+    BillingAccount,
+    BillingAccountUpdateInput,
+    IBillingAccountFormState,
+    IBillingAccountUIState,
+    QueryAllBillingAccountsArgs
+>(BillingAccountGQL, { convertToGQLInput, convertToUIState })
 
-export {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-    convertToUIFormState,
-}
+export { useObject, useObjects, useCreate, useUpdate, useDelete, convertToUIFormState }

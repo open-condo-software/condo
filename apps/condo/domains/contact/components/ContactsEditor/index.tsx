@@ -18,39 +18,39 @@ import { ErrorsWrapper } from '@condo/domains/common/components/ErrorsWrapper'
  * Displays validation error, but hides form input
  */
 const ErrorContainerOfHiddenControl = styled.div`
-  .ant-form-item-control-input {
-    display: none;
-  }
+    .ant-form-item-control-input {
+        display: none;
+    }
 `
 export type ContactFields = {
-    name: string,
-    phone: string,
+    name: string
+    phone: string
 }
 export type ContactValue = ContactFields & {
-    id?: string,
+    id?: string
 }
 
 export interface IContactEditorProps {
-    form: FormInstance<any>,
+    form: FormInstance<any>
     // Customizeable field names of the provided `form`, where editor component will be mounted
     // Fields `clientName` and `clientPhone` are not hardcoded to make this component
     // usable in any form, where contact information fields may be different.
     // Also, this makes usage of the component explicitly, — it's clear, what fields will be set.
     fields: {
-        id: string,
-        phone: string,
-        name: string,
-    },
-    value?: ContactValue,
-    onChange: (contact: ContactFields, isNew: boolean) => void,
+        id: string
+        phone: string
+        name: string
+    }
+    value?: ContactValue
+    onChange: (contact: ContactFields, isNew: boolean) => void
 
     // Composite scope of organization, property and unitName, used to
     // fetch contacts for autocomplete fields.
-    organization?: string,
-    role?: Record<string, boolean>,
-    property?: string,
-    unitName?: string,
-    allowLandLine?: boolean;
+    organization?: string
+    role?: Record<string, boolean>
+    property?: string
+    unitName?: string
+    allowLandLine?: boolean
 }
 
 export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
@@ -72,12 +72,11 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         organizationId: organization,
         propertyId: property ? property : undefined,
         unitName: unitName ? unitName : null,
+    }).then(({ data, loading, error }) => {
+        setContacts(data.objs)
+        setLoading(loading)
+        setError(error)
     })
-        .then(({ data, loading, error }) => {
-            setContacts(data.objs)
-            setLoading(loading)
-            setError(error)
-        })
 
     const [selectedContact, setSelectedContact] = useState(null)
     const [value, setValue] = useState(initialValue)
@@ -155,9 +154,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     }
 
     if (loading) {
-        return (
-            <Skeleton/>
-        )
+        return <Skeleton />
     }
 
     if (error) {
@@ -165,20 +162,16 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         throw error
     }
 
-    const initialValueIsPresentedInFetchedContacts = contacts && initialValue && initialValue.name && initialValue.phone && find(contacts, initialValue)
+    const initialValueIsPresentedInFetchedContacts =
+        contacts && initialValue && initialValue.name && initialValue.phone && find(contacts, initialValue)
 
-    const sameAsInitial = (contact) => (
-        initialValue && initialValue.name === contact.name && initialValue.phone === contact.phone
-    )
+    const sameAsInitial = (contact) => initialValue && initialValue.name === contact.name && initialValue.phone === contact.phone
 
     return (
         <Row gutter={[40, 25]}>
             <Col span={24}>
                 <Row gutter={[40, 25]}>
-                    <Labels
-                        left={PhoneLabel}
-                        right={FullNameLabel}
-                    />
+                    <Labels left={PhoneLabel} right={FullNameLabel} />
                     {contacts.length === 0 || !unitName ? (
                         <ContactSyncedAutocompleteFields
                             initialValue={initialValue || manuallyTypedContact}
@@ -195,16 +188,14 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                     selected={
                                         selectedContact
                                             ? selectedContact.id === contact.id
-                                            : !editableFieldsChecked && (sameAsInitial(contact) || !initialValue && i === 0)
+                                            : !editableFieldsChecked && (sameAsInitial(contact) || (!initialValue && i === 0))
                                     }
                                 />
                             ))}
                             <>
-                                {(displayEditableContactFields || (initialValue && !initialValueIsPresentedInFetchedContacts)) ? (
+                                {displayEditableContactFields || (initialValue && !initialValueIsPresentedInFetchedContacts) ? (
                                     <>
-                                        <Labels
-                                            left={AnotherContactLabel}
-                                        />
+                                        <Labels left={AnotherContactLabel} />
                                         <ContactSyncedAutocompleteFields
                                             initialValue={initialValue || manuallyTypedContact}
                                             onChange={handleChangeContact}
@@ -214,11 +205,9 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                             displayMinusButton={true}
                                             onClickMinusButton={handleClickOnMinusButton}
                                         />
-                                        {(!get(role, 'canManageContacts')) && (
+                                        {!get(role, 'canManageContacts') && (
                                             <Col span={24}>
-                                                <ErrorsWrapper>
-                                                    {CannotCreateContactMessage}
-                                                </ErrorsWrapper>
+                                                <ErrorsWrapper>{CannotCreateContactMessage}</ErrorsWrapper>
                                             </Col>
                                         )}
                                     </>
@@ -231,12 +220,16 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                                 paddingLeft: '5px',
                                             }}
                                             onClick={handleClickOnPlusButton}
-                                            icon={<PlusCircleFilled style={{
-                                                color: green[6],
-                                                fontSize: 21,
-                                                position: 'relative',
-                                                top: '2px',
-                                            }}/>}
+                                            icon={
+                                                <PlusCircleFilled
+                                                    style={{
+                                                        color: green[6],
+                                                        fontSize: 21,
+                                                        position: 'relative',
+                                                        top: '2px',
+                                                    }}
+                                                />
+                                            }
                                         >
                                             {AddNewContactLabel}
                                         </Button>
@@ -260,26 +253,23 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                 <Row gutter={[40, 25]}>
                     <Col span={10}>
                         <Form.Item name={fields.id} hidden>
-                            <Input value={get(value, 'id')}/>
+                            <Input value={get(value, 'id')} />
                         </Form.Item>
                         <ErrorContainerOfHiddenControl>
-                            <Form.Item
-                                name={fields.phone}
-                                validateFirst
-                                rules={validations.phone}>
-                                <Input value={get(value, 'phone')}/>
+                            <Form.Item name={fields.phone} validateFirst rules={validations.phone}>
+                                <Input value={get(value, 'phone')} />
                             </Form.Item>
                         </ErrorContainerOfHiddenControl>
                     </Col>
                     <Col span={10}>
                         <ErrorContainerOfHiddenControl>
                             <Form.Item name={fields.name}>
-                                <Input value={get(value, 'name')}/>
+                                <Input value={get(value, 'name')} />
                             </Form.Item>
                         </ErrorContainerOfHiddenControl>
                     </Col>
-                    <Col span={2}/>
-                    <Col span={2}/>
+                    <Col span={2} />
+                    <Col span={2} />
                 </Row>
             </Col>
         </Row>

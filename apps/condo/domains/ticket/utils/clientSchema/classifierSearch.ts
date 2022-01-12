@@ -19,7 +19,7 @@ type Options = {
 export enum TicketClassifierTypes {
     place = 'place',
     category = 'category',
-    problem =  'problem',
+    problem = 'problem',
 }
 export interface IClassifiersSearch {
     init: () => Promise<void>
@@ -35,7 +35,10 @@ interface ILoadClassifierRulesVariables {
     sortBy?: string
 }
 
-async function loadClassifierRules (client: ApolloClient, variables: ILoadClassifierRulesVariables): Promise<ITicketClassifierRuleUIState[]> {
+async function loadClassifierRules(
+    client: ApolloClient,
+    variables: ILoadClassifierRulesVariables,
+): Promise<ITicketClassifierRuleUIState[]> {
     const data = await client.query({
         query: TicketClassifierRuleGQL.GET_ALL_OBJS_QUERY,
         variables,
@@ -45,10 +48,15 @@ async function loadClassifierRules (client: ApolloClient, variables: ILoadClassi
 
 // We load all rules to client and do not make any requests later when select changes
 export class ClassifiersQueryLocal implements IClassifiersSearch {
+    constructor(
+        private client: ApolloClient,
+        private rules = [],
+        private place = [],
+        private category = [],
+        private problem = [],
+    ) {}
 
-    constructor (private client: ApolloClient, private rules = [], private place = [], private category = [], private problem = []) {}
-
-    public async init (): Promise<void> {
+    public async init(): Promise<void> {
         let skip = 0
         let maxCount = 500
         let newchunk = []
@@ -64,14 +72,16 @@ export class ClassifiersQueryLocal implements IClassifiersSearch {
         this.problem = this.rulesToOptions(allRules, 'problem')
     }
 
-    public rulesToOptions (data: ITicketClassifierRuleUIState[], field: string): Options[] {
-        const fromRules = Object.fromEntries(data.map(link => {
-            if (link[field]) {
-                return [link[field].id, link[field]]
-            } else {
-                return [null, { id: null, name: '' }]
-            }
-        }))
+    public rulesToOptions(data: ITicketClassifierRuleUIState[], field: string): Options[] {
+        const fromRules = Object.fromEntries(
+            data.map((link) => {
+                if (link[field]) {
+                    return [link[field].id, link[field]]
+                } else {
+                    return [null, { id: null, name: '' }]
+                }
+            }),
+        )
         if (isEmpty(fromRules)) {
             return []
         } else {
@@ -79,28 +89,30 @@ export class ClassifiersQueryLocal implements IClassifiersSearch {
         }
     }
 
-    public async findRules (query: ITicketClassifierRuleWhereInput): Promise<ITicketClassifierRuleUIState[]> {
+    public async findRules(query: ITicketClassifierRuleWhereInput): Promise<ITicketClassifierRuleUIState[]> {
         return filter<ITicketClassifierRuleUIState>(this.rules, query)
     }
 
-    public async findRulesByIds (query: ITicketClassifierRuleWhereInput, type: string, selectedIds: string[]): Promise<ITicketClassifierRuleUIState[]> {
+    public async findRulesByIds(
+        query: ITicketClassifierRuleWhereInput,
+        type: string,
+        selectedIds: string[],
+    ): Promise<ITicketClassifierRuleUIState[]> {
         const filtered = []
-        for (const key in query)
-            filtered.push(...this.rules.filter(rule => query[key].ids.includes(rule[key].id)))
+        for (const key in query) filtered.push(...this.rules.filter((rule) => query[key].ids.includes(rule[key].id)))
 
-        if (filtered.length === 0)
-            return this.rules
+        if (filtered.length === 0) return this.rules
 
         for (const selectedId of selectedIds) {
-            if (!filtered.find(rule => rule[type].id === selectedId)) {
-                filtered.push(...this.rules.filter(rule => rule[type].id === selectedId))
+            if (!filtered.find((rule) => rule[type].id === selectedId)) {
+                filtered.push(...this.rules.filter((rule) => rule[type].id === selectedId))
             }
         }
 
         return filtered
     }
 
-    public async search (input: string, type: string): Promise<Options[]> {
+    public async search(input: string, type: string): Promise<Options[]> {
         if (isEmpty(input)) {
             return this[type].slice(0, MAX_SEARCH_COUNT)
         } else {
@@ -119,7 +131,7 @@ export class ClassifiersQueryLocal implements IClassifiersSearch {
         }
     }
 
-    public clear (): void {
+    public clear(): void {
         this.rules = []
         this.problem = []
         this.category = []
@@ -129,7 +141,7 @@ export class ClassifiersQueryLocal implements IClassifiersSearch {
 
 // We do not load all rules to client but load them on request (looks a little bit slow)
 
-async function searchClassifiers (client: ApolloClient, query, input: string, variables: any) {
+async function searchClassifiers(client: ApolloClient, query, input: string, variables: any) {
     const data = await client.query({
         query,
         variables: {
@@ -143,14 +155,26 @@ async function searchClassifiers (client: ApolloClient, query, input: string, va
     })
     return data.data.objs
 }
-async function searchPlaceClassifiers (client: ApolloClient, input: string, variables: QueryAllTicketCategoryClassifiersArgs): Promise<Options[]> {
+async function searchPlaceClassifiers(
+    client: ApolloClient,
+    input: string,
+    variables: QueryAllTicketCategoryClassifiersArgs,
+): Promise<Options[]> {
     return await searchClassifiers(client, TicketPlaceClassifierGQL.GET_ALL_OBJS_QUERY, input, variables)
 }
-async function searchCategoryClassifiers (client: ApolloClient, input: string, variables: QueryAllTicketCategoryClassifiersArgs): Promise<Options[]> {
+async function searchCategoryClassifiers(
+    client: ApolloClient,
+    input: string,
+    variables: QueryAllTicketCategoryClassifiersArgs,
+): Promise<Options[]> {
     return await searchClassifiers(client, TicketCategoryClassifierGQL.GET_ALL_OBJS_QUERY, input, variables)
 }
 
-async function searchProblemClassifiers (client: ApolloClient, input: string, variables: QueryAllTicketCategoryClassifiersArgs): Promise<Options[]> {
+async function searchProblemClassifiers(
+    client: ApolloClient,
+    input: string,
+    variables: QueryAllTicketCategoryClassifiersArgs,
+): Promise<Options[]> {
     return await searchClassifiers(client, TicketProblemClassifierGQL.GET_ALL_OBJS_QUERY, input, variables)
 }
 
@@ -160,23 +184,29 @@ const searchClassifiersByType = {
     problem: searchProblemClassifiers,
 }
 
-
 export class ClassifiersQueryRemote implements IClassifiersSearch {
+    constructor(
+        private client: ApolloClient,
+        private rules = [],
+        private place = [],
+        private category = [],
+        private problem = [],
+    ) {}
 
-    constructor (private client: ApolloClient, private rules = [], private place = [], private category = [], private problem = []) {}
-
-    public async init (): Promise<void> {
+    public async init(): Promise<void> {
         return
     }
 
-    public rulesToOptions (data: ITicketClassifierRuleUIState[], field: string): Options[] {
-        const fromRules = Object.fromEntries(data.map(link => {
-            if (link[field]) {
-                return [link[field].id, link[field]]
-            } else {
-                return [null, { id: null, name: '' }]
-            }
-        }))
+    public rulesToOptions(data: ITicketClassifierRuleUIState[], field: string): Options[] {
+        const fromRules = Object.fromEntries(
+            data.map((link) => {
+                if (link[field]) {
+                    return [link[field].id, link[field]]
+                } else {
+                    return [null, { id: null, name: '' }]
+                }
+            }),
+        )
         if (isEmpty(fromRules)) {
             return []
         } else {
@@ -184,18 +214,18 @@ export class ClassifiersQueryRemote implements IClassifiersSearch {
         }
     }
 
-    public async findRules (query: ITicketClassifierRuleWhereInput): Promise<ITicketClassifierRuleUIState[]> {
+    public async findRules(query: ITicketClassifierRuleWhereInput): Promise<ITicketClassifierRuleUIState[]> {
         return await loadClassifierRules(this.client, {
             where: query,
             first: 100,
         })
     }
 
-    public async search (input: string, type: string, variables: QueryAllTicketCategoryClassifiersArgs): Promise<Options[]> {
+    public async search(input: string, type: string, variables: QueryAllTicketCategoryClassifiersArgs): Promise<Options[]> {
         return await searchClassifiersByType[type](this.client, input, variables)
     }
 
-    public clear (): void {
+    public clear(): void {
         return
     }
 }

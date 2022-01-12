@@ -31,7 +31,7 @@ const getAvailableResidentMeters = async (context, userId) => {
         deletedAt: null,
     })
 
-    const residentsId = residents.map(resident => resident.id)
+    const residentsId = residents.map((resident) => resident.id)
 
     const serviceConsumers = await find('ServiceConsumer', {
         resident: { id_in: residentsId, deletedAt: null },
@@ -42,19 +42,19 @@ const getAvailableResidentMeters = async (context, userId) => {
     for (const resident of residents) {
         const residentPropertyId = get(resident, ['property'])
         const residentUnitName = get(resident, 'unitName')
-        const residentServiceConsumers = serviceConsumers.filter(serviceConsumer => serviceConsumer.resident === resident.id)
+        const residentServiceConsumers = serviceConsumers.filter((serviceConsumer) => serviceConsumer.resident === resident.id)
 
-        propertyUnitAccountNumberObjects.push(...residentServiceConsumers.map(serviceConsumer => ({
-            property: { id: residentPropertyId },
-            unitName: residentUnitName,
-            accountNumber: serviceConsumer.accountNumber,
-        })))
+        propertyUnitAccountNumberObjects.push(
+            ...residentServiceConsumers.map((serviceConsumer) => ({
+                property: { id: residentPropertyId },
+                unitName: residentUnitName,
+                accountNumber: serviceConsumer.accountNumber,
+            })),
+        )
     }
 
-    const orStatement = propertyUnitAccountNumberObjects.map(propertyUnitAccountNumber => ({
-        AND: [
-            propertyUnitAccountNumber,
-        ],
+    const orStatement = propertyUnitAccountNumberObjects.map((propertyUnitAccountNumber) => ({
+        AND: [propertyUnitAccountNumber],
     }))
 
     const availableMeters = await Meter.getAll(context, {
@@ -62,7 +62,7 @@ const getAvailableResidentMeters = async (context, userId) => {
         deletedAt: null,
     })
 
-    return availableMeters.map(meter => ({ id: meter.id }))
+    return availableMeters.map((meter) => ({ id: meter.id }))
 }
 
 const loadMetersForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
@@ -79,7 +79,6 @@ const loadMetersForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'
 
     return await metersLoader.load()
 }
-
 
 const loadMeterReadingsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
     const meterReadingsLoader = new GqlWithKnexLoadList({
@@ -104,5 +103,5 @@ module.exports = {
     getAvailableResidentMeters,
     loadMetersForExcelExport,
     loadMeterReadingsForExcelExport,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

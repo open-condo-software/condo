@@ -5,12 +5,12 @@
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
-async function canReadBillingCurrencies ({ authentication: { item: user } }) {
+async function canReadBillingCurrencies({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     return {}
 }
 
-async function canManageBillingCurrencies ({ authentication: { item: user } }) {
+async function canManageBillingCurrencies({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin || user.isSupport) return true
     return false

@@ -31,26 +31,30 @@ const writeFile = promisify(fs.writeFile)
 
 nunjucks.configure({ autoescape: false })
 
-async function streamToString (stream) {
+async function streamToString(stream) {
     const chunks = []
     return new Promise((resolve, reject) => {
-        stream.on('data', chunk => chunks.push(chunk))
+        stream.on('data', (chunk) => chunks.push(chunk))
         stream.on('error', reject)
         stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')))
     })
 }
 
-function convertSnakeCaseToUpperCase (text) {
+function convertSnakeCaseToUpperCase(text) {
     // EXAMPLE: convertSnakeCaseToUpperCase('ModelNameField') --> 'MODEL_NAME_FIELD'
-    return text.split(/([A-Z]+[a-z]+)/).filter(x => x).map(x => x.toUpperCase()).join('_')
+    return text
+        .split(/([A-Z]+[a-z]+)/)
+        .filter((x) => x)
+        .map((x) => x.toUpperCase())
+        .join('_')
 }
 
-function convertFirstLetterToLower (text) {
+function convertFirstLetterToLower(text) {
     if (!text) return ''
     return text.slice(0, 1).toLowerCase() + text.slice(1)
 }
 
-function toFields (signature) {
+function toFields(signature) {
     return signature.map(([typeScriptName, attrType, arg1, arg2]) => {
         return {
             typeScriptName,
@@ -59,21 +63,21 @@ function toFields (signature) {
             type: attrType,
             isRequired: !typeScriptName.endsWith('?'),
             isRelation: attrType === 'Relationship',
-            ref: (attrType === 'Relationship') ? arg1 : undefined,
-            on_delete: (attrType === 'Relationship') ? arg2 : undefined,
-            options: (attrType === 'Select') ? arg1 : undefined,
+            ref: attrType === 'Relationship' ? arg1 : undefined,
+            on_delete: attrType === 'Relationship' ? arg2 : undefined,
+            options: attrType === 'Select' ? arg1 : undefined,
         }
     })
 }
 
-function getEscapedShellCommand () {
+function getEscapedShellCommand() {
     const command = process.argv[1].split('/').slice(-1)[0]
-    const argsList = process.argv.slice(2).map(x => x.match(/^[a-zA-Z0-9_\-.]+$/g) ? x : `'${x.replace(/[']/g, '\'"\'"\'')}'`)
-    const args = (argsList.length > 0) ? ` ${argsList.join(' ')}` : ''
+    const argsList = process.argv.slice(2).map((x) => (x.match(/^[a-zA-Z0-9_\-.]+$/g) ? x : `'${x.replace(/[']/g, "'\"'\"'")}'`))
+    const args = argsList.length > 0 ? ` ${argsList.join(' ')}` : ''
     return `${command}${args}`
 }
 
-function renderToString (filename, template, templateContext) {
+function renderToString(filename, template, templateContext) {
     const globalContext = {
         command: getEscapedShellCommand(),
         now: Date.now(),
@@ -89,11 +93,11 @@ function renderToString (filename, template, templateContext) {
     return '_RENDER_ERROR_'
 }
 
-async function applyPatches (patchSource, patchTarget, ctx) {
+async function applyPatches(patchSource, patchTarget, ctx) {
     const source = await readFile(patchSource, { encoding: 'utf8' })
     const originalTarget = await readFile(patchTarget, { encoding: 'utf8' })
     let target = originalTarget
-    const patches = source.matchAll(/\/\* AUTOGENERATE MARKER (<[a-zA-Z0-9_-]+>) \*\/(?:[^\n]*\n)(.*?)\/\*\*\//sg)
+    const patches = source.matchAll(/\/\* AUTOGENERATE MARKER (<[a-zA-Z0-9_-]+>) \*\/(?:[^\n]*\n)(.*?)\/\*\*\//gs)
     for (const [, markerName, patch] of patches) {
         const marker = `/* AUTOGENERATE MARKER ${markerName} */`
         const renderedPatch = renderToString(patchSource, patch, ctx) + marker
@@ -108,16 +112,20 @@ async function applyPatches (patchSource, patchTarget, ctx) {
     }
 }
 
-async function renderTemplate (templateFile, targetFile, ctx) {
+async function renderTemplate(templateFile, targetFile, ctx) {
     const source = await readFile(templateFile, { encoding: 'utf8' })
     const rendered = renderToString(templateFile, source, ctx)
     await writeFile(targetFile, rendered)
 }
 
-async function renderTemplates (templateDirectory, targetDirectory, templateContext) {
+async function renderTemplates(templateDirectory, targetDirectory, templateContext) {
     return copy(templateDirectory, targetDirectory, {
         transform: async (readStream, writeStream, file) => {
-            if (['.jsx', '.js', '.json', '.ts', '.tsx', '.md', ...SERVICE_TYPES.map(x=>'.' + x)].some((x) => file.name.endsWith(x))) {
+            if (
+                ['.jsx', '.js', '.json', '.ts', '.tsx', '.md', ...SERVICE_TYPES.map((x) => '.' + x)].some((x) =>
+                    file.name.endsWith(x),
+                )
+            ) {
                 const template = await streamToString(readStream)
                 const renderedTemplate = renderToString(file.name, template, templateContext)
                 const readable = Readable.from([renderedTemplate])
@@ -130,7 +138,7 @@ async function renderTemplates (templateDirectory, targetDirectory, templateCont
     })
 }
 
-async function renaming (templateDirectory, targetDirectory, ctx) {
+async function renaming(templateDirectory, targetDirectory, ctx) {
     const files = await readdir(targetDirectory, { withFileTypes: true })
     for (const file of files) {
         const filename = file.name
@@ -141,12 +149,13 @@ async function renaming (templateDirectory, targetDirectory, ctx) {
             if (filename !== renderedName && renderedName) {
                 await rename(path.join(targetDirectory, filename), path.join(targetDirectory, renderedName))
             }
-            if (file.isDirectory()) await renaming(path.join(templateDirectory, filename), path.join(targetDirectory, renderedName), ctx)
+            if (file.isDirectory())
+                await renaming(path.join(templateDirectory, filename), path.join(targetDirectory, renderedName), ctx)
         }
     }
 }
 
-async function patching (templateDirectory, targetDirectory, ctx) {
+async function patching(templateDirectory, targetDirectory, ctx) {
     const files = await readdir(templateDirectory, { withFileTypes: true })
     for (const file of files) {
         const filename = file.name
@@ -179,7 +188,7 @@ async function patching (templateDirectory, targetDirectory, ctx) {
     }
 }
 
-async function generate (templateDirectory, targetDirectory, ctx) {
+async function generate(templateDirectory, targetDirectory, ctx) {
     const readmeFile = path.join(targetDirectory, 'README.md')
     const tmpDirectory = await mkdtemp(path.join(os.tmpdir(), 'tmp-'))
 
@@ -206,16 +215,16 @@ async function generate (templateDirectory, targetDirectory, ctx) {
     return true
 }
 
-function createapp (argv) {
+function createapp(argv) {
     const args = yargs(argv)
-        .coerce('name', opt => {
+        .coerce('name', (opt) => {
             let name = opt.toLowerCase()
             if (name.length < 3) throw new Error('<name> is too short!')
             if (!/^[a-z_][a-z0-9_]+$/.test(name)) throw new Error('<name> should be [a-z0-9_]+ string')
             return name
         })
         .options({
-            'force': {
+            force: {
                 default: false,
                 describe: 'create if exists',
                 type: 'boolean',
@@ -257,53 +266,60 @@ function createapp (argv) {
     args.parse(argv.slice(2))
 }
 
-function createschema (argv) {
+function createschema(argv) {
     const args = yargs(argv)
-        .coerce('domainschema', opt => {
+        .coerce('domainschema', (opt) => {
             let name = opt
             if (name.length < 3) throw new Error('<domain>.<schema> is too short!')
-            if (!/^[a-z][a-z0-9]+[.][A-Z][a-zA-Z0-9]+$/.test(name)) throw new Error('<domain>.<schema> has a invalid name format: we expect `domain.SchemaName`')
+            if (!/^[a-z][a-z0-9]+[.][A-Z][a-zA-Z0-9]+$/.test(name))
+                throw new Error('<domain>.<schema> has a invalid name format: we expect `domain.SchemaName`')
             return name
         })
-        .coerce('signature', opt => {
+        .coerce('signature', (opt) => {
             let signature = opt
             if (signature.length < 3) throw new Error('<signature> is too short!')
-            return signature.split(/[ ]*;+[ ]*/).filter(x => x.includes(':')).map(field => {
-                if (!/^(?:(?<field>[a-z][a-zA-Z0-9]+[?]?):[ ]*?(?<type>[A-Za-z0-9:,]+)[ ]*?)/.test(field)) {
-                    throw new Error(`Unknown filed signature "${field}"`)
-                }
-                const result = field.split(':')
-                const type = result[1]
-                switch (type) {
-                    case 'Text':
-                    case 'Password':
-                    case 'Integer':
-                    case 'Decimal':
-                    case 'File':
-                    case 'DateTimeUtc':
-                    case 'CalendarDay':
-                    case 'Json':
-                    case 'Uuid':
-                    case 'Checkbox':
-                        if (result.length !== 2) throw new Error(`Wrong number of argument for filed signature "${field}"`)
-                        break
-                    case 'Select':
-                        if (result.length !== 3) throw new Error(`Wrong number of argument for filed signature "${field}"`)
-                        if (!result[2].match(/^([a-z0-9-_, ]+)$/g)) throw new Error(`Wrong argument 1 for type ${type}. Filed signature "${field}"`)
-                        break
-                    case 'Relationship':
-                        if (result.length !== 4) throw new Error(`Wrong number of argument for filed signature "${field}"`)
-                        if (!result[2].match(/^([A-Za-z0-9]+)$/)) throw new Error(`Wrong argument 1 for type ${type}. Filed signature "${field}"`)
-                        if (!result[3].match(/^(CASCADE|PROTECT|SET_NULL|DO_NOTHING)$/)) throw new Error(`Wrong argument 2 for type ${type}. Filed signature "${field}"`)
-                        break
-                    default:
-                        throw new Error(`Unknown type for filed signature "${field}"`)
-                }
-                return result
-            })
+            return signature
+                .split(/[ ]*;+[ ]*/)
+                .filter((x) => x.includes(':'))
+                .map((field) => {
+                    if (!/^(?:(?<field>[a-z][a-zA-Z0-9]+[?]?):[ ]*?(?<type>[A-Za-z0-9:,]+)[ ]*?)/.test(field)) {
+                        throw new Error(`Unknown filed signature "${field}"`)
+                    }
+                    const result = field.split(':')
+                    const type = result[1]
+                    switch (type) {
+                        case 'Text':
+                        case 'Password':
+                        case 'Integer':
+                        case 'Decimal':
+                        case 'File':
+                        case 'DateTimeUtc':
+                        case 'CalendarDay':
+                        case 'Json':
+                        case 'Uuid':
+                        case 'Checkbox':
+                            if (result.length !== 2) throw new Error(`Wrong number of argument for filed signature "${field}"`)
+                            break
+                        case 'Select':
+                            if (result.length !== 3) throw new Error(`Wrong number of argument for filed signature "${field}"`)
+                            if (!result[2].match(/^([a-z0-9-_, ]+)$/g))
+                                throw new Error(`Wrong argument 1 for type ${type}. Filed signature "${field}"`)
+                            break
+                        case 'Relationship':
+                            if (result.length !== 4) throw new Error(`Wrong number of argument for filed signature "${field}"`)
+                            if (!result[2].match(/^([A-Za-z0-9]+)$/))
+                                throw new Error(`Wrong argument 1 for type ${type}. Filed signature "${field}"`)
+                            if (!result[3].match(/^(CASCADE|PROTECT|SET_NULL|DO_NOTHING)$/))
+                                throw new Error(`Wrong argument 2 for type ${type}. Filed signature "${field}"`)
+                            break
+                        default:
+                            throw new Error(`Unknown type for filed signature "${field}"`)
+                    }
+                    return result
+                })
         })
         .options({
-            'force': {
+            force: {
                 default: false,
                 describe: 'create if exists',
                 type: 'boolean',
@@ -351,22 +367,23 @@ function createschema (argv) {
     args.parse(argv.slice(2))
 }
 
-function createservice (argv) {
+function createservice(argv) {
     const args = yargs(argv)
-        .coerce('domainschema', opt => {
+        .coerce('domainschema', (opt) => {
             let name = opt
             if (name.length < 3) throw new Error('<domain>.<schema> is too short!')
-            if (!/^[a-z][a-z0-9]+[.][A-Z][a-zA-Z0-9]+$/.test(name)) throw new Error('<domain>.<schema> has a invalid name format: we expect `domain.SomeService`')
+            if (!/^[a-z][a-z0-9]+[.][A-Z][a-zA-Z0-9]+$/.test(name))
+                throw new Error('<domain>.<schema> has a invalid name format: we expect `domain.SomeService`')
             if (!name.endsWith('Service')) throw new Error('service name should ends with Service')
             return name
         })
         .options({
-            'force': {
+            force: {
                 default: false,
                 describe: 'create if exists',
                 type: 'boolean',
             },
-            'type': {
+            type: {
                 default: 'mutations',
                 descirbe: 'type of service: mutations or queries',
                 type: 'string',

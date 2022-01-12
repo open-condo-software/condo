@@ -17,7 +17,7 @@ const Message = generateGQLTestUtils(MessageGQL)
 
 /* AUTOGENERATE MARKER <CONST> */
 
-async function createTestMessage (client, extraAttrs = {}) {
+async function createTestMessage(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const email = ('test1.' + getRandomString() + '@example.com').toLowerCase()
@@ -28,14 +28,17 @@ async function createTestMessage (client, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
-        email, type, meta, lang,
+        email,
+        type,
+        meta,
+        lang,
         ...extraAttrs,
     }
     const obj = await Message.create(client, attrs)
     return [obj, attrs]
 }
 
-async function updateTestMessage (client, id, extraAttrs = {}) {
+async function updateTestMessage(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -49,12 +52,12 @@ async function updateTestMessage (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function sendMessageByTestClient (client, extraAttrs = {}) {
+async function sendMessageByTestClient(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const type = INVITE_NEW_EMPLOYEE_MESSAGE_TYPE
     const meta = { dv: 1, inviteCode: faker.random.alphaNumeric(8) }
-    const to = { 'email': ('test.' + getRandomString() + '@example.com').toLowerCase() }
+    const to = { email: ('test.' + getRandomString() + '@example.com').toLowerCase() }
     if (client.user && client.user.id) {
         to.user = { id: client.user.id }
     }
@@ -62,7 +65,9 @@ async function sendMessageByTestClient (client, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
-        to, type, meta,
+        to,
+        type,
+        meta,
         lang: 'en',
         ...extraAttrs,
     }
@@ -71,7 +76,7 @@ async function sendMessageByTestClient (client, extraAttrs = {}) {
     return [data.result, attrs]
 }
 
-async function resendMessageByTestClient (client, message, extraAttrs = {}) {
+async function resendMessageByTestClient(client, message, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!message) throw new Error('no message')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -90,6 +95,10 @@ async function resendMessageByTestClient (client, message, extraAttrs = {}) {
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    Message, createTestMessage, updateTestMessage, sendMessageByTestClient, resendMessageByTestClient,
+    Message,
+    createTestMessage,
+    updateTestMessage,
+    sendMessageByTestClient,
+    resendMessageByTestClient,
     /* AUTOGENERATE MARKER <EXPORTS> */
 }

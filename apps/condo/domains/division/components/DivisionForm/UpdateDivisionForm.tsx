@@ -39,55 +39,49 @@ export const UpdateDivisionForm: React.FC<IUpdateDivisionForm> = ({ id }) => {
     if (error || loading) {
         return (
             <>
-                {(loading) ? <Loader size={'large'} fill/> : null}
-                {(error) ? <Typography.Title>{error}</Typography.Title> : null}
+                {loading ? <Loader size={'large'} fill /> : null}
+                {error ? <Typography.Title>{error}</Typography.Title> : null}
             </>
         )
     }
 
     return (
-        <BaseDivisionForm
-            action={updateAction}
-            initialValues={initialValues}
-            organization={organization}
-        >
+        <BaseDivisionForm action={updateAction} initialValues={initialValues} organization={organization}>
             {({ handleSave, isLoading }) => {
                 return (
                     <Form.Item noStyle dependencies={['properties', 'responsible']}>
-                        {
-                            ({ getFieldsValue }) => {
-                                const { name, properties, responsible, executors } = getFieldsValue(
-                                    ['name', 'properties', 'responsible', 'executors']
-                                )
-                                return (
-                                    <>
-                                        <ActionBar>
-                                            <FormResetButton
-                                                type={'sberPrimary'}
-                                                secondary
+                        {({ getFieldsValue }) => {
+                            const { name, properties, responsible, executors } = getFieldsValue([
+                                'name',
+                                'properties',
+                                'responsible',
+                                'executors',
+                            ])
+                            return (
+                                <>
+                                    <ActionBar>
+                                        <FormResetButton type={'sberPrimary'} secondary />
+                                        <Space size={12}>
+                                            <Button
+                                                key="submit"
+                                                onClick={handleSave}
+                                                type="sberPrimary"
+                                                loading={isLoading}
+                                                disabled={!properties || properties.length === 0 || !responsible}
+                                            >
+                                                {ApplyChangesLabel}
+                                            </Button>
+                                            <ErrorsContainer
+                                                name={name || ''}
+                                                properties={properties}
+                                                responsible={responsible}
+                                                executors={executors}
                                             />
-                                            <Space size={12}>
-                                                <Button
-                                                    key='submit'
-                                                    onClick={handleSave}
-                                                    type='sberPrimary'
-                                                    loading={isLoading}
-                                                    disabled={!properties || properties.length === 0 || !responsible}
-                                                >
-                                                    {ApplyChangesLabel}
-                                                </Button>
-                                                <ErrorsContainer
-                                                    name={name || ''}
-                                                    properties={properties}
-                                                    responsible={responsible}
-                                                    executors={executors}
-                                                />
-                                            </Space>
-                                        </ActionBar>
-                                    </>
-                                )
-                            }
-                        }
+                                        </Space>
+                                    </ActionBar>
+                                </>
+                            )
+                        }}
                     </Form.Item>
                 )
             }}

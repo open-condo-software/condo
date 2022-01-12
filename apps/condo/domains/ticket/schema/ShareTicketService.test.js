@@ -12,7 +12,11 @@ describe('ShareTicketService', () => {
             const mutationResult = await client.mutate(SHARE_TICKET_MUTATION, {
                 data: { sender: client.userAttrs.sender, employees: [client.user.id], ticketId: ticket.id },
             })
-            const { data: { obj: { status } } } = mutationResult
+            const {
+                data: {
+                    obj: { status },
+                },
+            } = mutationResult
             expect(status).toBe('ok')
         })
 
@@ -21,7 +25,7 @@ describe('ShareTicketService', () => {
             const client1 = await makeClientWithProperty()
             const [ticket] = await createTestTicket(client, client.organization, client.property)
 
-            const { errors, data }  = await client1.mutate(SHARE_TICKET_MUTATION, {
+            const { errors, data } = await client1.mutate(SHARE_TICKET_MUTATION, {
                 data: { sender: client.userAttrs.sender, employees: [client.user.id], ticketId: ticket.id },
             })
 

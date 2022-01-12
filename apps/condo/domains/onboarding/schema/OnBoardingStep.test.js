@@ -3,24 +3,27 @@
  */
 const { createTestOnBoarding } = require('@condo/domains/onboarding/utils/testSchema')
 
-
 const { makeClient, makeLoggedInClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
-const { OnBoardingStep, createTestOnBoardingStep, updateTestOnBoardingStep } = require('@condo/domains/onboarding/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
+const {
+    OnBoardingStep,
+    createTestOnBoardingStep,
+    updateTestOnBoardingStep,
+} = require('@condo/domains/onboarding/utils/testSchema')
+const {
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedErrorToObjects,
+} = require('@condo/domains/common/utils/testSchema')
 
 describe('OnBoardingStep', () => {
     test('user: create OnBoardingStep', async () => {
         const client = await makeLoggedInClient()
 
-        const [onboarding] = await createTestOnBoarding(
-            client,
-            {
-                type: 'ADMINISTRATOR',
-                user: { connect: { id: client.user.id } },
-                stepsTransitions: {},
-            }
-        )
+        const [onboarding] = await createTestOnBoarding(client, {
+            type: 'ADMINISTRATOR',
+            user: { connect: { id: client.user.id } },
+            stepsTransitions: {},
+        })
 
         const [obj, attrs] = await createTestOnBoardingStep(client, onboarding, {
             icon: 'organization',
@@ -47,14 +50,11 @@ describe('OnBoardingStep', () => {
 
     test('user: read OnBoardingStep', async () => {
         const client = await makeLoggedInClient()
-        const [onboarding] = await createTestOnBoarding(
-            client,
-            {
-                type: 'ADMINISTRATOR',
-                user: { connect: { id: client.user.id } },
-                stepsTransitions: {},
-            }
-        )
+        const [onboarding] = await createTestOnBoarding(client, {
+            type: 'ADMINISTRATOR',
+            user: { connect: { id: client.user.id } },
+            stepsTransitions: {},
+        })
 
         const [obj, attrs] = await createTestOnBoardingStep(client, onboarding, {
             icon: 'organization',
@@ -91,14 +91,11 @@ describe('OnBoardingStep', () => {
 
     test('user: update OnBoardingStep', async () => {
         const client = await makeLoggedInClient()
-        const [onboarding] = await createTestOnBoarding(
-            client,
-            {
-                type: 'ADMINISTRATOR',
-                user: { connect: { id: client.user.id } },
-                stepsTransitions: {},
-            }
-        )
+        const [onboarding] = await createTestOnBoarding(client, {
+            type: 'ADMINISTRATOR',
+            user: { connect: { id: client.user.id } },
+            stepsTransitions: {},
+        })
 
         const [objCreated] = await createTestOnBoardingStep(client, onboarding, {
             icon: 'organization',
@@ -129,14 +126,11 @@ describe('OnBoardingStep', () => {
 
     test('anonymous: update OnBoardingStep', async () => {
         const client = await makeLoggedInClient()
-        const [onboarding] = await createTestOnBoarding(
-            client,
-            {
-                type: 'ADMINISTRATOR',
-                user: { connect: { id: client.user.id } },
-                stepsTransitions: {},
-            }
-        )
+        const [onboarding] = await createTestOnBoarding(client, {
+            type: 'ADMINISTRATOR',
+            user: { connect: { id: client.user.id } },
+            stepsTransitions: {},
+        })
 
         const [objCreated] = await createTestOnBoardingStep(client, onboarding, {
             icon: 'organization',

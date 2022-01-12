@@ -4,23 +4,27 @@
 
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
-const { ServiceSubscription, createTestServiceSubscription, updateTestServiceSubscription, expectOverlappingFor } = require('@condo/domains/subscription/utils/testSchema')
+const {
+    ServiceSubscription,
+    createTestServiceSubscription,
+    updateTestServiceSubscription,
+    expectOverlappingFor,
+} = require('@condo/domains/subscription/utils/testSchema')
 const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
-    expectToThrowAuthenticationErrorToObj, catchErrorFrom,
+    expectToThrowAuthenticationErrorToObj,
+    catchErrorFrom,
 } = require('@condo/domains/common/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const dayjs = require('dayjs')
 const faker = require('faker')
-const { makeClientWithSupportUser } = require(
-    '@condo/domains/user/utils/testSchema')
+const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { wrongSbbolOfferAccept } = require('../utils/testSchema/constants')
 const { rightSbbolOfferAccept } = require('../utils/testSchema/constants')
 
 describe('ServiceSubscription', () => {
-
     // NOTE: `registerNewOrganization` mutation creates new ServiceSubscription
     // See test 'creates trial subscription' in RegisterNewOrganizationService.test.js
     // Be careful with `makeClientWithRegisteredOrganization`, because new `ServiceSubscription`
@@ -40,12 +44,15 @@ describe('ServiceSubscription', () => {
                 currency: 'RUB',
             }
 
-            await catchErrorFrom(async () => {
-                await createTestServiceSubscription(adminClient, organization, wrongValues)
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('violates check constraint "trial_and_prices_check"')
-                expect(data).toEqual({ 'obj': null })
-            })
+            await catchErrorFrom(
+                async () => {
+                    await createTestServiceSubscription(adminClient, organization, wrongValues)
+                },
+                ({ errors, data }) => {
+                    expect(errors[0].message).toMatch('violates check constraint "trial_and_prices_check"')
+                    expect(data).toEqual({ obj: null })
+                },
+            )
 
             const correctValues = {
                 isTrial: true,
@@ -83,12 +90,15 @@ describe('ServiceSubscription', () => {
                 currency: null,
             }
 
-            await catchErrorFrom(async () => {
-                await createTestServiceSubscription(adminClient, organization, wrongValues)
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('violates check constraint "trial_and_prices_check"')
-                expect(data).toEqual({ 'obj': null })
-            })
+            await catchErrorFrom(
+                async () => {
+                    await createTestServiceSubscription(adminClient, organization, wrongValues)
+                },
+                ({ errors, data }) => {
+                    expect(errors[0].message).toMatch('violates check constraint "trial_and_prices_check"')
+                    expect(data).toEqual({ obj: null })
+                },
+            )
 
             const unitsCount = faker.datatype.number()
             const unitPrice = faker.datatype.float({ precision: 0.01 })
@@ -129,12 +139,15 @@ describe('ServiceSubscription', () => {
                 currency: 'RUB',
             }
 
-            await catchErrorFrom(async () => {
-                await createTestServiceSubscription(adminClient, organization, wrongValuesWithZeroUnitsCount)
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('violates check constraint "positive_unitsCount_check"')
-                expect(data).toEqual({ 'obj': null })
-            })
+            await catchErrorFrom(
+                async () => {
+                    await createTestServiceSubscription(adminClient, organization, wrongValuesWithZeroUnitsCount)
+                },
+                ({ errors, data }) => {
+                    expect(errors[0].message).toMatch('violates check constraint "positive_unitsCount_check"')
+                    expect(data).toEqual({ obj: null })
+                },
+            )
 
             const wrongValuesWithZeroUnitPrice = {
                 isTrial: false,
@@ -142,12 +155,15 @@ describe('ServiceSubscription', () => {
                 currency: 'RUB',
             }
 
-            await catchErrorFrom(async () => {
-                await createTestServiceSubscription(adminClient, organization, wrongValuesWithZeroUnitPrice)
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('violates check constraint "positive_unitPrice_check"')
-                expect(data).toEqual({ 'obj': null })
-            })
+            await catchErrorFrom(
+                async () => {
+                    await createTestServiceSubscription(adminClient, organization, wrongValuesWithZeroUnitPrice)
+                },
+                ({ errors, data }) => {
+                    expect(errors[0].message).toMatch('violates check constraint "positive_unitPrice_check"')
+                    expect(data).toEqual({ obj: null })
+                },
+            )
 
             const wrongValuesWithZeroTotalPrice = {
                 isTrial: false,
@@ -155,12 +171,15 @@ describe('ServiceSubscription', () => {
                 currency: 'RUB',
             }
 
-            await catchErrorFrom(async () => {
-                await createTestServiceSubscription(adminClient, organization, wrongValuesWithZeroTotalPrice)
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('violates check constraint "positive_totalPrice_check"')
-                expect(data).toEqual({ 'obj': null })
-            })
+            await catchErrorFrom(
+                async () => {
+                    await createTestServiceSubscription(adminClient, organization, wrongValuesWithZeroTotalPrice)
+                },
+                ({ errors, data }) => {
+                    expect(errors[0].message).toMatch('violates check constraint "positive_totalPrice_check"')
+                    expect(data).toEqual({ obj: null })
+                },
+            )
         })
 
         it('cannot have `startAt` after `finishAt`', async () => {
@@ -171,12 +190,15 @@ describe('ServiceSubscription', () => {
                 finishAt: dayjs().subtract(1, 'day'),
             }
 
-            await catchErrorFrom(async () => {
-                await createTestServiceSubscription(adminClient, organization, attrs)
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('violates check constraint "startAt_is_before_finishAt"')
-                expect(data).toEqual({ 'obj': null })
-            })
+            await catchErrorFrom(
+                async () => {
+                    await createTestServiceSubscription(adminClient, organization, attrs)
+                },
+                ({ errors, data }) => {
+                    expect(errors[0].message).toMatch('violates check constraint "startAt_is_before_finishAt"')
+                    expect(data).toEqual({ obj: null })
+                },
+            )
         })
 
         it('does not allows strings to be saved to unitPrice', async () => {
@@ -188,12 +210,15 @@ describe('ServiceSubscription', () => {
                 unitPrice: 'asdf',
             }
 
-            await catchErrorFrom(async () => {
-                await createTestServiceSubscription(adminClient, organization, attrs)
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('invalid input syntax for type numeric')
-                expect(data).toEqual({ 'obj': null })
-            })
+            await catchErrorFrom(
+                async () => {
+                    await createTestServiceSubscription(adminClient, organization, attrs)
+                },
+                ({ errors, data }) => {
+                    expect(errors[0].message).toMatch('invalid input syntax for type numeric')
+                    expect(data).toEqual({ obj: null })
+                },
+            )
         })
 
         describe('overlapping', () => {
@@ -229,25 +254,45 @@ describe('ServiceSubscription', () => {
                         startAt: dayjs(existingSubscription.startAt).subtract(period + 1, 'days'),
                         finishAt: dayjs(existingSubscription.startAt).add(1, 'second'),
                     }
-                    await expectOverlappingFor(createTestServiceSubscription, adminClient, organization, overlappingIntervalNearStartAt)
+                    await expectOverlappingFor(
+                        createTestServiceSubscription,
+                        adminClient,
+                        organization,
+                        overlappingIntervalNearStartAt,
+                    )
 
                     const overlappingIntervalNearFinishAt = {
                         startAt: dayjs(existingSubscription.finishAt).subtract(1, 'second'),
                         finishAt: dayjs(existingSubscription.finishAt).add(period, 'days'),
                     }
-                    await expectOverlappingFor(createTestServiceSubscription, adminClient, organization, overlappingIntervalNearFinishAt)
+                    await expectOverlappingFor(
+                        createTestServiceSubscription,
+                        adminClient,
+                        organization,
+                        overlappingIntervalNearFinishAt,
+                    )
 
                     const overlappingIntervalAround = {
                         startAt: dayjs(existingSubscription.startAt).subtract(1, 'second'),
                         finishAt: dayjs(existingSubscription.finishAt).add(1, 'second'),
                     }
-                    await expectOverlappingFor(createTestServiceSubscription, adminClient, organization, overlappingIntervalAround)
+                    await expectOverlappingFor(
+                        createTestServiceSubscription,
+                        adminClient,
+                        organization,
+                        overlappingIntervalAround,
+                    )
 
                     const overlappingIntervalInside = {
                         startAt: dayjs(existingSubscription.startAt).add(1, 'second'),
                         finishAt: dayjs(existingSubscription.finishAt).subtract(1, 'second'),
                     }
-                    await expectOverlappingFor(createTestServiceSubscription, adminClient, organization, overlappingIntervalInside)
+                    await expectOverlappingFor(
+                        createTestServiceSubscription,
+                        adminClient,
+                        organization,
+                        overlappingIntervalInside,
+                    )
                 })
 
                 it('can overlap existing records for another organization', async () => {
@@ -311,25 +356,45 @@ describe('ServiceSubscription', () => {
                         startAt: dayjs(existingSubscription.startAt).subtract(period + 1, 'days'),
                         finishAt: dayjs(existingSubscription.startAt).add(1, 'second'),
                     }
-                    await expectOverlappingFor(updateTestServiceSubscription, adminClient, subjectSubscription.id, overlappingIntervalNearStartAt)
+                    await expectOverlappingFor(
+                        updateTestServiceSubscription,
+                        adminClient,
+                        subjectSubscription.id,
+                        overlappingIntervalNearStartAt,
+                    )
 
                     const overlappingIntervalNearFinishAt = {
                         startAt: dayjs(existingSubscription.finishAt).subtract(1, 'second'),
                         finishAt: dayjs(existingSubscription.finishAt).add(period, 'days'),
                     }
-                    await expectOverlappingFor(updateTestServiceSubscription, adminClient, subjectSubscription.id, overlappingIntervalNearFinishAt)
+                    await expectOverlappingFor(
+                        updateTestServiceSubscription,
+                        adminClient,
+                        subjectSubscription.id,
+                        overlappingIntervalNearFinishAt,
+                    )
 
                     const overlappingIntervalAround = {
                         startAt: dayjs(existingSubscription.startAt).subtract(1, 'second'),
                         finishAt: dayjs(existingSubscription.finishAt).add(1, 'second'),
                     }
-                    await expectOverlappingFor(updateTestServiceSubscription, adminClient, subjectSubscription.id, overlappingIntervalAround)
+                    await expectOverlappingFor(
+                        updateTestServiceSubscription,
+                        adminClient,
+                        subjectSubscription.id,
+                        overlappingIntervalAround,
+                    )
 
                     const overlappingIntervalInside = {
                         startAt: dayjs(existingSubscription.startAt).add(1, 'second'),
                         finishAt: dayjs(existingSubscription.finishAt).subtract(1, 'second'),
                     }
-                    await expectOverlappingFor(updateTestServiceSubscription, adminClient, subjectSubscription.id, overlappingIntervalInside)
+                    await expectOverlappingFor(
+                        updateTestServiceSubscription,
+                        adminClient,
+                        subjectSubscription.id,
+                        overlappingIntervalInside,
+                    )
                 })
 
                 it('can overlap existing records for another organization', async () => {
@@ -353,7 +418,11 @@ describe('ServiceSubscription', () => {
                         finishAt: dayjs(existingSubscription.finishAt).subtract(3, 'days'),
                     }
 
-                    const [objUpdated] = await updateTestServiceSubscription(adminClient, subjectSubscription.id, overlappingInterval)
+                    const [objUpdated] = await updateTestServiceSubscription(
+                        adminClient,
+                        subjectSubscription.id,
+                        overlappingInterval,
+                    )
 
                     expect(objUpdated.startAt).toEqual(overlappingInterval.startAt.toISOString())
                     expect(objUpdated.finishAt).toEqual(overlappingInterval.finishAt.toISOString())
@@ -362,7 +431,7 @@ describe('ServiceSubscription', () => {
         })
 
         describe('sbbolOfferAccept field input structure', () => {
-            describe('for create ServiceSubscription',  () => {
+            describe('for create ServiceSubscription', () => {
                 it('can create ServiceSubscription with correct sbbolOfferAccept input structure', async () => {
                     const adminClient = await makeLoggedInAdminClient()
                     const [organization] = await createTestOrganization(adminClient)
@@ -379,18 +448,21 @@ describe('ServiceSubscription', () => {
                     const adminClient = await makeLoggedInAdminClient()
                     const [organization] = await createTestOrganization(adminClient)
 
-                    await catchErrorFrom(async () => {
-                        await createTestServiceSubscription(adminClient, organization, {
-                            sbbolOfferAccept: wrongSbbolOfferAccept,
-                        })
-                    }, ({ errors, data }) => {
-                        expect(errors).toHaveLength(1)
-                        expect(errors[0].message).toContain('Variable "$data" got invalid value')
-                    })
+                    await catchErrorFrom(
+                        async () => {
+                            await createTestServiceSubscription(adminClient, organization, {
+                                sbbolOfferAccept: wrongSbbolOfferAccept,
+                            })
+                        },
+                        ({ errors, data }) => {
+                            expect(errors).toHaveLength(1)
+                            expect(errors[0].message).toContain('Variable "$data" got invalid value')
+                        },
+                    )
                 })
             })
 
-            describe('for update ServiceSubscription',  () => {
+            describe('for update ServiceSubscription', () => {
                 it('can update ServiceSubscription with correct sbbolOfferAccept input structure', async () => {
                     const adminClient = await makeLoggedInAdminClient()
                     const [organization] = await createTestOrganization(adminClient)
@@ -411,14 +483,17 @@ describe('ServiceSubscription', () => {
 
                     const [objCreated] = await createTestServiceSubscription(adminClient, organization)
 
-                    await catchErrorFrom(async () => {
-                        await updateTestServiceSubscription(adminClient, objCreated.id, {
-                            sbbolOfferAccept: wrongSbbolOfferAccept,
-                        })
-                    }, ({ errors, data }) => {
-                        expect(errors).toHaveLength(1)
-                        expect(errors[0].message).toContain('Variable "$data" got invalid value')
-                    })
+                    await catchErrorFrom(
+                        async () => {
+                            await updateTestServiceSubscription(adminClient, objCreated.id, {
+                                sbbolOfferAccept: wrongSbbolOfferAccept,
+                            })
+                        },
+                        ({ errors, data }) => {
+                            expect(errors).toHaveLength(1)
+                            expect(errors[0].message).toContain('Variable "$data" got invalid value')
+                        },
+                    )
                 })
             })
 

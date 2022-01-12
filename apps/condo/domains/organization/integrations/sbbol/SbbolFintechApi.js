@@ -120,7 +120,6 @@ const VAT_TYPE = {
  * Requires separate `clientId` and secret (differs from authentication)
  */
 class SbbolFintechApi extends SbbolRequestApi {
-
     /**
      * Fetches changes in subscription for given date.
      * According to official comments from Fintech API representatives, `/v1/partner-info/advance-acceptances` method returns data **changes** only for current day.
@@ -132,7 +131,7 @@ class SbbolFintechApi extends SbbolRequestApi {
      * @param clientId
      * @return {Promise<AdvanceAcceptance[]>}
      */
-    async fetchAdvanceAcceptances ({ date, clientId }) {
+    async fetchAdvanceAcceptances({ date, clientId }) {
         const { data: jsonResultString, statusCode } = await this.request({
             method: 'GET',
             path: this.advanceAcceptancesPath,
@@ -163,7 +162,7 @@ class SbbolFintechApi extends SbbolRequestApi {
      * @param {PaymentRequestOut} data
      * @return {Promise<>}
      */
-    async postPaymentRequest (body) {
+    async postPaymentRequest(body) {
         const { data, statusCode } = await this.request({
             method: 'POST',
             path: this.postPaymentRequestPath,
@@ -201,7 +200,7 @@ class SbbolFintechApi extends SbbolRequestApi {
      * @param externalId for SBBOL it means identifier at our side
      * @return {Promise<{error: any}|{data: PaymentRequestStatus}>}
      */
-    async getPaymentRequestState (externalId) {
+    async getPaymentRequestState(externalId) {
         const { data, statusCode } = await this.request({
             method: 'GET',
             path: this.getPaymentRequestStatePath.replace(':externalId', externalId),
@@ -214,19 +213,19 @@ class SbbolFintechApi extends SbbolRequestApi {
         }
     }
 
-    get getPaymentRequestStatePath () {
+    get getPaymentRequestStatePath() {
         return `${this.apiPrefix}/v1/payment-requests/outgoing/:externalId/state`
     }
 
-    get advanceAcceptancesPath () {
+    get advanceAcceptancesPath() {
         return `${this.apiPrefix}/v1/partner-info/advance-acceptances`
     }
 
-    get postPaymentRequestPath () {
+    get postPaymentRequestPath() {
         return `${this.apiPrefix}/v1/payment-requests/outgoing`
     }
 
-    get apiPrefix () {
+    get apiPrefix() {
         return '/fintech/api'
     }
 }

@@ -17,5 +17,5 @@ const ServiceSubscriptionPayment = generateServerUtils(ServiceSubscriptionPaymen
 module.exports = {
     ServiceSubscription,
     ServiceSubscriptionPayment,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -12,12 +12,14 @@ const INVALID_RU_TIN_12 = '0123455678901'
 const SOME_RANDOM_LETTERS = 'ABCDEFGHIJ'
 
 describe('isValidTin()', () => {
-    VALID_TINS.forEach(tin => {
+    VALID_TINS.forEach((tin) => {
         test(`for valid 10 or 12 char RU INN (${tin})`, () => {
             expect(isValidTin(tin, RUSSIA_COUNTRY)).toBe(true)
         })
-        SPACES.forEach(spaceSymbol => {
-            test(`for valid 10 or 12 char RU INN (${tin}) with spaces symbol (${SPACE_SYMBOL_LABLES[spaceSymbol] || spaceSymbol})`, () => {
+        SPACES.forEach((spaceSymbol) => {
+            test(`for valid 10 or 12 char RU INN (${tin}) with spaces symbol (${
+                SPACE_SYMBOL_LABLES[spaceSymbol] || spaceSymbol
+            })`, () => {
                 const tinValue = `${spaceSymbol}${tin}${spaceSymbol}`
 
                 expect(isValidTin(tinValue, RUSSIA_COUNTRY)).toBe(true)

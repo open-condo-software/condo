@@ -9,12 +9,10 @@ const extractReqLocale = (req) => {
 
         const headersLocale = req.headers['accept-language'] && req.headers['accept-language'].slice(0, 2)
         return cookieLocale || (isTelegram && queryLocale) || headersLocale
-    }
-    catch {
+    } catch {
         return null
     }
 }
-
 
 module.exports = {
     extractReqLocale,

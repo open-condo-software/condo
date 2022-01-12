@@ -20,13 +20,12 @@ import styled from '@emotion/styled'
 import Error from 'next/error'
 import { Gutter } from 'antd/es/grid/row'
 
-
 const SETTINGS_PAGE_ROUTE = '/settings/'
 
 const ButtonWrap = styled.div`
-   width: fit-content;
-   cursor: ${({ disabled }: { disabled: boolean }) => disabled ? 'not-allowed' : 'pointer'};
- `
+    width: fit-content;
+    cursor: ${({ disabled }: { disabled: boolean }) => (disabled ? 'not-allowed' : 'pointer')};
+`
 
 const ROW_GUTTER: [Gutter, Gutter] = [0, 40]
 const DESCRIPTION_TEXT_STYLE = { fontSize: 16 }
@@ -46,14 +45,20 @@ const BillingIntegrationDetailsPage = () => {
     const ContinueMessage = intl.formatMessage({ id: 'Continue' })
     const ConfirmModalTitle = intl.formatMessage({ id: 'BillingIntegrationContextConfirmQuestion' })
     const CancelMessage = intl.formatMessage({ id: 'Cancel' })
-    const CreateContextRestrictionMessage = intl.formatMessage({ id:'BillingIntegrationContextNoReturns' }, {
-        buttonValue: ContinueMessage,
-    })
+    const CreateContextRestrictionMessage = intl.formatMessage(
+        { id: 'BillingIntegrationContextNoReturns' },
+        {
+            buttonValue: ContinueMessage,
+        },
+    )
     const ContextAlreadyCreatedMessage = intl.formatMessage({ id: 'ContextAlreadyCreated' })
     const CompanyNameLabel = intl.formatMessage({ id: 'CompanyName' })
-    const AnotherContextAlreadyCreatedMessage = intl.formatMessage({ id: 'AnotherContextAlreadyCreated' }, {
-        company: CompanyNameLabel,
-    })
+    const AnotherContextAlreadyCreatedMessage = intl.formatMessage(
+        { id: 'AnotherContextAlreadyCreated' },
+        {
+            company: CompanyNameLabel,
+        },
+    )
 
     const { query, push } = useRouter()
     const integrationId = get(query, 'id')
@@ -76,22 +81,26 @@ const BillingIntegrationDetailsPage = () => {
         obj: currentContext,
         error: contextError,
         loading: contextLoading,
-    } = BillingIntegrationOrganizationContext.useObject({
-        where: {
-            organization: {
-                id: organizationId,
+    } = BillingIntegrationOrganizationContext.useObject(
+        {
+            where: {
+                organization: {
+                    id: organizationId,
+                },
             },
         },
-    }, {
-        fetchPolicy: 'network-only',
-    })
+        {
+            fetchPolicy: 'network-only',
+        },
+    )
     const options = get(integration, ['availableOptions', 'options'])
     const optionsTitle = get(integration, ['availableOptions', 'title'])
     let defaultOption = get(options, ['0', 'name'], null)
     if (currentContext && integration) {
-        defaultOption = get(currentContext, ['integration', 'id']) === get(integration, 'id')
-            ? get(currentContext, 'integrationOption')
-            : null
+        defaultOption =
+            get(currentContext, ['integration', 'id']) === get(integration, 'id')
+                ? get(currentContext, 'integrationOption')
+                : null
     }
     const [option, setOption] = useState(defaultOption)
 
@@ -103,25 +112,25 @@ const BillingIntegrationDetailsPage = () => {
         setOption(e.target.value)
     }
 
-
-    const createContextAction = BillingIntegrationOrganizationContext.useCreate({
-        integration: String(integrationId),
-        organization: organizationId,
-    }, () => {
-        push(SETTINGS_PAGE_ROUTE)
-    })
+    const createContextAction = BillingIntegrationOrganizationContext.useCreate(
+        {
+            integration: String(integrationId),
+            organization: organizationId,
+        },
+        () => {
+            push(SETTINGS_PAGE_ROUTE)
+        },
+    )
 
     const { confirm } = Modal
     const showConfirmModal = () => {
         confirm({
             title: ConfirmModalTitle,
             icon: <ExclamationCircleOutlined />,
-            content: (
-                <Alert message={CreateContextRestrictionMessage} type={'warning'}/>
-            ),
+            content: <Alert message={CreateContextRestrictionMessage} type={'warning'} />,
             okText: ContinueMessage,
             cancelText: CancelMessage,
-            onOk () {
+            onOk() {
                 return createContextAction({
                     status: get(integration, 'contextDefaultStatus'),
                     integrationOption: option,
@@ -141,7 +150,7 @@ const BillingIntegrationDetailsPage = () => {
     }
 
     if (!integration) {
-        return <Error statusCode={404}/>
+        return <Error statusCode={404} />
     }
 
     const pageTitle = get(integration, 'detailsTitle')
@@ -161,138 +170,135 @@ const BillingIntegrationDetailsPage = () => {
             </Head>
             <PageWrapper>
                 <OrganizationRequired>
-                    {
-                        canManageIntegrations
-                            ? (
-                                <>
-                                    <PageHeader
-                                        title={<Typography.Title style={PAGE_HEADER_TITLE_STYLE}>{pageTitle}</Typography.Title>}
-                                        style={PAGE_HEADER_STYLE}
-                                    />
-                                    <PageContent>
-                                        <Col span={20}>
-                                            <Row gutter={ROW_GUTTER}>
-                                                {
-                                                    shouldNotifyWithAlert && (
-                                                        <Col span={24}>
-                                                            <Alert
-                                                                message={AnotherContextAlreadyCreatedMessage}
-                                                                type={'warning'}
-                                                                showIcon
-                                                                style={NO_CHANGE_ALERT_STYLE}
-                                                            />
-                                                        </Col>
-                                                    )
-                                                }
-                                                {
-                                                    markDownText && (
-                                                        <Col span={24} style={DESCRIPTION_TEXT_STYLE}>
-                                                            <ReactMarkdown remarkPlugins={[gfm]}>
-                                                                {markDownText}
-                                                            </ReactMarkdown>
-                                                        </Col>
-                                                    )
-                                                }
-                                                {
-                                                    options && optionsTitle && (
-                                                        <>
-                                                            <Col span={24}>
-                                                                <Typography.Title level={4}>
-                                                                    {optionsTitle}
-                                                                </Typography.Title>
-                                                            </Col>
-                                                            <Col span={24} style={RADIO_GROUP_CONTAINER_STYLE}>
-                                                                <Tooltip
-                                                                    title={ContextAlreadyCreatedMessage}
-                                                                    visible={!disabledIntegration ? false : undefined}
-                                                                >
-                                                                    <Radio.Group onChange={handleOptionChange} value={option} disabled={disabledIntegration}>
-                                                                        <Space direction={'vertical'} size={22}>
-                                                                            {options.map(integrationOption => {
-                                                                                return (
-                                                                                    <Radio value={integrationOption.name} key={integrationOption.name}>
-                                                                                        {get(integrationOption, 'displayName') || integrationOption.name}
-                                                                                        {
-                                                                                            integrationOption.descriptionDetails && (
-                                                                                                <>
-                                                                                                    &nbsp;
-                                                                                                    <Typography.Text type={'secondary'}>
-                                                                                                        (
-                                                                                                        <Link href={integrationOption.descriptionDetails.url}>
-                                                                                                            <a target='_blank'>
-                                                                                                                <Typography.Text type={'secondary'}>
-                                                                                                                    {integrationOption.descriptionDetails.urlText}
-                                                                                                                </Typography.Text>
-                                                                                                            </a>
-                                                                                                        </Link>
-                                                                                                        )
-                                                                                                    </Typography.Text>
-                                                                                                </>
-                                                                                            )
-
-                                                                                        }
-                                                                                    </Radio>
-                                                                                )
-                                                                            })}
-                                                                        </Space>
-                                                                    </Radio.Group>
-                                                                </Tooltip>
-                                                            </Col>
-                                                        </>
-                                                    )
-                                                }
+                    {canManageIntegrations ? (
+                        <>
+                            <PageHeader
+                                title={<Typography.Title style={PAGE_HEADER_TITLE_STYLE}>{pageTitle}</Typography.Title>}
+                                style={PAGE_HEADER_STYLE}
+                            />
+                            <PageContent>
+                                <Col span={20}>
+                                    <Row gutter={ROW_GUTTER}>
+                                        {shouldNotifyWithAlert && (
+                                            <Col span={24}>
+                                                <Alert
+                                                    message={AnotherContextAlreadyCreatedMessage}
+                                                    type={'warning'}
+                                                    showIcon
+                                                    style={NO_CHANGE_ALERT_STYLE}
+                                                />
+                                            </Col>
+                                        )}
+                                        {markDownText && (
+                                            <Col span={24} style={DESCRIPTION_TEXT_STYLE}>
+                                                <ReactMarkdown remarkPlugins={[gfm]}>{markDownText}</ReactMarkdown>
+                                            </Col>
+                                        )}
+                                        {options && optionsTitle && (
+                                            <>
                                                 <Col span={24}>
-                                                    <Space size={20} style={BUTTONS_SPACE_STYLE}>
-                                                        <Tooltip
-                                                            title={ContextAlreadyCreatedMessage}
-                                                            visible={!disabledIntegration ? false : undefined}
-                                                        >
-                                                            <ButtonWrap disabled={disabledIntegration}>
-                                                                <Button
-                                                                    type='sberPrimary'
-                                                                    onClick={showConfirmModal}
-                                                                    disabled={disabledIntegration || isHiddenIntegration}
-                                                                    style={{ pointerEvents: disabledIntegration ? 'none' : 'auto' }}
-                                                                >
-                                                                    {startButtonMessage}
-                                                                </Button>
-                                                            </ButtonWrap>
-                                                        </Tooltip>
-                                                        {
-                                                            instructionsButtonLink && (
-                                                                <Link href={instructionsButtonLink}>
-                                                                    <a target='_blank'>
-                                                                        <Button type='sberPrimary' secondary>
-                                                                            {instructionsButtonText}
-                                                                        </Button>
-                                                                    </a>
-                                                                </Link>
-                                                            )
-                                                        }
-                                                    </Space>
+                                                    <Typography.Title level={4}>{optionsTitle}</Typography.Title>
                                                 </Col>
-                                            </Row>
+                                                <Col span={24} style={RADIO_GROUP_CONTAINER_STYLE}>
+                                                    <Tooltip
+                                                        title={ContextAlreadyCreatedMessage}
+                                                        visible={!disabledIntegration ? false : undefined}
+                                                    >
+                                                        <Radio.Group
+                                                            onChange={handleOptionChange}
+                                                            value={option}
+                                                            disabled={disabledIntegration}
+                                                        >
+                                                            <Space direction={'vertical'} size={22}>
+                                                                {options.map((integrationOption) => {
+                                                                    return (
+                                                                        <Radio
+                                                                            value={integrationOption.name}
+                                                                            key={integrationOption.name}
+                                                                        >
+                                                                            {get(integrationOption, 'displayName') ||
+                                                                                integrationOption.name}
+                                                                            {integrationOption.descriptionDetails && (
+                                                                                <>
+                                                                                    &nbsp;
+                                                                                    <Typography.Text type={'secondary'}>
+                                                                                        (
+                                                                                        <Link
+                                                                                            href={
+                                                                                                integrationOption
+                                                                                                    .descriptionDetails.url
+                                                                                            }
+                                                                                        >
+                                                                                            <a target="_blank">
+                                                                                                <Typography.Text
+                                                                                                    type={'secondary'}
+                                                                                                >
+                                                                                                    {
+                                                                                                        integrationOption
+                                                                                                            .descriptionDetails
+                                                                                                            .urlText
+                                                                                                    }
+                                                                                                </Typography.Text>
+                                                                                            </a>
+                                                                                        </Link>
+                                                                                        )
+                                                                                    </Typography.Text>
+                                                                                </>
+                                                                            )}
+                                                                        </Radio>
+                                                                    )
+                                                                })}
+                                                            </Space>
+                                                        </Radio.Group>
+                                                    </Tooltip>
+                                                </Col>
+                                            </>
+                                        )}
+                                        <Col span={24}>
+                                            <Space size={20} style={BUTTONS_SPACE_STYLE}>
+                                                <Tooltip
+                                                    title={ContextAlreadyCreatedMessage}
+                                                    visible={!disabledIntegration ? false : undefined}
+                                                >
+                                                    <ButtonWrap disabled={disabledIntegration}>
+                                                        <Button
+                                                            type="sberPrimary"
+                                                            onClick={showConfirmModal}
+                                                            disabled={disabledIntegration || isHiddenIntegration}
+                                                            style={{ pointerEvents: disabledIntegration ? 'none' : 'auto' }}
+                                                        >
+                                                            {startButtonMessage}
+                                                        </Button>
+                                                    </ButtonWrap>
+                                                </Tooltip>
+                                                {instructionsButtonLink && (
+                                                    <Link href={instructionsButtonLink}>
+                                                        <a target="_blank">
+                                                            <Button type="sberPrimary" secondary>
+                                                                {instructionsButtonText}
+                                                            </Button>
+                                                        </a>
+                                                    </Link>
+                                                )}
+                                            </Space>
                                         </Col>
-                                    </PageContent>
-                                </>
-                            )
-                            : (
-                                <BasicEmptyListView>
-                                    <Typography.Title level={3}>
-                                        {NoPermissionMessage}
-                                    </Typography.Title>
-                                </BasicEmptyListView>
-                            )
-                    }
+                                    </Row>
+                                </Col>
+                            </PageContent>
+                        </>
+                    ) : (
+                        <BasicEmptyListView>
+                            <Typography.Title level={3}>{NoPermissionMessage}</Typography.Title>
+                        </BasicEmptyListView>
+                    )}
                 </OrganizationRequired>
             </PageWrapper>
         </>
     )
 }
 
-BillingIntegrationDetailsPage.headerAction = <ReturnBackHeaderAction
-    descriptor={{ id: 'menu.Settings' }}
-    path={SETTINGS_PAGE_ROUTE}
-/>
+BillingIntegrationDetailsPage.headerAction = (
+    <ReturnBackHeaderAction descriptor={{ id: 'menu.Settings' }} path={SETTINGS_PAGE_ROUTE} />
+)
 
 export default BillingIntegrationDetailsPage

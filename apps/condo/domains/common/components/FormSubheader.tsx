@@ -5,7 +5,7 @@ import { grey } from '@ant-design/colors'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
 interface IFormSubheaderProps {
-    title: string,
+    title: string
     hint?: string
 }
 
@@ -20,7 +20,7 @@ const FormSubheader: React.FC<IFormSubheaderProps> = ({ title, hint }) => {
                 <>
                     &nbsp;
                     <Tooltip title={hint}>
-                        <QuestionCircleFilled style={{ color: grey[0] }}/>
+                        <QuestionCircleFilled style={{ color: grey[0] }} />
                     </Tooltip>
                 </>
             )}

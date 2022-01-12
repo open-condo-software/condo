@@ -15,44 +15,42 @@ import { MapEdit, MapView } from './MapConstructor'
 import { FullscreenFooter } from './Fullscreen'
 
 export const CustomScrollbarCss = css`
-  & div::-webkit-scrollbar {
-    width: 14px;
-    border-right: 5px solid transparent;
-  }
-  & div::-webkit-scrollbar-thumb {
-    background-color: ${colors.inputBorderGrey};
-    border-radius: 10px;
-    border: 4px solid transparent;
-    background-clip: padding-box;
-    width: 5px;
-  }
-  & div::-webkit-scrollbar-thumb:hover {
-    background-color: ${colors.inputBorderHover};
-    border: 2px solid transparent;
-  }
-  & div::-webkit-scrollbar-track {
-    border-radius: 10px;
-  }
+    & div::-webkit-scrollbar {
+        width: 14px;
+        border-right: 5px solid transparent;
+    }
+    & div::-webkit-scrollbar-thumb {
+        background-color: ${colors.inputBorderGrey};
+        border-radius: 10px;
+        border: 4px solid transparent;
+        background-clip: padding-box;
+        width: 5px;
+    }
+    & div::-webkit-scrollbar-thumb:hover {
+        background-color: ${colors.inputBorderHover};
+        border: 2px solid transparent;
+    }
+    & div::-webkit-scrollbar-track {
+        border-radius: 10px;
+    }
 `
 
 export const MapSectionContainer = styled.div<{ visible: boolean }>`
-  display: ${({ visible }) => visible ? 'inline-block' : 'none'};
-  margin-right: 16px;
-  text-align: center;
+    display: ${({ visible }) => (visible ? 'inline-block' : 'none')};
+    margin-right: 16px;
+    text-align: center;
 `
 
 export const PropertyMapFloor: React.FC = ({ children }) => {
-    return (
-        <div style={{ display: 'block' }}>
-            {children}
-        </div>
-    )
+    return <div style={{ display: 'block' }}>{children}</div>
 }
 
 export const EmptyFloor: React.FC = () => {
     return (
         <div style={{ display: 'block' }}>
-            <UnitButton secondary disabled >&nbsp;</UnitButton>
+            <UnitButton secondary disabled>
+                &nbsp;
+            </UnitButton>
         </div>
     )
 }
@@ -79,8 +77,12 @@ const EMPTY_BUILDING_BLOCK_BUTTON_STYLE = {
 
 export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view' }) => {
     const intl = useIntl()
-    const EmptyPropertyBuildingHeader = intl.formatMessage({ id: `pages.condo.property.EmptyBuildingBlock.${mode}.EmptyBuildingHeader` })
-    const EmptyPropertyBuildingDescription = intl.formatMessage({ id: `pages.condo.property.EmptyBuildingBlock.${mode}.EmptyBuildingDescription` })
+    const EmptyPropertyBuildingHeader = intl.formatMessage({
+        id: `pages.condo.property.EmptyBuildingBlock.${mode}.EmptyBuildingHeader`,
+    })
+    const EmptyPropertyBuildingDescription = intl.formatMessage({
+        id: `pages.condo.property.EmptyBuildingBlock.${mode}.EmptyBuildingDescription`,
+    })
     const MapCreateTitle = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingBlock.view.CreateMapTitle' })
     const ImportExcelTitle = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingBlock.view.ImportDataTitle' })
     const NotImplementedMessage = intl.formatMessage({ id: 'NotImplementedYet' })
@@ -90,14 +92,14 @@ export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view
         push(asPath + '/map/update')
     }, [asPath])
 
-
     return (
-        <BasicEmptyListView image='/propertyEmpty.svg'>
+        <BasicEmptyListView image="/propertyEmpty.svg">
             <Typography.Title level={3} style={EMPTY_BUILDING_BLOCK_BUTTON_STYLE}>
                 {EmptyPropertyBuildingHeader}
             </Typography.Title>
             <Typography.Text style={DESCRIPTION_STYLE}>
-                {EmptyPropertyBuildingDescription}{mode === 'view' && (
+                {EmptyPropertyBuildingDescription}
+                {mode === 'view' && (
                     <Tooltip title={NotImplementedMessage}>
                         <Typography.Link style={IMPORT_LINK_STYLE}>{ImportExcelTitle}</Typography.Link>
                     </Tooltip>
@@ -109,7 +111,9 @@ export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view
                     style={EMPTY_BUILDING_BLOCK_BUTTON_STYLE}
                     secondary
                     onClick={createMapCallback}
-                >{MapCreateTitle}</Button>
+                >
+                    {MapCreateTitle}
+                </Button>
             )}
         </BasicEmptyListView>
     )
@@ -120,24 +124,26 @@ interface IBuildingAxisYProps {
 }
 
 const BuildingAxisContainer = styled.div`
-  display: inline-block;
-  margin-right: 12px;
-  position: sticky;
-  left: 0;
-  background-color: ${colors.backgroundLightGrey};
-  z-index: 2;
+    display: inline-block;
+    margin-right: 12px;
+    position: sticky;
+    left: 0;
+    background-color: ${colors.backgroundLightGrey};
+    z-index: 2;
 `
 const AXIS_UNIT_STYLE: React.CSSProperties = { display: 'block', color: colors.textSecondary }
 
 export const BuildingAxisY: React.FC<IBuildingAxisYProps> = ({ floors }) => {
     return (
         <BuildingAxisContainer>
-            {
-                floors.map(floorNum => (
-                    <UnitButton secondary disabled key={`floor_${floorNum}`} style={AXIS_UNIT_STYLE}>{floorNum}</UnitButton>
-                ))
-            }
-            <UnitButton secondary disabled style={AXIS_UNIT_STYLE}>&nbsp;</UnitButton>
+            {floors.map((floorNum) => (
+                <UnitButton secondary disabled key={`floor_${floorNum}`} style={AXIS_UNIT_STYLE}>
+                    {floorNum}
+                </UnitButton>
+            ))}
+            <UnitButton secondary disabled style={AXIS_UNIT_STYLE}>
+                &nbsp;
+            </UnitButton>
         </BuildingAxisContainer>
     )
 }
@@ -160,19 +166,10 @@ export const BuildingChooseSections: React.FC<IBuildingChooseSectionsProps> = (p
     const RequestFullscreenMessage = intl.formatMessage({ id: 'FullscreenRequest' })
     const ExitFullscreenMessage = intl.formatMessage({ id: 'FullscreenExit' })
 
-    const {
-        toggleFullscreen,
-        isFullscreen,
-        mode = 'view',
-        children,
-    } = props
+    const { toggleFullscreen, isFullscreen, mode = 'view', children } = props
 
     return (
-
-        <Row
-            css={FullscreenFooter}
-            gutter={FULLSCREEN_FOOTER_GUTTER}
-        >
+        <Row css={FullscreenFooter} gutter={FULLSCREEN_FOOTER_GUTTER}>
             <Col>
                 {mode === 'view' ? (
                     <Button
@@ -183,18 +180,17 @@ export const BuildingChooseSections: React.FC<IBuildingChooseSectionsProps> = (p
                         size={'large'}
                         onClick={toggleFullscreen}
                     >
-                        {isFullscreen
-                            ? ExitFullscreenMessage
-                            : RequestFullscreenMessage}
+                        {isFullscreen ? ExitFullscreenMessage : RequestFullscreenMessage}
                     </Button>
-                ) : children}
+                ) : (
+                    children
+                )}
             </Col>
         </Row>
-
     )
 }
 
-export function useHorizontalScroll (): React.RefObject<HTMLElement>{
+export function useHorizontalScroll(): React.RefObject<HTMLElement> {
     const elementRef = useRef<HTMLElement | null>(null)
     useEffect(() => {
         const element = elementRef.current

@@ -29,14 +29,17 @@ export const useServiceSubscriptionContext = () => useContext(SubscriptionContex
 
 const useServiceSubscriptionLoader = (): ISubscriptionContext => {
     const { organization } = useOrganization()
-    const { objs } = ServiceSubscriptionUtil.useObjects({
-        where: {
-            organization: { id: get(organization, 'id') },
+    const { objs } = ServiceSubscriptionUtil.useObjects(
+        {
+            where: {
+                organization: { id: get(organization, 'id') },
+            },
+            sortBy: [SortServiceSubscriptionsBy.StartAtDesc],
         },
-        sortBy: [SortServiceSubscriptionsBy.StartAtDesc],
-    }, {
-        fetchPolicy: 'network-only',
-    })
+        {
+            fetchPolicy: 'network-only',
+        },
+    )
     const subscription = objs[0]
 
     if (!subscription) {
@@ -70,20 +73,17 @@ const ExpiredModal: React.FC = () => {
             title={ExpiredTitleMessage}
             visible={visible}
             footer={[
-                <Button key="submit" type='sberPrimary' onClick={() => setVisible(false)}>
+                <Button key="submit" type="sberPrimary" onClick={() => setVisible(false)}>
                     {OKMessage}
                 </Button>,
             ]}
         >
             <Typography.Paragraph>
-                {ExpiredDescriptionPromptMessage}<br/>
-                <a href={`mailto:${ExpiredDescriptionLinkMessage}`}>
-                    {ExpiredDescriptionLinkMessage}
-                </a>
-                <br/>
-                <a href={`tel:${ExpiredDescriptionPhoneMessage.replace(' ', '')}`}>
-                    {ExpiredDescriptionPhoneMessage}
-                </a>
+                {ExpiredDescriptionPromptMessage}
+                <br />
+                <a href={`mailto:${ExpiredDescriptionLinkMessage}`}>{ExpiredDescriptionLinkMessage}</a>
+                <br />
+                <a href={`tel:${ExpiredDescriptionPhoneMessage.replace(' ', '')}`}>{ExpiredDescriptionPhoneMessage}</a>
             </Typography.Paragraph>
         </Modal>
     )
@@ -109,9 +109,7 @@ const SubscriptionContextProvider: React.FC<ISubscriptionProviderProps> = ({ chi
 
     return (
         <SubscriptionContext.Provider value={{ subscription, isExpired, daysLeft, daysLeftHumanized }}>
-            {isExpired && (
-                <ExpiredModal/>
-            )}
+            {isExpired && <ExpiredModal />}
             {children}
         </SubscriptionContext.Provider>
     )
@@ -121,11 +119,7 @@ export const SubscriptionProvider: React.FC<ISubscriptionProviderProps> = ({ chi
     const hasSubscriptionFeature = hasFeature('subscription')
 
     if (hasSubscriptionFeature) {
-        return (
-            <SubscriptionContextProvider>
-                {children}
-            </SubscriptionContextProvider>
-        )
+        return <SubscriptionContextProvider>{children}</SubscriptionContextProvider>
     }
 
     return children

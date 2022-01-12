@@ -10,13 +10,7 @@ export const getUploadSuccessModalConfig = (title: string, content: string, okTe
     return {
         title,
         closable: true,
-        content: (
-            <Alert
-                style={{ marginTop: 16 }}
-                message={content}
-                type='success'
-            />
-        ),
+        content: <Alert style={{ marginTop: 16 }} message={content} type="success" />,
         okText,
     }
 }
@@ -27,19 +21,11 @@ export const getUploadErrorModalConfig = (title: string, defaultErrorText: strin
         closable: true,
         content: (
             <ModalContext.Consumer>
-                {
-                    ({ error }) => {
-                        const errorMessage = get(error, 'message') || defaultErrorText
+                {({ error }) => {
+                    const errorMessage = get(error, 'message') || defaultErrorText
 
-                        return (
-                            <Alert
-                                style={{ marginTop: 16 }}
-                                message={errorMessage}
-                                type='error'
-                            />
-                        )
-                    }
-                }
+                    return <Alert style={{ marginTop: 16 }} message={errorMessage} type="error" />
+                }}
             </ModalContext.Consumer>
         ),
         okText,
@@ -50,31 +36,21 @@ export const getUploadProgressModalConfig = (
     title: string,
     processingMessage: string,
     okText: string,
-    onButtonClick: () => void
+    onButtonClick: () => void,
 ) => {
     return {
         title: title,
         closable: false,
         content: (
             <ModalContext.Consumer>
-                {
-                    ({ progress }) => {
-                        return (
-                            <>
-                                <Progress
-                                    format={(percent) => Math.floor(percent) + '%'}
-                                    percent={progress}
-                                    status={'active'}
-                                />
-                                <Alert
-                                    style={{ marginTop: 16 }}
-                                    message={processingMessage}
-                                    type='info'
-                                />
-                            </>
-                        )
-                    }
-                }
+                {({ progress }) => {
+                    return (
+                        <>
+                            <Progress format={(percent) => Math.floor(percent) + '%'} percent={progress} status={'active'} />
+                            <Alert style={{ marginTop: 16 }} message={processingMessage} type="info" />
+                        </>
+                    )
+                }}
             </ModalContext.Consumer>
         ),
         okText: okText,
@@ -86,10 +62,10 @@ export const getUploadProgressModalConfig = (
     }
 }
 
-function fitToColumn (arrayOfArray) {
-    return arrayOfArray[0].map((_, index) => (
-        { wch: Math.max(...arrayOfArray.map(row => row[index] ? row[index].toString().length : 0)) }
-    ))
+function fitToColumn(arrayOfArray) {
+    return arrayOfArray[0].map((_, index) => ({
+        wch: Math.max(...arrayOfArray.map((row) => (row[index] ? row[index].toString().length : 0))),
+    }))
 }
 
 export const getPartlyLoadedModalConfig = (
@@ -98,25 +74,20 @@ export const getPartlyLoadedModalConfig = (
     okText: string,
     cancelText: string,
     erroredRows: Array<ProcessedRow>,
-    columns: Columns) => {
+    columns: Columns,
+) => {
     return {
         title: title,
         closable: false,
-        content: (
-            <Alert
-                style={{ marginTop: 16 }}
-                message={content}
-                type='warning'
-            />
-        ),
+        content: <Alert style={{ marginTop: 16 }} message={content} type="warning" />,
         width: 'fit-content',
         okText: okText,
         onOk: () => {
             return new Promise<void>((resolve, reject) => {
                 try {
-                    const data = [columns.map(column => column.name).concat(['Errors'])]
+                    const data = [columns.map((column) => column.name).concat(['Errors'])]
                     for (let i = 0; i < erroredRows.length; i++) {
-                        const line = erroredRows[i].row.map(cell => cell.value ? String(cell.value) : null)
+                        const line = erroredRows[i].row.map((cell) => (cell.value ? String(cell.value) : null))
                         line.push(erroredRows[i].errors ? erroredRows[i].errors.join(', \n') : null)
                         data.push(line)
                     }

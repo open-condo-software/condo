@@ -13,7 +13,6 @@ import { ServiceSubscription } from '../utils/clientSchema'
 import { useAuth } from '@core/next/auth'
 import { get } from 'lodash'
 
-
 interface IEndTrialSubscriptionReminderPopup {
     EndTrialSubscriptionReminderPopup: React.FC
     setIsSEndTrialSubscriptionReminderPopupVisible: Dispatch<SetStateAction<boolean>>
@@ -21,9 +20,9 @@ interface IEndTrialSubscriptionReminderPopup {
 }
 
 const EndTrialSubscriptionReminderPopupParagraph = styled(Typography.Paragraph)`
-  font-size: ${fontSizes.content};
-  padding: 0;
-  margin: 0;
+    font-size: ${fontSizes.content};
+    padding: 0;
+    margin: 0;
 `
 
 export const useEndTrialSubscriptionReminderPopup = (): IEndTrialSubscriptionReminderPopup => {
@@ -44,8 +43,9 @@ export const useEndTrialSubscriptionReminderPopup = (): IEndTrialSubscriptionRem
     const thisMinute = dayjs().startOf('minute').toISOString()
 
     const cookieEndTrialSubscriptionReminderPopupConfirmedInfo = cookie.get('endTrialSubscriptionReminderPopupConfirmedInfo')
-    const endTrialSubscriptionReminderPopupConfirmedInfo = cookieEndTrialSubscriptionReminderPopupConfirmedInfo ?
-        JSON.parse(cookieEndTrialSubscriptionReminderPopupConfirmedInfo) : []
+    const endTrialSubscriptionReminderPopupConfirmedInfo = cookieEndTrialSubscriptionReminderPopupConfirmedInfo
+        ? JSON.parse(cookieEndTrialSubscriptionReminderPopupConfirmedInfo)
+        : []
 
     const { objs: subscriptions, loading: subscriptionsLoading } = ServiceSubscription.useObjects({
         where: {
@@ -62,8 +62,9 @@ export const useEndTrialSubscriptionReminderPopup = (): IEndTrialSubscriptionRem
             subscriptions.length > 0 &&
             !subscriptionsLoading &&
             !isEndTrialSubscriptionReminderPopupVisible &&
-            !endTrialSubscriptionReminderPopupConfirmedInfo.find(info =>
-                info.organization === organizationId && info.user === userId)
+            !endTrialSubscriptionReminderPopupConfirmedInfo.find(
+                (info) => info.organization === organizationId && info.user === userId,
+            )
         )
             setIsSEndTrialSubscriptionReminderPopupVisible(true)
     }, [subscriptionsLoading])
@@ -76,14 +77,18 @@ export const useEndTrialSubscriptionReminderPopup = (): IEndTrialSubscriptionRem
             organization: organizationId,
             user: userId,
         }
-        const newCookieSubscriberFirstLoginPopupConfirmedInfo = Array.isArray(endTrialSubscriptionReminderPopupConfirmedInfo) ?
-            [...endTrialSubscriptionReminderPopupConfirmedInfo, newConfirmedInfo] : [newConfirmedInfo]
+        const newCookieSubscriberFirstLoginPopupConfirmedInfo = Array.isArray(endTrialSubscriptionReminderPopupConfirmedInfo)
+            ? [...endTrialSubscriptionReminderPopupConfirmedInfo, newConfirmedInfo]
+            : [newConfirmedInfo]
 
         // expires - 1 day
-        cookie.set('endTrialSubscriptionReminderPopupConfirmedInfo',
-            JSON.stringify(newCookieSubscriberFirstLoginPopupConfirmedInfo), {
+        cookie.set(
+            'endTrialSubscriptionReminderPopupConfirmedInfo',
+            JSON.stringify(newCookieSubscriberFirstLoginPopupConfirmedInfo),
+            {
                 expires: 1,
-            })
+            },
+        )
     }
 
     const EndTrialSubscriptionReminderPopup = () => (
@@ -94,12 +99,7 @@ export const useEndTrialSubscriptionReminderPopup = (): IEndTrialSubscriptionRem
             width={600}
             bodyStyle={{ padding: '30px' }}
             footer={[
-                <Button
-                    size='large'
-                    key='submit'
-                    type='sberPrimary'
-                    onClick={handleCloseModal}
-                >
+                <Button size="large" key="submit" type="sberPrimary" onClick={handleCloseModal}>
                     {CompleteActionMessage}
                 </Button>,
             ]}
@@ -111,7 +111,7 @@ export const useEndTrialSubscriptionReminderPopup = (): IEndTrialSubscriptionRem
                     </EndTrialSubscriptionReminderPopupParagraph>
                     <EndTrialSubscriptionReminderPopupParagraph>
                         <FormattedMessage
-                            id={'subscription.modal.endTrialReminder.daysToEndTrial' }
+                            id={'subscription.modal.endTrialReminder.daysToEndTrial'}
                             values={{
                                 days: subscription && dayjs.duration(dayjs(subscription.finishAt).diff(dayjs())).humanize(),
                             }}

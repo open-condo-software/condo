@@ -19,9 +19,9 @@ interface IServiceSubscriptionWelcomePopup {
 }
 
 const ServiceSubscriptionWelcomePopupParagraph = styled(Typography.Paragraph)`
-  font-size: ${fontSizes.content};
-  padding: 0;
-  margin: 0;
+    font-size: ${fontSizes.content};
+    padding: 0;
+    margin: 0;
 `
 
 export const useServiceSubscriptionWelcomePopup = (): IServiceSubscriptionWelcomePopup => {
@@ -40,8 +40,9 @@ export const useServiceSubscriptionWelcomePopup = (): IServiceSubscriptionWelcom
 
     const thisMinute = dayjs().startOf('minute').toISOString()
     const cookieSubscriberFirstLoginPopupConfirmedInfo = cookie.get('subscriberFirstLoginPopupConfirmedInfo')
-    const subscriberFirstLoginPopupConfirmedInfo = cookieSubscriberFirstLoginPopupConfirmedInfo ?
-        JSON.parse(cookieSubscriberFirstLoginPopupConfirmedInfo) : []
+    const subscriberFirstLoginPopupConfirmedInfo = cookieSubscriberFirstLoginPopupConfirmedInfo
+        ? JSON.parse(cookieSubscriberFirstLoginPopupConfirmedInfo)
+        : []
 
     const { objs: subscriptions, loading: subscriptionsLoading } = ServiceSubscription.useObjects({
         where: {
@@ -57,8 +58,7 @@ export const useServiceSubscriptionWelcomePopup = (): IServiceSubscriptionWelcom
             subscriptions.length > 0 &&
             !subscriptionsLoading &&
             !isServiceSubscriptionWelcomePopupVisible &&
-            !subscriberFirstLoginPopupConfirmedInfo.find(info =>
-                info.organization === organization.id && info.user === user.id)
+            !subscriberFirstLoginPopupConfirmedInfo.find((info) => info.organization === organization.id && info.user === user.id)
         )
             setIsServiceSubscriptionWelcomePopupVisible(true)
     }, [subscriptionsLoading])
@@ -71,8 +71,9 @@ export const useServiceSubscriptionWelcomePopup = (): IServiceSubscriptionWelcom
             organization: organization && organization.id,
             user: user && user.id,
         }
-        const newCookieSubscriberFirstLoginPopupConfirmedInfo = Array.isArray(subscriberFirstLoginPopupConfirmedInfo) ?
-            [...subscriberFirstLoginPopupConfirmedInfo, newConfirmedInfo] : [newConfirmedInfo]
+        const newCookieSubscriberFirstLoginPopupConfirmedInfo = Array.isArray(subscriberFirstLoginPopupConfirmedInfo)
+            ? [...subscriberFirstLoginPopupConfirmedInfo, newConfirmedInfo]
+            : [newConfirmedInfo]
 
         cookie.set('subscriberFirstLoginPopupConfirmedInfo', JSON.stringify(newCookieSubscriberFirstLoginPopupConfirmedInfo))
     }
@@ -85,33 +86,20 @@ export const useServiceSubscriptionWelcomePopup = (): IServiceSubscriptionWelcom
             width={600}
             bodyStyle={{ padding: '30px' }}
             footer={[
-                <Button
-                    size='large'
-                    key='submit'
-                    type='sberPrimary'
-                    onClick={handleCloseModal}
-                >
+                <Button size="large" key="submit" type="sberPrimary" onClick={handleCloseModal}>
                     {CompleteActionMessage}
                 </Button>,
             ]}
         >
             <Row gutter={[0, 40]}>
                 <Col span={24}>
-                    <ServiceSubscriptionWelcomePopupParagraph strong>
-                        {GratitudeMessage}
-                    </ServiceSubscriptionWelcomePopupParagraph>
-                    <ServiceSubscriptionWelcomePopupParagraph>
-                        {TrialTimeMessage}
-                    </ServiceSubscriptionWelcomePopupParagraph>
-                    <ServiceSubscriptionWelcomePopupParagraph>
-                        {DebitsInfoMessage}
-                    </ServiceSubscriptionWelcomePopupParagraph>
-                    <ServiceSubscriptionWelcomePopupParagraph>
-                        {CurrentTariffMessage}
-                    </ServiceSubscriptionWelcomePopupParagraph>
+                    <ServiceSubscriptionWelcomePopupParagraph strong>{GratitudeMessage}</ServiceSubscriptionWelcomePopupParagraph>
+                    <ServiceSubscriptionWelcomePopupParagraph>{TrialTimeMessage}</ServiceSubscriptionWelcomePopupParagraph>
+                    <ServiceSubscriptionWelcomePopupParagraph>{DebitsInfoMessage}</ServiceSubscriptionWelcomePopupParagraph>
+                    <ServiceSubscriptionWelcomePopupParagraph>{CurrentTariffMessage}</ServiceSubscriptionWelcomePopupParagraph>
                     <ServiceSubscriptionWelcomePopupParagraph>
                         <FormattedMessage
-                            id={'subscription.modal.newClient.trialTimeEndDate' }
+                            id={'subscription.modal.newClient.trialTimeEndDate'}
                             values={{
                                 endDate: subscription ? dayjs(subscription.finishAt).format('DD/MM/YYYY') : null,
                             }}

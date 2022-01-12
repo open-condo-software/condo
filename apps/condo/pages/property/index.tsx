@@ -1,9 +1,6 @@
 /** @jsx jsx */
 import React, { useEffect, useRef, useState } from 'react'
-import {
-    PageWrapper,
-    useLayoutContext,
-} from '@condo/domains/common/components/containers/BaseLayout'
+import { PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { Col, Radio, Row, RowProps, Tabs, Typography } from 'antd'
 import Head from 'next/head'
 import { jsx } from '@emotion/core'
@@ -30,7 +27,6 @@ import { ColumnsType } from 'antd/lib/table'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useTableFilters as useDivisionTableFilters } from '@condo/domains/division/hooks/useTableFilters'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-
 
 type PropertiesType = 'buildings' | 'divisions'
 const propertiesTypes: PropertiesType[] = ['buildings', 'divisions']
@@ -79,8 +75,15 @@ export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
 
     const initialTab = useRef(props.tab)
 
-    const { role, searchPropertiesQuery, searchDivisionsQuery, propertiesTableColumns,
-        divisionTableColumns, sortPropertiesBy, sortDivisionsBy } = props
+    const {
+        role,
+        searchPropertiesQuery,
+        searchDivisionsQuery,
+        propertiesTableColumns,
+        divisionTableColumns,
+        sortPropertiesBy,
+        sortDivisionsBy,
+    } = props
 
     useEffect(() => {
         if (!initialTab.current) {
@@ -102,64 +105,54 @@ export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
                 <TablePageContent>
                     <Row gutter={PAGE_ROW_GUTTER} align={'top'}>
                         <Col lg={6} xs={24}>
-                            <Typography.Title>
-                                {PageTitleMessage}
-                            </Typography.Title>
+                            <Typography.Title>{PageTitleMessage}</Typography.Title>
                         </Col>
                         <Col lg={6} offset={isSmall ? 0 : 12} xs={24}>
-                            <Radio.Group className={'sberRadioGroup'} value={viewMode} buttonStyle="outline" onChange={e => changeViewMode(e.target.value)}>
+                            <Radio.Group
+                                className={'sberRadioGroup'}
+                                value={viewMode}
+                                buttonStyle="outline"
+                                onChange={(e) => changeViewMode(e.target.value)}
+                            >
                                 <Radio.Button value="list">{ShowTable}</Radio.Button>
                                 <Radio.Button value="map">{ShowMap}</Radio.Button>
                             </Radio.Group>
                         </Col>
-                        {
-                            viewMode !== 'map' && (
-                                <Col xs={24}>
-                                    <Tabs
-                                        defaultActiveKey={initialTab.current}
-                                        onChange={(key: PropertiesType) => {
-                                            setPropertiesType(key)
-                                            router.push(`/property?tab=${key}`)
-                                        }}>
-                                        <Tabs.TabPane
-                                            key="buildings"
-                                            tab={BuildingsTabTitle}
-                                        />
-                                        <Tabs.TabPane
-                                            key="divisions"
-                                            tab={DivisionsTabTitle}
-                                        />
-                                    </Tabs>
-                                </Col>
-                            )
-                        }
-                        {
-                            viewMode !== 'map' && (
-                                <Col span={24}>
-                                    {
-                                        propertiesType === 'buildings'
-                                            ? (
-                                                <BuildingsTable
-                                                    role={role}
-                                                    searchPropertiesQuery={searchPropertiesQuery}
-                                                    tableColumns={propertiesTableColumns}
-                                                    sortBy={sortPropertiesBy}
-                                                    onSearch={(properties) => setShownProperties(properties)}
-                                                />
-                                            )
-                                            : (
-                                                <DivisionTable
-                                                    role={role}
-                                                    searchDivisionsQuery={searchDivisionsQuery}
-                                                    tableColumns={divisionTableColumns}
-                                                    sortBy={sortDivisionsBy}
-                                                    onSearch={(properties) => setShownProperties(properties)}
-                                                />
-                                            )
-                                    }
-                                </Col>
-                            )
-                        }
+                        {viewMode !== 'map' && (
+                            <Col xs={24}>
+                                <Tabs
+                                    defaultActiveKey={initialTab.current}
+                                    onChange={(key: PropertiesType) => {
+                                        setPropertiesType(key)
+                                        router.push(`/property?tab=${key}`)
+                                    }}
+                                >
+                                    <Tabs.TabPane key="buildings" tab={BuildingsTabTitle} />
+                                    <Tabs.TabPane key="divisions" tab={DivisionsTabTitle} />
+                                </Tabs>
+                            </Col>
+                        )}
+                        {viewMode !== 'map' && (
+                            <Col span={24}>
+                                {propertiesType === 'buildings' ? (
+                                    <BuildingsTable
+                                        role={role}
+                                        searchPropertiesQuery={searchPropertiesQuery}
+                                        tableColumns={propertiesTableColumns}
+                                        sortBy={sortPropertiesBy}
+                                        onSearch={(properties) => setShownProperties(properties)}
+                                    />
+                                ) : (
+                                    <DivisionTable
+                                        role={role}
+                                        searchDivisionsQuery={searchDivisionsQuery}
+                                        tableColumns={divisionTableColumns}
+                                        sortBy={sortDivisionsBy}
+                                        onSearch={(properties) => setShownProperties(properties)}
+                                    />
+                                )}
+                            </Col>
+                        )}
                     </Row>
                     {viewMode === 'map' && <PropertiesMap properties={properties} />}
                 </TablePageContent>
@@ -172,8 +165,11 @@ type PropertiesPageProps = {
     tab?: PropertiesType
 }
 
-export default function PropertiesPage (props: PropertiesPageProps) {
-    const { organization, link: { role } } = useOrganization()
+export default function PropertiesPage(props: PropertiesPageProps) {
+    const {
+        organization,
+        link: { role },
+    } = useOrganization()
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
@@ -181,10 +177,8 @@ export default function PropertiesPage (props: PropertiesPageProps) {
     const propertyFilterMetas = usePropertyTableFilters()
     const propertiesTableColumns = usePropertiesTableColumns(propertyFilterMetas)
 
-    const {
-        filtersToWhere: filtersToPropertiesWhere,
-        sortersToSortBy: sortersToSortPropertiesBy,
-    } = useQueryMappers<PropertyWhereInput>(propertyFilterMetas, ['address'])
+    const { filtersToWhere: filtersToPropertiesWhere, sortersToSortBy: sortersToSortPropertiesBy } =
+        useQueryMappers<PropertyWhereInput>(propertyFilterMetas, ['address'])
 
     const searchPropertiesQuery = {
         ...filtersToPropertiesWhere(filters),
@@ -195,10 +189,8 @@ export default function PropertiesPage (props: PropertiesPageProps) {
     const divisionFilterMetas = useDivisionTableFilters()
     const divisionTableColumns = useDivisionsTableColumns(divisionFilterMetas)
 
-    const {
-        filtersToWhere: filtersToDivisionsWhere,
-        sortersToSortBy: sortersToSortDivisionsBy,
-    } = useQueryMappers<DivisionWhereInput>(divisionFilterMetas, ['name'])
+    const { filtersToWhere: filtersToDivisionsWhere, sortersToSortBy: sortersToSortDivisionsBy } =
+        useQueryMappers<DivisionWhereInput>(divisionFilterMetas, ['name'])
 
     const searchDivisionsQuery = {
         ...filtersToDivisionsWhere(filters),
@@ -211,11 +203,9 @@ export default function PropertiesPage (props: PropertiesPageProps) {
             searchPropertiesQuery={searchPropertiesQuery}
             propertiesTableColumns={propertiesTableColumns}
             sortPropertiesBy={sortersToSortPropertiesBy(sorters)}
-
             searchDivisionsQuery={searchDivisionsQuery}
             divisionTableColumns={divisionTableColumns}
             sortDivisionsBy={sortersToSortDivisionsBy(sorters)}
-
             role={role}
             tab={props.tab}
         />

@@ -10,8 +10,16 @@ const { createTestBillingMeterResource } = require('@condo/domains/billing/utils
 const { createTestBillingAccount } = require('@condo/domains/billing/utils/testSchema')
 const { createTestBillingProperty } = require('@condo/domains/billing/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
-const { BillingAccountMeter, createTestBillingAccountMeter, updateTestBillingAccountMeter } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObjects, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const {
+    BillingAccountMeter,
+    createTestBillingAccountMeter,
+    updateTestBillingAccountMeter,
+} = require('@condo/domains/billing/utils/testSchema')
+const {
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAuthenticationErrorToObj,
+} = require('@condo/domains/common/utils/testSchema')
 
 describe('BillingAccountMeter', () => {
     test('admin: create BillingAccountMeter', async () => {
@@ -86,7 +94,13 @@ describe('BillingAccountMeter', () => {
         const [property] = await createTestBillingProperty(managerUserClient, context)
         const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
         const [resource] = await createTestBillingMeterResource(admin)
-        const [billingAccountMeter] = await createTestBillingAccountMeter(managerUserClient, context, property, billingAccount, resource)
+        const [billingAccountMeter] = await createTestBillingAccountMeter(
+            managerUserClient,
+            context,
+            property,
+            billingAccount,
+            resource,
+        )
 
         const objs = await BillingAccountMeter.getAll(managerUserClient, { id: billingAccountMeter.id })
 
@@ -143,7 +157,13 @@ describe('BillingAccountMeter', () => {
         const [property] = await createTestBillingProperty(managerUserClient, context)
         const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
         const [resource] = await createTestBillingMeterResource(admin)
-        const [billingAccountMeter] = await createTestBillingAccountMeter(managerUserClient, context, property, billingAccount, resource)
+        const [billingAccountMeter] = await createTestBillingAccountMeter(
+            managerUserClient,
+            context,
+            property,
+            billingAccount,
+            resource,
+        )
         const payload = {
             raw: '123',
         }
@@ -203,7 +223,13 @@ describe('BillingAccountMeter', () => {
         const [property] = await createTestBillingProperty(managerUserClient, context)
         const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
         const [resource] = await createTestBillingMeterResource(admin)
-        const [billingAccountMeter] = await createTestBillingAccountMeter(managerUserClient, context, property, billingAccount, resource)
+        const [billingAccountMeter] = await createTestBillingAccountMeter(
+            managerUserClient,
+            context,
+            property,
+            billingAccount,
+            resource,
+        )
 
         await expectToThrowAccessDeniedErrorToObj(async () => {
             await BillingAccountMeter.delete(managerUserClient, billingAccountMeter.id)

@@ -19,14 +19,12 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowValidationFailureError,
 } = require('@condo/domains/common/utils/testSchema')
-const {
-    createTestBillingIntegration,
-} = require('@condo/domains/billing/utils/testSchema')
+const { createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 
 describe('AcquiringIntegrationAccessRight', () => {
     describe('CRUD tests', () => {
         describe('create', async () => {
-            test('user can\'t', async () => {
+            test("user can't", async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [billingIntegration] = await createTestBillingIntegration(admin)
                 const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
@@ -37,7 +35,7 @@ describe('AcquiringIntegrationAccessRight', () => {
                     await createTestAcquiringIntegrationAccessRight(client, integration, client.user)
                 })
             })
-            test('anonymous can\'t', async () => {
+            test("anonymous can't", async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [billingIntegration] = await createTestBillingIntegration(admin)
                 const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
@@ -55,7 +53,11 @@ describe('AcquiringIntegrationAccessRight', () => {
 
                 const support = await makeClientWithSupportUser()
                 const rightsClient = await makeClientWithNewRegisteredAndLoggedInUser()
-                const [integrationAccessRight] = await createTestAcquiringIntegrationAccessRight(support, integration, rightsClient.user)
+                const [integrationAccessRight] = await createTestAcquiringIntegrationAccessRight(
+                    support,
+                    integration,
+                    rightsClient.user,
+                )
                 expect(integrationAccessRight).toEqual(
                     expect.objectContaining({
                         integration: { id: integration.id },
@@ -69,7 +71,11 @@ describe('AcquiringIntegrationAccessRight', () => {
                 const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
 
                 const rightsClient = await makeClientWithNewRegisteredAndLoggedInUser()
-                const [integrationAccessRight] = await createTestAcquiringIntegrationAccessRight(admin, integration, rightsClient.user)
+                const [integrationAccessRight] = await createTestAcquiringIntegrationAccessRight(
+                    admin,
+                    integration,
+                    rightsClient.user,
+                )
                 expect(integrationAccessRight).toEqual(
                     expect.objectContaining({
                         integration: { id: integration.id },
@@ -79,7 +85,7 @@ describe('AcquiringIntegrationAccessRight', () => {
             })
         })
         describe('read', async () => {
-            test('user can\'t', async () => {
+            test("user can't", async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [billingIntegration] = await createTestBillingIntegration(admin)
                 const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
@@ -91,7 +97,7 @@ describe('AcquiringIntegrationAccessRight', () => {
                     await AcquiringIntegrationAccessRight.getAll(rightsClient)
                 })
             })
-            test('anonymous can\'t', async () => {
+            test("anonymous can't", async () => {
                 const anonymousClient = await makeClient()
                 await expectToThrowAuthenticationErrorToObjects(async () => {
                     await AcquiringIntegrationAccessRight.getAll(anonymousClient)
@@ -123,7 +129,7 @@ describe('AcquiringIntegrationAccessRight', () => {
             })
         })
         describe('update', async () => {
-            test('user can\'t', async () => {
+            test("user can't", async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [billingIntegration] = await createTestBillingIntegration(admin)
                 const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
@@ -136,7 +142,7 @@ describe('AcquiringIntegrationAccessRight', () => {
                     await updateTestAcquiringIntegrationAccessRight(client, rights.id, payload)
                 })
             })
-            test('anonymous can\'t', async () => {
+            test("anonymous can't", async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [billingIntegration] = await createTestBillingIntegration(admin)
                 const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
@@ -160,9 +166,11 @@ describe('AcquiringIntegrationAccessRight', () => {
                     user: { connect: { id: support.user.id } },
                 }
                 const [newRights] = await updateTestAcquiringIntegrationAccessRight(support, rights.id, payload)
-                expect(newRights).toEqual(expect.objectContaining({
-                    user: { id: support.user.id },
-                }))
+                expect(newRights).toEqual(
+                    expect.objectContaining({
+                        user: { id: support.user.id },
+                    }),
+                )
             })
             test('admin can', async () => {
                 const admin = await makeLoggedInAdminClient()
@@ -175,13 +183,15 @@ describe('AcquiringIntegrationAccessRight', () => {
                     user: { connect: { id: client.user.id } },
                 }
                 const [newRights] = await updateTestAcquiringIntegrationAccessRight(admin, rights.id, payload)
-                expect(newRights).toEqual(expect.objectContaining({
-                    user: { id: client.user.id },
-                }))
+                expect(newRights).toEqual(
+                    expect.objectContaining({
+                        user: { id: client.user.id },
+                    }),
+                )
             })
         })
         describe('hard delete', async () => {
-            test('user can\'t', async () => {
+            test("user can't", async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [billingIntegration] = await createTestBillingIntegration(admin)
                 const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
@@ -192,7 +202,7 @@ describe('AcquiringIntegrationAccessRight', () => {
                     await AcquiringIntegrationAccessRight.delete(client, rights.id)
                 })
             })
-            test('anonymous can\'t', async () => {
+            test("anonymous can't", async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [billingIntegration] = await createTestBillingIntegration(admin)
                 const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
@@ -203,7 +213,7 @@ describe('AcquiringIntegrationAccessRight', () => {
                     await AcquiringIntegrationAccessRight.delete(anonymousClient, rights.id)
                 })
             })
-            test('support can\'t', async () => {
+            test("support can't", async () => {
                 const support = await makeClientWithSupportUser()
                 const [billingIntegration] = await createTestBillingIntegration(support)
                 const [integration] = await createTestAcquiringIntegration(support, [billingIntegration])
@@ -213,7 +223,7 @@ describe('AcquiringIntegrationAccessRight', () => {
                     await AcquiringIntegrationAccessRight.delete(support, rights.id)
                 })
             })
-            test('admin can\'t', async () => {
+            test("admin can't", async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [billingIntegration] = await createTestBillingIntegration(admin)
                 const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])

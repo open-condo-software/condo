@@ -14,13 +14,21 @@ import fetch from 'isomorphic-unfetch'
 import getConfig from 'next/config'
 import { createUploadLink } from 'apollo-upload-client'
 
-const { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
+const {
+    DEBUG_RERENDERS,
+    DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER,
+    preventInfinityLoop,
+    getContextIndependentWrappedInitialProps,
+} = require('./_utils')
 
 let getApolloClientConfig = () => {
     const {
         publicRuntimeConfig: { serverUrl, apolloGraphQLUrl },
     } = getConfig()
-    if (!serverUrl || !apolloGraphQLUrl) throw new Error('You should set next.js publicRuntimeConfig { serverUrl, apolloGraphQLUrl } variables. Check your next.config.js')
+    if (!serverUrl || !apolloGraphQLUrl)
+        throw new Error(
+            'You should set next.js publicRuntimeConfig { serverUrl, apolloGraphQLUrl } variables. Check your next.config.js',
+        )
     return { serverUrl, apolloGraphQLUrl }
 }
 
@@ -49,8 +57,8 @@ let createApolloClient = (initialState, ctx, apolloCacheConfig, apolloClientConf
             fetchOptions: {
                 mode: 'cors',
             },
-            fetch: (isOnClientSide && window.fetch) ? window.fetch : fetch,
-            headers: (ctx && ctx.req) ? ctx.req.headers : undefined,  // allow to use client cookies on server side requests
+            fetch: isOnClientSide && window.fetch ? window.fetch : fetch,
+            headers: ctx && ctx.req ? ctx.req.headers : undefined, // allow to use client cookies on server side requests
         }),
         cache: new InMemoryCache(apolloCacheConfig).restore(initialState || {}),
         ...apolloClientConfig,
@@ -97,8 +105,7 @@ const initOnRestore = async (ctx, apolloCacheConfig) => {
 
     // Initialize ApolloClient if not already done
     const apolloClient =
-        ctx.apolloClient ||
-        initApolloClient(ctx.apolloState || {}, inAppContext ? ctx.ctx : ctx, apolloCacheConfig)
+        ctx.apolloClient || initApolloClient(ctx.apolloState || {}, inAppContext ? ctx.ctx : ctx, apolloCacheConfig)
 
     // We send the Apollo Client as a prop to the component to avoid calling initApollo() twice in the server.
     // Otherwise, the component would have to call initApollo() again but this
@@ -125,109 +132,107 @@ const initOnRestore = async (ctx, apolloCacheConfig) => {
  * @param  {Boolean} [withApolloOptions.ssr=false]
  * @returns {(PageComponent: ReactNode) => ReactNode}
  */
-const withApollo = ({ ssr = false, ...opts } = {}) => PageComponent => {
-    // TODO(pahaz): refactor it. No need to patch globals here!
-    getApolloClientConfig = opts.getApolloClientConfig ? opts.getApolloClientConfig : getApolloClientConfig
-    createApolloClient = opts.createApolloClient ? opts.createApolloClient : createApolloClient
+const withApollo =
+    ({ ssr = false, ...opts } = {}) =>
+    (PageComponent) => {
+        // TODO(pahaz): refactor it. No need to patch globals here!
+        getApolloClientConfig = opts.getApolloClientConfig ? opts.getApolloClientConfig : getApolloClientConfig
+        createApolloClient = opts.createApolloClient ? opts.createApolloClient : createApolloClient
 
-    const apolloCacheConfig = opts.apolloCacheConfig ? opts.apolloCacheConfig : {}
-    const apolloClientConfig = opts.apolloClientConfig ? opts.apolloClientConfig : {}
+        const apolloCacheConfig = opts.apolloCacheConfig ? opts.apolloCacheConfig : {}
+        const apolloClientConfig = opts.apolloClientConfig ? opts.apolloClientConfig : {}
 
-    const WithApollo = ({ apolloClient, apolloState, ...pageProps }) => {
-        if (DEBUG_RERENDERS) console.log('WithApollo()', apolloState)
-        let client
-        if (apolloClient) {
-            // Happens on: getDataFromTree && next.js ssr
-            client = apolloClient
-        } else {
-            // Happens on: next.js csr || expo
-            client = initApolloClient(apolloState, undefined, apolloCacheConfig, apolloClientConfig)
+        const WithApollo = ({ apolloClient, apolloState, ...pageProps }) => {
+            if (DEBUG_RERENDERS) console.log('WithApollo()', apolloState)
+            let client
+            if (apolloClient) {
+                // Happens on: getDataFromTree && next.js ssr
+                client = apolloClient
+            } else {
+                // Happens on: next.js csr || expo
+                client = initApolloClient(apolloState, undefined, apolloCacheConfig, apolloClientConfig)
+            }
+
+            return (
+                <ApolloProvider client={client}>
+                    <PageComponent {...pageProps} />
+                </ApolloProvider>
+            )
         }
 
-        return (
-            <ApolloProvider client={client}>
-                <PageComponent {...pageProps} />
-            </ApolloProvider>
-        )
-    }
+        if (DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER) WithApollo.whyDidYouRender = true
 
-    if (DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER) WithApollo.whyDidYouRender = true
+        // Set the correct displayName in development
+        if (process.env.NODE_ENV !== 'production') {
+            const displayName = PageComponent.displayName || PageComponent.name || 'Component'
+            WithApollo.displayName = `withApollo(${displayName})`
+        }
 
-    // Set the correct displayName in development
-    if (process.env.NODE_ENV !== 'production') {
-        const displayName =
-            PageComponent.displayName || PageComponent.name || 'Component'
-        WithApollo.displayName = `withApollo(${displayName})`
-    }
+        if (ssr || PageComponent.getInitialProps) {
+            WithApollo.getInitialProps = async (ctx) => {
+                if (DEBUG_RERENDERS) console.log('WithApollo.getInitialProps()', ctx)
+                const isOnServerSide = typeof window === 'undefined'
+                const { apolloClient } = await initOnRestore(ctx, apolloCacheConfig)
+                const pageProps = await getContextIndependentWrappedInitialProps(PageComponent, ctx)
 
-    if (ssr || PageComponent.getInitialProps) {
-        WithApollo.getInitialProps = async ctx => {
-            if (DEBUG_RERENDERS) console.log('WithApollo.getInitialProps()', ctx)
-            const isOnServerSide = typeof window === 'undefined'
-            const { apolloClient } = await initOnRestore(ctx, apolloCacheConfig)
-            const pageProps = await getContextIndependentWrappedInitialProps(PageComponent, ctx)
-
-            if (isOnServerSide) {
-                const { AppTree } = ctx
-                // When redirecting, the response is finished.
-                // No point in continuing to render
-                if (ctx.res && ctx.res.finished) {
-                    return pageProps
-                }
-
-                // Only if dataFromTree is enabled
-                if (ssr && AppTree) {
-                    const inAppContext = Boolean(ctx.ctx)
-                    try {
-                        // Import `@apollo/react-ssr` dynamically.
-                        // We don't want to have this in our client bundle.
-                        const { getDataFromTree } = await import('@apollo/client/react/ssr')
-
-                        // Since AppComponents and PageComponents have different context types
-                        // we need to modify their props a little.
-                        let props
-                        if (inAppContext) {
-                            props = { ...pageProps, apolloClient }
-                        } else {
-                            props = { pageProps: { ...pageProps, apolloClient } }
-                        }
-
-                        // Take the Next.js AppTree, determine which queries are needed to render,
-                        // and fetch them. This method can be pretty slow since it renders
-                        // your entire AppTree once for every query. Check out apollo fragments
-                        // if you want to reduce the number of rerenders.
-                        // https://www.apollographql.com/docs/react/data/fragments/
-                        await getDataFromTree(<AppTree {...props} />)
-                    } catch (error) {
-                        // Prevent Apollo Client GraphQL errors from crashing SSR.
-                        // Handle them in components via the data.error prop:
-                        // https://www.apollographql.com/docs/react/api/react-apollo.html#graphql-query-data-error
-                        console.error('Error while running `getDataFromTree`', error)
+                if (isOnServerSide) {
+                    const { AppTree } = ctx
+                    // When redirecting, the response is finished.
+                    // No point in continuing to render
+                    if (ctx.res && ctx.res.finished) {
+                        return pageProps
                     }
 
-                    // getDataFromTree does not call componentWillUnmount
-                    // head side effect therefore need to be cleared manually
-                    Head.rewind()
+                    // Only if dataFromTree is enabled
+                    if (ssr && AppTree) {
+                        const inAppContext = Boolean(ctx.ctx)
+                        try {
+                            // Import `@apollo/react-ssr` dynamically.
+                            // We don't want to have this in our client bundle.
+                            const { getDataFromTree } = await import('@apollo/client/react/ssr')
+
+                            // Since AppComponents and PageComponents have different context types
+                            // we need to modify their props a little.
+                            let props
+                            if (inAppContext) {
+                                props = { ...pageProps, apolloClient }
+                            } else {
+                                props = { pageProps: { ...pageProps, apolloClient } }
+                            }
+
+                            // Take the Next.js AppTree, determine which queries are needed to render,
+                            // and fetch them. This method can be pretty slow since it renders
+                            // your entire AppTree once for every query. Check out apollo fragments
+                            // if you want to reduce the number of rerenders.
+                            // https://www.apollographql.com/docs/react/data/fragments/
+                            await getDataFromTree(<AppTree {...props} />)
+                        } catch (error) {
+                            // Prevent Apollo Client GraphQL errors from crashing SSR.
+                            // Handle them in components via the data.error prop:
+                            // https://www.apollographql.com/docs/react/api/react-apollo.html#graphql-query-data-error
+                            console.error('Error while running `getDataFromTree`', error)
+                        }
+
+                        // getDataFromTree does not call componentWillUnmount
+                        // head side effect therefore need to be cleared manually
+                        Head.rewind()
+                    }
+
+                    preventInfinityLoop(ctx)
                 }
 
-                preventInfinityLoop(ctx)
-            }
-
-            return {
-                ...pageProps,
-                // Extract query data from the Apollo store
-                apolloState: apolloClient.cache.extract(),
-                // Provide the client for ssr. As soon as this payload
-                // gets JSON.stringified it will remove itself.
-                apolloClient: apolloClient,
+                return {
+                    ...pageProps,
+                    // Extract query data from the Apollo store
+                    apolloState: apolloClient.cache.extract(),
+                    // Provide the client for ssr. As soon as this payload
+                    // gets JSON.stringified it will remove itself.
+                    apolloClient: apolloClient,
+                }
             }
         }
+
+        return WithApollo
     }
 
-    return WithApollo
-}
-
-export {
-    withApollo,
-    useApolloClient, useMutation, useQuery, useSubscription, useLazyQuery,
-}
+export { withApollo, useApolloClient, useMutation, useQuery, useSubscription, useLazyQuery }

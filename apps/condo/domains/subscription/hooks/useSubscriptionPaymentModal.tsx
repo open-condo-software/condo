@@ -16,14 +16,16 @@ export const useSubscriptionPaymentModal = (): IApplySubscriptionModal => {
 
     const SubscriptionPaymentModal: React.FC = () => (
         <Modal
-            title={<Typography.Title level={3}>{intl.formatMessage({ id: 'subscription.modal.complete.title' })}</Typography.Title>}
+            title={
+                <Typography.Title level={3}>{intl.formatMessage({ id: 'subscription.modal.complete.title' })}</Typography.Title>
+            }
             visible={isVisible}
             onCancel={() => setIsVisible(false)}
             footer={[
                 <Button
-                    size='large'
-                    key='submit'
-                    type='sberPrimary'
+                    size="large"
+                    key="submit"
+                    type="sberPrimary"
                     onClick={() => {
                         setIsVisible(false)
                     }}
@@ -34,9 +36,7 @@ export const useSubscriptionPaymentModal = (): IApplySubscriptionModal => {
         >
             <Row gutter={[0, 40]}>
                 <Col span={24}>
-                    <Typography.Text>
-                        {intl.formatMessage({ id: 'subscription.modal.complete.description' })}
-                    </Typography.Text>
+                    <Typography.Text>{intl.formatMessage({ id: 'subscription.modal.complete.description' })}</Typography.Text>
                 </Col>
             </Row>
         </Modal>

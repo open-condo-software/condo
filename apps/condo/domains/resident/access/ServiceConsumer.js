@@ -1,8 +1,7 @@
-
 const { ServiceConsumer, Resident } = require('@condo/domains/resident/utils/serverSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-async function canReadServiceConsumers ({ authentication: { item: user } }) {
+async function canReadServiceConsumers({ authentication: { item: user } }) {
     if (!user) return false
     if (user.isAdmin || user.isSupport) return {}
     if (user.type === RESIDENT) {
@@ -13,7 +12,7 @@ async function canReadServiceConsumers ({ authentication: { item: user } }) {
     return false
 }
 
-async function canManageServiceConsumers ({ authentication: { item: user }, context, originalInput, operation, itemId }) {
+async function canManageServiceConsumers({ authentication: { item: user }, context, originalInput, operation, itemId }) {
     if (!user) return false
     if (user.isAdmin || user.isSupport) return true
     if (user.type === RESIDENT) {
@@ -27,8 +26,10 @@ async function canManageServiceConsumers ({ authentication: { item: user }, cont
 
             const SAFE_FIELDS = ['dv', 'sender', 'deletedAt']
             for (let prop in originalInput) {
-                if (!originalInput.hasOwnProperty(prop)) { continue }
-                if ( !SAFE_FIELDS.includes(prop) && !prop.startsWith('_') ) {
+                if (!originalInput.hasOwnProperty(prop)) {
+                    continue
+                }
+                if (!SAFE_FIELDS.includes(prop) && !prop.startsWith('_')) {
                     isSoftDeleteOperation = false
                 }
             }

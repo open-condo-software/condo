@@ -9,14 +9,14 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
 
 export const ErrorPosterWrapper = styled.div<{ isSmall: boolean }>`
-  height: 55vh;
+    height: 55vh;
 `
 
 const DESCRIPTION_TEXT_STYLE = { fontSize: fontSizes.content }
 
-export default function Custom500 () {
+export default function Custom500() {
     const intl = useIntl()
-    const PageTitle = intl.formatMessage( { id: 'pages.condo.error.PageTitle' })
+    const PageTitle = intl.formatMessage({ id: 'pages.condo.error.PageTitle' })
     const DescriptionMessage = intl.formatMessage({ id: 'pages.condo.error.Description' })
 
     const { isSmall } = useLayoutContext()
@@ -27,17 +27,15 @@ export default function Custom500 () {
     return (
         <Row justify={'space-between'}>
             <Col span={POSTER_COLUMN_SPAN}>
-                {
-                    isSmall ? (
-                        <ErrorPosterWrapper isSmall={isSmall}>
-                            <Poster
-                                src={'/authPoster.png'}
-                                placeholderSrc={'/authPosterPlaceholder.png'}
-                                placeholderColor={colors.selago}
-                            />
-                        </ErrorPosterWrapper>
-                    ) : null
-                }
+                {isSmall ? (
+                    <ErrorPosterWrapper isSmall={isSmall}>
+                        <Poster
+                            src={'/authPoster.png'}
+                            placeholderSrc={'/authPosterPlaceholder.png'}
+                            placeholderColor={colors.selago}
+                        />
+                    </ErrorPosterWrapper>
+                ) : null}
             </Col>
             <Col span={24}>
                 <Row gutter={[0, 14]}>
@@ -45,9 +43,7 @@ export default function Custom500 () {
                         <Typography.Title>{PageTitle}</Typography.Title>
                     </Col>
                     <Col span={INNER_COLUMN_SPAN}>
-                        <Typography.Paragraph style={DESCRIPTION_TEXT_STYLE}>
-                            {DescriptionMessage}
-                        </Typography.Paragraph>
+                        <Typography.Paragraph style={DESCRIPTION_TEXT_STYLE}>{DescriptionMessage}</Typography.Paragraph>
                     </Col>
                 </Row>
             </Col>

@@ -12,18 +12,27 @@ const { REFRESH_TOKEN_TTL } = require('./constants')
  * @param organizationImportId `hashOrgId` param from SBBOL `UserInfo` object
  * @return {Promise<string|*>}
  */
-async function getOrganizationAccessToken (organizationImportId) {
+async function getOrganizationAccessToken(organizationImportId) {
     const { keystone } = await getSchemaCtx('TokenSet')
     const adminContext = await keystone.createContext({ skipAccessControl: true })
     // TODO(pahaz): need to be fixed! it's looks so strange.
-    const [tokenSet] = await TokenSet.getAll(adminContext, { organization: { importId: organizationImportId, importRemoteSystem: SBBOL_IMPORT_NAME } }, { sortBy: ['createdAt_DESC'] })
-    const instructionsMessage = 'Please, login through SBBOL for this organization, so its accessToken and refreshToken will be obtained and saved in TokenSet table for further renewals'
+    const [tokenSet] = await TokenSet.getAll(
+        adminContext,
+        { organization: { importId: organizationImportId, importRemoteSystem: SBBOL_IMPORT_NAME } },
+        { sortBy: ['createdAt_DESC'] },
+    )
+    const instructionsMessage =
+        'Please, login through SBBOL for this organization, so its accessToken and refreshToken will be obtained and saved in TokenSet table for further renewals'
     if (!tokenSet) {
-        throw new Error(`[tokens:expired] record from TokenSet was not found for organization ${organizationImportId}. ${instructionsMessage}`)
+        throw new Error(
+            `[tokens:expired] record from TokenSet was not found for organization ${organizationImportId}. ${instructionsMessage}`,
+        )
     }
     const isRefreshTokenExpired = dayjs(dayjs()).isAfter(tokenSet.refreshTokenExpiresAt)
     if (isRefreshTokenExpired) {
-        throw new Error(`[tokens:expired] refreshToken is expired for organization ${organizationImportId}. ${instructionsMessage}`)
+        throw new Error(
+            `[tokens:expired] refreshToken is expired for organization ${organizationImportId}. ${instructionsMessage}`,
+        )
     }
     const isAccessTokenExpired = dayjs(dayjs()).isAfter(tokenSet.accessTokenExpiresAt)
     if (isAccessTokenExpired) {

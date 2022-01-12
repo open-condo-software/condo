@@ -6,7 +6,7 @@ const { getById } = require('@core/keystone/schema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('../utils/accessSchema')
 
-async function canReadOrganizationEmployees ({ authentication: { item: user } }) {
+async function canReadOrganizationEmployees({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin || user.isSupport) return {}
     const userId = user.id
@@ -15,10 +15,7 @@ async function canReadOrganizationEmployees ({ authentication: { item: user } })
         OR: [
             {
                 organization: {
-                    OR: [
-                        queryOrganizationEmployeeFor(userId),
-                        queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
-                    ],
+                    OR: [queryOrganizationEmployeeFor(userId), queryOrganizationEmployeeFromRelatedOrganizationFor(userId)],
                 },
             },
             {
@@ -28,7 +25,7 @@ async function canReadOrganizationEmployees ({ authentication: { item: user } })
     }
 }
 
-async function canManageOrganizationEmployees ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageOrganizationEmployees({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin || user.isSupport) return true
     if (operation === 'create') {

@@ -5,7 +5,10 @@ const { makeClientWithRegisteredOrganization } = require('@condo/domains/organiz
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const { MockSbbolResponses } = require('./MockSbbolResponses')
-const { OrganizationEmployee: OrganizationEmployeeApi, Organization: OrganizationApi } = require('@condo/domains/organization/utils/serverSchema')
+const {
+    OrganizationEmployee: OrganizationEmployeeApi,
+    Organization: OrganizationApi,
+} = require('@condo/domains/organization/utils/serverSchema')
 const { getItem, updateItem } = require('@keystonejs/server-side-graphql-client')
 
 let keystone
@@ -19,7 +22,6 @@ describe('syncOrganization from SBBOL', () => {
     })
 
     describe('Organization not exists', function () {
-
         it('should update existed organization with a same tin', async () => {
             const { userData, organizationData, dvSenderFields } = MockSbbolResponses.getUserAndOrganizationInfo()
             const adminContext = await keystone.createContext({ skipAccessControl: true })
@@ -43,7 +45,7 @@ describe('syncOrganization from SBBOL', () => {
                 dvSenderFields,
                 organizationInfo: organizationData,
             })
-            const [ updatedOrganization ] = await OrganizationApi.getAll(adminContext, { id: client.organization.id })
+            const [updatedOrganization] = await OrganizationApi.getAll(adminContext, { id: client.organization.id })
             expect(updatedOrganization.importId).toEqual(organizationData.importId)
             expect(updatedOrganization.importRemoteSystem).toEqual(organizationData.importRemoteSystem)
         })
@@ -70,12 +72,12 @@ describe('syncOrganization from SBBOL', () => {
                 dvSenderFields,
                 organizationInfo: organizationData,
             })
-            const [ newOrganization ] = await OrganizationApi.getAll(adminContext, {
+            const [newOrganization] = await OrganizationApi.getAll(adminContext, {
                 importId: organizationData.importId,
                 importRemoteSystem: organizationData.importRemoteSystem,
             })
             expect(newOrganization).toBeDefined()
-            const [ existedEmployee ] = await OrganizationEmployeeApi.getAll(adminContext, {
+            const [existedEmployee] = await OrganizationEmployeeApi.getAll(adminContext, {
                 organization: { id: newOrganization.id },
                 user: { id: user.id },
             })
@@ -120,7 +122,7 @@ describe('syncOrganization from SBBOL', () => {
                 dvSenderFields,
                 organizationInfo: organizationData,
             })
-            const [ existedEmployee ] = await OrganizationEmployeeApi.getAll(adminContext, {
+            const [existedEmployee] = await OrganizationEmployeeApi.getAll(adminContext, {
                 organization: { id: existedOrganizationClient.organization.id },
                 user: { id: user.id },
             })
@@ -148,7 +150,7 @@ describe('syncOrganization from SBBOL', () => {
                 dvSenderFields,
                 organizationInfo: organizationData,
             })
-            const [ existedEmployee2 ] = await OrganizationEmployeeApi.getAll(adminContext, {
+            const [existedEmployee2] = await OrganizationEmployeeApi.getAll(adminContext, {
                 organization: { id: existedOrganizationClient.organization.id },
                 user: { id: user2.id },
             })

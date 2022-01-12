@@ -23,7 +23,7 @@ const createXlsxTemplate = async () => {
         const dataArray = [{}, {}]
         headerArray.forEach((rowKey, rowKeyIndex) => {
             const [firstRow, secondRow] = dataArray
-            firstRow[rowKey] =  `{d.${domainDir}[i].${rowKeys[rowKeyIndex]}}`
+            firstRow[rowKey] = `{d.${domainDir}[i].${rowKeys[rowKeyIndex]}}`
             secondRow[rowKey] = `{d.${domainDir}[i + 1].${rowKeys[rowKeyIndex]}}`
         })
 
@@ -31,14 +31,14 @@ const createXlsxTemplate = async () => {
         const workBook = xlsx.utils.book_new()
         xlsx.utils.book_append_sheet(workBook, workSheet)
 
-        await xlsx
-            .writeFileSync(workBook, `./domains/${domainDir}/templates/${locale}/${templateName}.xlsx`)
+        await xlsx.writeFileSync(workBook, `./domains/${domainDir}/templates/${locale}/${templateName}.xlsx`)
     }
-
 }
 
-createXlsxTemplate().then(() => {
-    console.log('done creating template')
-}).catch((e) => {
-    console.error('Error creating template: ', e)
-})
+createXlsxTemplate()
+    .then(() => {
+        console.log('done creating template')
+    })
+    .catch((e) => {
+        console.error('Error creating template: ', e)
+    })

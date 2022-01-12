@@ -7,10 +7,7 @@ import { Rule } from 'rc-field-form/lib/interface'
 import FormSubheader from '@condo/domains/common/components/FormSubheader'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { get } from 'lodash'
-import {
-    searchEmployee,
-    searchOrganizationProperty,
-} from '@condo/domains/ticket/utils/clientSchema/search'
+import { searchEmployee, searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 import { FormWithAction, IFormWithActionChildren } from '@condo/domains/common/components/containers/FormList'
 import { Organization } from '@app/condo/schema'
 
@@ -30,11 +27,10 @@ const INPUT_LAYOUT_PROPS = {
     },
 }
 
-
 interface IBaseDivisionFormProps {
     organization: Organization
     initialValues?: IDivisionFormState
-    action?: (values: IDivisionFormState) => Promise<IDivisionUIState>,
+    action?: (values: IDivisionFormState) => Promise<IDivisionUIState>
     afterActionCompleted?: (division: IDivisionUIState) => void
     children: IFormWithActionChildren
 }
@@ -63,23 +59,17 @@ const BaseDivisionForm: React.FC<IBaseDivisionFormProps> = (props) => {
     }
 
     const organizationId = get(props.organization, 'id')
-    
+
     const action = (variables) => {
-        props.action(variables)
-            .then(result => {
-                if (props.afterActionCompleted) {
-                    props.afterActionCompleted(result)
-                }
-            })
+        props.action(variables).then((result) => {
+            if (props.afterActionCompleted) {
+                props.afterActionCompleted(result)
+            }
+        })
     }
 
     return (
-        <FormWithAction
-            {...LAYOUT}
-            action={action}
-            initialValues={props.initialValues}
-            validateTrigger={['onBlur', 'onSubmit']}
-        >
+        <FormWithAction {...LAYOUT} action={action} initialValues={props.initialValues} validateTrigger={['onBlur', 'onSubmit']}>
             {({ handleSave, isLoading, form }) => (
                 <Row gutter={[0, 24]}>
                     <Col span={24}>
@@ -91,7 +81,7 @@ const BaseDivisionForm: React.FC<IBaseDivisionFormProps> = (props) => {
                             required
                             {...INPUT_LAYOUT_PROPS}
                         >
-                            <Input/>
+                            <Input />
                         </Form.Item>
                     </Col>
                     <Col span={24}>
@@ -114,10 +104,7 @@ const BaseDivisionForm: React.FC<IBaseDivisionFormProps> = (props) => {
                         </Form.Item>
                     </Col>
                     <Col span={24}>
-                        <FormSubheader
-                            title={ResponsibleHintTitleMessage}
-                            hint={ResponsibleHintDescriptionMessage}
-                        />
+                        <FormSubheader title={ResponsibleHintTitleMessage} hint={ResponsibleHintDescriptionMessage} />
                     </Col>
                     <Col span={24}>
                         <Form.Item
@@ -129,18 +116,15 @@ const BaseDivisionForm: React.FC<IBaseDivisionFormProps> = (props) => {
                             required
                         >
                             <GraphQlSearchInput
-                                search={searchEmployee(organizationId, ({ role }) => (
-                                    get(role, 'canBeAssignedAsResponsible', false)
-                                ))}
+                                search={searchEmployee(organizationId, ({ role }) =>
+                                    get(role, 'canBeAssignedAsResponsible', false),
+                                )}
                                 showArrow={false}
                             />
                         </Form.Item>
                     </Col>
                     <Col span={24}>
-                        <FormSubheader
-                            title={ExecutorsHintTitleMessage}
-                            hint={ExecutorsHintDescriptionMessage}
-                        />
+                        <FormSubheader title={ExecutorsHintTitleMessage} hint={ExecutorsHintDescriptionMessage} />
                     </Col>
                     <Col span={24}>
                         <Form.Item
@@ -152,9 +136,7 @@ const BaseDivisionForm: React.FC<IBaseDivisionFormProps> = (props) => {
                             required
                         >
                             <GraphQlSearchInput
-                                search={searchEmployee(organizationId, ({ role }) => (
-                                    get(role, 'canBeAssignedAsExecutor', false)
-                                ))}
+                                search={searchEmployee(organizationId, ({ role }) => get(role, 'canBeAssignedAsExecutor', false))}
                                 showArrow={false}
                                 mode="multiple"
                             />

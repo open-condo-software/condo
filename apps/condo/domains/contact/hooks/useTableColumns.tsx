@@ -12,10 +12,10 @@ import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils
 
 import { IFilters } from '../utils/helpers'
 
-export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
+export function useTableColumns<T>(filterMetas: Array<FiltersMeta<T>>) {
     const intl = useIntl()
     const NameMessage = intl.formatMessage({ id: 'field.FullName.short' })
-    const PhoneMessage =  intl.formatMessage({ id: 'Phone' })
+    const PhoneMessage = intl.formatMessage({ id: 'Phone' })
     const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
     const AddressMessage = intl.formatMessage({ id: 'pages.condo.property.field.Address' })
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
@@ -28,7 +28,8 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
 
     const renderAddress = useCallback(
         (_, contact) => getAddressRender(get(contact, 'property'), DeletedMessage, search),
-        [DeletedMessage, search])
+        [DeletedMessage, search],
+    )
 
     const render = useMemo(() => getTableCellRenderer(search), [search])
 

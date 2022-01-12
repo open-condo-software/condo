@@ -5,8 +5,18 @@
 const { makeClientWithSupportUser } = require('../../user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { BillingIntegrationAccessRight, createTestBillingIntegrationAccessRight, updateTestBillingIntegrationAccessRight, createTestBillingIntegration } = require('../utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObjects, expectToThrowAuthenticationErrorToObjects, expectToThrowAuthenticationErrorToObj, expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const {
+    BillingIntegrationAccessRight,
+    createTestBillingIntegrationAccessRight,
+    updateTestBillingIntegrationAccessRight,
+    createTestBillingIntegration,
+} = require('../utils/testSchema')
+const {
+    expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAuthenticationErrorToObj,
+    expectToThrowAccessDeniedErrorToObj,
+} = require('@condo/domains/common/utils/testSchema')
 
 describe('BillingIntegrationAccessRight', () => {
     test('user: create BillingIntegrationAccessRight', async () => {
@@ -35,10 +45,12 @@ describe('BillingIntegrationAccessRight', () => {
         const [integration] = await createTestBillingIntegration(support)
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
-        const [integrationAccessRight] = await createTestBillingIntegrationAccessRight(support, integration,  client.user)
-        expect(integrationAccessRight).toEqual(expect.objectContaining({
-            integration: { id: integration.id, name: integration.name },
-        }))
+        const [integrationAccessRight] = await createTestBillingIntegrationAccessRight(support, integration, client.user)
+        expect(integrationAccessRight).toEqual(
+            expect.objectContaining({
+                integration: { id: integration.id, name: integration.name },
+            }),
+        )
     })
 
     test('admin: create BillingIntegrationAccessRight', async () => {
@@ -47,11 +59,12 @@ describe('BillingIntegrationAccessRight', () => {
         const [integration] = await createTestBillingIntegration(admin)
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
-        const [integrationAccessRight] = await createTestBillingIntegrationAccessRight(
-            admin, integration, client.user)
-        expect(integrationAccessRight).toEqual(expect.objectContaining({
-            integration: { id: integration.id, name: integration.name },
-        }))
+        const [integrationAccessRight] = await createTestBillingIntegrationAccessRight(admin, integration, client.user)
+        expect(integrationAccessRight).toEqual(
+            expect.objectContaining({
+                integration: { id: integration.id, name: integration.name },
+            }),
+        )
     })
 
     test('user: read BillingIntegrationAccessRight', async () => {
@@ -106,8 +119,8 @@ describe('BillingIntegrationAccessRight', () => {
             await BillingIntegrationAccessRight.delete(admin, objCreated.id)
         } catch (e) {
             expect(e.errors[0]).toMatchObject({
-                'message': expect.stringContaining('Cannot query field "deleteBillingIntegrationAccessRight" on type "Mutation"'),
-                'name': 'ValidationError',
+                message: expect.stringContaining('Cannot query field "deleteBillingIntegrationAccessRight" on type "Mutation"'),
+                name: 'ValidationError',
             })
             expect(e.data).toBeUndefined()
         }

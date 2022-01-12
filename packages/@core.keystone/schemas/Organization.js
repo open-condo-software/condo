@@ -20,7 +20,9 @@ const Organization = new GQLListSchema('Organization', {
             kmigratorOptions: { null: false },
         },
         userLinks: {
-            type: Relationship, ref: 'OrganizationToUserLink.organization', many: true,
+            type: Relationship,
+            ref: 'OrganizationToUserLink.organization',
+            many: true,
         },
     },
     access: {
@@ -80,7 +82,8 @@ const OrganizationToUserLink = new GQLListSchema('OrganizationToUserLink', {
             factory: () => faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}'),
             type: Text,
         },
-        user: {  // if user exists => invite is accepted!
+        user: {
+            // if user exists => invite is accepted!
             factory: () => ({ create: User._factory() }),
             type: Relationship,
             ref: 'User',
@@ -148,7 +151,11 @@ const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizat
             schema: 'registerNewOrganization(data: RegisterNewOrganizationInput!): Organization',
             resolver: async (parent, args, context, info, extra = {}) => {
                 await RegisterNewOrganizationService.emit('beforeRegisterNewOrganization', {
-                    parent, args, context, info, extra,
+                    parent,
+                    args,
+                    context,
+                    info,
+                    extra,
                 })
 
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
@@ -169,7 +176,7 @@ const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizat
                         }
                     `,
                     variables: {
-                        'data': {
+                        data: {
                             organization: { create: { ...data, ...extraOrganizationData } },
                             user: { connect: { id: context.authedItem.id } },
                             role: 'owner',
@@ -190,7 +197,12 @@ const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizat
 
                 const result = await getById('Organization', createData.obj.organization.id)
                 await RegisterNewOrganizationService.emit('afterRegisterNewOrganization', {
-                    parent, args, context, info, extra, result,
+                    parent,
+                    args,
+                    context,
+                    info,
+                    extra,
+                    result,
                 })
                 return result
             },
@@ -211,7 +223,11 @@ const InviteNewUserToOrganizationService = new GQLCustomSchema('InviteNewUserToO
             schema: 'inviteNewUserToOrganization(data: InviteNewUserToOrganizationInput!): OrganizationToUserLink',
             resolver: async (parent, args, context, info, extra = {}) => {
                 await InviteNewUserToOrganizationService.emit('beforeInviteNewUserToOrganization', {
-                    parent, args, context, info, extra,
+                    parent,
+                    args,
+                    context,
+                    info,
+                    extra,
                 })
 
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
@@ -232,8 +248,8 @@ const InviteNewUserToOrganizationService = new GQLCustomSchema('InviteNewUserToO
                             }
                         `,
                         variables: {
-                            'organizationId': organization.id,
-                            'email': email,
+                            organizationId: organization.id,
+                            email: email,
                         },
                     })
 
@@ -263,7 +279,7 @@ const InviteNewUserToOrganizationService = new GQLCustomSchema('InviteNewUserToO
                             }
                         `,
                         variables: {
-                            'email': email,
+                            email: email,
                         },
                     })
 
@@ -291,8 +307,8 @@ const InviteNewUserToOrganizationService = new GQLCustomSchema('InviteNewUserToO
                             }
                         `,
                         variables: {
-                            'organizationId': organization.id,
-                            'userId': user.id,
+                            organizationId: organization.id,
+                            userId: user.id,
                         },
                     })
 
@@ -322,8 +338,8 @@ const InviteNewUserToOrganizationService = new GQLCustomSchema('InviteNewUserToO
                         }
                     `,
                     variables: {
-                        'data': {
-                            user: (user) ? { connect: { id: user.id } } : undefined,
+                        data: {
+                            user: user ? { connect: { id: user.id } } : undefined,
                             organization: { connect: { id: data.organization.id } },
                             email,
                             name,
@@ -341,7 +357,12 @@ const InviteNewUserToOrganizationService = new GQLCustomSchema('InviteNewUserToO
 
                 const result = await getById('OrganizationToUserLink', createData.obj.id)
                 await InviteNewUserToOrganizationService.emit('afterInviteNewUserToOrganization', {
-                    parent, args, context, info, extra, result,
+                    parent,
+                    args,
+                    context,
+                    info,
+                    extra,
+                    result,
                 })
                 return result
             },
@@ -362,7 +383,11 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
             schema: 'acceptOrRejectOrganizationInviteByCode(code: String!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationToUserLink',
             resolver: async (parent, args, context, info, extra = {}) => {
                 await AcceptOrRejectOrganizationInviteService.emit('beforeAcceptOrRejectOrganizationInviteInput', {
-                    parent, args, context, info, extra,
+                    parent,
+                    args,
+                    context,
+                    info,
+                    extra,
                 })
 
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
@@ -403,7 +428,12 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
 
                 const result = await getById('OrganizationToUserLink', acceptOrRejectData.obj.id)
                 await AcceptOrRejectOrganizationInviteService.emit('afterAcceptOrRejectOrganizationInviteInput', {
-                    parent, args, context, info, extra, result,
+                    parent,
+                    args,
+                    context,
+                    info,
+                    extra,
+                    result,
                 })
                 return result
             },
@@ -413,7 +443,11 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
             schema: 'acceptOrRejectOrganizationInviteById(id: ID!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationToUserLink',
             resolver: async (parent, args, context, info, extra = {}) => {
                 await AcceptOrRejectOrganizationInviteService.emit('beforeAcceptOrRejectOrganizationInviteInput', {
-                    parent, args, context, info, extra,
+                    parent,
+                    args,
+                    context,
+                    info,
+                    extra,
                 })
                 if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
                 const { id, data } = args
@@ -445,7 +479,12 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
 
                 const result = await getById('OrganizationToUserLink', acceptOrRejectData.obj.id)
                 await AcceptOrRejectOrganizationInviteService.emit('afterAcceptOrRejectOrganizationInviteInput', {
-                    parent, args, context, info, extra, result,
+                    parent,
+                    args,
+                    context,
+                    info,
+                    extra,
+                    result,
                 })
                 return result
             },
@@ -453,7 +492,7 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
     ],
 })
 
-function accessAllowOnlyForLinkedUsers ({ authentication: { item: user } }) {
+function accessAllowOnlyForLinkedUsers({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return {}
     return {
@@ -461,7 +500,7 @@ function accessAllowOnlyForLinkedUsers ({ authentication: { item: user } }) {
     }
 }
 
-function connectByIdOnly (obj) {
+function connectByIdOnly(obj) {
     if (!obj) return false
     const keys = Object.keys(obj)
     if (keys.length !== 1) return false
@@ -474,7 +513,7 @@ function connectByIdOnly (obj) {
     return true
 }
 
-async function accessAllowOnlyForRoleOwner ({ operation, authentication: { item: user }, itemId, originalInput }) {
+async function accessAllowOnlyForRoleOwner({ operation, authentication: { item: user }, itemId, originalInput }) {
     if (!user || !user.id) return false
     if (user.isAdmin) return true
     let orgId
@@ -495,7 +534,7 @@ async function accessAllowOnlyForRoleOwner ({ operation, authentication: { item:
     return res.length === 1
 }
 
-async function allowAccessForRoleOwnerForInviteNewUserToOrganizationService ({ authentication: { item: user }, args, context }) {
+async function allowAccessForRoleOwnerForInviteNewUserToOrganizationService({ authentication: { item: user }, args, context }) {
     if (!user || !user.id) return false
     if (user.isAdmin) return true
     if (!args || !args.data || !args.data.organization || !args.data.organization.id) return false
@@ -508,7 +547,11 @@ async function allowAccessForRoleOwnerForInviteNewUserToOrganizationService ({ a
     return res.length === 1
 }
 
-async function allowAccessForOwnInviteForAcceptOrRejectOrganizationInviteService ({ authentication: { item: user }, args, context }) {
+async function allowAccessForOwnInviteForAcceptOrRejectOrganizationInviteService({
+    authentication: { item: user },
+    args,
+    context,
+}) {
     if (!user || !user.id) return false
     if (user.isAdmin) return true
     if (!args || !args.id) return false
@@ -520,7 +563,11 @@ async function allowAccessForOwnInviteForAcceptOrRejectOrganizationInviteService
     return String(link.user) === String(user.id)
 }
 
-async function allowAccessForNotAssignedInvitesForAcceptOrRejectOrganizationInviteService ({ authentication: { item: user }, args, context }) {
+async function allowAccessForNotAssignedInvitesForAcceptOrRejectOrganizationInviteService({
+    authentication: { item: user },
+    args,
+    context,
+}) {
     if (!user || !user.id) return false
     if (user.isAdmin) return true
     if (!args || !args.code) return false

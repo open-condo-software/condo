@@ -8,7 +8,6 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 
-
 const MeterReadingSource = new GQLListSchema('MeterReadingSource', {
     schemaDoc: 'Ticket source. Income call, mobile_app, ...',
     fields: {

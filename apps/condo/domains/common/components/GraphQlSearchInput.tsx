@@ -11,7 +11,6 @@ import { WhereType } from '../utils/tables.utils'
 import throttle from 'lodash/throttle'
 import { isNeedToLoadNewElements } from '../utils/select.utils'
 
-
 type GraphQlSearchInputOption = {
     value: string
     text: string
@@ -22,7 +21,13 @@ export type RenderOptionFunc = (option: GraphQlSearchInputOption) => JSX.Element
 
 // TODO: add apollo cache shape typings
 export interface ISearchInputProps extends SelectProps<string> {
-    search: (client: ApolloClient<Record<string, unknown>>, searchText: string, where?: WhereType, first?: number, skip?: number) => Promise<Array<Record<string, unknown>>>
+    search: (
+        client: ApolloClient<Record<string, unknown>>,
+        searchText: string,
+        where?: WhereType,
+        first?: number,
+        skip?: number,
+    ) => Promise<Array<Record<string, unknown>>>
     onSelect?: (...args: Array<unknown>) => void
     onChange?: (...args: Array<unknown>) => void
     mode?: 'multiple' | 'tags'
@@ -76,13 +81,12 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         )
     }
 
-    const options = renderOptions
-        ? renderOptions(data, renderOption)
-        : data.map((option, index) => renderOption(option, index))
+    const options = renderOptions ? renderOptions(data, renderOption) : data.map((option, index) => renderOption(option, index))
 
-    const getSearchTextValue = useCallback((value) => (selected && (!props.mode || props.mode !== 'multiple')) ?
-        selected + ' ' + value : value,
-    [props.mode, selected])
+    const getSearchTextValue = useCallback(
+        (value) => (selected && (!props.mode || props.mode !== 'multiple') ? selected + ' ' + value : value),
+        [props.mode, selected],
+    )
 
     const loadInitialOptions = useCallback(async () => {
         setLoading(true)
@@ -91,35 +95,31 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         if (Array.isArray(initialValue) && initialValue.length) {
             const initialOptions = await search(client, null, initialValueQuery, initialValue.length)
 
-            setData(data => uniqBy([...initialOptions, ...data], 'value'))
+            setData((data) => uniqBy([...initialOptions, ...data], 'value'))
             setLoading(false)
         }
     }, [initialValue, getInitialValueQuery, client, search])
 
     useEffect(() => {
-        loadInitialOptions()
-            .catch(err => console.error('failed to load initial options', err))
+        loadInitialOptions().catch((err) => console.error('failed to load initial options', err))
     }, [loadInitialOptions])
 
     useEffect(() => {
         handleSearch('')
     }, [])
 
-    async function handleSearch (searchingValue) {
+    async function handleSearch(searchingValue) {
         if (!search) return
         setValue(searchingValue)
         setLoading(true)
 
-        const data = await search(
-            client,
-            getSearchTextValue(searchingValue)
-        )
+        const data = await search(client, getSearchTextValue(searchingValue))
 
         setLoading(false)
         if (data.length) setData(data)
     }
 
-    function handleSelect (value, option) {
+    function handleSelect(value, option) {
         setSelected(option.children)
 
         if (props.mode === 'multiple') {
@@ -131,47 +131,38 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         }
     }
 
-    function handleClear () {
+    function handleClear() {
         setSelected('')
     }
 
-    const searchMoreSuggestions = useCallback(
-        async (value, skip) => {
-            if (isAllDataLoaded) return
+    const searchMoreSuggestions = useCallback(async (value, skip) => {
+        if (isAllDataLoaded) return
 
-            setLoading(true)
-            const data = await search(
-                client,
-                getSearchTextValue(value),
-                null,
-                10,
-                skip
-            )
-            setLoading(false)
+        setLoading(true)
+        const data = await search(client, getSearchTextValue(value), null, 10, skip)
+        setLoading(false)
 
-            if (data.length > 0) {
-                setData(prevData => [...prevData, ...data])
-            } else {
-                setIsAllDataLoaded(true)
+        if (data.length > 0) {
+            setData((prevData) => [...prevData, ...data])
+        } else {
+            setIsAllDataLoaded(true)
+        }
+    }, [])
+
+    const throttledSearchMore = useMemo(() => {
+        return throttle(searchMoreSuggestions, DEBOUNCE_TIMEOUT)
+    }, [searchMoreSuggestions])
+
+    const handleScroll = useCallback(
+        async (scrollEvent) => {
+            const lastElementIdx = String((data || []).length - 1)
+
+            if (isNeedToLoadNewElements(scrollEvent, lastElementIdx, isLoading)) {
+                await throttledSearchMore(value, data.length)
             }
         },
-        [],
+        [data, isLoading, throttledSearchMore, value],
     )
-
-    const throttledSearchMore = useMemo(
-        () => {
-            return throttle(searchMoreSuggestions, DEBOUNCE_TIMEOUT)
-        },
-        [searchMoreSuggestions],
-    )
-
-    const handleScroll = useCallback(async (scrollEvent) => {
-        const lastElementIdx = String((data || []).length - 1)
-
-        if (isNeedToLoadNewElements(scrollEvent, lastElementIdx, isLoading)) {
-            await throttledSearchMore(value, data.length)
-        }
-    }, [data, isLoading, throttledSearchMore, value])
 
     return (
         <Select

@@ -14,7 +14,7 @@ const { REGISTER_CONSUMER_SERVICE_MUTATION } = require('@condo/domains/resident/
 
 const Resident = generateServerUtils(ResidentGQL)
 
-async function registerResident (context, data) {
+async function registerResident(context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
@@ -27,9 +27,8 @@ async function registerResident (context, data) {
     })
 }
 
-
 const ServiceConsumer = generateServerUtils(ServiceConsumerGQL)
-async function registerConsumerService (context, data) {
+async function registerConsumerService(context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
@@ -49,5 +48,5 @@ module.exports = {
     registerResident,
     ServiceConsumer,
     registerConsumerService,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

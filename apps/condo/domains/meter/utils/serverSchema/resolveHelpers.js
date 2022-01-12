@@ -3,7 +3,7 @@ const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { find } = require('@core/keystone/schema')
 
-async function addClientInfoToResidentMeterReading (context, resolvedData) {
+async function addClientInfoToResidentMeterReading(context, resolvedData) {
     const user = get(context, ['req', 'user'])
     const meterId = get(resolvedData, 'meter', null)
     const [meter] = await Meter.getAll(context, { id: meterId })
@@ -15,7 +15,9 @@ async function addClientInfoToResidentMeterReading (context, resolvedData) {
     const residentPhone = user.phone
     const residentEmail = user.email
     const [contact] = await find('Contact', {
-        phone: residentPhone, organization: { id: organizationId }, property: { id: propertyId },
+        phone: residentPhone,
+        organization: { id: organizationId },
+        property: { id: propertyId },
     })
 
     if (!contact) {

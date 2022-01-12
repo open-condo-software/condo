@@ -32,7 +32,9 @@ const EVENT_LIST = new GQLListSchema('Event', {
             factory: () => faker.fake('{{name.firstName}}'),
             type: Text,
             hooks: {
-                validateInput: async (ctx) => {await EVENT_LIST.emit('validateName', ctx)},
+                validateInput: async (ctx) => {
+                    await EVENT_LIST.emit('validateName', ctx)
+                },
             },
         },
     },
@@ -40,7 +42,9 @@ const EVENT_LIST = new GQLListSchema('Event', {
         read: false,
     },
     hooks: {
-        validateInput: async (ctx) => {await EVENT_LIST.emit('validate', ctx)},
+        validateInput: async (ctx) => {
+            await EVENT_LIST.emit('validate', ctx)
+        },
     },
 })
 
@@ -142,8 +146,7 @@ const CALCULATOR_SERVICE = new GQLCustomSchema('CalculatorService', {
 
 test('execute mutation func', async () => {
     const [parent, context, info, extra] = [jest.fn(), jest.fn(), jest.fn(), jest.fn()]
-    const res = await CALCULATOR_SERVICE.schema.mutations[0].resolver(
-        parent, { foo: 2, bar: 2 }, context, info, extra)
+    const res = await CALCULATOR_SERVICE.schema.mutations[0].resolver(parent, { foo: 2, bar: 2 }, context, info, extra)
     expect(res).toEqual(4)
 })
 
@@ -162,7 +165,8 @@ test('registerSchema without preprocessors', () => {
                     read: false,
                 },
             }),
-        }, {
+        },
+        {
             Organization: new GQLListSchema('Organization', {
                 fields: {
                     name: {
@@ -183,28 +187,34 @@ test('registerSchema without preprocessors', () => {
 
     expect(keystone.extendGraphQLSchema.mock.calls).toEqual([])
     expect(keystone.createList.mock.calls).toEqual([
-        ['User', {
-            fields: {
-                name: {
-                    type: Text,
-                    defaultValue: 'username',
+        [
+            'User',
+            {
+                fields: {
+                    name: {
+                        type: Text,
+                        defaultValue: 'username',
+                    },
+                },
+                access: {
+                    read: false,
                 },
             },
-            access: {
-                read: false,
-            },
-        }],
-        ['Organization', {
-            fields: {
-                name: {
-                    type: Text,
-                    defaultValue: 'orgname',
+        ],
+        [
+            'Organization',
+            {
+                fields: {
+                    name: {
+                        type: Text,
+                        defaultValue: 'orgname',
+                    },
+                },
+                access: {
+                    read: false,
                 },
             },
-            access: {
-                read: false,
-            },
-        }],
+        ],
     ])
 })
 
@@ -223,7 +233,8 @@ test('registerSchema with preprocessors', () => {
                     read: false,
                 },
             }),
-        }, {
+        },
+        {
             Organization: new GQLListSchema('Organization', {
                 fields: {
                     name: {
@@ -238,23 +249,23 @@ test('registerSchema with preprocessors', () => {
         },
     ]
 
-    function customPreprocessor1 () {
-        return ((schemaType, name, schema) => {
+    function customPreprocessor1() {
+        return (schemaType, name, schema) => {
             return {
                 ...schema,
                 foo: 'bar',
             }
-        })
+        }
     }
 
-    function customPreprocessor2 () {
-        return ((schemaType, name, schema) => {
+    function customPreprocessor2() {
+        return (schemaType, name, schema) => {
             if (name === 'Organization') schema.access.update = false
             return {
                 ...schema,
                 bar: 'buz',
             }
-        })
+        }
     }
 
     unregisterAllSchemas()
@@ -263,32 +274,38 @@ test('registerSchema with preprocessors', () => {
 
     expect(keystone.extendGraphQLSchema.mock.calls).toEqual([])
     expect(keystone.createList.mock.calls).toEqual([
-        ['User', {
-            fields: {
-                name: {
-                    type: Text,
-                    defaultValue: 'username',
+        [
+            'User',
+            {
+                fields: {
+                    name: {
+                        type: Text,
+                        defaultValue: 'username',
+                    },
                 },
-            },
-            access: {
-                read: false,
-            },
-            foo: 'bar',
-            bar: 'buz',
-        }],
-        ['Organization', {
-            fields: {
-                name: {
-                    type: Text,
-                    defaultValue: 'orgname',
+                access: {
+                    read: false,
                 },
+                foo: 'bar',
+                bar: 'buz',
             },
-            access: {
-                read: false,
-                update: false,
+        ],
+        [
+            'Organization',
+            {
+                fields: {
+                    name: {
+                        type: Text,
+                        defaultValue: 'orgname',
+                    },
+                },
+                access: {
+                    read: false,
+                    update: false,
+                },
+                foo: 'bar',
+                bar: 'buz',
             },
-            foo: 'bar',
-            bar: 'buz',
-        }],
+        ],
     ])
 })

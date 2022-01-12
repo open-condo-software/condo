@@ -8,8 +8,16 @@ const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/u
 const { createTestOrganization } = require('../utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
-const { OrganizationEmployeeRole, createTestOrganizationEmployeeRole, updateTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
-const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const {
+    OrganizationEmployeeRole,
+    createTestOrganizationEmployeeRole,
+    updateTestOrganizationEmployeeRole,
+} = require('@condo/domains/organization/utils/testSchema')
+const {
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj,
+} = require('@condo/domains/common/utils/testSchema')
 const { getTranslations, getAvailableLocales } = require('@condo/domains/common/utils/localesLoader')
 const { DEFAULT_ROLES } = require('../constants/common')
 const { makeClientWithRegisteredOrganization } = require('../utils/testSchema/Organization')
@@ -38,7 +46,6 @@ describe('OrganizationEmployeeRole', () => {
         })
     })
     describe('user: create OrganizationEmployeeRole', () => {
-
         it('can with granted "canManageRoles" permission', async () => {
             const admin = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(admin)
@@ -76,7 +83,6 @@ describe('OrganizationEmployeeRole', () => {
                 await createTestOrganizationEmployeeRole(notManagerUserClient, organization)
             })
         })
-
     })
 
     test('anonymous: create OrganizationEmployeeRole', async () => {
@@ -89,7 +95,6 @@ describe('OrganizationEmployeeRole', () => {
     })
 
     describe('user: read OrganizationEmployeeRole', () => {
-
         it('can only for organization it employed in', async () => {
             const admin = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(admin)
@@ -112,7 +117,6 @@ describe('OrganizationEmployeeRole', () => {
             expect(objs[0].createdAt).toMatch(role.createdAt)
             expect(objs[0].updatedAt).toMatch(role.updatedAt)
         })
-
     })
 
     test('anonymous: read OrganizationEmployeeRole', async () => {
@@ -127,7 +131,6 @@ describe('OrganizationEmployeeRole', () => {
     })
 
     describe('user: update OrganizationEmployeeRole', () => {
-
         it('can with granted "canManageRoles" permission', async () => {
             const admin = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(admin)
@@ -164,7 +167,6 @@ describe('OrganizationEmployeeRole', () => {
                 await updateTestOrganizationEmployeeRole(managerUserClient, role.id)
             })
         })
-
     })
 
     test('anonymous: update OrganizationEmployeeRole', async () => {
@@ -229,7 +231,6 @@ describe('OrganizationEmployeeRole', () => {
     })
 
     test.each(getAvailableLocales())('localization [%s]: static roles has translations', async (locale) => {
-        
         const translations = getTranslations(locale)
 
         const client = await makeClientWithRegisteredOrganization()
@@ -240,10 +241,12 @@ describe('OrganizationEmployeeRole', () => {
         const defaultRolesInstances = await OrganizationEmployeeRole.getAll(client, {
             organization: { id: client.organization.id },
         })
-        Object.values(DEFAULT_ROLES).forEach(staticRole => {
+        Object.values(DEFAULT_ROLES).forEach((staticRole) => {
             const nameTranslation = translations[staticRole.name]
             const descriptionTranslation = translations[staticRole.description]
-            const defaultRoleInstance = Object.values(defaultRolesInstances).find(x => x.name === nameTranslation && x.description === descriptionTranslation)
+            const defaultRoleInstance = Object.values(defaultRolesInstances).find(
+                (x) => x.name === nameTranslation && x.description === descriptionTranslation,
+            )
             expect(defaultRoleInstance).toBeDefined()
         })
     })

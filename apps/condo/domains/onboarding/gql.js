@@ -8,7 +8,8 @@ const { generateGqlQueries } = require('@condo/domains/common/utils/codegenerati
 
 const { gql } = require('graphql-tag')
 
-const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt completed'
+const COMMON_FIELDS =
+    'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt completed'
 
 const ON_BOARDING_FIELDS = `{ completed stepsTransitions ${COMMON_FIELDS} type }`
 const OnBoarding = generateGqlQueries('OnBoarding', ON_BOARDING_FIELDS)
@@ -17,7 +18,7 @@ const ON_BOARDING_STEP_FIELDS = `{ icon title description action entity onBoardi
 const OnBoardingStep = generateGqlQueries('OnBoardingStep', ON_BOARDING_STEP_FIELDS)
 
 const CREATE_ONBOARDING_MUTATION = gql`
-    mutation createOnBoardingByType ($data: CreateOnBoardingInput!) {
+    mutation createOnBoardingByType($data: CreateOnBoardingInput!) {
         result: createOnBoardingByType(data: $data) {
             id
         }
@@ -30,5 +31,5 @@ module.exports = {
     OnBoarding,
     OnBoardingStep,
     CREATE_ONBOARDING_MUTATION,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

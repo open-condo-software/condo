@@ -5,9 +5,15 @@ const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { NUMBER_RE, UUID_RE, DATETIME_RE, makeClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { Ticket, createTestTicket, updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
-const { expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects } = require('@condo/domains/common/utils/testSchema')
+const {
+    expectToThrowAuthenticationErrorToObj,
+    expectToThrowAuthenticationErrorToObjects,
+} = require('@condo/domains/common/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
-const { createTestOrganizationLink, createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
+const {
+    createTestOrganizationLink,
+    createTestOrganizationWithAccessToAnotherOrganization,
+} = require('@condo/domains/organization/utils/testSchema')
 const faker = require('faker')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
@@ -49,7 +55,7 @@ describe('Ticket', () => {
         expect(obj.isEmergency).toEqual(false)
         expect(obj.meta).toEqual(null)
         expect(obj.client).toEqual(null)
-        expect(obj.contact).toEqual(expect.objectContaining({ id: attrs.contact.connect.id } ))
+        expect(obj.contact).toEqual(expect.objectContaining({ id: attrs.contact.connect.id }))
         expect(obj.operator).toEqual(null)
         expect(obj.assignee).toEqual(null)
         expect(obj.executor).toEqual(null)
@@ -259,15 +265,26 @@ describe('Ticket', () => {
         await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
             unitName,
         })
-        await createTestResident(admin, userInOtherProperty.user, userInOtherProperty.organization, userInOtherProperty.property, {
-            unitName,
-        })
+        await createTestResident(
+            admin,
+            userInOtherProperty.user,
+            userInOtherProperty.organization,
+            userInOtherProperty.property,
+            {
+                unitName,
+            },
+        )
         await createTestResident(admin, userInOtherUnit.user, userClient.organization, userClient.property, {
             unitName: unitName2,
         })
-        const [ticketInOtherProperty] = await createTestTicket(userInOtherProperty, userInOtherProperty.organization, userInOtherProperty.property, {
-            unitName,
-        })
+        const [ticketInOtherProperty] = await createTestTicket(
+            userInOtherProperty,
+            userInOtherProperty.organization,
+            userInOtherProperty.property,
+            {
+                unitName,
+            },
+        )
         const [ticketInOtherUnit] = await createTestTicket(userInOtherUnit, userClient.organization, userClient.property, {
             unitName: unitName2,
         })
@@ -346,7 +363,7 @@ describe('Ticket', () => {
         // TODO(pahaz): check others fields ...
     })
 
-    test('user: set ticket assignee', async ()  => {
+    test('user: set ticket assignee', async () => {
         const client = await makeClientWithProperty()
         const [objCreated] = await createTestTicket(client, client.organization, client.property)
 
@@ -416,7 +433,8 @@ describe('Ticket:permissions', () => {
 
     test('employee from "from" organization: can read tickets from "to" organizations', async () => {
         const admin = await makeLoggedInAdminClient()
-        const { clientFrom, organizationTo, propertyTo, organizationFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
+        const { clientFrom, organizationTo, propertyTo, organizationFrom } =
+            await createTestOrganizationWithAccessToAnotherOrganization()
         const clientTo2 = await makeClientWithProperty()
 
         await createTestTicket(admin, organizationTo, propertyTo)
@@ -424,7 +442,9 @@ describe('Ticket:permissions', () => {
 
         await createTestOrganizationLink(admin, organizationFrom, clientTo2.organization)
 
-        const tickets = await Ticket.getAll(clientFrom, { organization: { OR: [{ id: organizationTo.id }, { id: clientTo2.organization.id }] } })
+        const tickets = await Ticket.getAll(clientFrom, {
+            organization: { OR: [{ id: organizationTo.id }, { id: clientTo2.organization.id }] },
+        })
         expect(tickets).toHaveLength(2)
     })
 
@@ -444,13 +464,16 @@ describe('Ticket:permissions', () => {
 
         await createTestTicket(admin, organizationTo, propertyTo)
 
-        const tickets = await Ticket.getAll(clientFrom, { organization: { OR: [{ id: organizationTo.id }, { id: organizationTo1.id }] } })
+        const tickets = await Ticket.getAll(clientFrom, {
+            organization: { OR: [{ id: organizationTo.id }, { id: organizationTo1.id }] },
+        })
         expect(tickets).toHaveLength(0)
     })
 
     test('organization "from" employee with canManageTickets access: can create organization "to" tickets', async () => {
         const admin = await makeLoggedInAdminClient()
-        const { clientFrom, organizationTo, propertyTo, employeeFrom, organizationFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
+        const { clientFrom, organizationTo, propertyTo, employeeFrom, organizationFrom } =
+            await createTestOrganizationWithAccessToAnotherOrganization()
         const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
             canManageTickets: true,
         })
@@ -472,7 +495,8 @@ describe('Ticket:permissions', () => {
 
     test('user: cannot create tickets for "from" or "to" organizations', async () => {
         const admin = await makeLoggedInAdminClient()
-        const { organizationFrom, propertyFrom, organizationTo, propertyTo, employeeFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
+        const { organizationFrom, propertyFrom, organizationTo, propertyTo, employeeFrom } =
+            await createTestOrganizationWithAccessToAnotherOrganization()
         const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
             canManageTickets: true,
         })
@@ -491,7 +515,8 @@ describe('Ticket:permissions', () => {
 
     test('organization "from" employee: can update organization "to" tickets', async () => {
         const admin = await makeLoggedInAdminClient()
-        const { clientFrom, organizationTo, propertyTo, organizationFrom, employeeFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
+        const { clientFrom, organizationTo, propertyTo, organizationFrom, employeeFrom } =
+            await createTestOrganizationWithAccessToAnotherOrganization()
         const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
             canManageTickets: true,
         })
@@ -509,7 +534,8 @@ describe('Ticket:permissions', () => {
 
     test('blocked user: cannot read "to" tickets', async () => {
         const admin = await makeLoggedInAdminClient()
-        const { employeeFrom, clientFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
+        const { employeeFrom, clientFrom, organizationTo, propertyTo } =
+            await createTestOrganizationWithAccessToAnotherOrganization()
         await createTestTicket(admin, organizationTo, propertyTo)
         await updateTestOrganizationEmployee(admin, employeeFrom.id, {
             isBlocked: true,
@@ -519,10 +545,10 @@ describe('Ticket:permissions', () => {
         expect(tickets).toHaveLength(0)
     })
 
-
     test('deleted user: cannot read "to" tickets', async () => {
         const admin = await makeLoggedInAdminClient()
-        const { employeeFrom, clientFrom, organizationFrom, propertyFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
+        const { employeeFrom, clientFrom, organizationFrom, propertyFrom } =
+            await createTestOrganizationWithAccessToAnotherOrganization()
         await createTestTicket(admin, organizationFrom, propertyFrom)
         await updateTestOrganizationEmployee(admin, employeeFrom.id, {
             deletedAt: 'true',
@@ -534,7 +560,8 @@ describe('Ticket:permissions', () => {
 
     test('blocked user: cannot create "to" tickets', async () => {
         const admin = await makeLoggedInAdminClient()
-        const { employeeFrom, clientFrom, organizationTo, propertyTo, organizationFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
+        const { employeeFrom, clientFrom, organizationTo, propertyTo, organizationFrom } =
+            await createTestOrganizationWithAccessToAnotherOrganization()
         const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
             canManageTickets: true,
         })

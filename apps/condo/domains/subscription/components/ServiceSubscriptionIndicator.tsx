@@ -7,24 +7,23 @@ import { green, grey } from '@ant-design/colors'
 import { useServiceSubscriptionContext } from './SubscriptionContext'
 import get from 'lodash/get'
 
-
 const DaysLeftContainer = styled.div`
-  width: 36px;
-  height: 36px;
-  padding: 4px;
-  border-radius: 50%;
-  background-color: ${colors.scampi};
-  box-sizing: border-box;
+    width: 36px;
+    height: 36px;
+    padding: 4px;
+    border-radius: 50%;
+    background-color: ${colors.scampi};
+    box-sizing: border-box;
 `
 
 const DaysLeftWrapper = styled.div`
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background-color: ${colors.white};
-  text-align: center;
-  line-height: 200%;
-  box-sizing: border-box;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: ${colors.white};
+    text-align: center;
+    line-height: 200%;
+    box-sizing: border-box;
 `
 
 export const ServiceSubscriptionIndicator: React.FC = () => {
@@ -37,19 +36,17 @@ export const ServiceSubscriptionIndicator: React.FC = () => {
         return null
     }
 
-    return isExpired
-        ? (<TrialExpiredMessage/>)
-        : (
-            <Tooltip title={TrialDaysDescriptionMessage}>
-                <DaysLeftContainer>
-                    <DaysLeftWrapper>
-                        <Typography.Text strong>
-                            {daysLeft}
-                        </Typography.Text>
-                    </DaysLeftWrapper>
-                </DaysLeftContainer>
-            </Tooltip>
-        )
+    return isExpired ? (
+        <TrialExpiredMessage />
+    ) : (
+        <Tooltip title={TrialDaysDescriptionMessage}>
+            <DaysLeftContainer>
+                <DaysLeftWrapper>
+                    <Typography.Text strong>{daysLeft}</Typography.Text>
+                </DaysLeftWrapper>
+            </DaysLeftContainer>
+        </Tooltip>
+    )
 }
 
 const textStyle = {
@@ -64,10 +61,8 @@ const TrialExpiredMessage: React.FC = () => {
     const PromptMessage = intl.formatMessage({ id: 'subscription.indicator.trial.expired.prompt' })
     return (
         <>
-            <Typography.Text style={textStyle}>
-                {InfoMessage}
-            </Typography.Text>
-            <br/>
+            <Typography.Text style={textStyle}>{InfoMessage}</Typography.Text>
+            <br />
             <Typography.Text style={{ color: green[6] }} strong>
                 {PromptMessage}
             </Typography.Text>

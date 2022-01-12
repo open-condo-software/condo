@@ -9,16 +9,16 @@ class FixMeterReadingsClients {
     context = null
     brokenMeterReadings = []
 
-    async connect () {
+    async connect() {
         const resolved = path.resolve('./index.js')
         const { distDir, keystone, apps } = require(resolved)
-        const graphqlIndex = apps.findIndex(app => app instanceof GraphQLApp)
+        const graphqlIndex = apps.findIndex((app) => app instanceof GraphQLApp)
         await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
         await keystone.connect()
         this.context = await keystone.createContext({ skipAccessControl: true })
     }
 
-    async findBrokenMeterReadings () {
+    async findBrokenMeterReadings() {
         this.brokenMeterReadings = await find('MeterReading', {
             client_is_null: true,
             clientName: null,
@@ -27,13 +27,13 @@ class FixMeterReadingsClients {
         })
     }
 
-    async fixBrokenMeterReadings () {
+    async fixBrokenMeterReadings() {
         if (!get(this.brokenMeterReadings, 'length')) return
         const users = await find('User', {
-            id_in: this.brokenMeterReadings.map(reading => reading.createdBy),
+            id_in: this.brokenMeterReadings.map((reading) => reading.createdBy),
             type: RESIDENT,
         })
-        const usersByIds = Object.assign({}, ...users.map(user => ({ [user.id]: user })))
+        const usersByIds = Object.assign({}, ...users.map((user) => ({ [user.id]: user })))
 
         for (const meterReading of this.brokenMeterReadings) {
             const user = get(usersByIds, meterReading.createdBy)
@@ -56,15 +56,21 @@ const fixMeterReadings = async () => {
     await fixer.connect()
     console.info('[INFO] Finding broken meter readings...')
     await fixer.findBrokenMeterReadings()
-    console.info(`[INFO] Following meter readings will be fixed: [${fixer.brokenMeterReadings.map(reading => `"${reading.id}"`).join(', ')}]`)
+    console.info(
+        `[INFO] Following meter readings will be fixed: [${fixer.brokenMeterReadings
+            .map((reading) => `"${reading.id}"`)
+            .join(', ')}]`,
+    )
     await fixer.fixBrokenMeterReadings()
     console.info('[INFO] Broken meter readings are fixed...')
 }
 
-fixMeterReadings().then(() => {
-    console.log('\r\n')
-    console.log('All done')
-    process.exit(0)
-}).catch((err) => {
-    console.error('Failed to done', err)
-})
+fixMeterReadings()
+    .then(() => {
+        console.log('\r\n')
+        console.log('All done')
+        process.exit(0)
+    })
+    .catch((err) => {
+        console.error('Failed to done', err)
+    })

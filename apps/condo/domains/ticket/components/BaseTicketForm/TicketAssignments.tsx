@@ -10,12 +10,12 @@ import React, { useState } from 'react'
 import { Rule } from 'rc-field-form/lib/interface'
 
 type TicketAssignmentsProps = {
-    validations: { [key: string]: Rule[] },
-    organizationId: string,
-    propertyId: string,
-    disableUserInteraction: boolean,
-    autoAssign: boolean,
-    categoryClassifier: string,
+    validations: { [key: string]: Rule[] }
+    organizationId: string
+    propertyId: string
+    disableUserInteraction: boolean
+    autoAssign: boolean
+    categoryClassifier: string
     form: FormInstance
 }
 
@@ -53,9 +53,7 @@ const TicketAssignments = ({
                             {name} {postfix}
                         </Typography.Text>
                         {matchedSpecialization && (
-                            <Typography.Text type="secondary">
-                                {`(${matchedSpecialization.name.toLowerCase()})`}
-                            </Typography.Text>
+                            <Typography.Text type="secondary">{`(${matchedSpecialization.name.toLowerCase()})`}</Typography.Text>
                         )}
                     </>
                 )}
@@ -63,11 +61,8 @@ const TicketAssignments = ({
         )
     }
 
-    const getTechniciansFrom = (division) => (
-        division.executors.filter(({ specializations }) => (
-            specializations.some(({ id }) => id === categoryClassifier)
-        ))
-    )
+    const getTechniciansFrom = (division) =>
+        division.executors.filter(({ specializations }) => specializations.some(({ id }) => id === categoryClassifier))
 
     const convertToOption = (employee) => ({
         text: employee.name,
@@ -90,51 +85,44 @@ const TicketAssignments = ({
             const techniciansOnDivision = getTechniciansFrom(currentDivision)
             techniciansOnDivisionOptions = techniciansOnDivision.map(convertToOption)
 
-            const techniciansOnOtherDivisions =
-                differenceBy(
-                    uniqBy(
-                        otherDivisions.reduce((acc, otherDivision) => ([
-                            ...acc,
-                            ...getTechniciansFrom(otherDivision),
-                        ]), []),
-                        'id',
-                    ),
-                    techniciansOnDivision,
+            const techniciansOnOtherDivisions = differenceBy(
+                uniqBy(
+                    otherDivisions.reduce((acc, otherDivision) => [...acc, ...getTechniciansFrom(otherDivision)], []),
                     'id',
-                )
+                ),
+                techniciansOnDivision,
+                'id',
+            )
 
             techniciansOnOtherDivisionsOptions = techniciansOnOtherDivisions.map(convertToOption)
         }
 
-        const otherTechniciansOptions = differenceBy(employeeOptions, [
-            ...techniciansOnDivisionOptions,
-            ...techniciansOnOtherDivisionsOptions,
-        ], 'value')
+        const otherTechniciansOptions = differenceBy(
+            employeeOptions,
+            [...techniciansOnDivisionOptions, ...techniciansOnOtherDivisionsOptions],
+            'value',
+        )
 
         const result = []
-        if (!currentDivision || techniciansOnDivisionOptions.length === 0 && techniciansOnOtherDivisionsOptions.length === 0) {
+        if (!currentDivision || (techniciansOnDivisionOptions.length === 0 && techniciansOnOtherDivisionsOptions.length === 0)) {
             result.push(otherTechniciansOptions.map(renderOption))
         } else {
             if (techniciansOnDivisionOptions.length > 0) {
                 result.push(
                     <Select.OptGroup label={ExecutorsOnThisDivisionLabel}>
                         {techniciansOnDivisionOptions.map(renderOption)}
-                    </Select.OptGroup>
+                    </Select.OptGroup>,
                 )
             }
             if (techniciansOnOtherDivisionsOptions.length > 0) {
                 result.push(
                     <Select.OptGroup label={ExecutorsOnOtherDivisionsLabel}>
                         {techniciansOnOtherDivisionsOptions.map(renderOption)}
-                    </Select.OptGroup>
+                    </Select.OptGroup>,
                 )
             }
             if (otherTechniciansOptions.length > 0) {
-                result.push(
-                    <Select.OptGroup label={OtherExecutors}>
-                        {otherTechniciansOptions.map(renderOption)}
-                    </Select.OptGroup>
-                )
+                result.push(<Select.OptGroup label={OtherExecutors}>{otherTechniciansOptions.map(renderOption)}</Select.OptGroup>)
             }
         }
 
@@ -145,7 +133,9 @@ const TicketAssignments = ({
         <Col span={24}>
             <Row justify={'space-between'} gutter={[0, 24]}>
                 <Col span={24}>
-                    <Typography.Title level={5} style={{ margin: '0' }}>{TicketAssignmentTitle}</Typography.Title>
+                    <Typography.Title level={5} style={{ margin: '0' }}>
+                        {TicketAssignmentTitle}
+                    </Typography.Title>
                 </Col>
                 {autoAssign && propertyId && (
                     <Col span={24}>
@@ -162,7 +152,7 @@ const TicketAssignments = ({
                     <Form.Item
                         name={'executor'}
                         rules={validations.executor}
-                        label={<LabelWithInfo title={ExecutorExtra} message={ExecutorLabel}/>}
+                        label={<LabelWithInfo title={ExecutorExtra} message={ExecutorLabel} />}
                     >
                         <GraphQlSearchInput
                             allowClear={false}
@@ -170,9 +160,7 @@ const TicketAssignments = ({
                             disabled={disableUserInteraction}
                             formatLabel={formatUserFieldLabel}
                             renderOptions={renderOptionGroups}
-                            search={searchEmployeeUser(organizationId, ({ role }) => (
-                                get(role, 'canBeAssignedAsExecutor', false)
-                            ))}
+                            search={searchEmployeeUser(organizationId, ({ role }) => get(role, 'canBeAssignedAsExecutor', false))}
                         />
                     </Form.Item>
                 </Col>
@@ -180,16 +168,16 @@ const TicketAssignments = ({
                     <Form.Item
                         name={'assignee'}
                         rules={validations.assignee}
-                        label={<LabelWithInfo title={ResponsibleExtra} message={ResponsibleLabel}/>}
+                        label={<LabelWithInfo title={ResponsibleExtra} message={ResponsibleLabel} />}
                     >
                         <GraphQlSearchInput
                             formatLabel={formatUserFieldLabel}
                             allowClear={false}
                             showArrow={false}
                             disabled={disableUserInteraction}
-                            search={searchEmployeeUser(organizationId, ({ role }) => (
-                                get(role, 'canBeAssignedAsResponsible', false)
-                            ))}
+                            search={searchEmployeeUser(organizationId, ({ role }) =>
+                                get(role, 'canBeAssignedAsResponsible', false),
+                            )}
                         />
                     </Form.Item>
                 </Col>
@@ -198,6 +186,4 @@ const TicketAssignments = ({
     )
 }
 
-export {
-    TicketAssignments,
-}
+export { TicketAssignments }

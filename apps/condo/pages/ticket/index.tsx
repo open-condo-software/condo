@@ -49,12 +49,7 @@ const TAP_BAR_ROW_GUTTER: [Gutter, Gutter] = [0, 20]
 const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.content }
 const TOP_BAR_FIRST_COLUMN_GUTTER: [Gutter, Gutter] = [40, 20]
 
-export const TicketsPageContent = ({
-    tableColumns,
-    searchTicketsQuery,
-    sortBy,
-    filterMetas,
-}) => {
+export const TicketsPageContent = ({ tableColumns, searchTicketsQuery, sortBy, filterMetas }) => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
@@ -73,7 +68,10 @@ export const TicketsPageContent = ({
     const reduceNonEmpty = (cnt, filter) => cnt + Number(Array.isArray(filters[filter]) && filters[filter].length > 0)
     const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
 
-    const { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, FILTER_TABLE_KEYS.TICKET)
+    const { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(
+        filterMetas,
+        FILTER_TABLE_KEYS.TICKET,
+    )
 
     searchTicketsQuery = { ...searchTicketsQuery, ...{ deletedAt: null } }
 
@@ -81,14 +79,17 @@ export const TicketsPageContent = ({
         loading: isTicketsFetching,
         count: total,
         objs: tickets,
-    } = Ticket.useObjects({
-        sortBy: sortBy as SortTicketsBy[],
-        where: searchTicketsQuery,
-        first: DEFAULT_PAGE_SIZE,
-        skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
-    }, {
-        fetchPolicy: 'network-only',
-    })
+    } = Ticket.useObjects(
+        {
+            sortBy: sortBy as SortTicketsBy[],
+            where: searchTicketsQuery,
+            first: DEFAULT_PAGE_SIZE,
+            skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
+        },
+        {
+            fetchPolicy: 'network-only',
+        },
+    )
 
     const loading = isTicketsFetching
 
@@ -111,99 +112,88 @@ export const TicketsPageContent = ({
                 <title>{PageTitleMessage}</title>
             </Head>
             <PageWrapper>
-                <PageHeader title={
-                    <Typography.Title style={PAGE_HEADER_TITLE_STYLES}>{PageTitleMessage}</Typography.Title>
-                }/>
+                <PageHeader title={<Typography.Title style={PAGE_HEADER_TITLE_STYLES}>{PageTitleMessage}</Typography.Title>} />
                 <TablePageContent>
-                    {
-                        isNoTicketsData
-                            ? <EmptyListView
-                                label={EmptyListLabel}
-                                message={EmptyListMessage}
-                                createRoute='/ticket/create'
-                                createLabel={CreateTicket} />
-                            : (
-                                <Row gutter={ROW_GUTTER} align={'middle'} justify={'center'}>
-                                    <Col span={23}>
-                                        <FocusContainer padding={'16px'}>
-                                            <Row justify={'space-between'} gutter={TAP_BAR_ROW_GUTTER}>
-                                                <Col xs={24} lg={15}>
-                                                    <Row gutter={TOP_BAR_FIRST_COLUMN_GUTTER} align={'middle'}>
-                                                        <Col xs={24} lg={11}>
-                                                            <Input
-                                                                placeholder={SearchPlaceholder}
-                                                                onChange={(e) => {
-                                                                    handleSearchChange(e.target.value)
-                                                                }}
-                                                                value={search}
-                                                            />
-                                                        </Col>
-                                                        <Col xs={24} lg={5}>
-                                                            <Checkbox
-                                                                onChange={handleEmergencyChange}
-                                                                checked={emergency}
-                                                                style={CHECKBOX_STYLE}
-                                                            >
-                                                                {EmergenciesLabel}
-                                                            </Checkbox>
-                                                        </Col>
-                                                        <Col xs={24} lg={5}>
-                                                            <Checkbox
-                                                                onChange={handlePaidChange}
-                                                                checked={paid}
-                                                                style={CHECKBOX_STYLE}
-                                                            >
-                                                                {PaidLabel}
-                                                            </Checkbox>
-                                                        </Col>
-                                                    </Row>
+                    {isNoTicketsData ? (
+                        <EmptyListView
+                            label={EmptyListLabel}
+                            message={EmptyListMessage}
+                            createRoute="/ticket/create"
+                            createLabel={CreateTicket}
+                        />
+                    ) : (
+                        <Row gutter={ROW_GUTTER} align={'middle'} justify={'center'}>
+                            <Col span={23}>
+                                <FocusContainer padding={'16px'}>
+                                    <Row justify={'space-between'} gutter={TAP_BAR_ROW_GUTTER}>
+                                        <Col xs={24} lg={15}>
+                                            <Row gutter={TOP_BAR_FIRST_COLUMN_GUTTER} align={'middle'}>
+                                                <Col xs={24} lg={11}>
+                                                    <Input
+                                                        placeholder={SearchPlaceholder}
+                                                        onChange={(e) => {
+                                                            handleSearchChange(e.target.value)
+                                                        }}
+                                                        value={search}
+                                                    />
                                                 </Col>
-                                                <Col>
-                                                    <Row>
-                                                        {
-                                                            appliedFiltersCount > 0 ? (
-                                                                <Col>
-                                                                    <ResetFiltersModalButton
-                                                                        filterTableKey={FILTER_TABLE_KEYS.TICKET}
-                                                                    />
-                                                                </Col>
-                                                            ) : null
-                                                        }
-                                                        <Col>
-                                                            <Button
-                                                                secondary
-                                                                type={'sberPrimary'}
-                                                                onClick={() => setIsMultipleFiltersModalVisible(true)}
-                                                            >
-                                                                <FilterFilled/>
-                                                                {FiltersButtonLabel}
-                                                                {appliedFiltersCount > 0 ? ` (${appliedFiltersCount})` : null}
-                                                            </Button>
-                                                        </Col>
-                                                    </Row>
+                                                <Col xs={24} lg={5}>
+                                                    <Checkbox
+                                                        onChange={handleEmergencyChange}
+                                                        checked={emergency}
+                                                        style={CHECKBOX_STYLE}
+                                                    >
+                                                        {EmergenciesLabel}
+                                                    </Checkbox>
+                                                </Col>
+                                                <Col xs={24} lg={5}>
+                                                    <Checkbox onChange={handlePaidChange} checked={paid} style={CHECKBOX_STYLE}>
+                                                        {PaidLabel}
+                                                    </Checkbox>
                                                 </Col>
                                             </Row>
-                                        </FocusContainer>
-                                    </Col>
-                                    <Col span={24}>
-                                        <Table
-                                            scroll={getTableScrollConfig(isSmall)}
-                                            totalRows={total}
-                                            loading={loading}
-                                            dataSource={tickets}
-                                            columns={tableColumns}
-                                            onRow={handleRowAction}
-                                        />
-                                    </Col>
-                                    <ExportToExcelActionBar
-                                        hidden={isSmall}
-                                        searchObjectsQuery={searchTicketsQuery}
-                                        sortBy={sortBy}
-                                        exportToExcelQuery={EXPORT_TICKETS_TO_EXCEL}
-                                    />
-                                </Row>
-                            )
-                    }
+                                        </Col>
+                                        <Col>
+                                            <Row>
+                                                {appliedFiltersCount > 0 ? (
+                                                    <Col>
+                                                        <ResetFiltersModalButton filterTableKey={FILTER_TABLE_KEYS.TICKET} />
+                                                    </Col>
+                                                ) : null}
+                                                <Col>
+                                                    <Button
+                                                        secondary
+                                                        type={'sberPrimary'}
+                                                        onClick={() => setIsMultipleFiltersModalVisible(true)}
+                                                    >
+                                                        <FilterFilled />
+                                                        {FiltersButtonLabel}
+                                                        {appliedFiltersCount > 0 ? ` (${appliedFiltersCount})` : null}
+                                                    </Button>
+                                                </Col>
+                                            </Row>
+                                        </Col>
+                                    </Row>
+                                </FocusContainer>
+                            </Col>
+                            <Col span={24}>
+                                <Table
+                                    scroll={getTableScrollConfig(isSmall)}
+                                    totalRows={total}
+                                    loading={loading}
+                                    dataSource={tickets}
+                                    columns={tableColumns}
+                                    onRow={handleRowAction}
+                                />
+                            </Col>
+                            <ExportToExcelActionBar
+                                hidden={isSmall}
+                                searchObjectsQuery={searchTicketsQuery}
+                                sortBy={sortBy}
+                                exportToExcelQuery={EXPORT_TICKETS_TO_EXCEL}
+                            />
+                        </Row>
+                    )}
                     <MultipleFiltersModal />
                 </TablePageContent>
             </PageWrapper>
@@ -211,7 +201,18 @@ export const TicketsPageContent = ({
     )
 }
 
-const SORTABLE_PROPERTIES = ['number', 'status', 'order', 'details', 'property', 'unitName', 'assignee', 'executor', 'createdAt', 'clientName']
+const SORTABLE_PROPERTIES = [
+    'number',
+    'status',
+    'order',
+    'details',
+    'property',
+    'unitName',
+    'assignee',
+    'executor',
+    'createdAt',
+    'clientName',
+]
 const TICKETS_DEFAULT_SORT_BY = ['order_ASC', 'createdAt_DESC']
 
 const TicketsPage: ITicketIndexPage = () => {
@@ -244,7 +245,7 @@ const TicketsPage: ITicketIndexPage = () => {
     )
 }
 
-TicketsPage.headerAction = <TitleHeaderAction descriptor={{ id: 'menu.ControlRoom' }}/>
+TicketsPage.headerAction = <TitleHeaderAction descriptor={{ id: 'menu.ControlRoom' }} />
 TicketsPage.requiredAccess = OrganizationRequired
 
 export default TicketsPage

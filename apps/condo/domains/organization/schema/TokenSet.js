@@ -8,7 +8,6 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/organization/access/TokenSet')
 
-
 const TokenSet = new GQLListSchema('TokenSet', {
     schemaDoc: 'Set of oauth tokens from remote systems',
     fields: {
@@ -62,7 +61,6 @@ const TokenSet = new GQLListSchema('TokenSet', {
             type: DateTimeUtc,
             isRequired: true,
         },
-
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {

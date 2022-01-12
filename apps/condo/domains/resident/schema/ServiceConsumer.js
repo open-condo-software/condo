@@ -15,7 +15,6 @@ const access = require('@condo/domains/resident/access/ServiceConsumer')
 
 const { RESIDENT_ORGANIZATION_FIELD } = require('./fields')
 
-
 const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
     schemaDoc: 'Service Consumer object. Existence of this object means that the resident is willing to pay for certain services',
     fields: {
@@ -55,7 +54,9 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
             extendGraphQLTypes: ['type ResidentBillingAccount { id: ID! }'],
             graphQLReturnType: 'ResidentBillingAccount',
             resolver: async (item) => {
-                if (!item.billingAccount) { return null }
+                if (!item.billingAccount) {
+                    return null
+                }
                 const billingAccount = await getById('BillingAccount', item.billingAccount)
                 return pick(billingAccount, ['id'])
             },
@@ -89,9 +90,14 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
             extendGraphQLTypes: ['type ResidentAcquiringIntegrationContext { id: ID!, integration: AcquiringIntegration }'],
             graphQLReturnType: 'ResidentAcquiringIntegrationContext',
             resolver: async (item) => {
-                if (!item.acquiringIntegrationContext) { return null }
+                if (!item.acquiringIntegrationContext) {
+                    return null
+                }
                 const acquiringIntegrationContext = await getById('AcquiringIntegrationContext', item.acquiringIntegrationContext)
-                const acquiringIntegration = await getById('AcquiringIntegration', get(acquiringIntegrationContext, 'integration'))
+                const acquiringIntegration = await getById(
+                    'AcquiringIntegration',
+                    get(acquiringIntegrationContext, 'integration'),
+                )
 
                 const result = pick(acquiringIntegrationContext, ['id', 'integration'])
                 result.integration = acquiringIntegration
@@ -108,7 +114,8 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
         },
 
         organization: {
-            schemaDoc: 'The organization providing the service (performing the work). Payments for the service will eventually be sent to this organization (it is possible that the payment will come to the partner, but in the end some of the money will still come to this organization). This organization may differ from the Resident.organization, which means that the service is provided by another organization',
+            schemaDoc:
+                'The organization providing the service (performing the work). Payments for the service will eventually be sent to this organization (it is possible that the payment will come to the partner, but in the end some of the money will still come to this organization). This organization may differ from the Resident.organization, which means that the service is provided by another organization',
             type: Relationship,
             ref: 'Organization',
             isRequired: true,

@@ -13,7 +13,12 @@ const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const dayjs = require('dayjs')
 const meterReadingDataMapper = require('../utils/serverSchema/meterReadingDataMapper')
 const { EMPTY_DATA_EXPORT_ERROR } = require('@condo/domains/common/constants/errors')
-const { loadMeterReadingsForExcelExport, loadMetersForExcelExport, MeterResource, MeterReadingSource } = require('../utils/serverSchema')
+const {
+    loadMeterReadingsForExcelExport,
+    loadMetersForExcelExport,
+    MeterResource,
+    MeterReadingSource,
+} = require('../utils/serverSchema')
 
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
 
@@ -28,7 +33,7 @@ const ExportMeterReadingsService = new GQLCustomSchema('ExportMeterReadingsServi
             type: 'type ExportMeterReadingsOutput { status: String!, linkToFile: String! }',
         },
     ],
-    
+
     queries: [
         {
             access: access.canExportMeterReadings,
@@ -47,16 +52,16 @@ const ExportMeterReadingsService = new GQLCustomSchema('ExportMeterReadingsServi
                     throw new Error(`${EMPTY_DATA_EXPORT_ERROR}] empty export file`)
                 }
 
-                const meterIds = uniq(meterReadings.map(meterReading => meterReading.meter))
+                const meterIds = uniq(meterReadings.map((meterReading) => meterReading.meter))
                 const meters = await loadMetersForExcelExport({ where: { id_in: meterIds } })
                 const meterResources = await MeterResource.getAll(context, {})
                 const meterReadingSources = await MeterReadingSource.getAll(context, {})
 
-                const mappedMeterReadings = meterReadings.map(meterReading => {
-                    const source = meterReadingSources.find(meterReadingSource => meterReadingSource.id === meterReading.source)
+                const mappedMeterReadings = meterReadings.map((meterReading) => {
+                    const source = meterReadingSources.find((meterReadingSource) => meterReadingSource.id === meterReading.source)
                     const sourceName = get(source, 'name')
-                    const meter = meters.find(meter => meter.id === meterReading.meter)
-                    const resource = meterResources.find(meterResource => meterResource.id === meter.resource)
+                    const meter = meters.find((meter) => meter.id === meterReading.meter)
+                    const resource = meterResources.find((meterResource) => meterResource.id === meter.resource)
                     const resourceName = get(resource, 'name')
 
                     meterReading.source = sourceName
@@ -70,7 +75,7 @@ const ExportMeterReadingsService = new GQLCustomSchema('ExportMeterReadingsServi
                     return meterReading
                 })
 
-                const excelRows = mappedMeterReadings.map(meterReading => {
+                const excelRows = mappedMeterReadings.map((meterReading) => {
                     const { rows } = meterReadingDataMapper({ row: meterReading })
                     return {
                         date: formatDate(rows.date()),
@@ -102,7 +107,6 @@ const ExportMeterReadingsService = new GQLCustomSchema('ExportMeterReadingsServi
             },
         },
     ],
-    
 })
 
 module.exports = {

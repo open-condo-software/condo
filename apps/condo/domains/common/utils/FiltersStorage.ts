@@ -10,7 +10,7 @@ export enum FILTER_TABLE_KEYS {
 }
 
 export class FiltersStorage {
-    private static getFilters (tableKey: FILTER_TABLE_KEYS) {
+    private static getFilters(tableKey: FILTER_TABLE_KEYS) {
         const filters = localStorage.getItem(tableKey)
 
         if (isString(filters)) {
@@ -22,7 +22,7 @@ export class FiltersStorage {
         }
     }
 
-    public static saveFilters (organizationId: string, tableKey: FILTER_TABLE_KEYS, filters: FiltersFromQueryType | string): void {
+    public static saveFilters(organizationId: string, tableKey: FILTER_TABLE_KEYS, filters: FiltersFromQueryType | string): void {
         const oldFilters = this.getFilters(tableKey)
 
         const dataToSave = pickBy({ ...oldFilters, [organizationId]: filters })
@@ -38,7 +38,7 @@ export class FiltersStorage {
         }
     }
 
-    public static async loadFilters (organizationId: string, tableKey: FILTER_TABLE_KEYS, router: NextRouter): Promise<void> {
+    public static async loadFilters(organizationId: string, tableKey: FILTER_TABLE_KEYS, router: NextRouter): Promise<void> {
         const filters = this.getFilters(tableKey)
 
         if (filters) {
@@ -46,7 +46,7 @@ export class FiltersStorage {
         }
     }
 
-    public static clearFilters (organizationId: string, tableKey: FILTER_TABLE_KEYS): void {
+    public static clearFilters(organizationId: string, tableKey: FILTER_TABLE_KEYS): void {
         const oldFilters = this.getFilters(tableKey)
         const newFilters = pickBy(oldFilters, (_, key) => key !== organizationId)
 

@@ -22,9 +22,7 @@ const {
     expectToThrowValidationFailureError,
 } = require('@condo/domains/common/utils/testSchema')
 
-const {
-    createTestBillingIntegration,
-} = require('@condo/domains/billing/utils/testSchema')
+const { createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquiring/constants/errors')
 
 describe('AcquiringIntegrationContext', () => {
@@ -40,7 +38,7 @@ describe('AcquiringIntegrationContext', () => {
                 expect(context).toHaveProperty(['organization', 'id'], organization.id)
                 expect(context).toHaveProperty(['integration', 'id'], integration.id)
             })
-            test('support can\'t', async () => {
+            test("support can't", async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await registerNewOrganization(admin)
                 const [billingIntegration] = await createTestBillingIntegration(admin)
@@ -52,7 +50,7 @@ describe('AcquiringIntegrationContext', () => {
                 })
             })
             describe('user', async () => {
-                test('can with if it\'s integration manager of organization (has `canManageIntegration`)', async () => {
+                test("can with if it's integration manager of organization (has `canManageIntegration`)", async () => {
                     const admin = await makeLoggedInAdminClient()
                     const [organization] = await registerNewOrganization(admin)
                     const [billingIntegration] = await createTestBillingIntegration(admin)
@@ -68,7 +66,7 @@ describe('AcquiringIntegrationContext', () => {
                     expect(context).toHaveProperty(['integration', 'id'], integration.id)
                 })
                 describe('Acquiring integration', () => {
-                    test('if it\'s integration account, and organization was created by it', async () => {
+                    test("if it's integration account, and organization was created by it", async () => {
                         const admin = await makeLoggedInAdminClient()
 
                         const client = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -84,7 +82,7 @@ describe('AcquiringIntegrationContext', () => {
                         expect(context).toHaveProperty(['integration', 'id'], integration.id)
                     })
                     // TODO(DOMA-1700): Add more precise tests after refactoring
-                    describe('Can create context if organization doesn\'t have active context', () => {
+                    describe("Can create context if organization doesn't have active context", () => {
                         test('No active context', async () => {
                             const admin = await makeLoggedInAdminClient()
 
@@ -118,7 +116,7 @@ describe('AcquiringIntegrationContext', () => {
                         })
                     })
                 })
-                test('can\'t in other cases', async () => {
+                test("can't in other cases", async () => {
                     const admin = await makeLoggedInAdminClient()
                     const [organization] = await registerNewOrganization(admin)
                     const [billingIntegration] = await createTestBillingIntegration(admin)
@@ -130,7 +128,7 @@ describe('AcquiringIntegrationContext', () => {
                     })
                 })
             })
-            test('anonymous can\'t', async () => {
+            test("anonymous can't", async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await registerNewOrganization(admin)
                 const [billingIntegration] = await createTestBillingIntegration(admin)
@@ -167,7 +165,7 @@ describe('AcquiringIntegrationContext', () => {
                 expect(contexts).not.toHaveLength(0)
             })
             describe('user', () => {
-                describe('Employee: can see if have permission `canReadPayments` set',  () => {
+                describe('Employee: can see if have permission `canReadPayments` set', () => {
                     test('permission set', async () => {
                         const admin = await makeLoggedInAdminClient()
                         const [organization] = await registerNewOrganization(admin)
@@ -198,7 +196,7 @@ describe('AcquiringIntegrationContext', () => {
                         expect(contexts).toHaveLength(0)
                     })
                 })
-                test('Integration account: only linked to this integration ones',  async () => {
+                test('Integration account: only linked to this integration ones', async () => {
                     const admin = await makeLoggedInAdminClient()
                     const [firstOrganization] = await registerNewOrganization(admin)
                     const [billingIntegration] = await createTestBillingIntegration(admin)
@@ -217,7 +215,7 @@ describe('AcquiringIntegrationContext', () => {
                     expect(contexts).toHaveLength(1)
                     expect(contexts[0].integration.id).toEqual(firstIntegration.id)
                 })
-                test('Can\'t in other cases', async () => {
+                test("Can't in other cases", async () => {
                     const admin = await makeLoggedInAdminClient()
                     const [organization] = await registerNewOrganization(admin)
                     const [billingIntegration] = await createTestBillingIntegration(admin)
@@ -229,7 +227,7 @@ describe('AcquiringIntegrationContext', () => {
                     expect(contexts).toHaveLength(0)
                 })
             })
-            test('anonymous can\'t', async () => {
+            test("anonymous can't", async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await registerNewOrganization(admin)
                 const [billingIntegration] = await createTestBillingIntegration(admin)
@@ -253,12 +251,12 @@ describe('AcquiringIntegrationContext', () => {
 
                 const [newContext] = await updateTestAcquiringIntegrationContext(admin, context.id, {
                     integration: { connect: { id: newIntegration.id } },
-                } )
+                })
 
                 expect(newContext).toBeDefined()
                 expect(newContext.integration.id).toEqual(newIntegration.id)
             })
-            test('support can\'t', async () => {
+            test("support can't", async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await registerNewOrganization(admin)
                 const [billingIntegration] = await createTestBillingIntegration(admin)
@@ -275,7 +273,7 @@ describe('AcquiringIntegrationContext', () => {
                 })
             })
             describe('user', () => {
-                test('can if it\'s acquiring integration account', async () => {
+                test("can if it's acquiring integration account", async () => {
                     const admin = await makeLoggedInAdminClient()
                     const [organization] = await registerNewOrganization(admin)
                     const [billingIntegration] = await createTestBillingIntegration(admin)
@@ -284,13 +282,12 @@ describe('AcquiringIntegrationContext', () => {
                     await createTestAcquiringIntegrationAccessRight(admin, integration, client.user)
                     const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
 
-                    const statePayload = { state:  { dv: 1, myParameter: 'value' } }
+                    const statePayload = { state: { dv: 1, myParameter: 'value' } }
                     const [newContext] = await updateTestAcquiringIntegrationContext(client, context.id, statePayload)
                     expect(newContext).toBeDefined()
                     expect(newContext).toEqual(expect.objectContaining(statePayload))
-
                 })
-                test('can\'t if integration manager (have `canManageIntegration` = true)', async () => {
+                test("can't if integration manager (have `canManageIntegration` = true)", async () => {
                     const admin = await makeLoggedInAdminClient()
                     const [organization] = await registerNewOrganization(admin)
                     const [billingIntegration] = await createTestBillingIntegration(admin)
@@ -308,7 +305,7 @@ describe('AcquiringIntegrationContext', () => {
                         await updateTestAcquiringIntegrationContext(client, context.id, payload)
                     })
                 })
-                test('can\'t in other cases', async () => {
+                test("can't in other cases", async () => {
                     const admin = await makeLoggedInAdminClient()
                     const [organization] = await registerNewOrganization(admin)
                     const [billingIntegration] = await createTestBillingIntegration(admin)
@@ -322,7 +319,7 @@ describe('AcquiringIntegrationContext', () => {
                     })
                 })
             })
-            test('anonymous can\'t', async () => {
+            test("anonymous can't", async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await registerNewOrganization(admin)
                 const [billingIntegration] = await createTestBillingIntegration(admin)
@@ -337,7 +334,7 @@ describe('AcquiringIntegrationContext', () => {
             })
         })
         describe('delete', () => {
-            test('admin can\'t', async () => {
+            test("admin can't", async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await registerNewOrganization(admin)
                 const [billingIntegration] = await createTestBillingIntegration(admin)
@@ -348,7 +345,7 @@ describe('AcquiringIntegrationContext', () => {
                     await AcquiringIntegrationContext.delete(admin, context.id)
                 })
             })
-            test('support can\'t', async () => {
+            test("support can't", async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await registerNewOrganization(admin)
                 const [billingIntegration] = await createTestBillingIntegration(admin)
@@ -360,7 +357,7 @@ describe('AcquiringIntegrationContext', () => {
                     await AcquiringIntegrationContext.delete(support, context.id)
                 })
             })
-            test('user can\'t', async () => {
+            test("user can't", async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await registerNewOrganization(admin)
                 const [billingIntegration] = await createTestBillingIntegration(admin)
@@ -372,7 +369,7 @@ describe('AcquiringIntegrationContext', () => {
                     await AcquiringIntegrationContext.delete(client, context.id)
                 })
             })
-            test('anonymous can\'t', async () => {
+            test("anonymous can't", async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await registerNewOrganization(admin)
                 const [billingIntegration] = await createTestBillingIntegration(admin)

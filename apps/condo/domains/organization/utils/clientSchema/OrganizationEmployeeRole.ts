@@ -8,9 +8,36 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { OrganizationEmployeeRole as OrganizationEmployeeRoleGQL } from '@condo/domains/organization/gql'
-import { OrganizationEmployeeRole, OrganizationEmployeeRoleUpdateInput, QueryAllOrganizationEmployeeRolesArgs } from '@app/condo/schema'
+import {
+    OrganizationEmployeeRole,
+    OrganizationEmployeeRoleUpdateInput,
+    QueryAllOrganizationEmployeeRolesArgs,
+} from '@app/condo/schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'name', 'description', 'statusTransitions', 'canManageOrganization', 'canManageEmployees', 'canManageRoles', 'canManageIntegrations', 'canReadBillingReceipts', 'canReadPayments', 'canManageProperties', 'canManageTickets', 'canManageTicketComments', 'canShareTickets', 'canBeAssignedAsResponsible', 'canBeAssignedAsExecutor']
+const FIELDS = [
+    'id',
+    'deletedAt',
+    'createdAt',
+    'updatedAt',
+    'createdBy',
+    'updatedBy',
+    'organization',
+    'name',
+    'description',
+    'statusTransitions',
+    'canManageOrganization',
+    'canManageEmployees',
+    'canManageRoles',
+    'canManageIntegrations',
+    'canReadBillingReceipts',
+    'canReadPayments',
+    'canManageProperties',
+    'canManageTickets',
+    'canManageTicketComments',
+    'canShareTickets',
+    'canBeAssignedAsResponsible',
+    'canBeAssignedAsExecutor',
+]
 const RELATIONS = ['organization']
 
 export interface IOrganizationEmployeeRoleUIState extends OrganizationEmployeeRole {
@@ -18,7 +45,7 @@ export interface IOrganizationEmployeeRoleUIState extends OrganizationEmployeeRo
     // TODO(codegen): write IOrganizationEmployeeRoleUIState or extends it from
 }
 
-function convertToUIState (item: OrganizationEmployeeRole): IOrganizationEmployeeRoleUIState {
+function convertToUIState(item: OrganizationEmployeeRole): IOrganizationEmployeeRoleUIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
     return pick(item, FIELDS) as IOrganizationEmployeeRoleUIState
 }
@@ -28,22 +55,22 @@ export interface IOrganizationEmployeeRoleFormState {
     // TODO(codegen): write IOrganizationEmployeeRoleUIFormState or extends it from
 }
 
-function convertToUIFormState (state: IOrganizationEmployeeRoleUIState): IOrganizationEmployeeRoleFormState | undefined {
+function convertToUIFormState(state: IOrganizationEmployeeRoleUIState): IOrganizationEmployeeRoleFormState | undefined {
     if (!state) return
     const result = {}
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? attrId || state[attr] : state[attr]
     }
     return result as IOrganizationEmployeeRoleFormState
 }
 
-function convertToGQLInput (state: IOrganizationEmployeeRoleFormState): OrganizationEmployeeRoleUpdateInput {
+function convertToGQLInput(state: IOrganizationEmployeeRoleFormState): OrganizationEmployeeRoleUpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? { connect: { id: attrId || state[attr] } } : state[attr]
     }
     return result
 }
@@ -62,20 +89,12 @@ const convertGQLItemToFormSelectState = (item: OrganizationEmployeeRole): IOrgan
     return { value: id, label: name }
 }
 
-const {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-} = generateReactHooks<OrganizationEmployeeRole, OrganizationEmployeeRoleUpdateInput, IOrganizationEmployeeRoleFormState, IOrganizationEmployeeRoleUIState, QueryAllOrganizationEmployeeRolesArgs>(OrganizationEmployeeRoleGQL, { convertToGQLInput, convertToUIState })
+const { useObject, useObjects, useCreate, useUpdate, useDelete } = generateReactHooks<
+    OrganizationEmployeeRole,
+    OrganizationEmployeeRoleUpdateInput,
+    IOrganizationEmployeeRoleFormState,
+    IOrganizationEmployeeRoleUIState,
+    QueryAllOrganizationEmployeeRolesArgs
+>(OrganizationEmployeeRoleGQL, { convertToGQLInput, convertToUIState })
 
-export {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-    convertToUIFormState,
-    convertGQLItemToFormSelectState,
-}
+export { useObject, useObjects, useCreate, useUpdate, useDelete, convertToUIFormState, convertGQLItemToFormSelectState }

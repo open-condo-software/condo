@@ -40,8 +40,8 @@ const adaptOrganizationMeta = (values) => {
         meta: { v: 1, inn: tin.trim() },
     })
 }
-const findPropByValue = (list, path, value) => list.find(item => get(item, path) === value)
-const prepareFetchParams = userId => ({
+const findPropByValue = (list, path, value) => list.find((item) => get(item, path) === value)
+const prepareFetchParams = (userId) => ({
     user: {
         id: userId,
     },
@@ -79,7 +79,9 @@ const prepareValidators = ({ requiredValidator, changeMessage, minLengthValidato
     ],
 })
 
-export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizationModalFormProps): ICreateOrganizationModalFormResult => {
+export const useCreateOrganizationModalForm = ({
+    onFinish,
+}: IUseCreateOrganizationModalFormProps): ICreateOrganizationModalFormResult => {
     const intl = useIntl()
 
     const ValueIsTooShortMsg = intl.formatMessage({ id: 'ValueIsTooShort' })
@@ -93,7 +95,7 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
 
     const ErrorToFormFieldMsgMapping = React.useMemo(
         () => prepareValidationErrorsMapping({ ValueIsTooShortMsg, TinTooShortMsg, TinValueIsInvalid }),
-        [ValueIsTooShortMsg, TinTooShortMsg, TinValueIsInvalid]
+        [ValueIsTooShortMsg, TinTooShortMsg, TinValueIsInvalid],
     )
 
     const [isVisible, setIsVisible] = useState<boolean>(false)
@@ -104,35 +106,41 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
     const { requiredValidator, minLengthValidator, changeMessage, tinValidator } = useValidations()
     const validators = React.useMemo(
         () => prepareValidators({ requiredValidator, changeMessage, minLengthValidator, TinTooShortMsg, tinValidator }),
-        [requiredValidator, changeMessage, minLengthValidator, TinTooShortMsg, tinValidator]
+        [requiredValidator, changeMessage, minLengthValidator, TinTooShortMsg, tinValidator],
     )
 
     const fetchParams = React.useMemo(() => ({ where: userId ? prepareFetchParams(userId) : {} }), [userId])
     const { fetchMore } = OrganizationEmployee.useObjects(fetchParams, FETCH_OPTIONS)
 
-    const handleFinish = useCallback(async (createResult) => {
-        const id = get(createResult, 'data.obj.id')
-        const data = await fetchMore(prepareFinishFetchParams({ id, userId }))
-        const userLinks = get(data, 'data.objs', [])
+    const handleFinish = useCallback(
+        async (createResult) => {
+            const id = get(createResult, 'data.obj.id')
+            const data = await fetchMore(prepareFinishFetchParams({ id, userId }))
+            const userLinks = get(data, 'data.objs', [])
 
-        if (id) {
-            const newLink = findPropByValue(userLinks, ['organization', 'id'], id)
+            if (id) {
+                const newLink = findPropByValue(userLinks, ['organization', 'id'], id)
 
-            if (newLink) {
-                await selectLink(newLink)
-                setIsVisible(false)
+                if (newLink) {
+                    await selectLink(newLink)
+                    setIsVisible(false)
+                }
             }
-        }
 
-        if (isFunction(onFinish)) onFinish()
+            if (isFunction(onFinish)) onFinish()
 
-        return null
-    }, [userId, selectLink, setIsVisible, fetchMore, onFinish])
+            return null
+        },
+        [userId, selectLink, setIsVisible, fetchMore, onFinish],
+    )
 
-    const handleMutationCompleted = React.useCallback(async (result) => {
-        setIsVisible(false)
-        await handleFinish(result)
-    }, [handleFinish, setIsVisible])
+    const handleMutationCompleted = React.useCallback(
+        async (result) => {
+            setIsVisible(false)
+            await handleFinish(result)
+        },
+        [handleFinish, setIsVisible],
+    )
 
     const handleCloseModal = React.useCallback(() => {
         setIsVisible(false)
@@ -151,15 +159,13 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
             showCancelButton={false}
             validateTrigger={MODAL_VALIDATE_TRIGGERS}
         >
-            <Typography.Paragraph>
-                {CreateOrganizationModalMsg}
-            </Typography.Paragraph>
+            <Typography.Paragraph>{CreateOrganizationModalMsg}</Typography.Paragraph>
 
-            <Form.Item name='name' label={NameMsg} rules={validators.name}>
+            <Form.Item name="name" label={NameMsg} rules={validators.name}>
                 <Input />
             </Form.Item>
 
-            <Form.Item name='tin' style={FORM_ITEM_STYLES} label={InnMessage} rules={validators.tin}>
+            <Form.Item name="tin" style={FORM_ITEM_STYLES} label={InnMessage} rules={validators.tin}>
                 <Input />
             </Form.Item>
         </BaseModalForm>

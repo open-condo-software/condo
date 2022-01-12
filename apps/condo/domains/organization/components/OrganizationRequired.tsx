@@ -11,7 +11,10 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { useRouter } from 'next/router'
 import React, { useEffect } from 'react'
 
-const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions?: boolean }> = ({ children, withEmployeeRestrictions }) => {
+const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions?: boolean }> = ({
+    children,
+    withEmployeeRestrictions,
+}) => {
     const intl = useIntl()
     const EmployeeRestrictedTitle = intl.formatMessage({ id: 'employee.emptyList.title' })
     const EmployeeRestrictedDescription = intl.formatMessage({ id: 'employee.emptyList.description' })
@@ -20,11 +23,10 @@ const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions
     const organization = useOrganization()
     const router = useRouter()
 
-    const { obj: onBoardingHookObj, loading: isOnBoardingLoading } = OnBoardingHooks
-        .useObject(
-            { where: { user: { id: get(user, 'id') } } },
-            { fetchPolicy: 'network-only' },
-        )
+    const { obj: onBoardingHookObj, loading: isOnBoardingLoading } = OnBoardingHooks.useObject(
+        { where: { user: { id: get(user, 'id') } } },
+        { fetchPolicy: 'network-only' },
+    )
 
     const { isLoading, link } = organization
 
@@ -40,15 +42,13 @@ const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions
     let pageView = children
 
     if (isLoading || isLoadingAuth) {
-        pageView = <Loader fill size={'large'}/>
+        pageView = <Loader fill size={'large'} />
     }
 
     if (!link) {
         pageView = (
             <>
-                <Typography.Title style={{ textAlign: 'center' }}>
-                    {SelectOrganizationRequiredMessage}
-                </Typography.Title>
+                <Typography.Title style={{ textAlign: 'center' }}>{SelectOrganizationRequiredMessage}</Typography.Title>
             </>
         )
     }
@@ -59,9 +59,7 @@ const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions
     if (isEmployeeBlocked && withEmployeeRestrictions) {
         pageView = (
             <BasicEmptyListView>
-                <Typography.Title level={3}>
-                    {EmployeeRestrictedTitle}
-                </Typography.Title>
+                <Typography.Title level={3}>{EmployeeRestrictedTitle}</Typography.Title>
                 <Typography.Text>
                     {EmployeeRestrictedDescription}
                     <Typography.Text strong> «{organizationName}».</Typography.Text>
@@ -70,14 +68,13 @@ const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions
         )
     }
 
-    return (
-        <>
-            {pageView}
-        </>
-    )
+    return <>{pageView}</>
 }
 
-export const OrganizationRequired: React.FC<{ withEmployeeRestrictions?: boolean }> = ({ children, withEmployeeRestrictions = true }) => {
+export const OrganizationRequired: React.FC<{ withEmployeeRestrictions?: boolean }> = ({
+    children,
+    withEmployeeRestrictions = true,
+}) => {
     return (
         <AuthRequired>
             <OrganizationRequiredAfterAuthRequired withEmployeeRestrictions={withEmployeeRestrictions}>

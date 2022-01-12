@@ -2,8 +2,10 @@ const sum = require('lodash/sum')
 
 const fieldMapLambda = (row, constants) => {
     const { totalCounts, address } = constants
-    const statusCounts = Object.entries(row).filter(obj => obj[0] === address).map(e => e[1])
-    return (sum(statusCounts) / totalCounts[address] * 100).toFixed(2) + ' %'
+    const statusCounts = Object.entries(row)
+        .filter((obj) => obj[0] === address)
+        .map((e) => e[1])
+    return ((sum(statusCounts) / totalCounts[address]) * 100).toFixed(2) + ' %'
 }
 
 const assigneePercentSingleDataMapper = ({ row = {}, constants = {} }) => ({

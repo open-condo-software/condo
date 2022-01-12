@@ -11,23 +11,24 @@ import { useAuth } from '@core/next/auth'
 const getResponsibleAndExecutorFrom = (divisions, categoryClassifier, defaultResponsibleUserId) => {
     let responsible
     let executor
-    const division = find(divisions, {
-        executors: [
-            {
-                specializations: [
-                    {
-                        id: categoryClassifier,
-                    },
-                ],
-            },
-        ],
-    }) || divisions[0]
+    const division =
+        find(divisions, {
+            executors: [
+                {
+                    specializations: [
+                        {
+                            id: categoryClassifier,
+                        },
+                    ],
+                },
+            ],
+        }) || divisions[0]
     if (division) {
         responsible = division.responsible
         if (categoryClassifier) {
-            executor = division.executors.find(({ specializations }) => (
-                specializations.some(({ id }) => id === categoryClassifier)
-            ))
+            executor = division.executors.find(({ specializations }) =>
+                specializations.some(({ id }) => id === categoryClassifier),
+            )
         } else {
             executor = get(division.executors[0], 'id')
         }
@@ -39,35 +40,51 @@ const getResponsibleAndExecutorFrom = (divisions, categoryClassifier, defaultRes
 }
 
 interface ITicketAutoAssignment {
-    organizationId: string,
-    propertyId: string,
-    categoryClassifier: string,
-    onDivisionsFound: (divisions: DivisionSchema[]) => void,
-    form: FormInstance,
+    organizationId: string
+    propertyId: string
+    categoryClassifier: string
+    onDivisionsFound: (divisions: DivisionSchema[]) => void
+    form: FormInstance
 }
 
-const AutoAssignerByDivisions: React.FC<ITicketAutoAssignment> = ({ organizationId, propertyId, categoryClassifier, onDivisionsFound, form }) => {
+const AutoAssignerByDivisions: React.FC<ITicketAutoAssignment> = ({
+    organizationId,
+    propertyId,
+    categoryClassifier,
+    onDivisionsFound,
+    form,
+}) => {
     const intl = useIntl()
     const FoundOneDivisionMessage = intl.formatMessage({ id: 'ticket.assignments.divisions.found.one' })
     const FoundManyDivisionsMessage = intl.formatMessage({ id: 'ticket.assignments.divisions.found.many' })
     const AssignedResponsibleMessage = intl.formatMessage({ id: 'ticket.assignments.divisions.assigned.responsible' })
     const AssignedExecutorMessage = intl.formatMessage({ id: 'ticket.assignments.divisions.assigned.executor.found' })
-    const SelectCategoryClassifierToAssignExecutorMessage = intl.formatMessage({ id: 'ticket.assignments.divisions.selectCategoryClassifier' })
+    const SelectCategoryClassifierToAssignExecutorMessage = intl.formatMessage({
+        id: 'ticket.assignments.divisions.selectCategoryClassifier',
+    })
     const NotAssignedExecutorMessage = intl.formatMessage({ id: 'ticket.assignments.divisions.assigned.executor.notFound' })
 
     const { user } = useAuth()
     const userId = get(user, 'id', null)
 
-    const { loading, error, objs: divisions, refetch } = Division.useObjects({
-        where: {
-            organization: { id: organizationId },
-            properties_some: {
-                id: propertyId,
+    const {
+        loading,
+        error,
+        objs: divisions,
+        refetch,
+    } = Division.useObjects(
+        {
+            where: {
+                organization: { id: organizationId },
+                properties_some: {
+                    id: propertyId,
+                },
             },
         },
-    }, {
-        fetchPolicy: 'network-only',
-    })
+        {
+            fetchPolicy: 'network-only',
+        },
+    )
 
     const { obj: employee } = OrganizationEmployee.useObject({
         where: {
@@ -84,7 +101,11 @@ const AutoAssignerByDivisions: React.FC<ITicketAutoAssignment> = ({ organization
 
     const defaultResponsibleUserId = employee ? userId : undefined
 
-    const { responsibleUserId, executorUserId } = getResponsibleAndExecutorFrom(divisions, categoryClassifier, defaultResponsibleUserId)
+    const { responsibleUserId, executorUserId } = getResponsibleAndExecutorFrom(
+        divisions,
+        categoryClassifier,
+        defaultResponsibleUserId,
+    )
 
     useEffect(() => {
         form.setFieldsValue({
@@ -94,7 +115,7 @@ const AutoAssignerByDivisions: React.FC<ITicketAutoAssignment> = ({ organization
         onDivisionsFound && onDivisionsFound(divisions || [])
     }, [responsibleUserId, executorUserId, form])
 
-    useEffect(()=> {
+    useEffect(() => {
         refetch()
     }, [categoryClassifier])
 
@@ -120,14 +141,12 @@ const AutoAssignerByDivisions: React.FC<ITicketAutoAssignment> = ({ organization
     let message
     if (divisions.length === 1) {
         const division = divisions[0]
-        message = FoundOneDivisionMessage
-            .replace('{address}', addressWithoutCity)
-            .replace('{division}', division.name)
+        message = FoundOneDivisionMessage.replace('{address}', addressWithoutCity).replace('{division}', division.name)
     } else if (divisions.length > 1) {
-        const divisionNames = map(divisions, 'name').map(name => `«${name}»`).join(', ')
-        message = FoundManyDivisionsMessage
-            .replace('{address}', addressWithoutCity)
-            .replace('{divisions}', divisionNames)
+        const divisionNames = map(divisions, 'name')
+            .map((name) => `«${name}»`)
+            .join(', ')
+        message = FoundManyDivisionsMessage.replace('{address}', addressWithoutCity).replace('{divisions}', divisionNames)
     }
 
     if (responsibleUserId) {
@@ -142,15 +161,7 @@ const AutoAssignerByDivisions: React.FC<ITicketAutoAssignment> = ({ organization
         message += SelectCategoryClassifierToAssignExecutorMessage
     }
 
-    return (
-        <Alert
-            type={executorUserId ? 'info' : 'warning'}
-            message={message}
-            showIcon
-        />
-    )
+    return <Alert type={executorUserId ? 'info' : 'warning'} message={message} showIcon />
 }
 
-export {
-    AutoAssignerByDivisions,
-}
+export { AutoAssignerByDivisions }

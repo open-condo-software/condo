@@ -4,17 +4,18 @@ const { Duplex } = require('stream')
 const path = require('path')
 const { v4: uuid } = require('uuid')
 
-const render = (pathToTemplate, replaces) => new Promise((resolve, reject) => {
-    carbone.render(pathToTemplate, replaces, (err, result) => {
-        if (err) {
-            return reject(err)
-        } else {
-            return resolve(result)
-        }
+const render = (pathToTemplate, replaces) =>
+    new Promise((resolve, reject) => {
+        carbone.render(pathToTemplate, replaces, (err, result) => {
+            if (err) {
+                return reject(err)
+            } else {
+                return resolve(result)
+            }
+        })
     })
-})
 
-async function createExportFile ({ fileName, templatePath, replaces, meta }) {
+async function createExportFile({ fileName, templatePath, replaces, meta }) {
     const ExportFileAdapter = new FileAdapter('export')
     const fileContent = await render(path.resolve(templatePath), replaces)
     const buffer = new Duplex()

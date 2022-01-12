@@ -40,17 +40,11 @@ export const UserPasswordResetButton = () => {
                 const isCountDownActive = countdown > 0
 
                 return (
-                    <Button
-                        onClick={runAction}
-                        type={'inlineLink'}
-                        loading={loading}
-                        disabled={isCountDownActive}
-                    >
+                    <Button onClick={runAction} type={'inlineLink'} loading={loading} disabled={isCountDownActive}>
                         {ChangePasswordLabel}
                         {isCountDownActive && (
                             <Typography.Text type={'secondary'}>
-                                &nbsp;
-                                ({ countdown } {SecondsLabel})
+                                &nbsp; ({countdown} {SecondsLabel})
                             </Typography.Text>
                         )}
                     </Button>

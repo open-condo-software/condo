@@ -8,16 +8,31 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { AcquiringIntegrationContext as AcquiringIntegrationContextGQL } from '@condo/domains/acquiring/gql'
-import { AcquiringIntegrationContext, AcquiringIntegrationContextUpdateInput, QueryAllAcquiringIntegrationContextsArgs } from '../../../../schema'
+import {
+    AcquiringIntegrationContext,
+    AcquiringIntegrationContextUpdateInput,
+    QueryAllAcquiringIntegrationContextsArgs,
+} from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'integration', 'organization', 'settings', 'state']
+const FIELDS = [
+    'id',
+    'deletedAt',
+    'createdAt',
+    'updatedAt',
+    'createdBy',
+    'updatedBy',
+    'integration',
+    'organization',
+    'settings',
+    'state',
+]
 const RELATIONS = ['integration', 'organization']
 
 export interface IAcquiringIntegrationContextUIState extends AcquiringIntegrationContext {
     id: string
 }
 
-function convertToUIState (item: AcquiringIntegrationContext): IAcquiringIntegrationContextUIState {
+function convertToUIState(item: AcquiringIntegrationContext): IAcquiringIntegrationContextUIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
     return pick(item, FIELDS) as IAcquiringIntegrationContextUIState
 }
@@ -26,39 +41,32 @@ export interface IAcquiringIntegrationContextFormState {
     id?: undefined
 }
 
-function convertToUIFormState (state: IAcquiringIntegrationContextUIState): IAcquiringIntegrationContextFormState | undefined {
+function convertToUIFormState(state: IAcquiringIntegrationContextUIState): IAcquiringIntegrationContextFormState | undefined {
     if (!state) return
     const result = {}
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? attrId || state[attr] : state[attr]
     }
     return result as IAcquiringIntegrationContextFormState
 }
 
-function convertToGQLInput (state: IAcquiringIntegrationContextFormState): AcquiringIntegrationContextUpdateInput {
+function convertToGQLInput(state: IAcquiringIntegrationContextFormState): AcquiringIntegrationContextUpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? { connect: { id: attrId || state[attr] } } : state[attr]
     }
     return result
 }
 
-const {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-} = generateReactHooks<AcquiringIntegrationContext, AcquiringIntegrationContextUpdateInput, IAcquiringIntegrationContextFormState, IAcquiringIntegrationContextUIState, QueryAllAcquiringIntegrationContextsArgs>(AcquiringIntegrationContextGQL, { convertToGQLInput, convertToUIState })
+const { useObject, useObjects, useCreate, useUpdate, useDelete } = generateReactHooks<
+    AcquiringIntegrationContext,
+    AcquiringIntegrationContextUpdateInput,
+    IAcquiringIntegrationContextFormState,
+    IAcquiringIntegrationContextUIState,
+    QueryAllAcquiringIntegrationContextsArgs
+>(AcquiringIntegrationContextGQL, { convertToGQLInput, convertToUIState })
 
-export {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-    convertToUIFormState,
-}
+export { useObject, useObjects, useCreate, useUpdate, useDelete, convertToUIFormState }

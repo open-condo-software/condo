@@ -74,15 +74,12 @@ export const UserProfileForm = () => {
                 return (
                     <Row gutter={[0, 40]} justify={'center'}>
                         <Col xs={10} lg={3}>
-                            <UserAvatar borderRadius={24}/>
+                            <UserAvatar borderRadius={24} />
                         </Col>
                         <Col lg={20} offset={isSmall ? 0 : 1}>
                             <Row gutter={[0, 40]}>
                                 <Col span={24}>
-                                    <Typography.Title
-                                        level={1}
-                                        style={{ margin: 0, fontWeight: 'bold' }}
-                                    >
+                                    <Typography.Title level={1} style={{ margin: 0, fontWeight: 'bold' }}>
                                         {ProfileUpdateTitle}
                                     </Typography.Title>
                                 </Col>
@@ -94,7 +91,7 @@ export const UserProfileForm = () => {
                                         label={FullNameLabel}
                                         rules={validations.name}
                                     >
-                                        <Input/>
+                                        <Input />
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
@@ -105,26 +102,18 @@ export const UserProfileForm = () => {
                                         label={EmailLabel}
                                         rules={validations.email}
                                     >
-                                        <Input placeholder={ExampleEmailMessage}/>
+                                        <Input placeholder={ExampleEmailMessage} />
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
                                     <Form.Item {...INPUT_LAYOUT_PROPS} labelAlign={'left'} label={PasswordLabel}>
-                                        <UserPasswordResetButton/>
+                                        <UserPasswordResetButton />
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
                                     <Space size={40} style={{ paddingTop: '36px' }}>
-                                        <FormResetButton
-                                            type={'sberPrimary'}
-                                            secondary
-                                        />
-                                        <Button
-                                            key={'submit'}
-                                            onClick={handleSave}
-                                            type={'sberPrimary'}
-                                            loading={isLoading}
-                                        >
+                                        <FormResetButton type={'sberPrimary'} secondary />
+                                        <Button key={'submit'} onClick={handleSave} type={'sberPrimary'} loading={isLoading}>
                                             {ApplyChangesMessage}
                                         </Button>
                                     </Space>
@@ -137,4 +126,3 @@ export const UserProfileForm = () => {
         </FormWithAction>
     )
 }
-

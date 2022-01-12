@@ -42,7 +42,8 @@ const Organization = new GQLListSchema('Organization', {
         // The reason for this field is to avoid adding check for resident user into global Organization read access.
         // This field have specific use case for mobile client.
         tin: {
-            schemaDoc: 'Taxpayer identification number. Every country has its own identification. Examples: INN for Russia, IIN for Kazakhstan and so on',
+            schemaDoc:
+                'Taxpayer identification number. Every country has its own identification. Examples: INN for Russia, IIN for Kazakhstan and so on',
             type: Virtual,
             resolver: async (item) => {
                 if (!item) return null
@@ -73,8 +74,7 @@ const Organization = new GQLListSchema('Organization', {
             adapter: AVATAR_FILE_ADAPTER,
         },
         meta: {
-            schemaDoc: 'Organization metadata. Depends on country level specific' +
-                'Examples of data keys: `inn`, `kpp`',
+            schemaDoc: 'Organization metadata. Depends on country level specific' + 'Examples of data keys: `inn`, `kpp`',
             type: Json,
             isRequired: true,
             access: userAccess.canAccessToStaffUserField,
@@ -92,7 +92,8 @@ const Organization = new GQLListSchema('Organization', {
             access: userAccess.canAccessToStaffUserField,
         },
         statusTransitions: {
-            schemaDoc: 'Graph of possible transitions for statuses. If there is no transition in this graph, ' +
+            schemaDoc:
+                'Graph of possible transitions for statuses. If there is no transition in this graph, ' +
                 'it is impossible to change status if the user in the role has the right to do so.',
             type: Virtual,
             graphQLReturnType: 'JSON',
@@ -103,7 +104,8 @@ const Organization = new GQLListSchema('Organization', {
             },
         },
         defaultEmployeeRoleStatusTransitions: {
-            schemaDoc: 'Default employee role status transitions map which will be used as fallback for status transition validation' +
+            schemaDoc:
+                'Default employee role status transitions map which will be used as fallback for status transition validation' +
                 'if user dont have OrganizationEmployeeRole',
             type: Virtual,
             graphQLReturnType: 'JSON',

@@ -5,13 +5,17 @@ import { Col, ColProps } from 'antd'
 import { css, jsx } from '@emotion/core'
 
 const statsContainerCss = css`
-  min-width: 175px;
-  &:not(:last-of-type) {
-    border-right: 1px solid ${colors.lightGrey[5]};
-  }
+    min-width: 175px;
+    &:not(:last-of-type) {
+        border-right: 1px solid ${colors.lightGrey[5]};
+    }
 `
 
 export const StatsContainer: React.FC<ColProps> = (props) => {
     const { children, ...allProps } = props
-    return <Col css={statsContainerCss} {...allProps}>{children}</Col>
+    return (
+        <Col css={statsContainerCss} {...allProps}>
+            {children}
+        </Col>
+    )
 }

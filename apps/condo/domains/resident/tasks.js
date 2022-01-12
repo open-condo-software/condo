@@ -14,17 +14,21 @@ const { disconnectResidents, connectResidents } = require('@condo/domains/reside
  * @param propertyId
  * @returns {Promise<void>}
  */
-async function manageResidentToPropertyAndOrganizationConnections (address) {
+async function manageResidentToPropertyAndOrganizationConnections(address) {
     const { keystone: context } = await getSchemaCtx('Property')
 
     //  get oldest non-deleted property with same address
-    const [oldestProperty] = await PropertyAPI.getAll(context, {
-        address_i: address,
-        deletedAt: null,
-    }, {
-        sortBy: 'createdAt_ASC', // sorting order is essential here
-        first: 1,
-    })
+    const [oldestProperty] = await PropertyAPI.getAll(
+        context,
+        {
+            address_i: address,
+            deletedAt: null,
+        },
+        {
+            sortBy: 'createdAt_ASC', // sorting order is essential here
+            first: 1,
+        },
+    )
 
     // This task affects those tests, which somehow connected with property creation, deletion, restoration and address update
     // that causes resident reconnections. So we have to wait here, so that old tests like Meter or MeterReading one
@@ -56,5 +60,8 @@ async function manageResidentToPropertyAndOrganizationConnections (address) {
 }
 
 module.exports = {
-    manageResidentToPropertyAndOrganizationConnections: createTask('manageResidentToPropertyAndOrganizationConnections', manageResidentToPropertyAndOrganizationConnections),
+    manageResidentToPropertyAndOrganizationConnections: createTask(
+        'manageResidentToPropertyAndOrganizationConnections',
+        manageResidentToPropertyAndOrganizationConnections,
+    ),
 }

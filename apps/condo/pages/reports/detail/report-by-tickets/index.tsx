@@ -4,12 +4,7 @@ import { css, jsx } from '@emotion/core'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import Head from 'next/head'
 import { useIntl } from '@core/next/intl'
-import {
-    PageContent,
-    PageHeader,
-    PageWrapper,
-    useLayoutContext,
-} from '@condo/domains/common/components/containers/BaseLayout'
+import { PageContent, PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { Col, Divider, Form, notification, Radio, Row, Select, TableColumnsType, Tabs, Tooltip, Typography } from 'antd'
 import { useOrganization } from '@core/next/organization'
@@ -40,11 +35,7 @@ import {
     ticketAnalyticsPageFilters,
 } from '@condo/domains/ticket/utils/helpers'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
-import {
-    searchEmployeeUser,
-    searchOrganizationProperty,
-    searchProperty,
-} from '@condo/domains/ticket/utils/clientSchema/search'
+import { searchEmployeeUser, searchOrganizationProperty, searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import TicketChartView from '@condo/domains/ticket/components/analytics/TicketChartView'
 import TicketListView from '@condo/domains/ticket/components/analytics/TicketListView'
@@ -86,15 +77,15 @@ const DATE_RANGE_PRESETS = {
 }
 
 const tabsCss = css`
-  & .ant-tabs-tab.ant-tabs-tab-active {
-    font-weight: bold;
-  }
-  & .ant-tabs-nav {
-    margin: 0;
-  }
-  & .ant-tabs-nav::before {
-    border-bottom: unset;
-  }
+    & .ant-tabs-tab.ant-tabs-tab-active {
+        font-weight: bold;
+    }
+    & .ant-tabs-nav {
+        margin: 0;
+    }
+    & .ant-tabs-nav::before {
+        border-bottom: unset;
+    }
 `
 
 interface ITicketTypeSelect {
@@ -113,15 +104,11 @@ const TicketTypeSelect: React.FC<ITicketTypeSelect> = (props) => {
     const TicketTypeEmergency = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Emergency' })
 
     return (
-        <Select
-            value={ticketType}
-            onChange={(e) => setTicketType(e)}
-            disabled={loading}
-        >
-            <Select.Option value='all'>{TicketTypeAll}</Select.Option>
-            <Select.Option value='default'>{TicketTypeDefault}</Select.Option>
-            <Select.Option value='paid'>{TicketTypePaid}</Select.Option>
-            <Select.Option value='emergency'>{TicketTypeEmergency}</Select.Option>
+        <Select value={ticketType} onChange={(e) => setTicketType(e)} disabled={loading}>
+            <Select.Option value="all">{TicketTypeAll}</Select.Option>
+            <Select.Option value="default">{TicketTypeDefault}</Select.Option>
+            <Select.Option value="paid">{TicketTypePaid}</Select.Option>
+            <Select.Option value="emergency">{TicketTypeEmergency}</Select.Option>
         </Select>
     )
 }
@@ -133,10 +120,18 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     const SpecificationTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.SpecificationTitle' })
     const SpecificationDays = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.Specification.Days' })
     const SpecificationWeeks = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.Specification.Weeks' })
-    const AllAddressesPlaceholder = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.AllAddressesPlaceholder' })
-    const AllClassifiersPlaceholder = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.AllClassifiersPlaceholder' })
-    const AllExecutorsPlaceholder = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.AllExecutorsPlaceholder' })
-    const AllResponsiblePlaceholder = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.AllResponsiblePlaceholder' })
+    const AllAddressesPlaceholder = intl.formatMessage({
+        id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.AllAddressesPlaceholder',
+    })
+    const AllClassifiersPlaceholder = intl.formatMessage({
+        id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.AllClassifiersPlaceholder',
+    })
+    const AllExecutorsPlaceholder = intl.formatMessage({
+        id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.AllExecutorsPlaceholder',
+    })
+    const AllResponsiblePlaceholder = intl.formatMessage({
+        id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.AllResponsiblePlaceholder',
+    })
     const AddressTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.AddressTitle' })
     const ClassifierTitle = intl.formatMessage({ id: 'Classifier' })
     const ExecutorTitle = intl.formatMessage({ id: 'field.Executor' })
@@ -152,9 +147,9 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>([dayjs().subtract(1, 'week'), dayjs()])
     const [dateRangePreset, setDateRangePreset] = useState<null | string>(null)
     const [addressList, setAddressList] = useState([])
-    const [classifierList, setClassifierList] = useState<string []>([])
-    const [executorList, setExecutorList] = useState<string []>([])
-    const [responsibleList, setResponsibleList] = useState<string []>([])
+    const [classifierList, setClassifierList] = useState<string[]>([])
+    const [executorList, setExecutorList] = useState<string[]>([])
+    const [responsibleList, setResponsibleList] = useState<string[]>([])
     const addressListRef = useRef([])
     const classifierListRef = useRef([])
     const executorListRef = useRef([])
@@ -164,17 +159,20 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
 
     const updateUrlFilters = useCallback(() => {
         const [startDate, endDate] = dateRange
-        router.push(`${router.route}?` + qs.stringify({
-            createdAt_lte: startDate.format(DATE_DISPLAY_FORMAT),
-            createdAt_gte: endDate.format(DATE_DISPLAY_FORMAT),
-            specification,
-            addressList: JSON.stringify(addressListRef.current),
-            viewMode,
-            groupTicketsBy,
-            classifierList: JSON.stringify(classifierListRef.current),
-            executorList: JSON.stringify(executorListRef.current),
-            responsibleList: JSON.stringify(responsibleListRef.current),
-        }))
+        router.push(
+            `${router.route}?` +
+                qs.stringify({
+                    createdAt_lte: startDate.format(DATE_DISPLAY_FORMAT),
+                    createdAt_gte: endDate.format(DATE_DISPLAY_FORMAT),
+                    specification,
+                    addressList: JSON.stringify(addressListRef.current),
+                    viewMode,
+                    groupTicketsBy,
+                    classifierList: JSON.stringify(classifierListRef.current),
+                    executorList: JSON.stringify(executorListRef.current),
+                    responsibleList: JSON.stringify(responsibleListRef.current),
+                }),
+        )
     }, [dateRange, specification, addressList, responsibleList, responsibleList, classifierList, viewMode, groupTicketsBy])
 
     useEffect(() => {
@@ -189,10 +187,10 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
         const specificationUrl = get(queryParams, 'specification')
         if (startDate && endDate && specificationUrl && addressList) {
             addressListRef.current = addressList
-            setAddressList(addressList.length ? addressList.map(e => e.value) : [])
-            setClassifierList(classifierList.length ? classifierList.map(e => e.value) : [])
-            setExecutorList(executorList.length ? executorList.map(e => e.value) : [])
-            setResponsibleList(responsibleList.length ? responsibleList.map(e => e.value) : [])
+            setAddressList(addressList.length ? addressList.map((e) => e.value) : [])
+            setClassifierList(classifierList.length ? classifierList.map((e) => e.value) : [])
+            setExecutorList(executorList.length ? executorList.map((e) => e.value) : [])
+            setResponsibleList(responsibleList.length ? responsibleList.map((e) => e.value) : [])
             setDateRange(range)
             setSpecification(specificationUrl)
         }
@@ -226,46 +224,56 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
         })
     }, [dateRange, specification, addressList, classifierList, executorList, responsibleList, viewMode, groupTicketsBy])
 
-    const onAddressChange = useCallback((labelsList, searchObjectsList) => {
-        setAddressList(labelsList as string[])
-        addressListRef.current = [...searchObjectsList.map(({ key: id, title: value }) => ({ id, value }))]
-    }, [addressList])
+    const onAddressChange = useCallback(
+        (labelsList, searchObjectsList) => {
+            setAddressList(labelsList as string[])
+            addressListRef.current = [...searchObjectsList.map(({ key: id, title: value }) => ({ id, value }))]
+        },
+        [addressList],
+    )
 
     const classifiersLoader = new ClassifiersQueryRemote(useApolloClient())
 
     const searchClassifiers = (_, input) =>
-        classifiersLoader.search(input, TicketClassifierTypes.category, { first: undefined })
-            .then(result=>result.map((classifier)=> ({ text: classifier.name, value: classifier.id })))
+        classifiersLoader
+            .search(input, TicketClassifierTypes.category, { first: undefined })
+            .then((result) => result.map((classifier) => ({ text: classifier.name, value: classifier.id })))
 
-    const onClassifierChange = useCallback((idList, searchObjectsList) => {
-        setClassifierList(idList)
-        classifierListRef.current = [...searchObjectsList.map(({ key: id, title: value }) => ({ id, value }))]
-    }, [classifierList])
+    const onClassifierChange = useCallback(
+        (idList, searchObjectsList) => {
+            setClassifierList(idList)
+            classifierListRef.current = [...searchObjectsList.map(({ key: id, title: value }) => ({ id, value }))]
+        },
+        [classifierList],
+    )
 
-    const onExecutorChange = useCallback((idList, searchObjectsList) => {
-        setExecutorList(idList)
-        executorListRef.current = [...searchObjectsList.map(({ key: id, title: value }) => ({ id, value }))]
-    }, [executorList])
+    const onExecutorChange = useCallback(
+        (idList, searchObjectsList) => {
+            setExecutorList(idList)
+            executorListRef.current = [...searchObjectsList.map(({ key: id, title: value }) => ({ id, value }))]
+        },
+        [executorList],
+    )
 
-    const onAssigneeChange = useCallback((idList, searchObjectsList) => {
-        setResponsibleList(idList)
-        responsibleListRef.current = [...searchObjectsList.map(({ key: id, title: value }) => ({ id, value }))]
-    }, [responsibleList])
+    const onAssigneeChange = useCallback(
+        (idList, searchObjectsList) => {
+            setResponsibleList(idList)
+            responsibleListRef.current = [...searchObjectsList.map(({ key: id, title: value }) => ({ id, value }))]
+        },
+        [responsibleList],
+    )
 
     return (
         <Form>
             <Row gutter={[0, 40]}>
                 <Col xs={24} sm={12} lg={6}>
                     <Form.Item label={PeriodTitle} {...FORM_ITEM_STYLE}>
-                        <DateRangePicker
-                            value={dateRange}
-                            onChange={(range) => setDateRange(range)}
-                        />
+                        <DateRangePicker value={dateRange} onChange={(range) => setDateRange(range)} />
                         <Typography.Paragraph>
                             <Radio.Group
                                 css={radioButtonBorderlessCss}
                                 size={'small'}
-                                onChange={preset => setDateRangePreset(preset.target.value)}
+                                onChange={(preset) => setDateRangePreset(preset.target.value)}
                             >
                                 <Radio.Button value={'week'}>{PresetWeek}</Radio.Button>
                                 <Radio.Button value={'month'}>{PresetMonth}</Radio.Button>
@@ -294,13 +302,13 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                             infinityScroll
                             value={addressList}
                             onChange={onAddressChange}
-                            maxTagCount='responsive'
+                            maxTagCount="responsive"
                             maxTagTextLength={MAX_TAG_TEXT_LENGTH}
                             placeholder={AllAddressesPlaceholder}
                         />
                     </Form.Item>
                 </Col>
-                { groupTicketsBy === 'categoryClassifier' && (
+                {groupTicketsBy === 'categoryClassifier' && (
                     <Col span={24}>
                         <Form.Item label={ClassifierTitle} {...FORM_ITEM_STYLE}>
                             <GraphQlSearchInput
@@ -308,49 +316,51 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                                 search={searchClassifiers}
                                 mode={'multiple'}
                                 value={classifierList}
-                                maxTagCount='responsive'
+                                maxTagCount="responsive"
                                 onChange={onClassifierChange}
                                 placeholder={AllClassifiersPlaceholder}
                             />
                         </Form.Item>
                     </Col>
                 )}
-                { groupTicketsBy === 'executor' && (
+                {groupTicketsBy === 'executor' && (
                     <Col span={24}>
                         <Form.Item label={ExecutorTitle} {...FORM_ITEM_STYLE}>
                             <GraphQlSearchInput
                                 allowClear
-                                search={searchEmployeeUser(userOrganizationId, ({ role }) => (
-                                    get(role, 'canBeAssignedAsExecutor', false)
-                                ))}
-                                mode='multiple'
+                                search={searchEmployeeUser(userOrganizationId, ({ role }) =>
+                                    get(role, 'canBeAssignedAsExecutor', false),
+                                )}
+                                mode="multiple"
                                 value={executorList}
                                 onChange={onExecutorChange}
-                                maxTagCount='responsive'
+                                maxTagCount="responsive"
                                 placeholder={AllExecutorsPlaceholder}
                             />
                         </Form.Item>
                     </Col>
                 )}
-                { groupTicketsBy === 'assignee' && (
+                {groupTicketsBy === 'assignee' && (
                     <Col span={24}>
                         <Form.Item label={ResponsibleTitle} {...FORM_ITEM_STYLE}>
                             <GraphQlSearchInput
                                 allowClear
-                                search={searchEmployeeUser(userOrganizationId, ({ role }) => (
-                                    get(role, 'canBeAssignedAsResponsible', false)
-                                ))}
-                                mode='multiple'
+                                search={searchEmployeeUser(userOrganizationId, ({ role }) =>
+                                    get(role, 'canBeAssignedAsResponsible', false),
+                                )}
+                                mode="multiple"
                                 value={responsibleList}
                                 onChange={onAssigneeChange}
-                                maxTagCount='responsive'
+                                maxTagCount="responsive"
                                 placeholder={AllResponsiblePlaceholder}
                             />
                         </Form.Item>
                     </Col>
                 )}
                 <Col span={24}>
-                    <Button onClick={applyFilters} type={'sberPrimary'}>{ApplyButtonTitle}</Button>
+                    <Button onClick={applyFilters} type={'sberPrimary'}>
+                        {ApplyButtonTitle}
+                    </Button>
                 </Col>
             </Row>
         </Form>
@@ -366,16 +376,22 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     const PropertyFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Property' })
     const CategoryFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Category' })
     const UserFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.User' })
-    const ResponsibleFilterLabel = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Responsible' })
+    const ResponsibleFilterLabel = intl.formatMessage({
+        id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Responsible',
+    })
     const AllAddresses = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.AllAddresses' })
-    const ManyAddresses = intl.formatMessage({ id:'pages.condo.analytics.TicketAnalyticsPage.ManyAddresses' })
+    const ManyAddresses = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ManyAddresses' })
     const AllAddressTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllAddresses' })
     const SingleAddress = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.SingleAddress' })
     const AllCategories = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.AllCategories' })
-    const AllCategoryClassifiersTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllClassifiers' })
+    const AllCategoryClassifiersTitle = intl.formatMessage({
+        id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllClassifiers',
+    })
     const AllExecutorsTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllExecutors' })
     const AllAssigneesTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllAssignees' })
-    const EmptyCategoryClassifierTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.NullReplaces.CategoryClassifier' })
+    const EmptyCategoryClassifierTitle = intl.formatMessage({
+        id: 'pages.condo.analytics.TicketAnalyticsPage.NullReplaces.CategoryClassifier',
+    })
     const EmptyExecutorTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.NullReplaces.Executor' })
     const EmptyAssigneeTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.NullReplaces.Assignee' })
 
@@ -397,7 +413,8 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     const [excelDownloadLink, setExcelDownloadLink] = useState<null | string>(null)
     const [ticketType, setTicketType] = useState<TicketSelectTypes>('all')
     const [dateFrom, dateTo] = filtersRef.current !== null ? filtersRef.current.range : []
-    const selectedPeriod = filtersRef.current !== null ? filtersRef.current.range.map(e => e.format(DATE_DISPLAY_FORMAT)).join(' - ') : ''
+    const selectedPeriod =
+        filtersRef.current !== null ? filtersRef.current.range.map((e) => e.format(DATE_DISPLAY_FORMAT)).join(' - ') : ''
     const selectedAddresses = filtersRef.current !== null ? filtersRef.current.addressList : []
     const { TicketWarningModal, setIsVisible } = useTicketWarningModal(groupTicketsBy)
     const nullReplaces = {
@@ -407,25 +424,29 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     }
 
     const [loadTicketAnalytics, { loading }] = useLazyQuery(TICKET_ANALYTICS_REPORT_QUERY, {
-        onError: error => {
+        onError: (error) => {
             console.log(error)
             notification.error(error)
         },
         fetchPolicy: 'network-only',
-        onCompleted: response => {
-            const { result: { groups, ticketLabels } } = response
+        onCompleted: (response) => {
+            const {
+                result: { groups, ticketLabels },
+            } = response
             ticketLabelsRef.current = ticketLabels
             setAnalyticsData(groups)
         },
     })
     const [exportTicketAnalyticsToExcel, { loading: isXSLXLoading }] = useLazyQuery(EXPORT_TICKET_ANALYTICS_TO_EXCEL, {
-        onError: error => {
+        onError: (error) => {
             console.log(error)
             notification.error(error)
         },
         fetchPolicy: 'network-only',
-        onCompleted: response => {
-            const { result: { link } } = response
+        onCompleted: (response) => {
+            const {
+                result: { link },
+            } = response
             setExcelDownloadLink(link)
         },
     })
@@ -435,11 +456,14 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
             mapperInstanceRef.current = new TicketChart({
                 line: {
                     chart: (viewMode, ticketGroupedCounter) => {
-                        const { groupBy } = filterToQuery(
-                            { filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy }
-                        )
+                        const { groupBy } = filterToQuery({
+                            filter: filtersRef.current,
+                            viewMode,
+                            ticketType,
+                            mainGroup: groupTicketsBy,
+                        })
                         const data = getAggregatedData(ticketGroupedCounter, groupBy)
-                        const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
+                        const axisLabels = Array.from(new Set(Object.values(data).flatMap((e) => Object.keys(e))))
                         const legend = Object.keys(data)
                         const series = []
                         Object.entries(data).map(([groupBy, dataObj]) => {
@@ -464,27 +488,41 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         return result
                     },
                     table: (viewMode, ticketGroupedCounter, restOptions) => {
-                        const { groupBy } = filterToQuery(
-                            { filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy }
-                        )
+                        const { groupBy } = filterToQuery({
+                            filter: filtersRef.current,
+                            viewMode,
+                            ticketType,
+                            mainGroup: groupTicketsBy,
+                        })
                         const data = getAggregatedData(ticketGroupedCounter, groupBy)
                         const dataSource = []
                         const { translations, filters } = restOptions
                         const tableColumns: TableColumnsType = [
-                            { title: translations['address'], dataIndex: 'address', key: 'address', sorter: (a, b) => a['address'] - b['address'] },
+                            {
+                                title: translations['address'],
+                                dataIndex: 'address',
+                                key: 'address',
+                                sorter: (a, b) => a['address'] - b['address'],
+                            },
                             {
                                 title: translations['date'],
                                 dataIndex: 'date',
                                 key: 'date',
                                 defaultSortOrder: 'descend',
-                                sorter: (a, b) => dayjs(a['date'], DATE_DISPLAY_FORMAT).unix() - dayjs(b['date'], DATE_DISPLAY_FORMAT).unix(),
+                                sorter: (a, b) =>
+                                    dayjs(a['date'], DATE_DISPLAY_FORMAT).unix() - dayjs(b['date'], DATE_DISPLAY_FORMAT).unix(),
                             },
-                            ...Object.entries(data).map(([key]) => ({ title: key, dataIndex: key, key, sorter: (a, b) =>a[key] - b[key] })),
+                            ...Object.entries(data).map(([key]) => ({
+                                title: key,
+                                dataIndex: key,
+                                key,
+                                sorter: (a, b) => a[key] - b[key],
+                            })),
                         ]
-                        const uniqueDates = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
+                        const uniqueDates = Array.from(new Set(Object.values(data).flatMap((e) => Object.keys(e))))
                         uniqueDates.forEach((date, key) => {
                             const restTableColumns = {}
-                            Object.keys(data).forEach(ticketType => (restTableColumns[ticketType] = data[ticketType][date]))
+                            Object.keys(data).forEach((ticketType) => (restTableColumns[ticketType] = data[ticketType][date]))
                             let address = translations['allAddresses']
                             const addressList = get(filters, 'address')
                             if (addressList && addressList.length) {
@@ -497,17 +535,21 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                 },
                 bar: {
                     chart: (viewMode, ticketGroupedCounter) => {
-                        const { groupBy } = filterToQuery(
-                            { filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy }
-                        )
+                        const { groupBy } = filterToQuery({
+                            filter: filtersRef.current,
+                            viewMode,
+                            ticketType,
+                            mainGroup: groupTicketsBy,
+                        })
                         const data = getAggregatedData(ticketGroupedCounter, groupBy, true)
                         const series = []
-                        const axisLabels = Object.keys(data.summary)
-                            .sort((firstLabel, secondLabel) => data.summary[firstLabel] - data.summary[secondLabel])
+                        const axisLabels = Object.keys(data.summary).sort(
+                            (firstLabel, secondLabel) => data.summary[firstLabel] - data.summary[secondLabel],
+                        )
                         const legend = Object.keys(data)
                         Object.entries(data).map(([name, dataObj]) => {
                             const seriesData = []
-                            axisLabels.forEach(axisLabel => {
+                            axisLabels.forEach((axisLabel) => {
                                 seriesData.push(dataObj[axisLabel])
                             })
                             series.push({
@@ -534,15 +576,31 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         return result
                     },
                     table: (viewMode, ticketGroupedCounter, restOptions) => {
-                        const { groupBy } = filterToQuery(
-                            { filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy }
+                        const { groupBy } = filterToQuery({
+                            filter: filtersRef.current,
+                            viewMode,
+                            ticketType,
+                            mainGroup: groupTicketsBy,
+                        })
+                        const data = getAggregatedData(
+                            ticketGroupedCounter,
+                            groupTicketsBy === 'status' ? groupBy.reverse() : groupBy,
                         )
-                        const data = getAggregatedData(ticketGroupedCounter, groupTicketsBy === 'status' ? groupBy.reverse() : groupBy)
                         const { translations, filters } = restOptions
                         const dataSource = []
                         const tableColumns: TableColumnsType = [
-                            { title: translations['address'], dataIndex: 'address', key: 'address', sorter: (a, b) => a['address'] - b['address'] },
-                            ...Object.entries(data).map(([key]) => ({ title: key, dataIndex: key, key, sorter: (a, b) => a[key] - b[key] })),
+                            {
+                                title: translations['address'],
+                                dataIndex: 'address',
+                                key: 'address',
+                                sorter: (a, b) => a['address'] - b['address'],
+                            },
+                            ...Object.entries(data).map(([key]) => ({
+                                title: key,
+                                dataIndex: key,
+                                key,
+                                sorter: (a, b) => a[key] - b[key],
+                            })),
                         ]
 
                         if (TICKET_REPORT_TABLE_MAIN_GROUP.includes(groupBy[1])) {
@@ -556,8 +614,9 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
 
                         const restTableColumns = {}
                         const addressList = get(filters, 'address', [])
-                        const aggregateSummary = [addressList, get(filters, groupBy[1], [])]
-                            .every(filterList => filterList.length === 0)
+                        const aggregateSummary = [addressList, get(filters, groupBy[1], [])].every(
+                            (filterList) => filterList.length === 0,
+                        )
                         if (aggregateSummary) {
                             Object.entries(data).forEach((rowEntry) => {
                                 const [ticketType, dataObj] = rowEntry
@@ -573,15 +632,18 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                 ...restTableColumns,
                             })
                         } else {
-                            const mainAggregation = TICKET_REPORT_TABLE_MAIN_GROUP.includes(groupBy[1]) ? get(filters, groupBy[1], []) : null
+                            const mainAggregation = TICKET_REPORT_TABLE_MAIN_GROUP.includes(groupBy[1])
+                                ? get(filters, groupBy[1], [])
+                                : null
                             // TODO(sitozzz): find clean solution for aggregation by 2 id_in fields
                             if (mainAggregation === null) {
                                 addressList.forEach((address, key) => {
                                     const tableRow = { key, address }
-                                    Object.entries(data).forEach(rowEntry => {
+                                    Object.entries(data).forEach((rowEntry) => {
                                         const [ticketType, dataObj] = rowEntry
                                         const counts = Object.entries(dataObj)
-                                            .filter(obj => obj[0] === address).map(e => e[1]) as number[]
+                                            .filter((obj) => obj[0] === address)
+                                            .map((e) => e[1]) as number[]
                                         tableRow[ticketType] = sum(counts)
                                     })
                                     dataSource.push(tableRow)
@@ -592,10 +654,11 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                     tableRow['address'] = addressList.length
                                         ? addressList.join(', ')
                                         : translations['allAddresses']
-                                    Object.entries(data).forEach(rowEntry => {
+                                    Object.entries(data).forEach((rowEntry) => {
                                         const [ticketType, dataObj] = rowEntry
                                         const counts = Object.entries(dataObj)
-                                            .filter(obj => obj[0] === aggregateField).map(e => e[1]) as number[]
+                                            .filter((obj) => obj[0] === aggregateField)
+                                            .map((e) => e[1]) as number[]
                                         tableRow[ticketType] = sum(counts)
                                     })
                                     dataSource.push(tableRow)
@@ -607,17 +670,19 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                 },
                 pie: {
                     chart: (viewMode, ticketGroupedCounter) => {
-                        const { groupBy } = filterToQuery(
-                            { filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy }
-                        )
+                        const { groupBy } = filterToQuery({
+                            filter: filtersRef.current,
+                            viewMode,
+                            ticketType,
+                            mainGroup: groupTicketsBy,
+                        })
                         const data = getAggregatedData(ticketGroupedCounter, groupBy)
                         const series = []
 
-                        const legend = [...new Set(Object.values(data).flatMap(e => Object.keys(e)))]
+                        const legend = [...new Set(Object.values(data).flatMap((e) => Object.keys(e)))]
                         Object.entries(data).forEach(([label, groupObject]) => {
-                            const chartData = Object.entries(groupObject)
-                                .map(([name, value]) => ({ name, value }))
-                            if (chartData.map(({ value }) => value).some(value => value > 0)) {
+                            const chartData = Object.entries(groupObject).map(([name, value]) => ({ name, value }))
+                            if (chartData.map(({ value }) => value).some((value) => value > 0)) {
                                 series.push({
                                     name: label,
                                     data: chartData,
@@ -635,9 +700,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                         show: true,
                                         fontSize: fontSizes.content,
                                         overflow: 'none',
-                                        formatter: [
-                                            '{value|{b}} {percent|{d} %}',
-                                        ].join('\n'),
+                                        formatter: ['{value|{b}} {percent|{d} %}'].join('\n'),
                                         rich: {
                                             value: {
                                                 fontSize: fontSizes.content,
@@ -652,7 +715,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                             },
                                         },
                                     },
-                                    labelLayout: (chart) =>  {
+                                    labelLayout: (chart) => {
                                         const { dataIndex, seriesIndex } = chart
                                         const elementYOffset = 25 * dataIndex
                                         const yOffset = 75 + 250 * Math.floor(seriesIndex / 2) + 10 + elementYOffset
@@ -669,15 +732,28 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         return { series, legend, color: ticketLabelsRef.current.map(({ color }) => color) }
                     },
                     table: (viewMode, ticketGroupedCounter, restOptions) => {
-                        const { groupBy } = filterToQuery(
-                            { filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy }
-                        )
+                        const { groupBy } = filterToQuery({
+                            filter: filtersRef.current,
+                            viewMode,
+                            ticketType,
+                            mainGroup: groupTicketsBy,
+                        })
                         const data = getAggregatedData(ticketGroupedCounter, groupBy.reverse())
                         const { translations, filters } = restOptions
                         const dataSource = []
                         const tableColumns: TableColumnsType = [
-                            { title: translations['address'], dataIndex: 'address', key: 'address', sorter: (a, b) => a['address'] - b['address'] },
-                            ...Object.entries(data).map(([key]) => ({ title: key, dataIndex: key, key, sorter: (a, b) => a[key] - b[key] })),
+                            {
+                                title: translations['address'],
+                                dataIndex: 'address',
+                                key: 'address',
+                                sorter: (a, b) => a['address'] - b['address'],
+                            },
+                            ...Object.entries(data).map(([key]) => ({
+                                title: key,
+                                dataIndex: key,
+                                key,
+                                sorter: (a, b) => a[key] - b[key],
+                            })),
                         ]
 
                         if (TICKET_REPORT_TABLE_MAIN_GROUP.includes(groupBy[1])) {
@@ -691,18 +767,17 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
 
                         const restTableColumns = {}
                         const addressList = get(filters, 'address', [])
-                        const aggregateSummary = [addressList, get(filters, groupBy[1], [])]
-                            .every(filterList => filterList.length === 0)
+                        const aggregateSummary = [addressList, get(filters, groupBy[1], [])].every(
+                            (filterList) => filterList.length === 0,
+                        )
                         if (aggregateSummary) {
-                            const totalCount = Object.values(data)
-                                .reduce((prev, curr) => prev + sum(Object.values(curr)), 0)
+                            const totalCount = Object.values(data).reduce((prev, curr) => prev + sum(Object.values(curr)), 0)
 
                             Object.entries(data).forEach((rowEntry) => {
                                 const [ticketType, dataObj] = rowEntry
                                 const counts = Object.values(dataObj) as number[]
-                                restTableColumns[ticketType] = totalCount > 0
-                                    ? ((sum(counts) / totalCount) * 100).toFixed(2) + ' %'
-                                    : totalCount
+                                restTableColumns[ticketType] =
+                                    totalCount > 0 ? ((sum(counts) / totalCount) * 100).toFixed(2) + ' %' : totalCount
                             })
                             dataSource.push({
                                 key: 0,
@@ -723,19 +798,23 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                     }
                                 })
                             })
-                            const mainAggregation = TICKET_REPORT_TABLE_MAIN_GROUP.includes(groupBy[1]) ? get(filters, groupBy[1], []) : null
+                            const mainAggregation = TICKET_REPORT_TABLE_MAIN_GROUP.includes(groupBy[1])
+                                ? get(filters, groupBy[1], [])
+                                : null
                             // TODO(sitozzz): find clean solution for aggregation by 2 id_in fields
                             if (mainAggregation === null) {
                                 addressList.forEach((address, key) => {
                                     const tableRow = { key, address }
-                                    Object.entries(data).forEach(rowEntry => {
+                                    Object.entries(data).forEach((rowEntry) => {
                                         const [ticketType, dataObj] = rowEntry
                                         const counts = Object.entries(dataObj)
-                                            .filter(obj => obj[0] === address).map(e => e[1]) as number[]
+                                            .filter((obj) => obj[0] === address)
+                                            .map((e) => e[1]) as number[]
                                         const totalPropertyCount = sum(counts)
-                                        tableRow[ticketType] = totalCounts[address] > 0
-                                            ? (totalPropertyCount / totalCounts[address] * 100).toFixed(2) + ' %'
-                                            : totalCounts[address]
+                                        tableRow[ticketType] =
+                                            totalCounts[address] > 0
+                                                ? ((totalPropertyCount / totalCounts[address]) * 100).toFixed(2) + ' %'
+                                                : totalCounts[address]
                                     })
                                     dataSource.push(tableRow)
                                 })
@@ -745,14 +824,16 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                     tableRow['address'] = addressList.length
                                         ? addressList.join(', ')
                                         : translations['allAddresses']
-                                    Object.entries(data).forEach(rowEntry => {
+                                    Object.entries(data).forEach((rowEntry) => {
                                         const [ticketType, dataObj] = rowEntry
                                         const counts = Object.entries(dataObj)
-                                            .filter(obj => obj[0] === aggregateField).map(e => e[1]) as number[]
+                                            .filter((obj) => obj[0] === aggregateField)
+                                            .map((e) => e[1]) as number[]
                                         const totalPropertyCount = sum(counts)
-                                        tableRow[ticketType] = totalCounts[aggregateField] > 0
-                                            ? (totalPropertyCount / totalCounts[aggregateField] * 100).toFixed(2) + ' %'
-                                            : totalCounts[aggregateField]
+                                        tableRow[ticketType] =
+                                            totalCounts[aggregateField] > 0
+                                                ? ((totalPropertyCount / totalCounts[aggregateField]) * 100).toFixed(2) + ' %'
+                                                : totalCounts[aggregateField]
                                     })
                                     dataSource.push(tableRow)
                                 })
@@ -763,9 +844,12 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                 },
             })
 
-            const { AND, groupBy } = filterToQuery(
-                { filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy }
-            )
+            const { AND, groupBy } = filterToQuery({
+                filter: filtersRef.current,
+                viewMode,
+                ticketType,
+                mainGroup: groupTicketsBy,
+            })
 
             const where = { organization: { id: userOrganizationId }, AND }
             loadTicketAnalytics({ variables: { data: { groupBy, where, nullReplaces } } })
@@ -797,243 +881,252 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
         }
     }, [excelDownloadLink, isXSLXLoading])
 
-    const printPdf = useCallback(
-        () => {
-            let currentFilter
-            switch (groupTicketsBy) {
-                case 'property':
-                    currentFilter = filtersRef.current.addressList
-                    break
-                case 'categoryClassifier':
-                    currentFilter = filtersRef.current.classifierList
-                    break
-                case 'executor':
-                    currentFilter = filtersRef.current.executorList
-                    break
-                case 'assignee':
-                    currentFilter = filtersRef.current.responsibleList
-                    break
-                default:
-                    currentFilter = null
-            }
+    const printPdf = useCallback(() => {
+        let currentFilter
+        switch (groupTicketsBy) {
+            case 'property':
+                currentFilter = filtersRef.current.addressList
+                break
+            case 'categoryClassifier':
+                currentFilter = filtersRef.current.classifierList
+                break
+            case 'executor':
+                currentFilter = filtersRef.current.executorList
+                break
+            case 'assignee':
+                currentFilter = filtersRef.current.responsibleList
+                break
+            default:
+                currentFilter = null
+        }
 
-            const uniqueDataSets = Array.from(new Set(analyticsData.map(ticketCounter => ticketCounter[groupTicketsBy])))
-            const isPdfAvailable = currentFilter === null
-                || uniqueDataSets.length < MAX_FILTERED_ELEMENTS
-                || (currentFilter.length !== 0 && currentFilter.length < MAX_FILTERED_ELEMENTS)
-            if (isPdfAvailable) {
-                router.push(router.route + '/pdf?' + qs.stringify({
-                    dateFrom: dateFrom.toISOString(),
-                    dateTo: dateTo.toISOString(),
-                    groupBy: groupTicketsBy,
-                    ticketType,
-                    viewMode,
-                    addressList: JSON.stringify(filtersRef.current.addressList),
-                    executorList: JSON.stringify(filtersRef.current.executorList),
-                    assigneeList: JSON.stringify(filtersRef.current.responsibleList),
-                    categoryClassifierList: JSON.stringify(filtersRef.current.classifierList),
-                    specification: filtersRef.current.specification,
-                }))
-            } else {
-                setIsVisible(true)
-            }
+        const uniqueDataSets = Array.from(new Set(analyticsData.map((ticketCounter) => ticketCounter[groupTicketsBy])))
+        const isPdfAvailable =
+            currentFilter === null ||
+            uniqueDataSets.length < MAX_FILTERED_ELEMENTS ||
+            (currentFilter.length !== 0 && currentFilter.length < MAX_FILTERED_ELEMENTS)
+        if (isPdfAvailable) {
+            router.push(
+                router.route +
+                    '/pdf?' +
+                    qs.stringify({
+                        dateFrom: dateFrom.toISOString(),
+                        dateTo: dateTo.toISOString(),
+                        groupBy: groupTicketsBy,
+                        ticketType,
+                        viewMode,
+                        addressList: JSON.stringify(filtersRef.current.addressList),
+                        executorList: JSON.stringify(filtersRef.current.executorList),
+                        assigneeList: JSON.stringify(filtersRef.current.responsibleList),
+                        categoryClassifierList: JSON.stringify(filtersRef.current.classifierList),
+                        specification: filtersRef.current.specification,
+                    }),
+            )
+        } else {
+            setIsVisible(true)
+        }
+    }, [ticketType, viewMode, dateFrom, dateTo, groupTicketsBy, userOrganizationId, analyticsData])
+
+    const downloadExcel = useCallback(() => {
+        const { AND, groupBy } = filterToQuery({ filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy })
+        const where = { organization: { id: userOrganizationId }, AND }
+        const filters = filtersRef.current
+        const translates: ExportTicketAnalyticsToExcelTranslates = {
+            property: filters.addressList.length ? filters.addressList.map(({ value }) => value).join('@') : AllAddressTitle,
+            categoryClassifier: filters.classifierList.length
+                ? filters.classifierList.map(({ value }) => value).join('@')
+                : AllCategoryClassifiersTitle,
+            executor: filters.executorList.length ? filters.executorList.map(({ value }) => value).join('@') : AllExecutorsTitle,
+            assignee: filters.responsibleList.length
+                ? filters.responsibleList.map(({ value }) => value).join('@')
+                : AllAssigneesTitle,
+        }
+
+        exportTicketAnalyticsToExcel({ variables: { data: { groupBy, where, translates, nullReplaces } } })
+    }, [ticketType, viewMode, dateFrom, dateTo, groupTicketsBy, userOrganizationId])
+    const onFilterChange: ITicketAnalyticsPageFilterProps['onChange'] = useCallback(
+        (filters) => {
+            setAnalyticsData(null)
+            filtersRef.current = filters
+            getAnalyticsData()
         },
-        [ticketType, viewMode, dateFrom, dateTo, groupTicketsBy, userOrganizationId, analyticsData],
+        [viewMode, ticketType, userOrganizationId, groupTicketsBy, dateFrom, dateTo],
     )
-
-    const downloadExcel = useCallback(
-        () => {
-            const { AND, groupBy } = filterToQuery({ filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy })
-            const where = { organization: { id: userOrganizationId }, AND }
-            const filters = filtersRef.current
-            const translates: ExportTicketAnalyticsToExcelTranslates = {
-                property: filters.addressList.length
-                    ? filters.addressList.map(({ value }) => value).join('@')
-                    : AllAddressTitle,
-                categoryClassifier: filters.classifierList.length
-                    ? filters.classifierList.map(({ value }) => value).join('@')
-                    : AllCategoryClassifiersTitle,
-                executor: filters.executorList.length
-                    ? filters.executorList.map(({ value }) => value).join('@')
-                    : AllExecutorsTitle,
-                assignee: filters.responsibleList.length
-                    ? filters.responsibleList.map(({ value }) => value).join('@')
-                    : AllAssigneesTitle,
-            }
-
-            exportTicketAnalyticsToExcel({ variables: { data: { groupBy, where, translates, nullReplaces } } })
-        },
-        [ticketType, viewMode, dateFrom, dateTo, groupTicketsBy, userOrganizationId],
-    )
-    const onFilterChange: ITicketAnalyticsPageFilterProps['onChange'] = useCallback((filters) => {
-        setAnalyticsData(null)
-        filtersRef.current = filters
-        getAnalyticsData()
-    }, [viewMode, ticketType, userOrganizationId, groupTicketsBy, dateFrom, dateTo])
 
     let addressFilterTitle = selectedAddresses.length === 0 ? AllAddresses : `${SingleAddress} «${selectedAddresses[0].value}»`
     if (selectedAddresses.length > 1) {
         addressFilterTitle = ManyAddresses
     }
 
-    const onTabChange = useCallback((key: GroupTicketsByTypes) => {
-        setAnalyticsData(null)
-        setGroupTicketsBy(key)
-        if (key === 'status') {
-            setViewMode('line')
-        } else {
-            setViewMode('bar')
-        }
-    }, [viewMode, groupTicketsBy])
+    const onTabChange = useCallback(
+        (key: GroupTicketsByTypes) => {
+            setAnalyticsData(null)
+            setGroupTicketsBy(key)
+            if (key === 'status') {
+                setViewMode('line')
+            } else {
+                setViewMode('bar')
+            }
+        },
+        [viewMode, groupTicketsBy],
+    )
 
     const isControlsDisabled = loading || isXSLXLoading || filtersRef.current === null
 
-    return <>
-        <Head>
-            <title>{PageTitle}</title>
-        </Head>
-        <PageWrapper>
-            <PageContent>
-                <Row gutter={[0, 40]}>
-                    <Col xs={24} sm={18}>
-                        <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>} />
-                    </Col>
-                    <Col span={6} hidden={isSmall}>
-                        <Tooltip title={NotImplementedYetMessage}>
-                            <Button icon={<PlusCircleFilled />} type='sberPrimary' secondary>{HeaderButtonTitle}</Button>
-                        </Tooltip>
-                    </Col>
-                </Row>
-                <Row gutter={[0, 24]} align={'top'} justify={'space-between'}>
-                    <Col span={24}>
-                        <Tabs
-                            css={tabsCss}
-                            defaultActiveKey='status'
-                            activeKey={groupTicketsBy}
-                            onChange={onTabChange}
-                        >
-                            <Tabs.TabPane key='status' tab={StatusFilterLabel} />
-                            <Tabs.TabPane key='property' tab={PropertyFilterLabel} />
-                            <Tabs.TabPane key='categoryClassifier' tab={CategoryFilterLabel} />
-                            <Tabs.TabPane key='executor' tab={UserFilterLabel} />
-                            <Tabs.TabPane key='assignee' tab={ResponsibleFilterLabel} />
-                        </Tabs>
-                    </Col>
-                    <Col span={24}>
-                        <Row justify={'space-between'} gutter={[0, 20]}>
-                            <Col span={24}>
-                                <TicketAnalyticsPageFilter
-                                    onChange={onFilterChange}
-                                    viewMode={viewMode}
-                                    groupTicketsBy={groupTicketsBy}
-                                />
-                            </Col>
-                            <Col span={24}>
-                                <Divider/>
-                            </Col>
-                            <Col xs={24} lg={16}>
-                                <Typography.Title level={3}>
-                                    {ViewModeTitle} {selectedPeriod} {addressFilterTitle} {AllCategories}
-                                </Typography.Title>
-                            </Col>
-                            <Col xs={12} lg={3}>
-                                <RadioGroupWithIcon
-                                    value={viewMode}
-                                    size='small'
-                                    buttonStyle='outline'
-                                    onChange={(e) => setViewMode(e.target.value)}
-                                >
-                                    {groupTicketsBy === 'status' && (
-                                        <Radio.Button value='line'>
-                                            <LinearChartIcon height={32} width={24} />
-                                        </Radio.Button>
-                                    )}
-                                    <Radio.Button value='bar'>
-                                        <BarChartIcon height={32} width={24} />
-                                    </Radio.Button>
-                                    {groupTicketsBy !== 'status' && (
-                                        <Radio.Button value='pie'>
-                                            <PieChartIcon height={32} width={24} />
-                                        </Radio.Button>
-                                    )}
-                                </RadioGroupWithIcon>
-                            </Col>
-                            <Col
-                                xs={8}
-                                hidden={!isSmall}
-                            >
-                                <TicketTypeSelect
-                                    ticketType={ticketType}
-                                    setTicketType={setTicketType}
-                                    loading={loading}
-                                />
-                            </Col>
-                        </Row>
-                    </Col>
-                    <Col span={24}>
-                        {useMemo(() => (
-                            <TicketChartView
-                                data={analyticsData}
-                                loading={loading}
-                                viewMode={viewMode}
-                                mainGroup={groupTicketsBy}
-                                chartConfig={{
-                                    animationEnabled: true,
-                                    chartOptions: { renderer: 'svg', height: viewMode === 'line' ? 440 : 'auto' },
-                                }}
-                                mapperInstance={mapperInstanceRef.current}
-                            >
-                                <Col
-                                    style={{ position: 'absolute', top: 0, right: 0, minWidth: '132px' }}
-                                    hidden={isSmall}
-                                >
-                                    <TicketTypeSelect
-                                        ticketType={ticketType}
-                                        setTicketType={setTicketType}
-                                        loading={loading}
+    return (
+        <>
+            <Head>
+                <title>{PageTitle}</title>
+            </Head>
+            <PageWrapper>
+                <PageContent>
+                    <Row gutter={[0, 40]}>
+                        <Col xs={24} sm={18}>
+                            <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>} />
+                        </Col>
+                        <Col span={6} hidden={isSmall}>
+                            <Tooltip title={NotImplementedYetMessage}>
+                                <Button icon={<PlusCircleFilled />} type="sberPrimary" secondary>
+                                    {HeaderButtonTitle}
+                                </Button>
+                            </Tooltip>
+                        </Col>
+                    </Row>
+                    <Row gutter={[0, 24]} align={'top'} justify={'space-between'}>
+                        <Col span={24}>
+                            <Tabs css={tabsCss} defaultActiveKey="status" activeKey={groupTicketsBy} onChange={onTabChange}>
+                                <Tabs.TabPane key="status" tab={StatusFilterLabel} />
+                                <Tabs.TabPane key="property" tab={PropertyFilterLabel} />
+                                <Tabs.TabPane key="categoryClassifier" tab={CategoryFilterLabel} />
+                                <Tabs.TabPane key="executor" tab={UserFilterLabel} />
+                                <Tabs.TabPane key="assignee" tab={ResponsibleFilterLabel} />
+                            </Tabs>
+                        </Col>
+                        <Col span={24}>
+                            <Row justify={'space-between'} gutter={[0, 20]}>
+                                <Col span={24}>
+                                    <TicketAnalyticsPageFilter
+                                        onChange={onFilterChange}
+                                        viewMode={viewMode}
+                                        groupTicketsBy={groupTicketsBy}
                                     />
                                 </Col>
-                            </TicketChartView>
-                        ), [analyticsData, loading, viewMode, ticketType, userOrganizationId, groupTicketsBy, isSmall])}
-                    </Col>
-                    <Col span={24}>
-                        <Row gutter={[0, 20]}>
-                            <Col span={24}>
-                                <Typography.Title level={4}>{TableTitle}</Typography.Title>
-                            </Col>
-                            <Col span={24}>
-                                {useMemo(() => (
-                                    <TicketListView
+                                <Col span={24}>
+                                    <Divider />
+                                </Col>
+                                <Col xs={24} lg={16}>
+                                    <Typography.Title level={3}>
+                                        {ViewModeTitle} {selectedPeriod} {addressFilterTitle} {AllCategories}
+                                    </Typography.Title>
+                                </Col>
+                                <Col xs={12} lg={3}>
+                                    <RadioGroupWithIcon
+                                        value={viewMode}
+                                        size="small"
+                                        buttonStyle="outline"
+                                        onChange={(e) => setViewMode(e.target.value)}
+                                    >
+                                        {groupTicketsBy === 'status' && (
+                                            <Radio.Button value="line">
+                                                <LinearChartIcon height={32} width={24} />
+                                            </Radio.Button>
+                                        )}
+                                        <Radio.Button value="bar">
+                                            <BarChartIcon height={32} width={24} />
+                                        </Radio.Button>
+                                        {groupTicketsBy !== 'status' && (
+                                            <Radio.Button value="pie">
+                                                <PieChartIcon height={32} width={24} />
+                                            </Radio.Button>
+                                        )}
+                                    </RadioGroupWithIcon>
+                                </Col>
+                                <Col xs={8} hidden={!isSmall}>
+                                    <TicketTypeSelect ticketType={ticketType} setTicketType={setTicketType} loading={loading} />
+                                </Col>
+                            </Row>
+                        </Col>
+                        <Col span={24}>
+                            {useMemo(
+                                () => (
+                                    <TicketChartView
                                         data={analyticsData}
                                         loading={loading}
                                         viewMode={viewMode}
-                                        filters={filtersRef.current}
+                                        mainGroup={groupTicketsBy}
+                                        chartConfig={{
+                                            animationEnabled: true,
+                                            chartOptions: { renderer: 'svg', height: viewMode === 'line' ? 440 : 'auto' },
+                                        }}
                                         mapperInstance={mapperInstanceRef.current}
-                                    />
-                                ), [analyticsData, loading, viewMode, ticketType, userOrganizationId, groupTicketsBy])}
-                            </Col>
-                        </Row>
-                    </Col>
-                    <ActionBar fullscreen hidden={isSmall}>
-                        <Button disabled={isControlsDisabled || isEmpty(analyticsData)} onClick={printPdf} icon={<FilePdfFilled />} type='sberPrimary' secondary>
-                            {PrintTitle}
-                        </Button>
-                        <Button disabled={isControlsDisabled || isEmpty(analyticsData)} onClick={downloadExcel} loading={isXSLXLoading} icon={<EditFilled />} type='sberPrimary' secondary>
-                            {ExcelTitle}
-                        </Button>
-                    </ActionBar>
-                </Row>
-                <TicketWarningModal />
-            </PageContent>
-        </PageWrapper>
-    </>
+                                    >
+                                        <Col
+                                            style={{ position: 'absolute', top: 0, right: 0, minWidth: '132px' }}
+                                            hidden={isSmall}
+                                        >
+                                            <TicketTypeSelect
+                                                ticketType={ticketType}
+                                                setTicketType={setTicketType}
+                                                loading={loading}
+                                            />
+                                        </Col>
+                                    </TicketChartView>
+                                ),
+                                [analyticsData, loading, viewMode, ticketType, userOrganizationId, groupTicketsBy, isSmall],
+                            )}
+                        </Col>
+                        <Col span={24}>
+                            <Row gutter={[0, 20]}>
+                                <Col span={24}>
+                                    <Typography.Title level={4}>{TableTitle}</Typography.Title>
+                                </Col>
+                                <Col span={24}>
+                                    {useMemo(
+                                        () => (
+                                            <TicketListView
+                                                data={analyticsData}
+                                                loading={loading}
+                                                viewMode={viewMode}
+                                                filters={filtersRef.current}
+                                                mapperInstance={mapperInstanceRef.current}
+                                            />
+                                        ),
+                                        [analyticsData, loading, viewMode, ticketType, userOrganizationId, groupTicketsBy],
+                                    )}
+                                </Col>
+                            </Row>
+                        </Col>
+                        <ActionBar fullscreen hidden={isSmall}>
+                            <Button
+                                disabled={isControlsDisabled || isEmpty(analyticsData)}
+                                onClick={printPdf}
+                                icon={<FilePdfFilled />}
+                                type="sberPrimary"
+                                secondary
+                            >
+                                {PrintTitle}
+                            </Button>
+                            <Button
+                                disabled={isControlsDisabled || isEmpty(analyticsData)}
+                                onClick={downloadExcel}
+                                loading={isXSLXLoading}
+                                icon={<EditFilled />}
+                                type="sberPrimary"
+                                secondary
+                            >
+                                {ExcelTitle}
+                            </Button>
+                        </ActionBar>
+                    </Row>
+                    <TicketWarningModal />
+                </PageContent>
+            </PageWrapper>
+        </>
+    )
 }
 
 TicketAnalyticsPage.headerAction = (
-    <ReturnBackHeaderAction
-        descriptor={{ id: 'pages.condo.analytics.TicketAnalyticsPage.PageTitle' }}
-        path={'/reports/'}
-    />
+    <ReturnBackHeaderAction descriptor={{ id: 'pages.condo.analytics.TicketAnalyticsPage.PageTitle' }} path={'/reports/'} />
 )
 
 TicketAnalyticsPage.requiredAccess = OrganizationRequired

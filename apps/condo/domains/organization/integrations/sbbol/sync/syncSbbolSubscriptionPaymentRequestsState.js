@@ -18,14 +18,16 @@ const syncSbbolSubscriptionPaymentRequestStateFor = async (payment, fintechApi) 
         const { keystone: context } = await getSchemaCtx('ServiceSubscriptionPayment')
         if (!data.bankStatus) {
             logger.error({
-                message: 'Status response does not contains "bankStatus" field. Maybe, something was changed in setup of SBBOL Fintech API or in API itself.',
+                message:
+                    'Status response does not contains "bankStatus" field. Maybe, something was changed in setup of SBBOL Fintech API or in API itself.',
             })
         } else {
             if (get(payment.statusMeta, 'bankStatus') !== data.bankStatus) {
                 const status = SBBOL_PAYMENT_STATUS_MAP[data.bankStatus]
                 if (!status) {
                     logger.error({
-                        message: 'Value of bankStatus from SBBOL Fintech API cannot be mapped to status values of ServiceSubscriptionPayment, because it does not belongs to the list of known statuses. Consider to add it.',
+                        message:
+                            'Value of bankStatus from SBBOL Fintech API cannot be mapped to status values of ServiceSubscriptionPayment, because it does not belongs to the list of known statuses. Consider to add it.',
                         bankStatus: data.bankStatus,
                     })
                 } else {
@@ -58,21 +60,24 @@ const syncSbbolSubscriptionPaymentRequestsState = async () => {
 
     const { CREATED, PROCESSING, STOPPED } = SUBSCRIPTION_PAYMENT_STATUS
 
-    const paymentsToSync = await ServiceSubscriptionPayment.getAll(context, {
-        externalId_not: null,
-        status_in: [CREATED, PROCESSING, STOPPED],
-    }, { sortBy: ['updatedAt_DESC'] })
+    const paymentsToSync = await ServiceSubscriptionPayment.getAll(
+        context,
+        {
+            externalId_not: null,
+            status_in: [CREATED, PROCESSING, STOPPED],
+        },
+        { sortBy: ['updatedAt_DESC'] },
+    )
 
     if (paymentsToSync.length === 0) {
         logger.info({
             message: 'No ServiceSubscriptionPayment found with state CREATED, PROCESSING or STOPPED. Do nothing',
         })
     } else {
-        const syncTasks = paymentsToSync.map(payment => () => syncSbbolSubscriptionPaymentRequestStateFor(payment, fintechApi))
+        const syncTasks = paymentsToSync.map((payment) => () => syncSbbolSubscriptionPaymentRequestStateFor(payment, fintechApi))
         await executeInSequence(syncTasks)
     }
 }
-
 
 module.exports = {
     syncSbbolSubscriptionPaymentRequestsState,

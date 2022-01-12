@@ -6,8 +6,8 @@ import { colors, gradients } from '@condo/domains/common/constants/style'
 
 const buttonCss = css`
     display: inline-block;
-    background-color: #FFF;
-    border: 1px solid #F5F5F5;
+    background-color: #fff;
+    border: 1px solid #f5f5f5;
     color: black;
     font-size: 16px;
     line-height: 24px;
@@ -20,11 +20,11 @@ const buttonCss = css`
     width: 44px;
     padding: 0;
     box-shadow: none;
-    
+
     &:last-child {
-      margin-right: 0;
+        margin-right: 0;
     }
-    
+
     &:hover {
         color: ${colors.black};
         border-color: ${colors.inputBorderHover};
@@ -34,14 +34,15 @@ const buttonCss = css`
         color: ${colors.white};
         border-color: transparent;
     }
-    
+
     &:active {
         background-color: ${gradients.sberActionGradient};
         color: ${colors.white};
         border-color: transparent;
     }
-    
-    &:disabled, &:disabled:hover {
+
+    &:disabled,
+    &:disabled:hover {
         background-color: ${colors.white};
         cursor: default;
         pointer-events: none;
@@ -83,19 +84,21 @@ const buttonSecondaryCss = css`
         border-color: transparent;
     }
 
-    &:disabled, &:hover:disabled {
+    &:disabled,
+    &:hover:disabled {
         background-color: transparent;
         color: black;
-        border-color: transparent;        
+        border-color: transparent;
         cursor: default;
-    }    
+    }
 `
 const selectedCss = css`
     background: ${gradients.sberActionInversed};
     color: white;
     border: 1px solid transparent;
-    
-    &:hover, &:focus {
+
+    &:hover,
+    &:focus {
         background: ${gradients.sberActionGradient};
         color: white;
         border: 1px solid transparent;
@@ -115,11 +118,13 @@ const noninteractiveCss = css`
     pointer-events: none;
     &:after {
         animation: none !important;
-    }    
-    &:hover, &:focus, &:active {
-        background-color: #F5F5F5;
+    }
+    &:hover,
+    &:focus,
+    &:active {
+        background-color: #f5f5f5;
         color: black;
-        border-color:  #F5F5F5;
+        border-color: #f5f5f5;
     }
 `
 
@@ -142,24 +147,33 @@ export const UnitButton: React.FC<CustomButtonProps> = (props) => {
             ButtonLabel = `${ButtonLabel.substring(0, 2)}…`
         }
         return (
-            <Tooltip placement='topLeft' title={OriginalLabel}>
-                <Button css={css`
-                    ${buttonCss};
-                    ${selected ? selectedCss : ''};
-                    ${noninteractive ? noninteractiveCss : ''};                    
-                    ${preview ? previewCss : ''};
-                `} {...restProps}>{ButtonLabel}</Button>
+            <Tooltip placement="topLeft" title={OriginalLabel}>
+                <Button
+                    css={css`
+                        ${buttonCss};
+                        ${selected ? selectedCss : ''};
+                        ${noninteractive ? noninteractiveCss : ''};
+                        ${preview ? previewCss : ''};
+                    `}
+                    {...restProps}
+                >
+                    {ButtonLabel}
+                </Button>
             </Tooltip>
         )
     } else {
         return (
-            <Button css={css`
-                ${secondary ? buttonSecondaryCss : buttonCss};
-                ${selected ? selectedCss : ''};
-                ${noninteractive ? noninteractiveCss : ''};
-                ${preview ? previewCss : ''};
-            `} {...restProps}>{children || ' ' }</Button>
+            <Button
+                css={css`
+                    ${secondary ? buttonSecondaryCss : buttonCss};
+                    ${selected ? selectedCss : ''};
+                    ${noninteractive ? noninteractiveCss : ''};
+                    ${preview ? previewCss : ''};
+                `}
+                {...restProps}
+            >
+                {children || ' '}
+            </Button>
         )
     }
-
 }

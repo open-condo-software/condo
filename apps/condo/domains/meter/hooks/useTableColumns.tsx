@@ -12,7 +12,8 @@ import {
     getDateRender,
     renderMeterReading,
     getTextRender,
-    getTableCellRenderer, getAddressRender,
+    getTableCellRenderer,
+    getAddressRender,
 } from '@condo/domains/common/components/Table/Renders'
 
 const renderMeterRecord = (record) => {
@@ -26,7 +27,7 @@ const renderMeterRecord = (record) => {
     return renderMeterReading([value1, value2, value3, value4], resourceId, measure)
 }
 
-export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
+export function useTableColumns<T>(filterMetas: Array<FiltersMeta<T>>) {
     const intl = useIntl()
     const ClientNameMessage = intl.formatMessage({ id: 'Contact' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
@@ -46,9 +47,10 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
 
     const search = getFilteredValue(filters, 'search')
 
-    const renderAddress = useCallback((_, meterReading) =>
-        getAddressRender(get(meterReading, ['meter', 'property']), DeletedMessage, search),
-    [DeletedMessage, search])
+    const renderAddress = useCallback(
+        (_, meterReading) => getAddressRender(get(meterReading, ['meter', 'property']), DeletedMessage, search),
+        [DeletedMessage, search],
+    )
 
     return useMemo(() => {
         return [

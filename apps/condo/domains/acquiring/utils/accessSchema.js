@@ -1,7 +1,7 @@
 const { getByCondition } = require('@core/keystone/schema')
 const get = require('lodash/get')
 
-async function checkAcquiringIntegrationAccessRight (userId, integrationId) {
+async function checkAcquiringIntegrationAccessRight(userId, integrationId) {
     if (!userId || !integrationId) return false
     const integration = await getByCondition('AcquiringIntegrationAccessRight', {
         integration: { id: integrationId },

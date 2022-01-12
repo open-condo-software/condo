@@ -2,7 +2,7 @@ const { get } = require('lodash')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canInviteNewOrganizationEmployee ({ authentication: { item: user }, args, context }) {
+async function canInviteNewOrganizationEmployee({ authentication: { item: user }, args, context }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
 

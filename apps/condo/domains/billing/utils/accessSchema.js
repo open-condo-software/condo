@@ -4,7 +4,7 @@ const { checkOrganizationPermission } = require('../../organization/utils/access
 const { getById } = require('@core/keystone/schema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
-async function checkBillingIntegrationAccessRight (userId, integrationId) {
+async function checkBillingIntegrationAccessRight(userId, integrationId) {
     if (!userId || !integrationId) return false
     const integration = await getByCondition('BillingIntegrationAccessRight', {
         integration: { id: integrationId },
@@ -13,18 +13,29 @@ async function checkBillingIntegrationAccessRight (userId, integrationId) {
     return !!get(integration, 'id')
 }
 
-async function canReadBillingEntity (user) {
+async function canReadBillingEntity(user) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return {}
     return {
         OR: [
-            { context: { organization: { employees_some: { user: { id: user.id }, role: { OR: [{ canReadBillingReceipts: true }, { canManageIntegrations: true }] }, deletedAt: null, isBlocked: false } } } },
+            {
+                context: {
+                    organization: {
+                        employees_some: {
+                            user: { id: user.id },
+                            role: { OR: [{ canReadBillingReceipts: true }, { canManageIntegrations: true }] },
+                            deletedAt: null,
+                            isBlocked: false,
+                        },
+                    },
+                },
+            },
             { context: { integration: { accessRights_some: { user: { id: user.id } } } } },
         ],
     }
 }
 
-async function canManageBillingEntityWithContext ({ user, operation, itemId, originalInput, schemaWithContextName, context }) {
+async function canManageBillingEntityWithContext({ user, operation, itemId, originalInput, schemaWithContextName, context }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     let contextId
@@ -51,5 +62,3 @@ module.exports = {
     canReadBillingEntity,
     canManageBillingEntityWithContext,
 }
-
-

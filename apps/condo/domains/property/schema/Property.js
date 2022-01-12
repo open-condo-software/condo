@@ -30,8 +30,11 @@ const MapSchemaJSON = require('@condo/domains/property/components/panels/Builder
 
 const { manageResidentToPropertyAndOrganizationConnections } = require('@condo/domains/resident/tasks')
 
-
-const { PROPERTY_MAP_GRAPHQL_TYPES, GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY, GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY } = require('../gql')
+const {
+    PROPERTY_MAP_GRAPHQL_TYPES,
+    GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY,
+    GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY,
+} = require('../gql')
 const { Property: PropertyAPI } = require('../utils/serverSchema')
 const { normalizePropertyMap } = require('../utils/serverSchema/helpers')
 const { PROPERTY_MAP_JSON_FIELDS } = require('@condo/domains/property/gql')
@@ -42,7 +45,8 @@ const REQUIRED_FIELDS = ['organization', 'type', 'address', 'addressMeta']
 
 // ORGANIZATION_OWNED_FIELD
 const Property = new GQLListSchema('Property', {
-    schemaDoc: 'Common property. The property is divided into separate `unit` parts, each of which can be owned by an independent owner. Community farm, residential buildings, or a cottage settlement',
+    schemaDoc:
+        'Common property. The property is divided into separate `unit` parts, each of which can be owned by an independent owner. Community farm, residential buildings, or a cottage settlement',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
@@ -78,7 +82,9 @@ const Property = new GQLListSchema('Property', {
                         const sameAddressProperties = await PropertyAPI.getAll(context, where, { first: 1 })
 
                         if (!isEmpty(sameAddressProperties)) {
-                            addFieldValidationError(`${UNIQUE_ALREADY_EXISTS_ERROR}${fieldPath}] Property with same address exist in current organization`)
+                            addFieldValidationError(
+                                `${UNIQUE_ALREADY_EXISTS_ERROR}${fieldPath}] Property with same address exist in current organization`,
+                            )
                         }
                     }
                 },
@@ -112,21 +118,30 @@ const Property = new GQLListSchema('Property', {
                     if (!resolvedData.hasOwnProperty(fieldPath)) return // skip if on value
                     const value = resolvedData[fieldPath]
                     if (value === null) return // null is OK
-                    if (typeof value !== 'object') { return addFieldValidationError(`${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] ${fieldPath} field type error. We expect JSON Object`) }
+                    if (typeof value !== 'object') {
+                        return addFieldValidationError(
+                            `${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] ${fieldPath} field type error. We expect JSON Object`,
+                        )
+                    }
                     const { dv } = value
                     if (dv === 1) {
-                        if (!jsonMapValidator(value)){
+                        if (!jsonMapValidator(value)) {
                             // console.log(JSON.stringify(jsonMapValidator.errors, null, 2))
-                            return addFieldValidationError(`${JSON_SCHEMA_VALIDATION_ERROR}] invalid json structure of "map" field`)
+                            return addFieldValidationError(
+                                `${JSON_SCHEMA_VALIDATION_ERROR}] invalid json structure of "map" field`,
+                            )
                         }
                     } else {
-                        return addFieldValidationError(`${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`)
+                        return addFieldValidationError(
+                            `${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`,
+                        )
                     }
                 },
             },
         },
         unitsCount: {
-            schemaDoc: 'A number of parts in the property. The number of flats for property.type = house. The number of garden houses for property.type = village.',
+            schemaDoc:
+                'A number of parts in the property. The number of flats for property.type = house. The number of garden houses for property.type = village.',
             type: Integer,
             isRequired: true,
             defaultValue: 0,
@@ -134,12 +149,9 @@ const Property = new GQLListSchema('Property', {
                 resolveInput: async ({ operation, existingItem, resolvedData }) => {
                     const getTotalUnitsCount = (map) => {
                         return get(map, 'sections', [])
-                            .map((section) => get(section, 'floors', [])
-                                .map(floor => get(floor, 'units', []).length)
-                            )
+                            .map((section) => get(section, 'floors', []).map((floor) => get(floor, 'units', []).length))
                             .flat()
                             .reduce((total, unitsOnFloor) => total + unitsOnFloor, 0)
-
                     }
 
                     let unitsCount = 0

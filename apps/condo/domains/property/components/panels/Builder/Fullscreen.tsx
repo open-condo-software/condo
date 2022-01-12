@@ -4,25 +4,25 @@ import { colors, DEFAULT_BORDER_RADIUS } from '@condo/domains/common/constants/s
 import styled from '@emotion/styled'
 
 export const FullscreenWrapper = styled.div<{
-    mode?: 'view' | 'edit';
+    mode?: 'view' | 'edit'
 }>`
-  border-radius: ${DEFAULT_BORDER_RADIUS};
-  padding: 24px;
-  background: ${colors.backgroundLightGrey};
-  &.fullscreen {
-    ${({ mode }) => `padding: ${mode === 'view' ? '76px 24px 84px' : '76px 24px 84px'};`}
-    box-sizing: padding-box;
-    overflow: auto;
+    border-radius: ${DEFAULT_BORDER_RADIUS};
+    padding: 24px;
+    background: ${colors.backgroundLightGrey};
+    &.fullscreen {
+        ${({ mode }) => `padding: ${mode === 'view' ? '76px 24px 84px' : '76px 24px 84px'};`}
+        box-sizing: padding-box;
+        overflow: auto;
 
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: calc(100vh - 62px);
-    right: 0;
-    bottom: 0;
-    z-index: 20;
-  }
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: calc(100vh - 62px);
+        right: 0;
+        bottom: 0;
+        z-index: 20;
+    }
 `
 
 export const FullscreenHeader = styled.div<{
@@ -30,11 +30,14 @@ export const FullscreenHeader = styled.div<{
 }>`
     margin: -24px -24px 0;
     padding: 0 24px 0 24px;
-    ${({ edit }) => (!edit ? `
+    ${({ edit }) =>
+        !edit
+            ? `
         display: none;
         width: 100%;
         padding-bottom: 12px;
-    ` : '')}
+    `
+            : ''}
 
     div.fullscreen & {
         background: ${colors.backgroundLightGrey};
@@ -47,7 +50,9 @@ export const FullscreenHeader = styled.div<{
         display: block;
     }
 
-    ${({ edit }) => (edit ? `
+    ${({ edit }) =>
+        edit
+            ? `
         &>div:first-child {
             display: none;
         }
@@ -55,7 +60,8 @@ export const FullscreenHeader = styled.div<{
         div.fullscreen>&>div:first-child {
             display: flex;
         }
-    ` : '')}
+    `
+            : ''}
 `
 
 export const FullscreenFooter = css`
@@ -74,4 +80,4 @@ export const FullscreenFooter = css`
         margin-right: -21px;
         margin-bottom: 0;
     }
- `
+`

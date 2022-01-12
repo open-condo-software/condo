@@ -14,11 +14,11 @@ const JWT_ALG = 'gost34.10-2012'
 const logger = baseLogger.child({ module: 'oauth2' })
 
 class SbbolOauth2Api {
-    constructor () {
+    constructor() {
         this.createClient()
     }
 
-    createClient () {
+    createClient() {
         this.enableDebugMode()
         this.createIssuer()
         const client = new this.issuer.Client({
@@ -59,7 +59,7 @@ class SbbolOauth2Api {
         this.client = client
     }
 
-    createIssuer () {
+    createIssuer() {
         const sbbolIssuer = new Issuer({
             issuer: SBBOL_AUTH_CONFIG.issuer,
             authorization_endpoint: this.authUrl,
@@ -74,7 +74,7 @@ class SbbolOauth2Api {
         this.issuer = sbbolIssuer
     }
 
-    authorizationUrlWithParams (checks) {
+    authorizationUrlWithParams(checks) {
         return this.client.authorizationUrl({
             response_type: 'code',
             scope: SBBOL_AUTH_CONFIG.scope,
@@ -82,47 +82,47 @@ class SbbolOauth2Api {
         })
     }
 
-    async completeAuth (inputOrReq, checks) {
+    async completeAuth(inputOrReq, checks) {
         const params = this.client.callbackParams(inputOrReq)
         const tokenSet = await this.client.callback(this.redirectUrl, params, checks)
         return tokenSet
     }
 
-    async refreshToken (refreshToken) {
+    async refreshToken(refreshToken) {
         const tokenSet = await this.client.refresh(refreshToken)
         return tokenSet
     }
 
-    async fetchUserInfo (accessToken) {
+    async fetchUserInfo(accessToken) {
         const userInfo = await this.client.userinfo(accessToken)
         return userInfo
     }
 
-    get userInfoUrl () {
+    get userInfoUrl() {
         return `${this.protectedUrl}/ic/sso/api/v1/oauth/user-info`
     }
 
-    get redirectUrl () {
+    get redirectUrl() {
         return `${SERVER_URL}/api/sbbol/auth/callback`
     }
 
-    get tokenUrl () {
+    get tokenUrl() {
         return `${this.protectedUrl}/ic/sso/api/v2/oauth/token`
     }
 
-    get authUrl () {
+    get authUrl() {
         return `${this.url}/ic/sso/api/v2/oauth/authorize`
     }
 
-    get revokeUrl () {
+    get revokeUrl() {
         return `${this.protectedUrl}/v1/oauth/revoke`
     }
 
-    get url () {
+    get url() {
         return `${SBBOL_AUTH_CONFIG.host}:${SBBOL_AUTH_CONFIG.port}`
     }
 
-    get protectedUrl () {
+    get protectedUrl() {
         return `${SBBOL_AUTH_CONFIG.protected_host}:${SBBOL_AUTH_CONFIG.protected_port || SBBOL_AUTH_CONFIG.port}`
     }
 
@@ -130,7 +130,7 @@ class SbbolOauth2Api {
      * Log incoming and outgoing data
      * https://github.com/panva/node-openid-client/blob/main/docs/README.md#customizing
      */
-    enableDebugMode () {
+    enableDebugMode() {
         custom.setHttpOptionsDefaults({
             hooks: {
                 beforeRequest: [

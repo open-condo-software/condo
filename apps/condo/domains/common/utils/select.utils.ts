@@ -1,5 +1,4 @@
-
-export function isNeedToLoadNewElements (scrollEvent, lastElementIdx: string, isLoading: boolean) {
+export function isNeedToLoadNewElements(scrollEvent, lastElementIdx: string, isLoading: boolean) {
     const dropdown = scrollEvent.currentTarget
     const containerTop = dropdown.getBoundingClientRect().top
     const containerHeight = dropdown.getBoundingClientRect().height

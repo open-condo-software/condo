@@ -10,15 +10,68 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
 import { Ticket, TicketUpdateInput, Organization, QueryAllTicketsArgs } from '@app/condo/schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'statusReopenedCounter', 'statusReason', 'statusUpdatedAt', 'status', 'number', 'client', 'clientName', 'clientEmail', 'clientPhone', 'contact', 'unitName', 'sectionName', 'floorName', 'watchers', 'operator', 'assignee', 'classifier', 'placeClassifier', 'categoryClassifier', 'problemClassifier', 'classifierRule', 'details', 'related', 'isEmergency', 'isPaid', 'meta', 'source', 'property', 'executor']
-const RELATIONS = ['status', 'client', 'contact', 'operator', 'assignee', 'classifier', 'organization', 'source', 'property', 'executor', 'related', 'placeClassifier', 'categoryClassifier', 'problemClassifier', 'classifierRule']
+const FIELDS = [
+    'id',
+    'deletedAt',
+    'createdAt',
+    'updatedAt',
+    'createdBy',
+    'updatedBy',
+    'organization',
+    'statusReopenedCounter',
+    'statusReason',
+    'statusUpdatedAt',
+    'status',
+    'number',
+    'client',
+    'clientName',
+    'clientEmail',
+    'clientPhone',
+    'contact',
+    'unitName',
+    'sectionName',
+    'floorName',
+    'watchers',
+    'operator',
+    'assignee',
+    'classifier',
+    'placeClassifier',
+    'categoryClassifier',
+    'problemClassifier',
+    'classifierRule',
+    'details',
+    'related',
+    'isEmergency',
+    'isPaid',
+    'meta',
+    'source',
+    'property',
+    'executor',
+]
+const RELATIONS = [
+    'status',
+    'client',
+    'contact',
+    'operator',
+    'assignee',
+    'classifier',
+    'organization',
+    'source',
+    'property',
+    'executor',
+    'related',
+    'placeClassifier',
+    'categoryClassifier',
+    'problemClassifier',
+    'classifierRule',
+]
 const DISCONNECT_ON_NULL = ['problemClassifier']
 export interface ITicketUIState extends Ticket {
     id: string
     organization: Organization
 }
 
-function convertToUIState (item: Ticket): ITicketUIState {
+function convertToUIState(item: Ticket): ITicketUIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
     return pick(item, FIELDS) as ITicketUIState
 }
@@ -41,17 +94,17 @@ export interface ITicketFormState {
     clientName?: string
 }
 
-function convertToUIFormState (state: ITicketUIState): ITicketFormState | undefined {
+function convertToUIFormState(state: ITicketUIState): ITicketFormState | undefined {
     if (!state) return
     const result = {}
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? attrId || state[attr] : state[attr]
     }
     return result as ITicketFormState
 }
 
-function extractAttributes (state: ITicketUIState, attributes: Array<string>): ITicketFormState | undefined {
+function extractAttributes(state: ITicketUIState, attributes: Array<string>): ITicketFormState | undefined {
     if (!state) return
     const result = {}
 
@@ -66,13 +119,12 @@ function extractAttributes (state: ITicketUIState, attributes: Array<string>): I
     return result as ITicketFormState
 }
 
-
-function convertToGQLInput (state: ITicketFormState): TicketUpdateInput {
+function convertToGQLInput(state: ITicketFormState): TicketUpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? { connect: { id: attrId || state[attr] } } : state[attr]
         // TODO(zuch): need better logic here (contact can be ocasionally deleted from ticket)
         if (RELATIONS.includes(attr) && !state[attr] && !attrId && DISCONNECT_ON_NULL.includes(attr)) {
             result[attr] = { disconnectAll: true }
@@ -81,20 +133,12 @@ function convertToGQLInput (state: ITicketFormState): TicketUpdateInput {
     return result
 }
 
-const {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-} = generateReactHooks<Ticket, TicketUpdateInput, ITicketFormState, ITicketUIState, QueryAllTicketsArgs>(TicketGQL, { convertToGQLInput, convertToUIState })
+const { useObject, useObjects, useCreate, useUpdate, useDelete } = generateReactHooks<
+    Ticket,
+    TicketUpdateInput,
+    ITicketFormState,
+    ITicketUIState,
+    QueryAllTicketsArgs
+>(TicketGQL, { convertToGQLInput, convertToUIState })
 
-export {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-    convertToUIFormState,
-    extractAttributes,
-}
+export { useObject, useObjects, useCreate, useUpdate, useDelete, convertToUIFormState, extractAttributes }

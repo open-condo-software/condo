@@ -46,10 +46,7 @@ const syncUser = async ({ context, userInfo }) => {
         ...context,
         listKey: 'User',
         where: {
-            OR: [
-                { AND: userFields },
-                { AND: importFields },
-            ],
+            OR: [{ AND: userFields }, { AND: importFields }],
         },
         returnFields,
     })

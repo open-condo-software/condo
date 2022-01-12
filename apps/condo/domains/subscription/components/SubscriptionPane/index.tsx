@@ -51,7 +51,9 @@ export const SubscriptionPane: React.FC = () => {
     const TariffsMessage = intl.formatMessage({ id: 'subscription.data.tariffs' })
     const SubscriptionMessage = intl.formatMessage({ id: 'subscription.data.subscription' })
     const SbbolSubscriptionDeclineMessage = intl.formatMessage({ id: 'subscription.alert.subscription.payment.decline.sbbol' })
-    const DefaultSubscriptionDeclineMessage = intl.formatMessage({ id: 'subscription.alert.subscription.payment.decline.default' })
+    const DefaultSubscriptionDeclineMessage = intl.formatMessage({
+        id: 'subscription.alert.subscription.payment.decline.default',
+    })
     const { subscription, isExpired } = useServiceSubscriptionContext()
 
     const { isVisible, setIsVisible, SubscriptionPaymentModal } = useSubscriptionPaymentModal()
@@ -64,63 +66,55 @@ export const SubscriptionPane: React.FC = () => {
                 <Col span={24}>
                     <Row gutter={[0, 20]}>
                         <Col span={24}>
-                            <Typography.Title level={3}>
-                                {TariffsMessage}
-                            </Typography.Title>
+                            <Typography.Title level={3}>{TariffsMessage}</Typography.Title>
                         </Col>
                         <Col span={24}>
                             <Row gutter={[0, 20]}>
-                                {
-                                    subscriptions.map((subscription, index) => {
-                                        return (
-                                            <Col sm={24} lg={8} offset={isSmall || (index % 2 === 0) ? 0 : 1 } key={index}>
-                                                {subscription}
-                                            </Col>
-                                        )
-                                    })
-                                }
+                                {subscriptions.map((subscription, index) => {
+                                    return (
+                                        <Col sm={24} lg={8} offset={isSmall || index % 2 === 0 ? 0 : 1} key={index}>
+                                            {subscription}
+                                        </Col>
+                                    )
+                                })}
                             </Row>
                         </Col>
                     </Row>
                 </Col>
-                {
-                    activeSubscriptionData.length > 0 && (
-                        <Col span={24}>
-                            <Row gutter={[0, 20]}>
+                {activeSubscriptionData.length > 0 && (
+                    <Col span={24}>
+                        <Row gutter={[0, 20]}>
+                            <Col span={24}>
+                                <Typography.Title level={3}>{SubscriptionMessage}</Typography.Title>
+                            </Col>
+                            <Col span={24}>
+                                <Table
+                                    columns={[
+                                        { dataIndex: 'attribute', key: 'attribute' },
+                                        { dataIndex: 'value', key: 'value' },
+                                    ]}
+                                    dataSource={activeSubscriptionData}
+                                    pagination={false}
+                                    bordered
+                                />
+                            </Col>
+                            {subscription && !isExpired && (
                                 <Col span={24}>
-                                    <Typography.Title level={3}>
-                                        {SubscriptionMessage}
-                                    </Typography.Title>
-                                </Col>
-                                <Col span={24}>
-                                    <Table
-                                        columns={[
-                                            { dataIndex: 'attribute', key: 'attribute' },
-                                            { dataIndex: 'value', key: 'value' },
-                                        ]}
-                                        dataSource={activeSubscriptionData}
-                                        pagination={false}
-                                        bordered
+                                    <Alert
+                                        message={
+                                            get(subscription, 'type') === 'sbbol'
+                                                ? SbbolSubscriptionDeclineMessage
+                                                : DefaultSubscriptionDeclineMessage
+                                        }
+                                        type={'warning'}
+                                        showIcon
                                     />
                                 </Col>
-                                {subscription && !isExpired && (
-                                    <Col span={24}>
-                                        <Alert
-                                            message={
-                                                get(subscription, 'type') === 'sbbol'
-                                                    ? SbbolSubscriptionDeclineMessage
-                                                    : DefaultSubscriptionDeclineMessage
-                                            }
-                                            type={'warning'}
-                                            showIcon
-                                        />
-                                    </Col>
-                                )}
-                            </Row>
-                        </Col>
-                    )
-                }
-                {isVisible && <SubscriptionPaymentModal/>}
+                            )}
+                        </Row>
+                    </Col>
+                )}
+                {isVisible && <SubscriptionPaymentModal />}
             </Row>
         </>
     )

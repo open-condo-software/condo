@@ -10,7 +10,7 @@ import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderA
 
 const TicketUpdatePage = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id:'pages.condo.ticket.index.EditTicketModalTitle' })
+    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.ticket.index.EditTicketModalTitle' })
     const { query } = useRouter()
 
     return (
@@ -22,9 +22,11 @@ const TicketUpdatePage = () => {
                 <PageContent>
                     <Row gutter={[0, 40]} style={{ height: '100%' }}>
                         <Col span={24}>
-                            <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
+                            <Typography.Title level={1} style={{ margin: 0 }}>
+                                {PageTitleMsg}
+                            </Typography.Title>
                         </Col>
-                        <TicketForm id={query.id as string}/>
+                        <TicketForm id={query.id as string} />
                     </Row>
                 </PageContent>
             </PageWrapper>
@@ -32,9 +34,7 @@ const TicketUpdatePage = () => {
     )
 }
 
-TicketUpdatePage.headerAction = <ReturnBackHeaderAction
-    descriptor={{ id: 'Back' }}
-    path={(id) => `/ticket/${id}/`}/>
+TicketUpdatePage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'Back' }} path={(id) => `/ticket/${id}/`} />
 TicketUpdatePage.requiredAccess = OrganizationRequired
 
 export default TicketUpdatePage

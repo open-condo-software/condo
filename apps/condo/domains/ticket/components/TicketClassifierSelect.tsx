@@ -4,7 +4,11 @@ const { Option } = Select
 import { useApolloClient } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
 import { uniqBy, isEmpty, find, pick, get } from 'lodash'
-import { ClassifiersQueryLocal, ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
+import {
+    ClassifiersQueryLocal,
+    ClassifiersQueryRemote,
+    TicketClassifierTypes,
+} from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 import { useTicketValidations } from '@condo/domains/ticket/components/BaseTicketForm/useTicketValidations'
 
 interface Options {
@@ -20,7 +24,7 @@ interface ITicketThreeLevelsClassifierHookInput {
     }
 }
 interface ITicketThreeLevelsClassifierHookOutput {
-    ClassifiersEditorComponent: React.FC<{ form, disabled }>
+    ClassifiersEditorComponent: React.FC<{ form; disabled }>
 }
 
 interface ITicketClassifierSelectHookInput {
@@ -29,7 +33,7 @@ interface ITicketClassifierSelectHookInput {
     initialValue: string | null
 }
 
-type ClassifierSelectComponent = React.FC<{ disabled?: boolean, style?: React.CSSProperties, value?: string }>
+type ClassifierSelectComponent = React.FC<{ disabled?: boolean; style?: React.CSSProperties; value?: string }>
 interface ITicketClassifierSelectHookOutput {
     set: {
         all: React.Dispatch<React.SetStateAction<Options[]>>
@@ -57,7 +61,7 @@ const useTicketClassifierSelectHook = ({
         setSearchClassifiers([])
     }
 
-    function setSelected (value) {
+    function setSelected(value) {
         selectedRef.current = value
         // Remove search classifiers when user chosen smth - only classifiers will work for now
         setSearchClassifiers([])
@@ -86,12 +90,11 @@ const useTicketClassifierSelectHook = ({
                     value={selectedRef.current}
                     showAction={['focus', 'click']}
                 >
-                    {
-                        optionsRef.current.map(classifier => (
-                            <Option value={classifier.id} key={classifier.id} title={classifier.name}>{classifier.name}</Option>
-                        ))
-                    }
-
+                    {optionsRef.current.map((classifier) => (
+                        <Option value={classifier.id} key={classifier.id} title={classifier.name}>
+                            {classifier.name}
+                        </Option>
+                    ))}
                 </Select>
             )
         }
@@ -109,24 +112,21 @@ const useTicketClassifierSelectHook = ({
     }
 }
 
-export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
-    classifierRule,
-    placeClassifier,
-    categoryClassifier,
-    problemClassifier,
-} }: ITicketThreeLevelsClassifierHookInput): ITicketThreeLevelsClassifierHookOutput => {
+export const useTicketThreeLevelsClassifierHook = ({
+    initialValues: { classifierRule, placeClassifier, categoryClassifier, problemClassifier },
+}: ITicketThreeLevelsClassifierHookInput): ITicketThreeLevelsClassifierHookOutput => {
     const intl = useIntl()
     const PlaceClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.PlaceLabel' })
     const CategoryClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.CategoryLabel' })
     const ProblemClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.ProblemLabel' })
-    const ruleRef = useRef({ id: classifierRule, place: null, category:null, problem: null })
+    const ruleRef = useRef({ id: classifierRule, place: null, category: null, problem: null })
     const client = useApolloClient()
     const ClassifierLoader = new ClassifiersQueryLocal(client)
     const validations = useTicketValidations()
     const ticketForm = useRef(null)
 
     const onUserSelect = (id, type) => {
-        const clearProblem = (id === null && type !== 'problem') ? { problem: null } : {}
+        const clearProblem = id === null && type !== 'problem' ? { problem: null } : {}
         ruleRef.current = { ...ruleRef.current, [type]: id, ...clearProblem }
         updateLevels({ [type]: id })
     }
@@ -183,13 +183,16 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
             if (ruleRef.current.id) {
                 ClassifierLoader.findRules({ id: ruleRef.current.id }).then(([rule]) => {
                     const { place, category, problem } = rule
-                    ruleRef.current = { ...ruleRef.current, ...{ place: place.id, category: category.id, problem: get(problem, 'id', null) } }
+                    ruleRef.current = {
+                        ...ruleRef.current,
+                        ...{ place: place.id, category: category.id, problem: get(problem, 'id', null) },
+                    }
                     updateLevels(ruleRef.current)
                 })
             } else {
                 // fill options on empty classifier
-                [TicketClassifierTypes.place, TicketClassifierTypes.category].forEach(type => {
-                    ClassifierLoader.search('', type).then(classifiers => {
+                ;[TicketClassifierTypes.place, TicketClassifierTypes.category].forEach((type) => {
+                    ClassifierLoader.search('', type).then((classifiers) => {
                         Setter[type].all(classifiers)
                     })
                 })
@@ -199,7 +202,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
             // clear all loaded data from helper
             ClassifierLoader.clear()
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     // We build options for every select with care - not to break selection
@@ -210,22 +213,24 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     // Same thing for all selects
     const loadLevels = async () => {
         const { place, category, problem } = ruleRef.current
-        const loadedRules = await Promise.all([
-            { category, problem, type: 'place' },
-            { place, problem, type: 'category' },
-            { place, category, type: 'problem' },
-        ].map(selector => {
-            const { type, ...querySelectors } = selector
-            return new Promise<[string, Options[]]>(resolve => {
-                const query = {}
-                for (const key in querySelectors) {
-                    if (querySelectors[key]) {
-                        query[key] = { id: querySelectors[key] }
+        const loadedRules = await Promise.all(
+            [
+                { category, problem, type: 'place' },
+                { place, problem, type: 'category' },
+                { place, category, type: 'problem' },
+            ].map((selector) => {
+                const { type, ...querySelectors } = selector
+                return new Promise<[string, Options[]]>((resolve) => {
+                    const query = {}
+                    for (const key in querySelectors) {
+                        if (querySelectors[key]) {
+                            query[key] = { id: querySelectors[key] }
+                        }
                     }
-                }
-                ClassifierLoader.findRules(query).then(data => resolve([type, ClassifierLoader.rulesToOptions(data, type)]))
-            })
-        }))
+                    ClassifierLoader.findRules(query).then((data) => resolve([type, ClassifierLoader.rulesToOptions(data, type)]))
+                })
+            }),
+        )
         const result = Object.fromEntries(loadedRules)
         return result
     }
@@ -252,7 +257,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
             ruleRef.current = { ...ruleRef.current, id: matchingRules[0].id }
         } else if (ruleRef.current.place && ruleRef.current.category) {
             const withEmptyProblem = find(matchingRules, { problem: null })
-            if (withEmptyProblem){
+            if (withEmptyProblem) {
                 ruleRef.current = { ...ruleRef.current, id: withEmptyProblem.id }
             }
         }
@@ -267,13 +272,13 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     // or he just make a search in one of a selects and runied all dependencies
     // so we load rules and search if selected value still presence in options
     // if not => we set all not matching selects values to null
-    const updateLevels = async (selected = {}, maxUpdates = 2 ) => {
+    const updateLevels = async (selected = {}, maxUpdates = 2) => {
         ruleRef.current = { ...ruleRef.current, ...selected }
         const options = await loadLevels()
         const state = ruleRef.current
         const updateEmptyState = {}
-        Object.keys(Setter).forEach(type => {
-            const isExisted = options[type].find(option => option.id === state[type])
+        Object.keys(Setter).forEach((type) => {
+            const isExisted = options[type].find((option) => option.id === state[type])
             if (!isExisted && state[type]) {
                 updateEmptyState[type] = null
             }
@@ -288,9 +293,9 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
                 return await updateLevels(selected, --maxUpdates)
             }
         }
-        Object.keys(Setter).forEach(type => {
+        Object.keys(Setter).forEach((type) => {
             Setter[type].all(options[type])
-            const isExisted = options[type].find(option => option.id === state[type])
+            const isExisted = options[type].find((option) => option.id === state[type])
             Setter[type].one(isExisted ? state[type] : null)
         })
         await updateRuleId()
@@ -302,12 +307,12 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     }
 
     const ClassifiersEditorComponent = useMemo(() => {
-        const ClassifiersEditorWrapper: React.FC<{ form, disabled }> = ({ form, disabled }) => {
+        const ClassifiersEditorWrapper: React.FC<{ form; disabled }> = ({ form, disabled }) => {
             ticketForm.current = form
             return (
                 <>
                     <Form.Item name={'classifierRule'} rules={validations.classifierRule} noStyle={true}>
-                        <Input type='hidden'></Input>
+                        <Input type="hidden"></Input>
                     </Form.Item>
                     <Col span={12} style={{ paddingRight: '20px' }}>
                         <Form.Item label={PlaceClassifierLabel} name={'placeClassifier'} rules={validations.placeClassifier}>
@@ -315,12 +320,16 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
                         </Form.Item>
                     </Col>
                     <Col span={12} style={{ paddingLeft: '20px' }}>
-                        <Form.Item label={CategoryClassifierLabel} name={'categoryClassifier'} rules={validations.categoryClassifier}>
+                        <Form.Item
+                            label={CategoryClassifierLabel}
+                            name={'categoryClassifier'}
+                            rules={validations.categoryClassifier}
+                        >
                             <CategorySelect disabled={disabled} />
                         </Form.Item>
                     </Col>
                     <Col span={24}>
-                        <Form.Item name={'problemClassifier'}  label={ProblemClassifierLabel}>
+                        <Form.Item name={'problemClassifier'} label={ProblemClassifierLabel}>
                             <ProblemSelect disabled={disabled} />
                         </Form.Item>
                     </Col>
@@ -328,7 +337,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
             )
         }
         return ClassifiersEditorWrapper
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     return {

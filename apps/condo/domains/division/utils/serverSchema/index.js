@@ -14,5 +14,5 @@ const Division = generateServerUtils(DivisionGQL)
 
 module.exports = {
     Division,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -12,9 +12,5 @@ export const SideNav: React.FC<ISideNav> = (props) => {
     const { isSmall } = useLayoutContext()
     const { menuData, onLogoClick } = props
 
-    return (
-        isSmall
-            ? <MobileSideNav menuData={menuData}/>
-            : <DesktopSideNav onLogoClick={onLogoClick} menuData={menuData}/>
-    )
+    return isSmall ? <MobileSideNav menuData={menuData} /> : <DesktopSideNav onLogoClick={onLogoClick} menuData={menuData} />
 }

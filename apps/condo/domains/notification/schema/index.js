@@ -10,5 +10,5 @@ const { SendMessageService } = require('./SendMessageService')
 module.exports = {
     Message,
     SendMessageService,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

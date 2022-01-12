@@ -28,7 +28,7 @@ type BuildingTableProps = {
     onSearch?: (properties: Property.IPropertyUIState[]) => void
 }
 
-export default function BuildingsTable (props: BuildingTableProps) {
+export default function BuildingsTable(props: BuildingTableProps) {
     const intl = useIntl()
 
     const ExportAsExcel = intl.formatMessage({ id: 'ExportAsExcel' })
@@ -47,17 +47,26 @@ export default function BuildingsTable (props: BuildingTableProps) {
     const { offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, PROPERTY_PAGE_SIZE)
 
-    const { loading, error, refetch, objs: properties, count: total } = Property.useObjects({
-        sortBy,
-        where: { ...searchPropertiesQuery },
-        skip: (currentPageIndex - 1) * PROPERTY_PAGE_SIZE,
-        first: PROPERTY_PAGE_SIZE,
-    }, {
-        fetchPolicy: 'network-only',
-        onCompleted: () => {
-            props.onSearch && props.onSearch(properties)
+    const {
+        loading,
+        error,
+        refetch,
+        objs: properties,
+        count: total,
+    } = Property.useObjects(
+        {
+            sortBy,
+            where: { ...searchPropertiesQuery },
+            skip: (currentPageIndex - 1) * PROPERTY_PAGE_SIZE,
+            first: PROPERTY_PAGE_SIZE,
         },
-    })
+        {
+            fetchPolicy: 'network-only',
+            onCompleted: () => {
+                props.onSearch && props.onSearch(properties)
+            },
+        },
+    )
 
     const handleRowAction = (record) => {
         return {
@@ -68,23 +77,20 @@ export default function BuildingsTable (props: BuildingTableProps) {
     }
 
     const [downloadLink, setDownloadLink] = useState(null)
-    const [exportToExcel, { loading: isXlsLoading }] = useLazyQuery(
-        EXPORT_PROPERTIES_TO_EXCEL,
-        {
-            onError: error => {
-                notification.error(error)
-            },
-            onCompleted: data => {
-                setDownloadLink(data.result.linkToFile)
-            },
-        }
-    )
+    const [exportToExcel, { loading: isXlsLoading }] = useLazyQuery(EXPORT_PROPERTIES_TO_EXCEL, {
+        onError: (error) => {
+            notification.error(error)
+        },
+        onCompleted: (data) => {
+            setDownloadLink(data.result.linkToFile)
+        },
+    })
 
     const [columns, propertyNormalizer, propertyValidator, propertyCreator] = useImporterFunctions()
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
 
-    function onExportToExcelButtonClicked () {
+    function onExportToExcelButtonClicked() {
         exportToExcel({
             variables: {
                 data: {
@@ -104,65 +110,57 @@ export default function BuildingsTable (props: BuildingTableProps) {
             <Col xs={24} lg={6}>
                 <Input
                     placeholder={SearchPlaceholder}
-                    onChange={(e) => {handleSearchChange(e.target.value)}}
+                    onChange={(e) => {
+                        handleSearchChange(e.target.value)
+                    }}
                     value={search}
                 />
             </Col>
             <Col lg={6} offset={1} hidden={isSmall}>
-                {
-                    downloadLink
-                        ? (
-                            <Button
-                                type={'inlineLink'}
-                                icon={<DatabaseFilled />}
-                                loading={isXlsLoading}
-                                target='_blank'
-                                href={downloadLink}
-                                rel='noreferrer'>{DownloadExcelLabel}
-                            </Button>
-                        )
-                        : (
-                            <Button
-                                type={'inlineLink'}
-                                icon={<DatabaseFilled />}
-                                loading={isXlsLoading}
-                                onClick={onExportToExcelButtonClicked}>{ExportAsExcel}
-                            </Button>
-                        )
-                }
+                {downloadLink ? (
+                    <Button
+                        type={'inlineLink'}
+                        icon={<DatabaseFilled />}
+                        loading={isXlsLoading}
+                        target="_blank"
+                        href={downloadLink}
+                        rel="noreferrer"
+                    >
+                        {DownloadExcelLabel}
+                    </Button>
+                ) : (
+                    <Button
+                        type={'inlineLink'}
+                        icon={<DatabaseFilled />}
+                        loading={isXlsLoading}
+                        onClick={onExportToExcelButtonClicked}
+                    >
+                        {ExportAsExcel}
+                    </Button>
+                )}
             </Col>
             <Col lg={1} offset={7} hidden={isSmall}>
-                {
-                    role?.canManageProperties && (
-                        <ImportWrapper
-                            objectsName={PropertiesMessage}
-                            accessCheck={role?.canManageProperties}
-                            onFinish={refetch}
-                            columns={columns}
-                            rowNormalizer={propertyNormalizer}
-                            rowValidator={propertyValidator}
-                            domainTranslate={PropertyTitle}
-                            objectCreator={propertyCreator}
-                        >
-                            <Button
-                                type={'sberPrimary'}
-                                icon={<DiffOutlined />}
-                                secondary
-                            />
-                        </ImportWrapper>
-                    )
-                }
+                {role?.canManageProperties && (
+                    <ImportWrapper
+                        objectsName={PropertiesMessage}
+                        accessCheck={role?.canManageProperties}
+                        onFinish={refetch}
+                        columns={columns}
+                        rowNormalizer={propertyNormalizer}
+                        rowValidator={propertyValidator}
+                        domainTranslate={PropertyTitle}
+                        objectCreator={propertyCreator}
+                    >
+                        <Button type={'sberPrimary'} icon={<DiffOutlined />} secondary />
+                    </ImportWrapper>
+                )}
             </Col>
             <Col xs={24} lg={3}>
-                {
-                    role?.canManageProperties
-                        ? (
-                            <Button type='sberPrimary' onClick={() => router.push('/property/create')}>
-                                {CreateLabel}
-                            </Button>
-                        )
-                        : null
-                }
+                {role?.canManageProperties ? (
+                    <Button type="sberPrimary" onClick={() => router.push('/property/create')}>
+                        {CreateLabel}
+                    </Button>
+                ) : null}
             </Col>
             <Col span={24}>
                 <Table
@@ -175,5 +173,6 @@ export default function BuildingsTable (props: BuildingTableProps) {
                     pageSize={PROPERTY_PAGE_SIZE}
                 />
             </Col>
-        </Row>)
+        </Row>
+    )
 }

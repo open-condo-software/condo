@@ -15,8 +15,10 @@ interface IUpdateDivisionPage extends React.FC {
 
 const UpdateDivisionPage: IUpdateDivisionPage = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id:'pages.condo.division.update.UpdateDivisionTitle' })
-    const { query: { id } } = useRouter()
+    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.division.update.UpdateDivisionTitle' })
+    const {
+        query: { id },
+    } = useRouter()
     return (
         <>
             <Head>
@@ -26,10 +28,12 @@ const UpdateDivisionPage: IUpdateDivisionPage = () => {
                 <PageContent>
                     <Row gutter={[0, 40]}>
                         <Col span={24}>
-                            <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
+                            <Typography.Title level={1} style={{ margin: 0 }}>
+                                {PageTitleMsg}
+                            </Typography.Title>
                         </Col>
                         <Col span={24}>
-                            <DivisionForm id={id as string}/>
+                            <DivisionForm id={id as string} />
                         </Col>
                     </Row>
                 </PageContent>
@@ -39,10 +43,7 @@ const UpdateDivisionPage: IUpdateDivisionPage = () => {
 }
 
 UpdateDivisionPage.headerAction = (
-    <ReturnBackHeaderAction
-        descriptor={{ id: 'menu.AllDivisions' }}
-        path={'/property?tab=divisions'}
-    />
+    <ReturnBackHeaderAction descriptor={{ id: 'menu.AllDivisions' }} path={'/property?tab=divisions'} />
 )
 UpdateDivisionPage.requiredAccess = OrganizationRequired
 

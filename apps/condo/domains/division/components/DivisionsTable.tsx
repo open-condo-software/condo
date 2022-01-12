@@ -19,7 +19,6 @@ import { DivisionWhereInput, OrganizationEmployeeRole, SortDivisionsBy } from '@
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
-
 type BuildingTableProps = {
     role: OrganizationEmployeeRole
     searchDivisionsQuery: DivisionWhereInput
@@ -28,7 +27,7 @@ type BuildingTableProps = {
     onSearch?: (properties: Division.IDivisionUIState[]) => void
 }
 
-export default function DivisionTable (props: BuildingTableProps) {
+export default function DivisionTable(props: BuildingTableProps) {
     const intl = useIntl()
 
     const CreateLabel = intl.formatMessage({ id: 'pages.condo.division.index.CreateDivisionButtonLabel' })
@@ -45,17 +44,25 @@ export default function DivisionTable (props: BuildingTableProps) {
     const { offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, PROPERTY_PAGE_SIZE)
 
-    const { loading, error, objs: divisions, count: total } = Division.useObjects({
-        sortBy: sortBy as SortDivisionsBy[],
-        where: { ...searchDivisionsQuery },
-        skip: (currentPageIndex - 1) * PROPERTY_PAGE_SIZE,
-        first: PROPERTY_PAGE_SIZE,
-    }, {
-        fetchPolicy: 'network-only',
-        onCompleted: () => {
-            props.onSearch && props.onSearch(divisions)
+    const {
+        loading,
+        error,
+        objs: divisions,
+        count: total,
+    } = Division.useObjects(
+        {
+            sortBy: sortBy as SortDivisionsBy[],
+            where: { ...searchDivisionsQuery },
+            skip: (currentPageIndex - 1) * PROPERTY_PAGE_SIZE,
+            first: PROPERTY_PAGE_SIZE,
         },
-    })
+        {
+            fetchPolicy: 'network-only',
+            onCompleted: () => {
+                props.onSearch && props.onSearch(divisions)
+            },
+        },
+    )
 
     const handleRowAction = (record) => {
         return {
@@ -76,37 +83,34 @@ export default function DivisionTable (props: BuildingTableProps) {
             <Col xs={24} lg={6}>
                 <Input
                     placeholder={SearchPlaceholder}
-                    onChange={(e) => {handleSearchChange(e.target.value)}}
+                    onChange={(e) => {
+                        handleSearchChange(e.target.value)
+                    }}
                     value={search}
                 />
             </Col>
             <Col lg={6} offset={1} hidden={isSmall}>
-                <Tooltip title={NotImplementedYetMessage} >
+                <Tooltip title={NotImplementedYetMessage}>
                     <Typography.Text
                         style={{
                             opacity: 70,
                             color: colors.sberGrey[4],
                         }}
                     >
-                        <Button
-                            type={'inlineLink'}
-                            icon={<DatabaseFilled />}
-                            target='_blank'
-                            rel='noreferrer'>{DownloadExcelLabel}
+                        <Button type={'inlineLink'} icon={<DatabaseFilled />} target="_blank" rel="noreferrer">
+                            {DownloadExcelLabel}
                         </Button>
                     </Typography.Text>
                 </Tooltip>
             </Col>
             <Col xs={24} lg={4} offset={isSmall ? 0 : 7}>
-                {
-                    role?.canManageDivisions && (
-                        <Row justify={isSmall ? 'start' : 'end'}>
-                            <Button type='sberPrimary' onClick={() => router.push('/division/create')}>
-                                {CreateLabel}
-                            </Button>
-                        </Row>
-                    )
-                }
+                {role?.canManageDivisions && (
+                    <Row justify={isSmall ? 'start' : 'end'}>
+                        <Button type="sberPrimary" onClick={() => router.push('/division/create')}>
+                            {CreateLabel}
+                        </Button>
+                    </Row>
+                )}
             </Col>
             <Col span={24}>
                 <Table
@@ -117,12 +121,16 @@ export default function DivisionTable (props: BuildingTableProps) {
                     onRow={handleRowAction}
                     columns={tableColumns}
                     pageSize={PROPERTY_PAGE_SIZE}
-                    applyQuery={(queryParams)=> {
+                    applyQuery={(queryParams) => {
                         queryParams['tab'] = router.query['tab']
-                        const newQuery = qs.stringify({ ...queryParams }, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })
+                        const newQuery = qs.stringify(
+                            { ...queryParams },
+                            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
+                        )
                         return router.push(router.route + newQuery)
                     }}
                 />
             </Col>
-        </Row>)
+        </Row>
+    )
 }

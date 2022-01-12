@@ -16,40 +16,44 @@ interface IIntegrationPanelProps {
 }
 
 const CardContainer = styled.div`
-  position: relative;
-  box-sizing: border-box;
-  border: 1px solid ${colors.lightGrey[5]};
-  border-radius: 8px;
-  padding: 29px 24px 80px 24px;
-  transition: ${transitions.elevateTransition};
-  cursor: pointer;
-  background-color: ${props => (props['data-status'] !== 'disabled' && props['data-status'] !== 'available') 
-        ? colors.lightGrey[4] 
-        : 'transparent'};
-  &:hover {
-    border-color: transparent;
-    box-shadow: ${shadows.elevated};
-  }
+    position: relative;
+    box-sizing: border-box;
+    border: 1px solid ${colors.lightGrey[5]};
+    border-radius: 8px;
+    padding: 29px 24px 80px 24px;
+    transition: ${transitions.elevateTransition};
+    cursor: pointer;
+    background-color: ${(props) =>
+        props['data-status'] !== 'disabled' && props['data-status'] !== 'available' ? colors.lightGrey[4] : 'transparent'};
+    &:hover {
+        border-color: transparent;
+        box-shadow: ${shadows.elevated};
+    }
 `
 
-export const IntegrationPanel: React.FC<IIntegrationPanelProps> = ({
-    integrationId,
-    title,
-    shortDescription,
-    status }) => {
+export const IntegrationPanel: React.FC<IIntegrationPanelProps> = ({ integrationId, title, shortDescription, status }) => {
     const intl = useIntl()
     const CompanyLabel = intl.formatMessage({ id: 'CompanyName' })
     const IntegrationInProgressMessage = intl.formatMessage({ id: 'ConnectionInProgress' })
     const IntegrationConnectedMessage = intl.formatMessage({ id: 'Connected' })
-    const NoMoreBillingsAllowedMessage = intl.formatMessage({ id: 'NoMoreIntegrationsAllowed' }, {
-        company: CompanyLabel,
-    })
-    const ContactSupportForCancellingMessage = intl.formatMessage({ id: 'ContactSupportToCancelIntegration' }, {
-        company: CompanyLabel,
-    })
-    const IntegrationErrorMessage = intl.formatMessage({ id: 'ErrorHappenedDuringIntegration' }, {
-        company: CompanyLabel,
-    })
+    const NoMoreBillingsAllowedMessage = intl.formatMessage(
+        { id: 'NoMoreIntegrationsAllowed' },
+        {
+            company: CompanyLabel,
+        },
+    )
+    const ContactSupportForCancellingMessage = intl.formatMessage(
+        { id: 'ContactSupportToCancelIntegration' },
+        {
+            company: CompanyLabel,
+        },
+    )
+    const IntegrationErrorMessage = intl.formatMessage(
+        { id: 'ErrorHappenedDuringIntegration' },
+        {
+            company: CompanyLabel,
+        },
+    )
     const ClickToSeeMoreMessage = intl.formatMessage({ id: 'ClickToSeeMore' })
     const ErrorOccurredMessage = intl.formatMessage({ id: 'ErrorOccurred' })
 
@@ -73,7 +77,6 @@ export const IntegrationPanel: React.FC<IIntegrationPanelProps> = ({
         tagText = ErrorOccurredMessage
     }
 
-
     const router = useRouter()
     const onSelectPushRoute = `/settings/integration/${integrationId}/`
     const onClickEvent = () => {
@@ -83,11 +86,8 @@ export const IntegrationPanel: React.FC<IIntegrationPanelProps> = ({
     return (
         <Tooltip title={TooltipMessage}>
             <CardContainer data-status={status} onClick={onClickEvent}>
-                {['inProgress', 'done', 'error'].includes(status)  && (
-                    <Tag
-                        type={tagType}
-                        style={{ position: 'absolute', top: 12, right: 4 }}
-                    >
+                {['inProgress', 'done', 'error'].includes(status) && (
+                    <Tag type={tagType} style={{ position: 'absolute', top: 12, right: 4 }}>
                         {tagText}
                     </Tag>
                 )}

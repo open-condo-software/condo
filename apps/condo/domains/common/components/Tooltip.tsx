@@ -16,7 +16,5 @@ export const Tooltip: React.FC<TooltipProps> = (props) => {
         overlayInnerStyle,
     }
 
-    return (
-        <DefaultTooltip {...tooltipProps}/>
-    )
+    return <DefaultTooltip {...tooltipProps} />
 }

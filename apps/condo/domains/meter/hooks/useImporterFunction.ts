@@ -91,11 +91,9 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
-    const meterCreateAction = Meter.useCreate({},
-        () => Promise.resolve())
+    const meterCreateAction = Meter.useCreate({}, () => Promise.resolve())
 
-    const meterReadingCreateAction = MeterReading.useCreate({},
-        () => Promise.resolve())
+    const meterReadingCreateAction = MeterReading.useCreate({}, () => Promise.resolve())
 
     const columns: Columns = [
         { name: AddressColumnMessage, type: 'string', required: true, label: AddressColumnMessage },
@@ -118,7 +116,15 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     ]
 
     const meterReadingNormalizer: RowNormalizer = async (row) => {
-        const addons = { address: null, propertyId: null, propertyMap: null, meterId: null, meterResourceId: null, readingSubmissionDate: null, invalidReadingSubmissionDate: null }
+        const addons = {
+            address: null,
+            propertyId: null,
+            propertyMap: null,
+            meterId: null,
+            meterResourceId: null,
+            readingSubmissionDate: null,
+            invalidReadingSubmissionDate: null,
+        }
         if (row.length !== columns.length) return Promise.resolve({ row })
         const [
             address,
@@ -143,10 +149,14 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         // Used tell whether suggestion API has found specified address at all
         addons.address = suggestion.value
 
-        const properties = await searchPropertyWithMap(client, {
-            organization: { id: userOrganizationId },
-            address_i: suggestion.value,
-        }, undefined)
+        const properties = await searchPropertyWithMap(
+            client,
+            {
+                organization: { id: userOrganizationId },
+                address_i: suggestion.value,
+            },
+            undefined,
+        )
 
         const propertyId = !isEmpty(properties) ? get(properties[0], 'id') : null
         const propertyMap = !isEmpty(properties) ? get(properties[0], 'map') : null
@@ -197,33 +207,42 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
         const propertyMap = get(processedRow, ['addons', 'propertyMap'])
         const sections = get(propertyMap, 'sections', [])
-        const propertyUnitLabels = sections.map(
-            section => section.floors.map(
-                floor => floor.units.map(
-                    unit => unit.label)
-            )
-        ).flat(2)
+        const propertyUnitLabels = sections
+            .map((section) => section.floors.map((floor) => floor.units.map((unit) => unit.label)))
+            .flat(2)
 
         processedRow.row.forEach((cell, i) => {
             switch (columns[i].label) {
                 case ReadingSubmissionDateMessage:
                     if (get(processedRow, ['addons', 'invalidReadingSubmissionDate'])) {
-                        errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateOrMonthFormatMessage' }, { columnName: columns[i].label, format1: DATE_PARSING_FORMAT, format2: MONTH_PARSING_FORMAT }))
+                        errors.push(
+                            intl.formatMessage(
+                                { id: 'meter.import.error.WrongDateOrMonthFormatMessage' },
+                                { columnName: columns[i].label, format1: DATE_PARSING_FORMAT, format2: MONTH_PARSING_FORMAT },
+                            ),
+                        )
                     }
                     break
                 case VerificationDateMessage:
-                case NextVerificationDateMessage: 
-                case InstallationDateMessage: 
-                case CommissioningDateMessage: 
+                case NextVerificationDateMessage:
+                case InstallationDateMessage:
+                case CommissioningDateMessage:
                 case SealingDateMessage:
-                    if (cell.value && !dayjs(cell.value).isValid()) 
-                        errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateFormatMessage' }, { columnName: columns[i].label, format: DATE_PARSING_FORMAT }))
+                    if (cell.value && !dayjs(cell.value).isValid())
+                        errors.push(
+                            intl.formatMessage(
+                                { id: 'meter.import.error.WrongDateFormatMessage' },
+                                { columnName: columns[i].label, format: DATE_PARSING_FORMAT },
+                            ),
+                        )
                     break
                 case UnitNameColumnMessage:
                     if (!propertyUnitLabels.includes(cell.value))
-                        errors.push(intl.formatMessage({ id: 'meter.import.error.UnitNameNotFound' }, { columnName: columns[i].label }))
+                        errors.push(
+                            intl.formatMessage({ id: 'meter.import.error.UnitNameNotFound' }, { columnName: columns[i].label }),
+                        )
                     break
-                default: 
+                default:
                     break
             }
         })
@@ -233,7 +252,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         }
         return Promise.resolve(true)
     }
-    const toISO = (str) =>  {
+    const toISO = (str) => {
         return dayjs(str).toISOString()
     }
     const meterReadingCreator: ObjectCreator = async ({ row, addons }: ProcessedRow) => {

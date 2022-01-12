@@ -33,7 +33,6 @@ const TicketClassifierRule = new GQLListSchema('TicketClassifierRule', {
             ref: 'TicketProblemClassifier',
             kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
         },
-
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {

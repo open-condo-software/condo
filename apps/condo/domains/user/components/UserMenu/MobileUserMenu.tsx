@@ -9,17 +9,17 @@ import { Button } from '@condo/domains/common/components/Button'
 import { UserOutlined } from '@ant-design/icons'
 import { ModalWrapper } from './styles'
 
-function goToSignin () {
+function goToSignin() {
     Router.push('/auth/signin')
 }
 
 // TODO(Dimitreee):refactor later
 export const StyledMenu = styled(Menu)`
-  padding: 20px;
-  width: 210px;
-  box-sizing: border-box;
-  border-radius: 8px;
-  transform: translate(-5%, 10px);
+    padding: 20px;
+    width: 210px;
+    box-sizing: border-box;
+    border-radius: 8px;
+    transform: translate(-5%, 10px);
 `
 
 const modalStyle: ComponentProps<typeof Modal>['style'] = {
@@ -34,7 +34,7 @@ const modalStyle: ComponentProps<typeof Modal>['style'] = {
 }
 
 type ModalViewProps = {
-    setShowModal: (state: boolean) => void 
+    setShowModal: (state: boolean) => void
 }
 
 const ModalView: React.FC<ModalViewProps> = ({ setShowModal }: ModalViewProps) => {
@@ -57,12 +57,15 @@ const ModalView: React.FC<ModalViewProps> = ({ setShowModal }: ModalViewProps) =
 
     return (
         <ModalWrapper>
-            <Button color={colors.white} onClick={onProfileItemClick}>{ProfileMessage}</Button>
-            <Button color={colors.white} onClick={onSignOutItemClick}>{SignOutMessage}</Button>
+            <Button color={colors.white} onClick={onProfileItemClick}>
+                {ProfileMessage}
+            </Button>
+            <Button color={colors.white} onClick={onSignOutItemClick}>
+                {SignOutMessage}
+            </Button>
         </ModalWrapper>
     )
 }
-
 
 export const MobileUserMenu: React.FC = () => {
     const intl = useIntl()
@@ -74,26 +77,21 @@ export const MobileUserMenu: React.FC = () => {
 
     const modalView = useCallback(() => <ModalView setShowModal={setShowModal} />, [setShowModal])
 
-    return (
-        auth.isAuthenticated
-            ? (
-
-                <>
-                    <Button 
-                        type={'inlineLink'} 
-                        icon={<Avatar size={40} icon={<UserOutlined />} />} 
-                        onClick={() => setShowModal(true)} 
-                    />
-                    <Modal 
-                        transitionName=""
-                        centered 
-                        visible={showModal} 
-                        modalRender={modalView} 
-                        style={modalStyle} 
-                        onCancel={()=> setShowModal(false)} 
-                    />
-                </>
-            )
-            : <Button type='inlineLink' onClick={goToSignin}>{SignInMessage}</Button>
+    return auth.isAuthenticated ? (
+        <>
+            <Button type={'inlineLink'} icon={<Avatar size={40} icon={<UserOutlined />} />} onClick={() => setShowModal(true)} />
+            <Modal
+                transitionName=""
+                centered
+                visible={showModal}
+                modalRender={modalView}
+                style={modalStyle}
+                onCancel={() => setShowModal(false)}
+            />
+        </>
+    ) : (
+        <Button type="inlineLink" onClick={goToSignin}>
+            {SignInMessage}
+        </Button>
     )
 }

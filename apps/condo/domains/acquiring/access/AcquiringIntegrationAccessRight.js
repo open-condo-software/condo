@@ -4,14 +4,14 @@
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
-async function canReadAcquiringIntegrationAccessRights ({ authentication: { item: user } }) {
+async function canReadAcquiringIntegrationAccessRights({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
     return false
 }
 
-async function canManageAcquiringIntegrationAccessRights ({ authentication: { item: user } }) {
+async function canManageAcquiringIntegrationAccessRights({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true

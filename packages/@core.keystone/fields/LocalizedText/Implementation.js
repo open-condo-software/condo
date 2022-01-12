@@ -6,14 +6,16 @@ const { extractReqLocale } = require('@condo/domains/common/utils/locale')
 
 // docs: https://github.com/keystonejs/keystone-5/blob/a7b19759a007fd2d6dcfcf6a998c9706d5dfdaa6/packages/fields/src/Implementation.js
 class LocalizedText extends Text.implementation {
-    constructor () {
+    constructor() {
         super(...arguments)
         if (!this.config.template) {
-            throw new Error(`Provide template id from language dictionary for localized text field: ${this.listKey}.${this.path}. Example: "employee.role.title.*'`)
+            throw new Error(
+                `Provide template id from language dictionary for localized text field: ${this.listKey}.${this.path}. Example: "employee.role.title.*'`,
+            )
         }
     }
 
-    gqlOutputFieldResolvers () {
+    gqlOutputFieldResolvers() {
         return {
             [this.path]: (item, args, context, info) => {
                 const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE

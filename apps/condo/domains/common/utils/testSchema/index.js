@@ -59,11 +59,11 @@ export const catchErrorFrom = async (testFunc, inspect) => {
  * @param {TestFunc} testFunc - Function, expected to throw an error
  * @return {Promise<void>}
  */
-export const expectToThrowAccessDeniedError = async (testFunc, path ) => {
-    await catchErrorFrom(testFunc, ({errors, data}) => {
+export const expectToThrowAccessDeniedError = async (testFunc, path) => {
+    await catchErrorFrom(testFunc, ({ errors, data }) => {
         const expectedError = {
-            'message': 'You do not have access to this resource',
-            'name': 'AccessDeniedError',
+            message: 'You do not have access to this resource',
+            name: 'AccessDeniedError',
         }
 
         if (path) {
@@ -94,13 +94,13 @@ export const expectToThrowAccessDeniedError = async (testFunc, path ) => {
  * @return {Promise<void>}
  */
 export const expectToThrowAccessDeniedErrorToObj = async (testFunc) => {
-    await catchErrorFrom(testFunc, ({errors, data}) => {
+    await catchErrorFrom(testFunc, ({ errors, data }) => {
         expect(errors[0]).toMatchObject({
-            'message': 'You do not have access to this resource',
-            'name': 'AccessDeniedError',
-            'path': ['obj'],
+            message: 'You do not have access to this resource',
+            name: 'AccessDeniedError',
+            path: ['obj'],
         })
-        expect(data).toEqual({ 'obj': null })
+        expect(data).toEqual({ obj: null })
     })
 }
 
@@ -120,13 +120,13 @@ export const expectToThrowAccessDeniedErrorToObj = async (testFunc) => {
  * @return {Promise<void>}
  */
 export const expectToThrowAccessDeniedErrorToObjects = async (testFunc) => {
-    await catchErrorFrom(testFunc, ({errors, data}) => {
+    await catchErrorFrom(testFunc, ({ errors, data }) => {
         expect(errors[0]).toMatchObject({
-            'message': 'You do not have access to this resource',
-            'name': 'AccessDeniedError',
-            'path': ['objs'],
+            message: 'You do not have access to this resource',
+            name: 'AccessDeniedError',
+            path: ['objs'],
         })
-        expect(data).toEqual({ 'objs': null })
+        expect(data).toEqual({ objs: null })
     })
 }
 
@@ -146,17 +146,16 @@ export const expectToThrowAccessDeniedErrorToObjects = async (testFunc) => {
  * @param {TestFunc} testFunc - Function, expected to throw an error
  * @return {Promise<void>}
  */
-export const expectToThrowAccessDeniedErrorToResult = async (testFunc ) => {
+export const expectToThrowAccessDeniedErrorToResult = async (testFunc) => {
     await catchErrorFrom(testFunc, ({ errors, data }) => {
         expect(errors[0]).toMatchObject({
-            'message': 'You do not have access to this resource',
-            'name': 'AccessDeniedError',
-            'path': ['result'],
+            message: 'You do not have access to this resource',
+            name: 'AccessDeniedError',
+            path: ['result'],
         })
-        expect(data).toEqual({ 'result': null })
+        expect(data).toEqual({ result: null })
     })
 }
-
 
 /**
  * Expects a GraphQL 'AuthenticationError' Error, thrown by access check if case of UNAUTHENTICATED user access.
@@ -173,22 +172,22 @@ export const expectToThrowAccessDeniedErrorToResult = async (testFunc ) => {
  * @param {TestFunc} testFunc - Function, expected to throw an error
  * @return {Promise<void>}
  */
-export const expectToThrowAuthenticationError = async (testFunc, path='objs') => {
+export const expectToThrowAuthenticationError = async (testFunc, path = 'objs') => {
     await catchErrorFrom(testFunc, ({ errors, data }) => {
         expect(errors[0]).toMatchObject({
-            'message': 'No or incorrect authentication credentials',
-            'name': 'AuthenticationError',
-            'path': [path],
-            'extensions': {
-                'code': 'UNAUTHENTICATED'
-            }
+            message: 'No or incorrect authentication credentials',
+            name: 'AuthenticationError',
+            path: [path],
+            extensions: {
+                code: 'UNAUTHENTICATED',
+            },
         })
         expect(data).toEqual({ [path]: null })
     })
 }
 
 export const expectToThrowValidationFailureError = async (testFunc, messageContains = undefined, path = 'obj') => {
-    await catchErrorFrom(testFunc, ({errors}) => {
+    await catchErrorFrom(testFunc, ({ errors }) => {
         expect(errors[0]).toMatchObject({
             message: 'You attempted to perform an invalid mutation',
             name: 'ValidationFailureError',
@@ -198,23 +197,20 @@ export const expectToThrowValidationFailureError = async (testFunc, messageConta
             expect(errors[0]).toMatchObject({
                 originalError: {
                     data: {
-                        messages: expect.arrayContaining([
-                            expect.stringContaining(messageContains)
-                        ])
-
-                    }
-                }
+                        messages: expect.arrayContaining([expect.stringContaining(messageContains)]),
+                    },
+                },
             })
         }
     })
 }
 
 export const expectToThrowMutationError = async (testFunc, messageContains, path = ['result']) => {
-    await catchErrorFrom(testFunc, ({errors}) => {
+    await catchErrorFrom(testFunc, ({ errors }) => {
         expect(errors[0]).toMatchObject({
             message: expect.stringContaining(messageContains),
             name: 'GraphQLError',
-            path
+            path,
         })
     })
 }

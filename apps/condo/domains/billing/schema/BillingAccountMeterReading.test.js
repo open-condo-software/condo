@@ -11,8 +11,16 @@ const { createTestBillingAccountMeter } = require('@condo/domains/billing/utils/
 const { createTestBillingAccount } = require('@condo/domains/billing/utils/testSchema')
 const { createTestBillingProperty } = require('@condo/domains/billing/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
-const { BillingAccountMeterReading, createTestBillingAccountMeterReading, updateTestBillingAccountMeterReading } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAuthenticationErrorToObjects, expectToThrowAuthenticationErrorToObj, expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const {
+    BillingAccountMeterReading,
+    createTestBillingAccountMeterReading,
+    updateTestBillingAccountMeterReading,
+} = require('@condo/domains/billing/utils/testSchema')
+const {
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAuthenticationErrorToObj,
+    expectToThrowAccessDeniedErrorToObj,
+} = require('@condo/domains/common/utils/testSchema')
 
 describe('BillingAccountMeterReading', () => {
     test('admin: create BillingAccountMeterReading', async () => {
@@ -81,7 +89,13 @@ describe('BillingAccountMeterReading', () => {
         const [billingAccount] = await createTestBillingAccount(admin, context, property)
         const [resource] = await createTestBillingMeterResource(admin)
         const [meter] = await createTestBillingAccountMeter(admin, context, property, billingAccount, resource)
-        const [billingAccountMeterReading] = await createTestBillingAccountMeterReading(admin, context, property, billingAccount, meter)
+        const [billingAccountMeterReading] = await createTestBillingAccountMeterReading(
+            admin,
+            context,
+            property,
+            billingAccount,
+            meter,
+        )
         const objs = await BillingAccountMeterReading.getAll(admin, { id: billingAccountMeterReading.id })
 
         expect(objs).toHaveLength(1)
@@ -95,7 +109,13 @@ describe('BillingAccountMeterReading', () => {
         const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
         const [resource] = await createTestBillingMeterResource(admin)
         const [meter] = await createTestBillingAccountMeter(managerUserClient, context, property, billingAccount, resource)
-        const [billingAccountMeterReading] = await createTestBillingAccountMeterReading(managerUserClient, context, property, billingAccount, meter)
+        const [billingAccountMeterReading] = await createTestBillingAccountMeterReading(
+            managerUserClient,
+            context,
+            property,
+            billingAccount,
+            meter,
+        )
         const objs = await BillingAccountMeterReading.getAll(managerUserClient, { id: billingAccountMeterReading.id })
 
         expect(objs).toHaveLength(1)
@@ -137,7 +157,13 @@ describe('BillingAccountMeterReading', () => {
         const [billingAccount] = await createTestBillingAccount(admin, context, property)
         const [resource] = await createTestBillingMeterResource(admin)
         const [meter] = await createTestBillingAccountMeter(admin, context, property, billingAccount, resource)
-        const [billingAccountMeterReading] = await createTestBillingAccountMeterReading(admin, context, property, billingAccount, meter)
+        const [billingAccountMeterReading] = await createTestBillingAccountMeterReading(
+            admin,
+            context,
+            property,
+            billingAccount,
+            meter,
+        )
 
         const dv1 = faker.datatype.number()
         const dv2 = faker.datatype.number()
@@ -147,7 +173,11 @@ describe('BillingAccountMeterReading', () => {
             value2: billingAccountMeterReading.value2 + dv2,
             value3: billingAccountMeterReading.value3 + dv3,
         }
-        const [updatedBillingAccountMeterReading] = await updateTestBillingAccountMeterReading(admin, billingAccountMeterReading.id, payload)
+        const [updatedBillingAccountMeterReading] = await updateTestBillingAccountMeterReading(
+            admin,
+            billingAccountMeterReading.id,
+            payload,
+        )
 
         expect(updatedBillingAccountMeterReading.id).toEqual(billingAccountMeterReading.id)
         expect(updatedBillingAccountMeterReading.value1).toEqual(billingAccountMeterReading.value1 + dv1)
@@ -163,7 +193,13 @@ describe('BillingAccountMeterReading', () => {
         const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
         const [resource] = await createTestBillingMeterResource(admin)
         const [meter] = await createTestBillingAccountMeter(managerUserClient, context, property, billingAccount, resource)
-        const [billingAccountMeterReading] = await createTestBillingAccountMeterReading(managerUserClient, context, property, billingAccount, meter)
+        const [billingAccountMeterReading] = await createTestBillingAccountMeterReading(
+            managerUserClient,
+            context,
+            property,
+            billingAccount,
+            meter,
+        )
 
         const dv1 = faker.datatype.number()
         const dv2 = faker.datatype.number()
@@ -173,7 +209,11 @@ describe('BillingAccountMeterReading', () => {
             value2: billingAccountMeterReading.value2 + dv2,
             value3: billingAccountMeterReading.value3 + dv3,
         }
-        const [updatedBillingAccountMeterReading] = await updateTestBillingAccountMeterReading(managerUserClient, billingAccountMeterReading.id, payload)
+        const [updatedBillingAccountMeterReading] = await updateTestBillingAccountMeterReading(
+            managerUserClient,
+            billingAccountMeterReading.id,
+            payload,
+        )
 
         expect(updatedBillingAccountMeterReading.id).toEqual(billingAccountMeterReading.id)
         expect(updatedBillingAccountMeterReading.value1).toEqual(billingAccountMeterReading.value1 + dv1)
@@ -189,7 +229,13 @@ describe('BillingAccountMeterReading', () => {
         const [billingAccount] = await createTestBillingAccount(admin, context, property)
         const [resource] = await createTestBillingMeterResource(admin)
         const [meter] = await createTestBillingAccountMeter(admin, context, property, billingAccount, resource)
-        const [billingAccountMeterReading] = await createTestBillingAccountMeterReading(admin, context, property, billingAccount, meter)
+        const [billingAccountMeterReading] = await createTestBillingAccountMeterReading(
+            admin,
+            context,
+            property,
+            billingAccount,
+            meter,
+        )
 
         const payload = {}
         await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -205,7 +251,13 @@ describe('BillingAccountMeterReading', () => {
         const [billingAccount] = await createTestBillingAccount(admin, context, property)
         const [resource] = await createTestBillingMeterResource(admin)
         const [meter] = await createTestBillingAccountMeter(admin, context, property, billingAccount, resource)
-        const [billingAccountMeterReading] = await createTestBillingAccountMeterReading(admin, context, property, billingAccount, meter)
+        const [billingAccountMeterReading] = await createTestBillingAccountMeterReading(
+            admin,
+            context,
+            property,
+            billingAccount,
+            meter,
+        )
 
         const payload = {}
         await expectToThrowAuthenticationErrorToObj(async () => {
@@ -220,7 +272,13 @@ describe('BillingAccountMeterReading', () => {
         const [billingAccount] = await createTestBillingAccount(admin, context, property)
         const [resource] = await createTestBillingMeterResource(admin)
         const [meter] = await createTestBillingAccountMeter(admin, context, property, billingAccount, resource)
-        const [billingAccountMeterReading] = await createTestBillingAccountMeterReading(admin, context, property, billingAccount, meter)
+        const [billingAccountMeterReading] = await createTestBillingAccountMeterReading(
+            admin,
+            context,
+            property,
+            billingAccount,
+            meter,
+        )
 
         await expectToThrowAccessDeniedErrorToObj(async () => {
             await BillingAccountMeterReading.delete(admin, billingAccountMeterReading.id)
@@ -235,7 +293,13 @@ describe('BillingAccountMeterReading', () => {
         const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
         const [resource] = await createTestBillingMeterResource(admin)
         const [meter] = await createTestBillingAccountMeter(managerUserClient, context, property, billingAccount, resource)
-        const [billingAccountMeterReading] = await createTestBillingAccountMeterReading(managerUserClient, context, property, billingAccount, meter)
+        const [billingAccountMeterReading] = await createTestBillingAccountMeterReading(
+            managerUserClient,
+            context,
+            property,
+            billingAccount,
+            meter,
+        )
 
         await expectToThrowAccessDeniedErrorToObj(async () => {
             await BillingAccountMeterReading.delete(managerUserClient, billingAccountMeterReading.id)
@@ -250,7 +314,13 @@ describe('BillingAccountMeterReading', () => {
         const [billingAccount] = await createTestBillingAccount(admin, context, property)
         const [resource] = await createTestBillingMeterResource(admin)
         const [meter] = await createTestBillingAccountMeter(admin, context, property, billingAccount, resource)
-        const [billingAccountMeterReading] = await createTestBillingAccountMeterReading(admin, context, property, billingAccount, meter)
+        const [billingAccountMeterReading] = await createTestBillingAccountMeterReading(
+            admin,
+            context,
+            property,
+            billingAccount,
+            meter,
+        )
 
         await expectToThrowAccessDeniedErrorToObj(async () => {
             await BillingAccountMeterReading.delete(client, billingAccountMeterReading.id)
@@ -265,7 +335,13 @@ describe('BillingAccountMeterReading', () => {
         const [billingAccount] = await createTestBillingAccount(admin, context, property)
         const [resource] = await createTestBillingMeterResource(admin)
         const [meter] = await createTestBillingAccountMeter(admin, context, property, billingAccount, resource)
-        const [billingAccountMeterReading] = await createTestBillingAccountMeterReading(admin, context, property, billingAccount, meter)
+        const [billingAccountMeterReading] = await createTestBillingAccountMeterReading(
+            admin,
+            context,
+            property,
+            billingAccount,
+            meter,
+        )
 
         await expectToThrowAccessDeniedErrorToObj(async () => {
             await BillingAccountMeterReading.delete(client, billingAccountMeterReading.id)

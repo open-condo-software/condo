@@ -36,9 +36,9 @@ type InitialMeterFormValuesType = {
 }
 
 type BaseMeterModalFormProps = ComponentProps<typeof BaseModalForm> & {
-    handleSubmit: (values: unknown) => void,
-    initialValues: InitialMeterFormValuesType,
-    ModalTitleMsg: JSX.Element | string,
+    handleSubmit: (values: unknown) => void
+    initialValues: InitialMeterFormValuesType
+    ModalTitleMsg: JSX.Element | string
     ModalSaveButtonLabelMsg: JSX.Element | string
 }
 
@@ -52,12 +52,11 @@ const { Option } = Select
 const TARIFFS_NUMBER = 4
 
 const getTariffNumberSelectOptions = () => {
-    return Array.from({ length: TARIFFS_NUMBER }, (_, i) => i + 1)
-        .map(number => (
-            <Option key={number} value={number}>
-                {number}
-            </Option>
-        ))
+    return Array.from({ length: TARIFFS_NUMBER }, (_, i) => i + 1).map((number) => (
+        <Option key={number} value={number}>
+            {number}
+        </Option>
+    ))
 }
 
 const getInitialDateValue = (initialValues, path) => {
@@ -67,7 +66,13 @@ const getInitialDateValue = (initialValues, path) => {
     return stringInitialValue && dayjsInitialValue.isValid() ? dayjsInitialValue : null
 }
 
-export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ handleSubmit, initialValues, ModalSaveButtonLabelMsg, ModalTitleMsg, ...otherProps }) => {
+export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
+    handleSubmit,
+    initialValues,
+    ModalSaveButtonLabelMsg,
+    ModalTitleMsg,
+    ...otherProps
+}) => {
     const intl = useIntl()
     const MeterNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterNumber' })
     const MeterPlaceMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterPlace' })
@@ -81,10 +86,8 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ handleSu
     const ResourceMessage = intl.formatMessage({ id: 'pages.condo.meter.Resource' })
 
     const meterResourceId = get(initialValues, ['resource', 'id'])
-    const initialInstallationDate = useCallback(() => getInitialDateValue(initialValues, ['installationDate']),
-        [initialValues])
-    const initialVerificationDate = useCallback(() => getInitialDateValue(initialValues, ['verificationDate']),
-        [initialValues])
+    const initialInstallationDate = useCallback(() => getInitialDateValue(initialValues, ['installationDate']), [initialValues])
+    const initialVerificationDate = useCallback(() => getInitialDateValue(initialValues, ['verificationDate']), [initialValues])
 
     const [isAdditionalFieldsCollapsed, setIsAdditionalFieldsCollapsed] = useState<boolean>(true)
     const [isModalVisible, setModalVisible] = useState<boolean>(false)
@@ -93,31 +96,31 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ handleSu
     const [verificationDate, setVerificationDate] = useState<Dayjs>(initialVerificationDate)
 
     const { requiredValidator } = useValidations()
-    const {
-        meterWithSameNumberValidator,
-        earlierThanInstallationValidator,
-        earlierThanFirstVerificationDateValidator,
-    } = useMeterValidations(installationDate, verificationDate)
+    const { meterWithSameNumberValidator, earlierThanInstallationValidator, earlierThanFirstVerificationDateValidator } =
+        useMeterValidations(installationDate, verificationDate)
 
     const initialMeterNumber = get(initialValues, ['number'])
-    const meterNumberValidations = useMemo(() =>
-        initialMeterNumber ? [requiredValidator] : [requiredValidator, meterWithSameNumberValidator],
-    [initialMeterNumber, meterWithSameNumberValidator, requiredValidator])
+    const meterNumberValidations = useMemo(
+        () => (initialMeterNumber ? [requiredValidator] : [requiredValidator, meterWithSameNumberValidator]),
+        [initialMeterNumber, meterWithSameNumberValidator, requiredValidator],
+    )
 
-    const validations = useMemo(() => ({
-        number: meterNumberValidations,
-        resource: [requiredValidator],
-        numberOfTariffs: [requiredValidator],
-        commissioningDate: [earlierThanInstallationValidator],
-        sealingDate: [earlierThanInstallationValidator],
-        nextVerificationDate: [earlierThanFirstVerificationDateValidator],
-        controlReadingsDate: [earlierThanInstallationValidator],
-    }),
-    [earlierThanFirstVerificationDateValidator, earlierThanInstallationValidator, meterNumberValidations, requiredValidator])
+    const validations = useMemo(
+        () => ({
+            number: meterNumberValidations,
+            resource: [requiredValidator],
+            numberOfTariffs: [requiredValidator],
+            commissioningDate: [earlierThanInstallationValidator],
+            sealingDate: [earlierThanInstallationValidator],
+            nextVerificationDate: [earlierThanFirstVerificationDateValidator],
+            controlReadingsDate: [earlierThanInstallationValidator],
+        }),
+        [earlierThanFirstVerificationDateValidator, earlierThanInstallationValidator, meterNumberValidations, requiredValidator],
+    )
 
     const initialResourceValue = get(initialValues, ['resource', 'id'])
     const handleCancelModal = useCallback(() => () => setModalVisible(false), [])
-    const handleInstallationDateChange = useCallback(value => setInstallationDate(value), [])
+    const handleInstallationDateChange = useCallback((value) => setInstallationDate(value), [])
     const handleResourceChange = useCallback((form, resource) => {
         setIsTariffsCountHidden(resource !== ELECTRICITY_METER_RESOURCE_ID)
         form.setFieldsValue({ numberOfTariffs: null })
@@ -138,122 +141,108 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ handleSu
             submitButtonProps={SUBMIT_BUTTON_PROPS}
             {...otherProps}
         >
-            {
-                (form) => (
-                    <Row gutter={METER_MODAL_ROW_GUTTERS}>
-                        <Col span={24}>
-                            <Row justify={'space-between'} gutter={METER_MODAL_ROW_GUTTERS}>
-                                <Col span={24}>
-                                    <BaseMeterModalAccountNumberField
-                                        initialValues={initialValues}
+            {(form) => (
+                <Row gutter={METER_MODAL_ROW_GUTTERS}>
+                    <Col span={24}>
+                        <Row justify={'space-between'} gutter={METER_MODAL_ROW_GUTTERS}>
+                            <Col span={24}>
+                                <BaseMeterModalAccountNumberField initialValues={initialValues} />
+                            </Col>
+                            <Col span={24}>
+                                <BaseMeterModalFormItem
+                                    label={ResourceMessage}
+                                    name={'resource'}
+                                    rules={validations.resource}
+                                    initialValue={initialResourceValue}
+                                >
+                                    <GraphQlSearchInput
+                                        onChange={(resource) => handleResourceChange(form, resource)}
+                                        search={searchMeterResources}
                                     />
-                                </Col>
+                                </BaseMeterModalFormItem>
+                            </Col>
+                            <Col span={METER_MODAL_FORM_ITEM_SPAN}>
+                                <BaseMeterModalFormItem
+                                    label={MeterNumberMessage}
+                                    name="number"
+                                    rules={validations.number}
+                                    validateTrigger={METER_MODAL_VALIDATE_TRIGGER}
+                                    initialValue={initialValues.number}
+                                >
+                                    <Input />
+                                </BaseMeterModalFormItem>
+                            </Col>
+                            <Col span={METER_MODAL_FORM_ITEM_SPAN}>
+                                <BaseMeterModalFormItem label={MeterPlaceMessage} name="place" initialValue={initialValues.place}>
+                                    <Input />
+                                </BaseMeterModalFormItem>
+                            </Col>
+                            {!isTariffsCountHidden ? (
                                 <Col span={24}>
                                     <BaseMeterModalFormItem
-                                        label={ResourceMessage}
-                                        name={'resource'}
-                                        rules={validations.resource}
-                                        initialValue={initialResourceValue}
+                                        rules={validations.numberOfTariffs}
+                                        label={TariffsCountMessage}
+                                        name="numberOfTariffs"
+                                        initialValue={initialValues.numberOfTariffs}
                                     >
-                                        <GraphQlSearchInput
-                                            onChange={resource => handleResourceChange(form, resource)}
-                                            search={searchMeterResources}
-                                        />
+                                        <Select>{tariffOptions}</Select>
                                     </BaseMeterModalFormItem>
                                 </Col>
-                                <Col span={METER_MODAL_FORM_ITEM_SPAN}>
-                                    <BaseMeterModalFormItem
-                                        label={MeterNumberMessage}
-                                        name='number'
-                                        rules={validations.number}
-                                        validateTrigger={METER_MODAL_VALIDATE_TRIGGER}
-                                        initialValue={initialValues.number}
-                                    >
-                                        <Input />
-                                    </BaseMeterModalFormItem>
-                                </Col>
-                                <Col span={METER_MODAL_FORM_ITEM_SPAN}>
-                                    <BaseMeterModalFormItem
-                                        label={MeterPlaceMessage}
-                                        name='place'
-                                        initialValue={initialValues.place}
-                                    >
-                                        <Input />
-                                    </BaseMeterModalFormItem>
-                                </Col>
-                                {
-                                    !isTariffsCountHidden ? (
-                                        <Col span={24}>
-                                            <BaseMeterModalFormItem
-                                                rules={validations.numberOfTariffs}
-                                                label={TariffsCountMessage}
-                                                name='numberOfTariffs'
-                                                initialValue={initialValues.numberOfTariffs}
-                                            >
-                                                <Select>
-                                                    {tariffOptions}
-                                                </Select>
-                                            </BaseMeterModalFormItem>
-                                        </Col>
-                                    ) : null
-                                }
-                                {
-                                    !isAdditionalFieldsCollapsed ? (
-                                        <>
-                                            <MeterModalDatePicker
-                                                label={InstallationDateMessage}
-                                                name='installationDate'
-                                                onChange={handleInstallationDateChange}
-                                                initialValue={initialValues.installationDate}
-                                            />
-                                            <MeterModalDatePicker
-                                                label={CommissioningDateMessage}
-                                                name='commissioningDate'
-                                                rules={validations.commissioningDate}
-                                                dependencies={DATE_FIELD_INSTALLATION_DATE_DEPENDENCY}
-                                                initialValue={initialValues.commissioningDate}
-                                            />
-                                            <MeterModalDatePicker
-                                                label={SealingDateMessage}
-                                                name='sealingDate'
-                                                rules={validations.sealingDate}
-                                                dependencies={DATE_FIELD_INSTALLATION_DATE_DEPENDENCY}
-                                                initialValue={initialValues.sealingDate}
-                                            />
-                                            <MeterModalDatePicker
-                                                label={VerificationDateMessage}
-                                                name='verificationDate'
-                                                onChange={value => setVerificationDate(value)}
-                                                initialValue={initialValues.verificationDate}
-                                            />
-                                            <MeterModalDatePicker
-                                                label={NextVerificationDateMessage}
-                                                name='nextVerificationDate'
-                                                rules={validations.nextVerificationDate}
-                                                dependencies={NEXT_VERIFICATION_DATE_FIELD_DEPENDENCIES}
-                                                initialValue={initialValues.nextVerificationDate}
-                                            />
-                                            <MeterModalDatePicker
-                                                label={ControlReadingsDateMessage}
-                                                name='controlReadingsDate'
-                                                rules={validations.controlReadingsDate}
-                                                dependencies={DATE_FIELD_INSTALLATION_DATE_DEPENDENCY}
-                                                initialValue={initialValues.controlReadingsDate}
-                                            />
-                                        </>
-                                    ) : null
-                                }
-                            </Row>
-                        </Col>
-                        <Col>
-                            <ShowMoreFieldsButton
-                                isAdditionalFieldsCollapsed={isAdditionalFieldsCollapsed}
-                                setIsAdditionalFieldsCollapsed={setIsAdditionalFieldsCollapsed}
-                            />
-                        </Col>
-                    </Row>
-                )
-            }
+                            ) : null}
+                            {!isAdditionalFieldsCollapsed ? (
+                                <>
+                                    <MeterModalDatePicker
+                                        label={InstallationDateMessage}
+                                        name="installationDate"
+                                        onChange={handleInstallationDateChange}
+                                        initialValue={initialValues.installationDate}
+                                    />
+                                    <MeterModalDatePicker
+                                        label={CommissioningDateMessage}
+                                        name="commissioningDate"
+                                        rules={validations.commissioningDate}
+                                        dependencies={DATE_FIELD_INSTALLATION_DATE_DEPENDENCY}
+                                        initialValue={initialValues.commissioningDate}
+                                    />
+                                    <MeterModalDatePicker
+                                        label={SealingDateMessage}
+                                        name="sealingDate"
+                                        rules={validations.sealingDate}
+                                        dependencies={DATE_FIELD_INSTALLATION_DATE_DEPENDENCY}
+                                        initialValue={initialValues.sealingDate}
+                                    />
+                                    <MeterModalDatePicker
+                                        label={VerificationDateMessage}
+                                        name="verificationDate"
+                                        onChange={(value) => setVerificationDate(value)}
+                                        initialValue={initialValues.verificationDate}
+                                    />
+                                    <MeterModalDatePicker
+                                        label={NextVerificationDateMessage}
+                                        name="nextVerificationDate"
+                                        rules={validations.nextVerificationDate}
+                                        dependencies={NEXT_VERIFICATION_DATE_FIELD_DEPENDENCIES}
+                                        initialValue={initialValues.nextVerificationDate}
+                                    />
+                                    <MeterModalDatePicker
+                                        label={ControlReadingsDateMessage}
+                                        name="controlReadingsDate"
+                                        rules={validations.controlReadingsDate}
+                                        dependencies={DATE_FIELD_INSTALLATION_DATE_DEPENDENCY}
+                                        initialValue={initialValues.controlReadingsDate}
+                                    />
+                                </>
+                            ) : null}
+                        </Row>
+                    </Col>
+                    <Col>
+                        <ShowMoreFieldsButton
+                            isAdditionalFieldsCollapsed={isAdditionalFieldsCollapsed}
+                            setIsAdditionalFieldsCollapsed={setIsAdditionalFieldsCollapsed}
+                        />
+                    </Col>
+                </Row>
+            )}
         </BaseModalForm>
     )
 }

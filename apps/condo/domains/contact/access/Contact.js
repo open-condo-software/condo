@@ -10,26 +10,28 @@ const { checkRelatedOrganizationPermission } = require('@condo/domains/organizat
 const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadContacts ({ authentication: { item: user } }) {
+async function canReadContacts({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return {}
     const userId = user.id
     return {
         organization: {
-            OR: [
-                queryOrganizationEmployeeFor(userId),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
-            ],
+            OR: [queryOrganizationEmployeeFor(userId), queryOrganizationEmployeeFromRelatedOrganizationFor(userId)],
         },
     }
 }
 
-async function canManageContacts ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
+async function canManageContacts({ authentication: { item: user }, originalInput, operation, itemId, context }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     if (operation === 'create') {
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])
-        const canManageRelatedOrganizationContacts = await checkRelatedOrganizationPermission(context, user.id, organizationId, 'canManageContacts')
+        const canManageRelatedOrganizationContacts = await checkRelatedOrganizationPermission(
+            context,
+            user.id,
+            organizationId,
+            'canManageContacts',
+        )
         if (canManageRelatedOrganizationContacts) {
             return true
         }
@@ -40,11 +42,21 @@ async function canManageContacts ({ authentication: { item: user }, originalInpu
         if (!contact) {
             return false
         }
-        const canManageRelatedOrganizationContacts = await checkRelatedOrganizationPermission(context, user.id, contact.organization.id, 'canManageContacts')
+        const canManageRelatedOrganizationContacts = await checkRelatedOrganizationPermission(
+            context,
+            user.id,
+            contact.organization.id,
+            'canManageContacts',
+        )
         if (canManageRelatedOrganizationContacts) {
             return true
         }
-        const canManageContacts = await checkOrganizationPermission(context, user.id, contact.organization.id, 'canManageContacts')
+        const canManageContacts = await checkOrganizationPermission(
+            context,
+            user.id,
+            contact.organization.id,
+            'canManageContacts',
+        )
         return canManageContacts
     }
     return false

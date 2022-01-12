@@ -3,11 +3,10 @@ import get from 'lodash/get'
 import { ParsedUrlQuery } from 'querystring'
 import { AddressMetaField, Property, PropertyWhereInput } from '@app/condo/schema'
 
-
 export const PROPERTY_PAGE_SIZE = 10
 
 type SorterColumn = {
-    columnKey: string,
+    columnKey: string
     order: 'ascend' | 'descend'
 }
 
@@ -33,12 +32,10 @@ export const createSorterMap = (sortStringFromQuery: Array<string>): Record<stri
         return {}
     }
     const sortOrders = {
-        'ASC': 'ascend',
-        'DESC': 'descend',
+        ASC: 'ascend',
+        DESC: 'descend',
     }
-    const columns = [
-        'address',
-    ]
+    const columns = ['address']
     return sortStringFromQuery.reduce((acc, column) => {
         const [columnKey, sortOrder] = column.split('_')
         const order = sortOrders[sortOrder]
@@ -57,18 +54,20 @@ export const sorterToQuery = (sorter?: SorterColumn | Array<SorterColumn>): Arra
     if (!Array.isArray(sorter)) {
         sorter = [sorter]
     }
-    return sorter.map((sort) => {
-        const { columnKey, order } = sort
-        const sortKeys = {
-            'ascend': 'ASC',
-            'descend': 'DESC',
-        }
-        const sortKey = sortKeys[order]
-        if (!sortKey) {
-            return
-        }
-        return `${columnKey}_${sortKeys[order]}`
-    }).filter(Boolean)
+    return sorter
+        .map((sort) => {
+            const { columnKey, order } = sort
+            const sortKeys = {
+                ascend: 'ASC',
+                descend: 'DESC',
+            }
+            const sortKey = sortKeys[order]
+            if (!sortKey) {
+                return
+            }
+            return `${columnKey}_${sortKeys[order]}`
+        })
+        .filter(Boolean)
 }
 
 export const searchToQuery = (search?: string): PropertyWhereInput[] => {
@@ -76,9 +75,7 @@ export const searchToQuery = (search?: string): PropertyWhereInput[] => {
         return
     }
 
-    return [
-        { address_contains_i: search },
-    ]
+    return [{ address_contains_i: search }]
 }
 
 export const filtersToQuery = (filters: IFilters): PropertyWhereInput => {
@@ -87,10 +84,7 @@ export const filtersToQuery = (filters: IFilters): PropertyWhereInput => {
 
     const searchQuery = searchToQuery(search)
 
-    const filtersCollection = [
-        address && { address_contains_i: address },
-        searchQuery && { OR: searchQuery },
-    ].filter(Boolean)
+    const filtersCollection = [address && { address_contains_i: address }, searchQuery && { OR: searchQuery }].filter(Boolean)
     if (filtersCollection.length > 0) {
         return {
             AND: filtersCollection,

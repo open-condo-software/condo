@@ -12,7 +12,6 @@ const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation
 const { INTEGRATION_NO_BILLINGS_ERROR } = require('@condo/domains/acquiring/constants/errors')
 const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
 
-
 const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
     schemaDoc: 'Information about `acquiring component` which will generate `billing receipts` and `payments`',
     fields: {
@@ -38,15 +37,17 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             knexOptions: { isNotNullable: false },
             isRequired: true,
         },
-        
+
         hostUrl: {
-            schemaDoc: 'Url to acquiring integration service. Mobile devices will use it communicate with external acquiring. List of endpoints is the same for all of them.',
+            schemaDoc:
+                'Url to acquiring integration service. Mobile devices will use it communicate with external acquiring. List of endpoints is the same for all of them.',
             type: Text,
             isRequired: true,
         },
 
         supportedBillingIntegrations: {
-            schemaDoc: 'List of supported billing integrations. If one of them is here, it means that this acquiring can accept receipts from it',
+            schemaDoc:
+                'List of supported billing integrations. If one of them is here, it means that this acquiring can accept receipts from it',
             type: Relationship,
             ref: 'BillingIntegration',
             isRequired: true,
@@ -62,7 +63,8 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
 
         explicitFeeDistributionSchema: {
             ...FEE_DISTRIBUTION_SCHEMA_FIELD,
-            schemaDoc: 'Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient',
+            schemaDoc:
+                'Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient',
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],

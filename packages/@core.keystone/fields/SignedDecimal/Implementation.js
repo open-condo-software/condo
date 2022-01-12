@@ -5,16 +5,20 @@ const Big = require('big.js')
 const AVAILABLE_TYPES = ['negative', 'positive', 'non-negative', 'non-positive']
 
 class SignedDecimal extends Decimal.implementation {
-    constructor () {
+    constructor() {
         super(...arguments)
         const template = get(this.config, 'template')
         if (!template || !AVAILABLE_TYPES.includes(template)) {
-            throw new Error(`Type of decimal (template) was not correct for SignedDecimal field of ${this.listKey}.${this.path}. Expected one of this: [${AVAILABLE_TYPES.map(type => `"${type}"`).join(', ')}], but got: ${template}`)
+            throw new Error(
+                `Type of decimal (template) was not correct for SignedDecimal field of ${this.listKey}.${
+                    this.path
+                }. Expected one of this: [${AVAILABLE_TYPES.map((type) => `"${type}"`).join(', ')}], but got: ${template}`,
+            )
         }
         this.decimalType = template
     }
 
-    async validateInput (args) {
+    async validateInput(args) {
         const { resolvedData, fieldPath, addFieldValidationError } = args
         if (resolvedData.hasOwnProperty(fieldPath) && resolvedData[fieldPath] !== null) {
             const decimal = Big(resolvedData[fieldPath])
@@ -34,7 +38,9 @@ class SignedDecimal extends Decimal.implementation {
                     break
             }
             if (!checkPassed) {
-                addFieldValidationError(`[${fieldPath}:${this.decimalType}] Specified number has an invalid sign. Field value should be ${this.decimalType}`)
+                addFieldValidationError(
+                    `[${fieldPath}:${this.decimalType}] Specified number has an invalid sign. Field value should be ${this.decimalType}`,
+                )
             }
         }
         await super.validateInput(args)

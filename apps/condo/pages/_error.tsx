@@ -1,7 +1,7 @@
 import React from 'react'
 import Custom500, { ErrorLayout } from './500'
 
-export default function ErrorPage () {
+export default function ErrorPage() {
     return <Custom500 />
 }
 
@@ -17,5 +17,5 @@ ErrorPage.getInitialProps = ({ res, err }) => {
         res.end()
     }
 
-    return { }
+    return {}
 }

@@ -32,19 +32,11 @@ interface IBaseLayoutProps {
 }
 
 const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
-    const {
-        style,
-        children,
-        className,
-        menuData,
-        headerAction,
-        onLogoClick = () => Router.push('/'),
-        TopMenuItems,
-    } = props
+    const { style, children, className, menuData, headerAction, onLogoClick = () => Router.push('/'), TopMenuItems } = props
 
     return (
         <Layout className={className} style={style} css={layoutCss}>
-            <SideNav menuData={menuData} onLogoClick={onLogoClick}/>
+            <SideNav menuData={menuData} onLogoClick={onLogoClick} />
             <Layout css={subLayoutCss}>
                 <Header headerAction={headerAction} TopMenuItems={TopMenuItems} />
                 {children}
@@ -78,8 +70,11 @@ interface IPageHeaderProps extends PageHeaderProps {
 const PageHeader: FunctionComponent<IPageHeaderProps> = ({ children, className, style, title, subTitle, ...pageHeaderProps }) => {
     return (
         <AntPageHeader
-            className={classnames('page-header', className)} css={pageHeaderCss} style={style}
-            title={title} subTitle={subTitle}
+            className={classnames('page-header', className)}
+            css={pageHeaderCss}
+            style={style}
+            title={title}
+            subTitle={subTitle}
             {...pageHeaderProps}
         >
             {children}
@@ -109,10 +104,4 @@ const TablePageContent: FunctionComponent<IPageContentProps> = ({ children, clas
 }
 
 export default BaseLayout
-export {
-    useLayoutContext,
-    PageWrapper,
-    PageHeader,
-    PageContent,
-    TablePageContent,
-}
+export { useLayoutContext, PageWrapper, PageHeader, PageContent, TablePageContent }

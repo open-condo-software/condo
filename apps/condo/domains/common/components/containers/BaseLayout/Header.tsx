@@ -13,24 +13,24 @@ import { MenuOutlined } from '@ant-design/icons'
 import { useOrganizationInvites } from '@condo/domains/organization/hooks/useOrganizationInvites'
 
 const DesktopHeader = styled(Layout.Header)`
-  z-index: 9;
-  background: ${colors.white};
-  width: 100%;
-  padding: 20px 48px;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  line-height: 100%;
+    z-index: 9;
+    background: ${colors.white};
+    width: 100%;
+    padding: 20px 48px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    line-height: 100%;
 `
 
 const MobileHeader = styled(Layout.Header)`
-  display: flex;
-  flex-direction: row;
-  padding: 12px 22px;
-  background: ${colors.white};
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid ${colors.lightGrey[5]};
+    display: flex;
+    flex-direction: row;
+    padding: 12px 22px;
+    background: ${colors.white};
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid ${colors.lightGrey[5]};
 `
 
 interface IHeaderProps {
@@ -53,22 +53,18 @@ export const Header: React.FC<IHeaderProps> = (props) => {
         }
     }, [isAuthenticated, router])
 
-    return (
-        isSmall
-            ? (
-                <MobileHeader>
-                    <Space size={22}>
-                        <MenuOutlined onClick={toggleCollapsed}/>
-                        <ResidentActions minified/>
-                    </Space>
-                    <Logo fillColor={colors.logoPurple} onClick={handleLogoClick} minified/>
-                    <UserMenu/>
-                </MobileHeader>
-            )
-            : (
-                <DesktopHeader>
-                    <TopMenuItems headerAction={props.headerAction}/>
-                </DesktopHeader>
-            )
+    return isSmall ? (
+        <MobileHeader>
+            <Space size={22}>
+                <MenuOutlined onClick={toggleCollapsed} />
+                <ResidentActions minified />
+            </Space>
+            <Logo fillColor={colors.logoPurple} onClick={handleLogoClick} minified />
+            <UserMenu />
+        </MobileHeader>
+    ) : (
+        <DesktopHeader>
+            <TopMenuItems headerAction={props.headerAction} />
+        </DesktopHeader>
     )
 }

@@ -16,7 +16,7 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { Resident: ResidentServerUtils } = require('@condo/domains/resident/utils/serverSchema')
 
-async function canReadTickets ({ authentication: { item: user }, context }) {
+async function canReadTickets({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin || user.isSupport) {
         return {}
@@ -29,7 +29,7 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
             return false
         }
 
-        const organizationIds = compact(residents.map(resident => get(resident, ['organization', 'id'])))
+        const organizationIds = compact(residents.map((resident) => get(resident, ['organization', 'id'])))
         if (organizationIds.length > 0) {
             return {
                 organization: {
@@ -45,16 +45,13 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
 
     return {
         organization: {
-            OR: [
-                queryOrganizationEmployeeFor(userId),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
-            ],
+            OR: [queryOrganizationEmployeeFor(userId), queryOrganizationEmployeeFromRelatedOrganizationFor(userId)],
             deletedAt: null,
         },
     }
 }
 
-async function canManageTickets ({ authentication: { item: user }, operation, itemId, originalInput, context }) {
+async function canManageTickets({ authentication: { item: user }, operation, itemId, originalInput, context }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     const userId = get(user, 'id', null)
@@ -90,7 +87,12 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
             return residents.length > 0
         }
 
-        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(context, userId, organizationIdFromTicket, 'canManageTickets')
+        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(
+            context,
+            userId,
+            organizationIdFromTicket,
+            'canManageTickets',
+        )
         if (canManageRelatedOrganizationTickets) {
             return true
         }
@@ -102,7 +104,6 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
         }
 
         return organizationIdFromTicket === organizationIdFromProperty
-
     } else if (operation === 'update') {
         if (!itemId) {
             return false
@@ -138,7 +139,12 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
             return residents.length > 0
         }
 
-        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(context, userId, organizationIdFromTicket, 'canManageTickets')
+        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(
+            context,
+            userId,
+            organizationIdFromTicket,
+            'canManageTickets',
+        )
         if (canManageRelatedOrganizationTickets) {
             return true
         }

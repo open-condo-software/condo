@@ -56,12 +56,7 @@ export const useTableFilters = () => {
         },
         {
             keyword: 'search',
-            filters: [
-                filterName,
-                filterProperties,
-                filterResponsible,
-                filterExecutors,
-            ],
+            filters: [filterName, filterProperties, filterResponsible, filterExecutors],
             combineType: 'OR',
         },
     ]

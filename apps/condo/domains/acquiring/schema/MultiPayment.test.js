@@ -69,27 +69,27 @@ describe('MultiPayment', () => {
                 const admin = await makeLoggedInAdminClient()
                 const { payments, acquiringIntegration, client } = await makePayerAndPayments()
                 const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
-                const paymentsIds = payments.map(payment => ({ id: payment.id }))
+                const paymentsIds = payments.map((payment) => ({ id: payment.id }))
 
                 expect(multiPayment).toBeDefined()
                 expect(multiPayment).toHaveProperty(['integration', 'id'], acquiringIntegration.id)
                 expect(multiPayment).toHaveProperty('payments')
                 expect(multiPayment.payments).toEqual(expect.arrayContaining(paymentsIds))
             })
-            test('support can\'t', async () => {
+            test("support can't", async () => {
                 const support = await makeClientWithSupportUser()
                 const { payments, acquiringIntegration, client } = await makePayerAndPayments()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await createTestMultiPayment(support, payments, client.user, acquiringIntegration)
                 })
             })
-            test('user can\'t', async () => {
+            test("user can't", async () => {
                 const { payments, acquiringIntegration, client } = await makePayerAndPayments()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await createTestMultiPayment(client, payments, client.user, acquiringIntegration)
                 })
             })
-            test('anonymous can\'t', async () => {
+            test("anonymous can't", async () => {
                 const anonymousClient = await makeClient()
                 const { payments, acquiringIntegration, client } = await makePayerAndPayments()
                 await expectToThrowAuthenticationErrorToObj(async () => {
@@ -116,22 +116,51 @@ describe('MultiPayment', () => {
                 expect(multiPayments).not.toHaveLength(0)
             })
             describe('user', () => {
-                test('user can see only it\'s own multipayments', async () => {
-                    const { admin, payments: firstPayments, acquiringIntegration: firstAcquiringIntegration, client: firstClient } = await makePayerAndPayments()
-                    const { payments: secondPayments, client: secondClient, acquiringIntegration: secondAcquiringIntegration } = await makePayerAndPayments()
-                    const [firstMultiPayment] = await createTestMultiPayment(admin, firstPayments, firstClient.user, firstAcquiringIntegration)
-                    const [secondMultiPayment] = await createTestMultiPayment(admin, secondPayments, secondClient.user, secondAcquiringIntegration)
-                    let { data: { objs: firstMultiPayments } } = await MultiPayment.getAll(firstClient, {}, { raw:true })
+                test("user can see only it's own multipayments", async () => {
+                    const {
+                        admin,
+                        payments: firstPayments,
+                        acquiringIntegration: firstAcquiringIntegration,
+                        client: firstClient,
+                    } = await makePayerAndPayments()
+                    const {
+                        payments: secondPayments,
+                        client: secondClient,
+                        acquiringIntegration: secondAcquiringIntegration,
+                    } = await makePayerAndPayments()
+                    const [firstMultiPayment] = await createTestMultiPayment(
+                        admin,
+                        firstPayments,
+                        firstClient.user,
+                        firstAcquiringIntegration,
+                    )
+                    const [secondMultiPayment] = await createTestMultiPayment(
+                        admin,
+                        secondPayments,
+                        secondClient.user,
+                        secondAcquiringIntegration,
+                    )
+                    let {
+                        data: { objs: firstMultiPayments },
+                    } = await MultiPayment.getAll(firstClient, {}, { raw: true })
                     expect(firstMultiPayments).toBeDefined()
                     expect(firstMultiPayments).toHaveLength(1)
                     expect(firstMultiPayments).toHaveProperty(['0', 'id'], firstMultiPayment.id)
-                    let { data: { objs: secondMultiPayments } } = await MultiPayment.getAll(secondClient, {}, { raw:true })
+                    let {
+                        data: { objs: secondMultiPayments },
+                    } = await MultiPayment.getAll(secondClient, {}, { raw: true })
                     expect(secondMultiPayments).toBeDefined()
                     expect(secondMultiPayments).toHaveLength(1)
                     expect(secondMultiPayments).toHaveProperty(['0', 'id'], secondMultiPayment.id)
                 })
-                test('integration account can see only multipayments linked to it\'s integration', async () => {
-                    const { admin, payments, acquiringIntegration: firstIntegration, client, billingIntegration } = await makePayerAndPayments()
+                test("integration account can see only multipayments linked to it's integration", async () => {
+                    const {
+                        admin,
+                        payments,
+                        acquiringIntegration: firstIntegration,
+                        client,
+                        billingIntegration,
+                    } = await makePayerAndPayments()
                     const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, firstIntegration)
                     const [secondIntegration] = await createTestAcquiringIntegration(admin, [billingIntegration])
 
@@ -140,16 +169,20 @@ describe('MultiPayment', () => {
                     await createTestAcquiringIntegrationAccessRight(admin, firstIntegration, firstIntegrationClient.user)
                     await createTestAcquiringIntegrationAccessRight(admin, secondIntegration, secondIntegrationClient.user)
 
-                    let { data: { objs: firstMultiPayments } } = await MultiPayment.getAll(firstIntegrationClient, {}, { raw:true })
+                    let {
+                        data: { objs: firstMultiPayments },
+                    } = await MultiPayment.getAll(firstIntegrationClient, {}, { raw: true })
                     expect(firstMultiPayments).toBeDefined()
                     expect(firstMultiPayments).toHaveLength(1)
                     expect(firstMultiPayments).toHaveProperty(['0', 'id'], multiPayment.id)
-                    let { data: { objs: secondMultiPayments } } = await MultiPayment.getAll(secondIntegrationClient, {}, { raw:true })
+                    let {
+                        data: { objs: secondMultiPayments },
+                    } = await MultiPayment.getAll(secondIntegrationClient, {}, { raw: true })
                     expect(secondMultiPayments).toBeDefined()
                     expect(secondMultiPayments).toHaveLength(0)
                 })
             })
-            test('anonymous can\'t', async () => {
+            test("anonymous can't", async () => {
                 const anonymousClient = await makeClient()
                 await expectToThrowAuthenticationErrorToObjects(async () => {
                     await MultiPayment.getAll(anonymousClient)
@@ -166,9 +199,8 @@ describe('MultiPayment', () => {
                 const [updatedMultiPayment] = await updateTestMultiPayment(admin, multiPayment.id, payload)
                 expect(updatedMultiPayment).toBeDefined()
                 expect(updatedMultiPayment).toHaveProperty('status', MULTIPAYMENT_ERROR_STATUS)
-
             })
-            test('support can\'t', async () => {
+            test("support can't", async () => {
                 const { admin, payments, acquiringIntegration, client } = await makePayerAndPayments()
                 const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
 
@@ -178,8 +210,8 @@ describe('MultiPayment', () => {
                     await updateTestMultiPayment(support, multiPayment.id, payload)
                 })
             })
-            describe('user',  () => {
-                test('acquiring integration account can change it\'s own multipayments', async () => {
+            describe('user', () => {
+                test("acquiring integration account can change it's own multipayments", async () => {
                     const { admin, payments, acquiringIntegration, client } = await makePayerAndPayments()
                     const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
 
@@ -191,7 +223,7 @@ describe('MultiPayment', () => {
                     expect(updatedMultiPayment).toBeDefined()
                     expect(updatedMultiPayment).toHaveProperty('status', MULTIPAYMENT_ERROR_STATUS)
                 })
-                test('user can\'t', async () => {
+                test("user can't", async () => {
                     const { admin, payments, acquiringIntegration, client } = await makePayerAndPayments()
                     const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
 
@@ -201,7 +233,7 @@ describe('MultiPayment', () => {
                     })
                 })
             })
-            test('anonymous can\'t', async () => {
+            test("anonymous can't", async () => {
                 const { admin, payments, acquiringIntegration, client } = await makePayerAndPayments()
                 const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
 
@@ -212,8 +244,8 @@ describe('MultiPayment', () => {
                 })
             })
         })
-        describe('delete',  () => {
-            test('admin can\'t', async () => {
+        describe('delete', () => {
+            test("admin can't", async () => {
                 const { admin, payments, acquiringIntegration, client } = await makePayerAndPayments()
                 const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
 
@@ -221,7 +253,7 @@ describe('MultiPayment', () => {
                     await MultiPayment.delete(admin, multiPayment.id)
                 })
             })
-            test('support can\'t', async () => {
+            test("support can't", async () => {
                 const { admin, payments, acquiringIntegration, client } = await makePayerAndPayments()
                 const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
 
@@ -231,7 +263,7 @@ describe('MultiPayment', () => {
                 })
             })
 
-            test('user can\'t', async () => {
+            test("user can't", async () => {
                 const { admin, payments, acquiringIntegration, client } = await makePayerAndPayments()
                 const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
 
@@ -240,7 +272,7 @@ describe('MultiPayment', () => {
                 })
             })
 
-            test('anonymous can\'t', async () => {
+            test("anonymous can't", async () => {
                 const { admin, payments, acquiringIntegration, client } = await makePayerAndPayments()
                 const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
 
@@ -277,8 +309,12 @@ describe('MultiPayment', () => {
             })
             describe('Should check for non-negative money fields', () => {
                 const cases = [
-                    ['explicitFee', '-0.01'], ['explicitFee', '-30'], ['explicitFee', '-10.50'],
-                    ['serviceFee', '-0.01'], ['serviceFee', '-30'], ['serviceFee', '-10.50'],
+                    ['explicitFee', '-0.01'],
+                    ['explicitFee', '-30'],
+                    ['explicitFee', '-10.50'],
+                    ['serviceFee', '-0.01'],
+                    ['serviceFee', '-30'],
+                    ['serviceFee', '-10.50'],
                 ]
                 test.each(cases)('%p: %p', async (field, amount) => {
                     const { payments, acquiringIntegration, client, admin } = await makePayerAndPayments()
@@ -290,7 +326,7 @@ describe('MultiPayment', () => {
                 })
             })
             test('Implicit fee cannot be greater than amountWithoutExplicitFee', async () => {
-                const { admin, organization, billingReceipts, acquiringContext, client, acquiringIntegration  } = await makePayer()
+                const { admin, organization, billingReceipts, acquiringContext, client, acquiringIntegration } = await makePayer()
                 const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext, {
                     amount: '100',
                 })
@@ -304,7 +340,8 @@ describe('MultiPayment', () => {
         describe('Model validation', () => {
             describe('All linked payments should have', () => {
                 test('Billing receipt', async () => {
-                    const { admin, organization, billingReceipts, acquiringContext, client, acquiringIntegration } = await makePayer()
+                    const { admin, organization, billingReceipts, acquiringContext, client, acquiringIntegration } =
+                        await makePayer()
                     const [firstPayment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext, {
                         amount: '100.00',
                         implicitFee: null,
@@ -318,7 +355,8 @@ describe('MultiPayment', () => {
                     }, MULTIPAYMENT_NO_RECEIPT_PAYMENTS)
                 })
                 test('Same currency code', async () => {
-                    const { admin, organization, billingReceipts, acquiringContext, client, acquiringIntegration } = await makePayer(2)
+                    const { admin, organization, billingReceipts, acquiringContext, client, acquiringIntegration } =
+                        await makePayer(2)
                     const [firstPayment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
                     const [secondPayment] = await createTestPayment(admin, organization, billingReceipts[1], acquiringContext, {
                         currencyCode: 'USD',
@@ -328,7 +366,8 @@ describe('MultiPayment', () => {
                     }, MULTIPAYMENT_MULTIPLE_CURRENCIES)
                 })
                 test('Unique receipts', async () => {
-                    const { admin, organization, billingReceipts, acquiringContext, client, acquiringIntegration } = await makePayer()
+                    const { admin, organization, billingReceipts, acquiringContext, client, acquiringIntegration } =
+                        await makePayer()
                     const [firstPayment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
                     const [secondPayment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
                     await expectToThrowValidationFailureError(async () => {
@@ -336,12 +375,16 @@ describe('MultiPayment', () => {
                     }, MULTIPAYMENT_NOT_UNIQUE_RECEIPTS)
                 })
                 test('Matching amount', async () => {
-                    const { admin, organization, billingReceipts, acquiringContext, client, acquiringIntegration } = await makePayer(2)
+                    const { admin, organization, billingReceipts, acquiringContext, client, acquiringIntegration } =
+                        await makePayer(2)
                     const [firstPayment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
                     const [secondPayment] = await createTestPayment(admin, organization, billingReceipts[1], acquiringContext)
                     await expectToThrowValidationFailureError(async () => {
                         await createTestMultiPayment(admin, [firstPayment, secondPayment], client.user, acquiringIntegration, {
-                            amountWithoutExplicitFee: Big(billingReceipts[0].toPay).plus(Big(billingReceipts[1].toPay)).plus(Big(50)).toString(),
+                            amountWithoutExplicitFee: Big(billingReceipts[0].toPay)
+                                .plus(Big(billingReceipts[1].toPay))
+                                .plus(Big(50))
+                                .toString(),
                         })
                     }, MULTIPAYMENT_TOTAL_AMOUNT_MISMATCH)
                 })
@@ -368,7 +411,7 @@ describe('MultiPayment', () => {
             })
         })
         describe('Status-dependent model validations', () => {
-            test('Cannot change statuses if it\'s transition is not specified', async () => {
+            test("Cannot change statuses if it's transition is not specified", async () => {
                 const { admin, payments, client, acquiringIntegration } = await makePayerAndPayments()
                 const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration, {
                     status: MULTIPAYMENT_ERROR_STATUS,
@@ -416,11 +459,13 @@ describe('MultiPayment', () => {
                 const values = ['amountWithoutExplicitFee', 'currencyCode']
                 const statuses = [MULTIPAYMENT_INIT_STATUS, MULTIPAYMENT_PROCESSING_STATUS]
                 describe('Relation-fields', () => {
-                    const cases = statuses.map(status => {
-                        return MULTIPAYMENT_FROZEN_FIELDS[status]
-                            .filter(field => relations.includes(field))
-                            .map(field => [status, field])
-                    }).flat(1)
+                    const cases = statuses
+                        .map((status) => {
+                            return MULTIPAYMENT_FROZEN_FIELDS[status]
+                                .filter((field) => relations.includes(field))
+                                .map((field) => [status, field])
+                        })
+                        .flat(1)
                     test.each(cases)('Old status: %p, Field: %p', async (status, field) => {
                         const { admin, client, payments, acquiringIntegration } = await makePayerAndPayments()
                         const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration, {
@@ -435,11 +480,13 @@ describe('MultiPayment', () => {
                     })
                 })
                 describe('Value-fields', () => {
-                    const cases = statuses.map(status => {
-                        return MULTIPAYMENT_FROZEN_FIELDS[status]
-                            .filter(field => values.includes(field))
-                            .map(field => [status, field])
-                    }).flat(1)
+                    const cases = statuses
+                        .map((status) => {
+                            return MULTIPAYMENT_FROZEN_FIELDS[status]
+                                .filter((field) => values.includes(field))
+                                .map((field) => [status, field])
+                        })
+                        .flat(1)
                     test.each(cases)('Old status: %p, Field: %p', async (status, field) => {
                         const { admin, client, payments, acquiringIntegration } = await makePayerAndPayments()
                         const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration, {
@@ -456,7 +503,8 @@ describe('MultiPayment', () => {
             })
             describe('Cannot be created if any of payments', () => {
                 test('Has not init status', async () => {
-                    const { admin, billingReceipts, organization, acquiringContext, client, acquiringIntegration } = await makePayer(1)
+                    const { admin, billingReceipts, organization, acquiringContext, client, acquiringIntegration } =
+                        await makePayer(1)
                     const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext, {
                         status: PAYMENT_DONE_STATUS,
                     })
@@ -494,7 +542,7 @@ describe('MultiPayment', () => {
                         await updateTestMultiPayment(admin, multiPayment.id, multiPaymentDonePayload)
                     }, MULTIPAYMENT_UNDONE_PAYMENTS)
                 })
-                test('Sum of all Payment\'s explicit fees should be equal to MP one', async () => {
+                test("Sum of all Payment's explicit fees should be equal to MP one", async () => {
                     const { payments, acquiringIntegration, admin, client } = await makePayerAndPayments(2)
                     const explicitFee = Big(payments[0].explicitFee).plus(payments[1].explicitFee).plus(50).toString()
                     await updateTestAcquiringIntegration(admin, acquiringIntegration.id, {
@@ -508,10 +556,15 @@ describe('MultiPayment', () => {
                         status: PAYMENT_DONE_STATUS,
                     })
                     await expectToThrowValidationFailureError(async () => {
-                        await updateTestMultiPayment(admin, multiPayment.id, {
-                            ...multiPaymentDonePayload,
-                            explicitFee,
-                        }, MULTIPAYMENT_EXPLICIT_FEE_MISMATCH)
+                        await updateTestMultiPayment(
+                            admin,
+                            multiPayment.id,
+                            {
+                                ...multiPaymentDonePayload,
+                                explicitFee,
+                            },
+                            MULTIPAYMENT_EXPLICIT_FEE_MISMATCH,
+                        )
                     })
                 })
                 test('All payments inside single MP should have / not have implicit fee', async () => {
@@ -528,9 +581,14 @@ describe('MultiPayment', () => {
                         implicitFee: null,
                     })
                     await expectToThrowValidationFailureError(async () => {
-                        await updateTestMultiPayment(admin, multiPayment.id, {
-                            ...multiPaymentDonePayload,
-                        }, MULTIPAYMENT_INCONSISTENT_IMPLICIT_FEE)
+                        await updateTestMultiPayment(
+                            admin,
+                            multiPayment.id,
+                            {
+                                ...multiPaymentDonePayload,
+                            },
+                            MULTIPAYMENT_INCONSISTENT_IMPLICIT_FEE,
+                        )
                     })
                 })
                 test('If payments implicit fees are specified, their sum should match with multiPayment one', async () => {
@@ -547,10 +605,15 @@ describe('MultiPayment', () => {
                         status: PAYMENT_DONE_STATUS,
                     })
                     await expectToThrowValidationFailureError(async () => {
-                        await updateTestMultiPayment(admin, multiPayment.id, {
-                            ...multiPaymentDonePayload,
-                            implicitFee,
-                        }, MULTIPAYMENT_IMPLICIT_FEE_MISMATCH)
+                        await updateTestMultiPayment(
+                            admin,
+                            multiPayment.id,
+                            {
+                                ...multiPaymentDonePayload,
+                                implicitFee,
+                            },
+                            MULTIPAYMENT_IMPLICIT_FEE_MISMATCH,
+                        )
                     })
                 })
                 test('All payments should not be deleted', async () => {
@@ -572,18 +635,14 @@ describe('MultiPayment', () => {
             let integrationClient
             let registerMPResult
             beforeEach(async () => {
-                const {
-                    admin,
-                    acquiringIntegration,
-                    billingReceipts,
-                    serviceConsumer,
-                    client,
-                } = await makePayer(1)
+                const { admin, acquiringIntegration, billingReceipts, serviceConsumer, client } = await makePayer(1)
                 integrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
-                const [obj] = await registerMultiPaymentByTestClient(client, [
-                    { consumerId: serviceConsumer.id, receipts: [{ id: billingReceipts[0].id }] },
-                ], { sender: client.userAttrs.sender })
+                const [obj] = await registerMultiPaymentByTestClient(
+                    client,
+                    [{ consumerId: serviceConsumer.id, receipts: [{ id: billingReceipts[0].id }] }],
+                    { sender: client.userAttrs.sender },
+                )
                 registerMPResult = obj
             })
             test('Successful payment', async () => {
@@ -670,12 +729,13 @@ describe('MultiPayment', () => {
             })
         })
 
-
-        test('mobile resident can\'t see his sensitive data in his own MultiPayments', async () => {
+        test("mobile resident can't see his sensitive data in his own MultiPayments", async () => {
             const { admin, payments, acquiringIntegration, client } = await makePayerAndPayments()
             const [createdMultiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
             // We use raw: true because when using field access, all fields that are not permitted result in error which stops the test
-            let { data: { objs: multiPayments } } = await MultiPayment.getAll(client, {}, { raw: true })
+            let {
+                data: { objs: multiPayments },
+            } = await MultiPayment.getAll(client, {}, { raw: true })
             expect(multiPayments).toBeDefined()
             expect(multiPayments).toHaveLength(1)
             const retrievedMultiPayment = multiPayments[0]

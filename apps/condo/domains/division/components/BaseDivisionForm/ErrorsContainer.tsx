@@ -3,9 +3,9 @@ import React from 'react'
 import { ErrorsWrapper } from '@condo/domains/common/components/ErrorsWrapper'
 
 interface IErrorsContainerProps {
-    name: string,
-    properties: string,
-    responsible: string,
+    name: string
+    properties: string
+    responsible: string
     executors: string
 }
 
@@ -17,20 +17,16 @@ export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ name, propert
     const PropertiesLabel = intl.formatMessage({ id: 'division.field.properties' })
     const ResponsibleLabel = intl.formatMessage({ id: 'division.field.responsible' })
     const ExecutorLabel = intl.formatMessage({ id: 'division.field.executors' })
-    const disableUserInteraction = name.length === 0
-        || !properties || properties.length === 0
-        || !responsible
-        || !executors || executors.length === 0
+    const disableUserInteraction =
+        name.length === 0 || !properties || properties.length === 0 || !responsible || !executors || executors.length === 0
 
     const errors = []
     if (name.length === 0) {
         errors.push(NameLabel)
     }
-    if (!properties || properties && properties.length === 0)
-        errors.push(PropertiesLabel)
-    if (!responsible)
-        errors.push(ResponsibleLabel)
-    if (!executors || executors && executors.length === 0) {
+    if (!properties || (properties && properties.length === 0)) errors.push(PropertiesLabel)
+    if (!responsible) errors.push(ResponsibleLabel)
+    if (!executors || (executors && executors.length === 0)) {
         errors.push(ExecutorLabel)
     }
 

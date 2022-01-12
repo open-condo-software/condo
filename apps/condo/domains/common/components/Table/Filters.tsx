@@ -20,7 +20,9 @@ type FilterValueType = (path: string | Array<string>, filters: { [x: string]: Qu
 
 const FILTER_DROPDOWN_CHECKBOX_STYLES: CSSProperties = { display: 'flex', flexDirection: 'column' }
 
-export const getFilterIcon: FilterIconType = (filtered) => <FilterFilled style={{ color: filtered ? colors.sberPrimary[5] : undefined }} />
+export const getFilterIcon: FilterIconType = (filtered) => (
+    <FilterFilled style={{ color: filtered ? colors.sberPrimary[5] : undefined }} />
+)
 export const getFilterValue: FilterValueType = (path, filters) => get(filters, path, null)
 
 export const getTextFilterDropdown = (placeholder: string, containerStyles?: CSSProperties) => {
@@ -40,7 +42,7 @@ export const getTextFilterDropdown = (placeholder: string, containerStyles?: CSS
                 <Input
                     placeholder={placeholder}
                     value={value}
-                    onChange={e => {
+                    onChange={(e) => {
                         setValue(e.target.value)
                         setSelectedKeys(e.target.value)
                         confirm({ closeDropdown: false })
@@ -106,7 +108,7 @@ export const getGQLSelectFilterDropdown = (
     props: ComponentProps<typeof GraphQlSearchInput>,
     search: (client: ApolloClient<Record<string, unknown>>, queryArguments: string) => Promise<Array<Record<string, unknown>>>,
     mode?: ComponentProps<typeof GraphQlSearchInput>['mode'],
-    containerStyles?: CSSProperties
+    containerStyles?: CSSProperties,
 ) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         return (
@@ -136,7 +138,7 @@ export const getDateFilterDropdown = (containerStyles?: CSSProperties) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         const pickerProps = {
             value: undefined,
-            onChange: e => {
+            onChange: (e) => {
                 setSelectedKeys(e.toISOString())
                 confirm({ closeDropdown: false })
             },
@@ -148,24 +150,22 @@ export const getDateFilterDropdown = (containerStyles?: CSSProperties) => {
         }
 
         return (
-            <FilterContainer clearFilters={clearFilters}
+            <FilterContainer
+                clearFilters={clearFilters}
                 style={containerStyles}
                 showClearButton={selectedKeys && selectedKeys.length > 0}
             >
-                <DatePicker {...pickerProps}/>
+                <DatePicker {...pickerProps} />
             </FilterContainer>
         )
     }
 }
 
-export const getDateRangeFilterDropdown = (
-    props: ComponentProps<typeof DateRangePicker>,
-    containerStyles?: CSSProperties
-) => {
+export const getDateRangeFilterDropdown = (props: ComponentProps<typeof DateRangePicker>, containerStyles?: CSSProperties) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         const pickerProps = {
             value: undefined,
-            onChange: e => {
+            onChange: (e) => {
                 setSelectedKeys([e[0].toISOString(), e[1].toISOString()])
                 confirm({ closeDropdown: false })
             },
@@ -177,11 +177,12 @@ export const getDateRangeFilterDropdown = (
         }
 
         return (
-            <FilterContainer clearFilters={clearFilters}
+            <FilterContainer
+                clearFilters={clearFilters}
                 showClearButton={selectedKeys && selectedKeys.length > 0}
                 style={containerStyles}
             >
-                <DateRangePicker {...pickerProps} {...props}/>
+                <DateRangePicker {...pickerProps} {...props} />
             </FilterContainer>
         )
     }

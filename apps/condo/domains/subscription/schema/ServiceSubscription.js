@@ -10,15 +10,13 @@ const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema
 const access = require('@condo/domains/subscription/access/ServiceSubscription')
 const { ServiceSubscription: ServiceSubscriptionAPI } = require('../utils/serverSchema')
 const get = require('lodash/get')
-const { SBBOL_OFFER_ACCEPT_FIELD_QUERY_LIST } = require(
-    './fields/SbbolOfferAcceptField')
+const { SBBOL_OFFER_ACCEPT_FIELD_QUERY_LIST } = require('./fields/SbbolOfferAcceptField')
 const { sbbolOfferAcceptJsonValidator, SBBOL_OFFER_ACCEPT_GRAPHQL_TYPES } = require('./fields/SbbolOfferAcceptField')
 const { Json } = require('@core/keystone/fields')
 const { OVERLAPPING_ERROR } = require('../constants/errors')
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { pushSubscriptionActivationToSalesCRM } = require('@condo/domains/organization/utils/serverSchema/Organization')
-
 
 const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
     schemaDoc: 'Availability time period of service features for client organization. Can be trial or payed.',
@@ -84,17 +82,20 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
         },
 
         sbbolOfferAccept: {
-            schemaDoc: 'It is necessary to save the offer confirmation data that is transmitted in the response of the advance-acceptances method',
+            schemaDoc:
+                'It is necessary to save the offer confirmation data that is transmitted in the response of the advance-acceptances method',
             type: Json,
             extendGraphQLTypes: [SBBOL_OFFER_ACCEPT_GRAPHQL_TYPES],
-            graphQLAdminFragment: `{ ${SBBOL_OFFER_ACCEPT_FIELD_QUERY_LIST } }`,
+            graphQLAdminFragment: `{ ${SBBOL_OFFER_ACCEPT_FIELD_QUERY_LIST} }`,
             graphQLReturnType: 'SbbolOfferAccept',
             graphQLInputType: 'SbbolOfferAcceptInput',
             hooks: {
                 validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
                     if (!sbbolOfferAcceptJsonValidator(resolvedData[fieldPath])) {
-                        sbbolOfferAcceptJsonValidator.errors.forEach(error => {
-                            addFieldValidationError(`${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`)
+                        sbbolOfferAcceptJsonValidator.errors.forEach((error) => {
+                            addFieldValidationError(
+                                `${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`,
+                            )
                         })
                     }
                 },
@@ -142,7 +143,7 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
     },
     hooks: {
         validateInput: async ({ resolvedData, operation, existingItem, addValidationError, context }) => {
-            if (!hasDvAndSenderFields( resolvedData, context, addValidationError)) return
+            if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
             const { dv } = resolvedData
             if (dv === 1) {
                 // NOTE: version 1 specific translations. Don't optimize this logic
@@ -157,10 +158,7 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
             // - To have two subscription simultaneously
             // This simple condition detects both of above conditions.
             const ovelappingConditions = {
-                OR: [
-                    { startAt_gte: resolvedData.startAt },
-                    { finishAt_gte: resolvedData.startAt },
-                ],
+                OR: [{ startAt_gte: resolvedData.startAt }, { finishAt_gte: resolvedData.startAt }],
             }
             const scopeConditions = {}
             if (operation === 'create') {
@@ -178,12 +176,18 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
                 ...scopeConditions,
             })
             if (overlappedSubscriptionsCount > 0) {
-                return addValidationError(`${OVERLAPPING_ERROR} subscription for current organization overlaps already existing by its time period`)
+                return addValidationError(
+                    `${OVERLAPPING_ERROR} subscription for current organization overlaps already existing by its time period`,
+                )
             }
         },
         afterChange: ({ operation, updatedItem }) => {
-            if (operation === 'create' && updatedItem.isTrial === false && updatedItem.sbbolOfferAccept){
-                pushSubscriptionActivationToSalesCRM(updatedItem.sbbolOfferAccept.payerInn, updatedItem.startAt, updatedItem.finishAt)
+            if (operation === 'create' && updatedItem.isTrial === false && updatedItem.sbbolOfferAccept) {
+                pushSubscriptionActivationToSalesCRM(
+                    updatedItem.sbbolOfferAccept.payerInn,
+                    updatedItem.startAt,
+                    updatedItem.finishAt,
+                )
             }
         },
     },

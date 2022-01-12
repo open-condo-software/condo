@@ -8,14 +8,14 @@ import { fontSizes } from '@condo/domains/common/constants/style'
 import { RangePickerSharedProps } from 'rc-picker/lib/RangePicker'
 
 const rangePickerCss = css`
-  &.ant-picker-focused {
-    border-color: unset;
-    box-shadow: unset;
-  }
-  & input {
-    text-align: center;
-    font-size: ${fontSizes.content};
-  }
+    &.ant-picker-focused {
+        border-color: unset;
+        box-shadow: unset;
+    }
+    & input {
+        text-align: center;
+        font-size: ${fontSizes.content};
+    }
 `
 
 const DateRangePicker: React.FC<RangePickerSharedProps<Dayjs>> = (props) => {
@@ -25,7 +25,7 @@ const DateRangePicker: React.FC<RangePickerSharedProps<Dayjs>> = (props) => {
             allowClear={false}
             suffixIcon={<DownOutlined />}
             disabledDate={(date) => date > dayjs()}
-            format='DD.MM.YYYY'
+            format="DD.MM.YYYY"
             separator={<MinusOutlined />}
             {...props}
         />

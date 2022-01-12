@@ -10,9 +10,7 @@ describe('hasValidJsonStructure()', () => {
 
             hasValidJsonStructure(args, true, 1, {})
 
-            expect(errors).toEqual([
-                '[json:unknownDataVersion:meta] Unknown `dv` attr inside JSON Object',
-            ])
+            expect(errors).toEqual(['[json:unknownDataVersion:meta] Unknown `dv` attr inside JSON Object'])
         })
         test('wrong dv', () => {
             const errors = []
@@ -22,9 +20,7 @@ describe('hasValidJsonStructure()', () => {
 
             hasValidJsonStructure(args, false, 1, {})
 
-            expect(errors).toEqual([
-                '[json:unknownDataVersion:meta] Unknown `dv` attr inside JSON Object',
-            ])
+            expect(errors).toEqual(['[json:unknownDataVersion:meta] Unknown `dv` attr inside JSON Object'])
         })
     })
 
@@ -68,9 +64,7 @@ describe('hasValidJsonStructure()', () => {
                     name: { type: 'string' },
                 })
 
-                expect(errors).toEqual([
-                    '[json:wrongDataVersionFormat:meta] Field \'name\': Name must be of type string',
-                ])
+                expect(errors).toEqual(["[json:wrongDataVersionFormat:meta] Field 'name': Name must be of type string"])
             })
         })
     })

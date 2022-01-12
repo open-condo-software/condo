@@ -10,7 +10,7 @@ const { CUSTOMER_IMPORTANT_NOTE_TYPE } = require('@condo/domains/notification/co
 
 const CUSTOMER_EMAIL = conf.NOTIFY_ABOUT_NEW_ORGANIZATION_EMAIL
 
-async function sendToCustomer (data) {
+async function sendToCustomer(data) {
     if (CUSTOMER_EMAIL) {
         const { keystone } = await getSchemaCtx('Message')
         await sendMessage(keystone, {
@@ -32,9 +32,11 @@ const getUserOrganizations = async ({ context, user }) => {
         },
         returnFields: 'organization { id meta }',
     })
-    return uniqBy(links.map(link => link.organization), 'id')
+    return uniqBy(
+        links.map((link) => link.organization),
+        'id',
+    )
 }
-
 
 const createOrganization = async ({ context, user, organizationInfo }) => {
     const importInfo = {
@@ -125,7 +127,7 @@ const syncOrganization = async ({ context, user, userData, organizationInfo, dvS
             return updatedOrganization
         }
     } else {
-        const isAlreadyEmployee = userOrganizations.find(org => org.id === importedOrganization.id)
+        const isAlreadyEmployee = userOrganizations.find((org) => org.id === importedOrganization.id)
         if (!isAlreadyEmployee) {
             const allRoles = await getItems({
                 ...context,
@@ -139,10 +141,16 @@ const syncOrganization = async ({ context, user, userData, organizationInfo, dvS
                 returnFields: returnFields,
             })
             const { context: adminContext } = context
-            await createConfirmedEmployee(adminContext, importedOrganization, {
-                ...userData,
-                ...user,
-            }, allRoles[0], dvSenderFields)
+            await createConfirmedEmployee(
+                adminContext,
+                importedOrganization,
+                {
+                    ...userData,
+                    ...user,
+                },
+                allRoles[0],
+                dvSenderFields,
+            )
         }
     }
     return importedOrganization

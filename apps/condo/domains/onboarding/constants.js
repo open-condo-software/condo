@@ -53,14 +53,9 @@ const DEFAULT_ADMINISTRATOR_ONBOADRING_STEPS = [
 ]
 
 const DEFAULT_ADMINISTRATOR_STEPS_TRANSITION = {
-    'create.Organization': [
-        'create.Property',
-        'create.OrganizationEmployee',
-    ],
+    'create.Organization': ['create.Property', 'create.OrganizationEmployee'],
     'create.Property': [],
-    'create.OrganizationEmployee': [
-        'create.Division',
-    ],
+    'create.OrganizationEmployee': ['create.Division'],
     'create.Division': [],
 }
 

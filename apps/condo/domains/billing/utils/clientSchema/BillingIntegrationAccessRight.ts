@@ -8,7 +8,11 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { BillingIntegrationAccessRight as BillingIntegrationAccessRightGQL } from '@condo/domains/billing/gql'
-import { BillingIntegrationAccessRight, BillingIntegrationAccessRightUpdateInput, QueryAllBillingIntegrationAccessRightsArgs } from '@app/condo/schema'
+import {
+    BillingIntegrationAccessRight,
+    BillingIntegrationAccessRightUpdateInput,
+    QueryAllBillingIntegrationAccessRightsArgs,
+} from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'integration', 'user']
 const RELATIONS = ['integration', 'user']
@@ -18,7 +22,7 @@ export interface IBillingIntegrationAccessRightUIState extends BillingIntegratio
     // TODO(codegen): write IBillingIntegrationAccessRightUIState or extends it from
 }
 
-function convertToUIState (item: BillingIntegrationAccessRight): IBillingIntegrationAccessRightUIState {
+function convertToUIState(item: BillingIntegrationAccessRight): IBillingIntegrationAccessRightUIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
     return pick(item, FIELDS) as IBillingIntegrationAccessRightUIState
 }
@@ -28,39 +32,32 @@ export interface IBillingIntegrationAccessRightFormState {
     // TODO(codegen): write IBillingIntegrationAccessRightUIFormState or extends it from
 }
 
-function convertToUIFormState (state: IBillingIntegrationAccessRightUIState): IBillingIntegrationAccessRightFormState | undefined {
+function convertToUIFormState(state: IBillingIntegrationAccessRightUIState): IBillingIntegrationAccessRightFormState | undefined {
     if (!state) return
     const result = {}
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? attrId || state[attr] : state[attr]
     }
     return result as IBillingIntegrationAccessRightFormState
 }
 
-function convertToGQLInput (state: IBillingIntegrationAccessRightFormState): BillingIntegrationAccessRightUpdateInput {
+function convertToGQLInput(state: IBillingIntegrationAccessRightFormState): BillingIntegrationAccessRightUpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? { connect: { id: attrId || state[attr] } } : state[attr]
     }
     return result
 }
 
-const {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-} = generateReactHooks<BillingIntegrationAccessRight, BillingIntegrationAccessRightUpdateInput, IBillingIntegrationAccessRightFormState, IBillingIntegrationAccessRightUIState, QueryAllBillingIntegrationAccessRightsArgs>(BillingIntegrationAccessRightGQL, { convertToGQLInput, convertToUIState })
+const { useObject, useObjects, useCreate, useUpdate, useDelete } = generateReactHooks<
+    BillingIntegrationAccessRight,
+    BillingIntegrationAccessRightUpdateInput,
+    IBillingIntegrationAccessRightFormState,
+    IBillingIntegrationAccessRightUIState,
+    QueryAllBillingIntegrationAccessRightsArgs
+>(BillingIntegrationAccessRightGQL, { convertToGQLInput, convertToUIState })
 
-export {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-    convertToUIFormState,
-}
+export { useObject, useObjects, useCreate, useUpdate, useDelete, convertToUIFormState }

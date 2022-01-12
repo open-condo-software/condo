@@ -10,5 +10,5 @@ const { ServiceSubscriptionPayment } = require('./ServiceSubscriptionPayment')
 module.exports = {
     ServiceSubscription,
     ServiceSubscriptionPayment,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

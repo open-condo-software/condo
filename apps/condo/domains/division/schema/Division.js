@@ -12,7 +12,6 @@ const { OrganizationEmployee, Organization } = require('@condo/domains/organizat
 const { get } = require('lodash')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 
-
 const Division = new GQLListSchema('Division', {
     schemaDoc: 'Grouping of properties and employees with one single responsible person',
     fields: {
@@ -39,7 +38,9 @@ const Division = new GQLListSchema('Division', {
                     const responsibleId = resolvedData[fieldPath]
                     const [responsible] = await OrganizationEmployee.getAll(context, { id: responsibleId })
                     if (!responsible.role.canBeAssignedAsResponsible) {
-                        addFieldValidationError('Cannot be connected to responsible which does not have `canBeAssignedAsResponsible` ability')
+                        addFieldValidationError(
+                            'Cannot be connected to responsible which does not have `canBeAssignedAsResponsible` ability',
+                        )
                     }
                     let organizationId
                     if (operation === 'create') {
@@ -75,13 +76,15 @@ const Division = new GQLListSchema('Division', {
                     // Fetch in specified order to be able to test a list of ids in error message
                     const properties = await Property.getAll(context, { id_in: propertyIds }, { sortBy: ['createdAt_ASC'] })
                     const propertyIdsFromAnotherOrganization = []
-                    properties.map(property => {
+                    properties.map((property) => {
                         if (property.organization.id !== organization.id) {
                             propertyIdsFromAnotherOrganization.push(property.id)
                         }
                     })
                     if (propertyIdsFromAnotherOrganization.length > 0) {
-                        addFieldValidationError(`Cannot be connected to following property(s), because they are belonging to another organization(s): ${propertyIdsFromAnotherOrganization.join()}, `)
+                        addFieldValidationError(
+                            `Cannot be connected to following property(s), because they are belonging to another organization(s): ${propertyIdsFromAnotherOrganization.join()}, `,
+                        )
                     }
                 },
             },
@@ -105,10 +108,14 @@ const Division = new GQLListSchema('Division', {
 
                     const employeeIds = resolvedData[fieldPath]
                     // Fetch in specified order to be able to test a list of ids in error message
-                    const employees = await OrganizationEmployee.getAll(context, { id_in: employeeIds }, { sortBy: ['createdAt_ASC'] })
+                    const employees = await OrganizationEmployee.getAll(
+                        context,
+                        { id_in: employeeIds },
+                        { sortBy: ['createdAt_ASC'] },
+                    )
                     const employeeIdsFromAnotherOrganization = []
                     const employeeIdsThatCannotBeAssignableAsExecutor = []
-                    employees.map(employee => {
+                    employees.map((employee) => {
                         if (!employee.role.canBeAssignedAsExecutor) {
                             employeeIdsThatCannotBeAssignableAsExecutor.push(employee.id)
                         }
@@ -117,15 +124,18 @@ const Division = new GQLListSchema('Division', {
                         }
                     })
                     if (employeeIdsFromAnotherOrganization.length > 0) {
-                        addFieldValidationError(`Cannot be connected to following employee(s) as executors, because they are belonging to another organization(s): ${employeeIdsFromAnotherOrganization.join()}, `)
+                        addFieldValidationError(
+                            `Cannot be connected to following employee(s) as executors, because they are belonging to another organization(s): ${employeeIdsFromAnotherOrganization.join()}, `,
+                        )
                     }
                     if (employeeIdsThatCannotBeAssignableAsExecutor.length > 0) {
-                        addFieldValidationError(`Cannot be connected to following employee(s) as executors, because they does not have 'canBeAssignedAsExecutor' role ability: ${employeeIdsThatCannotBeAssignableAsExecutor.join()}, `)
+                        addFieldValidationError(
+                            `Cannot be connected to following employee(s) as executors, because they does not have 'canBeAssignedAsExecutor' role ability: ${employeeIdsThatCannotBeAssignableAsExecutor.join()}, `,
+                        )
                     }
                 },
             },
         },
-
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {

@@ -19,9 +19,9 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
             <>
                 {props.headerAction && props.headerAction}
                 <Space direction={'horizontal'} size={40} style={{ marginLeft: 'auto' }}>
-                    <ServiceSubscriptionIndicator/>
-                    <OrganizationSelect/>
-                    <UserMenu/>
+                    <ServiceSubscriptionIndicator />
+                    <OrganizationSelect />
+                    <UserMenu />
                 </Space>
             </>
         )

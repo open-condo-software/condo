@@ -10,7 +10,7 @@ import { useIntl } from '@core/next/intl'
 import { isFunction } from '../../utils/ecmascript.utils'
 import { Loader } from '../Loader'
 
-function RedirectToLogin () {
+function RedirectToLogin() {
     const intl = useIntl()
     const RedirectingMessage = intl.formatMessage({ id: 'Redirecting' })
 
@@ -27,7 +27,7 @@ function RedirectToLogin () {
     return <Typography.Text style={{ textAlign: 'center' }}>{RedirectingMessage}</Typography.Text>
 }
 
-export function AuthRequired ({ children }) {
+export function AuthRequired({ children }) {
     const intl = useIntl()
     const SignInRequiredMessage = intl.formatMessage({ id: 'SignInRequired' })
 
@@ -35,14 +35,16 @@ export function AuthRequired ({ children }) {
     const { isAuthenticated, isLoading } = auth
 
     if (isLoading) {
-        return <Loader fill size={'large'}/>
+        return <Loader fill size={'large'} />
     }
 
     if (!isAuthenticated) {
-        return <>
-            <Typography.Title style={{ textAlign: 'center' }}>{SignInRequiredMessage}</Typography.Title>
-            <RedirectToLogin/>
-        </>
+        return (
+            <>
+                <Typography.Title style={{ textAlign: 'center' }}>{SignInRequiredMessage}</Typography.Title>
+                <RedirectToLogin />
+            </>
+        )
     }
 
     if (isFunction(children)) {

@@ -68,12 +68,9 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
         [search],
     )
 
-    const debouncedSearch = useMemo(
-        () => {
-            return debounce(searchSuggestions, DEBOUNCE_TIMEOUT)
-        },
-        [searchSuggestions],
-    )
+    const debouncedSearch = useMemo(() => {
+        return debounce(searchSuggestions, DEBOUNCE_TIMEOUT)
+    }, [searchSuggestions])
 
     const searchMoreSuggestions = useCallback(
         async (value, skip) => {
@@ -84,7 +81,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
             setFetching(false)
 
             if (data.length > 0) {
-                setData(prevData => uniqBy([...prevData, ...data], 'text'))
+                setData((prevData) => uniqBy([...prevData, ...data], 'text'))
             } else {
                 setIsAllDataLoaded(true)
             }
@@ -92,12 +89,9 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
         [isAllDataLoaded, search, searchValue],
     )
 
-    const throttledSearchMore = useMemo(
-        () => {
-            return throttle(searchMoreSuggestions, DEBOUNCE_TIMEOUT)
-        },
-        [searchMoreSuggestions],
-    )
+    const throttledSearchMore = useMemo(() => {
+        return throttle(searchMoreSuggestions, DEBOUNCE_TIMEOUT)
+    }, [searchMoreSuggestions])
 
     const loadInitialOptions = useCallback(
         (e) => {
@@ -110,73 +104,61 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
                 setInitialOptionsLoaded(true)
             }
         },
-        [loadOptionsOnFocus, searchValue, props,  debouncedSearch, initialOptionsLoaded],
+        [loadOptionsOnFocus, searchValue, props, debouncedSearch, initialOptionsLoaded],
     )
 
-    const handleSelect = useCallback(
-        (value, option) => {
-            if (onSelect) {
-                props.onSelect(value, option)
-            }
-
-            setSelected(value)
-        },
-        [],
-    )
-
-    const handleClear = useCallback(
-        () => {
-            setSelected(null)
-            if (props.onClear)
-                props.onClear()
-        },
-        [],
-    )
-
-    const handleChange = useCallback((value, options) => {
-        setSearchValue(value)
-        onChange(value, options)
-    }, [onChange])
-
-    const handleScroll = useCallback(async (scrollEvent) => {
-        const lastElementIdx = String((data || []).length - 1)
-
-        if (isNeedToLoadNewElements(scrollEvent, lastElementIdx, fetching)) {
-            await throttledSearchMore(value, data.length)
+    const handleSelect = useCallback((value, option) => {
+        if (onSelect) {
+            props.onSelect(value, option)
         }
-    }, [data, fetching, throttledSearchMore, value])
 
-    useEffect(
-        () => {
-            setSearchValue(initialValue)
+        setSelected(value)
+    }, [])
+
+    const handleClear = useCallback(() => {
+        setSelected(null)
+        if (props.onClear) props.onClear()
+    }, [])
+
+    const handleChange = useCallback(
+        (value, options) => {
+            setSearchValue(value)
+            onChange(value, options)
         },
-        [initialValue],
+        [onChange],
     )
 
-    useEffect(
-        () => {
-            scrollInputCaretToEnd(selectInputNode)
+    const handleScroll = useCallback(
+        async (scrollEvent) => {
+            const lastElementIdx = String((data || []).length - 1)
+
+            if (isNeedToLoadNewElements(scrollEvent, lastElementIdx, fetching)) {
+                await throttledSearchMore(value, data.length)
+            }
         },
-        [scrollInputCaretToEnd, selectInputNode, selected],
+        [data, fetching, throttledSearchMore, value],
     )
 
-    const options = useMemo(
-        () => {
-            const dataOptions = data.map((option, index) => renderOption(option, value, index))
+    useEffect(() => {
+        setSearchValue(initialValue)
+    }, [initialValue])
 
-            if (!fetching) return dataOptions
+    useEffect(() => {
+        scrollInputCaretToEnd(selectInputNode)
+    }, [scrollInputCaretToEnd, selectInputNode, selected])
 
-            return [
-                ...dataOptions,
-                (
-                    <Option key={'loader'} value={null} disabled>
-                        <Loader style={SELECT_LOADER_STYLE}/>
-                    </Option>
-                ),
-            ]
-        },
-        [data, fetching, value],
-    )
+    const options = useMemo(() => {
+        const dataOptions = data.map((option, index) => renderOption(option, value, index))
+
+        if (!fetching) return dataOptions
+
+        return [
+            ...dataOptions,
+            <Option key={'loader'} value={null} disabled>
+                <Loader style={SELECT_LOADER_STYLE} />
+            </Option>,
+        ]
+    }, [data, fetching, value])
 
     return (
         <Select
@@ -195,7 +177,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
             onPopupScroll={infinityScroll && handleScroll}
             ref={setSelectRef}
             placeholder={placeholder}
-            notFoundContent={fetching ? <Loader size="small" delay={0} fill/> : notFoundContent}
+            notFoundContent={fetching ? <Loader size="small" delay={0} fill /> : notFoundContent}
             // TODO(Dimitreee): remove ts ignore after combobox mode will be introduced after ant update
             // @ts-ignore
             mode={'SECRET_COMBOBOX_MODE_DO_NOT_USE'}

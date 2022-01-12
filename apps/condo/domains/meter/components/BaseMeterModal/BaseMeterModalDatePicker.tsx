@@ -10,9 +10,9 @@ import { METER_MODAL_FORM_ITEM_SPAN } from '../../constants/constants'
 import { BaseMeterModalFormItem } from './BaseMeterModalFormItem'
 
 interface ICreateMeterModalDatePickerProps {
-    label: string,
-    name: string,
-    rules?: Rule[],
+    label: string
+    name: string
+    rules?: Rule[]
     dependencies?: string[]
     onChange?: (value: Dayjs, dateString: string) => void
     initialValue?
@@ -22,7 +22,14 @@ const METER_MODAL_DATE_PICKER_STYLE: CSSProperties = { width: '100%' }
 const METER_MODAL_DATE_PICKER_DATE_FORMAT = 'DD.MM.YYYY'
 const METER_MODAL_DATE_PICKER_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
 
-export const MeterModalDatePicker: React.FC<ICreateMeterModalDatePickerProps> = ({ label, name, rules, dependencies, onChange, initialValue }) => {
+export const MeterModalDatePicker: React.FC<ICreateMeterModalDatePickerProps> = ({
+    label,
+    name,
+    rules,
+    dependencies,
+    onChange,
+    initialValue,
+}) => {
     const intl = useIntl()
     const EnterDatePlaceHolder = intl.formatMessage({ id: 'EnterDate' })
 

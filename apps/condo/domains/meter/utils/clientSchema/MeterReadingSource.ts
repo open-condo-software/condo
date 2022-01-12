@@ -17,7 +17,7 @@ export interface IMeterReadingSourceUIState extends MeterReadingSource {
     id: string
 }
 
-function convertToUIState (item: MeterReadingSource): IMeterReadingSourceUIState {
+function convertToUIState(item: MeterReadingSource): IMeterReadingSourceUIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
     return pick(item, FIELDS) as IMeterReadingSourceUIState
 }
@@ -26,39 +26,32 @@ export interface IMeterReadingSourceFormState {
     id?: undefined
 }
 
-function convertToUIFormState (state: IMeterReadingSourceUIState): IMeterReadingSourceFormState | undefined {
+function convertToUIFormState(state: IMeterReadingSourceUIState): IMeterReadingSourceFormState | undefined {
     if (!state) return
     const result = {}
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? attrId || state[attr] : state[attr]
     }
     return result as IMeterReadingSourceFormState
 }
 
-function convertToGQLInput (state: IMeterReadingSourceFormState): MeterReadingSourceUpdateInput {
+function convertToGQLInput(state: IMeterReadingSourceFormState): MeterReadingSourceUpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? { connect: { id: attrId || state[attr] } } : state[attr]
     }
     return result
 }
 
-const {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-} = generateReactHooks<MeterReadingSource, MeterReadingSourceUpdateInput, IMeterReadingSourceFormState, IMeterReadingSourceUIState, QueryAllMeterReadingSourcesArgs>(MeterReadingSourceGQL, { convertToGQLInput, convertToUIState })
+const { useObject, useObjects, useCreate, useUpdate, useDelete } = generateReactHooks<
+    MeterReadingSource,
+    MeterReadingSourceUpdateInput,
+    IMeterReadingSourceFormState,
+    IMeterReadingSourceUIState,
+    QueryAllMeterReadingSourcesArgs
+>(MeterReadingSourceGQL, { convertToGQLInput, convertToUIState })
 
-export {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-    convertToUIFormState,
-}
+export { useObject, useObjects, useCreate, useUpdate, useDelete, convertToUIFormState }

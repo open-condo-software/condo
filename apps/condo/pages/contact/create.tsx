@@ -25,10 +25,12 @@ const CreateContactPage: ICreateContactPage = () => {
                 <PageContent>
                     <Row gutter={[12, 40]}>
                         <Col span={24}>
-                            <Typography.Title level={1} style={{ margin: 0 }}>{PageTitle}</Typography.Title>
+                            <Typography.Title level={1} style={{ margin: 0 }}>
+                                {PageTitle}
+                            </Typography.Title>
                         </Col>
                         <Col span={24}>
-                            <CreateContactForm/>
+                            <CreateContactForm />
                         </Col>
                     </Row>
                 </PageContent>
@@ -37,12 +39,7 @@ const CreateContactPage: ICreateContactPage = () => {
     )
 }
 
-CreateContactPage.headerAction = (
-    <ReturnBackHeaderAction
-        descriptor={{ id:'pages.condo.contact.PageTitle' }}
-        path={'/contact'}
-    />
-)
+CreateContactPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'pages.condo.contact.PageTitle' }} path={'/contact'} />
 CreateContactPage.requiredAccess = OrganizationRequired
 
 export default CreateContactPage

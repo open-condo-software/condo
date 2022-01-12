@@ -8,18 +8,32 @@ const { getById } = require('@core/keystone/schema')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
-async function canReadBillingIntegrationOrganizationContexts ({ authentication: { item: user } }) {
+async function canReadBillingIntegrationOrganizationContexts({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin || user.isSupport) return true
     return {
         OR: [
-            { organization: { employees_some: { user: { id: user.id }, role: { OR: [{ canReadBillingReceipts: true }, { canManageIntegrations: true }] }, isBlocked: false } } },
+            {
+                organization: {
+                    employees_some: {
+                        user: { id: user.id },
+                        role: { OR: [{ canReadBillingReceipts: true }, { canManageIntegrations: true }] },
+                        isBlocked: false,
+                    },
+                },
+            },
             { integration: { accessRights_some: { user: { id: user.id } } } },
         ],
     }
 }
 
-async function canManageBillingIntegrationOrganizationContexts ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
+async function canManageBillingIntegrationOrganizationContexts({
+    authentication: { item: user },
+    originalInput,
+    operation,
+    itemId,
+    context,
+}) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     if (user.isSupport && !get(originalInput, ['organization', 'connect', 'id'])) return true

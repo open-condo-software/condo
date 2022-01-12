@@ -21,12 +21,10 @@ const getCountDownDateFromCookies = (countDownId) => {
         return 0
     }
 
-    if (cookie.match(countDownId)){
+    if (cookie.match(countDownId)) {
         const coundownRegexp = new RegExp(`(?:(?:^|.*;\\s*)COUNTDOWN_${countDownId}\\s*=\\s*([^;]*).*$)|^.*$`)
 
-        const countDownFromCookie = document
-            .cookie
-            .replace(coundownRegexp, '$1')
+        const countDownFromCookie = document.cookie.replace(coundownRegexp, '$1')
 
         if (!countDownFromCookie) {
             return 0
@@ -45,7 +43,7 @@ const getCountDownDateFromCookies = (countDownId) => {
 
 type CountDownChildrenType = (
     // TODO(Dimitreee): remove any
-    { countdown, runAction, loading }: { countdown: number, runAction: () => Promise<any>, loading: boolean }
+    { countdown, runAction, loading }: { countdown: number; runAction: () => Promise<any>; loading: boolean },
 ) => JSX.Element
 
 interface ICountDownTimer {

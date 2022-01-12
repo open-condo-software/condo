@@ -6,5 +6,5 @@ interface IClientRenderedIconProps {
 
 export const ClientRenderedIcon: React.FC<IClientRenderedIconProps> = ({ icon: Icon }) => {
     if (typeof window === 'undefined') return null
-    return <Icon/>
+    return <Icon />
 }

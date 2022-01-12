@@ -29,24 +29,26 @@ const ShareTicketService = new GQLCustomSchema('ShareTicketService', {
                 const employeeUsers = await OrganizationEmployee.getAll(context, { id_in: employees })
                 const lang = COUNTRIES[RUSSIA_COUNTRY].locale
 
-                await Promise.all(employeeUsers.map( employee => {
-                    return sendMessage(context, {
-                        lang,
-                        to: {
-                            email: employee.email,
-                            ...employee.user ? { user: { id: employee.user.id } } : {},
-                        },
-                        type: SHARE_TICKET_MESSAGE_TYPE,
-                        meta: {
-                            dv: 1,
-                            ticketNumber: ticket.number,
-                            date: ticket.createdAt,
-                            id: ticket.id,
-                            details: ticket.details,
-                        },
-                        sender,
-                    })
-                }))
+                await Promise.all(
+                    employeeUsers.map((employee) => {
+                        return sendMessage(context, {
+                            lang,
+                            to: {
+                                email: employee.email,
+                                ...(employee.user ? { user: { id: employee.user.id } } : {}),
+                            },
+                            type: SHARE_TICKET_MESSAGE_TYPE,
+                            meta: {
+                                dv: 1,
+                                ticketNumber: ticket.number,
+                                date: ticket.createdAt,
+                                id: ticket.id,
+                                details: ticket.details,
+                            },
+                            sender,
+                        })
+                    }),
+                )
                 return { status: 'ok' }
             },
         },

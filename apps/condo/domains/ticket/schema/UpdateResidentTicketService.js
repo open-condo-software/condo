@@ -14,7 +14,7 @@ const UpdateResidentTicketService = new GQLCustomSchema('UpdateResidentTicketSer
             type: 'input ResidentTicketUpdateInput { dv: Int!, sender: SenderFieldInput!, details: String }',
         },
     ],
-    
+
     mutations: [
         {
             access: access.canUpdateResidentTicket,
@@ -37,7 +37,6 @@ const UpdateResidentTicketService = new GQLCustomSchema('UpdateResidentTicketSer
             },
         },
     ],
-    
 })
 
 module.exports = {

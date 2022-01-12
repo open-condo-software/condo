@@ -20,12 +20,7 @@ import { LOCALES } from '@condo/domains/common/constants/locale'
 import { TICKET_REPORT_DAY_GROUP_STEPS } from '@condo/domains/ticket/constants/common'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
-import {
-    AnalyticsDataType,
-    ChartConfigResult,
-    TicketSelectTypes,
-    ViewModeTypes,
-} from '../components/TicketChart'
+import { AnalyticsDataType, ChartConfigResult, TicketSelectTypes, ViewModeTypes } from '../components/TicketChart'
 import { MAX_CHART_LEGEND_ELEMENTS, MAX_CHART_NAME_LENGTH } from '../constants/restrictions'
 
 dayjs.extend(duration)
@@ -120,9 +115,11 @@ export interface IFilters extends Pick<Ticket, 'clientName' | 'createdAt' | 'det
 export const statusToQuery = (statusIds: Array<string>): TicketStatusWhereInput => {
     if (Array.isArray(statusIds) && statusIds.length > 0) {
         return {
-            AND: [{
-                id_in: statusIds,
-            }],
+            AND: [
+                {
+                    id_in: statusIds,
+                },
+            ],
         }
     }
 }
@@ -148,9 +145,11 @@ export const propertyToQuery = (address?: string) => {
     }
 
     return {
-        AND: [{
-            address_contains_i: address,
-        }],
+        AND: [
+            {
+                address_contains_i: address,
+            },
+        ],
     }
 }
 
@@ -160,9 +159,11 @@ export const executorToQuery = (executor?: string) => {
     }
 
     return {
-        AND: [{
-            name_contains_i: executor,
-        }],
+        AND: [
+            {
+                name_contains_i: executor,
+            },
+        ],
     }
 }
 
@@ -172,9 +173,11 @@ export const assigneeToQuery = (assignee?: string) => {
     }
 
     return {
-        AND: [{
-            name_contains_i: assignee,
-        }],
+        AND: [
+            {
+                name_contains_i: assignee,
+            },
+        ],
     }
 }
 
@@ -187,7 +190,6 @@ export const statusToQueryByName = (statusName?: string) => {
         AND: [{ name_contains_i: statusName }],
     }
 }
-
 
 export const searchToQuery = (search?: string): TicketWhereInput[] => {
     if (!search) {
@@ -251,7 +253,7 @@ export const filtersToQuery = (filters: IFilters): TicketWhereInput => {
 }
 
 type SorterColumn = {
-    columnKey: string,
+    columnKey: string
     order: 'ascend' | 'descend'
 }
 
@@ -264,57 +266,52 @@ export const sorterToQuery = (sorter?: SorterColumn | Array<SorterColumn>): Arra
         sorter = [sorter]
     }
 
-    return sorter.map((sort) => {
-        const { columnKey, order } = sort
+    return sorter
+        .map((sort) => {
+            const { columnKey, order } = sort
 
-        const sortKeys = {
-            'ascend': 'ASC',
-            'descend': 'DESC',
-        }
+            const sortKeys = {
+                ascend: 'ASC',
+                descend: 'DESC',
+            }
 
-        const sortKey = sortKeys[order]
+            const sortKey = sortKeys[order]
 
-        if (!sortKey) {
-            return
-        }
+            if (!sortKey) {
+                return
+            }
 
-        return `${columnKey}_${sortKeys[order]}`
-    }).filter(Boolean)
+            return `${columnKey}_${sortKeys[order]}`
+        })
+        .filter(Boolean)
 }
 
 const SORT_ORDERS = {
-    'ASC': 'ascend',
-    'DESC': 'descend',
+    ASC: 'ascend',
+    DESC: 'descend',
 }
 
-const TICKET_TABLE_COLUMNS = [
-    'number',
-    'status',
-    'details',
-    'property',
-    'assignee',
-    'executor',
-    'createdAt',
-    'clientName',
-]
+const TICKET_TABLE_COLUMNS = ['number', 'status', 'details', 'property', 'assignee', 'executor', 'createdAt', 'clientName']
 
 export const queryToSorter = (query: Array<string>) => {
-    return query.map((sort) => {
-        const [columnKey, sortKey] = sort.split('_')
+    return query
+        .map((sort) => {
+            const [columnKey, sortKey] = sort.split('_')
 
-        try {
-            if (TICKET_TABLE_COLUMNS.includes(columnKey) && SORT_ORDERS[sortKey]) {
-                return {
-                    columnKey,
-                    order: SORT_ORDERS[sortKey],
+            try {
+                if (TICKET_TABLE_COLUMNS.includes(columnKey) && SORT_ORDERS[sortKey]) {
+                    return {
+                        columnKey,
+                        order: SORT_ORDERS[sortKey],
+                    }
                 }
+            } catch (e) {
+                // TODO(Dimitreee): send error to sentry
             }
-        } catch (e) {
-            // TODO(Dimitreee): send error to sentry
-        }
 
-        return
-    }).filter(Boolean)
+            return
+        })
+        .filter(Boolean)
 }
 
 export const createSorterMap = (sortStringFromQuery: Array<string>): Record<string, SortOrder> => {
@@ -355,9 +352,10 @@ export const getPageSizeFromQuery = (query: ParsedUrlQuery): number => {
     if (POSSIBLE_PAGE_SIZE.indexOf(queryValue) !== -1) {
         return queryValue
     }
-    const nearest = POSSIBLE_PAGE_SIZE
-        .map(validPageSize => ({ validPageSize, difference: Math.abs(queryValue - validPageSize) }))
-        .sort((a, b) => a.difference - b.difference)[0].validPageSize
+    const nearest = POSSIBLE_PAGE_SIZE.map((validPageSize) => ({
+        validPageSize,
+        difference: Math.abs(queryValue - validPageSize),
+    })).sort((a, b) => a.difference - b.difference)[0].validPageSize
     return nearest
 }
 
@@ -376,16 +374,14 @@ export const getPageIndexFromQuery = (query: ParsedUrlQuery): number => {
 export const formatDate = (intl, dateStr?: string): string => {
     const currentDate = new Date()
     const date = new Date(dateStr)
-    const pattern = date.getFullYear() === currentDate.getFullYear()
-        ? 'D MMMM H:mm'
-        : 'D MMMM YYYY H:mm'
+    const pattern = date.getFullYear() === currentDate.getFullYear() ? 'D MMMM H:mm' : 'D MMMM YYYY H:mm'
     const locale = get(LOCALES, intl.locale)
     const localizedDate = locale ? dayjs(date).locale(locale) : dayjs(date)
     return localizedDate.format(pattern)
 }
 
 export type specificationTypes = 'day' | 'week' | 'month'
-export type addressPickerType = { id: string; value: string; }
+export type addressPickerType = { id: string; value: string }
 export type GroupTicketsByTypes = 'status' | 'property' | 'categoryClassifier' | 'executor' | 'assignee'
 
 export type ticketAnalyticsPageFilters = {
@@ -398,15 +394,17 @@ export type ticketAnalyticsPageFilters = {
 }
 
 interface IFilterToQuery {
-    (
-        { filter, viewMode, ticketType, mainGroup }:
-        {
-            filter: ticketAnalyticsPageFilters,
-            viewMode: ViewModeTypes,
-            ticketType: TicketSelectTypes,
-            mainGroup: GroupTicketsByTypes
-        }
-    ): { AND: TicketWhereInput['AND'], groupBy: TicketAnalyticsGroupBy[] }
+    ({
+        filter,
+        viewMode,
+        ticketType,
+        mainGroup,
+    }: {
+        filter: ticketAnalyticsPageFilters
+        viewMode: ViewModeTypes
+        ticketType: TicketSelectTypes
+        mainGroup: GroupTicketsByTypes
+    }): { AND: TicketWhereInput['AND']; groupBy: TicketAnalyticsGroupBy[] }
 }
 
 export const filterToQuery: IFilterToQuery = ({ filter, viewMode, ticketType, mainGroup }) => {
@@ -445,10 +443,7 @@ export const filterToQuery: IFilterToQuery = ({ filter, viewMode, ticketType, ma
     }
 
     if (ticketType !== 'all') {
-        AND.push(...[
-            { isEmergency: ticketType === 'emergency' },
-            { isPaid: ticketType === 'paid' },
-        ])
+        AND.push(...[{ isEmergency: ticketType === 'emergency' }, { isPaid: ticketType === 'paid' }])
     }
 
     return { AND, groupBy }
@@ -466,26 +461,26 @@ export const getAggregatedData: IGetAggregatedData = (data, groupByFilter, injec
     injectSummaryInfo && Object.defineProperty(result, 'summary', { enumerable: false, writable: true, value: {} })
 
     Object.entries(groupedResult).forEach(([filter, dataObject]) => {
-        const filterEntries = Object.entries(
-            groupBy(dataObject, labelsGroupKey)
-        ).map(([labelsGroupTitle, resultObject]) => [labelsGroupTitle, resultObject[0].count])
+        const filterEntries = Object.entries(groupBy(dataObject, labelsGroupKey)).map(([labelsGroupTitle, resultObject]) => [
+            labelsGroupTitle,
+            resultObject[0].count,
+        ])
 
-        injectSummaryInfo && filterEntries.forEach(([label, count]) => {
-            if (label in result['summary']) {
-                result['summary'][label] += count
-            } else {
-                result['summary'][label] = count
-            }
-        })
+        injectSummaryInfo &&
+            filterEntries.forEach(([label, count]) => {
+                if (label in result['summary']) {
+                    result['summary'][label] += count
+                } else {
+                    result['summary'][label] = count
+                }
+            })
         result[filter] = Object.fromEntries(filterEntries)
     })
     return result
 }
 
 const formatPieChartName = (chartName: string): string => {
-    return chartName.length > MAX_CHART_NAME_LENGTH
-        ? `${chartName.substring(0, MAX_CHART_NAME_LENGTH)}...`
-        : chartName
+    return chartName.length > MAX_CHART_NAME_LENGTH ? `${chartName.substring(0, MAX_CHART_NAME_LENGTH)}...` : chartName
 }
 
 interface IGetChartOptions {
@@ -498,17 +493,17 @@ interface IGetChartOptions {
         series,
         chartOptions,
     }: {
-        legend: string[],
-        viewMode: ViewModeTypes,
-        animationEnabled: boolean,
-        series: ChartConfigResult['series'],
-        chartOptions: EChartsReactProps['opts'],
-        color: string[],
-        axisData?: ChartConfigResult['axisData'],
-        tooltip?: ChartConfigResult['tooltip'],
+        legend: string[]
+        viewMode: ViewModeTypes
+        animationEnabled: boolean
+        series: ChartConfigResult['series']
+        chartOptions: EChartsReactProps['opts']
+        color: string[]
+        axisData?: ChartConfigResult['axisData']
+        tooltip?: ChartConfigResult['tooltip']
         showTitle?: boolean
     }): {
-        option: EChartsOption,
+        option: EChartsOption
         opts: unknown
     }
 }
@@ -522,7 +517,8 @@ export const getChartOptions: IGetChartOptions = ({
     legend,
     chartOptions,
     color,
-    showTitle = true }) => {
+    showTitle = true,
+}) => {
     const option = {
         animation: animationEnabled,
         color,
@@ -557,19 +553,21 @@ export const getChartOptions: IGetChartOptions = ({
 
         option['series'] = series
 
-        option['title'] = showTitle ? {
-            show: true,
-            text: formatPieChartName(series[0].name),
-            left: 335,
-            top: 30,
-            textStyle: {
-                fontSize: fontSizes.content,
-                fontWeight: 700,
-                overflow: 'breakAll',
-                width: 160,
-                lineHeight: 20,
-            },
-        } : { show: false }
+        option['title'] = showTitle
+            ? {
+                  show: true,
+                  text: formatPieChartName(series[0].name),
+                  left: 335,
+                  top: 30,
+                  textStyle: {
+                      fontSize: fontSizes.content,
+                      fontWeight: 700,
+                      overflow: 'breakAll',
+                      width: 160,
+                      lineHeight: 20,
+                  },
+              }
+            : { show: false }
     } else {
         option['legend'] = legendLayout
         option['xAxis'] = axisData['xAxis']
@@ -577,9 +575,7 @@ export const getChartOptions: IGetChartOptions = ({
         option['series'] = series
         option['tooltip'] = tooltip
         const legendItemGap = 42
-        option['grid']['top'] = animationEnabled
-            ? 56
-            : 30 + legend.length / MAX_CHART_LEGEND_ELEMENTS * legendItemGap
+        option['grid']['top'] = animationEnabled ? 56 : 30 + (legend.length / MAX_CHART_LEGEND_ELEMENTS) * legendItemGap
 
         const chartHeight = get(chartOptions, 'height', 'auto')
         opts['height'] = chartHeight
@@ -594,7 +590,6 @@ export const getChartOptions: IGetChartOptions = ({
                 opts['height'] = chartStyle['height']
             }
         }
-
     }
 
     return { option, opts }

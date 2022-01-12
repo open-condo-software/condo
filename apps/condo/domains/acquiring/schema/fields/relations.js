@@ -1,7 +1,8 @@
 const { Relationship } = require('@keystonejs/fields')
 
 const ACQUIRING_CONTEXT_FIELD = {
-    schemaDoc: 'Acquiring context, which used to link organization and acquiring integration and provide storage for organization-acquiring-specific settings / state',
+    schemaDoc:
+        'Acquiring context, which used to link organization and acquiring integration and provide storage for organization-acquiring-specific settings / state',
     type: Relationship,
     ref: 'AcquiringIntegrationContext',
     isRequired: true,
@@ -10,7 +11,7 @@ const ACQUIRING_CONTEXT_FIELD = {
 }
 
 const ACQUIRING_INTEGRATION_FIELD = {
-    schemaDoc: 'Acquiring integration. Determines way of user\'s payment',
+    schemaDoc: "Acquiring integration. Determines way of user's payment",
     type: Relationship,
     ref: 'AcquiringIntegration',
     isRequired: true,

@@ -43,7 +43,8 @@ const InProgressBilling = {
     name: 'ГИС ЖКХ (IN PROGRESS STATUS)',
     shortDescription: 'Государственная информационная система ЖКХ',
     detailsTitle: 'Подключение ГИС ЖКХ',
-    detailsText: 'Вам нужно подать заявку на интеграцию через ваш личный кабинет в ГИС ЖКХ. Дальше, мы сделаем всё сами.\n' +
+    detailsText:
+        'Вам нужно подать заявку на интеграцию через ваш личный кабинет в ГИС ЖКХ. Дальше, мы сделаем всё сами.\n' +
         'В результате, вы будете видеть все данные биллинга внутри платформы «Домá».',
     detailsConfirmButtonText: 'Подать заявку на интеграцию с ГИС ЖКХ',
     detailsInstructionButtonText: 'Инструкция на сайте биллинга',
@@ -59,7 +60,8 @@ const SuccessfulBilling = {
     name: 'Интеграция через загрузку вашего реестра (DONE STATUS)',
     shortDescription: 'Поддерживаемые форматы: 1С, СБ Бизнес Онлайн 8_2 и 9_1',
     detailsTitle: 'Интеграция через загрузку реестров',
-    detailsText: 'Выберите формат, в котором хотите загружать ваши реестры в Домá.\n' +
+    detailsText:
+        'Выберите формат, в котором хотите загружать ваши реестры в Домá.\n' +
         'Мы запомним ваш выбор и в следующий раз не будем спрашивать про формат файлов.',
     detailsConfirmButtonText: 'Подключить',
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
@@ -105,7 +107,7 @@ const ErrorBilling = {
     sender: SENDER,
     name: 'Error',
     shortDescription: 'Billing that will never be completed :)',
-    detailsTitle: 'You won\'t do this',
+    detailsTitle: "You won't do this",
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_ERROR_STATUS,
     dataFormat: Lvl1DataFormat,
 }
@@ -175,24 +177,22 @@ const RUBLE_BILLINGS_TO_CREATE = [
     WithServicesDetailsBilling,
 ]
 
-const DOLLAR_BILLINGS_TO_CREATE = [
-    NoDetailsDollarBilling,
-]
+const DOLLAR_BILLINGS_TO_CREATE = [NoDetailsDollarBilling]
 
 class BillingsGenerator {
     context = null
 
-    async connect () {
+    async connect() {
         console.info('[INFO] Connecting to database...')
         const resolved = path.resolve('./index.js')
         const { distDir, keystone, apps } = require(resolved)
-        const graphqlIndex = apps.findIndex(app => app instanceof GraphQLApp)
+        const graphqlIndex = apps.findIndex((app) => app instanceof GraphQLApp)
         await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
         await keystone.connect()
         this.context = await keystone.createContext({ skipAccessControl: true })
     }
 
-    async generateBillings () {
+    async generateBillings() {
         console.info('[INFO] Generating billings...')
         for (const billing of RUBLE_BILLINGS_TO_CREATE) {
             await BillingIntegration.create(this.context, {
@@ -207,8 +207,6 @@ class BillingsGenerator {
             })
         }
     }
-
-
 }
 
 const createBillings = async () => {
@@ -229,6 +227,7 @@ createBillings()
         console.log('\r\n')
         console.log('All done')
         process.exit(0)
-    }).catch((err) => {
+    })
+    .catch((err) => {
         console.error('Failed to done', err)
     })

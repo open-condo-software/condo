@@ -8,8 +8,19 @@ const { makeOrganizationIntegrationManager } = require('@condo/domains/billing/u
 const { makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { getRandomString, makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
-const { BillingIntegrationLog, createTestBillingIntegrationLog, updateTestBillingIntegrationLog, createTestBillingIntegrationOrganizationContext, createTestBillingIntegrationAccessRight, createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const {
+    BillingIntegrationLog,
+    createTestBillingIntegrationLog,
+    updateTestBillingIntegrationLog,
+    createTestBillingIntegrationOrganizationContext,
+    createTestBillingIntegrationAccessRight,
+    createTestBillingIntegration,
+} = require('@condo/domains/billing/utils/testSchema')
+const {
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj,
+} = require('@condo/domains/common/utils/testSchema')
 
 describe('BillingIntegrationLog', () => {
     test('admin: create BillingIntegrationLog', async () => {
@@ -199,4 +210,3 @@ describe('BillingIntegrationLog', () => {
         // expect(hackerResult).toEqual([])
     })
 })
-

@@ -6,19 +6,23 @@ import { IOrganizationEmployeeRoleUIState } from '@condo/domains/organization/ut
 
 interface IContactsEditorHookArgs {
     // Organization scope for contacts autocomplete and new contact, that can be created
-    organization: string,
-    role?: IOrganizationEmployeeRoleUIState,
-    allowLandLine?: boolean,
+    organization: string
+    role?: IOrganizationEmployeeRoleUIState
+    allowLandLine?: boolean
 }
 
 interface IContactsEditorHookResult {
-    createContact: (organization: string, property: string, unitName: string) => Promise<IContactUIState>,
-    ContactsEditorComponent: React.FC<IContactEditorProps>,
+    createContact: (organization: string, property: string, unitName: string) => Promise<IContactUIState>
+    ContactsEditorComponent: React.FC<IContactEditorProps>
     // Explicitly indicates, that we have enough data to call `createContact` action
-    canCreateContact: boolean,
+    canCreateContact: boolean
 }
 
-export const useContactsEditorHook = ({ organization, role, allowLandLine }: IContactsEditorHookArgs): IContactsEditorHookResult => {
+export const useContactsEditorHook = ({
+    organization,
+    role,
+    allowLandLine,
+}: IContactsEditorHookArgs): IContactsEditorHookResult => {
     // Field value will be initialized only on user interaction.
     // In case of no interaction, no create action will be performed
     // @ts-ignore
@@ -64,7 +68,7 @@ export const useContactsEditorHook = ({ organization, role, allowLandLine }: ICo
                 if (e.message.match('Contact_uniq')) {
                     console.error(e)
                 } else {
-                    throw (e)
+                    throw e
                 }
             }
         }

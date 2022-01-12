@@ -1,11 +1,5 @@
 import React, { useCallback, useRef } from 'react'
-import {
-    Columns,
-    RowNormalizer,
-    RowValidator,
-    ObjectCreator,
-    ProcessedRow,
-} from '@condo/domains/common/utils/importer'
+import { Columns, RowNormalizer, RowValidator, ObjectCreator, ProcessedRow } from '@condo/domains/common/utils/importer'
 import { Modal, Popover, Typography, Space } from 'antd'
 import { useImporter } from '@condo/domains/common/hooks/useImporter'
 import { useIntl } from '@core/next/intl'
@@ -40,9 +34,12 @@ interface IImportWrapperProps {
 
 const ColumnsInfoBox: React.FC<IColumnsInfoBoxProps> = ({ columns, domainTranslate, exampleTemplateLink }) => {
     const intl = useIntl()
-    const ColumnsFormatMessage = intl.formatMessage({ id: 'ImportRequiredColumnsFormat' }, {
-        domain: domainTranslate,
-    })
+    const ColumnsFormatMessage = intl.formatMessage(
+        { id: 'ImportRequiredColumnsFormat' },
+        {
+            domain: domainTranslate,
+        },
+    )
     const RequiredFieldsMessage = intl.formatMessage({ id: 'ImportRequiredFields' })
     const DownloadExampleTitle = intl.formatMessage({ id: 'ImportDownloadExampleTitle' })
 
@@ -60,23 +57,22 @@ const ColumnsInfoBox: React.FC<IColumnsInfoBoxProps> = ({ columns, domainTransla
         [exampleTemplateLink],
     )
 
-    const fieldsString = columns.filter(({ required }) => required).map(column => column.label).join(', ')
+    const fieldsString = columns
+        .filter(({ required }) => required)
+        .map((column) => column.label)
+        .join(', ')
 
     return (
         <Space direction={'vertical'} size={10} style={{ maxWidth: 300 }}>
+            <Typography.Text>{ColumnsFormatMessage}</Typography.Text>
             <Typography.Text>
-                {ColumnsFormatMessage}
+                {RequiredFieldsMessage}: {fieldsString}
             </Typography.Text>
-            <Typography.Text>{RequiredFieldsMessage}: {fieldsString}</Typography.Text>
-            {
-                exampleTemplateLink !== null && (
-                    <Button
-                        onClick={downloadExample}
-                        icon={<DownloadOutlined />}
-                        type={'inlineLink'}
-                    >{DownloadExampleTitle}</Button>
-                )
-            }
+            {exampleTemplateLink !== null && (
+                <Button onClick={downloadExample} icon={<DownloadOutlined />} type={'inlineLink'}>
+                    {DownloadExampleTitle}
+                </Button>
+            )}
         </Space>
     )
 }
@@ -94,12 +90,12 @@ export const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         exampleTemplateLink = null,
     } = props
     const intl = useIntl()
-    const ImportTitle = intl.formatMessage({ id:'Import' })
-    const ImportSuccessMessage = intl.formatMessage({ id: 'ImportSuccess' },  { objects: objectsName })
+    const ImportTitle = intl.formatMessage({ id: 'Import' })
+    const ImportSuccessMessage = intl.formatMessage({ id: 'ImportSuccess' }, { objects: objectsName })
     const ImportOKMessage = intl.formatMessage({ id: 'Continue' })
     const ImportDefaultErrorMessage = intl.formatMessage({ id: 'ImportError' })
-    const ImportProcessingMessage = intl.formatMessage({ id:'ImportProcessing' })
-    const ImportBreakButtonMessage = intl.formatMessage({ id:'Break' })
+    const ImportProcessingMessage = intl.formatMessage({ id: 'ImportProcessing' })
+    const ImportBreakButtonMessage = intl.formatMessage({ id: 'Break' })
     const ImportPopoverTitle = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
     const GetFailedDataMessage = intl.formatMessage({ id: 'GetFailedData' })
     const CloseMessage = intl.formatMessage({ id: 'Close' })
@@ -132,14 +128,25 @@ export const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         }
     }
     const [importData, progress, error, isImported, breakImport] = useImporter(
-        columns, rowNormalizer, rowValidator, objectCreator,
-        setTotalRowsRef, setSuccessRowsRef, addError,
+        columns,
+        rowNormalizer,
+        rowValidator,
+        objectCreator,
+        setTotalRowsRef,
+        setSuccessRowsRef,
+        addError,
         () => {
             const message = `${ImportSuccessMessage} [${successRowsRef.current}/${totalRowsRef.current}]`
             destroyActiveModal()
             if (errors.current.length > 0) {
-                const config = getPartlyLoadedModalConfig(ImportTitle, message, GetFailedDataMessage, CloseMessage,
-                    errors.current, columns)
+                const config = getPartlyLoadedModalConfig(
+                    ImportTitle,
+                    message,
+                    GetFailedDataMessage,
+                    CloseMessage,
+                    errors.current,
+                    columns,
+                )
                 activeModal.current = modal.confirm(config)
             } else {
                 const config = getUploadSuccessModalConfig(ImportTitle, message, ImportOKMessage)
@@ -150,16 +157,15 @@ export const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
             destroyActiveModal()
             const config = getUploadErrorModalConfig(ImportTitle, ImportDefaultErrorMessage, ImportOKMessage)
             activeModal.current = modal.error(config)
-        }
+        },
     )
 
     const handleUpload = useCallback((file) => {
         destroyActiveModal()
-        const config = getUploadProgressModalConfig(ImportTitle, ImportProcessingMessage, ImportBreakButtonMessage,
-            () => {
-                breakImport()
-                onFinish()
-            })
+        const config = getUploadProgressModalConfig(ImportTitle, ImportProcessingMessage, ImportBreakButtonMessage, () => {
+            breakImport()
+            onFinish()
+        })
         // @ts-ignore
         activeModal.current = modal.info(config)
         totalRowsRef.current = 0
@@ -174,12 +180,16 @@ export const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
                 <DataImporter onUpload={handleUpload}>
                     <Popover
                         title={<Typography.Text style={{ fontWeight: 'bold' }}>{ImportPopoverTitle}</Typography.Text>}
-                        content={<ColumnsInfoBox
-                            columns={columns}
-                            exampleTemplateLink={exampleTemplateLink}
-                            domainTranslate={domainTranslate}
-                        />}
-                    >{props.children}</Popover>
+                        content={
+                            <ColumnsInfoBox
+                                columns={columns}
+                                exampleTemplateLink={exampleTemplateLink}
+                                domainTranslate={domainTranslate}
+                            />
+                        }
+                    >
+                        {props.children}
+                    </Popover>
                 </DataImporter>
                 {contextHolder}
             </ModalContext.Provider>

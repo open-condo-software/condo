@@ -13,9 +13,9 @@ const { UPPER_CASE_ALPHANUMERIC_REGEXP } = require('@condo/domains/common/consta
 
 const { INTEGRATION_CONTEXT_FIELD } = require('./fields/relations')
 
-
 const BillingIntegrationLog = new GQLListSchema('BillingIntegrationLog', {
-    schemaDoc: 'Important `integration component` log records. Sometimes you need to report some errors/problems related to the integration process. ' +
+    schemaDoc:
+        'Important `integration component` log records. Sometimes you need to report some errors/problems related to the integration process. ' +
         'The target audience of these messages is the client of our API platform. You should avoid repeating the same messages. ' +
         'The existence of the message means that some problems were occurred during the integration process and the client should the user must take some actions to eliminate them',
     fields: {
@@ -25,13 +25,15 @@ const BillingIntegrationLog = new GQLListSchema('BillingIntegrationLog', {
         context: INTEGRATION_CONTEXT_FIELD,
 
         type: {
-            schemaDoc: 'Message type. Our clients can use different languages. Sometimes we need to change the text message for the client. The settings for the message texts are in the integration. Ex: WRONG_AUTH_CREDENTIALS',
+            schemaDoc:
+                'Message type. Our clients can use different languages. Sometimes we need to change the text message for the client. The settings for the message texts are in the integration. Ex: WRONG_AUTH_CREDENTIALS',
             type: Text,
             isRequired: true,
             hooks: {
                 validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
                     const value = resolvedData[fieldPath]
-                    if (!UPPER_CASE_ALPHANUMERIC_REGEXP.test(value)) addFieldValidationError(`${WRONG_TEXT_FORMAT}${fieldPath}] allow only [A-Z0-9_] charset`)
+                    if (!UPPER_CASE_ALPHANUMERIC_REGEXP.test(value))
+                        addFieldValidationError(`${WRONG_TEXT_FORMAT}${fieldPath}] allow only [A-Z0-9_] charset`)
                 },
             },
         },
@@ -47,7 +49,6 @@ const BillingIntegrationLog = new GQLListSchema('BillingIntegrationLog', {
             type: Json,
             isRequired: false,
         },
-
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted()],
     access: {

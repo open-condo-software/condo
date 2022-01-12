@@ -24,7 +24,7 @@ const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyW
             type: 'type CheckPropertyWithAddressExistOutput { isFound: Boolean! }',
         },
     ],
-    
+
     queries: [
         {
             access: access.canCheckPropertyWithAddressExist,
@@ -57,7 +57,6 @@ const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyW
             },
         },
     ],
-    
 })
 
 module.exports = {

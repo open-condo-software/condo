@@ -42,7 +42,6 @@ const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/
 const get = require('lodash/get')
 const Big = require('big.js')
 
-
 const Payment = new GQLListSchema('Payment', {
     schemaDoc: 'Information about completed transaction from user to a specific organization',
     fields: {
@@ -82,13 +81,13 @@ const Payment = new GQLListSchema('Payment', {
         currencyCode: CURRENCY_CODE_FIELD,
 
         advancedAt: {
-            schemaDoc: 'Time at which money was advanced to recipient\'s account',
+            schemaDoc: "Time at which money was advanced to recipient's account",
             type: DateTimeUtc,
             isRequired: false,
         },
 
         accountNumber: {
-            schemaDoc: 'Payer\'s account number',
+            schemaDoc: "Payer's account number",
             type: Text,
             isRequired: true,
         },
@@ -102,7 +101,8 @@ const Payment = new GQLListSchema('Payment', {
         },
 
         receipt: {
-            schemaDoc: 'Link to a billing receipt that the user paid for. Can be null in cases of getting payments out of our system',
+            schemaDoc:
+                'Link to a billing receipt that the user paid for. Can be null in cases of getting payments out of our system',
             type: Relationship,
             ref: 'BillingReceipt',
             isRequired: false,
@@ -146,7 +146,8 @@ const Payment = new GQLListSchema('Payment', {
                     if (resolvedData[fieldPath]) {
                         const context = await getById('AcquiringIntegrationContext', resolvedData[fieldPath])
                         // NOTE: CHECKS THAT CONTEXT EXIST AND NOT DELETED ARE DONE AUTOMATICALLY BEFORE
-                        const organization = operation === 'create' ? get(resolvedData, 'organization') : existingItem.organization
+                        const organization =
+                            operation === 'create' ? get(resolvedData, 'organization') : existingItem.organization
                         if (context.organization !== organization) {
                             return addFieldValidationError(PAYMENT_CONTEXT_ORGANIZATION_NOT_MATCH)
                         }
@@ -164,7 +165,7 @@ const Payment = new GQLListSchema('Payment', {
         },
 
         status: {
-            schemaDoc: `Status of payment. Can be: ${PAYMENT_STATUSES.map(status => `"${status}"`).join(', ')}`,
+            schemaDoc: `Status of payment. Can be: ${PAYMENT_STATUSES.map((status) => `"${status}"`).join(', ')}`,
             type: Select,
             dataType: 'string',
             isRequired: true,
@@ -173,13 +174,15 @@ const Payment = new GQLListSchema('Payment', {
         },
 
         recipientBic: {
-            schemaDoc: 'Bic of recipient organization, used for matching payments with receipts in case of multiple receipts per account + address',
+            schemaDoc:
+                'Bic of recipient organization, used for matching payments with receipts in case of multiple receipts per account + address',
             type: Text,
             isRequired: true,
         },
 
         recipientBankAccount: {
-            schemaDoc: 'Bank account number of recipient organization, used for matching payments with receipts in case of multiple receipts per account + address',
+            schemaDoc:
+                'Bank account number of recipient organization, used for matching payments with receipts in case of multiple receipts per account + address',
             type: Text,
             isRequired: true,
         },
@@ -196,7 +199,7 @@ const Payment = new GQLListSchema('Payment', {
     },
     hooks: {
         validateInput: async ({ resolvedData, context, addValidationError, operation, existingItem }) => {
-            if (!hasDvAndSenderFields(resolvedData, context, addValidationError )) return
+            if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
             const { dv } = resolvedData
             if (dv === 1) {
                 // NOTE: version 1 specific translations. Don't optimize this logic
@@ -222,8 +225,10 @@ const Payment = new GQLListSchema('Payment', {
                     if (!acquiringContexts.length) {
                         return addValidationError(PAYMENT_NO_SUPPORTED_CONTEXT)
                     }
-                    if (get(receipt, ['recipient', 'bic']) !== resolvedData['recipientBic']
-                        || get(receipt, ['recipient', 'bankAccount']) !== resolvedData['recipientBankAccount']) {
+                    if (
+                        get(receipt, ['recipient', 'bic']) !== resolvedData['recipientBic'] ||
+                        get(receipt, ['recipient', 'bankAccount']) !== resolvedData['recipientBankAccount']
+                    ) {
                         return addValidationError(PAYMENT_RECIPIENT_MISMATCH)
                     }
                 }
@@ -231,7 +236,9 @@ const Payment = new GQLListSchema('Payment', {
                 const oldStatus = existingItem.status
                 const newStatus = get(resolvedData, 'status', oldStatus)
                 if (!PAYMENT_TRANSITIONS[oldStatus].includes(newStatus)) {
-                    return addValidationError(`${PAYMENT_NOT_ALLOWED_TRANSITION} Cannot move from "${oldStatus}" status to "${newStatus}"`)
+                    return addValidationError(
+                        `${PAYMENT_NOT_ALLOWED_TRANSITION} Cannot move from "${oldStatus}" status to "${newStatus}"`,
+                    )
                 }
                 const newItem = {
                     ...existingItem,

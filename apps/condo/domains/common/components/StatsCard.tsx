@@ -10,23 +10,21 @@ import { TicketReportPeriodType } from '@app/condo/schema'
 import { Button } from './Button'
 
 interface IStatsCardProps {
-    title: string;
-    link: string;
-    loading?: boolean;
-    onFilterChange: (filter: string) => void;
-    dependencyArray: string[] | number[];
+    title: string
+    link: string
+    loading?: boolean
+    onFilterChange: (filter: string) => void
+    dependencyArray: string[] | number[]
 }
 
 const cardCss = css`
-  box-shadow: 0 9px 28px rgba(0, 0, 0, 0.05),
-  0 6px 16px rgba(0, 0, 0, 0.08),
-  0 3px 6px rgba(0, 0, 0, 0.12);
-  border-radius: 8px;
-  min-height: 210px;
+    box-shadow: 0 9px 28px rgba(0, 0, 0, 0.05), 0 6px 16px rgba(0, 0, 0, 0.08), 0 3px 6px rgba(0, 0, 0, 0.12);
+    border-radius: 8px;
+    min-height: 210px;
 `
 
 const cardTitleCss = css`
-  cursor: pointer;
+    cursor: pointer;
 `
 const STATS_CARD_ROW_GUTTER: RowProps['gutter'] = [0, 40]
 const CARD_HEAD_STYLE: React.CSSProperties = { fontSize: 20, fontWeight: 700, borderBottom: 'none' }
@@ -35,7 +33,11 @@ const DROPDOWN_TEXT_STYLE: React.CSSProperties = { color: colors.green[6] }
 
 const Card: React.FC<CardProps> = (props) => {
     const { children, ...allProps } = props
-    return <AntCard css={cardCss} {...allProps}>{children}</AntCard>
+    return (
+        <AntCard css={cardCss} {...allProps}>
+            {children}
+        </AntCard>
+    )
 }
 
 type SelectedPeriod = Record<TicketReportPeriodType, string>
@@ -59,43 +61,43 @@ export const StatsCard: React.FC<IStatsCardProps> = (props) => {
         onFilterChange(selectedPeriod)
     }, updateDependencies)
 
-    const menuClick = useCallback(({ key }) => { setSelectedPeriod(key)}, [])
-    const linkClick = useCallback(() => { Router.push(link) }, [link])
+    const menuClick = useCallback(({ key }) => {
+        setSelectedPeriod(key)
+    }, [])
+    const linkClick = useCallback(() => {
+        Router.push(link)
+    }, [link])
 
     const menuOverlay = (
         <Menu onClick={menuClick} disabled={loading}>
-            {
-                Object.keys(SELECTED_PERIOD).map((period) => (
-                    <Menu.Item key={period}>{SELECTED_PERIOD[period]}</Menu.Item>
-                ))
-            }
+            {Object.keys(SELECTED_PERIOD).map((period) => (
+                <Menu.Item key={period}>{SELECTED_PERIOD[period]}</Menu.Item>
+            ))}
         </Menu>
     )
 
     const cardTitle = (
         <Space css={cardTitleCss}>
             {title}
-            <Dropdown overlay={menuOverlay} >
-                <span style={DROPDOWN_TEXT_STYLE}>{SELECTED_PERIOD[selectedPeriod]} <DownOutlined /></span>
+            <Dropdown overlay={menuOverlay}>
+                <span style={DROPDOWN_TEXT_STYLE}>
+                    {SELECTED_PERIOD[selectedPeriod]} <DownOutlined />
+                </span>
             </Dropdown>
         </Space>
     )
 
     const cardExtra = (
         <Button style={CARD_EXTRA_STYLE} type={'inlineLink'} onClick={linkClick}>
-            {extraTitle}{<RightOutlined />}
+            {extraTitle}
+            {<RightOutlined />}
         </Button>
     )
 
     return (
         <Row gutter={STATS_CARD_ROW_GUTTER} align={'middle'}>
             <Col span={24}>
-                <Card
-                    title={cardTitle}
-                    bordered={false}
-                    headStyle={CARD_HEAD_STYLE}
-                    extra={cardExtra}
-                >
+                <Card title={cardTitle} bordered={false} headStyle={CARD_HEAD_STYLE} extra={cardExtra}>
                     {loading ? <Skeleton active round paragraph={{ rows: 1 }} /> : children}
                 </Card>
             </Col>

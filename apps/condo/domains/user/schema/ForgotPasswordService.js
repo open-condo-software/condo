@@ -1,6 +1,12 @@
 const { v4: uuid } = require('uuid')
 const conf = require('@core/config')
-const { WRONG_PHONE_ERROR, MULTIPLE_ACCOUNTS_MATCHES, RESET_TOKEN_NOT_FOUND, PASSWORD_TOO_SHORT, TOKEN_EXPIRED_ERROR } = require('@condo/domains/user/constants/errors')
+const {
+    WRONG_PHONE_ERROR,
+    MULTIPLE_ACCOUNTS_MATCHES,
+    RESET_TOKEN_NOT_FOUND,
+    PASSWORD_TOO_SHORT,
+    TOKEN_EXPIRED_ERROR,
+} = require('@condo/domains/user/constants/errors')
 const { RESET_PASSWORD_MESSAGE_TYPE, SMS_TRANSPORT, EMAIL_TRANSPORT } = require('@condo/domains/notification/constants')
 const RESET_PASSWORD_TOKEN_EXPIRY = conf.USER__RESET_PASSWORD_TOKEN_EXPIRY || 1000 * 60 * 60 * 24
 const { MIN_PASSWORD_LENGTH, STAFF } = require('@condo/domains/user/constants/common')
@@ -37,14 +43,15 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
             access: true,
             type: 'type ChangePasswordWithTokenOutput { status: String!, phone: String! }',
         },
-
     ],
     queries: [
         {
             access: true,
             schema: 'checkPasswordRecoveryToken(data: CheckPasswordRecoveryTokenInput!): CheckPasswordRecoveryTokenOutput',
             resolver: async (parent, args, context, info, extra) => {
-                const { data: { token } } = args
+                const {
+                    data: { token },
+                } = args
                 const now = extra.extraNow || Date.now()
                 const [action] = await ForgotPasswordActionUtil.getAll(context, {
                     token,
@@ -63,7 +70,9 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
             access: true,
             schema: 'startPasswordRecovery(data: StartPasswordRecoveryInput!): StartPasswordRecoveryOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { data: { phone: inputPhone, sender, dv } } = args
+                const {
+                    data: { phone: inputPhone, sender, dv },
+                } = args
                 const phone = normalizePhone(inputPhone)
                 const extraToken = extra.extraToken || uuid()
                 const extraTokenExpiration = extra.extraTokenExpiration || parseInt(RESET_PASSWORD_TOKEN_EXPIRY)
@@ -93,32 +102,36 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 })
                 // we need to check if user has email
                 const { email } = await getById('User', users[0].id)
-                const sendChannels = [{
-                    to: { phone },
-                }]
+                const sendChannels = [
+                    {
+                        to: { phone },
+                    },
+                ]
                 if (!isEmpty(email)) {
                     sendChannels.push({
                         to: { email },
                     })
                 }
                 const lang = COUNTRIES[RUSSIA_COUNTRY].locale
-                await Promise.all(sendChannels.map(async channel => {
-                    await sendMessage(context, {
-                        lang,
-                        to: {
-                            user: {
-                                id: userId,
+                await Promise.all(
+                    sendChannels.map(async (channel) => {
+                        await sendMessage(context, {
+                            lang,
+                            to: {
+                                user: {
+                                    id: userId,
+                                },
+                                ...channel.to,
                             },
-                            ...channel.to,
-                        },
-                        type: RESET_PASSWORD_MESSAGE_TYPE,
-                        meta: {
-                            token: extraToken,
-                            dv: 1,
-                        },
-                        sender: sender,
-                    })
-                }))
+                            type: RESET_PASSWORD_MESSAGE_TYPE,
+                            meta: {
+                                token: extraToken,
+                                dv: 1,
+                            },
+                            sender: sender,
+                        })
+                    }),
+                )
 
                 return { status: 'ok' }
             },
@@ -127,8 +140,10 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
             access: true,
             schema: 'changePasswordWithToken(data: ChangePasswordWithTokenInput!): ChangePasswordWithTokenOutput',
             resolver: async (parent, args, context, info, extra) => {
-                const { data: { token, password } } = args
-                const now = extra.extraNow || (new Date(Date.now())).toISOString()
+                const {
+                    data: { token, password },
+                } = args
+                const now = extra.extraNow || new Date(Date.now()).toISOString()
 
                 if (password.length < MIN_PASSWORD_LENGTH) {
                     throw new Error(`${PASSWORD_TOO_SHORT}] Password is too short`)

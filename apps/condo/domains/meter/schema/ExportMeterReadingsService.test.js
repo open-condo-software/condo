@@ -11,7 +11,6 @@ const { makeEmployeeUserClientWithAbilities } = require('@condo/domains/organiza
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { EXPORT_METER_READINGS } = require('@condo/domains/meter/gql')
 
-
 describe('ExportMeterReadingsService', () => {
     test('Employee with "canManageMeters": can get meter readings export from selected organization', async () => {
         if (isObsConfigured()) {
@@ -23,7 +22,11 @@ describe('ExportMeterReadingsService', () => {
             const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
             await createTestMeterReading(client, meter, client.organization, source)
 
-            const { data: { result: { status, linkToFile } } } = await client.query(EXPORT_METER_READINGS, {
+            const {
+                data: {
+                    result: { status, linkToFile },
+                },
+            } = await client.query(EXPORT_METER_READINGS, {
                 data: {
                     where: { organization: { id: client.organization.id } },
                     sortBy: 'id_ASC',
@@ -35,7 +38,7 @@ describe('ExportMeterReadingsService', () => {
             expect(linkToFile).not.toHaveLength(0)
         }
     })
- 
+
     test('anonymous: cannot get meter readings export', async () => {
         const anonymous = await makeClient()
 
@@ -47,8 +50,15 @@ describe('ExportMeterReadingsService', () => {
         const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
         await createTestMeterReading(client, meter, client.organization, source)
 
-        const { data: { result }, errors } = await anonymous.query(EXPORT_METER_READINGS, {
-            data: { where: { organization: { id: client.organization.id } }, sortBy: 'id_ASC', timeZone: DEFAULT_ORGANIZATION_TIMEZONE },
+        const {
+            data: { result },
+            errors,
+        } = await anonymous.query(EXPORT_METER_READINGS, {
+            data: {
+                where: { organization: { id: client.organization.id } },
+                sortBy: 'id_ASC',
+                timeZone: DEFAULT_ORGANIZATION_TIMEZONE,
+            },
         })
         expect(result).toBeNull()
         expect(errors).toHaveLength(1)
@@ -65,8 +75,15 @@ describe('ExportMeterReadingsService', () => {
         const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
         await createTestMeterReading(client, meter, client.organization, source)
 
-        const { data: { result }, errors } = await user.query(EXPORT_METER_READINGS, {
-            data: { where: { organization: { id: client.organization.id } }, sortBy: 'id_ASC', timeZone: DEFAULT_ORGANIZATION_TIMEZONE },
+        const {
+            data: { result },
+            errors,
+        } = await user.query(EXPORT_METER_READINGS, {
+            data: {
+                where: { organization: { id: client.organization.id } },
+                sortBy: 'id_ASC',
+                timeZone: DEFAULT_ORGANIZATION_TIMEZONE,
+            },
         })
         expect(result).toBeNull()
         expect(errors).toHaveLength(1)
@@ -84,7 +101,11 @@ describe('ExportMeterReadingsService', () => {
 
             const admin = await makeLoggedInAdminClient()
 
-            const { data: { result: { status, linkToFile } } } = await admin.query(EXPORT_METER_READINGS, {
+            const {
+                data: {
+                    result: { status, linkToFile },
+                },
+            } = await admin.query(EXPORT_METER_READINGS, {
                 data: {
                     where: { organization: { id: client.organization.id } },
                     sortBy: 'id_ASC',

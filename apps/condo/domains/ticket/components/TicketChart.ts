@@ -31,31 +31,31 @@ export type EchartsSeries = {
 }
 
 export type ChartConfigResult = {
-    legend: string[],
-    series: EchartsSeries[],
+    legend: string[]
+    series: EchartsSeries[]
     axisData?: {
-        xAxis: { type: string, data: null | string[] },
-        yAxis: { type: string, data: null | string[] }
-    },
+        xAxis: { type: string; data: null | string[] }
+        yAxis: { type: string; data: null | string[] }
+    }
     tooltip?: {
-        trigger: string,
+        trigger: string
         axisPointer: { type: string }
         show?: boolean
-    },
+    }
     color?: string[]
 }
 
-interface IGetChartConfig extends IGetBaseChartConfig<ViewModeTypes, TicketGroupedCounter[], ChartConfigResult>{
+interface IGetChartConfig extends IGetBaseChartConfig<ViewModeTypes, TicketGroupedCounter[], ChartConfigResult> {
     (viewMode: ViewModeTypes, data: TicketGroupedCounter[]): {
-        legend,
-        series,
+        legend
+        series
         axisData?: {
-            xAxis: { type, data },
-            yAxis: { type, data }
-        },
+            xAxis: { type; data }
+            yAxis: { type; data }
+        }
         tooltip?: {
-            trigger,
-            axisPointer: { type },
+            trigger
+            axisPointer: { type }
             show?: boolean
         }
         color?: string[]
@@ -63,29 +63,36 @@ interface IGetChartConfig extends IGetBaseChartConfig<ViewModeTypes, TicketGroup
 }
 
 type RestTableOptionsType = {
-    translations: unknown;
-    filters?: unknown;
+    translations: unknown
+    filters?: unknown
 }
 type TableConfigResult = {
     dataSource: TableProps<TicketGroupedCounter[]>['dataSource']
     tableColumns: TableColumnsType
 }
 
-interface IGetTableConfig extends IGetBaseTableConfig<ViewModeTypes, TicketGroupedCounter[], RestTableOptionsType,
-TableConfigResult>{
+interface IGetTableConfig
+    extends IGetBaseTableConfig<ViewModeTypes, TicketGroupedCounter[], RestTableOptionsType, TableConfigResult> {
     (viewMode, data: TicketGroupedCounter[], restOptions): {
-        dataSource, tableColumns
+        dataSource
+        tableColumns
     }
 }
 
 export type ChartConfigMapType = {
-    bar?: { chart: IGetChartConfig; table: IGetTableConfig; };
-    line?: { chart: IGetChartConfig; table: IGetTableConfig; };
-    pie?: { chart: IGetChartConfig; table: IGetTableConfig; };
+    bar?: { chart: IGetChartConfig; table: IGetTableConfig }
+    line?: { chart: IGetChartConfig; table: IGetTableConfig }
+    pie?: { chart: IGetChartConfig; table: IGetTableConfig }
 }
 
-class TicketChart extends BaseChart<ChartConfigMapType, ChartConfigResult, TableConfigResult, ViewModeTypes,
-TicketGroupedCounter[], RestTableOptionsType>{
+class TicketChart extends BaseChart<
+    ChartConfigMapType,
+    ChartConfigResult,
+    TableConfigResult,
+    ViewModeTypes,
+    TicketGroupedCounter[],
+    RestTableOptionsType
+> {
     getChartConfig: IGetChartConfig = (viewMode, data) => {
         return this.chartConfigMap[viewMode]['chart'](viewMode, data)
     }

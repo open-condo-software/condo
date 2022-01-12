@@ -18,7 +18,8 @@ const { Contact: ContactAPI } = require('../utils/serverSchema')
  * ("property", "unitName", "name", "phone")
  */
 const Contact = new GQLListSchema('Contact', {
-    schemaDoc: 'Contact information of a person. Currently it will be related to a ticket, but in the future, it will be associated with more things',
+    schemaDoc:
+        'Contact information of a person. Currently it will be related to a ticket, but in the future, it will be associated with more things',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
@@ -26,7 +27,8 @@ const Contact = new GQLListSchema('Contact', {
         organization: ORGANIZATION_OWNED_FIELD,
 
         property: {
-            schemaDoc: 'Property, that is a subject of an issue, reported by this person in first ticket. Meaning of this field will be revised in the future',
+            schemaDoc:
+                'Property, that is a subject of an issue, reported by this person in first ticket. Meaning of this field will be revised in the future',
             type: Relationship,
             ref: 'Property',
             isRequired: true,
@@ -35,7 +37,8 @@ const Contact = new GQLListSchema('Contact', {
         },
 
         unitName: {
-            schemaDoc: 'Property unit, that is a subject of an issue, reported by this person in first ticket. Meaning of this field will be revised in the future',
+            schemaDoc:
+                'Property unit, that is a subject of an issue, reported by this person in first ticket. Meaning of this field will be revised in the future',
             type: Text,
             isRequired: false,
         },
@@ -92,7 +95,6 @@ const Contact = new GQLListSchema('Contact', {
                 },
             },
         },
-
     },
     hooks: {
         validateInput: async ({ resolvedData, operation, existingItem, addValidationError, context }) => {
@@ -106,11 +108,15 @@ const Contact = new GQLListSchema('Contact', {
             })
             if (operation === 'create') {
                 if (contact) {
-                    return addValidationError('Cannot create contact, because another contact with the same provided set of "property", "unitName", "name", "phone"')
+                    return addValidationError(
+                        'Cannot create contact, because another contact with the same provided set of "property", "unitName", "name", "phone"',
+                    )
                 }
             } else if (operation === 'update') {
                 if (contact && contact.id !== existingItem.id) {
-                    return addValidationError('Cannot update contact, because another contact already exists with the same provided set of "property", "unitName", "name", "phone"')
+                    return addValidationError(
+                        'Cannot update contact, because another contact already exists with the same provided set of "property", "unitName", "name", "phone"',
+                    )
                 }
             }
         },

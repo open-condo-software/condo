@@ -1,4 +1,9 @@
-const { OptionsImplementation, OptionsKnexFieldAdapter, OptionsMongooseFieldAdapter, OptionsPrismaFieldAdapter } = require('./Implementation')
+const {
+    OptionsImplementation,
+    OptionsKnexFieldAdapter,
+    OptionsMongooseFieldAdapter,
+    OptionsPrismaFieldAdapter,
+} = require('./Implementation')
 
 module.exports = {
     type: 'Options',

@@ -21,13 +21,13 @@ interface IPhoneInputProps extends InputProps {
     /*
         Make this component compatible with `AutoComplete` component, when used as a custom input.
      */
-    compatibilityWithAntAutoComplete?: boolean,
+    compatibilityWithAntAutoComplete?: boolean
 }
 
 type PhoneInputRef = {
     numberInputRef: {
-        focus: () => void,
-    } & ComponentProps<'input'>,
+        focus: () => void
+    } & ComponentProps<'input'>
 }
 
 const getPhoneInputStyles = (style, size: SizeType, block?: boolean) => {
@@ -67,10 +67,11 @@ export const PhoneInput: React.FC<IPhoneInputProps> = forwardRef((props, ref) =>
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    const onChange = useCallback((value) => {
-        const formattedValue = value ? '+' + value : value
-        if (props.compatibilityWithAntAutoComplete) {
-            /*
+    const onChange = useCallback(
+        (value) => {
+            const formattedValue = value ? '+' + value : value
+            if (props.compatibilityWithAntAutoComplete) {
+                /*
                 `AutoComplete` component uses `rc-select` under the hood, which expects to have
                 `onChange` been called with InputEvent object as an argument, but input from `react-phone-input-2`
                 calls `onChange` with a String value, for example, here:
@@ -78,17 +79,19 @@ export const PhoneInput: React.FC<IPhoneInputProps> = forwardRef((props, ref) =>
                 This breaks the code.
                 So, just give, what `rc-select/Selector` needs inside of `AutoComplete`.
             */
-            const event = {
-                target: {
-                    value: formattedValue,
-                },
+                const event = {
+                    target: {
+                        value: formattedValue,
+                    },
+                }
+                // @ts-ignore
+                props.onChange(event)
+            } else {
+                props.onChange(formattedValue)
             }
-            // @ts-ignore
-            props.onChange(event)
-        } else {
-            props.onChange(formattedValue)
-        }
-    }, [props.onChange])
+        },
+        [props.onChange],
+    )
 
     const inputStyles = useMemo(() => {
         return getPhoneInputStyles(style, configSize, block)

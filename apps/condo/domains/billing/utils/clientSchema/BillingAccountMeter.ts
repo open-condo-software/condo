@@ -10,7 +10,21 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { BillingAccountMeter as BillingAccountMeterGQL } from '@condo/domains/billing/gql'
 import { BillingAccountMeter, BillingAccountMeterUpdateInput, QueryAllBillingAccountMetersArgs } from '@app/condo/schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'context', 'importId', 'property', 'account', 'resource', 'raw', 'meta']
+const FIELDS = [
+    'id',
+    'deletedAt',
+    'createdAt',
+    'updatedAt',
+    'createdBy',
+    'updatedBy',
+    'context',
+    'importId',
+    'property',
+    'account',
+    'resource',
+    'raw',
+    'meta',
+]
 const RELATIONS = ['context', 'property', 'account', 'resource']
 
 export interface IBillingAccountMeterUIState extends BillingAccountMeter {
@@ -18,7 +32,7 @@ export interface IBillingAccountMeterUIState extends BillingAccountMeter {
     // TODO(codegen): write IBillingAccountMeterUIState or extends it from
 }
 
-function convertToUIState (item: BillingAccountMeter): IBillingAccountMeterUIState {
+function convertToUIState(item: BillingAccountMeter): IBillingAccountMeterUIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
     return pick(item, FIELDS) as IBillingAccountMeterUIState
 }
@@ -28,39 +42,32 @@ export interface IBillingAccountMeterFormState {
     // TODO(codegen): write IBillingAccountMeterUIFormState or extends it from
 }
 
-function convertToUIFormState (state: IBillingAccountMeterUIState): IBillingAccountMeterFormState | undefined {
+function convertToUIFormState(state: IBillingAccountMeterUIState): IBillingAccountMeterFormState | undefined {
     if (!state) return
     const result = {}
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? attrId || state[attr] : state[attr]
     }
     return result as IBillingAccountMeterFormState
 }
 
-function convertToGQLInput (state: IBillingAccountMeterFormState): BillingAccountMeterUpdateInput {
+function convertToGQLInput(state: IBillingAccountMeterFormState): BillingAccountMeterUpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? { connect: { id: attrId || state[attr] } } : state[attr]
     }
     return result
 }
 
-const {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-} = generateReactHooks<BillingAccountMeter, BillingAccountMeterUpdateInput, IBillingAccountMeterFormState, IBillingAccountMeterUIState, QueryAllBillingAccountMetersArgs>(BillingAccountMeterGQL, { convertToGQLInput, convertToUIState })
+const { useObject, useObjects, useCreate, useUpdate, useDelete } = generateReactHooks<
+    BillingAccountMeter,
+    BillingAccountMeterUpdateInput,
+    IBillingAccountMeterFormState,
+    IBillingAccountMeterUIState,
+    QueryAllBillingAccountMetersArgs
+>(BillingAccountMeterGQL, { convertToGQLInput, convertToUIState })
 
-export {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-    convertToUIFormState,
-}
+export { useObject, useObjects, useCreate, useUpdate, useDelete, convertToUIFormState }

@@ -4,35 +4,36 @@ import { getFormattedTasks, getDoneTasksFromRange, getJiraFormattedTasks } from 
 import JiraApi from 'jira-client'
 
 type HandleReleaseReportOptions = {
-    simple: boolean,
+    simple: boolean
 }
 
 export class BotController {
-    constructor (private jiraApi: JiraApi, private token?: string) {
-        const initialUsers = process.env.NOTIFICATION_BOT_CONFIG && JSON.parse(process.env.NOTIFICATION_BOT_CONFIG)?.intitial_listeners
+    constructor(private jiraApi: JiraApi, private token?: string) {
+        const initialUsers =
+            process.env.NOTIFICATION_BOT_CONFIG && JSON.parse(process.env.NOTIFICATION_BOT_CONFIG)?.intitial_listeners
 
         if (initialUsers) {
             this.users = new Map(Object.entries(initialUsers))
         }
     }
 
-    public init (): void {
+    public init(): void {
         const token = this.token || BotController.getToken()
         this.bot = new TelegramBot(token, { polling: true })
         this.addListeners()
     }
 
-    public sendMessage (message: string): void {
+    public sendMessage(message: string): void {
         this.chatIds.forEach((id) => {
             this.bot.sendMessage(id, message)
         })
     }
 
-    public getUsers (): Array<[string, string]> {
+    public getUsers(): Array<[string, string]> {
         return Array.from(this.users)
     }
 
-    private addListeners () {
+    private addListeners() {
         this.bot.on('message', async (message) => {
             const { text } = message
             const command = text.split(' ')[0]
@@ -63,15 +64,15 @@ export class BotController {
         })
     }
 
-    private handleStart (message) {
+    private handleStart(message) {
         this.chatIds.add(message.chat.id)
     }
 
-    private handleStop (message) {
+    private handleStop(message) {
         this.chatIds.delete(message.chat.id)
     }
 
-    private async listActiveListeners (message) {
+    private async listActiveListeners(message) {
         const users = this.getUsers()
 
         if (!users.length) {
@@ -84,12 +85,12 @@ export class BotController {
         await this.bot.sendMessage(message.chat.id, `Active listeners ${listeners}`)
     }
 
-    private async handleJoin (message) {
+    private async handleJoin(message) {
         const { text } = message
         const formattedMessage = text.split(' ')
 
         if (formattedMessage.length != 3 || formattedMessage[1] !== 'as') {
-            await this.bot.sendMessage(message.chat.id, '/join wrong username, please follow pattern: \'as {{ github_username }}\'')
+            await this.bot.sendMessage(message.chat.id, "/join wrong username, please follow pattern: 'as {{ github_username }}'")
             return
         }
 
@@ -99,7 +100,7 @@ export class BotController {
         await this.bot.sendMessage(message.chat.id, `@${message.from.username} successfully joined as ${userName}.`)
     }
 
-    private async handleCreateReleaseReport (message, options: HandleReleaseReportOptions) {
+    private async handleCreateReleaseReport(message, options: HandleReleaseReportOptions) {
         const { text } = message
         const { simple } = options
 
@@ -117,23 +118,22 @@ export class BotController {
 
         const formattedTasks = simple ? getFormattedTasks(taskIds) : await getJiraFormattedTasks(taskIds, this.jiraApi)
 
-        this.bot.sendMessage(message.chat.id, formattedTasks.join('\n'), { parse_mode: 'Markdown' })
-            .catch((e) => {
-                const errorMessage = e.message.split(': ')[2]
-                if (errorMessage === 'message is too long') {
-                    this.bot.sendMessage(message.chat.id, 'Не так много!')
-                } else {
-                    this.bot.sendMessage(message.chat.id, 'Что то пошло не так, повторите попытку.')
-                }
-            })
+        this.bot.sendMessage(message.chat.id, formattedTasks.join('\n'), { parse_mode: 'Markdown' }).catch((e) => {
+            const errorMessage = e.message.split(': ')[2]
+            if (errorMessage === 'message is too long') {
+                this.bot.sendMessage(message.chat.id, 'Не так много!')
+            } else {
+                this.bot.sendMessage(message.chat.id, 'Что то пошло не так, повторите попытку.')
+            }
+        })
     }
 
-    private async handleLeave (message) {
+    private async handleLeave(message) {
         this.users.delete(message.from.username)
         await this.bot.sendMessage(message.chat.id, `@${message.from.username} successfully left.`)
     }
 
-    private static getToken (): string {
+    private static getToken(): string {
         return process.env.NOTIFICATION_BOT_CONFIG && JSON.parse(process.env.NOTIFICATION_BOT_CONFIG)?.auth_token
     }
 

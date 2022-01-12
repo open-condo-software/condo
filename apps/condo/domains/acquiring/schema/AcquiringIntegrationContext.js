@@ -15,9 +15,9 @@ const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/sche
 const { AcquiringIntegrationContext: ContextServerSchema } = require('@condo/domains/acquiring/utils/serverSchema')
 const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquiring/constants/errors')
 
-
 const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationContext', {
-    schemaDoc: 'Object, which links `acquiring integration` with `service provider`, and stores additional data for it\'s proper work',
+    schemaDoc:
+        "Object, which links `acquiring integration` with `service provider`, and stores additional data for it's proper work",
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
@@ -34,7 +34,8 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
         },
 
         settings: {
-            schemaDoc: 'Settings that are required for acquiring to work properly. The data structure depends on the integration and defined here',
+            schemaDoc:
+                'Settings that are required for acquiring to work properly. The data structure depends on the integration and defined here',
             type: Json,
             isRequired: true,
             hooks: {
@@ -45,7 +46,8 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
         },
 
         state: {
-            schemaDoc: 'The current state of the integration process. Some integration need to store past state here, additional data and etc.',
+            schemaDoc:
+                'The current state of the integration process. Some integration need to store past state here, additional data and etc.',
             type: Json,
             isRequired: true,
             hooks: {
@@ -58,9 +60,9 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
         implicitFeeDistributionSchema: {
             ...FEE_DISTRIBUTION_SCHEMA_FIELD,
             isRequired: false,
-            schemaDoc: 'Contains information about the default distribution of implicit fee. Each part is paid by the recipient organization on deducted from payment amount. If part exists then explicit part with the same name from AcquiringIntegration.explicitFeeDistributionSchema is ignored',
+            schemaDoc:
+                'Contains information about the default distribution of implicit fee. Each part is paid by the recipient organization on deducted from payment amount. If part exists then explicit part with the same name from AcquiringIntegration.explicitFeeDistributionSchema is ignored',
         },
-
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {

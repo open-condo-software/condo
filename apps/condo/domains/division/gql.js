@@ -9,7 +9,8 @@ const { generateGqlQueries } = require('@condo/domains/common/utils/codegenerati
 const gql = require('graphql-tag')
 const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
 
-const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name} updatedBy { id name } createdAt updatedAt'
+const COMMON_FIELDS =
+    'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name} updatedBy { id name } createdAt updatedAt'
 
 const DIVISION_FIELDS = `{ name organization { id name } responsible { id name user { id name } } properties { id name address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } executors { id name phone specializations { id name } user { id name } } ${COMMON_FIELDS} }`
 const Division = generateGqlQueries('Division', DIVISION_FIELDS)
@@ -18,5 +19,5 @@ const Division = generateGqlQueries('Division', DIVISION_FIELDS)
 
 module.exports = {
     Division,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

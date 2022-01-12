@@ -1,9 +1,14 @@
 const faker = require('faker')
-const { createTestUser, registerNewUser, createTestPhone, createTestEmail, createTestLandlineNumber } = require('@condo/domains/user/utils/testSchema')
+const {
+    createTestUser,
+    registerNewUser,
+    createTestPhone,
+    createTestEmail,
+    createTestLandlineNumber,
+} = require('@condo/domains/user/utils/testSchema')
 const { REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
 const { EMAIL_ALREADY_REGISTERED_ERROR, PHONE_ALREADY_REGISTERED_ERROR } = require('@condo/domains/user/constants/errors')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
-
 
 describe('RegisterNewUserService', () => {
     test('register new user', async () => {
@@ -43,12 +48,14 @@ describe('RegisterNewUserService', () => {
 
         const { data, errors } = await registerNewUser(client, { phone }, { raw: true })
 
-        expect(data).toEqual({ 'user': null })
-        expect(errors).toMatchObject([{
-            'message': '[format:phone] invalid format',
-            'name': 'GraphQLError',
-            'path': ['user'],
-        }])
+        expect(data).toEqual({ user: null })
+        expect(errors).toMatchObject([
+            {
+                message: '[format:phone] invalid format',
+                name: 'GraphQLError',
+                path: ['user'],
+            },
+        ])
     })
 
     test('register user with existed email', async () => {

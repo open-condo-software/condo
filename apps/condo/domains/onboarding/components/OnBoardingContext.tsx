@@ -7,28 +7,24 @@ import { useApolloClient } from '@core/next/apollo'
 import { HouseIcon } from '@condo/domains/common/components/icons/HouseIcon'
 import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
 import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'
-import { OnBoarding as OnBoardingHooks, OnBoardingStep as OnBoardingStepHooks } from '@condo/domains/onboarding/utils/clientSchema'
 import {
-    OnBoarding as IOnBoarding,
-    OnBoardingStep as IOnBoardingStep,
-} from '@app/condo/schema'
+    OnBoarding as OnBoardingHooks,
+    OnBoardingStep as OnBoardingStepHooks,
+} from '@condo/domains/onboarding/utils/clientSchema'
+import { OnBoarding as IOnBoarding, OnBoardingStep as IOnBoardingStep } from '@app/condo/schema'
 import { OrganizationEmployee as OrganizationEmployeeGql } from '@condo/domains/organization/gql'
 import { Property as PropertyGql } from '@condo/domains/property/gql'
 import { Division as DivisionGql } from '@condo/domains/division/gql'
 import { useFocusContext } from '@condo/domains/common/components/Focus/FocusContextProvider'
 import { useOnBoardingCompleteModal } from '@condo/domains/onboarding/hooks/useOnBoardingCompleeteModal'
-import {
-    getOnBoardingProgress,
-    getStepKey,
-    getStepType,
-} from '@condo/domains/onboarding/utils/stepUtils'
+import { getOnBoardingProgress, getStepKey, getStepType } from '@condo/domains/onboarding/utils/stepUtils'
 import { OnBoardingStepType } from './OnBoardingStepItem'
 import { DivisionIcon } from '@condo/domains/common/components/icons/DivisionIcon'
 
 interface IDecoratedOnBoardingStepType extends Omit<IOnBoardingStep, 'action'> {
-    stepAction: () => void,
-    iconView: React.FC,
-    type: OnBoardingStepType | null,
+    stepAction: () => void
+    iconView: React.FC
+    type: OnBoardingStepType | null
 }
 
 interface OnBoardingContext {
@@ -61,19 +57,22 @@ export const OnBoardingProvider: React.FC = (props) => {
     const client = useApolloClient()
     const { showFocusTooltip } = useFocusContext()
     const { setIsVisible: showCreateOrganizationModal, ModalForm } = useCreateOrganizationModalForm({})
-    const { setIsVisible: showOnBoardingCompleteModal, OnBoardingCompleteModal, isVisible: isOnBoardingCompleteVisible } = useOnBoardingCompleteModal()
+    const {
+        setIsVisible: showOnBoardingCompleteModal,
+        OnBoardingCompleteModal,
+        isVisible: isOnBoardingCompleteVisible,
+    } = useOnBoardingCompleteModal()
 
-    const { obj: onBoarding, refetch: refetchOnBoarding } = OnBoardingHooks
-        .useObject(
-            { where: { user: { id: get(user, 'id') } } },
-            { fetchPolicy: 'network-only' },
-        )
+    const { obj: onBoarding, refetch: refetchOnBoarding } = OnBoardingHooks.useObject(
+        { where: { user: { id: get(user, 'id') } } },
+        { fetchPolicy: 'network-only' },
+    )
 
-    const { objs: onBoardingSteps = [], refetch: refetchSteps, loading: stepsLoading } = OnBoardingStepHooks
-        .useObjects(
-            { where: { onBoarding: { id: get(onBoarding, 'id') } } },
-            { fetchPolicy: 'network-only' }
-        )
+    const {
+        objs: onBoardingSteps = [],
+        refetch: refetchSteps,
+        loading: stepsLoading,
+    } = OnBoardingStepHooks.useObjects({ where: { onBoarding: { id: get(onBoarding, 'id') } } }, { fetchPolicy: 'network-only' })
 
     const updateOnBoarding = OnBoardingHooks.useUpdate({}, () => refetchOnBoarding())
     const updateStep = OnBoardingStepHooks.useUpdate({})
@@ -106,7 +105,11 @@ export const OnBoardingProvider: React.FC = (props) => {
 
         return {
             ...step,
-            stepAction: step.completed ? null : get(onBoardingStepsConfig, [stepKey, 'action'], () => { void 0 }),
+            stepAction: step.completed
+                ? null
+                : get(onBoardingStepsConfig, [stepKey, 'action'], () => {
+                      void 0
+                  }),
             iconView: step.completed ? CheckOutlined : onBoardingIcons[step.icon],
             type: getStepType(step, get(onBoarding, 'stepsTransitions', {}), onBoardingSteps),
         }
@@ -118,43 +121,50 @@ export const OnBoardingProvider: React.FC = (props) => {
             const query = get(onBoardingStepsConfig, [stepKey, 'query'], null)
 
             if (!step.completed && query) {
-                client.watchQuery({ query }).refetch().then((res) => {
-                    const resolver = get(onBoardingStepsConfig, [stepKey, 'resolver'], () => { void 0 })
-
-                    if (resolver(res.data) && !get(onBoarding, 'completed')) {
-                        updateStep({ completed: true }, step).then(() => {
-                            refetchSteps().then(({ data }) => {
-                                const { objs: steps } = data
-                                const onBoardingProgress = getOnBoardingProgress(steps, onBoarding)
-
-                                if (router.pathname !== '/onboarding' && onBoardingProgress < ONBOARDING_COMPLETED_PROGRESS) {
-                                    showFocusTooltip()
-                                }
-
-                                if (onBoardingProgress === ONBOARDING_COMPLETED_PROGRESS) {
-                                    updateOnBoarding({ completed: true }, onBoarding).then(() => {
-                                        showOnBoardingCompleteModal(true)
-                                    })
-                                }
-                            })
+                client
+                    .watchQuery({ query })
+                    .refetch()
+                    .then((res) => {
+                        const resolver = get(onBoardingStepsConfig, [stepKey, 'resolver'], () => {
+                            void 0
                         })
-                    }
-                })
+
+                        if (resolver(res.data) && !get(onBoarding, 'completed')) {
+                            updateStep({ completed: true }, step).then(() => {
+                                refetchSteps().then(({ data }) => {
+                                    const { objs: steps } = data
+                                    const onBoardingProgress = getOnBoardingProgress(steps, onBoarding)
+
+                                    if (router.pathname !== '/onboarding' && onBoardingProgress < ONBOARDING_COMPLETED_PROGRESS) {
+                                        showFocusTooltip()
+                                    }
+
+                                    if (onBoardingProgress === ONBOARDING_COMPLETED_PROGRESS) {
+                                        updateOnBoarding({ completed: true }, onBoarding).then(() => {
+                                            showOnBoardingCompleteModal(true)
+                                        })
+                                    }
+                                })
+                            })
+                        }
+                    })
             }
         })
     }, [onBoarding, onBoardingSteps, isOnBoardingCompleteVisible])
 
     return (
-        <OnBoardingContext.Provider value={{
-            progress: getOnBoardingProgress(onBoardingSteps, onBoarding),
-            onBoarding,
-            isLoading: stepsLoading,
-            onBoardingSteps: decoratedSteps,
-            refetchOnBoarding,
-        }}>
+        <OnBoardingContext.Provider
+            value={{
+                progress: getOnBoardingProgress(onBoardingSteps, onBoarding),
+                onBoarding,
+                isLoading: stepsLoading,
+                onBoardingSteps: decoratedSteps,
+                refetchOnBoarding,
+            }}
+        >
             {props.children}
-            <ModalForm/>
-            <OnBoardingCompleteModal/>
+            <ModalForm />
+            <OnBoardingCompleteModal />
         </OnBoardingContext.Provider>
     )
 }

@@ -1,6 +1,6 @@
 /**
-* Client side permission functions (similar to accessors) which will be used to avoid illegal user interactions
-* */
+ * Client side permission functions (similar to accessors) which will be used to avoid illegal user interactions
+ * */
 import get from 'lodash/get'
 import { Organization, OrganizationEmployee, User, Contact } from '@app/condo/schema'
 

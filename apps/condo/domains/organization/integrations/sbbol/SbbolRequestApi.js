@@ -31,7 +31,7 @@ class SbbolRequestApi {
     /**
      * @param {SbbolRequestApiOptions} options
      */
-    constructor (options) {
+    constructor(options) {
         const { accessToken, host, port, certificate, passphrase } = options
         const { host: hostname } = new URL(host)
         this.options = {
@@ -45,15 +45,15 @@ class SbbolRequestApi {
             agent: null,
             headers: {
                 'Cache-Control': 'no-cache',
-                'Pragma': 'no-cache',
-                'Accept': 'application/json',
+                Pragma: 'no-cache',
+                Accept: 'application/json',
                 'Accept-Charset': 'UTF-8',
             },
         }
         this.accessToken = accessToken
     }
 
-    async request ({ method, path: basePath, body = null, headers = {} }){
+    async request({ method, path: basePath, body = null, headers = {} }) {
         return new Promise((resolve, reject) => {
             const path = method === 'GET' && body ? `${basePath}?${querystring.stringify(body)}` : basePath
             logger.info({ message: 'Request to SBBOL API', method, path, body })
@@ -64,10 +64,10 @@ class SbbolRequestApi {
             }
             requestOptions.headers.Authorization = `Bearer ${this.accessToken}`
             Object.assign(requestOptions.headers, headers)
-            const request = https.request(requestOptions, response => {
+            const request = https.request(requestOptions, (response) => {
                 let data = ''
                 const { statusCode, headers } = response
-                response.on('data', chunk => {
+                response.on('data', (chunk) => {
                     data += chunk
                 })
                 response.on('end', () => {
@@ -80,7 +80,7 @@ class SbbolRequestApi {
                 logger.warn({ message: 'Failed request to SBBOL API', reason: 'timeout', method, path })
                 return reject(`${REQUEST_TIMEOUT_ERROR}] sbbol request failed`)
             })
-            request.on('error', error => {
+            request.on('error', (error) => {
                 logger.error({ message: 'Failed request to SBBOL API', reason: 'error', method, path, error })
                 return reject(error)
             })
@@ -91,7 +91,6 @@ class SbbolRequestApi {
             request.end()
         })
     }
-
 }
 
 module.exports = {

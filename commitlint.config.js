@@ -12,7 +12,10 @@ module.exports = {
                     }
                 }
                 if (!header.match(/^DOMA-\d+ \w+/)) {
-                    return [false, 'Wrong commit prefix. Allowed prefixes: DOMA-123, HOTFIX, INFRA. Examples: "DOMA-123 describe what have been done", "HOTFIX describe what have been fixed", "INFRA describe what have been introduced".']
+                    return [
+                        false,
+                        'Wrong commit prefix. Allowed prefixes: DOMA-123, HOTFIX, INFRA. Examples: "DOMA-123 describe what have been done", "HOTFIX describe what have been fixed", "INFRA describe what have been introduced".',
+                    ]
                 }
                 const headerMessage = header.split(/^DOMA-\d+ /)[1]
                 const words = headerMessage.split(' ')

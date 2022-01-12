@@ -10,14 +10,31 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { ConfirmPhoneAction as ConfirmPhoneActionGQL } from '@condo/domains/user/gql'
 import { ConfirmPhoneAction, ConfirmPhoneActionUpdateInput, QueryAllConfirmPhoneActionsArgs } from '@app/condo/schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'phone', 'token', 'smsCode', 'smsCodeRequestedAt', 'smsCodeExpiresAt', 'retries', 'isPhoneVerified', 'requestedAt', 'expiresAt', 'completedAt']
+const FIELDS = [
+    'id',
+    'deletedAt',
+    'createdAt',
+    'updatedAt',
+    'createdBy',
+    'updatedBy',
+    'phone',
+    'token',
+    'smsCode',
+    'smsCodeRequestedAt',
+    'smsCodeExpiresAt',
+    'retries',
+    'isPhoneVerified',
+    'requestedAt',
+    'expiresAt',
+    'completedAt',
+]
 const RELATIONS = []
 
 export interface IConfirmPhoneActionUIState extends ConfirmPhoneAction {
     id: string
 }
 
-function convertToUIState (item: ConfirmPhoneAction): IConfirmPhoneActionUIState {
+function convertToUIState(item: ConfirmPhoneAction): IConfirmPhoneActionUIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
     return pick(item, FIELDS) as IConfirmPhoneActionUIState
 }
@@ -26,39 +43,32 @@ export interface IConfirmPhoneActionFormState {
     id?: undefined
 }
 
-function convertToUIFormState (state: IConfirmPhoneActionUIState): IConfirmPhoneActionFormState | undefined {
+function convertToUIFormState(state: IConfirmPhoneActionUIState): IConfirmPhoneActionFormState | undefined {
     if (!state) return
     const result = {}
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? attrId || state[attr] : state[attr]
     }
     return result as IConfirmPhoneActionFormState
 }
 
-function convertToGQLInput (state: IConfirmPhoneActionFormState): ConfirmPhoneActionUpdateInput {
+function convertToGQLInput(state: IConfirmPhoneActionFormState): ConfirmPhoneActionUpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? { connect: { id: attrId || state[attr] } } : state[attr]
     }
     return result
 }
 
-const {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-} = generateReactHooks<ConfirmPhoneAction, ConfirmPhoneActionUpdateInput, IConfirmPhoneActionFormState, IConfirmPhoneActionUIState, QueryAllConfirmPhoneActionsArgs>(ConfirmPhoneActionGQL, { convertToGQLInput, convertToUIState })
+const { useObject, useObjects, useCreate, useUpdate, useDelete } = generateReactHooks<
+    ConfirmPhoneAction,
+    ConfirmPhoneActionUpdateInput,
+    IConfirmPhoneActionFormState,
+    IConfirmPhoneActionUIState,
+    QueryAllConfirmPhoneActionsArgs
+>(ConfirmPhoneActionGQL, { convertToGQLInput, convertToUIState })
 
-export {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-    convertToUIFormState,
-}
+export { useObject, useObjects, useCreate, useUpdate, useDelete, convertToUIFormState }

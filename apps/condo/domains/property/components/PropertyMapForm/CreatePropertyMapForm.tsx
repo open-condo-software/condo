@@ -30,7 +30,6 @@ const CreatePropertyMapForm: React.FC<ICreatePropertyForm> = ({ id }) => {
 
     const initialValues = Property.convertToUIFormState(property)
 
-
     useEffect(() => {
         refetch()
     }, [refetch])
@@ -47,7 +46,7 @@ const CreatePropertyMapForm: React.FC<ICreatePropertyForm> = ({ id }) => {
         <BasePropertyMapForm
             id={id}
             action={createAction}
-            type='building'
+            type="building"
             initialValues={initialValues}
             organization={organization}
             property={property}
@@ -57,19 +56,11 @@ const CreatePropertyMapForm: React.FC<ICreatePropertyForm> = ({ id }) => {
                     <Form.Item noStyle dependencies={PROPERTY_FORM_DEPENDENCIES}>
                         <ActionBar>
                             <Space size={12}>
-                                <Button
-                                    key='submit'
-                                    onClick={handleSave}
-                                    type='sberDefaultGradient'
-                                    loading={isLoading}
-                                >
+                                <Button key="submit" onClick={handleSave} type="sberDefaultGradient" loading={isLoading}>
                                     {ApplyChangesLabel}
                                 </Button>
                                 <Link href={`/property/${id}`}>
-                                    <Button
-                                        key='cancel'
-                                        secondary
-                                        type='sberDefaultGradient'>
+                                    <Button key="cancel" secondary type="sberDefaultGradient">
                                         {CancelChangesLabel}
                                     </Button>
                                 </Link>

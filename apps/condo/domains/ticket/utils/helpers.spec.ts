@@ -17,7 +17,8 @@ import {
     getAggregatedData,
     TICKET_PAGE_SIZE,
     filterToQuery,
-    ticketAnalyticsPageFilters, getChartOptions,
+    ticketAnalyticsPageFilters,
+    getChartOptions,
 } from './helpers'
 import { EN_LOCALE, RU_LOCALE } from '../../common/constants/locale'
 import { randomUUID } from 'crypto'
@@ -29,18 +30,18 @@ describe('Helpers', () => {
             it('should correctly generate query from status ids', () => {
                 const ids = ['0', '1', '2', '3']
 
-                expect(statusToQuery(ids)).toStrictEqual(
-                    {
-                        AND: [{
+                expect(statusToQuery(ids)).toStrictEqual({
+                    AND: [
+                        {
                             id_in: ids,
-                        }],
-                    }
-                )
+                        },
+                    ],
+                })
             })
 
             describe('should not generate query from status ids if ', () => {
                 it('ids is not array', () => {
-                    const ids = '[\'0\', \'1\', \'2\', \'3\']'
+                    const ids = "['0', '1', '2', '3']"
 
                     //@ts-ignore
                     expect(statusToQuery(ids)).toBeUndefined()
@@ -60,10 +61,7 @@ describe('Helpers', () => {
                 const minDate = date.startOf('day').toISOString()
                 const maxDate = date.endOf('day').toISOString()
 
-                expect(createdAtToQuery(date.toISOString())).toStrictEqual([
-                    minDate,
-                    maxDate,
-                ])
+                expect(createdAtToQuery(date.toISOString())).toStrictEqual([minDate, maxDate])
             })
 
             describe('should not generate query date range from createdAt if', () => {
@@ -80,9 +78,11 @@ describe('Helpers', () => {
         describe('propertyToQuery', () => {
             it('should correctly generate query date from propertyToQuery', () => {
                 expect(propertyToQuery('property')).toEqual({
-                    AND: [{
-                        address_contains_i: 'property',
-                    }],
+                    AND: [
+                        {
+                            address_contains_i: 'property',
+                        },
+                    ],
                 })
             })
 
@@ -94,9 +94,11 @@ describe('Helpers', () => {
         describe('executorToQuery', () => {
             it('should correctly generate query date from executorToQuery', () => {
                 expect(executorToQuery('executor')).toEqual({
-                    AND: [{
-                        name_contains_i: 'executor',
-                    }],
+                    AND: [
+                        {
+                            name_contains_i: 'executor',
+                        },
+                    ],
                 })
             })
 
@@ -108,9 +110,11 @@ describe('Helpers', () => {
         describe('assigneeToQuery', () => {
             it('should correctly generate query date from assigneeToQuery', () => {
                 expect(assigneeToQuery('assignee')).toEqual({
-                    AND: [{
-                        name_contains_i: 'assignee',
-                    }],
+                    AND: [
+                        {
+                            name_contains_i: 'assignee',
+                        },
+                    ],
                 })
             })
 
@@ -132,23 +136,27 @@ describe('Helpers', () => {
                     const property = 'property'
                     const search = 'search'
 
-                    expect(filtersToQuery({
-                        status,
-                        assignee,
-                        clientName,
-                        createdAt: currentDate.toISOString(),
-                        details,
-                        executor,
-                        number,
-                        property,
-                        search,
-                    })).toStrictEqual({
+                    expect(
+                        filtersToQuery({
+                            status,
+                            assignee,
+                            clientName,
+                            createdAt: currentDate.toISOString(),
+                            details,
+                            executor,
+                            number,
+                            property,
+                            search,
+                        }),
+                    ).toStrictEqual({
                         AND: [
                             {
                                 status: {
-                                    AND: [{
-                                        id_in: status,
-                                    }],
+                                    AND: [
+                                        {
+                                            id_in: status,
+                                        },
+                                    ],
                                 },
                             },
                             { clientName_contains_i: clientName },
@@ -159,14 +167,16 @@ describe('Helpers', () => {
                             { assignee: { AND: [{ name_contains_i: 'assignee' }] } },
                             { number: number },
                             { property: { AND: [{ address_contains_i: 'property' }] } },
-                            { OR: [
-                                { clientName_contains_i: 'search' },
-                                { details_contains_i: 'search' },
-                                { executor: { AND: [{ name_contains_i: 'search' }] } },
-                                { assignee: { AND: [{ name_contains_i: 'search' }] } },
-                                { property: { AND: [{ address_contains_i: 'search' }] } },
-                                { status: { AND: [{ name_contains_i: 'search' }] } },
-                            ] },
+                            {
+                                OR: [
+                                    { clientName_contains_i: 'search' },
+                                    { details_contains_i: 'search' },
+                                    { executor: { AND: [{ name_contains_i: 'search' }] } },
+                                    { assignee: { AND: [{ name_contains_i: 'search' }] } },
+                                    { property: { AND: [{ address_contains_i: 'search' }] } },
+                                    { status: { AND: [{ name_contains_i: 'search' }] } },
+                                ],
+                            },
                         ],
                     })
                 })
@@ -190,9 +200,11 @@ describe('Helpers', () => {
                             AND: [
                                 {
                                     status: {
-                                        AND: [{
-                                            id_in: status,
-                                        }],
+                                        AND: [
+                                            {
+                                                id_in: status,
+                                            },
+                                        ],
                                     },
                                 },
                             ],
@@ -203,9 +215,7 @@ describe('Helpers', () => {
                         const assignee = 'assignee'
 
                         expect(filtersToQuery({ assignee })).toStrictEqual({
-                            AND: [
-                                { assignee: { AND: [{ name_contains_i: 'assignee' }] } },
-                            ],
+                            AND: [{ assignee: { AND: [{ name_contains_i: 'assignee' }] } }],
                         })
                     })
 
@@ -213,9 +223,7 @@ describe('Helpers', () => {
                         const clientName = 'clientName'
 
                         expect(filtersToQuery({ clientName })).toStrictEqual({
-                            AND: [
-                                { clientName_contains_i: clientName },
-                            ],
+                            AND: [{ clientName_contains_i: clientName }],
                         })
                     })
 
@@ -223,9 +231,7 @@ describe('Helpers', () => {
                         const details = 'details'
 
                         expect(filtersToQuery({ details })).toStrictEqual({
-                            AND: [
-                                { details_contains_i: details },
-                            ],
+                            AND: [{ details_contains_i: details }],
                         })
                     })
 
@@ -233,9 +239,7 @@ describe('Helpers', () => {
                         const executor = 'executor'
 
                         expect(filtersToQuery({ executor })).toStrictEqual({
-                            AND: [
-                                { executor: { AND: [{ name_contains_i: 'executor' }] } },
-                            ],
+                            AND: [{ executor: { AND: [{ name_contains_i: 'executor' }] } }],
                         })
                     })
 
@@ -243,9 +247,7 @@ describe('Helpers', () => {
                         const number = 12
 
                         expect(filtersToQuery({ number })).toStrictEqual({
-                            AND: [
-                                { number: number },
-                            ],
+                            AND: [{ number: number }],
                         })
                     })
 
@@ -253,9 +255,7 @@ describe('Helpers', () => {
                         const property = 'property'
 
                         expect(filtersToQuery({ property })).toStrictEqual({
-                            AND: [
-                                { property: { AND: [{ address_contains_i: 'property' }] } },
-                            ],
+                            AND: [{ property: { AND: [{ address_contains_i: 'property' }] } }],
                         })
                     })
 
@@ -263,9 +263,7 @@ describe('Helpers', () => {
                         const isEmergency = true
 
                         expect(filtersToQuery({ isEmergency })).toStrictEqual({
-                            AND: [
-                                { isEmergency: true },
-                            ],
+                            AND: [{ isEmergency: true }],
                         })
                     })
 
@@ -274,14 +272,16 @@ describe('Helpers', () => {
 
                         expect(filtersToQuery({ search })).toStrictEqual({
                             AND: [
-                                { OR: [
-                                    { clientName_contains_i: 'search' },
-                                    { details_contains_i: 'search' },
-                                    { executor: { AND: [{ name_contains_i: 'search' }] } },
-                                    { assignee: { AND: [{ name_contains_i: 'search' }] } },
-                                    { property: { AND: [{ address_contains_i: 'search' }] } },
-                                    { status: { AND: [{ name_contains_i: 'search' }] } },
-                                ] },
+                                {
+                                    OR: [
+                                        { clientName_contains_i: 'search' },
+                                        { details_contains_i: 'search' },
+                                        { executor: { AND: [{ name_contains_i: 'search' }] } },
+                                        { assignee: { AND: [{ name_contains_i: 'search' }] } },
+                                        { property: { AND: [{ address_contains_i: 'search' }] } },
+                                        { status: { AND: [{ name_contains_i: 'search' }] } },
+                                    ],
+                                },
                             ],
                         })
                     })
@@ -296,26 +296,32 @@ describe('Helpers', () => {
         describe('sorterToQuery', () => {
             describe('should correctly generate query from sorter', () => {
                 it('if sorter is Array if objects', () => {
-                    expect(sorterToQuery([
-                        { columnKey: 'column1', order: 'ascend' },
-                        { columnKey: 'column2', order: 'descend' },
-                    ])).toStrictEqual(['column1_ASC', 'column2_DESC'])
+                    expect(
+                        sorterToQuery([
+                            { columnKey: 'column1', order: 'ascend' },
+                            { columnKey: 'column2', order: 'descend' },
+                        ]),
+                    ).toStrictEqual(['column1_ASC', 'column2_DESC'])
                 })
 
                 it('if sorter is Single object', () => {
-                    expect(sorterToQuery({
-                        columnKey: 'column1',
-                        order: 'ascend',
-                    })).toStrictEqual(['column1_ASC'])
+                    expect(
+                        sorterToQuery({
+                            columnKey: 'column1',
+                            order: 'ascend',
+                        }),
+                    ).toStrictEqual(['column1_ASC'])
                 })
             })
 
             it('should drop sort if order is invalid', () => {
-                expect(sorterToQuery([
-                    { columnKey: 'column1', order: 'ascend' },
-                    // @ts-ignore
-                    { columnKey: 'column2', order: 'invalid_descend' },
-                ])).toStrictEqual(['column1_ASC'])
+                expect(
+                    sorterToQuery([
+                        { columnKey: 'column1', order: 'ascend' },
+                        // @ts-ignore
+                        { columnKey: 'column2', order: 'invalid_descend' },
+                    ]),
+                ).toStrictEqual(['column1_ASC'])
             })
 
             it('should not generate query if no sort is provided', () => {
@@ -390,7 +396,6 @@ describe('Helpers', () => {
                     expect(queryToSorter([' '])).toStrictEqual([])
                 })
             })
-
         })
 
         describe('getSortStringFromQuery', () => {
@@ -421,12 +426,10 @@ describe('Helpers', () => {
                     expect(getPageIndexFromQuery({ offset: undefined })).toStrictEqual(1)
                 })
             })
-
         })
 
         describe('getPageSizeFromQuery', () => {
             describe('extract page size based on pagesize string from query object if pagesize presnts or set it to default', () => {
-
                 it('returns nearest value to provided `pagesize` query param, presented in enum', () => {
                     expect(getPageSizeFromQuery({ pagesize: '16' })).toStrictEqual(20)
                 })
@@ -435,7 +438,6 @@ describe('Helpers', () => {
                     expect(getPageSizeFromQuery({ pagesize: undefined })).toStrictEqual(TICKET_PAGE_SIZE)
                 })
             })
-
         })
 
         describe('searchToQuery', () => {
@@ -473,7 +475,7 @@ describe('Helpers', () => {
             })
         })
 
-        describe('filterToQuery',  () => {
+        describe('filterToQuery', () => {
             describe('it should correctly generate query if', () => {
                 const property = {
                     id: randomUUID(),
@@ -499,9 +501,14 @@ describe('Helpers', () => {
                         groupBy: ['status', 'day'],
                     }
 
-                    expect(filterToQuery({
-                        filter, viewMode: 'line', ticketType: 'all', mainGroup: 'status',
-                    })).toStrictEqual(expectedResult)
+                    expect(
+                        filterToQuery({
+                            filter,
+                            viewMode: 'line',
+                            ticketType: 'all',
+                            mainGroup: 'status',
+                        }),
+                    ).toStrictEqual(expectedResult)
                 })
 
                 it('filter not contains property', () => {
@@ -520,12 +527,17 @@ describe('Helpers', () => {
                         ],
                         groupBy: ['status', 'day'],
                     }
-                    expect(filterToQuery({
-                        filter, viewMode: 'line', ticketType: 'all', mainGroup: 'status' })
+                    expect(
+                        filterToQuery({
+                            filter,
+                            viewMode: 'line',
+                            ticketType: 'all',
+                            mainGroup: 'status',
+                        }),
                     ).toStrictEqual(expectedResult)
                 })
 
-                it('filter with emergency ticket type',  () => {
+                it('filter with emergency ticket type', () => {
                     const filter: ticketAnalyticsPageFilters = {
                         range: selectedRange,
                         specification: 'day',
@@ -543,12 +555,17 @@ describe('Helpers', () => {
                         ],
                         groupBy: ['status', 'day'],
                     }
-                    expect(filterToQuery({
-                        filter, viewMode: 'line', ticketType: 'emergency', mainGroup: 'status' })
+                    expect(
+                        filterToQuery({
+                            filter,
+                            viewMode: 'line',
+                            ticketType: 'emergency',
+                            mainGroup: 'status',
+                        }),
                     ).toStrictEqual(expectedResult)
                 })
 
-                it('filter with paid ticket type',  () => {
+                it('filter with paid ticket type', () => {
                     const filter: ticketAnalyticsPageFilters = {
                         range: selectedRange,
                         specification: 'day',
@@ -566,8 +583,13 @@ describe('Helpers', () => {
                         ],
                         groupBy: ['status', 'day'],
                     }
-                    expect(filterToQuery({
-                        filter, viewMode: 'line', ticketType: 'paid', mainGroup: 'status' })
+                    expect(
+                        filterToQuery({
+                            filter,
+                            viewMode: 'line',
+                            ticketType: 'paid',
+                            mainGroup: 'status',
+                        }),
                     ).toStrictEqual(expectedResult)
                 })
             })
@@ -615,8 +637,7 @@ describe('Helpers', () => {
                 const ticketGroupedCounter: TicketGroupedCounter[] = [
                     { status: 'open', count: 1, property: 'property1', dayGroup: dates[1] },
                     { status: 'closed', count: 3, property: 'property1', dayGroup: dates[1] },
-                    { status: 'open', count: 2, property: 'property2', dayGroup: dates[0] }
-                    ,
+                    { status: 'open', count: 2, property: 'property2', dayGroup: dates[0] },
                     { status: 'closed', count: 1, property: 'property2', dayGroup: dates[0] },
                 ]
                 it('groupBy dependencies contains day group', () => {
@@ -649,7 +670,7 @@ describe('Helpers', () => {
                 it('groupBy dependencies equal ["property", "status"]', () => {
                     const groupBy = ['property', 'status'] as TicketAnalyticsGroupBy[]
                     const data = getAggregatedData(ticketGroupedCounter, groupBy)
-                    expect(data).toMatchObject(    {
+                    expect(data).toMatchObject({
                         property1: { open: 1, closed: 3 },
                         property2: { open: 2, closed: 1 },
                     })
@@ -695,10 +716,12 @@ describe('Helpers', () => {
                 it('chart type is bar', () => {
                     const { option, opts } = getChartOptions({
                         viewMode: 'bar',
-                        series: [{
-                            data: [1, 2],
-                            type: 'bar',
-                        }],
+                        series: [
+                            {
+                                data: [1, 2],
+                                type: 'bar',
+                            },
+                        ],
                         axisData,
                         tooltip,
                         animationEnabled: false,
@@ -709,7 +732,14 @@ describe('Helpers', () => {
 
                     expect(opts).toMatchObject({ renderer: 'svg', height: 'auto' })
                     expect(Object.keys(option).sort()).toEqual([
-                        'animation', 'color', 'grid', 'legend', 'series', 'tooltip', 'xAxis', 'yAxis',
+                        'animation',
+                        'color',
+                        'grid',
+                        'legend',
+                        'series',
+                        'tooltip',
+                        'xAxis',
+                        'yAxis',
                     ])
                     expect(option.legend.data).toEqual(['label1', 'label2'])
                     expect(option.series).toHaveLength(1)
@@ -719,10 +749,12 @@ describe('Helpers', () => {
                 it('chart type is line', () => {
                     const { option, opts } = getChartOptions({
                         viewMode: 'line',
-                        series: [{
-                            data: [1, 2],
-                            type: 'line',
-                        }],
+                        series: [
+                            {
+                                data: [1, 2],
+                                type: 'line',
+                            },
+                        ],
                         axisData,
                         tooltip,
                         animationEnabled: false,
@@ -730,9 +762,16 @@ describe('Helpers', () => {
                         legend: ['label1', 'label2'],
                         color,
                     })
-                    expect(opts).toMatchObject({  height: 200, renderer: 'svg' })
+                    expect(opts).toMatchObject({ height: 200, renderer: 'svg' })
                     expect(Object.keys(option).sort()).toEqual([
-                        'animation', 'color', 'grid', 'legend', 'series', 'tooltip', 'xAxis', 'yAxis',
+                        'animation',
+                        'color',
+                        'grid',
+                        'legend',
+                        'series',
+                        'tooltip',
+                        'xAxis',
+                        'yAxis',
                     ])
                     expect(option.series).toHaveLength(1)
                     expect(option.series[0].type).toEqual('line')
@@ -741,12 +780,13 @@ describe('Helpers', () => {
                 it('chart type is pie', () => {
                     const { option, opts } = getChartOptions({
                         viewMode: 'pie',
-                        series: [{
-                            data: [1, 2],
-                            type: 'pie',
-                            name: 'pie chart name',
-
-                        }],
+                        series: [
+                            {
+                                data: [1, 2],
+                                type: 'pie',
+                                name: 'pie chart name',
+                            },
+                        ],
                         tooltip,
                         animationEnabled: false,
                         chartOptions: { height: 'auto' },
@@ -756,7 +796,13 @@ describe('Helpers', () => {
 
                     expect(opts).toMatchObject({ height: 'auto', renderer: 'svg' })
                     expect(Object.keys(option).sort()).toEqual([
-                        'animation', 'color', 'grid', 'legend', 'series', 'title', 'tooltip',
+                        'animation',
+                        'color',
+                        'grid',
+                        'legend',
+                        'series',
+                        'title',
+                        'tooltip',
                     ])
                 })
             })

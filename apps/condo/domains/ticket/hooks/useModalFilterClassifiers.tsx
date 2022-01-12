@@ -21,10 +21,7 @@ interface Options {
 
 const SHOW_SELECT_ACTIONS: ('focus' | 'click')[] = ['focus', 'click']
 
-const useTicketClassifierSelect = ({
-    onChange,
-    keyword,
-}) => {
+const useTicketClassifierSelect = ({ onChange, keyword }) => {
     const intl = useIntl()
     const SelectMessage = intl.formatMessage({ id: 'Select' })
 
@@ -40,15 +37,18 @@ const useTicketClassifierSelect = ({
         setSearchClassifiers([])
     }
 
-    function setSelected (value) {
+    function setSelected(value) {
         stateForm && stateForm.setFieldsValue({ [keyword]: value })
     }
 
-    const Setter = useMemo(() => ({
-        all: setClassifiers,
-        one: setSelected,
-        search: setSearchClassifiers,
-    }), [])
+    const Setter = useMemo(
+        () => ({
+            all: setClassifiers,
+            one: setSelected,
+            search: setSearchClassifiers,
+        }),
+        [],
+    )
 
     useEffect(() => {
         optionsRef.current = uniqBy([...classifiers, ...searchClassifiers], 'id')
@@ -60,37 +60,38 @@ const useTicketClassifierSelect = ({
         form.setFieldsValue({ [keyword]: value })
     }
 
-    const SelectComponent = useCallback( (props) => {
-        const { disabled, style, form } = props
+    const SelectComponent = useCallback(
+        (props) => {
+            const { disabled, style, form } = props
 
-        if (!stateForm)
-            setForm(stateForm)
+            if (!stateForm) setForm(stateForm)
 
-        return (
-            <Select
-                showSearch
-                showArrow
-                allowClear
-                style={style}
-                onChange={(value) => handleChange(form, value)}
-                optionFilterProp={'title'}
-                disabled={disabled}
-                value={form.getFieldValue(keyword)}
-                showAction={SHOW_SELECT_ACTIONS}
-                mode={'multiple'}
-                placeholder={SelectMessage}
-                getPopupContainer={getFiltersModalPopupContainer}
-            >
-                {
-                    Array.isArray(optionsRef.current) && optionsRef.current.map(classifier => (
-                        <Option value={classifier.id} key={classifier.id} title={classifier.name}>
-                            {classifier.name}
-                        </Option>
-                    ))
-                }
-            </Select>
-        )
-    }, [SelectMessage, handleChange, keyword, stateForm])
+            return (
+                <Select
+                    showSearch
+                    showArrow
+                    allowClear
+                    style={style}
+                    onChange={(value) => handleChange(form, value)}
+                    optionFilterProp={'title'}
+                    disabled={disabled}
+                    value={form.getFieldValue(keyword)}
+                    showAction={SHOW_SELECT_ACTIONS}
+                    mode={'multiple'}
+                    placeholder={SelectMessage}
+                    getPopupContainer={getFiltersModalPopupContainer}
+                >
+                    {Array.isArray(optionsRef.current) &&
+                        optionsRef.current.map((classifier) => (
+                            <Option value={classifier.id} key={classifier.id} title={classifier.name}>
+                                {classifier.name}
+                            </Option>
+                        ))}
+                </Select>
+            )
+        },
+        [SelectMessage, handleChange, keyword, stateForm],
+    )
 
     return {
         SelectComponent,
@@ -102,12 +103,10 @@ const useTicketClassifierSelect = ({
 const CLASSIFIER_TYPES = [TicketClassifierTypes.place, TicketClassifierTypes.category]
 const PLACE_CLASSIFIER_KEYWORD = 'placeClassifier'
 const CATEGORY_CLASSIFIER_KEYWORD = 'categoryClassifier'
-const getInitialClassifierValues = (filters: FiltersFromQueryType, keyword: string) => (
-    Array.isArray(filters[keyword]) ?
-        [...filters[keyword]] : [filters[keyword]]
-)
+const getInitialClassifierValues = (filters: FiltersFromQueryType, keyword: string) =>
+    Array.isArray(filters[keyword]) ? [...filters[keyword]] : [filters[keyword]]
 
-export function useModalFilterClassifiers () {
+export function useModalFilterClassifiers() {
     const client = useApolloClient()
 
     const router = useRouter()
@@ -120,28 +119,23 @@ export function useModalFilterClassifiers () {
         await updateLevels({ [type]: id })
     }, [])
 
-    const {
-        set: categorySet,
-        SelectComponent: CategorySelect,
-    } = useTicketClassifierSelect({
+    const { set: categorySet, SelectComponent: CategorySelect } = useTicketClassifierSelect({
         onChange: (id) => onUserSelect(id, TicketClassifierTypes.category),
         keyword: CATEGORY_CLASSIFIER_KEYWORD,
     })
 
-    const {
-        set: placeSet,
-        SelectComponent: PlaceSelect,
-    } = useTicketClassifierSelect({
+    const { set: placeSet, SelectComponent: PlaceSelect } = useTicketClassifierSelect({
         onChange: (id) => onUserSelect(id, TicketClassifierTypes.place),
         keyword: PLACE_CLASSIFIER_KEYWORD,
     })
 
-    const Setter = useMemo(() => (
-        {
+    const Setter = useMemo(
+        () => ({
             place: placeSet,
             category: categorySet,
-        }
-    ), [placeSet, categorySet])
+        }),
+        [placeSet, categorySet],
+    )
 
     const loadLevels = useCallback(async () => {
         const { place, category } = ruleRef.current
@@ -151,39 +145,44 @@ export function useModalFilterClassifiers () {
             { place, type: 'category' },
         ]
 
-        const loadedRules = await Promise.all(LOAD_RULES_ARRAY.map(selector => {
-            const { type, ...querySelectors } = selector
+        const loadedRules = await Promise.all(
+            LOAD_RULES_ARRAY.map((selector) => {
+                const { type, ...querySelectors } = selector
 
-            return new Promise<[string, Options[]]>(resolve => {
-                const query = {}
+                return new Promise<[string, Options[]]>((resolve) => {
+                    const query = {}
 
-                for (const key in querySelectors) {
-                    if (querySelectors[key]) {
-                        query[key] = { ids: querySelectors[key] }
+                    for (const key in querySelectors) {
+                        if (querySelectors[key]) {
+                            query[key] = { ids: querySelectors[key] }
+                        }
                     }
-                }
 
-                ClassifierLoaderRef.current
-                    .findRulesByIds(query, type, ruleRef.current[type])
-                    .then(data => {
+                    ClassifierLoaderRef.current.findRulesByIds(query, type, ruleRef.current[type]).then((data) => {
                         resolve([type, ClassifierLoaderRef.current.rulesToOptions(data, type)])
                     })
-            })
-        }))
+                })
+            }),
+        )
 
         return Object.fromEntries(loadedRules)
     }, [])
 
-    const updateLevels = useCallback(async (selected = {} ) => {
-        ruleRef.current = { ...ruleRef.current, ...selected }
-        const options = await loadLevels()
+    const updateLevels = useCallback(
+        async (selected = {}) => {
+            ruleRef.current = { ...ruleRef.current, ...selected }
+            const options = await loadLevels()
 
-        Object.keys(Setter).forEach(type => {
-            Setter[type].all(options[type])
-            const isExisted = options[type].find(option => ruleRef.current[type] && ruleRef.current[type].includes(option.id))
-            Setter[type].one(isExisted ? ruleRef.current[type] : null)
-        })
-    }, [Setter, loadLevels])
+            Object.keys(Setter).forEach((type) => {
+                Setter[type].all(options[type])
+                const isExisted = options[type].find(
+                    (option) => ruleRef.current[type] && ruleRef.current[type].includes(option.id),
+                )
+                Setter[type].one(isExisted ? ruleRef.current[type] : null)
+            })
+        },
+        [Setter, loadLevels],
+    )
 
     useEffect(() => {
         const { filters } = parseQuery(router.query)
@@ -200,8 +199,8 @@ export function useModalFilterClassifiers () {
                 }
                 await updateLevels()
             } else {
-                CLASSIFIER_TYPES.forEach(type => {
-                    ClassifierLoaderRef.current.search('', type).then(classifiers => {
+                CLASSIFIER_TYPES.forEach((type) => {
+                    ClassifierLoaderRef.current.search('', type).then((classifiers) => {
                         Setter[type].all(classifiers)
                     })
                 })

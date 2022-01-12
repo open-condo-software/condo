@@ -8,8 +8,10 @@ const { generateGqlQueries } = require('@condo/domains/common/utils/codegenerati
 const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('./schema/fields/AddressMetaField')
 const { gql } = require('graphql-tag')
 
-const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt organization { id name} newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
-const PROPERTY_MAP_JSON_FIELDS = 'dv type sections { id type index name preview floors { id type index name units { id type name label preview } } }'
+const COMMON_FIELDS =
+    'id dv sender { dv fingerprint } v deletedAt organization { id name} newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
+const PROPERTY_MAP_JSON_FIELDS =
+    'dv type sections { id type index name preview floors { id type index name units { id type name label preview } } }'
 const PROPERTY_FIELDS = `{ name address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } type ticketsInWork yearOfConstruction area ticketsClosed unitsCount map { ${PROPERTY_MAP_JSON_FIELDS} } ${COMMON_FIELDS} }`
 const Property = generateGqlQueries('Property', PROPERTY_FIELDS)
 
@@ -55,29 +57,34 @@ const PROPERTY_MAP_GRAPHQL_TYPES = `
 `
 
 const GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY = gql`
-    query GetTicketInWorkCountForProperty ($propertyId: ID!) {
-        inwork: _allTicketsMeta(where: { status: { type_not:  closed }, property: { id: $propertyId } }) {
+    query GetTicketInWorkCountForProperty($propertyId: ID!) {
+        inwork: _allTicketsMeta(where: { status: { type_not: closed }, property: { id: $propertyId } }) {
             count
-        }  
-  }
+        }
+    }
 `
 const GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY = gql`
-    query GetTicketInWorkCountForProperty ($propertyId: ID!) {
-        closed: _allTicketsMeta(where: { status: { type:  closed }, property: { id: $propertyId } }) {
+    query GetTicketInWorkCountForProperty($propertyId: ID!) {
+        closed: _allTicketsMeta(where: { status: { type: closed }, property: { id: $propertyId } }) {
             count
-        }  
-  }
-`
-
-const CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY = gql`
-    query checkPropertyWithAddressExist ($data: CheckPropertyWithAddressExistInput!) {
-        result: checkPropertyWithAddressExist(data: $data) { isFound }
+        }
     }
 `
 
-const EXPORT_PROPERTIES_TO_EXCEL =  gql`
-    query exportPropertiesToExcel ($data: ExportPropertiesToExcelInput!) {
-        result: exportPropertiesToExcel(data: $data) { status, linkToFile }
+const CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY = gql`
+    query checkPropertyWithAddressExist($data: CheckPropertyWithAddressExistInput!) {
+        result: checkPropertyWithAddressExist(data: $data) {
+            isFound
+        }
+    }
+`
+
+const EXPORT_PROPERTIES_TO_EXCEL = gql`
+    query exportPropertiesToExcel($data: ExportPropertiesToExcelInput!) {
+        result: exportPropertiesToExcel(data: $data) {
+            status
+            linkToFile
+        }
     }
 `
 

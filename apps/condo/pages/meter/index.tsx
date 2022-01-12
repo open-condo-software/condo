@@ -13,11 +13,7 @@ import { Gutter } from 'antd/es/grid/row'
 
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Button } from '@condo/domains/common/components/Button'
-import {
-    PageHeader,
-    PageWrapper,
-    useLayoutContext,
-} from '@condo/domains/common/components/containers/BaseLayout'
+import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { MeterReading } from '@condo/domains/meter/utils/clientSchema'
 import { getPageIndexFromOffset, getTableScrollConfig, parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -37,13 +33,7 @@ import { useImporterFunctions } from '@condo/domains/meter/hooks/useImporterFunc
 
 const METERS_PAGE_CONTENT_ROW_GUTTERS: [Gutter, Gutter] = [0, 40]
 
-export const MetersPageContent = ({
-    searchMeterReadingsQuery,
-    tableColumns,
-    sortBy,
-    filterMetas,
-    role,
-}) => {
+export const MetersPageContent = ({ searchMeterReadingsQuery, tableColumns, sortBy, filterMetas, role }) => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.meter.index.PageTitle' })
     const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
@@ -52,7 +42,9 @@ export const MetersPageContent = ({
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
     const MeterReadingImportObjectsName = intl.formatMessage({ id: 'meter.import.MeterReading.objectsName.many' })
-    const MeterReadingImportObjectsNameManyGenitive = intl.formatMessage({ id: 'meter.import.MeterReading.objectsName.many.genitive' })
+    const MeterReadingImportObjectsNameManyGenitive = intl.formatMessage({
+        id: 'meter.import.MeterReading.objectsName.many.genitive',
+    })
 
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
@@ -65,32 +57,45 @@ export const MetersPageContent = ({
         count: total,
         objs: meterReadings,
         refetch,
-    } = MeterReading.useObjects({
-        sortBy,
-        where: searchMeterReadingsQuery,
-        first: DEFAULT_PAGE_SIZE,
-        skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
-    }, {
-        fetchPolicy: 'network-only',
-    })
+    } = MeterReading.useObjects(
+        {
+            sortBy,
+            where: searchMeterReadingsQuery,
+            first: DEFAULT_PAGE_SIZE,
+            skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
+        },
+        {
+            fetchPolicy: 'network-only',
+        },
+    )
 
     const { isSmall } = useLayoutContext()
-    const [ search, handleSearchChange ] = useSearch(loading)
+    const [search, handleSearchChange] = useSearch(loading)
     const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch)
     const { MultipleFiltersModal, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas)
     const [columns, meterReadingNormalizer, meterReadingValidator, meterReadingCreator] = useImporterFunctions()
 
-    const handleRowAction = useCallback((record) => {
-        return {
-            onClick: () => {
-                const meter = get(record, 'meter')
-                setSelectedMeter(meter)
-            },
-        }
-    }, [setSelectedMeter])
-    const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
-    const handleMultipleFiltersButtonClick = useCallback(() => setIsMultipleFiltersModalVisible(true),
-        [setIsMultipleFiltersModalVisible])
+    const handleRowAction = useCallback(
+        (record) => {
+            return {
+                onClick: () => {
+                    const meter = get(record, 'meter')
+                    setSelectedMeter(meter)
+                },
+            }
+        },
+        [setSelectedMeter],
+    )
+    const handleSearch = useCallback(
+        (e) => {
+            handleSearchChange(e.target.value)
+        },
+        [handleSearchChange],
+    )
+    const handleMultipleFiltersButtonClick = useCallback(
+        () => setIsMultipleFiltersModalVisible(true),
+        [setIsMultipleFiltersModalVisible],
+    )
 
     return (
         <>
@@ -98,85 +103,73 @@ export const MetersPageContent = ({
                 <title>{PageTitleMessage}</title>
             </Head>
             <PageWrapper>
-                <PageHeader title={<Typography.Title>{PageTitleMessage}</Typography.Title>}/>
+                <PageHeader title={<Typography.Title>{PageTitleMessage}</Typography.Title>} />
                 <TablePageContent>
-                    {
-                        !meterReadings.length && !filters
-                            ? (
-                                <EmptyListView
-                                    label={EmptyListLabel}
-                                    message={EmptyListMessage}
-                                    createRoute='/ticket/create'
-                                    createLabel={CreateTicket} />
-                            ) :
-                            (
-                                <Row gutter={METERS_PAGE_CONTENT_ROW_GUTTERS} align={'middle'} justify={'center'}>
-                                    <Col span={23}>
-                                        <FocusContainer padding={'16px'}>
-                                            <Row justify={'space-between'} gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}>
-                                                <Col xs={24} lg={7}>
-                                                    <Input
-                                                        placeholder={SearchPlaceholder}
-                                                        onChange={handleSearch}
-                                                        value={search}
-                                                    />
+                    {!meterReadings.length && !filters ? (
+                        <EmptyListView
+                            label={EmptyListLabel}
+                            message={EmptyListMessage}
+                            createRoute="/ticket/create"
+                            createLabel={CreateTicket}
+                        />
+                    ) : (
+                        <Row gutter={METERS_PAGE_CONTENT_ROW_GUTTERS} align={'middle'} justify={'center'}>
+                            <Col span={23}>
+                                <FocusContainer padding={'16px'}>
+                                    <Row justify={'space-between'} gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}>
+                                        <Col xs={24} lg={7}>
+                                            <Input placeholder={SearchPlaceholder} onChange={handleSearch} value={search} />
+                                        </Col>
+                                        <Col>
+                                            <Row gutter={[10, 0]} align={'middle'} justify={'center'}>
+                                                <Col>
+                                                    <ImportWrapper
+                                                        objectsName={MeterReadingImportObjectsName}
+                                                        accessCheck={canManageMeterReadings}
+                                                        onFinish={refetch}
+                                                        columns={columns}
+                                                        rowNormalizer={meterReadingNormalizer}
+                                                        rowValidator={meterReadingValidator}
+                                                        objectCreator={meterReadingCreator}
+                                                        domainTranslate={MeterReadingImportObjectsNameManyGenitive}
+                                                        exampleTemplateLink={'/meter-import-example.xlsx'}
+                                                    >
+                                                        <Button type={'sberPrimary'} icon={<DiffOutlined />} block secondary />
+                                                    </ImportWrapper>
                                                 </Col>
                                                 <Col>
-                                                    <Row gutter={[10, 0]} align={'middle'} justify={'center'}>
-                                                        <Col>
-                                                            <ImportWrapper
-                                                                objectsName={MeterReadingImportObjectsName}
-                                                                accessCheck={canManageMeterReadings}
-                                                                onFinish={refetch}
-                                                                columns={columns}
-                                                                rowNormalizer={meterReadingNormalizer}
-                                                                rowValidator={meterReadingValidator}
-                                                                objectCreator={meterReadingCreator}
-                                                                domainTranslate={MeterReadingImportObjectsNameManyGenitive}
-                                                                exampleTemplateLink={'/meter-import-example.xlsx'}
-                                                            >
-                                                                <Button
-                                                                    type={'sberPrimary'}
-                                                                    icon={<DiffOutlined />}
-                                                                    block
-                                                                    secondary
-                                                                />
-                                                            </ImportWrapper>
-                                                        </Col>
-                                                        <Col>
-                                                            <Button
-                                                                secondary
-                                                                type={'sberPrimary'}
-                                                                onClick={handleMultipleFiltersButtonClick}
-                                                            >
-                                                                <FilterFilled/>
-                                                                {FiltersButtonLabel}
-                                                            </Button>
-                                                        </Col>
-                                                    </Row>
+                                                    <Button
+                                                        secondary
+                                                        type={'sberPrimary'}
+                                                        onClick={handleMultipleFiltersButtonClick}
+                                                    >
+                                                        <FilterFilled />
+                                                        {FiltersButtonLabel}
+                                                    </Button>
                                                 </Col>
                                             </Row>
-                                        </FocusContainer>
-                                    </Col>
-                                    <Col span={24}>
-                                        <Table
-                                            scroll={getTableScrollConfig(isSmall)}
-                                            totalRows={total}
-                                            loading={loading}
-                                            dataSource={meterReadings}
-                                            columns={tableColumns}
-                                            onRow={handleRowAction}
-                                        />
-                                    </Col>
-                                    <ExportToExcelActionBar
-                                        hidden={isSmall}
-                                        searchObjectsQuery={searchMeterReadingsQuery}
-                                        exportToExcelQuery={EXPORT_METER_READINGS}
-                                        sortBy={sortBy}
-                                    />
-                                </Row>
-                            )
-                    }
+                                        </Col>
+                                    </Row>
+                                </FocusContainer>
+                            </Col>
+                            <Col span={24}>
+                                <Table
+                                    scroll={getTableScrollConfig(isSmall)}
+                                    totalRows={total}
+                                    loading={loading}
+                                    dataSource={meterReadings}
+                                    columns={tableColumns}
+                                    onRow={handleRowAction}
+                                />
+                            </Col>
+                            <ExportToExcelActionBar
+                                hidden={isSmall}
+                                searchObjectsQuery={searchMeterReadingsQuery}
+                                exportToExcelQuery={EXPORT_METER_READINGS}
+                                sortBy={sortBy}
+                            />
+                        </Row>
+                    )}
                     <UpdateMeterModal />
                     <MultipleFiltersModal />
                 </TablePageContent>
@@ -202,8 +195,10 @@ const MetersPage: IMeterIndexPage = () => {
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
     const tableColumns = useTableColumns(filterMetas)
-    const searchMeterReadingsQuery = useMemo(() => ({ ...filtersToWhere(filters), organization: { id: userOrganizationId } }),
-        [filters, filtersToWhere, userOrganizationId])
+    const searchMeterReadingsQuery = useMemo(
+        () => ({ ...filtersToWhere(filters), organization: { id: userOrganizationId } }),
+        [filters, filtersToWhere, userOrganizationId],
+    )
 
     return (
         <MetersPageContent

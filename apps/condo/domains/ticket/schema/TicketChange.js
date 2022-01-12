@@ -9,8 +9,14 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { versioned, uuided, tracked } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketChange')
-const { generateChangeTrackableFieldsFrom, buildSetOfFieldsToTrackFrom } = require('@condo/domains/common/utils/serverSchema/changeTrackable')
-const { ticketChangeDisplayNameResolversForSingleRelations, relatedManyToManyResolvers } = require('../utils/serverSchema/TicketChange')
+const {
+    generateChangeTrackableFieldsFrom,
+    buildSetOfFieldsToTrackFrom,
+} = require('@condo/domains/common/utils/serverSchema/changeTrackable')
+const {
+    ticketChangeDisplayNameResolversForSingleRelations,
+    relatedManyToManyResolvers,
+} = require('../utils/serverSchema/TicketChange')
 
 /**
  *
@@ -33,7 +39,7 @@ const TicketChange = new GQLListSchema('TicketChange', {
         ...generateChangeTrackableFieldsFrom(
             buildSetOfFieldsToTrackFrom(Ticket.schema, { except: OMIT_TICKET_CHANGE_TRACKABLE_FIELDS }),
             ticketChangeDisplayNameResolversForSingleRelations,
-            relatedManyToManyResolvers
+            relatedManyToManyResolvers,
         ),
     },
     plugins: [uuided(), versioned(), tracked()],

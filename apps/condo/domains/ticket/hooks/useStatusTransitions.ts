@@ -13,12 +13,12 @@ export const useStatusTransitions = (ticketStatusId: string, organization: Organ
 
     return {
         loading: loading,
-        statuses:  getPossibleStatuses(
+        statuses: getPossibleStatuses(
             statusList,
             ticketStatusId,
             organizationStatusTransition,
             employeeRoleStatusTransitions,
-            organizationDefaultEmployeeRoleStatusTransitions
+            organizationDefaultEmployeeRoleStatusTransitions,
         ),
     }
 }

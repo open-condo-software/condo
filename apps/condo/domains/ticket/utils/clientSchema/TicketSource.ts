@@ -12,7 +12,7 @@ export interface ITicketSourceUIState extends TicketSource {
     id: string
 }
 
-function convertToUIState (item: TicketSource): ITicketSourceUIState {
+function convertToUIState(item: TicketSource): ITicketSourceUIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
 
     return pick(item, FIELDS) as ITicketSourceUIState
@@ -22,26 +22,26 @@ export interface ITicketSourceFormState {
     id?: undefined
 }
 
-function convertToUIFormState (state: ITicketSourceUIState): ITicketSourceFormState | undefined {
+function convertToUIFormState(state: ITicketSourceUIState): ITicketSourceFormState | undefined {
     if (!state) return
 
     const result = {}
 
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? attrId || state[attr] : state[attr]
     }
 
     return result as ITicketSourceFormState
 }
 
-function convertToGQLInput (state: ITicketSourceFormState): TicketSourceUpdateInput {
+function convertToGQLInput(state: ITicketSourceFormState): TicketSourceUpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
 
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? { connect: { id: attrId || state[attr] } } : state[attr]
     }
 
     return result
@@ -53,7 +53,7 @@ export interface ITicketSourceFormSelectState {
     type: string
 }
 
-function convertGQLItemToFormSelectState (item: ITicketSourceUIState): ITicketSourceFormSelectState | undefined {
+function convertGQLItemToFormSelectState(item: ITicketSourceUIState): ITicketSourceFormSelectState | undefined {
     if (!item) return
 
     const { name, id, type } = item
@@ -61,20 +61,12 @@ function convertGQLItemToFormSelectState (item: ITicketSourceUIState): ITicketSo
     return { value: id, label: name, type }
 }
 
-const {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-} = generateReactHooks<TicketSource, TicketSourceUpdateInput, ITicketSourceFormState, ITicketSourceUIState, QueryAllTicketSourcesArgs>(TicketSourceGQL, { convertToGQLInput, convertToUIState })
+const { useObject, useObjects, useCreate, useUpdate, useDelete } = generateReactHooks<
+    TicketSource,
+    TicketSourceUpdateInput,
+    ITicketSourceFormState,
+    ITicketSourceUIState,
+    QueryAllTicketSourcesArgs
+>(TicketSourceGQL, { convertToGQLInput, convertToUIState })
 
-export {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-    convertGQLItemToFormSelectState,
-    convertToUIFormState,
-}
+export { useObject, useObjects, useCreate, useUpdate, useDelete, convertGQLItemToFormSelectState, convertToUIFormState }

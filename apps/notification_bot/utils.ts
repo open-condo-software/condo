@@ -5,13 +5,13 @@ const octokit = new Octokit({
 })
 const AVAILABLE_TASK_TYPES = ['SBERDOMA', 'DOMA']
 
-export const getPullRequestMessage = (link, userName, users) => (`
+export const getPullRequestMessage = (link, userName, users) => `
 ---------------------------------
 ${userName} opened a pull request.
 ${link}.
 ${users.map(([userName]) => `@${userName}`).join(', ')}
 ---------------------------------
-`)
+`
 
 const extractTasksFromCommits = (commits) => {
     const relevantCommits = commits
@@ -33,7 +33,8 @@ const extractTasksFromCommits = (commits) => {
             const [, rightCommitNumber] = rightCommit.split('-')
 
             return Number(leftCommitNumber) > Number(rightCommitNumber) ? 1 : -1
-        }).map((task) => {
+        })
+        .map((task) => {
             return task
         })
 }
@@ -108,29 +109,29 @@ export const getDoneTasksFromRange = async (lastCommitSha: string, firstCommitSh
  * Formats jira task like SBERDOMA-1 to markdown without meta
  */
 export const getFormattedTasks = (taskIds: Array<string>) => {
-    return taskIds
-        .map((taskId) => {
-            return `[${taskId}](https://doma.atlassian.net/browse/${taskId})`
-        })
+    return taskIds.map((taskId) => {
+        return `[${taskId}](https://doma.atlassian.net/browse/${taskId})`
+    })
 }
 
 /**
  * Formats jira tasks like SBERDOMA-1 to markdown with meta from Jira api
  */
 export const getJiraFormattedTasks = async (taskIds: Array<string>, jiraApi: JiraApi) => {
-    const formattedTasks = taskIds
-        .map(async (taskId) => {
-            try {
-                const taskMeta = await jiraApi.findIssue(taskId)
-                return `[${taskId}](https://doma.atlassian.net/browse/${taskId}): ${taskMeta.fields.summary}. ${taskMeta.fields.labels.map(x => `\`${x}\``).join(', ')}`
-            } catch (e) {
-                let msg = e.error
-                if (msg.errorMessages) {
-                    msg = msg.errorMessages.join(', ')
-                }
-                return `Не смог получить: ${taskId}, Потому что: ${(msg)}`
+    const formattedTasks = taskIds.map(async (taskId) => {
+        try {
+            const taskMeta = await jiraApi.findIssue(taskId)
+            return `[${taskId}](https://doma.atlassian.net/browse/${taskId}): ${taskMeta.fields.summary}. ${taskMeta.fields.labels
+                .map((x) => `\`${x}\``)
+                .join(', ')}`
+        } catch (e) {
+            let msg = e.error
+            if (msg.errorMessages) {
+                msg = msg.errorMessages.join(', ')
             }
-        })
+            return `Не смог получить: ${taskId}, Потому что: ${msg}`
+        }
+    })
 
     return await Promise.all(formattedTasks)
 }

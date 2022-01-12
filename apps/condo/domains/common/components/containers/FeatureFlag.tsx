@@ -21,7 +21,6 @@ import getConfig from 'next/config'
 import { useIntl } from '@core/next/intl'
 import { useHotkeys } from 'react-hotkeys-hook'
 
-
 const getEnabledFeatures = (): Array<string> => {
     if (typeof window !== 'undefined') {
         const featuresFromStorage = localStorage.getItem('features')
@@ -80,20 +79,14 @@ interface IFeature {
  * Container which will return { children } or { fallback } based on feature flag state
  */
 export const FeatureFlagRequired: React.FC<IFeature> = (props) => {
-    const {
-        name,
-        children,
-        fallback,
-    } = props
+    const { name, children, fallback } = props
 
     if (hasFeature(name)) {
-        return <>{ children }</>
+        return <>{children}</>
     }
 
     if (fallback) {
-        return (
-            <>{fallback}</>
-        )
+        return <>{fallback}</>
     }
 
     return null
@@ -103,13 +96,12 @@ export const FeatureFlagRequired: React.FC<IFeature> = (props) => {
  * Controller which allows to set feature flags in localstorage using non-trivial cheat-code interface
  */
 export const FeatureFlagsController: React.FC = () => {
-
     useHotkeys('d+o+m+a', () => setIsModalVisible(true))
 
     const intl = useIntl()
 
-    const featureFlagsTitle = intl.formatMessage({ id: 'FeatureFlags.Modal.Title' } )
-    const featureFlagsDescription = intl.formatMessage({ id: 'FeatureFlags.Modal.Description' } )
+    const featureFlagsTitle = intl.formatMessage({ id: 'FeatureFlags.Modal.Title' })
+    const featureFlagsDescription = intl.formatMessage({ id: 'FeatureFlags.Modal.Description' })
 
     const [isModalVisible, setIsModalVisible] = useState(false)
 
@@ -124,23 +116,29 @@ export const FeatureFlagsController: React.FC = () => {
 
     return (
         <>
-            <Modal title={ featureFlagsTitle }
+            <Modal
+                title={featureFlagsTitle}
                 visible={isModalVisible}
                 onCancel={() => setIsModalVisible(false)}
                 onOk={handleOk}
                 cancelButtonProps={{ disabled: true }}
             >
-                <Alert message={ featureFlagsDescription } type="success" />
-                {
-                    allFeatures.map((name) => (
-                        <>
-                            <div style={{ paddingTop: '30px' }}>
-                                <h2><b>{name}</b></h2>
-                                <Switch defaultChecked={enabledFlags.includes(name)} checkedChildren="1" unCheckedChildren="0" onChange={() => toggleFeature(name)} />
-                            </div>
-                        </>
-                    ))
-                }
+                <Alert message={featureFlagsDescription} type="success" />
+                {allFeatures.map((name) => (
+                    <>
+                        <div style={{ paddingTop: '30px' }}>
+                            <h2>
+                                <b>{name}</b>
+                            </h2>
+                            <Switch
+                                defaultChecked={enabledFlags.includes(name)}
+                                checkedChildren="1"
+                                unCheckedChildren="0"
+                                onChange={() => toggleFeature(name)}
+                            />
+                        </div>
+                    </>
+                ))}
             </Modal>
         </>
     )

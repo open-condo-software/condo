@@ -1,6 +1,9 @@
 const Ajv = require('ajv')
 const { render, getValidator } = require('@condo/domains/billing/schema/fields/utils/json.utils')
-const { BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME, BILLING_RECEIPT_TO_PAY_DETAILS_INPUT_NAME } = require('@condo/domains/billing/constants/constants')
+const {
+    BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME,
+    BILLING_RECEIPT_TO_PAY_DETAILS_INPUT_NAME,
+} = require('@condo/domains/billing/constants/constants')
 const { Json } = require('@core/keystone/fields')
 
 const ToPayDetailsFields = {
@@ -24,9 +27,10 @@ const TO_PAY_DETAILS_GRAPHQL_TYPES = `
 
 const ToPayDetailsSchema = {
     type: 'object',
-    properties: Object.assign({},
-        ...Object.keys(ToPayDetailsFields).map((field) => ({ [field]: { 'type': ['string', 'null'] } })),
-        { formula: { type: 'string' } }
+    properties: Object.assign(
+        {},
+        ...Object.keys(ToPayDetailsFields).map((field) => ({ [field]: { type: ['string', 'null'] } })),
+        { formula: { type: 'string' } },
     ),
     required: ['formula'],
     additionalProperties: false,

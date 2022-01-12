@@ -3,13 +3,13 @@ const { gql } = require('graphql-tag')
 
 const DEFAULT_PAGE_SIZE = 100
 
-function getModelForms (key) {
+function getModelForms(key) {
     const MODEL = pluralize.singular(key)
     const MODELS = pluralize.plural(key)
     return [MODEL, MODELS]
 }
 
-function genGetAllGQL (key, fields) {
+function genGetAllGQL(key, fields) {
     const [MODEL, MODELS] = getModelForms(key)
     return gql`
         query getAll${MODELS}($where: ${MODEL}WhereInput, $first: Int = ${DEFAULT_PAGE_SIZE}, $skip: Int, $sortBy: [Sort${MODELS}By!]) {
@@ -18,7 +18,7 @@ function genGetAllGQL (key, fields) {
     `
 }
 
-function genGetCountGQL (key) {
+function genGetCountGQL(key) {
     const [MODEL, MODELS] = getModelForms(key)
     return gql`
         query get${MODELS}Meta($where: ${MODEL}WhereInput) {
@@ -27,7 +27,7 @@ function genGetCountGQL (key) {
     `
 }
 
-function genGetAllWithCountGQL (key, fields) {
+function genGetAllWithCountGQL(key, fields) {
     const [MODEL, MODELS] = getModelForms(key)
     return gql`
         query getAll${MODELS}($where: ${MODEL}WhereInput, $first: Int = ${DEFAULT_PAGE_SIZE}, $skip: Int, $sortBy: [Sort${MODELS}By!]) {
@@ -37,7 +37,7 @@ function genGetAllWithCountGQL (key, fields) {
     `
 }
 
-function genCreateGQL (key, fields) {
+function genCreateGQL(key, fields) {
     const [MODEL] = getModelForms(key)
     return gql`
         mutation create${MODEL}($data: ${MODEL}CreateInput) {
@@ -46,7 +46,7 @@ function genCreateGQL (key, fields) {
     `
 }
 
-function genUpdateGQL (key, fields) {
+function genUpdateGQL(key, fields) {
     const [MODEL] = getModelForms(key)
     return gql`
         mutation update${MODEL}($id: ID!, $data: ${MODEL}UpdateInput) {
@@ -55,7 +55,7 @@ function genUpdateGQL (key, fields) {
     `
 }
 
-function genDeleteGQL (key, fields) {
+function genDeleteGQL(key, fields) {
     const [MODEL] = getModelForms(key)
     return gql`
         mutation delete${MODEL}($id: ID!) {
@@ -64,11 +64,10 @@ function genDeleteGQL (key, fields) {
     `
 }
 
-function generateGqlQueries (key, fields) {
+function generateGqlQueries(key, fields) {
     const [singularName, pluralName] = getModelForms(key)
 
-    if (!fields.startsWith('{') || !fields.endsWith('}'))
-        throw new Error('wrong list fields format. Try "{ name1 name2 }"')
+    if (!fields.startsWith('{') || !fields.endsWith('}')) throw new Error('wrong list fields format. Try "{ name1 name2 }"')
 
     const GET_ALL_OBJS_QUERY = genGetAllGQL(singularName, fields)
     const GET_COUNT_OBJS_QUERY = genGetCountGQL(singularName)
@@ -90,19 +89,20 @@ function generateGqlQueries (key, fields) {
     }
 }
 
-function generateQueryWhereInput (schemaName, fieldsObj) {
-    const resFields = Object.entries(fieldsObj).map(([ name, type ]) => {
-        switch (type) {
-            case 'ID': {
-                return `
+function generateQueryWhereInput(schemaName, fieldsObj) {
+    const resFields = Object.entries(fieldsObj)
+        .map(([name, type]) => {
+            switch (type) {
+                case 'ID': {
+                    return `
                     ${name}: ID,
                     ${name}_not: ID,
                     ${name}_in: [ID],
                     ${name}_not_in: [ID]
                 `
-            }
-            case 'Int': {
-                return `
+                }
+                case 'Int': {
+                    return `
                     ${name}: Int,
                     ${name}_not: Int,
                     ${name}_lt: Int,
@@ -112,15 +112,15 @@ function generateQueryWhereInput (schemaName, fieldsObj) {
                     ${name}_in: [Int],
                     ${name}_not_in: [Int]
                 `
-            }
-            case 'Boolean': {
-                return `
+                }
+                case 'Boolean': {
+                    return `
                     ${name}: Boolean,
                     ${name}_not: Boolean
                     `
-            }
-            case 'String': {
-                return `
+                }
+                case 'String': {
+                    return `
                     ${name}: String,
                     ${name}_not: String,
                     ${name}_contains: String,
@@ -138,16 +138,17 @@ function generateQueryWhereInput (schemaName, fieldsObj) {
                     ${name}_ends_with_i: String,
                     ${name}_not_ends_with_i: String
                 `
-            }
-            //TODO(nomerdvadcatpyat): default is a Model type, change it after
-            default: {
-                return `
+                }
+                //TODO(nomerdvadcatpyat): default is a Model type, change it after
+                default: {
+                    return `
                     ${name}: ${type}WhereInput,
                     ${name}_is_null: Boolean,
                 `
+                }
             }
-        }
-    }).join(',')
+        })
+        .join(',')
 
     return `
         input ${schemaName}WhereInput {
@@ -158,15 +159,18 @@ function generateQueryWhereInput (schemaName, fieldsObj) {
     `
 }
 
-function generateQuerySortBy (schemaName, fields) {
+function generateQuerySortBy(schemaName, fields) {
     const [_, MODELS] = getModelForms(schemaName)
 
-    const resFields = fields.map(field => (
-        `
+    const resFields = fields
+        .map(
+            (field) =>
+                `
         ${field}_ASC,
         ${field}_DESC
-        `
-    )).join(',')
+        `,
+        )
+        .join(',')
 
     return `
         enum Sort${MODELS}By {

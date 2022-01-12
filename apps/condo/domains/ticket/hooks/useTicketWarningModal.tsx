@@ -5,21 +5,27 @@ import { Button } from '@condo/domains/common/components/Button'
 import { MAX_FILTERED_ELEMENTS } from '@condo/domains/ticket/constants/restrictions'
 
 interface IUseTicketWarningModal {
-    (selectedEntity: string): { TicketWarningModal: React.FC, setIsVisible: Dispatch<SetStateAction<boolean>> }
+    (selectedEntity: string): { TicketWarningModal: React.FC; setIsVisible: Dispatch<SetStateAction<boolean>> }
 }
 
 export const useTicketWarningModal: IUseTicketWarningModal = (selectedEntity) => {
     const intl = useIntl()
     const ConfirmTitle = intl.formatMessage({ id: 'component.TicketWarningModal.ConfirmTitle' })
     const EntityTitle = intl.formatMessage({ id: 'component.TicketWarningModal.Entity.' + selectedEntity })
-    const ModalTitle = intl.formatMessage({ id: 'component.TicketWarningModal.Title' }, {
-        ticketFilterRestriction: MAX_FILTERED_ELEMENTS,
-        selectedEntity: EntityTitle,
-    })
-    const ModalDescription = intl.formatMessage({ id: 'component.TicketWarningModal.Description' }, {
-        ticketFilterRestriction: MAX_FILTERED_ELEMENTS,
-        selectedEntity: EntityTitle,
-    })
+    const ModalTitle = intl.formatMessage(
+        { id: 'component.TicketWarningModal.Title' },
+        {
+            ticketFilterRestriction: MAX_FILTERED_ELEMENTS,
+            selectedEntity: EntityTitle,
+        },
+    )
+    const ModalDescription = intl.formatMessage(
+        { id: 'component.TicketWarningModal.Description' },
+        {
+            ticketFilterRestriction: MAX_FILTERED_ELEMENTS,
+            selectedEntity: EntityTitle,
+        },
+    )
 
     const [isVisible, setIsVisible] = useState<boolean>(false)
     const closeModal = useCallback(() => {
@@ -32,12 +38,9 @@ export const useTicketWarningModal: IUseTicketWarningModal = (selectedEntity) =>
             visible={isVisible}
             onCancel={closeModal}
             footer={[
-                <Button
-                    key='submit'
-                    size='large'
-                    type='sberPrimary'
-                    onClick={closeModal}
-                >{ConfirmTitle}</Button>,
+                <Button key="submit" size="large" type="sberPrimary" onClick={closeModal}>
+                    {ConfirmTitle}
+                </Button>,
             ]}
         >
             <Row gutter={[0, 40]}>
@@ -45,9 +48,7 @@ export const useTicketWarningModal: IUseTicketWarningModal = (selectedEntity) =>
                     <Typography.Title level={3}>{ModalTitle}</Typography.Title>
                 </Col>
                 <Col span={24}>
-                    <Typography.Text>
-                        {ModalDescription}
-                    </Typography.Text>
+                    <Typography.Text>{ModalDescription}</Typography.Text>
                 </Col>
             </Row>
         </Modal>

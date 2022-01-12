@@ -1,4 +1,4 @@
-import React  from 'react'
+import React from 'react'
 import { Row, Col, Typography, Tooltip } from 'antd'
 import { has } from 'lodash'
 import styled from '@emotion/styled'
@@ -17,9 +17,9 @@ interface ITicketChangeProps {
 }
 
 interface ITicketChangeFieldMessages {
-    add?: string,
-    change?: string,
-    remove?: string,
+    add?: string
+    change?: string
+    remove?: string
 }
 
 enum TicketChangeFieldMessageType {
@@ -35,18 +35,18 @@ export const TicketChange: React.FC<ITicketChangeProps> = ({ ticketChange }) => 
     return (
         <Row gutter={[12, 12]}>
             <Col xs={24} lg={6}>
-                {
-                    isSmall
-                        ? <Typography.Text disabled>{formatDate(intl, ticketChange.createdAt)}</Typography.Text>
-                        : <Typography.Text style={{ fontSize: fontSizes.content }}>{formatDate(intl, ticketChange.createdAt)}</Typography.Text>
-                }
+                {isSmall ? (
+                    <Typography.Text disabled>{formatDate(intl, ticketChange.createdAt)}</Typography.Text>
+                ) : (
+                    <Typography.Text style={{ fontSize: fontSizes.content }}>
+                        {formatDate(intl, ticketChange.createdAt)}
+                    </Typography.Text>
+                )}
             </Col>
             <Col xs={24} lg={18}>
                 {changedFieldMessages.map(({ field, message }) => (
                     <Typography.Text key={field} style={{ fontSize: fontSizes.content }}>
-                        <Diff className={field}>
-                            {message}
-                        </Diff>
+                        <Diff className={field}>{message}</Diff>
                     </Typography.Text>
                 ))}
             </Col>
@@ -86,39 +86,39 @@ const useChangedFieldMessagesOf = (ticketChange) => {
 
     const BooleanToString = {
         isPaid: {
-            'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.true' }),
-            'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.false' }),
+            true: intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.true' }),
+            false: intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.false' }),
         },
         isEmergency: {
-            'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isEmergency.true' }),
-            'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isEmergency.false' }),
+            true: intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isEmergency.true' }),
+            false: intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isEmergency.false' }),
         },
     }
 
     const formatField = (field, value, type: TicketChangeFieldMessageType) => {
         const formatterFor = {
-            clientPhone: (field, value) => (
-                <PhoneLink value={value} />
-            ),
-            details: (field, value) => (
+            clientPhone: (field, value) => <PhoneLink value={value} />,
+            details: (field, value) =>
                 value.length > MAX_DESCRIPTION_DISPLAY_LENGTH ? (
-                    <Tooltip title={value}
+                    <Tooltip
+                        title={value}
                         placement="top"
                         overlayStyle={{
                             maxWidth: '80%',
-                        }}>
+                        }}
+                    >
                         {value.slice(0, MAX_DESCRIPTION_DISPLAY_LENGTH) + '…'}
                     </Tooltip>
-                ) : value
-            ),
+                ) : (
+                    value
+                ),
             propertyDisplayName: (field, value, type: TicketChangeFieldMessageType) => {
                 let unitNameToDisplay
                 const unitNameFrom = ticketChange['unitNameFrom']
                 const unitNameTo = ticketChange['unitNameTo']
                 if (type === TicketChangeFieldMessageType.From && unitNameFrom) {
                     unitNameToDisplay = unitNameFrom
-                }
-                else if (type === TicketChangeFieldMessageType.To && unitNameTo) {
+                } else if (type === TicketChangeFieldMessageType.To && unitNameTo) {
                     unitNameToDisplay = unitNameTo
                 }
 
@@ -133,8 +133,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                     placeClassifierToDisplay = ticketChange['placeClassifierDisplayNameFrom']
                     categoryClassifierToDisplay = ticketChange['categoryClassifierDisplayNameFrom']
                     problemClassifierToDisplay = ticketChange['problemClassifierDisplayNameFrom']
-                }
-                else if (type === TicketChangeFieldMessageType.To) {
+                } else if (type === TicketChangeFieldMessageType.To) {
                     placeClassifierToDisplay = ticketChange['placeClassifierDisplayNameTo']
                     categoryClassifierToDisplay = ticketChange['categoryClassifierDisplayNameTo']
                     problemClassifierToDisplay = ticketChange['problemClassifierDisplayNameTo']
@@ -143,9 +142,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                 return `${placeClassifierToDisplay} → ${categoryClassifierToDisplay} → ${problemClassifierToDisplay}`
             },
         }
-        return has(formatterFor, field)
-            ? formatterFor[field](field, value, type)
-            : <Typography.Text>{value}</Typography.Text>
+        return has(formatterFor, field) ? formatterFor[field](field, value, type) : <Typography.Text>{value}</Typography.Text>
     }
 
     const formatDiffMessage = (field, message, ticketChange, customMessages: ITicketChangeFieldMessages = {}) => {
@@ -156,7 +153,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                     <SafeUserMention createdBy={ticketChange.createdBy} />
                     &nbsp;
                     <FormattedMessage
-                        id={ customMessages.change ? customMessages.change : 'pages.condo.ticket.TicketChanges.boolean.change' }
+                        id={customMessages.change ? customMessages.change : 'pages.condo.ticket.TicketChanges.boolean.change'}
                         values={{
                             field: message,
                             to: valueTo,
@@ -175,7 +172,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                     <SafeUserMention createdBy={ticketChange.createdBy} />
                     &nbsp;
                     <FormattedMessage
-                        id={ customMessages.change ? customMessages.change : 'pages.condo.ticket.TicketChanges.change' }
+                        id={customMessages.change ? customMessages.change : 'pages.condo.ticket.TicketChanges.change'}
                         values={{
                             field: message,
                             from: valueFrom,
@@ -184,13 +181,14 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                     />
                 </>
             )
-        } else if (valueTo) { // only "to" part
+        } else if (valueTo) {
+            // only "to" part
             return (
                 <>
                     <SafeUserMention createdBy={ticketChange.createdBy} />
                     &nbsp;
                     <FormattedMessage
-                        id={ customMessages.add ? customMessages.add : 'pages.condo.ticket.TicketChanges.add' }
+                        id={customMessages.add ? customMessages.add : 'pages.condo.ticket.TicketChanges.add'}
                         values={{
                             field: message,
                             to: valueTo,
@@ -204,7 +202,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                     <SafeUserMention createdBy={ticketChange.createdBy} />
                     &nbsp;
                     <FormattedMessage
-                        id={ customMessages.remove ? customMessages.remove : 'pages.condo.ticket.TicketChanges.remove' }
+                        id={customMessages.remove ? customMessages.remove : 'pages.condo.ticket.TicketChanges.remove'}
                         values={{
                             field: message,
                             from: valueFrom,
@@ -216,9 +214,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     }
 
     // Omit what was not changed
-    const changedFields = fields.filter(([field]) => (
-        ticketChange[`${field}From`] !== null && ticketChange[`${field}To`] !== null
-    ))
+    const changedFields = fields.filter(([field]) => ticketChange[`${field}From`] !== null && ticketChange[`${field}To`] !== null)
 
     return changedFields.map(([field, message, changeMessage]) => ({
         field,
@@ -228,45 +224,57 @@ const useChangedFieldMessagesOf = (ticketChange) => {
 
 const SafeUserMention = ({ createdBy }) => {
     const intl = useIntl()
-    const DeletedCreatedAtNoticeTitle = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.title' })
-    const DeletedCreatedAtNoticeDescription = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.description' })
-    return (
-        createdBy ? (
-            createdBy.name
-        ) : (
-            <Tooltip placement="top" title={DeletedCreatedAtNoticeDescription}>
-                <span>{DeletedCreatedAtNoticeTitle}</span>
-            </Tooltip>
-        )
+    const DeletedCreatedAtNoticeTitle = intl.formatMessage({
+        id: 'pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.title',
+    })
+    const DeletedCreatedAtNoticeDescription = intl.formatMessage({
+        id: 'pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.description',
+    })
+    return createdBy ? (
+        createdBy.name
+    ) : (
+        <Tooltip placement="top" title={DeletedCreatedAtNoticeDescription}>
+            <span>{DeletedCreatedAtNoticeTitle}</span>
+        </Tooltip>
     )
 }
 
 const Diff = styled.p`
     &.statusDisplayName {
-        del, ins {
+        del,
+        ins {
             font-weight: bold;
             color: black;
         }
     }
-    &.details, &.isEmergency, &.isPaid, &.classifierDisplayName {
-        del, ins {
+    &.details,
+    &.isEmergency,
+    &.isPaid,
+    &.classifierDisplayName {
+        del,
+        ins {
             color: black;
             span {
                 color: black;
             }
         }
     }
-    span, del, ins {
-        &, a {
+    span,
+    del,
+    ins {
+        &,
+        a {
             color: ${green[6]};
         }
     }
-    del, ins {
+    del,
+    ins {
         text-decoration: none;
     }
-    del, ins {
+    del,
+    ins {
         span:hover {
-            background: ${green[6]}
+            background: ${green[6]};
         }
     }
 `

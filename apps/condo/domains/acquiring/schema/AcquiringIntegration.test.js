@@ -7,7 +7,11 @@ import { DV_UNKNOWN_VERSION_ERROR } from '@condo/domains/common/constants/errors
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 
-const { AcquiringIntegration, createTestAcquiringIntegration, updateTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
+const {
+    AcquiringIntegration,
+    createTestAcquiringIntegration,
+    updateTestAcquiringIntegration,
+} = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const {
     expectToThrowAccessDeniedErrorToObj,
@@ -19,8 +23,8 @@ const { INTEGRATION_NO_BILLINGS_ERROR } = require('@condo/domains/acquiring/cons
 
 describe('AcquiringIntegration', () => {
     describe('CRUD tests', () => {
-        describe('create',  () => {
-            test('user can\'t', async () => {
+        describe('create', () => {
+            test("user can't", async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [billingIntegration] = await createTestBillingIntegration(admin)
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -28,7 +32,7 @@ describe('AcquiringIntegration', () => {
                     await createTestAcquiringIntegration(client, [billingIntegration])
                 })
             })
-            test('anonymous can\'t', async () => {
+            test("anonymous can't", async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [billingIntegration] = await createTestBillingIntegration(admin)
                 const anonymousClient = await makeClient()
@@ -40,26 +44,32 @@ describe('AcquiringIntegration', () => {
                 const support = await makeClientWithSupportUser()
                 const [billingIntegration] = await createTestBillingIntegration(support)
                 const [integration, attrs] = await createTestAcquiringIntegration(support, [billingIntegration])
-                expect(integration).toEqual(expect.objectContaining({
-                    name: attrs.name,
-                    supportedBillingIntegrations: expect.arrayContaining([
-                        { id: billingIntegration.id },
-                    ]),
-                }))
+                expect(integration).toEqual(
+                    expect.objectContaining({
+                        name: attrs.name,
+                        supportedBillingIntegrations: expect.arrayContaining([{ id: billingIntegration.id }]),
+                    }),
+                )
             })
             test('admin can', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [billingIntegration] = await createTestBillingIntegration(admin)
                 const [secondBillingIntegration] = await createTestBillingIntegration(admin)
-                const [integration, attrs] = await createTestAcquiringIntegration(admin, [billingIntegration, secondBillingIntegration], { canGroupReceipts: true })
-                expect(integration).toEqual(expect.objectContaining({
-                    name: attrs.name,
-                    canGroupReceipts: true,
-                    supportedBillingIntegrations: expect.arrayContaining([
-                        { id: billingIntegration.id },
-                        { id: secondBillingIntegration.id },
-                    ]),
-                }))
+                const [integration, attrs] = await createTestAcquiringIntegration(
+                    admin,
+                    [billingIntegration, secondBillingIntegration],
+                    { canGroupReceipts: true },
+                )
+                expect(integration).toEqual(
+                    expect.objectContaining({
+                        name: attrs.name,
+                        canGroupReceipts: true,
+                        supportedBillingIntegrations: expect.arrayContaining([
+                            { id: billingIntegration.id },
+                            { id: secondBillingIntegration.id },
+                        ]),
+                    }),
+                )
             })
         })
         describe('read', () => {
@@ -73,7 +83,7 @@ describe('AcquiringIntegration', () => {
                 expect(integrations).toBeDefined()
                 expect(integrations).not.toHaveLength(0)
             })
-            test('anonymous can\'t', async () => {
+            test("anonymous can't", async () => {
                 const anonymousClient = await makeClient()
                 await expectToThrowAuthenticationErrorToObjects(async () => {
                     await AcquiringIntegration.getAll(anonymousClient)
@@ -98,11 +108,11 @@ describe('AcquiringIntegration', () => {
                 expect(integrations).not.toHaveLength(0)
             })
         })
-        describe('update',  () => {
-            test('user can\'t', async () => {
+        describe('update', () => {
+            test("user can't", async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [billingIntegration] = await createTestBillingIntegration(admin)
-                const [integration] =  await createTestAcquiringIntegration(admin, [billingIntegration])
+                const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const payload = {}
@@ -110,10 +120,10 @@ describe('AcquiringIntegration', () => {
                     await updateTestAcquiringIntegration(client, integration.id, payload)
                 })
             })
-            test('anonymous can\'t', async () => {
+            test("anonymous can't", async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [billingIntegration] = await createTestBillingIntegration(admin)
-                const [integration] =  await createTestAcquiringIntegration(admin, [billingIntegration])
+                const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
 
                 const anonymousClient = await makeClient()
                 const payload = {}
@@ -124,7 +134,7 @@ describe('AcquiringIntegration', () => {
             test('support can', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [billingIntegration] = await createTestBillingIntegration(admin)
-                const [integration] =  await createTestAcquiringIntegration(admin, [billingIntegration])
+                const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
 
                 const support = await makeClientWithSupportUser()
                 const newName = 'UPDATE ACQUIRING TEST'
@@ -135,7 +145,7 @@ describe('AcquiringIntegration', () => {
             test('admin can', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [billingIntegration] = await createTestBillingIntegration(admin)
-                const [integration] =  await createTestAcquiringIntegration(admin, [billingIntegration])
+                const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
 
                 const newName = 'UPDATE ACQUIRING TEST'
                 const payload = { name: newName }
@@ -143,41 +153,41 @@ describe('AcquiringIntegration', () => {
                 expect(newIntegration).toEqual(expect.objectContaining(payload))
             })
         })
-        describe('hard delete',  () => {
-            test('user can\'t', async () => {
+        describe('hard delete', () => {
+            test("user can't", async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [billingIntegration] = await createTestBillingIntegration(admin)
-                const [integration] =  await createTestAcquiringIntegration(admin, [billingIntegration])
+                const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await AcquiringIntegration.delete(client, integration.id)
                 })
             })
-            test('anonymous can\'t', async () => {
+            test("anonymous can't", async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [billingIntegration] = await createTestBillingIntegration(admin)
-                const [integration] =  await createTestAcquiringIntegration(admin, [billingIntegration])
+                const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
 
                 const anonymousClient = await makeClient()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await AcquiringIntegration.delete(anonymousClient, integration.id)
                 })
             })
-            test('support can\'t', async () => {
+            test("support can't", async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [billingIntegration] = await createTestBillingIntegration(admin)
-                const [integration] =  await createTestAcquiringIntegration(admin, [billingIntegration])
+                const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
 
                 const support = await makeClientWithSupportUser()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await AcquiringIntegration.delete(support, integration.id)
                 })
             })
-            test('admin can\'t', async () => {
+            test("admin can't", async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [billingIntegration] = await createTestBillingIntegration(admin)
-                const [integration] =  await createTestAcquiringIntegration(admin, [billingIntegration])
+                const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await AcquiringIntegration.delete(admin, integration.id)
@@ -190,9 +200,14 @@ describe('AcquiringIntegration', () => {
             const admin = await makeLoggedInAdminClient()
             const [billingIntegration] = await createTestBillingIntegration(admin)
             await expectToThrowValidationFailureError(async () => {
-                await createTestAcquiringIntegration(admin, [billingIntegration], {
-                    dv: 2,
-                }, DV_UNKNOWN_VERSION_ERROR)
+                await createTestAcquiringIntegration(
+                    admin,
+                    [billingIntegration],
+                    {
+                        dv: 2,
+                    },
+                    DV_UNKNOWN_VERSION_ERROR,
+                )
             })
             const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
             await expectToThrowValidationFailureError(async () => {
@@ -201,7 +216,7 @@ describe('AcquiringIntegration', () => {
                 })
             }, DV_UNKNOWN_VERSION_ERROR)
         })
-        test('Can\'t exist without receipt source (billing integrations)', async () => {
+        test("Can't exist without receipt source (billing integrations)", async () => {
             const admin = await makeLoggedInAdminClient()
             const [billingIntegration] = await createTestBillingIntegration(admin)
             await expectToThrowValidationFailureError(async () => {

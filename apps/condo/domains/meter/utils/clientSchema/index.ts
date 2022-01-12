@@ -4,8 +4,10 @@
  */
 
 import {
-    COLD_WATER_METER_RESOURCE_ID, ELECTRICITY_METER_RESOURCE_ID,
-    GAS_SUPPLY_METER_RESOURCE_ID, HEAT_SUPPLY_METER_RESOURCE_ID,
+    COLD_WATER_METER_RESOURCE_ID,
+    ELECTRICITY_METER_RESOURCE_ID,
+    GAS_SUPPLY_METER_RESOURCE_ID,
+    HEAT_SUPPLY_METER_RESOURCE_ID,
     HOT_WATER_METER_RESOURCE_ID,
 } from '../../constants/constants'
 import { SnowflakeIcon } from '@condo/domains/common/components/icons/SnowflakeIcon'
@@ -19,7 +21,6 @@ export * as MeterReadingSource from './MeterReadingSource'
 export * as MeterReading from './MeterReading'
 export * as Meter from './Meter'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
-
 
 export const resourceIds = [
     COLD_WATER_METER_RESOURCE_ID,

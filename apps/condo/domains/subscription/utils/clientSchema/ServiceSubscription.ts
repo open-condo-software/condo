@@ -10,7 +10,23 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { ServiceSubscription as ServiceSubscriptionGQL } from '@condo/domains/subscription/gql'
 import { ServiceSubscription, ServiceSubscriptionUpdateInput, QueryAllServiceSubscriptionsArgs } from '@app/condo/schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'type', 'isTrial', 'organization', 'startAt', 'finishAt', 'unitsCount', 'unitPrice', 'totalPrice', 'currency']
+const FIELDS = [
+    'id',
+    'deletedAt',
+    'createdAt',
+    'updatedAt',
+    'createdBy',
+    'updatedBy',
+    'type',
+    'isTrial',
+    'organization',
+    'startAt',
+    'finishAt',
+    'unitsCount',
+    'unitPrice',
+    'totalPrice',
+    'currency',
+]
 const RELATIONS = ['organization']
 
 export interface IServiceSubscriptionUIState extends ServiceSubscription {
@@ -18,7 +34,7 @@ export interface IServiceSubscriptionUIState extends ServiceSubscription {
     // TODO(codegen): write IServiceSubscriptionUIState or extends it from
 }
 
-function convertToUIState (item: ServiceSubscription): IServiceSubscriptionUIState {
+function convertToUIState(item: ServiceSubscription): IServiceSubscriptionUIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
     return pick(item, FIELDS) as IServiceSubscriptionUIState
 }
@@ -28,39 +44,32 @@ export interface IServiceSubscriptionFormState {
     // TODO(codegen): write IServiceSubscriptionUIFormState or extends it from
 }
 
-function convertToUIFormState (state: IServiceSubscriptionUIState): IServiceSubscriptionFormState | undefined {
+function convertToUIFormState(state: IServiceSubscriptionUIState): IServiceSubscriptionFormState | undefined {
     if (!state) return
     const result = {}
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? attrId || state[attr] : state[attr]
     }
     return result as IServiceSubscriptionFormState
 }
 
-function convertToGQLInput (state: IServiceSubscriptionFormState): ServiceSubscriptionUpdateInput {
+function convertToGQLInput(state: IServiceSubscriptionFormState): ServiceSubscriptionUpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? { connect: { id: attrId || state[attr] } } : state[attr]
     }
     return result
 }
 
-const {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-} = generateReactHooks<ServiceSubscription, ServiceSubscriptionUpdateInput, IServiceSubscriptionFormState, IServiceSubscriptionUIState, QueryAllServiceSubscriptionsArgs>(ServiceSubscriptionGQL, { convertToGQLInput, convertToUIState })
+const { useObject, useObjects, useCreate, useUpdate, useDelete } = generateReactHooks<
+    ServiceSubscription,
+    ServiceSubscriptionUpdateInput,
+    IServiceSubscriptionFormState,
+    IServiceSubscriptionUIState,
+    QueryAllServiceSubscriptionsArgs
+>(ServiceSubscriptionGQL, { convertToGQLInput, convertToUIState })
 
-export {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-    convertToUIFormState,
-}
+export { useObject, useObjects, useCreate, useUpdate, useDelete, convertToUIFormState }

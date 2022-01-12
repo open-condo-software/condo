@@ -7,18 +7,42 @@ const propertySingleDataMapper = ({ row = {}, constants = {} }) => ({
     },
     rows: {
         address: () => constants.address,
-        processing: () => sum(Object
-            .entries(row).filter(rowEntry => rowEntry[0] === constants.address).map(value => value[1])),
-        completed: () => sum(Object
-            .entries(row).filter(rowEntry => rowEntry[0] === constants.address).map(value => value[1])),
-        canceled: () => sum(Object
-            .entries(row).filter(rowEntry => rowEntry[0] === constants.address).map(value => value[1])),
-        deferred: () => sum(Object
-            .entries(row).filter(rowEntry => rowEntry[0] === constants.address).map(value => value[1])),
-        closed: () => sum(Object
-            .entries(row).filter(rowEntry => rowEntry[0] === constants.address).map(value => value[1])),
-        new_or_reopened: () => sum(Object
-            .entries(row).filter(rowEntry => rowEntry[0] === constants.address).map(value => value[1])),
+        processing: () =>
+            sum(
+                Object.entries(row)
+                    .filter((rowEntry) => rowEntry[0] === constants.address)
+                    .map((value) => value[1]),
+            ),
+        completed: () =>
+            sum(
+                Object.entries(row)
+                    .filter((rowEntry) => rowEntry[0] === constants.address)
+                    .map((value) => value[1]),
+            ),
+        canceled: () =>
+            sum(
+                Object.entries(row)
+                    .filter((rowEntry) => rowEntry[0] === constants.address)
+                    .map((value) => value[1]),
+            ),
+        deferred: () =>
+            sum(
+                Object.entries(row)
+                    .filter((rowEntry) => rowEntry[0] === constants.address)
+                    .map((value) => value[1]),
+            ),
+        closed: () =>
+            sum(
+                Object.entries(row)
+                    .filter((rowEntry) => rowEntry[0] === constants.address)
+                    .map((value) => value[1]),
+            ),
+        new_or_reopened: () =>
+            sum(
+                Object.entries(row)
+                    .filter((rowEntry) => rowEntry[0] === constants.address)
+                    .map((value) => value[1]),
+            ),
     },
 })
 

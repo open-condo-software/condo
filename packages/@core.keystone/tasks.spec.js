@@ -1,6 +1,6 @@
 const { createTask, createWorker, taskQueue } = require('./tasks')
 
-async function asyncAddTask (a, b) {
+async function asyncAddTask(a, b) {
     return Promise.resolve(a + b)
 }
 

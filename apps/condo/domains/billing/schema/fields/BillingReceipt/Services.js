@@ -29,7 +29,6 @@ const ServiceInputs = {
     toPayDetails: BILLING_RECEIPT_SERVICE_TO_PAY_DETAILS_INPUT_NAME,
 }
 
-
 const SERVICES_GRAPHQL_TYPES = `
     type ${BILLING_RECEIPT_SERVICE_TO_PAY_DETAILS_FIELD_NAME} {
         ${render(ServiceToPayDetailsFields)}
@@ -50,7 +49,8 @@ const SERVICES_GRAPHQL_TYPES = `
 
 const ServiceToPayDetailsSchema = {
     type: ['object', 'null'],
-    properties: Object.assign({},
+    properties: Object.assign(
+        {},
         ...Object.keys(ServiceToPayDetailsFields).map((field) => ({ [field]: { type: ['string', 'null'] } })),
         { formula: { type: 'string' } },
     ),
@@ -80,7 +80,8 @@ const SERVICE_TO_PAY_DETAILS_QUERY_LIST = Object.keys(ServiceToPayDetailsFields)
 const SERVICES_QUERY_LIST = `${Object.keys(ServiceFields).join(' ')} { ${SERVICE_TO_PAY_DETAILS_QUERY_LIST} }`
 
 const SERVICES_FIELD = {
-    schemaDoc: 'Services to pay for. Every service has id, name and toPay. Service may or may not have toPay detail. Detail level 3 and 4',
+    schemaDoc:
+        'Services to pay for. Every service has id, name and toPay. Service may or may not have toPay detail. Detail level 3 and 4',
     type: Json,
     isRequired: false,
     extendGraphQLTypes: [SERVICES_GRAPHQL_TYPES],

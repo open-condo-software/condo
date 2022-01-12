@@ -1,11 +1,7 @@
 import { SortOrder } from 'antd/es/table/interface'
 import get from 'lodash/get'
 import { ParsedUrlQuery } from 'querystring'
-import {
-    Contact,
-    ContactWhereInput,
-    SortContactsBy,
-} from '@app/condo/schema'
+import { Contact, ContactWhereInput, SortContactsBy } from '@app/condo/schema'
 
 export interface IFilters extends Pick<Contact, 'name' | 'phone' | 'email'> {
     search?: string
@@ -49,7 +45,7 @@ export const filtersToQuery = (filters: IFilters): ContactWhereInput => {
 }
 
 type SorterColumn = {
-    columnKey: string,
+    columnKey: string
     order: 'ascend' | 'descend'
 }
 
@@ -62,53 +58,51 @@ export const sorterToQuery = (sorter?: SorterColumn | Array<SorterColumn>): Arra
         sorter = [sorter]
     }
 
-    return sorter.map((sort) => {
-        const { columnKey, order } = sort
+    return sorter
+        .map((sort) => {
+            const { columnKey, order } = sort
 
-        const sortKeys = {
-            'ascend': 'ASC',
-            'descend': 'DESC',
-        }
+            const sortKeys = {
+                ascend: 'ASC',
+                descend: 'DESC',
+            }
 
-        const sortKey = sortKeys[order]
+            const sortKey = sortKeys[order]
 
-        if (!sortKey) {
-            return
-        }
-        return `${columnKey}_${sortKeys[order]}` as SortContactsBy
-    }).filter(Boolean)
+            if (!sortKey) {
+                return
+            }
+            return `${columnKey}_${sortKeys[order]}` as SortContactsBy
+        })
+        .filter(Boolean)
 }
 
 const SORT_ORDERS = {
-    'ASC': 'ascend',
-    'DESC': 'descend',
+    ASC: 'ascend',
+    DESC: 'descend',
 }
 
-const CONTACT_TABLE_COLUMNS = [
-    'name',
-    'phone',
-    'email',
-    'address',
-    'property',
-]
+const CONTACT_TABLE_COLUMNS = ['name', 'phone', 'email', 'address', 'property']
 
 export const queryToSorter = (query: Array<string>) => {
-    return query.map((sort) => {
-        const [columnKey, sortKey] = sort.split('_')
+    return query
+        .map((sort) => {
+            const [columnKey, sortKey] = sort.split('_')
 
-        try {
-            if (CONTACT_TABLE_COLUMNS.includes(columnKey) && SORT_ORDERS[sortKey]) {
-                return {
-                    columnKey,
-                    order: SORT_ORDERS[sortKey],
+            try {
+                if (CONTACT_TABLE_COLUMNS.includes(columnKey) && SORT_ORDERS[sortKey]) {
+                    return {
+                        columnKey,
+                        order: SORT_ORDERS[sortKey],
+                    }
                 }
+            } catch (e) {
+                // TODO(Dimitreee): send error to sentry
             }
-        } catch (e) {
-            // TODO(Dimitreee): send error to sentry
-        }
 
-        return
-    }).filter(Boolean)
+            return
+        })
+        .filter(Boolean)
 }
 
 export const createSorterMap = (sortStringFromQuery: Array<string>): Record<string, SortOrder> => {

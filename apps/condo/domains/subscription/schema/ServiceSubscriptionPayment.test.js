@@ -3,11 +3,18 @@
  */
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
-const { ServiceSubscriptionPayment, createTestServiceSubscriptionPayment, updateTestServiceSubscriptionPayment,
-    createTestServiceSubscription, ServiceSubscription,
+const {
+    ServiceSubscriptionPayment,
+    createTestServiceSubscriptionPayment,
+    updateTestServiceSubscriptionPayment,
+    createTestServiceSubscription,
+    ServiceSubscription,
 } = require('@condo/domains/subscription/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj,
-    expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects, catchErrorFrom,
+const {
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj,
+    expectToThrowAuthenticationErrorToObjects,
+    catchErrorFrom,
 } = require('@condo/domains/common/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
@@ -26,12 +33,17 @@ describe('ServiceSubscriptionPayment', () => {
                 amount: String(-100.05),
             }
 
-            await catchErrorFrom(async () => {
-                await createTestServiceSubscriptionPayment(adminClient, organization, subscription, wrongAttrs)
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('new row for relation "ServiceSubscriptionPayment" violates check constraint "service_subscription_payment_positive_amount_check"')
-                expect(data).toEqual({ 'obj': null })
-            })
+            await catchErrorFrom(
+                async () => {
+                    await createTestServiceSubscriptionPayment(adminClient, organization, subscription, wrongAttrs)
+                },
+                ({ errors, data }) => {
+                    expect(errors[0].message).toMatch(
+                        'new row for relation "ServiceSubscriptionPayment" violates check constraint "service_subscription_payment_positive_amount_check"',
+                    )
+                    expect(data).toEqual({ obj: null })
+                },
+            )
         })
 
         describe('status transitions', () => {
@@ -145,15 +157,31 @@ describe('ServiceSubscriptionPayment', () => {
 
             const adminClient = await makeLoggedInAdminClient()
 
-            const [subscriptionOfUser] = await ServiceSubscription.getAll(adminClient, {
-                organization: { id: userClient.organization.id },
-            }, { sortBy: ['updatedAt_DESC'] })
-            const [subscriptionPaymentOfUser] = await createTestServiceSubscriptionPayment(adminClient, userClient.organization, subscriptionOfUser)
+            const [subscriptionOfUser] = await ServiceSubscription.getAll(
+                adminClient,
+                {
+                    organization: { id: userClient.organization.id },
+                },
+                { sortBy: ['updatedAt_DESC'] },
+            )
+            const [subscriptionPaymentOfUser] = await createTestServiceSubscriptionPayment(
+                adminClient,
+                userClient.organization,
+                subscriptionOfUser,
+            )
 
-            const [subscriptionOfUserFromAnotherOrganization] = await ServiceSubscription.getAll(adminClient, {
-                organization: { id: userClientFromAnotherOrganization.organization.id },
-            }, { sortBy: ['updatedAt_DESC'] })
-            const [subscriptionPaymentOfUserFromAnotherOrganization] = await createTestServiceSubscriptionPayment(adminClient, userClientFromAnotherOrganization.organization, subscriptionOfUserFromAnotherOrganization)
+            const [subscriptionOfUserFromAnotherOrganization] = await ServiceSubscription.getAll(
+                adminClient,
+                {
+                    organization: { id: userClientFromAnotherOrganization.organization.id },
+                },
+                { sortBy: ['updatedAt_DESC'] },
+            )
+            const [subscriptionPaymentOfUserFromAnotherOrganization] = await createTestServiceSubscriptionPayment(
+                adminClient,
+                userClientFromAnotherOrganization.organization,
+                subscriptionOfUserFromAnotherOrganization,
+            )
 
             let objs
             objs = await ServiceSubscriptionPayment.getAll(userClient, {}, { sortBy: ['updatedAt_DESC'] })
@@ -228,7 +256,6 @@ describe('ServiceSubscriptionPayment', () => {
             })
         })
     })
-
 
     describe('Delete', () => {
         it('cannot be deleted by admin', async () => {

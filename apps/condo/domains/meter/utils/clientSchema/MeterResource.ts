@@ -19,7 +19,7 @@ export interface IMeterResourceUIState extends MeterResource {
     measure: string
 }
 
-function convertToUIState (item: MeterResource): IMeterResourceUIState {
+function convertToUIState(item: MeterResource): IMeterResourceUIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
     return pick(item, FIELDS) as IMeterResourceUIState
 }
@@ -28,39 +28,32 @@ export interface IMeterResourceFormState {
     id?: undefined
 }
 
-function convertToUIFormState (state: IMeterResourceUIState): IMeterResourceFormState | undefined {
+function convertToUIFormState(state: IMeterResourceUIState): IMeterResourceFormState | undefined {
     if (!state) return
     const result = {}
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? attrId || state[attr] : state[attr]
     }
     return result as IMeterResourceFormState
 }
 
-function convertToGQLInput (state: IMeterResourceFormState): MeterResourceUpdateInput {
+function convertToGQLInput(state: IMeterResourceFormState): MeterResourceUpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? { connect: { id: attrId || state[attr] } } : state[attr]
     }
     return result
 }
 
-const {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-} = generateReactHooks<MeterResource, MeterResourceUpdateInput, IMeterResourceFormState, IMeterResourceUIState, QueryAllMeterResourcesArgs>(MeterResourceGQL, { convertToGQLInput, convertToUIState })
+const { useObject, useObjects, useCreate, useUpdate, useDelete } = generateReactHooks<
+    MeterResource,
+    MeterResourceUpdateInput,
+    IMeterResourceFormState,
+    IMeterResourceUIState,
+    QueryAllMeterResourcesArgs
+>(MeterResourceGQL, { convertToGQLInput, convertToUIState })
 
-export {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-    convertToUIFormState,
-}
+export { useObject, useObjects, useCreate, useUpdate, useDelete, convertToUIFormState }

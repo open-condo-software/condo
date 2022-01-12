@@ -1,4 +1,9 @@
-const { AutoIncrementInteger, AutoIncrementIntegerKnexFieldAdapter, AutoIncrementIntegerMongooseFieldAdapter, AutoIncrementIntegerPrismaFieldAdapter } = require('./Implementation')
+const {
+    AutoIncrementInteger,
+    AutoIncrementIntegerKnexFieldAdapter,
+    AutoIncrementIntegerMongooseFieldAdapter,
+    AutoIncrementIntegerPrismaFieldAdapter,
+} = require('./Implementation')
 const { Integer } = require('@keystonejs/fields')
 
 module.exports = {

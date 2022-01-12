@@ -8,9 +8,7 @@ import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
 import { Meter, MeterReading } from '../utils/clientSchema'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
 import uniqWith from 'lodash/uniqWith'
-import {
-    CALL_METER_READING_SOURCE_ID,
-} from '../constants/constants'
+import { CALL_METER_READING_SOURCE_ID } from '../constants/constants'
 import { useCreateMeterModal } from '../hooks/useCreateMeterModal'
 import { IMeterUIState } from '../utils/clientSchema/Meter'
 import { useRouter } from 'next/router'
@@ -18,8 +16,7 @@ import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { SortMeterReadingsBy, SortMetersBy } from '@app/condo/schema'
 import { IMeterReadingUIState } from '../utils/clientSchema/MeterReading'
 import { UnitInfo } from '@condo/domains/property/components/UnitInfo'
-import { EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION,
-    EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT } from '../constants/errors'
+import { EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION, EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT } from '../constants/errors'
 import { ContactsInfo } from '@condo/domains/ticket/components/BaseTicketForm'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { useMeterTableColumns } from '../hooks/useMeterTableColumns'
@@ -42,16 +39,16 @@ type MetersTableRecord = {
     tariffNumber: string
 }
 
-function getTableData (meters: IMeterUIState[], meterReadings: IMeterReadingUIState[]): MetersTableRecord[] {
+function getTableData(meters: IMeterUIState[], meterReadings: IMeterReadingUIState[]): MetersTableRecord[] {
     const dataSource: MetersTableRecord[] = []
-    const lastMeterReadings = uniqWith(meterReadings,
-        (meterReading1, meterReading2) =>
-            meterReading1.meter.id === meterReading2.meter.id
+    const lastMeterReadings = uniqWith(
+        meterReadings,
+        (meterReading1, meterReading2) => meterReading1.meter.id === meterReading2.meter.id,
     )
 
     for (const meter of meters) {
         const meterTariffsCount = meter.numberOfTariffs
-        const lastMeterReading = lastMeterReadings.find(meterReading => {
+        const lastMeterReading = lastMeterReadings.find((meterReading) => {
             const meterReadingMeterId = get(meterReading, ['meter', 'id'])
 
             return meterReadingMeterId === meter.id
@@ -129,15 +126,24 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     }, [canCreateContact])
 
     const router = useRouter()
-    const { objs: meters, refetch: refetchMeters, loading: metersLoading, count: total } = Meter.useObjects({
+    const {
+        objs: meters,
+        refetch: refetchMeters,
+        loading: metersLoading,
+        count: total,
+    } = Meter.useObjects({
         where: {
             property: { id: selectedPropertyId },
             unitName: selectedUnitName,
         },
         orderBy: SortMetersBy.CreatedAtDesc,
     })
-    const meterIds = meters.map(meter => meter.id)
-    const { objs: meterReadings, refetch: refetchMeterReadings, loading: meterReadingsLoading } = MeterReading.useObjects({
+    const meterIds = meters.map((meter) => meter.id)
+    const {
+        objs: meterReadings,
+        refetch: refetchMeterReadings,
+        loading: meterReadingsLoading,
+    } = MeterReading.useObjects({
         where: {
             meter: { id_in: meterIds },
         },
@@ -149,59 +155,72 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         refetchMeterReadings()
     }, [refetchMeterReadings, refetchMeters])
     const loading = metersLoading || meterReadingsLoading
-    const { CreateMeterModal, setIsCreateMeterModalVisible } = useCreateMeterModal(organization.id, selectedPropertyId, selectedUnitName, refetch)
+    const { CreateMeterModal, setIsCreateMeterModalVisible } = useCreateMeterModal(
+        organization.id,
+        selectedPropertyId,
+        selectedUnitName,
+        refetch,
+    )
     const dataSource = useMemo(() => getTableData(meters, meterReadings), [meterReadings, meters])
     const { tableColumns, newMeterReadings, setNewMeterReadings } = useMeterTableColumns()
     const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch)
-    const handleRowAction = useCallback((record) => {
-        return {
-            onClick: () => {
-                const meter = get(record, 'meter')
-                setSelectedMeter(meter)
-            },
-        }
-    }, [setSelectedMeter])
-    const handleAddMeterButtonClick = useCallback(() => setIsCreateMeterModalVisible(true),
-        [setIsCreateMeterModalVisible])
+    const handleRowAction = useCallback(
+        (record) => {
+            return {
+                onClick: () => {
+                    const meter = get(record, 'meter')
+                    setSelectedMeter(meter)
+                },
+            }
+        },
+        [setSelectedMeter],
+    )
+    const handleAddMeterButtonClick = useCallback(() => setIsCreateMeterModalVisible(true), [setIsCreateMeterModalVisible])
 
     useEffect(() => {
         refetch()
         setNewMeterReadings({})
     }, [selectedPropertyId, selectedUnitName])
 
-    const createMeterReadingAction = MeterReading.useCreate({
-        source: CALL_METER_READING_SOURCE_ID,
-    }, () => {
-        router.push('/meter')
-    })
+    const createMeterReadingAction = MeterReading.useCreate(
+        {
+            source: CALL_METER_READING_SOURCE_ID,
+        },
+        () => {
+            router.push('/meter')
+        },
+    )
 
-    const handleSubmit = useCallback(async (values) => {
-        let createdContact
-        if (role && role.canManageContacts && canCreateContactRef.current) {
-            createdContact = await createContact(organization.id, selectPropertyIdRef.current, selectedUnitNameRef.current)
-        }
+    const handleSubmit = useCallback(
+        async (values) => {
+            let createdContact
+            if (role && role.canManageContacts && canCreateContactRef.current) {
+                createdContact = await createContact(organization.id, selectPropertyIdRef.current, selectedUnitNameRef.current)
+            }
 
-        for (const [meterId, newMeterReading] of Object.entries(newMeterReadings)) {
-            const value1 = get(newMeterReading, '1')
-            const value2 = get(newMeterReading, '2')
-            const value3 = get(newMeterReading, '3')
-            const value4 = get(newMeterReading, '4')
+            for (const [meterId, newMeterReading] of Object.entries(newMeterReadings)) {
+                const value1 = get(newMeterReading, '1')
+                const value2 = get(newMeterReading, '2')
+                const value3 = get(newMeterReading, '3')
+                const value4 = get(newMeterReading, '4')
 
-            const { property, unitName, sectionName, floorName, ...clientInfo } = values
+                const { property, unitName, sectionName, floorName, ...clientInfo } = values
 
-            createMeterReadingAction({
-                ...clientInfo,
-                organization: organization.id,
-                contact: get(createdContact, 'id') || values.contact,
-                meter: meterId,
-                date: new Date(),
-                value1,
-                value2,
-                value3,
-                value4,
-            })
-        }
-    }, [createContact, createMeterReadingAction, newMeterReadings, organization.id, role])
+                createMeterReadingAction({
+                    ...clientInfo,
+                    organization: organization.id,
+                    contact: get(createdContact, 'id') || values.contact,
+                    meter: meterId,
+                    date: new Date(),
+                    value1,
+                    value2,
+                    value3,
+                    value4,
+                })
+            }
+        },
+        [createContact, createMeterReadingAction, newMeterReadings, organization.id, role],
+    )
 
     const ErrorToFormFieldMsgMapping = {
         [EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION]: {
@@ -228,14 +247,8 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         >
             {({ handleSave, form }) => (
                 <>
-                    <Prompt
-                        title={PromptTitle}
-                        form={form}
-                        handleSave={handleSave}
-                    >
-                        <Typography.Paragraph>
-                            {PromptHelpMessage}
-                        </Typography.Paragraph>
+                    <Prompt title={PromptTitle} form={form} handleSave={handleSave}>
+                        <Typography.Paragraph>{PromptHelpMessage}</Typography.Paragraph>
                     </Prompt>
                     <Col span={24}>
                         <Row gutter={FORM_ROW_LARGE_VERTICAL_GUTTER}>
@@ -244,16 +257,10 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                     <Col span={24}>
                                         <Row justify={'space-between'} gutter={FORM_ROW_MEDIUM_VERTICAL_GUTTER}>
                                             <Col span={24}>
-                                                <Typography.Title level={5}>
-                                                    {ClientInfoMessage}
-                                                </Typography.Title>
+                                                <Typography.Title level={5}>{ClientInfoMessage}</Typography.Title>
                                             </Col>
                                             <Col span={24}>
-                                                <Form.Item
-                                                    name={'property'}
-                                                    label={AddressLabel}
-                                                    rules={validations.property}
-                                                >
+                                                <Form.Item name={'property'} label={AddressLabel} rules={validations.property}>
                                                     <PropertyAddressSearchInput
                                                         organization={organization}
                                                         autoFocus={true}
@@ -270,18 +277,16 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                                     />
                                                 </Form.Item>
                                             </Col>
-                                            {
-                                                selectedPropertyId && (
-                                                    <Col span={24}>
-                                                        <UnitInfo
-                                                            property={property}
-                                                            loading={propertyLoading}
-                                                            setSelectedUnitName={setSelectedUnitName}
-                                                            form={form}
-                                                        />
-                                                    </Col>
-                                                )
-                                            }
+                                            {selectedPropertyId && (
+                                                <Col span={24}>
+                                                    <UnitInfo
+                                                        property={property}
+                                                        loading={propertyLoading}
+                                                        setSelectedUnitName={setSelectedUnitName}
+                                                        form={form}
+                                                    />
+                                                </Col>
+                                            )}
                                         </Row>
                                     </Col>
                                     <Col span={24}>
@@ -297,19 +302,17 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                             <Col span={24}>
                                 <Row gutter={FORM_ROW_MEDIUM_VERTICAL_GUTTER}>
                                     <Typography.Title level={2}>{MetersAndReadingsMessage}</Typography.Title>
-                                    {
-                                        selectedUnitName ? (
-                                            <Table
-                                                scroll={getTableScrollConfig(isSmall)}
-                                                loading={loading}
-                                                totalRows={total}
-                                                dataSource={dataSource}
-                                                columns={tableColumns}
-                                                pagination={false}
-                                                onRow={handleRowAction}
-                                            />
-                                        ) : null
-                                    }
+                                    {selectedUnitName ? (
+                                        <Table
+                                            scroll={getTableScrollConfig(isSmall)}
+                                            loading={loading}
+                                            totalRows={total}
+                                            dataSource={dataSource}
+                                            columns={tableColumns}
+                                            pagination={false}
+                                            onRow={handleRowAction}
+                                        />
+                                    ) : null}
                                 </Row>
                             </Col>
                             <Col span={24}>

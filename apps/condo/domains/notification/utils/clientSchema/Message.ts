@@ -10,7 +10,23 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { Message as MessageGQL } from '@condo/domains/notification/gql'
 import { Message, MessageUpdateInput, QueryAllMessagesArgs } from '@app/condo/schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'property', 'ticket', 'user', 'type', 'meta', 'channels', 'status', 'deliveredAt']
+const FIELDS = [
+    'id',
+    'deletedAt',
+    'createdAt',
+    'updatedAt',
+    'createdBy',
+    'updatedBy',
+    'organization',
+    'property',
+    'ticket',
+    'user',
+    'type',
+    'meta',
+    'channels',
+    'status',
+    'deliveredAt',
+]
 const RELATIONS = ['organization', 'property', 'ticket', 'user']
 
 export interface IMessageUIState extends Message {
@@ -18,7 +34,7 @@ export interface IMessageUIState extends Message {
     // TODO(codegen): write IMessageUIState or extends it from
 }
 
-function convertToUIState (item: Message): IMessageUIState {
+function convertToUIState(item: Message): IMessageUIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
     return pick(item, FIELDS) as IMessageUIState
 }
@@ -28,39 +44,32 @@ export interface IMessageFormState {
     // TODO(codegen): write IMessageUIFormState or extends it from
 }
 
-function convertToUIFormState (state: IMessageUIState): IMessageFormState | undefined {
+function convertToUIFormState(state: IMessageUIState): IMessageFormState | undefined {
     if (!state) return
     const result = {}
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? attrId || state[attr] : state[attr]
     }
     return result as IMessageFormState
 }
 
-function convertToGQLInput (state: IMessageFormState): MessageUpdateInput {
+function convertToGQLInput(state: IMessageFormState): MessageUpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? { connect: { id: attrId || state[attr] } } : state[attr]
     }
     return result
 }
 
-const {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-} = generateReactHooks<Message, MessageUpdateInput, IMessageFormState, IMessageUIState, QueryAllMessagesArgs>(MessageGQL, { convertToGQLInput, convertToUIState })
+const { useObject, useObjects, useCreate, useUpdate, useDelete } = generateReactHooks<
+    Message,
+    MessageUpdateInput,
+    IMessageFormState,
+    IMessageUIState,
+    QueryAllMessagesArgs
+>(MessageGQL, { convertToGQLInput, convertToUIState })
 
-export {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-    convertToUIFormState,
-}
+export { useObject, useObjects, useCreate, useUpdate, useDelete, convertToUIFormState }

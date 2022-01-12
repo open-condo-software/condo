@@ -12,7 +12,7 @@ import { ChildrenWrapper, Footer, Layout, PageContent, PosterWrapper } from './s
 import { AuthHeader } from './AuthHeader'
 
 interface IPosterLayoutProps {
-    headerAction: React.ReactElement,
+    headerAction: React.ReactElement
     layoutBgColor?: string
 }
 
@@ -29,7 +29,7 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAct
 
     return (
         <Layout style={LAYOUT_STYLE}>
-            <AuthHeader headerAction={headerAction}/>
+            <AuthHeader headerAction={headerAction} />
             <Row align={'stretch'}>
                 <Col lg={11} md={24} hidden={isSmall}>
                     <PosterWrapper>
@@ -52,10 +52,18 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAct
                                 <Row>
                                     <Col lg={14} md={24} push={FOOTER_COL_PUSH} pull={FOOTER_COL_PULL}>
                                         <FormattedMessage
-                                            id='FooterText'
+                                            id="FooterText"
                                             values={{
-                                                email: <Button size={'small'} type={'inlineLink'} href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</Button>,
-                                                phone: <Button size={'small'} type={'inlineLink'} href={`tel:${SUPPORT_PHONE}`}>{SUPPORT_PHONE}</Button>,
+                                                email: (
+                                                    <Button size={'small'} type={'inlineLink'} href={`mailto:${SUPPORT_EMAIL}`}>
+                                                        {SUPPORT_EMAIL}
+                                                    </Button>
+                                                ),
+                                                phone: (
+                                                    <Button size={'small'} type={'inlineLink'} href={`tel:${SUPPORT_PHONE}`}>
+                                                        {SUPPORT_PHONE}
+                                                    </Button>
+                                                ),
                                             }}
                                         />
                                     </Col>

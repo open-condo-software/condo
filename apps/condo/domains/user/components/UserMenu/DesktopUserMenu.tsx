@@ -14,15 +14,15 @@ import { useIntl } from '@core/next/intl'
 import { green } from '@ant-design/colors'
 import { Button } from '@condo/domains/common/components/Button'
 
-function goToSignin () {
+function goToSignin() {
     Router.push('/auth/signin')
 }
 
-function goToUserProfile () {
+function goToUserProfile() {
     Router.push('/user')
 }
 
-function formatUserName (name) {
+function formatUserName(name) {
     const splittedName = name.split(' ')
 
     if (splittedName.length > 1) {
@@ -33,28 +33,27 @@ function formatUserName (name) {
 }
 
 export const StyledMenu = styled(Menu)`
-  padding: 20px;
-  width: 210px;
-  box-sizing: border-box;
-  border-radius: 8px;
-  transform: translate(-5%, 10px);
+    padding: 20px;
+    width: 210px;
+    box-sizing: border-box;
+    border-radius: 8px;
+    transform: translate(-5%, 10px);
 `
 
 const AvatarContainer = styled.div`
-  width: 24px;
-  height: 24px;
+    width: 24px;
+    height: 24px;
 `
 
-const UserMenuWrapper = styled.div`
-`
+const UserMenuWrapper = styled.div``
 
 const UserMenuContainer = styled.div`
-  height: 24px;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: center;
-  box-sizing: border-box;
+    height: 24px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    box-sizing: border-box;
 `
 
 export const DesktopUserMenu: React.FC = () => {
@@ -74,9 +73,9 @@ export const DesktopUserMenu: React.FC = () => {
 
     const DropdownOverlay = (
         <StyledMenu>
-            <StyledMenuItem key='signout' onClick={auth.signout}>
+            <StyledMenuItem key="signout" onClick={auth.signout}>
                 <Space size={16}>
-                    <RestFilled style={menuIconStyles}/>
+                    <RestFilled style={menuIconStyles} />
                     {SignOutMessage}
                 </Space>
             </StyledMenuItem>
@@ -85,30 +84,28 @@ export const DesktopUserMenu: React.FC = () => {
 
     return (
         <UserMenuWrapper>
-            {
-                auth.isAuthenticated
-                    ? (
-                        <Dropdown overlay={DropdownOverlay} placement='bottomCenter'>
-                            <UserMenuContainer>
-                                <Button
-                                    type='link'
-                                    style={{ paddingRight: 0, color: green[6], fontSize: '12px' }}
-                                    onClick={goToUserProfile}
-                                >
-                                    <Space size={16}>
-                                        <AvatarContainer>
-                                            <UserAvatar iconSize={'6px'}/>
-                                        </AvatarContainer>
-                                        {userName}
-                                    </Space>
-                                </Button>
-                            </UserMenuContainer>
-                        </Dropdown>
-                    )
-                    : <TopMenuItem onClick={goToSignin}>
-                        <span className='link'>{SignInMessage}</span>
-                    </TopMenuItem>
-            }
+            {auth.isAuthenticated ? (
+                <Dropdown overlay={DropdownOverlay} placement="bottomCenter">
+                    <UserMenuContainer>
+                        <Button
+                            type="link"
+                            style={{ paddingRight: 0, color: green[6], fontSize: '12px' }}
+                            onClick={goToUserProfile}
+                        >
+                            <Space size={16}>
+                                <AvatarContainer>
+                                    <UserAvatar iconSize={'6px'} />
+                                </AvatarContainer>
+                                {userName}
+                            </Space>
+                        </Button>
+                    </UserMenuContainer>
+                </Dropdown>
+            ) : (
+                <TopMenuItem onClick={goToSignin}>
+                    <span className="link">{SignInMessage}</span>
+                </TopMenuItem>
+            )}
         </UserMenuWrapper>
     )
 }

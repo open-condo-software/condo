@@ -15,7 +15,7 @@ if (isError(SALES_CRM_WEBHOOKS_URL) || !SALES_CRM_WEBHOOKS_URL.subscriptions || 
     SALES_CRM_WEBHOOKS_URL = null
 }
 
-async function createOrganization (context, data) {
+async function createOrganization(context, data) {
     return await execGqlWithoutAccess(context, {
         query: Organization.CREATE_OBJ_MUTATION,
         variables: { data },
@@ -24,7 +24,7 @@ async function createOrganization (context, data) {
     })
 }
 
-async function createOrganizationEmployee (context, data) {
+async function createOrganizationEmployee(context, data) {
     return await execGqlWithoutAccess(context, {
         query: OrganizationEmployee.CREATE_OBJ_MUTATION,
         variables: { data },
@@ -33,7 +33,7 @@ async function createOrganizationEmployee (context, data) {
     })
 }
 
-async function updateOrganizationEmployee (context, id, data) {
+async function updateOrganizationEmployee(context, id, data) {
     return await execGqlWithoutAccess(context, {
         query: OrganizationEmployee.UPDATE_OBJ_MUTATION,
         variables: { id, data },
@@ -42,7 +42,7 @@ async function updateOrganizationEmployee (context, id, data) {
     })
 }
 
-async function createDefaultRoles (context, organization, data) {
+async function createDefaultRoles(context, organization, data) {
     if (!context) throw new Error('no context')
     if (!organization.id) throw new Error('wrong organization.id argument')
     if (!organization.country) throw new Error('wrong organization.country argument')
@@ -52,11 +52,11 @@ async function createDefaultRoles (context, organization, data) {
             organization: { connect: { id: organization.id } },
             ...roleInfo,
             ...data,
-        }).then(x => ({ [roleId]: x }))
+        }).then((x) => ({ [roleId]: x })),
     )
-    return await Promise.all(tasks).then(r => r.reduce((prev, curr) => ({ ...prev, ...curr })))
+    return await Promise.all(tasks).then((r) => r.reduce((prev, curr) => ({ ...prev, ...curr })))
 }
-async function createConfirmedEmployee (context, organization, user, role, data) {
+async function createConfirmedEmployee(context, organization, user, role, data) {
     if (!context) throw new Error('no context')
     if (!organization.id) throw new Error('wrong organization.id argument')
     if (!organization.country) throw new Error('wrong organization.country argument')
@@ -83,7 +83,7 @@ async function createConfirmedEmployee (context, organization, user, role, data)
     })
 }
 
-async function findOrganizationEmployee (context, query) {
+async function findOrganizationEmployee(context, query) {
     if (!context) throw new Error('no context')
     if (!query) throw new Error('no query')
     return await execGqlWithoutAccess(context, {
@@ -98,7 +98,7 @@ async function findOrganizationEmployee (context, query) {
 
 const salesCRMRequestLogger = pino({ name: 'sales_crm', enabled: falsey(process.env.DISABLE_LOGGING) })
 
-async function pushOrganizationToSalesCRM (organization) {
+async function pushOrganizationToSalesCRM(organization) {
     if (!SALES_CRM_WEBHOOKS_URL) {
         return
     }
@@ -114,13 +114,12 @@ async function pushOrganizationToSalesCRM (organization) {
             email,
             fromSbbol: fingerprint === SBBOL_FINGERPRINT_NAME,
         })
-    }
-    catch (error) {
+    } catch (error) {
         salesCRMRequestLogger.warn({ message: 'Request to sales crm failed', error })
     }
 }
 
-async function pushSubscriptionActivationToSalesCRM (payerInn, startAt, finishAt, isTrial) {
+async function pushSubscriptionActivationToSalesCRM(payerInn, startAt, finishAt, isTrial) {
     if (!SALES_CRM_WEBHOOKS_URL) {
         return
     }
@@ -131,8 +130,7 @@ async function pushSubscriptionActivationToSalesCRM (payerInn, startAt, finishAt
             finishAt,
             isTrial,
         })
-    }
-    catch (error) {
+    } catch (error) {
         salesCRMRequestLogger.warn({ message: 'Request to sales crm failed', error })
     }
 }

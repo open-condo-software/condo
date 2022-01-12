@@ -10,7 +10,6 @@ const dayjs = require('dayjs')
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema/')
 
-
 // TODO(zuch): use workers for export
 const ExportPropertiesToExcelService = new GQLCustomSchema('ExportPropertiesToExcelService', {
     types: [
@@ -39,7 +38,7 @@ const ExportPropertiesToExcelService = new GQLCustomSchema('ExportPropertiesToEx
                 if (allProperties.length === 0) {
                     throw new Error(`${EMPTY_DATA_EXPORT_ERROR}] empty export file`)
                 }
-                const excelRows = allProperties.map(property => {
+                const excelRows = allProperties.map((property) => {
                     return {
                         organization: property.organization.name,
                         address: property.address,
@@ -61,7 +60,6 @@ const ExportPropertiesToExcelService = new GQLCustomSchema('ExportPropertiesToEx
             },
         },
     ],
-
 })
 
 module.exports = {

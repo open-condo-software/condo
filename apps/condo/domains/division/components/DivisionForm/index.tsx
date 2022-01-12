@@ -8,5 +8,5 @@ interface IPropertyFormProps {
 }
 
 export const DivisionForm: React.FC<IPropertyFormProps> = ({ id }) => {
-    return ( id ? <UpdateDivisionForm id={id}/> : <CreateDivisionForm/> )
+    return id ? <UpdateDivisionForm id={id} /> : <CreateDivisionForm />
 }

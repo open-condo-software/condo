@@ -34,8 +34,8 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
     if (error || loading) {
         return (
             <>
-                {(loading) ? <Loader size={'large'} fill/> : null}
-                {(error) ? <Typography.Title>{error}</Typography.Title> : null}
+                {loading ? <Loader size={'large'} fill /> : null}
+                {error ? <Typography.Title>{error}</Typography.Title> : null}
             </>
         )
     }
@@ -45,30 +45,28 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
             action={updateAction}
             initialValues={initialValues}
             organization={organization}
-            type='building'
+            type="building"
             address={property.address}
         >
             {({ handleSave, isLoading }) => {
                 return (
                     <>
                         <Form.Item noStyle dependencies={FORM_DEPENDENCIES}>
-                            {
-                                ({ getFieldsValue }) => {
-                                    const { address } = getFieldsValue(['address'])
-                                    return (
-                                        <Button
-                                            key='submit'
-                                            onClick={handleSave}
-                                            type='sberDefaultGradient'
-                                            loading={isLoading}
-                                            disabled={!address}
-                                            style={FORM_SUBMIT_BUTTON_STYLES}
-                                        >
-                                            {ApplyChangesLabel}
-                                        </Button>
-                                    )
-                                }
-                            }
+                            {({ getFieldsValue }) => {
+                                const { address } = getFieldsValue(['address'])
+                                return (
+                                    <Button
+                                        key="submit"
+                                        onClick={handleSave}
+                                        type="sberDefaultGradient"
+                                        loading={isLoading}
+                                        disabled={!address}
+                                        style={FORM_SUBMIT_BUTTON_STYLES}
+                                    >
+                                        {ApplyChangesLabel}
+                                    </Button>
+                                )
+                            }}
                         </Form.Item>
                     </>
                 )

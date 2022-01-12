@@ -10,10 +10,9 @@ const DETAILED_COLUMNS_AMOUNT = 9
 const BASE_COLUMNS_AMOUNT = 2
 const DEFAULT_VOLUME_MAX_DECIMALS = 4
 
-
 const textRender = getTextRender()
 const getExpandTextRender = (detailed: boolean) => {
-    return function render (text: string, record: TableRecord) {
+    return function render(text: string, record: TableRecord) {
         if (get(record, ['children', 'length'])) {
             return {
                 children: text,
@@ -29,7 +28,7 @@ const getExpandTextRender = (detailed: boolean) => {
 }
 
 const getHideCellTextRender = () => {
-    return function render (text: string, record: TableRecord) {
+    return function render(text: string, record: TableRecord) {
         if (get(record, ['children', 'length'])) {
             return {
                 props: {
@@ -45,7 +44,7 @@ const getHideCellTextRender = () => {
 
 const getAdvancedMoneyRender = (intl, currencyCode: string) => {
     const moneyRender = getMoneyRender(undefined, intl, currencyCode)
-    return function render (text: string, record: TableRecord) {
+    return function render(text: string, record: TableRecord) {
         if (get(record, ['children', 'length'])) {
             return {
                 children: text,
@@ -57,7 +56,7 @@ const getAdvancedMoneyRender = (intl, currencyCode: string) => {
 }
 
 const getVolumeRender = (decimals: number) => {
-    return function render (text: string, record: TableRecord) {
+    return function render(text: string, record: TableRecord) {
         if (get(record, ['children', 'length'])) {
             return {
                 props: {
@@ -70,13 +69,9 @@ const getVolumeRender = (decimals: number) => {
         const scaleRate = Math.pow(10, decimals)
         const roundedVolume = Math.round((volume + Number.EPSILON) * scaleRate) / scaleRate
         if (roundedVolume === volume) {
-            return (
-                <Tooltip title={text}>{roundedVolume}</Tooltip>
-            )
+            return <Tooltip title={text}>{roundedVolume}</Tooltip>
         }
-        return (
-            <Tooltip title={text}>{roundedVolume}…</Tooltip>
-        )
+        return <Tooltip title={text}>{roundedVolume}…</Tooltip>
     }
 }
 
@@ -91,7 +86,6 @@ export const useServicesTableColumns = (detailed: boolean, currencyCode: string)
     const PrivilegesTitle = intl.formatMessage({ id: 'Privileges' })
     const RecalculationTitle = intl.formatMessage({ id: 'Recalculation' })
     const PenaltyTitle = intl.formatMessage({ id: 'PaymentPenalty' })
-
 
     const moneyRender = getAdvancedMoneyRender(intl, currencyCode)
     const moneyAlign: AlignType = 'right'
@@ -173,16 +167,16 @@ export const useServicesTableColumns = (detailed: boolean, currencyCode: string)
 
         return detailed
             ? [
-                columns.name,
-                columns.volume,
-                columns.units,
-                columns.tariff,
-                columns.privileges,
-                columns.recalculation,
-                columns.penalty,
-                columns.charge,
-                columns.toPay,
-            ]
+                  columns.name,
+                  columns.volume,
+                  columns.units,
+                  columns.tariff,
+                  columns.privileges,
+                  columns.recalculation,
+                  columns.penalty,
+                  columns.charge,
+                  columns.toPay,
+              ]
             : [columns.name, columns.toPay]
     }, [
         ToPayTitle,

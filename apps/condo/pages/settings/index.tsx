@@ -22,43 +22,25 @@ const SettingsPage = () => {
     return (
         <>
             <Head>
-                <title>
-                    {PageTitle}
-                </title>
+                <title>{PageTitle}</title>
             </Head>
             <PageWrapper>
                 <OrganizationRequired>
-                    <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitle}</Typography.Title>}/>
+                    <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitle}</Typography.Title>} />
                     <PageContent>
                         <Col lg={20} xs={24}>
-                            <Tabs
-                                defaultActiveKey="settings"
-                                tabBarStyle={{ marginBottom: 40 }}
-                                style={{ overflow: 'visible' }}
-                            >
-                                {
-                                    hasSubscriptionFeature && (
-                                        <Tabs.TabPane
-                                            key="subscription"
-                                            tab={SubscriptionTitle}
-                                        >
-                                            <SubscriptionPane/>
-                                        </Tabs.TabPane>
-                                    )
-                                }
-                                <Tabs.TabPane
-                                    key={'billingChooser'}
-                                    tab={BillingTitle}
-                                >
-                                    <BillingChooser/>
+                            <Tabs defaultActiveKey="settings" tabBarStyle={{ marginBottom: 40 }} style={{ overflow: 'visible' }}>
+                                {hasSubscriptionFeature && (
+                                    <Tabs.TabPane key="subscription" tab={SubscriptionTitle}>
+                                        <SubscriptionPane />
+                                    </Tabs.TabPane>
+                                )}
+                                <Tabs.TabPane key={'billingChooser'} tab={BillingTitle}>
+                                    <BillingChooser />
                                 </Tabs.TabPane>
                                 <Tabs.TabPane
                                     key="rolesAndAccess"
-                                    tab={(
-                                        <Tooltip title={NotImplementedYetMessage}>
-                                            {RolesAndAccessesTitle}
-                                        </Tooltip>
-                                    )}
+                                    tab={<Tooltip title={NotImplementedYetMessage}>{RolesAndAccessesTitle}</Tooltip>}
                                     disabled
                                 />
                             </Tabs>
@@ -70,6 +52,6 @@ const SettingsPage = () => {
     )
 }
 
-SettingsPage.headerAction = <TitleHeaderAction descriptor={{ id: 'menu.Settings' }}/>
+SettingsPage.headerAction = <TitleHeaderAction descriptor={{ id: 'menu.Settings' }} />
 
 export default SettingsPage

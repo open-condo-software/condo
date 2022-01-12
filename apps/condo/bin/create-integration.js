@@ -10,7 +10,6 @@ const path = require('path')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 
 class IntegrationControl {
-
     sender = {
         dv: 1,
         sender: {
@@ -19,22 +18,22 @@ class IntegrationControl {
         },
     }
 
-    constructor (integrationDetails) {
+    constructor(integrationDetails) {
         this.details = integrationDetails
     }
 
-    async connect () {
+    async connect() {
         const resolved = path.resolve('./index.js')
         const { distDir, keystone, apps } = require(resolved)
-        const graphqlIndex = apps.findIndex(app => app instanceof GraphQLApp)
+        const graphqlIndex = apps.findIndex((app) => app instanceof GraphQLApp)
         // we need only apollo
         await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
         await keystone.connect()
         this.context = await keystone.createContext({ skipAccessControl: true })
     }
 
-    async createIntegration () {
-        const [existedIntegration] = await BillingIntegration.getAll(this.context, { name: this.details.name } )
+    async createIntegration() {
+        const [existedIntegration] = await BillingIntegration.getAll(this.context, { name: this.details.name })
         if (existedIntegration) {
             throw new Error(`Integration with name ${this.details.name} already existed`)
         }
@@ -63,12 +62,9 @@ class IntegrationControl {
         })
         console.log('userCredentials', userCredentials)
     }
-
-
-
 }
 
-const registerIntegration = async ( integrationParams ) => {
+const registerIntegration = async (integrationParams) => {
     const Integration = new IntegrationControl(integrationParams)
     await Integration.connect()
     await Integration.createIntegration()
@@ -78,14 +74,17 @@ registerIntegration({
     name: 'ЕПС',
     shortDescription: 'Единая платежная сиситема',
     detailsTitle: 'Подключение ЕПС',
-    detailsText: 'Вам ничего не нужно делать интеграция сама заработает. В результате, вы будете видеть все данные биллинга внутри платформы «Дома́»',
+    detailsText:
+        'Вам ничего не нужно делать интеграция сама заработает. В результате, вы будете видеть все данные биллинга внутри платформы «Дома́»',
     detailsConfirmButtonText: 'Заявку на интеграцию с ЕПС подавать не нужно',
     detailsInstructionButtonText: 'Инструкция по интеграции (в разработке)',
     detailsInstructionButtonLink: 'https://help.doma.ai/article/todo',
     billingPageTitle: 'Биллинг ЕПС',
-}).then(() => {
-    console.log('All done')
-    process.exit(0)
-}).catch(err => {
-    console.error('Failed to done', err)
 })
+    .then(() => {
+        console.log('All done')
+        process.exit(0)
+    })
+    .catch((err) => {
+        console.error('Failed to done', err)
+    })

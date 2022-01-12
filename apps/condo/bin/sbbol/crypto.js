@@ -12,7 +12,7 @@ const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
 
 const STEP_BACK_TO_CONDO_REPO_ROOT_PATH = '../..'
 
-async function main () {
+async function main() {
     const name = path.basename(process.cwd())
     const namePath = path.join(__dirname, STEP_BACK_TO_CONDO_REPO_ROOT_PATH, 'apps', name)
     const keystoneModule = require(path.join(namePath, 'index'))

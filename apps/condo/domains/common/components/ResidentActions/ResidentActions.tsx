@@ -10,9 +10,9 @@ import { MenuItem } from '@condo/domains/common/components/MenuItem'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
 export const StyledMenu = styled(Menu)`
-  width: 225px;
-  box-sizing: border-box;
-  border-radius: 8px;
+    width: 225px;
+    box-sizing: border-box;
+    border-radius: 8px;
 `
 
 const ResidentAppealDropDownMenuItemWrapperProps = {
@@ -29,7 +29,7 @@ const ResidentAppealDropdownOverlay = () => {
                 icon={AppealIcon}
                 label={'CreateAppeal'}
             />
-            <Divider style={{ margin: 0 }}/>
+            <Divider style={{ margin: 0 }} />
             <MenuItem
                 menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
                 path={'/meter/create'}
@@ -57,15 +57,13 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
             placement={minified ? 'bottomRight' : 'bottomCenter'}
             trigger={RESIDENT_ACTIONS_OPEN_DROPDOWN_TRIGGERS}
         >
-            {
-                minified
-                    ? (<Button type={'sberGradient'} icon={<PlusOutlined />} shape={'circle'}/>)
-                    : (
-                        <Button type={'sberGradient'} icon={<PlusOutlined />}>
-                            {ResidentAppealMessage}
-                        </Button>
-                    )
-            }
+            {minified ? (
+                <Button type={'sberGradient'} icon={<PlusOutlined />} shape={'circle'} />
+            ) : (
+                <Button type={'sberGradient'} icon={<PlusOutlined />}>
+                    {ResidentAppealMessage}
+                </Button>
+            )}
         </Dropdown>
     )
 }

@@ -14,11 +14,14 @@ export const usePaidSearch = <F>(loading: boolean): [boolean, (e: CheckboxChange
     const attributes = get(filtersFromQuery, 'attributes', [])
     const isPaid = attributes.includes('isPaid')
 
-    const setIsPaid = useCallback(debounce(async (isPaid) => {
-        const queryAttributes = isPaid ? [...attributes, 'isPaid'] : attributes.filter(attr => attr !== 'isPaid')
+    const setIsPaid = useCallback(
+        debounce(async (isPaid) => {
+            const queryAttributes = isPaid ? [...attributes, 'isPaid'] : attributes.filter((attr) => attr !== 'isPaid')
 
-        await updateQuery(router, { ...filtersFromQuery, attributes: queryAttributes })
-    }, 400), [loading, isPaid, attributes])
+            await updateQuery(router, { ...filtersFromQuery, attributes: queryAttributes })
+        }, 400),
+        [loading, isPaid, attributes],
+    )
 
     const handleIsPaidChange = (e: CheckboxChangeEvent): void => {
         setIsPaid(e.target.checked)

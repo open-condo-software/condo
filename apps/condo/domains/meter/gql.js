@@ -8,7 +8,8 @@ const { gql } = require('graphql-tag')
 const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
 const { generateGqlQueries } = require('@condo/domains/common/utils/codegeneration/generate.gql')
 
-const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
+const COMMON_FIELDS =
+    'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
 const METER_RESOURCE_FIELDS = `{ name measure ${COMMON_FIELDS} }`
 const MeterResource = generateGqlQueries('MeterResource', METER_RESOURCE_FIELDS)
@@ -23,8 +24,11 @@ const METER_READING_FIELDS = `{ value1 value2 value3 value4 date meter ${METER_F
 const MeterReading = generateGqlQueries('MeterReading', METER_READING_FIELDS)
 
 const EXPORT_METER_READINGS = gql`
-    query exportMeterReadings ($data: ExportMeterReadingsInput!) {
-        result: exportMeterReadings (data: $data) { status, linkToFile }
+    query exportMeterReadings($data: ExportMeterReadingsInput!) {
+        result: exportMeterReadings(data: $data) {
+            status
+            linkToFile
+        }
     }
 `
 
@@ -36,6 +40,5 @@ module.exports = {
     Meter,
     MeterReading,
     EXPORT_METER_READINGS,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }
-

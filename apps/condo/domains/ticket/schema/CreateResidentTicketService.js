@@ -38,13 +38,24 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
             schema: 'createResidentTicket(data: ResidentTicketCreateInput): ResidentTicketOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
-                const { dv: newTicketDv, sender: newTicketSender, details, source: SourceRelateToOneInput, property: PropertyRelateToOneInput, unitName } = data
+                const {
+                    dv: newTicketDv,
+                    sender: newTicketSender,
+                    details,
+                    source: SourceRelateToOneInput,
+                    property: PropertyRelateToOneInput,
+                    unitName,
+                } = data
 
-                const { connect: { id: propertyId } } = PropertyRelateToOneInput
+                const {
+                    connect: { id: propertyId },
+                } = PropertyRelateToOneInput
                 const [property] = await Property.getAll(context, { id: propertyId })
                 if (!property) throw Error(`${NOT_FOUND_ERROR}property] property not found`)
 
-                const { connect: { id: sourceId } } = SourceRelateToOneInput
+                const {
+                    connect: { id: sourceId },
+                } = SourceRelateToOneInput
                 const [source] = await TicketSource.getAll(context, { id: sourceId })
                 if (!source) throw Error(`${NOT_FOUND_ERROR}source] source not found`)
 
@@ -54,7 +65,9 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
                 const user = get(context, ['req', 'user'])
 
                 const [contact] = await Contact.getAll(context, {
-                    phone: user.phone, organization: { id: organizationId }, property: { id: propertyId },
+                    phone: user.phone,
+                    organization: { id: organizationId },
+                    property: { id: propertyId },
                 })
                 if (!contact) {
                     await Contact.create(context, {

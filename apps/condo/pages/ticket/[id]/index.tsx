@@ -16,10 +16,7 @@ import { Ticket, TicketChange, TicketFile, TicketComment } from '@condo/domains/
 import Link from 'next/link'
 import { TicketStatusSelect } from '@condo/domains/ticket/components/TicketStatusSelect'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
-import {
-    getTicketCreateMessage,
-    getTicketTitleMessage,
-} from '@condo/domains/ticket/utils/helpers'
+import { getTicketCreateMessage, getTicketTitleMessage } from '@condo/domains/ticket/utils/helpers'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { UploadFileStatus } from 'antd/lib/upload/interface'
 import { TicketChanges } from '@condo/domains/ticket/components/TicketChanges'
@@ -44,9 +41,9 @@ interface ITicketFileListProps {
 }
 
 const UploadListWrapperStyles = css`
-  .ant-upload-list-text-container:first-child .ant-upload-list-item {
-    margin-top: 0;
-  }
+    .ant-upload-list-text-container:first-child .ant-upload-list-item {
+        margin-top: 0;
+    }
 `
 
 export const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
@@ -84,12 +81,10 @@ export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) 
                 {({ name, postfix }) => (
                     <>
                         {name}
-                        {postfix && (
-                            <Typography.Text type='secondary'>&nbsp;{postfix}</Typography.Text>
-                        )}
+                        {postfix && <Typography.Text type="secondary">&nbsp;{postfix}</Typography.Text>}
                     </>
                 )}
-            </UserNameField>
+            </UserNameField>,
         )
     }
 
@@ -106,9 +101,7 @@ export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) 
             {items.map((item, i) => (
                 <div key={i}>
                     {item}
-                    {i !== items.length - 1 && (
-                        <br/>
-                    )}
+                    {i !== items.length - 1 && <br />}
                 </div>
             ))}
         </>
@@ -116,8 +109,8 @@ export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) 
 }
 
 const TicketTag = styled(Tag)`
-  font-size: ${fontSizes.content};
-  line-height: 24px;
+    font-size: ${fontSizes.content};
+    line-height: 24px;
 `
 
 const TicketContent = ({ ticket }) => {
@@ -138,37 +131,42 @@ const TicketContent = ({ ticket }) => {
 
     const ticketUnit = ticket.unitName ? `, ${ShortFlatNumber} ${ticket.unitName}` : ''
     const ticketAddress = get(ticket, ['property', 'address']) + ticketUnit
-    const ticketAddressExtra = ticket.sectionName && ticket.floorName
-        ? `${SectionName.toLowerCase()} ${ticket.sectionName}, ${FloorName.toLowerCase()} ${ticket.floorName}`
-        : ''
+    const ticketAddressExtra =
+        ticket.sectionName && ticket.floorName
+            ? `${SectionName.toLowerCase()} ${ticket.sectionName}, ${FloorName.toLowerCase()} ${ticket.floorName}`
+            : ''
 
-    const { objs: files } = TicketFile.useObjects({
-        where: { ticket: { id: ticket ? ticket.id : null } },
-    }, {
-        fetchPolicy: 'network-only',
-    })
+    const { objs: files } = TicketFile.useObjects(
+        {
+            where: { ticket: { id: ticket ? ticket.id : null } },
+        },
+        {
+            fetchPolicy: 'network-only',
+        },
+    )
     const { isSmall } = useLayoutContext()
 
     return (
         <Col span={24}>
             <Row gutter={[0, 8]}>
                 <PageFieldRow title={AddressMessage} highlight>
-                    {propertyWasDeleted ?
-                        <Typography.Text type={'secondary'}>{ ticketAddress } ({ DeletedMessage })</Typography.Text> :
+                    {propertyWasDeleted ? (
+                        <Typography.Text type={'secondary'}>
+                            {ticketAddress} ({DeletedMessage})
+                        </Typography.Text>
+                    ) : (
                         <Link href={`/property/${get(ticket, ['property', 'id'])}`}>
                             <Typography.Link>
                                 {ticketAddress}
                                 {ticketAddressExtra && (
                                     <>
-                                        <br/>
-                                        <Typography.Text>
-                                            {ticketAddressExtra}
-                                        </Typography.Text>
+                                        <br />
+                                        <Typography.Text>{ticketAddressExtra}</Typography.Text>
                                     </>
                                 )}
                             </Typography.Link>
                         </Link>
-                    }
+                    )}
                 </PageFieldRow>
                 <PageFieldRow title={ClientMessage} highlight>
                     <Link href={`/contact/${get(ticket, ['contact', 'id'])}`}>
@@ -182,38 +180,32 @@ const TicketContent = ({ ticket }) => {
                         </Typography.Link>
                     </Link>
                 </PageFieldRow>
-                <PageFieldRow title={TicketInfoMessage}>
-                    {ticket.details}
-                </PageFieldRow>
+                <PageFieldRow title={TicketInfoMessage}>{ticket.details}</PageFieldRow>
                 {!isEmpty(files) && (
                     <PageFieldRow title={FilesFieldLabel}>
                         <TicketFileList files={files} />
                     </PageFieldRow>
                 )}
             </Row>
-            <FocusContainer style={{ marginTop: '1.6em' }} margin={isSmall ? '0' :  '0 -24px'}>
+            <FocusContainer style={{ marginTop: '1.6em' }} margin={isSmall ? '0' : '0 -24px'}>
                 <Row gutter={[0, 8]}>
                     <PageFieldRow title={ExecutorMessage}>
-                        <TicketUserInfoField user={get(ticket, ['executor'])}/>
+                        <TicketUserInfoField user={get(ticket, ['executor'])} />
                     </PageFieldRow>
                     <PageFieldRow title={AssigneeMessage}>
-                        <TicketUserInfoField user={get(ticket, ['assignee'])}/>
+                        <TicketUserInfoField user={get(ticket, ['assignee'])} />
                     </PageFieldRow>
                     <PageFieldRow title={ClassifierMessage}>
                         <Breadcrumb separator="≫">
-                            {
-                                compact([
-                                    // TODO(zuch): remove classifier after migrations
-                                    get(ticket, ['classifier', 'name']),
-                                    get(ticket, ['placeClassifier', 'name']),
-                                    get(ticket, ['categoryClassifier', 'name']),
-                                    get(ticket, ['problemClassifier', 'name']),
-                                ]).map(name => {
-                                    return (
-                                        <Breadcrumb.Item key={name}>{name}</Breadcrumb.Item>
-                                    )
-                                })
-                            }
+                            {compact([
+                                // TODO(zuch): remove classifier after migrations
+                                get(ticket, ['classifier', 'name']),
+                                get(ticket, ['placeClassifier', 'name']),
+                                get(ticket, ['categoryClassifier', 'name']),
+                                get(ticket, ['problemClassifier', 'name']),
+                            ]).map((name) => {
+                                return <Breadcrumb.Item key={name}>{name}</Breadcrumb.Item>
+                            })}
                         </Breadcrumb>
                     </PageFieldRow>
                 </Row>
@@ -237,23 +229,36 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const { isSmall } = useLayoutContext()
 
     // NOTE: cast `string | string[]` to `string`
-    const { query: { id } } = router as { query: { [key: string]: string } }
+    const {
+        query: { id },
+    } = router as { query: { [key: string]: string } }
 
-    const { refetch: refetchTicket, loading, obj: ticket, error } = Ticket.useObject({
-        where: { id: id, property: { OR: [{ deletedAt: null }, { deletedAt_not: null }] }, deletedAt: null },
-    }, {
-        fetchPolicy: 'network-only',
-    })
+    const {
+        refetch: refetchTicket,
+        loading,
+        obj: ticket,
+        error,
+    } = Ticket.useObject(
+        {
+            where: { id: id, property: { OR: [{ deletedAt: null }, { deletedAt_not: null }] }, deletedAt: null },
+        },
+        {
+            fetchPolicy: 'network-only',
+        },
+    )
     // TODO(antonal): get rid of separate GraphQL query for TicketChanges
-    const ticketChangesResult = TicketChange.useObjects({
-        where: { ticket: { id } },
-        // TODO(antonal): fix "Module not found: Can't resolve '@condo/schema'"
-        // sortBy: [SortTicketChangesBy.CreatedAtDesc],
-        // @ts-ignore
-        sortBy: ['createdAt_DESC'],
-    }, {
-        fetchPolicy: 'network-only',
-    })
+    const ticketChangesResult = TicketChange.useObjects(
+        {
+            where: { ticket: { id } },
+            // TODO(antonal): fix "Module not found: Can't resolve '@condo/schema'"
+            // sortBy: [SortTicketChangesBy.CreatedAtDesc],
+            // @ts-ignore
+            sortBy: ['createdAt_DESC'],
+        },
+        {
+            fetchPolicy: 'network-only',
+        },
+    )
 
     const { objs: comments, refetch: refetchComments } = TicketComment.useObjects({
         where: { ticket: { id } },
@@ -265,10 +270,15 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
         refetchComments()
     })
 
-    const createCommentAction = TicketComment.useCreate({
-        ticket: id,
-        user: auth.user && auth.user.id,
-    }, () => { refetchComments() })
+    const createCommentAction = TicketComment.useCreate(
+        {
+            ticket: id,
+            user: auth.user && auth.user.id,
+        },
+        () => {
+            refetchComments()
+        },
+    )
 
     const canShareTickets = get(employee, 'role.canShareTickets')
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
@@ -293,9 +303,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const disabledEditButton = useMemo(() => ticketStatusType === CLOSED_STATUS_TYPE, [ticketStatusType])
 
     if (!ticket) {
-        return (
-            <LoadingOrErrorPage title={TicketTitleMessage} loading={loading} error={error ? ServerErrorMessage : null}/>
-        )
+        return <LoadingOrErrorPage title={TicketTitleMessage} loading={loading} error={error ? ServerErrorMessage : null} />
     }
 
     return (
@@ -312,19 +320,27 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                     <Row gutter={[0, 40]}>
                                         <Col lg={18} xs={24}>
                                             <Space size={8} direction={'vertical'}>
-                                                <Typography.Title level={1} style={{ margin: 0 }}>{TicketTitleMessage}</Typography.Title>
+                                                <Typography.Title level={1} style={{ margin: 0 }}>
+                                                    {TicketTitleMessage}
+                                                </Typography.Title>
                                                 <Typography.Text>
-                                                    <Typography.Text type='secondary'>{TicketCreationDate}, {TicketAuthorMessage} </Typography.Text>
+                                                    <Typography.Text type="secondary">
+                                                        {TicketCreationDate}, {TicketAuthorMessage}{' '}
+                                                    </Typography.Text>
                                                     <UserNameField user={get(ticket, ['createdBy'])}>
                                                         {({ name, postfix }) => (
                                                             <Typography.Text>
                                                                 {name}
-                                                                {postfix && <Typography.Text type='secondary' ellipsis>&nbsp;{postfix}</Typography.Text>}
+                                                                {postfix && (
+                                                                    <Typography.Text type="secondary" ellipsis>
+                                                                        &nbsp;{postfix}
+                                                                    </Typography.Text>
+                                                                )}
                                                             </Typography.Text>
                                                         )}
                                                     </UserNameField>
                                                 </Typography.Text>
-                                                <Typography.Text type='secondary'>
+                                                <Typography.Text type="secondary">
                                                     {SourceMessage} — {get(ticket, ['source', 'name'])}
                                                 </Typography.Text>
                                             </Space>
@@ -346,7 +362,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                         {isPaid && <TicketTag color={'orange'}>{PaidMessage.toLowerCase()}</TicketTag>}
                                     </Space>
                                 </Col>
-                                <TicketContent ticket={ticket}/>
+                                <TicketContent ticket={ticket} />
                                 <ActionBar>
                                     <Link href={`/ticket/${ticket.id}/update`}>
                                         <Button
@@ -359,31 +375,27 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                             {UpdateMessage}
                                         </Button>
                                     </Link>
-                                    {
-                                        canShareTickets
-                                            ? <ShareTicketModal
-                                                organization={organization}
-                                                date={get(ticket, 'createdAt')}
-                                                number={get(ticket, 'number')}
-                                                details={get(ticket, 'details')}
-                                                id={id}
-                                                locale={get(organization, 'country')}
-                                            />
-                                            : null
-                                    }
-                                    {
-                                        !isSmall && (
-                                            <Button
-                                                type={'sberPrimary'}
-                                                icon={<FilePdfFilled />}
-                                                href={`/ticket/${ticket.id}/pdf`}
-                                                target={'_blank'}
-                                                secondary
-                                            >
-                                                {PrintMessage}
-                                            </Button>
-                                        )
-                                    }
+                                    {canShareTickets ? (
+                                        <ShareTicketModal
+                                            organization={organization}
+                                            date={get(ticket, 'createdAt')}
+                                            number={get(ticket, 'number')}
+                                            details={get(ticket, 'details')}
+                                            id={id}
+                                            locale={get(organization, 'country')}
+                                        />
+                                    ) : null}
+                                    {!isSmall && (
+                                        <Button
+                                            type={'sberPrimary'}
+                                            icon={<FilePdfFilled />}
+                                            href={`/ticket/${ticket.id}/pdf`}
+                                            target={'_blank'}
+                                            secondary
+                                        >
+                                            {PrintMessage}
+                                        </Button>
+                                    )}
                                 </ActionBar>
                                 <TicketChanges
                                     loading={get(ticketChangesResult, 'loading')}
@@ -398,8 +410,10 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                     // @ts-ignore
                                     createAction={createCommentAction}
                                     comments={comments}
-                                    canCreateComments={get(auth, ['user', 'isAdmin']) || get(employee, ['role', 'canManageTicketComments'])}
-                                    actionsFor={comment => {
+                                    canCreateComments={
+                                        get(auth, ['user', 'isAdmin']) || get(employee, ['role', 'canManageTicketComments'])
+                                    }
+                                    actionsFor={(comment) => {
                                         const isAuthor = comment.user.id === auth.user.id
                                         const isAdmin = get(auth, ['user', 'isAdmin'])
                                         return {
@@ -423,7 +437,7 @@ const TicketIdPage = () => {
     return <TicketPageContent organization={organization} employee={link} TicketContent={TicketContent} />
 }
 
-TicketIdPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllTickets' }} path={'/ticket'}/>
+TicketIdPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllTickets' }} path={'/ticket'} />
 TicketIdPage.requiredAccess = OrganizationRequired
 
 export default TicketIdPage

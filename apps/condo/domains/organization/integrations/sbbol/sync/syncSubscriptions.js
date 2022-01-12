@@ -12,7 +12,7 @@ const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_F
 
 const logger = baseLogger.child({ module: 'syncSubscriptions' })
 
-async function stop (subscription, context) {
+async function stop(subscription, context) {
     logger.info({ message: 'Stopping subscription', subscription })
     return await ServiceSubscription.update(context, subscription.id, {
         ...dvSenderFields,
@@ -33,7 +33,7 @@ const syncSubscriptionsFor = async (advanceAcceptance) => {
     // GraphQL from Keystone does not supports querying of database fields of type JSON.
     const knex = context.adapter.knex
     const result = await knex('Organization')
-        .whereRaw('meta->>\'inn\' = ?', [payerInn])
+        .whereRaw("meta->>'inn' = ?", [payerInn])
         .orderBy('createdAt', 'desc')
         .select('id', 'meta')
 

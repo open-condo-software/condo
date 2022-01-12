@@ -1,4 +1,13 @@
-import { Importer, ObjectCreator, RowValidator, RowNormalizer, Columns, TableRow, ProcessedRow, ImporterErrorMessages } from './importer'
+import {
+    Importer,
+    ObjectCreator,
+    RowValidator,
+    RowNormalizer,
+    Columns,
+    TableRow,
+    ProcessedRow,
+    ImporterErrorMessages,
+} from './importer'
 import get from 'lodash/get'
 
 const bypassNormalizer: RowNormalizer = (row) => {
@@ -7,7 +16,7 @@ const bypassNormalizer: RowNormalizer = (row) => {
 const addonNormalizer: RowNormalizer = (row) => {
     return Promise.resolve({ row, addons: { name: `${row[0].value}${row[0].value}` } })
 }
-const bypassValidator: RowValidator =  (row) => {
+const bypassValidator: RowValidator = (row) => {
     if (!row) return Promise.resolve(false)
     return Promise.resolve(true)
 }
@@ -15,7 +24,7 @@ const checkAddonValidator: RowValidator = (row) => {
     if (!row || !row.addons) return Promise.resolve(false)
     return Promise.resolve(true)
 }
-const oddRowPassValidator: RowValidator =  (row) => {
+const oddRowPassValidator: RowValidator = (row) => {
     if (!row || get(row.row, ['0', 'value']) % 2 !== 0) {
         return Promise.resolve(false)
     }
@@ -42,16 +51,10 @@ const testColumns: Columns = [
     { name: 'stringColumn', type: 'string', required: true },
 ]
 const generateTableRow: (id: number, value: string) => TableRow = (id, value) => {
-    return [
-        { value: id },
-        { value },
-    ]
+    return [{ value: id }, { value }]
 }
 const generateTable = (rows: number) => {
-    const headers: TableRow = [
-        { value: 'id' },
-        { value: 'stringColumn' },
-    ]
+    const headers: TableRow = [{ value: 'id' }, { value: 'stringColumn' }]
     const table: Array<TableRow> = []
     table.push(headers)
     for (let i = 0; i < rows; i++) {
@@ -69,7 +72,14 @@ describe('importer tests', () => {
             let errors = false
             let finished = false
             const fakeCreator = getFakeCreator(result)
-            const importer = new Importer(testColumns, bypassNormalizer, bypassValidator, fakeCreator, defaultErrors, TEST_SLEEP_TIME)
+            const importer = new Importer(
+                testColumns,
+                bypassNormalizer,
+                bypassValidator,
+                fakeCreator,
+                defaultErrors,
+                TEST_SLEEP_TIME,
+            )
             importer.onError(() => {
                 errors = true
             })
@@ -95,7 +105,14 @@ describe('importer tests', () => {
             let errors = false
             let finished = false
             const fakeCreator = getFakeCreator(result)
-            const importer = new Importer(testColumns, bypassNormalizer, oddRowPassValidator, fakeCreator, defaultErrors, TEST_SLEEP_TIME)
+            const importer = new Importer(
+                testColumns,
+                bypassNormalizer,
+                oddRowPassValidator,
+                fakeCreator,
+                defaultErrors,
+                TEST_SLEEP_TIME,
+            )
             importer.onError(() => {
                 errors = true
             })
@@ -121,7 +138,14 @@ describe('importer tests', () => {
             let errors = false
             let finished = false
             const fakeCreator = getFakeCreator(result)
-            const importer = new Importer(testColumns, addonNormalizer, checkAddonValidator, fakeCreator, defaultErrors, TEST_SLEEP_TIME)
+            const importer = new Importer(
+                testColumns,
+                addonNormalizer,
+                checkAddonValidator,
+                fakeCreator,
+                defaultErrors,
+                TEST_SLEEP_TIME,
+            )
             importer.onError(() => {
                 errors = true
             })
@@ -147,7 +171,14 @@ describe('importer tests', () => {
             let errors = false
             let finished = false
             const fakeCreator = getFakeCreator(result)
-            const importer = new Importer(testColumns, bypassNormalizer, bypassValidator, fakeCreator, defaultErrors, TEST_SLEEP_TIME)
+            const importer = new Importer(
+                testColumns,
+                bypassNormalizer,
+                bypassValidator,
+                fakeCreator,
+                defaultErrors,
+                TEST_SLEEP_TIME,
+            )
             importer.onError(() => {
                 errors = true
             })
@@ -167,13 +198,20 @@ describe('importer tests', () => {
         })
     })
     describe('should handle errors', () => {
-        it('when columns don\'t match', async () => {
+        it("when columns don't match", async () => {
             const result = []
             let errors = false
             let finished = false
             const fakeCreator = getFakeCreator(result)
             let errorText = ''
-            const importer = new Importer(testColumns, bypassNormalizer, bypassValidator, fakeCreator, defaultErrors, TEST_SLEEP_TIME)
+            const importer = new Importer(
+                testColumns,
+                bypassNormalizer,
+                bypassValidator,
+                fakeCreator,
+                defaultErrors,
+                TEST_SLEEP_TIME,
+            )
             importer.onError((error) => {
                 errors = true
                 errorText = error.message
@@ -198,7 +236,14 @@ describe('importer tests', () => {
             let finished = false
             let errorText = ''
             const fakeCreator = getFakeCreator(result)
-            const importer = new Importer(testColumns, bypassNormalizer, bypassValidator, fakeCreator, defaultErrors, TEST_SLEEP_TIME)
+            const importer = new Importer(
+                testColumns,
+                bypassNormalizer,
+                bypassValidator,
+                fakeCreator,
+                defaultErrors,
+                TEST_SLEEP_TIME,
+            )
             importer.onError((error) => {
                 errorText = error.message
                 errors = true
@@ -219,7 +264,14 @@ describe('importer tests', () => {
             let errors = false
             let finished = false
             const fakeCreator = getFakeCreator(result)
-            const importer = new Importer(testColumns, bypassNormalizer, bypassValidator, fakeCreator, defaultErrors, TEST_SLEEP_TIME)
+            const importer = new Importer(
+                testColumns,
+                bypassNormalizer,
+                bypassValidator,
+                fakeCreator,
+                defaultErrors,
+                TEST_SLEEP_TIME,
+            )
             importer.onError((error) => {
                 errors = true
             })
@@ -288,9 +340,9 @@ describe('importer tests', () => {
         importer.onFinish(() => {
             finished = true
         })
-        importer.onProgressUpdate((progress => {
+        importer.onProgressUpdate((progress) => {
             progresses.push(progress)
-        }))
+        })
 
         const tableLength = 5
         const table = generateTable(tableLength)

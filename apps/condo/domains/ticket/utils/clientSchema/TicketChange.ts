@@ -19,7 +19,7 @@ export interface ITicketChangeUIState extends TicketChange {
     // TODO(codegen): write ITicketChangeUIState or extends it from
 }
 
-function convertToUIState (item: TicketChange): ITicketChangeUIState {
+function convertToUIState(item: TicketChange): ITicketChangeUIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
     return pick(item, FIELDS) as ITicketChangeUIState
 }
@@ -29,39 +29,32 @@ export interface ITicketChangeFormState {
     // TODO(codegen): write ITicketChangeUIFormState or extends it from
 }
 
-function convertToUIFormState (state: ITicketChangeUIState): ITicketChangeFormState | undefined {
+function convertToUIFormState(state: ITicketChangeUIState): ITicketChangeFormState | undefined {
     if (!state) return
     const result = {}
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? attrId || state[attr] : state[attr]
     }
     return result as ITicketChangeFormState
 }
 
-function convertToGQLInput (state: ITicketChangeFormState): TicketChangeUpdateInput {
+function convertToGQLInput(state: ITicketChangeFormState): TicketChangeUpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? { connect: { id: attrId || state[attr] } } : state[attr]
     }
     return result
 }
 
-const {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-} = generateReactHooks<TicketChange, TicketChangeUpdateInput, ITicketChangeFormState, ITicketChangeUIState, QueryAllTicketChangesArgs>(TicketChangeGQL, { convertToGQLInput, convertToUIState })
+const { useObject, useObjects, useCreate, useUpdate, useDelete } = generateReactHooks<
+    TicketChange,
+    TicketChangeUpdateInput,
+    ITicketChangeFormState,
+    ITicketChangeUIState,
+    QueryAllTicketChangesArgs
+>(TicketChangeGQL, { convertToGQLInput, convertToUIState })
 
-export {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-    convertToUIFormState,
-}
+export { useObject, useObjects, useCreate, useUpdate, useDelete, convertToUIFormState }

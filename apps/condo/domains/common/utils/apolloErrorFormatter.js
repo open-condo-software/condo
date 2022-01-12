@@ -22,9 +22,7 @@
 
  */
 
-const {
-    isInstance: isKeystoneErrorInstance,
-} = require('apollo-errors')
+const { isInstance: isKeystoneErrorInstance } = require('apollo-errors')
 const { ApolloError, AuthenticationError } = require('apollo-server-errors')
 const { GraphQLError, printError } = require('graphql')
 
@@ -43,12 +41,14 @@ const safeFormatError = (error, hideInternals = false) => {
     const result = {}
 
     // error keyst: message, name, stack
-    const pickKeys1 = (hideInternals) ? ['message', 'name'] : ['message', 'name', 'stack']
+    const pickKeys1 = hideInternals ? ['message', 'name'] : ['message', 'name', 'stack']
     Object.assign(result, pick(serializeError(error), pickKeys1))
 
     // keystoneError keys: time_thrown, message, data, internalData, locations, path
     if (isKeystoneErrorInstance(error)) {
-        const pickKeys2 = (hideInternals) ? ['time_thrown', 'data', 'locations', 'path'] : ['time_thrown', 'data', 'locations', 'path', 'internalData']
+        const pickKeys2 = hideInternals
+            ? ['time_thrown', 'data', 'locations', 'path']
+            : ['time_thrown', 'data', 'locations', 'path', 'internalData']
         Object.assign(result, pick(error, pickKeys2))
     }
 
@@ -120,7 +120,7 @@ const toGraphQLFormat = (safeFormattedError) => {
     return result
 }
 
-const formatError = error => {
+const formatError = (error) => {
     // error: { locations, path, message, extensions }
     const { originalError } = error
 
@@ -149,7 +149,7 @@ const formatError = error => {
 
 // NEW GraphQL Error standard
 
-function throwAuthenticationError () {
+function throwAuthenticationError() {
     throw new AuthenticationError('No or incorrect authentication credentials')
 }
 

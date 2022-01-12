@@ -13,8 +13,10 @@ import { FiltersFromQueryType, OptionType, QueryMeta } from './tables.utils'
 import { ISearchInputProps } from '../components/GraphQlSearchInput'
 import {
     getDateFilterDropdown,
-    getDateRangeFilterDropdown, getGQLSelectFilterDropdown,
-    getOptionFilterDropdown, getSelectFilterDropdown,
+    getDateRangeFilterDropdown,
+    getGQLSelectFilterDropdown,
+    getOptionFilterDropdown,
+    getSelectFilterDropdown,
     getTextFilterDropdown,
 } from '../components/Table/Filters'
 import { NextRouter } from 'next/router'
@@ -41,7 +43,7 @@ type CommonFilterComponentType = {
         label?: string
         size?: FilterComponentSize
         formItemProps?: FormItemProps
-    },
+    }
     columnFilterComponentWrapper?: CSSProperties
 }
 
@@ -84,35 +86,51 @@ type DateRangeFilterType = {
 
 type CustomFilterType = {
     type: ComponentType.Custom
-    getComponentFilterDropdown?: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: {
-        setSelectedKeys: any, selectedKeys: any, confirm: any, clearFilters: any
+    getComponentFilterDropdown?: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+    }: {
+        setSelectedKeys: any
+        selectedKeys: any
+        confirm: any
+        clearFilters: any
     }) => JSX.Element
     modalFilterComponent?: React.ReactElement | ((form: FormInstance) => React.ReactElement)
 }
 
-export type FilterComponentType = CommonFilterComponentType & (
-    GQLSelectFilterType | InputFilterType | CheckboxGroupFilterType | SelectFilterType |
-    TagsSelectFilterType | DateFilterType | DateRangeFilterType | CustomFilterType
-)
+export type FilterComponentType = CommonFilterComponentType &
+    (
+        | GQLSelectFilterType
+        | InputFilterType
+        | CheckboxGroupFilterType
+        | SelectFilterType
+        | TagsSelectFilterType
+        | DateFilterType
+        | DateRangeFilterType
+        | CustomFilterType
+    )
 
 export type FiltersMeta<F> = QueryMeta<F> & {
-    component?: FilterComponentType,
+    component?: FilterComponentType
 }
 
 export const getQueryToValueProcessorByType = (type: ComponentType) => {
     switch (type) {
         case ComponentType.Date:
-            return value => dayjs(value)
+            return (value) => dayjs(value)
         case ComponentType.DateRange:
-            return value => value.map(date => dayjs(date))
-        default: return
+            return (value) => value.map((date) => dayjs(date))
+        default:
+            return
     }
 }
 
 const TAGS_SELECT_DROPDOWN_STYLE: CSSProperties = { display: 'none' }
 
-export function getFilterDropdownByKey <T> (filterMetas: Array<FiltersMeta<T>>, key: string) {
-    const filterMeta = filterMetas.find(filterMeta => filterMeta.keyword === key)
+export function getFilterDropdownByKey<T>(filterMetas: Array<FiltersMeta<T>>, key: string) {
+    const filterMeta = filterMetas.find((filterMeta) => filterMeta.keyword === key)
     const component = get(filterMeta, 'component')
     const type = get(component, 'type')
     const props = get(component, 'props')
@@ -164,19 +182,20 @@ export function getFilterDropdownByKey <T> (filterMetas: Array<FiltersMeta<T>>, 
                     allowClear: true,
                     ...props,
                 },
-                columnFilterComponentWrapperStyles
+                columnFilterComponentWrapperStyles,
             )
         }
 
         case ComponentType.Custom:
             return get(component, 'getComponentFilterDropdown')
 
-        default: return
+        default:
+            return
     }
 }
 
-export function convertToOptions <T> (objects: T[], labelField: string, valueField: string): OptionType[] {
-    return objects.map(object => {
+export function convertToOptions<T>(objects: T[], labelField: string, valueField: string): OptionType[] {
+    return objects.map((object) => {
         const label = get(object, labelField)
         const value = get(object, valueField)
 
@@ -184,7 +203,12 @@ export function convertToOptions <T> (objects: T[], labelField: string, valueFie
     })
 }
 
-export async function updateQuery (router: NextRouter, newFilters?: FiltersFromQueryType, sort?: string[], offset?: number): Promise<boolean> {
+export async function updateQuery(
+    router: NextRouter,
+    newFilters?: FiltersFromQueryType,
+    sort?: string[],
+    offset?: number,
+): Promise<boolean> {
     if (!offset && 'offset' in router.query) {
         router.query['offset'] = '0'
     }
@@ -197,14 +221,11 @@ export async function updateQuery (router: NextRouter, newFilters?: FiltersFromQ
         possibleQueryData['filters'] = JSON.stringify(possibleFilters)
     }
 
-    const query = qs.stringify(
-        possibleQueryData,
-        { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-    )
+    const query = qs.stringify(possibleQueryData, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })
 
     return await router.push(router.route + query)
 }
 
-export function getFiltersModalPopupContainer (): HTMLElement {
+export function getFiltersModalPopupContainer(): HTMLElement {
     return document.getElementById(FILTERS_POPUP_CONTAINER_ID)
 }

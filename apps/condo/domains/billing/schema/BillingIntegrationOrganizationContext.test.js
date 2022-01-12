@@ -4,16 +4,24 @@
 const { createTestOrganization, updateTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithIntegrationAccess, updateTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
+const {
+    createTestOrganizationEmployee,
+    createTestOrganizationEmployeeRole,
+} = require('@condo/domains/organization/utils/testSchema')
 const { createTestBillingIntegration, createReceiptsReader } = require('../utils/testSchema')
 const { makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
 const { makeOrganizationIntegrationManager } = require('@condo/domains/billing/utils/testSchema')
 const { BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAuthenticationErrorToObjects, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const {
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAuthenticationErrorToObj,
+} = require('@condo/domains/common/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const {
-    createTestBillingIntegrationOrganizationContext, updateTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
+    createTestBillingIntegrationOrganizationContext,
+    updateTestBillingIntegrationOrganizationContext,
+} = require('@condo/domains/billing/utils/testSchema')
 const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowValidationFailureError,
@@ -94,7 +102,11 @@ describe('BillingIntegrationOrganizationContext', () => {
             const adminClient = await makeLoggedInAdminClient()
             const integrationClient = await makeClientWithIntegrationAccess()
             const [organization] = await createTestOrganization(adminClient)
-            const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, organization, integrationClient.integration)
+            const [context] = await createTestBillingIntegrationOrganizationContext(
+                adminClient,
+                organization,
+                integrationClient.integration,
+            )
 
             const payload = { settings: { dv: 1, test: 'test' } }
             const [updatedObj] = await updateTestBillingIntegrationOrganizationContext(integrationClient, context.id, payload)
@@ -122,8 +134,7 @@ describe('BillingIntegrationOrganizationContext', () => {
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const user = await makeClientWithNewRegisteredAndLoggedInUser()
 
-            const contexts = await BillingIntegrationOrganizationContext.getAll(user,
-                { id: context.id })
+            const contexts = await BillingIntegrationOrganizationContext.getAll(user, { id: context.id })
             expect(contexts).toHaveLength(0)
         })
 
@@ -184,7 +195,11 @@ describe('BillingIntegrationOrganizationContext', () => {
             const adminClient = await makeLoggedInAdminClient()
             const integrationClient = await makeClientWithIntegrationAccess()
             const [organization] = await createTestOrganization(adminClient)
-            const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, organization, integrationClient.integration)
+            const [context] = await createTestBillingIntegrationOrganizationContext(
+                adminClient,
+                organization,
+                integrationClient.integration,
+            )
 
             const contexts = await BillingIntegrationOrganizationContext.getAll(integrationClient, { id: context.id })
             expect(contexts).toHaveLength(1)
@@ -255,9 +270,7 @@ describe('BillingIntegrationOrganizationContext', () => {
                 const [integration] = await createTestBillingIntegration(admin, {
                     availableOptions: {
                         title: 'title',
-                        options: [
-                            { name: 'name' },
-                        ],
+                        options: [{ name: 'name' }],
                     },
                 })
                 const [organization] = await registerNewOrganization(admin)
@@ -270,9 +283,7 @@ describe('BillingIntegrationOrganizationContext', () => {
                 const [integration] = await createTestBillingIntegration(admin, {
                     availableOptions: {
                         title: 'title',
-                        options: [
-                            { name: 'name' },
-                        ],
+                        options: [{ name: 'name' }],
                     },
                 })
                 const [organization] = await registerNewOrganization(admin)
@@ -299,9 +310,7 @@ describe('BillingIntegrationOrganizationContext', () => {
                     const [integration] = await createTestBillingIntegration(admin, {
                         availableOptions: {
                             title: 'title',
-                            options: [
-                                { name },
-                            ],
+                            options: [{ name }],
                         },
                     })
                     const [organization] = await registerNewOrganization(admin)

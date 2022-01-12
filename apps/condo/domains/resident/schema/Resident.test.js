@@ -7,9 +7,19 @@ const dayjs = require('dayjs')
 const { createTestMeter } = require('@condo/domains/meter/utils/testSchema')
 const { cloneDeep } = require('lodash')
 
-const { createTestBillingIntegrationOrganizationContext, createTestBillingIntegration, createTestBillingAccount, createTestBillingProperty, makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
+const {
+    createTestBillingIntegrationOrganizationContext,
+    createTestBillingIntegration,
+    createTestBillingAccount,
+    createTestBillingProperty,
+    makeContextWithOrganizationAndIntegrationAsAdmin,
+} = require('@condo/domains/billing/utils/testSchema')
 const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
-const { createTestProperty, makeClientWithResidentAccessAndProperty, makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
+const {
+    createTestProperty,
+    makeClientWithResidentAccessAndProperty,
+    makeClientWithProperty,
+} = require('@condo/domains/property/utils/testSchema')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
@@ -21,14 +31,22 @@ const { createTestAcquiringIntegration } = require('@condo/domains/acquiring/uti
 const { DEFAULT_ACQUIRING_INTEGRATION_NAME } = require('@condo/domains/acquiring/constants/integration')
 const { DEFAULT_BILLING_INTEGRATION_NAME } = require('@condo/domains/billing/constants/constants')
 const { Resident, createTestResident, updateTestResident } = require('@condo/domains/resident/utils/testSchema')
-const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
+const {
+    catchErrorFrom,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedErrorToObjects,
+} = require('../../common/utils/testSchema')
 const { buildFakeAddressMeta } = require('@condo/domains/property/utils/testSchema/factories')
-const { createTestTicketFile, updateTestTicketFile, createTestTicket, updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
+const {
+    createTestTicketFile,
+    updateTestTicketFile,
+    createTestTicket,
+    updateTestTicket,
+} = require('@condo/domains/ticket/utils/testSchema')
 
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('Resident', () => {
-
     describe('resolveInput', () => {
         it('resolves address to address up to building, if flat is presented in address string', async () => {
             const userClient = await makeClientWithProperty()
@@ -45,7 +63,13 @@ describe('Resident', () => {
                 addressMeta: addressMetaWithFlat,
             }
 
-            const [objCreated] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, attrs)
+            const [objCreated] = await createTestResident(
+                adminClient,
+                userClient.user,
+                userClient.organization,
+                userClient.property,
+                attrs,
+            )
             expect(objCreated.address).toEqual(userClient.property.addressMeta.value)
         })
     })
@@ -60,13 +84,24 @@ describe('Resident', () => {
             }
             await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, duplicatedFields)
 
-            await catchErrorFrom(async () => {
-                await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, duplicatedFields)
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toMatch('Cannot create resident, because another resident with the same provided "address" and "unitName" already exists for current user')
-                expect(data).toEqual({ 'obj': null })
-            })
+            await catchErrorFrom(
+                async () => {
+                    await createTestResident(
+                        adminClient,
+                        userClient.user,
+                        userClient.organization,
+                        userClient.property,
+                        duplicatedFields,
+                    )
+                },
+                ({ errors, data }) => {
+                    expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                    expect(errors[0].data.messages[0]).toMatch(
+                        'Cannot create resident, because another resident with the same provided "address" and "unitName" already exists for current user',
+                    )
+                    expect(data).toEqual({ obj: null })
+                },
+            )
         })
 
         it('throws error on create record with same set of fields: "address", "unitName" (in different case) for current user', async () => {
@@ -83,13 +118,24 @@ describe('Resident', () => {
                 unitName: fields.unitName.toUpperCase(),
             }
 
-            await catchErrorFrom(async () => {
-                await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, duplicatedFields)
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toMatch('Cannot create resident, because another resident with the same provided "address" and "unitName" already exists for current user')
-                expect(data).toEqual({ 'obj': null })
-            })
+            await catchErrorFrom(
+                async () => {
+                    await createTestResident(
+                        adminClient,
+                        userClient.user,
+                        userClient.organization,
+                        userClient.property,
+                        duplicatedFields,
+                    )
+                },
+                ({ errors, data }) => {
+                    expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                    expect(errors[0].data.messages[0]).toMatch(
+                        'Cannot create resident, because another resident with the same provided "address" and "unitName" already exists for current user',
+                    )
+                    expect(data).toEqual({ obj: null })
+                },
+            )
         })
 
         it('throws error on create record with same set of fields: "address", "unitName" for current user, ignoring flat part in "address"', async () => {
@@ -112,13 +158,24 @@ describe('Resident', () => {
                 addressMeta: addressMetaWithFlat,
             }
 
-            await catchErrorFrom(async () => {
-                await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, duplicatedFieldsWithFlatInAddress)
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toMatch('Cannot create resident, because another resident with the same provided "address" and "unitName" already exists for current user')
-                expect(data).toEqual({ 'obj': null })
-            })
+            await catchErrorFrom(
+                async () => {
+                    await createTestResident(
+                        adminClient,
+                        userClient.user,
+                        userClient.organization,
+                        userClient.property,
+                        duplicatedFieldsWithFlatInAddress,
+                    )
+                },
+                ({ errors, data }) => {
+                    expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                    expect(errors[0].data.messages[0]).toMatch(
+                        'Cannot create resident, because another resident with the same provided "address" and "unitName" already exists for current user',
+                    )
+                    expect(data).toEqual({ obj: null })
+                },
+            )
         })
 
         it('allows to create record with same set of fields: "property", "unitName" for different user', async () => {
@@ -130,7 +187,13 @@ describe('Resident', () => {
                 unitName: faker.random.alphaNumeric(3),
             }
             await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, duplicatedFields)
-            const [obj] = await createTestResident(adminClient, userClient2.user, userClient.organization, userClient.property, duplicatedFields)
+            const [obj] = await createTestResident(
+                adminClient,
+                userClient2.user,
+                userClient.organization,
+                userClient.property,
+                duplicatedFields,
+            )
             expect(obj.id).toMatch(UUID_RE)
         })
 
@@ -139,20 +202,33 @@ describe('Resident', () => {
                 const userClient = await makeClientWithProperty()
                 const adminClient = await makeLoggedInAdminClient()
 
-                const [propertyWithAnotherAddress] = await createTestProperty(userClient, userClient.organization, { map: buildingMapJson })
+                const [propertyWithAnotherAddress] = await createTestProperty(userClient, userClient.organization, {
+                    map: buildingMapJson,
+                })
 
                 const attrs = {
                     address: userClient.property.address,
                     addressMeta: userClient.property.addressMeta,
                 }
 
-                await catchErrorFrom(async () => {
-                    await createTestResident(adminClient, userClient.user, userClient.organization, propertyWithAnotherAddress, attrs)
-                }, ({ errors, data }) => {
-                    expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                    expect(errors[0].data.messages[0]).toMatch('Cannot connect property, because its address differs from address of resident')
-                    expect(data).toEqual({ 'obj': null })
-                })
+                await catchErrorFrom(
+                    async () => {
+                        await createTestResident(
+                            adminClient,
+                            userClient.user,
+                            userClient.organization,
+                            propertyWithAnotherAddress,
+                            attrs,
+                        )
+                    },
+                    ({ errors, data }) => {
+                        expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                        expect(errors[0].data.messages[0]).toMatch(
+                            'Cannot connect property, because its address differs from address of resident',
+                        )
+                        expect(data).toEqual({ obj: null })
+                    },
+                )
             })
 
             it('allows to connect new resident to property having the same address in different character case', async () => {
@@ -169,7 +245,13 @@ describe('Resident', () => {
                     },
                 }
 
-                const [obj, attrs] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, extraAttrs)
+                const [obj, attrs] = await createTestResident(
+                    adminClient,
+                    userClient.user,
+                    userClient.organization,
+                    userClient.property,
+                    extraAttrs,
+                )
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
@@ -242,7 +324,9 @@ describe('Resident', () => {
             const [ticket] = await createTestTicket(residentClient, userClient.organization, userClient.property, {
                 unitName,
             })
-            const [updatedTicketFile] = await updateTestTicketFile(residentClient, ticketFile.id, { ticket: { connect: { id: ticket.id } } })
+            const [updatedTicketFile] = await updateTestTicketFile(residentClient, ticketFile.id, {
+                ticket: { connect: { id: ticket.id } },
+            })
             expect(updatedTicketFile.ticket.id).toEqual(ticket.id)
         })
     })
@@ -253,7 +337,12 @@ describe('Resident', () => {
                 const userClient = await makeClientWithProperty()
                 const adminClient = await makeLoggedInAdminClient()
 
-                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+                const [{ id }] = await createTestResident(
+                    adminClient,
+                    userClient.user,
+                    userClient.organization,
+                    userClient.property,
+                )
                 await addResidentAccess(userClient.user)
                 const [obj] = await Resident.getAll(userClient, { id })
                 expect(obj.residentOrganization).toBeDefined()
@@ -278,7 +367,12 @@ describe('Resident', () => {
                 const userClient = await makeClientWithProperty()
                 const adminClient = await makeLoggedInAdminClient()
 
-                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+                const [{ id }] = await createTestResident(
+                    adminClient,
+                    userClient.user,
+                    userClient.organization,
+                    userClient.property,
+                )
                 await addResidentAccess(userClient.user)
                 const [obj] = await Resident.getAll(userClient, { id })
                 expect(obj.residentProperty).toBeDefined()
@@ -320,7 +414,12 @@ describe('Resident', () => {
                     },
                 })
 
-                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+                const [{ id }] = await createTestResident(
+                    adminClient,
+                    userClient.user,
+                    userClient.organization,
+                    userClient.property,
+                )
                 await addResidentAccess(userClient.user)
                 const [obj] = await Resident.getAll(userClient, { id })
 
@@ -331,7 +430,12 @@ describe('Resident', () => {
                 const userClient = await makeClientWithProperty()
                 const adminClient = await makeLoggedInAdminClient()
 
-                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+                const [{ id }] = await createTestResident(
+                    adminClient,
+                    userClient.user,
+                    userClient.organization,
+                    userClient.property,
+                )
                 await addResidentAccess(userClient.user)
                 const [obj] = await Resident.getAll(userClient, { id })
 
@@ -345,7 +449,12 @@ describe('Resident', () => {
                 const [integration] = await createTestBillingIntegration(adminClient)
                 await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
 
-                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+                const [{ id }] = await createTestResident(
+                    adminClient,
+                    userClient.user,
+                    userClient.organization,
+                    userClient.property,
+                )
                 await addResidentAccess(userClient.user)
                 const [obj] = await Resident.getAll(userClient, { id })
 
@@ -459,7 +568,12 @@ describe('Resident', () => {
                 const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient, [billingIntegration])
                 await createTestAcquiringIntegrationContext(adminClient, userClient.organization, acquiringIntegration)
 
-                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+                const [{ id }] = await createTestResident(
+                    adminClient,
+                    userClient.user,
+                    userClient.organization,
+                    userClient.property,
+                )
                 await addResidentAccess(userClient.user)
                 const [obj] = await Resident.getAll(userClient, { id })
 
@@ -477,7 +591,12 @@ describe('Resident', () => {
                 const [billingIntegration] = await createTestBillingIntegration(adminClient)
                 await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, billingIntegration)
 
-                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+                const [{ id }] = await createTestResident(
+                    adminClient,
+                    userClient.user,
+                    userClient.organization,
+                    userClient.property,
+                )
                 await addResidentAccess(userClient.user)
                 const [obj] = await Resident.getAll(userClient, { id })
 
@@ -494,7 +613,12 @@ describe('Resident', () => {
                 const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient, [billingIntegration])
                 await createTestAcquiringIntegrationContext(adminClient, userClient.organization, acquiringIntegration)
 
-                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+                const [{ id }] = await createTestResident(
+                    adminClient,
+                    userClient.user,
+                    userClient.organization,
+                    userClient.property,
+                )
                 await addResidentAccess(userClient.user)
                 const [obj] = await Resident.getAll(userClient, { id })
 
@@ -527,7 +651,12 @@ describe('Resident', () => {
             const [billingProperty] = await createTestBillingProperty(adminClient, context)
             await createTestBillingAccount(adminClient, context, billingProperty)
 
-            const [obj, attrs] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+            const [obj, attrs] = await createTestResident(
+                adminClient,
+                userClient.user,
+                userClient.organization,
+                userClient.property,
+            )
             expect(obj.id).toMatch(UUID_RE)
             expect(obj.dv).toEqual(1)
             expect(obj.sender).toEqual(attrs.sender)
@@ -610,41 +739,56 @@ describe('Resident', () => {
             const adminClient = await makeLoggedInAdminClient()
             const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
 
-            await catchErrorFrom(async () => {
-                const payload = {
-                    unitName: faker.random.alphaNumeric(3),
-                }
-                await updateTestResident(adminClient, obj.id, payload)
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toMatch('Changing of address, addressMeta, unitName or property is not allowed for already existing Resident')
-                expect(data).toEqual({ 'obj': null })
-            })
+            await catchErrorFrom(
+                async () => {
+                    const payload = {
+                        unitName: faker.random.alphaNumeric(3),
+                    }
+                    await updateTestResident(adminClient, obj.id, payload)
+                },
+                ({ errors, data }) => {
+                    expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                    expect(errors[0].data.messages[0]).toMatch(
+                        'Changing of address, addressMeta, unitName or property is not allowed for already existing Resident',
+                    )
+                    expect(data).toEqual({ obj: null })
+                },
+            )
 
-            await catchErrorFrom(async () => {
-                const payload = {
-                    address: faker.lorem.words(),
-                }
-                await updateTestResident(adminClient, obj.id, payload)
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toMatch('Changing of address, addressMeta, unitName or property is not allowed for already existing Resident')
-                expect(data).toEqual({ 'obj': null })
-            })
+            await catchErrorFrom(
+                async () => {
+                    const payload = {
+                        address: faker.lorem.words(),
+                    }
+                    await updateTestResident(adminClient, obj.id, payload)
+                },
+                ({ errors, data }) => {
+                    expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                    expect(errors[0].data.messages[0]).toMatch(
+                        'Changing of address, addressMeta, unitName or property is not allowed for already existing Resident',
+                    )
+                    expect(data).toEqual({ obj: null })
+                },
+            )
 
-            await catchErrorFrom(async () => {
-                const [property] = await createTestProperty(userClient, userClient.organization, { map: buildingMapJson })
-                // `property` should correspond to `address` to not overlap with another test case of `property` validation with will cause error "Cannot connect property, because its address differs from address of resident"
-                const payload = {
-                    address: property.address,
-                    property: { connect: { id: property.id } },
-                }
-                await updateTestResident(adminClient, obj.id, payload)
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toMatch('Changing of address, addressMeta, unitName or property is not allowed for already existing Resident')
-                expect(data).toEqual({ 'obj': null })
-            })
+            await catchErrorFrom(
+                async () => {
+                    const [property] = await createTestProperty(userClient, userClient.organization, { map: buildingMapJson })
+                    // `property` should correspond to `address` to not overlap with another test case of `property` validation with will cause error "Cannot connect property, because its address differs from address of resident"
+                    const payload = {
+                        address: property.address,
+                        property: { connect: { id: property.id } },
+                    }
+                    await updateTestResident(adminClient, obj.id, payload)
+                },
+                ({ errors, data }) => {
+                    expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                    expect(errors[0].data.messages[0]).toMatch(
+                        'Changing of address, addressMeta, unitName or property is not allowed for already existing Resident',
+                    )
+                    expect(data).toEqual({ obj: null })
+                },
+            )
         })
 
         it('cannot be updated by other user with type resident', async () => {

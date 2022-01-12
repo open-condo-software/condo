@@ -37,14 +37,13 @@ const ResidentTicket = generateServerUtils(ResidentTicketGQL)
 
 /* AUTOGENERATE MARKER <CONST> */
 
-
 const loadTicketsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
     const ticketStatusLoader = new GqlWithKnexLoadList({
         listKey: 'TicketStatus',
         fields: 'id type',
     })
     const statuses = await ticketStatusLoader.load()
-    const statusIndexes = Object.fromEntries(statuses.map(status => ([status.type, status.id ])))
+    const statusIndexes = Object.fromEntries(statuses.map((status) => [status.type, status.id]))
     const ticketsLoader = new GqlWithKnexLoadList({
         listKey: 'Ticket',
         fields: 'id number unitName sectionName floorName clientName clientPhone isEmergency isPaid details createdAt updatedAt',
@@ -65,35 +64,43 @@ const loadTicketsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC
         multipleRelations: [
             [
                 (idx, knex) => knex.raw(`ARRAY_AGG(mr${idx}.content ORDER BY mr${idx}."createdAt" ASC) as "TicketComment"`),
-                idx => [`TicketComment as mr${idx}`, `mr${idx}.ticket`, 'mainModel.id'],
+                (idx) => [`TicketComment as mr${idx}`, `mr${idx}.ticket`, 'mainModel.id'],
             ],
             [
                 (idx, knex) => knex.raw(`MAX(mr${idx}."createdAt") as "startedAt"`),
-                idx => [`TicketChange as mr${idx}`, function () {
-                    this.on(`mr${idx}.ticket`, 'mainModel.id').onIn(`mr${idx}.statusIdTo`, [statusIndexes.processing])
-                }],
+                (idx) => [
+                    `TicketChange as mr${idx}`,
+                    function () {
+                        this.on(`mr${idx}.ticket`, 'mainModel.id').onIn(`mr${idx}.statusIdTo`, [statusIndexes.processing])
+                    },
+                ],
             ],
             [
                 (idx, knex) => knex.raw(`MAX(mr${idx}."createdAt") as "completedAt"`),
-                idx => [`TicketChange as mr${idx}`, function () {
-                    this.on(`mr${idx}.ticket`, 'mainModel.id').onIn(`mr${idx}.statusIdTo`, [statusIndexes.canceled, statusIndexes.completed])
-                }],
+                (idx) => [
+                    `TicketChange as mr${idx}`,
+                    function () {
+                        this.on(`mr${idx}.ticket`, 'mainModel.id').onIn(`mr${idx}.statusIdTo`, [
+                            statusIndexes.canceled,
+                            statusIndexes.completed,
+                        ])
+                    },
+                ],
             ],
         ],
         sortBy,
         where,
     })
     const tickets = await ticketsLoader.load()
-    tickets.forEach(ticket => {
+    tickets.forEach((ticket) => {
         // if task has assigner then it was started on creation
-        if (ticket.assignee && !ticket.startedAt && ticket.status !== 'new_or_reopened'){
+        if (ticket.assignee && !ticket.startedAt && ticket.status !== 'new_or_reopened') {
             ticket.startedAt = ticket.createdAt
         }
         ticket.TicketComment = compact(ticket.TicketComment)
     })
     return tickets
 }
-
 
 module.exports = {
     Ticket,
@@ -109,5 +116,5 @@ module.exports = {
     ResidentTicket,
     TicketSource,
     loadTicketsForExcelExport,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

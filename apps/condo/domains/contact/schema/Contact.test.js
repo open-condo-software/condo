@@ -4,7 +4,12 @@
 const faker = require('faker')
 const { PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const { createTestPhone } = require('@condo/domains/user/utils/testSchema')
-const { catchErrorFrom, expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const {
+    catchErrorFrom,
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj,
+} = require('@condo/domains/common/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
@@ -52,13 +57,18 @@ describe('Contact', () => {
             }
             await createTestContact(adminClient, userClient.organization, userClient.property, duplicatedFields)
 
-            await catchErrorFrom(async () => {
-                await createTestContact(adminClient, userClient.organization, userClient.property, duplicatedFields)
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toMatch('Cannot create contact, because another contact with the same provided set of "property", "unitName", "name", "phone"')
-                expect(data).toEqual({ 'obj': null })
-            })
+            await catchErrorFrom(
+                async () => {
+                    await createTestContact(adminClient, userClient.organization, userClient.property, duplicatedFields)
+                },
+                ({ errors, data }) => {
+                    expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                    expect(errors[0].data.messages[0]).toMatch(
+                        'Cannot create contact, because another contact with the same provided set of "property", "unitName", "name", "phone"',
+                    )
+                    expect(data).toEqual({ obj: null })
+                },
+            )
         })
 
         it('throws error on update record when another record exist with same set of fields: "property", "unitName", "name", "phone"', async () => {
@@ -79,13 +89,18 @@ describe('Contact', () => {
                 phone: createTestPhone(),
             })
 
-            await catchErrorFrom(async () => {
-                await updateTestContact(adminClient, contact.id, sameFields)
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toMatch('Cannot update contact, because another contact already exists with the same provided set of "property", "unitName", "name", "phone"')
-                expect(data).toEqual({ 'obj': null })
-            })
+            await catchErrorFrom(
+                async () => {
+                    await updateTestContact(adminClient, contact.id, sameFields)
+                },
+                ({ errors, data }) => {
+                    expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                    expect(errors[0].data.messages[0]).toMatch(
+                        'Cannot update contact, because another contact already exists with the same provided set of "property", "unitName", "name", "phone"',
+                    )
+                    expect(data).toEqual({ obj: null })
+                },
+            )
         })
     })
 
@@ -93,22 +108,28 @@ describe('Contact', () => {
         test('name length should be min 2 characters', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
-            await catchErrorFrom(async () => {
-                await createTestContact(adminClient, userClient.organization, userClient.property, {
-                    name: '',
-                })
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toMatch('Name should not be a blank string')
-            })
-            await catchErrorFrom(async () => {
-                await createTestContact(adminClient, userClient.organization, userClient.property, {
-                    name: 'a',
-                })
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toMatch('Name should not be a one-character string')
-            })
+            await catchErrorFrom(
+                async () => {
+                    await createTestContact(adminClient, userClient.organization, userClient.property, {
+                        name: '',
+                    })
+                },
+                ({ errors, data }) => {
+                    expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                    expect(errors[0].data.messages[0]).toMatch('Name should not be a blank string')
+                },
+            )
+            await catchErrorFrom(
+                async () => {
+                    await createTestContact(adminClient, userClient.organization, userClient.property, {
+                        name: 'a',
+                    })
+                },
+                ({ errors, data }) => {
+                    expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                    expect(errors[0].data.messages[0]).toMatch('Name should not be a one-character string')
+                },
+            )
         })
 
         it('phone should have correct format', async () => {
@@ -117,13 +138,16 @@ describe('Contact', () => {
             const fields = {
                 phone: '8 999 111-22-33',
             }
-            await catchErrorFrom(async () => {
-                await createTestContact(adminClient, userClient.organization, userClient.property, fields)
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toMatch(`${PHONE_WRONG_FORMAT_ERROR}phone] invalid format`)
-                expect(data.obj).toBeNull()
-            })
+            await catchErrorFrom(
+                async () => {
+                    await createTestContact(adminClient, userClient.organization, userClient.property, fields)
+                },
+                ({ errors, data }) => {
+                    expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                    expect(errors[0].data.messages[0]).toMatch(`${PHONE_WRONG_FORMAT_ERROR}phone] invalid format`)
+                    expect(data.obj).toBeNull()
+                },
+            )
         })
     })
 

@@ -3,7 +3,7 @@ const { ServiceSubscription } = require('../../gql')
 const dayjs = require('dayjs')
 const { SUBSCRIPTION_TRIAL_PERIOD_DAYS } = require('../../constants')
 
-async function createTrialSubscription (context, organization, extraData) {
+async function createTrialSubscription(context, organization, extraData) {
     if (!context) throw new Error('no context')
     if (!organization.id) throw new Error('wrong organization.id argument')
 

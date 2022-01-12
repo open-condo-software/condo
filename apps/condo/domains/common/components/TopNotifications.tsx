@@ -7,7 +7,6 @@ import { css, jsx } from '@emotion/core'
 import { colors } from '@condo/domains/common/constants/style'
 import { useLayoutContext } from './LayoutContext'
 
-
 const notificationAlert = ({ isSmall }) => css`
     border-bottom: 1px solid ${colors.white};
     height: ${isSmall ? 'auto' : '78px'};
@@ -19,7 +18,8 @@ const notificationAlert = ({ isSmall }) => css`
         line-height: 28px;
         color: ${colors.green[7]};
     }
-    ${isSmall && `
+    ${isSmall &&
+    `
         flex-wrap: wrap;
         & .ant-alert-action {
             width: 100%;
@@ -38,45 +38,45 @@ export interface ITopNotificationAction {
 }
 
 export interface ITopNotification {
-    id: string,
+    id: string
     actions: ITopNotificationAction[]
     message: string | JSX.Element
     type: AlertProps['type']
 }
 
 interface ITopNotificationHookResult {
-    TopNotificationComponent: React.FC,
-    addNotification: (notification: ITopNotification) => void,
+    TopNotificationComponent: React.FC
+    addNotification: (notification: ITopNotification) => void
 }
 
 export const useTopNotificationsHook = (): ITopNotificationHookResult => {
     const [topNotifications, setTopNotifications] = useState<ITopNotification[]>([])
     const addNotification = (notification: ITopNotification) => {
-        if (!topNotifications.find(existedNotification => existedNotification.id === notification.id)) {
+        if (!topNotifications.find((existedNotification) => existedNotification.id === notification.id)) {
             setTopNotifications([...topNotifications, notification])
         }
     }
     const removeNotification = (notificationId) => {
-        setTopNotifications([...topNotifications.filter(notification => notification.id !== notificationId)])
+        setTopNotifications([...topNotifications.filter((notification) => notification.id !== notificationId)])
     }
 
     const TopNotificationComponent: React.FC = () => {
         const { isSmall } = useLayoutContext()
         return (
             <>
-                <Affix>{
-                    topNotifications.map(notification => {
+                <Affix>
+                    {topNotifications.map((notification) => {
                         return (
                             <Alert
                                 showIcon
-                                icon={(<InfoCircleFilled />)}
+                                icon={<InfoCircleFilled />}
                                 message={notification.message}
                                 type={notification.type}
                                 key={notification.id}
                                 css={notificationAlert({ isSmall })}
-                                action={<Space size={20}>
-                                    {
-                                        notification.actions.map((action, idx) => {
+                                action={
+                                    <Space size={20}>
+                                        {notification.actions.map((action, idx) => {
                                             return (
                                                 <Button
                                                     onClick={async () => {
@@ -92,11 +92,11 @@ export const useTopNotificationsHook = (): ITopNotificationHookResult => {
                                                 </Button>
                                             )
                                         })}
-                                </Space>}
+                                    </Space>
+                                }
                             />
                         )
-                    })
-                }
+                    })}
                 </Affix>
             </>
         )

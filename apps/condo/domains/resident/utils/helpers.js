@@ -21,7 +21,7 @@ dayjs.extend(isSameOrBefore)
 const connectResidents = async (context, residents, property) => {
     // Nothing to connect
     if (!Array.isArray(residents) || isEmpty(residents)) return
-    
+
     const propertyId = get(property, 'id')
     const shouldConnect = Boolean(property) && propertyId
     const attrs = {

@@ -31,66 +31,71 @@ const sortStatusesByType = (statuses) => {
 
 class TicketGqlToKnexAdapter extends GqlToKnexBaseAdapter {
     aggregateBy = []
-    constructor (where, groupBy) {
+    constructor(where, groupBy) {
         super('Ticket', where, groupBy)
-        this.aggregateBy = groupBy
-            .some(e => TICKET_REPORT_DAY_GROUP_STEPS.includes(e)) ? ['dayGroup', ...this.groups] : [...this.groups]
+        this.aggregateBy = groupBy.some((e) => TICKET_REPORT_DAY_GROUP_STEPS.includes(e))
+            ? ['dayGroup', ...this.groups]
+            : [...this.groups]
     }
 
     /**
      * Execute query based for domainName table with where & groupBy expressions
      * @returns {Promise<void>}
      */
-    async loadData () {
+    async loadData() {
         this.result = null
         const { keystone } = await getSchemaCtx(this.domainName)
         const knex = keystone.adapter.knex
 
-        const where = this.where.filter(condition => !this.isWhereInCondition(condition)).map(condition => {
-            return Object.fromEntries(
-                Object.entries(condition).map(([field, query]) => (
-                    get(query, 'id') ? [field, query.id] : [field, query]
-                ))
-            )
-        })
+        const where = this.where
+            .filter((condition) => !this.isWhereInCondition(condition))
+            .map((condition) => {
+                return Object.fromEntries(
+                    Object.entries(condition).map(([field, query]) => (get(query, 'id') ? [field, query.id] : [field, query])),
+                )
+            })
         this.whereIn = {}
         // create whereIn structure [['property_id', 'user_id'], [['some_property_id', 'some_user_id'], ...]]
-        this.where.filter(this.isWhereInCondition).reduce((filter, currentFilter) => {
-            const [groupName, groupCondition] = Object.entries(currentFilter)[0]
-            const groupIdArray = get(groupCondition, 'id_in')
-            const [filterEntities, filterValues] = filter
-            if (!this.aggregateBy.includes(groupName)) {
-                this.aggregateBy.push(groupName)
-            }
-            this.whereIn[groupName] = groupIdArray.map(id => [id])
-            filterEntities.push(groupName)
-            filterValues.push(...groupIdArray.map(id => [id]))
-            return filter
-        }, [[], []])
+        this.where.filter(this.isWhereInCondition).reduce(
+            (filter, currentFilter) => {
+                const [groupName, groupCondition] = Object.entries(currentFilter)[0]
+                const groupIdArray = get(groupCondition, 'id_in')
+                const [filterEntities, filterValues] = filter
+                if (!this.aggregateBy.includes(groupName)) {
+                    this.aggregateBy.push(groupName)
+                }
+                this.whereIn[groupName] = groupIdArray.map((id) => [id])
+                filterEntities.push(groupName)
+                filterValues.push(...groupIdArray.map((id) => [id]))
+                return filter
+            },
+            [[], []],
+        )
 
-        const query = knex(this.domainName)
-            .count('id')
-            .select(this.groups)
+        const query = knex(this.domainName).count('id').select(this.groups)
         if (this.aggregateBy.includes('dayGroup')) {
             query.select(knex.raw(`date_trunc('${this.dayGroup}',  "createdAt") as "dayGroup"`))
         }
 
         switch (Object.keys(this.whereIn).length) {
             case 2:
-                this.result = await query.groupBy(this.aggregateBy)
+                this.result = await query
+                    .groupBy(this.aggregateBy)
                     .where(where.reduce((acc, current) => ({ ...acc, ...current }), {}))
                     .whereIn([Object.keys(this.whereIn)[0]], Object.values(this.whereIn)[0])
                     .whereIn([Object.keys(this.whereIn)[1]], Object.values(this.whereIn)[1])
                     .whereBetween('createdAt', [this.dateRange.from, this.dateRange.to])
                 break
             case 1:
-                this.result = await query.groupBy(this.aggregateBy)
+                this.result = await query
+                    .groupBy(this.aggregateBy)
                     .where(where.reduce((acc, current) => ({ ...acc, ...current }), {}))
                     .whereIn(Object.keys(this.whereIn), Object.values(this.whereIn)[0])
                     .whereBetween('createdAt', [this.dateRange.from, this.dateRange.to])
                 break
             default:
-                this.result = await query.groupBy(this.aggregateBy)
+                this.result = await query
+                    .groupBy(this.aggregateBy)
                     .where(where.reduce((acc, current) => ({ ...acc, ...current }), {}))
                     .whereBetween('createdAt', [this.dateRange.from, this.dateRange.to])
         }
@@ -115,9 +120,10 @@ const aggregateData = (data, groupByDependencyList) => {
     const result = {}
     Object.entries(groupedResult).forEach(([filter, dataObject]) => {
         result[filter] = Object.fromEntries(
-            Object.entries(
-                groupBy(dataObject, labelsGroupKey)
-            ).map(([labelsGroupTitle, resultObject]) => [labelsGroupTitle, resultObject[0].count])
+            Object.entries(groupBy(dataObject, labelsGroupKey)).map(([labelsGroupTitle, resultObject]) => [
+                labelsGroupTitle,
+                resultObject[0].count,
+            ]),
         )
     })
     return { result, groupKeys: [axisGroupKey, labelsGroupKey] }

@@ -17,24 +17,16 @@ export const MainContent: React.FC<IContextProps> = ({ context }) => {
     return (
         <Row gutter={[0, 40]}>
             <Col span={24}>
-                <ReportMessage lastReport={lastReport}/>
+                <ReportMessage lastReport={lastReport} />
             </Col>
             <Col span={24}>
-                <Tabs
-                    defaultActiveKey={'Accruals'}
-                    tabBarStyle={{ marginBottom: 40 }}
-                    style={{ overflow: 'visible' }}
-                >
+                <Tabs defaultActiveKey={'Accruals'} tabBarStyle={{ marginBottom: 40 }} style={{ overflow: 'visible' }}>
                     <Tabs.TabPane key={'Accruals'} tab={AccrualsTitle}>
-                        <ReceiptsTable context={context}/>
+                        <ReceiptsTable context={context} />
                     </Tabs.TabPane>
                     <Tabs.TabPane
                         key={'meters'}
-                        tab={(
-                            <Tooltip title={NotImplementedYetMessage}>
-                                {MetersTitle}
-                            </Tooltip>
-                        )}
+                        tab={<Tooltip title={NotImplementedYetMessage}>{MetersTitle}</Tooltip>}
                         disabled
                     />
                 </Tabs>
@@ -42,4 +34,3 @@ export const MainContent: React.FC<IContextProps> = ({ context }) => {
         </Row>
     )
 }
-

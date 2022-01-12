@@ -57,7 +57,7 @@ const langDir = path.join(root, 'lang')
 
 const translations = []
 
-fs.readdirSync(langDir).map(fileName => {
+fs.readdirSync(langDir).map((fileName) => {
     const lang = fileName.match(/(\w+)\.json/)[1]
     const filePath = `${langDir}/${fileName}`
     console.log(`Load file ${filePath}`)
@@ -91,7 +91,7 @@ translations.map(([lang, keys], i) => {
     const [prevLang, prevKeys] = translations[i - 1]
     const diff = diffLinesRaw(prevKeys, keys)
     // Individual item of `diff` array is not an array ;)
-    const diffCount = diff.filter(d => d[0] !== 0).length
+    const diffCount = diff.filter((d) => d[0] !== 0).length
     if (diffCount > 0) {
         console.log('Keys in i18n translation files are invalid!')
         console.log(`Found ${diffCount} differences between ${prevLang} and ${lang}:`)
@@ -102,4 +102,3 @@ translations.map(([lang, keys], i) => {
         console.log(`✔︎ I18 keys for ${prevLang} and ${lang} are identical`)
     }
 })
-

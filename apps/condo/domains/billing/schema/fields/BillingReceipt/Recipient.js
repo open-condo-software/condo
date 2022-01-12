@@ -1,6 +1,9 @@
 const Ajv = require('ajv')
 const { render, getValidator } = require('@condo/domains/billing/schema/fields/utils/json.utils')
-const { BILLING_RECEIPT_RECIPIENT_FIELD_NAME, BILLING_RECEIPT_RECIPIENT_INPUT_NAME } = require('@condo/domains/billing/constants/constants')
+const {
+    BILLING_RECEIPT_RECIPIENT_FIELD_NAME,
+    BILLING_RECEIPT_RECIPIENT_INPUT_NAME,
+} = require('@condo/domains/billing/constants/constants')
 const { Json } = require('@core/keystone/fields')
 
 const RecipientFields = {
@@ -26,10 +29,8 @@ const RECIPIENT_GRAPHQL_TYPES = `
 
 const RecipientSchema = {
     type: 'object',
-    properties: Object.assign({},
-        ...Object.keys(RecipientFields).map((field) => ({ [field]: { type: 'string' } })),
-    ),
-    required: Object.keys(RecipientFields).filter(fieldName => RecipientFields[fieldName].slice(-1) === '!'),
+    properties: Object.assign({}, ...Object.keys(RecipientFields).map((field) => ({ [field]: { type: 'string' } }))),
+    required: Object.keys(RecipientFields).filter((fieldName) => RecipientFields[fieldName].slice(-1) === '!'),
     additionalProperties: false,
 }
 

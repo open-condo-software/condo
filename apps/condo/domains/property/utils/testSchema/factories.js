@@ -6,7 +6,7 @@ const FIAS_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 35, 65, 75, 90, 91]
 const FIAS_ACTUALITY_STATE = [0, 1]
 
 const buildFakeAddressMeta = (withFlat = false) => {
-    const emptyData = Object.assign({}, ...Object.keys(AddressMetaDataFields).map((field) => ({[field]: null})))
+    const emptyData = Object.assign({}, ...Object.keys(AddressMetaDataFields).map((field) => ({ [field]: null })))
     emptyData.postal_code = faker.address.zipCode()
     emptyData.country = faker.address.country()
     emptyData.country_iso_code = faker.address.countryCode()
@@ -46,7 +46,7 @@ const buildFakeAddressMeta = (withFlat = false) => {
 
     emptyData.block = String(faker.datatype.number())
     emptyData.block_type = 'б'
-    emptyData.block_type_full= 'блок'
+    emptyData.block_type_full = 'блок'
 
     emptyData.region = faker.address.state()
     emptyData.region_iso_code = faker.address.stateAbbr()
@@ -65,9 +65,7 @@ const buildFakeAddressMeta = (withFlat = false) => {
     emptyData.geo_lat = faker.address.latitude()
     emptyData.geo_lon = faker.address.longitude()
 
-    const fullHouseName = [emptyData.house_type, emptyData.house, emptyData.block_type, emptyData.block]
-        .filter(Boolean)
-        .join(' ')
+    const fullHouseName = [emptyData.house_type, emptyData.house, emptyData.block_type, emptyData.block].filter(Boolean).join(' ')
     const flat = emptyData.flat ? `${emptyData.flat_type} ${emptyData.flat}` : null
     const value = [emptyData.region_with_type, emptyData.city_with_type, emptyData.street_with_type, fullHouseName, flat]
         .filter(Boolean)

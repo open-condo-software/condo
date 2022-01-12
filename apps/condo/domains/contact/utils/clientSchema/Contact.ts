@@ -10,7 +10,20 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { Contact as ContactGQL } from '@condo/domains/contact/gql'
 import { Contact, ContactUpdateInput, QueryAllContactsArgs } from '@app/condo/schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'property', 'name', 'phone', 'unitName', 'email', 'organization']
+const FIELDS = [
+    'id',
+    'deletedAt',
+    'createdAt',
+    'updatedAt',
+    'createdBy',
+    'updatedBy',
+    'property',
+    'name',
+    'phone',
+    'unitName',
+    'email',
+    'organization',
+]
 const RELATIONS = ['organization', 'property']
 
 export interface IContactUIState extends Contact {
@@ -21,56 +34,47 @@ export interface IContactUIState extends Contact {
     name: string
 }
 
-function convertToUIState (item: Contact): IContactUIState {
+function convertToUIState(item: Contact): IContactUIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
     return pick(item, FIELDS) as IContactUIState
 }
 
 export interface IContactFormState {
-    id?: undefined,
-    organization: string,
-    property?: string,
-    unitName?: string,
-    phone: string,
-    name: string,
+    id?: undefined
+    organization: string
+    property?: string
+    unitName?: string
+    phone: string
+    name: string
     email?: string
 }
 
-function convertToUIFormState (state: IContactUIState): IContactFormState | undefined {
+function convertToUIFormState(state: IContactUIState): IContactFormState | undefined {
     if (!state) return
     const result = {}
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? attrId || state[attr] : state[attr]
     }
     return result as IContactFormState
 }
 
-function convertToGQLInput (state: IContactFormState): ContactUpdateInput {
+function convertToGQLInput(state: IContactFormState): ContactUpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? { connect: { id: attrId || state[attr] } } : state[attr]
     }
     return result
 }
 
-const {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-    useSoftDelete,
-} = generateReactHooks<Contact, ContactUpdateInput, IContactFormState, IContactUIState, QueryAllContactsArgs>(ContactGQL, { convertToGQLInput, convertToUIState })
+const { useObject, useObjects, useCreate, useUpdate, useDelete, useSoftDelete } = generateReactHooks<
+    Contact,
+    ContactUpdateInput,
+    IContactFormState,
+    IContactUIState,
+    QueryAllContactsArgs
+>(ContactGQL, { convertToGQLInput, convertToUIState })
 
-export {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-    useSoftDelete,
-    convertToUIFormState,
-}
+export { useObject, useObjects, useCreate, useUpdate, useDelete, useSoftDelete, convertToUIFormState }

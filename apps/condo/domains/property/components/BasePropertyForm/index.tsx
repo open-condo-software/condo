@@ -43,7 +43,6 @@ const PROPERTY_ROW_GUTTER = [50, 40]
 
 const FORM_WITH_ACTION_VALIDATION_TRIGGERS = ['onBlur', 'onSubmit']
 
-
 const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const intl = useIntl()
     const AddressLabel = intl.formatMessage({ id: 'pages.condo.property.field.Address' })
@@ -63,38 +62,42 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const { action, initialValues } = props
 
     const [addressValidatorError, setAddressValidatorError] = useState<string | null>(null)
-    const formValuesToMutationDataPreprocessor = useCallback((formData, _, form) => {
-        const isAddressFieldTouched = form.isFieldsTouched(['address'])
-        const yearOfConstruction = formData.yearOfConstruction && !isEmpty(formData.yearOfConstruction)
-            ? dayjs().year(formData.yearOfConstruction).format('YYYY-MM-DD')
-            : null
-        // TODO (DOMA-1725) Replace it with better parsing
-        const area = formData.area ? formData.area.replace(',', '.') : null
+    const formValuesToMutationDataPreprocessor = useCallback(
+        (formData, _, form) => {
+            const isAddressFieldTouched = form.isFieldsTouched(['address'])
+            const yearOfConstruction =
+                formData.yearOfConstruction && !isEmpty(formData.yearOfConstruction)
+                    ? dayjs().year(formData.yearOfConstruction).format('YYYY-MM-DD')
+                    : null
+            // TODO (DOMA-1725) Replace it with better parsing
+            const area = formData.area ? formData.area.replace(',', '.') : null
 
-        if (isAddressFieldTouched) {
-            try {
-                const addressMeta = addressApi.getAddressMeta(formData.address)
-                return { ...formData, addressMeta: { dv: 1, ...addressMeta }, yearOfConstruction, area }
-            } catch (e) {
-                notification.error({
-                    message: ServerErrorMsg,
-                    description: AddressMetaError,
-                })
+            if (isAddressFieldTouched) {
+                try {
+                    const addressMeta = addressApi.getAddressMeta(formData.address)
+                    return { ...formData, addressMeta: { dv: 1, ...addressMeta }, yearOfConstruction, area }
+                } catch (e) {
+                    notification.error({
+                        message: ServerErrorMsg,
+                        description: AddressMetaError,
+                    })
 
-                console.error(e)
-                return
+                    console.error(e)
+                    return
+                }
             }
-        }
 
-        // Requested fields of Property of JSON-type, mapped to GraphQL, containing `__typename` field in each typed node.
-        // It seems, like we cannot control it.
-        // So, these fields should be cleaned, because it will result to incorrect input into update-mutation
-        const cleanedFormData = omitRecursively(formData, '__typename')
-        return { ...cleanedFormData, yearOfConstruction, area }
-    }, [initialValues])
+            // Requested fields of Property of JSON-type, mapped to GraphQL, containing `__typename` field in each typed node.
+            // It seems, like we cannot control it.
+            // So, these fields should be cleaned, because it will result to incorrect input into update-mutation
+            const cleanedFormData = omitRecursively(formData, '__typename')
+            return { ...cleanedFormData, yearOfConstruction, area }
+        },
+        [initialValues],
+    )
     const { requiredValidator, numberValidator, maxLengthValidator } = useValidations()
     const addressValidator = {
-        validator () {
+        validator() {
             if (!addressValidatorError) {
                 return Promise.resolve()
             }
@@ -102,12 +105,15 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
         },
     }
     const yearOfConstructionValidator = {
-        validator (_, val) {
+        validator(_, val) {
             if (val === null) {
                 return Promise.resolve()
             }
             const receivedDate = dayjs().year(val)
-            if (val.length === 0 || val.length === 4 && receivedDate.isValid() && receivedDate.isBefore(dayjs().add(1, 'day'))) {
+            if (
+                val.length === 0 ||
+                (val.length === 4 && receivedDate.isValid() && receivedDate.isBefore(dayjs().add(1, 'day')))
+            ) {
                 return Promise.resolve()
             }
             return Promise.reject(WrongYearErrorMsg)
@@ -139,14 +145,8 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                 {({ handleSave, isLoading, form }) => {
                     return (
                         <>
-                            <Prompt
-                                title={PromptTitle}
-                                form={form}
-                                handleSave={handleSave}
-                            >
-                                <Typography.Paragraph>
-                                    {PromptHelpMessage}
-                                </Typography.Paragraph>
+                            <Prompt title={PromptTitle} form={form} handleSave={handleSave}>
+                                <Typography.Paragraph>{PromptHelpMessage}</Typography.Paragraph>
                             </Prompt>
                             <Row gutter={PROPERTY_FULLSCREEN_ROW_GUTTER}>
                                 <Col xs={24} lg={11}>
@@ -161,51 +161,40 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                                 const address = JSON.parse(option.key) as AddressMetaField
                                                 if (!validHouseTypes.includes(address.data.house_type_full)) {
                                                     setAddressValidatorError(AddressValidationErrorMsg)
-                                                }
-                                                else if (AddressValidationErrorMsg) setAddressValidatorError(null)
-                                            }} />
+                                                } else if (AddressValidationErrorMsg) setAddressValidatorError(null)
+                                            }}
+                                        />
                                     </Form.Item>
-                                    <Form.Item
-                                        name="map"
-                                        hidden
-                                    >
+                                    <Form.Item name="map" hidden>
                                         <Input />
                                     </Form.Item>
                                 </Col>
                             </Row>
                             <Row gutter={PROPERTY_FULLSCREEN_ROW_GUTTER}>
                                 <Col xs={24} lg={11}>
-                                    <Form.Item
-                                        name="name"
-                                        label={NameMsg}
-                                        {...INPUT_LAYOUT_PROPS}
-                                    >
-                                        <Input allowClear={true}/>
+                                    <Form.Item name="name" label={NameMsg} {...INPUT_LAYOUT_PROPS}>
+                                        <Input allowClear={true} />
                                     </Form.Item>
                                 </Col>
                             </Row>
                             <Row gutter={PROPERTY_ROW_GUTTER}>
-                                <Col span={isSmall ? 12 : 4} >
-                                    <Form.Item
-                                        name="area"
-                                        label={AreaTitle}
-                                        rules={validations.area}
-                                    >
+                                <Col span={isSmall ? 12 : 4}>
+                                    <Form.Item name="area" label={AreaTitle} rules={validations.area}>
                                         <Input />
                                     </Form.Item>
                                 </Col>
-                                <Col span={isSmall ? 12 : 4} >
+                                <Col span={isSmall ? 12 : 4}>
                                     <Form.Item
                                         name="yearOfConstruction"
                                         label={YearOfConstructionTitle}
                                         rules={validations.yearOfConstruction}
-                                    ><Input /></Form.Item>
+                                    >
+                                        <Input />
+                                    </Form.Item>
                                 </Col>
                             </Row>
                             <Row gutter={PROPERTY_FULLSCREEN_ROW_GUTTER}>
-                                <Col span={24}>
-                                    {props.children({ handleSave, isLoading, form })}
-                                </Col>
+                                <Col span={24}>{props.children({ handleSave, isLoading, form })}</Col>
                             </Row>
                         </>
                     )

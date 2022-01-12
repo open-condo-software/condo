@@ -15,25 +15,20 @@ import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayer
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { Button } from '@condo/domains/common/components/Button'
 import { useOrganization } from '@core/next/organization'
-import  { TicketCardList } from '@condo/domains/common/components/TicketCard/TicketCardList'
+import { TicketCardList } from '@condo/domains/common/components/TicketCard/TicketCardList'
 import { canManageContacts } from '@condo/domains/organization/permissions'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 
 const FieldPairRow = (props) => {
-    const {
-        fieldTitle,
-        fieldValue,
-    } = props
+    const { fieldTitle, fieldValue } = props
     return (
         <>
             <Col span={8}>
-                <Typography.Text type='secondary'>
-                    {fieldTitle}
-                </Typography.Text>
+                <Typography.Text type="secondary">{fieldTitle}</Typography.Text>
             </Col>
             <Col span={16} style={{ width: '100%' }}>
-                <NotDefinedField value={fieldValue}/>
+                <NotDefinedField value={fieldValue} />
             </Col>
         </>
     )
@@ -41,7 +36,7 @@ const FieldPairRow = (props) => {
 
 export const ContactPageContent = ({ organization, contact, isContactEditable, softDeleteAction }) => {
     const intl = useIntl()
-    const ContactLabel = intl.formatMessage({ id:'Contact' }).toLowerCase()
+    const ContactLabel = intl.formatMessage({ id: 'Contact' }).toLowerCase()
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
@@ -74,40 +69,26 @@ export const ContactPageContent = ({ organization, contact, isContactEditable, s
             <PageWrapper>
                 <Row gutter={[0, 40]} justify={'center'}>
                     <Col xs={10} lg={3}>
-                        <UserAvatar borderRadius={24}/>
+                        <UserAvatar borderRadius={24} />
                     </Col>
                     <Col xs={24} lg={20} offset={isSmall ? 0 : 1}>
                         <Row gutter={[0, 60]}>
                             <Col lg={15} xs={24}>
                                 <Row gutter={[0, 40]}>
                                     <Col span={24}>
-                                        <Typography.Title>
-                                            {contactName}
-                                        </Typography.Title>
-                                        <Typography.Title
-                                            level={2}
-                                            style={{ margin: '8px 0 0', fontWeight: 400 }}
-                                        >
+                                        <Typography.Title>{contactName}</Typography.Title>
+                                        <Typography.Title level={2} style={{ margin: '8px 0 0', fontWeight: 400 }}>
                                             {ContactLabel}
                                         </Typography.Title>
                                     </Col>
                                     <Col span={24}>
                                         <FrontLayerContainer>
                                             <Row gutter={[0, 24]}>
-                                                <FieldPairRow
-                                                    fieldTitle={AddressLabel}
-                                                    fieldValue={contactAddress}
-                                                />
-                                                <FieldPairRow
-                                                    fieldTitle={PhoneLabel}
-                                                    fieldValue={get(contact, ['phone'])}
-                                                />
-                                                {
-                                                    contactEmail && <FieldPairRow
-                                                        fieldTitle={EmailLabel}
-                                                        fieldValue={get(contact, ['email'])}
-                                                    />
-                                                }
+                                                <FieldPairRow fieldTitle={AddressLabel} fieldValue={contactAddress} />
+                                                <FieldPairRow fieldTitle={PhoneLabel} fieldValue={get(contact, ['phone'])} />
+                                                {contactEmail && (
+                                                    <FieldPairRow fieldTitle={EmailLabel} fieldValue={get(contact, ['email'])} />
+                                                )}
                                             </Row>
                                         </FrontLayerContainer>
                                     </Col>
@@ -115,12 +96,7 @@ export const ContactPageContent = ({ organization, contact, isContactEditable, s
                                         <Col span={24}>
                                             <Space direction={'horizontal'} size={40}>
                                                 <Link href={`/contact/${get(contact, 'id')}/update`}>
-                                                    <Button
-                                                        color={'green'}
-                                                        type={'sberPrimary'}
-                                                        secondary
-                                                        icon={<EditFilled />}
-                                                    >
+                                                    <Button color={'green'} type={'sberPrimary'} secondary icon={<EditFilled />}>
                                                         {UpdateMessage}
                                                     </Button>
                                                 </Link>
@@ -176,15 +152,20 @@ const ContactInfoPage = () => {
         },
     })
 
-    const handleDeleteAction = Contact.useSoftDelete({
-        organization, phone: get(contact, 'phone'), name: get(contact, 'name'),
-    }, () => push('/contact/'))
+    const handleDeleteAction = Contact.useSoftDelete(
+        {
+            organization,
+            phone: get(contact, 'phone'),
+            name: get(contact, 'name'),
+        },
+        () => push('/contact/'),
+    )
 
     if (error || loading) {
-        return <LoadingOrErrorPage title={LoadingMessage} loading={loading} error={error ? ErrorMessage : null}/>
+        return <LoadingOrErrorPage title={LoadingMessage} loading={loading} error={error ? ErrorMessage : null} />
     }
     if (!contact) {
-        return <LoadingOrErrorPage title={ContactNotFoundTitle} loading={false} error={ContactNotFoundMessage}/>
+        return <LoadingOrErrorPage title={ContactNotFoundTitle} loading={false} error={ContactNotFoundMessage} />
     }
 
     const isContactEditable = canManageContacts(link, contact)
@@ -199,9 +180,7 @@ const ContactInfoPage = () => {
     )
 }
 
-ContactInfoPage.headerAction = <ReturnBackHeaderAction
-    descriptor={{ id: 'pages.condo.contact.PageTitle' }}
-    path={'/contact/'}/>
+ContactInfoPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'pages.condo.contact.PageTitle' }} path={'/contact/'} />
 ContactInfoPage.requiredAccess = OrganizationRequired
 
 export default ContactInfoPage

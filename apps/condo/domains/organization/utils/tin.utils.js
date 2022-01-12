@@ -8,16 +8,16 @@ const RU_TIN_DIGITS = [3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8, 0]
 const RU_ORGANIZATION_TIN_REGEXP = /^\d{10}$/
 const RU_PERSONAL_TIN_REGEXP = /^\d{12}$/
 
-const getTinChecksumRU = num => {
+const getTinChecksumRU = (num) => {
     const n = RU_TIN_DIGITS.slice(-num.length)
     let sum = 0
 
     for (let i = 0; i < num.length; i++) sum += num[i] * n[i]
 
-    return sum % 11 % 10
+    return (sum % 11) % 10
 }
 
-const validateTinRU = tinValue => {
+const validateTinRU = (tinValue) => {
     if (!isString(tinValue) && !isNumber(tinValue)) return false
 
     const inn = tinValue.toString().trim()
@@ -36,7 +36,10 @@ const isValidTin = (tinValue = null, country = RUSSIA_COUNTRY) => {
     return false
 }
 
-const getIsValidTin = (country = RUSSIA_COUNTRY) => (tinValue = null) => isValidTin(tinValue, country)
+const getIsValidTin =
+    (country = RUSSIA_COUNTRY) =>
+    (tinValue = null) =>
+        isValidTin(tinValue, country)
 
 module.exports = {
     validateTinRU,

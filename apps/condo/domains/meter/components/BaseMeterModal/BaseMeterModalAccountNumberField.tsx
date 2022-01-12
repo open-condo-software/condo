@@ -40,8 +40,10 @@ const AccountNumberSelect = ({ accountNumbers }) => {
     const handleChange = useCallback((e) => {
         setValue(e.target.value)
     }, [])
-    const accountNumberOptions = useMemo(() => accountNumbers.map(accountNumber => ({ label: accountNumber, value: accountNumber })),
-        [accountNumbers])
+    const accountNumberOptions = useMemo(
+        () => accountNumbers.map((accountNumber) => ({ label: accountNumber, value: accountNumber })),
+        [accountNumbers],
+    )
 
     return (
         <Row gutter={VERTICAL_GUTTER}>
@@ -49,23 +51,17 @@ const AccountNumberSelect = ({ accountNumbers }) => {
                 <Radio.Group onChange={handleChange} value={value} style={RADIO_GROUP_STYLE}>
                     <Row gutter={HORIZONTAL_GUTTER}>
                         <Col>
-                            <Radio value={CHOOSE_ACCOUNT_RADIO_VALUE}>
-                                {ChooseAccountNumberMessage}
-                            </Radio>
+                            <Radio value={CHOOSE_ACCOUNT_RADIO_VALUE}>{ChooseAccountNumberMessage}</Radio>
                         </Col>
                         <Col>
-                            <Radio value={CREATE_ACCOUNT_RADIO_VALUE}>
-                                {CreateAccountNumber}
-                            </Radio>
+                            <Radio value={CREATE_ACCOUNT_RADIO_VALUE}>{CreateAccountNumber}</Radio>
                         </Col>
                     </Row>
                 </Radio.Group>
             </Col>
             <Col span={24}>
                 <AccountNumberFormItem initialValues={{}}>
-                    {
-                        value === CHOOSE_ACCOUNT_RADIO_VALUE ? <Select options={accountNumberOptions} /> : <Input />
-                    }
+                    {value === CHOOSE_ACCOUNT_RADIO_VALUE ? <Select options={accountNumberOptions} /> : <Input />}
                 </AccountNumberFormItem>
             </Col>
         </Row>
@@ -79,7 +75,7 @@ const CreateMeterAccountNumberField = ({ initialValues, propertyId, unitName }) 
             unitName,
         },
     })
-    const unitAccountNumbers = useMemo(() => uniq(meters.map(meter => meter.accountNumber)), [meters])
+    const unitAccountNumbers = useMemo(() => uniq(meters.map((meter) => meter.accountNumber)), [meters])
 
     if (isEmpty(unitAccountNumbers)) {
         return (
@@ -97,13 +93,7 @@ export const BaseMeterModalAccountNumberField = ({ initialValues }) => {
     const unitName = initialValues.unitName
 
     if (propertyId && unitName) {
-        return (
-            <CreateMeterAccountNumberField
-                initialValues={initialValues}
-                propertyId={propertyId}
-                unitName={unitName}
-            />
-        )
+        return <CreateMeterAccountNumberField initialValues={initialValues} propertyId={propertyId} unitName={unitName} />
     }
 
     return (

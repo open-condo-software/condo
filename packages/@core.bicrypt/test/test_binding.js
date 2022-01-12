@@ -1,9 +1,6 @@
-const {
-    CondoBicryptSign,
-} = require('../lib/binding')
+const { CondoBicryptSign } = require('../lib/binding')
 
-
-const textToSign =  `
+const textToSign = `
 <?xml version="1.0" encoding="UTF-8"?>
 <order>
    <action>group_list</action>
@@ -13,7 +10,6 @@ const textToSign =  `
    <version_protocol>1.3.7</version_protocol>
 </order>
 `
-
 
 const demoKeys = [
     ['A005LP01', '3m2zpx'],
@@ -35,9 +31,11 @@ async function testSign() {
     }
 }
 
-testSign().then(result => {
-    console.log('All Done!', result)
-    process.exit(0)
-}).catch(error => {
-    process.exit(1)
-})
+testSign()
+    .then((result) => {
+        console.log('All Done!', result)
+        process.exit(0)
+    })
+    .catch((error) => {
+        process.exit(1)
+    })

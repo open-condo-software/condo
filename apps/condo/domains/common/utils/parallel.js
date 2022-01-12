@@ -26,12 +26,7 @@
 const executeInSequence = async (tasks) =>
     new Promise((resolve) => {
         const starterPromise = Promise.resolve(null)
-        tasks
-            .reduce(
-                (prevTask, nextTask) => prevTask.then(nextTask),
-                starterPromise
-            )
-            .then(resolve)
+        tasks.reduce((prevTask, nextTask) => prevTask.then(nextTask), starterPromise).then(resolve)
     })
 
 const processArrayOf = (items) => ({
@@ -40,7 +35,7 @@ const processArrayOf = (items) => ({
         return executeInSequence(itemTasks)
     },
     inParallelWith: (func) => {
-        return Promise.all(items.map(item => func(item)))
+        return Promise.all(items.map((item) => func(item)))
     },
 })
 

@@ -41,7 +41,8 @@ const Resident = new GQLListSchema('Resident', {
         },
 
         organization: {
-            schemaDoc: 'Organization, that provides service to this resident. Can be missing, when a resident has been registered, but there is no Organization, that serves specified address in our system yet',
+            schemaDoc:
+                'Organization, that provides service to this resident. Can be missing, when a resident has been registered, but there is no Organization, that serves specified address in our system yet',
             type: Relationship,
             ref: 'Organization',
             isRequired: false,
@@ -56,7 +57,8 @@ const Resident = new GQLListSchema('Resident', {
         },
 
         property: {
-            schemaDoc: 'Property, in which this person resides. Can be missing, when a resident has been registered, but there is no Property in our system yet',
+            schemaDoc:
+                'Property, in which this person resides. Can be missing, when a resident has been registered, but there is no Property in our system yet',
             type: Relationship,
             ref: 'Property',
             isRequired: false,
@@ -70,7 +72,9 @@ const Resident = new GQLListSchema('Resident', {
                     const [property] = await Property.getAll(context, { id: propertyId })
                     const residentAddress = getAddressUpToBuildingFrom(resolvedData.addressMeta)
                     if (property.address.toLowerCase() !== residentAddress.toLowerCase()) {
-                        return addFieldValidationError('Cannot connect property, because its address differs from address of resident')
+                        return addFieldValidationError(
+                            'Cannot connect property, because its address differs from address of resident',
+                        )
                     }
                 },
             },
@@ -131,36 +135,38 @@ const Resident = new GQLListSchema('Resident', {
         paymentCategories: {
             schemaDoc: 'Contains billing and acquiring integration names that are enabled for this resident per category',
             type: Virtual,
-            extendGraphQLTypes: ['type PaymentCategory { id: String!, categoryName: String!, billingName: String! acquiringName: String! }'],
+            extendGraphQLTypes: [
+                'type PaymentCategory { id: String!, categoryName: String!, billingName: String! acquiringName: String! }',
+            ],
             graphQLReturnType: '[PaymentCategory]',
             resolver: async (item, _, context) => {
-                return PAYMENT_CATEGORIES_META
-                    .filter(x => x.active)
-                    .map(async category => {
-                        let billingName = DEFAULT_BILLING_INTEGRATION_NAME
-                        let acquiringName = DEFAULT_ACQUIRING_INTEGRATION_NAME
+                return PAYMENT_CATEGORIES_META.filter((x) => x.active).map(async (category) => {
+                    let billingName = DEFAULT_BILLING_INTEGRATION_NAME
+                    let acquiringName = DEFAULT_ACQUIRING_INTEGRATION_NAME
 
-                        if (category.canGetBillingFromOrganization && item.organization) {
-                            const [billingCtx] = await BillingIntegrationOrganizationContext.getAll(
-                                context, { organization: { id: item.organization, deletedAt: null }, deletedAt: null }
-                            )
-                            billingName = get(billingCtx, ['integration', 'name'], DEFAULT_BILLING_INTEGRATION_NAME)
-                        }
+                    if (category.canGetBillingFromOrganization && item.organization) {
+                        const [billingCtx] = await BillingIntegrationOrganizationContext.getAll(context, {
+                            organization: { id: item.organization, deletedAt: null },
+                            deletedAt: null,
+                        })
+                        billingName = get(billingCtx, ['integration', 'name'], DEFAULT_BILLING_INTEGRATION_NAME)
+                    }
 
-                        if (category.canGetAcquiringFromOrganization && item.organization) {
-                            const [acquiringCtx] = await AcquiringIntegrationContext.getAll(
-                                context, { organization: { id: item.organization, deletedAt: null }, deletedAt: null }
-                            )
-                            acquiringName = get(acquiringCtx, ['integration', 'name'], DEFAULT_ACQUIRING_INTEGRATION_NAME)
-                        }
+                    if (category.canGetAcquiringFromOrganization && item.organization) {
+                        const [acquiringCtx] = await AcquiringIntegrationContext.getAll(context, {
+                            organization: { id: item.organization, deletedAt: null },
+                            deletedAt: null,
+                        })
+                        acquiringName = get(acquiringCtx, ['integration', 'name'], DEFAULT_ACQUIRING_INTEGRATION_NAME)
+                    }
 
-                        return {
-                            id: category.id,
-                            categoryName: category.name,
-                            billingName: billingName,
-                            acquiringName: acquiringName,
-                        }
-                    })
+                    return {
+                        id: category.id,
+                        categoryName: category.name,
+                        billingName: billingName,
+                        acquiringName: acquiringName,
+                    }
+                })
             },
         },
 
@@ -190,20 +196,28 @@ const Resident = new GQLListSchema('Resident', {
             const { address, addressMeta, unitName, user: userId } = resolvedData
             if (operation === 'create') {
                 const addressUpToBuilding = getAddressUpToBuildingFrom(addressMeta)
-                const [resident] = await ResidentAPI.getAll(context, {
-                    address_i: addressUpToBuilding,
-                    unitName_i: unitName,
-                    user: { id: userId },
-                    deletedAt: null,
-                }, {
-                    first: 1,
-                })
+                const [resident] = await ResidentAPI.getAll(
+                    context,
+                    {
+                        address_i: addressUpToBuilding,
+                        unitName_i: unitName,
+                        user: { id: userId },
+                        deletedAt: null,
+                    },
+                    {
+                        first: 1,
+                    },
+                )
                 if (resident) {
-                    return addValidationError('Cannot create resident, because another resident with the same provided "address" and "unitName" already exists for current user')
+                    return addValidationError(
+                        'Cannot create resident, because another resident with the same provided "address" and "unitName" already exists for current user',
+                    )
                 }
             } else if (operation === 'update') {
                 if (address || addressMeta || unitName) {
-                    return addValidationError('Changing of address, addressMeta, unitName or property is not allowed for already existing Resident')
+                    return addValidationError(
+                        'Changing of address, addressMeta, unitName or property is not allowed for already existing Resident',
+                    )
                 }
             }
         },

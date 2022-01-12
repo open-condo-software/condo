@@ -20,17 +20,11 @@ describe('period utils test', () => {
                 expect(getPreviousPeriods(startPeriod)).toStrictEqual(expectedResult)
             })
             it('in this and previous year', () => {
-                const expectedResult = [
-                    '2021-03-01',
-                    '2021-02-01',
-                    '2021-01-01',
-                    '2020-12-01',
-                    '2020-11-01',
-                ]
+                const expectedResult = ['2021-03-01', '2021-02-01', '2021-01-01', '2020-12-01', '2020-11-01']
                 expect(getPreviousPeriods(startPeriod, 5)).toStrictEqual(expectedResult)
             })
             it('in multiple year', () => {
-                const expectedResult =  [
+                const expectedResult = [
                     '2021-03-01',
                     '2021-02-01',
                     '2021-01-01',

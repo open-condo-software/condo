@@ -1,29 +1,29 @@
 // @ts-ignore
 import XLSX from 'xlsx'
 
-function isValidEmail (email) {
+function isValidEmail(email) {
     const re = /^[a-zA-Z0-9_.-]+@(([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})$/gi
     return re.test(email.toLowerCase())
 }
 
-function getAnyEmail (email) {
+function getAnyEmail(email) {
     const someMails = email.match(/[a-zA-Z0-9_.-]+@(([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})/gi)
     if (someMails && someMails.length === 1) return someMails[0]
     return undefined
 }
 
-function isValidPhone (phone) {
+function isValidPhone(phone) {
     const re = /^[+]?[0-9-. ()]{7,}[0-9]$/gi
     return re.test(phone)
 }
 
-function getAnyPhone (phone) {
+function getAnyPhone(phone) {
     const somePhone = phone.match(/[+]?[0-9-. ()]{7,}[0-9]/gi)
     if (somePhone && somePhone.length === 1) return somePhone[0]
     return undefined
 }
 
-function formatPhone (p) {
+function formatPhone(p) {
     if (p.length === 11) return `${p[0]} (${p[1]}${p[2]}${p[3]}) ${p[4]}${p[5]}${p[6]} ${p[7]}${p[8]} ${p[9]}${p[10]}`
     const offset = p.length - 11
     const x = p.substring(0, offset)
@@ -31,7 +31,7 @@ function formatPhone (p) {
     return `${x}${t[0]} (${t[1]}${t[2]}${t[3]}) ${t[4]}${t[5]}${t[6]} ${t[7]}${t[8]} ${t[9]}${t[10]}`
 }
 
-export function defaultValidator (value) {
+export function defaultValidator(value) {
     value = value.replace(/\p{Z}+/gu, ' ')
     value = value.replace(/[ ]*\p{Pd}+[ \p{Pd}]*/gu, '-')
     value = value.replace(/["\u00B6]+/gu, '')
@@ -50,7 +50,7 @@ export function defaultValidator (value) {
     }
 }
 
-export function addressValidator (value) {
+export function addressValidator(value) {
     value = value.replace(/\p{Z}+/gu, ' ')
     value = value.replace(/[ ]*\p{Pd}+[ \p{Pd}]*/gu, '-')
     value = value.replace(/["\u00B6]+/gu, '')
@@ -90,7 +90,7 @@ export function addressValidator (value) {
     }
 }
 
-export function nameValidator (value) {
+export function nameValidator(value) {
     value = value.replace(/\p{Z}+/gu, ' ')
     value = value.replace(/[ ]*\p{Pd}+[ \p{Pd}]*/gu, '-')
     value = value.replace(/["\u00B6]+/gu, '')
@@ -130,7 +130,7 @@ export function nameValidator (value) {
     }
 }
 
-export function emailValidator (value) {
+export function emailValidator(value) {
     if (!value.includes('@')) {
         return {
             status: 'error',
@@ -160,7 +160,7 @@ export function emailValidator (value) {
     }
 }
 
-export function phoneValidator (value) {
+export function phoneValidator(value) {
     value = value.replace(/^\s+|\s+$/g, '')
     const digits = (value.match(/[0-9]+/g) || []).join('')
     if (digits.length < 10) {
@@ -198,18 +198,18 @@ export function phoneValidator (value) {
 }
 
 const VALIDATORS = {
-    'flat': defaultValidator,
-    'floor': defaultValidator,
-    'section': defaultValidator,
-    'address': addressValidator,
-    'name': nameValidator,
-    'email': emailValidator,
-    'phone': phoneValidator,
+    flat: defaultValidator,
+    floor: defaultValidator,
+    section: defaultValidator,
+    address: addressValidator,
+    name: nameValidator,
+    email: emailValidator,
+    phone: phoneValidator,
 }
 
 type Validator = (...args: Array<unknown>) => Record<string, string>
 
-export function validate ( formatter, value, validators: Record<string, Validator> = VALIDATORS) {
+export function validate(formatter, value, validators: Record<string, Validator> = VALIDATORS) {
     if (!validators[formatter]) throw new Error(`unknown formatter ${formatter}`)
     const validator = validators[formatter]
     if (value === null || value === undefined) value = ''
@@ -217,9 +217,12 @@ export function validate ( formatter, value, validators: Record<string, Validato
     return validator(value)
 }
 
-export function toExData (data) {
+export function toExData(data) {
     const exData = new Array(data.length)
-    const rowLength = Math.max.apply(null, data.map(x => x.length))
+    const rowLength = Math.max.apply(
+        null,
+        data.map((x) => x.length),
+    )
     for (let i = 0; i < data.length; i++) {
         exData[i] = new Array(rowLength)
         for (let j = 0; j < rowLength; j++) {
@@ -229,7 +232,7 @@ export function toExData (data) {
     return exData
 }
 
-export function reValidateExData (exData, currentSettings, newSettings, validators: Record<string, Validator> = VALIDATORS) {
+export function reValidateExData(exData, currentSettings, newSettings, validators: Record<string, Validator> = VALIDATORS) {
     Object.entries(newSettings).forEach(([colIndex, formatter]) => {
         if (!formatter) return
         for (let i = 0; i < exData.length; i++) {
@@ -251,8 +254,8 @@ export function reValidateExData (exData, currentSettings, newSettings, validato
     })
 }
 
-export function fromExData (exData, mapping, { uniqueBy = [], randomKey = 'id' } = {}) {
-    const unique = Object.fromEntries((uniqueBy) ? uniqueBy.map((key) => [key, new Set()]) : [])
+export function fromExData(exData, mapping, { uniqueBy = [], randomKey = 'id' } = {}) {
+    const unique = Object.fromEntries(uniqueBy ? uniqueBy.map((key) => [key, new Set()]) : [])
     const result = []
     for (let i = 0; i < exData.length; i++) {
         const row = {}
@@ -260,12 +263,18 @@ export function fromExData (exData, mapping, { uniqueBy = [], randomKey = 'id' }
         Object.entries(mapping).forEach(([colIndex, formatter]) => {
             const name = String(formatter)
             const objValue = exData[i][colIndex]
-            if (typeof objValue !== 'object') { throw new Error('exData should have Object as exData[i][j] type') }
+            if (typeof objValue !== 'object') {
+                throw new Error('exData should have Object as exData[i][j] type')
+            }
             const value = objValue.cleanedValue || objValue.value
             // @ts-ignore
             if (unique[name]) {
                 // @ts-ignore
-                if (unique[name].has(value)) {skip = true} else {unique[name].add(value)}
+                if (unique[name].has(value)) {
+                    skip = true
+                } else {
+                    unique[name].add(value)
+                }
             }
             // @ts-ignore
             row[name] = value
@@ -278,20 +287,22 @@ export function fromExData (exData, mapping, { uniqueBy = [], randomKey = 'id' }
     return result
 }
 
-export const isExValue = (x) => (typeof x === 'object' && x.hasOwnProperty('value'))
+export const isExValue = (x) => typeof x === 'object' && x.hasOwnProperty('value')
 
-export function makeAntdCols (refstr, extra?: Record<string, string>) {
-    const o = [], C = XLSX.utils.decode_range(refstr).e.c + 1
-    for (let i = 0; i < C; ++i) o[i] = {
-        title: XLSX.utils.encode_col(i),
-        key: i,
-        dataIndex: i,
-        ...extra,
-    }
+export function makeAntdCols(refstr, extra?: Record<string, string>) {
+    const o = [],
+        C = XLSX.utils.decode_range(refstr).e.c + 1
+    for (let i = 0; i < C; ++i)
+        o[i] = {
+            title: XLSX.utils.encode_col(i),
+            key: i,
+            dataIndex: i,
+            ...extra,
+        }
     return o
 }
 
-export function makeAntdData (ws) {
-    const data = XLSX.utils.sheet_to_json(ws, { header: 1 }).filter((x) => (x as string).length)    // TODO(Dimitreee): remove type cast, find cleanest solution
+export function makeAntdData(ws) {
+    const data = XLSX.utils.sheet_to_json(ws, { header: 1 }).filter((x) => (x as string).length) // TODO(Dimitreee): remove type cast, find cleanest solution
     return toExData(data)
 }

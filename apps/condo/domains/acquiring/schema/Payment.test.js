@@ -3,7 +3,10 @@
  */
 
 const { makePayerAndPayments } = require('../utils/testSchema')
-const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
+const {
+    createTestOrganizationEmployee,
+    createTestOrganizationEmployeeRole,
+} = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClient } = require('@core/keystone/test.utils')
 
@@ -18,12 +21,8 @@ const {
     createTestAcquiringIntegrationContext,
     updateTestAcquiringIntegrationContext,
 } = require('@condo/domains/acquiring/utils/testSchema')
-const {
-    createTestBillingIntegration,
-} = require('@condo/domains/billing/utils/testSchema')
-const {
-    createTestOrganization,
-} = require('@condo/domains/organization/utils/testSchema')
+const { createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
+const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
@@ -31,7 +30,13 @@ const {
     expectToThrowValidationFailureError,
 } = require('@condo/domains/common/utils/testSchema')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
-const { PAYMENT_ERROR_STATUS, PAYMENT_INIT_STATUS, PAYMENT_PROCESSING_STATUS, PAYMENT_REQUIRED_FIELDS, PAYMENT_FROZEN_FIELDS } = require('@condo/domains/acquiring/constants/payment')
+const {
+    PAYMENT_ERROR_STATUS,
+    PAYMENT_INIT_STATUS,
+    PAYMENT_PROCESSING_STATUS,
+    PAYMENT_REQUIRED_FIELDS,
+    PAYMENT_FROZEN_FIELDS,
+} = require('@condo/domains/acquiring/constants/payment')
 const {
     PAYMENT_NO_PAIRED_FROZEN_RECEIPT,
     PAYMENT_NO_PAIRED_RECEIPT,
@@ -62,14 +67,14 @@ describe('Payment', () => {
                     await createTestPayment(support, organization, billingReceipts[0], acquiringContext)
                 })
             })
-            test('user can\'t', async () => {
+            test("user can't", async () => {
                 const { billingReceipts, acquiringContext, organization } = await makePayer()
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await createTestPayment(client, organization, billingReceipts[0], acquiringContext)
                 })
             })
-            test('anonymous can\'t', async () => {
+            test("anonymous can't", async () => {
                 const { billingReceipts, acquiringContext, organization } = await makePayer()
                 const anonymous = await makeClient()
                 await expectToThrowAuthenticationErrorToObj(async () => {
@@ -96,7 +101,7 @@ describe('Payment', () => {
                 expect(payments).not.toHaveLength(0)
             })
             describe('user', () => {
-                describe('resident can see it\'s own payments when it\'s linked to MultiPayment',  () => {
+                describe("resident can see it's own payments when it's linked to MultiPayment", () => {
                     test('not linked', async () => {
                         const { admin, billingReceipts, acquiringContext, organization, client } = await makePayer()
                         await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
@@ -106,24 +111,49 @@ describe('Payment', () => {
                         expect(payments).toHaveLength(0)
                     })
                     test('linked', async () => {
-                        const { admin, payments: firstPayments, acquiringIntegration: firstAcquiringIntegration, client: firstClient, organization: firstOrganization } = await makePayerAndPayments()
-                        const { payments: secondPayments, acquiringIntegration: secondAcquiringIntegration, client: secondClient, organization: secondOrganization } = await makePayerAndPayments()
-                        const [firstMultiPayment] = await createTestMultiPayment(admin, firstPayments, firstClient.user, firstAcquiringIntegration)
-                        const [secondMultiPayment] = await createTestMultiPayment(admin, secondPayments, secondClient.user, secondAcquiringIntegration)
+                        const {
+                            admin,
+                            payments: firstPayments,
+                            acquiringIntegration: firstAcquiringIntegration,
+                            client: firstClient,
+                            organization: firstOrganization,
+                        } = await makePayerAndPayments()
+                        const {
+                            payments: secondPayments,
+                            acquiringIntegration: secondAcquiringIntegration,
+                            client: secondClient,
+                            organization: secondOrganization,
+                        } = await makePayerAndPayments()
+                        const [firstMultiPayment] = await createTestMultiPayment(
+                            admin,
+                            firstPayments,
+                            firstClient.user,
+                            firstAcquiringIntegration,
+                        )
+                        const [secondMultiPayment] = await createTestMultiPayment(
+                            admin,
+                            secondPayments,
+                            secondClient.user,
+                            secondAcquiringIntegration,
+                        )
 
-                        let { data: { objs: firstUserPayments } } = await Payment.getAll(firstClient, {}, { raw:true })
+                        let {
+                            data: { objs: firstUserPayments },
+                        } = await Payment.getAll(firstClient, {}, { raw: true })
                         expect(firstUserPayments).toBeDefined()
                         expect(firstUserPayments).toHaveLength(1)
                         expect(firstUserPayments).toHaveProperty(['0', 'multiPayment', 'id'], firstMultiPayment.id)
                         expect(firstUserPayments).toHaveProperty(['0', 'organization', 'id'], firstOrganization.id)
-                        let { data: { objs: secondUserPayments } } = await Payment.getAll(secondClient, {}, { raw:true })
+                        let {
+                            data: { objs: secondUserPayments },
+                        } = await Payment.getAll(secondClient, {}, { raw: true })
                         expect(secondUserPayments).toBeDefined()
                         expect(secondUserPayments).toHaveLength(1)
                         expect(secondUserPayments).toHaveProperty(['0', 'multiPayment', 'id'], secondMultiPayment.id)
                         expect(secondUserPayments).toHaveProperty(['0', 'organization', 'id'], secondOrganization.id)
                     })
                 })
-                test('acquiring account can see it\'s own payments', async () => {
+                test("acquiring account can see it's own payments", async () => {
                     const { admin, billingReceipts, acquiringContext, organization, acquiringIntegration } = await makePayer()
                     const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
                     const {
@@ -161,12 +191,14 @@ describe('Payment', () => {
                     const payments = await Payment.getAll(employeeClient)
                     expect(payments).toBeDefined()
                     expect(payments).toHaveLength(2)
-                    expect(payments).toEqual(expect.arrayContaining([
-                        expect.objectContaining({ id: payment.id }),
-                        expect.objectContaining({ id: secondPayment.id }),
-                    ]))
+                    expect(payments).toEqual(
+                        expect.arrayContaining([
+                            expect.objectContaining({ id: payment.id }),
+                            expect.objectContaining({ id: secondPayment.id }),
+                        ]),
+                    )
                 })
-                test('can\'t in other cases', async () => {
+                test("can't in other cases", async () => {
                     const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
                     await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
 
@@ -176,7 +208,7 @@ describe('Payment', () => {
                     expect(payments).toHaveLength(0)
                 })
             })
-            test('anonymous can\'t', async () => {
+            test("anonymous can't", async () => {
                 const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
                 await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
 
@@ -197,7 +229,7 @@ describe('Payment', () => {
                 expect(updatedPayment).toBeDefined()
                 expect(updatedPayment).toEqual(expect.objectContaining(payload))
             })
-            test('support can\'t', async () => {
+            test("support can't", async () => {
                 const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
                 const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
                 const payload = {}
@@ -207,7 +239,7 @@ describe('Payment', () => {
                     await updateTestPayment(support, payment.id, payload)
                 })
             })
-            describe('user',  () => {
+            describe('user', () => {
                 test('acquiring integration can', async () => {
                     const { admin, billingReceipts, acquiringContext, organization, acquiringIntegration } = await makePayer()
                     const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
@@ -223,7 +255,7 @@ describe('Payment', () => {
                     expect(updatedPayment).toBeDefined()
                     expect(updatedPayment).toEqual(expect.objectContaining(payload))
                 })
-                test('in other cases can\'t', async () => {
+                test("in other cases can't", async () => {
                     const { admin, billingReceipts, acquiringContext, organization, client } = await makePayer()
                     const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
                     const payload = {}
@@ -233,7 +265,7 @@ describe('Payment', () => {
                     })
                 })
             })
-            test('anonymous can\'t', async () => {
+            test("anonymous can't", async () => {
                 const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
                 const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
                 const payload = {}
@@ -245,7 +277,7 @@ describe('Payment', () => {
             })
         })
         describe('Delete', () => {
-            test('admin can\'t', async () => {
+            test("admin can't", async () => {
                 const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
                 const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
 
@@ -253,7 +285,7 @@ describe('Payment', () => {
                     await Payment.delete(admin, payment.id)
                 })
             })
-            test('support can\'t', async () => {
+            test("support can't", async () => {
                 const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
                 const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
 
@@ -264,7 +296,7 @@ describe('Payment', () => {
                 })
             })
 
-            test('user can\'t', async () => {
+            test("user can't", async () => {
                 const { admin, billingReceipts, acquiringContext, organization, client } = await makePayer()
                 const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
 
@@ -273,7 +305,7 @@ describe('Payment', () => {
                 })
             })
 
-            test('anonymous can\'t', async () => {
+            test("anonymous can't", async () => {
                 const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
                 const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
 
@@ -298,9 +330,16 @@ describe('Payment', () => {
             test('Should have correct dv field (=== 1)', async () => {
                 const { admin, organization } = await makePayer()
                 await expectToThrowValidationFailureError(async () => {
-                    await createTestPayment(admin, organization, null, null, {
-                        dv: 2,
-                    }, DV_UNKNOWN_VERSION_ERROR)
+                    await createTestPayment(
+                        admin,
+                        organization,
+                        null,
+                        null,
+                        {
+                            dv: 2,
+                        },
+                        DV_UNKNOWN_VERSION_ERROR,
+                    )
                 })
                 const [payment] = await createTestPayment(admin, organization, null, null)
                 await expectToThrowValidationFailureError(async () => {
@@ -311,9 +350,16 @@ describe('Payment', () => {
             })
             describe('Should check for non-negative money fields', () => {
                 const cases = [
-                    ['amount', '0'], ['amount', '0.00'], ['amount', '-30'], ['amount', '-100.50'],
-                    ['implicitFee', '-0.01'], ['implicitFee', '-30'], ['implicitFee', '-10.50'],
-                    ['explicitFee', '-0.01'], ['explicitFee', '-30'], ['explicitFee', '-10.50'],
+                    ['amount', '0'],
+                    ['amount', '0.00'],
+                    ['amount', '-30'],
+                    ['amount', '-100.50'],
+                    ['implicitFee', '-0.01'],
+                    ['implicitFee', '-30'],
+                    ['implicitFee', '-10.50'],
+                    ['explicitFee', '-0.01'],
+                    ['explicitFee', '-30'],
+                    ['explicitFee', '-10.50'],
                 ]
                 test.each(cases)('%p: %p', async (field, amount) => {
                     const { admin, organization } = await makePayer()
@@ -334,12 +380,19 @@ describe('Payment', () => {
                     })
                 }, PAYMENT_NO_PAIRED_FROZEN_RECEIPT)
                 await expectToThrowValidationFailureError(async () => {
-                    await createTestPayment(admin, organization, null, null, {
-                        frozenReceipt: { dv: 1, data: billingReceipts[0] },
-                    }, PAYMENT_NO_PAIRED_RECEIPT)
+                    await createTestPayment(
+                        admin,
+                        organization,
+                        null,
+                        null,
+                        {
+                            frozenReceipt: { dv: 1, data: billingReceipts[0] },
+                        },
+                        PAYMENT_NO_PAIRED_RECEIPT,
+                    )
                 })
             })
-            test('context should should have same organization as payment',  async () => {
+            test('context should should have same organization as payment', async () => {
                 const { admin, acquiringContext } = await makePayer()
                 const [secondOrganization] = await createTestOrganization(admin)
                 await expectToThrowValidationFailureError(async () => {
@@ -364,7 +417,7 @@ describe('Payment', () => {
                     await createTestPayment(admin, organization, billingReceipts[0], null)
                 }, PAYMENT_NO_PAIRED_CONTEXT)
             })
-            test('Receipt\'s billing should be supported by acquiring', async () => {
+            test("Receipt's billing should be supported by acquiring", async () => {
                 const { admin, organization, billingReceipts, acquiringContext } = await makePayer()
                 const [billing] = await createTestBillingIntegration(admin)
                 const [acquiring] = await createTestAcquiringIntegration(admin, [billing])
@@ -378,7 +431,7 @@ describe('Payment', () => {
             })
         })
         describe('Status-dependent model validations', () => {
-            test('Cannot change statuses if it\'s transition is not specified', async () => {
+            test("Cannot change statuses if it's transition is not specified", async () => {
                 const { admin, organization, acquiringContext, billingReceipts } = await makePayer()
                 const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext, {
                     status: PAYMENT_ERROR_STATUS,
@@ -390,9 +443,11 @@ describe('Payment', () => {
                 }, PAYMENT_NOT_ALLOWED_TRANSITION)
             })
             describe('Cannot updated payment without specifying required fields', () => {
-                const cases = Object.keys(PAYMENT_REQUIRED_FIELDS).map(status => {
-                    return PAYMENT_REQUIRED_FIELDS[status].map(field => [status, field])
-                }).flat(1)
+                const cases = Object.keys(PAYMENT_REQUIRED_FIELDS)
+                    .map((status) => {
+                        return PAYMENT_REQUIRED_FIELDS[status].map((field) => [status, field])
+                    })
+                    .flat(1)
                 test.each(cases)('Status: %p,  missing field: %p', async (status, field) => {
                     const { admin, organization, acquiringContext, billingReceipts } = await makePayer()
                     const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
@@ -411,12 +466,12 @@ describe('Payment', () => {
                 const statuses = [PAYMENT_INIT_STATUS, PAYMENT_PROCESSING_STATUS]
                 describe('Value-fields', async () => {
                     const fieldCases = Object.keys(PAYMENT_FROZEN_FIELDS)
-                        .filter(status => statuses.includes(status))
-                        .map(status => {
-                            const frozenFields = PAYMENT_FROZEN_FIELDS[status]
-                                .filter(field => valueFields.includes(field))
-                            return frozenFields.map(field => [status, field])
-                        }).flat(1)
+                        .filter((status) => statuses.includes(status))
+                        .map((status) => {
+                            const frozenFields = PAYMENT_FROZEN_FIELDS[status].filter((field) => valueFields.includes(field))
+                            return frozenFields.map((field) => [status, field])
+                        })
+                        .flat(1)
                     test.each(fieldCases)('From: %p, field: %p', async (status, field) => {
                         const { payments, admin, client, acquiringIntegration } = await makePayerAndPayments()
                         await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
@@ -436,12 +491,12 @@ describe('Payment', () => {
                 })
                 describe('Relation-fields', () => {
                     const relationCases = Object.keys(PAYMENT_FROZEN_FIELDS)
-                        .filter(status => statuses.includes(status))
-                        .map(status => {
-                            const frozenFields = PAYMENT_FROZEN_FIELDS[status]
-                                .filter(field => relationFields.includes(field))
-                            return frozenFields.map(field => [status, field])
-                        }).flat(1)
+                        .filter((status) => statuses.includes(status))
+                        .map((status) => {
+                            const frozenFields = PAYMENT_FROZEN_FIELDS[status].filter((field) => relationFields.includes(field))
+                            return frozenFields.map((field) => [status, field])
+                        })
+                        .flat(1)
                     test.each(relationCases)('From: %p, relation: %p', async (status, field) => {
                         const { payments, admin, client, acquiringIntegration } = await makePayerAndPayments()
                         await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
@@ -463,11 +518,18 @@ describe('Payment', () => {
         })
     })
     describe('real-life cases', () => {
-        test('mobile app requests payments by user and can\'t see sensitive data', async () => {
-            const { admin, payments: firstPayments, acquiringIntegration: firstAcquiringIntegration, client: firstClient } = await makePayerAndPayments()
+        test("mobile app requests payments by user and can't see sensitive data", async () => {
+            const {
+                admin,
+                payments: firstPayments,
+                acquiringIntegration: firstAcquiringIntegration,
+                client: firstClient,
+            } = await makePayerAndPayments()
             await createTestMultiPayment(admin, firstPayments, firstClient.user, firstAcquiringIntegration)
 
-            let { data: { objs: firstUserPayments } } = await Payment.getAll(firstClient, {}, { raw:true })
+            let {
+                data: { objs: firstUserPayments },
+            } = await Payment.getAll(firstClient, {}, { raw: true })
             const firstUserPayment = firstUserPayments[0]
             expect(firstUserPayment).toBeDefined()
             expect(firstUserPayment.status).toBeDefined()

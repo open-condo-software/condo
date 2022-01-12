@@ -10,11 +10,11 @@ import { Button } from '@condo/domains/common/components/Button'
 import { colors } from '../constants/style'
 
 type ChevronIconWrapperProps = {
-    direction: 'down' | 'up',
+    direction: 'down' | 'up'
 }
 
 const ChevronIconWrapper = styled.div<ChevronIconWrapperProps>`
-    transform: rotate(${props => props.direction === 'down' ? 0 : 180}deg);
+    transform: rotate(${(props) => (props.direction === 'down' ? 0 : 180)}deg);
     display: flex;
 `
 
@@ -25,16 +25,13 @@ export const ShowMoreFieldsButton = ({ isAdditionalFieldsCollapsed, setIsAdditio
     const MoreParametersMessage = intl.formatMessage({ id: 'MoreParameters' })
     const LessParametersMessage = intl.formatMessage({ id: 'LessParameters' })
 
-    const handleShowMoreButtonClick = useCallback(() => setIsAdditionalFieldsCollapsed(isCollapsed => !isCollapsed)
-        , [setIsAdditionalFieldsCollapsed])
+    const handleShowMoreButtonClick = useCallback(
+        () => setIsAdditionalFieldsCollapsed((isCollapsed) => !isCollapsed),
+        [setIsAdditionalFieldsCollapsed],
+    )
 
     return (
-        <Button
-            type="text"
-            color={colors.black}
-            onClick={handleShowMoreButtonClick}
-            style={SHOW_MORE_BUTTON_STYLE}
-        >
+        <Button type="text" color={colors.black} onClick={handleShowMoreButtonClick} style={SHOW_MORE_BUTTON_STYLE}>
             <Typography.Text strong>
                 <Space direction={'horizontal'} align={'center'}>
                     {isAdditionalFieldsCollapsed ? MoreParametersMessage : LessParametersMessage}
@@ -46,4 +43,3 @@ export const ShowMoreFieldsButton = ({ isAdditionalFieldsCollapsed, setIsAdditio
         </Button>
     )
 }
-

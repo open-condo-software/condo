@@ -19,13 +19,15 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
             type: 'input RegisterResidentInput { dv: Int!, sender: SenderFieldInput!, address: String!, addressMeta: AddressMetaFieldInput!, unitName: String! }',
         },
     ],
-    
+
     mutations: [
         {
             access: access.canRegisterResident,
             schema: 'registerResident(data: RegisterResidentInput!): Resident',
             resolver: async (parent, args, context) => {
-                const { data: { dv, sender, address, addressMeta, unitName } } = args
+                const {
+                    data: { dv, sender, address, addressMeta, unitName },
+                } = args
                 const attrs = {
                     dv,
                     sender,
@@ -34,19 +36,23 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                     unitName,
                     user: { connect: { id: context.authedItem.id } },
                 }
-                const [existingResident] = await ResidentAPI.getAll(context, {
-                    address_i: address,
-                    unitName_i: unitName,
-                    user: { id: context.authedItem.id },
-                }, {
-                    first: 1,
-                })
+                const [existingResident] = await ResidentAPI.getAll(
+                    context,
+                    {
+                        address_i: address,
+                        unitName_i: unitName,
+                        user: { id: context.authedItem.id },
+                    },
+                    {
+                        first: 1,
+                    },
+                )
 
                 const propertyAddress = getAddressUpToBuildingFrom(addressMeta)
                 const [property] = await PropertyAPI.getAll(
                     context,
                     { address_i: propertyAddress, deletedAt: null },
-                    { sortBy: ['createdAt_ASC'], first: 1 }
+                    { sortBy: ['createdAt_ASC'], first: 1 },
                 )
 
                 if (property) {
@@ -56,10 +62,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
 
                 let id
                 if (existingResident) {
-                    const nextAttrs = omit(
-                        { ...attrs, deletedAt: null },
-                        ['address', 'addressMeta', 'unitName']
-                    )
+                    const nextAttrs = omit({ ...attrs, deletedAt: null }, ['address', 'addressMeta', 'unitName'])
 
                     // TODO(DOMA-1780): we need to update address and addressMeta from property
                     await ResidentAPI.update(context, existingResident.id, nextAttrs)
@@ -79,7 +82,6 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
             },
         },
     ],
-    
 })
 
 module.exports = {

@@ -8,7 +8,11 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { TicketProblemClassifier as TicketProblemClassifierGQL } from '@condo/domains/ticket/gql'
-import { TicketProblemClassifier, TicketProblemClassifierUpdateInput, QueryAllTicketProblemClassifiersArgs } from '@app/condo/schema'
+import {
+    TicketProblemClassifier,
+    TicketProblemClassifierUpdateInput,
+    QueryAllTicketProblemClassifiersArgs,
+} from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'name']
 const RELATIONS = ['organization']
@@ -18,7 +22,7 @@ export interface ITicketProblemClassifierUIState extends TicketProblemClassifier
     // TODO(codegen): write ITicketProblemClassifierUIState or extends it from
 }
 
-function convertToUIState (item: TicketProblemClassifier): ITicketProblemClassifierUIState {
+function convertToUIState(item: TicketProblemClassifier): ITicketProblemClassifierUIState {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
     return pick(item, FIELDS) as ITicketProblemClassifierUIState
 }
@@ -28,39 +32,32 @@ export interface ITicketProblemClassifierFormState {
     // TODO(codegen): write ITicketProblemClassifierUIFormState or extends it from
 }
 
-function convertToUIFormState (state: ITicketProblemClassifierUIState): ITicketProblemClassifierFormState | undefined {
+function convertToUIFormState(state: ITicketProblemClassifierUIState): ITicketProblemClassifierFormState | undefined {
     if (!state) return
     const result = {}
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? attrId || state[attr] : state[attr]
     }
     return result as ITicketProblemClassifierFormState
 }
 
-function convertToGQLInput (state: ITicketProblemClassifierFormState): TicketProblemClassifierUpdateInput {
+function convertToGQLInput(state: ITicketProblemClassifierFormState): TicketProblemClassifierUpdateInput {
     const sender = getClientSideSenderInfo()
     const result = { dv: 1, sender }
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr]
+        result[attr] = RELATIONS.includes(attr) && state[attr] ? { connect: { id: attrId || state[attr] } } : state[attr]
     }
     return result
 }
 
-const {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-} = generateReactHooks<TicketProblemClassifier, TicketProblemClassifierUpdateInput, ITicketProblemClassifierFormState, ITicketProblemClassifierUIState, QueryAllTicketProblemClassifiersArgs>(TicketProblemClassifierGQL, { convertToGQLInput, convertToUIState })
+const { useObject, useObjects, useCreate, useUpdate, useDelete } = generateReactHooks<
+    TicketProblemClassifier,
+    TicketProblemClassifierUpdateInput,
+    ITicketProblemClassifierFormState,
+    ITicketProblemClassifierUIState,
+    QueryAllTicketProblemClassifiersArgs
+>(TicketProblemClassifierGQL, { convertToGQLInput, convertToUIState })
 
-export {
-    useObject,
-    useObjects,
-    useCreate,
-    useUpdate,
-    useDelete,
-    convertToUIFormState,
-}
+export { useObject, useObjects, useCreate, useUpdate, useDelete, convertToUIFormState }

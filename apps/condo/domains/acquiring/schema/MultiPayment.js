@@ -55,9 +55,8 @@ const access = require('@condo/domains/acquiring/access/MultiPayment')
 const get = require('lodash/get')
 const Big = require('big.js')
 
-
 const MultiPayment = new GQLListSchema('MultiPayment', {
-    schemaDoc: 'Information about resident\'s payment for single or multiple services/receipts',
+    schemaDoc: "Information about resident's payment for single or multiple services/receipts",
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
@@ -95,9 +94,15 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                     if (resolvedData.hasOwnProperty(fieldPath) && resolvedData[fieldPath] !== null) {
                         const parsedDecimal = Big(resolvedData[fieldPath])
                         if (parsedDecimal.lt(0)) {
-                            addFieldValidationError(`[${listKey.toLowerCase()}:${fieldPath}:negative] Field "${fieldPath}" of "${listKey}" must be greater then 0`)
+                            addFieldValidationError(
+                                `[${listKey.toLowerCase()}:${fieldPath}:negative] Field "${fieldPath}" of "${listKey}" must be greater then 0`,
+                            )
                         }
-                        const amount = Big(operation === 'create' ? resolvedData['amountWithoutExplicitFee'] : existingItem['amountWithoutExplicitFee'])
+                        const amount = Big(
+                            operation === 'create'
+                                ? resolvedData['amountWithoutExplicitFee']
+                                : existingItem['amountWithoutExplicitFee'],
+                        )
                         const fee = Big(resolvedData[fieldPath])
                         if (fee.gt(amount)) {
                             addFieldValidationError(MULTIPAYMENT_TOO_BIG_IMPLICIT_FEE)
@@ -136,7 +141,8 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
         },
 
         payerEmail: {
-            schemaDoc: 'Payer email address (optional). Can be used by support to find MultiPayment faster or to send digital receipt',
+            schemaDoc:
+                'Payer email address (optional). Can be used by support to find MultiPayment faster or to send digital receipt',
             type: Text,
             isRequired: false,
         },
@@ -164,7 +170,7 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
         },
 
         status: {
-            schemaDoc: `Status of multipayment. Can be: ${MULTIPAYMENT_STATUSES.map(status => `"${status}"`).join(', ')}`,
+            schemaDoc: `Status of multipayment. Can be: ${MULTIPAYMENT_STATUSES.map((status) => `"${status}"`).join(', ')}`,
             type: Select,
             dataType: 'string',
             isRequired: true,
@@ -229,27 +235,27 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                     id_in: paymentsIds,
                 })
                 const noInitPayments = payments
-                    .filter(payment => payment.status !== PAYMENT_INIT_STATUS)
-                    .map(payment => payment.id)
+                    .filter((payment) => payment.status !== PAYMENT_INIT_STATUS)
+                    .map((payment) => payment.id)
                 if (noInitPayments.length) {
                     addValidationError(`${MULTIPAYMENT_NON_INIT_PAYMENTS} Failed ids: ${noInitPayments.join(', ')}`)
                 }
-                const alreadyWithMPPayments = payments
-                    .filter(payment => payment.multiPayment)
-                    .map(payment => payment.id)
+                const alreadyWithMPPayments = payments.filter((payment) => payment.multiPayment).map((payment) => payment.id)
                 if (alreadyWithMPPayments.length) {
                     addValidationError(`${MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP} Failed ids: ${alreadyWithMPPayments.join(', ')}`)
                 }
-                const noReceiptPayments = payments.filter(payment => !payment.receipt).map(payment => `"${payment.id}"`)
+                const noReceiptPayments = payments.filter((payment) => !payment.receipt).map((payment) => `"${payment.id}"`)
                 if (noReceiptPayments.length) {
                     return addValidationError(`${MULTIPAYMENT_NO_RECEIPT_PAYMENTS} [${noReceiptPayments.join(', ')}]`)
                 }
                 const currencyCode = resolvedData['currencyCode']
-                const anotherCurrencyPayments = payments.filter(payment => payment.currencyCode !== currencyCode).map(payment => `"${payment.id}"`)
+                const anotherCurrencyPayments = payments
+                    .filter((payment) => payment.currencyCode !== currencyCode)
+                    .map((payment) => `"${payment.id}"`)
                 if (anotherCurrencyPayments.length) {
                     return addValidationError(`${MULTIPAYMENT_MULTIPLE_CURRENCIES} [${anotherCurrencyPayments.join(', ')}]`)
                 }
-                const receiptsIds = new Set(payments.map(payment => payment.receipt))
+                const receiptsIds = new Set(payments.map((payment) => payment.receipt))
                 if (receiptsIds.size !== payments.length) {
                     return addValidationError(MULTIPAYMENT_NOT_UNIQUE_RECEIPTS)
                 }
@@ -258,9 +264,9 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                     return addValidationError(MULTIPAYMENT_TOTAL_AMOUNT_MISMATCH)
                 }
                 const contexts = await find('AcquiringIntegrationContext', {
-                    id_in: payments.map(payment => payment.context),
+                    id_in: payments.map((payment) => payment.context),
                 })
-                const integrations = new Set(contexts.map(context => context.integration))
+                const integrations = new Set(contexts.map((context) => context.integration))
                 if (integrations.size !== 1) {
                     return addValidationError(MULTIPAYMENT_MULTIPLE_ACQUIRING_INTEGRATIONS)
                 }
@@ -279,7 +285,9 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                 const oldStatus = existingItem.status
                 const newStatus = get(resolvedData, 'status', oldStatus)
                 if (!MULTIPAYMENT_TRANSITIONS[oldStatus].includes(newStatus)) {
-                    return addValidationError(`${MULTIPAYMENT_NOT_ALLOWED_TRANSITION} Cannot move from "${oldStatus}" status to "${newStatus}"`)
+                    return addValidationError(
+                        `${MULTIPAYMENT_NOT_ALLOWED_TRANSITION} Cannot move from "${oldStatus}" status to "${newStatus}"`,
+                    )
                 }
                 const newItem = {
                     ...existingItem,
@@ -304,15 +312,13 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                 }
                 if (frozenIncluded) return
                 if (newStatus === MULTIPAYMENT_DONE_STATUS) {
-                    const deletedPayments = payments
-                        .filter(payment => payment.deletedAt)
-                        .map(payment => payment.id)
+                    const deletedPayments = payments.filter((payment) => payment.deletedAt).map((payment) => payment.id)
                     if (deletedPayments.length) {
                         return addValidationError(`${MULTIPAYMENT_DELETED_PAYMENTS} Failed ids: ${deletedPayments.join(', ')}`)
                     }
                     const undonePayments = payments
-                        .filter(payment => payment.status !== PAYMENT_DONE_STATUS)
-                        .map(payment => payment.id)
+                        .filter((payment) => payment.status !== PAYMENT_DONE_STATUS)
+                        .map((payment) => payment.id)
                     if (undonePayments.length) {
                         addValidationError(`${MULTIPAYMENT_UNDONE_PAYMENTS} Undone payments ids: ${undonePayments.join(', ')}`)
                     }
@@ -320,7 +326,7 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                     if (!newItem.explicitFee || !totalFee.eq(newItem.explicitFee)) {
                         addValidationError(`${MULTIPAYMENT_EXPLICIT_FEE_MISMATCH}`)
                     }
-                    const paymentsWithImplicitFee = payments.filter(payment => payment.implicitFee)
+                    const paymentsWithImplicitFee = payments.filter((payment) => payment.implicitFee)
                     if (paymentsWithImplicitFee.length !== payments.length && paymentsWithImplicitFee.length !== 0) {
                         addValidationError(MULTIPAYMENT_INCONSISTENT_IMPLICIT_FEE)
                     }

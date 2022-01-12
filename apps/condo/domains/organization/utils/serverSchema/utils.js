@@ -1,4 +1,7 @@
-async function execGqlWithoutAccess (context, { query, variables, errorMessage = '[error] Internal Exec GQL Error', dataPath = 'obj' }) {
+async function execGqlWithoutAccess(
+    context,
+    { query, variables, errorMessage = '[error] Internal Exec GQL Error', dataPath = 'obj' },
+) {
     if (!context) throw new Error('wrong context argument')
     if (!query) throw new Error('wrong query argument')
     if (!variables) throw new Error('wrong variables argument')
@@ -9,8 +12,8 @@ async function execGqlWithoutAccess (context, { query, variables, errorMessage =
     })
 
     if (errors) {
-        if (errors.some(e => e.originalError && e.originalError.data)) {
-            console.warn(errors.map((err) => (err.originalError && err.originalError.data)))
+        if (errors.some((e) => e.originalError && e.originalError.data)) {
+            console.warn(errors.map((err) => err.originalError && err.originalError.data))
         }
         console.error(errors)
         const error = new Error(errorMessage)

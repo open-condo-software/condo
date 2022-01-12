@@ -11,7 +11,7 @@ interface ITicketAnalyticsPageListViewProps extends ITicketAnalyticsPageWidgetPr
 }
 
 const getScrollConfig = (isSmall: boolean) => {
-    const config: RcTableProps['scroll'] & { scrollToFirstRowOnChange?: boolean; } = {
+    const config: RcTableProps['scroll'] & { scrollToFirstRowOnChange?: boolean } = {
         scrollToFirstRowOnChange: true,
     }
 
@@ -31,8 +31,12 @@ const TicketListView: React.FC<ITicketAnalyticsPageListViewProps> = (props) => {
     const ExecutorTitle = intl.formatMessage({ id: 'field.Executor' })
     const AssigneeTitle = intl.formatMessage({ id: 'field.Responsible' })
     const AllAddressTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllAddresses' })
-    const CategoryClassifierTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.Classifier' })
-    const AllCategoryClassifiersTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllClassifiers' })
+    const CategoryClassifierTitle = intl.formatMessage({
+        id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.Classifier',
+    })
+    const AllCategoryClassifiersTitle = intl.formatMessage({
+        id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllClassifiers',
+    })
     const AllExecutorsTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllExecutors' })
     const AllAssigneesTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllAssignees' })
     const { isSmall } = useLayoutContext()

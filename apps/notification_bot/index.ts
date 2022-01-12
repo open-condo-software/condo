@@ -26,8 +26,9 @@ bot.init()
 app.use(express.json())
 app.use(cors())
 
-function verify_signature (payload_body) {
-    const secretToken = process.env.NOTIFICATION_BOT_CONFIG && JSON.parse(process.env.NOTIFICATION_BOT_CONFIG)?.github_secure_token
+function verify_signature(payload_body) {
+    const secretToken =
+        process.env.NOTIFICATION_BOT_CONFIG && JSON.parse(process.env.NOTIFICATION_BOT_CONFIG)?.github_secure_token
     const expected = createHmac('sha256', payload_body).digest('hex')
     console.log(expected, secretToken)
     // TODO: add verification by Token

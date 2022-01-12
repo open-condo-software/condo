@@ -7,7 +7,12 @@ const { makeClientWithRegisteredOrganization } = require('@condo/domains/organiz
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
 const { Message, createTestMessage, updateTestMessage } = require('@condo/domains/notification/utils/testSchema')
-const { expectToThrowAuthenticationErrorToObjects, catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('../../common/utils/testSchema')
+const {
+    expectToThrowAuthenticationErrorToObjects,
+    catchErrorFrom,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj,
+} = require('../../common/utils/testSchema')
 
 describe('Message', () => {
     test('admin: create Message', async () => {
@@ -61,9 +66,13 @@ describe('Message', () => {
         const admin = await makeLoggedInAdminClient()
         const [obj, attrs] = await createTestMessage(admin, { user: { connect: { id: client.user.id } } })
 
-        const objs = await Message.getAll(client, {
-            type: obj.type,
-        }, { sortBy: ['updatedAt_DESC'] })
+        const objs = await Message.getAll(
+            client,
+            {
+                type: obj.type,
+            },
+            { sortBy: ['updatedAt_DESC'] },
+        )
 
         expect(objs[0].type).toEqual(INVITE_NEW_EMPLOYEE_MESSAGE_TYPE)
         expect(objs).toHaveLength(1)
@@ -139,7 +148,8 @@ describe('Message', () => {
                 expect(data).toEqual(undefined)
                 expect(errors[0]).toMatchObject({
                     name: 'UserInputError',
-                    message: 'Variable "$data" got invalid value "invalid" at "data.sender"; Expected type "SenderFieldInput" to be an object.',
+                    message:
+                        'Variable "$data" got invalid value "invalid" at "data.sender"; Expected type "SenderFieldInput" to be an object.',
                     extensions: { code: 'BAD_USER_INPUT' },
                     uid: expect.any(String),
                 })

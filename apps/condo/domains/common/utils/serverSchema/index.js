@@ -1,4 +1,3 @@
-
 const { getItems } = require('@keystonejs/server-side-graphql-client')
 const { getSchemaCtx } = require('@core/keystone/schema')
 const GLOBAL_QUERY_LIMIT = 1000
@@ -17,8 +16,7 @@ const GLOBAL_QUERY_LIMIT = 1000
 // TODO(zuch): find out how to make 1 request for 1. and 2.
 
 class GqlWithKnexLoadList {
-
-    constructor ({ listKey, fields, singleRelations = [], multipleRelations = [], where = {}, sortBy = [] }) {
+    constructor({ listKey, fields, singleRelations = [], multipleRelations = [], where = {}, sortBy = [] }) {
         this.listKey = listKey
         this.fields = fields
         this.where = where
@@ -27,7 +25,7 @@ class GqlWithKnexLoadList {
         this.multipleRelations = multipleRelations
     }
 
-    async load () {
+    async load() {
         const { keystone: modelAdapter } = await getSchemaCtx(this.listKey)
         this.keystone = modelAdapter
         this.knex = modelAdapter.adapter.knex
@@ -46,7 +44,7 @@ class GqlWithKnexLoadList {
         return all
     }
 
-    async loadChunk (skip = 0) {
+    async loadChunk(skip = 0) {
         const mainTableObjects = await getItems({
             keystone: this.keystone,
             listKey: this.listKey,
@@ -59,13 +57,13 @@ class GqlWithKnexLoadList {
         if (mainTableObjects.length === 0) {
             return []
         }
-        const ids = mainTableObjects.map(object => object.id)
+        const ids = mainTableObjects.map((object) => object.id)
         const knexQuery = this.knex(`${this.listKey} as mainModel`)
         knexQuery.select('mainModel.id')
         if (this.multipleRelations.length !== 0) {
             knexQuery.groupBy('mainModel.id')
         }
-        this.singleRelations.forEach(([ Model, fieldName, value ], idx) => {
+        this.singleRelations.forEach(([Model, fieldName, value], idx) => {
             knexQuery.select(`sr${idx}.${value} as ${fieldName}`)
             if (this.multipleRelations.length !== 0) {
                 knexQuery.groupBy(`sr${idx}.${value}`)
@@ -78,8 +76,8 @@ class GqlWithKnexLoadList {
         })
         knexQuery.whereIn('mainModel.id', ids)
         const joinTablesObjects = await knexQuery
-        const main = Object.fromEntries(mainTableObjects.map(object => ([object.id, object])))
-        const joins = Object.fromEntries(joinTablesObjects.map(object => ([object.id, object])))
+        const main = Object.fromEntries(mainTableObjects.map((object) => [object.id, object]))
+        const joins = Object.fromEntries(joinTablesObjects.map((object) => [object.id, object]))
         const merged = {}
         for (const id in main) {
             merged[id] = { ...main[id], ...joins[id] }
@@ -88,14 +86,7 @@ class GqlWithKnexLoadList {
     }
 }
 // Simple way to load all models
-const loadListByChunks = async ({
-    context,
-    list,
-    where = {},
-    sortBy = ['createdAt_ASC'],
-    chunkSize = 100,
-    limit = 100000,
-}) => {
+const loadListByChunks = async ({ context, list, where = {}, sortBy = ['createdAt_ASC'], chunkSize = 100, limit = 100000 }) => {
     let skip = 0
     let maxiterationsCount = Math.ceil(limit / chunkSize)
     let newchunk = []
@@ -107,7 +98,6 @@ const loadListByChunks = async ({
     } while (--maxiterationsCount > 0 && newchunk.length)
     return all
 }
-
 
 module.exports = {
     GqlWithKnexLoadList,

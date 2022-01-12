@@ -8,7 +8,6 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { TicketsWidget } from '@condo/domains/ticket/components/TicketsWidget'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
-
 const IndexPage = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.analytics.index.PageTitle' })
@@ -19,7 +18,7 @@ const IndexPage = () => {
                 <title>{PageTitleMsg}</title>
             </Head>
             <PageWrapper>
-                <PageHeader style={{ background: 'transparent' }} title={<Typography.Title>{PageTitleMsg}</Typography.Title>}/>
+                <PageHeader style={{ background: 'transparent' }} title={<Typography.Title>{PageTitleMsg}</Typography.Title>} />
                 <PageContent>
                     <TicketsWidget />
                 </PageContent>

@@ -4,13 +4,13 @@
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
-async function canReadTokenSets ({ authentication: { item: user } }) {
+async function canReadTokenSets({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     return false
 }
 
-async function canManageTokenSets ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageTokenSets({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     return false

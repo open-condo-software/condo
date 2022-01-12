@@ -21,10 +21,7 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
     const Title = intl.formatMessage({ id: 'onboarding.title' })
     const SubTitle = intl.formatMessage({ id: 'onboarding.subtitle' })
     const { onBoardingSteps = [], onBoarding, refetchOnBoarding } = useOnBoardingContext()
-    const {
-        ServiceSubscriptionWelcomePopup,
-        isServiceSubscriptionWelcomePopupVisible,
-    } = useServiceSubscriptionWelcomePopup()
+    const { ServiceSubscriptionWelcomePopup, isServiceSubscriptionWelcomePopupVisible } = useServiceSubscriptionWelcomePopup()
 
     useEffect(() => {
         refetchOnBoarding()
@@ -52,50 +49,44 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
                                 </Space>
                             </Col>
                             <Col span={24}>
-                                {onBoardingSteps.length > 0 && !get(onBoarding, 'completed')
-                                    ? (
-                                        <Row gutter={[0, 0]}>
-                                            {onBoardingSteps.sort((leftStep, rightStep) => leftStep.order > rightStep.order ? 1 : -1)
-                                                .map((step) => {
-                                                    const { title, description, iconView, stepAction, type, id } = step
+                                {onBoardingSteps.length > 0 && !get(onBoarding, 'completed') ? (
+                                    <Row gutter={[0, 0]}>
+                                        {onBoardingSteps
+                                            .sort((leftStep, rightStep) => (leftStep.order > rightStep.order ? 1 : -1))
+                                            .map((step) => {
+                                                const { title, description, iconView, stepAction, type, id } = step
 
-                                                    if (!type) {
-                                                        return null
-                                                    }
+                                                if (!type) {
+                                                    return null
+                                                }
 
-                                                    return (
-                                                        <Col lg={16} md={24} key={id}>
-                                                            <OnBoardingStepItem
-                                                                action={stepAction}
-                                                                icon={iconView}
-                                                                type={type}
-                                                                title={title}
-                                                                description={description}
-                                                            />
-                                                        </Col>
-                                                    )
-                                                })}
-                                        </Row>
-                                    )
-                                    : (
-                                        <React.Fragment>
-                                            <Skeleton active/>
-                                            <Skeleton active/>
-                                            <Skeleton active/>
-                                            <Skeleton active/>
-                                        </React.Fragment>
-                                    )
-                                }
+                                                return (
+                                                    <Col lg={16} md={24} key={id}>
+                                                        <OnBoardingStepItem
+                                                            action={stepAction}
+                                                            icon={iconView}
+                                                            type={type}
+                                                            title={title}
+                                                            description={description}
+                                                        />
+                                                    </Col>
+                                                )
+                                            })}
+                                    </Row>
+                                ) : (
+                                    <React.Fragment>
+                                        <Skeleton active />
+                                        <Skeleton active />
+                                        <Skeleton active />
+                                        <Skeleton active />
+                                    </React.Fragment>
+                                )}
                             </Col>
                         </Row>
                     </PageContent>
                 </AuthRequired>
             </PageWrapper>
-            {
-                isServiceSubscriptionWelcomePopupVisible && (
-                    <ServiceSubscriptionWelcomePopup />
-                )
-            }
+            {isServiceSubscriptionWelcomePopupVisible && <ServiceSubscriptionWelcomePopup />}
         </>
     )
 }

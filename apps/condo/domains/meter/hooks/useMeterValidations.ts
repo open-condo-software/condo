@@ -13,7 +13,9 @@ export const useMeterValidations = (installationDate: Dayjs, verificationDate: D
     const intl = useIntl()
     const MeterWithSameNumberIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterWithSameNumberIsExist' })
     const CanNotBeEarlierThanInstallationMessage = intl.formatMessage({ id: 'pages.condo.meter.СanNotBeEarlierThanInstallation' })
-    const CanNotBeEarlierThanFirstVerificationMessage = intl.formatMessage({ id: 'pages.condo.meter.CanNotBeEarlierThanFirstVerification' })
+    const CanNotBeEarlierThanFirstVerificationMessage = intl.formatMessage({
+        id: 'pages.condo.meter.CanNotBeEarlierThanFirstVerification',
+    })
 
     const { organization } = useOrganization()
     const organizationId = get(organization, 'id')
@@ -22,50 +24,57 @@ export const useMeterValidations = (installationDate: Dayjs, verificationDate: D
             organization: { id: organizationId },
         },
     })
-    
-    const earlierThanInstallationValidator: Rule = useMemo(() => ({
-        validator: async (_, value) => {
-            if (!value || !installationDate)
+
+    const earlierThanInstallationValidator: Rule = useMemo(
+        () => ({
+            validator: async (_, value) => {
+                if (!value || !installationDate) return Promise.resolve()
+
+                if (value.toDate() < installationDate.toDate()) {
+                    return Promise.reject(CanNotBeEarlierThanInstallationMessage)
+                }
+
                 return Promise.resolve()
+            },
+        }),
+        [CanNotBeEarlierThanInstallationMessage, installationDate],
+    )
 
-            if (value.toDate() < installationDate.toDate()) {
-                return Promise.reject(CanNotBeEarlierThanInstallationMessage)
-            }
+    const earlierThanFirstVerificationDateValidator: Rule = useMemo(
+        () => ({
+            validator: async (_, value) => {
+                if (!value || !verificationDate) return Promise.resolve()
 
-            return Promise.resolve()
-        },
-    }), [CanNotBeEarlierThanInstallationMessage, installationDate])
+                if (value.toDate() < verificationDate.toDate()) {
+                    return Promise.reject(CanNotBeEarlierThanFirstVerificationMessage)
+                }
 
-    const earlierThanFirstVerificationDateValidator: Rule = useMemo(() => ({
-        validator: async (_, value) => {
-            if (!value || !verificationDate)
                 return Promise.resolve()
+            },
+        }),
+        [CanNotBeEarlierThanFirstVerificationMessage, verificationDate],
+    )
 
-            if (value.toDate() < verificationDate.toDate()) {
-                return Promise.reject(CanNotBeEarlierThanFirstVerificationMessage)
-            }
+    const meterWithSameNumberValidator: Rule = useMemo(
+        () => ({
+            validator: async (_, value) => {
+                await refetch({
+                    where: {
+                        organization: { id: organizationId },
+                        number: value,
+                    },
+                })
 
-            return Promise.resolve()
-        },
-    }), [CanNotBeEarlierThanFirstVerificationMessage, verificationDate])
+                if (!isEmpty(metersWithSameNumber)) return Promise.reject(MeterWithSameNumberIsExistMessage)
 
-    const meterWithSameNumberValidator: Rule = useMemo(() => ({
-        validator: async (_, value) => {
-            await refetch({
-                where: {
-                    organization: { id: organizationId },
-                    number: value,
-                },
-            })
+                return Promise.resolve()
+            },
+        }),
+        [MeterWithSameNumberIsExistMessage, metersWithSameNumber, organizationId, refetch],
+    )
 
-            if (!isEmpty(metersWithSameNumber))
-                return Promise.reject(MeterWithSameNumberIsExistMessage)
-
-            return Promise.resolve()
-        },
-    }), [MeterWithSameNumberIsExistMessage, metersWithSameNumber, organizationId, refetch])
-
-    return useMemo(() => (
-        { meterWithSameNumberValidator, earlierThanFirstVerificationDateValidator, earlierThanInstallationValidator }
-    ), [earlierThanFirstVerificationDateValidator, earlierThanInstallationValidator, meterWithSameNumberValidator])
+    return useMemo(
+        () => ({ meterWithSameNumberValidator, earlierThanFirstVerificationDateValidator, earlierThanInstallationValidator }),
+        [earlierThanFirstVerificationDateValidator, earlierThanInstallationValidator, meterWithSameNumberValidator],
+    )
 }

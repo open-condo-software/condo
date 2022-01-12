@@ -19,7 +19,7 @@ const { EXPORT_PROPERTIES_TO_EXCEL } = require('@condo/domains/property/gql')
 const Property = generateGQLTestUtils(PropertyGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-async function createTestProperty (client, organization, extraAttrs = {}, withFlat = false) {
+async function createTestProperty(client, organization, extraAttrs = {}, withFlat = false) {
     if (!client) throw new Error('no client')
     if (!organization) throw new Error('no organization')
 
@@ -41,7 +41,7 @@ async function createTestProperty (client, organization, extraAttrs = {}, withFl
     return [obj, attrs]
 }
 
-async function updateTestProperty (client, id, extraAttrs = {}) {
+async function updateTestProperty(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -54,7 +54,7 @@ async function updateTestProperty (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function makeClientWithProperty (includeFlat = false) {
+async function makeClientWithProperty(includeFlat = false) {
     const client = await makeClientWithRegisteredOrganization()
     const [property] = await createTestProperty(client, client.organization, { map: buildingMapJson }, includeFlat)
     client.property = property
@@ -62,7 +62,7 @@ async function makeClientWithProperty (includeFlat = false) {
 }
 
 // TODO(DOMA-1699): make create Resident for client. Rewrite tests where this utility is used.
-async function makeClientWithResidentAccessAndProperty () {
+async function makeClientWithResidentAccessAndProperty() {
     const clientWithOrganization = await makeClientWithProperty()
     const client = await makeClientWithResidentUser()
     const organization = clientWithOrganization.organization
@@ -105,5 +105,5 @@ module.exports = {
     checkPropertyWithAddressExistByTestClient,
     makeClientWithResidentAccessAndProperty,
     exportPropertiesToExcelByTestClient,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

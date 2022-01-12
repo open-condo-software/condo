@@ -28,22 +28,27 @@ export const RegisterContext = createContext<IRegisterContext>({
 })
 
 export const RegisterContextProvider = ({ children }): React.ReactElement => {
-    const { query: { token: queryToken } } = useRouter()
+    const {
+        query: { token: queryToken },
+    } = useRouter()
     const [token, setToken] = useState(queryToken as string)
     const [phone, setPhone] = useState('')
     const [tokenError, setTokenError] = useState<Error | null>(null)
     const [isConfirmed, setIsConfirmed] = useState(false)
     const { executeRecaptcha } = useGoogleReCaptcha()
 
-    const handleReCaptchaVerify = useCallback(async (action) => {
-        if (executeRecaptcha) {
-            const userToken = await executeRecaptcha(action)
-            return userToken
-        }
-    }, [executeRecaptcha])
+    const handleReCaptchaVerify = useCallback(
+        async (action) => {
+            if (executeRecaptcha) {
+                const userToken = await executeRecaptcha(action)
+                return userToken
+            }
+        },
+        [executeRecaptcha],
+    )
 
     const [loadTokenInfo] = useLazyQuery(GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY, {
-        onError: error => {
+        onError: (error) => {
             setTokenError(error)
         },
         onCompleted: ({ result: { phone, isPhoneVerified } }) => {
@@ -55,7 +60,7 @@ export const RegisterContextProvider = ({ children }): React.ReactElement => {
 
     useEffect(() => {
         if (!isEmpty(queryToken)) {
-            handleReCaptchaVerify('get_confirm_phone_token_info').then(captcha => {
+            handleReCaptchaVerify('get_confirm_phone_token_info').then((captcha) => {
                 if (captcha) {
                     loadTokenInfo({ variables: { data: { token: queryToken, captcha } } })
                 }

@@ -40,7 +40,9 @@ if (IS_ENABLE_DD_TRACE) {
     })
 }
 
-const keystoneConfig = (IS_BUILD_PHASE) ? { cookieSecret: v4(), adapter: getAdapter('undefined') } : prepareDefaultKeystoneConfig(conf)
+const keystoneConfig = IS_BUILD_PHASE
+    ? { cookieSecret: v4(), adapter: getAdapter('undefined') }
+    : prepareDefaultKeystoneConfig(conf)
 const keystone = new Keystone({
     ...keystoneConfig,
     onConnect: async () => {
@@ -85,9 +87,7 @@ if (!IS_BUILD_PHASE) {
         require('@condo/domains/resident/tasks.js'),
     ])
 
-    registerTriggers([
-        require('@condo/domains/ticket/triggers'),
-    ])
+    registerTriggers([require('@condo/domains/ticket/triggers')])
 }
 
 let authStrategy
@@ -102,12 +102,12 @@ if (!IS_BUILD_PHASE) {
 }
 
 class SberBuisnessOnlineMiddleware {
-    prepareMiddleware () {
+    prepareMiddleware() {
         const Auth = new SbbolRoutes()
         const app = express()
         // TODO(zuch): find a way to remove bind
         app.get('/api/sbbol/auth', Auth.startAuth.bind(Auth))
-        app.get('/api/sbbol/auth/callback',  Auth.completeAuth.bind(Auth))
+        app.get('/api/sbbol/auth/callback', Auth.completeAuth.bind(Auth))
         return app
     }
 }
@@ -116,7 +116,7 @@ class SberBuisnessOnlineMiddleware {
  * We need a custom body parser for custom file upload limit
  */
 class CustomBodyParserMiddleware {
-    prepareMiddleware ({ keystone, dev, distDir }) {
+    prepareMiddleware({ keystone, dev, distDir }) {
         const app = express()
         app.use(bodyParser.json({ limit: '100mb', extended: true }))
         app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }))
@@ -148,12 +148,12 @@ module.exports = {
     /** @type {(app: import('express').Application) => void} */
     configureExpress: (app) => {
         const requestIdHeaderName = 'X-Request-Id'
-        app.use(function reqId (req, res, next) {
+        app.use(function reqId(req, res, next) {
             req['id'] = req.headers[requestIdHeaderName.toLowerCase()] = v4()
             res.setHeader(requestIdHeaderName, req['id'])
             next()
         })
-        
+
         app.use('/admin/', (req, res, next) => {
             if (req.url === '/api') return next()
             const cookies = nextCookie({ req })
@@ -173,7 +173,8 @@ module.exports = {
                         format: /^[a-zA-Z0-9!#$%()*+-;=,:[\]/.?@^_`{|}~]{5,42}$/,
                         length: { minimum: 5, maximum: 42 },
                     },
-                })
+                },
+            )
             if (!isSenderValid) {
                 res.cookie('sender', JSON.stringify({ fingerprint: makeId(12), dv: 1 }))
                 res.cookie('dv', 1)

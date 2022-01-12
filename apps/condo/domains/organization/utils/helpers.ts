@@ -20,18 +20,22 @@ export interface IFilters extends Pick<OrganizationEmployee, 'name' | 'phone' | 
 export const roleToQuery = (rolesIds: Array<string>): OrganizationEmployeeRoleWhereInput => {
     if (Array.isArray(rolesIds) && rolesIds.length > 0) {
         return {
-            AND: [{
-                id_in: rolesIds,
-            }],
+            AND: [
+                {
+                    id_in: rolesIds,
+                },
+            ],
         }
     }
 }
 
 export const roleToSearchQuery = (roleName: string): OrganizationEmployeeRoleWhereInput => {
     return {
-        AND: [{
-            name_contains_i: roleName,
-        }],
+        AND: [
+            {
+                name_contains_i: roleName,
+            },
+        ],
     }
 }
 
@@ -41,9 +45,11 @@ export const nameToQuery = (name?: string) => {
     }
 
     return {
-        AND: [{
-            name_contains_i: name,
-        }],
+        AND: [
+            {
+                name_contains_i: name,
+            },
+        ],
     }
 }
 
@@ -53,9 +59,11 @@ export const phoneToQuery = (phone?: string) => {
     }
 
     return {
-        AND: [{
-            phone_contains_i: phone,
-        }],
+        AND: [
+            {
+                phone_contains_i: phone,
+            },
+        ],
     }
 }
 
@@ -65,9 +73,11 @@ export const emailToQuery = (email?: string) => {
     }
 
     return {
-        AND: [{
-            email_contains_i: email,
-        }],
+        AND: [
+            {
+                email_contains_i: email,
+            },
+        ],
     }
 }
 
@@ -115,7 +125,7 @@ export const filtersToQuery = (filters: IFilters): OrganizationEmployeeWhereInpu
 }
 
 type SorterColumn = {
-    columnKey: string,
+    columnKey: string
     order: 'ascend' | 'descend'
 }
 
@@ -128,54 +138,52 @@ export const sorterToQuery = (sorter?: SorterColumn | Array<SorterColumn>): Arra
         sorter = [sorter]
     }
 
-    return sorter.map((sort) => {
-        const { columnKey, order } = sort
+    return sorter
+        .map((sort) => {
+            const { columnKey, order } = sort
 
-        const sortKeys = {
-            'ascend': 'ASC',
-            'descend': 'DESC',
-        }
+            const sortKeys = {
+                ascend: 'ASC',
+                descend: 'DESC',
+            }
 
-        const sortKey = sortKeys[order]
+            const sortKey = sortKeys[order]
 
-        if (!sortKey) {
-            return
-        }
+            if (!sortKey) {
+                return
+            }
 
-        return `${columnKey}_${sortKeys[order]}` as SortOrganizationEmployeesBy
-    }).filter(Boolean)
+            return `${columnKey}_${sortKeys[order]}` as SortOrganizationEmployeesBy
+        })
+        .filter(Boolean)
 }
 
 const SORT_ORDERS = {
-    'ASC': 'ascend',
-    'DESC': 'descend',
+    ASC: 'ascend',
+    DESC: 'descend',
 }
 
-const EMPLOYEE_TABLE_COLUMNS = [
-    'name',
-    'phone',
-    'email',
-    'role',
-    'position',
-]
+const EMPLOYEE_TABLE_COLUMNS = ['name', 'phone', 'email', 'role', 'position']
 
 export const queryToSorter = (query: Array<string>) => {
-    return query.map((sort) => {
-        const [columnKey, sortKey] = sort.split('_')
+    return query
+        .map((sort) => {
+            const [columnKey, sortKey] = sort.split('_')
 
-        try {
-            if (EMPLOYEE_TABLE_COLUMNS.includes(columnKey) && SORT_ORDERS[sortKey]) {
-                return {
-                    columnKey,
-                    order: SORT_ORDERS[sortKey],
+            try {
+                if (EMPLOYEE_TABLE_COLUMNS.includes(columnKey) && SORT_ORDERS[sortKey]) {
+                    return {
+                        columnKey,
+                        order: SORT_ORDERS[sortKey],
+                    }
                 }
+            } catch (e) {
+                // TODO(Dimitreee): send error to sentry
             }
-        } catch (e) {
-            // TODO(Dimitreee): send error to sentry
-        }
 
-        return
-    }).filter(Boolean)
+            return
+        })
+        .filter(Boolean)
 }
 
 export const createSorterMap = (sortStringFromQuery: Array<string>): Record<string, SortOrder> => {

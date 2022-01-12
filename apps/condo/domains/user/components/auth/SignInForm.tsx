@@ -49,27 +49,30 @@ export const SignInForm = (): React.ReactElement => {
         }
     }, [intl])
 
-    const onFormSubmit = useCallback((values) => {
-        setIsLoading(true)
+    const onFormSubmit = useCallback(
+        (values) => {
+            setIsLoading(true)
 
-        return runMutation({
-            mutation: signinByPhoneAndPassword,
-            variables: values,
-            onCompleted: () => {
-                refetch().then(() => {
-                    Router.push(next ? next : '/')
-                })
-            },
-            onFinally: () => {
+            return runMutation({
+                mutation: signinByPhoneAndPassword,
+                variables: values,
+                onCompleted: () => {
+                    refetch().then(() => {
+                        Router.push(next ? next : '/')
+                    })
+                },
+                onFinally: () => {
+                    setIsLoading(false)
+                },
+                intl,
+                form,
+                ErrorToFormFieldMsgMapping,
+            }).catch(() => {
                 setIsLoading(false)
-            },
-            intl,
-            form,
-            ErrorToFormFieldMsgMapping,
-        }).catch(() => {
-            setIsLoading(false)
-        })
-    }, [intl, form])
+            })
+        },
+        [intl, form],
+    )
 
     const initialValues = { password: '', phone: '' }
 
@@ -77,30 +80,26 @@ export const SignInForm = (): React.ReactElement => {
         <Form
             {...FORM_LAYOUT}
             form={form}
-            name='signin'
-            labelAlign='left'
+            name="signin"
+            labelAlign="left"
             onFinish={onFormSubmit}
             initialValues={initialValues}
             colon={false}
             requiredMark={false}
         >
             <Row gutter={[0, 40]}>
-                <Col span={24} >
+                <Col span={24}>
                     <Row gutter={[0, 24]}>
                         <Col span={24}>
-                            <Form.Item
-                                name='phone'
-                                label={PhoneMsg}
-                                rules={[{ required: true, message: FieldIsRequiredMsg }]}
-                            >
-                                <PhoneInput placeholder={ExamplePhoneMsg} tabIndex={1} block/>
+                            <Form.Item name="phone" label={PhoneMsg} rules={[{ required: true, message: FieldIsRequiredMsg }]}>
+                                <PhoneInput placeholder={ExamplePhoneMsg} tabIndex={1} block />
                             </Form.Item>
                         </Col>
                         <Col span={24}>
                             <Form.Item
-                                name='password'
+                                name="password"
                                 label={PasswordMsg}
-                                labelAlign='left'
+                                labelAlign="left"
                                 rules={[{ required: true, message: FieldIsRequiredMsg }]}
                             >
                                 <Input.Password tabIndex={2} />
@@ -113,21 +112,15 @@ export const SignInForm = (): React.ReactElement => {
                         <Col xs={24}>
                             <Row justify={'space-between'} gutter={[0, 12]}>
                                 <Col xs={24} lg={7}>
-                                    <Button
-                                        key='submit'
-                                        type='sberPrimary'
-                                        htmlType='submit'
-                                        loading={isLoading}
-                                        block
-                                    >
+                                    <Button key="submit" type="sberPrimary" htmlType="submit" loading={isLoading} block>
                                         {SignInMsg}
                                     </Button>
-                                </Col >
+                                </Col>
                                 <Col xs={24} lg={14} offset={isSmall ? 0 : 3}>
                                     <Button
-                                        key='submit'
-                                        type='sberAction'
-                                        icon={<SberIconWithoutLabel/>}
+                                        key="submit"
+                                        type="sberAction"
+                                        icon={<SberIconWithoutLabel />}
                                         href={'/api/sbbol/auth'}
                                         block={isSmall}
                                     >
@@ -137,12 +130,16 @@ export const SignInForm = (): React.ReactElement => {
                             </Row>
                         </Col>
                         <Col lg={14} xs={24}>
-                            <Typography.Text type='secondary'>
+                            <Typography.Text type="secondary">
                                 <FormattedMessage
-                                    id='pages.auth.signin.ResetPasswordLink'
+                                    id="pages.auth.signin.ResetPasswordLink"
                                     values={{
                                         link: (
-                                            <Button type={'inlineLink'} size={'small'} onClick={() => Router.push('/auth/forgot')}>
+                                            <Button
+                                                type={'inlineLink'}
+                                                size={'small'}
+                                                onClick={() => Router.push('/auth/forgot')}
+                                            >
                                                 {ResetMsg}
                                             </Button>
                                         ),
@@ -153,7 +150,6 @@ export const SignInForm = (): React.ReactElement => {
                     </Row>
                 </Col>
             </Row>
-
         </Form>
     )
 }

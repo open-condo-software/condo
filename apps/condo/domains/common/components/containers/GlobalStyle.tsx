@@ -2,7 +2,7 @@ import React from 'react'
 import { css, Global } from '@emotion/core'
 import { colors, DEFAULT_STRONG_TEXT_FONT_WEIGHT } from '@condo/domains/common/constants/style'
 
-export default function GlobalStyle () {
+export default function GlobalStyle() {
     return (
         <Global
             styles={css`
@@ -188,122 +188,131 @@ export default function GlobalStyle () {
 }
 
 const radioGroupCss = css`
-  .sberRadioGroup .ant-radio-button-wrapper-checked:not([class*=' ant-radio-button-wrapper-disabled']).ant-radio-button-wrapper:first-child{
-    border-right-color:${colors.black};
-  }
-  .sberRadioGroup .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):first-child{
-    border-color:${colors.black};
-  }
-  .sberRadioGroup .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled){
-    color: ${colors.black};
-  }
-  .sberRadioGroup .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover{
-    color: ${colors.white};
-    border-color: ${colors.black};
-  }
-  .sberRadioGroup .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled){
-    color: ${colors.white};
-    background-color: ${colors.black};
-    border-color: ${colors.black};
-  }
-  .sberRadioGroup .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)::before{
-    background-color: ${colors.black};
-  }
-  .sberRadioGroup .ant-radio-button-wrapper{
-    border-color: ${colors.black};
-    --antd-wave-shadow-color: ${colors.black};
-  }
-  .sberRadioGroup .ant-radio-button-wrapper:first-child{
-    border-left-color: ${colors.black};
-  }
-  .sberRadioGroup .ant-radio-button-wrapper:hover{
-    color: ${colors.black};
-  }
-  .sberRadioGroup .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover::before{
-    background-color:${colors.black};
-  }
+    .sberRadioGroup
+        .ant-radio-button-wrapper-checked:not([class*=' ant-radio-button-wrapper-disabled']).ant-radio-button-wrapper:first-child {
+        border-right-color: ${colors.black};
+    }
+    .sberRadioGroup .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):first-child {
+        border-color: ${colors.black};
+    }
+    .sberRadioGroup .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
+        color: ${colors.black};
+    }
+    .sberRadioGroup .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover {
+        color: ${colors.white};
+        border-color: ${colors.black};
+    }
+    .sberRadioGroup .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
+        color: ${colors.white};
+        background-color: ${colors.black};
+        border-color: ${colors.black};
+    }
+    .sberRadioGroup .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)::before {
+        background-color: ${colors.black};
+    }
+    .sberRadioGroup .ant-radio-button-wrapper {
+        border-color: ${colors.black};
+        --antd-wave-shadow-color: ${colors.black};
+    }
+    .sberRadioGroup .ant-radio-button-wrapper:first-child {
+        border-left-color: ${colors.black};
+    }
+    .sberRadioGroup .ant-radio-button-wrapper:hover {
+        color: ${colors.black};
+    }
+    .sberRadioGroup .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover::before {
+        background-color: ${colors.black};
+    }
 `
 
-
 const uploadControlCss = css`
-  .upload-control-wrapper .ant-upload-list-text-container {
-    transition: none;
-  }
-  .upload-control-wrapper .ant-upload-list-item-info .ant-upload-text-icon .anticon,
-  .upload-control-wrapper a.ant-upload-list-item-name,
-  .upload-control-wrapper a.ant-upload-list-item-name:active,
-  .upload-control-wrapper a.ant-upload-list-item-name:focus {
-    color: ${colors.green[7]};
-  }
-  .upload-control-wrapper .ant-upload-list-item:hover a,
-  .upload-control-wrapper .ant-upload-list-item:hover .ant-upload-text-icon > .anticon.anticon-paper-clip,
-  .upload-control-wrapper .ant-upload-list-item:hover .ant-upload-list-item-info.ant-upload-text-icon.anticon {
-    color: ${colors.green[5]};
-  }
-  .upload-control-wrapper .ant-upload-list-item.ant-upload-list-item-error .ant-upload-list-item-info .ant-upload-text-icon .anticon,
-  .upload-control-wrapper .ant-upload-list-item.ant-upload-list-item-error:hover .ant-upload-list-item-info .ant-upload-text-icon .anticon {
-    color: ${colors.sberDanger[5]};
-  }
-  .upload-control-wrapper .ant-upload-list-item:hover .ant-upload-list-item-info {
-    background-color: transparent;
-  }
-  .upload-control-wrapper > span {
-    display: flex;
-    flex-direction: column;
-  }
-  .upload-control-wrapper .ant-upload.ant-upload-select {
-    order:1;
-    margin-top:20px;
-  }
-  .upload-control-wrapper .ant-upload-list-item-card-actions .anticon.anticon-delete {
-    font-size:18px;
-  }
-  .upload-control-wrapper .ant-upload-list-item-card-actions {
-    margin-left: 50px;
-  }
+    .upload-control-wrapper .ant-upload-list-text-container {
+        transition: none;
+    }
+    .upload-control-wrapper .ant-upload-list-item-info .ant-upload-text-icon .anticon,
+    .upload-control-wrapper a.ant-upload-list-item-name,
+    .upload-control-wrapper a.ant-upload-list-item-name:active,
+    .upload-control-wrapper a.ant-upload-list-item-name:focus {
+        color: ${colors.green[7]};
+    }
+    .upload-control-wrapper .ant-upload-list-item:hover a,
+    .upload-control-wrapper .ant-upload-list-item:hover .ant-upload-text-icon > .anticon.anticon-paper-clip,
+    .upload-control-wrapper .ant-upload-list-item:hover .ant-upload-list-item-info.ant-upload-text-icon.anticon {
+        color: ${colors.green[5]};
+    }
+    .upload-control-wrapper
+        .ant-upload-list-item.ant-upload-list-item-error
+        .ant-upload-list-item-info
+        .ant-upload-text-icon
+        .anticon,
+    .upload-control-wrapper
+        .ant-upload-list-item.ant-upload-list-item-error:hover
+        .ant-upload-list-item-info
+        .ant-upload-text-icon
+        .anticon {
+        color: ${colors.sberDanger[5]};
+    }
+    .upload-control-wrapper .ant-upload-list-item:hover .ant-upload-list-item-info {
+        background-color: transparent;
+    }
+    .upload-control-wrapper > span {
+        display: flex;
+        flex-direction: column;
+    }
+    .upload-control-wrapper .ant-upload.ant-upload-select {
+        order: 1;
+        margin-top: 20px;
+    }
+    .upload-control-wrapper .ant-upload-list-item-card-actions .anticon.anticon-delete {
+        font-size: 18px;
+    }
+    .upload-control-wrapper .ant-upload-list-item-card-actions {
+        margin-left: 50px;
+    }
 `
 
 const inputControlCss = css`
-  .ant-input.white {
-    background: ${colors.white};
-    &:focus, &:active {
-      background: ${colors.white} !important;
+    .ant-input.white {
+        background: ${colors.white};
+        &:focus,
+        &:active {
+            background: ${colors.white} !important;
+        }
     }
-  }
 `
 
 const page = css`
-  .top-menu-only-layout .page-wrapper {
-    flex: auto;
-    align-self: center;
-    max-width: 600px;
-    min-width: initial;
-    padding-top: 64px;
-    padding-bottom: 64px;
-    margin: 0 auto;
-  }
-  @media (max-width: 768px) {
     .top-menu-only-layout .page-wrapper {
-      min-width: initial;
+        flex: auto;
+        align-self: center;
+        max-width: 600px;
+        min-width: initial;
+        padding-top: 64px;
+        padding-bottom: 64px;
+        margin: 0 auto;
     }
-  }
-  @media (max-width: 480px) {
-    .top-menu-only-layout .page-wrapper {
-      min-width: 100%;
-      padding-top: 0;
-      padding-bottom: 0;
+    @media (max-width: 768px) {
+        .top-menu-only-layout .page-wrapper {
+            min-width: initial;
+        }
     }
-  }
+    @media (max-width: 480px) {
+        .top-menu-only-layout .page-wrapper {
+            min-width: 100%;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+    }
 
-  .transparent-page-content .page-content {
-    padding: 0;
-    background: inherit;
-  }
+    .transparent-page-content .page-content {
+        padding: 0;
+        background: inherit;
+    }
 
-  .centered-page-content .page-wrapper {
-    flex: auto;
-    align-self: center;
-    max-width: 600px;
-    min-width: initial;
-  }
+    .centered-page-content .page-wrapper {
+        flex: auto;
+        align-self: center;
+        max-width: 600px;
+        min-width: initial;
+    }
 `

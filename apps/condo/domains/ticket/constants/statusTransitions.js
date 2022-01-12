@@ -1,6 +1,6 @@
 /*
-* refs to: https://doma.atlassian.net/browse/SBERDOMA-97
-* */
+ * refs to: https://doma.atlassian.net/browse/SBERDOMA-97
+ * */
 
 const { RU_LOCALE, EN_LOCALE } = require('@condo/domains/common/constants/locale')
 const STATUS_IDS = {
@@ -13,7 +13,7 @@ const STATUS_IDS = {
 }
 
 const DEFAULT_STATUS_TRANSITIONS = {
-    'dv':1,
+    dv: 1,
     [STATUS_IDS.OPEN]: [STATUS_IDS.IN_PROGRESS, STATUS_IDS.DEFERRED, STATUS_IDS.DECLINED],
     [STATUS_IDS.IN_PROGRESS]: [STATUS_IDS.DEFERRED, STATUS_IDS.COMPLETED, STATUS_IDS.OPEN, STATUS_IDS.DECLINED],
     [STATUS_IDS.COMPLETED]: [STATUS_IDS.OPEN, STATUS_IDS.CLOSED],

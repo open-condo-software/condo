@@ -10,14 +10,19 @@ const {
     createTestBillingIntegrationOrganizationContext,
     makeOrganizationIntegrationManager,
 } = require('../utils/testSchema')
-const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const {
+    createTestOrganizationEmployeeRole,
+    createTestOrganizationEmployee,
+} = require('@condo/domains/organization/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { BillingReceipt, createTestBillingReceipt, updateTestBillingReceipt } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const {
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj,
+} = require('@condo/domains/common/utils/testSchema')
 const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 
 describe('BillingReceipt', () => {
-
     describe('Validators', async () => {
         test('organization integration manager: update BillingReceipt toPayDetail', async () => {
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
@@ -107,7 +112,8 @@ describe('BillingReceipt', () => {
                         name: 'UserInputError',
                         extensions: { code: 'BAD_USER_INPUT' },
                     })
-                })
+                },
+            )
         })
 
         test('organization integration manager: update BillingReceipt with wrong data in period', async () => {
@@ -126,9 +132,10 @@ describe('BillingReceipt', () => {
                 async () => await updateTestBillingReceipt(managerUserClient, obj.id, payload),
                 ({ errors, _ }) => {
                     expect(errors[0]).toMatchObject({
-                        'message': 'You attempted to perform an invalid mutation',
+                        message: 'You attempted to perform an invalid mutation',
                     })
-                })
+                },
+            )
         })
 
         test('organization integration manager: update BillingReceipt with wrong data in services', async () => {
@@ -161,7 +168,8 @@ describe('BillingReceipt', () => {
                         name: 'UserInputError',
                         extensions: { code: 'BAD_USER_INPUT' },
                     })
-                })
+                },
+            )
         })
 
         test('organization integration manager: update BillingReceipt with wrong data in services 2', async () => {
@@ -192,7 +200,8 @@ describe('BillingReceipt', () => {
                         name: 'UserInputError',
                         extensions: { code: 'BAD_USER_INPUT' },
                     })
-                })
+                },
+            )
         })
 
         test('organization integration manager: update BillingReceipt period', async () => {
@@ -231,7 +240,6 @@ describe('BillingReceipt', () => {
     })
 
     describe('Constrains', async () => {
-
         const TEST_IMPORT_ID = 'bedrock_220v'
 
         test('can create billing receipt with import id', async () => {
@@ -255,13 +263,17 @@ describe('BillingReceipt', () => {
             const [property] = await createTestBillingProperty(admin, context)
 
             const [billingAccount] = await createTestBillingAccount(admin, context, property)
-            const [receipt] = await createTestBillingReceipt(admin, context, property, billingAccount, { importId: TEST_IMPORT_ID })
+            const [receipt] = await createTestBillingReceipt(admin, context, property, billingAccount, {
+                importId: TEST_IMPORT_ID,
+            })
 
             const { context: context2 } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property2] = await createTestBillingProperty(admin, context2)
 
             const [billingAccount2] = await createTestBillingAccount(admin, context2, property2)
-            const [receipt2] = await createTestBillingReceipt(admin, context2, property2, billingAccount2, { importId: TEST_IMPORT_ID })
+            const [receipt2] = await createTestBillingReceipt(admin, context2, property2, billingAccount2, {
+                importId: TEST_IMPORT_ID,
+            })
 
             expect(receipt.id).not.toEqual(receipt2.id)
             expect(receipt.importId).toEqual(receipt.importId)
@@ -323,7 +335,7 @@ describe('BillingReceipt', () => {
             expect(deletedObj.deletedAt).not.toBeNull()
             expect(foundObj.id).toEqual(obj.id)
             expect(restoredObj.deletedAt).toBeNull()
-            expect(changedObj.importId).toEqual( TEST_IMPORT_ID + '22' )
+            expect(changedObj.importId).toEqual(TEST_IMPORT_ID + '22')
         })
 
         test('cant create billing receipt with same import id in one context', async () => {
@@ -334,12 +346,15 @@ describe('BillingReceipt', () => {
             const [billingAccount] = await createTestBillingAccount(admin, context, property)
             await createTestBillingReceipt(admin, context, property, billingAccount, { importId: TEST_IMPORT_ID })
 
-            await catchErrorFrom(async () => {
-                await createTestBillingReceipt(admin, context, property, billingAccount, { importId: TEST_IMPORT_ID })
-            }, (err) => {
-                expect(err).toBeDefined()
-                expect(err.errors[0].developerMessage).toContain('duplicate key value violates unique constraint')
-            })
+            await catchErrorFrom(
+                async () => {
+                    await createTestBillingReceipt(admin, context, property, billingAccount, { importId: TEST_IMPORT_ID })
+                },
+                (err) => {
+                    expect(err).toBeDefined()
+                    expect(err.errors[0].developerMessage).toContain('duplicate key value violates unique constraint')
+                },
+            )
         })
 
         test('cant create billing receipt with empty import id', async () => {
@@ -348,11 +363,14 @@ describe('BillingReceipt', () => {
             const [property] = await createTestBillingProperty(admin, context)
             const [billingAccount] = await createTestBillingAccount(admin, context, property)
 
-            await catchErrorFrom(async () => {
-                await createTestBillingReceipt(admin, context, property, billingAccount, { importId: '' })
-            }, (err) => {
-                expect(err).toBeDefined()
-            })
+            await catchErrorFrom(
+                async () => {
+                    await createTestBillingReceipt(admin, context, property, billingAccount, { importId: '' })
+                },
+                (err) => {
+                    expect(err).toBeDefined()
+                },
+            )
         })
 
         test('cant create billing receipt with undefined import id', async () => {
@@ -361,11 +379,14 @@ describe('BillingReceipt', () => {
             const [property] = await createTestBillingProperty(admin, context)
             const [billingAccount] = await createTestBillingAccount(admin, context, property)
 
-            await catchErrorFrom(async () => {
-                await createTestBillingReceipt(admin, context, property, billingAccount, { importId: undefined })
-            }, (err) => {
-                expect(err).toBeDefined()
-            })
+            await catchErrorFrom(
+                async () => {
+                    await createTestBillingReceipt(admin, context, property, billingAccount, { importId: undefined })
+                },
+                (err) => {
+                    expect(err).toBeDefined()
+                },
+            )
         })
 
         test('cant create billing receipt with null import id', async () => {
@@ -374,14 +395,15 @@ describe('BillingReceipt', () => {
             const [property] = await createTestBillingProperty(admin, context)
             const [billingAccount] = await createTestBillingAccount(admin, context, property)
 
-            await catchErrorFrom(async () => {
-                await createTestBillingReceipt(admin, context, property, billingAccount, { importId: null })
-            }, (err) => {
-                expect(err).toBeDefined()
-            })
+            await catchErrorFrom(
+                async () => {
+                    await createTestBillingReceipt(admin, context, property, billingAccount, { importId: null })
+                },
+                (err) => {
+                    expect(err).toBeDefined()
+                },
+            )
         })
-
-
     })
 
     describe('Create', async () => {
@@ -508,14 +530,14 @@ describe('BillingReceipt', () => {
                     formula: 'calc+recalc',
                 },
                 recipient: {
-                    'name': 'WaterSolutions LLC',
-                    'tin': '11111111',
-                    'iec': '11111111',
-                    'bic': '11111111',
-                    'bankName': 'GreenBank',
-                    'bankAccount': '11111111111111111',
-                    'offsettingAccount': '1111111111111111',
-                    'territoryCode': '1111',
+                    name: 'WaterSolutions LLC',
+                    tin: '11111111',
+                    iec: '11111111',
+                    bic: '11111111',
+                    bankName: 'GreenBank',
+                    bankAccount: '11111111111111111',
+                    offsettingAccount: '1111111111111111',
+                    territoryCode: '1111',
                 },
             }
             const [objUpdated] = await updateTestBillingReceipt(admin, obj.id, payload)
@@ -579,4 +601,3 @@ describe('BillingReceipt', () => {
         })
     })
 })
-

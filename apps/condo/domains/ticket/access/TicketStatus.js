@@ -4,13 +4,13 @@
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
-async function canReadTicketStatuses ({ authentication: { item: user } }) {
+async function canReadTicketStatuses({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin || user.isSupport) return true
     return {}
 }
 
-async function canManageTicketStatuses ({ authentication: { item: user }, operation }) {
+async function canManageTicketStatuses({ authentication: { item: user }, operation }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
     if (operation === 'create') {

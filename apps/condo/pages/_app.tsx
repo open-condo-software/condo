@@ -30,14 +30,9 @@ import { hasFeature } from '@condo/domains/common/components/containers/FeatureF
 import { FocusContextProvider } from '@condo/domains/common/components/Focus/FocusContextProvider'
 import { LayoutContextProvider } from '@condo/domains/common/components/LayoutContext'
 import { OnBoardingProgressIconContainer } from '@condo/domains/onboarding/components/OnBoardingProgressIconContainer'
-import {
-    BILLING_RECEIPT_SERVICE_FIELD_NAME,
-} from '@condo/domains/billing/constants/constants'
+import { BILLING_RECEIPT_SERVICE_FIELD_NAME } from '@condo/domains/billing/constants/constants'
 import { MeterLog } from '@condo/domains/common/components/icons/MeterLogIcon'
-import {
-    SubscriptionProvider,
-    useServiceSubscriptionContext,
-} from '@condo/domains/subscription/components/SubscriptionContext'
+import { SubscriptionProvider, useServiceSubscriptionContext } from '@condo/domains/subscription/components/SubscriptionContext'
 import dayjs from 'dayjs'
 import { useEndTrialSubscriptionReminderPopup } from '@condo/domains/subscription/hooks/useEndTrialSubscriptionReminderPopup'
 
@@ -109,13 +104,7 @@ const MenuItems: React.FC = () => {
                     disabled={disabled}
                     isCollapsed={isCollapsed}
                 />
-                <MenuItem
-                    path={'/meter'}
-                    icon={MeterLog}
-                    label={'menu.Meters'}
-                    disabled={disabled}
-                    isCollapsed={isCollapsed}
-                />
+                <MenuItem path={'/meter'} icon={MeterLog} label={'menu.Meters'} disabled={disabled} isCollapsed={isCollapsed} />
                 <MenuItem
                     path={'/billing'}
                     icon={ApiFilled}
@@ -144,10 +133,8 @@ const MyApp = ({ Component, pageProps }) => {
     const HeaderAction = Component.headerAction
     const RequiredAccess = Component.requiredAccess || React.Fragment
 
-    const {
-        EndTrialSubscriptionReminderPopup,
-        isEndTrialSubscriptionReminderPopupVisible,
-    } = useEndTrialSubscriptionReminderPopup()
+    const { EndTrialSubscriptionReminderPopup, isEndTrialSubscriptionReminderPopupVisible } =
+        useEndTrialSubscriptionReminderPopup()
 
     return (
         <>
@@ -156,36 +143,34 @@ const MyApp = ({ Component, pageProps }) => {
             </Head>
             <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize={'large'}>
                 <CacheProvider value={cache}>
-                    <GlobalStyle/>
+                    <GlobalStyle />
                     <FocusContextProvider>
                         <OnBoardingProvider>
                             <SubscriptionProvider>
                                 <LayoutContextProvider>
-                                    <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                    <LayoutComponent menuData={<MenuItems />} headerAction={HeaderAction}>
                                         <RequiredAccess>
                                             <Component {...pageProps} />
-                                            {
-                                                isEndTrialSubscriptionReminderPopupVisible && (
-                                                    <EndTrialSubscriptionReminderPopup/>
-                                                )
-                                            }
+                                            {isEndTrialSubscriptionReminderPopupVisible && <EndTrialSubscriptionReminderPopup />}
                                         </RequiredAccess>
                                     </LayoutComponent>
                                 </LayoutContextProvider>
                             </SubscriptionProvider>
                         </OnBoardingProvider>
                     </FocusContextProvider>
-                    <GoogleAnalytics/>
-                    <BehaviorRecorder engine="plerdy"/>
+                    <GoogleAnalytics />
+                    <BehaviorRecorder engine="plerdy" />
                 </CacheProvider>
             </ConfigProvider>
         </>
     )
 }
 
-const { publicRuntimeConfig: { defaultLocale } } = getConfig()
+const {
+    publicRuntimeConfig: { defaultLocale },
+} = getConfig()
 
-async function messagesImporter (locale) {
+async function messagesImporter(locale) {
     const locale_data = await import(`../lang/${locale}`)
     return { ...locale_data.default }
 }
@@ -226,15 +211,13 @@ const apolloClientConfig = {
     },
 }
 
-export default (
-    withApollo({ ssr: true, apolloCacheConfig, apolloClientConfig })(
-        withIntl({ ssr: true, messagesImporter, extractReqLocale, defaultLocale })(
-            withAuth({ ssr: true })(
-                withOrganization({
-                    ssr: true,
-                    GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
-                })(MyApp)
-            )
-        )
-    )
+export default withApollo({ ssr: true, apolloCacheConfig, apolloClientConfig })(
+    withIntl({ ssr: true, messagesImporter, extractReqLocale, defaultLocale })(
+        withAuth({ ssr: true })(
+            withOrganization({
+                ssr: true,
+                GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
+            })(MyApp),
+        ),
+    ),
 )

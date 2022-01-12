@@ -1,7 +1,10 @@
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { get } = require('lodash')
-const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    queryOrganizationEmployeeFor,
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
+} = require('@condo/domains/organization/utils/accessSchema')
 const { Organization, OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 
 const userIsAuthenticated = ({ authentication: { item: user } }) => Boolean(user && user.id)
@@ -22,13 +25,13 @@ const userIsOwner = ({ existingItem, authentication: { item: user } }) => {
     return existingItem.user.id === user.id
 }
 
-const userIsAdminOrOwner = auth => {
+const userIsAdminOrOwner = (auth) => {
     const isAdmin = userIsAdmin(auth)
     const isOwner = userIsOwner(auth)
     return Boolean(isAdmin || isOwner)
 }
 
-const userIsAdminOrIsThisItem = auth => {
+const userIsAdminOrIsThisItem = (auth) => {
     const isAdmin = userIsAdmin(auth)
     const isThisItem = userIsThisItem(auth)
     return Boolean(isAdmin || isThisItem)
@@ -51,21 +54,16 @@ const userIsNotResidentUser = ({ authentication: { item: user } }) => {
 }
 
 const canReadOnlyIfUserIsActiveOrganizationEmployee = async ({ context, existingItem, authentication: { item: user } }) => {
-    if (user.isAdmin || user.isSupport)
-        return true
-    
-    if (!userIsNotResidentUser({ authentication: { item: user } }))
-        return false
+    if (user.isAdmin || user.isSupport) return true
+
+    if (!userIsNotResidentUser({ authentication: { item: user } })) return false
 
     const userId = get(user, 'id')
     const existingItemId = get(existingItem, 'id', null)
 
     const availableOrganizations = await Organization.getAll(context, {
         id: existingItemId,
-        OR: [
-            queryOrganizationEmployeeFor(userId),
-            queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
-        ],
+        OR: [queryOrganizationEmployeeFor(userId), queryOrganizationEmployeeFromRelatedOrganizationFor(userId)],
     })
 
     return availableOrganizations.length > 0
@@ -87,19 +85,17 @@ const readOnlyField = {
 
 const isSoftDelete = (originalInput) => {
     // TODO(antonal): extract validations of `originalInput` to separate module and user ajv to validate JSON-schema
-    const isJustSoftDelete = (
+    const isJustSoftDelete =
         Object.keys(originalInput).length === 3 &&
         get(originalInput, 'deletedAt') &&
         get(originalInput, 'dv') &&
         get(originalInput, 'sender')
-    )
-    const isSoftDeleteWithMerge = (
+    const isSoftDeleteWithMerge =
         Object.keys(originalInput).length === 4 &&
         get(originalInput, 'deletedAt') &&
         get(originalInput, 'newId') &&
         get(originalInput, 'dv') &&
         get(originalInput, 'sender')
-    )
     return isJustSoftDelete || isSoftDeleteWithMerge
 }
 

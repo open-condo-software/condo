@@ -50,11 +50,7 @@ export const Table: React.FC<ITableProps> = ({
     // Triggered, when table pagination/filters/sorting changes
     // Modifies the query to match the state of the table
     const handleChange = debounce((...tableChangeArguments) => {
-        const [
-            nextPagination,
-            nextFilters,
-            nextSorters,
-        ] = tableChangeArguments
+        const [nextPagination, nextFilters, nextSorters] = tableChangeArguments
         const { current } = nextPagination
         let shouldResetOffset = false
 
@@ -80,7 +76,7 @@ export const Table: React.FC<ITableProps> = ({
             }
         }
 
-        let newSorters  = null
+        let newSorters = null
         if (nextSorters && nextSorters.order) {
             newSorters = `${nextSorters.field}_${FULL_TO_SHORT_ORDERS_MAP[nextSorters.order]}`
         }
@@ -98,8 +94,7 @@ export const Table: React.FC<ITableProps> = ({
         }
         if (applyQuery) {
             return applyQuery(queryParams)
-        }
-        else {
+        } else {
             // The `queryParams` contains only filters, sort and offset, so we can use `updateQuery`.
             // In case of additional parameters, we have to use custom code or modify `updateQuery` signature.
             return updateQuery(router, newFilters, newSorters, newOffset)

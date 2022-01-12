@@ -76,7 +76,6 @@ const MULTIPAYMENT_TRANSITIONS = {
     [MULTIPAYMENT_PROCESSING_STATUS]: [MULTIPAYMENT_PROCESSING_STATUS, MULTIPAYMENT_DONE_STATUS, MULTIPAYMENT_ERROR_STATUS],
     [MULTIPAYMENT_DONE_STATUS]: [],
     [MULTIPAYMENT_ERROR_STATUS]: [],
-
 }
 
 // Some of fields is required only in late-stage of multipayment,
@@ -104,12 +103,7 @@ const PAYMENT_PROCESSING_STATUS = 'PROCESSING'
 const PAYMENT_DONE_STATUS = 'DONE'
 const PAYMENT_ERROR_STATUS = 'ERROR'
 
-const PAYMENT_STATUSES = [
-    PAYMENT_INIT_STATUS,
-    PAYMENT_PROCESSING_STATUS,
-    PAYMENT_DONE_STATUS,
-    PAYMENT_ERROR_STATUS,
-]
+const PAYMENT_STATUSES = [PAYMENT_INIT_STATUS, PAYMENT_PROCESSING_STATUS, PAYMENT_DONE_STATUS, PAYMENT_ERROR_STATUS]
 
 // PAYMENT STATUS TRANSITION RULES
 const PAYMENT_TRANSITIONS = {
@@ -130,7 +124,18 @@ const PAYMENT_REQUIRED_FIELDS = {
     [PAYMENT_ERROR_STATUS]: [],
 }
 
-const DEFAULT_PAYMENT_FROZEN_FIELDS = ['amount', 'currencyCode', 'accountNumber', 'period', 'receipt', 'frozenReceipt', 'context', 'organization', 'recipientBic', 'recipientBankAccount']
+const DEFAULT_PAYMENT_FROZEN_FIELDS = [
+    'amount',
+    'currencyCode',
+    'accountNumber',
+    'period',
+    'receipt',
+    'frozenReceipt',
+    'context',
+    'organization',
+    'recipientBic',
+    'recipientBankAccount',
+]
 // LIST OF FIELDS, WHICH CANNOT BE CHANGED DURING PAYMENT STATUS UPDATES
 const PAYMENT_FROZEN_FIELDS = {
     [PAYMENT_INIT_STATUS]: DEFAULT_PAYMENT_FROZEN_FIELDS,

@@ -22,9 +22,9 @@ const {
 } = require('@condo/domains/billing/constants/errors')
 const get = require('lodash/get')
 
-
 const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrationOrganizationContext', {
-    schemaDoc: 'Integration state and settings for all organizations. The existence of this object means that there is a configured integration between the `billing data source` and `this API`',
+    schemaDoc:
+        'Integration state and settings for all organizations. The existence of this object means that there is a configured integration between the `billing data source` and `this API`',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
@@ -41,7 +41,8 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
         organization: ORGANIZATION_OWNED_FIELD,
 
         settings: {
-            schemaDoc: 'Settings that are required to get data from the `billing data source`. It can also contain fine-tuning optional integration settings. The data structure depends on the integration and defined there',
+            schemaDoc:
+                'Settings that are required to get data from the `billing data source`. It can also contain fine-tuning optional integration settings. The data structure depends on the integration and defined there',
             type: Json,
             isRequired: true,
             hooks: {
@@ -61,7 +62,8 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
         },
 
         state: {
-            schemaDoc: 'The current state of the integration process. Some integration need to store past state or data related to cache files/folders for past state. The data structure depends on the integration and defined there',
+            schemaDoc:
+                'The current state of the integration process. Some integration need to store past state or data related to cache files/folders for past state. The data structure depends on the integration and defined there',
             type: Json,
             isRequired: true,
             hooks: {
@@ -81,7 +83,8 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
         },
 
         integrationOption: {
-            schemaDoc: 'Name of billing integration option, if it has more than 1 variants. Example: registry format. Using "name" as unique identifier inside single billing',
+            schemaDoc:
+                'Name of billing integration option, if it has more than 1 variants. Example: registry format. Using "name" as unique identifier inside single billing',
             isRequired: false,
             type: Text,
         },
@@ -101,8 +104,7 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
                 if (!optionName) {
                     return addValidationError(CONTEXT_NO_OPTION_PROVIDED)
                 }
-                const matchingOptions = options
-                    .filter(option => option.name === optionName)
+                const matchingOptions = options.filter((option) => option.name === optionName)
                 if (!matchingOptions.length) {
                     addValidationError(CONTEXT_OPTION_NAME_MATCH)
                 }

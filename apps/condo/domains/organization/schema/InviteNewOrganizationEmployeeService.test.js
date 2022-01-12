@@ -28,10 +28,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                     }
                     const extraAttrs = {
                         specializations: {
-                            connect: [
-                                { id: categoryClassifier1.id },
-                                { id: categoryClassifier2.id },
-                            ],
+                            connect: [{ id: categoryClassifier1.id }, { id: categoryClassifier2.id }],
                         },
                     }
                     const client = await makeClientWithRegisteredOrganization()
@@ -42,14 +39,10 @@ describe('InviteNewOrganizationEmployeeService', () => {
                     expect(employee.name).toEqual(userAttrs.name)
                     expect(employee.specializations).toHaveLength(2)
                     expect(employee.specializations).toEqual(
-                        expect.arrayContaining([
-                            expect.objectContaining(pick(categoryClassifier1, ['id', 'name'])),
-                        ])
+                        expect.arrayContaining([expect.objectContaining(pick(categoryClassifier1, ['id', 'name']))]),
                     )
                     expect(employee.specializations).toEqual(
-                        expect.arrayContaining([
-                            expect.objectContaining(pick(categoryClassifier2, ['id', 'name'])),
-                        ])
+                        expect.arrayContaining([expect.objectContaining(pick(categoryClassifier2, ['id', 'name']))]),
                     )
                 })
 
@@ -81,18 +74,20 @@ describe('InviteNewOrganizationEmployeeService', () => {
                     }
                     const extraAttrs = {
                         specializations: {
-                            connect: [
-                                { id: categoryClassifier1.id },
-                            ],
+                            connect: [{ id: categoryClassifier1.id }],
                         },
                     }
-                    const [employee] = await inviteNewOrganizationEmployee(inviteClient, inviteClient.organization, userAttrs, extraAttrs)
+                    const [employee] = await inviteNewOrganizationEmployee(
+                        inviteClient,
+                        inviteClient.organization,
+                        userAttrs,
+                        extraAttrs,
+                    )
                     expect(employee.email).toEqual(client1.userAttrs.email)
                     expect(employee.user.id).toEqual(client.user.id)
                     expect(employee.phone).toEqual(client.userAttrs.phone)
                     expect(employee.name).toEqual(client.userAttrs.name)
                 })
-
             })
 
             describe('employee already registered User by Phone', () => {
@@ -181,7 +176,13 @@ describe('InviteNewOrganizationEmployeeService', () => {
                             email: createTestEmail(),
                         }
 
-                        const { errors } = await inviteNewOrganizationEmployee(client, client.organization, secondUserAttrs, {}, { raw: true })
+                        const { errors } = await inviteNewOrganizationEmployee(
+                            client,
+                            client.organization,
+                            secondUserAttrs,
+                            {},
+                            { raw: true },
+                        )
 
                         expect(JSON.stringify(errors)).toContain(ALREADY_EXISTS_ERROR)
                     })
@@ -200,7 +201,13 @@ describe('InviteNewOrganizationEmployeeService', () => {
                             phone: createTestPhone(),
                         }
 
-                        const { errors } = await inviteNewOrganizationEmployee(client, client.organization, secondUserAttrs, {}, { raw: true })
+                        const { errors } = await inviteNewOrganizationEmployee(
+                            client,
+                            client.organization,
+                            secondUserAttrs,
+                            {},
+                            { raw: true },
+                        )
 
                         expect(JSON.stringify(errors)).toContain(ALREADY_EXISTS_ERROR)
                     })
@@ -218,12 +225,16 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         }
                         const extraAttrs = {
                             specializations: {
-                                connect: [
-                                    { id: categoryClassifier1.id },
-                                ],
+                                connect: [{ id: categoryClassifier1.id }],
                             },
                         }
-                        const { errors } = await inviteNewOrganizationEmployee(inviteClient, inviteClient.organization, userAttrs, extraAttrs, { raw: true } )
+                        const { errors } = await inviteNewOrganizationEmployee(
+                            inviteClient,
+                            inviteClient.organization,
+                            userAttrs,
+                            extraAttrs,
+                            { raw: true },
+                        )
                         expect(JSON.stringify(errors)).toContain(ALREADY_EXISTS_ERROR)
                     })
                 })
@@ -236,12 +247,20 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         const [employee] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs)
                         const [acceptedInvite] = await acceptOrRejectOrganizationInviteById(client2, employee)
 
-                        expect(acceptedInvite).toEqual(expect.objectContaining({
-                            isAccepted: true,
-                            isRejected: false,
-                        }))
+                        expect(acceptedInvite).toEqual(
+                            expect.objectContaining({
+                                isAccepted: true,
+                                isRejected: false,
+                            }),
+                        )
 
-                        const { errors } = await reInviteNewOrganizationEmployee(client1, client1.organization, employee, {}, { raw: true })
+                        const { errors } = await reInviteNewOrganizationEmployee(
+                            client1,
+                            client1.organization,
+                            employee,
+                            {},
+                            { raw: true },
+                        )
 
                         expect(JSON.stringify(errors)).toContain(ALREADY_EXISTS_ERROR)
                     })

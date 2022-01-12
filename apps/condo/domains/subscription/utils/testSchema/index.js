@@ -25,7 +25,7 @@ const ServiceSubscription = generateGQLTestUtils(ServiceSubscriptionGQL)
 const ServiceSubscriptionPayment = generateGQLTestUtils(ServiceSubscriptionPaymentGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-async function createTestServiceSubscription (client, organization, extraAttrs = {}) {
+async function createTestServiceSubscription(client, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -57,7 +57,7 @@ async function createTestServiceSubscription (client, organization, extraAttrs =
     return [obj, attrs]
 }
 
-async function updateTestServiceSubscription (client, id, extraAttrs = {}) {
+async function updateTestServiceSubscription(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -73,16 +73,18 @@ async function updateTestServiceSubscription (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-const expectOverlappingFor = async (action, ...args) => (
-    await catchErrorFrom(async () => {
-        await action(...args)
-    }, ({ errors, data }) => {
-        expect(errors[0].data.messages[0]).toMatch('[overlapping]')
-        expect(data).toEqual({ 'obj': null })
-    })
-)
+const expectOverlappingFor = async (action, ...args) =>
+    await catchErrorFrom(
+        async () => {
+            await action(...args)
+        },
+        ({ errors, data }) => {
+            expect(errors[0].data.messages[0]).toMatch('[overlapping]')
+            expect(data).toEqual({ obj: null })
+        },
+    )
 
-async function createTestServiceSubscriptionPayment (client, organization, subscription, extraAttrs = {}) {
+async function createTestServiceSubscriptionPayment(client, organization, subscription, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
     if (!subscription || !subscription.id) throw new Error('no subscription.id')
@@ -108,7 +110,7 @@ async function createTestServiceSubscriptionPayment (client, organization, subsc
     return [obj, attrs]
 }
 
-async function updateTestServiceSubscriptionPayment (client, id, extraAttrs = {}) {
+async function updateTestServiceSubscriptionPayment(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -125,7 +127,7 @@ async function updateTestServiceSubscriptionPayment (client, id, extraAttrs = {}
     return [obj, attrs]
 }
 
-async function expectErrorByChangingStatusOfPayment ({ from, to }) {
+async function expectErrorByChangingStatusOfPayment({ from, to }) {
     const adminClient = await makeLoggedInAdminClient()
     const [organization] = await createTestOrganization(adminClient)
     const [subscription] = await createTestServiceSubscription(adminClient, organization)
@@ -136,19 +138,30 @@ async function expectErrorByChangingStatusOfPayment ({ from, to }) {
     const changeToCreated = {
         status: to,
     }
-    await catchErrorFrom(async () => {
-        await updateTestServiceSubscriptionPayment(adminClient, obj.id, changeToCreated)
-    }, ({ errors, data }) => {
-        expect(errors[0].data.messages[0]).toMatch((WRONG_PAYMENT_STATUS_TRANSITION_ERROR + ` ServiceSubscriptionPayment(id=${obj.id}) cannot change status from '${obj.status}' to '${changeToCreated.status}'`))
-        expect(data).toEqual({ 'obj': null })
-    })
+    await catchErrorFrom(
+        async () => {
+            await updateTestServiceSubscriptionPayment(adminClient, obj.id, changeToCreated)
+        },
+        ({ errors, data }) => {
+            expect(errors[0].data.messages[0]).toMatch(
+                WRONG_PAYMENT_STATUS_TRANSITION_ERROR +
+                    ` ServiceSubscriptionPayment(id=${obj.id}) cannot change status from '${obj.status}' to '${changeToCreated.status}'`,
+            )
+            expect(data).toEqual({ obj: null })
+        },
+    )
 }
 
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    ServiceSubscription, createTestServiceSubscription, updateTestServiceSubscription, expectOverlappingFor,
-    ServiceSubscriptionPayment, createTestServiceSubscriptionPayment, updateTestServiceSubscriptionPayment,
+    ServiceSubscription,
+    createTestServiceSubscription,
+    updateTestServiceSubscription,
+    expectOverlappingFor,
+    ServiceSubscriptionPayment,
+    createTestServiceSubscriptionPayment,
+    updateTestServiceSubscriptionPayment,
     expectErrorByChangingStatusOfPayment,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

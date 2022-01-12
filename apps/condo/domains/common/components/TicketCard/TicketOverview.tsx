@@ -8,18 +8,14 @@ import { green } from '@ant-design/colors'
 import get from 'lodash/get'
 
 type TTicket = {
-    id: string,
-    details: string,
-    createdAt: string,
-    number: number,
+    id: string
+    details: string
+    createdAt: string
+    number: number
     status: string
 }
 
-export const TicketOverview: React.FC<TTicket> = ({
-    id,
-    details,
-    createdAt,
-    number, status }) => {
+export const TicketOverview: React.FC<TTicket> = ({ id, details, createdAt, number, status }) => {
     const intl = useIntl()
     const locale = get(LOCALES, intl.locale)
     const date = locale ? dayjs(createdAt).locale(locale) : dayjs(createdAt)
@@ -31,9 +27,7 @@ export const TicketOverview: React.FC<TTicket> = ({
         <Row>
             <Col span={24}>
                 <Link href={ticketRef}>
-                    <Typography.Link style={{ color: `${green[6]}`, fontSize: 14 }}>
-                        {topLine}
-                    </Typography.Link>
+                    <Typography.Link style={{ color: `${green[6]}`, fontSize: 14 }}>{topLine}</Typography.Link>
                 </Link>
             </Col>
             <Space direction={'vertical'} size={4} style={{ width: '100%' }}>

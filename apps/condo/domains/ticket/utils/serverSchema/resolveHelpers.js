@@ -4,7 +4,7 @@ const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { TICKET_ORDER_BY_STATUS, STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 
-function addOrderToTicket (resolvedData, statusId) {
+function addOrderToTicket(resolvedData, statusId) {
     if (statusId === STATUS_IDS.OPEN) {
         resolvedData.order = TICKET_ORDER_BY_STATUS[STATUS_IDS.OPEN]
     } else {
@@ -12,7 +12,7 @@ function addOrderToTicket (resolvedData, statusId) {
     }
 }
 
-async function addClientInfoToResidentTicket (context, resolvedData) {
+async function addClientInfoToResidentTicket(context, resolvedData) {
     const user = get(context, ['req', 'user'])
     const organizationId = get(resolvedData, 'organization', null)
     const propertyId = get(resolvedData, 'property', null)
@@ -30,7 +30,9 @@ async function addClientInfoToResidentTicket (context, resolvedData) {
     const residentPhone = user.phone
     const residentEmail = user.email
     const [contact] = await Contact.getAll(context, {
-        phone: residentPhone, organization: { id: organizationId }, property: { id: propertyId },
+        phone: residentPhone,
+        organization: { id: organizationId },
+        property: { id: propertyId },
     })
 
     if (!contact) {

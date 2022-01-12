@@ -14,7 +14,6 @@ const { NOT_FOUND_ERROR } = require('@condo/domains/common/constants/errors')
 const { expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 
 describe('CreateResidentTicketService', () => {
-
     test('resident: can create resident ticket', async () => {
         const userClient = await makeClientWithResidentAccessAndProperty()
 
@@ -26,7 +25,7 @@ describe('CreateResidentTicketService', () => {
         const userClient = await makeClientWithResidentAccessAndProperty()
         const unitName = faker.random.alphaNumeric(10)
 
-        const [ticket] =  await createResidentTicketByTestClient(userClient, userClient.property, { unitName })
+        const [ticket] = await createResidentTicketByTestClient(userClient, userClient.property, { unitName })
         expect(ticket.id).toMatch(UUID_RE)
         expect(ticket.unitName).toEqual(unitName)
     })
@@ -34,12 +33,15 @@ describe('CreateResidentTicketService', () => {
     test('resident: cannot create resident ticket without details', async () => {
         const userClient = await makeClientWithResidentAccessAndProperty()
 
-        await catchErrorFrom(async () => {
-            await createResidentTicketByTestClient(userClient, userClient.property, { details: null })
-        }, ({ errors, data }) => {
-            expect(errors).toHaveLength(1)
-            expect(errors[0].message).toContain('Variable "$data" got invalid value null at "data.details"')
-        })
+        await catchErrorFrom(
+            async () => {
+                await createResidentTicketByTestClient(userClient, userClient.property, { details: null })
+            },
+            ({ errors, data }) => {
+                expect(errors).toHaveLength(1)
+                expect(errors[0].message).toContain('Variable "$data" got invalid value null at "data.details"')
+            },
+        )
     })
 
     test('resident: cannot create resident ticket with wrong property id', async () => {
@@ -49,13 +51,16 @@ describe('CreateResidentTicketService', () => {
             id: faker.random.uuid(),
         }
 
-        await catchErrorFrom(async () => {
-            await createResidentTicketByTestClient(userClient, wrongProperty)
-        }, ({ errors, data }) => {
-            expect(errors).toHaveLength(1)
-            expect(errors[0].message).toEqual(`${NOT_FOUND_ERROR}property] property not found`)
-            expect(data).toEqual({ 'obj': null })
-        })
+        await catchErrorFrom(
+            async () => {
+                await createResidentTicketByTestClient(userClient, wrongProperty)
+            },
+            ({ errors, data }) => {
+                expect(errors).toHaveLength(1)
+                expect(errors[0].message).toEqual(`${NOT_FOUND_ERROR}property] property not found`)
+                expect(data).toEqual({ obj: null })
+            },
+        )
     })
 
     test('resident: cannot create resident ticket with wrong source id', async () => {
@@ -66,15 +71,17 @@ describe('CreateResidentTicketService', () => {
             },
         }
 
-        await catchErrorFrom(async () => {
-            await createResidentTicketByTestClient(userClient, userClient.property, { source: wrongSource })
-        }, ({ errors, data }) => {
-            expect(errors).toHaveLength(1)
-            expect(errors[0].message).toEqual(`${NOT_FOUND_ERROR}source] source not found`)
-            expect(data).toEqual({ 'obj': null })
-        })
+        await catchErrorFrom(
+            async () => {
+                await createResidentTicketByTestClient(userClient, userClient.property, { source: wrongSource })
+            },
+            ({ errors, data }) => {
+                expect(errors).toHaveLength(1)
+                expect(errors[0].message).toEqual(`${NOT_FOUND_ERROR}source] source not found`)
+                expect(data).toEqual({ obj: null })
+            },
+        )
     })
-
 
     test('resident: create contact when create resident ticket without contact', async () => {
         const admin = await makeLoggedInAdminClient()

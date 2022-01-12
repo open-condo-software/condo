@@ -8,7 +8,6 @@ const { getItem } = require('@keystonejs/server-side-graphql-client')
 const { getSchemaCtx } = require('@core/keystone/schema')
 const { SIGNIN_AS_USER_NOT_FOUND, SIGNIN_AS_USER_DENIED } = require('@condo/domains/user/constants/errors')
 
-
 const SigninAsUserService = new GQLCustomSchema('SigninAsUserService', {
     types: [
         {
@@ -20,13 +19,15 @@ const SigninAsUserService = new GQLCustomSchema('SigninAsUserService', {
             type: 'type SigninAsUserOutput { user: User, token: String! }',
         },
     ],
-    
+
     mutations: [
         {
             access: access.canSigninAsUser,
             schema: 'signinAsUser(data: SigninAsUserInput!): SigninAsUserOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { data: { id } } = args
+                const {
+                    data: { id },
+                } = args
                 const { keystone } = await getSchemaCtx('User')
                 const user = await getItem({ keystone, listKey: 'User', itemId: id, returnFields: 'id isSupport isAdmin' })
                 if (!user) {
@@ -47,7 +48,6 @@ const SigninAsUserService = new GQLCustomSchema('SigninAsUserService', {
             },
         },
     ],
-    
 })
 
 module.exports = {

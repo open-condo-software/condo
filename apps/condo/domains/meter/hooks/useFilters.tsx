@@ -4,23 +4,15 @@ import get from 'lodash/get'
 import { useOrganization } from '@core/next/organization'
 import { useIntl } from '@core/next/intl'
 
-import {
-    ComponentType,
-    convertToOptions,
-    FilterComponentSize,
-    FiltersMeta,
-} from '@condo/domains/common/utils/filters.utils'
+import { ComponentType, convertToOptions, FilterComponentSize, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
-import {
-    getDayRangeFilter, getFilter,
-    getStringContainsFilter,
-} from '@condo/domains/common/utils/tables.utils'
+import { getDayRangeFilter, getFilter, getStringContainsFilter } from '@condo/domains/common/utils/tables.utils'
 
 import { MeterReadingSource, MeterResource } from '../utils/clientSchema'
 import { IMeterReadingSourceUIState } from '../utils/clientSchema/MeterReadingSource'
 import { IMeterResourceUIState } from '../utils/clientSchema/MeterResource'
 
-export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
+export function useFilters(): Array<FiltersMeta<MeterReadingWhereInput>> {
     const intl = useIntl()
     const EnterAddressMessage = intl.formatMessage({ id: 'pages.condo.meter.EnterAddress' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })

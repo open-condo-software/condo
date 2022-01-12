@@ -28,16 +28,16 @@ const INPUT_LAYOUT_PROPS = {
 }
 
 const BottomLineWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
 `
 
 export const CreateContactForm: React.FC = () => {
     const intl = useIntl()
     const FullNameLabel = intl.formatMessage({ id: 'field.FullName.short' })
-    const FullNamePlaceholderMessage = intl.formatMessage({ id:'field.FullName' })
+    const FullNamePlaceholderMessage = intl.formatMessage({ id: 'field.FullName' })
     const FullNameRequiredMessage = intl.formatMessage({ id: 'field.FullName.requiredError' })
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
     const ExamplePhoneMessage = intl.formatMessage({ id: 'example.Phone' })
@@ -65,18 +65,21 @@ export const CreateContactForm: React.FC = () => {
 
     const [selectedPropertyId, setSelectedPropertyId] = useState(null)
     const selectedPropertyIdRef = useRef(selectedPropertyId)
-    const { loading, obj: property } = Property.useObject({ where:{ id: selectedPropertyId ? selectedPropertyId : null } })
+    const { loading, obj: property } = Property.useObject({ where: { id: selectedPropertyId ? selectedPropertyId : null } })
 
     useEffect(() => {
         selectedPropertyIdRef.current = selectedPropertyId
     }, [selectedPropertyId])
 
     // @ts-ignore
-    const action = Contact.useCreate({
-        organization: organization.id,
-    }, () => {
-        router.push('/contact/')
-    })
+    const action = Contact.useCreate(
+        {
+            organization: organization.id,
+        },
+        () => {
+            router.push('/contact/')
+        },
+    )
     return (
         <FormWithAction
             action={action}
@@ -88,132 +91,130 @@ export const CreateContactForm: React.FC = () => {
                 return values
             }}
         >
-            {
-                ({ handleSave, isLoading, form }) => {
+            {({ handleSave, isLoading, form }) => {
+                return (
+                    <Row gutter={[0, 40]}>
+                        <Col span={24}>
+                            <Row gutter={[0, 24]}>
+                                <Col lg={18} xs={24}>
+                                    <Form.Item
+                                        name={'property'}
+                                        label={AddressLabel}
+                                        labelAlign={'left'}
+                                        validateFirst
+                                        rules={validations.property}
+                                        required
+                                        {...INPUT_LAYOUT_PROPS}
+                                        wrapperCol={{ span: 14 }}
+                                    >
+                                        <PropertyAddressSearchInput
+                                            organization={organization}
+                                            onSelect={(_, option) => {
+                                                form.setFieldsValue({ unitName: null })
+                                                setSelectedPropertyId(option.key)
+                                            }}
+                                            onChange={() => {
+                                                form.setFieldsValue({ unitName: null })
+                                                setSelectedPropertyId(null)
+                                            }}
+                                            placeholder={AddressPlaceholderMessage}
+                                        />
+                                    </Form.Item>
+                                </Col>
+                                <Col lg={18} xs={24}>
+                                    <Form.Item
+                                        name={'unitName'}
+                                        label={UnitLabel}
+                                        labelAlign={'left'}
+                                        required
+                                        validateFirst
+                                        rules={validations.unit}
+                                        {...INPUT_LAYOUT_PROPS}
+                                        wrapperCol={{ span: 4 }}
+                                    >
+                                        <UnitNameInput property={property} allowClear={false} loading={loading} />
+                                    </Form.Item>
+                                </Col>
+                                <Col lg={18} xs={24}>
+                                    <Form.Item
+                                        name={'name'}
+                                        label={FullNameLabel}
+                                        {...INPUT_LAYOUT_PROPS}
+                                        labelAlign={'left'}
+                                        required
+                                        validateFirst
+                                        rules={validations.name}
+                                    >
+                                        <Input placeholder={FullNamePlaceholderMessage} />
+                                    </Form.Item>
+                                </Col>
+                                <Col lg={18} xs={24}>
+                                    <Form.Item
+                                        name={'phone'}
+                                        label={PhoneLabel}
+                                        labelAlign={'left'}
+                                        required
+                                        validateFirst
+                                        rules={validations.phone}
+                                        {...INPUT_LAYOUT_PROPS}
+                                    >
+                                        <PhoneInput placeholder={ExamplePhoneMessage} block />
+                                    </Form.Item>
+                                </Col>
+                                <Col lg={18} xs={24}>
+                                    <Form.Item
+                                        name={'email'}
+                                        label={EmailLabel}
+                                        labelAlign={'left'}
+                                        validateFirst
+                                        rules={validations.email}
+                                        {...INPUT_LAYOUT_PROPS}
+                                    >
+                                        <Input placeholder={ExampleEmailMessage} />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                        </Col>
+                        <Col span={24}>
+                            <Form.Item noStyle dependencies={['phone', 'property', 'unitName', 'name']}>
+                                {({ getFieldsValue }) => {
+                                    const { phone, property, unitName, name } = getFieldsValue([
+                                        'phone',
+                                        'property',
+                                        'unitName',
+                                        'name',
+                                    ])
 
-                    return (
-                        <Row gutter={[0, 40]}>
-                            <Col span={24}>
-                                <Row gutter={[0, 24]}>
-                                    <Col lg={18} xs={24}>
-                                        <Form.Item
-                                            name={'property'}
-                                            label={AddressLabel}
-                                            labelAlign={'left'}
-                                            validateFirst
-                                            rules={validations.property}
-                                            required
-                                            {...INPUT_LAYOUT_PROPS}
-                                            wrapperCol={{ span: 14 }}>
-                                            <PropertyAddressSearchInput
-                                                organization={organization}
-                                                onSelect={(_, option) => {
-                                                    form.setFieldsValue({ 'unitName': null })
-                                                    setSelectedPropertyId(option.key)
-                                                }}
-                                                onChange={() => {
-                                                    form.setFieldsValue({ 'unitName': null })
-                                                    setSelectedPropertyId(null)
-                                                }}
-                                                placeholder={AddressPlaceholderMessage}
-
-                                            />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col lg={18} xs={24}>
-                                        <Form.Item
-                                            name={'unitName'}
-                                            label={UnitLabel}
-                                            labelAlign={'left'}
-                                            required
-                                            validateFirst
-                                            rules={validations.unit}
-                                            {...INPUT_LAYOUT_PROPS}
-                                            wrapperCol={{ span: 4 }}>
-                                            <UnitNameInput
-                                                property={property}
-                                                allowClear={false}
-                                                loading={loading}
-                                            />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col lg={18} xs={24}>
-                                        <Form.Item
-                                            name={'name'}
-                                            label={FullNameLabel}
-                                            {...INPUT_LAYOUT_PROPS}
-                                            labelAlign={'left'}
-                                            required
-                                            validateFirst
-                                            rules={validations.name}>
-                                            <Input placeholder={FullNamePlaceholderMessage}/>
-                                        </Form.Item>
-                                    </Col>
-                                    <Col lg={18} xs={24}>
-                                        <Form.Item
-                                            name={'phone'}
-                                            label={PhoneLabel}
-                                            labelAlign={'left'}
-                                            required
-                                            validateFirst
-                                            rules={validations.phone}
-                                            {...INPUT_LAYOUT_PROPS}
-                                        >
-                                            <PhoneInput placeholder={ExamplePhoneMessage} block/>
-                                        </Form.Item>
-                                    </Col>
-                                    <Col lg={18} xs={24}>
-                                        <Form.Item
-                                            name={'email'}
-                                            label={EmailLabel}
-                                            labelAlign={'left'}
-                                            validateFirst
-                                            rules={validations.email}
-                                            {...INPUT_LAYOUT_PROPS}
-                                        >
-                                            <Input placeholder={ExampleEmailMessage}/>
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-                            </Col>
-                            <Col span={24}>
-                                <Form.Item noStyle dependencies={['phone', 'property', 'unitName', 'name']}>
-                                    {
-                                        ({ getFieldsValue }) => {
-                                            const { phone, property, unitName, name } = getFieldsValue(['phone', 'property', 'unitName', 'name'])
-
-                                            return (
-                                                <Row gutter={[0, 24]}>
-                                                    <Col span={24}>
-                                                        <BottomLineWrapper>
-                                                            <Button
-                                                                key='submit'
-                                                                onClick={handleSave}
-                                                                type='sberPrimary'
-                                                                loading={isLoading}
-                                                                disabled={!property || !unitName || !phone || !name}
-                                                                style={{ marginRight: 24 }}
-                                                            >
-                                                                {SubmitButtonLabel}
-                                                            </Button>
-                                                            <ErrorsContainer
-                                                                phone={phone}
-                                                                address={property}
-                                                                unit={unitName}
-                                                                name={name}/>
-                                                        </BottomLineWrapper>
-                                                    </Col>
-                                                </Row>
-                                            )
-                                        }
-                                    }
-                                </Form.Item>
-                            </Col>
-                        </Row>
-
-                    )
-                }
-            }
+                                    return (
+                                        <Row gutter={[0, 24]}>
+                                            <Col span={24}>
+                                                <BottomLineWrapper>
+                                                    <Button
+                                                        key="submit"
+                                                        onClick={handleSave}
+                                                        type="sberPrimary"
+                                                        loading={isLoading}
+                                                        disabled={!property || !unitName || !phone || !name}
+                                                        style={{ marginRight: 24 }}
+                                                    >
+                                                        {SubmitButtonLabel}
+                                                    </Button>
+                                                    <ErrorsContainer
+                                                        phone={phone}
+                                                        address={property}
+                                                        unit={unitName}
+                                                        name={name}
+                                                    />
+                                                </BottomLineWrapper>
+                                            </Col>
+                                        </Row>
+                                    )
+                                }}
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                )
+            }}
         </FormWithAction>
     )
 }

@@ -10,7 +10,7 @@ const { checkAcquiringIntegrationAccessRight } = require('../utils/accessSchema'
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const get = require('lodash/get')
 
-async function canReadPayments ({ authentication: { item: user } }) {
+async function canReadPayments({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
@@ -25,19 +25,22 @@ async function canReadPayments ({ authentication: { item: user } }) {
             // Acquiring integration account can see it's payments
             { context: { integration: { accessRights_some: { user: { id: user.id } } } } },
             // Employee with `canReadPayments` can see theirs organization payments
-            { organization: { employees_some: { user: { id: user.id }, role: { canReadPayments: true }, deletedAt: null, isBlocked: false } } },
+            {
+                organization: {
+                    employees_some: { user: { id: user.id }, role: { canReadPayments: true }, deletedAt: null, isBlocked: false },
+                },
+            },
         ],
     }
 }
 
-async function canManagePayments ({ authentication: { item: user }, operation, itemId }) {
+async function canManagePayments({ authentication: { item: user }, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
     if (operation === 'create') {
         // Nobody can create Payments manually
         return false
-
     } else if (operation === 'update') {
         if (!itemId) return false
         // Acquiring integration can update it's own Payments
@@ -46,7 +49,7 @@ async function canManagePayments ({ authentication: { item: user }, operation, i
     return false
 }
 
-async function canReadPaymentsSensitiveData ({ authentication: { item: user }, existingItem, context }) {
+async function canReadPaymentsSensitiveData({ authentication: { item: user }, existingItem, context }) {
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
     const [acquiringContext] = await AcquiringIntegrationContext.getAll(context, { id: existingItem.context })
@@ -59,7 +62,6 @@ async function canReadPaymentsSensitiveData ({ authentication: { item: user }, e
     // Otherwise check if it's employee or not
     return !!(await checkOrganizationPermission(context, user.id, existingItem.organization, 'canReadPayments'))
 }
-
 
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning

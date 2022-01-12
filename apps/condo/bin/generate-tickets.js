@@ -1,9 +1,4 @@
-const { 
-    Ticket, 
-    TicketStatus, 
-    TicketClassifierRule,
-    TicketComment, 
-} = require('@condo/domains/ticket/utils/serverSchema')
+const { Ticket, TicketStatus, TicketClassifierRule, TicketComment } = require('@condo/domains/ticket/utils/serverSchema')
 
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { demoProperties } = require('./constants')
@@ -19,7 +14,6 @@ dayjs.extend(utc)
 
 const TICKET_OTHER_SOURCE_ID = '7da1e3be-06ba-4c9e-bba6-f97f278ac6e4'
 class TicketGenerator {
-
     property = null
     organization = null
     user = null
@@ -30,29 +24,29 @@ class TicketGenerator {
     ticketsByDay = {}
     context = null
 
-    constructor ({ ticketsByDay = { min: 20, max: 50 } }, propertyIndex = 0) {
+    constructor({ ticketsByDay = { min: 20, max: 50 } }, propertyIndex = 0) {
         this.ticketsByDay = ticketsByDay
         this.propertyIndex = propertyIndex
         this.pg = new Client(process.env.DATABASE_URL)
         this.pg.connect()
     }
 
-    async connect () {
+    async connect() {
         const resolved = path.resolve('./index.js')
         const { distDir, keystone, apps } = require(resolved)
-        const graphqlIndex = apps.findIndex(app => app instanceof GraphQLApp)
+        const graphqlIndex = apps.findIndex((app) => app instanceof GraphQLApp)
         // we need only apollo
         await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
         await keystone.connect()
         this.context = await keystone.createContext({ skipAccessControl: true })
     }
 
-    async generate (propertyInfo) {
+    async generate(propertyInfo) {
         await this.prepareModels(propertyInfo)
         await this.generateTickets()
     }
 
-    async generateTickets () {
+    async generateTickets() {
         const dayStart = dayjs().startOf('year')
         const dayEnd = dayjs()
         let current = dayStart.add(6, 'hours')
@@ -69,7 +63,7 @@ class TicketGenerator {
         } while (--maxTickets > 0 && current < dayEnd)
     }
 
-    async generateTicket (timeStamp) {
+    async generateTicket(timeStamp) {
         const unit = this.unit
         const problem = this.problem
         const data = {
@@ -93,7 +87,7 @@ class TicketGenerator {
             isEmergency: faker.datatype.boolean(),
             isPaid: faker.datatype.boolean(),
             organization: { connect: { id: this.organization.id } },
-            property:  { connect: { id: this.property.id } },
+            property: { connect: { id: this.property.id } },
             status: { connect: { id: this.status.id } },
         }
         const result = await Ticket.create(this.context, data)
@@ -101,23 +95,23 @@ class TicketGenerator {
         await this.createTicketComments(result.id, faker.datatype.number({ min: 0, max: 5 }))
     }
 
-    async createTicketComments (ticketId, number) {
-        new Array(number).fill('').map(async _ => {
+    async createTicketComments(ticketId, number) {
+        new Array(number).fill('').map(async (_) => {
             await TicketComment.create(this.context, {
                 dv: 1,
                 sender: { dv: 1, fingerprint: 'import' },
                 ticket: { connect: { id: ticketId } },
                 user: { connect: { id: this.user.id } },
                 content: faker.lorem.paragraph(),
-            }) 
+            })
         })
     }
 
-    async prepareModels (propertyInfo) {
+    async prepareModels(propertyInfo) {
         this.statuses = await TicketStatus.getAll(this.context, { organization_is_null: true })
-        this.classifiers = await TicketClassifierRule.getAll(this.context, { })
+        this.classifiers = await TicketClassifierRule.getAll(this.context, {})
         const [property] = await Property.getAll(this.context, { address: propertyInfo.address })
-        if (property){
+        if (property) {
             throw new Error('Property already exists [SKIP!]')
         }
         const [user] = await User.getAll(this.context, { name_not_in: ['Admin', 'JustUser'] })
@@ -141,7 +135,7 @@ class TicketGenerator {
         this.property = newProperty
     }
 
-    get unit () {
+    get unit() {
         const result = { section: null, floor: null, unit: null }
         const section = this.property.map.sections[faker.datatype.number({ min: 0, max: this.property.map.sections.length - 1 })]
         result.section = section.name
@@ -152,21 +146,20 @@ class TicketGenerator {
         return result
     }
 
-    get problem () {
+    get problem() {
         return this.classifiers[faker.datatype.number({ min: 0, max: this.classifiers.length - 1 })]
     }
 
-    get status () {
+    get status() {
         return this.statuses[faker.datatype.number({ min: 0, max: this.statuses.length - 1 })]
     }
 
-    async setCreatedAt (ticketId, date) {
+    async setCreatedAt(ticketId, date) {
         await this.pg.query(' Update "Ticket" SET "createdAt" = $1 WHERE id=$2 ', [
             dayjs(date).format('YYYY-MM-DD HH:mm:ss'),
             ticketId,
         ])
     }
-
 }
 
 const createTickets = async () => {
@@ -191,9 +184,11 @@ if (process.env.NODE_ENV !== 'development') {
     process.exit(1)
 }
 
-createTickets().then(() => {
-    console.log('All done')
-    process.exit(0)
-}).catch(err => {
-    console.error('Failed to done', err)
-})
+createTickets()
+    .then(() => {
+        console.log('All done')
+        process.exit(0)
+    })
+    .catch((err) => {
+        console.error('Failed to done', err)
+    })

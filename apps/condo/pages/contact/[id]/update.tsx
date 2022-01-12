@@ -13,13 +13,11 @@ const ContactUpdatePage = () => {
     return (
         <>
             <Head>
-                <title>
-                    {PageTitle}
-                </title>
+                <title>{PageTitle}</title>
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <EditContactForm/>
+                    <EditContactForm />
                 </PageContent>
             </PageWrapper>
         </>
@@ -27,10 +25,7 @@ const ContactUpdatePage = () => {
 }
 
 ContactUpdatePage.headerAction = (
-    <ReturnBackHeaderAction
-        descriptor={{ id: 'pages.condo.contact.PageTitle' }}
-        path={(id) => `/contact/${id}/`}
-    />
+    <ReturnBackHeaderAction descriptor={{ id: 'pages.condo.contact.PageTitle' }} path={(id) => `/contact/${id}/`} />
 )
 
 ContactUpdatePage.requiredAccess = OrganizationRequired

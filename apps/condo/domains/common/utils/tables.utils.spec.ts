@@ -13,11 +13,12 @@ import {
     getFiltersFromQuery,
     getPageIndexFromOffset,
     getSorterMap,
-    convertColumns, getTicketAttributesFilter,
+    convertColumns,
+    getTicketAttributesFilter,
 } from './tables.utils'
 import dayjs from 'dayjs'
 
-function randInt (maxValue) {
+function randInt(maxValue) {
     return Math.floor(Math.random() * maxValue)
 }
 
@@ -145,10 +146,7 @@ describe('Table utils', () => {
                         const filter = getFilter(target, 'array', 'number', suffix)
                         const additionalNumber = '123'
                         const expectedResult = {
-                            [`${target}_${suffix}`]: [
-                                Number(numberSearch),
-                                Number(additionalNumber),
-                            ],
+                            [`${target}_${suffix}`]: [Number(numberSearch), Number(additionalNumber)],
                         }
                         expect(filter([numberSearch, additionalNumber])).toStrictEqual(expectedResult)
                     })
@@ -156,20 +154,14 @@ describe('Table utils', () => {
                         const filter = getFilter(target, 'array', 'dateTime', suffix)
                         const additionalDate = new Date(Date.now()).toISOString()
                         const expectedResult = {
-                            [`${target}_${suffix}`]: [
-                                dateSearch,
-                                additionalDate,
-                            ],
+                            [`${target}_${suffix}`]: [dateSearch, additionalDate],
                         }
                         expect(filter([dateSearch, additionalDate])).toStrictEqual(expectedResult)
                     })
                     it('booleans', () => {
                         const filter = getFilter(target, 'array', 'boolean', suffix)
                         const expectedResult = {
-                            [`${target}_${suffix}`]: [
-                                true,
-                                false,
-                            ],
+                            [`${target}_${suffix}`]: [true, false],
                         }
                         expect(filter(['tRUE', 'fAlSe'])).toStrictEqual(expectedResult)
                     })
@@ -290,14 +282,14 @@ describe('Table utils', () => {
             const result = filterAttribute(isEmergencyAttribute)
 
             expect(result).toBeDefined()
-            expect(result).toStrictEqual({ OR: [ { [isEmergencyAttribute]: true } ] })
+            expect(result).toStrictEqual({ OR: [{ [isEmergencyAttribute]: true }] })
         })
 
         it('should return filter query with two search argument', () => {
             const result = filterAttribute([isEmergencyAttribute, isPaidAttribute])
 
             expect(result).toBeDefined()
-            expect(result).toStrictEqual({ OR: [ { [isEmergencyAttribute]: true }, { [isPaidAttribute]: true } ] })
+            expect(result).toStrictEqual({ OR: [{ [isEmergencyAttribute]: true }, { [isPaidAttribute]: true }] })
         })
 
         it('should return undefined with wrong search argument', () => {
@@ -347,10 +339,7 @@ describe('Table utils', () => {
                 { columnKey: 'col2', order: 'ascend' },
                 { columnKey: 'col1', order: 'descend' },
             ]
-            const expectedResult = [
-                ascShortSort,
-                descShortSort,
-            ]
+            const expectedResult = [ascShortSort, descShortSort]
             expect(convertSortersToSortBy(sorters)).toStrictEqual(expectedResult)
         })
     })
@@ -383,7 +372,7 @@ describe('Table utils', () => {
         })
         it('not-rounded value test', () => {
             for (let i = 0; i < attempts; i++) {
-                const offset  = i * pageSize + randInt(pageSize)
+                const offset = i * pageSize + randInt(pageSize)
                 expect(getPageIndexFromOffset(offset, pageSize)).toStrictEqual(i + 1)
             }
         })
@@ -452,14 +441,13 @@ describe('Table utils', () => {
                 expect(antdColumns[2].width).toStrictEqual('30%')
                 expect(antdColumns[3].width).toStrictEqual('25%')
             })
-
         })
-        it('should be sortable, if it\'s specified', () => {
+        it("should be sortable, if it's specified", () => {
             const col1 = { ...column }
             const col2 = { ...column, key: 'key2', sortable: true }
             const col3 = { ...column, key: 'key3', sortable: true }
             const col4 = { ...column, key: 'key4', sortable: true }
-            const antdColumns = convertColumns([col1, col2, col3, col4], {}, { 'key3': 'ascend', 'key2': 'descend' })
+            const antdColumns = convertColumns([col1, col2, col3, col4], {}, { key3: 'ascend', key2: 'descend' })
             expect(antdColumns).toHaveLength(4)
             expect(antdColumns[0]).toHaveProperty('sorter', false)
             expect(antdColumns[1]).toHaveProperty('sorter', true)
@@ -486,7 +474,11 @@ describe('Table utils', () => {
         })
         it('should create filterDropdowns for typed filters', () => {
             const col1: ColumnInfo<string> = { ...column, filter: { type: 'string' } }
-            const col2: ColumnInfo<string> = { ...column, key: 'key2', filter: { type: 'stringOption', options: [{ label: 'label', value: '0' }] } }
+            const col2: ColumnInfo<string> = {
+                ...column,
+                key: 'key2',
+                filter: { type: 'stringOption', options: [{ label: 'label', value: '0' }] },
+            }
             const col3: ColumnInfo<string> = { ...column, key: 'key2', filter: { type: 'date' } }
             const antdColumns = convertColumns([col1, col2, col3], {}, {})
             expect(antdColumns).toHaveLength(3)

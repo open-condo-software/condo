@@ -12,13 +12,8 @@ const { DEFAULT_ROLES } = require('@condo/domains/organization/constants/common.
 
 const EXCLUDE_CHECK_FIELDS = ['name', 'description']
 
-const getPermissions = (roleName) => Object.fromEntries(
-    Object.entries(DEFAULT_ROLES[roleName])
-        .filter(
-            ([key]) => !EXCLUDE_CHECK_FIELDS.includes(key)
-        )
-)
-
+const getPermissions = (roleName) =>
+    Object.fromEntries(Object.entries(DEFAULT_ROLES[roleName]).filter(([key]) => !EXCLUDE_CHECK_FIELDS.includes(key)))
 
 describe('RegisterNewOrganizationService', () => {
     test('registerNewOrganization() by user', async () => {
@@ -30,9 +25,11 @@ describe('RegisterNewOrganizationService', () => {
         const [org] = await registerNewOrganization(client, { name })
 
         expect(org.id).toMatch(/^[0-9a-zA-Z-_]+$/)
-        expect(org).toEqual(expect.objectContaining({
-            name,
-        }))
+        expect(org).toEqual(
+            expect.objectContaining({
+                name,
+            }),
+        )
 
         // Validate Employee and Role!
         const employees = await OrganizationEmployee.getAll(admin, { organization: { id: org.id } })

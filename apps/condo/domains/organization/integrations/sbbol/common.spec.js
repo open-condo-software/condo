@@ -23,14 +23,14 @@ const DEFAULT_SEED = {
 describe('getSbbolUserInfoErrors', () => {
     test('no userGuid', () => {
         const errors = getSbbolUserInfoErrors(DEFAULT_SEED)
-        expect(errors).toEqual(['must have required property \'userGuid\''])
+        expect(errors).toEqual(["must have required property 'userGuid'"])
     })
     test('no HashOrgId', () => {
         const errors = getSbbolUserInfoErrors({
             ...DEFAULT_SEED,
             userGuid: '5a99ca6e22f321af3a',
         })
-        expect(errors).toEqual(['must have required property \'HashOrgId\''])
+        expect(errors).toEqual(["must have required property 'HashOrgId'"])
     })
     test('all data', () => {
         const errors = getSbbolUserInfoErrors({
@@ -42,7 +42,7 @@ describe('getSbbolUserInfoErrors', () => {
     })
     test('empty data', () => {
         const errors = getSbbolUserInfoErrors({})
-        expect(errors).toEqual(['must have required property \'inn\''])
+        expect(errors).toEqual(["must have required property 'inn'"])
     })
     test('without data', () => {
         const errors = getSbbolUserInfoErrors()
