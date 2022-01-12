@@ -29,3 +29,44 @@ To install actual hook into Git, please run:
 ```shell
 yarn run prepare
 ```
+
+## Prettier
+
+It takes changed code (Git stage) and formats it unobtrusively in pre-commit hook.
+The best code convention is one, that forced automatically.
+
+This way, all lines of code, affected by next commits will have consistent formatting.
+
+Some Prettier rules are derived from ESLint
+
+### Why Prettier and not only ESLint?
+
+Not always attention is paid to indication of ESLint errors in IDE.
+Since Prettier is automatic, no human mistakes will be made.
+
+### Why formatting is not performed on CI level?
+
+Formatting on CI level will make mess to the changes history, because formatting will be applied:
+
+either by changing pushed commit on remote (we will get different local and remote SHA's);
+or by creating a separate commit (will bloat changes history).
+Locally installed Prettier acts on pre-commit phase locally, and we get instant feedback.
+
+### Why @typescript-eslint/indent is disabled?
+
+Because there is a clash of indentation rules between Prettier and ESLint in following case:
+
+```
+const { useObject, useObjects, useCreate, useUpdate, useDelete } = generateReactHooks<
+    BillingAccount,
+    BillingAccountUpdateInput,
+    IBillingAccountFormState,
+    IBillingAccountUIState,
+    QueryAllBillingAccountsArgs
+>(BillingAccountGQL, { convertToGQLInput, convertToUIState }
+```
+
+This code, formatted by Prettier, is handled as incorrect by ESLint.
+I didn't found how to control ESLint especially for angle-brackets.
+Just turned it off, it's not critical, IMHO.
+https://stackoverflow.com/a/58977894/235158
