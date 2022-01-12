@@ -82,7 +82,7 @@ if (IS_BUILD_PHASE) {
     ])
 
     const { registerTasks } = require('@core/keystone/tasks')
-    // NOTE(pahaz): we need to put it here because it init the readis connection and we don't want it at build time
+    // NOTE(pahaz): we put it here because it inits the redis connection and we don't want it at build time
     registerTasks([
         require('@condo/domains/notification/tasks'),
         require('@condo/domains/organization/tasks'),
