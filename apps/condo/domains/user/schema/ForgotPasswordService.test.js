@@ -1,11 +1,16 @@
 import { PASSWORD_TOO_SHORT, RESET_TOKEN_NOT_FOUND } from '@condo/domains/user/constants/errors'
 import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
-const { makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
+const { makeLoggedInClient, createTestConfirmPhoneAction, ConfirmPhoneAction } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { createTestForgotPasswordAction, updateTestForgotPasswordAction, createTestUser } = require('@condo/domains/user/utils/testSchema')
 
-const { START_PASSWORD_RECOVERY_MUTATION, CHANGE_PASSWORD_WITH_TOKEN_MUTATION, CHECK_PASSWORD_RECOVERY_TOKEN } = require('@condo/domains/user/gql')
+const { START_PASSWORD_RECOVERY_MUTATION, CHANGE_PASSWORD_WITH_TOKEN_MUTATION, CHECK_PASSWORD_RECOVERY_TOKEN, COMPLETE_CONFIRM_PHONE_MUTATION } = require('@condo/domains/user/gql')
 
+const faker = require('faker')
+
+const captcha = () => {
+    return faker.lorem.sentence()
+}
 
 describe('ForgotPasswordAction Service', () => {
     describe('User', () => {
@@ -164,6 +169,28 @@ describe('ForgotPasswordAction Service', () => {
             const result = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password: '' } })
             expect(result.errors).toHaveLength(1)
             expect(result.errors[0].message).toEqual(`${PASSWORD_TOO_SHORT}] Password is too short`)
+        })
+        
+        it('changing password with ConfirmPhoneAction', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [user, userAttrs] = await createTestUser(admin)
+            const client = await makeClient()
+
+            const [{ token }] = await createTestConfirmPhoneAction(admin, {
+                phone: userAttrs.phone,
+            })
+            const [actionBefore] = await ConfirmPhoneAction.getAll(admin, { token })
+
+            const { data: { result: { status } } } = await client.mutate(COMPLETE_CONFIRM_PHONE_MUTATION, { data: { token, smsCode: actionBefore.smsCode, captcha: captcha() } })
+            expect(status).toBe('ok')
+
+            const password = `new_${userAttrs.password}`
+            const result = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
+
+            expect(result.data.result).toEqual({ status: 'ok',  phone:  userAttrs.phone })
+
+            const newClient = await makeLoggedInClient({ phone: userAttrs.phone, password })
+            expect(newClient.user.id).toEqual(user.id)
         })
     })
 })

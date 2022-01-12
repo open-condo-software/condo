@@ -140,12 +140,14 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     token,
                     expiresAt_gte: now,
                     usedAt: null,
-                }) || await ConfirmPhoneActionUtil.getAll(context, {
-                    token, 
-                    expiresAt_gte: now,
-                    completedAt: null,
                 })
-
+                if (!action) {
+                    [action] = await ConfirmPhoneActionUtil.getAll(context, {
+                        token, 
+                        expiresAt_gte: now,
+                        completedAt: null,
+                    })
+                }
                 if (!action) {
                     throw new Error(`${RESET_TOKEN_NOT_FOUND}] Unable to find valid token`)
                 }
@@ -156,16 +158,17 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     if (action.isPhoneVerified === false) {
                         throw new Error(`${RESET_TOKEN_NOT_FOUND}] Unable to find valid token`)
                     }
-
-                    const userId = await User.getAll(context, {
+                    phone = action.phone
+                    userId = await User.getAll(context, {
                         phone,
-                    }).then(p => p.id)
+                    }).then(([u]) => u && u.id)
 
                     if (!userId) {
                         throw new Error(`${RESET_TOKEN_NOT_FOUND}] Unable to find valid token`)
                     }
-
-                    phone = action.phone
+                    await ConfirmPhoneActionUtil.update(context, action.id, {
+                        completedAt: now,
+                    })
                 }
                 else if (action.user) {
                     const userId = action.user.id
