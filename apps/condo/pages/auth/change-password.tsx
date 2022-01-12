@@ -1,5 +1,5 @@
 import Router from 'next/router'
-
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { useIntl } from '@core/next/intl'
 import { Col, Form, Input, Row, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
@@ -9,7 +9,7 @@ import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { useLazyQuery, useMutation } from '@core/next/apollo'
-import { CHANGE_PASSWORD_WITH_TOKEN_MUTATION, CHECK_PASSWORD_RECOVERY_TOKEN } from '@condo/domains/user/gql'
+import { CHANGE_PASSWORD_WITH_TOKEN_MUTATION, GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY } from '@condo/domains/user/gql'
 import { useAuth } from '@core/next/auth'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { ButtonHeaderAction } from '@condo/domains/common/components/HeaderActions'
@@ -18,14 +18,10 @@ import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayoutContext'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
-const { bodyCopy } = fontSizes
-
 const FORM_LAYOUT = {
     labelCol: { span: 10 },
     wrapperCol: { span: 14 },
 }
-const INPUT_STYLE = { width: '20em' }
-
 const ChangePasswordPage: AuthPage = () => {
     const [form] = Form.useForm()
     const { token } = getQueryParams()
@@ -34,6 +30,7 @@ const ChangePasswordPage: AuthPage = () => {
     const [isSaving, setIsSaving] = useState(false)
     const [changePassword] = useMutation(CHANGE_PASSWORD_WITH_TOKEN_MUTATION)
     const auth = useAuth()
+    const { executeRecaptcha } = useGoogleReCaptcha()
 
     const intl = useIntl()
     const SaveMsg = intl.formatMessage({ id: 'Save' })
@@ -95,7 +92,7 @@ const ChangePasswordPage: AuthPage = () => {
         })
     }
 
-    const [checkPasswordRecoveryToken] = useLazyQuery(CHECK_PASSWORD_RECOVERY_TOKEN, {
+    const [checkConfirmPhoneActionToken] = useLazyQuery(GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY, {
         onError: error => {
             setRecoveryTokenError(error)
             setIsLoading(false)
@@ -109,8 +106,11 @@ const ChangePasswordPage: AuthPage = () => {
     const [recoveryTokenError, setRecoveryTokenError] = useState<Error | null>(null)
 
     useEffect(() => {
-        checkPasswordRecoveryToken({ variables: { data: { token } } })
-    }, [])
+        if (!executeRecaptcha || !token) return
+
+        executeRecaptcha('get_confirm_phone_token_info')
+            .then(captcha => checkConfirmPhoneActionToken({ variables: { data: { token, captcha } } }))
+    }, [executeRecaptcha, token])
 
     if (isLoading){
         return <Loader size="large" delay={0} fill />
