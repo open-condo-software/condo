@@ -80,10 +80,6 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         ? renderOptions(data, renderOption)
         : data.map((option, index) => renderOption(option, index))
 
-    const getSearchTextValue = useCallback((value) => (selected && (!props.mode || props.mode !== 'multiple')) ?
-        selected + ' ' + value : value,
-    [props.mode, selected])
-
     const loadInitialOptions = useCallback(async () => {
         setLoading(true)
         const initialValueQuery = isFunction(getInitialValueQuery) ? getInitialValueQuery(initialValue) : { id_in: initialValue }
@@ -101,25 +97,21 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
             .catch(err => console.error('failed to load initial options', err))
     }, [loadInitialOptions])
 
-    useEffect(() => {
-        handleSearch('')
-    }, [])
-
-    async function handleSearch (searchingValue) {
+    const handleSearch = useCallback(async searchingValue => {
         if (!search) return
         setValue(searchingValue)
-        setLoading(true)
 
+        setLoading(true)
         const data = await search(
             client,
-            getSearchTextValue(searchingValue)
+            searchingValue
         )
-
         setLoading(false)
-        if (data.length) setData(data)
-    }
 
-    function handleSelect (value, option) {
+        if (data.length) setData(data)
+    }, [client, search])
+
+    const handleSelect = useCallback(async (value, option) => {
         setSelected(option.children)
 
         if (props.mode === 'multiple') {
@@ -129,11 +121,15 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         if (onSelect) {
             onSelect(value, option)
         }
-    }
+    }, [onSelect, props.mode])
 
-    function handleClear () {
+    useEffect(() => {
+        handleSearch('')
+    }, [])
+
+    const handleClear = useCallback(() => {
         setSelected('')
-    }
+    }, [])
 
     const searchMoreSuggestions = useCallback(
         async (value, skip) => {
@@ -142,7 +138,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
             setLoading(true)
             const data = await search(
                 client,
-                getSearchTextValue(value),
+                value,
                 null,
                 10,
                 skip
