@@ -136,7 +136,7 @@ interface ITopModalProps {
 const TopModal = styled.div<ITopModalProps>`
   position: absolute;
   top: 10px;
-  right: 24px;
+  right: 22px;
   display: ${({ visible }) => visible ? 'flex' : 'none'};
   flex-direction: column;
   align-items: flex-start;
