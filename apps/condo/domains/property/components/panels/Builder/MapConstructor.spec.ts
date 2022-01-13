@@ -16,7 +16,8 @@ const sectionName = () => {
 const createBuildingMap = (sections: number, sectionTemplate = testSection): MapEdit => {
     const PropertyMap = new MapEdit(null, () => null )
     for (let i = 0; i < sections; i++){
-        PropertyMap.addSection({ ...sectionTemplate, name: sectionName(), type: BuildingMapEntityType.Section })
+        const name = (i + 1).toString()
+        PropertyMap.addSection({ ...sectionTemplate, name, type: BuildingMapEntityType.Section })
     }
     return PropertyMap
 }
