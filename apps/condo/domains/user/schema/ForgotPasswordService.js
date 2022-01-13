@@ -75,9 +75,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 const users = await User.getAll(context, { phone, type: STAFF })
 
                 if (isEmpty(users)) {
-                    // We don't need to say to client whether we have users with this phone number
-                    // because it is not safety.
-                    return { status: 'ok' }
+                    throw new Error(`${WRONG_PHONE_ERROR}] Unable to find user when trying to start password recovery`)
                 }
 
                 if (users.length !== 1) {
@@ -141,21 +139,28 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     expiresAt_gte: now,
                     usedAt: null,
                 })
-                if (!action) {
+
+                let phone, userId
+
+                if (action) {
+                    userId = action.user.id
+                    phone = await getById('User', userId).then(p => p.phone)
+                    const tokenId = action.id
+
+                    // mark token as used
+                    await ForgotPasswordActionUtil.update(context, tokenId, {
+                        usedAt: now,
+                    })
+                } else {
                     [action] = await ConfirmPhoneActionUtil.getAll(context, {
                         token, 
                         expiresAt_gte: now,
                         completedAt: null,
-                        isPhoneVerified: false,
+                        isPhoneVerified: true,
                     })
-                }
-                if (!action) {
-                    throw new Error(`${RESET_TOKEN_NOT_FOUND}] Unable to find valid token`)
-                }
-
-                let phone, userId
-
-                if (typeof action.smsCode === 'number') {
+                    if (!action) {
+                        throw new Error(`${RESET_TOKEN_NOT_FOUND}] Unable to find valid token`)
+                    }
                     phone = action.phone
                     userId = await User.getAll(context, {
                         type: STAFF,
@@ -168,17 +173,8 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     await ConfirmPhoneActionUtil.update(context, action.id, {
                         completedAt: now,
                     })
-                } else if (action.user) {
-                    userId = action.user.id
-                    phone = await getById('User', userId).then(p => p.phone)
-                    const tokenId = action.id
-
-                    // mark token as used
-                    await ForgotPasswordActionUtil.update(context, tokenId, {
-                        usedAt: now,
-                    })
                 }
-                
+    
                 await User.update(context, userId, {
                     password,
                 })
