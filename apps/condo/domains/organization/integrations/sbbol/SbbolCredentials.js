@@ -31,7 +31,7 @@ class SbbolCredentials {
     }
 
     async refreshClientSecret ({ clientId, currentClientSecret, newClientSecret }) {
-        const { accessToken, tokenSet } = this.getAccessToken()
+        const { accessToken, tokenSet } = await this.getAccessToken()
         const requestApi = new SbbolRequestApi({
             accessToken,
             host: SBBOL_FINTECH_CONFIG.host,
