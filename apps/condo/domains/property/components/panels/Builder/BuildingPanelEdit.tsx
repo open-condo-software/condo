@@ -732,7 +732,7 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
         resetForm()
     }, [refresh, resetForm, builder, sectionName, minFloor, maxFloor, unitsOnFloor])
 
-    const setSectionNameValue = useCallback((value) => setSectionName(Math.abs(value).toString()), [])
+    const setSectionNameValue = useCallback((value) => setSectionName(value.toString()), [])
 
     const isSubmitDisabled = !(minFloor && maxFloor && unitsOnFloor && !maxMinError)
     const isCreateColumnsHidden = copyId !== null
@@ -755,7 +755,13 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
             <Col span={24} hidden={isCreateColumnsHidden}>
                 <Space direction={'vertical'} size={8}>
                     <Typography.Text type={'secondary'}>{SectionNameLabel}</Typography.Text>
-                    <InputNumber value={sectionName} onChange={setSectionNameValue} style={INPUT_STYLE} type={'number'} />
+                    <InputNumber
+                        value={sectionName}
+                        min={1}
+                        onChange={setSectionNameValue}
+                        style={INPUT_STYLE}
+                        type={'number'}
+                    />
                 </Space>
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden}>
@@ -941,7 +947,7 @@ const EditSectionForm: React.FC<IEditSectionFormProps> = ({ builder, refresh }) 
     const intl = useIntl()
     const NameLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
     const NamePlaceholderLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name.placeholder' })
-    const SaveLabel = intl.formatMessage({ id: 'Add' })
+    const SaveLabel = intl.formatMessage({ id: 'Save' })
     const DeleteLabel = intl.formatMessage({ id: 'Delete' })
 
     const [name, setName] = useState<string>('')
@@ -952,7 +958,7 @@ const EditSectionForm: React.FC<IEditSectionFormProps> = ({ builder, refresh }) 
         setName(section ? section.name : '')
     }, [section])
 
-    const setNameValue = useCallback((value) => setNameValue(Math.abs(value).toString()), [])
+    const setNameValue = useCallback((value) => setName(value.toString()), [])
 
     const updateSection = useCallback(() => {
         builder.updateSection({ ...section, name })
@@ -962,14 +968,20 @@ const EditSectionForm: React.FC<IEditSectionFormProps> = ({ builder, refresh }) 
     const deleteSection = useCallback(() => {
         builder.removeSection(section.id)
         refresh()
-    }, [builder, refresh])
+    }, [builder, refresh, section])
 
     return (
         <Row gutter={MODAL_FORM_EDIT_GUTTER} css={FormModalCss}>
             <Col span={24}>
                 <Space direction={'vertical'} size={8}>
                     <Typography.Text type={'secondary'}>{NameLabel}</Typography.Text>
-                    <InputNumber value={name} placeholder={NamePlaceholderLabel} onChange={setNameValue} style={INPUT_STYLE} />
+                    <InputNumber
+                        value={name}
+                        min={1}
+                        placeholder={NamePlaceholderLabel}
+                        onChange={setNameValue}
+                        style={INPUT_STYLE}
+                    />
                 </Space>
             </Col>
             <Row gutter={MODAL_FORM_BUTTON_GUTTER}>
